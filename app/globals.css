@@ -365,5 +365,8 @@ img {
 
 .section-header p {
   margin: 0;
-  color: var(-
+  color: var(--text-soft);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
 
