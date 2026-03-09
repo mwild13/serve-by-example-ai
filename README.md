@@ -1,5 +1,16 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+### Cloudflare Pages build
+
+To deploy on Cloudflare Pages with Next.js 16, configure the project settings as follows:
+
+1. **Build command:** `npm run build` (you no longer need a custom adapter package)
+2. **Output directory:** leave blank
+3. Add `www.serve-by-example.com` as a custom domain and ensure DNS points to Cloudflare.
+
+The build step will run a normal `next build` and Cloudflare will handle the output automatically.
+
+
 ## Getting Started
 
 First, run the development server:
