@@ -1,26 +1,369 @@
-@import "tailwindcss";
-
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #f5f3ee;
+  --surface: #ffffff;
+  --surface-2: #f0ece3;
+  --text: #183626;
+  --text-soft: #4c6557;
+  --line: #d9d2c2;
+  --green: #1b4d33;
+  --green-dark: #0f2f22;
+  --gold: #b8932f;
+  --cream: #f2f2ef;
+  --shadow: 0 10px 30px rgba(15, 47, 34, 0.08);
+  --radius: 24px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+.page-shell {
+  min-height: 100vh;
+}
+
+.container {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(10px);
+  background: rgba(245, 243, 238, 0.86);
+  border-bottom: 1px solid rgba(185, 147, 47, 0.12);
+}
+
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0;
+  gap: 20px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: var(--green);
+  color: var(--cream);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  box-shadow: var(--shadow);
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.brand-title {
+  font-size: 1.02rem;
+  font-weight: 700;
+}
+
+.brand-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-soft);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  color: var(--text-soft);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn {
+  border: none;
+  border-radius: 999px;
+  padding: 14px 22px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: var(--green);
+  color: white;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--green);
+  border: 1px solid var(--green);
+}
+
+.btn-gold {
+  background: var(--gold);
+  color: white;
+}
+
+.eyebrow {
+  display: inline-flex;
+  border: 1px solid rgba(185, 147, 47, 0.35);
+  color: var(--gold);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.hero {
+  padding: 72px 0 40px;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 34px;
+  align-items: center;
+}
+
+.hero h1 {
+  font-size: clamp(2.5rem, 5vw, 5.2rem);
+  line-height: 0.97;
+  margin: 18px 0;
+  letter-spacing: -0.04em;
+}
+
+.hero p {
+  color: var(--text-soft);
+  font-size: 1.08rem;
+  line-height: 1.7;
+  max-width: 700px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 26px;
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 34px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.stat-label {
+  color: var(--text-soft);
+  margin-top: 4px;
+  font-size: 0.95rem;
+}
+
+.mockup {
+  background: linear-gradient(180deg, #f8f6f1 0%, #ece6d9 100%);
+  border: 1px solid var(--line);
+  border-radius: 30px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.mockup-window {
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+  min-height: 620px;
+  display: grid;
+  grid-template-columns: 240px 1fr 300px;
+  border: 1px solid #ece4d3;
+}
+
+.mockup-sidebar {
+  background: #faf8f4;
+  border-right: 1px solid #ece4d3;
+  padding: 22px 18px;
+}
+
+.mockup-main {
+  padding: 40px 28px;
+  background: #fdfcf9;
+}
+
+.mockup-right {
+  padding: 22px 18px;
+  border-left: 1px solid #ece4d3;
+  background: #faf8f4;
+}
+
+.mockup-logo {
+  font-weight: 800;
+  font-size: 1.1rem;
+  margin-bottom: 24px;
+}
+
+.mockup-nav {
+  display: grid;
+  gap: 10px;
+}
+
+.mockup-nav-item {
+  padding: 12px 14px;
+  border-radius: 14px;
+  color: var(--text-soft);
+  background: transparent;
+}
+
+.mockup-nav-item.active {
+  background: white;
+  color: var(--green);
+  border: 1px solid #e7decb;
+  font-weight: 700;
+}
+
+.mockup-title {
+  font-size: 2.4rem;
+  margin: 0 0 8px;
+  line-height: 1.05;
+}
+
+.mockup-subtitle {
+  color: var(--text-soft);
+  margin-bottom: 26px;
+}
+
+.mockup-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.mock-card {
+  background: white;
+  border: 1px solid #e6dfcf;
+  border-radius: 20px;
+  padding: 20px;
+}
+
+.mock-card h4 {
+  margin: 10px 0 8px;
+  font-size: 1rem;
+}
+
+.mock-card p {
+  margin: 0;
+  font-size: 0.94rem;
+  color: var(--text-soft);
+  line-height: 1.5;
+}
+
+.mock-input {
+  margin-top: 26px;
+  background: white;
+  border: 1px solid #e6dfcf;
+  border-radius: 22px;
+  padding: 16px 18px;
+  color: #7c8d83;
+}
+
+.side-panel-title {
+  font-size: 1.5rem;
+  margin: 0 0 18px;
+}
+
+.history-item {
+  border-top: 1px solid #ece4d3;
+  padding: 16px 0;
+}
+
+.history-item:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.history-item strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.history-item span {
+  color: var(--text-soft);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.section {
+  padding: 84px 0;
+}
+
+.section-header {
+  max-width: 700px;
+  margin-bottom: 34px;
+}
+
+.section-header h2 {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1.05;
+  margin: 0 0 12px;
+}
+
+.section-header p {
+  margin: 0;
+  color: var(-
+
