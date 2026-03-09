@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "build:cloudflare": "npx @opennextjs/cloudflare build && cp -r .open-next/assets/* .open-next/ && cp .open-next/worker.js .open-next/_worker.js && echo '{\"version\":1,\"include\":[\"/*\"],\"exclude\":[\"/_next/static/*\",\"/favicon.ico\",\"/*.svg\"]}' > .open-next/_routes.json"
   },
   "dependencies": {
     "next": "15.5.10",
