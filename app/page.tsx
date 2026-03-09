@@ -50,73 +50,111 @@ export default function Home() {
         {/* ── Product Preview (Dashboard Mockup) ──── */}
         <section className="section product-preview">
           <div className="container">
-            <div className="app-mockup">
-              <div className="mockup-sidebar">
-                <div className="mockup-logo">SBE</div>
-                <div className="mockup-nav-item active">Dashboard</div>
-                <div className="mockup-nav-item">Bartending</div>
-                <div className="mockup-nav-item">Sales</div>
-                <div className="mockup-nav-item">Management</div>
-                <div className="mockup-nav-item">Progress</div>
-                <div className="mockup-nav-item">Settings</div>
-              </div>
-              <div className="mockup-main">
-                <div className="mockup-header">
-                  <h4>Welcome back, Alex</h4>
-                  <span>3 modules in progress</span>
-                </div>
-                <div className="mockup-cards">
-                  <div className="mockup-card">
-                    <div className="mockup-card-icon">🍸</div>
-                    <div className="mockup-card-title">
-                      Cocktail Fundamentals
-                    </div>
-                    <div className="mockup-progress">
-                      <div
-                        className="mockup-bar"
-                        style={{ width: "72%" }}
-                      ></div>
-                    </div>
-                    <div className="mockup-card-meta">72% complete</div>
+            <div className="mockup-wrapper">
+              <div className="app-mockup">
+                <div className="mockup-sidebar">
+                  <div className="mockup-logo">
+                    <div className="mockup-logo-dot">SBE</div>
+                    Serve By Example
                   </div>
-                  <div className="mockup-card">
-                    <div className="mockup-card-icon">💬</div>
-                    <div className="mockup-card-title">Upselling Mastery</div>
-                    <div className="mockup-progress">
-                      <div
-                        className="mockup-bar"
-                        style={{ width: "45%" }}
-                      ></div>
-                    </div>
-                    <div className="mockup-card-meta">45% complete</div>
+                  <div className="mockup-nav-item active">
+                    <span className="mockup-nav-icon">📊</span> Dashboard
                   </div>
-                  <div className="mockup-card">
-                    <div className="mockup-card-icon">📋</div>
-                    <div className="mockup-card-title">Shift Leadership</div>
-                    <div className="mockup-progress">
-                      <div
-                        className="mockup-bar"
-                        style={{ width: "18%" }}
-                      ></div>
-                    </div>
-                    <div className="mockup-card-meta">18% complete</div>
+                  <div className="mockup-nav-item">
+                    <span className="mockup-nav-icon">🍸</span> Bartending
+                  </div>
+                  <div className="mockup-nav-item">
+                    <span className="mockup-nav-icon">💬</span> Sales
+                  </div>
+                  <div className="mockup-nav-item">
+                    <span className="mockup-nav-icon">📋</span> Management
+                  </div>
+                  <div className="mockup-nav-item">
+                    <span className="mockup-nav-icon">📈</span> Progress
+                  </div>
+                  <div className="mockup-nav-item">
+                    <span className="mockup-nav-icon">⚙️</span> Settings
                   </div>
                 </div>
-                <div className="mockup-chat">
-                  <div className="mockup-chat-header">AI Training Coach</div>
-                  <div className="mockup-chat-msg ai">
-                    A customer asks for a &ldquo;strong but smooth&rdquo;
-                    cocktail. What do you recommend and why?
+                <div className="mockup-main">
+                  <div className="mockup-header">
+                    <h4>Welcome back, Alex</h4>
+                    <div className="mockup-header-meta">
+                      <span>3 modules in progress</span>
+                      <div className="mockup-avatar" />
+                    </div>
                   </div>
-                  <div className="mockup-chat-msg user">
-                    I&rsquo;d suggest an Old Fashioned&nbsp;— it&rsquo;s
-                    spirit-forward, smooth from the sugar and bitters, and feels
-                    premium.
+                  <div className="mockup-cards">
+                    <div className="mockup-card">
+                      <div className="mockup-card-top">
+                        <div className="mockup-card-icon">🍸</div>
+                        <span className="mockup-card-status in-progress">
+                          In Progress
+                        </span>
+                      </div>
+                      <div className="mockup-card-title">
+                        Cocktail Fundamentals
+                      </div>
+                      <div className="mockup-progress">
+                        <div
+                          className="mockup-bar high"
+                          style={{ width: "72%" }}
+                        />
+                      </div>
+                      <div className="mockup-card-meta">72% complete</div>
+                    </div>
+                    <div className="mockup-card">
+                      <div className="mockup-card-top">
+                        <div className="mockup-card-icon">💬</div>
+                        <span className="mockup-card-status in-progress">
+                          In Progress
+                        </span>
+                      </div>
+                      <div className="mockup-card-title">
+                        Upselling Mastery
+                      </div>
+                      <div className="mockup-progress">
+                        <div
+                          className="mockup-bar mid"
+                          style={{ width: "45%" }}
+                        />
+                      </div>
+                      <div className="mockup-card-meta">45% complete</div>
+                    </div>
+                    <div className="mockup-card">
+                      <div className="mockup-card-top">
+                        <div className="mockup-card-icon">📋</div>
+                        <span className="mockup-card-status new">New</span>
+                      </div>
+                      <div className="mockup-card-title">Shift Leadership</div>
+                      <div className="mockup-progress">
+                        <div
+                          className="mockup-bar low"
+                          style={{ width: "18%" }}
+                        />
+                      </div>
+                      <div className="mockup-card-meta">18% complete</div>
+                    </div>
                   </div>
-                  <div className="mockup-chat-msg ai">
-                    Great choice! You&rsquo;ve identified the key attributes.
-                    Let&rsquo;s explore how you&rsquo;d upsell the whisky
-                    selection&hellip;
+                  <div className="mockup-chat">
+                    <div className="mockup-chat-header">
+                      <div className="mockup-chat-dot" />
+                      AI Training Coach
+                    </div>
+                    <div className="mockup-chat-msg ai">
+                      A customer asks for a &ldquo;strong but smooth&rdquo;
+                      cocktail. What do you recommend and why?
+                    </div>
+                    <div className="mockup-chat-msg user">
+                      I&rsquo;d suggest an Old Fashioned&nbsp;— it&rsquo;s
+                      spirit-forward, smooth from the sugar and bitters, and
+                      feels premium.
+                    </div>
+                    <div className="mockup-chat-msg ai">
+                      Great choice! You&rsquo;ve identified the key attributes.
+                      Let&rsquo;s explore how you&rsquo;d upsell the whisky
+                      selection&hellip;
+                    </div>
                   </div>
                 </div>
               </div>
@@ -256,7 +294,7 @@ export default function Home() {
         </section>
 
         {/* ── Why AI Training ──────────────────────── */}
-        <section className="section">
+        <section className="section section-warm">
           <div className="container">
             <div className="section-header center">
               <span className="eyebrow">Why AI Training</span>
@@ -301,7 +339,7 @@ export default function Home() {
               <div className="price-card">
                 <div className="price-tier">Starter</div>
                 <div className="price-amount">Free</div>
-                <p>
+                <p className="price-desc">
                   Try the demo modules and see what AI training can do.
                 </p>
                 <ul>
@@ -319,7 +357,7 @@ export default function Home() {
                 <div className="price-amount">
                   $29<span>/month</span>
                 </div>
-                <p>
+                <p className="price-desc">
                   Full access for individual bartenders and hospitality pros.
                 </p>
                 <ul>
@@ -337,7 +375,7 @@ export default function Home() {
                 <div className="price-amount">
                   $149<span>/month</span>
                 </div>
-                <p>
+                <p className="price-desc">
                   Train your entire team with management dashboards.
                 </p>
                 <ul>
@@ -355,7 +393,7 @@ export default function Home() {
         </section>
 
         {/* ── FAQ ──────────────────────────────────── */}
-        <section className="section">
+        <section className="section section-warm">
           <div className="container">
             <div className="section-header center">
               <h2>Frequently asked questions</h2>
