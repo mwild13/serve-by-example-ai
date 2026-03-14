@@ -1,149 +1,173 @@
-import Link from "next/link";
-import Footer from "@/components/Footer";
+"use client";
+
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
-import SectionHeading from "@/components/SectionHeading";
+import Footer from "@/components/Footer";
+
+type EvaluationResult = {
+  communication: number;
+  hospitalityBehaviour: number;
+  problemSolving: number;
+  professionalism: number;
+  guestExperience: number;
+  overallScore: number;
+  strengths: string;
+  improvement: string;
+  improvedResponse: string;
+};
+
+const scenario =
+  "A guest approaches the bar while you are finishing another drink. How do you acknowledge them?";
 
 export default function DemoPage() {
+  const [userResponse, setUserResponse] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<EvaluationResult | null>(null);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    setError("");
+    setResult(null);
+
+    try {
+      const res = await fetch("/api/evaluate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ scenario, userResponse }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Something went wrong.");
+      } else {
+        setResult(data);
+      }
+    } catch {
+      setError("Failed to connect to the evaluation service.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="page-shell">
       <Navbar />
 
       <main>
-        <section className="page-hero">
+        <section className="inner-hero">
           <div className="container">
             <div className="eyebrow">Interactive demo</div>
-            <h1>See how the AI training experience works.</h1>
-            <p>
-              This page gives users a taste of the platform before they buy.
-              Later, this can become a true interactive prompt flow connected to
-              your AI trainer.
+            <h1>Try a real AI hospitality scenario</h1>
+            <p className="inner-hero-sub">
+              Respond as if you were working behind the bar, then see how the AI
+              evaluates your answer.
             </p>
           </div>
         </section>
 
-        <section className="section" style={{ paddingTop: 24 }}>
+        <section className="section" style={{ paddingTop: 0 }}>
           <div className="container">
-            <div className="card" style={{ padding: 0, overflow: "hidden" }}>
-              <div className="dashboard-shell" style={{ minHeight: 700 }}>
-                <aside className="dashboard-sidebar">
-                  <div className="mockup-logo">SBE AI</div>
-                  <div className="mockup-nav">
-                    <div className="mockup-nav-item active">Free Demo</div>
-                    <div className="mockup-nav-item">Cocktail Drill</div>
-                    <div className="mockup-nav-item">Sales Scenario</div>
-                    <div className="mockup-nav-item">Manager Prompt</div>
-                  </div>
-                </aside>
+            <div className="demo-panel">
+              <p className="demo-label">Scenario</p>
+              <p className="demo-scenario">{scenario}</p>
 
-                <section className="dashboard-main">
-                  <h2 className="dash-welcome">Demo Training Session</h2>
-                  <div className="dash-copy">
-                    Example bartender prompt below.
-                  </div>
+              <label className="demo-label" style={{ marginTop: 32 }}>
+                Your response
+              </label>
+              <textarea
+                value={userResponse}
+                onChange={(e) => setUserResponse(e.target.value)}
+                placeholder="Type how you would respond to the guest…"
+                className="demo-textarea"
+              />
 
-                  <div className="chat-box">
-                    <div className="chat-prompt">
-                      AI Coach: A guest orders a Negroni. Name the three
-                      ingredients, the garnish, and the correct glass.
-                    </div>
+              <button
+                onClick={handleSubmit}
+                disabled={loading || !userResponse.trim()}
+                className="btn btn-primary btn-lg"
+                style={{ marginTop: 20 }}
+              >
+                {loading ? "Evaluating…" : "Submit response"}
+              </button>
 
-                    <div className="chat-actions">
-                      <div className="chat-pill">Gin</div>
-                      <div className="chat-pill">Campari</div>
-                      <div className="chat-pill">Sweet Vermouth</div>
-                      <div className="chat-pill">Orange peel</div>
-                      <div className="chat-pill">Rocks glass</div>
-                    </div>
-                  </div>
+              {error && <div className="demo-error">{error}</div>}
+            </div>
 
-                  <div className="grid-3" style={{ marginTop: 24 }}>
-                    <div className="card">
-                      <h3>Cocktail Knowledge</h3>
-                      <p>
-                        Specs, garnish, glassware and confidence under pressure.
-                      </p>
-                    </div>
-                    <div className="card">
-                      <h3>Guest Communication</h3>
-                      <p>
-                        Practice how to respond clearly, calmly and with service
-                        confidence.
-                      </p>
-                    </div>
-                    <div className="card">
-                      <h3>Sales Skills</h3>
-                      <p>
-                        Learn the difference between helpful recommendations and
-                        poor upselling.
-                      </p>
-                    </div>
-                  </div>
-                </section>
+            {result && (
+              <div className="demo-panel" style={{ marginTop: 40 }}>
+                <h2
+                  style={{
+                    fontFamily: "var(--font-heading)",
+                    fontSize: "1.6rem",
+                    marginBottom: 24,
+                  }}
+                >
+                  AI Evaluation
+                </h2>
 
-                <aside className="dashboard-right">
-                  <h3 className="side-panel-title">What’s inside</h3>
-                  <div className="history-item">
-                    <strong>Bartending drills</strong>
-                    <span>Classic cocktails, spirits, service standards.</span>
-                  </div>
-                  <div className="history-item">
-                    <strong>Sales training</strong>
-                    <span>
-                      Recommending with confidence and increasing spend.
+                <div className="demo-scores">
+                  <ScoreCard
+                    label="Communication"
+                    value={result.communication}
+                  />
+                  <ScoreCard
+                    label="Hospitality Behaviour"
+                    value={result.hospitalityBehaviour}
+                  />
+                  <ScoreCard
+                    label="Problem Solving"
+                    value={result.problemSolving}
+                  />
+                  <ScoreCard
+                    label="Professionalism"
+                    value={result.professionalism}
+                  />
+                  <ScoreCard
+                    label="Guest Experience"
+                    value={result.guestExperience}
+                  />
+                  <div className="demo-score-card demo-score-total">
+                    <span className="demo-score-label">Overall Score</span>
+                    <span className="demo-score-value">
+                      {result.overallScore}/25
                     </span>
                   </div>
-                  <div className="history-item">
-                    <strong>Management prompts</strong>
-                    <span>Leadership, standards, coaching and operations.</span>
+                </div>
+
+                <div className="demo-feedback">
+                  <div>
+                    <p className="demo-label">Strengths</p>
+                    <p className="demo-feedback-text">{result.strengths}</p>
                   </div>
-
-                  <div style={{ marginTop: 24 }}>
-                    <Link href="/pricing" className="btn btn-primary">
-                      Unlock Full Access
-                    </Link>
+                  <div>
+                    <p className="demo-label">Improvement</p>
+                    <p className="demo-feedback-text">{result.improvement}</p>
                   </div>
-                </aside>
+                  <div>
+                    <p className="demo-label">Improved Response</p>
+                    <p className="demo-feedback-text">
+                      {result.improvedResponse}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="section">
-          <div className="container">
-            <SectionHeading
-              eyebrow="Why demo first"
-              title="Show the product before asking people to pay."
-              copy="A strong demo increases trust and gives users an instant feel for how the platform teaches."
-            />
-
-            <div className="grid-3">
-              <div className="card">
-                <h3>Reduces friction</h3>
-                <p>
-                  People understand the value faster when they can see and feel
-                  the product.
-                </p>
-              </div>
-              <div className="card">
-                <h3>Builds confidence</h3>
-                <p>
-                  A practical preview makes the offer feel more credible and
-                  useful.
-                </p>
-              </div>
-              <div className="card">
-                <h3>Improves conversion</h3>
-                <p>
-                  Demo-first pages often outperform generic sales pages for new
-                  software products.
-                </p>
-              </div>
-            </div>
+            )}
           </div>
         </section>
       </main>
 
       <Footer />
+    </div>
+  );
+}
+
+function ScoreCard({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="demo-score-card">
+      <span className="demo-score-label">{label}</span>
+      <span className="demo-score-value">{value}/5</span>
     </div>
   );
 }
