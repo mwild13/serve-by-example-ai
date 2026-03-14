@@ -24,7 +24,7 @@ export default function Home() {
                 <Link href="/demo" className="btn btn-primary btn-lg">
                   Try the Demo
                 </Link>
-                <Link href="#how-it-works" className="btn btn-secondary btn-lg">
+                <Link href="/how-it-works" className="btn btn-secondary btn-lg">
                   See How It Works
                 </Link>
               </div>

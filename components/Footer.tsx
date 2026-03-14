@@ -15,27 +15,24 @@ export default function Footer() {
           <h4>Platform</h4>
           <ul>
             <li>
-              <Link href="/demo">Demo</Link>
+              <Link href="/how-it-works">How It Works</Link>
             </li>
             <li>
-              <Link href="/pricing">Pricing</Link>
+              <Link href="/platform">Platform</Link>
             </li>
             <li>
-              <Link href="/dashboard">Dashboard</Link>
+              <Link href="/for-venues">For Venues</Link>
             </li>
           </ul>
         </div>
         <div className="footer-col">
-          <h4>Training</h4>
+          <h4>Get Started</h4>
           <ul>
             <li>
-              <Link href="/demo">Bartending</Link>
+              <Link href="/demo">Demo</Link>
             </li>
             <li>
-              <Link href="/demo">Sales</Link>
-            </li>
-            <li>
-              <Link href="/demo">Management</Link>
+              <Link href="/pricing">Pricing</Link>
             </li>
           </ul>
         </div>

@@ -1247,6 +1247,188 @@ ul {
 }
 
 /* ── Responsive ────────────────────────────────── */
+
+/* ── Inner-page hero ───────────────────────────── */
+.inner-hero {
+  padding: 72px 0 56px;
+  text-align: center;
+  position: relative;
+}
+
+.inner-hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 500px;
+  background: radial-gradient(ellipse, rgba(228, 239, 234, 0.6) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.inner-hero .container {
+  position: relative;
+  z-index: 1;
+  max-width: 740px;
+}
+
+.inner-hero h1 {
+  font-family: var(--font-heading);
+  font-size: clamp(2.2rem, 5.5vw, 3.6rem);
+  font-weight: 800;
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  margin-bottom: 20px;
+  color: var(--green-deep);
+}
+
+.inner-hero-sub {
+  font-size: 1.08rem;
+  line-height: 1.72;
+  color: var(--text-soft);
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+.inner-hero-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 32px;
+}
+
+/* ── Info cards (reusable) ─────────────────────── */
+.info-card {
+  background: var(--surface-raised);
+  border: 1px solid var(--line-light);
+  border-radius: var(--radius-lg);
+  padding: 32px 26px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+}
+
+.info-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.info-card h3 {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--green-deep);
+  margin-bottom: 10px;
+}
+
+.info-card > p {
+  color: var(--text-soft);
+  font-size: 0.94rem;
+  line-height: 1.65;
+}
+
+.info-card-num {
+  display: inline-block;
+  font-family: var(--font-heading);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+.info-card-label {
+  display: inline-block;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+/* ── Card grids ────────────────────────────────── */
+.card-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.card-grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.card-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.card-grid-5 {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+/* ── Split layout (2-col text) ─────────────────── */
+.split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.split-heading {
+  font-family: var(--font-heading);
+  font-size: clamp(1.7rem, 3.5vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--green-deep);
+  margin-bottom: 14px;
+}
+
+.split-sub {
+  color: var(--text-soft);
+  font-size: 1rem;
+  line-height: 1.72;
+  margin-top: 16px;
+}
+
+.split-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.split-body p {
+  color: var(--text-soft);
+  font-size: 1rem;
+  line-height: 1.72;
+}
+
+/* ── Check list ────────────────────────────────── */
+.check-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.check-list li {
+  font-size: 0.92rem;
+  color: var(--text-soft);
+  padding-left: 24px;
+  position: relative;
+  line-height: 1.55;
+}
+
+.check-list li::before {
+  content: "\2713";
+  position: absolute;
+  left: 0;
+  color: var(--green);
+  font-weight: 700;
+  font-size: 0.86rem;
+}
+
+/* ── Responsive ────────────────────────────────── */
 @media (max-width: 980px) {
   .nav-links {
     display: none;
@@ -1356,6 +1538,24 @@ ul {
     gap: 6px;
     text-align: center;
   }
+
+  .card-grid-2,
+  .card-grid-3,
+  .card-grid-5 {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .split-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .inner-hero h1 {
+    font-size: 2.2rem;
+  }
 }
 
 @media (max-width: 600px) {
@@ -1391,6 +1591,11 @@ ul {
 
   .footer-inner {
     grid-template-columns: 1fr;
+  }
+
+  .inner-hero-actions {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 
