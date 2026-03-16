@@ -16,14 +16,49 @@ type EvaluationResult = {
   improvedResponse: string;
 };
 
-const scenario =
-  "A guest approaches the bar while you are finishing another drink. How do you acknowledge them?";
+const DEMO_SCENARIOS = [
+  {
+    id: "bartending",
+    category: "Bartending",
+    title: "First guest acknowledgment",
+    prompt:
+      "A guest approaches the bar while you are finishing another drink. How do you acknowledge them?",
+  },
+  {
+    id: "sales",
+    category: "Sales",
+    title: "Steak pairing recommendation",
+    prompt:
+      "A guest asks what cocktail you would recommend with their steak. How do you respond?",
+  },
+  {
+    id: "management",
+    category: "Management",
+    title: "Short-notice sick call",
+    prompt:
+      "A staff member calls in sick 30 minutes before a busy Friday shift. What do you do next?",
+  },
+] as const;
 
 export default function DemoPage() {
+  const [selectedScenarioId, setSelectedScenarioId] = useState<
+    (typeof DEMO_SCENARIOS)[number]["id"]
+  >("bartending");
   const [userResponse, setUserResponse] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<EvaluationResult | null>(null);
   const [error, setError] = useState("");
+
+  const activeScenario =
+    DEMO_SCENARIOS.find((scenario) => scenario.id === selectedScenarioId) ??
+    DEMO_SCENARIOS[0];
+
+  function selectScenario(scenarioId: (typeof DEMO_SCENARIOS)[number]["id"]) {
+    setSelectedScenarioId(scenarioId);
+    setUserResponse("");
+    setResult(null);
+    setError("");
+  }
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -34,7 +69,7 @@ export default function DemoPage() {
       const res = await fetch("/api/evaluate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scenario, userResponse }),
+        body: JSON.stringify({ scenario: activeScenario.prompt, userResponse }),
       });
 
       const data = await res.json();
@@ -61,8 +96,8 @@ export default function DemoPage() {
             <div className="eyebrow">Interactive demo</div>
             <h1>Try a real AI hospitality scenario</h1>
             <p className="inner-hero-sub">
-              Respond as if you were working behind the bar, then see how the AI
-              evaluates your answer.
+              Pick a bartending, sales or management prompt, respond like you are
+              on shift, then see how the AI evaluates your answer.
             </p>
           </div>
         </section>
@@ -70,8 +105,22 @@ export default function DemoPage() {
         <section className="section" style={{ paddingTop: 0 }}>
           <div className="container">
             <div className="demo-panel">
+              <div className="demo-scenario-picker">
+                {DEMO_SCENARIOS.map((scenario) => (
+                  <button
+                    key={scenario.id}
+                    type="button"
+                    className={`demo-scenario-chip${selectedScenarioId === scenario.id ? " active" : ""}`}
+                    onClick={() => selectScenario(scenario.id)}
+                  >
+                    <span className="demo-scenario-chip-category">{scenario.category}</span>
+                    <span>{scenario.title}</span>
+                  </button>
+                ))}
+              </div>
+
               <p className="demo-label">Scenario</p>
-              <p className="demo-scenario">{scenario}</p>
+              <p className="demo-scenario">{activeScenario.prompt}</p>
 
               <label className="demo-label" style={{ marginTop: 32 }}>
                 Your response

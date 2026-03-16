@@ -14,8 +14,9 @@ export default function PricingPage() {
             <div className="eyebrow">Pricing</div>
             <h1>Simple plans for individuals and venue teams.</h1>
             <p>
-              Start lean, validate the offer, and expand later. These are strong
-              placeholder plans for the public site until Stripe is connected.
+              Early access pricing for founding members and venue teams. Start
+              with the demo, upgrade when you are ready, and lock in launch-stage
+              rates while onboarding is still hands-on.
             </p>
           </div>
         </section>
@@ -75,8 +76,8 @@ export default function PricingPage() {
                   <li>Management modules</li>
                   <li>Venue onboarding framework</li>
                 </ul>
-                <Link href="/login" className="btn btn-secondary">
-                  Enquire for Teams
+                <Link href="/for-venues#venue-enquiry" className="btn btn-secondary">
+                  Request Venue Access
                 </Link>
               </div>
             </div>
@@ -88,7 +89,7 @@ export default function PricingPage() {
             <SectionHeading
               eyebrow="What each plan solves"
               title="Pricing should reflect real use cases."
-              copy="Keep it clean for now: one free preview, one main paid plan, and one venue/team plan."
+              copy="One free preview, one core individual plan and one venue plan for teams that need structured rollout support."
             />
 
             <div className="grid-3">

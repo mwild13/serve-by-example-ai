@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import WaitlistSection from "@/components/WaitlistSection";
 
 export default function Home() {
   return (
@@ -355,7 +356,7 @@ export default function Home() {
                 <div className="price-badge">Most Popular</div>
                 <div className="price-tier">Professional</div>
                 <div className="price-amount">
-                  $29<span>/month</span>
+                  $19<span>/month</span>
                 </div>
                 <p className="price-desc">
                   Full access for individual bartenders and hospitality pros.
@@ -467,6 +468,8 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <WaitlistSection />
       </main>
 
       <Footer />

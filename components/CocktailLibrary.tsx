@@ -19,8 +19,6 @@ export default function CocktailLibrary() {
     });
   }, [activeCategory, search]);
 
-  const selectedCocktail = selected ? COCKTAILS.find((c) => c.name === selected) : null;
-
   function toggleCard(name: string) {
     setSelected((prev) => (prev === name ? null : name));
   }

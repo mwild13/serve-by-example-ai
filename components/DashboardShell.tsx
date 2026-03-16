@@ -5,6 +5,7 @@ import Image from "next/image";
 import SignOutButton from "@/components/SignOutButton";
 import DashboardTrainer from "@/components/DashboardTrainer";
 import CocktailLibrary from "@/components/CocktailLibrary";
+import ProgressOverview from "@/components/ProgressOverview";
 
 type NavItem = "home" | "bartending" | "sales" | "management" | "scenarios" | "cocktails" | "progress" | "settings";
 
@@ -99,6 +100,8 @@ export default function DashboardShell({
           />
         ) : activeNav === "cocktails" ? (
           <CocktailLibrary />
+        ) : activeNav === "progress" ? (
+          <ProgressOverview displayName={displayName} plan={plan} />
         ) : (
           <ComingSoon label={NAV_ITEMS.find((n) => n.id === activeNav)?.label ?? activeNav} />
         )}

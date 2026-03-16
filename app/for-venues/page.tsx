@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import WaitlistSection from "@/components/WaitlistSection";
 
 const benefits = [
   {
@@ -50,8 +51,8 @@ export default function ForVenuesPage() {
               <Link href="/pricing" className="btn btn-primary btn-lg">
                 View Venue Pricing
               </Link>
-              <Link href="/demo" className="btn btn-secondary btn-lg">
-                Try the Demo
+              <Link href="#venue-enquiry" className="btn btn-secondary btn-lg">
+                Request Venue Access
               </Link>
             </div>
           </div>
@@ -132,6 +133,27 @@ export default function ForVenuesPage() {
           </div>
         </section>
 
+        <WaitlistSection
+          id="venue-enquiry"
+          eyebrow="Venue access"
+          title="Request early access for your venue team."
+          copy="Join the venue rollout list for onboarding updates, early-access windows and pricing suited to bars, pubs and hospitality groups."
+          inputLabel="Venue contact email"
+          inputPlaceholder="ops@yourvenue.com"
+          buttonLabel="Request venue access"
+          successTitle="Venue enquiry received."
+          successCopy="You are on the venue rollout list. We will contact you with launch timing, access options and next steps for team onboarding."
+          successPrimaryHref="/pricing"
+          successPrimaryLabel="Review venue pricing"
+          successSecondaryHref="/demo"
+          successSecondaryLabel="Try the demo"
+          successSteps={[
+            "We group venue demand by rollout timing and onboarding capacity.",
+            "You receive early-access updates and any pricing changes before public release.",
+            "When spots open, you get a direct next step for bringing your team on platform.",
+          ]}
+        />
+
         {/* ── CTA ── */}
         <section className="section section-cta">
           <div className="container cta-box">
@@ -144,8 +166,8 @@ export default function ForVenuesPage() {
               </p>
             </div>
             <div className="cta-actions">
-              <Link href="/pricing" className="btn btn-gold btn-lg">
-                View Pricing
+              <Link href="#venue-enquiry" className="btn btn-gold btn-lg">
+                Request Venue Access
               </Link>
               <Link
                 href="/how-it-works"
