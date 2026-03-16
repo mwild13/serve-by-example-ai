@@ -1,4 +1,27 @@
-export default function DashboardPage() {
+import { redirect } from "next/navigation";
+import { createSupabaseServerClient } from "@/lib/supabase-server";
+import SignOutButton from "@/components/SignOutButton";
+
+export default async function DashboardPage() {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("display_name, plan")
+    .eq("id", user.id)
+    .single();
+
+  const displayName =
+    profile?.display_name || user.email?.split("@")[0] || "there";
+  const plan = profile?.plan ?? "free";
+
   return (
     <main className="dashboard-shell">
       <aside className="dashboard-sidebar">
@@ -24,15 +47,21 @@ export default function DashboardPage() {
             padding: 18,
           }}
         >
-          <strong style={{ display: "block", marginBottom: 6 }}>Founding plan</strong>
+          <strong style={{ display: "block", marginBottom: 6 }}>
+            {plan === "venue" ? "Venue plan" : plan === "pro" ? "Pro plan" : "Free plan"}
+          </strong>
           <div style={{ color: "var(--text-soft)", fontSize: ".95rem" }}>
-            Pro member access with bartender, sales and management modules.
+            {plan === "free"
+              ? "Demo access. Upgrade to unlock full modules."
+              : "Pro member access with bartender, sales and management modules."}
           </div>
         </div>
+
+        <SignOutButton />
       </aside>
 
       <section className="dashboard-main">
-        <h1 className="dash-welcome">Welcome, Mitch.</h1>
+        <h1 className="dash-welcome">Welcome, {displayName}.</h1>
         <div className="dash-copy">
           How would you like to train today?
         </div>

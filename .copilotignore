@@ -1,0 +1,6 @@
+# Never read environment files — they contain secrets
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
