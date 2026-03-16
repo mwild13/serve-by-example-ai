@@ -108,8 +108,14 @@ const MODULE_META: Record<Module, { label: string; description: string; color: s
   },
 };
 
-export default function DashboardTrainer({ displayName }: { displayName: string }) {
-  const [activeModule, setActiveModule] = useState<Module | null>(null);
+export default function DashboardTrainer({
+  displayName,
+  defaultModule,
+}: {
+  displayName: string;
+  defaultModule?: Module;
+}) {
+  const [activeModule, setActiveModule] = useState<Module | null>(defaultModule ?? null);
   const [scenarioIndex, setScenarioIndex] = useState(0);
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
