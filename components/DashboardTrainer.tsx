@@ -135,7 +135,7 @@ export default function DashboardTrainer({ displayName }: { displayName: string 
     setError("");
   }
 
-  function usePill(pill: string) {
+  function applyPill(pill: string) {
     setResponse(pill);
     setResult(null);
     setError("");
@@ -206,7 +206,7 @@ export default function DashboardTrainer({ displayName }: { displayName: string 
                 <div
                   key={pill}
                   className={`chat-pill${response === pill ? " chat-pill-active" : ""}`}
-                  onClick={() => usePill(pill)}
+                  onClick={() => applyPill(pill)}
                 >
                   {pill}
                 </div>
@@ -299,7 +299,7 @@ export default function DashboardTrainer({ displayName }: { displayName: string 
       {!activeModule && (
         <div className="chat-box">
           <div className="chat-prompt">
-            AI Coach: Click any training module above to start a real scenario session. You'll respond to situations and get instant, scored feedback.
+            AI Coach: Click any training module above to start a real scenario session. You&apos;ll respond to situations and get instant, scored feedback.
           </div>
           <div className="chat-actions">
             <div className="chat-pill" onClick={() => selectModule("bartending")}>Start Bartending</div>
