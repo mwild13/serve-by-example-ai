@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "build:cloudflare": "npx @opennextjs/cloudflare build && cp -r .open-next/assets/* .open-next/ && cp .open-next/worker.js .open-next/_worker.js && echo '{\"version\":1,\"include\":[\"/*\"],\"exclude\":[\"/_next/static/*\",\"/favicon.ico\",\"/*.svg\"]}' > .open-next/_routes.json"
+    "build:cloudflare": "npx @opennextjs/cloudflare build && node -e \"const fs=require('fs'),path=require('path');const src=path.join('.open-next','assets');for(const f of fs.readdirSync(src,{withFileTypes:true,recursive:true})){if(f.isFile()){const rel=path.relative(src,path.join(f.parentPath||f.path,f.name));const dst=path.join('.open-next',rel);fs.mkdirSync(path.dirname(dst),{recursive:true});fs.copyFileSync(path.join(f.parentPath||f.path,f.name),dst)}}fs.copyFileSync('.open-next/worker.js','.open-next/_worker.js');fs.writeFileSync('.open-next/_routes.json',JSON.stringify({version:1,include:['/*'],exclude:['/_next/static/*','/favicon.ico','/*.svg']}));\""
   },
   "dependencies": {
     "next": "15.5.10",
