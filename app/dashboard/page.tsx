@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import SignOutButton from "@/components/SignOutButton";
+import DashboardTrainer from "@/components/DashboardTrainer";
 
 export default async function DashboardPage() {
   const supabase = await createSupabaseServerClient();
