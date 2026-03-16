@@ -3,6 +3,7 @@
 import { useState } from "react";
 import SignOutButton from "@/components/SignOutButton";
 import DashboardTrainer from "@/components/DashboardTrainer";
+import CocktailLibrary from "@/components/CocktailLibrary";
 
 type NavItem = "home" | "bartending" | "sales" | "management" | "scenarios" | "cocktails" | "progress" | "settings";
 
@@ -95,6 +96,8 @@ export default function DashboardShell({
             displayName={displayName}
             defaultModule={defaultModule}
           />
+        ) : activeNav === "cocktails" ? (
+          <CocktailLibrary />
         ) : (
           <ComingSoon label={NAV_ITEMS.find((n) => n.id === activeNav)?.label ?? activeNav} />
         )}
