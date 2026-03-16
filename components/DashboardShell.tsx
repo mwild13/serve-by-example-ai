@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import SignOutButton from "@/components/SignOutButton";
 import DashboardTrainer from "@/components/DashboardTrainer";
 import CocktailLibrary from "@/components/CocktailLibrary";
@@ -52,7 +53,7 @@ export default function DashboardShell({
   return (
     <main className="dashboard-shell">
       <aside className="dashboard-sidebar">
-        <div className="mockup-logo">SBE AI</div>
+        <Image src="/logo.ico" alt="SBE AI" width={38} height={38} style={{ borderRadius: 10, marginBottom: 8 }} />
 
         <div className="mockup-nav">
           {NAV_ITEMS.map((item) => (

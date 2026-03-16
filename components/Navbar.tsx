@@ -1,11 +1,12 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Navbar() {
   return (
     <header className="navbar">
       <div className="container navbar-inner">
         <Link href="/" className="brand">
-          <div className="brand-mark">SBE</div>
+          <Image src="/logo.ico" alt="Serve By Example AI" width={40} height={40} className="brand-mark-img" />
           <div className="brand-copy">
             <span className="brand-title">Serve By Example</span>
             <span className="brand-subtitle">AI Training Platform</span>
