@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabase";
 import type {
   ManagementSnapshot,
   ManagerSection,
@@ -78,6 +79,13 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
+    label: "AI Coach",
+    items: [
+      { id: "aicoach", label: "Ask AI Coach", icon: "✦" },
+      { id: "predictive", label: "Predictive Insights", icon: "◎" },
+    ],
+  },
+  {
     label: "Admin",
     collapsible: true,
     items: [
@@ -138,6 +146,8 @@ const SECTION_META: Record<ManagerSection, { cluster: string; label: string }> =
   reports: { cluster: "Performance", label: "Reports" },
   leaderboards: { cluster: "Performance", label: "Leaderboards" },
   notifications: { cluster: "Performance", label: "Notifications" },
+  aicoach: { cluster: "AI Coach", label: "Ask AI Coach" },
+  predictive: { cluster: "AI Coach", label: "Predictive Insights" },
   settings: { cluster: "Admin", label: "Settings" },
   billing: { cluster: "Admin", label: "Billing" },
   integrations: { cluster: "Admin", label: "Integrations" },
@@ -213,9 +223,38 @@ export default function ManagerControlCenter({
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [menuTab, setMenuTab] = useState<"food" | "cocktails" | "wine">("food");
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
+
+  // Fetch the Supabase session token on mount. On Cloudflare Pages, cookies
+  // are not forwarded to API routes, so we pass the JWT in the Authorization header.
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSessionToken(session?.access_token ?? null);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSessionToken(session?.access_token ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Helper: fetch that always includes the Authorization header when available
+  const apiFetch = useCallback((url: string, options: RequestInit = {}) => {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...(options.headers as Record<string, string>),
+    };
+    if (sessionToken) {
+      headers["Authorization"] = `Bearer ${sessionToken}`;
+    }
+    return fetch(url, { ...options, headers });
+  }, [sessionToken]);
   const [menuInputText, setMenuInputText] = useState("");
   const [menuItems, setMenuItems] = useState<Record<string, string[]>>({ food: [], cocktails: [], wine: [] });
   const [revenueTransactionValue, setRevenueTransactionValue] = useState(45);
+  const [aiCoachInput, setAiCoachInput] = useState("");
+  const [aiCoachMessages, setAiCoachMessages] = useState<Array<{ role: "user" | "coach"; content: string }>>([]);
+  const [aiCoachLoading, setAiCoachLoading] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -525,6 +564,33 @@ export default function ManagerControlCenter({
     setMenuInputText("");
   }
 
+  async function handleAiCoachSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const question = aiCoachInput.trim();
+    if (!question || aiCoachLoading) return;
+
+    setAiCoachMessages((prev) => [...prev, { role: "user", content: question }]);
+    setAiCoachInput("");
+    setAiCoachLoading(true);
+
+    try {
+      const response = await apiFetch("/api/management/coach", {
+        method: "POST",
+        body: JSON.stringify({ question, venueId: selectedVenueId }),
+      });
+      const data = await response.json();
+      if (data.error) {
+        setAiCoachMessages((prev) => [...prev, { role: "coach", content: `Error: ${data.error}` }]);
+      } else {
+        setAiCoachMessages((prev) => [...prev, { role: "coach", content: data.answer }]);
+      }
+    } catch {
+      setAiCoachMessages((prev) => [...prev, { role: "coach", content: "Unable to reach AI coach. Check your connection." }]);
+    } finally {
+      setAiCoachLoading(false);
+    }
+  }
+
   async function applySnapshotResult(response: Response) {
     const result = (await response.json()) as SnapshotResponse | { error: string };
     if (!response.ok || "error" in result) {
@@ -593,14 +659,16 @@ export default function ManagerControlCenter({
     setRequestSuccess("");
 
     try {
-      const response = await fetch(requestConfig.endpoint, {
+      const response = await apiFetch(requestConfig.endpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(requestConfig.body),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        setRequestError(errorData.error || `Request failed (${response.status})`);
+        return;
+      }
       const result = await applySnapshotResult(response);
       if (!result.inviteMessage && activeSection === "settings") {
         setRequestSuccess(requestConfig.success);
@@ -635,13 +703,16 @@ export default function ManagerControlCenter({
     setRequestSuccess("");
 
     try {
-      const response = await fetch("/api/management/venues", {
+      const response = await apiFetch("/api/management/venues", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({ name }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setRequestError(errorData.error || `Unable to add venue. (${response.status})`);
+        return;
+      }
 
       const result = await applySnapshotResult(response);
       const createdVenue = result.venues.find((venue) => venue.name === name);
@@ -663,9 +734,15 @@ export default function ManagerControlCenter({
     setRequestSuccess("");
 
     try {
-      const response = await fetch(`/api/management/venues?venueId=${encodeURIComponent(venueId)}`, {
+      const response = await apiFetch(`/api/management/venues?venueId=${encodeURIComponent(venueId)}`, {
         method: "DELETE",
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setRequestError(errorData.error || `Unable to delete venue. (${response.status})`);
+        return;
+      }
 
       const result = await applySnapshotResult(response);
       if (selectedVenueId === venueId) {
@@ -686,11 +763,21 @@ export default function ManagerControlCenter({
           <span className="eyebrow">Management console</span>
           <h3>Venue operations</h3>
           <div className="ops-venue-switcher">
-            {plan === "multi-venue" ? (
+            {snapshot.venues.length === 0 ? (
+              <div className="ops-venue-single">
+                <strong>No venues</strong>
+                <p style={{ color: "var(--text-soft)", fontSize: ".95rem", margin: "8px 0 0 0" }}>Create your first venue to get started.</p>
+              </div>
+            ) : snapshot.venues.length === 1 && plan !== "multi-venue" ? (
+              <div className="ops-venue-single">
+                <strong>{snapshot.venues[0]?.name || "Your Venue"}</strong>
+                <p style={{ color: "var(--text-soft)", fontSize: ".95rem", margin: "8px 0 0 0" }}>Single venue plan</p>
+              </div>
+            ) : (
               <>
                 <div className="ops-venue-switcher-head">
                   <strong>Multi-venue switcher</strong>
-                  <button type="button" className="btn btn-secondary" onClick={() => handleSectionChange("analytics")}>
+                  <button type="button" className="btn btn-secondary" onClick={() => handleSectionChange("analytics")}> 
                     Group analytics
                   </button>
                 </div>
@@ -722,11 +809,6 @@ export default function ManagerControlCenter({
                   ))}
                 </div>
               </>
-            ) : (
-              <div className="ops-venue-single">
-                <strong>{snapshot.venues[0]?.name || "Your Venue"}</strong>
-                <p style={{ color: "var(--text-soft)", fontSize: ".95rem", margin: "8px 0 0 0" }}>Single venue plan</p>
-              </div>
             )}
           </div>
         </div>
@@ -1238,6 +1320,7 @@ export default function ManagerControlCenter({
                     <OpsKpiCard label="Sales" value={`${selectedStaff.salesScore}%`} />
                     <OpsKpiCard label="Product" value={`${selectedStaff.productScore}%`} />
                   </div>
+                  <StaffBadges staff={selectedStaff} />
                   <div className="ops-grid-two-col">
                     <div>
                       <strong className="ops-subhead">Strengths</strong>
@@ -1710,6 +1793,207 @@ export default function ManagerControlCenter({
           </section>
         )}
 
+        {activeSection === "aicoach" && (
+          <section className="ops-grid ops-grid-main">
+            <article className="ops-card ops-ai-coach-card">
+              <div className="ops-card-head">
+                <h3>Ask AI Coach</h3>
+                <span>{selectedVenue?.name ?? "Your venue"}</span>
+              </div>
+              <p style={{ color: "var(--text-soft)", fontSize: ".95rem", marginBottom: 16 }}>
+                Your AI coach has live access to your venue&rsquo;s staff, training programs, and inventory.
+                Ask anything about your team&rsquo;s performance.
+              </p>
+              <div className="ops-ai-coach-suggestions">
+                {[
+                  "Who hasn't completed their training?",
+                  "Which staff need upselling practice?",
+                  "What's our average scenario score?",
+                  "Who are my top performers?",
+                ].map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    className="ops-ai-suggestion-chip"
+                    onClick={() => setAiCoachInput(suggestion)}
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+              <div className="ops-ai-coach-messages">
+                {aiCoachMessages.length === 0 && (
+                  <div className="ops-ai-coach-empty">
+                    <span>✦</span>
+                    <p>Your AI coach is ready. Ask a question about your team, training progress, or venue performance.</p>
+                  </div>
+                )}
+                {aiCoachMessages.map((msg, index) => (
+                  <div
+                    key={index}
+                    className={`ops-ai-message ops-ai-message-${msg.role}`}
+                  >
+                    <span className="ops-ai-message-label">{msg.role === "user" ? "You" : "✦ AI Coach"}</span>
+                    <p style={{ whiteSpace: "pre-wrap" }}>{msg.content}</p>
+                  </div>
+                ))}
+                {aiCoachLoading && (
+                  <div className="ops-ai-message ops-ai-message-coach">
+                    <span className="ops-ai-message-label">✦ AI Coach</span>
+                    <p className="ops-ai-thinking">Analysing your venue data…</p>
+                  </div>
+                )}
+              </div>
+              <form className="ops-ai-coach-form" onSubmit={handleAiCoachSubmit}>
+                <input
+                  className="input"
+                  value={aiCoachInput}
+                  onChange={(e) => setAiCoachInput(e.target.value)}
+                  placeholder="Ask about your staff, training, or venue performance…"
+                  disabled={aiCoachLoading}
+                />
+                <button type="submit" className="btn btn-primary" disabled={aiCoachLoading || !aiCoachInput.trim()}>
+                  {aiCoachLoading ? "…" : "Ask"}
+                </button>
+              </form>
+            </article>
+
+            <article className="ops-card">
+              <div className="ops-card-head">
+                <h3>Suggested questions</h3>
+              </div>
+              <ul className="ops-plain-list">
+                <li>Who hasn&rsquo;t completed their alcohol training?</li>
+                <li>Which staff have the lowest sales scores?</li>
+                <li>What&rsquo;s my venue health score this week?</li>
+                <li>Show me staff who need coaching on service.</li>
+                <li>How many training programs are active?</li>
+                <li>What inventory categories are connected for AI realism?</li>
+              </ul>
+            </article>
+          </section>
+        )}
+
+        {activeSection === "predictive" && (() => {
+          const venueStaff = snapshot.staff.filter((s) => s.venueId === selectedVenueId);
+          type PredictionFlag = { id: string; staffName: string; role: string; gap: string; risk: "high" | "medium"; reason: string; action: string };
+          const predictions: PredictionFlag[] = venueStaff.flatMap((member) => {
+            const flags: PredictionFlag[] = [];
+            if (member.salesScore < 70)
+              flags.push({ id: `${member.id}-sales`, staffName: member.name, role: member.role, gap: "Upselling & Sales", risk: "high", reason: `Sales score ${member.salesScore}% — below 70% threshold`, action: "Assign 'Sales Conversations' training module" });
+            if (member.serviceScore < 65)
+              flags.push({ id: `${member.id}-service`, staffName: member.name, role: member.role, gap: "Service Quality", risk: "medium", reason: `Service score ${member.serviceScore}% — needs attention`, action: "Assign 'Guest Experience Foundations' scenario" });
+            if (member.productScore < 60)
+              flags.push({ id: `${member.id}-product`, staffName: member.name, role: member.role, gap: "Product Knowledge", risk: "medium", reason: `Product score ${member.productScore}% — knowledge gaps likely`, action: "Review menu knowledge module assignment" });
+            if (member.progress < 40 && member.status !== "inactive")
+              flags.push({ id: `${member.id}-progress`, staffName: member.name, role: member.role, gap: "Training Completion", risk: "high", reason: `Only ${member.progress}% complete — falling behind`, action: "Schedule a check-in and re-assign priority modules" });
+            return flags;
+          });
+          const highRisk = predictions.filter((p) => p.risk === "high");
+          const medRisk = predictions.filter((p) => p.risk === "medium");
+          const gapTotals: Record<string, number> = {};
+          predictions.forEach((p) => { gapTotals[p.gap] = (gapTotals[p.gap] ?? 0) + 1; });
+          const topGaps = Object.entries(gapTotals).sort((a, b) => b[1] - a[1]).slice(0, 3);
+          return (
+            <section className="ops-grid ops-grid-main">
+              <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+                <div className="ops-card-head">
+                  <h3>Predictive Skill Gaps</h3>
+                  <span>{selectedVenue?.name ?? "All venues"}</span>
+                </div>
+                <p style={{ color: "var(--text-soft)", fontSize: ".95rem", marginBottom: 20 }}>
+                  Rule-based analysis of your venue&rsquo;s staff data. Staff predicted to struggle in key areas are flagged below with recommended actions.
+                </p>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 24 }}>
+                  <div className="ops-kpi-card" style={{ background: predictions.length > 0 ? "#fef2f2" : "var(--surface)", borderColor: predictions.length > 0 ? "#fca5a5" : "var(--line)" }}>
+                    <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>Total flags</span>
+                    <strong style={{ fontSize: "1.8rem", color: predictions.length > 0 ? "#dc2626" : "var(--green)" }}>{predictions.length}</strong>
+                    <small>{predictions.length === 0 ? "All staff on track" : `${highRisk.length} high priority`}</small>
+                  </div>
+                  <div className="ops-kpi-card">
+                    <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>Staff flagged</span>
+                    <strong style={{ fontSize: "1.8rem" }}>{new Set(predictions.map((p) => p.staffName)).size}</strong>
+                    <small>of {venueStaff.length} total</small>
+                  </div>
+                  <div className="ops-kpi-card">
+                    <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>Top gap area</span>
+                    <strong style={{ fontSize: "1.1rem" }}>{topGaps[0]?.[0] ?? "None"}</strong>
+                    <small>{topGaps[0] ? `${topGaps[0][1]} staff affected` : "All clear"}</small>
+                  </div>
+                </div>
+                {predictions.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: "40px 0", color: "var(--text-soft)" }}>
+                    <div style={{ fontSize: "2rem", marginBottom: 8 }}>✅</div>
+                    <strong>No skill gap flags detected.</strong>
+                    <p style={{ marginTop: 4, fontSize: ".9rem" }}>All staff scores are above thresholds. Keep an eye on this as new staff join.</p>
+                  </div>
+                ) : (
+                  <>
+                    {highRisk.length > 0 && (
+                      <div style={{ marginBottom: 24 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                          <span style={{ background: "#fca5a5", color: "#7f1d1d", borderRadius: 6, padding: "2px 10px", fontWeight: 700, fontSize: ".8rem" }}>HIGH PRIORITY</span>
+                          <span style={{ color: "var(--text-soft)", fontSize: ".85rem" }}>{highRisk.length} prediction{highRisk.length !== 1 ? "s" : ""}</span>
+                        </div>
+                        <ul style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                          {highRisk.map((p) => (
+                            <li key={p.id} style={{ background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 10, padding: "14px 16px" }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8 }}>
+                                <div>
+                                  <strong style={{ fontSize: ".95rem" }}>{p.staffName}</strong>
+                                  <span style={{ marginLeft: 8, background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 6, padding: "1px 8px", fontSize: ".75rem", color: "var(--text-soft)" }}>{p.role}</span>
+                                  <span style={{ marginLeft: 6, color: "#dc2626", fontWeight: 600, fontSize: ".85rem" }}>{p.gap}</span>
+                                </div>
+                              </div>
+                              <p style={{ margin: "6px 0 4px", color: "var(--text-soft)", fontSize: ".85rem" }}>{p.reason}</p>
+                              <p style={{ margin: 0, fontSize: ".85rem", color: "#1e40af", fontWeight: 500 }}>→ {p.action}</p>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {medRisk.length > 0 && (
+                      <div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                          <span style={{ background: "#fef3c7", color: "#78350f", borderRadius: 6, padding: "2px 10px", fontWeight: 700, fontSize: ".8rem" }}>WATCH</span>
+                          <span style={{ color: "var(--text-soft)", fontSize: ".85rem" }}>{medRisk.length} prediction{medRisk.length !== 1 ? "s" : ""}</span>
+                        </div>
+                        <ul style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                          {medRisk.map((p) => (
+                            <li key={p.id} style={{ background: "#fffbeb", border: "1px solid #fcd34d", borderRadius: 10, padding: "14px 16px" }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8 }}>
+                                <div>
+                                  <strong style={{ fontSize: ".95rem" }}>{p.staffName}</strong>
+                                  <span style={{ marginLeft: 8, background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 6, padding: "1px 8px", fontSize: ".75rem", color: "var(--text-soft)" }}>{p.role}</span>
+                                  <span style={{ marginLeft: 6, color: "#92400e", fontWeight: 600, fontSize: ".85rem" }}>{p.gap}</span>
+                                </div>
+                              </div>
+                              <p style={{ margin: "6px 0 4px", color: "var(--text-soft)", fontSize: ".85rem" }}>{p.reason}</p>
+                              <p style={{ margin: 0, fontSize: ".85rem", color: "#1e40af", fontWeight: 500 }}>→ {p.action}</p>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {topGaps.length > 0 && (
+                      <div style={{ marginTop: 28, padding: "16px", background: "var(--surface)", borderRadius: 10, border: "1px solid var(--line)" }}>
+                        <strong style={{ fontSize: ".9rem", display: "block", marginBottom: 10 }}>Systemic gap analysis</strong>
+                        {topGaps.map(([gap, count]) => (
+                          <div key={gap} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px solid var(--line)" }}>
+                            <span style={{ fontSize: ".9rem" }}>{gap}</span>
+                            <span style={{ fontWeight: 700, color: count >= 3 ? "#dc2626" : "var(--text)" }}>{count} staff affected</span>
+                          </div>
+                        ))}
+                        <p style={{ marginTop: 10, fontSize: ".82rem", color: "var(--text-soft)" }}>Patterns across multiple staff suggest a systemic gap — consider creating venue-wide training content for these areas.</p>
+                      </div>
+                    )}
+                  </>
+                )}
+              </article>
+            </section>
+          );
+        })()}
+
         {activeSection === "settings" && (
           <section className="ops-grid ops-grid-main">
             <article className="ops-card">
@@ -1749,19 +2033,25 @@ export default function ManagerControlCenter({
                 </form>
 
                 <div className="ops-venue-list">
-                  {snapshot.venues.map((venue) => (
-                    <div key={venue.id} className="ops-venue-row">
-                      <strong>{venue.name}</strong>
-                      <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={() => handleDeleteVenue(venue.id, venue.name)}
-                        disabled={isSaving || snapshot.venues.length <= 1}
-                      >
-                        Delete
-                      </button>
+                  {snapshot.venues.length === 0 ? (
+                    <div className="ops-venue-row-empty">
+                      <em>No venues found. Create your first venue to get started.</em>
                     </div>
-                  ))}
+                  ) : (
+                    snapshot.venues.map((venue) => (
+                      <div key={venue.id} className="ops-venue-row">
+                        <strong>{venue.name}</strong>
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={() => handleDeleteVenue(venue.id, venue.name)}
+                          disabled={isSaving}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </article>
@@ -1962,4 +2252,36 @@ function formatPercent(value: number) {
   }
 
   return `${value}%`;
+}
+
+function StaffBadges({ staff }: { staff: { progress: number; serviceScore: number; salesScore: number; productScore: number; status: string } }) {
+  const badges: Array<{ icon: string; label: string; earned: boolean }> = [
+    { icon: "🎓", label: "Training Started", earned: staff.progress > 0 },
+    { icon: "⭐", label: "Training Complete", earned: staff.progress >= 100 },
+    { icon: "🤝", label: "Service Star", earned: staff.serviceScore >= 75 },
+    { icon: "💰", label: "Sales Champion", earned: staff.salesScore >= 75 },
+    { icon: "🍹", label: "Product Expert", earned: staff.productScore >= 75 },
+    { icon: "🏆", label: "Top Performer", earned: staff.serviceScore >= 80 && staff.salesScore >= 80 && staff.productScore >= 80 },
+  ];
+
+  const earned = badges.filter((b) => b.earned);
+  if (!earned.length) return null;
+
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <strong className="ops-subhead">Milestones & badges</strong>
+      <div className="ops-badge-list">
+        {badges.map((badge) => (
+          <div
+            key={badge.label}
+            className={`ops-badge${badge.earned ? " ops-badge-earned" : " ops-badge-locked"}`}
+            title={badge.earned ? badge.label : `${badge.label} (not yet earned)`}
+          >
+            <span>{badge.icon}</span>
+            <span>{badge.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }

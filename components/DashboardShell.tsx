@@ -30,6 +30,7 @@ const TRAINER_MODULES: Partial<Record<NavItem, "bartending" | "sales" | "managem
 };
 
 const AVATAR_CHOICES = ["😀", "😎", "🙂", "🤠", "🥳", "🧠", "🫶", "😺"];
+const FOUNDERS_AVATAR = "👑";
 
 function StaffSettingsPanel({
   displayName,
@@ -38,6 +39,8 @@ function StaffSettingsPanel({
   notifReminders,
   notifWeeklyDigest,
   notifAchievementAlerts,
+  isFounder,
+  onFounderActivated,
 }: {
   displayName: string;
   userEmail: string;
@@ -45,6 +48,8 @@ function StaffSettingsPanel({
   notifReminders: boolean;
   notifWeeklyDigest: boolean;
   notifAchievementAlerts: boolean;
+  isFounder: boolean;
+  onFounderActivated: () => void;
 }) {
   const [avatar, setAvatar] = useState(savedAvatar || AVATAR_CHOICES[0]);
   const [profileName, setProfileName] = useState(displayName);
@@ -56,6 +61,40 @@ function StaffSettingsPanel({
   const [securityMessage, setSecurityMessage] = useState("");
   const [securityError, setSecurityError] = useState("");
   const [isSavingSecurity, setIsSavingSecurity] = useState(false);
+  const [founderCode, setFounderCode] = useState("");
+  const [founderCodeError, setFounderCodeError] = useState("");
+  const [founderCodeSuccess, setFounderCodeSuccess] = useState("");
+  const [isSubmittingFounderCode, setIsSubmittingFounderCode] = useState(false);
+
+  async function handleFounderCodeSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setFounderCodeError("");
+    setFounderCodeSuccess("");
+    setIsSubmittingFounderCode(true);
+    try {
+      const supabaseClient = createSupabaseBrowserClient();
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const res = await fetch("/api/founders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { "Authorization": `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({ code: founderCode.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Invalid code.");
+      setFounderCodeSuccess("👑 Founders access activated! Your launch pricing is locked in.");
+      setFounderCode("");
+      onFounderActivated();
+      // Reload so the server re-fetches the updated profile with is_founders_user = true
+      window.location.reload();
+    } catch (err) {
+      setFounderCodeError(err instanceof Error ? err.message : "Could not activate founders access.");
+    } finally {
+      setIsSubmittingFounderCode(false);
+    }
+  }
 
   const [enableReminders, setEnableReminders] = useState(notifReminders);
   const [enableWeeklyDigest, setEnableWeeklyDigest] = useState(notifWeeklyDigest);
@@ -240,6 +279,18 @@ function StaffSettingsPanel({
               {option}
             </button>
           ))}
+          {isFounder && (
+            <button
+              key={FOUNDERS_AVATAR}
+              type="button"
+              className={`staff-avatar-choice${avatar === FOUNDERS_AVATAR ? " active" : ""}`}
+              onClick={() => handleAvatarChange(FOUNDERS_AVATAR)}
+              aria-pressed={avatar === FOUNDERS_AVATAR}
+              title="Founder badge — exclusive to founding members"
+            >
+              {FOUNDERS_AVATAR}
+            </button>
+          )}
         </div>
       </div>
 
@@ -313,6 +364,38 @@ function StaffSettingsPanel({
           </form>
         </div>
       </div>
+
+      {!isFounder && (
+        <div className="card">
+          <h3>👑 Founding Member Access</h3>
+          <p>Have a founders code? Enter it below to lock in your launch pricing and get founding member status permanently.</p>
+          <form className="staff-settings-form" onSubmit={handleFounderCodeSubmit}>
+            <label className="label" htmlFor="founder-code-input">
+              Founders code
+              <input
+                id="founder-code-input"
+                className="input"
+                type="text"
+                value={founderCode}
+                onChange={(event) => setFounderCode(event.target.value)}
+                placeholder="Enter your code"
+                required
+              />
+            </label>
+            {founderCodeError ? <div className="auth-status auth-status-error">{founderCodeError}</div> : null}
+            {founderCodeSuccess ? <div className="auth-status auth-status-success">{founderCodeSuccess}</div> : null}
+            <button type="submit" className="btn btn-primary" disabled={isSubmittingFounderCode}>
+              {isSubmittingFounderCode ? "Activating..." : "Activate founders access"}
+            </button>
+          </form>
+        </div>
+      )}
+      {isFounder && (
+        <div className="card" style={{ borderColor: "var(--green-mid)", background: "var(--surface-raised)" }}>
+          <h3>👑 Founding Member</h3>
+          <p>You are a founding member. Your launch pricing is locked in for life. Thank you for believing in Serve By Example from the start.</p>
+        </div>
+      )}
 
       <div className="card sbe-trust-card">
         <h3>Account activity</h3>
@@ -481,6 +564,7 @@ export default function DashboardShell({
   notifReminders,
   notifWeeklyDigest,
   notifAchievementAlerts,
+  isFounderInitial,
 }: {
   displayName: string;
   plan: string;
@@ -490,13 +574,47 @@ export default function DashboardShell({
   notifReminders: boolean;
   notifWeeklyDigest: boolean;
   notifAchievementAlerts: boolean;
+  isFounderInitial: boolean;
 }) {
   const [activeNav, setActiveNav] = useState<NavItem>("home");
   const [managementUnlocked, setManagementUnlocked] = useState(managementUnlockedInitial);
+  const [isFounder, setIsFounder] = useState(isFounderInitial);
+  const [showFounderModal, setShowFounderModal] = useState(false);
+  const [founderModalCode, setFounderModalCode] = useState("");
+  const [founderModalError, setFounderModalError] = useState("");
+  const [founderModalLoading, setFounderModalLoading] = useState(false);
   const [managementCode, setManagementCode] = useState("");
   const [managementCodeError, setManagementCodeError] = useState("");
   const [managementCodeMessage, setManagementCodeMessage] = useState("");
   const [isUnlockingManagement, setIsUnlockingManagement] = useState(false);
+
+  async function handleFounderModalSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setFounderModalError("");
+    setFounderModalLoading(true);
+    try {
+      const supabaseClient = createSupabaseBrowserClient();
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const res = await fetch("/api/founders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { "Authorization": `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({ code: founderModalCode.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Invalid code.");
+      setIsFounder(true);
+      setShowFounderModal(false);
+      // Reload so the server re-fetches the updated profile with is_founders_user = true
+      window.location.reload();
+    } catch (err) {
+      setFounderModalError(err instanceof Error ? err.message : "Invalid code.");
+    } finally {
+      setFounderModalLoading(false);
+    }
+  }
 
   const planTitle =
     plan === "multi-venue"
@@ -588,12 +706,52 @@ export default function DashboardShell({
 
   return (
     <main className="dashboard-shell">
+      {showFounderModal && (
+        <div className="founder-modal-overlay" role="dialog" aria-modal="true" aria-label="Founders code">
+          <div className="founder-modal">
+            <button
+              className="founder-modal-close"
+              onClick={() => setShowFounderModal(false)}
+              aria-label="Close"
+              type="button"
+            >×</button>
+            <div style={{ fontSize: "2.5rem", marginBottom: 8 }}>👑</div>
+            <h2 style={{ marginBottom: 8 }}>Founding Member Access</h2>
+            <p style={{ color: "var(--text-soft)", marginBottom: 20, fontSize: "0.95rem" }}>
+              Enter your private founders code to lock in launch pricing for life and get your exclusive Founder badge.
+            </p>
+            <form onSubmit={handleFounderModalSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <input
+                className="input"
+                type="text"
+                value={founderModalCode}
+                onChange={(e) => setFounderModalCode(e.target.value)}
+                placeholder="Enter founders code"
+                autoFocus
+                required
+              />
+              {founderModalError && <div className="auth-status auth-status-error">{founderModalError}</div>}
+              <button className="btn btn-primary" type="submit" disabled={founderModalLoading}>
+                {founderModalLoading ? "Activating..." : "Activate founders access"}
+              </button>
+            </form>
+            <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: 16 }}>
+              Don&rsquo;t have a code? <a href="/pricing" style={{ color: "var(--green-mid)" }}>Request early access</a>
+            </p>
+          </div>
+        </div>
+      )}
+
       <aside className="dashboard-sidebar">
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: 16 }}>
           <div style={{ backgroundColor: "#f5f5f5", padding: "6px", borderRadius: "8px", flexShrink: 0 }}>
             <Image src="/logo.ico" alt="SBE AI" width={38} height={38} style={{ borderRadius: 10, display: "block" }} />
           </div>
           <span style={{ fontSize: "18px", fontWeight: 700, color: "#fff", whiteSpace: "nowrap" }}>Serve By Example</span>
+        </div>
+
+        <div style={{ marginBottom: 12, color: "#fff", fontSize: "0.93rem", fontWeight: 500 }}>
+          Welcome back, {displayName}{isFounder ? " 👑" : ""}
         </div>
 
         <div className="mockup-nav">
@@ -612,6 +770,16 @@ export default function DashboardShell({
         <div className="dashboard-plan-card dashboard-plan-card-sidebar">
           <strong>{planTitle}</strong>
           <div>{planMessage}</div>
+          {!isFounder && (
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ marginTop: 10, fontSize: "0.8rem", padding: "6px 10px" }}
+              onClick={() => setShowFounderModal(true)}
+            >
+              👑 Enter founders code
+            </button>
+          )}
         </div>
 
         <div className="dashboard-sidebar-signout">
@@ -673,6 +841,8 @@ export default function DashboardShell({
             notifReminders={notifReminders}
             notifWeeklyDigest={notifWeeklyDigest}
             notifAchievementAlerts={notifAchievementAlerts}
+            isFounder={isFounder}
+            onFounderActivated={() => setIsFounder(true)}
           />
         ) : (
           <ComingSoon label={NAV_ITEMS.find((n) => n.id === activeNav)?.label ?? activeNav} />

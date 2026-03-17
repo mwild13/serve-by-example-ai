@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 
 type ChatMessage = {
@@ -21,43 +21,11 @@ export default function FloatingCoach() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [isListening, setIsListening] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isAnswerCompact, setIsAnswerCompact] = useState(false);
   const [keyboardOffset, setKeyboardOffset] = useState(0);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const outputRef = useRef<HTMLDivElement | null>(null);
-
-  const canUseVoice = useMemo(() => {
-    if (typeof window === "undefined") {
-      return false;
-    }
-
-    const win = window as Window & {
-      webkitSpeechRecognition?: new () => {
-        lang: string;
-        continuous: boolean;
-        interimResults: boolean;
-        onresult: (event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void;
-        onerror: () => void;
-        onend: () => void;
-        start: () => void;
-        stop: () => void;
-      };
-      SpeechRecognition?: new () => {
-        lang: string;
-        continuous: boolean;
-        interimResults: boolean;
-        onresult: (event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void;
-        onerror: () => void;
-        onend: () => void;
-        start: () => void;
-        stop: () => void;
-      };
-    };
-
-    return Boolean(win.SpeechRecognition || win.webkitSpeechRecognition);
-  }, []);
 
   useEffect(() => {
     document.body.classList.add("ai-coach-enabled");
@@ -167,60 +135,6 @@ export default function FloatingCoach() {
     await askCoach(question);
   }
 
-  function handleVoiceInput() {
-    if (!canUseVoice || isListening) {
-      return;
-    }
-
-    const win = window as Window & {
-      webkitSpeechRecognition?: new () => {
-        lang: string;
-        continuous: boolean;
-        interimResults: boolean;
-        onresult: (event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void;
-        onerror: () => void;
-        onend: () => void;
-        start: () => void;
-      };
-      SpeechRecognition?: new () => {
-        lang: string;
-        continuous: boolean;
-        interimResults: boolean;
-        onresult: (event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void;
-        onerror: () => void;
-        onend: () => void;
-        start: () => void;
-      };
-    };
-
-    const Recognition = win.SpeechRecognition || win.webkitSpeechRecognition;
-    if (!Recognition) {
-      return;
-    }
-
-    const recognition = new Recognition();
-    recognition.lang = getCurrentLanguage();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-
-    recognition.onresult = (event) => {
-      const transcript = event.results[0]?.[0]?.transcript || "";
-      setInput((prev) => `${prev} ${transcript}`.trim());
-    };
-
-    recognition.onerror = () => {
-      setError("Voice input failed. Please try again.");
-      setIsListening(false);
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-
-    setIsListening(true);
-    recognition.start();
-  }
-
   const coachWrapStyle = {
     "--coach-keyboard-offset": `${keyboardOffset}px`,
   } as CSSProperties;
@@ -279,18 +193,10 @@ export default function FloatingCoach() {
                 placeholder="Ask Ai Coach Antyhing..."
                 aria-label="Ask AI Coach"
               />
-              {canUseVoice ? (
-                <button
-                  type="button"
-                  className={`coach-voice-btn${isListening ? " listening" : ""}`}
-                  onClick={handleVoiceInput}
-                  aria-label="Use voice input"
-                >
-                  🎤
-                </button>
-              ) : null}
-              <button type="submit" className="coach-send-btn" disabled={isLoading || !input.trim()}>
-                ⬆️
+              <button type="submit" className="coach-send-btn" disabled={isLoading || !input.trim()} aria-label="Send">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M8 13V3M8 3L3 8M8 3L13 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
               </button>
               <button
                 type="button"

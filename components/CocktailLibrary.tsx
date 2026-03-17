@@ -5,12 +5,10 @@ import { COCKTAILS, CATEGORIES, type Category } from "@/lib/cocktails";
 
 const CATEGORY_KEYS = Object.keys(CATEGORIES) as Category[];
 
-type PurposeFilter = "all" | "refresher" | "serving" | "practice";
+type PurposeFilter = "all" | "practice";
 
 const PURPOSE_LABELS: Record<PurposeFilter, string> = {
   all: "Browse all",
-  refresher: "I need a refresher",
-  serving: "I'm about to serve this",
   practice: "Add to training",
 };
 
@@ -28,11 +26,7 @@ export default function CocktailLibrary() {
       const matchesSearch = c.name.toLowerCase().includes(q);
       return matchesCat && matchesSearch;
     });
-    if (purposeFilter === "refresher") {
-      results = [...results].sort((a) => (["Classics", "Sours"].includes(CATEGORIES[a.category]?.label) ? -1 : 1)).slice(0, 12);
-    } else if (purposeFilter === "serving") {
-      results = [...results].sort((a, b) => a.name.localeCompare(b.name));
-    } else if (purposeFilter === "practice") {
+    if (purposeFilter === "practice") {
       results = [...results].sort((a) => (practiceAdded.has(a.name) ? -1 : 1));
     }
     return results;
@@ -56,20 +50,7 @@ export default function CocktailLibrary() {
           : CATEGORIES[activeCategory].description}
       </p>
 
-      <div className="sbe-purpose-filter-row">
-        {(Object.keys(PURPOSE_LABELS) as PurposeFilter[]).map((key) => (
-          <button
-            key={key}
-            type="button"
-            className={`sbe-purpose-btn${purposeFilter === key ? " active" : ""}`}
-            onClick={() => { setPurposeFilter(key); setSelected(null); }}
-          >
-            {key === "refresher" ? "🔁 " : key === "serving" ? "🍸 " : key === "practice" ? "🎯 " : ""}
-            {PURPOSE_LABELS[key]}
-            {key === "practice" && practiceAdded.size > 0 ? <span className="sbe-purpose-count">{practiceAdded.size}</span> : null}
-          </button>
-        ))}
-      </div>
+
 
       <div className="cocktail-search-row">
         <input
@@ -140,35 +121,7 @@ export default function CocktailLibrary() {
                 </div>
                 <div className="cocktail-glass-hint">{cocktail.glass}</div>
 
-                {!isOpen && (
-                  <div className="sbe-card-action-row" onClick={(e) => e.stopPropagation()}>
-                    {purposeFilter === "practice" || purposeFilter === "all" ? (
-                      <button
-                        type="button"
-                        className={`sbe-card-action-btn${inPractice ? " sbe-card-action-added" : ""}`}
-                        onClick={(e) => inPractice ? e.stopPropagation() : addToPractice(cocktail.name, e)}
-                      >
-                        {inPractice ? "✓ Added to practice" : "🎯 Practice this"}
-                      </button>
-                    ) : purposeFilter === "serving" ? (
-                      <button
-                        type="button"
-                        className="sbe-card-action-btn"
-                        onClick={(e) => { e.stopPropagation(); toggleCard(cocktail.name); }}
-                      >
-                        🍸 View recipe
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        className="sbe-card-action-btn"
-                        onClick={(e) => { e.stopPropagation(); toggleCard(cocktail.name); }}
-                      >
-                        🔁 Quick refresher
-                      </button>
-                    )}
-                  </div>
-                )}
+
 
                 {isOpen && (
                   <div className="cocktail-detail" onClick={(e) => e.stopPropagation()}>
@@ -208,7 +161,7 @@ export default function CocktailLibrary() {
                         onClick={(e) => addToPractice(cocktail.name, e)}
                         disabled={inPractice}
                       >
-                        {inPractice ? "✓ Added to practice" : "🎯 Practice this"}
+                        {inPractice ? "✓ Added to training" : "🎯 Add to training"}
                       </button>
                       <button
                         className="btn btn-secondary"

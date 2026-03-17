@@ -75,6 +75,12 @@ create unique index if not exists venues_venue_code_key on public.venues(venue_c
 alter table public.profiles
   add column if not exists management_unlocked boolean default false;
 
+alter table public.profiles
+  add column if not exists is_founders_user boolean default false;
+
+alter table public.profiles
+  add column if not exists stripe_customer_id text;
+
 alter table public.venues enable row level security;
 alter table public.venue_staff enable row level security;
 alter table public.training_programs enable row level security;

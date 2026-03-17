@@ -1,9 +1,37 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import SectionHeading from "@/components/SectionHeading";
 
 export default function PricingPage() {
+  const [loading, setLoading] = useState<string | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
+  async function handleCheckout(plan: string) {
+    setLoading(plan);
+    try {
+      const res = await fetch("/api/billing/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        // Unlikely — fall back to error message below the button instead of alert
+        setLoading(null);
+        setCheckoutError(data.error || "Unable to start checkout. Please try again.");
+      }
+    } catch {
+      setLoading(null);
+      setCheckoutError("Network error. Please try again.");
+    }
+  }
+
   return (
     <div className="page-shell">
       <Navbar />
@@ -23,6 +51,11 @@ export default function PricingPage() {
 
         <section className="section" style={{ paddingTop: 24 }}>
           <div className="container">
+            {checkoutError && (
+              <div className="auth-status auth-status-error" style={{ marginBottom: 16, maxWidth: 480, margin: "0 auto 16px" }}>
+                {checkoutError}
+              </div>
+            )}
             <div className="pricing-grid" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
               <div className="price-card">
                 <h3>Free Demo</h3>
@@ -56,9 +89,13 @@ export default function PricingPage() {
                   <li>Management starter modules</li>
                   <li>Progress tracking</li>
                 </ul>
-                <Link href="/login" className="btn btn-gold">
-                  Join Pro
-                </Link>
+                <button
+                  className="btn btn-gold"
+                  onClick={() => handleCheckout("pro")}
+                  disabled={loading === "pro"}
+                >
+                  {loading === "pro" ? "Redirecting..." : "Join Pro"}
+                </button>
               </div>
 
               <div className="price-card">
@@ -76,9 +113,13 @@ export default function PricingPage() {
                   <li>Basic progress dashboard</li>
                   <li>Venue onboarding framework</li>
                 </ul>
-                <Link href="/for-venues#venue-enquiry" className="btn btn-secondary">
-                  Request Access
-                </Link>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => handleCheckout("single_venue")}
+                  disabled={loading === "single_venue"}
+                >
+                  {loading === "single_venue" ? "Redirecting..." : "Request Access"}
+                </button>
               </div>
 
               <div className="price-card">
@@ -97,10 +138,29 @@ export default function PricingPage() {
                   <li>Advanced analytics & leaderboards</li>
                   <li>Priority support</li>
                 </ul>
-                <Link href="/for-venues#venue-enquiry" className="btn btn-secondary">
-                  Request Multi-Venue Access
-                </Link>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => handleCheckout("multi_venue")}
+                  disabled={loading === "multi_venue"}
+                >
+                  {loading === "multi_venue" ? "Redirecting..." : "Request Multi-Venue Access"}
+                </button>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="section" style={{ paddingTop: 0 }}>
+          <div className="container">
+            <div style={{ maxWidth: 560, margin: "0 auto", background: "var(--surface-raised)", border: "2px solid var(--green-mid)", borderRadius: 18, padding: "36px 32px", textAlign: "center", boxShadow: "0 8px 32px rgba(31,78,55,0.15)" }}>
+              <div style={{ fontSize: "2.2rem", marginBottom: 10 }}>👑</div>
+              <h2 style={{ fontFamily: "var(--font-heading)", color: "var(--green-deep)", marginBottom: 8 }}>Founding Member Access</h2>
+              <p style={{ color: "var(--text-soft)", marginBottom: 20, lineHeight: 1.7 }}>
+                Launching soon. Be a Founding Member — request your private access code and lock in launch-stage pricing for life. Founding members get full access, an exclusive Founder badge, and direct input into what gets built next.
+              </p>
+              <Link href="/contact" className="btn btn-primary btn-lg">
+                Request your founders code
+              </Link>
             </div>
           </div>
         </section>

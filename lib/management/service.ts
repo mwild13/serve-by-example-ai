@@ -115,15 +115,41 @@ function buildMenuKnowledge(inventory: InventoryCategory[]): MenuKnowledgeItem[]
   ];
 }
 
+function calculateMetrics(staff: StaffMember[]) {
+  // Phase 4: Calculate metrics dynamically from real data
+  if (staff.length === 0) {
+    return { completionRate: 0, avgScenarioScore: 0, upsellRate: 0 };
+  }
+
+  // Training completion: average progress across all staff
+  const completionRate = Math.round(
+    staff.reduce((sum, member) => sum + member.progress, 0) / staff.length,
+  );
+
+  // Scenario quality: average of service and product scores
+  const avgScenarioScore = Math.round(
+    staff.reduce((sum, member) => sum + (member.serviceScore + member.productScore) / 2, 0) / staff.length,
+  );
+
+  // Upsell trend: average sales score
+  const upsellRate = Math.round(
+    staff.reduce((sum, member) => sum + member.salesScore, 0) / staff.length,
+  );
+
+  return { completionRate, avgScenarioScore, upsellRate };
+}
+
 function mapVenue(row: Record<string, unknown>, staff: StaffMember[]): Venue {
   const parsedVenueCode = Number(row.venue_code);
+  const { completionRate, avgScenarioScore, upsellRate } = calculateMetrics(staff);
+
   return {
     id: asString(row.id, crypto.randomUUID()),
     name: asString(row.name, "Venue"),
     venueCode: Number.isFinite(parsedVenueCode) ? parsedVenueCode : undefined,
-    completionRate: asNumber(row.completion_rate),
-    avgScenarioScore: asNumber(row.avg_scenario_score),
-    upsellRate: asNumber(row.upsell_rate),
+    completionRate,
+    avgScenarioScore,
+    upsellRate,
     activeStaff: staff.length,
     staffLimit: asNumber(row.staff_limit, 25),
     managerPermissions: asString(row.manager_permissions, "2 managers, 1 supervisor admin"),
@@ -503,15 +529,15 @@ export async function createVenue(
     insertPayload.venue_code = venueCode;
   }
 
-  let insertResult = await supabase.from("venues").insert(insertPayload);
+  let insertResult = await supabase.from("venues").insert(insertPayload).select("id").single();
 
   if (insertResult.error && isMissingColumn(insertResult.error)) {
     const fallbackPayload = { ...insertPayload };
     delete fallbackPayload.venue_code;
-    insertResult = await supabase.from("venues").insert(fallbackPayload);
+    insertResult = await supabase.from("venues").insert(fallbackPayload).select("id").single();
   }
 
-  const { error } = insertResult;
+  const { data, error } = insertResult;
 
   if (isMissingRelation(error)) {
     throw new Error("Management schema missing: venues table not found. Run supabase/management_schema.sql first.");
@@ -519,6 +545,66 @@ export async function createVenue(
 
   if (error) {
     throw error;
+  }
+
+  // Phase 2: Initialize new venue with helpful starter data
+  const newVenueId = asString(data?.id);
+  if (!newVenueId) {
+    return;
+  }
+
+  // Import starter templates
+  const { DEFAULT_STARTER_STAFF, DEFAULT_STARTER_PROGRAMS, DEFAULT_STARTER_INVENTORY } = await import("./seed");
+
+  // Seed default staff roles (non-blocking, best effort)
+  try {
+    const staffInserts = DEFAULT_STARTER_STAFF.map((staff) => ({
+      venue_id: newVenueId,
+      manager_user_id: userId,
+      name: staff.name,
+      role: staff.role,
+      progress: 0,
+      service_score: 0,
+      sales_score: 0,
+      product_score: 0,
+      status: "on-track",
+      strengths: [],
+      improvements: [],
+    }));
+    await supabase.from("venue_staff").insert(staffInserts).then();
+  } catch {
+    // Silently continue if staff seeding fails
+  }
+
+  // Seed default training programs (non-blocking, best effort)
+  try {
+    const programInserts = DEFAULT_STARTER_PROGRAMS.map((program) => ({
+      venue_id: newVenueId,
+      manager_user_id: userId,
+      name: program.name,
+      role_target: program.roleTarget,
+      description: program.description,
+      completion: 0,
+      day_plan: program.dayPlan,
+    }));
+    await supabase.from("training_programs").insert(programInserts).then();
+  } catch {
+    // Silently continue if program seeding fails
+  }
+
+  // Seed default inventory (non-blocking, best effort)
+  try {
+    const inventoryInserts = DEFAULT_STARTER_INVENTORY.flatMap((category) =>
+      category.products.map((product) => ({
+        venue_id: newVenueId,
+        manager_user_id: userId,
+        category: category.category,
+        name: product,
+      })),
+    );
+    await supabase.from("venue_inventory_items").insert(inventoryInserts).then();
+  } catch {
+    // Silently continue if inventory seeding fails
   }
 }
 
@@ -532,10 +618,9 @@ export async function deleteVenue(
     throw new Error("Management schema missing: venues table not found. Run supabase/management_schema.sql first.");
   }
 
+
+  // Allow deleting the last venue (single-venue mode)
   const ownedVenues = venueResult.data ?? [];
-  if (ownedVenues.length <= 1) {
-    throw new Error("At least one venue must remain. Add another venue before deleting this one.");
-  }
 
   const { error } = await supabase
     .from("venues")

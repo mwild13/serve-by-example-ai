@@ -165,6 +165,45 @@ const SEED_INVENTORY: InventoryCategory[] = [
   { venueId: "seed-cocktail-room", name: "Rum", products: ["Bacardi", "Sailor Jerry", "Diplomatico"] },
 ];
 
+/**
+ * Default starter data for new venues (Phase 2)
+ * This provides helpful starting points for managers who just created a venue.
+ */
+export const DEFAULT_STARTER_STAFF = [
+  { name: "Point Bartender", role: "Bartender" as const },
+  { name: "Floor Staff", role: "Floor" as const },
+  { name: "Shift Supervisor", role: "Supervisor" as const },
+];
+
+export const DEFAULT_STARTER_PROGRAMS = [
+  {
+    name: "Bartending Fundamentals",
+    roleTarget: "Bartender",
+    description: "Core bartending skills: cocktail recipes, techniques, and guest service.",
+    dayPlan: ["Day 1: Basic cocktails", "Day 2: Advanced techniques", "Day 3: Guest interactions"],
+  },
+  {
+    name: "Sales Conversations",
+    roleTarget: "Bartender",
+    description: "Learn to recommend premium spirits, upsell techniques, and suggestive selling.",
+    dayPlan: ["Day 1: Premium spirit language", "Day 2: Upselling techniques", "Day 3: Second-drink strategies"],
+  },
+  {
+    name: "Floor Service Excellence",
+    roleTarget: "Floor",
+    description: "Table pacing, order accuracy, and menu recommendations for front-of-house staff.",
+    dayPlan: ["Day 1: Table service basics", "Day 2: Menu knowledge", "Day 3: Upselling for servers"],
+  },
+];
+
+export const DEFAULT_STARTER_INVENTORY = [
+  { category: "Vodka", products: ["House vodka", "Premium vodka"] },
+  { category: "Gin", products: ["House gin", "Premium gin"] },
+  { category: "Rum", products: ["White rum", "Dark rum"] },
+  { category: "Whiskey", products: ["House whiskey", "Premium whiskey"] },
+  { category: "Tequila", products: ["Silver", "Reposado"] },
+];
+
 const SEED_MENU_KNOWLEDGE: MenuKnowledgeItem[] = [
   { name: "Cocktails", count: 24, note: "Core classics + venue signatures" },
   { name: "Beer", count: 14, note: "Tap + bottled selections" },

@@ -3,5 +3,6 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 });
 
 module.exports = withBundleAnalyzer({
+  output: "standalone",
   outputFileTracingRoot: require("path").resolve(__dirname),
 });

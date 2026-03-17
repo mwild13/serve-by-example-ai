@@ -12,6 +12,8 @@ export type ManagerSection =
   | "reports"
   | "leaderboards"
   | "notifications"
+  | "aicoach"
+  | "predictive"
   | "settings"
   | "billing"
   | "integrations";

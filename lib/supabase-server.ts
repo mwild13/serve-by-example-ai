@@ -37,6 +37,30 @@ export async function createSupabaseServerClient() {
   });
 }
 
+/**
+ * Extract the authenticated user from a Request.
+ * On Cloudflare Pages, cookies are often not forwarded to API routes.
+ * This helper tries the Authorization header JWT first, then falls back
+ * to cookie-based session so it works in both environments.
+ */
+export async function getUserFromRequest(req: Request) {
+  const supabase = await createSupabaseServerClient();
+
+  const authHeader = req.headers.get("authorization");
+  const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+
+  if (token) {
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (user && !error) {
+      return { user, supabase };
+    }
+  }
+
+  // Fallback: cookie-based auth (works locally + some deployments)
+  const { data: { user } } = await supabase.auth.getUser();
+  return { user, supabase };
+}
+
 export function createSupabaseMiddlewareClient(
   request: NextRequest,
   response: NextResponse,

@@ -41,10 +41,10 @@ export default function Navbar({
           </nav>
 
           <div className="nav-right">
-            <LanguageSwitcher variant="navbar" hideOnMobile={!showNavbarLanguageOnMobile} />
 
             {showActions ? (
               <div className="nav-actions">
+                  <LanguageSwitcher variant="navbar" hideOnMobile={!showNavbarLanguageOnMobile} />
                 <Link href="/management/login" className="btn btn-secondary">
                   Manager Login
                 </Link>

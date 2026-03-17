@@ -1,16 +1,18 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
 type AuthMode = "sign-in" | "sign-up" | "forgot-password";
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter();
-  const [mode, setMode] = useState<AuthMode>("sign-in");
+  const searchParams = useSearchParams();
+  const checkoutSuccess = searchParams.get("checkout") === "success";
+  const [mode, setMode] = useState<AuthMode>(checkoutSuccess ? "sign-up" : "sign-in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -71,6 +73,14 @@ export default function LoginPage() {
         }
 
         if (data.session) {
+          // Check for any pending Stripe subscription for this email (guest checkout)
+          const { data: { session: authSession } } = await supabase.auth.getSession();
+          if (authSession?.access_token) {
+            await fetch("/api/billing/link-pending", {
+              method: "POST",
+              headers: { "Authorization": `Bearer ${authSession.access_token}` },
+            });
+          }
           router.push("/onboarding");
           router.refresh();
           return;
@@ -88,6 +98,15 @@ export default function LoginPage() {
 
         if (signInError) {
           throw signInError;
+        }
+
+        // Check for any pending Stripe subscription for this email (guest checkout)
+        const { data: { session: authSession } } = await supabase.auth.getSession();
+        if (authSession?.access_token) {
+          await fetch("/api/billing/link-pending", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${authSession.access_token}` },
+          });
         }
 
         router.push("/dashboard");
@@ -166,6 +185,11 @@ export default function LoginPage() {
 
       <main className="login-shell">
         <div className="login-card">
+          {checkoutSuccess && (
+            <div className="auth-status auth-status-success" style={{ marginBottom: 16 }}>
+              🎉 Payment successful! Create your account or sign in below to access your plan.
+            </div>
+          )}
           <div className="eyebrow">Member access</div>
           <h1>{isSignUp ? "Create your Serve By Example AI account 🚀" : "Staff login: jump back in 🎯"}</h1>
           <p className="login-copy">
@@ -266,5 +290,13 @@ export default function LoginPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginPageContent />
+    </Suspense>
   );
 }
