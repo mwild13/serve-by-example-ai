@@ -7,12 +7,6 @@ type ChatMessage = {
   text: string;
 };
 
-const STARTER_PROMPTS = [
-  "What's the recipe for a Sazerac?",
-  "How should I recover a guest complaint quickly?",
-  "Give me a simple upsell line for premium spirits.",
-];
-
 function getCurrentLanguage() {
   if (typeof document === "undefined") {
     return "en-US";
@@ -173,32 +167,16 @@ export default function FloatingCoach() {
   return (
     <div className="coach-float-wrap" data-no-translate="true">
       <div className="coach-float-panel">
-        <div className="coach-float-head">
-          <strong>AI Training Coach</strong>
-          <span>24/7 instant shift support</span>
-        </div>
-
-        <div className="coach-float-output" ref={outputRef} aria-live="polite">
-          {messages.length === 0 ? (
-            <div className="coach-float-empty">
-              <p>Ask recipes, service standards, policy checks, or upsell ideas.</p>
-              <div className="coach-float-prompts">
-                {STARTER_PROMPTS.map((prompt) => (
-                  <button key={prompt} type="button" onClick={() => void askCoach(prompt)}>
-                    {prompt}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            messages.map((msg, index) => (
+        {messages.length > 0 || isLoading ? (
+          <div className="coach-float-output" ref={outputRef} aria-live="polite">
+            {messages.map((msg, index) => (
               <div key={`${msg.role}-${index}`} className={`coach-msg coach-msg-${msg.role}`}>
                 {msg.text}
               </div>
-            ))
-          )}
-          {isLoading ? <div className="coach-msg coach-msg-assistant">Thinking...</div> : null}
-        </div>
+            ))}
+            {isLoading ? <div className="coach-msg coach-msg-assistant">Thinking...</div> : null}
+          </div>
+        ) : null}
 
         {error ? <div className="coach-float-error">{error}</div> : null}
 
@@ -207,7 +185,7 @@ export default function FloatingCoach() {
             type="text"
             value={input}
             onChange={(event) => setInput(event.target.value)}
-            placeholder="Ask AI Coach anything..."
+            placeholder="Ask Ai Coach Antyhing..."
             aria-label="Ask AI Coach"
           />
           {canUseVoice ? (
@@ -217,11 +195,11 @@ export default function FloatingCoach() {
               onClick={handleVoiceInput}
               aria-label="Use voice input"
             >
-              {isListening ? "Listening" : "Voice"}
+              🎤
             </button>
           ) : null}
           <button type="submit" className="coach-send-btn" disabled={isLoading || !input.trim()}>
-            Send
+            ⬆️
           </button>
         </form>
       </div>
