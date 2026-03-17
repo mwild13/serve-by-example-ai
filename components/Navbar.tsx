@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 type NavbarProps = {
   showActions?: boolean;
@@ -34,22 +35,26 @@ export default function Navbar({ showActions = true, showTextLogin = false }: Na
             <Link href="/demo">Demo</Link>
           </nav>
 
-          {showActions ? (
-            <div className="nav-actions">
-              <Link href="/management/login" className="btn btn-secondary">
-                Manager Login
-              </Link>
-              <Link href="/login" className="btn btn-primary">
-                Staff Login
-              </Link>
-            </div>
-          ) : showTextLogin ? (
-            <div className="nav-text-actions">
-              <Link href="/login" className="nav-text-link">
-                Staff Login
-              </Link>
-            </div>
-          ) : null}
+          <div className="nav-right">
+            <LanguageSwitcher variant="navbar" />
+
+            {showActions ? (
+              <div className="nav-actions">
+                <Link href="/management/login" className="btn btn-secondary">
+                  Manager Login
+                </Link>
+                <Link href="/login" className="btn btn-primary">
+                  Staff Login
+                </Link>
+              </div>
+            ) : showTextLogin ? (
+              <div className="nav-text-actions">
+                <Link href="/login" className="nav-text-link">
+                  Staff Login
+                </Link>
+              </div>
+            ) : null}
+          </div>
 
           <button
             className="nav-hamburger"
@@ -76,6 +81,7 @@ export default function Navbar({ showActions = true, showTextLogin = false }: Na
             <Link href="/demo" className="nav-drawer-link" onClick={close}>Demo</Link>
             <Link href="/about" className="nav-drawer-link" onClick={close}>About</Link>
             <Link href="/contact" className="nav-drawer-link" onClick={close}>Contact</Link>
+            <LanguageSwitcher variant="drawer" />
             {showActions && (
               <div className="nav-drawer-actions">
                 <Link href="/management/login" className="btn btn-secondary btn-block" onClick={close}>Manager Login</Link>

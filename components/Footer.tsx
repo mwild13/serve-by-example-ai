@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function Footer() {
   return (
@@ -65,6 +66,7 @@ export default function Footer() {
       <div className="container footer-bottom">
         <div>&copy; 2026 Serve By Example. All rights reserved.</div>
         <div>Built for bartenders, venue teams and future managers.</div>
+        <LanguageSwitcher variant="footer" mobileOnly />
       </div>
     </footer>
   );
