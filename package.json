@@ -10,13 +10,14 @@
     "build:cloudflare": "npx @opennextjs/cloudflare build && node -e \"const fs=require('fs'),path=require('path');const src=path.join('.open-next','assets');for(const f of fs.readdirSync(src,{withFileTypes:true,recursive:true})){if(f.isFile()){const rel=path.relative(src,path.join(f.parentPath||f.path,f.name));const dst=path.join('.open-next',rel);fs.mkdirSync(path.dirname(dst),{recursive:true});fs.copyFileSync(path.join(f.parentPath||f.path,f.name),dst)}}fs.copyFileSync('.open-next/worker.js','.open-next/_worker.js');fs.writeFileSync('.open-next/_routes.json',JSON.stringify({version:1,include:['/*'],exclude:['/_next/static/*','/favicon.ico','/*.svg']}));\""
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.57.4",
     "next": "15.5.10",
     "openai": "^6.29.0",
     "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "@supabase/supabase-js": "^2.57.4"
+    "react-dom": "19.2.3"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.1.7",
     "@opennextjs/cloudflare": "^1.17.1",
     "@types/node": "^20",
     "@types/react": "^19",

@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 
 type ChatMessage = {
   role: "user" | "assistant";
@@ -23,6 +24,8 @@ export default function FloatingCoach() {
   const [isListening, setIsListening] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isAnswerCompact, setIsAnswerCompact] = useState(false);
+  const [keyboardOffset, setKeyboardOffset] = useState(0);
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const outputRef = useRef<HTMLDivElement | null>(null);
 
   const canUseVoice = useMemo(() => {
@@ -70,6 +73,58 @@ export default function FloatingCoach() {
 
     outputRef.current.scrollTop = outputRef.current.scrollHeight;
   }, [messages, isLoading]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const updateKeyboardOffset = () => {
+      const vv = window.visualViewport;
+      if (!vv) {
+        setKeyboardOffset(0);
+        return;
+      }
+
+      const offset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      setKeyboardOffset(offset > 40 ? offset : 0);
+    };
+
+    const handleFocusIn = (event: Event) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.tagName === "INPUT" || target?.tagName === "TEXTAREA") {
+        setIsInputFocused(true);
+      }
+    };
+
+    const handleFocusOut = () => {
+      setIsInputFocused(false);
+      window.setTimeout(updateKeyboardOffset, 100);
+    };
+
+    const vv = window.visualViewport;
+    if (vv) {
+      vv.addEventListener("resize", updateKeyboardOffset);
+      vv.addEventListener("scroll", updateKeyboardOffset);
+    }
+
+    window.addEventListener("focusin", handleFocusIn);
+    window.addEventListener("focusout", handleFocusOut);
+    window.addEventListener("orientationchange", updateKeyboardOffset);
+
+    updateKeyboardOffset();
+
+    return () => {
+      if (vv) {
+        vv.removeEventListener("resize", updateKeyboardOffset);
+        vv.removeEventListener("scroll", updateKeyboardOffset);
+      }
+
+      window.removeEventListener("focusin", handleFocusIn);
+      window.removeEventListener("focusout", handleFocusOut);
+      window.removeEventListener("orientationchange", updateKeyboardOffset);
+    };
+  }, []);
 
   async function askCoach(question: string) {
     const trimmed = question.trim();
@@ -166,8 +221,16 @@ export default function FloatingCoach() {
     recognition.start();
   }
 
+  const coachWrapStyle = {
+    "--coach-keyboard-offset": `${keyboardOffset}px`,
+  } as CSSProperties;
+
   return (
-    <div className={`coach-float-wrap${isMinimized ? " minimized" : ""}`} data-no-translate="true">
+    <div
+      className={`coach-float-wrap${isMinimized ? " minimized" : ""}${keyboardOffset > 0 ? " keyboard-open" : ""}${isInputFocused ? " input-focused" : ""}`}
+      data-no-translate="true"
+      style={coachWrapStyle}
+    >
       <div className="coach-float-panel">
         {isMinimized ? (
           <button

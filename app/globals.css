@@ -348,8 +348,44 @@ ul {
   color: var(--green);
 }
 
+
 .language-switcher {
   display: inline-flex;
+}
+
+@media (max-width: 600px) {
+  .language-switcher,
+  .language-switcher-mobile-only {
+    width: 100%;
+    justify-content: flex-end;
+    margin-right: 0;
+  }
+  .language-switcher-control {
+    width: auto;
+    min-width: unset;
+    gap: 4px;
+  }
+  .language-select {
+    min-width: 90px;
+    max-width: 120px;
+    width: 100%;
+    font-size: 0.68rem;
+    padding: 6px 32px 6px 8px;
+  }
+  .language-emoji {
+    width: 18px;
+    height: 18px;
+    font-size: 0.68rem;
+  }
+  .language-switcher-control::after {
+    right: 18px;
+    font-size: 0.6rem;
+  }
+  .language-switcher-mobile-only .language-select {
+    min-width: 90px;
+    max-width: 120px;
+    width: 100%;
+  }
 }
 
 .language-switcher-control {
@@ -378,11 +414,21 @@ ul {
   border-radius: 999px;
   background: var(--surface);
   color: var(--green-deep);
-  padding: 8px 28px 8px 12px;
+  padding: 8px 32px 8px 12px;
   font-size: 0.76rem;
   font-weight: 600;
-  min-width: 168px;
+  min-width: 120px;
+  max-width: 180px;
   line-height: 1.2;
+  position: relative;
+}
+
+/* Add a language icon inside the select box, far right */
+.language-select.language-has-icon {
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%237a9185" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-1.5A6.5 6.5 0 1110 3.5a6.5 6.5 0 010 13zm0-1a5.5 5.5 0 100-11 5.5 5.5 0 000 11zm0-1a4.5 4.5 0 110-9 4.5 4.5 0 010 9z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px 16px;
 }
 
 .language-switcher-control::after {
@@ -439,10 +485,11 @@ ul {
 .coach-float-wrap {
   position: fixed;
   left: 50%;
-  bottom: max(14px, env(safe-area-inset-bottom));
+  bottom: calc(max(14px, env(safe-area-inset-bottom)) + var(--coach-keyboard-offset, 0px));
   transform: translateX(-50%);
   width: min(760px, calc(100% - 24px));
   z-index: 120;
+  transition: bottom 0.2s ease;
 }
 
 .coach-float-wrap.minimized {
@@ -460,6 +507,9 @@ ul {
   backdrop-filter: blur(12px) saturate(1.25);
   -webkit-backdrop-filter: blur(12px) saturate(1.25);
   padding: 10px;
+  max-height: min(62vh, 440px);
+  display: flex;
+  flex-direction: column;
 }
 
 .coach-float-wrap.minimized .coach-float-panel {
@@ -526,6 +576,15 @@ ul {
   flex-direction: column;
   gap: 8px;
   padding: 6px 8px;
+  min-height: 0;
+}
+
+.coach-float-wrap.keyboard-open .coach-float-panel {
+  max-height: min(54vh, 360px);
+}
+
+.coach-float-wrap.keyboard-open .coach-float-output {
+  max-height: min(32vh, 220px);
 }
 
 .coach-float-empty p {
@@ -595,6 +654,7 @@ ul {
   border-radius: 999px;
   background: #fff;
   padding: 8px 8px 8px 12px;
+  flex-shrink: 0;
 }
 
 .coach-float-input input {
@@ -602,8 +662,9 @@ ul {
   border: none;
   background: transparent;
   color: var(--text);
-  font-size: 0.88rem;
+  font-size: 1rem;
   outline: none;
+  min-width: 0;
 }
 
 .coach-voice-btn,
@@ -6580,7 +6641,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 
   .coach-float-wrap {
     width: calc(100% - 14px);
-    bottom: max(8px, env(safe-area-inset-bottom));
+    bottom: calc(max(8px, env(safe-area-inset-bottom)) + var(--coach-keyboard-offset, 0px));
   }
 
   .coach-float-wrap.minimized {
@@ -6606,6 +6667,14 @@ html[data-staff-high-contrast="1"] .dashboard-main {
     padding: 4px;
   }
 
+  .coach-float-wrap.keyboard-open .coach-float-panel {
+    max-height: min(50vh, 320px);
+  }
+
+  .coach-float-wrap.keyboard-open .coach-float-output {
+    max-height: min(24vh, 150px);
+  }
+
   .coach-msg-user,
   .coach-msg-assistant {
     max-width: 100%;
@@ -6617,7 +6686,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   }
 
   .coach-float-input input {
-    font-size: 0.84rem;
+    font-size: 16px;
   }
 
   .coach-voice-btn,

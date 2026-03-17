@@ -93,7 +93,7 @@ export default function LanguageSwitcher({
         <span className="sr-only">Select language</span>
         <select
           id={selectId}
-          className="language-select"
+          className="language-select language-has-icon"
           value={language}
           onChange={(event) => setLanguage(event.target.value)}
           aria-label="Select language"

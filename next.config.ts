@@ -1,8 +1,7 @@
-import path from "path";
-import type { NextConfig } from "next";
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+});
 
-const nextConfig: NextConfig = {
-  outputFileTracingRoot: path.resolve(__dirname),
-};
-
-export default nextConfig;
+module.exports = withBundleAnalyzer({
+  outputFileTracingRoot: require("path").resolve(__dirname),
+});
