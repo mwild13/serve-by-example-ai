@@ -24,10 +24,9 @@ export default function PrivacyPage() {
           <div className="container">
             <div className="legal-prose">
               <p>
-                Serve By Example (&ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;) is committed to protecting your
-                privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard
-                your information when you use our AI-powered hospitality training platform at
-                servebyexample.com (the &ldquo;Service&rdquo;).
+                Serve By Example is committed to protecting your privacy. This Privacy Policy
+                explains how personal information is collected, used, disclosed, and safeguarded
+                when using the AI-powered hospitality training platform at servebyexample.com.
               </p>
 
               <h2>1. Information We Collect</h2>
@@ -144,7 +143,7 @@ export default function PrivacyPage() {
               </ul>
               <p>
                 To exercise any of these rights, contact us at{" "}
-                <a href="mailto:hello@servebyexample.com">hello@servebyexample.com</a>. We will
+                <a href="mailto:info@serve-by-example.com">info@serve-by-example.com</a>. We will
                 respond within 30 days.
               </p>
 
@@ -192,7 +191,7 @@ export default function PrivacyPage() {
                 <strong>Serve By Example</strong>
                 <br />
                 Email:{" "}
-                <a href="mailto:hello@servebyexample.com">hello@servebyexample.com</a>
+                <a href="mailto:info@serve-by-example.com">info@serve-by-example.com</a>
               </p>
             </div>
           </div>

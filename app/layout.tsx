@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import LanguageRuntimeTranslator from "@/components/LanguageRuntimeTranslator";
 
 export const metadata: Metadata = {
   title: "Serve By Example AI — Hospitality Training Platform",
@@ -13,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en-US">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -26,7 +27,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <LanguageRuntimeTranslator />
+      </body>
     </html>
   );
 }

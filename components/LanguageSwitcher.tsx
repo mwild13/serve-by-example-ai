@@ -13,12 +13,13 @@ type LanguageOption = {
 };
 
 const LANGUAGE_STORAGE_KEY = "sbe-language";
+const DEFAULT_LANGUAGE = "en-US";
 
 const LANGUAGE_OPTIONS: LanguageOption[] = [
-  { code: "auto", label: "Auto (Browser)" },
-  { code: "en", label: "English" },
+  { code: "en-US", label: "English - US" },
+  { code: "en-AU", label: "English - AUS" },
   { code: "es", label: "Spanish" },
-  { code: "zh", label: "Mandarin Chinese" },
+  { code: "zh-CN", label: "Mandarin Chinese" },
   { code: "fr", label: "French" },
   { code: "de", label: "German" },
   { code: "ar", label: "Arabic" },
@@ -37,36 +38,33 @@ const LANGUAGE_OPTIONS: LanguageOption[] = [
 ];
 
 function resolveLanguageCode(code: string): string {
-  if (code !== "auto") {
-    return code;
-  }
-
-  if (typeof navigator === "undefined") {
-    return "en";
-  }
-
-  const browserCode = navigator.language?.split("-")[0]?.toLowerCase();
-  const supportedCode = LANGUAGE_OPTIONS.find((option) => option.code === browserCode);
-  return supportedCode?.code ?? "en";
+  return code;
 }
 
 export default function LanguageSwitcher({ variant = "navbar", mobileOnly = false }: LanguageSwitcherProps) {
   const selectId = useId();
-  const [language, setLanguage] = useState("auto");
+  const [language, setLanguage] = useState(DEFAULT_LANGUAGE);
 
   useEffect(() => {
     const saved = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+
+    if (saved === "auto" || saved === "en") {
+      setLanguage(DEFAULT_LANGUAGE);
+      return;
+    }
+
     if (saved && LANGUAGE_OPTIONS.some((option) => option.code === saved)) {
       setLanguage(saved);
       return;
     }
 
-    setLanguage("auto");
+    setLanguage(DEFAULT_LANGUAGE);
   }, []);
 
   useEffect(() => {
     const htmlLanguage = resolveLanguageCode(language);
     document.documentElement.lang = htmlLanguage;
+    document.documentElement.dir = htmlLanguage.startsWith("ar") ? "rtl" : "ltr";
     document.documentElement.setAttribute("data-ui-language", language);
 
     window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
