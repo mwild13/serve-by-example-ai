@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 export default function Home() {
   return (
     <div className="page-shell">
-      <Navbar showActions={false} showTextLogin />
+      <Navbar showActions={false} showTextLogin showNavbarLanguageOnMobile={false} />
 
       <main>
         {/* ── Hero ──────────────────────────────────── */}

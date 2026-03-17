@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import LanguageRuntimeTranslator from "@/components/LanguageRuntimeTranslator";
+import FloatingCoach from "@/components/FloatingCoach";
 
 export const metadata: Metadata = {
   title: "Serve By Example AI — Hospitality Training Platform",
@@ -30,6 +31,7 @@ export default function RootLayout({
       <body>
         {children}
         <LanguageRuntimeTranslator />
+        <FloatingCoach />
       </body>
     </html>
   );

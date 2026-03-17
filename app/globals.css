@@ -64,6 +64,10 @@ body {
   overflow-x: hidden;
 }
 
+body.ai-coach-enabled {
+  padding-bottom: 128px;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -430,6 +434,161 @@ ul {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+.coach-float-wrap {
+  position: fixed;
+  left: 50%;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: min(760px, calc(100% - 24px));
+  z-index: 120;
+}
+
+.coach-float-panel {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid var(--line-light);
+  border-radius: 24px;
+  box-shadow: 0 18px 44px rgba(15, 45, 29, 0.18);
+  backdrop-filter: blur(12px) saturate(1.25);
+  -webkit-backdrop-filter: blur(12px) saturate(1.25);
+  padding: 12px;
+}
+
+.coach-float-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  padding: 2px 8px 8px;
+}
+
+.coach-float-head strong {
+  color: var(--green-deep);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.coach-float-head span {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.coach-float-output {
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 6px 8px;
+}
+
+.coach-float-empty p {
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  margin-bottom: 8px;
+}
+
+.coach-float-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.coach-float-prompts button {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--green-deep);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.74rem;
+  cursor: pointer;
+}
+
+.coach-float-prompts button:hover {
+  border-color: var(--green);
+  background: var(--green-light);
+}
+
+.coach-msg {
+  padding: 8px 11px;
+  border-radius: 13px;
+  line-height: 1.45;
+  font-size: 0.82rem;
+  white-space: pre-wrap;
+}
+
+.coach-msg-user {
+  margin-left: auto;
+  background: var(--green);
+  color: #fff;
+  max-width: 74%;
+}
+
+.coach-msg-assistant {
+  background: var(--bg-warm);
+  border: 1px solid var(--line-faint);
+  color: var(--text);
+  max-width: 86%;
+}
+
+.coach-float-error {
+  color: var(--red-text);
+  background: var(--red-soft);
+  border: 1px solid rgba(125, 53, 53, 0.22);
+  border-radius: 10px;
+  margin: 6px 8px;
+  padding: 6px 9px;
+  font-size: 0.74rem;
+}
+
+.coach-float-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line-light);
+  border-radius: 999px;
+  background: #fff;
+  padding: 8px 8px 8px 12px;
+}
+
+.coach-float-input input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.88rem;
+  outline: none;
+}
+
+.coach-voice-btn,
+.coach-send-btn {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--green-deep);
+  font-weight: 700;
+  font-size: 0.76rem;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+.coach-voice-btn.listening {
+  background: var(--gold-light);
+  border-color: var(--gold);
+  color: #5d4b1e;
+}
+
+.coach-send-btn {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.coach-send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* ── Hero ──────────────────────────────────────── */
@@ -2020,6 +2179,28 @@ ul {
   min-width: 0;
 }
 
+.dashboard-plan-card {
+  margin-top: 28px;
+  background: #fff;
+  border: 1px solid #e7decb;
+  border-radius: 22px;
+  padding: 18px;
+}
+
+.dashboard-plan-card strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.dashboard-plan-card div {
+  color: var(--text-soft);
+  font-size: 0.95rem;
+}
+
+.dashboard-mobile-footer-actions {
+  display: none;
+}
+
 .dash-welcome {
   font-family: var(--font-heading);
   font-size: clamp(1.8rem, 3vw, 2.4rem);
@@ -2474,6 +2655,30 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 
   .dashboard-main {
     padding: 24px 16px;
+  }
+
+  .dashboard-plan-card-sidebar,
+  .dashboard-sidebar-signout {
+    display: none;
+  }
+
+  .dashboard-mobile-footer-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line-light);
+  }
+
+  .dashboard-plan-card-mobile {
+    margin-top: 0;
+    border-radius: 16px;
+  }
+
+  .dashboard-mobile-footer-actions .sign-out-btn {
+    width: 100%;
+    justify-content: center;
   }
 
   .dash-cards {
@@ -5931,6 +6136,10 @@ html[data-staff-high-contrast="1"] .dashboard-main {
     display: flex;
   }
 
+  .language-switcher-hide-mobile {
+    display: none;
+  }
+
   .early-access-grid {
     grid-template-columns: 1fr;
   }
@@ -6297,6 +6506,53 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 
   .auth-toggle {
     grid-template-columns: 1fr;
+  }
+
+  body.ai-coach-enabled {
+    padding-bottom: 168px;
+  }
+
+  .coach-float-wrap {
+    width: calc(100% - 14px);
+    bottom: max(8px, env(safe-area-inset-bottom));
+  }
+
+  .coach-float-panel {
+    border-radius: 18px;
+    padding: 10px;
+  }
+
+  .coach-float-head {
+    padding: 0 4px 6px;
+  }
+
+  .coach-float-head span {
+    font-size: 0.7rem;
+  }
+
+  .coach-float-output {
+    max-height: 160px;
+    padding: 4px;
+  }
+
+  .coach-msg-user,
+  .coach-msg-assistant {
+    max-width: 100%;
+  }
+
+  .coach-float-input {
+    gap: 6px;
+    padding: 7px;
+  }
+
+  .coach-float-input input {
+    font-size: 0.84rem;
+  }
+
+  .coach-voice-btn,
+  .coach-send-btn {
+    font-size: 0.72rem;
+    padding: 7px 9px;
   }
 }
 

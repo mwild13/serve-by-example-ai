@@ -5,6 +5,7 @@ import { useEffect, useId, useState } from "react";
 type LanguageSwitcherProps = {
   variant?: "navbar" | "drawer" | "footer";
   mobileOnly?: boolean;
+  hideOnMobile?: boolean;
 };
 
 type LanguageOption = {
@@ -18,30 +19,34 @@ const DEFAULT_LANGUAGE = "en-US";
 const LANGUAGE_OPTIONS: LanguageOption[] = [
   { code: "en-US", label: "English - US" },
   { code: "en-AU", label: "English - AUS" },
-  { code: "es", label: "Spanish" },
-  { code: "zh-CN", label: "Mandarin Chinese" },
+  { code: "ar", label: "Arabic" },
   { code: "fr", label: "French" },
   { code: "de", label: "German" },
-  { code: "ar", label: "Arabic" },
-  { code: "ru", label: "Russian" },
-  { code: "pt", label: "Portuguese" },
+  { code: "hi", label: "Hindi" },
+  { code: "id", label: "Indonesian" },
+  { code: "it", label: "Italian" },
   { code: "ja", label: "Japanese" },
   { code: "ko", label: "Korean" },
-  { code: "hi", label: "Hindi" },
+  { code: "zh-CN", label: "Mandarin Chinese" },
+  { code: "pt", label: "Portuguese" },
   { code: "pa", label: "Punjabi" },
-  { code: "it", label: "Italian" },
-  { code: "vi", label: "Vietnamese" },
-  { code: "tr", label: "Turkish" },
-  { code: "th", label: "Thai" },
-  { code: "id", label: "Indonesian" },
+  { code: "ru", label: "Russian" },
+  { code: "es", label: "Spanish" },
   { code: "tl", label: "Tagalog" },
+  { code: "th", label: "Thai" },
+  { code: "tr", label: "Turkish" },
+  { code: "vi", label: "Vietnamese" },
 ];
 
 function resolveLanguageCode(code: string): string {
   return code;
 }
 
-export default function LanguageSwitcher({ variant = "navbar", mobileOnly = false }: LanguageSwitcherProps) {
+export default function LanguageSwitcher({
+  variant = "navbar",
+  mobileOnly = false,
+  hideOnMobile = false,
+}: LanguageSwitcherProps) {
   const selectId = useId();
   const [language, setLanguage] = useState(DEFAULT_LANGUAGE);
 
@@ -76,6 +81,7 @@ export default function LanguageSwitcher({ variant = "navbar", mobileOnly = fals
         "language-switcher",
         `language-switcher-${variant}`,
         mobileOnly ? "language-switcher-mobile-only" : "",
+        hideOnMobile ? "language-switcher-hide-mobile" : "",
       ]
         .filter(Boolean)
         .join(" ")}
@@ -92,7 +98,15 @@ export default function LanguageSwitcher({ variant = "navbar", mobileOnly = fals
           onChange={(event) => setLanguage(event.target.value)}
           aria-label="Select language"
         >
-          {LANGUAGE_OPTIONS.map((option) => (
+          {LANGUAGE_OPTIONS.slice(0, 2).map((option) => (
+            <option key={option.code} value={option.code}>
+              {option.label}
+            </option>
+          ))}
+          <option value="__divider" disabled>
+            --------------------
+          </option>
+          {LANGUAGE_OPTIONS.slice(2).map((option) => (
             <option key={option.code} value={option.code}>
               {option.label}
             </option>

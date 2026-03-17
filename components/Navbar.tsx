@@ -8,9 +8,14 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 type NavbarProps = {
   showActions?: boolean;
   showTextLogin?: boolean;
+  showNavbarLanguageOnMobile?: boolean;
 };
 
-export default function Navbar({ showActions = true, showTextLogin = false }: NavbarProps) {
+export default function Navbar({
+  showActions = true,
+  showTextLogin = false,
+  showNavbarLanguageOnMobile = true,
+}: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const close = () => setMenuOpen(false);
 
@@ -36,7 +41,7 @@ export default function Navbar({ showActions = true, showTextLogin = false }: Na
           </nav>
 
           <div className="nav-right">
-            <LanguageSwitcher variant="navbar" />
+            <LanguageSwitcher variant="navbar" hideOnMobile={!showNavbarLanguageOnMobile} />
 
             {showActions ? (
               <div className="nav-actions">

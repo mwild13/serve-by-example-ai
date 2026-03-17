@@ -498,6 +498,22 @@ export default function DashboardShell({
   const [managementCodeMessage, setManagementCodeMessage] = useState("");
   const [isUnlockingManagement, setIsUnlockingManagement] = useState(false);
 
+  const planTitle =
+    plan === "multi-venue"
+      ? "Multi-Venue plan"
+      : plan === "single-venue"
+      ? "Single Venue plan"
+      : plan === "pro"
+      ? "Pro plan"
+      : "Free plan";
+
+  const planMessage =
+    plan === "free"
+      ? "Demo access. Upgrade to unlock full modules."
+      : plan === "pro"
+      ? "Pro member access with bartender, sales and management modules."
+      : "Venue plan access with team management dashboards.";
+
   const isTrainerNav = activeNav in TRAINER_MODULES;
   const defaultModule = TRAINER_MODULES[activeNav];
 
@@ -593,28 +609,14 @@ export default function DashboardShell({
           ))}
         </div>
 
-        <div
-          style={{
-            marginTop: 28,
-            background: "white",
-            border: "1px solid #e7decb",
-            borderRadius: 22,
-            padding: 18,
-          }}
-        >
-          <strong style={{ display: "block", marginBottom: 6 }}>
-            {plan === "multi-venue" ? "Multi-Venue plan" : plan === "single-venue" ? "Single Venue plan" : plan === "pro" ? "Pro plan" : "Free plan"}
-          </strong>
-          <div style={{ color: "var(--text-soft)", fontSize: ".95rem" }}>
-            {plan === "free"
-              ? "Demo access. Upgrade to unlock full modules."
-              : plan === "pro"
-              ? "Pro member access with bartender, sales and management modules."
-              : "Venue plan access with team management dashboards."}
-          </div>
+        <div className="dashboard-plan-card dashboard-plan-card-sidebar">
+          <strong>{planTitle}</strong>
+          <div>{planMessage}</div>
         </div>
 
-        <SignOutButton />
+        <div className="dashboard-sidebar-signout">
+          <SignOutButton />
+        </div>
       </aside>
 
       <section className="dashboard-main">
@@ -675,6 +677,14 @@ export default function DashboardShell({
         ) : (
           <ComingSoon label={NAV_ITEMS.find((n) => n.id === activeNav)?.label ?? activeNav} />
         )}
+
+        <div className="dashboard-mobile-footer-actions">
+          <div className="dashboard-plan-card dashboard-plan-card-mobile">
+            <strong>{planTitle}</strong>
+            <div>{planMessage}</div>
+          </div>
+          <SignOutButton />
+        </div>
       </section>
 
       <aside className="dashboard-right">
