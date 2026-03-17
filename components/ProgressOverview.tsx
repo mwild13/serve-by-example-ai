@@ -27,41 +27,49 @@ const RECENT_WINS = [
   "Late sick-call scenario: stronger once tasks were reassigned explicitly.",
 ];
 
+const BADGE_LEGEND = [
+  { label: "Pass", icon: "🏅", note: "Score ≥ 21/25" },
+  { label: "Perfect Score", icon: "⭐", note: "Score = 25/25" },
+  { label: "Mastery", icon: "👑", note: "All modules complete" },
+];
+
 const BADGE_STAGES = [
   {
     stage: "Stage 1",
     title: "Bartending Fundamentals",
+    masteryComplete: true,
     badges: [
-      { id: "bartending-pass", label: "Pass", icon: "🏅", earned: true, earnedNote: "21+ score" },
-      { id: "bartending-perfect", label: "Perfect Score", icon: "⭐", earned: true, earnedNote: "25/25" },
-      { id: "bartending-mastery", label: "Mastery", icon: "👑", earned: true, earnedNote: "All modules" },
+      { id: "bartending-main", label: "Bartender Training", icon: "🏅", earned: true, earnedNote: "21+ score", progression: "Pass" },
     ],
   },
   {
     stage: "Stage 2",
     title: "Sales & Upselling",
+    masteryComplete: false,
     badges: [
-      { id: "sales-pass", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
-      { id: "sales-perfect", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
-      { id: "sales-mastery", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "sales-bartender", label: "Bartender Training", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "sales-training", label: "Sales Training", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "sales-management", label: "Management Training", icon: "🛡️", earned: false, earnedNote: undefined },
     ],
   },
   {
     stage: "Stage 3",
     title: "Leadership & Coaching",
+    masteryComplete: false,
     badges: [
-      { id: "leadership-pass", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
-      { id: "leadership-perfect", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
-      { id: "leadership-mastery", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "leadership-1", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "leadership-2", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "leadership-3", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
     ],
   },
   {
     stage: "Stage 4",
     title: "Management & Operations",
+    masteryComplete: false,
     badges: [
-      { id: "management-pass", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
-      { id: "management-perfect", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
-      { id: "management-mastery", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "management-1", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "management-2", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "management-3", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
     ],
   },
 ];
@@ -135,14 +143,32 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
             <span>Unlock badges by mastering each module</span>
           </div>
 
+          <div className="badge-legend">
+            <span className="badge-legend-label">Badge progression:</span>
+            <div className="badge-legend-items">
+              {BADGE_LEGEND.map((item) => (
+                <div key={item.label} className="badge-legend-item">
+                  <span className="badge-legend-icon">{item.icon}</span>
+                  <strong>{item.label}</strong>
+                  <span className="badge-legend-note">{item.note}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="progress-badges-container">
             {BADGE_STAGES.map((stageData) => (
               <div key={stageData.stage} className="badge-stage">
                 <div className="badge-stage-header">
-                  <h3>{stageData.stage}</h3>
+                  <div className="badge-stage-title">
+                    <h3>{stageData.stage}</h3>
+                    {stageData.masteryComplete && (
+                      <span className="badge-mastery-note">✓ All modules complete</span>
+                    )}
+                  </div>
                   <p>{stageData.title}</p>
                 </div>
-                <div className="badge-row">
+                <div className={`badge-row badge-row-${stageData.badges.length}`}>
                   {stageData.badges.map((badge) => (
                     <div
                       key={badge.id}

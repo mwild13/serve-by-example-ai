@@ -2908,16 +2908,88 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   gap: 28px;
 }
 
+.badge-legend {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  background: var(--bg-warm);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line-light);
+  margin-bottom: 16px;
+}
+
+.badge-legend-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-legend-items {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.badge-legend-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.badge-legend-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.badge-legend-item strong {
+  font-size: 0.8rem;
+  color: var(--green-deep);
+  font-weight: 700;
+}
+
+.badge-legend-note {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
 .badge-stage {
   display: grid;
   gap: 14px;
+}
+
+.badge-stage-header {
+  display: grid;
+  gap: 8px;
+}
+
+.badge-stage-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .badge-stage-header h3 {
   font-family: var(--font-heading);
   font-size: 1.1rem;
   color: var(--green-deep);
-  margin-bottom: 4px;
+}
+
+.badge-mastery-note {
+  display: inline-flex;
+  padding: 6px 10px;
+  background: var(--green-dim);
+  color: var(--green);
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .badge-stage-header p {
@@ -2927,8 +2999,19 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 
 .badge-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
   gap: 18px;
+}
+
+.badge-row-1 {
+  grid-template-columns: 1fr;
+}
+
+.badge-row-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.badge-row-3 {
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .badge-item {
