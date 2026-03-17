@@ -3,13 +3,17 @@
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
-export default function SignOutButton() {
+export default function SignOutButton({
+  redirectTo = "/login",
+}: {
+  redirectTo?: string;
+}) {
   const router = useRouter();
 
   async function handleSignOut() {
     const supabase = createSupabaseBrowserClient();
     await supabase.auth.signOut();
-    router.push("/login");
+    router.push(redirectTo);
     router.refresh();
   }
 

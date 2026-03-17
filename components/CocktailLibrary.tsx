@@ -1,26 +1,50 @@
-"use client";
+﻿"use client";
 
 import { useState, useMemo } from "react";
 import { COCKTAILS, CATEGORIES, type Category } from "@/lib/cocktails";
 
 const CATEGORY_KEYS = Object.keys(CATEGORIES) as Category[];
 
+type PurposeFilter = "all" | "refresher" | "serving" | "practice";
+
+const PURPOSE_LABELS: Record<PurposeFilter, string> = {
+  all: "Browse all",
+  refresher: "I need a refresher",
+  serving: "I'm about to serve this",
+  practice: "Add to training",
+};
+
 export default function CocktailLibrary() {
   const [activeCategory, setActiveCategory] = useState<Category | "all">("all");
+  const [purposeFilter, setPurposeFilter] = useState<PurposeFilter>("all");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
+  const [practiceAdded, setPracticeAdded] = useState<Set<string>>(new Set());
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return COCKTAILS.filter((c) => {
+    let results = COCKTAILS.filter((c) => {
       const matchesCat = activeCategory === "all" || c.category === activeCategory;
       const matchesSearch = c.name.toLowerCase().includes(q);
       return matchesCat && matchesSearch;
     });
-  }, [activeCategory, search]);
+    if (purposeFilter === "refresher") {
+      results = [...results].sort((a) => (["Classics", "Sours"].includes(CATEGORIES[a.category]?.label) ? -1 : 1)).slice(0, 12);
+    } else if (purposeFilter === "serving") {
+      results = [...results].sort((a, b) => a.name.localeCompare(b.name));
+    } else if (purposeFilter === "practice") {
+      results = [...results].sort((a) => (practiceAdded.has(a.name) ? -1 : 1));
+    }
+    return results;
+  }, [activeCategory, search, purposeFilter, practiceAdded]);
 
   function toggleCard(name: string) {
     setSelected((prev) => (prev === name ? null : name));
+  }
+
+  function addToPractice(name: string, e: React.MouseEvent) {
+    e.stopPropagation();
+    setPracticeAdded((prev) => { const next = new Set(prev); next.add(name); return next; });
   }
 
   return (
@@ -28,21 +52,32 @@ export default function CocktailLibrary() {
       <h1 className="dash-welcome">Cocktail Library</h1>
       <p className="dash-copy">
         {activeCategory === "all"
-          ? `${COCKTAILS.length} cocktails across 10 classic styles. Click any card to see the full recipe and training notes.`
+          ? `${COCKTAILS.length} cocktails across 10 classic styles. Select a purpose below to reshape this list for you.`
           : CATEGORIES[activeCategory].description}
       </p>
 
-      {/* Search */}
+      <div className="sbe-purpose-filter-row">
+        {(Object.keys(PURPOSE_LABELS) as PurposeFilter[]).map((key) => (
+          <button
+            key={key}
+            type="button"
+            className={`sbe-purpose-btn${purposeFilter === key ? " active" : ""}`}
+            onClick={() => { setPurposeFilter(key); setSelected(null); }}
+          >
+            {key === "refresher" ? "🔁 " : key === "serving" ? "🍸 " : key === "practice" ? "🎯 " : ""}
+            {PURPOSE_LABELS[key]}
+            {key === "practice" && practiceAdded.size > 0 ? <span className="sbe-purpose-count">{practiceAdded.size}</span> : null}
+          </button>
+        ))}
+      </div>
+
       <div className="cocktail-search-row">
         <input
           className="cocktail-search"
           type="text"
           placeholder="Search cocktails…"
           value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setSelected(null);
-          }}
+          onChange={(e) => { setSearch(e.target.value); setSelected(null); }}
         />
         {search && (
           <button
@@ -55,7 +90,6 @@ export default function CocktailLibrary() {
         )}
       </div>
 
-      {/* Category filter pills */}
       <div className="cocktail-filter-row">
         <div
           className={`chat-pill${activeCategory === "all" ? " chat-pill-active" : ""}`}
@@ -77,19 +111,18 @@ export default function CocktailLibrary() {
         })}
       </div>
 
-      {/* Results count */}
       {search && (
         <p style={{ color: "var(--text-soft)", fontSize: ".9rem", margin: "8px 0 16px" }}>
           {filtered.length} result{filtered.length !== 1 ? "s" : ""} for &ldquo;{search}&rdquo;
         </p>
       )}
 
-      {/* Cocktail grid */}
       {filtered.length > 0 ? (
         <div className="cocktail-grid">
           {filtered.map((cocktail) => {
             const isOpen = selected === cocktail.name;
             const catMeta = CATEGORIES[cocktail.category];
+            const inPractice = practiceAdded.has(cocktail.name);
             return (
               <div
                 key={cocktail.name}
@@ -106,6 +139,36 @@ export default function CocktailLibrary() {
                   </span>
                 </div>
                 <div className="cocktail-glass-hint">{cocktail.glass}</div>
+
+                {!isOpen && (
+                  <div className="sbe-card-action-row" onClick={(e) => e.stopPropagation()}>
+                    {purposeFilter === "practice" || purposeFilter === "all" ? (
+                      <button
+                        type="button"
+                        className={`sbe-card-action-btn${inPractice ? " sbe-card-action-added" : ""}`}
+                        onClick={(e) => inPractice ? e.stopPropagation() : addToPractice(cocktail.name, e)}
+                      >
+                        {inPractice ? "✓ Added to practice" : "🎯 Practice this"}
+                      </button>
+                    ) : purposeFilter === "serving" ? (
+                      <button
+                        type="button"
+                        className="sbe-card-action-btn"
+                        onClick={(e) => { e.stopPropagation(); toggleCard(cocktail.name); }}
+                      >
+                        🍸 View recipe
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="sbe-card-action-btn"
+                        onClick={(e) => { e.stopPropagation(); toggleCard(cocktail.name); }}
+                      >
+                        🔁 Quick refresher
+                      </button>
+                    )}
+                  </div>
+                )}
 
                 {isOpen && (
                   <div className="cocktail-detail" onClick={(e) => e.stopPropagation()}>
@@ -138,13 +201,23 @@ export default function CocktailLibrary() {
                       <p>{cocktail.tip}</p>
                     </div>
 
-                    <button
-                      className="btn btn-secondary"
-                      style={{ marginTop: 16, fontSize: ".9rem", padding: "8px 16px" }}
-                      onClick={() => setSelected(null)}
-                    >
-                      Close
-                    </button>
+                    <div className="sbe-cocktail-cta-row">
+                      <button
+                        className={`btn btn-primary${inPractice ? " sbe-added" : ""}`}
+                        style={{ fontSize: ".9rem", padding: "8px 16px" }}
+                        onClick={(e) => addToPractice(cocktail.name, e)}
+                        disabled={inPractice}
+                      >
+                        {inPractice ? "✓ Added to practice" : "🎯 Practice this"}
+                      </button>
+                      <button
+                        className="btn btn-secondary"
+                        style={{ fontSize: ".9rem", padding: "8px 16px" }}
+                        onClick={() => setSelected(null)}
+                      >
+                        Close
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

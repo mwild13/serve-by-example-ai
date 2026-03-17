@@ -1,12 +1,11 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
-import WaitlistSection from "@/components/WaitlistSection";
 
 export default function Home() {
   return (
     <div className="page-shell">
-      <Navbar />
+      <Navbar showActions={false} showTextLogin />
 
       <main>
         {/* ── Hero ──────────────────────────────────── */}
@@ -15,11 +14,11 @@ export default function Home() {
             <div className="hero-content">
               <span className="eyebrow">AI-Powered Hospitality Training</span>
               <h1>
-                Train bartenders and venue&nbsp;teams faster&nbsp;with&nbsp;AI
+                Train bartenders and venue teams faster with AI
               </h1>
               <p className="hero-sub">
-                Interactive hospitality training for bartending, service, sales
-                and management&nbsp;— available anytime, anywhere.
+                Personalised, scenario-based training that improves service,
+                compliance, and confidence in minutes, not months.
               </p>
               <div className="hero-actions">
                 <Link href="/demo" className="btn btn-primary btn-lg">
@@ -30,8 +29,17 @@ export default function Home() {
                 </Link>
               </div>
             </div>
+          </div>
+        </section>
 
-            <div className="hero-stats">
+        {/* ── Trust ──────────────────────────────── */}
+        <section className="section trust-section">
+          <div className="container">
+            <div className="section-header center">
+              <span className="eyebrow">Trusted by Hospitality Teams</span>
+              <h2>Built for venues that care about consistent standards</h2>
+            </div>
+            <div className="trust-stats">
               <article className="stat-card">
                 <div className="stat-value">3×</div>
                 <div className="stat-label">Faster Onboarding</div>
@@ -48,9 +56,56 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ── Product Value Pillars ─────────────────── */}
+        <section className="section section-alt">
+          <div className="container">
+            <div className="section-header center">
+              <span className="eyebrow">Why Teams Choose Us</span>
+              <h2>Product value pillars that drive results</h2>
+              <p>
+                Built to improve team performance with practical, measurable
+                outcomes.
+              </p>
+            </div>
+            <div className="feature-grid">
+              <article className="feature-card">
+                <div className="feature-icon">🎯</div>
+                <h4>AI-Powered Scenarios</h4>
+                <p>
+                  Realistic training tailored to each staff member and their
+                  role.
+                </p>
+              </article>
+              <article className="feature-card">
+                <div className="feature-icon">⚡</div>
+                <h4>Instant Feedback</h4>
+                <p>
+                  Staff learn exactly what to improve after every scenario.
+                </p>
+              </article>
+              <article className="feature-card">
+                <div className="feature-icon">📊</div>
+                <h4>Manager Insights</h4>
+                <p>
+                  Track progress and identify skill gaps across your whole team.
+                </p>
+              </article>
+              <article className="feature-card">
+                <div className="feature-icon">🏢</div>
+                <h4>Venue-Specific Modules</h4>
+                <p>
+                  Customise training to your venue&rsquo;s standards and service
+                  style.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
         {/* ── Product Preview (Dashboard Mockup) ──── */}
         <section className="section product-preview">
           <div className="container">
+            <p className="mockup-caption">Your team&rsquo;s personalised training dashboard.</p>
             <div className="mockup-wrapper">
               <div className="app-mockup">
                 <div className="mockup-sidebar">
@@ -81,7 +136,7 @@ export default function Home() {
                   <div className="mockup-header">
                     <h4>Welcome back, Alex</h4>
                     <div className="mockup-header-meta">
-                      <span>3 modules in progress</span>
+                      <span>2 modules in progress</span>
                       <div className="mockup-avatar" />
                     </div>
                   </div>
@@ -122,20 +177,6 @@ export default function Home() {
                       </div>
                       <div className="mockup-card-meta">45% complete</div>
                     </div>
-                    <div className="mockup-card">
-                      <div className="mockup-card-top">
-                        <div className="mockup-card-icon">📋</div>
-                        <span className="mockup-card-status new">New</span>
-                      </div>
-                      <div className="mockup-card-title">Shift Leadership</div>
-                      <div className="mockup-progress">
-                        <div
-                          className="mockup-bar low"
-                          style={{ width: "18%" }}
-                        />
-                      </div>
-                      <div className="mockup-card-meta">18% complete</div>
-                    </div>
                   </div>
                   <div className="mockup-chat">
                     <div className="mockup-chat-header">
@@ -163,46 +204,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── Who It's For ─────────────────────────── */}
-        <section className="section section-alt">
-          <div className="container">
-            <div className="section-header center">
-              <span className="eyebrow">Who It&rsquo;s For</span>
-              <h2>Training that fits every role in hospitality</h2>
-              <p>
-                Whether you&rsquo;re behind the bar, on the floor, or running
-                the shift&nbsp;— Serve By Example adapts to your needs.
-              </p>
-            </div>
-            <div className="audience-grid">
-              <article className="audience-card">
-                <div className="audience-icon">🍹</div>
-                <h3>Bartenders</h3>
-                <p>
-                  Master cocktails, speed, service flow and product knowledge
-                  through real-world AI scenarios.
-                </p>
-              </article>
-              <article className="audience-card">
-                <div className="audience-icon">⭐</div>
-                <h3>Hospitality Staff</h3>
-                <p>
-                  Build confidence in upselling, customer interaction and
-                  front-of-house excellence.
-                </p>
-              </article>
-              <article className="audience-card">
-                <div className="audience-icon">🏢</div>
-                <h3>Venues &amp; Groups</h3>
-                <p>
-                  Onboard faster, train consistently and track team progress
-                  across every location.
-                </p>
-              </article>
-            </div>
-          </div>
-        </section>
-
         {/* ── How It Works ─────────────────────────── */}
         <section id="how-it-works" className="section">
           <div className="container">
@@ -212,118 +213,118 @@ export default function Home() {
             </div>
             <div className="steps-grid">
               <div className="step">
+                <div className="step-illustration" aria-hidden="true">
+                  🧭
+                </div>
                 <div className="step-num">1</div>
-                <h3>Choose your pathway</h3>
+                <h3>Complete AI-driven scenarios</h3>
                 <p>
-                  Pick bartending, service, sales or management&nbsp;— or create
-                  a custom plan for your team.
+                  Staff complete realistic scenarios built for bartending,
+                  service and sales situations.
                 </p>
               </div>
               <div className="step">
+                <div className="step-illustration" aria-hidden="true">
+                  🎭
+                </div>
                 <div className="step-num">2</div>
-                <h3>Train with AI scenarios</h3>
+                <h3>Get instant coaching</h3>
                 <p>
-                  Practice real conversations, service situations and
-                  decision-making with an AI coach that adapts to you.
+                  They receive immediate feedback and coaching on what to do
+                  better next time.
                 </p>
               </div>
               <div className="step">
+                <div className="step-illustration" aria-hidden="true">
+                  📈
+                </div>
                 <div className="step-num">3</div>
-                <h3>Track and improve</h3>
+                <h3>Manage progress and assign modules</h3>
                 <p>
-                  See progress, get feedback and level up with every session.
-                  Managers get team-wide dashboards.
+                  Managers track progress, identify gaps and assign the right
+                  modules for each team member.
                 </p>
               </div>
+            </div>
+            <div className="steps-cta-wrap">
+              <Link href="/demo" className="btn btn-primary">
+                Start Your First Scenario
+              </Link>
             </div>
           </div>
         </section>
 
-        {/* ── Training Categories ──────────────────── */}
+        {/* ── Who It's For ─────────────────────────── */}
         <section className="section section-alt">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">Training Modules</span>
-              <h2>Built for high-performance venue teams</h2>
+              <span className="eyebrow">Who It&rsquo;s For</span>
+              <h2>Training that fits every role in hospitality</h2>
               <p>
-                Real scenarios, rapid feedback and role-based pathways for bars,
-                restaurants and hospitality groups.
+                Clear pathways for frontline teams and leaders.
               </p>
             </div>
-            <div className="feature-grid">
-              <article className="feature-card">
-                <div className="feature-icon">🍸</div>
-                <h4>Bartending Training</h4>
-                <p>
-                  Learn cocktails, spirits, service rhythm and practical bar
-                  systems your team can apply immediately.
+            <div className="audience-grid">
+              <article className="audience-card">
+                <div className="audience-icon">🍹</div>
+                <h3>Bartenders</h3>
+                <p className="audience-benefit">
+                  Build speed, confidence and cocktail mastery with real-world
+                  scenario practice.
                 </p>
-                <ul className="feature-list">
-                  <li>Classic &amp; modern cocktail builds</li>
-                  <li>Speed and efficiency drills</li>
-                  <li>Product knowledge &amp; recommendations</li>
-                </ul>
               </article>
-              <article className="feature-card">
-                <div className="feature-icon">💰</div>
-                <h4>Sales Training</h4>
-                <p>
-                  Strengthen upselling, menu language and customer interaction
-                  with AI-guided roleplay.
+              <article className="audience-card">
+                <div className="audience-icon">⭐</div>
+                <h3>Hospitality Staff</h3>
+                <p className="audience-benefit">
+                  Improve service consistency, guest experience and upselling
+                  performance.
                 </p>
-                <ul className="feature-list">
-                  <li>Upselling prompts &amp; techniques</li>
-                  <li>Menu description mastery</li>
-                  <li>Customer objection handling</li>
-                </ul>
               </article>
-              <article className="feature-card">
-                <div className="feature-icon">📊</div>
-                <h4>Management Training</h4>
-                <p>
-                  Build leadership confidence, enforce standards and improve
-                  shift decisions under pressure.
+              <article className="audience-card">
+                <div className="audience-icon">📋</div>
+                <h3>Venue Managers</h3>
+                <p className="audience-benefit">
+                  Standardise training, track team readiness and close skill
+                  gaps faster.
                 </p>
-                <ul className="feature-list">
-                  <li>Shift planning &amp; delegation</li>
-                  <li>Staff performance reviews</li>
-                  <li>Conflict resolution scenarios</li>
-                </ul>
               </article>
             </div>
           </div>
         </section>
 
-        {/* ── Why AI Training ──────────────────────── */}
+        {/* ── Features ─────────────────────────────── */}
         <section className="section section-warm">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">Why AI Training</span>
-              <h2>
-                Better than static courses, cheaper than&nbsp;consultants
-              </h2>
+              <span className="eyebrow">Features</span>
+              <h2>Everything your team needs to train better</h2>
             </div>
-            <div className="comparison-grid">
-              <div className="comparison-col bad">
-                <h3>Traditional Training</h3>
-                <ul>
-                  <li>One-size-fits-all content</li>
-                  <li>Expensive in-person sessions</li>
-                  <li>No practice or feedback</li>
-                  <li>Hard to scale across venues</li>
-                  <li>Staff forget within weeks</li>
-                </ul>
-              </div>
-              <div className="comparison-col good">
-                <h3>Serve By Example AI</h3>
-                <ul>
-                  <li>Adaptive, role-based pathways</li>
-                  <li>Available 24/7, fraction of the cost</li>
-                  <li>Real-time AI feedback &amp; coaching</li>
-                  <li>Scales to any team size</li>
-                  <li>Spaced repetition for retention</li>
-                </ul>
-              </div>
+            <div className="feature-grid feature-grid-3">
+              <article className="feature-card">
+                <div className="feature-icon">🧠</div>
+                <h4>Adaptive Learning Paths</h4>
+                <p>
+                  Training adapts automatically by role, skill level and
+                  performance trends.
+                </p>
+              </article>
+              <article className="feature-card">
+                <div className="feature-icon">📝</div>
+                <h4>Scenario Assignments</h4>
+                <p>
+                  Managers assign practical modules by shift goals or team skill
+                  gaps.
+                </p>
+              </article>
+              <article className="feature-card">
+                <div className="feature-icon">📍</div>
+                <h4>Venue Standards Tracking</h4>
+                <p>
+                  Keep training aligned to your SOPs, service tone and brand
+                  standards.
+                </p>
+              </article>
             </div>
           </div>
         </section>
@@ -332,118 +333,115 @@ export default function Home() {
         <section className="section section-alt">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">Pricing</span>
-              <h2>Simple plans that scale with&nbsp;you</h2>
-              <p>Start free. Upgrade when you&rsquo;re ready.</p>
+              <span className="eyebrow">App Pricing</span>
+              <h2>Simple, transparent pricing for every team size</h2>
+              <p>Understand costs quickly and choose the best fit for your venue.</p>
             </div>
-            <div className="pricing-grid">
+            <div className="pricing-grid" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
               <div className="price-card">
-                <div className="price-tier">Starter</div>
+                <div className="price-tier">Free Demo</div>
                 <div className="price-amount">Free</div>
                 <p className="price-desc">
                   Try the demo modules and see what AI training can do.
                 </p>
+                <p className="price-fit">Who this is for: individuals getting started.</p>
                 <ul>
                   <li>3 demo scenarios</li>
                   <li>Basic progress tracking</li>
                   <li>Email support</li>
                 </ul>
-                <Link href="/demo" className="btn btn-secondary btn-block">
+                <Link href="/demo" className="btn btn-primary btn-block starter-cta">
                   Start Free
                 </Link>
               </div>
               <div className="price-card featured">
                 <div className="price-badge">Most Popular</div>
-                <div className="price-tier">Professional</div>
+                <div className="price-tier">Pro</div>
                 <div className="price-amount">
                   $19<span>/month</span>
                 </div>
                 <p className="price-desc">
                   Full access for individual bartenders and hospitality pros.
                 </p>
+                <p className="price-fit">Who this is for: serious staff building career-ready skills.</p>
                 <ul>
                   <li>All training modules</li>
                   <li>Unlimited AI coaching</li>
                   <li>Progress analytics</li>
                   <li>Certificate of completion</li>
                 </ul>
-                <Link href="/pricing" className="btn btn-primary btn-block">
-                  Get Started
+                <Link href="/login" className="btn btn-primary btn-block">
+                  Join Pro
                 </Link>
               </div>
               <div className="price-card">
-                <div className="price-tier">Venue</div>
+                <div className="price-tier">Single Venue</div>
+                <div className="price-amount">
+                  $49<span>/month</span>
+                </div>
+                <p className="price-desc">
+                  Train one venue with team dashboards.
+                </p>
+                <p className="price-fit">Who this is for: small venues managing a single location.</p>
+                <ul>
+                  <li>One venue management</li>
+                  <li>Team member logins</li>
+                  <li>Basic dashboards</li>
+                  <li>Progress tracking</li>
+                  <li>Email support</li>
+                </ul>
+                <Link href="/for-venues#venue-enquiry" className="btn btn-secondary btn-block">
+                  Request Access
+                </Link>
+              </div>
+              <div className="price-card">
+                <div className="price-tier">Multi-Venue</div>
                 <div className="price-amount">
                   $149<span>/month</span>
                 </div>
                 <p className="price-desc">
-                  Train your entire team with management dashboards.
+                  Manage multiple locations with unified dashboards.
                 </p>
+                <p className="price-fit">Who this is for: venue groups and multi-site operators.</p>
                 <ul>
-                  <li>Up to 25 team members</li>
-                  <li>Custom training pathways</li>
-                  <li>Team progress dashboard</li>
+                  <li>Up to 5 venues</li>
+                  <li>Multiple user logins</li>
+                  <li>Cross-venue comparison</li>
+                  <li>Advanced analytics</li>
                   <li>Priority support</li>
                 </ul>
-                <Link href="/pricing" className="btn btn-secondary btn-block">
-                  Contact Sales
+                <Link href="/for-venues#venue-enquiry" className="btn btn-secondary btn-block">
+                  Request Multi-Venue
                 </Link>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ── FAQ ──────────────────────────────────── */}
-        <section className="section section-warm">
+        {/* ── Early Access ─────────────────────────── */}
+        <section className="section early-access-section">
           <div className="container">
             <div className="section-header center">
-              <h2>Frequently asked questions</h2>
+              <span className="eyebrow">Early access</span>
+              <h2>Be a founding member</h2>
+              <p>Serve By Example AI is opening to its first members now. Early access means hands-on onboarding, launch-stage pricing locked in, and direct input into what gets built next.</p>
             </div>
-            <div className="faq-list">
-              <details className="faq-item">
-                <summary>
-                  What kind of training does Serve By Example offer?
-                </summary>
-                <p>
-                  We offer AI-powered interactive training for bartending,
-                  sales, customer service and venue management. Each module uses
-                  real-world scenarios and conversational AI to help staff
-                  practice and improve.
-                </p>
-              </details>
-              <details className="faq-item">
-                <summary>Is this suitable for complete beginners?</summary>
-                <p>
-                  Absolutely. Our pathways adapt to every skill level&nbsp;—
-                  from day-one trainees to experienced bartenders looking to
-                  sharpen specific skills.
-                </p>
-              </details>
-              <details className="faq-item">
-                <summary>
-                  How is this different from watching training videos?
-                </summary>
-                <p>
-                  Videos are passive. Serve By Example is interactive&nbsp;— you
-                  practice conversations, make decisions and get immediate AI
-                  feedback, just like having a personal coach.
-                </p>
-              </details>
-              <details className="faq-item">
-                <summary>Can I use this to train my whole team?</summary>
-                <p>
-                  Yes. Our Venue plan lets you onboard and train up to 25 team
-                  members with a management dashboard to track everyone&rsquo;s
-                  progress.
-                </p>
-              </details>
-              <details className="faq-item">
-                <summary>Is there a free trial?</summary>
-                <p>
-                  Yes&nbsp;— you can try our demo modules completely free, no
-                  credit card required.
-                </p>
-              </details>
+            <div className="early-access-grid">
+              <div className="early-access-card">
+                <div className="early-access-card-icon">🔒</div>
+                <h3>Lock in launch pricing</h3>
+                <p>Founding members keep their rate as long as they stay subscribed — even as the platform grows and pricing increases.</p>
+              </div>
+              <div className="early-access-card">
+                <div className="early-access-card-icon">🤝</div>
+                <h3>Hands-on onboarding</h3>
+                <p>Early access comes with direct onboarding support — not a help doc — so your team is set up to train from day one.</p>
+              </div>
+              <div className="early-access-card">
+                <div className="early-access-card-icon">💡</div>
+                <h3>Shape what gets built</h3>
+                <p>You tell us what the platform is missing. Early members have direct influence over the training modules and tools built next.</p>
+              </div>
             </div>
           </div>
         </section>
@@ -452,24 +450,16 @@ export default function Home() {
         <section className="section section-cta">
           <div className="container cta-box">
             <div>
-              <h3>Ready to train smarter?</h3>
-              <p>
-                Launch your first team pathway in minutes and give every staff
-                member a clear plan to level up.
-              </p>
+              <h3>Ready to train your team faster?</h3>
+              <p className="cta-proof">No credit card required.</p>
             </div>
-            <div className="cta-actions">
+            <div className="cta-actions cta-actions-single">
               <Link href="/demo" className="btn btn-gold btn-lg">
-                Try the Free Demo
-              </Link>
-              <Link href="/pricing" className="btn btn-outline-light btn-lg">
-                View Pricing
+                Try the Demo
               </Link>
             </div>
           </div>
         </section>
-
-        <WaitlistSection />
       </main>
 
       <Footer />

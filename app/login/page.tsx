@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
-type AuthMode = "sign-in" | "sign-up";
+type AuthMode = "sign-in" | "sign-up" | "forgot-password";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,6 +18,26 @@ export default function LoginPage() {
   const [success, setSuccess] = useState("");
 
   const isSignUp = mode === "sign-up";
+  const isForgotPassword = mode === "forgot-password";
+
+  async function handleForgotPassword(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setLoading(true);
+    setError("");
+    setSuccess("");
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (resetError) throw resetError;
+      setSuccess("Password reset email sent. Check your inbox and follow the link.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not send reset email.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -51,7 +71,7 @@ export default function LoginPage() {
         }
 
         if (data.session) {
-          router.push("/dashboard");
+          router.push("/onboarding");
           router.refresh();
           return;
         }
@@ -91,6 +111,55 @@ export default function LoginPage() {
     setSuccess("");
   }
 
+  if (isForgotPassword) {
+    return (
+      <div className="page-shell">
+        <Navbar />
+        <main className="login-shell">
+          <div className="login-card">
+            <div className="eyebrow">Account recovery</div>
+            <h1>Reset your password 🔑</h1>
+            <p className="login-copy">
+              Enter your email address and we will send you a link to set a new password.
+            </p>
+            <form className="form-grid" onSubmit={handleForgotPassword}>
+              <label className="label" htmlFor="email-forgot">
+                Email address
+                <input
+                  id="email-forgot"
+                  className="input"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
+                />
+              </label>
+              {error ? <div className="auth-status auth-status-error">{error}</div> : null}
+              {success ? <div className="auth-status auth-status-success">{success}</div> : null}
+              <div className="auth-actions">
+                <button className="btn btn-primary btn-block" type="submit" disabled={loading}>
+                  {loading ? "Sending..." : "Send reset link 📧"}
+                </button>
+                <p className="auth-help">
+                  <button
+                    type="button"
+                    className="auth-link-btn"
+                    onClick={() => switchMode("sign-in")}
+                  >
+                    Back to sign in
+                  </button>
+                </p>
+              </div>
+            </form>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="page-shell">
       <Navbar />
@@ -98,12 +167,18 @@ export default function LoginPage() {
       <main className="login-shell">
         <div className="login-card">
           <div className="eyebrow">Member access</div>
-          <h1>{isSignUp ? "Create your Serve By Example AI account" : "Log in to Serve By Example AI"}</h1>
+          <h1>{isSignUp ? "Create your Serve By Example AI account 🚀" : "Staff login: jump back in 🎯"}</h1>
           <p className="login-copy">
             {isSignUp
-              ? "Create an account to access training modules, AI coaching, and your progress dashboard."
-              : "Sign in to continue your hospitality training and pick up where you left off."}
+              ? "Create an account to unlock training modules, AI coaching, progress streaks, and leaderboard-ready momentum."
+              : "Sign in to continue your hospitality training, keep your streak alive, and pick up exactly where you left off."}
           </p>
+
+          <div className="login-perks" aria-label="Training perks">
+            <span>🔥 Keep streaks</span>
+            <span>🏆 Level up faster</span>
+            <span>🎓 Earn progress</span>
+          </div>
 
           <div className="auth-toggle" role="tablist" aria-label="Authentication mode">
             <button
@@ -112,7 +187,7 @@ export default function LoginPage() {
               onClick={() => switchMode("sign-in")}
               aria-pressed={!isSignUp}
             >
-              Sign in
+              Sign in 🔐
             </button>
             <button
               type="button"
@@ -120,7 +195,7 @@ export default function LoginPage() {
               onClick={() => switchMode("sign-up")}
               aria-pressed={isSignUp}
             >
-              Create account
+              Create account ✨
             </button>
           </div>
 
@@ -153,6 +228,17 @@ export default function LoginPage() {
                 required
               />
             </label>
+            {!isSignUp && (
+              <div className="auth-forgot">
+                <button
+                  type="button"
+                  className="auth-link-btn"
+                  onClick={() => switchMode("forgot-password")}
+                >
+                  Forgot your password?
+                </button>
+              </div>
+            )}
 
             {error ? <div className="auth-status auth-status-error">{error}</div> : null}
             {success ? <div className="auth-status auth-status-success">{success}</div> : null}
@@ -164,8 +250,8 @@ export default function LoginPage() {
                     ? "Creating account..."
                     : "Signing in..."
                   : isSignUp
-                    ? "Create account"
-                    : "Log in"}
+                    ? "Create account ✨"
+                    : "Log in 🔐"}
               </button>
 
               <p className="auth-help">

@@ -39,7 +39,7 @@ export default function WaitlistSection({
   successPrimaryHref = "/demo",
   successPrimaryLabel = "Try the demo",
   successSecondaryHref = "/pricing",
-  successSecondaryLabel = "View pricing",
+  successSecondaryLabel = "View app pricing",
 }: WaitlistSectionProps) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -98,6 +98,7 @@ export default function WaitlistSection({
             <div className="eyebrow">{eyebrow}</div>
             <h2>{title}</h2>
             <p>{copy}</p>
+            <p className="waitlist-benefit">Get early access to new training pathways.</p>
           </div>
 
           {success ? (
@@ -149,9 +150,7 @@ export default function WaitlistSection({
                 {loading ? "Joining..." : buttonLabel}
               </button>
 
-              <p className="waitlist-fine-print">
-                No spam. Just launch updates, early access releases and venue plan news.
-              </p>
+              <p className="waitlist-fine-print">No spam, ever. Just launch updates and early access invites.</p>
 
               {error ? <div className="auth-status auth-status-error">{error}</div> : null}
             </form>

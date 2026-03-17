@@ -145,6 +145,7 @@ export default function DemoPage() {
             </div>
 
             {result && (
+              <>
               <div className="demo-panel" style={{ marginTop: 40 }}>
                 <h2
                   style={{
@@ -202,6 +203,20 @@ export default function DemoPage() {
                   </div>
                 </div>
               </div>
+
+              <div className="demo-cta-panel">
+                <div className="demo-cta-emoji">🎯</div>
+                <h2 className="demo-cta-heading">Like what you see?</h2>
+                <p className="demo-cta-copy">
+                  This is just a taste. A full account gives you unlimited scenarios, a personalised
+                  AI coach, progress tracking, and leaderboard rankings — all built for hospitality.
+                </p>
+                <div className="demo-cta-actions">
+                  <a href="/login" className="btn btn-primary btn-lg">Create free account ✨</a>
+                  <a href="/pricing" className="btn btn-outline btn-lg">See pricing</a>
+                </div>
+              </div>
+              </>
             )}
           </div>
         </section>

@@ -13,7 +13,8 @@
     "next": "15.5.10",
     "openai": "^6.29.0",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "@supabase/supabase-js": "^2.57.4"
   },
   "devDependencies": {
     "@opennextjs/cloudflare": "^1.17.1",

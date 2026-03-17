@@ -3,10 +3,10 @@ type ProgressOverviewProps = {
   plan: string;
 };
 
-const METRICS = [
-  { label: "Sessions completed", value: "18", note: "Across bartending, sales and management" },
-  { label: "Average evaluation", value: "21/25", note: "Strong communication and hospitality baseline" },
-  { label: "Current streak", value: "6 days", note: "Consistent repetition drives faster retention" },
+const MOMENTUM_METRICS = [
+  { icon: "✅", headline: "Trained 4 days in a row", sub: "Keep it up — consistency is the fastest path to retention." },
+  { icon: "📈", headline: "Up +2 points this week", sub: "Average evaluation improving. You're at 21/25 — top 30%." },
+  { icon: "⚡", headline: "18 sessions completed", sub: "You've put in the reps. Growth compounds from here." },
 ];
 
 const MODULE_PROGRESS = [
@@ -15,16 +15,16 @@ const MODULE_PROGRESS = [
   { label: "Shift leadership", progress: 31, status: "Building", detail: "Delegation, coaching and short-notice problem solving" },
 ];
 
-const FOCUS_AREAS = [
-  "Premium recommendation language is getting stronger.",
-  "Management scenarios improve when responses include clearer delegation.",
-  "Fastest gains are coming from repeating the same module twice in one week.",
+const COACH_COMMANDS = [
+  "Acknowledge guests within 3 seconds of them reaching the bar.",
+  "Offer one premium alternative per order — even when not asked.",
+  "When reassigning tasks, name the person and the specific job out loud.",
 ];
 
 const RECENT_WINS = [
-  "Negroni build response scored 23/25 after better explanation of balance and garnish.",
-  "Steak pairing scenario improved after using flavour-led recommendation language.",
-  "Late sick-call scenario showed stronger leadership once tasks were reassigned explicitly.",
+  "Negroni build scored 23/25 after better balance and garnish explanation.",
+  "Steak pairing improved using flavour-led recommendation language.",
+  "Late sick-call scenario: stronger once tasks were reassigned explicitly.",
 ];
 
 export default function ProgressOverview({ displayName, plan }: ProgressOverviewProps) {
@@ -32,30 +32,31 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
     <div className="progress-overview">
       <div className="progress-hero">
         <div>
-          <span className="eyebrow">Progress</span>
-          <h1>{displayName}&rsquo;s training snapshot</h1>
+          <span className="eyebrow">How I&rsquo;m improving</span>
+          <h1>{displayName}&rsquo;s training momentum</h1>
           <p>
-            A quick view of momentum, coaching signals and what to work on next.
+            Real movement, not just numbers.
             {plan === "free"
-              ? " Free access keeps the basics visible so members can see the value before upgrading."
-              : " Your paid plan is set up to reinforce the highest-impact scenarios first."}
+              ? " Free access shows your baseline — upgrade to unlock deeper coaching."
+              : " Your paid plan prioritises the highest-impact scenarios first."}
           </p>
         </div>
         <div className="progress-next-card">
           <span className="progress-next-label">Recommended next session</span>
           <strong>Run one sales scenario and one management scenario back-to-back.</strong>
           <p>
-            This will tighten recommendation language while building better operational decision-making under pressure.
+            This tightens recommendation language while building better operational decision-making under pressure.
           </p>
         </div>
       </div>
 
+      {/* Momentum metrics — movement, not totals */}
       <div className="progress-metric-grid">
-        {METRICS.map((metric) => (
-          <article key={metric.label} className="progress-metric-card">
-            <span className="progress-metric-label">{metric.label}</span>
-            <strong className="progress-metric-value">{metric.value}</strong>
-            <p>{metric.note}</p>
+        {MOMENTUM_METRICS.map((metric) => (
+          <article key={metric.headline} className="progress-metric-card sbe-momentum-card">
+            <span className="sbe-momentum-icon">{metric.icon}</span>
+            <strong className="progress-metric-value">{metric.headline}</strong>
+            <p>{metric.sub}</p>
           </article>
         ))}
       </div>
@@ -92,12 +93,15 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
         <section className="progress-panel progress-panel-stack">
           <div className="progress-panel-block">
             <div className="progress-panel-header">
-              <h2>Coach notes</h2>
-              <span>What the AI is seeing</span>
+              <h2>Coach focus for your next shift</h2>
+              <span>Act on these — they move the needle</span>
             </div>
-            <ul className="progress-list">
-              {FOCUS_AREAS.map((item) => (
-                <li key={item}>{item}</li>
+            <ul className="sbe-command-list">
+              {COACH_COMMANDS.map((cmd) => (
+                <li key={cmd}>
+                  <span className="sbe-command-arrow">→</span>
+                  {cmd}
+                </li>
               ))}
             </ul>
           </div>
@@ -105,7 +109,7 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
           <div className="progress-panel-block">
             <div className="progress-panel-header">
               <h2>Recent wins</h2>
-              <span>Useful proof of momentum</span>
+              <span>Proof of momentum</span>
             </div>
             <ul className="progress-list">
               {RECENT_WINS.map((item) => (
@@ -118,3 +122,5 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
     </div>
   );
 }
+
+
