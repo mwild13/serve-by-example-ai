@@ -5,7 +5,8 @@ import { useEffect, useRef } from "react";
 const LANGUAGE_STORAGE_KEY = "sbe-language";
 const TRANSLATION_CACHE_KEY = "sbe-translation-cache-v1";
 const DEFAULT_LANGUAGE = "en-US";
-const BATCH_SIZE = 30;
+const BATCH_SIZE = 60;
+const MAX_PARALLEL_REQUESTS = 3;
 
 type CacheMap = Record<string, string>;
 
@@ -117,6 +118,17 @@ export default function LanguageRuntimeTranslator() {
       }
     };
 
+    const applyCachedTranslations = (nodes: Text[], cache: CacheMap, targetLanguage: string) => {
+      for (const node of nodes) {
+        const original = originals.current.get(node) ?? node.nodeValue ?? "";
+        const normalized = normalizeWhitespace(original);
+        const translated = cache[`${targetLanguage}::${normalized}`];
+        if (translated && node.nodeValue !== translated) {
+          node.nodeValue = translated;
+        }
+      }
+    };
+
     const translateNodes = async () => {
       if (translating.current || cancelled) {
         return;
@@ -149,42 +161,54 @@ export default function LanguageRuntimeTranslator() {
           ),
         );
 
+        // Apply any cached translations immediately.
+        applyCachedTranslations(nodes, cache, targetLanguage);
+
         const missing = uniqueOriginals.filter((text) => !cache[`${targetLanguage}::${text}`]);
 
-        for (let i = 0; i < missing.length; i += BATCH_SIZE) {
-          const batch = missing.slice(i, i + BATCH_SIZE);
-          const res = await fetch("/api/translate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ targetLanguage, texts: batch }),
-          });
-
-          if (!res.ok) {
-            continue;
+        if (missing.length > 0) {
+          const batches: string[][] = [];
+          for (let i = 0; i < missing.length; i += BATCH_SIZE) {
+            batches.push(missing.slice(i, i + BATCH_SIZE));
           }
 
-          const data = (await res.json()) as { translations?: string[] };
-          const translated = Array.isArray(data.translations) ? data.translations : [];
+          let batchIndex = 0;
+          const workerCount = Math.min(MAX_PARALLEL_REQUESTS, batches.length);
 
-          for (let idx = 0; idx < batch.length; idx += 1) {
-            const source = batch[idx];
-            const target = translated[idx];
-            if (typeof target === "string" && target.trim()) {
-              cache[`${targetLanguage}::${source}`] = target;
-            }
-          }
+          await Promise.all(
+            Array.from({ length: workerCount }, async () => {
+              while (batchIndex < batches.length) {
+                const currentIndex = batchIndex;
+                batchIndex += 1;
+                const batch = batches[currentIndex];
+
+                const res = await fetch("/api/translate", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ targetLanguage, texts: batch }),
+                });
+
+                if (!res.ok) {
+                  continue;
+                }
+
+                const data = (await res.json()) as { translations?: string[] };
+                const translated = Array.isArray(data.translations) ? data.translations : [];
+
+                for (let idx = 0; idx < batch.length; idx += 1) {
+                  const source = batch[idx];
+                  const target = translated[idx];
+                  if (typeof target === "string" && target.trim()) {
+                    cache[`${targetLanguage}::${source}`] = target;
+                  }
+                }
+              }
+            }),
+          );
         }
 
         saveCache(cache);
-
-        for (const node of nodes) {
-          const original = originals.current.get(node) ?? node.nodeValue ?? "";
-          const normalized = normalizeWhitespace(original);
-          const translated = cache[`${targetLanguage}::${normalized}`];
-          if (translated && node.nodeValue !== translated) {
-            node.nodeValue = translated;
-          }
-        }
+        applyCachedTranslations(nodes, cache, targetLanguage);
       } catch (error) {
         console.error("Runtime translation error:", error);
       } finally {

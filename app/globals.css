@@ -445,6 +445,13 @@ ul {
   z-index: 120;
 }
 
+.coach-float-wrap.minimized {
+  left: auto;
+  right: 14px;
+  transform: none;
+  width: auto;
+}
+
 .coach-float-panel {
   background: rgba(255, 255, 255, 0.96);
   border: 1px solid var(--line-light);
@@ -453,6 +460,43 @@ ul {
   backdrop-filter: blur(12px) saturate(1.25);
   -webkit-backdrop-filter: blur(12px) saturate(1.25);
   padding: 10px;
+}
+
+.coach-float-wrap.minimized .coach-float-panel {
+  border-radius: 999px;
+  padding: 4px;
+}
+
+.coach-expand-btn {
+  border: 1px solid #1f64ff;
+  background: #1f64ff;
+  color: #fff;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.coach-output-controls {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 6px 4px;
+}
+
+.coach-output-toggle {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--text-soft);
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.coach-float-output.compact {
+  max-height: 84px;
 }
 
 .coach-float-head {
@@ -568,6 +612,23 @@ ul {
   border-radius: 12px;
   background: #1f64ff;
   color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.coach-minimize-btn {
+  border: 1px solid #cfd7e6;
+  border-radius: 12px;
+  background: #f5f8ff;
+  color: #355189;
   font-weight: 700;
   font-size: 1rem;
   line-height: 1;
@@ -6522,6 +6583,11 @@ html[data-staff-high-contrast="1"] .dashboard-main {
     bottom: max(8px, env(safe-area-inset-bottom));
   }
 
+  .coach-float-wrap.minimized {
+    right: 8px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+  }
+
   .coach-float-panel {
     border-radius: 18px;
     padding: 10px;
@@ -6559,6 +6625,11 @@ html[data-staff-high-contrast="1"] .dashboard-main {
     width: 38px;
     height: 38px;
     font-size: 0.95rem;
+  }
+
+  .coach-minimize-btn {
+    width: 38px;
+    height: 38px;
   }
 }
 

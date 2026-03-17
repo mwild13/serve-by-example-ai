@@ -21,6 +21,8 @@ export default function FloatingCoach() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isListening, setIsListening] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [isAnswerCompact, setIsAnswerCompact] = useState(false);
   const outputRef = useRef<HTMLDivElement | null>(null);
 
   const canUseVoice = useMemo(() => {
@@ -165,43 +167,79 @@ export default function FloatingCoach() {
   }
 
   return (
-    <div className="coach-float-wrap" data-no-translate="true">
+    <div className={`coach-float-wrap${isMinimized ? " minimized" : ""}`} data-no-translate="true">
       <div className="coach-float-panel">
-        {messages.length > 0 || isLoading ? (
-          <div className="coach-float-output" ref={outputRef} aria-live="polite">
-            {messages.map((msg, index) => (
-              <div key={`${msg.role}-${index}`} className={`coach-msg coach-msg-${msg.role}`}>
-                {msg.text}
-              </div>
-            ))}
-            {isLoading ? <div className="coach-msg coach-msg-assistant">Thinking...</div> : null}
-          </div>
-        ) : null}
-
-        {error ? <div className="coach-float-error">{error}</div> : null}
-
-        <form className="coach-float-input" onSubmit={handleSubmit}>
-          <input
-            type="text"
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            placeholder="Ask Ai Coach Antyhing..."
-            aria-label="Ask AI Coach"
-          />
-          {canUseVoice ? (
-            <button
-              type="button"
-              className={`coach-voice-btn${isListening ? " listening" : ""}`}
-              onClick={handleVoiceInput}
-              aria-label="Use voice input"
-            >
-              🎤
-            </button>
-          ) : null}
-          <button type="submit" className="coach-send-btn" disabled={isLoading || !input.trim()}>
-            ⬆️
+        {isMinimized ? (
+          <button
+            type="button"
+            className="coach-expand-btn"
+            onClick={() => setIsMinimized(false)}
+            aria-label="Expand AI Coach"
+          >
+            AI Coach
           </button>
-        </form>
+        ) : (
+          <>
+            {(messages.length > 0 || isLoading) ? (
+              <>
+                <div className="coach-output-controls">
+                  <button
+                    type="button"
+                    className="coach-output-toggle"
+                    onClick={() => setIsAnswerCompact((prev) => !prev)}
+                  >
+                    {isAnswerCompact ? "Show more" : "Show less"}
+                  </button>
+                </div>
+                <div
+                  className={`coach-float-output${isAnswerCompact ? " compact" : ""}`}
+                  ref={outputRef}
+                  aria-live="polite"
+                >
+                  {messages.map((msg, index) => (
+                    <div key={`${msg.role}-${index}`} className={`coach-msg coach-msg-${msg.role}`}>
+                      {msg.text}
+                    </div>
+                  ))}
+                  {isLoading ? <div className="coach-msg coach-msg-assistant">Thinking...</div> : null}
+                </div>
+              </>
+            ) : null}
+
+            {error ? <div className="coach-float-error">{error}</div> : null}
+
+            <form className="coach-float-input" onSubmit={handleSubmit}>
+              <input
+                type="text"
+                value={input}
+                onChange={(event) => setInput(event.target.value)}
+                placeholder="Ask Ai Coach Antyhing..."
+                aria-label="Ask AI Coach"
+              />
+              {canUseVoice ? (
+                <button
+                  type="button"
+                  className={`coach-voice-btn${isListening ? " listening" : ""}`}
+                  onClick={handleVoiceInput}
+                  aria-label="Use voice input"
+                >
+                  🎤
+                </button>
+              ) : null}
+              <button type="submit" className="coach-send-btn" disabled={isLoading || !input.trim()}>
+                ⬆️
+              </button>
+              <button
+                type="button"
+                className="coach-minimize-btn"
+                onClick={() => setIsMinimized(true)}
+                aria-label="Minimize AI Coach"
+              >
+                ㅡ
+              </button>
+            </form>
+          </>
+        )}
       </div>
     </div>
   );
