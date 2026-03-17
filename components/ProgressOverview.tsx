@@ -27,6 +27,45 @@ const RECENT_WINS = [
   "Late sick-call scenario: stronger once tasks were reassigned explicitly.",
 ];
 
+const BADGE_STAGES = [
+  {
+    stage: "Stage 1",
+    title: "Bartending Fundamentals",
+    badges: [
+      { id: "bartending-pass", label: "Pass", icon: "🏅", earned: true, earnedNote: "21+ score" },
+      { id: "bartending-perfect", label: "Perfect Score", icon: "⭐", earned: true, earnedNote: "25/25" },
+      { id: "bartending-mastery", label: "Mastery", icon: "👑", earned: true, earnedNote: "All modules" },
+    ],
+  },
+  {
+    stage: "Stage 2",
+    title: "Sales & Upselling",
+    badges: [
+      { id: "sales-pass", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "sales-perfect", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "sales-mastery", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
+    ],
+  },
+  {
+    stage: "Stage 3",
+    title: "Leadership & Coaching",
+    badges: [
+      { id: "leadership-pass", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "leadership-perfect", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "leadership-mastery", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
+    ],
+  },
+  {
+    stage: "Stage 4",
+    title: "Management & Operations",
+    badges: [
+      { id: "management-pass", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "management-perfect", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "management-mastery", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
+    ],
+  },
+];
+
 export default function ProgressOverview({ displayName, plan }: ProgressOverviewProps) {
   return (
     <div className="progress-overview">
@@ -84,6 +123,43 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
                 <div className="progress-module-foot">
                   <span>{module.progress}% complete</span>
                   <span>Next unlock: advanced guest handling</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="progress-panel">
+          <div className="progress-panel-header">
+            <h2>Badges & Achievements</h2>
+            <span>Unlock badges by mastering each module</span>
+          </div>
+
+          <div className="progress-badges-container">
+            {BADGE_STAGES.map((stageData) => (
+              <div key={stageData.stage} className="badge-stage">
+                <div className="badge-stage-header">
+                  <h3>{stageData.stage}</h3>
+                  <p>{stageData.title}</p>
+                </div>
+                <div className="badge-row">
+                  {stageData.badges.map((badge) => (
+                    <div
+                      key={badge.id}
+                      className={`badge-item ${badge.earned ? "earned" : "tba"}`}
+                      title={badge.earnedNote || ""}
+                    >
+                      <div className="badge-shield">
+                        <span className="badge-icon">{badge.icon}</span>
+                      </div>
+                      <div className="badge-label">
+                        <strong>{badge.label}</strong>
+                        {badge.earned && badge?.earnedNote && (
+                          <span className="badge-note">{badge.earnedNote}</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
