@@ -36,40 +36,38 @@ const BADGE_LEGEND = [
 const BADGE_STAGES = [
   {
     stage: "Stage 1",
-    title: "Bartending Fundamentals",
     masteryComplete: true,
     badges: [
-      { id: "bartending-main", label: "Bartender Training", icon: "🏅", earned: true, earnedNote: "21+ score", progression: "Pass" },
+      { id: "stage1-bartending", label: "Bartending Fundamentals", icon: "🏅", earned: true, earnedNote: "21+ score", progression: "Pass" },
+      { id: "stage1-sales", label: "Sales & Upselling", icon: "🏅", earned: true, earnedNote: "21+ score", progression: "Pass" },
+      { id: "stage1-leadership", label: "Leadership & Coaching", icon: "🏅", earned: true, earnedNote: "21+ score", progression: "Pass" },
     ],
   },
   {
     stage: "Stage 2",
-    title: "Sales & Upselling",
     masteryComplete: false,
     badges: [
-      { id: "sales-bartender", label: "Bartender Training", icon: "🛡️", earned: false, earnedNote: undefined },
-      { id: "sales-training", label: "Sales Training", icon: "🛡️", earned: false, earnedNote: undefined },
-      { id: "sales-management", label: "Management Training", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "stage2-bartending", label: "Bartending Fundamentals", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "stage2-sales", label: "Sales & Upselling", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "stage2-leadership", label: "Leadership & Coaching", icon: "🛡️", earned: false, earnedNote: undefined },
     ],
   },
   {
     stage: "Stage 3",
-    title: "Leadership & Coaching",
     masteryComplete: false,
     badges: [
-      { id: "leadership-1", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
-      { id: "leadership-2", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
-      { id: "leadership-3", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "stage3-bartending", label: "Bartending Fundamentals", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "stage3-sales", label: "Sales & Upselling", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "stage3-leadership", label: "Leadership & Coaching", icon: "🛡️", earned: false, earnedNote: undefined },
     ],
   },
   {
     stage: "Stage 4",
-    title: "Management & Operations",
     masteryComplete: false,
     badges: [
-      { id: "management-1", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
-      { id: "management-2", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
-      { id: "management-3", label: "TBA", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "stage4-bartending", label: "Bartending Fundamentals", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "stage4-sales", label: "Sales & Upselling", icon: "🛡️", earned: false, earnedNote: undefined },
+      { id: "stage4-leadership", label: "Leadership & Coaching", icon: "🛡️", earned: false, earnedNote: undefined },
     ],
   },
 ];
@@ -166,7 +164,6 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
                       <span className="badge-mastery-note">✓ All modules complete</span>
                     )}
                   </div>
-                  <p>{stageData.title}</p>
                 </div>
                 <div className={`badge-row badge-row-${stageData.badges.length}`}>
                   {stageData.badges.map((badge) => (

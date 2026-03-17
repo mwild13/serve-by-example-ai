@@ -2966,7 +2966,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 
 .badge-stage-header {
   display: grid;
-  gap: 8px;
+  gap: 0;
 }
 
 .badge-stage-title {
@@ -2990,11 +2990,6 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   font-size: 0.75rem;
   font-weight: 700;
   white-space: nowrap;
-}
-
-.badge-stage-header p {
-  font-size: 0.9rem;
-  color: var(--text-soft);
 }
 
 .badge-row {
