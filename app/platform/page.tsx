@@ -4,37 +4,37 @@ import Footer from "@/components/Footer";
 
 const features = [
   {
-    icon: "ðŸ¤–",
+    icon: "🤖",
     title: "AI Scenario Training",
     description:
-      "Staff practice real hospitality situations through guided AI roleplay â€” upselling, de-escalation, cocktail knowledge, service recovery.",
+      "Staff practice real hospitality situations through guided AI roleplay — upselling, de-escalation, cocktail knowledge, service recovery.",
   },
   {
-    icon: "ðŸ—ºï¸",
+    icon: "🗺️",
     title: "Role-Based Learning Paths",
     description:
       "Tailor training to bartenders, floor staff, sales-focused team members and managers. Each role gets a targeted pathway.",
   },
   {
-    icon: "ðŸ“Š",
+    icon: "📊",
     title: "Live Performance Tracking",
     description:
       "Track progress across service, product knowledge, and sales skills. Real data shows you who is on-track and who needs support.",
   },
   {
-    icon: "âœ¦",
+    icon: "✦",
     title: "AI Coach (Ask Anything)",
     description:
-      "A venue AI coach answers management questions in plain language. Ask 'who needs training this week?' and get an instant answer.",
+      "A venue AI coach answers management questions in plain language. Ask who needs training this week and get an instant answer.",
   },
   {
-    icon: "ðŸ†",
+    icon: "🏆",
     title: "Gamification & Badges",
     description:
       "Staff earn milestone badges for completion, skill mastery, and top performance. Portable digital credentials boost engagement.",
   },
   {
-    icon: "ðŸ¢",
+    icon: "🏢",
     title: "Multi-Venue Management",
     description:
       "Manage multiple sites from a single console. Compare venue health scores, spot group-wide skill gaps, and standardize training.",
@@ -42,9 +42,9 @@ const features = [
 ];
 
 const dashboardStats = [
-  { label: "Avg training completion", value: "87%", trend: "â†‘ 12% this month" },
-  { label: "Scenario score (sales)", value: "74%", trend: "â†‘ 9%" },
-  { label: "Upsell performance", value: "68%", trend: "â†‘ 15%" },
+  { label: "Avg training completion", value: "87%", trend: "↑ 12% this month" },
+  { label: "Scenario score (sales)", value: "74%", trend: "↑ 9%" },
+  { label: "Upsell performance", value: "68%", trend: "↑ 15%" },
   { label: "Active staff this week", value: "14/16", trend: "2 need follow-up" },
 ];
 
@@ -57,7 +57,7 @@ const coachQuestions = [
 
 const productBlocks = [
   {
-    icon: "ðŸ‘¤",
+    icon: "👤",
     heading: "For staff",
     points: [
       "Short, mobile-first learning modules",
@@ -67,7 +67,7 @@ const productBlocks = [
     ],
   },
   {
-    icon: "ðŸ“‹",
+    icon: "📋",
     heading: "For managers",
     points: [
       "Full staff roster with skill analytics",
@@ -77,7 +77,7 @@ const productBlocks = [
     ],
   },
   {
-    icon: "ðŸ›ï¸",
+    icon: "🏛️",
     heading: "For venues",
     points: [
       "Faster onboarding with starter templates",
@@ -90,7 +90,7 @@ const productBlocks = [
 
 const stats = [
   { value: "90%", label: "Mobile completion rate" },
-  { value: "3Ã—", label: "Faster onboarding vs traditional" },
+  { value: "3×", label: "Faster onboarding vs traditional" },
   { value: "+15%", label: "Avg upsell improvement" },
   { value: "2026", label: "Built for the AI training era" },
 ];
@@ -101,7 +101,7 @@ export default function PlatformPage() {
       <Navbar />
 
       <main>
-        {/* â”€â”€ Hero â”€â”€ */}
+        {/* ── Hero ── */}
         <section className="inner-hero">
           <div className="container">
             <span className="eyebrow">Platform tour</span>
@@ -110,7 +110,7 @@ export default function PlatformPage() {
             </h1>
             <p className="inner-hero-sub">
               Serve By Example gives your team scenario-based practice, live performance tracking, and
-              an AI coach that knows your venue â€” all from a single management console.
+              an AI coach that knows your venue — all from a single management console.
             </p>
             <div className="inner-hero-actions">
               <Link href="/demo" className="btn btn-primary btn-lg">
@@ -122,68 +122,67 @@ export default function PlatformPage() {
             </div>
           </div>
         </section>
-          {/* ── Pricing Section ── */}
-          <section className="section section-alt">
-            <div className="container">
-              <div className="section-header center">
-                <span className="eyebrow">Pricing</span>
-                <h2>Simple, transparent pricing for every team size</h2>
-              </div>
-              <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 24, maxWidth: 700, margin: '0 auto' }}>
-                {/* Free Demo & Pro condensed */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <div className="price-card featured">
-                    <div className="price-tier">Free Demo</div>
-                    <div className="price-amount">Free</div>
-                    <ul>
-                      <li>Try all core features</li>
-                      <li>Scenario-based training</li>
-                      <li>Basic progress tracking</li>
-                    </ul>
-                    <Link href="/demo" className="btn btn-primary btn-block">Start Free</Link>
-                  </div>
-                  <div className="price-card">
-                    <div className="price-tier">Pro</div>
-                    <div className="price-amount">$19/mo</div>
-                    <ul>
-                      <li>Full access for individuals</li>
-                      <li>Progress analytics</li>
-                      <li>AI Coach Q&A</li>
-                      <li>Earn badges</li>
-                    </ul>
-                    <Link href="/login" className="btn btn-secondary btn-block">Join Pro</Link>
-                  </div>
+
+        {/* ── Pricing Section ── */}
+        <section className="section section-alt">
+          <div className="container">
+            <div className="section-header center">
+              <span className="eyebrow">Pricing</span>
+              <h2>Simple, transparent pricing for every team size</h2>
+            </div>
+            <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "1fr", gap: 24, maxWidth: 700, margin: "0 auto" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div className="price-card featured">
+                  <div className="price-tier">Free Demo</div>
+                  <div className="price-amount">Free</div>
+                  <ul>
+                    <li>Try all core features</li>
+                    <li>Scenario-based training</li>
+                    <li>Basic progress tracking</li>
+                  </ul>
+                  <Link href="/demo" className="btn btn-primary btn-block">Start Free</Link>
                 </div>
-                {/* Single Venue & Multi Venue below */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <div className="price-card">
-                    <div className="price-tier">Single Venue</div>
-                    <div className="price-amount">$99/mo</div>
-                    <ul>
-                      <li>All Pro features for your team</li>
-                      <li>Staff analytics dashboard</li>
-                      <li>Manager controls</li>
-                      <li>Email support</li>
-                    </ul>
-                    <Link href="/contact" className="btn btn-secondary btn-block">Contact Sales</Link>
-                  </div>
-                  <div className="price-card">
-                    <div className="price-tier">Multi Venue</div>
-                    <div className="price-amount">Custom</div>
-                    <ul>
-                      <li>All Single Venue features</li>
-                      <li>Multi-site management</li>
-                      <li>Group analytics</li>
-                      <li>Dedicated onboarding</li>
-                    </ul>
-                    <Link href="/contact" className="btn btn-secondary btn-block">Request Quote</Link>
-                  </div>
+                <div className="price-card">
+                  <div className="price-tier">Pro</div>
+                  <div className="price-amount">$19/mo</div>
+                  <ul>
+                    <li>Full access for individuals</li>
+                    <li>Progress analytics</li>
+                    <li>AI Coach Q&A</li>
+                    <li>Earn badges</li>
+                  </ul>
+                  <Link href="/pricing" className="btn btn-secondary btn-block">Join Pro</Link>
+                </div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div className="price-card">
+                  <div className="price-tier">Single Venue</div>
+                  <div className="price-amount">$49/mo</div>
+                  <ul>
+                    <li>All Pro features for your team</li>
+                    <li>Staff analytics dashboard</li>
+                    <li>Manager controls</li>
+                    <li>Email support</li>
+                  </ul>
+                  <Link href="/pricing" className="btn btn-secondary btn-block">Join Now</Link>
+                </div>
+                <div className="price-card">
+                  <div className="price-tier">Multi Venue</div>
+                  <div className="price-amount">$149/mo</div>
+                  <ul>
+                    <li>All Single Venue features</li>
+                    <li>Multi-site management</li>
+                    <li>Group analytics</li>
+                    <li>Dedicated onboarding</li>
+                  </ul>
+                  <Link href="/pricing" className="btn btn-secondary btn-block">Join Now</Link>
                 </div>
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-        {/* â”€â”€ Stats bar â”€â”€ */}
+        {/* ── Stats bar ── */}
         <section className="section-tight section-alt">
           <div className="container">
             <div className="platform-stats-row">
@@ -197,13 +196,13 @@ export default function PlatformPage() {
           </div>
         </section>
 
-        {/* â”€â”€ Dashboard Preview â”€â”€ */}
+        {/* ── Dashboard Preview ── */}
         <section className="section">
           <div className="container">
             <div className="section-header center">
               <span className="eyebrow">Management console</span>
               <h2>Your venue&rsquo;s mission control.</h2>
-              <p>A live dashboard that shows staff performance, training completion, upsell trends, and venue health â€” all in one view.</p>
+              <p>A live dashboard that shows staff performance, training completion, upsell trends, and venue health — all in one view.</p>
             </div>
             <div className="platform-dashboard-mockup">
               <div className="platform-dash-sidebar">
@@ -228,7 +227,7 @@ export default function PlatformPage() {
                 </div>
                 <div className="platform-dash-ai-preview">
                   <div className="platform-dash-ai-head">
-                    <span>âœ¦ Ask AI Coach</span>
+                    <span>✦ Ask AI Coach</span>
                   </div>
                   <div className="platform-dash-ai-suggestions">
                     {coachQuestions.map((q) => (
@@ -236,8 +235,8 @@ export default function PlatformPage() {
                     ))}
                   </div>
                   <div className="platform-dash-ai-response">
-                    <span className="platform-dash-ai-label">âœ¦ AI Coach</span>
-                    <p>Sarah (Bartender) and James (Floor) haven&rsquo;t completed their sales training module. Their upsell scores are below the venue average â€” I&rsquo;d recommend assigning &ldquo;Sales Conversations&rdquo; this week.</p>
+                    <span className="platform-dash-ai-label">✦ AI Coach</span>
+                    <p>Sarah (Bartender) and James (Floor) haven&rsquo;t completed their sales training module. Their upsell scores are below the venue average — I&rsquo;d recommend assigning &ldquo;Sales Conversations&rdquo; this week.</p>
                   </div>
                 </div>
               </div>
@@ -245,7 +244,7 @@ export default function PlatformPage() {
           </div>
         </section>
 
-        {/* â”€â”€ Feature Grid â”€â”€ */}
+        {/* ── Feature Grid ── */}
         <section className="section section-alt">
           <div className="container">
             <div className="section-header center">
@@ -264,7 +263,7 @@ export default function PlatformPage() {
           </div>
         </section>
 
-        {/* â”€â”€ Three Layers â”€â”€ */}
+        {/* ── Three Layers ── */}
         <section className="section">
           <div className="container">
             <div className="section-header center">
@@ -287,7 +286,7 @@ export default function PlatformPage() {
           </div>
         </section>
 
-        {/* â”€â”€ Mobile-first â”€â”€ */}
+        {/* ── Mobile-first ── */}
         <section className="section section-alt">
           <div className="container platform-mobile-section">
             <div className="platform-mobile-text">
@@ -305,7 +304,7 @@ export default function PlatformPage() {
                 <li>Managers get push alerts for team milestones</li>
               </ul>
               <div style={{ marginTop: 24 }}>
-                <Link href="/demo" className="btn btn-primary">Try it on your phone â†’</Link>
+                <Link href="/demo" className="btn btn-primary">Try it on your phone →</Link>
               </div>
             </div>
             <div className="platform-mobile-visual">
@@ -313,7 +312,7 @@ export default function PlatformPage() {
                 <div className="platform-phone-screen">
                   <div className="platform-phone-top">
                     <span>Serve By Example</span>
-                    <span>âœ¦ AI Coach</span>
+                    <span>✦ AI Coach</span>
                   </div>
                   <div className="platform-phone-scenario">
                     <p className="platform-phone-label">Today&rsquo;s scenario</p>
@@ -321,8 +320,8 @@ export default function PlatformPage() {
                     <p>A customer orders a house vodka. Guide them toward a premium option.</p>
                   </div>
                   <div className="platform-phone-badges">
-                    <span className="ops-badge ops-badge-earned">â­ Training Complete</span>
-                    <span className="ops-badge ops-badge-earned">ðŸ’° Sales Champion</span>
+                    <span className="ops-badge ops-badge-earned">⭐ Training Complete</span>
+                    <span className="ops-badge ops-badge-earned">💰 Sales Champion</span>
                   </div>
                 </div>
               </div>
@@ -330,14 +329,14 @@ export default function PlatformPage() {
           </div>
         </section>
 
-        {/* â”€â”€ CTA â”€â”€ */}
+        {/* ── CTA ── */}
         <section className="section section-cta">
           <div className="container cta-box">
             <div>
               <h3>The market is moving to AI-powered training. You&rsquo;re already there.</h3>
               <p>
                 Major hospitality platforms are just now beginning to build what Serve By Example already has.
-                Your window of competitive advantage is now â€” while the incumbents are still in the planning phase.
+                Your window of competitive advantage is now — while the incumbents are still in the planning phase.
               </p>
             </div>
             <div className="cta-actions">

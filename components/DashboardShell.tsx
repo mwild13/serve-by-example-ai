@@ -23,7 +23,7 @@ const NAV_ITEMS: { id: NavItem; label: string }[] = [
 ];
 
 const TRAINER_MODULES: Partial<Record<NavItem, "bartending" | "sales" | "management">> = {
-  home: undefined,
+  home: "bartending",
   bartending: "bartending",
   sales: "sales",
   management: "management",
@@ -105,7 +105,8 @@ function StaffSettingsPanel({
 
   async function handleDisplayNameUpdate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!profileName.trim()) {
+    const trimmedName = profileName.trim();
+    if (!trimmedName) {
       setProfileError("Name cannot be empty.");
       setProfileMessage("");
       return;
@@ -117,29 +118,18 @@ function StaffSettingsPanel({
 
     try {
       const supabase = createSupabaseBrowserClient();
-      const trimmedName = profileName.trim();
+      const { data: { session } } = await supabase.auth.getSession();
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      const { error: userError } = await supabase.auth.updateUser({
-        data: { display_name: trimmedName },
+      const res = await fetch("/api/profile/update-name", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { "Authorization": `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({ displayName: trimmedName }),
       });
-      if (userError) {
-        throw userError;
-      }
-
-      if (user?.id) {
-        const { error: profileUpdateError } = await supabase
-          .from("profiles")
-          .update({ display_name: trimmedName })
-          .eq("id", user.id);
-
-        if (profileUpdateError) {
-          throw profileUpdateError;
-        }
-      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Unable to update name.");
 
       setProfileName(trimmedName);
       setProfileMessage("Name updated successfully.");
@@ -403,11 +393,7 @@ function StaffSettingsPanel({
         <div className="sbe-trust-list">
           <div className="sbe-trust-row">
             <span className="sbe-trust-label">Last login</span>
-            <span className="sbe-trust-value">Today, this session</span>
-          </div>
-          <div className="sbe-trust-row">
-            <span className="sbe-trust-label">Active sessions</span>
-            <span className="sbe-trust-value">1 session (this device)</span>
+            <span className="sbe-trust-value">Current session</span>
           </div>
           <div className="sbe-trust-row">
             <span className="sbe-trust-label">Training data usage</span>
@@ -476,7 +462,14 @@ const DAILY_CHALLENGES = [
   },
 ];
 
-function RightPanel({ setActiveNav }: { setActiveNav: (nav: NavItem) => void }) {
+function RightPanel({
+  setActiveNav,
+  plan,
+}: {
+  setActiveNav: (nav: NavItem) => void;
+  plan: string;
+}) {
+  const isPremium = plan !== "free";
   // Pick a challenge based on the day of the year so it rotates daily but is consistent per day
   const dayOfYear = Math.floor(
     (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000,
@@ -489,6 +482,7 @@ function RightPanel({ setActiveNav }: { setActiveNav: (nav: NavItem) => void }) 
     { emoji: "🎭", label: "Advanced Scenarios", nav: "scenarios" },
     { emoji: "📈", label: "My progress", nav: "progress" },
   ];
+  const filteredQuickStarts = isPremium ? quickStarts : quickStarts.filter((q) => q.nav === "progress");
 
   return (
     <>
@@ -538,7 +532,7 @@ function RightPanel({ setActiveNav }: { setActiveNav: (nav: NavItem) => void }) 
       <div className="rp-section">
         <p className="rp-label">Jump back in</p>
         <div className="rp-quickstart-list">
-          {quickStarts.map((q) => (
+          {filteredQuickStarts.map((q) => (
             <button
               key={q.nav}
               className="rp-quickstart-btn"
@@ -634,6 +628,29 @@ export default function DashboardShell({
 
   const isTrainerNav = activeNav in TRAINER_MODULES;
   const defaultModule = TRAINER_MODULES[activeNav];
+
+  const PREMIUM_NAV_ITEMS: NavItem[] = ["bartending", "sales", "management", "scenarios", "cocktails"];
+  const FALLBACK_ADMIN_EMAILS = [
+    "wild07man@gmail.com",
+    "mitchellwildman1994@gmail.com",
+    "campbell.wildman@gmail.com",
+    "grahamwi@bigpond.com",
+    "wildmanemmet@gmail.com",
+    "hjallanson@gmail.com",
+    "hello@studio-ell.com.au",
+  ];
+  const envAdminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+  const ADMIN_EMAILS = envAdminEmails.length > 0 ? envAdminEmails : FALLBACK_ADMIN_EMAILS;
+  const isAdmin = ADMIN_EMAILS.includes(userEmail.toLowerCase());
+  const isPremium = isAdmin || plan !== "free";
+
+  function handleNavClick(id: NavItem) {
+    if (!isPremium && PREMIUM_NAV_ITEMS.includes(id)) {
+      window.location.href = "/pricing";
+      return;
+    }
+    setActiveNav(id);
+  }
 
   async function handleManagementUnlock(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -758,17 +775,24 @@ export default function DashboardShell({
           {NAV_ITEMS.map((item) => (
             <div
               key={item.id}
-              className={`mockup-nav-item${activeNav === item.id ? " active" : ""}`}
-              onClick={() => setActiveNav(item.id)}
+              className={`mockup-nav-item${activeNav === item.id ? " active" : ""}${
+                !isPremium && PREMIUM_NAV_ITEMS.includes(item.id) ? " mockup-nav-item-locked" : ""
+              }`}
+              onClick={() => handleNavClick(item.id)}
               style={{ cursor: "pointer" }}
             >
-              {item.label}
+              {!isPremium && PREMIUM_NAV_ITEMS.includes(item.id) ? `${item.label} 🔒` : item.label}
             </div>
           ))}
         </div>
 
         <div className="dashboard-plan-card dashboard-plan-card-sidebar">
           <strong>{planTitle}</strong>
+          {isFounder && (
+            <div style={{ display: "inline-block", marginTop: 6, marginBottom: 4, padding: "3px 10px", background: "rgba(255,200,0,0.15)", border: "1px solid rgba(255,200,0,0.4)", borderRadius: 20, fontSize: "0.78rem", color: "#ffd700", fontWeight: 600 }}>
+              👑 Founding Member
+            </div>
+          )}
           <div>{planMessage}</div>
           {!isFounder && (
             <button
@@ -825,7 +849,9 @@ export default function DashboardShell({
           <DashboardTrainer
             key={activeNav}
             displayName={displayName}
+            userEmail={userEmail}
             defaultModule={defaultModule}
+            managementUnlocked={managementUnlocked}
           />
         ) : activeNav === "scenarios" ? (
           <AdvancedScenarios />
@@ -851,6 +877,11 @@ export default function DashboardShell({
         <div className="dashboard-mobile-footer-actions">
           <div className="dashboard-plan-card dashboard-plan-card-mobile">
             <strong>{planTitle}</strong>
+            {isFounder && (
+              <div style={{ display: "inline-block", marginTop: 4, marginBottom: 4, padding: "2px 9px", background: "rgba(255,200,0,0.15)", border: "1px solid rgba(255,200,0,0.4)", borderRadius: 20, fontSize: "0.75rem", color: "#ffd700", fontWeight: 600 }}>
+                👑 Founding Member
+              </div>
+            )}
             <div>{planMessage}</div>
           </div>
           <SignOutButton />
@@ -858,7 +889,7 @@ export default function DashboardShell({
       </section>
 
       <aside className="dashboard-right">
-        <RightPanel setActiveNav={setActiveNav} />
+        <RightPanel setActiveNav={handleNavClick} plan={plan} />
       </aside>
     </main>
   );

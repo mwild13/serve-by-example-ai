@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import WaitlistSection from "@/components/WaitlistSection";
 
 export default function Home() {
   return (
@@ -404,7 +405,7 @@ export default function Home() {
                 </p>
                 <p className="price-fit">Who this is for: venue groups and multi-site operators.</p>
                 <ul>
-                  <li>Up to 5 venues</li>
+                  <li><strong>Up to 5 venues</strong></li>
                   <li>Multiple user logins</li>
                   <li>Cross-venue comparison</li>
                   <li>Advanced analytics</li>
@@ -445,6 +446,21 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <WaitlistSection
+          eyebrow="Stay in the loop"
+          title="Get notified when we launch."
+          copy="No credit card required. We'll send you early access updates and launch-stage pricing — no spam."
+          inputPlaceholder="your@email.com"
+          buttonLabel="Notify me"
+          successTitle="You're on the list."
+          successCopy="We'll reach out with early access details and launch updates."
+          successSteps={[
+            "You'll receive launch updates and early access invites by email.",
+            "Founding members lock in launch pricing for life.",
+            "We'll walk you through onboarding personally when spots open.",
+          ]}
+        />
 
         {/* ── Final CTA ────────────────────────────── */}
         <section className="section section-cta">

@@ -633,6 +633,22 @@ export async function deleteVenue(
   }
 }
 
+export async function deleteStaffMember(
+  supabase: ManagementSupabaseClient,
+  userId: string,
+  staffId: string,
+) {
+  const { error } = await supabase
+    .from("venue_staff")
+    .delete()
+    .eq("manager_user_id", userId)
+    .eq("id", staffId);
+
+  if (error) {
+    throw error;
+  }
+}
+
 export async function createStaffMember(
   supabase: ManagementSupabaseClient,
   userId: string,
@@ -765,6 +781,38 @@ export async function createTrainingProgram(
   if (isMissingRelation(error)) {
     throw new Error("Management schema missing: training_programs table not found. Run supabase/management_schema.sql first.");
   }
+
+  if (error) {
+    throw error;
+  }
+}
+
+export async function deleteInventoryItem(
+  supabase: ManagementSupabaseClient,
+  userId: string,
+  itemId: string,
+) {
+  const { error } = await supabase
+    .from("venue_inventory_items")
+    .delete()
+    .eq("id", itemId)
+    .eq("manager_user_id", userId);
+
+  if (error) {
+    throw error;
+  }
+}
+
+export async function deleteTrainingProgram(
+  supabase: ManagementSupabaseClient,
+  userId: string,
+  programId: string,
+) {
+  const { error } = await supabase
+    .from("training_programs")
+    .delete()
+    .eq("id", programId)
+    .eq("manager_user_id", userId);
 
   if (error) {
     throw error;

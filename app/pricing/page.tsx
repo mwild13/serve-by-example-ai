@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import SectionHeading from "@/components/SectionHeading";
@@ -9,6 +9,15 @@ import SectionHeading from "@/components/SectionHeading";
 export default function PricingPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
+  // Reset stuck "Redirecting..." when user presses browser back from Stripe
+  useEffect(() => {
+    function onPageShow(e: PageTransitionEvent) {
+      if (e.persisted) setLoading(null);
+    }
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
 
   async function handleCheckout(plan: string) {
     setLoading(plan);
@@ -118,7 +127,7 @@ export default function PricingPage() {
                   onClick={() => handleCheckout("single_venue")}
                   disabled={loading === "single_venue"}
                 >
-                  {loading === "single_venue" ? "Redirecting..." : "Request Access"}
+                  {loading === "single_venue" ? "Redirecting..." : "Join Now"}
                 </button>
               </div>
 
@@ -131,7 +140,7 @@ export default function PricingPage() {
                   Best for multi-location teams wanting unified management.
                 </div>
                 <ul className="feature-list">
-                  <li>Up to 5 venues</li>
+                  <li><strong>Up to 5 venues</strong></li>
                   <li>Multiple user logins</li>
                   <li>Full management modules</li>
                   <li>Cross-venue comparison reporting</li>
@@ -143,7 +152,7 @@ export default function PricingPage() {
                   onClick={() => handleCheckout("multi_venue")}
                   disabled={loading === "multi_venue"}
                 >
-                  {loading === "multi_venue" ? "Redirecting..." : "Request Multi-Venue Access"}
+                  {loading === "multi_venue" ? "Redirecting..." : "Join Now"}
                 </button>
               </div>
             </div>

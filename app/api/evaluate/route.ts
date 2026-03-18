@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -6,6 +7,11 @@ const openai = new OpenAI({
 
 export async function POST(req: Request) {
   try {
+    const ip = getClientIp(req);
+    if (!rateLimit(`evaluate:${ip}`, 20)) {
+      return Response.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    }
+
     const body = await req.json();
     const { scenario, userResponse } = body;
 
@@ -14,6 +20,10 @@ export async function POST(req: Request) {
         { error: "Missing scenario or userResponse" },
         { status: 400 }
       );
+    }
+
+    if (typeof userResponse === "string" && userResponse.length > 3000) {
+      return Response.json({ error: "Response too long (max 3000 characters)." }, { status: 400 });
     }
 
     const prompt = `

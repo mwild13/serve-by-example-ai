@@ -9,7 +9,7 @@ type PurposeFilter = "all" | "practice";
 
 const PURPOSE_LABELS: Record<PurposeFilter, string> = {
   all: "Browse all",
-  practice: "Add to training",
+  practice: "Bookmarked",
 };
 
 export default function CocktailLibrary() {
@@ -161,7 +161,7 @@ export default function CocktailLibrary() {
                         onClick={(e) => addToPractice(cocktail.name, e)}
                         disabled={inPractice}
                       >
-                        {inPractice ? "✓ Added to training" : "🎯 Add to training"}
+                        {inPractice ? "✓ Bookmarked" : "🔖 Bookmark"}
                       </button>
                       <button
                         className="btn btn-secondary"

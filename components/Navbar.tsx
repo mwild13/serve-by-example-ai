@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { createSupabaseBrowserClient } from "@/lib/supabase";
 
 type NavbarProps = {
   showActions?: boolean;
@@ -18,6 +19,18 @@ export default function Navbar({
 }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const close = () => setMenuOpen(false);
+  const [authEmail, setAuthEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setAuthEmail(data.user?.email ?? null);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthEmail(session?.user?.email ?? null);
+    });
+    return () => listener.subscription.unsubscribe();
+  }, []);
 
   return (
     <>
@@ -41,10 +54,13 @@ export default function Navbar({
           </nav>
 
           <div className="nav-right">
-
-            {showActions ? (
+            {authEmail ? (
+              <Link href="/dashboard" className="nav-logged-in" title={authEmail}>
+                Logged in
+              </Link>
+            ) : showActions ? (
               <div className="nav-actions">
-                  <LanguageSwitcher variant="navbar" hideOnMobile={!showNavbarLanguageOnMobile} />
+                <LanguageSwitcher variant="navbar" hideOnMobile={!showNavbarLanguageOnMobile} />
                 <Link href="/management/login" className="btn btn-secondary">
                   Manager Login
                 </Link>

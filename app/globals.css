@@ -95,7 +95,7 @@ ul {
 }
 
 .container {
-  width: min(1100px, calc(100% - 48px));
+  width: min(1200px, calc(100% - 48px));
   margin: 0 auto;
 }
 
@@ -325,6 +325,35 @@ ul {
 .nav-actions {
   display: flex;
   gap: 8px;
+}
+
+.nav-logged-in {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--green-deep);
+  background: var(--green-light);
+  border-radius: 20px;
+  padding: 6px 14px;
+  text-decoration: none;
+  white-space: nowrap;
+  border: 1px solid var(--green-mid);
+  transition: background 0.15s;
+}
+.nav-logged-in::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+}
+.nav-logged-in:hover {
+  background: var(--green-mid);
+  color: #fff;
 }
 
 .nav-right {
@@ -1096,6 +1125,7 @@ ul {
   flex-direction: column;
   gap: 10px;
   box-shadow: var(--shadow-xs);
+  max-width: 640px;
 }
 
 .mockup-chat-header {
@@ -1154,6 +1184,9 @@ ul {
   text-align: center;
   box-shadow: var(--shadow-sm);
   transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .audience-card:hover {
@@ -1184,6 +1217,7 @@ ul {
   color: var(--text-soft);
   font-size: 0.94rem;
   line-height: 1.65;
+  flex-grow: 1;
 }
 
 .audience-benefit {
@@ -1340,6 +1374,7 @@ ul {
   line-height: 1.65;
   margin-bottom: 18px;
   font-size: 0.94rem;
+  flex-grow: 1;
 }
 
 .feature-list {
@@ -4609,6 +4644,29 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   background: rgba(31, 78, 55, 0.06);
 }
 
+.ops-table-delete-btn {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.ops-table-delete-btn:hover {
+  background: var(--red-soft);
+  color: var(--red-text);
+  border-color: rgba(125, 53, 53, 0.2);
+}
+
+.ops-table-delete-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .ops-profile-metrics {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -4699,6 +4757,65 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   margin-top: 4px;
   color: var(--green-deep);
   font-weight: 600;
+}
+
+.ops-settings-hint {
+  font-size: 0.87rem;
+  color: var(--text-soft);
+  line-height: 1.55;
+  margin: 8px 0 0;
+}
+
+/* ── Invite link panel ─────────────────────── */
+.ops-invite-link-panel {
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin: 12px 0 0;
+  border: 1px solid var(--line-light);
+  background: var(--surface-raised);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ops-invite-link-panel--sent {
+  border-color: var(--green-mid);
+  background: var(--green-light);
+}
+.ops-invite-link-panel--manual {
+  border-color: var(--gold);
+  background: #fffbf0;
+}
+.ops-invite-link-header {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+.ops-invite-link-hint {
+  font-size: 0.86rem;
+  color: var(--text-soft);
+  line-height: 1.5;
+  margin: 0;
+}
+.ops-invite-link-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.ops-invite-link-input {
+  font-family: monospace;
+  font-size: 0.78rem;
+  flex: 1;
+  min-width: 0;
+  color: var(--text-soft);
+}
+.ops-invite-link-dismiss {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  align-self: flex-end;
 }
 
 .ops-venue-manager {
@@ -7498,6 +7615,43 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   cursor: pointer;
   text-decoration: underline;
   padding: 4px 8px;
+}
+
+/* ── Wide desktop breakpoints ───────────────────────────────── */
+@media (min-width: 1400px) {
+  .container {
+    width: min(1360px, calc(100% - 80px));
+  }
+
+  .dashboard-shell {
+    grid-template-columns: 260px 1fr 260px;
+  }
+
+  .dashboard-main {
+    padding: 40px 56px;
+  }
+
+  .ops-shell {
+    grid-template-columns: 280px minmax(0, 1fr) 320px;
+  }
+
+  .ops-main {
+    padding: 40px 48px;
+  }
+}
+
+@media (min-width: 1700px) {
+  .container {
+    width: min(1560px, calc(100% - 120px));
+  }
+
+  .dashboard-shell {
+    grid-template-columns: 280px 1fr 280px;
+  }
+
+  .ops-shell {
+    grid-template-columns: 300px minmax(0, 1fr) 340px;
+  }
 }
 
 .onboarding-skip:hover {

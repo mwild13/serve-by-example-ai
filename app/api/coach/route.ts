@@ -1,4 +1,6 @@
 import OpenAI from "openai";
+import { getUserFromRequest } from "@/lib/supabase-server";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -37,12 +39,22 @@ function mapLanguageLabel(code: string | undefined) {
 
 export async function POST(req: Request) {
   try {
+    const { user } = await getUserFromRequest(req);
+    if (!user) {
+      return Response.json({ error: "Sign in to use the AI coach." }, { status: 401 });
+    }
+
+    const ip = getClientIp(req);
+    if (!rateLimit(`coach:${user.id ?? ip}`, 30)) {
+      return Response.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    }
+
     const body = (await req.json()) as CoachRequest;
     const question = body.question?.trim();
     const languageLabel = mapLanguageLabel(body.language);
 
-    if (!question) {
-      return Response.json({ error: "Question is required." }, { status: 400 });
+    if (!question || question.length > 2000) {
+      return Response.json({ error: "Question is required (max 2000 characters)." }, { status: 400 });
     }
 
     if (!process.env.OPENAI_API_KEY) {

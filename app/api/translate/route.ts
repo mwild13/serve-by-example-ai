@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -15,6 +16,11 @@ function isValidTexts(input: unknown): input is string[] {
 
 export async function POST(req: Request) {
   try {
+    const ip = getClientIp(req);
+    if (!rateLimit(`translate:${ip}`, 15)) {
+      return Response.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    }
+
     const body = (await req.json()) as TranslateRequestBody;
     const targetLanguage = body.targetLanguage?.trim();
     const texts = body.texts;

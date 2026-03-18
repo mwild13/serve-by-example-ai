@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabase";
 
 type Module = "bartending" | "sales" | "management";
 
@@ -443,9 +444,13 @@ const SCORE_DIMENSIONS = [
 export default function DashboardTrainer({
   displayName,
   defaultModule,
+  managementUnlocked = false,
 }: {
   displayName: string;
   defaultModule?: Module;
+  managementUnlocked?: boolean;
+  /** Passed by DashboardShell; reserved for future server-side data fetching. */
+  userEmail?: string;
 }) {
   const [activeModule, setActiveModule] = useState<Module | null>(defaultModule ?? null);
   const [scenarioIndex, setScenarioIndex] = useState(0);
@@ -455,6 +460,15 @@ export default function DashboardTrainer({
   const [lastScore, setLastScore] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [showHelp, setShowHelp] = useState(false);
+
+  // Real progress loaded from DB; starts at 0 until the fetch completes.
+  const [moduleProgress, setModuleProgress] = useState<Record<Module, number>>({
+    bartending: 0,
+    sales: 0,
+    management: 0,
+  });
+  // Management unlock can be granted either via venue code (prop) OR staff role (API).
+  const [mgmtUnlocked, setMgmtUnlocked] = useState(managementUnlocked);
 
   const currentScenario = activeModule ? SCENARIOS[activeModule][scenarioIndex] : null;
   const currentInsight = activeModule ? SCENARIO_INSIGHTS[activeModule][scenarioIndex] : null;
@@ -473,6 +487,37 @@ export default function DashboardTrainer({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [result]);
+
+  // Keep mgmtUnlocked in sync if the parent unlocks management (e.g. venue code entry).
+  useEffect(() => {
+    if (managementUnlocked) setMgmtUnlocked(true);
+  }, [managementUnlocked]);
+
+  // Load real progress from the DB and check staff-role auto-unlock.
+  useEffect(() => {
+    async function fetchProgress() {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch("/api/training/progress", {
+          headers: session?.access_token
+            ? { Authorization: `Bearer ${session.access_token}` }
+            : {},
+        });
+        if (!res.ok) return;
+        const data = await res.json() as {
+          modules: Record<Module, number>;
+          staffRole?: string;
+          autoUnlockManagement?: boolean;
+        };
+        if (data.modules) setModuleProgress(data.modules);
+        if (data.autoUnlockManagement) setMgmtUnlocked(true);
+      } catch {
+        // non-critical — fall back to zeros
+      }
+    }
+    void fetchProgress();
+  }, []);
 
   function selectModule(mod: Module) {
     setActiveModule(mod);
@@ -515,6 +560,33 @@ export default function DashboardTrainer({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Evaluation failed.");
       setResult(data);
+
+      // Fire-and-forget: persist this score and update management console data.
+      if (activeModule) {
+        const mod = activeModule;
+        const score = data.overallScore as number;
+        void (async () => {
+          try {
+            const supabase = createSupabaseBrowserClient();
+            const { data: { session } } = await supabase.auth.getSession();
+            await fetch("/api/training/save", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+              },
+              body: JSON.stringify({ module: mod, overallScore: score }),
+            });
+            // Optimistic local update: increment by 1 scenario (10% of 10 total).
+            setModuleProgress((prev) => ({
+              ...prev,
+              [mod]: Math.min(prev[mod] + 10, 100),
+            }));
+          } catch {
+            // Non-critical — next page load will reflect real DB value.
+          }
+        })();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -544,7 +616,7 @@ export default function DashboardTrainer({
           <div className="sbe-command-text">
             <span className="sbe-command-eyebrow">{MODULE_META[activeModule].label}</span>
             <strong>Scenario {scenarioIndex + 1} of {SCENARIOS[activeModule].length}</strong>
-            <span className="sbe-command-meta">{MODULE_META[activeModule].badge}</span>
+            <span className="sbe-command-meta">{moduleProgress[activeModule]}% complete</span>
           </div>
           <button className="btn btn-secondary sbe-back-btn" onClick={() => { setActiveModule(null); setResult(null); setResponse(""); }}>
             ← Back
@@ -584,24 +656,31 @@ export default function DashboardTrainer({
       {/* Module cards */}
       {!result && (
         <div className="dash-cards">
-          {(Object.keys(MODULE_META) as Module[]).map((mod) => (
+          {(Object.keys(MODULE_META) as Module[]).map((mod) => {
+            const isLocked = mod === "management" && !mgmtUnlocked;
+            return (
             <div
               key={mod}
-              className={`dash-card${activeModule === mod ? " dash-card-active" : ""}`}
-              onClick={() => selectModule(mod)}
+              className={`dash-card${activeModule === mod ? " dash-card-active" : ""}${isLocked ? " dash-card-locked" : ""}`}
+              onClick={() => !isLocked && selectModule(mod)}
               style={activeModule === mod ? { borderColor: MODULE_META[mod].color, boxShadow: `0 0 0 3px ${MODULE_META[mod].color}22` } : {}}
             >
-              <h3>{MODULE_META[mod].label}</h3>
+              <h3>{MODULE_META[mod].label}{isLocked ? " 🔒" : ""}</h3>
               <div className="dash-card-progress-row">
                 <div className="dash-card-progress-bar">
-                  <div className="dash-card-progress-fill" style={{ width: `${MODULE_META[mod].progress}%`, background: MODULE_META[mod].color }} />
+                  <div className="dash-card-progress-fill" style={{ width: `${moduleProgress[mod]}%`, background: MODULE_META[mod].color }} />
                 </div>
-                <span className="dash-card-progress-pct">{MODULE_META[mod].progress}%</span>
+                <span className="dash-card-progress-pct">{moduleProgress[mod]}%</span>
               </div>
-              <p className="dash-card-next">Next: {MODULE_META[mod].nextUp}</p>
+              {isLocked ? (
+                <p className="dash-card-next">Requires venue manager code</p>
+              ) : (
+                <p className="dash-card-next">Next: {MODULE_META[mod].nextUp}</p>
+              )}
               {activeModule === mod && <span className="dash-card-badge">Active</span>}
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -747,7 +826,9 @@ export default function DashboardTrainer({
           <div className="chat-actions">
             <div className="chat-pill" onClick={() => selectModule("bartending")}>Start Bartending</div>
             <div className="chat-pill" onClick={() => selectModule("sales")}>Start Sales</div>
-            <div className="chat-pill" onClick={() => selectModule("management")}>Start Management</div>
+            {managementUnlocked && (
+              <div className="chat-pill" onClick={() => selectModule("management")}>Start Management</div>
+            )}
           </div>
         </div>
       )}

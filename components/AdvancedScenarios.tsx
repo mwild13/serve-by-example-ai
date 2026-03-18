@@ -187,6 +187,15 @@ export default function AdvancedScenarios() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Evaluation failed.");
       setResult(data);
+
+      // Persist score to training progress (fire-and-forget)
+      if (data.overallScore != null) {
+        fetch("/api/training/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ module: "bartending", overallScore: data.overallScore }),
+        }).catch(() => {});
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {

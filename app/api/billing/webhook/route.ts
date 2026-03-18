@@ -4,6 +4,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-02-25.clover",
+  httpClient: Stripe.createFetchHttpClient(),
 });
 
 // Map Stripe Price IDs back to plan names
@@ -34,34 +35,47 @@ export async function POST(req: Request) {
     const session = event.data.object as Stripe.Checkout.Session;
     const userId = session.metadata?.userId;
     const priceId = session.metadata?.priceId;
+    const isFounder = session.metadata?.is_founder_purchase === "true";
     const plan = priceId ? PRICE_TO_PLAN[priceId] : undefined;
     const stripeCustomerId = session.customer as string;
     const customerEmail = session.customer_details?.email;
 
     if (plan) {
+      const profileUpdate: Record<string, unknown> = {
+        plan,
+        stripe_customer_id: stripeCustomerId,
+        ...(isFounder && { is_founders_user: true }),
+      };
+
       if (userId) {
         // Logged-in user: directly update by user ID
-        await supabase
-          .from("profiles")
-          .update({ plan, stripe_customer_id: stripeCustomerId })
-          .eq("id", userId);
+        await supabase.from("profiles").update(profileUpdate).eq("id", userId);
       } else if (customerEmail) {
-        // Guest checkout: find the Supabase user by email and update their profile.
-        // If they haven't created an account yet, this no-ops and the subscription
-        // will be linked the next time the webhook fires (e.g. renewal) after they sign up.
+        // Guest checkout: find existing Supabase user by email
         const { data: { users } } = await supabase.auth.admin.listUsers({ perPage: 1000 });
         const matched = users.find((u) => u.email === customerEmail);
+
         if (matched) {
-          await supabase
-            .from("profiles")
-            .update({ plan, stripe_customer_id: stripeCustomerId })
-            .eq("id", matched.id);
+          await supabase.from("profiles").update(profileUpdate).eq("id", matched.id);
         } else {
-          // User hasn't signed up yet — store the pending plan on the Stripe customer
-          // so we can retrieve it when they register (handled in the sign-up flow).
-          await stripe.customers.update(stripeCustomerId, {
-            metadata: { pending_plan: plan },
-          });
+          // No account yet — create one and send a "Set your password" invite email
+          const { data: invite, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(
+            customerEmail,
+            { data: { is_founders_user: isFounder } }
+          );
+
+          if (!inviteError && invite?.user) {
+            await supabase.from("profiles").upsert({
+              id: invite.user.id,
+              ...profileUpdate,
+            });
+          } else {
+            console.error("Webhook: failed to invite new user:", inviteError?.message);
+            // Fall back to tagging the Stripe customer so sign-up flow can pick it up
+            await stripe.customers.update(stripeCustomerId, {
+              metadata: { pending_plan: plan },
+            });
+          }
         }
       }
     }

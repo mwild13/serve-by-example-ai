@@ -190,7 +190,7 @@ export default function FloatingCoach() {
                 type="text"
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
-                placeholder="Ask Ai Coach Antyhing..."
+                placeholder="Ask AI Coach Anything..."
                 aria-label="Ask AI Coach"
               />
               <button type="submit" className="coach-send-btn" disabled={isLoading || !input.trim()} aria-label="Send">

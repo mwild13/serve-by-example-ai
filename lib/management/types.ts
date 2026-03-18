@@ -16,7 +16,8 @@ export type ManagerSection =
   | "predictive"
   | "settings"
   | "billing"
-  | "integrations";
+  | "integrations"
+  | "sign-out";
 
 export type StaffRole =
   | "Bartender"

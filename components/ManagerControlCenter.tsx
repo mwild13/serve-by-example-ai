@@ -2,6 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
+import SignOutButton from "@/components/SignOutButton";
 import type {
   ManagementSnapshot,
   ManagerSection,
@@ -35,6 +36,8 @@ type SearchResult = {
 
 type SnapshotResponse = ManagementSnapshot & {
   inviteMessage?: string;
+  inviteLink?: string;
+  emailSent?: boolean;
 };
 
 const NAV_GROUPS: NavGroup[] = [
@@ -92,6 +95,7 @@ const NAV_GROUPS: NavGroup[] = [
       { id: "settings", label: "Settings", icon: "◦" },
       { id: "billing", label: "Billing", icon: "◒" },
       { id: "integrations", label: "Integrations", icon: "◧" },
+      { id: "sign-out", label: "Sign out", icon: "→" },
     ],
   },
 ];
@@ -151,6 +155,7 @@ const SECTION_META: Record<ManagerSection, { cluster: string; label: string }> =
   settings: { cluster: "Admin", label: "Settings" },
   billing: { cluster: "Admin", label: "Billing" },
   integrations: { cluster: "Admin", label: "Integrations" },
+  "sign-out": { cluster: "Admin", label: "Sign out" },
 };
 
 const QUICK_ACTIONS: Array<{
@@ -218,7 +223,11 @@ export default function ManagerControlCenter({
   const [newVenueName, setNewVenueName] = useState("");
   const [requestError, setRequestError] = useState("");
   const [requestSuccess, setRequestSuccess] = useState("");
+  const [pendingInviteLink, setPendingInviteLink] = useState<{ link: string; email: string; name: string; emailSent: boolean } | null>(null);
+  const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [testEmailStatus, setTestEmailStatus] = useState<"idle" | "loading" | "ok" | "fail">("idle");
+  const [testEmailResult, setTestEmailResult] = useState<{ message: string; smtpConfigured?: boolean; testLink?: string } | null>(null);
   const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
@@ -598,8 +607,16 @@ export default function ManagerControlCenter({
     }
 
     setSnapshot(result);
-    if (result.inviteMessage && activeSection === "settings") {
+    if (result.inviteMessage) {
       setRequestSuccess(result.inviteMessage);
+    }
+    if (result.inviteLink) {
+      setPendingInviteLink({
+        link: result.inviteLink,
+        email: staffForm.email ?? "",
+        name: staffForm.name ?? "",
+        emailSent: result.emailSent ?? false,
+      });
     }
 
     return result;
@@ -670,11 +687,12 @@ export default function ManagerControlCenter({
         return;
       }
       const result = await applySnapshotResult(response);
-      if (!result.inviteMessage && activeSection === "settings") {
+      if (!result.inviteMessage) {
         setRequestSuccess(requestConfig.success);
       }
       setActiveAction(null);
       setStaffForm({ name: "", role: "New Staff", email: "", sendInvite: false });
+      // Note: pendingInviteLink intentionally left set so manager can copy it.
       setInventoryForm({ category: "", name: "" });
       setProgramForm({
         name: "",
@@ -723,6 +741,30 @@ export default function ManagerControlCenter({
       setRequestSuccess(`${name} added to your venue group.`);
     } catch (error) {
       setRequestError(error instanceof Error ? error.message : "Unable to add venue.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function handleDeleteStaff(staffId: string, staffName: string) {
+    if (!window.confirm(`Remove ${staffName} from the roster?`)) return;
+    setIsSaving(true);
+    setRequestError("");
+    setRequestSuccess("");
+    try {
+      const response = await apiFetch(
+        `/api/management/staff?staffId=${encodeURIComponent(staffId)}`,
+        { method: "DELETE" },
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        setRequestError(errorData.error || "Unable to delete staff member.");
+        return;
+      }
+      await applySnapshotResult(response);
+      setRequestSuccess(`${staffName} removed from roster.`);
+    } catch (error) {
+      setRequestError(error instanceof Error ? error.message : "Unable to delete staff member.");
     } finally {
       setIsSaving(false);
     }
@@ -970,6 +1012,51 @@ export default function ManagerControlCenter({
 
             {requestSuccess ? <div className="auth-status auth-status-success">{requestSuccess}</div> : null}
             {requestError ? <div className="auth-status auth-status-error">{requestError}</div> : null}
+
+            {/* Invite link panel — shown after add-staff when an invite link was generated */}
+            {pendingInviteLink && (
+              <div className={`ops-invite-link-panel${pendingInviteLink.emailSent ? " ops-invite-link-panel--sent" : " ops-invite-link-panel--manual"}`}>
+                <div className="ops-invite-link-header">
+                  {pendingInviteLink.emailSent ? (
+                    <>✅ <strong>Invite email sent</strong> to {pendingInviteLink.email}</>
+                  ) : (
+                    <>⚠️ <strong>Email not delivered</strong> — SMTP not configured in Supabase.</>
+                  )}
+                </div>
+                {!pendingInviteLink.emailSent && (
+                  <p className="ops-invite-link-hint">
+                    Share this one-time invite link directly with {pendingInviteLink.name}. It expires in 7 days. To enable automatic email delivery, configure SMTP in <strong>Supabase Dashboard → Authentication → Emails</strong>.
+                  </p>
+                )}
+                <div className="ops-invite-link-row">
+                  <input
+                    className="input ops-invite-link-input"
+                    readOnly
+                    value={pendingInviteLink.link}
+                    onFocus={(e) => e.target.select()}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => {
+                      navigator.clipboard.writeText(pendingInviteLink.link).then(() => {
+                        setInviteLinkCopied(true);
+                        setTimeout(() => setInviteLinkCopied(false), 2500);
+                      });
+                    }}
+                  >
+                    {inviteLinkCopied ? "Copied!" : "Copy link"}
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  className="ops-invite-link-dismiss"
+                  onClick={() => setPendingInviteLink(null)}
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
 
             {activeAction === "assign-training" && (
               <form className="ops-action-form" onSubmit={submitAction}>
@@ -1281,6 +1368,7 @@ export default function ManagerControlCenter({
                         <th>Service</th>
                         <th>Sales</th>
                         <th>Last active</th>
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1297,6 +1385,17 @@ export default function ManagerControlCenter({
                           <td>{member.serviceScore}%</td>
                           <td>{member.salesScore}%</td>
                           <td>{member.lastActive}</td>
+                          <td>
+                            <button
+                              type="button"
+                              className="ops-table-delete-btn"
+                              onClick={(e) => { e.stopPropagation(); handleDeleteStaff(member.id, member.name); }}
+                              disabled={isSaving}
+                              aria-label={`Remove ${member.name}`}
+                            >
+                              &times;
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -1457,6 +1556,7 @@ export default function ManagerControlCenter({
                 <h3>Menu item intelligence</h3>
                 <span>{selectedVenue?.name}</span>
               </div>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-soft)", marginBottom: 12 }}>Menu items added here are stored in your browser session only. Database persistence coming soon.</p>
               {snapshot.menuKnowledge.length ? (
                 <ul className="ops-ranked-list">
                   {snapshot.menuKnowledge.map((item) => (
@@ -1533,6 +1633,7 @@ export default function ManagerControlCenter({
                 <h3>Compliance readiness</h3>
                 <span>{selectedVenue?.name}</span>
               </div>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-soft)", marginBottom: 12 }}>Sample data — live compliance tracking coming soon.</p>
               <ul className="ops-alert-list">
                 <li>
                   <strong>Service protocol checks</strong>
@@ -2066,10 +2167,57 @@ export default function ManagerControlCenter({
                   <dd>{selectedVenue?.staffLimit ?? 25} seats</dd>
                 </div>
                 <div>
-                  <dt>Manager permissions</dt>
-                  <dd>{selectedVenue?.managerPermissions ?? "2 managers, 1 supervisor admin"}</dd>
+                  <dt>Venue Limit</dt>
+                  <dd>5 Venues Maximum</dd>
                 </div>
               </dl>
+            </article>
+
+            <article className="ops-card">
+              <div className="ops-card-head">
+                <h3>Email invites</h3>
+              </div>
+              <p className="ops-settings-hint">
+                Staff invite emails require custom SMTP to be configured in your Supabase project. Use the test below to check whether email delivery is working. If it&rsquo;s not, invite links are always generated so you can share them directly.
+              </p>
+              <div style={{ marginTop: 16 }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  disabled={testEmailStatus === "loading"}
+                  onClick={async () => {
+                    setTestEmailStatus("loading");
+                    setTestEmailResult(null);
+                    try {
+                      const res = await apiFetch("/api/management/test-invite-email", { method: "POST" });
+                      const data = await res.json() as { success?: boolean; smtpConfigured?: boolean; message?: string; testLink?: string; error?: string };
+                      setTestEmailStatus(data.success ? "ok" : "fail");
+                      setTestEmailResult({
+                        message: data.message ?? data.error ?? "Unknown result.",
+                        smtpConfigured: data.smtpConfigured,
+                        testLink: data.testLink,
+                      });
+                    } catch {
+                      setTestEmailStatus("fail");
+                      setTestEmailResult({ message: "Network error. Could not run test." });
+                    }
+                  }}
+                >
+                  {testEmailStatus === "loading" ? "Sending test…" : "Send test invite email"}
+                </button>
+              </div>
+              {testEmailResult && (
+                <div className={`ops-invite-link-panel${testEmailStatus === "ok" ? " ops-invite-link-panel--sent" : " ops-invite-link-panel--manual"}`} style={{ marginTop: 14 }}>
+                  <div className="ops-invite-link-header">
+                    {testEmailStatus === "ok" ? "✅" : "⚠️"} {testEmailResult.message}
+                  </div>
+                  {testEmailResult.smtpConfigured === false && (
+                    <p className="ops-invite-link-hint">
+                      To fix: go to <strong>Supabase Dashboard → Authentication → Emails</strong> and add custom SMTP credentials (e.g. SendGrid, Resend, Postmark). Until then, use the invite link method when adding staff.
+                    </p>
+                  )}
+                </div>
+              )}
             </article>
           </section>
         )}
@@ -2083,7 +2231,11 @@ export default function ManagerControlCenter({
               <dl className="ops-settings-list">
                 <div>
                   <dt>Current plan</dt>
-                  <dd>Venue Pro</dd>
+                  <dd>
+                    {plan === "multi-venue" ? "Multi-Venue Plan" :
+                      plan === "single-venue" ? "Single Venue Plan" :
+                      plan === "pro" ? "Pro Plan" : "Starter Plan"}
+                  </dd>
                 </div>
                 <div>
                   <dt>Seats used</dt>
@@ -2091,7 +2243,7 @@ export default function ManagerControlCenter({
                 </div>
                 <div>
                   <dt>Next invoice</dt>
-                  <dd>$149 due in 12 days</dd>
+                  <dd>Managed via Stripe — check your email for invoices</dd>
                 </div>
               </dl>
             </article>
@@ -2104,20 +2256,33 @@ export default function ManagerControlCenter({
               <div className="ops-card-head">
                 <h3>Integrations</h3>
               </div>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-soft)", marginBottom: 12 }}>Third-party integrations coming soon.</p>
               <div className="ops-module-grid">
                 <div className="ops-module-card">
                   <strong>POS Sync</strong>
-                  <span>Not connected</span>
+                  <span>Coming soon</span>
                 </div>
                 <div className="ops-module-card">
                   <strong>HRIS / Scheduling</strong>
-                  <span>Not connected</span>
+                  <span>Coming soon</span>
                 </div>
                 <div className="ops-module-card">
                   <strong>SSO</strong>
                   <span>Available on enterprise plans</span>
                 </div>
               </div>
+            </article>
+          </section>
+        )}
+
+        {activeSection === "sign-out" && (
+          <section className="ops-grid ops-grid-main">
+            <article className="ops-card">
+              <div className="ops-card-head">
+                <h3>Sign out</h3>
+              </div>
+              <p style={{ marginBottom: 16, color: "var(--text-soft)" }}>You are signed in as a venue manager. Sign out to return to the login screen.</p>
+              <SignOutButton />
             </article>
           </section>
         )}
