@@ -73,6 +73,24 @@ a {
   text-decoration: none;
 }
 
+/* ── Global focus-visible fallback ─────────────── */
+:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+/* Honeypot field — visually hidden from real users */
+.sr-only-hp {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
 img {
   max-width: 100%;
   display: block;

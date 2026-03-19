@@ -12,12 +12,14 @@ export default function ContactPage() {
   const [venueName, setVenueName] = useState("");
   const [venueType, setVenueType] = useState("");
   const [message, setMessage] = useState("");
+  const [website, setWebsite] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (website) return;
     setLoading(true);
     setError("");
     setSuccess("");
@@ -25,7 +27,7 @@ export default function ContactPage() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, venueName, venueType, message }),
+        body: JSON.stringify({ name, email, venueName, venueType, message, website }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong.");
@@ -72,6 +74,17 @@ export default function ContactPage() {
                 </div>
               )}
               <form className="contact-form" onSubmit={handleSubmit}>
+                <div className="sr-only-hp" aria-hidden="true">
+                  <label htmlFor="contact-website">Website</label>
+                  <input
+                    id="contact-website"
+                    type="text"
+                    value={website}
+                    onChange={(e) => setWebsite(e.target.value)}
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                </div>
                 <div className="form-row">
                   <label className="label" htmlFor="contact-name">
                     Your name <span className="required">*</span>

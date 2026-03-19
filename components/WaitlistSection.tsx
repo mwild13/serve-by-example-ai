@@ -42,6 +42,7 @@ export default function WaitlistSection({
   successSecondaryLabel = "View app pricing",
 }: WaitlistSectionProps) {
   const [email, setEmail] = useState("");
+  const [hp, setHp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -50,6 +51,7 @@ export default function WaitlistSection({
     event.preventDefault();
 
     const trimmedEmail = email.trim().toLowerCase();
+    if (hp) return;
     if (!trimmedEmail) {
       setError("Enter your email to join the waitlist.");
       setSuccess("");
@@ -131,6 +133,17 @@ export default function WaitlistSection({
             </div>
           ) : (
             <form className="waitlist-form" onSubmit={handleSubmit}>
+              <div className="sr-only-hp" aria-hidden="true">
+                <label htmlFor="waitlist-company">Company</label>
+                <input
+                  id="waitlist-company"
+                  type="text"
+                  value={hp}
+                  onChange={(e) => setHp(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              </div>
               <label className="label" htmlFor="waitlist-email">
                 {inputLabel}
                 <input

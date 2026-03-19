@@ -453,6 +453,7 @@ export default function DashboardTrainer({
   userEmail?: string;
 }) {
   const [activeModule, setActiveModule] = useState<Module | null>(defaultModule ?? null);
+  const [lastActiveModule, setLastActiveModule] = useState<Module>(defaultModule ?? "bartending");
   const [scenarioIndex, setScenarioIndex] = useState(0);
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
@@ -521,6 +522,7 @@ export default function DashboardTrainer({
 
   function selectModule(mod: Module) {
     setActiveModule(mod);
+    setLastActiveModule(mod);
     setScenarioIndex(0);
     setResponse("");
     setResult(null);
@@ -530,10 +532,9 @@ export default function DashboardTrainer({
 
   function nextScenario() {
     if (!activeModule) return;
-    const prev = result?.overallScore ?? null;
-    setLastScore(prev);
-    const next = (scenarioIndex + 1) % SCENARIOS[activeModule].length;
-    setScenarioIndex(next);
+    setLastScore(result?.overallScore ?? null);
+    const mod = activeModule;
+    setScenarioIndex((prev) => (prev + 1) % SCENARIOS[mod].length);
     setResponse("");
     setResult(null);
     setError("");
@@ -601,10 +602,10 @@ export default function DashboardTrainer({
         <div className="sbe-command-bar">
           <div className="sbe-command-text">
             <span className="sbe-command-eyebrow">Recommended for you</span>
-            <strong>Continue Bartending Training</strong>
-            <span className="sbe-command-meta">⏱ ~6 min &nbsp;&nbsp; ⭐ +1 streak &nbsp;&nbsp; Next: Guest acknowledgement</span>
+            <strong>Continue {MODULE_META[lastActiveModule].label}</strong>
+            <span className="sbe-command-meta">⏱ ~6 min &nbsp;&nbsp; ⭐ +1 streak &nbsp;&nbsp; Next: {MODULE_META[lastActiveModule].nextUp}</span>
           </div>
-          <button className="btn btn-primary sbe-command-btn" onClick={() => selectModule("bartending")}>
+          <button className="btn btn-primary sbe-command-btn" onClick={() => selectModule(lastActiveModule)}>
             Continue training →
           </button>
         </div>
@@ -661,8 +662,13 @@ export default function DashboardTrainer({
             return (
             <div
               key={mod}
+              role="button"
+              tabIndex={isLocked ? -1 : 0}
+              aria-disabled={isLocked}
+              aria-pressed={activeModule === mod}
               className={`dash-card${activeModule === mod ? " dash-card-active" : ""}${isLocked ? " dash-card-locked" : ""}`}
               onClick={() => !isLocked && selectModule(mod)}
+              onKeyDown={(e) => { if (!isLocked && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); selectModule(mod); } }}
               style={activeModule === mod ? { borderColor: MODULE_META[mod].color, boxShadow: `0 0 0 3px ${MODULE_META[mod].color}22` } : {}}
             >
               <h3>{MODULE_META[mod].label}{isLocked ? " 🔒" : ""}</h3>
@@ -824,10 +830,10 @@ export default function DashboardTrainer({
             AI Coach: Use the recommendation above, or pick a module to begin a scored scenario session.
           </div>
           <div className="chat-actions">
-            <div className="chat-pill" onClick={() => selectModule("bartending")}>Start Bartending</div>
-            <div className="chat-pill" onClick={() => selectModule("sales")}>Start Sales</div>
+            <div role="button" tabIndex={0} className="chat-pill" onClick={() => selectModule("bartending")} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectModule("bartending"); } }}>Start Bartending</div>
+            <div role="button" tabIndex={0} className="chat-pill" onClick={() => selectModule("sales")} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectModule("sales"); } }}>Start Sales</div>
             {managementUnlocked && (
-              <div className="chat-pill" onClick={() => selectModule("management")}>Start Management</div>
+              <div role="button" tabIndex={0} className="chat-pill" onClick={() => selectModule("management")} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectModule("management"); } }}>Start Management</div>
             )}
           </div>
         </div>

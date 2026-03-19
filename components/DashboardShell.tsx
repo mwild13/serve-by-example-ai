@@ -775,11 +775,15 @@ export default function DashboardShell({
           {NAV_ITEMS.map((item) => (
             <div
               key={item.id}
+              role="button"
+              tabIndex={0}
               className={`mockup-nav-item${activeNav === item.id ? " active" : ""}${
                 !isPremium && PREMIUM_NAV_ITEMS.includes(item.id) ? " mockup-nav-item-locked" : ""
               }`}
               onClick={() => handleNavClick(item.id)}
-              style={{ cursor: "pointer" }}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleNavClick(item.id); } }}
+              aria-current={activeNav === item.id ? "page" : undefined}
+              aria-label={!isPremium && PREMIUM_NAV_ITEMS.includes(item.id) ? `${item.label} (locked)` : item.label}
             >
               {!isPremium && PREMIUM_NAV_ITEMS.includes(item.id) ? `${item.label} 🔒` : item.label}
             </div>

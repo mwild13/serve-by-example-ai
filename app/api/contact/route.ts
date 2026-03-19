@@ -3,7 +3,12 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { name, email, venueName, venueType, message } = body;
+    const { name, email, venueName, venueType, message, website } = body;
+
+    // Honeypot — bots fill this invisible field
+    if (website) {
+      return Response.json({ ok: true });
+    }
 
     if (!name?.trim() || !email?.trim() || !message?.trim()) {
       return Response.json(

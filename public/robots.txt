@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /management/dashboard
+Disallow: /onboarding
+
+Sitemap: https://www.serve-by-example.com/sitemap.xml
