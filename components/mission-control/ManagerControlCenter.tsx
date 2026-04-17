@@ -2,7 +2,30 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
-import SignOutButton from "@/components/SignOutButton";
+import SignOutButton from "@/components/ui/SignOutButton";
+import SessionRefresher from "@/components/ui/SessionRefresher";
+import {
+  LayoutDashboard,
+  BookOpen,
+  Play,
+  User,
+  Users,
+  ShieldCheck,
+  Package,
+  UtensilsCrossed,
+  ClipboardList,
+  BarChart2,
+  FileText,
+  Trophy,
+  Bell,
+  MessageCircle,
+  Sparkles,
+  Settings2,
+  CreditCard,
+  Plug,
+  LogOut,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import type {
   ManagementSnapshot,
   ManagerSection,
@@ -17,7 +40,7 @@ type QuickActionId = "add-staff" | "assign-training" | "add-inventory" | "create
 type NavItem = {
   id: ManagerSection;
   label: string;
-  icon: string;
+  icon: LucideIcon;
 };
 
 type NavGroup = {
@@ -43,59 +66,59 @@ type SnapshotResponse = ManagementSnapshot & {
 const NAV_GROUPS: NavGroup[] = [
   {
     label: "Workspace",
-    items: [{ id: "overview", label: "Overview", icon: "⌂" }],
+    items: [{ id: "overview", label: "Overview", icon: LayoutDashboard }],
   },
   {
     label: "Training",
     collapsible: true,
     items: [
-      { id: "training", label: "Programs", icon: "◧" },
-      { id: "scenarios", label: "Scenarios", icon: "◎" },
+      { id: "training", label: "Programs", icon: BookOpen },
+      { id: "scenarios", label: "Scenarios", icon: Play },
     ],
   },
   {
     label: "People",
     collapsible: true,
     items: [
-      { id: "staff", label: "Staff", icon: "◉" },
-      { id: "teams", label: "Teams", icon: "◈" },
-      { id: "roles", label: "Roles & Permissions", icon: "◌" },
+      { id: "staff", label: "Staff", icon: User },
+      { id: "teams", label: "Teams", icon: Users },
+      { id: "roles", label: "Roles & Permissions", icon: ShieldCheck },
     ],
   },
   {
     label: "Operations",
     collapsible: true,
     items: [
-      { id: "inventory", label: "Inventory", icon: "◫" },
-      { id: "menu", label: "Menu Items", icon: "◨" },
-      { id: "compliance", label: "Compliance", icon: "◯" },
+      { id: "inventory", label: "Inventory", icon: Package },
+      { id: "menu", label: "Menu Items", icon: UtensilsCrossed },
+      { id: "compliance", label: "Compliance", icon: ClipboardList },
     ],
   },
   {
     label: "Performance",
     collapsible: true,
     items: [
-      { id: "analytics", label: "Analytics", icon: "◔" },
-      { id: "reports", label: "Reports", icon: "◍" },
-      { id: "leaderboards", label: "Leaderboards", icon: "◬" },
-      { id: "notifications", label: "Notifications", icon: "◉" },
+      { id: "analytics", label: "Analytics", icon: BarChart2 },
+      { id: "reports", label: "Reports", icon: FileText },
+      { id: "leaderboards", label: "Leaderboards", icon: Trophy },
+      { id: "notifications", label: "Notifications", icon: Bell },
     ],
   },
   {
     label: "AI Coach",
     items: [
-      { id: "aicoach", label: "Ask AI Coach", icon: "✦" },
-      { id: "predictive", label: "Predictive Insights", icon: "◎" },
+      { id: "aicoach", label: "Ask AI Coach", icon: MessageCircle },
+      { id: "predictive", label: "Predictive Insights", icon: Sparkles },
     ],
   },
   {
     label: "Admin",
     collapsible: true,
     items: [
-      { id: "settings", label: "Settings", icon: "◦" },
-      { id: "billing", label: "Billing", icon: "◒" },
-      { id: "integrations", label: "Integrations", icon: "◧" },
-      { id: "sign-out", label: "Sign out", icon: "→" },
+      { id: "settings", label: "Settings", icon: Settings2 },
+      { id: "billing", label: "Billing", icon: CreditCard },
+      { id: "integrations", label: "Integrations", icon: Plug },
+      { id: "sign-out", label: "Sign out", icon: LogOut },
     ],
   },
 ];
@@ -191,12 +214,15 @@ function getActionSection(actionId: QuickActionId | null): ManagerSection | null
 export default function ManagerControlCenter({
   initialSnapshot,
   plan,
+  displayName,
 }: {
   initialSnapshot: ManagementSnapshot;
   plan?: string;
+  displayName?: string;
 }) {
   const [snapshot, setSnapshot] = useState(initialSnapshot);
   const [activeSection, setActiveSection] = useState<ManagerSection>("overview");
+  const [overviewTab, setOverviewTab] = useState<"snapshot" | "staff-perf" | "inventory-intel">("snapshot");
   const [selectedVenueId, setSelectedVenueId] = useState(initialSnapshot.venues[0]?.id ?? "");
   const [selectedStaffId, setSelectedStaffId] = useState("");
   const [activeAction, setActiveAction] = useState<QuickActionId | null>(null);
@@ -228,7 +254,16 @@ export default function ManagerControlCenter({
   const [isSaving, setIsSaving] = useState(false);
   const [testEmailStatus, setTestEmailStatus] = useState<"idle" | "loading" | "ok" | "fail">("idle");
   const [testEmailResult, setTestEmailResult] = useState<{ message: string; smtpConfigured?: boolean; testLink?: string } | null>(null);
-  const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false);
+  const [openRosterSections, setOpenRosterSections] = useState<Set<string>>(new Set(["Bar Team"]));
+
+  // ── Staff membership invite state ──
+  type MembershipRow = { id: string; staff_email: string; venue_id: string | null; status: string; created_at: string };
+  const [memberships, setMemberships] = useState<MembershipRow[]>([]);
+  const [membershipSeats, setMembershipSeats] = useState<{ used: number; max: number }>({ used: 0, max: 0 });
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteError, setInviteError] = useState("");
+  const [membershipsLoaded, setMembershipsLoaded] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [menuTab, setMenuTab] = useState<"food" | "cocktails" | "wine">("food");
@@ -258,6 +293,7 @@ export default function ManagerControlCenter({
     }
     return fetch(url, { ...options, headers });
   }, [sessionToken]);
+
   const [menuInputText, setMenuInputText] = useState("");
   const [menuItems, setMenuItems] = useState<Record<string, string[]>>({ food: [], cocktails: [], wine: [] });
   const [revenueTransactionValue, setRevenueTransactionValue] = useState(45);
@@ -331,6 +367,39 @@ export default function ManagerControlCenter({
   const selectedStaff = venueStaff.find((member) => member.id === selectedStaffId) ?? venueStaff[0];
   const selectedProgram = venuePrograms.find((program) => program.id === assignmentForm.programId) ?? venuePrograms[0];
   const hasOperationalData = venueStaff.length > 0 || venuePrograms.length > 0 || venueInventory.length > 0;
+
+  const handleExportStaff = useCallback(() => {
+    const rows = [
+      ["Name", "Email", "Role", "Completion %", "Service %", "Sales %", "Last Active", "Status"],
+      ...venueStaff.map((m) => [
+        m.name,
+        m.email ?? `${m.name.split(" ")[0].toLowerCase()}@sbe.io`,
+        m.role,
+        String(m.progress),
+        String(m.serviceScore),
+        String(m.salesScore),
+        m.lastActive,
+        m.status,
+      ]),
+    ];
+    const csv = rows.map((r) => r.map((cell) => `"${cell}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `staff-export-${selectedVenue?.name ?? "venue"}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [venueStaff, selectedVenue]);
+
+  const toggleRosterSection = useCallback((label: string) => {
+    setOpenRosterSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(label)) next.delete(label);
+      else next.add(label);
+      return next;
+    });
+  }, []);
 
   const breadcrumbs = useMemo(() => {
     const meta = SECTION_META[activeSection];
@@ -415,6 +484,81 @@ export default function ManagerControlCenter({
   const needsAttention = venueStaff.filter((member) => member.status !== "on-track");
   const inactiveCount = venueStaff.filter((member) => member.status === "inactive").length;
 
+  // ── Manager Insights — auto-generated action tips ──
+  const managerInsights = useMemo(() => {
+    const tips: { id: string; icon: string; text: string; priority: "high" | "medium" | "low" }[] = [];
+
+    // Staff struggling with low scores
+    const lowScoreStaff = venueStaff.filter((s) => {
+      const avg = (s.serviceScore + s.salesScore + s.productScore) / 3;
+      return avg > 0 && avg < 50;
+    });
+    if (lowScoreStaff.length > 0) {
+      tips.push({
+        id: "low-score",
+        icon: "⚠️",
+        text: `${lowScoreStaff.length} staff member${lowScoreStaff.length > 1 ? "s" : ""} scoring below 50% average (${lowScoreStaff.map((s) => s.name).join(", ")}). Consider assigning targeted training.`,
+        priority: "high",
+      });
+    }
+
+    // Weak product knowledge across team
+    if (metrics.productSkill > 0 && metrics.productSkill < 60) {
+      tips.push({
+        id: "product-weak",
+        icon: "📋",
+        text: `Team product knowledge at ${metrics.productSkill}%. Schedule a tasting or assign Spirit/Wine 101 modules.`,
+        priority: "medium",
+      });
+    }
+
+    // Upselling below threshold
+    if (metrics.salesSkill > 0 && metrics.salesSkill < 50) {
+      tips.push({
+        id: "upsell-low",
+        icon: "💰",
+        text: `Upsell performance at ${metrics.salesSkill}%. Run a sales scenario drill with the team to build recommendation confidence.`,
+        priority: "medium",
+      });
+    }
+
+    // Inactive staff
+    if (inactiveCount > 0) {
+      tips.push({
+        id: "inactive",
+        icon: "🔔",
+        text: `${inactiveCount} staff inactive for 7+ days. A quick check-in or refresher assignment can re-engage them.`,
+        priority: "medium",
+      });
+    }
+
+    // Positive reinforcement
+    const onTrackCount = venueStaff.filter((s) => s.status === "on-track").length;
+    if (onTrackCount > 0 && venueStaff.length > 0 && onTrackCount === venueStaff.length) {
+      tips.push({
+        id: "all-good",
+        icon: "✅",
+        text: "All staff are on track. Great momentum — keep the training rhythm going.",
+        priority: "low",
+      });
+    }
+
+    // No staff yet
+    if (venueStaff.length === 0) {
+      tips.push({
+        id: "no-staff",
+        icon: "👤",
+        text: "Add staff members to start seeing performance insights and training recommendations.",
+        priority: "high",
+      });
+    }
+
+    return tips.sort((a, b) => {
+      const order = { high: 0, medium: 1, low: 2 };
+      return order[a.priority] - order[b.priority];
+    });
+  }, [venueStaff, metrics, inactiveCount]);
+
   const operationalAlerts: Array<{
     title: string;
     detail: string;
@@ -484,12 +628,6 @@ export default function ManagerControlCenter({
     scenariosCompleted: snapshot.scenarioCategories.reduce((sum, scenario) => sum + scenario.attempts, 0),
     salesImpact: metrics.salesSkill,
   };
-
-  const recentActivity = [
-    `${selectedVenue?.name ?? "Venue"}: ${venueStaff.length} active roster records`,
-    `${venuePrograms.length} training programs currently available`,
-    `${snapshot.reportSummaries.length} report summaries generated`,
-  ];
 
   const searchResults = useMemo<SearchResult[]>(() => {
     if (!searchQuery.trim()) return [];
@@ -562,6 +700,50 @@ export default function ManagerControlCenter({
       return next;
     });
   }
+
+  // ── Staff membership invite helpers ────────────────────────
+  async function loadMemberships() {
+    try {
+      const res = await apiFetch("/api/management/memberships");
+      if (!res.ok) return;
+      const data = await res.json();
+      setMemberships(data.memberships ?? []);
+      setMembershipSeats({ used: data.seatUsage?.used ?? 0, max: data.seatUsage?.max ?? 0 });
+      setMembershipsLoaded(true);
+    } catch { /* silent */ }
+  }
+
+  async function handleInviteStaff(e: FormEvent) {
+    e.preventDefault();
+    if (!inviteEmail.trim()) return;
+    setInviteLoading(true);
+    setInviteError("");
+    try {
+      const res = await apiFetch("/api/management/memberships", {
+        method: "POST",
+        body: JSON.stringify({ staffEmail: inviteEmail.trim(), venueId: selectedVenueId || undefined }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setInviteError(data.error ?? "Failed to invite"); return; }
+      setInviteEmail("");
+      await loadMemberships();
+    } catch { setInviteError("Network error"); } finally { setInviteLoading(false); }
+  }
+
+  async function handleRemoveMembership(id: string) {
+    try {
+      const res = await apiFetch(`/api/management/memberships?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+      if (res.ok) await loadMemberships();
+    } catch { /* silent */ }
+  }
+
+  // Load memberships when staff section opens
+  useEffect(() => {
+    if (activeSection === "staff" && !membershipsLoaded && sessionToken) {
+      loadMemberships();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSection, sessionToken]);
 
   function handleMenuSave() {
     const lines = menuInputText.split("\n").map((l) => l.trim()).filter(Boolean);
@@ -800,9 +982,11 @@ export default function ManagerControlCenter({
 
   return (
     <div className="ops-shell">
+      <SessionRefresher />
       <aside className="ops-sidebar">
         <div className="ops-sidebar-top">
-          <span className="eyebrow">Management console</span>
+          <span className="ops-sidebar-brand">Management console</span>
+          {displayName && <span className="ops-sidebar-user">{displayName}</span>}
           <h3>Venue operations</h3>
           <div className="ops-venue-switcher">
             {snapshot.venues.length === 0 ? (
@@ -880,9 +1064,7 @@ export default function ManagerControlCenter({
                     className={`ops-nav-item${activeSection === section.id ? " active" : ""}`}
                     onClick={() => handleSectionChange(section.id)}
                   >
-                    <span className="ops-nav-icon" aria-hidden="true">
-                      {section.icon}
-                    </span>
+                    <section.icon size={15} strokeWidth={1.5} aria-hidden="true" />
                     <span>{section.label}</span>
                   </button>
                 ))}
@@ -1270,6 +1452,31 @@ export default function ManagerControlCenter({
               </div>
             </section>
 
+            {/* ── Manager Insights ── */}
+            {managerInsights.length > 0 && (
+              <section className="ops-card ops-insights-card">
+                <div className="ops-card-head">
+                  <h3>Manager insights</h3>
+                  <span>Auto-generated from staff data</span>
+                </div>
+                <ul className="ops-insights-list">
+                  {managerInsights.map((tip) => (
+                    <li key={tip.id} className={`ops-insight ops-insight-${tip.priority}`}>
+                      <span className="ops-insight-icon">{tip.icon}</span>
+                      <span>{tip.text}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            <div className="mcc-tab-bar" role="tablist" aria-label="Overview tabs">
+              <button type="button" role="tab" className={`mcc-tab${overviewTab === "snapshot" ? " mcc-tab-active" : ""}`} aria-selected={overviewTab === "snapshot"} onClick={() => setOverviewTab("snapshot")}>Snapshot</button>
+              <button type="button" role="tab" className={`mcc-tab${overviewTab === "staff-perf" ? " mcc-tab-active" : ""}`} aria-selected={overviewTab === "staff-perf"} onClick={() => setOverviewTab("staff-perf")}>Staff Performance</button>
+              <button type="button" role="tab" className={`mcc-tab${overviewTab === "inventory-intel" ? " mcc-tab-active" : ""}`} aria-selected={overviewTab === "inventory-intel"} onClick={() => setOverviewTab("inventory-intel")}>Inventory Intel</button>
+            </div>
+
+            {overviewTab === "snapshot" && (
             <section className="ops-grid ops-grid-main">
               <article className="ops-card">
                 <div className="ops-card-head">
@@ -1301,7 +1508,9 @@ export default function ManagerControlCenter({
                 )}
               </article>
             </section>
+            )}
 
+            {overviewTab === "snapshot" && (
             <section className="ops-grid ops-grid-main">
               <article className="ops-card">
                 <div className="ops-card-head">
@@ -1340,6 +1549,54 @@ export default function ManagerControlCenter({
                 />
               </article>
             </section>
+            )}
+
+            {overviewTab === "staff-perf" && (
+            <section className="ops-grid ops-grid-main">
+              <article className="ops-card">
+                <div className="ops-card-head"><h3>Staff performance overview</h3><span>{selectedVenue?.name}</span></div>
+                {venueStaff.length ? (
+                  <table className="ops-table">
+                    <thead><tr><th>Name</th><th>Progress</th><th>Service</th><th>Sales</th><th>Product</th><th>Status</th></tr></thead>
+                    <tbody>
+                      {venueStaff.map((s) => (
+                        <tr key={s.name}>
+                          <td>{s.name}</td>
+                          <td>{formatPercent(s.progress)}</td>
+                          <td>{formatPercent(s.serviceScore)}</td>
+                          <td>{formatPercent(s.salesScore)}</td>
+                          <td>{formatPercent(s.productScore)}</td>
+                          <td><span className={`ops-status-badge ops-status-${s.status === 'on-track' ? 'active' : s.status === 'attention' ? 'warn' : 'neutral'}`}>{s.status}</span></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <EmptyState copy="No staff data available for this venue yet." />
+                )}
+              </article>
+            </section>
+            )}
+
+            {overviewTab === "inventory-intel" && (
+            <section className="ops-grid ops-grid-main">
+              <article className="ops-card">
+                <div className="ops-card-head"><h3>Inventory intelligence</h3><span>{selectedVenue?.name}</span></div>
+                {venueInventory.length ? (
+                  <div className="ops-module-grid">
+                    {venueInventory.map((category) => (
+                      <div key={category.name} className="ops-module-card">
+                        <strong>{category.name}</strong>
+                        <span>{category.products.join(" | ")}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState copy="No inventory data saved yet. Add products to unlock AI-powered inventory insights." />
+                )}
+              </article>
+            </section>
+            )}
 
             {!hasOperationalData ? (
               <section className="ops-card">
@@ -1350,74 +1607,95 @@ export default function ManagerControlCenter({
         )}
 
         {activeSection === "staff" && (
-          <section className="ops-grid ops-grid-main">
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Staff intelligence roster</h3>
-                <span>{venueStaff.length} people in {selectedVenue?.name}</span>
-              </div>
-              {venueStaff.length ? (
-                <div className="ops-table-wrap">
-                  <table className="ops-table">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Completion</th>
-                        <th>Service</th>
-                        <th>Sales</th>
-                        <th>Last active</th>
-                        <th></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {venueStaff.map((member) => (
-                        <tr
-                          key={member.id}
-                          className={selectedStaffId === member.id ? "active" : ""}
-                          onClick={() => setSelectedStaffId(member.id)}
-                        >
-                          <td>{member.name}</td>
-                          <td>{member.email ?? "-"}</td>
-                          <td>{member.role}</td>
-                          <td>{member.progress}%</td>
-                          <td>{member.serviceScore}%</td>
-                          <td>{member.salesScore}%</td>
-                          <td>{member.lastActive}</td>
-                          <td>
-                            <button
-                              type="button"
-                              className="ops-table-delete-btn"
-                              onClick={(e) => { e.stopPropagation(); handleDeleteStaff(member.id, member.name); }}
-                              disabled={isSaving}
-                              aria-label={`Remove ${member.name}`}
-                            >
-                              &times;
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+          <>
+            {/* ── Staff Directory ── */}
+            <section className="ops-grid ops-grid-main">
+              <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+                <div className="ops-card-head">
+                  <h3>Staff directory</h3>
+                  <span>{venueStaff.length} {venueStaff.length === 1 ? "person" : "people"} · {selectedVenue?.name}</span>
                 </div>
-              ) : (
-                <EmptyState copy="No staff saved yet. Use Add staff to create the first roster entry for this venue." />
-              )}
-            </article>
+                {venueStaff.length ? (
+                  <div className="ops-table-wrap">
+                    <table className="ops-table ops-staff-table">
+                      <thead>
+                        <tr>
+                          <th style={{ width: 40 }}></th>
+                          <th>Name</th>
+                          <th>Contact</th>
+                          <th>Role</th>
+                          <th>Status</th>
+                          <th>Training progress</th>
+                          <th>Last active</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {venueStaff.map((member) => {
+                          const initials = member.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
+                          const email = member.email ?? `${member.name.split(" ")[0].toLowerCase()}@sbe.io`;
+                          return (
+                            <tr
+                              key={member.id}
+                              className={selectedStaffId === member.id ? "active" : ""}
+                              onClick={() => setSelectedStaffId(member.id)}
+                            >
+                              <td>
+                                <div className="ops-staff-avatar">{initials}</div>
+                              </td>
+                              <td><strong>{member.name}</strong></td>
+                              <td><span className="ops-staff-email">{email}</span></td>
+                              <td>{member.role}</td>
+                              <td>
+                                <span className={`ops-badge ops-badge-${member.status === "on-track" ? "active" : member.status === "attention" ? "pending" : "removed"}`}>
+                                  {member.status === "on-track" ? "On track" : member.status === "attention" ? "Needs attention" : "Inactive"}
+                                </span>
+                              </td>
+                              <td>
+                                <div className="ops-progress-inline">
+                                  <div className="ops-progress-inline-bar">
+                                    <div className="ops-progress-inline-fill" style={{ width: `${Math.max(0, Math.min(100, member.progress))}%` }} />
+                                  </div>
+                                  <span>{parseFloat(member.progress.toFixed(2))}%</span>
+                                </div>
+                              </td>
+                              <td>{member.lastActive}</td>
+                              <td>
+                                <button
+                                  type="button"
+                                  className="ops-table-delete-btn"
+                                  onClick={(e) => { e.stopPropagation(); handleDeleteStaff(member.id, member.name); }}
+                                  disabled={isSaving}
+                                  aria-label={`Remove ${member.name}`}
+                                >
+                                  &times;
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <EmptyState copy="No staff saved yet. Use Add staff to create the first roster entry for this venue." />
+                )}
+              </article>
+            </section>
 
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>{selectedStaff ? `${selectedStaff.name} profile` : "Staff profile"}</h3>
-                <span>{selectedStaff?.role ?? "Awaiting first roster entry"}</span>
-              </div>
-              {selectedStaff ? (
-                <>
+            {/* ── Staff profile detail panel ── */}
+            {selectedStaff && (
+              <section className="ops-grid ops-grid-main" style={{ marginTop: 12 }}>
+                <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+                  <div className="ops-card-head">
+                    <h3>{selectedStaff.name} — coaching profile</h3>
+                    <span>{selectedStaff.role} · Last active {selectedStaff.lastActive}</span>
+                  </div>
                   <div className="ops-profile-metrics">
-                    <OpsKpiCard label="Completion" value={`${selectedStaff.progress}%`} />
-                    <OpsKpiCard label="Service" value={`${selectedStaff.serviceScore}%`} />
-                    <OpsKpiCard label="Sales" value={`${selectedStaff.salesScore}%`} />
-                    <OpsKpiCard label="Product" value={`${selectedStaff.productScore}%`} />
+                    <OpsKpiCard label="Completion" value={`${parseFloat(selectedStaff.progress.toFixed(2))}%`} />
+                    <OpsKpiCard label="Service" value={`${parseFloat(selectedStaff.serviceScore.toFixed(2))}%`} />
+                    <OpsKpiCard label="Sales" value={`${parseFloat(selectedStaff.salesScore.toFixed(2))}%`} />
+                    <OpsKpiCard label="Product" value={`${parseFloat(selectedStaff.productScore.toFixed(2))}%`} />
                   </div>
                   <StaffBadges staff={selectedStaff} />
                   <div className="ops-grid-two-col">
@@ -1442,9 +1720,149 @@ export default function ManagerControlCenter({
                       </ul>
                     </div>
                   </div>
-                </>
+                </article>
+              </section>
+            )}
+
+            {/* ── Roster Overview ── */}
+            <section style={{ marginTop: 12 }}>
+              <article className="ops-card">
+                <div className="ops-card-head">
+                  <h3>Roster overview</h3>
+                  <span>by team</span>
+                </div>
+                {[
+                  { label: "Bar Team", roles: ["Bartender"] },
+                  { label: "Floor Team", roles: ["Floor"] },
+                  { label: "Leadership Team", roles: ["Supervisor", "Manager"] },
+                  { label: "New Staff", roles: ["New Staff"] },
+                ].map((group) => {
+                  const groupMembers = venueStaff.filter((m) => group.roles.includes(m.role));
+                  if (!groupMembers.length) return null;
+                  const isOpen = openRosterSections.has(group.label);
+                  return (
+                    <div key={group.label} className="ops-roster-accordion">
+                      <button
+                        type="button"
+                        className="ops-roster-accordion-head"
+                        onClick={() => toggleRosterSection(group.label)}
+                      >
+                        <span className="ops-roster-label">{group.label}</span>
+                        <span className="ops-roster-count">{groupMembers.length} {groupMembers.length === 1 ? "member" : "members"}</span>
+                        <span className="ops-roster-toggle">{isOpen ? "▲" : "▼"}</span>
+                      </button>
+                      {isOpen && (
+                        <div className="ops-roster-body">
+                          <table className="ops-table ops-roster-table">
+                            <thead>
+                              <tr>
+                                <th></th>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Progress</th>
+                                <th>Status</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {groupMembers.map((m) => {
+                                const initials = m.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
+                                return (
+                                  <tr key={`roster-${m.id}`} onClick={() => setSelectedStaffId(m.id)} style={{ cursor: "pointer" }}>
+                                    <td><div className="ops-staff-avatar ops-staff-avatar-sm">{initials}</div></td>
+                                    <td><strong>{m.name}</strong></td>
+                                    <td>{m.role}</td>
+                                    <td>
+                                      <div className="ops-progress-inline">
+                                        <div className="ops-progress-inline-bar">
+                                          <div className="ops-progress-inline-fill" style={{ width: `${Math.max(0, Math.min(100, m.progress))}%` }} />
+                                        </div>
+                                        <span>{parseFloat(m.progress.toFixed(2))}%</span>
+                                      </div>
+                                    </td>
+                                    <td>
+                                      <span className={`ops-badge ops-badge-${m.status === "on-track" ? "active" : m.status === "attention" ? "pending" : "removed"}`}>
+                                        {m.status === "on-track" ? "On track" : m.status === "attention" ? "Attention" : "Inactive"}
+                                      </span>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+                {!venueStaff.length && <EmptyState copy="No staff data for this venue yet." />}
+              </article>
+            </section>
+          </>
+        )}
+
+        {/* ── Staff membership invites card ── */}
+        {activeSection === "staff" && (
+          <section className="ops-grid ops-grid-main" style={{ marginTop: 16 }}>
+            <article className="ops-card">
+              <div className="ops-card-head">
+                <h3>Staff invites &amp; seat management</h3>
+                <span>{membershipSeats.used} / {membershipSeats.max || "∞"} seats used</span>
+              </div>
+
+              <form className="ops-action-form" onSubmit={handleInviteStaff} style={{ marginBottom: 16 }}>
+                <label className="label">
+                  Staff email
+                  <input
+                    className="input"
+                    type="email"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    placeholder="staff@venue.com"
+                    required
+                  />
+                </label>
+                <button className="btn btn-primary" type="submit" disabled={inviteLoading}>
+                  {inviteLoading ? "Inviting..." : "Invite staff member"}
+                </button>
+              </form>
+              {inviteError && <p className="ops-notice ops-notice-error">{inviteError}</p>}
+
+              {memberships.length > 0 ? (
+                <div className="ops-table-wrap">
+                  <table className="ops-table">
+                    <thead>
+                      <tr>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Invited</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {memberships.map((m) => (
+                        <tr key={m.id}>
+                          <td>{m.staff_email}</td>
+                          <td><span className={`ops-badge ops-badge-${m.status}`}>{m.status}</span></td>
+                          <td>{new Date(m.created_at).toLocaleDateString()}</td>
+                          <td>
+                            {m.status !== "removed" && (
+                              <button
+                                type="button"
+                                className="ops-table-delete-btn"
+                                onClick={() => handleRemoveMembership(m.id)}
+                                aria-label={`Remove ${m.staff_email}`}
+                              >
+                                &times;
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               ) : (
-                <EmptyState copy="Once the first staff profile exists, this panel becomes the manager's coaching view." />
+                <EmptyState copy="No staff invites yet. Invite team members by email to give them sponsored access to training modules." />
               )}
             </article>
           </section>
@@ -1854,7 +2272,7 @@ export default function ManagerControlCenter({
                           <strong>{member.name}</strong>
                           <span>{member.role}</span>
                         </div>
-                        <b>{member.progress}%</b>
+                        <b>{parseFloat(member.progress.toFixed(2))}%</b>
                       </li>
                     ))}
                 </ul>
@@ -1988,6 +2406,11 @@ export default function ManagerControlCenter({
               flags.push({ id: `${member.id}-product`, staffName: member.name, role: member.role, gap: "Product Knowledge", risk: "medium", reason: `Product score ${member.productScore}% — knowledge gaps likely`, action: "Review menu knowledge module assignment" });
             if (member.progress < 40 && member.status !== "inactive")
               flags.push({ id: `${member.id}-progress`, staffName: member.name, role: member.role, gap: "Training Completion", risk: "high", reason: `Only ${member.progress}% complete — falling behind`, action: "Schedule a check-in and re-assign priority modules" });
+            // Mastery engine flags
+            if (member.knowledgeDecayRisk)
+              flags.push({ id: `${member.id}-decay`, staffName: member.name, role: member.role, gap: "Knowledge Decay", risk: "high", reason: "Spaced-repetition items overdue — skills fading", action: "Prompt staff to complete review queue" });
+            if (member.highConfidenceIncorrectRatio != null && member.highConfidenceIncorrectRatio > 0.3)
+              flags.push({ id: `${member.id}-confidence`, staffName: member.name, role: member.role, gap: "Confidence Mismatch", risk: "medium", reason: `${Math.round(member.highConfidenceIncorrectRatio * 100)}% of high-confidence attempts are incorrect`, action: "Coach on self-assessment accuracy — over-confidence risk" });
             return flags;
           });
           const highRisk = predictions.filter((p) => p.risk === "high");
@@ -1995,6 +2418,15 @@ export default function ManagerControlCenter({
           const gapTotals: Record<string, number> = {};
           predictions.forEach((p) => { gapTotals[p.gap] = (gapTotals[p.gap] ?? 0) + 1; });
           const topGaps = Object.entries(gapTotals).sort((a, b) => b[1] - a[1]).slice(0, 3);
+
+          // Mastery status summary
+          const masteryStats = { mastered: 0, inProgress: 0, atRisk: 0 };
+          for (const m of venueStaff) {
+            if (m.masteryStatus === "mastered") masteryStats.mastered++;
+            else if (m.knowledgeDecayRisk) masteryStats.atRisk++;
+            else if (m.scenariosAttempted && m.scenariosAttempted > 0) masteryStats.inProgress++;
+          }
+          const hasMasteryData = venueStaff.some((m) => m.masteryStatus != null || m.eloRating != null);
           return (
             <section className="ops-grid ops-grid-main">
               <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
@@ -2005,6 +2437,27 @@ export default function ManagerControlCenter({
                 <p style={{ color: "var(--text-soft)", fontSize: ".95rem", marginBottom: 20 }}>
                   Rule-based analysis of your venue&rsquo;s staff data. Staff predicted to struggle in key areas are flagged below with recommended actions.
                 </p>
+
+                {hasMasteryData && (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 16 }}>
+                    <div className="ops-kpi-card" style={{ background: "#f0fdf4", borderColor: "#86efac" }}>
+                      <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>Mastered</span>
+                      <strong style={{ fontSize: "1.8rem", color: "#16a34a" }}>{masteryStats.mastered}</strong>
+                      <small>staff at mastery level</small>
+                    </div>
+                    <div className="ops-kpi-card" style={{ background: "#eff6ff", borderColor: "#93c5fd" }}>
+                      <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>In Progress</span>
+                      <strong style={{ fontSize: "1.8rem", color: "#2563eb" }}>{masteryStats.inProgress}</strong>
+                      <small>actively training</small>
+                    </div>
+                    <div className="ops-kpi-card" style={{ background: masteryStats.atRisk > 0 ? "#fef2f2" : "var(--surface)", borderColor: masteryStats.atRisk > 0 ? "#fca5a5" : "var(--line)" }}>
+                      <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>At Risk (Decay)</span>
+                      <strong style={{ fontSize: "1.8rem", color: masteryStats.atRisk > 0 ? "#dc2626" : "var(--green)" }}>{masteryStats.atRisk}</strong>
+                      <small>overdue reviews</small>
+                    </div>
+                  </div>
+                )}
+
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 24 }}>
                   <div className="ops-kpi-card" style={{ background: predictions.length > 0 ? "#fef2f2" : "var(--surface)", borderColor: predictions.length > 0 ? "#fca5a5" : "var(--line)" }}>
                     <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>Total flags</span>
@@ -2255,20 +2708,61 @@ export default function ManagerControlCenter({
             <article className="ops-card">
               <div className="ops-card-head">
                 <h3>Integrations</h3>
+                <span className="ops-badge ops-badge-pending">Coming in V2 — Late 2026</span>
               </div>
-              <p style={{ fontSize: "0.85rem", color: "var(--text-soft)", marginBottom: 12 }}>Third-party integrations coming soon.</p>
-              <div className="ops-module-grid">
-                <div className="ops-module-card">
-                  <strong>POS Sync</strong>
-                  <span>Coming soon</span>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-soft)", marginBottom: 20 }}>
+                Serve By Example V2 will connect directly with the tools your venue already uses.
+                All integrations listed below are planned for release in late 2026.
+              </p>
+
+              <div className="ops-integration-group">
+                <span className="ops-integration-group-label">POS &amp; Payments</span>
+                <div className="ops-module-grid">
+                  {[
+                    { name: "Lightspeed", desc: "Sync menu items and sales data" },
+                    { name: "Square", desc: "Payment terminals and reporting" },
+                    { name: "SwiftPOS", desc: "POS data and item libraries" },
+                    { name: "Ordermate", desc: "Order and table management" },
+                    { name: "Zeller", desc: "Payments and business finance" },
+                  ].map((i) => (
+                    <div key={i.name} className="ops-module-card ops-integration-card">
+                      <strong>{i.name}</strong>
+                      <span>{i.desc}</span>
+                      <span className="ops-badge ops-badge-pending">V2 — Late 2026</span>
+                    </div>
+                  ))}
                 </div>
-                <div className="ops-module-card">
-                  <strong>HRIS / Scheduling</strong>
-                  <span>Coming soon</span>
+              </div>
+
+              <div className="ops-integration-group" style={{ marginTop: 24 }}>
+                <span className="ops-integration-group-label">Order &amp; Table Management</span>
+                <div className="ops-module-grid">
+                  {[
+                    { name: "me&u", desc: "QR ordering and guest engagement" },
+                    { name: "Doshii", desc: "Integration middleware for hospitality apps" },
+                  ].map((i) => (
+                    <div key={i.name} className="ops-module-card ops-integration-card">
+                      <strong>{i.name}</strong>
+                      <span>{i.desc}</span>
+                      <span className="ops-badge ops-badge-pending">V2 — Late 2026</span>
+                    </div>
+                  ))}
                 </div>
-                <div className="ops-module-card">
-                  <strong>SSO</strong>
-                  <span>Available on enterprise plans</span>
+              </div>
+
+              <div className="ops-integration-group" style={{ marginTop: 24 }}>
+                <span className="ops-integration-group-label">Workforce Management</span>
+                <div className="ops-module-grid">
+                  {[
+                    { name: "Tanda", desc: "Rostering, timesheets and onboarding" },
+                    { name: "Deputy", desc: "Scheduling, compliance and HR" },
+                  ].map((i) => (
+                    <div key={i.name} className="ops-module-card ops-integration-card">
+                      <strong>{i.name}</strong>
+                      <span>{i.desc}</span>
+                      <span className="ops-badge ops-badge-pending">V2 — Late 2026</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </article>
@@ -2288,64 +2782,82 @@ export default function ManagerControlCenter({
         )}
       </section>
 
-      <aside className={`ops-insights${rightSidebarCollapsed ? " collapsed" : ""}`}>
-        <button
-          type="button"
-          className="ops-insights-toggle"
-          onClick={() => setRightSidebarCollapsed((current) => !current)}
-        >
-          {rightSidebarCollapsed ? "Open insights" : "Hide insights"}
-        </button>
+      <aside className="ops-right-panel">
+        {/* Team Summary */}
+        <article className="ops-card">
+          <div className="ops-card-head">
+            <h3>Team summary</h3>
+            <span>Today</span>
+          </div>
+          <div className="ops-team-summary-grid">
+            <div className="ops-team-stat">
+              <span>Total staff</span>
+              <strong>{venueStaff.length}</strong>
+            </div>
+            <div className="ops-team-stat">
+              <span>Active today</span>
+              <strong>{venueStaff.filter((m) => m.lastActive === "Today").length}</strong>
+            </div>
+            <div className="ops-team-stat">
+              <span>Needs attention</span>
+              <strong>{venueStaff.filter((m) => m.status === "attention").length}</strong>
+            </div>
+            <div className="ops-team-stat">
+              <span>Inactive</span>
+              <strong>{venueStaff.filter((m) => m.status === "inactive").length}</strong>
+            </div>
+          </div>
+        </article>
 
-        {!rightSidebarCollapsed ? (
-          <>
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Recent activity</h3>
-              </div>
-              <ul className="ops-plain-list">
-                {recentActivity.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </article>
+        {/* Upcoming Shifts */}
+        <article className="ops-card">
+          <div className="ops-card-head">
+            <h3>Upcoming shifts</h3>
+            <span>Today</span>
+          </div>
+          <ul className="ops-shifts-list">
+            <li className="ops-shift-row">
+              <span className="ops-shift-time">08:00</span>
+              <span className="ops-shift-label">Morning Prep · Kitchen</span>
+            </li>
+            <li className="ops-shift-row">
+              <span className="ops-shift-time">11:00</span>
+              <span className="ops-shift-label">Full Service · Floor</span>
+            </li>
+            <li className="ops-shift-row">
+              <span className="ops-shift-time">12:00</span>
+              <span className="ops-shift-label">Matinee Team · Bar</span>
+            </li>
+            <li className="ops-shift-row">
+              <span className="ops-shift-time">17:00</span>
+              <span className="ops-shift-label">Evening Service · All</span>
+            </li>
+          </ul>
+        </article>
 
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Staff progress</h3>
-              </div>
-              {venueStaff.length ? (
-                <ul className="ops-ranked-list">
-                  {[...venueStaff]
-                    .sort((a, b) => b.progress - a.progress)
-                    .slice(0, 5)
-                    .map((member) => (
-                      <li key={`insight-${member.id}`}>
-                        <div>
-                          <strong>{member.name}</strong>
-                          <span>{member.role}</span>
-                        </div>
-                        <b>{member.progress}%</b>
-                      </li>
-                    ))}
-                </ul>
-              ) : (
-                <EmptyState copy="Add staff to populate progress insights." />
-              )}
-            </article>
-
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Quick insights</h3>
-              </div>
-              <ul className="ops-plain-list">
-                <li>Training completion: {formatPercent(metrics.avgCompletion)}</li>
-                <li>Scenario quality: {formatPercent(metrics.avgScenarioScore)}</li>
-                <li>Upsell trend: {formatPercent(metrics.salesSkill)}</li>
-              </ul>
-            </article>
-          </>
-        ) : null}
+        {/* Quick Actions */}
+        <article className="ops-card">
+          <div className="ops-card-head">
+            <h3>Quick actions</h3>
+          </div>
+          <ul className="ops-quick-links">
+            <li>
+              <button type="button" className="ops-quick-link-btn" onClick={() => handleSectionChange("staff")}>
+                → View full roster
+              </button>
+            </li>
+            <li>
+              <button type="button" className="ops-quick-link-btn" onClick={handleExportStaff}>
+                → Export staff list
+              </button>
+            </li>
+            <li>
+              <button type="button" className="ops-quick-link-btn" onClick={() => { handleSectionChange("training"); openAction("assign-training"); }}>
+                → Bulk assign training
+              </button>
+            </li>
+          </ul>
+        </article>
       </aside>
     </div>
   );
@@ -2377,15 +2889,16 @@ function OpsKpiCard({
 }
 
 function TrendBadge({ dir, delta }: { dir: "up" | "down" | "steady"; delta: number }) {
+  const fmt = parseFloat(delta.toFixed(2));
   if (dir === "steady" || delta === 0) return <span className="ops-trend-badge ops-trend-steady">~ steady</span>;
-  if (dir === "up") return <span className="ops-trend-badge ops-trend-up">↑ {delta}% this week</span>;
-  return <span className="ops-trend-badge ops-trend-down">↓ {delta}% this week</span>;
+  if (dir === "up") return <span className="ops-trend-badge ops-trend-up">↑ {fmt}% this week</span>;
+  return <span className="ops-trend-badge ops-trend-down">↓ {fmt}% this week</span>;
 }
 
 function getTrend(value: number): { dir: "up" | "down" | "steady"; delta: number } {
   if (!value) return { dir: "steady", delta: 0 };
   // Deterministic pseudo-trend based on the value to avoid hydration mismatches
-  const seed = (value * 7 + 13) % 30;
+  const seed = Math.floor((Math.round(value) * 7 + 13) % 30);
   if (value > 65) return { dir: "up", delta: (seed % 14) + 2 };
   if (value < 35) return { dir: "down", delta: (seed % 11) + 2 };
   return { dir: "steady", delta: (seed % 5) };
@@ -2402,7 +2915,7 @@ function ProgressBar({
     <div className="ops-progress-item">
       <div className="ops-progress-meta">
         <span>{label}</span>
-        <strong>{value}%</strong>
+        <strong>{parseFloat(value.toFixed(2))}%</strong>
       </div>
       <div className="ops-progress-track">
         <div className="ops-progress-fill" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
@@ -2416,7 +2929,7 @@ function formatPercent(value: number) {
     return "No data yet";
   }
 
-  return `${value}%`;
+  return `${Number(value).toFixed(1)}%`;
 }
 
 function StaffBadges({ staff }: { staff: { progress: number; serviceScore: number; salesScore: number; productScore: number; status: string } }) {

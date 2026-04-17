@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
 type NavbarProps = {
@@ -60,18 +59,17 @@ export default function Navbar({
               </Link>
             ) : showActions ? (
               <div className="nav-actions">
-                <LanguageSwitcher variant="navbar" hideOnMobile={!showNavbarLanguageOnMobile} />
                 <Link href="/management/login" className="btn btn-secondary">
                   Manager Login
                 </Link>
-                <Link href="/login" className="btn btn-primary">
-                  Staff Login
+                <Link href="/login" className="btn" style={{ backgroundColor: "var(--green)", color: "var(--surface)", border: "none" }}>
+                  Login
                 </Link>
               </div>
             ) : showTextLogin ? (
               <div className="nav-text-actions">
                 <Link href="/login" className="nav-text-link">
-                  Staff Login
+                  Login
                 </Link>
               </div>
             ) : null}
@@ -102,16 +100,15 @@ export default function Navbar({
             <Link href="/demo" className="nav-drawer-link" onClick={close}>Demo</Link>
             <Link href="/about" className="nav-drawer-link" onClick={close}>About</Link>
             <Link href="/contact" className="nav-drawer-link" onClick={close}>Contact</Link>
-            <LanguageSwitcher variant="drawer" />
             {showActions && (
               <div className="nav-drawer-actions">
                 <Link href="/management/login" className="btn btn-secondary btn-block" onClick={close}>Manager Login</Link>
-                <Link href="/login" className="btn btn-primary btn-block" onClick={close}>Staff Login</Link>
+                <Link href="/login" className="btn btn-block" onClick={close} style={{ backgroundColor: "var(--green)", color: "var(--surface)", border: "none" }}>Login</Link>
               </div>
             )}
             {showTextLogin && (
               <div className="nav-drawer-actions">
-                <Link href="/login" className="btn btn-primary btn-block" onClick={close}>Staff Login</Link>
+                <Link href="/login" className="btn btn-block" onClick={close} style={{ backgroundColor: "var(--green)", color: "var(--surface)", border: "none" }}>Login</Link>
               </div>
             )}
           </nav>

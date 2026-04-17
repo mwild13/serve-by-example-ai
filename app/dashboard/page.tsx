@@ -14,7 +14,7 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, plan, avatar, management_unlocked, notif_reminders, notif_weekly_digest, notif_achievement_alerts, is_founders_user")
+    .select("display_name, plan, avatar, management_unlocked, notif_reminders, notif_weekly_digest, notif_achievement_alerts")
     .eq("id", user.id)
     .single();
 
@@ -32,7 +32,6 @@ export default async function DashboardPage() {
       notifReminders={profile?.notif_reminders ?? true}
       notifWeeklyDigest={profile?.notif_weekly_digest ?? true}
       notifAchievementAlerts={profile?.notif_achievement_alerts ?? true}
-      isFounderInitial={profile?.is_founders_user ?? false}
     />
   );
 }

@@ -171,6 +171,13 @@ function mapStaff(row: Record<string, unknown>): StaffMember {
     status: asString(row.status, "on-track") as StaffStatus,
     strengths: asStringArray(row.strengths),
     improvements: asStringArray(row.improvements),
+    // Mastery engine fields (graceful — undefined if columns don't exist yet)
+    masteryStatus: typeof row.mastery_status === "string" ? row.mastery_status : undefined,
+    eloRating: typeof row.elo_rating === "number" ? row.elo_rating : undefined,
+    knowledgeDecayRisk: typeof row.knowledge_decay_risk === "boolean" ? row.knowledge_decay_risk : undefined,
+    highConfidenceIncorrectRatio: typeof row.high_confidence_incorrect_ratio === "number" ? row.high_confidence_incorrect_ratio : undefined,
+    scenariosMastered: typeof row.scenarios_mastered === "number" ? row.scenarios_mastered : undefined,
+    scenariosAttempted: typeof row.scenarios_attempted === "number" ? row.scenarios_attempted : undefined,
   };
 }
 
@@ -279,7 +286,7 @@ async function getStaffRows(
 ): Promise<QueryResult<Record<string, unknown>[]>> {
   const latestStaffQuery = await supabase
     .from("venue_staff")
-    .select("id, venue_id, name, email, role, progress, service_score, sales_score, product_score, last_active_at, status, strengths, improvements")
+    .select("id, venue_id, name, email, role, progress, service_score, sales_score, product_score, last_active_at, status, strengths, improvements, mastery_status, elo_rating, knowledge_decay_risk, high_confidence_incorrect_ratio, scenarios_mastered, scenarios_attempted")
     .in("venue_id", venueIds)
     .order("created_at", { ascending: true });
 

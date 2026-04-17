@@ -204,7 +204,7 @@ export default function DemoPage() {
 
             {/* Training-style scenario panel */}
             {!result && (
-              <div className="trainer-panel">
+              <div className="trainer-panel" key={activeModuleId}>
                 <div className="trainer-scenario">
                   <span className="trainer-label">{activeScenario.category} scenario</span>
                   <p>{activeScenario.prompt}</p>

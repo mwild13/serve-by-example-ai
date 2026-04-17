@@ -1,36 +1,36 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect, Suspense, lazy } from "react";
 import Image from "next/image";
-import SignOutButton from "@/components/SignOutButton";
-import DashboardTrainer from "@/components/DashboardTrainer";
-import AdvancedScenarios from "@/components/AdvancedScenarios";
-import CocktailLibrary from "@/components/CocktailLibrary";
-import ProgressOverview from "@/components/ProgressOverview";
+import SignOutButton from "@/components/ui/SignOutButton";
+import DashboardTrainer from "@/components/learning-engine/DashboardTrainer";
+import StageLearning from "@/components/learning-engine/StageLearning";
+import AdvancedScenarios from "@/components/learning-engine/AdvancedScenarios";
+import { CocktailGridSkeleton } from "@/components/ui/Skeletons";
+const CocktailLibrary = lazy(() => import("@/components/knowledge-base/CocktailLibrary"));
+const KnowledgeBase = lazy(() => import("@/components/knowledge-base/KnowledgeBase"));
+import ProgressOverview from "@/components/learning-engine/ProgressOverview";
+import PreShiftHome from "@/components/learning-engine/PreShiftHome";
+import SessionRefresher from "@/components/ui/SessionRefresher";
+import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
-type NavItem = "home" | "bartending" | "sales" | "management" | "scenarios" | "cocktails" | "progress" | "settings";
+type NavItem = "home" | "stage1" | "stage2" | "stage3" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
 
 const NAV_ITEMS: { id: NavItem; label: string }[] = [
   { id: "home", label: "Home" },
-  { id: "bartending", label: "Bartending Training" },
-  { id: "sales", label: "Sales Training" },
-  { id: "management", label: "Management Training" },
+  { id: "stage1", label: "Stage 1 Learning" },
+  { id: "stage2", label: "Stage 2 Learning" },
+  { id: "stage3", label: "Stage 3 Learning" },
+  { id: "stage4", label: "Stage 4 Learning" },
   { id: "scenarios", label: "Advanced Scenarios" },
   { id: "cocktails", label: "Cocktail Library" },
+  { id: "knowledge", label: "101 Knowledge Base" },
   { id: "progress", label: "How I'm improving" },
   { id: "settings", label: "Settings" },
 ];
 
-const TRAINER_MODULES: Partial<Record<NavItem, "bartending" | "sales" | "management">> = {
-  home: "bartending",
-  bartending: "bartending",
-  sales: "sales",
-  management: "management",
-};
-
 const AVATAR_CHOICES = ["😀", "😎", "🙂", "🤠", "🥳", "🧠", "🫶", "😺"];
-const FOUNDERS_AVATAR = "👑";
 
 function StaffSettingsPanel({
   displayName,
@@ -39,8 +39,6 @@ function StaffSettingsPanel({
   notifReminders,
   notifWeeklyDigest,
   notifAchievementAlerts,
-  isFounder,
-  onFounderActivated,
 }: {
   displayName: string;
   userEmail: string;
@@ -48,8 +46,6 @@ function StaffSettingsPanel({
   notifReminders: boolean;
   notifWeeklyDigest: boolean;
   notifAchievementAlerts: boolean;
-  isFounder: boolean;
-  onFounderActivated: () => void;
 }) {
   const [avatar, setAvatar] = useState(savedAvatar || AVATAR_CHOICES[0]);
   const [profileName, setProfileName] = useState(displayName);
@@ -61,40 +57,6 @@ function StaffSettingsPanel({
   const [securityMessage, setSecurityMessage] = useState("");
   const [securityError, setSecurityError] = useState("");
   const [isSavingSecurity, setIsSavingSecurity] = useState(false);
-  const [founderCode, setFounderCode] = useState("");
-  const [founderCodeError, setFounderCodeError] = useState("");
-  const [founderCodeSuccess, setFounderCodeSuccess] = useState("");
-  const [isSubmittingFounderCode, setIsSubmittingFounderCode] = useState(false);
-
-  async function handleFounderCodeSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setFounderCodeError("");
-    setFounderCodeSuccess("");
-    setIsSubmittingFounderCode(true);
-    try {
-      const supabaseClient = createSupabaseBrowserClient();
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      const res = await fetch("/api/founders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(session?.access_token ? { "Authorization": `Bearer ${session.access_token}` } : {}),
-        },
-        body: JSON.stringify({ code: founderCode.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Invalid code.");
-      setFounderCodeSuccess("👑 Founders access activated! Your launch pricing is locked in.");
-      setFounderCode("");
-      onFounderActivated();
-      // Reload so the server re-fetches the updated profile with is_founders_user = true
-      window.location.reload();
-    } catch (err) {
-      setFounderCodeError(err instanceof Error ? err.message : "Could not activate founders access.");
-    } finally {
-      setIsSubmittingFounderCode(false);
-    }
-  }
 
   const [enableReminders, setEnableReminders] = useState(notifReminders);
   const [enableWeeklyDigest, setEnableWeeklyDigest] = useState(notifWeeklyDigest);
@@ -269,18 +231,6 @@ function StaffSettingsPanel({
               {option}
             </button>
           ))}
-          {isFounder && (
-            <button
-              key={FOUNDERS_AVATAR}
-              type="button"
-              className={`staff-avatar-choice${avatar === FOUNDERS_AVATAR ? " active" : ""}`}
-              onClick={() => handleAvatarChange(FOUNDERS_AVATAR)}
-              aria-pressed={avatar === FOUNDERS_AVATAR}
-              title="Founder badge — exclusive to founding members"
-            >
-              {FOUNDERS_AVATAR}
-            </button>
-          )}
         </div>
       </div>
 
@@ -355,37 +305,28 @@ function StaffSettingsPanel({
         </div>
       </div>
 
-      {!isFounder && (
-        <div className="card">
-          <h3>👑 Founding Member Access</h3>
-          <p>Have a founders code? Enter it below to lock in your launch pricing and get founding member status permanently.</p>
-          <form className="staff-settings-form" onSubmit={handleFounderCodeSubmit}>
-            <label className="label" htmlFor="founder-code-input">
-              Founders code
-              <input
-                id="founder-code-input"
-                className="input"
-                type="text"
-                value={founderCode}
-                onChange={(event) => setFounderCode(event.target.value)}
-                placeholder="Enter your code"
-                required
-              />
-            </label>
-            {founderCodeError ? <div className="auth-status auth-status-error">{founderCodeError}</div> : null}
-            {founderCodeSuccess ? <div className="auth-status auth-status-success">{founderCodeSuccess}</div> : null}
-            <button type="submit" className="btn btn-primary" disabled={isSubmittingFounderCode}>
-              {isSubmittingFounderCode ? "Activating..." : "Activate founders access"}
-            </button>
-          </form>
+      <div className="card">
+        <h3>Display theme</h3>
+        <p>Switch to an industrial dark theme for the learning console — easier on the eyes in dimly lit bars.</p>
+        <div className="staff-toggle-list">
+          <label>
+            <input
+              type="checkbox"
+              checked={typeof window !== "undefined" && document.documentElement.classList.contains("sbe-dark")}
+              onChange={(event) => {
+                if (event.target.checked) {
+                  document.documentElement.classList.add("sbe-dark");
+                  try { localStorage.setItem("sbe-dark-mode", "1"); } catch {}
+                } else {
+                  document.documentElement.classList.remove("sbe-dark");
+                  try { localStorage.setItem("sbe-dark-mode", "0"); } catch {}
+                }
+              }}
+            />
+            <span>Dark mode (industrial theme)</span>
+          </label>
         </div>
-      )}
-      {isFounder && (
-        <div className="card" style={{ borderColor: "var(--green-mid)", background: "var(--surface-raised)" }}>
-          <h3>👑 Founding Member</h3>
-          <p>You are a founding member. Your launch pricing is locked in for life. Thank you for believing in Serve By Example from the start.</p>
-        </div>
-      )}
+      </div>
 
       <div className="card sbe-trust-card">
         <h3>Account activity</h3>
@@ -422,13 +363,13 @@ const DAILY_CHALLENGES = [
     emoji: "🍸",
     title: "Perfect the Martini",
     desc: "Describe the classic variants and how to read a guest's preference.",
-    nav: "bartending" as NavItem,
+    nav: "stage4" as NavItem,
   },
   {
     emoji: "💬",
     title: "Upsell without pressure",
     desc: "Practise guiding a guest from the house wine to a premium option.",
-    nav: "sales" as NavItem,
+    nav: "stage4" as NavItem,
   },
   {
     emoji: "🔥",
@@ -446,19 +387,19 @@ const DAILY_CHALLENGES = [
     emoji: "📋",
     title: "Menu knowledge drill",
     desc: "Describe today's specials confidently and pair them with drinks.",
-    nav: "bartending" as NavItem,
+    nav: "stage1" as NavItem,
   },
   {
     emoji: "🧠",
     title: "Management mindset",
     desc: "Walk through how to brief a new hire on service standards.",
-    nav: "management" as NavItem,
+    nav: "stage4" as NavItem,
   },
   {
     emoji: "🎯",
     title: "Sales target scenario",
     desc: "Your venue needs to hit a cover target — walk through your plan.",
-    nav: "sales" as NavItem,
+    nav: "stage4" as NavItem,
   },
 ];
 
@@ -477,12 +418,43 @@ function RightPanel({
   const challenge = DAILY_CHALLENGES[dayOfYear % DAILY_CHALLENGES.length];
 
   const quickStarts: { emoji: string; label: string; nav: NavItem }[] = [
-    { emoji: "🍹", label: "Bartending", nav: "bartending" },
-    { emoji: "💼", label: "Sales", nav: "sales" },
-    { emoji: "🎭", label: "Advanced Scenarios", nav: "scenarios" },
+    { emoji: "🍹", label: "Stage 1", nav: "stage1" },
+    { emoji: "💼", label: "Stage 2", nav: "stage2" },
+    { emoji: "🎭", label: "Stage 4 Scenarios", nav: "stage4" },
     { emoji: "📈", label: "My progress", nav: "progress" },
   ];
   const filteredQuickStarts = isPremium ? quickStarts : quickStarts.filter((q) => q.nav === "progress");
+
+  // Fetch real stats
+  const [stats, setStats] = useState({ sessions: 0, topScore: 0, badges: 0, loaded: false });
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        const sb = createSupabaseBrowserClient();
+        const { data: { session } } = await sb.auth.getSession();
+        const r = await fetch("/api/training/progress", {
+          headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+        });
+        const res = await r.json();
+        if (res.sessions) {
+          const totalSessions = (res.sessions.bartending ?? 0) + (res.sessions.sales ?? 0) + (res.sessions.management ?? 0);
+          const topScore = Math.max(res.scores?.bartending ?? 0, res.scores?.sales ?? 0, res.scores?.management ?? 0);
+          let badges = 0;
+          for (const mod of ["bartending", "sales", "management"]) {
+            const lp = res.levelProgress?.[mod];
+            if (lp) {
+              if (lp.level1_completed) badges++;
+              if (lp.level2_completed) badges++;
+              if (lp.level3_completed) badges++;
+            }
+            if ((res.sessions?.[mod] ?? 0) >= 1 && (res.scores?.[mod] ?? 0) >= 21) badges++;
+          }
+          setStats({ sessions: totalSessions, topScore: Math.round(topScore), badges, loaded: true });
+        }
+      } catch { /* non-critical */ }
+    }
+    void loadStats();
+  }, []);
 
   return (
     <>
@@ -510,20 +482,20 @@ function RightPanel({
         <p className="rp-label">Your stats</p>
         <div className="rp-stats-grid">
           <div className="rp-stat">
-            <span className="rp-stat-value">🔥 1</span>
-            <span className="rp-stat-key">Day streak</span>
-          </div>
-          <div className="rp-stat">
-            <span className="rp-stat-value">0</span>
+            <span className="rp-stat-value">{stats.loaded ? stats.sessions : "—"}</span>
             <span className="rp-stat-key">Sessions</span>
           </div>
           <div className="rp-stat">
-            <span className="rp-stat-value">—</span>
+            <span className="rp-stat-value">{stats.loaded ? (stats.topScore > 0 ? `${stats.topScore}/25` : "—") : "—"}</span>
             <span className="rp-stat-key">Top score</span>
           </div>
           <div className="rp-stat">
-            <span className="rp-stat-value">0</span>
+            <span className="rp-stat-value">{stats.loaded ? stats.badges : "—"}</span>
             <span className="rp-stat-key">Badges</span>
+          </div>
+          <div className="rp-stat">
+            <span className="rp-stat-value">⚡</span>
+            <span className="rp-stat-key">{isPremium ? "Pro" : "Free"}</span>
           </div>
         </div>
       </div>
@@ -558,7 +530,6 @@ export default function DashboardShell({
   notifReminders,
   notifWeeklyDigest,
   notifAchievementAlerts,
-  isFounderInitial,
 }: {
   displayName: string;
   plan: string;
@@ -568,47 +539,22 @@ export default function DashboardShell({
   notifReminders: boolean;
   notifWeeklyDigest: boolean;
   notifAchievementAlerts: boolean;
-  isFounderInitial: boolean;
 }) {
   const [activeNav, setActiveNav] = useState<NavItem>("home");
   const [managementUnlocked, setManagementUnlocked] = useState(managementUnlockedInitial);
-  const [isFounder, setIsFounder] = useState(isFounderInitial);
-  const [showFounderModal, setShowFounderModal] = useState(false);
-  const [founderModalCode, setFounderModalCode] = useState("");
-  const [founderModalError, setFounderModalError] = useState("");
-  const [founderModalLoading, setFounderModalLoading] = useState(false);
   const [managementCode, setManagementCode] = useState("");
   const [managementCodeError, setManagementCodeError] = useState("");
   const [managementCodeMessage, setManagementCodeMessage] = useState("");
   const [isUnlockingManagement, setIsUnlockingManagement] = useState(false);
 
-  async function handleFounderModalSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setFounderModalError("");
-    setFounderModalLoading(true);
+  // Initialize dark mode from localStorage
+  useEffect(() => {
     try {
-      const supabaseClient = createSupabaseBrowserClient();
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      const res = await fetch("/api/founders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(session?.access_token ? { "Authorization": `Bearer ${session.access_token}` } : {}),
-        },
-        body: JSON.stringify({ code: founderModalCode.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Invalid code.");
-      setIsFounder(true);
-      setShowFounderModal(false);
-      // Reload so the server re-fetches the updated profile with is_founders_user = true
-      window.location.reload();
-    } catch (err) {
-      setFounderModalError(err instanceof Error ? err.message : "Invalid code.");
-    } finally {
-      setFounderModalLoading(false);
-    }
-  }
+      if (localStorage.getItem("sbe-dark-mode") === "1") {
+        document.documentElement.classList.add("sbe-dark");
+      }
+    } catch {}
+  }, []);
 
   const planTitle =
     plan === "multi-venue"
@@ -626,10 +572,7 @@ export default function DashboardShell({
       ? "Pro member access with bartender, sales and management modules."
       : "Venue plan access with team management dashboards.";
 
-  const isTrainerNav = activeNav in TRAINER_MODULES;
-  const defaultModule = TRAINER_MODULES[activeNav];
-
-  const PREMIUM_NAV_ITEMS: NavItem[] = ["bartending", "sales", "management", "scenarios", "cocktails"];
+  const PREMIUM_NAV_ITEMS: NavItem[] = ["stage1", "stage2", "stage3", "stage4", "scenarios", "cocktails", "knowledge"];
   const FALLBACK_ADMIN_EMAILS = [
     "wild07man@gmail.com",
     "mitchellwildman1994@gmail.com",
@@ -711,7 +654,7 @@ export default function DashboardShell({
       setManagementUnlocked(true);
       setManagementCode("");
       setManagementCodeMessage("Management Training unlocked.");
-      setActiveNav("management");
+      setActiveNav("stage4");
     } catch (unlockError) {
       setManagementCodeError(
         unlockError instanceof Error ? unlockError.message : "Could not unlock management training.",
@@ -723,41 +666,7 @@ export default function DashboardShell({
 
   return (
     <main className="dashboard-shell">
-      {showFounderModal && (
-        <div className="founder-modal-overlay" role="dialog" aria-modal="true" aria-label="Founders code">
-          <div className="founder-modal">
-            <button
-              className="founder-modal-close"
-              onClick={() => setShowFounderModal(false)}
-              aria-label="Close"
-              type="button"
-            >×</button>
-            <div style={{ fontSize: "2.5rem", marginBottom: 8 }}>👑</div>
-            <h2 style={{ marginBottom: 8 }}>Founding Member Access</h2>
-            <p style={{ color: "var(--text-soft)", marginBottom: 20, fontSize: "0.95rem" }}>
-              Enter your private founders code to lock in launch pricing for life and get your exclusive Founder badge.
-            </p>
-            <form onSubmit={handleFounderModalSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <input
-                className="input"
-                type="text"
-                value={founderModalCode}
-                onChange={(e) => setFounderModalCode(e.target.value)}
-                placeholder="Enter founders code"
-                autoFocus
-                required
-              />
-              {founderModalError && <div className="auth-status auth-status-error">{founderModalError}</div>}
-              <button className="btn btn-primary" type="submit" disabled={founderModalLoading}>
-                {founderModalLoading ? "Activating..." : "Activate founders access"}
-              </button>
-            </form>
-            <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: 16 }}>
-              Don&rsquo;t have a code? <a href="/pricing" style={{ color: "var(--green-mid)" }}>Request early access</a>
-            </p>
-          </div>
-        </div>
-      )}
+      <SessionRefresher />
 
       <aside className="dashboard-sidebar">
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: 16 }}>
@@ -768,7 +677,7 @@ export default function DashboardShell({
         </div>
 
         <div style={{ marginBottom: 12, color: "#fff", fontSize: "0.93rem", fontWeight: 500 }}>
-          Welcome back, {displayName}{isFounder ? " 👑" : ""}
+          Welcome back, {displayName}
         </div>
 
         <div className="mockup-nav">
@@ -792,22 +701,7 @@ export default function DashboardShell({
 
         <div className="dashboard-plan-card dashboard-plan-card-sidebar">
           <strong>{planTitle}</strong>
-          {isFounder && (
-            <div style={{ display: "inline-block", marginTop: 6, marginBottom: 4, padding: "3px 10px", background: "rgba(255,200,0,0.15)", border: "1px solid rgba(255,200,0,0.4)", borderRadius: 20, fontSize: "0.78rem", color: "#ffd700", fontWeight: 600 }}>
-              👑 Founding Member
-            </div>
-          )}
           <div>{planMessage}</div>
-          {!isFounder && (
-            <button
-              type="button"
-              className="btn btn-secondary"
-              style={{ marginTop: 10, fontSize: "0.8rem", padding: "6px 10px" }}
-              onClick={() => setShowFounderModal(true)}
-            >
-              👑 Enter founders code
-            </button>
-          )}
         </div>
 
         <div className="dashboard-sidebar-signout">
@@ -816,7 +710,7 @@ export default function DashboardShell({
       </aside>
 
       <section className="dashboard-main">
-        {activeNav === "management" && !managementUnlocked ? (
+        {false && !managementUnlocked ? (
           <div className="management-unlock-card">
             <div className="eyebrow">Manager code required</div>
             <h2>Unlock Management Training</h2>
@@ -849,18 +743,35 @@ export default function DashboardShell({
               </button>
             </form>
           </div>
-        ) : isTrainerNav ? (
+        ) : activeNav === "stage1" ? (
+          <StageLearning key="stage1" stage={1} managementUnlocked={managementUnlocked} />
+        ) : activeNav === "stage2" ? (
+          <StageLearning key="stage2" stage={2} managementUnlocked={managementUnlocked} />
+        ) : activeNav === "stage3" ? (
+          <StageLearning key="stage3" stage={3} managementUnlocked={managementUnlocked} />
+        ) : activeNav === "stage4" ? (
           <DashboardTrainer
-            key={activeNav}
+            key="stage4"
             displayName={displayName}
             userEmail={userEmail}
-            defaultModule={defaultModule}
             managementUnlocked={managementUnlocked}
+          />
+        ) : activeNav === "home" ? (
+          <PreShiftHome
+            key="home"
+            displayName={displayName}
+            setActiveNav={handleNavClick}
           />
         ) : activeNav === "scenarios" ? (
           <AdvancedScenarios />
         ) : activeNav === "cocktails" ? (
-          <CocktailLibrary />
+          <Suspense fallback={<CocktailGridSkeleton count={12} />}>
+            <CocktailLibrary />
+          </Suspense>
+        ) : activeNav === "knowledge" ? (
+          <Suspense fallback={<CocktailGridSkeleton count={12} />}>
+            <KnowledgeBase />
+          </Suspense>
         ) : activeNav === "progress" ? (
           <ProgressOverview displayName={displayName} plan={plan} />
         ) : activeNav === "settings" ? (
@@ -871,8 +782,6 @@ export default function DashboardShell({
             notifReminders={notifReminders}
             notifWeeklyDigest={notifWeeklyDigest}
             notifAchievementAlerts={notifAchievementAlerts}
-            isFounder={isFounder}
-            onFounderActivated={() => setIsFounder(true)}
           />
         ) : (
           <ComingSoon label={NAV_ITEMS.find((n) => n.id === activeNav)?.label ?? activeNav} />
@@ -881,11 +790,6 @@ export default function DashboardShell({
         <div className="dashboard-mobile-footer-actions">
           <div className="dashboard-plan-card dashboard-plan-card-mobile">
             <strong>{planTitle}</strong>
-            {isFounder && (
-              <div style={{ display: "inline-block", marginTop: 4, marginBottom: 4, padding: "2px 9px", background: "rgba(255,200,0,0.15)", border: "1px solid rgba(255,200,0,0.4)", borderRadius: 20, fontSize: "0.75rem", color: "#ffd700", fontWeight: 600 }}>
-                👑 Founding Member
-              </div>
-            )}
             <div>{planMessage}</div>
           </div>
           <SignOutButton />

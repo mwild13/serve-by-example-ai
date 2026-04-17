@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
+import RecommenderCard from "@/components/learning-engine/RecommenderCard";
 
 type Module = "bartending" | "sales" | "management";
 
@@ -406,28 +407,22 @@ type EvalResult = {
   improvedResponse: string;
 };
 
-const MODULE_META: Record<Module, { label: string; badge: string; description: string; progress: number; nextUp: string; color: string }> = {
+const MODULE_META: Record<Module, { label: string; description: string; nextUp: string; color: string }> = {
   bartending: {
     label: "Bartending Training",
-    badge: "72% complete",
     description: "Next: Guest acknowledgement",
-    progress: 72,
     nextUp: "Guest acknowledgement",
     color: "var(--green)",
   },
   sales: {
     label: "Sales Training",
-    badge: "48% complete",
     description: "Next: Objection handling",
-    progress: 48,
     nextUp: "Objection handling",
     color: "var(--gold)",
   },
   management: {
     label: "Management Training",
-    badge: "31% complete",
     description: "Next: Delegation under pressure",
-    progress: 31,
     nextUp: "Delegation under pressure",
     color: "var(--green-mid)",
   },
@@ -443,36 +438,56 @@ const SCORE_DIMENSIONS = [
 
 export default function DashboardTrainer({
   displayName,
-  defaultModule,
   managementUnlocked = false,
 }: {
   displayName: string;
-  defaultModule?: Module;
   managementUnlocked?: boolean;
   /** Passed by DashboardShell; reserved for future server-side data fetching. */
   userEmail?: string;
 }) {
-  const [activeModule, setActiveModule] = useState<Module | null>(defaultModule ?? null);
-  const [lastActiveModule, setLastActiveModule] = useState<Module>(defaultModule ?? "bartending");
+  const [activeModule, setActiveModule] = useState<Module | null>(null);
   const [scenarioIndex, setScenarioIndex] = useState(0);
   const [response, setResponse] = useState("");
+  const [bubble1, setBubble1] = useState("");
+  const [bubble2, setBubble2] = useState("");
+  const [bubble3, setBubble3] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<EvalResult | null>(null);
   const [lastScore, setLastScore] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [showHelp, setShowHelp] = useState(false);
 
-  // Real progress loaded from DB; starts at 0 until the fetch completes.
+  // ── Mastery engine state ───────────────────────────────────
+  const [masteryFeedback, setMasteryFeedback] = useState<{
+    level: number; previousLevel: number; levelChanged: boolean;
+    spamGuarded: boolean; eloRating: number; eloDelta: number;
+    isBridge: boolean; consecutiveFails: number;
+    confidenceAccuracy: string;
+  } | null>(null);
+
+  // Mastery-based progress (completion = unique scenarios passed / total)
   const [moduleProgress, setModuleProgress] = useState<Record<Module, number>>({
-    bartending: 0,
-    sales: 0,
-    management: 0,
+    bartending: 0, sales: 0, management: 0,
   });
-  // Management unlock can be granted either via venue code (prop) OR staff role (API).
+  // Mastery % (scenarios at level 3 / total)
+  const [moduleMastery, setModuleMastery] = useState<Record<Module, number>>({
+    bartending: 0, sales: 0, management: 0,
+  });
+  // Elo ratings per module
+  const [moduleElo, setModuleElo] = useState<Record<Module, number>>({
+    bartending: 1200, sales: 1200, management: 1200,
+  });
+  // Spaced repetition review queue
+  type ReviewItem = { module: string; scenarioIndex: number; masteryLevel: number; consecutiveFails: number };
+  const [reviewQueue, setReviewQueue] = useState<ReviewItem[]>([]);
+  // Per-scenario mastery levels for the active module
+  const [scenarioMastery, setScenarioMastery] = useState<Record<number, number>>({});
+
   const [mgmtUnlocked, setMgmtUnlocked] = useState(managementUnlocked);
 
   const currentScenario = activeModule ? SCENARIOS[activeModule][scenarioIndex] : null;
   const currentInsight = activeModule ? SCENARIO_INSIGHTS[activeModule][scenarioIndex] : null;
+  const currentMasteryLevel = activeModule ? (scenarioMastery[scenarioIndex] ?? 0) : 0;
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -489,12 +504,11 @@ export default function DashboardTrainer({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [result]);
 
-  // Keep mgmtUnlocked in sync if the parent unlocks management (e.g. venue code entry).
   useEffect(() => {
     if (managementUnlocked) setMgmtUnlocked(true);
   }, [managementUnlocked]);
 
-  // Load real progress from the DB and check staff-role auto-unlock.
+  // Load mastery-based progress from the API
   useEffect(() => {
     async function fetchProgress() {
       try {
@@ -506,85 +520,160 @@ export default function DashboardTrainer({
             : {},
         });
         if (!res.ok) return;
-        const data = await res.json() as {
-          modules: Record<Module, number>;
-          staffRole?: string;
-          autoUnlockManagement?: boolean;
-        };
+        const data = await res.json();
         if (data.modules) setModuleProgress(data.modules);
+        if (data.mastery) setModuleMastery(data.mastery);
+        if (data.elo) setModuleElo(data.elo);
+        if (data.reviewQueue) setReviewQueue(data.reviewQueue);
         if (data.autoUnlockManagement) setMgmtUnlocked(true);
       } catch {
-        // non-critical — fall back to zeros
+        // non-critical
       }
     }
     void fetchProgress();
   }, []);
 
+  // Load per-scenario mastery when active module changes
+  useEffect(() => {
+    if (!activeModule) return;
+    async function fetchScenarioDetails() {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch(`/api/training/progress?detail=${activeModule}`, {
+          headers: session?.access_token
+            ? { Authorization: `Bearer ${session.access_token}` }
+            : {},
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.scenarioDetails) {
+          const map: Record<number, number> = {};
+          for (const row of data.scenarioDetails) {
+            map[row.scenario_index] = row.mastery_level;
+          }
+          setScenarioMastery(map);
+        }
+      } catch {
+        // non-critical
+      }
+    }
+    void fetchScenarioDetails();
+  }, [activeModule]);
+
   function selectModule(mod: Module) {
+    // Go directly to scenarios (level gating handled by StageLearning)
+    const dueReview = reviewQueue.find((r) => r.module === mod);
     setActiveModule(mod);
-    setLastActiveModule(mod);
-    setScenarioIndex(0);
+    setScenarioIndex(dueReview ? dueReview.scenarioIndex : 0);
     setResponse("");
+    setBubble1("");
+    setBubble2("");
+    setBubble3("");
     setResult(null);
     setLastScore(null);
     setError("");
+    setMasteryFeedback(null);
   }
 
   function nextScenario() {
     if (!activeModule) return;
-    setLastScore(result?.overallScore ?? null);
-    const mod = activeModule;
-    setScenarioIndex((prev) => (prev + 1) % SCENARIOS[mod].length);
+    const prev = result?.overallScore ?? null;
+    setLastScore(prev);
+
+    // Prioritize spaced repetition: find next due scenario in this module
+    const dueInModule = reviewQueue.filter(
+      (r) => r.module === activeModule && r.scenarioIndex !== scenarioIndex,
+    );
+    let next: number;
+    if (dueInModule.length > 0) {
+      next = dueInModule[0].scenarioIndex;
+    } else {
+      next = (scenarioIndex + 1) % SCENARIOS[activeModule].length;
+    }
+
+    setScenarioIndex(next);
     setResponse("");
     setResult(null);
     setError("");
+    setMasteryFeedback(null);
+  }
+
+  // Combine bubbles into the full response
+  function combineBubbles() {
+    return [bubble1, bubble2, bubble3].filter(Boolean).join("\n\n");
   }
 
   function applyPill(text: string) {
     setResponse(text);
+    setBubble1("");
+    setBubble2("");
+    setBubble3("");
     setResult(null);
     setError("");
   }
 
   async function handleSubmit() {
-    if (!currentScenario || !response.trim()) return;
+    const fullResponse = response || combineBubbles();
+    if (!currentScenario || !fullResponse.trim()) return;
     setLoading(true);
     setError("");
     setResult(null);
+    setMasteryFeedback(null);
 
     try {
       const res = await fetch("/api/evaluate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scenario: currentScenario.text, userResponse: response }),
+        body: JSON.stringify({ scenario: currentScenario.text, userResponse: fullResponse }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Evaluation failed.");
       setResult(data);
 
-      // Fire-and-forget: persist this score and update management console data.
+      // Fire-and-forget: persist via mastery engine
       if (activeModule) {
         const mod = activeModule;
         const score = data.overallScore as number;
+        const idx = scenarioIndex;
         void (async () => {
           try {
             const supabase = createSupabaseBrowserClient();
             const { data: { session } } = await supabase.auth.getSession();
-            await fetch("/api/training/save", {
+            const saveRes = await fetch("/api/training/save", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
                 ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
               },
-              body: JSON.stringify({ module: mod, overallScore: score }),
+              body: JSON.stringify({ module: mod, overallScore: score, scenarioIndex: idx, confidence: "medium" }),
             });
-            // Optimistic local update: increment by 1 scenario (10% of 10 total).
-            setModuleProgress((prev) => ({
-              ...prev,
-              [mod]: Math.min(prev[mod] + 10, 100),
-            }));
+            const saveData = await saveRes.json();
+            if (saveData.mastery) {
+              setMasteryFeedback(saveData.mastery);
+              // Optimistic: update scenario mastery level locally
+              setScenarioMastery((prev) => ({ ...prev, [idx]: saveData.mastery.level }));
+              // If this scenario was newly passed (level went from 0 to >=1), update progress
+              if (saveData.mastery.levelChanged && saveData.mastery.level >= 1 && saveData.mastery.previousLevel === 0) {
+                const scenarioCount = SCENARIOS[mod].length;
+                setModuleProgress((prev) => ({
+                  ...prev,
+                  [mod]: Math.min(prev[mod] + Math.round(100 / scenarioCount), 100),
+                }));
+              }
+              // Update mastery %
+              if (saveData.mastery.level === 3 && saveData.mastery.previousLevel < 3) {
+                const scenarioCount = SCENARIOS[mod].length;
+                setModuleMastery((prev) => ({
+                  ...prev,
+                  [mod]: Math.min(prev[mod] + Math.round(100 / scenarioCount), 100),
+                }));
+              }
+              // Update Elo
+              setModuleElo((prev) => ({ ...prev, [mod]: saveData.mastery.eloRating }));
+            }
           } catch {
-            // Non-critical — next page load will reflect real DB value.
+            // Non-critical
           }
         })();
       }
@@ -602,10 +691,10 @@ export default function DashboardTrainer({
         <div className="sbe-command-bar">
           <div className="sbe-command-text">
             <span className="sbe-command-eyebrow">Recommended for you</span>
-            <strong>Continue {MODULE_META[lastActiveModule].label}</strong>
-            <span className="sbe-command-meta">⏱ ~6 min &nbsp;&nbsp; ⭐ +1 streak &nbsp;&nbsp; Next: {MODULE_META[lastActiveModule].nextUp}</span>
+            <strong>Continue Bartending Training</strong>
+            <span className="sbe-command-meta">⏱ ~6 min &nbsp;&nbsp; ⭐ +1 streak &nbsp;&nbsp; Next: Guest acknowledgement</span>
           </div>
-          <button className="btn btn-primary sbe-command-btn" onClick={() => selectModule(lastActiveModule)}>
+          <button className="btn btn-primary sbe-command-btn" onClick={() => selectModule("bartending")}>
             Continue training →
           </button>
         </div>
@@ -613,11 +702,13 @@ export default function DashboardTrainer({
 
       {/* Active module command bar */}
       {activeModule && !result && (
-        <div className="sbe-command-bar sbe-command-bar-active">
+        <div key={`cmd-${activeModule}`} className="sbe-command-bar sbe-command-bar-active">
           <div className="sbe-command-text">
             <span className="sbe-command-eyebrow">{MODULE_META[activeModule].label}</span>
             <strong>Scenario {scenarioIndex + 1} of {SCENARIOS[activeModule].length}</strong>
-            <span className="sbe-command-meta">{moduleProgress[activeModule]}% complete</span>
+            <span className="sbe-command-meta">
+              {moduleProgress[activeModule]}% complete · {moduleMastery[activeModule]}% mastered
+            </span>
           </div>
           <button className="btn btn-secondary sbe-back-btn" onClick={() => { setActiveModule(null); setResult(null); setResponse(""); }}>
             ← Back
@@ -678,10 +769,20 @@ export default function DashboardTrainer({
                 </div>
                 <span className="dash-card-progress-pct">{moduleProgress[mod]}%</span>
               </div>
+              {moduleMastery[mod] > 0 && (
+                <div className="dash-card-progress-row" style={{ marginTop: 4 }}>
+                  <div className="dash-card-progress-bar">
+                    <div className="dash-card-progress-fill" style={{ width: `${moduleMastery[mod]}%`, background: '#a855f7' }} />
+                  </div>
+                  <span className="dash-card-progress-pct" style={{ color: '#a855f7' }}>{moduleMastery[mod]}% mastered</span>
+                </div>
+              )}
               {isLocked ? (
                 <p className="dash-card-next">Requires venue manager code</p>
               ) : (
-                <p className="dash-card-next">Next: {MODULE_META[mod].nextUp}</p>
+                <p className="dash-card-next">
+                  {`Next: ${MODULE_META[mod].nextUp}`}
+                </p>
               )}
               {activeModule === mod && <span className="dash-card-badge">Active</span>}
             </div>
@@ -692,10 +793,22 @@ export default function DashboardTrainer({
 
       {/* Training session */}
       {activeModule && currentScenario && (
-        <div className="trainer-panel">
+        <div className="trainer-panel" key={`${activeModule}-${scenarioIndex}`}>
           <div className="trainer-scenario">
-            <span className="trainer-label">Scenario {scenarioIndex + 1} of {SCENARIOS[activeModule].length}</span>
+            <span className="trainer-label">
+              Scenario {scenarioIndex + 1} of {SCENARIOS[activeModule].length}
+              {currentMasteryLevel > 0 && (
+                <span className="sbe-mastery-badge" data-level={currentMasteryLevel}>
+                  {currentMasteryLevel === 3 ? '★ Mastered' : currentMasteryLevel === 2 ? '◆ Proficient' : '● Learning'}
+                </span>
+              )}
+            </span>
             <p>{currentScenario.text}</p>
+            {masteryFeedback?.isBridge && (
+              <div className="sbe-bridge-hint">
+                💡 <strong>Hint:</strong> Focus on the guest&apos;s emotional state first, then address their request. What would make them feel heard?
+              </div>
+            )}
           </div>
 
           {!result && (
@@ -718,19 +831,86 @@ export default function DashboardTrainer({
               </div>
 
               <div className="trainer-input-row">
-                <textarea
-                  className="trainer-textarea"
-                  placeholder="Write your full response here…"
-                  value={response}
-                  onChange={(e) => setResponse(e.target.value)}
-                  onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") handleSubmit(); }}
-                  rows={4}
-                />
+                {/* Speech bubble inputs */}
+                {!response && (
+                  <div className="s4-bubbles">
+                    <div className="s4-bubble">
+                      <label className="s4-bubble-label">The Hook — Greeting</label>
+                      <textarea
+                        className="s4-bubble-input"
+                        placeholder="Hey there! Welcome in..."
+                        value={bubble1}
+                        onChange={(e) => setBubble1(e.target.value)}
+                        onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") handleSubmit(); }}
+                        rows={2}
+                      />
+                      <span className={`s4-word-count${bubble1.split(/\s+/).filter(Boolean).length >= 15 ? " s4-word-count-met" : ""}`}>
+                        {bubble1.split(/\s+/).filter(Boolean).length} words · aim for 15+
+                      </span>
+                    </div>
+                    <div className="s4-bubble">
+                      <label className="s4-bubble-label">The Meat — Product Knowledge</label>
+                      <textarea
+                        className="s4-bubble-input"
+                        placeholder="So this one's a classic — it's got..."
+                        value={bubble2}
+                        onChange={(e) => setBubble2(e.target.value)}
+                        onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") handleSubmit(); }}
+                        rows={3}
+                      />
+                      <span className={`s4-word-count${bubble2.split(/\s+/).filter(Boolean).length >= 15 ? " s4-word-count-met" : ""}`}>
+                        {bubble2.split(/\s+/).filter(Boolean).length} words · aim for 15+
+                      </span>
+                    </div>
+                    <div className="s4-bubble">
+                      <label className="s4-bubble-label">The Close — Upsell &amp; Wrap</label>
+                      <textarea
+                        className="s4-bubble-input"
+                        placeholder="Would you like to try that? I can also..."
+                        value={bubble3}
+                        onChange={(e) => setBubble3(e.target.value)}
+                        onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") handleSubmit(); }}
+                        rows={2}
+                      />
+                      <span className={`s4-word-count${bubble3.split(/\s+/).filter(Boolean).length >= 15 ? " s4-word-count-met" : ""}`}>
+                        {bubble3.split(/\s+/).filter(Boolean).length} words · aim for 15+
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Fallback: full free-text if they used a pill */}
+                {response && (
+                  <textarea
+                    className="trainer-textarea"
+                    placeholder="Write your full response here…"
+                    value={response}
+                    onChange={(e) => setResponse(e.target.value)}
+                    onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") handleSubmit(); }}
+                    rows={4}
+                  />
+                )}
+
+                {/* Knowledge tip sidebar */}
+                {activeModule && currentScenario && !response && (
+                  <div className="s4-knowledge-tip">
+                    <strong>Knowledge tip</strong>
+                    <ul>
+                      {currentScenario.pills
+                        .filter((p) => p.positive)
+                        .slice(0, 2)
+                        .map((p) => (
+                          <li key={p.intent}>{p.intent}</li>
+                        ))}
+                    </ul>
+                  </div>
+                )}
+
                 <div className="trainer-actions">
                   <button
                     className="btn btn-primary"
                     onClick={handleSubmit}
-                    disabled={loading || !response.trim()}
+                    disabled={loading || (!response.trim() && !bubble1.trim() && !bubble2.trim() && !bubble3.trim())}
                   >
                     {loading ? "Evaluating…" : "Check my response"}
                   </button>
@@ -808,6 +988,37 @@ export default function DashboardTrainer({
                     </div>
                   </div>
                 </details>
+
+                {masteryFeedback && (
+                  <div className="sbe-mastery-feedback">
+                    <div className="sbe-mastery-feedback-row">
+                      <span>Mastery Level: <strong>{['Novice', 'Learning', 'Proficient', 'Mastered'][masteryFeedback.level]}</strong></span>
+                      {masteryFeedback.levelChanged && (
+                        <span className="sbe-level-up">🎉 Level up!</span>
+                      )}
+                    </div>
+                    <div className="sbe-mastery-feedback-row">
+                      <span>Confidence: {masteryFeedback.confidenceAccuracy}</span>
+                    </div>
+                    {masteryFeedback.spamGuarded && (
+                      <p className="sbe-spam-notice">⏳ This attempt was recorded but won&apos;t advance mastery — retry after 60 min for credit.</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Recommender: show when the score is below passing */}
+                {result.overallScore < 15 && activeModule && currentScenario && (
+                  <RecommenderCard
+                    tags={[
+                      activeModule,
+                      ...currentScenario.pills
+                        .filter((p) => p.positive)
+                        .map((p) => p.intent.toLowerCase()),
+                    ]}
+                    score={result.overallScore}
+                    maxScore={25}
+                  />
+                )}
 
                 <div className="trainer-after">
                   <button className="btn btn-primary" onClick={nextScenario}>

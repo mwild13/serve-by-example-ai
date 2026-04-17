@@ -1,0 +1,16 @@
+# Secrets and credentials — never read these
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.local.SECURE
+
+# Build output — not useful for code tasks
+node_modules/
+.next/
+.open-next/
+.vercel/
+
+# Large generated files
+*.tsbuildinfo

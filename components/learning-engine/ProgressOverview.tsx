@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabase";
 
 type ProgressOverviewProps = {
   displayName: string;
@@ -9,16 +10,48 @@ type ProgressOverviewProps = {
 
 type ModuleKey = "bartending" | "sales" | "management";
 
+type LevelProgress = {
+  level1_completed: boolean;
+  level2_completed: boolean;
+  level3_completed: boolean;
+  level4_unlocked: boolean;
+  level1_score: number;
+  level2_score: number;
+  level3_score: number;
+};
+
 type TrainingData = {
   modules: Record<ModuleKey, number>;   // completion 0–100%
+  mastery: Record<ModuleKey, number>;   // mastery 0–100% (scenarios at level 3)
   scores: Record<ModuleKey, number>;    // avg score 0–25
   sessions: Record<ModuleKey, number>;  // total sessions completed
+  elo: Record<ModuleKey, number>;       // Elo rating per module
+  reviewDue: number;                    // spaced repetition items due now
+  levelProgress: Record<ModuleKey, LevelProgress>;
+};
+
+const DEFAULT_LEVEL: LevelProgress = {
+  level1_completed: false,
+  level2_completed: false,
+  level3_completed: false,
+  level4_unlocked: false,
+  level1_score: 0,
+  level2_score: 0,
+  level3_score: 0,
 };
 
 const EMPTY: TrainingData = {
   modules: { bartending: 0, sales: 0, management: 0 },
+  mastery: { bartending: 0, sales: 0, management: 0 },
   scores: { bartending: 0, sales: 0, management: 0 },
   sessions: { bartending: 0, sales: 0, management: 0 },
+  elo: { bartending: 1200, sales: 1200, management: 1200 },
+  reviewDue: 0,
+  levelProgress: {
+    bartending: { ...DEFAULT_LEVEL },
+    sales: { ...DEFAULT_LEVEL },
+    management: { ...DEFAULT_LEVEL },
+  },
 };
 
 const MODULE_LABELS: Record<ModuleKey, { label: string; detail: string; short: string }> = {
@@ -28,9 +61,10 @@ const MODULE_LABELS: Record<ModuleKey, { label: string; detail: string; short: s
 };
 
 const BADGE_LEGEND = [
-  { label: "Pass", icon: "🏅", note: "Score ≥ 21/25" },
-  { label: "Perfect Score", icon: "⭐", note: "Score = 25/25" },
-  { label: "Mastery", icon: "👑", note: "All modules complete" },
+  { label: "Stage Complete", icon: "🏅", note: "Stage 1 or 2 passed" },
+  { label: "Advanced", icon: "🥇", note: "Stage 3 passed" },
+  { label: "Scenario Master", icon: "👑", note: "Stage 4 avg ≥ 21/25" },
+  { label: "Perfect", icon: "⭐", note: "100% module mastery" },
 ];
 
 // Coach focus commands keyed by weakest module
@@ -52,39 +86,83 @@ const COACH_FOCUS: Record<ModuleKey, string[]> = {
   ],
 };
 
-function badgeEarned(sessions: number, avgScore: number, threshold: number): boolean {
-  return sessions >= threshold && avgScore >= 21;
-}
-
 function buildBadgeStages(data: TrainingData) {
   const modules: ModuleKey[] = ["bartending", "sales", "management"];
-  const badgeLabels = ["Bartending Fundamentals", "Sales & Upselling", "Leadership & Coaching"];
+  const badgeLabels = ["Bartending", "Sales & Upselling", "Leadership"];
 
-  // Stage thresholds: [minSessions required to unlock]
-  const stageThresholds = [1, 3, 6, 10];
-  const stageIcons = ["🏅", "🏅", "🥇", "⭐"];
+  const stages = [
+    {
+      stage: "Stage 1 — Recall",
+      desc: "Complete the rapid-fire quiz for each module",
+      badges: modules.map((mod, i) => {
+        const lp = data.levelProgress[mod];
+        const earned = lp.level1_completed;
+        return {
+          id: `stage1-${mod}`,
+          label: badgeLabels[i],
+          icon: earned ? "🏅" : "🛡️",
+          earned,
+          earnedNote: earned ? `Quiz passed (${lp.level1_score} streak)` : undefined,
+        };
+      }),
+    },
+    {
+      stage: "Stage 2 — Application",
+      desc: "Pass the descriptor selection challenge for each module",
+      badges: modules.map((mod, i) => {
+        const lp = data.levelProgress[mod];
+        const earned = lp.level2_completed;
+        return {
+          id: `stage2-${mod}`,
+          label: badgeLabels[i],
+          icon: earned ? "🏅" : "🛡️",
+          earned,
+          earnedNote: earned ? `Descriptors mastered (${lp.level2_score} correct)` : undefined,
+        };
+      }),
+    },
+    {
+      stage: "Stage 3 — Advanced",
+      desc: "Complete the advanced descriptor challenge for each module",
+      badges: modules.map((mod, i) => {
+        const lp = data.levelProgress[mod];
+        const earned = lp.level3_completed;
+        return {
+          id: `stage3-${mod}`,
+          label: badgeLabels[i],
+          icon: earned ? "🥇" : "🛡️",
+          earned,
+          earnedNote: earned ? `Advanced complete (${lp.level3_score} correct)` : undefined,
+        };
+      }),
+    },
+    {
+      stage: "Stage 4 — Scenario Mastery",
+      desc: "Score ≥ 21/25 in a live scenario session for each module",
+      badges: modules.map((mod, i) => {
+        const s = data.sessions[mod];
+        const avg = data.scores[mod];
+        const earned = s >= 1 && avg >= 21;
+        const isPerfect = data.modules[mod] >= 100;
+        return {
+          id: `stage4-${mod}`,
+          label: badgeLabels[i],
+          icon: earned ? (isPerfect ? "⭐" : "👑") : "🛡️",
+          earned,
+          earnedNote: earned
+            ? isPerfect
+              ? "Module mastered!"
+              : `Avg ${avg}/25 over ${s} session${s !== 1 ? "s" : ""}`
+            : undefined,
+        };
+      }),
+    },
+  ];
 
-  return stageThresholds.map((threshold, stageIdx) => {
-    const badges = modules.map((mod, i) => {
-      const s = data.sessions[mod];
-      const avg = data.scores[mod];
-      const earned = badgeEarned(s, avg, threshold);
-      const isPerfect = stageIdx === 3 && s >= 10 && data.modules[mod] >= 100;
-      return {
-        id: `stage${stageIdx + 1}-${mod}`,
-        label: badgeLabels[i],
-        icon: earned ? stageIcons[stageIdx] : "🛡️",
-        earned,
-        earnedNote: earned
-          ? isPerfect
-            ? "Module mastered!"
-            : `Avg ${avg}/25 over ${s} session${s !== 1 ? "s" : ""}`
-          : undefined,
-      };
-    });
-    const masteryComplete = badges.every((b) => b.earned);
-    return { stage: `Stage ${stageIdx + 1}`, masteryComplete, badges };
-  });
+  return stages.map((s) => ({
+    ...s,
+    masteryComplete: s.badges.every((b) => b.earned),
+  }));
 }
 
 function getWeakestModule(data: TrainingData): ModuleKey {
@@ -123,22 +201,36 @@ function buildRecentWins(data: TrainingData): string[] {
 
 export default function ProgressOverview({ displayName, plan }: ProgressOverviewProps) {
   const [data, setData] = useState<TrainingData>(EMPTY);
-  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    fetch("/api/training/progress")
-      .then((r) => r.json())
-      .then((res) => {
+    async function load() {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        const r = await fetch("/api/training/progress", {
+          headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+        });
+        const res = await r.json();
         if (res.modules) {
           setData({
             modules: res.modules,
+            mastery: res.mastery ?? { bartending: 0, sales: 0, management: 0 },
             scores: res.scores ?? { bartending: 0, sales: 0, management: 0 },
             sessions: res.sessions ?? { bartending: 0, sales: 0, management: 0 },
+            elo: res.elo ?? { bartending: 1200, sales: 1200, management: 1200 },
+            reviewDue: Array.isArray(res.reviewQueue) ? res.reviewQueue.length : 0,
+            levelProgress: {
+              bartending: res.levelProgress?.bartending ?? { ...DEFAULT_LEVEL },
+              sales: res.levelProgress?.sales ?? { ...DEFAULT_LEVEL },
+              management: res.levelProgress?.management ?? { ...DEFAULT_LEVEL },
+            },
           });
         }
-        setLoaded(true);
-      })
-      .catch(() => setLoaded(true));
+      } catch {
+        // non-critical
+      }
+    }
+    void load();
   }, []);
 
   const totalSessions = data.sessions.bartending + data.sessions.sales + data.sessions.management;
@@ -150,23 +242,26 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
   const COACH_COMMANDS = COACH_FOCUS[weakest];
   const RECENT_WINS = buildRecentWins(data);
 
+  const avgMastery = Math.round((data.mastery.bartending + data.mastery.sales + data.mastery.management) / 3);
+
   const MODULE_PROGRESS = (["bartending", "sales", "management"] as ModuleKey[]).map((mod) => ({
     mod,
     label: MODULE_LABELS[mod].label,
     detail: MODULE_LABELS[mod].detail,
     progress: data.modules[mod],
+    mastery: data.mastery[mod],
     avgScore: data.scores[mod],
     sessions: data.sessions[mod],
-    status: data.modules[mod] > 60 ? "On track" : data.modules[mod] > 30 ? "Improving" : data.modules[mod] > 0 ? "Building" : "Not started",
+    status: data.mastery[mod] >= 80 ? "Mastered" : data.modules[mod] > 60 ? "On track" : data.modules[mod] > 30 ? "Improving" : data.modules[mod] > 0 ? "Building" : "Not started",
   }));
 
   const MOMENTUM_METRICS = [
-    { icon: "📊", headline: loaded ? `${avgProgress}% overall progress` : "Loading…", sub: "Across all three training modules." },
-    { icon: "⚡", headline: loaded ? `${totalSessions} session${totalSessions !== 1 ? "s" : ""} completed` : "Loading…", sub: "Every session builds towards mastery." },
+    { icon: "📊", headline: `${avgProgress}% complete · ${avgMastery}% mastered`, sub: "Completion = scenarios passed. Mastery = repeated excellence." },
+    { icon: "⚡", headline: `${totalSessions} session${totalSessions !== 1 ? "s" : ""}`, sub: "Total training sessions completed." },
     {
       icon: "🎯",
-      headline: totalSessions === 0 ? "Start training below" : `Strongest: ${MODULE_LABELS[strongest].short}`,
-      sub: totalSessions === 0 ? "Complete a scenario to track your momentum." : "Keep pushing your weakest module to round out your skills.",
+      headline: totalSessions === 0 ? "Start training below" : data.reviewDue > 0 ? `${data.reviewDue} review${data.reviewDue !== 1 ? "s" : ""} due` : `Strongest: ${MODULE_LABELS[strongest].short}`,
+      sub: totalSessions === 0 ? "Complete a scenario to track your momentum." : data.reviewDue > 0 ? "Spaced repetition items ready for review." : "Keep pushing your weakest module to round out your skills.",
     },
   ];
 
@@ -228,9 +323,14 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
                 <div className="progress-bar-track">
                   <div className="progress-bar-fill" style={{ width: `${module.progress}%` }} />
                 </div>
+                {module.mastery > 0 && (
+                  <div className="progress-bar-track" style={{ marginTop: 4, opacity: 0.8 }}>
+                    <div className="progress-bar-fill" style={{ width: `${module.mastery}%`, background: '#a855f7' }} />
+                  </div>
+                )}
                 <div className="progress-module-foot">
-                  <span>{module.progress}% complete ({module.sessions}/{10} sessions)</span>
-                  <span>{module.sessions > 0 ? `Avg score: ${module.avgScore}/25` : "No sessions yet"}</span>
+                  <span>{parseFloat(module.progress.toFixed(2))}% complete · {parseFloat(module.mastery.toFixed(2))}% mastered</span>
+                  <span>{module.sessions > 0 ? `Avg score: ${parseFloat(module.avgScore.toFixed(2))}/25` : "No sessions yet"}</span>
                 </div>
               </div>
             ))}
@@ -240,7 +340,7 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
         <section className="progress-panel">
           <div className="progress-panel-header">
             <h2>Badges &amp; Achievements</h2>
-            <span>Earn badges by completing sessions with a score ≥ 21/25</span>
+            <span>Earn badges by completing each stage per module</span>
           </div>
 
           <div className="badge-legend">
@@ -266,6 +366,9 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
                       <span className="badge-mastery-note">✓ All modules complete</span>
                     )}
                   </div>
+                  {"desc" in stageData && stageData.desc && (
+                    <span className="badge-stage-desc">{stageData.desc}</span>
+                  )}
                 </div>
                 <div className={`badge-row badge-row-${stageData.badges.length}`}>
                   {stageData.badges.map((badge) => (

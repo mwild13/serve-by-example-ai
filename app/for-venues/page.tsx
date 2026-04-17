@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import WaitlistSection from "@/components/WaitlistSection";
+import WaitlistSection from "@/components/ui/WaitlistSection";
 
 const benefits = [
   {

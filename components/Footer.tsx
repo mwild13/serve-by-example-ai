@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
+import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 
 export default function Footer() {
   return (

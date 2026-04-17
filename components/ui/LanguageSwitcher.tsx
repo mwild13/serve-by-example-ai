@@ -87,9 +87,6 @@ export default function LanguageSwitcher({
         .join(" ")}
     >
       <label className="language-switcher-control" htmlFor={selectId}>
-        <span className="language-emoji" aria-hidden="true">
-          🌐
-        </span>
         <span className="sr-only">Select language</span>
         <select
           id={selectId}

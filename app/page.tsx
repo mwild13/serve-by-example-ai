@@ -1,7 +1,9 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
-import WaitlistSection from "@/components/WaitlistSection";
+import WaitlistSection from "@/components/ui/WaitlistSection";
+import ROICalculator from "@/components/ui/ROICalculator";
+import BrowserMockup from "@/components/ui/BrowserMockup";
 
 export default function Home() {
   return (
@@ -9,29 +11,37 @@ export default function Home() {
       <Navbar showActions={false} showTextLogin showNavbarLanguageOnMobile={false} />
 
       <main>
-        {/* ── Hero ──────────────────────────────────── */}
+        {/* ── Hero (Split-Screen) ──────────────────── */}
         <section className="hero">
           <div className="container">
-            <div className="hero-content">
-              <span className="eyebrow">AI-Powered Hospitality Training</span>
-              <h1>
-                Train bartenders and venue teams faster with AI
-              </h1>
-              <p className="hero-sub">
-                Personalised, scenario-based training that improves service,
-                compliance, and confidence in minutes, not months.
-              </p>
-              <div className="hero-actions">
-                <Link href="/demo" className="btn btn-primary btn-lg">
-                  Try the Demo
-                </Link>
-                <Link href="/how-it-works" className="btn btn-secondary btn-lg">
-                  See How It Works
-                </Link>
+            <div className="hero-split">
+              <div className="hero-left">
+                <span className="eyebrow">AI-Powered Hospitality Training</span>
+                <h1>
+                  Train your venue team faster with AI
+                </h1>
+                <p className="hero-sub">
+                  Scenario-based training that improves service, compliance, and
+                  upselling in minutes — not months.
+                </p>
+                <div className="hero-actions">
+                  <Link href="/demo" className="btn btn-primary btn-lg">
+                    Try the Demo
+                  </Link>
+                  <Link href="/how-it-works" className="btn btn-secondary btn-lg">
+                    How It Works
+                  </Link>
+                </div>
+              </div>
+              <div className="hero-right">
+                <BrowserMockup />
               </div>
             </div>
           </div>
         </section>
+
+        {/* ── ROI Calculator (Sticky Lead Magnet) ──── */}
+        <ROICalculator />
 
         {/* ── Trust ──────────────────────────────── */}
         <section className="section trust-section">
@@ -57,48 +67,50 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── Product Value Pillars ─────────────────── */}
-        <section className="section section-alt">
+        {/* ── THE SBE SYSTEM ─────────────────────────── */}
+        <section className="section section-ecosystem">
           <div className="container">
-            <div className="section-header center">
-              <span className="eyebrow">Why Teams Choose Us</span>
-              <h2>Product value pillars that drive results</h2>
-              <p>
-                Built to improve team performance with practical, measurable
-                outcomes.
-              </p>
+            <div className="ecosystem-header">
+              <h2 className="ecosystem-title">THE SBE SYSTEM.</h2>
+              <h3 className="ecosystem-subtitle">A Unified Experience.</h3>
             </div>
-            <div className="feature-grid">
-              <article className="feature-card">
-                <div className="feature-icon">🎯</div>
-                <h4>AI-Powered Scenarios</h4>
-                <p>
-                  Realistic training tailored to each staff member and their
-                  role.
+
+            <div className="ecosystem-content">
+              {/* For your team */}
+              <div className="ecosystem-block">
+                <p className="ecosystem-text">
+                  For your team, Serve by example is a digital campus. We&apos;ve replaced
+                  dusty manuals with interactive, mobile-first modules that turn every
+                  shift into a learning opportunity. It&apos;s about building confidence and
+                  craft behind the bar with every lesson.
                 </p>
-              </article>
-              <article className="feature-card">
-                <div className="feature-icon">⚡</div>
-                <h4>Instant Feedback</h4>
-                <p>
-                  Staff learn exactly what to improve after every scenario.
+              </div>
+
+              {/* Divider */}
+              <div className="ecosystem-divider">✓</div>
+
+              {/* For managers */}
+              <div className="ecosystem-block">
+                <p className="ecosystem-text">
+                  For managers, it&apos;s a command center. Gain real-time visibility into team
+                  progress, compliance, and performance metrics across multiple locations,
+                  all from a single, intuitive dashboard designed for the high-speed
+                  hospitality environment.
                 </p>
-              </article>
-              <article className="feature-card">
-                <div className="feature-icon">📊</div>
-                <h4>Manager Insights</h4>
-                <p>
-                  Track progress and identify skill gaps across your whole team.
+              </div>
+
+              {/* Divider */}
+              <div className="ecosystem-divider">✓</div>
+
+              {/* The synergy */}
+              <div className="ecosystem-block">
+                <p className="ecosystem-text">
+                  This synergy creates a cohesive culture where excellence isn&apos;t just
+                  expected—it&apos;s engineered. By aligning individual growth with business
+                  goals, we help you retain top talent and deliver a superior guest
+                  experience every single day.
                 </p>
-              </article>
-              <article className="feature-card">
-                <div className="feature-icon">🏢</div>
-                <h4>Venue-Specific Modules</h4>
-                <p>
-                  Customise training to your venue&rsquo;s standards and service
-                  style.
-                </p>
-              </article>
+              </div>
             </div>
           </div>
         </section>

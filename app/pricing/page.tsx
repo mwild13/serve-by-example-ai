@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
-import SectionHeading from "@/components/SectionHeading";
+import SectionHeading from "@/components/ui/SectionHeading";
 
 export default function PricingPage() {
   const [loading, setLoading] = useState<string | null>(null);
@@ -155,21 +155,6 @@ export default function PricingPage() {
                   {loading === "multi_venue" ? "Redirecting..." : "Join Now"}
                 </button>
               </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="section" style={{ paddingTop: 0 }}>
-          <div className="container">
-            <div style={{ maxWidth: 560, margin: "0 auto", background: "var(--surface-raised)", border: "2px solid var(--green-mid)", borderRadius: 18, padding: "36px 32px", textAlign: "center", boxShadow: "0 8px 32px rgba(31,78,55,0.15)" }}>
-              <div style={{ fontSize: "2.2rem", marginBottom: 10 }}>👑</div>
-              <h2 style={{ fontFamily: "var(--font-heading)", color: "var(--green-deep)", marginBottom: 8 }}>Founding Member Access</h2>
-              <p style={{ color: "var(--text-soft)", marginBottom: 20, lineHeight: 1.7 }}>
-                Launching soon. Be a Founding Member — request your private access code and lock in launch-stage pricing for life. Founding members get full access, an exclusive Founder badge, and direct input into what gets built next.
-              </p>
-              <Link href="/contact" className="btn btn-primary btn-lg">
-                Request your founders code
-              </Link>
             </div>
           </div>
         </section>

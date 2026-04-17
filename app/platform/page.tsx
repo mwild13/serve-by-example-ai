@@ -329,6 +329,54 @@ export default function PlatformPage() {
           </div>
         </section>
 
+        {/* ── Integrations ── */}
+        <section className="section section-alt">
+          <div className="container">
+            <div className="section-header center">
+              <span className="eyebrow">Coming in V2 — Late 2026</span>
+              <h2>Connects with the tools your venue already uses.</h2>
+              <p>Serve By Example V2 will integrate directly with your POS, scheduling, and ordering platforms — no manual data entry, no double-handling.</p>
+            </div>
+
+            <div className="integrations-category-grid">
+              <div className="integrations-category">
+                <span className="integrations-category-label">POS &amp; Payments</span>
+                <div className="integrations-logo-row">
+                  {["Lightspeed", "Square", "SwiftPOS", "Ordermate", "Zeller"].map((name) => (
+                    <div key={name} className="integration-logo-chip">
+                      <span>{name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="integrations-category">
+                <span className="integrations-category-label">Order &amp; Table Management</span>
+                <div className="integrations-logo-row">
+                  {["me\u0026u", "Doshii"].map((name) => (
+                    <div key={name} className="integration-logo-chip">
+                      <span>{name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="integrations-category">
+                <span className="integrations-category-label">Workforce Management</span>
+                <div className="integrations-logo-row">
+                  {["Tanda", "Deputy"].map((name) => (
+                    <div key={name} className="integration-logo-chip">
+                      <span>{name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <p style={{ textAlign: "center", fontSize: "0.82rem", color: "var(--text-soft)", marginTop: 32 }}>
+              All integrations are planned for the Serve By Example V2 release, scheduled for late 2026.
+            </p>
+          </div>
+        </section>
+
         {/* ── CTA ── */}
         <section className="section section-cta">
           <div className="container cta-box">

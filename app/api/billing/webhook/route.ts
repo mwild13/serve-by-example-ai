@@ -14,6 +14,13 @@ const PRICE_TO_PLAN: Record<string, string> = {
   [process.env.STRIPE_PRICE_MULTI_VENUE!]: "multi-venue",
 };
 
+// Map plan names → normalised tier column values
+const PLAN_TO_TIER: Record<string, string> = {
+  pro: "pro",
+  "single-venue": "venue_single",
+  "multi-venue": "venue_multi",
+};
+
 export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature");
   const body = await req.text();
@@ -41,8 +48,10 @@ export async function POST(req: Request) {
     const customerEmail = session.customer_details?.email;
 
     if (plan) {
+      const tier = PLAN_TO_TIER[plan] ?? "free";
       const profileUpdate: Record<string, unknown> = {
         plan,
+        tier,
         stripe_customer_id: stripeCustomerId,
         ...(isFounder && { is_founders_user: true }),
       };
@@ -88,9 +97,10 @@ export async function POST(req: Request) {
     const customerId = subscription.customer as string;
 
     if (plan && customerId) {
+      const tier = PLAN_TO_TIER[plan] ?? "free";
       await supabase
         .from("profiles")
-        .update({ plan })
+        .update({ plan, tier })
         .eq("stripe_customer_id", customerId);
     }
   }
@@ -102,7 +112,7 @@ export async function POST(req: Request) {
     if (customerId) {
       await supabase
         .from("profiles")
-        .update({ plan: "free" })
+        .update({ plan: "free", tier: "free" })
         .eq("stripe_customer_id", customerId);
     }
   }
