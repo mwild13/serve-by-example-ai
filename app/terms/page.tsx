@@ -171,9 +171,8 @@ export default function TermsPage() {
 
               <h2>11. Governing Law</h2>
               <p>
-                These Terms are governed by and construed in accordance with the laws of England and
-                Wales. Any disputes arising under these Terms shall be subject to the exclusive
-                jurisdiction of the courts of England and Wales.
+                These Terms are governed by and construed in accordance with the laws of New South Wales, Australia. Any disputes arising under these Terms shall be subject to the exclusive
+                jurisdiction of the courts of New South Wales.
               </p>
 
               <h2>12. Changes to Terms</h2>
