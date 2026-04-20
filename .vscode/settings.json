@@ -1,0 +1,13 @@
+{
+  "files.exclude": {
+    "**/.env*": true
+  },
+  "search.exclude": {
+    "**/.env*": true
+  },
+  "github.copilot.chat.excludeFiles": [
+    "**/.env*",
+    "**/*.SECURE",
+    "**/secrets/**"
+  ]
+}

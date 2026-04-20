@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/mitchellwildman/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin/bd13b6c7-b840-4ca7-a4fe-a2fe5560a46a/68e6fe12-3332-4379-aa40-5c2ab52ac2f9/skills/docx/**)",
+      "Bash(python scripts/office/unpack.py \"/Users/mitchellwildman/Downloads/SBE BUILD NEWEST.docx\" /tmp/sbe_docx_unpacked/)",
+      "Bash(pandoc \"/Users/mitchellwildman/Downloads/SBE BUILD NEWEST.docx\" -o /tmp/sbe_build.md)",
+      "Read(//tmp/**)",
+      "WebSearch",
+      "WebFetch(domain:www.boothby.com.au)",
+      "Bash(npm run *)",
+      "Bash(perl -i -pe 's/\\\\x{2019}/&apos;/g; s/\\\\x{2018}/&apos;/g; s/\\\\x{201C}/&quot;/g; s/\\\\x{201D}/&quot;/g' /Users/mitchellwildman/Desktop/serve-by-example-ai-main/app/page.tsx)",
+      "Bash(sed -i \"83s/they'll/they\\\\&apos;ll/\" /Users/mitchellwildman/Desktop/serve-by-example-ai-main/app/page.tsx)",
+      "Bash(sed -i -E \"s/>\\([^<]*\\)'\\([^<]*\\)<\\\\//>\\\\1\\\\&apos;\\\\2<\\\\//g\" /Users/mitchellwildman/Desktop/serve-by-example-ai-main/app/page.tsx)",
+      "Bash(curl -s http://localhost:3000/pricing)",
+      "Bash(git init *)",
+      "Bash(git remote *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
+    ]
+  }
+}
