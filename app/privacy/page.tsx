@@ -16,7 +16,7 @@ export default function PrivacyPage() {
           <div className="container">
             <div className="eyebrow">Legal</div>
             <h1>Privacy Policy</h1>
-            <p className="inner-hero-sub">Last updated: 17 March 2026</p>
+            <p className="inner-hero-sub">Last updated: 20 April 2026</p>
           </div>
         </section>
 

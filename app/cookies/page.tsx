@@ -16,7 +16,7 @@ export default function CookiesPage() {
           <div className="container">
             <div className="eyebrow">Legal</div>
             <h1>Cookies Policy</h1>
-            <p className="inner-hero-sub">Last updated: 17 March 2026</p>
+            <p className="inner-hero-sub">Last updated: 20 April 2026</p>
           </div>
         </section>
 
@@ -184,7 +184,7 @@ export default function CookiesPage() {
                 <strong>Serve By Example</strong>
                 <br />
                 Email:{" "}
-                <a href="mailto:hello@servebyexample.com">hello@servebyexample.com</a>
+                <a href="mailto:info@serve-by-example.com">info@serve-by-example.com</a>
               </p>
             </div>
           </div>

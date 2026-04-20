@@ -16,7 +16,7 @@ export default function TermsPage() {
           <div className="container">
             <div className="eyebrow">Legal</div>
             <h1>Terms of Service</h1>
-            <p className="inner-hero-sub">Last updated: 17 March 2026</p>
+            <p className="inner-hero-sub">Last updated: 20 April 2026</p>
           </div>
         </section>
 
@@ -154,7 +154,7 @@ export default function TermsPage() {
               </p>
               <p>
                 Our total aggregate liability to you shall not exceed the greater of (a) the amounts
-                you paid us in the 12 months prior to the claim, or (b) £100 GBP.
+                you paid us in the 12 months prior to the claim, or (b) AUD $100.
               </p>
 
               <h2>10. Termination</h2>
@@ -165,7 +165,7 @@ export default function TermsPage() {
               </p>
               <p>
                 You may terminate your account at any time by contacting us at{" "}
-                <a href="mailto:hello@servebyexample.com">hello@servebyexample.com</a>. Upon
+                <a href="mailto:info@serve-by-example.com">info@serve-by-example.com</a>. Upon
                 termination, your right to use the Service ceases immediately.
               </p>
 
@@ -188,7 +188,7 @@ export default function TermsPage() {
                 <strong>Serve By Example</strong>
                 <br />
                 Email:{" "}
-                <a href="mailto:hello@servebyexample.com">hello@servebyexample.com</a>
+                <a href="mailto:info@serve-by-example.com">info@serve-by-example.com</a>
               </p>
             </div>
           </div>
