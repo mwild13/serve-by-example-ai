@@ -548,6 +548,7 @@ export default function DashboardShell({
   const [isUnlockingManagement, setIsUnlockingManagement] = useState(false);
 
   // Phase 4: Dynamic module system
+  const [userId, setUserId] = useState<string>("");
   const [selectedModuleId, setSelectedModuleId] = useState<number | null>(null);
   const [showDiagnostic, setShowDiagnostic] = useState(false);
   const [diagnosticCompleted, setDiagnosticCompleted] = useState(false);
@@ -571,6 +572,7 @@ export default function DashboardShell({
 
         if (session?.access_token) {
           setUserToken(session.access_token);
+          setUserId(session.user.id);
 
           // Check if user has completed diagnostic
           const { data: profile, error: profileError } = await supabase
@@ -762,7 +764,7 @@ export default function DashboardShell({
         {/* Phase 4: Show diagnostic modal if not completed */}
         {showDiagnostic && userToken && (
           <DiagnosticFlow
-            userId=""
+            userId={userId}
             userToken={userToken}
             onComplete={(categoryScores) => {
               setShowDiagnostic(false);
@@ -810,7 +812,7 @@ export default function DashboardShell({
           <div key="module" style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
             {/* Dynamic Module Navigation Section */}
             <DynamicModuleNav
-              userId=""
+              userId={userId}
               userEmail={userEmail}
               userToken={userToken}
               onModuleSelect={(moduleId) => setSelectedModuleId(moduleId)}
