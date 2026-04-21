@@ -8,6 +8,7 @@ import StageLearning from "@/components/learning-engine/StageLearning";
 import AdvancedScenarios from "@/components/learning-engine/AdvancedScenarios";
 import DiagnosticFlow from "@/components/learning-engine/DiagnosticFlow";
 import DynamicModuleNav from "@/components/learning-engine/DynamicModuleNav";
+import RapidFirePage from "@/components/learning-engine/RapidFirePage";
 import { CocktailGridSkeleton } from "@/components/ui/Skeletons";
 const CocktailLibrary = lazy(() => import("@/components/knowledge-base/CocktailLibrary"));
 const KnowledgeBase = lazy(() => import("@/components/knowledge-base/KnowledgeBase"));
@@ -17,11 +18,12 @@ import SessionRefresher from "@/components/ui/SessionRefresher";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
-type NavItem = "home" | "module" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
+type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
 
 const NAV_ITEMS: { id: NavItem; label: string }[] = [
   { id: "home", label: "Home" },
   { id: "module", label: "Training Modules" },
+  { id: "rapid-fire", label: "Rapid Fire Questions" },
   { id: "stage4", label: "Stage 4 Learning" },
   { id: "scenarios", label: "Advanced Scenarios" },
   { id: "cocktails", label: "Cocktail Library" },
@@ -363,13 +365,13 @@ const DAILY_CHALLENGES = [
     emoji: "🍸",
     title: "Perfect the Martini",
     desc: "Describe the classic variants and how to read a guest's preference.",
-    nav: "stage4" as NavItem,
+    nav: "rapid-fire" as NavItem,
   },
   {
     emoji: "💬",
     title: "Upsell without pressure",
     desc: "Practise guiding a guest from the house wine to a premium option.",
-    nav: "stage4" as NavItem,
+    nav: "rapid-fire" as NavItem,
   },
   {
     emoji: "🔥",
@@ -387,19 +389,19 @@ const DAILY_CHALLENGES = [
     emoji: "📋",
     title: "Menu knowledge drill",
     desc: "Describe today's specials confidently and pair them with drinks.",
-    nav: "stage1" as NavItem,
+    nav: "rapid-fire" as NavItem,
   },
   {
     emoji: "🧠",
     title: "Management mindset",
     desc: "Walk through how to brief a new hire on service standards.",
-    nav: "stage4" as NavItem,
+    nav: "rapid-fire" as NavItem,
   },
   {
     emoji: "🎯",
     title: "Sales target scenario",
     desc: "Your venue needs to hit a cover target — walk through your plan.",
-    nav: "stage4" as NavItem,
+    nav: "rapid-fire" as NavItem,
   },
 ];
 
@@ -623,7 +625,7 @@ export default function DashboardShell({
       ? "Pro member access with bartender, sales and management modules."
       : "Venue plan access with team management dashboards.";
 
-  const PREMIUM_NAV_ITEMS: NavItem[] = ["module", "stage4", "scenarios", "cocktails", "knowledge"];
+  const PREMIUM_NAV_ITEMS: NavItem[] = ["module", "rapid-fire", "stage4", "scenarios", "cocktails", "knowledge"];
   const FALLBACK_ADMIN_EMAILS = [
     "wild07man@gmail.com",
     "mitchellwildman1994@gmail.com",
@@ -844,6 +846,10 @@ export default function DashboardShell({
                 selectedModuleId={selectedModuleId || undefined}
               />
             )}
+          </div>
+        ) : activeNav === "rapid-fire" ? (
+          <div key="rapid-fire">
+            <RapidFirePage managementUnlocked={managementUnlocked} />
           </div>
         ) : activeNav === "stage4" ? (
           <DashboardTrainer

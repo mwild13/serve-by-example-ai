@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
-type NavItem = "home" | "module" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
+type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
 type ModuleKey = "bartending" | "sales" | "management";
 
 type LevelProgress = {
@@ -80,7 +80,7 @@ function getNextStage(lp: LevelProgress): { stage: number; label: string } {
 }
 
 function getStageNav(stage: number): NavItem {
-  return "module";
+  return "rapid-fire";
 }
 
 export default function PreShiftHome({

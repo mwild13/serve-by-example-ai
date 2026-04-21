@@ -10,6 +10,7 @@ type StageLevel = 1 | 2 | 3 | 4;
 type Props = {
   moduleId: number;
   managementUnlocked: boolean;
+  initialStage?: StageLevel;
 };
 
 const STAGE_META: Record<StageLevel, { name: string; subtitle: string }> = {
@@ -203,8 +204,8 @@ function getFallbackScenarios(moduleId: number): Scenario[] {
   ];
 }
 
-export default function StageLearning({ moduleId, managementUnlocked }: Props) {
-  const [currentStage, setCurrentStage] = useState<StageLevel>(1);
+export default function StageLearning({ moduleId, managementUnlocked, initialStage }: Props) {
+  const [currentStage, setCurrentStage] = useState<StageLevel>(initialStage ?? 1);
   const [moduleName, setModuleName] = useState<string>("Training Module");
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [loading, setLoading] = useState(true);
