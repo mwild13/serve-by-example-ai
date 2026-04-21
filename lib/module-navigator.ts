@@ -64,7 +64,19 @@ export async function getAvailableModules(
     console.log(`[getAvailableModules] User profile platform_version: ${userProfile.platform_version}`);
 
     // Resolve access (tier-based module filtering)
-    const access = await resolveAccess(admin, userId, userEmail);
+    let access;
+    try {
+      access = await resolveAccess(admin, userId, userEmail);
+    } catch (accessError) {
+      console.error(`[getAvailableModules] Error resolving access:`, accessError);
+      // Fallback for access resolution
+      access = {
+        tier: "individual",
+        allowedModules: Array.from({ length: 20 }, (_, i) => i + 1),
+        maxSeats: 10,
+        isSponsored: false,
+      };
+    }
 
     // If platform_version = 1 (legacy), return only old 3 modules
     if (userProfile.platform_version === 1) {
@@ -164,14 +176,22 @@ export async function getAvailableModules(
 
     // Check venue module restrictions
     let enabledModuleIds: number[] | null = null;
-    if (access.sponsorManagerId || access.tier?.includes("venue")) {
-      const { data: venueData } = await admin
-        .from("venues")
-        .select("enabled_module_ids")
-        .eq("owner_user_id", userId)
-        .single();
+    if (access.tier?.includes("venue")) {
+      try {
+        const { data: venueData, error: venueError } = await admin
+          .from("venues")
+          .select("enabled_module_ids")
+          .eq("owner_user_id", userId)
+          .maybeSingle();
 
-      enabledModuleIds = venueData?.enabled_module_ids || null;
+        if (venueError) {
+          console.error(`[getAvailableModules] Venue error:`, venueError);
+        } else {
+          enabledModuleIds = venueData?.enabled_module_ids || null;
+        }
+      } catch (venueQueryError) {
+        console.error(`[getAvailableModules] Error querying venues:`, venueQueryError);
+      }
     }
 
     // Calculate module Elo and mastery percentage
