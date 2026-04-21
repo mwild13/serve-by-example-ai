@@ -83,6 +83,11 @@ export async function POST(req: Request) {
       );
     }
 
+      // Log access resolution for debugging
+      console.log(
+        `Training save: user=${user.id}, module=${moduleName}, moduleId=${moduleId}, tier=${access.tier}, allowed_modules=${access.allowedModules.join(",")}`
+      );
+
     if (!Number.isFinite(overallScore) || overallScore < 0 || overallScore > 25) {
       return NextResponse.json({ error: "Invalid score.", code: "INVALID_SCORE" }, { status: 400 });
     }

@@ -47,14 +47,18 @@ export default function RapidFireQuiz({
   const [buttonFlash, setButtonFlash] = useState<string | null>(null);
   const questionStartRef = useRef(Date.now());
 
-  const [shuffledScenarios] = useState<Scenario[]>(() => {
+  const [shuffledScenarios, setShuffledScenarios] = useState<Scenario[]>([]);
+
+  // Shuffle scenarios whenever the scenarios prop changes
+  useEffect(() => {
     const shuffled = [...scenarios];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
-    return shuffled;
-  });
+    setShuffledScenarios(shuffled);
+    setQuestionIndex(0); // Reset to first question when scenarios change
+  }, [scenarios]);
 
   const currentScenario = shuffledScenarios[questionIndex % shuffledScenarios.length];
   const currentContent = currentScenario?.content as QuizContent | undefined;
@@ -99,7 +103,9 @@ export default function RapidFireQuiz({
       onComplete(consecutiveCorrect);
       return;
     }
-    setQuestionIndex((i) => (i + 1) % shuffledScenarios.length);
+    if (shuffledScenarios.length > 0) {
+      setQuestionIndex((i) => (i + 1) % shuffledScenarios.length);
+    }
     setAnswered(null);
     setWasCorrect(null);
     setShowExplanation(false);

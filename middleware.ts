@@ -81,7 +81,11 @@ export async function middleware(request: NextRequest) {
       const storedSessionId = profile?.current_session_id;
 
       // If there's a stored session and it doesn't match, redirect to conflict page
-      if (storedSessionId && storedSessionId !== browserSessionId) {
+          // Log session conflicts for security monitoring
+          if (storedSessionId && storedSessionId !== browserSessionId) {
+            console.warn(
+              `Session conflict: user=${user?.id}, stored_session=${storedSessionId?.substring(0, 8)}..., browser_session=${browserSessionId?.substring(0, 8)}...`
+            );
         const conflictUrl = request.nextUrl.clone();
         conflictUrl.pathname = "/session-conflict";
         return NextResponse.redirect(conflictUrl);
