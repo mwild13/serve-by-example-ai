@@ -3,6 +3,8 @@ import OpenAI from "openai";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { getManagementSnapshot } from "@/lib/management/service";
 
+export const dynamic = "force-dynamic";
+
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function POST(req: Request) {

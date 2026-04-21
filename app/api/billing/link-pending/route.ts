@@ -3,6 +3,9 @@ import Stripe from "stripe";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 
+// Prevent static generation for this route (requires Stripe credentials at runtime)
+export const dynamic = "force-dynamic";
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-02-25.clover",
   httpClient: Stripe.createFetchHttpClient(),

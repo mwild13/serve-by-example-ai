@@ -2,6 +2,8 @@ import OpenAI from "openai";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
+export const dynamic = "force-dynamic";
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
