@@ -39,6 +39,8 @@ export async function getAvailableModules(
   const admin = createSupabaseAdminClient();
 
   try {
+    console.log(`[getAvailableModules] Fetching modules for user: ${userId}`);
+
     // Get user's profile for platform_version and role info
     const { data: profile, error: profileError } = await admin
       .from("profiles")
@@ -46,15 +48,26 @@ export async function getAvailableModules(
       .eq("id", userId)
       .single();
 
-    if (profileError || !profile) {
-      throw new Error("User profile not found");
+    if (profileError) {
+      console.error(`[getAvailableModules] Profile error:`, profileError);
+      throw new Error(`Profile query failed: ${profileError.message}`);
     }
+
+    // Use default profile if not found (new user on v2)
+    const userProfile = profile || {
+      id: userId,
+      plan: "free",
+      tier: "individual",
+      platform_version: 2,
+    };
+
+    console.log(`[getAvailableModules] User profile platform_version: ${userProfile.platform_version}`);
 
     // Resolve access (tier-based module filtering)
     const access = await resolveAccess(admin, userId, userEmail);
 
     // If platform_version = 1 (legacy), return only old 3 modules
-    if (profile.platform_version === 1) {
+    if (userProfile.platform_version === 1) {
       return {
         modules: [
           {
@@ -78,14 +91,23 @@ export async function getAvailableModules(
     }
 
     // Platform v2: Fetch all modules from database
+    console.log(`[getAvailableModules] Fetching all modules from database`);
     const { data: allModules, error: modulesError } = await admin
       .from("modules")
       .select("id, title, description, category, difficulty_level")
       .order("id", { ascending: true });
 
-    if (modulesError || !allModules) {
-      throw new Error("Failed to fetch modules");
+    if (modulesError) {
+      console.error(`[getAvailableModules] Modules error:`, modulesError);
+      throw new Error(`Modules query failed: ${modulesError.message}`);
     }
+
+    if (!allModules || allModules.length === 0) {
+      console.error(`[getAvailableModules] No modules found in database`);
+      throw new Error("No modules found in database");
+    }
+
+    console.log(`[getAvailableModules] Found ${allModules.length} modules`);
 
     // Get user's Elo ratings from module_elo_baseline
     const { data: diagnosticResult } = await admin
@@ -101,16 +123,27 @@ export async function getAvailableModules(
     };
 
     // Get user's mastery progress for each module
-    const { data: masteryData } = await admin
+    console.log(`[getAvailableModules] Fetching mastery data for user`);
+    const { data: masteryData, error: masteryError } = await admin
       .from("scenario_mastery")
       .select("module_id, mastery_level, elo_rating")
       .eq("user_id", userId);
+
+    if (masteryError) {
+      console.error(`[getAvailableModules] Mastery error:`, masteryError);
+      // Don't fail - mastery data is optional
+    }
 
     const masteryByModule: Record<
       number,
       { mastery_level: number; elo_rating: number }[]
     > = {};
     (masteryData || []).forEach((m) => {
+      // Skip records without module_id (legacy data)
+      if (!m.module_id) {
+        console.log(`[getAvailableModules] Skipping mastery record without module_id`);
+        return;
+      }
       if (!masteryByModule[m.module_id]) {
         masteryByModule[m.module_id] = [];
       }
@@ -119,6 +152,8 @@ export async function getAvailableModules(
         elo_rating: m.elo_rating,
       });
     });
+
+    console.log(`[getAvailableModules] Processed ${Object.keys(masteryByModule).length} modules with mastery data`);
 
     // Check venue module restrictions
     let enabledModuleIds: number[] | null = null;

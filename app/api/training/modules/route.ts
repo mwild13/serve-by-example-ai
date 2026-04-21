@@ -56,11 +56,13 @@ export async function GET(request: NextRequest) {
     const sort = searchParams.get("sort") || "recommended";
 
     // Get available modules for this user
+    console.log(`[GET /api/training/modules] Fetching modules for user ${user.id}`);
     const modulesResponse = await getAvailableModules(
       user.id,
       user.email || ""
     );
 
+    console.log(`[GET /api/training/modules] Got ${modulesResponse.modules.length} modules`);
     let modules = modulesResponse.modules;
 
     // Filter by category if specified
@@ -93,9 +95,15 @@ export async function GET(request: NextRequest) {
       message: "Modules loaded successfully",
     });
   } catch (error) {
-    console.error("Error in GET /api/training/modules:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("Error in GET /api/training/modules:", errorMessage);
+    console.error("Full error:", error);
     return NextResponse.json(
-      { success: false, message: "Internal server error" },
+      {
+        success: false,
+        message: `Internal server error: ${errorMessage}`,
+        error: process.env.NODE_ENV === "development" ? String(error) : undefined
+      },
       { status: 500 }
     );
   }
