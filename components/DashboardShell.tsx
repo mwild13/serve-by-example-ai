@@ -802,6 +802,7 @@ export default function DashboardShell({
             <DynamicModuleNav
               userId=""
               userEmail={userEmail}
+              userToken={userToken}
               onModuleSelect={(moduleId) => setSelectedModuleId(moduleId)}
               selectedModuleId={selectedModuleId || undefined}
             />

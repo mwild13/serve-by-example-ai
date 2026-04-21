@@ -6,6 +6,7 @@ import { Module, AvailableModulesResponse } from "@/lib/modules";
 interface DynamicModuleNavProps {
   userId: string;
   userEmail: string;
+  userToken: string; // Supabase session access token
   onModuleSelect: (moduleId: number) => void;
   selectedModuleId?: number;
 }
@@ -13,6 +14,7 @@ interface DynamicModuleNavProps {
 export default function DynamicModuleNav({
   userId,
   userEmail,
+  userToken,
   onModuleSelect,
   selectedModuleId,
 }: DynamicModuleNavProps) {
@@ -43,6 +45,7 @@ export default function DynamicModuleNav({
             method: "GET",
             headers: {
               "Content-Type": "application/json",
+              ...(userToken ? { Authorization: `Bearer ${userToken}` } : {}),
             },
           }
         );
@@ -73,7 +76,7 @@ export default function DynamicModuleNav({
     };
 
     fetchModules();
-  }, [selectedCategory, sortBy]);
+  }, [selectedCategory, sortBy, userToken]);
 
   const handleCategoryChange = (
     category: "all" | "technical" | "service" | "compliance"
