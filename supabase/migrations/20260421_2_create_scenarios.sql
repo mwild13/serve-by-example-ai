@@ -44,8 +44,8 @@ INSERT INTO scenarios (module_id, scenario_index, scenario_type, prompt, content
   2, ARRAY['beer', 'troubleshooting', 'quality']),
 
 -- L3: Advanced Descriptors (3 scenarios)
-(1, 6, 'descriptor_l3', 'Troubleshoot: A beer pours with excessive head that won\'t settle. What are three factors?',
-  jsonb_build_object('prompt', 'Troubleshoot: A beer pours with excessive head that won\'t settle. What are three factors?', 'descriptors', ARRAY['Dirty glassware', 'Over-carbonated keg', 'Pour angle too aggressive', 'Temperature too warm', 'Beer style (stout, lager, IPA)'], 'correctIndices', ARRAY[0, 1, 2], 'explanation', 'Multiple factors contribute: glassware cleanliness, keg pressure, and pouring technique.'),
+(1, 6, 'descriptor_l3', 'Troubleshoot: A beer pours with excessive head that won''t settle. What are three factors?',
+  jsonb_build_object('prompt', 'Troubleshoot: A beer pours with excessive head that won''t settle. What are three factors?', 'descriptors', ARRAY['Dirty glassware', 'Over-carbonated keg', 'Pour angle too aggressive', 'Temperature too warm', 'Beer style (stout, lager, IPA)'], 'correctIndices', ARRAY[0, 1, 2], 'explanation', 'Multiple factors contribute: glassware cleanliness, keg pressure, and pouring technique.'),
   3, ARRAY['beer', 'troubleshooting', 'advanced']),
 (1, 7, 'descriptor_l3', 'A craft IPA should be poured to maximize hop aromatics. Which three apply?',
   jsonb_build_object('prompt', 'A craft IPA should be poured to maximize hop aromatics. Which three apply?', 'descriptors', ARRAY['Tilt glass 45° to release CO2 gradually', 'Serve at 50-55°F', '1-1.25 inch head', 'Pour into clean, dry glass', 'Chill to near-freezing'], 'correctIndices', ARRAY[0, 1, 2], 'explanation', 'These techniques preserve the delicate hop oils that define IPAs.'),
@@ -55,14 +55,14 @@ INSERT INTO scenarios (module_id, scenario_index, scenario_type, prompt, content
   3, ARRAY['beer', 'consistency', 'management']),
 
 -- L4: Roleplay Scenarios (3 scenarios)
-(1, 9, 'roleplay', 'A guest at the table is unhappy with their second beer, claiming the first two had too much head. Walk through how you\'d pour their next one, explaining each step.',
-  jsonb_build_object('prompt', 'A guest at the table is unhappy with their second beer, claiming the first two had too much head. Walk through how you\'d pour their next one, explaining each step.', 'evaluation_dimensions', ARRAY['Communication', 'Problem-Solving', 'Attention to Detail', 'Professionalism']),
+(1, 9, 'roleplay', 'A guest at the table is unhappy with their second beer, claiming the first two had too much head. Walk through how you''d pour their next one, explaining each step.',
+  jsonb_build_object('prompt', 'A guest at the table is unhappy with their second beer, claiming the first two had too much head. Walk through how you''d pour their next one, explaining each step.', 'evaluation_dimensions', ARRAY['Communication', 'Problem-Solving', 'Attention to Detail', 'Professionalism']),
   4, ARRAY['beer', 'roleplay', 'service']),
 (1, 10, 'roleplay', 'A busy Friday night—multiple beer orders at once. Describe your pouring sequence to maintain quality while managing speed.',
   jsonb_build_object('prompt', 'A busy Friday night—multiple beer orders at once. Describe your pouring sequence to maintain quality while managing speed.', 'evaluation_dimensions', ARRAY['Time Management', 'Consistency', 'Safe Handling', 'Communication']),
   4, ARRAY['beer', 'roleplay', 'rush']),
-(1, 11, 'roleplay', 'A customer orders "a good pour" of an IPA they\'ve never tried. Walk them through what makes it special.',
-  jsonb_build_object('prompt', 'A customer orders "a good pour" of an IPA they\'ve never tried. Walk them through what makes it special.', 'evaluation_dimensions', ARRAY['Product Knowledge', 'Enthusiasm', 'Technique Explanation', 'Guest Education']),
+(1, 11, 'roleplay', 'A customer orders "a good pour" of an IPA they''ve never tried. Walk them through what makes it special.',
+  jsonb_build_object('prompt', 'A customer orders "a good pour" of an IPA they''ve never tried. Walk them through what makes it special.', 'evaluation_dimensions', ARRAY['Product Knowledge', 'Enthusiasm', 'Technique Explanation', 'Guest Education']),
   4, ARRAY['beer', 'roleplay', 'upsell']);
 
 -- ===== MODULE 2: WINE KNOWLEDGE & SERVICE (15 scenarios) =====
@@ -89,10 +89,10 @@ INSERT INTO scenarios (module_id, scenario_index, scenario_type, prompt, content
   jsonb_build_object('prompt', 'When serving red wine, which practices are correct?', 'descriptors', ARRAY['Serve at 60-65°F', 'Allow wine to breathe 10-15 min if needed', 'Serve chilled like white wine', 'Cork must be synthetic', 'Always decant before serving'], 'correctIndices', ARRAY[0, 1], 'explanation', 'Room temperature service and minimal aeration benefit most reds.'),
   2, ARRAY['wine', 'red', 'service']),
 (2, 6, 'descriptor_l2', 'A customer wants wine that pairs with grilled salmon. Which work?',
-  jsonb_build_object('prompt', 'A customer wants wine that pairs with grilled salmon. Which work?', 'descriptors', ARRAY['Pinot Noir', 'Sauvignon Blanc', 'Cabernet Sauvignon', 'Port wine', 'Rosé only'], 'correctIndices', ARRAY[0, 1], 'explanation', 'Lighter reds and crisp whites complement salmon\'s delicate flavors.'),
+  jsonb_build_object('prompt', 'A customer wants wine that pairs with grilled salmon. Which work?', 'descriptors', ARRAY['Pinot Noir', 'Sauvignon Blanc', 'Cabernet Sauvignon', 'Port wine', 'Rosé only'], 'correctIndices', ARRAY[0, 1], 'explanation', 'Lighter reds and crisp whites complement salmon''s delicate flavors.'),
   2, ARRAY['wine', 'pairing', 'food']),
 (2, 7, 'descriptor_l2', 'Which are signs of proper wine service at your table?',
-  jsonb_build_object('prompt', 'Which are signs of proper wine service at your table?', 'descriptors', ARRAY['Present bottle label to guest', 'Pour from guest\'s right side', 'Fill glass completely full', 'Pour for ladies first always', 'Never ask if guest wants more'], 'correctIndices', ARRAY[0, 1], 'explanation', 'Label presentation and right-side service are professional standards.'),
+  jsonb_build_object('prompt', 'Which are signs of proper wine service at your table?', 'descriptors', ARRAY['Present bottle label to guest', 'Pour from guest''s right side', 'Fill glass completely full', 'Pour for ladies first always', 'Never ask if guest wants more'], 'correctIndices', ARRAY[0, 1], 'explanation', 'Label presentation and right-side service are professional standards.'),
   2, ARRAY['wine', 'service', 'etiquette']),
 
 -- L3: Advanced Descriptors (4 scenarios)
@@ -105,19 +105,19 @@ INSERT INTO scenarios (module_id, scenario_index, scenario_type, prompt, content
 (2, 10, 'descriptor_l3', 'When a wine tastes off/corky, which three actions should you take?',
   jsonb_build_object('prompt', 'When a wine tastes off/corky, which three actions should you take?', 'descriptors', ARRAY['Smell cork first to diagnose', 'Offer immediate replacement', 'Taste to confirm issue', 'Apologize without defensiveness', 'Insist nothing is wrong'], 'correctIndices', ARRAY[0, 1, 2], 'explanation', 'Guest satisfaction is paramount; swift action and apology matter.'),
   3, ARRAY['wine', 'quality', 'service-recovery']),
-(2, 11, 'descriptor_l3', 'A guest mentions they\'re allergic to sulfites in wine. How do you proceed?',
-  jsonb_build_object('prompt', 'A guest mentions they\'re allergic to sulfites in wine. How do you proceed?', 'descriptors', ARRAY['Take the concern seriously', 'Consult manager or wine list for information', 'Offer non-wine alternatives', 'Assure them all wines are sulfite-free (false)', 'Suggest they choose beer instead'], 'correctIndices', ARRAY[0, 1, 2], 'explanation', 'Sulfite sensitivity is real; acknowledge and offer options respectfully.'),
+(2, 11, 'descriptor_l3', 'A guest mentions they''re allergic to sulfites in wine. How do you proceed?',
+  jsonb_build_object('prompt', 'A guest mentions they''re allergic to sulfites in wine. How do you proceed?', 'descriptors', ARRAY['Take the concern seriously', 'Consult manager or wine list for information', 'Offer non-wine alternatives', 'Assure them all wines are sulfite-free (false)', 'Suggest they choose beer instead'], 'correctIndices', ARRAY[0, 1, 2], 'explanation', 'Sulfite sensitivity is real; acknowledge and offer options respectfully.'),
   3, ARRAY['wine', 'allergies', 'knowledge']),
 
 -- L4: Roleplay Scenarios (3 scenarios)
-(2, 12, 'roleplay', 'A guest at the table is from a wine region (e.g., Napa Valley). They order wine. Walk through how you\'d interact, balancing respect for their knowledge with your expertise.',
-  jsonb_build_object('prompt', 'A guest at the table is from a wine region (e.g., Napa Valley). They order wine. Walk through how you\'d interact, balancing respect for their knowledge with your expertise.', 'evaluation_dimensions', ARRAY['Humility', 'Confidence', 'Product Knowledge', 'Ability to Pivot']),
+(2, 12, 'roleplay', 'A guest at the table is from a wine region (e.g., Napa Valley). They order wine. Walk through how you''d interact, balancing respect for their knowledge with your expertise.',
+  jsonb_build_object('prompt', 'A guest at the table is from a wine region (e.g., Napa Valley). They order wine. Walk through how you''d interact, balancing respect for their knowledge with your expertise.', 'evaluation_dimensions', ARRAY['Humility', 'Confidence', 'Product Knowledge', 'Ability to Pivot']),
   4, ARRAY['wine', 'roleplay', 'service']),
 (2, 13, 'roleplay', 'A couple on a first date orders wine. One chose white, one red. Walk through service and conversation that makes both feel welcome and might lead to future visits.',
   jsonb_build_object('prompt', 'A couple on a first date orders wine. One chose white, one red. Walk through service and conversation that makes both feel welcome and might lead to future visits.', 'evaluation_dimensions', ARRAY['Attentiveness', 'Personalization', 'Wine Knowledge', 'Memorable Service']),
   4, ARRAY['wine', 'roleplay', 'experience']),
-(2, 14, 'roleplay', 'A guest orders a Cabernet at $80/bottle but the wine list has a $45 option that\'s better-reviewed. Walk through the recommendation without sounding pushy.',
-  jsonb_build_object('prompt', 'A guest orders a Cabernet at $80/bottle but the wine list has a $45 option that\'s better-reviewed. Walk through the recommendation without sounding pushy.', 'evaluation_dimensions', ARRAY['Product Knowledge', 'Tact', 'Problem-Solving', 'Sales Skill']),
+(2, 14, 'roleplay', 'A guest orders a Cabernet at $80/bottle but the wine list has a $45 option that''s better-reviewed. Walk through the recommendation without sounding pushy.',
+  jsonb_build_object('prompt', 'A guest orders a Cabernet at $80/bottle but the wine list has a $45 option that''s better-reviewed. Walk through the recommendation without sounding pushy.', 'evaluation_dimensions', ARRAY['Product Knowledge', 'Tact', 'Problem-Solving', 'Sales Skill']),
   4, ARRAY['wine', 'roleplay', 'upsell']);
 
 -- ===== MODULE 3: COCKTAIL FUNDAMENTALS (14 scenarios) =====
@@ -148,8 +148,8 @@ INSERT INTO scenarios (module_id, scenario_index, scenario_type, prompt, content
   2, ARRAY['cocktails', 'garnish', 'flavor']),
 
 -- L3: Advanced Descriptors (4 scenarios)
-(3, 7, 'descriptor_l3', 'A guest asks for a "smooth whiskey cocktail that isn\'t a Manhattan." Which three options fit?',
-  jsonb_build_object('prompt', 'A guest asks for a "smooth whiskey cocktail that isn\'t a Manhattan." Which three options fit?', 'descriptors', ARRAY['Old Fashioned', 'Sazerac', 'Smash (whiskey, mint, fruit)', 'Whiskey Sour', 'Margarita'], 'correctIndices', ARRAY[0, 1, 2], 'explanation', 'These are all smooth, whiskey-based classics with different flavor profiles.'),
+(3, 7, 'descriptor_l3', 'A guest asks for a "smooth whiskey cocktail that isn''t a Manhattan." Which three options fit?',
+  jsonb_build_object('prompt', 'A guest asks for a "smooth whiskey cocktail that isn''t a Manhattan." Which three options fit?', 'descriptors', ARRAY['Old Fashioned', 'Sazerac', 'Smash (whiskey, mint, fruit)', 'Whiskey Sour', 'Margarita'], 'correctIndices', ARRAY[0, 1, 2], 'explanation', 'These are all smooth, whiskey-based classics with different flavor profiles.'),
   3, ARRAY['cocktails', 'whiskey', 'recommendations']),
 (3, 8, 'descriptor_l3', 'To create a seasonal cocktail riff on a classic Margarita, which three modifications work?',
   jsonb_build_object('prompt', 'To create a seasonal cocktail riff on a classic Margarita, which three modifications work?', 'descriptors', ARRAY['Swap lime for passion fruit', 'Add fresh herbs like basil', 'Use aged spirits instead of blanco', 'Infuse sugar syrup with spice', 'Remove spirit entirely'], 'correctIndices', ARRAY[0, 1, 2], 'explanation', 'Creative variations maintain the structure while refreshing the flavor profile.'),
@@ -162,11 +162,11 @@ INSERT INTO scenarios (module_id, scenario_index, scenario_type, prompt, content
   3, ARRAY['cocktails', 'fundamentals', 'mastery']),
 
 -- L4: Roleplay Scenarios (3 scenarios)
-(3, 11, 'roleplay', 'A guest at your bar has never had a cocktail. Walk through how you\'d recommend one, build it, and explain what makes it special.',
-  jsonb_build_object('prompt', 'A guest at your bar has never had a cocktail. Walk through how you\'d recommend one, build it, and explain what makes it special.', 'evaluation_dimensions', ARRAY['Education', 'Confidence', 'Technique', 'Hospitality']),
+(3, 11, 'roleplay', 'A guest at your bar has never had a cocktail. Walk through how you''d recommend one, build it, and explain what makes it special.',
+  jsonb_build_object('prompt', 'A guest at your bar has never had a cocktail. Walk through how you''d recommend one, build it, and explain what makes it special.', 'evaluation_dimensions', ARRAY['Education', 'Confidence', 'Technique', 'Hospitality']),
   4, ARRAY['cocktails', 'roleplay', 'education']),
-(3, 12, 'roleplay', 'Two bartenders on shift; you\'re covered in orders. Describe your prioritization, batch-making strategy, and how you maintain quality under pressure.',
-  jsonb_build_object('prompt', 'Two bartenders on shift; you\'re covered in orders. Describe your prioritization, batch-making strategy, and how you maintain quality under pressure.', 'evaluation_dimensions', ARRAY['Time Management', 'Consistency', 'Communication', 'Professionalism']),
+(3, 12, 'roleplay', 'Two bartenders on shift; you''re covered in orders. Describe your prioritization, batch-making strategy, and how you maintain quality under pressure.',
+  jsonb_build_object('prompt', 'Two bartenders on shift; you''re covered in orders. Describe your prioritization, batch-making strategy, and how you maintain quality under pressure.', 'evaluation_dimensions', ARRAY['Time Management', 'Consistency', 'Communication', 'Professionalism']),
   4, ARRAY['cocktails', 'roleplay', 'rush']),
 (3, 13, 'roleplay', 'A guest says their cocktail tastes "off"—maybe too strong, too sweet, too bitter. Walk through your diagnostic and fix without making them feel bad.',
   jsonb_build_object('prompt', 'A guest says their cocktail tastes "off"—maybe too strong, too sweet, too bitter. Walk through your diagnostic and fix without making them feel bad.', 'evaluation_dimensions', ARRAY['Problem-Solving', 'Empathy', 'Technical Skill', 'Service Recovery']),
