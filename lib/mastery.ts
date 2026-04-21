@@ -151,7 +151,7 @@ export async function recordAttempt(
   const { userId, scenarioIndex, overallScore, confidence } = input;
 
   // Resolve module string — if moduleId is provided, derive from it
-  const module = input.moduleId
+  const moduleName = input.moduleId
     ? moduleIdToString(input.moduleId)
     : input.module;
   const moduleId = input.moduleId ?? null;
@@ -164,7 +164,7 @@ export async function recordAttempt(
     .from("scenario_mastery")
     .select("*")
     .eq("user_id", userId)
-    .eq("module", module)
+    .eq("module", moduleName)
     .eq("scenario_index", scenarioIndex)
     .maybeSingle();
 
@@ -183,7 +183,7 @@ export async function recordAttempt(
   }
 
   // ── Elo update ─────────────────────────────────────────────
-  const difficulty = scenarioDifficulty(module, scenarioIndex);
+  const difficulty = scenarioDifficulty(moduleName, scenarioIndex);
   const expected = expectedScore(currentElo, difficulty);
   // Normalize score: 0-25 → 0-1
   const actualNormalized = Math.min(overallScore / 25, 1);
@@ -233,7 +233,7 @@ export async function recordAttempt(
   await admin.from("scenario_mastery").upsert(
     {
       user_id: userId,
-      module,
+      module: moduleName,
       module_id: moduleId,
       scenario_index: scenarioIndex,
       mastery_level: newMasteryLevel,
