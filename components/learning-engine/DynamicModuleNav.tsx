@@ -6,7 +6,7 @@ import { Module, AvailableModulesResponse } from "@/lib/modules";
 interface DynamicModuleNavProps {
   userId: string;
   userEmail: string;
-  userToken: string; // Supabase session access token
+  userToken: string;
   onModuleSelect: (moduleId: number) => void;
   selectedModuleId?: number;
 }
@@ -29,7 +29,6 @@ export default function DynamicModuleNav({
     "recommended"
   );
 
-  // Fetch available modules on mount
   useEffect(() => {
     const fetchModules = async () => {
       try {
@@ -54,18 +53,13 @@ export default function DynamicModuleNav({
         }
 
         const data: AvailableModulesResponse = await response.json();
-        console.log(
-          "[DynamicModuleNav] Modules loaded:",
-          {
-            count: data.modules.length,
-            platform_version: data.platform_version,
-            user_role: data.user_role,
-            modules: data.modules.map((m) => ({ id: m.id, title: m.title })).slice(0, 5),
-          }
-        );
+        console.log("[DynamicModuleNav] Modules loaded:", {
+          count: data.modules.length,
+          platform_version: data.platform_version,
+          user_role: data.user_role,
+        });
         setModules(data.modules);
 
-        // Apply category filter if needed
         if (selectedCategory === "all") {
           setFilteredModules(data.modules);
         } else {
@@ -85,264 +79,292 @@ export default function DynamicModuleNav({
     fetchModules();
   }, [selectedCategory, sortBy, userToken]);
 
-  const handleCategoryChange = (
-    category: "all" | "technical" | "service" | "compliance"
-  ) => {
-    setSelectedCategory(category);
-  };
-
-  const handleSortChange = (sort: "recommended" | "elo" | "title") => {
-    setSortBy(sort);
-  };
-
-  const getCategoryColor = (category: string): string => {
+  const getCategoryAccent = (category: string) => {
     switch (category) {
-      case "technical":
-        return "bg-blue-50 border-blue-200";
-      case "service":
-        return "bg-green-50 border-green-200";
-      case "compliance":
-        return "bg-red-50 border-red-200";
-      default:
-        return "bg-gray-50 border-gray-200";
+      case "technical": return { border: "#bfdbfe", bg: "#eff6ff", badge: "#1d4ed8", badgeBg: "#dbeafe", label: "#1e40af" };
+      case "service":   return { border: "#bbf7d0", bg: "#f0fdf4", badge: "#15803d", badgeBg: "#dcfce7", label: "#166534" };
+      case "compliance": return { border: "#fecaca", bg: "#fff1f2", badge: "#b91c1c", badgeBg: "#fee2e2", label: "#991b1b" };
+      default:          return { border: "#e5e7eb", bg: "#f9fafb", badge: "#374151", badgeBg: "#f3f4f6", label: "#4b5563" };
     }
   };
 
-  const getCategoryBadgeColor = (category: string): string => {
-    switch (category) {
-      case "technical":
-        return "bg-blue-100 text-blue-800";
-      case "service":
-        return "bg-green-100 text-green-800";
-      case "compliance":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getEloColor = (elo: number): string => {
-    if (elo < 1100) return "text-red-600 font-bold";
-    if (elo < 1200) return "text-yellow-600 font-bold";
-    if (elo < 1300) return "text-blue-600 font-bold";
-    return "text-green-600 font-bold";
+  const getEloDisplay = (elo: number) => {
+    if (elo < 1100) return { color: "#dc2626", label: "Needs Work" };
+    if (elo < 1200) return { color: "#d97706", label: "Building" };
+    if (elo < 1300) return { color: "#2563eb", label: "Solid" };
+    return { color: "#16a34a", label: "Strong" };
   };
 
   if (error) {
     return (
-      <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
-        <p className="text-red-700 font-semibold">Error loading modules</p>
-        <p className="text-red-600 text-sm mt-2">{error}</p>
+      <div style={{ padding: "1.5rem", background: "#fff1f2", border: "1px solid #fecaca", borderRadius: "12px" }}>
+        <p style={{ color: "#b91c1c", fontWeight: 700, marginBottom: "0.5rem" }}>Error loading modules</p>
+        <p style={{ color: "#dc2626", fontSize: "0.9rem" }}>{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto">
+    <div style={{ width: "100%" }}>
       {/* Header */}
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+      <div style={{ marginBottom: "1.5rem" }}>
+        <h2 style={{ fontSize: "1.875rem", fontWeight: 800, color: "#111827", marginBottom: "0.375rem", letterSpacing: "-0.025em" }}>
           Training Modules
         </h2>
-        <p className="text-gray-600">
+        <p style={{ color: "#6b7280", fontSize: "1rem" }}>
           {modules.length > 0
-            ? `Complete your personalized learning path across ${modules.length} modules`
+            ? `${modules.length} modules · personalised to your skill level`
             : "Loading your training modules..."}
         </p>
       </div>
 
       {/* Controls */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Category Filter */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Filter by Category
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {["all", "technical", "service", "compliance"].map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() =>
-                    handleCategoryChange(
-                      cat as "all" | "technical" | "service" | "compliance"
-                    )
-                  }
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                    selectedCategory === cat
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                </button>
-              ))}
-            </div>
+      <div style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "1.25rem", marginBottom: "1.75rem", display: "flex", flexWrap: "wrap", gap: "1.5rem", alignItems: "flex-start" }}>
+        <div>
+          <p style={{ fontSize: "0.75rem", fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.625rem" }}>
+            Category
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+            {(["all", "technical", "service", "compliance"] as const).map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                style={{
+                  padding: "0.5rem 1rem",
+                  borderRadius: "8px",
+                  fontSize: "0.875rem",
+                  fontWeight: 600,
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                  background: selectedCategory === cat ? "#1d4ed8" : "#f3f4f6",
+                  color: selectedCategory === cat ? "white" : "#374151",
+                }}
+              >
+                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </button>
+            ))}
           </div>
+        </div>
 
-          {/* Sort Options */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Sort by
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {["recommended", "elo", "title"].map((sort) => (
-                <button
-                  key={sort}
-                  onClick={() =>
-                    handleSortChange(
-                      sort as "recommended" | "elo" | "title"
-                    )
-                  }
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                    sortBy === sort
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  {sort.charAt(0).toUpperCase() + sort.slice(1)}
-                </button>
-              ))}
-            </div>
+        <div>
+          <p style={{ fontSize: "0.75rem", fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.625rem" }}>
+            Sort by
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+            {(["recommended", "elo", "title"] as const).map((sort) => (
+              <button
+                key={sort}
+                onClick={() => setSortBy(sort)}
+                style={{
+                  padding: "0.5rem 1rem",
+                  borderRadius: "8px",
+                  fontSize: "0.875rem",
+                  fontWeight: 600,
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                  background: sortBy === sort ? "#1d4ed8" : "#f3f4f6",
+                  color: sortBy === sort ? "white" : "#374151",
+                }}
+              >
+                {sort.charAt(0).toUpperCase() + sort.slice(1)}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Loading State */}
+      {/* Loading */}
       {loading && (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading modules...</p>
+        <div style={{ textAlign: "center", padding: "4rem 0" }}>
+          <div style={{ width: "48px", height: "48px", border: "3px solid #e5e7eb", borderTopColor: "#1d4ed8", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 1rem" }} />
+          <p style={{ color: "#6b7280", fontSize: "1rem" }}>Loading modules...</p>
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       )}
 
       {/* Modules Grid */}
       {!loading && filteredModules.length > 0 && (
         <div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-            gap: "1rem",
+            gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))",
+            gap: "1.25rem",
           }}
         >
-          {filteredModules.map((module) => (
-            <div
-              key={module.id}
-              onClick={() => onModuleSelect(module.id)}
-              className={`p-5 rounded-lg border-2 cursor-pointer transition transform hover:scale-105 ${
-                selectedModuleId === module.id
-                  ? "border-blue-600 bg-blue-50"
-                  : `border-gray-200 ${getCategoryColor(module.category)} hover:border-blue-400`
-              }`}
-              style={{
-                padding: "1.25rem",
-                borderRadius: "0.5rem",
-                border: "2px solid",
-                borderColor: selectedModuleId === module.id ? "#2563eb" : "#d1d5db",
-                backgroundColor: selectedModuleId === module.id ? "#eff6ff" : "white",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-                transform: "scale(1)",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-            >
-              {/* Recommended Badge */}
-              {module.recommended && (
-                <div className="mb-3 inline-block">
-                  <span className="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">
-                    RECOMMENDED
+          {filteredModules.map((module) => {
+            const accent = getCategoryAccent(module.category);
+            const eloDisplay = getEloDisplay(module.current_elo);
+            const isSelected = selectedModuleId === module.id;
+
+            return (
+              <div
+                key={module.id}
+                onClick={() => onModuleSelect(module.id)}
+                style={{
+                  background: isSelected ? "#eff6ff" : "white",
+                  border: `2px solid ${isSelected ? "#1d4ed8" : accent.border}`,
+                  borderRadius: "14px",
+                  padding: "1.75rem",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                  boxShadow: isSelected
+                    ? "0 0 0 4px rgba(29,78,216,0.15), 0 4px 16px rgba(29,78,216,0.12)"
+                    : "0 1px 4px rgba(0,0,0,0.06)",
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.12)";
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.borderColor = "#93c5fd";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.06)";
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.borderColor = accent.border;
+                  }
+                }}
+              >
+                {/* Top row: recommended badge + category badge */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
+                  {module.recommended ? (
+                    <span style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.35rem",
+                      padding: "0.35rem 0.875rem",
+                      background: "#fef3c7",
+                      color: "#92400e",
+                      fontSize: "0.75rem",
+                      fontWeight: 800,
+                      borderRadius: "999px",
+                      border: "1px solid #fcd34d",
+                      letterSpacing: "0.05em",
+                      textTransform: "uppercase",
+                    }}>
+                      ★ Recommended
+                    </span>
+                  ) : <span />}
+
+                  <span style={{
+                    padding: "0.3rem 0.75rem",
+                    background: accent.badgeBg,
+                    color: accent.label,
+                    fontSize: "0.7rem",
+                    fontWeight: 700,
+                    borderRadius: "6px",
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                  }}>
+                    {module.category}
                   </span>
                 </div>
-              )}
 
-              {/* Module Title */}
-              <h3 className="text-lg font-bold text-gray-900 mb-2">
-                {module.title}
-              </h3>
+                {/* Title */}
+                <h3 style={{
+                  fontSize: "1.2rem",
+                  fontWeight: 800,
+                  color: "#111827",
+                  marginBottom: "0.625rem",
+                  lineHeight: 1.3,
+                  letterSpacing: "-0.01em",
+                }}>
+                  {module.title}
+                </h3>
 
-              {/* Category Badge */}
-              <div className="mb-3">
-                <span
-                  className={`inline-block px-2 py-1 text-xs font-semibold rounded ${getCategoryBadgeColor(
-                    module.category
-                  )}`}
-                >
-                  {module.category.toUpperCase()}
-                </span>
-              </div>
-
-              {/* Description */}
-              <p className="text-sm text-gray-700 mb-4 line-clamp-2">
-                {module.description}
-              </p>
-
-              {/* Stats Row */}
-              <div className="bg-white rounded p-3 mb-4 text-sm">
-                <div className="grid grid-cols-3 gap-2">
-                  <div>
-                    <p className="text-gray-600 text-xs font-semibold">ELO</p>
-                    <p className={getEloColor(module.current_elo)}>
-                      {module.current_elo}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 text-xs font-semibold">
-                      MASTERY
-                    </p>
-                    <p className="text-gray-900 font-bold">
-                      {module.mastery_pct}%
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 text-xs font-semibold">
-                      DONE
-                    </p>
-                    <p className="text-gray-900 font-bold">
-                      {module.completion_pct}%
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Recommendation Reason */}
-              {module.recommendation_reason && (
-                <p className="text-xs text-gray-600 italic mb-3">
-                  {module.recommendation_reason}
+                {/* Description */}
+                <p style={{
+                  fontSize: "0.9rem",
+                  color: "#4b5563",
+                  lineHeight: 1.6,
+                  marginBottom: "1.25rem",
+                  minHeight: "2.8rem",
+                }}>
+                  {module.description || `Train and master ${module.title.toLowerCase()} skills.`}
                 </p>
-              )}
 
-              {/* Difficulty Level */}
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-gray-600">Difficulty:</span>
-                <div className="flex gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <div
-                      key={i}
-                      className={`w-2 h-2 rounded-full ${
-                        i < module.difficulty_level
-                          ? "bg-orange-500"
-                          : "bg-gray-300"
-                      }`}
-                    ></div>
-                  ))}
+                {/* Stats */}
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr 1fr",
+                  gap: "0.75rem",
+                  background: "#f9fafb",
+                  borderRadius: "10px",
+                  padding: "1rem",
+                  marginBottom: "1.25rem",
+                  border: "1px solid #f3f4f6",
+                }}>
+                  <div style={{ textAlign: "center" }}>
+                    <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.3rem" }}>ELO</p>
+                    <p style={{ fontSize: "1.1rem", fontWeight: 800, color: eloDisplay.color }}>{module.current_elo}</p>
+                    <p style={{ fontSize: "0.65rem", color: eloDisplay.color, fontWeight: 600 }}>{eloDisplay.label}</p>
+                  </div>
+                  <div style={{ textAlign: "center", borderLeft: "1px solid #e5e7eb", borderRight: "1px solid #e5e7eb" }}>
+                    <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.3rem" }}>Mastery</p>
+                    <p style={{ fontSize: "1.1rem", fontWeight: 800, color: "#111827" }}>{module.mastery_pct}%</p>
+                    <p style={{ fontSize: "0.65rem", color: "#6b7280", fontWeight: 600 }}>of scenarios</p>
+                  </div>
+                  <div style={{ textAlign: "center" }}>
+                    <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.3rem" }}>Done</p>
+                    <p style={{ fontSize: "1.1rem", fontWeight: 800, color: "#111827" }}>{module.completion_pct}%</p>
+                    <p style={{ fontSize: "0.65rem", color: "#6b7280", fontWeight: 600 }}>completed</p>
+                  </div>
+                </div>
+
+                {/* Recommendation reason */}
+                {module.recommendation_reason && (
+                  <p style={{ fontSize: "0.8rem", color: "#6b7280", fontStyle: "italic", marginBottom: "1rem", lineHeight: 1.5 }}>
+                    {module.recommendation_reason}
+                  </p>
+                )}
+
+                {/* Footer: difficulty + CTA */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#9ca3af" }}>Difficulty</span>
+                    <div style={{ display: "flex", gap: "4px" }}>
+                      {[...Array(5)].map((_, i) => (
+                        <div
+                          key={i}
+                          style={{
+                            width: "10px",
+                            height: "10px",
+                            borderRadius: "50%",
+                            background: i < module.difficulty_level ? "#f97316" : "#e5e7eb",
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <span style={{
+                    fontSize: "0.8rem",
+                    fontWeight: 700,
+                    color: isSelected ? "#1d4ed8" : "#6b7280",
+                    padding: "0.3rem 0.75rem",
+                    background: isSelected ? "#dbeafe" : "#f3f4f6",
+                    borderRadius: "6px",
+                    transition: "all 0.15s ease",
+                  }}>
+                    {isSelected ? "Selected →" : "Start →"}
+                  </span>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
       {/* Empty State */}
       {!loading && filteredModules.length === 0 && (
-        <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-          <p className="text-gray-600 font-semibold mb-2">
-            No modules available
-          </p>
-          <p className="text-gray-500 text-sm">
-            Try adjusting your filters or contact support
-          </p>
+        <div style={{ textAlign: "center", padding: "4rem 2rem", background: "#f9fafb", borderRadius: "14px", border: "2px dashed #d1d5db" }}>
+          <p style={{ fontSize: "1.125rem", fontWeight: 700, color: "#374151", marginBottom: "0.5rem" }}>No modules found</p>
+          <p style={{ fontSize: "0.9rem", color: "#6b7280" }}>Try a different category or contact support</p>
         </div>
       )}
     </div>
