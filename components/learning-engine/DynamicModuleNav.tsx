@@ -228,6 +228,18 @@ export default function DynamicModuleNav({
                   ? "border-blue-600 bg-blue-50"
                   : `border-gray-200 ${getCategoryColor(module.category)} hover:border-blue-400`
               }`}
+              style={{
+                padding: "1.25rem",
+                borderRadius: "0.5rem",
+                border: "2px solid",
+                borderColor: selectedModuleId === module.id ? "#2563eb" : "#d1d5db",
+                backgroundColor: selectedModuleId === module.id ? "#eff6ff" : "white",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                transform: "scale(1)",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
             >
               {/* Recommended Badge */}
               {module.recommended && (
