@@ -61,7 +61,12 @@ export async function getAvailableModules(
       platform_version: 2,
     };
 
-    console.log(`[getAvailableModules] User profile platform_version: ${userProfile.platform_version}`);
+    // Force platform_version = 2 for individual/free users (legacy default was 1)
+    // Only keep v1 for B2B venue users who need diagnostic
+    const isB2BUser = userProfile.plan === "single-venue" || userProfile.plan === "multi-venue";
+    const platformVersion = isB2BUser ? userProfile.platform_version : 2;
+
+    console.log(`[getAvailableModules] User profile: plan=${userProfile.plan}, is_b2b=${isB2BUser}, platform_version=${platformVersion}`);
 
     // Resolve access (tier-based module filtering)
     let access;
@@ -78,8 +83,8 @@ export async function getAvailableModules(
       };
     }
 
-    // If platform_version = 1 (legacy), return only old 3 modules
-    if (userProfile.platform_version === 1) {
+    // If platform_version = 1 (legacy B2B), return only old 3 modules
+    if (platformVersion === 1) {
       return {
         modules: [
           {
