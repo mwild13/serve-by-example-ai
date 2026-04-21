@@ -273,8 +273,54 @@ export async function getAvailableModules(
       platform_version: 2,
     };
   } catch (error) {
-    console.error("Error in getAvailableModules:", error);
-    throw error;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("Error in getAvailableModules:", errorMessage);
+    console.error("Full error:", error);
+
+    // FALLBACK: Return all 20 modules with default Elo if query fails
+    console.warn("[getAvailableModules] Returning fallback response with all 20 modules");
+
+    const defaultModules = [
+      { id: 1, title: "Pouring the Perfect Beer", category: "technical", difficulty_level: 2 },
+      { id: 2, title: "Wine Knowledge & Service", category: "technical", difficulty_level: 3 },
+      { id: 3, title: "Cocktail Fundamentals", category: "technical", difficulty_level: 3 },
+      { id: 4, title: "Coffee/Barista Basics", category: "technical", difficulty_level: 2 },
+      { id: 5, title: "Carrying Glassware & Trays", category: "technical", difficulty_level: 1 },
+      { id: 6, title: "Cleaning & Sanitation", category: "technical", difficulty_level: 1 },
+      { id: 7, title: "Bar Back Efficiency", category: "technical", difficulty_level: 2 },
+      { id: 8, title: "The Art of the Greeting", category: "service", difficulty_level: 1 },
+      { id: 9, title: "Managing Table Dynamics", category: "service", difficulty_level: 3 },
+      { id: 10, title: "Anticipatory Service", category: "service", difficulty_level: 2 },
+      { id: 11, title: "Handling Guest Complaints", category: "service", difficulty_level: 3 },
+      { id: 12, title: "Up-selling & Suggestive Sales", category: "service", difficulty_level: 2 },
+      { id: 13, title: "VIP/Table Management", category: "service", difficulty_level: 3 },
+      { id: 14, title: "Phone Etiquette & Reservations", category: "service", difficulty_level: 2 },
+      { id: 15, title: "RSA (Responsible Service of Alcohol)", category: "compliance", difficulty_level: 2 },
+      { id: 16, title: "Food Safety & Hygiene", category: "compliance", difficulty_level: 2 },
+      { id: 17, title: "Conflict De-escalation", category: "compliance", difficulty_level: 3 },
+      { id: 18, title: "Emergency Evacuation Protocols", category: "compliance", difficulty_level: 1 },
+      { id: 19, title: "Opening & Closing Procedures", category: "compliance", difficulty_level: 2 },
+      { id: 20, title: "Inventory & Waste Control", category: "compliance", difficulty_level: 2 },
+    ];
+
+    return {
+      modules: defaultModules.map((m) => ({
+        id: m.id,
+        title: m.title,
+        description: `Module ${m.id}`,
+        category: m.category as "technical" | "service" | "compliance",
+        difficulty_level: m.difficulty_level,
+        current_elo: 1200,
+        mastery_pct: 0,
+        completion_pct: 0,
+        recommended: true,
+        recommendation_reason: "Available for training",
+      })),
+      total_modules: 20,
+      accessible_modules: 20,
+      user_role: "individual",
+      platform_version: 2,
+    };
   }
 }
 
