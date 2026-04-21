@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
-import { recordAttempt, syncMasteryToVenueStaff, moduleIdToString, type ConfidenceLevel } from "@/lib/mastery";
-import { resolveAccess } from "@/lib/session";
+import { recordAttempt, syncMasteryToVenueStaff, moduleIdToString, SCENARIO_COUNTS, type ConfidenceLevel } from "@/lib/mastery";
+import { resolveAccess, validateSession } from "@/lib/session";
 
 // Legacy 3-module string names (backward compat)
 const LEGACY_MODULES = ["bartending", "sales", "management"] as const;
@@ -11,10 +11,26 @@ const LEGACY_MODULE_ID: Record<LegacyModule, number> = { bartending: 1, sales: 2
 
 const VALID_CONFIDENCE = ["low", "medium", "high"] as const;
 
+function getCookieValue(req: Request, cookieName: string): string | null {
+  const cookieHeader = req.headers.get("cookie");
+  if (!cookieHeader) return null;
+
+  const pair = cookieHeader
+    .split(";")
+    .map((chunk) => chunk.trim())
+    .find((chunk) => chunk.startsWith(`${cookieName}=`));
+
+  if (!pair) return null;
+  const [, value = ""] = pair.split("=");
+  return value || null;
+}
+
 export async function POST(req: Request) {
   try {
     const { user } = await getUserFromRequest(req);
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized", code: "UNAUTHORIZED" }, { status: 401 });
+    }
 
     const body = await req.json();
     const overallScore = Number(body.overallScore);
@@ -36,27 +52,55 @@ export async function POST(req: Request) {
       moduleName = rawModuleName;
       moduleId = LEGACY_MODULE_ID[rawModuleName as LegacyModule];
     } else {
-      return NextResponse.json({ error: "Invalid module." }, { status: 400 });
+      return NextResponse.json({ error: "Invalid module.", code: "INVALID_MODULE" }, { status: 400 });
     }
 
     // ── Tier-based access gate ─────────────────────────────────
     const admin = createSupabaseAdminClient();
+
+    // ── Session displacement check for protected write route ───
+    const browserSessionId = getCookieValue(req, "sbe_session_id");
+    if (!browserSessionId) {
+      return NextResponse.json(
+        { error: "Missing active session. Please sign in again.", code: "SESSION_REQUIRED" },
+        { status: 401 },
+      );
+    }
+
+    const sessionValidation = await validateSession(admin, user.id, browserSessionId);
+    if (!sessionValidation.valid) {
+      return NextResponse.json(
+        { error: "Session conflict detected. Please resume this device.", code: "SESSION_CONFLICT" },
+        { status: 409 },
+      );
+    }
+
     const access = await resolveAccess(admin, user.id, user.email ?? "");
     if (moduleId && !access.allowedModules.includes(moduleId)) {
       return NextResponse.json(
-        { error: "Your current plan does not include this module. Please upgrade." },
+        { error: "Your current plan does not include this module. Please upgrade.", code: "MODULE_ACCESS_DENIED" },
         { status: 403 },
       );
     }
 
     if (!Number.isFinite(overallScore) || overallScore < 0 || overallScore > 25) {
-      return NextResponse.json({ error: "Invalid score." }, { status: 400 });
+      return NextResponse.json({ error: "Invalid score.", code: "INVALID_SCORE" }, { status: 400 });
     }
     if (!Number.isFinite(scenarioIndex) || scenarioIndex < 0) {
-      return NextResponse.json({ error: "Invalid scenario index." }, { status: 400 });
+      return NextResponse.json({ error: "Invalid scenario index.", code: "INVALID_SCENARIO_INDEX" }, { status: 400 });
+    }
+    const moduleScenarioCount = SCENARIO_COUNTS[moduleName] ?? 20;
+    if (scenarioIndex >= moduleScenarioCount) {
+      return NextResponse.json(
+        {
+          error: `Invalid scenario index. Max for ${moduleName} is ${moduleScenarioCount - 1}.`,
+          code: "SCENARIO_OUT_OF_RANGE",
+        },
+        { status: 400 },
+      );
     }
     if (!VALID_CONFIDENCE.includes(confidence as typeof VALID_CONFIDENCE[number])) {
-      return NextResponse.json({ error: "Invalid confidence level." }, { status: 400 });
+      return NextResponse.json({ error: "Invalid confidence level.", code: "INVALID_CONFIDENCE" }, { status: 400 });
     }
 
     // ── Record attempt in mastery engine ──────────────────────
@@ -94,6 +138,51 @@ export async function POST(req: Request) {
         },
         { onConflict: "user_id,module" },
       );
+
+      // ── Update stage completion for badge/progress display ──
+      // StageLearning sends stageLevel + completed:true when a stage finishes.
+      // user_level_progress drives the badge awards in ProgressOverview —
+      // without this update, badges are permanently locked regardless of effort.
+      const stageLevel = Number(body.stageLevel);
+      const stageCompleted = Boolean(body.completed);
+
+      if (stageLevel >= 1 && stageLevel <= 3 && stageCompleted) {
+        const { data: existingLevel } = await admin
+          .from("user_level_progress")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("module", moduleName)
+          .maybeSingle();
+
+        const stageScoreKey = `level${stageLevel}_score` as
+          | "level1_score"
+          | "level2_score"
+          | "level3_score";
+        const stageCompletedKey = `level${stageLevel}_completed` as
+          | "level1_completed"
+          | "level2_completed"
+          | "level3_completed";
+
+        await admin.from("user_level_progress").upsert(
+          {
+            user_id: user.id,
+            module: moduleName,
+            current_level: Math.max(stageLevel, existingLevel?.current_level ?? 1),
+            level1_score: existingLevel?.level1_score ?? 0,
+            level1_completed: existingLevel?.level1_completed ?? false,
+            level2_score: existingLevel?.level2_score ?? 0,
+            level2_completed: existingLevel?.level2_completed ?? false,
+            level3_score: existingLevel?.level3_score ?? 0,
+            level3_completed: existingLevel?.level3_completed ?? false,
+            level4_unlocked: stageLevel >= 3 ? true : (existingLevel?.level4_unlocked ?? false),
+            [stageScoreKey]: overallScore,
+            [stageCompletedKey]: true,
+            last_active_at: now,
+            updated_at: now,
+          },
+          { onConflict: "user_id,module" },
+        );
+      }
     }
 
     // ── Sync mastery data to venue_staff for management dashboard ──
@@ -118,6 +207,9 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error("Training save error:", error);
-    return NextResponse.json({ error: "Failed to save training progress." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to save training progress.", code: "TRAINING_SAVE_FAILED" },
+      { status: 500 },
+    );
   }
 }

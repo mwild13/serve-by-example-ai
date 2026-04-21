@@ -5,7 +5,9 @@ import { getManagementSnapshot } from "@/lib/management/service";
 
 export const dynamic = "force-dynamic";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+function getOpenAIClient() {
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+}
 
 export async function POST(req: Request) {
   try {
@@ -74,6 +76,7 @@ Your role:
 - Format lists with bullet points for readability.
 `;
 
+    const openai = getOpenAIClient();
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [

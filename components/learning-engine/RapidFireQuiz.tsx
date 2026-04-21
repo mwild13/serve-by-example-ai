@@ -169,10 +169,14 @@ export default function RapidFireQuiz({
         <div className="quiz-button-group">
           <button
             className={`quiz-button quiz-button-true${
-              answered === "true"
-                ? wasCorrect
-                  ? " quiz-button-correct"
-                  : " quiz-button-incorrect"
+              answered !== null
+                ? answered === "true"
+                  ? wasCorrect
+                    ? " quiz-button-correct"
+                    : " quiz-button-incorrect"
+                  : currentContent && String(currentContent.answer).toLowerCase() === "true"
+                    ? " quiz-button-correct"   // reveal correct answer when user chose wrong
+                    : ""
                 : ""
             }${buttonFlash === "true" ? " quiz-button-flash" : ""}`}
             onClick={() => handleAnswer("true")}
@@ -184,10 +188,14 @@ export default function RapidFireQuiz({
 
           <button
             className={`quiz-button quiz-button-false${
-              answered === "false"
-                ? wasCorrect
-                  ? " quiz-button-correct"
-                  : " quiz-button-incorrect"
+              answered !== null
+                ? answered === "false"
+                  ? wasCorrect
+                    ? " quiz-button-correct"
+                    : " quiz-button-incorrect"
+                  : currentContent && String(currentContent.answer).toLowerCase() === "false"
+                    ? " quiz-button-correct"   // reveal correct answer when user chose wrong
+                    : ""
                 : ""
             }${buttonFlash === "false" ? " quiz-button-flash" : ""}`}
             onClick={() => handleAnswer("false")}

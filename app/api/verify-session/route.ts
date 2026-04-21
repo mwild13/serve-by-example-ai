@@ -3,10 +3,12 @@ import Stripe from "stripe";
 
 export const dynamic = "force-dynamic";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-02-25.clover",
-  httpClient: Stripe.createFetchHttpClient(),
-});
+function getStripeClient() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: "2026-02-25.clover",
+    httpClient: Stripe.createFetchHttpClient(),
+  });
+}
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -17,6 +19,7 @@ export async function GET(req: Request) {
   }
 
   try {
+    const stripe = getStripeClient();
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     if (session.payment_status !== "paid") {

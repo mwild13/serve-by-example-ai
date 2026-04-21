@@ -4,18 +4,6 @@ import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 
 export const dynamic = "force-dynamic";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-02-25.clover",
-  httpClient: Stripe.createFetchHttpClient(),
-});
-
-// Map Stripe Price IDs back to plan names
-const PRICE_TO_PLAN: Record<string, string> = {
-  [process.env.STRIPE_PRICE_PRO!]: "pro",
-  [process.env.STRIPE_PRICE_SINGLE_VENUE!]: "single-venue",
-  [process.env.STRIPE_PRICE_MULTI_VENUE!]: "multi-venue",
-};
-
 // Map plan names → normalised tier column values
 const PLAN_TO_TIER: Record<string, string> = {
   pro: "pro",
@@ -26,6 +14,19 @@ const PLAN_TO_TIER: Record<string, string> = {
 export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature");
   const body = await req.text();
+
+  // Initialize Stripe client at runtime (has access to env vars on Cloudflare)
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: "2026-02-25.clover",
+    httpClient: Stripe.createFetchHttpClient(),
+  });
+
+  // Map Stripe Price IDs back to plan names (requires env vars at runtime)
+  const PRICE_TO_PLAN: Record<string, string> = {
+    [process.env.STRIPE_PRICE_PRO!]: "pro",
+    [process.env.STRIPE_PRICE_SINGLE_VENUE!]: "single-venue",
+    [process.env.STRIPE_PRICE_MULTI_VENUE!]: "multi-venue",
+  };
 
   let event;
   try {

@@ -4,16 +4,20 @@ import { getUserFromRequest } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-02-25.clover",
-  httpClient: Stripe.createFetchHttpClient(),
-});
+function getStripeClient() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: "2026-02-25.clover",
+    httpClient: Stripe.createFetchHttpClient(),
+  });
+}
 
-const PRICE_IDS: Record<string, string> = {
-  pro: process.env.STRIPE_PRICE_PRO!,
-  single_venue: process.env.STRIPE_PRICE_SINGLE_VENUE!,
-  multi_venue: process.env.STRIPE_PRICE_MULTI_VENUE!,
-};
+function getPriceIds(): Record<string, string> {
+  return {
+    pro: process.env.STRIPE_PRICE_PRO!,
+    single_venue: process.env.STRIPE_PRICE_SINGLE_VENUE!,
+    multi_venue: process.env.STRIPE_PRICE_MULTI_VENUE!,
+  };
+}
 
 export async function POST(req: Request) {
   // Upfront env var checks — surfaces misconfiguration clearly
@@ -30,6 +34,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { plan, email: emailFromBody } = body;
 
+    const PRICE_IDS = getPriceIds();
     const priceId = PRICE_IDS[plan];
     if (!plan || !priceId) {
       console.error(`Stripe checkout: invalid plan "${plan}". Available: ${Object.keys(PRICE_IDS).join(", ")}`);
@@ -43,6 +48,7 @@ export async function POST(req: Request) {
     const subscriptionMetadata: Record<string, string> = { priceId };
     if (user?.id) subscriptionMetadata.userId = user.id;
 
+    const stripe = getStripeClient();
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "subscription",

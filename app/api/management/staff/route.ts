@@ -5,6 +5,18 @@ import { createStaffMember, getManagementSnapshot } from "@/lib/management/servi
 import type { NewStaffPayload, StaffRole } from "@/lib/management/types";
 
 const VALID_ROLES: StaffRole[] = ["Bartender", "Floor", "Supervisor", "Manager", "New Staff"];
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function getErrorCode(error: unknown): string | undefined {
+  if (error && typeof error === "object" && "code" in error) {
+    const maybeCode = (error as { code?: unknown }).code;
+    if (typeof maybeCode === "string") return maybeCode;
+  }
+  if (error instanceof Error && typeof (error as Error & { code?: string }).code === "string") {
+    return (error as Error & { code?: string }).code;
+  }
+  return undefined;
+}
 
 function getErrorMessage(error: unknown) {
   if (error && typeof error === "object") {
@@ -67,6 +79,10 @@ export async function POST(req: Request) {
 
     if (sendInvite && !email) {
       return NextResponse.json({ error: "Add an email address if you want to send an invite." }, { status: 400 });
+    }
+
+    if (email && !EMAIL_REGEX.test(email)) {
+      return NextResponse.json({ error: "Please provide a valid email address." }, { status: 400 });
     }
 
     let usedAdminInsertFallback = false;
@@ -203,8 +219,11 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ...snapshot, inviteMessage, inviteLink, emailSent });
   } catch (error) {
+    const code = getErrorCode(error);
     const message = getErrorMessage(error);
-    return NextResponse.json({ error: message }, { status: 400 });
+    const lowered = message.toLowerCase();
+    const isConflict = code === "23505" || lowered.includes("duplicate") || lowered.includes("already");
+    return NextResponse.json({ error: message }, { status: isConflict ? 409 : 400 });
   }
 }
 

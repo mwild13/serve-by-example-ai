@@ -120,8 +120,8 @@ export default function DiagnosticFlow({
         // Call parent callback with category scores
         onComplete(data.category_scores);
 
-        // Optionally redirect to modules page
-        router.push("/app/training");
+        // Redirect to main dashboard after assessment
+        router.push("/dashboard");
       } else {
         throw new Error(data.message || "Submission failed");
       }

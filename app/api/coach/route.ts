@@ -4,9 +4,11 @@ import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+function getOpenAIClient() {
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+}
 
 type CoachRequest = {
   question?: string;
@@ -79,6 +81,7 @@ Rules:
 - If uncertain, say what to verify with venue SOP
 - Never invent legal/safety policy facts`;
 
+    const openai = getOpenAIClient();
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       temperature: 0.25,

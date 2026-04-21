@@ -211,18 +211,58 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
 
         if (scenariosRes.ok) {
           const scenariosData = await scenariosRes.json();
-          const dbScenarios = scenariosData.scenarios || [];
+          const dbScenarios: Scenario[] = scenariosData.scenarios || [];
 
           if (dbScenarios.length > 0) {
-            // Check if DB has scenarios for all stage types — if not, use scaffolded fallback
-            const hasDescriptors = dbScenarios.some(
-              (s: Scenario) => s.scenario_type === "descriptor_l2" || s.scenario_type === "descriptor_l3"
+            // Validate quiz scenarios: must have content.answer of exactly "true" or "false"
+            // Badly formatted questions (e.g. "What is the drinking age?", answer: "18")
+            // appear in the T/F UI but both buttons always score wrong — silent UX breakage.
+            const validScenarios = dbScenarios.filter((s: Scenario) => {
+              if (s.scenario_type !== "quiz") return true;
+              const answer = String(
+                (s.content as { answer?: unknown })?.answer ?? ""
+              )
+                .toLowerCase()
+                .trim();
+              return answer === "true" || answer === "false";
+            });
+
+            const dbQuizCount = validScenarios.filter(
+              (s: Scenario) => s.scenario_type === "quiz"
+            ).length;
+
+            // Stage 1 requires 5 consecutive correct — need at least 5 unique questions.
+            const MIN_QUIZ_QUESTIONS = 5;
+            const hasDescriptors = validScenarios.some(
+              (s: Scenario) =>
+                s.scenario_type === "descriptor_l2" ||
+                s.scenario_type === "descriptor_l3"
             );
-            if (!hasDescriptors && SCAFFOLDED_MODULE_KEY[moduleId]) {
-              // DB only has quiz-type scenarios (old data), use full scaffolded set
+
+            if (dbQuizCount < MIN_QUIZ_QUESTIONS) {
+              // Not enough valid T/F questions in DB.
+              // Supplement Stage 1 with fallback quiz questions while keeping DB
+              // descriptor/roleplay content if it exists and is sufficient.
+              const fallback = getFallbackScenarios(moduleId);
+              const fallbackQuiz = fallback.filter(
+                (s: Scenario) => s.scenario_type === "quiz"
+              );
+              const dbNonQuiz = validScenarios.filter(
+                (s: Scenario) => s.scenario_type !== "quiz"
+              );
+
+              if (hasDescriptors && dbNonQuiz.length >= 4) {
+                // Good descriptor/roleplay data in DB — just replace quiz layer
+                setScenarios([...fallbackQuiz, ...dbNonQuiz]);
+              } else {
+                // Full fallback (DB data too sparse overall)
+                setScenarios(fallback);
+              }
+            } else if (!hasDescriptors && SCAFFOLDED_MODULE_KEY[moduleId]) {
+              // DB has quiz but no descriptors — use full scaffolded set
               setScenarios(getFallbackScenarios(moduleId));
             } else {
-              setScenarios(dbScenarios);
+              setScenarios(validScenarios);
             }
           } else {
             // DB scenarios not yet seeded — use fallback so training works
@@ -283,7 +323,7 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
           body: JSON.stringify({
             moduleId,
             stageLevel: currentStage,
-            score,
+            overallScore: score,   // field name the save route expects
             completed: true,
           }),
         });

@@ -101,8 +101,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        message: `Internal server error: ${errorMessage}`,
-        error: process.env.NODE_ENV === "development" ? String(error) : undefined
+        message: "Internal server error",
+        error: process.env.NODE_ENV === "development" ? errorMessage : undefined
       },
       { status: 500 }
     );

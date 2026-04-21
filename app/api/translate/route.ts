@@ -3,9 +3,11 @@ import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+function getOpenAIClient() {
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+}
 
 type TranslateRequestBody = {
   targetLanguage?: string;
@@ -43,6 +45,7 @@ export async function POST(req: Request) {
 
     const prompt = `Translate each item into ${targetLanguage}.\n\nReturn strict JSON only in this shape:\n{\n  "translations": [\n    { "id": 0, "text": "..." }\n  ]\n}\n\nRules:\n- Keep ids unchanged\n- Keep item count unchanged\n- Preserve brand names exactly (Serve By Example, OpenAI, Supabase, Cloudflare)\n- Do not add explanations\n- Do not drop placeholders, numbers, symbols, or punctuation`;
 
+    const openai = getOpenAIClient();
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       temperature: 0.1,

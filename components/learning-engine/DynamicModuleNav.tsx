@@ -12,8 +12,6 @@ interface DynamicModuleNavProps {
 }
 
 export default function DynamicModuleNav({
-  userId,
-  userEmail,
   userToken,
   onModuleSelect,
   selectedModuleId,
@@ -25,7 +23,7 @@ export default function DynamicModuleNav({
   const [selectedCategory, setSelectedCategory] = useState<
     "all" | "technical" | "service" | "compliance"
   >("all");
-  const [sortBy, setSortBy] = useState<"recommended" | "elo" | "title">(
+  const [sortBy, setSortBy] = useState<"recommended" | "title">(
     "recommended"
   );
 
@@ -152,7 +150,7 @@ export default function DynamicModuleNav({
             Sort by
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-            {(["recommended", "elo", "title"] as const).map((sort) => (
+            {(["recommended", "title"] as const).map((sort) => (
               <button
                 key={sort}
                 onClick={() => setSortBy(sort)}
@@ -189,7 +187,7 @@ export default function DynamicModuleNav({
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
             gap: "1.25rem",
           }}
         >
@@ -300,8 +298,8 @@ export default function DynamicModuleNav({
                   border: "1px solid #f3f4f6",
                 }}>
                   <div style={{ textAlign: "center" }}>
-                    <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.3rem" }}>ELO</p>
-                    <p style={{ fontSize: "1.1rem", fontWeight: 800, color: eloDisplay.color }}>{module.current_elo}</p>
+                    <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.3rem" }}>Skill</p>
+                    <p style={{ fontSize: "1.1rem", fontWeight: 800, color: eloDisplay.color }}>{eloDisplay.label}</p>
                     <p style={{ fontSize: "0.65rem", color: eloDisplay.color, fontWeight: 600 }}>{eloDisplay.label}</p>
                   </div>
                   <div style={{ textAlign: "center", borderLeft: "1px solid #e5e7eb", borderRight: "1px solid #e5e7eb" }}>

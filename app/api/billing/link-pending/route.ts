@@ -6,10 +6,12 @@ import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 // Prevent static generation for this route (requires Stripe credentials at runtime)
 export const dynamic = "force-dynamic";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-02-25.clover",
-  httpClient: Stripe.createFetchHttpClient(),
-});
+function getStripeClient() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: "2026-02-25.clover",
+    httpClient: Stripe.createFetchHttpClient(),
+  });
+}
 
 /**
  * Called after a user signs up or signs in.
@@ -21,6 +23,8 @@ export async function POST(req: Request) {
   try {
     const { user } = await getUserFromRequest(req);
     if (!user?.email) return NextResponse.json({ linked: false });
+
+    const stripe = getStripeClient();
 
     // Find Stripe customers with this email
     const customers = await stripe.customers.list({ email: user.email, limit: 5 });

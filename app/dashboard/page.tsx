@@ -2,6 +2,9 @@
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import DashboardShell from "@/components/DashboardShell";
 
+// Prevent static generation — this page requires auth at runtime
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const supabase = await createSupabaseServerClient();
   const {

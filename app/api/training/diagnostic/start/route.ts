@@ -18,38 +18,28 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+import { getUserFromRequest } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getSupabaseClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 export async function POST(request: NextRequest) {
   try {
-    // Verify user is authenticated
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
+    const { user } = await getUserFromRequest(request);
+    if (!user) {
       return NextResponse.json(
-        { success: false, message: "Unauthorized: missing auth token" },
+        { success: false, message: "Unauthorized", code: "UNAUTHORIZED" },
         { status: 401 }
       );
     }
 
-    // Verify user exists in Supabase Auth
-    const token = authHeader.slice(7);
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser(token);
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized: invalid token" },
-        { status: 401 }
-      );
-    }
+    const supabase = getSupabaseClient();
 
     // Fetch diagnostic questions from database
     const { data: questions, error } = await supabase

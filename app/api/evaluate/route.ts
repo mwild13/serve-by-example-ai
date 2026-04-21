@@ -1,17 +1,25 @@
 import OpenAI from "openai";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { getUserFromRequest } from "@/lib/supabase-server";
 
 // Prevent static generation for this route (requires API credentials at runtime)
 export const dynamic = "force-dynamic";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+function getOpenAIClient() {
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+}
 
 export async function POST(req: Request) {
   try {
+    const { user } = await getUserFromRequest(req);
+    if (!user) {
+      return Response.json({ error: "Unauthorized", code: "UNAUTHORIZED" }, { status: 401 });
+    }
+
     const ip = getClientIp(req);
-    if (!rateLimit(`evaluate:${ip}`, 20)) {
+    if (!rateLimit(`evaluate:user:${user.id}`, 20) || !rateLimit(`evaluate:ip:${ip}`, 20)) {
       return Response.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
     }
 
@@ -20,7 +28,7 @@ export async function POST(req: Request) {
 
     if (!scenario || !userResponse) {
       return Response.json(
-        { error: "Missing scenario or userResponse" },
+        { error: "Missing scenario or userResponse", code: "BAD_REQUEST" },
         { status: 400 }
       );
     }
@@ -71,6 +79,7 @@ Rules:
 - do not include explanation outside the JSON
 `;
 
+    const openai = getOpenAIClient();
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       temperature: 0.3,
@@ -91,7 +100,7 @@ Rules:
 
     if (!raw) {
       return Response.json(
-        { error: "No response from OpenAI" },
+        { error: "No response from OpenAI", code: "UPSTREAM_EMPTY" },
         { status: 500 }
       );
     }
@@ -103,6 +112,7 @@ Rules:
       return Response.json(
         {
           error: "Failed to parse AI response",
+          code: "UPSTREAM_PARSE_ERROR",
           raw,
         },
         { status: 500 }
@@ -113,7 +123,7 @@ Rules:
   } catch (error) {
     console.error("API error:", error);
     return Response.json(
-      { error: "Something went wrong while evaluating the response." },
+      { error: "Something went wrong while evaluating the response.", code: "INTERNAL_ERROR" },
       { status: 500 }
     );
   }
