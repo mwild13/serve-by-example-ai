@@ -573,17 +573,27 @@ export default function DashboardShell({
           setUserToken(session.access_token);
 
           // Check if user has completed diagnostic
-          const { data: profile } = await supabase
+          const { data: profile, error: profileError } = await supabase
             .from("profiles")
-            .select("diagnostic_completed")
+            .select("diagnostic_completed, plan")
             .eq("id", session.user.id)
-            .single();
+            .maybeSingle();
 
-          // Show diagnostic if not completed (only for B2B users - check plan)
-          if (!profile?.diagnostic_completed && (plan === "single-venue" || plan === "multi-venue")) {
-            setShowDiagnostic(true);
-          } else {
+          if (profileError) {
+            console.error("[DashboardShell] Error fetching diagnostic status:", profileError);
+            // Default to not showing diagnostic on error
             setDiagnosticCompleted(true);
+          } else {
+            // Show diagnostic if not completed (only for B2B users - check plan)
+            const userPlan = profile?.plan || plan;
+            const isBB2User = userPlan === "single-venue" || userPlan === "multi-venue";
+            const hasDiagnostic = profile?.diagnostic_completed === true;
+
+            if (!hasDiagnostic && isBB2User) {
+              setShowDiagnostic(true);
+            } else {
+              setDiagnosticCompleted(true);
+            }
           }
         }
       } catch (error) {
