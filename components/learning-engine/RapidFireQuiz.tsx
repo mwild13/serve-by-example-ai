@@ -48,6 +48,8 @@ export default function RapidFireQuiz({
   const questionStartRef = useRef(Date.now());
 
   const [shuffledScenarios, setShuffledScenarios] = useState<Scenario[]>([]);
+  // Ref always holds the latest shuffledScenarios to avoid stale closure in nextQuestion
+  const shuffledScenariosRef = useRef<Scenario[]>([]);
 
   // Shuffle scenarios whenever the scenarios prop changes
   useEffect(() => {
@@ -56,6 +58,7 @@ export default function RapidFireQuiz({
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
+    shuffledScenariosRef.current = shuffled;
     setShuffledScenarios(shuffled);
     setQuestionIndex(0); // Reset to first question when scenarios change
   }, [scenarios]);
@@ -103,15 +106,16 @@ export default function RapidFireQuiz({
       onComplete(consecutiveCorrect);
       return;
     }
-    if (shuffledScenarios.length > 0) {
-      setQuestionIndex((i) => (i + 1) % shuffledScenarios.length);
+    const len = shuffledScenariosRef.current.length;
+    if (len > 0) {
+      setQuestionIndex((i) => (i + 1) % len);
     }
     setAnswered(null);
     setWasCorrect(null);
     setShowExplanation(false);
     setSpeedBonus(false);
     questionStartRef.current = Date.now();
-  }, [completed, onComplete, shuffledScenarios.length, consecutiveCorrect]);
+  }, [completed, onComplete, consecutiveCorrect]);
 
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {

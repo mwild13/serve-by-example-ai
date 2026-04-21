@@ -17,6 +17,9 @@ type Props = {
   moduleId: number;
   managementUnlocked: boolean;
   initialStage?: StageLevel;
+  overrideModuleName?: string;
+  /** When set, forces this module key for content lookup instead of inferring from moduleId */
+  scaffoldedModuleKey?: Module;
 };
 
 const STAGE_META: Record<StageLevel, { name: string; subtitle: string }> = {
@@ -41,17 +44,20 @@ type ModuleProgress = {
   score: number;
 };
 
-// Map module IDs 1-3 to their scaffolded question module keys
+// Map module IDs 1-3 to their correct topic question banks.
+// DB module ID 1 = "Pouring the Perfect Beer"
+// DB module ID 2 = "Wine Knowledge & Service"
+// DB module ID 3 = "Cocktail Fundamentals"
 const SCAFFOLDED_MODULE_KEY: Record<number, Module> = {
-  1: "bartending",
-  2: "sales",
-  3: "management",
+  1: "beer",
+  2: "wine",
+  3: "cocktails",
 };
 
 // Build rich fallback scenarios from scaffolded-questions.ts for modules 1-3
 // For modules 4-20, use generic content so training is always functional
-function getFallbackScenarios(moduleId: number): Scenario[] {
-  const moduleKey = SCAFFOLDED_MODULE_KEY[moduleId];
+function getFallbackScenarios(moduleId: number, overrideKey?: Module): Scenario[] {
+  const moduleKey = overrideKey ?? SCAFFOLDED_MODULE_KEY[moduleId];
 
   if (moduleKey) {
     const l1 = LEVEL1_QUESTIONS[moduleKey];
@@ -164,9 +170,9 @@ function getFallbackScenarios(moduleId: number): Scenario[] {
   ];
 }
 
-export default function StageLearning({ moduleId, managementUnlocked, initialStage }: Props) {
+export default function StageLearning({ moduleId, managementUnlocked, initialStage, overrideModuleName, scaffoldedModuleKey }: Props) {
   const [currentStage, setCurrentStage] = useState<StageLevel>(initialStage ?? 1);
-  const [moduleName, setModuleName] = useState<string>("Training Module");
+  const [moduleName, setModuleName] = useState<string>(overrideModuleName ?? "Training Module");
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -194,14 +200,16 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
           return;
         }
 
-        // Fetch module details
-        const moduleRes = await fetch(`/api/training/modules/${moduleId}`, {
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        });
+        // Fetch module details (skip if name is already provided via prop)
+        if (!overrideModuleName) {
+          const moduleRes = await fetch(`/api/training/modules/${moduleId}`, {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          });
 
-        if (moduleRes.ok) {
-          const moduleData = await moduleRes.json();
-          setModuleName(moduleData.title || "Training Module");
+          if (moduleRes.ok) {
+            const moduleData = await moduleRes.json();
+            setModuleName(moduleData.title || "Training Module");
+          }
         }
 
         // Fetch scenarios for this module
@@ -243,7 +251,7 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
               // Not enough valid T/F questions in DB.
               // Supplement Stage 1 with fallback quiz questions while keeping DB
               // descriptor/roleplay content if it exists and is sufficient.
-              const fallback = getFallbackScenarios(moduleId);
+              const fallback = getFallbackScenarios(moduleId, scaffoldedModuleKey);
               const fallbackQuiz = fallback.filter(
                 (s: Scenario) => s.scenario_type === "quiz"
               );
@@ -258,19 +266,19 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
                 // Full fallback (DB data too sparse overall)
                 setScenarios(fallback);
               }
-            } else if (!hasDescriptors && SCAFFOLDED_MODULE_KEY[moduleId]) {
+            } else if (!hasDescriptors && (scaffoldedModuleKey ?? SCAFFOLDED_MODULE_KEY[moduleId])) {
               // DB has quiz but no descriptors — use full scaffolded set
-              setScenarios(getFallbackScenarios(moduleId));
+              setScenarios(getFallbackScenarios(moduleId, scaffoldedModuleKey));
             } else {
               setScenarios(validScenarios);
             }
           } else {
             // DB scenarios not yet seeded — use fallback so training works
-            setScenarios(getFallbackScenarios(moduleId));
+            setScenarios(getFallbackScenarios(moduleId, scaffoldedModuleKey));
           }
         } else {
           // API error — use fallback scenarios
-          setScenarios(getFallbackScenarios(moduleId));
+          setScenarios(getFallbackScenarios(moduleId, scaffoldedModuleKey));
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load module data");
@@ -283,7 +291,7 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
     if (moduleId) {
       fetchModuleData();
     }
-  }, [moduleId]);
+  }, [moduleId, overrideModuleName, scaffoldedModuleKey]);
 
   // Get scenarios for current stage
   const getCurrentStageScenarios = useCallback((): Scenario[] => {
@@ -367,12 +375,12 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
         <p className="stage-subtitle">{meta.subtitle}</p>
       </div>
 
-      {/* Session summary */}
+      {/* Session summary with forward navigation */}
       {showSummary && sessionProgress.length > 0 && (
         <div className="stage-summary-card">
           <div className="stage-summary-header">
             <span className="stage-summary-icon">🎯</span>
-            <strong>Session recap</strong>
+            <strong>Stage {currentStage} complete!</strong>
           </div>
           <div className="stage-summary-stats">
             <div className="stage-summary-stat">
@@ -380,8 +388,20 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
               <span className="stage-summary-label">stage{sessionProgress.length !== 1 ? "s" : ""} completed</span>
             </div>
           </div>
+          {currentStage < 4 && (
+            <button
+              className="btn btn-primary"
+              style={{ width: "100%", marginTop: "12px" }}
+              onClick={() => {
+                setCurrentStage((currentStage + 1) as StageLevel);
+                setShowSummary(false);
+              }}
+            >
+              Continue to Stage {currentStage + 1} →
+            </button>
+          )}
           <button className="stage-summary-dismiss" onClick={() => setShowSummary(false)}>
-            Dismiss
+            {currentStage < 4 ? "Stay on this stage" : "Dismiss"}
           </button>
         </div>
       )}
@@ -412,6 +432,7 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
       {/* Stage content */}
       {currentStage === 1 && (
         <RapidFireQuiz
+          key={`quiz-${moduleId}-stage-${currentStage}`}
           scenarios={stageScenarios}
           moduleId={moduleId}
           onComplete={handleStageComplete}

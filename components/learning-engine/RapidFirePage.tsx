@@ -140,6 +140,8 @@ export default function RapidFirePage({ managementUnlocked }: { managementUnlock
           moduleId={config.id}
           managementUnlocked={managementUnlocked}
           initialStage={selected.stage}
+          overrideModuleName={config.label}
+          scaffoldedModuleKey={selected.module}
         />
       </div>
     );
