@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS scenarios (
 
 CREATE INDEX IF NOT EXISTS idx_scenarios_module ON scenarios(module_id);
 CREATE INDEX IF NOT EXISTS idx_scenarios_type ON scenarios(scenario_type);
-CREATE INDEX IF NOT EXISTS idx_scenarios_tags USING GIN(tags);
+CREATE INDEX IF NOT EXISTS idx_scenarios_tags ON scenarios USING GIN(tags);
 
 -- ===== MODULE 1: POURING THE PERFECT BEER (12 scenarios) =====
 INSERT INTO scenarios (module_id, scenario_index, scenario_type, prompt, content, difficulty, tags) VALUES
