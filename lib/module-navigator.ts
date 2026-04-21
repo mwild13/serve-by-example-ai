@@ -46,7 +46,7 @@ export async function getAvailableModules(
       .from("profiles")
       .select("id, plan, tier, platform_version")
       .eq("id", userId)
-      .single();
+      .maybeSingle(); // Use maybeSingle to handle new users without a profile yet
 
     if (profileError) {
       console.error(`[getAvailableModules] Profile error:`, profileError);
@@ -109,18 +109,25 @@ export async function getAvailableModules(
 
     console.log(`[getAvailableModules] Found ${allModules.length} modules`);
 
-    // Get user's Elo ratings from module_elo_baseline
-    const { data: diagnosticResult } = await admin
+    // Get user's Elo ratings from module_elo_baseline (optional - new users won't have this)
+    const { data: diagnosticResult, error: diagnosticError } = await admin
       .from("module_elo_baseline")
       .select("category_scores")
       .eq("user_id", userId)
-      .single();
+      .maybeSingle(); // Use maybeSingle instead of single to handle 0 rows gracefully
+
+    if (diagnosticError) {
+      console.error(`[getAvailableModules] Diagnostic error:`, diagnosticError);
+      // Don't fail - diagnostic data is optional for new users
+    }
 
     const categoryScores = diagnosticResult?.category_scores || {
       technical: 1200,
       service: 1200,
       compliance: 1200,
     };
+
+    console.log(`[getAvailableModules] Using category scores:`, categoryScores);
 
     // Get user's mastery progress for each module
     console.log(`[getAvailableModules] Fetching mastery data for user`);
