@@ -809,20 +809,40 @@ export default function DashboardShell({
             </form>
           </div>
         ) : activeNav === "module" ? (
-          <div key="module" style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-            {/* Dynamic Module Navigation Section */}
-            <DynamicModuleNav
-              userId={userId}
-              userEmail={userEmail}
-              userToken={userToken}
-              onModuleSelect={(moduleId) => setSelectedModuleId(moduleId)}
-              selectedModuleId={selectedModuleId || undefined}
-            />
-            {/* Show StageLearning when a module is selected */}
-            {selectedModuleId && (
-              <div style={{ marginTop: "24px", padding: "24px", backgroundColor: "var(--bg-card)", borderRadius: "8px" }}>
+          <div key="module">
+            {selectedModuleId ? (
+              /* Training view — replaces module grid */
+              <div>
+                <button
+                  onClick={() => setSelectedModuleId(null)}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    marginBottom: "20px",
+                    padding: "8px 16px",
+                    background: "transparent",
+                    border: "2px solid #e5e7eb",
+                    borderRadius: "8px",
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    color: "#374151",
+                    cursor: "pointer",
+                  }}
+                >
+                  ← All Modules
+                </button>
                 <StageLearning key={`module-${selectedModuleId}`} moduleId={selectedModuleId} managementUnlocked={managementUnlocked} />
               </div>
+            ) : (
+              /* Module grid */
+              <DynamicModuleNav
+                userId={userId}
+                userEmail={userEmail}
+                userToken={userToken}
+                onModuleSelect={(moduleId) => setSelectedModuleId(moduleId)}
+                selectedModuleId={selectedModuleId || undefined}
+              />
             )}
           </div>
         ) : activeNav === "stage4" ? (
