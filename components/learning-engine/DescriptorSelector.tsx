@@ -54,7 +54,6 @@ export default function DescriptorSelector({
 
   const shuffledScenarios = useMemo(() => {
     if (level === 3) {
-      // For level 3, shuffle descriptors within each scenario
       return scenarios.map((scenario) => ({
         ...scenario,
         content: {
@@ -130,7 +129,6 @@ export default function DescriptorSelector({
     function handleKey(e: KeyboardEvent) {
       const target = e.target as HTMLElement;
       if (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return;
-
       if (e.key === "Enter" && submitted) {
         e.preventDefault();
         nextQuestion();
@@ -143,78 +141,177 @@ export default function DescriptorSelector({
   if (scenarios.length === 0 || !currentContent) {
     return (
       <div style={{ padding: "48px 24px", textAlign: "center" }}>
-        <p>No scenarios available</p>
+        <p style={{ color: "#6b7280" }}>No scenarios available</p>
       </div>
     );
   }
 
+  const progressPct = (correctCount / requiredCorrect) * 100;
+
   return (
-    <div className="descriptor-container">
+    <div style={{ maxWidth: "720px", margin: "0 auto", padding: "0 4px" }}>
       {/* Progress */}
-      <div className="descriptor-progress">
-        <p className="descriptor-progress-text">
-          Question {questionIndex + 1} of {totalQuestionsValue} • {correctCount}/{requiredCorrect} correct
-        </p>
-        <div className="descriptor-progress-bar">
+      <div style={{ marginBottom: "1.5rem" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+          <p style={{ margin: 0, fontSize: "0.875rem", fontWeight: 600, color: "#374151" }}>
+            Question {questionIndex + 1} of {totalQuestionsValue}
+          </p>
+          <p style={{ margin: 0, fontSize: "0.875rem", fontWeight: 700, color: "#1d4ed8" }}>
+            {correctCount}/{requiredCorrect} correct
+          </p>
+        </div>
+        <div style={{ height: "8px", background: "#e5e7eb", borderRadius: "999px", overflow: "hidden" }}>
           <div
-            className="descriptor-progress-fill"
             style={{
-              width: `${(correctCount / requiredCorrect) * 100}%`,
+              height: "100%",
+              width: `${progressPct}%`,
+              background: "#1d4ed8",
+              borderRadius: "999px",
+              transition: "width 0.3s ease",
             }}
           />
         </div>
+        <p style={{ margin: "6px 0 0", fontSize: "0.8rem", color: "#9ca3af" }}>
+          Stage {level} — Select {selectCount} descriptors that best describe the scenario
+        </p>
       </div>
 
-      {/* Scenario */}
-      <div className="descriptor-card">
-        <h2 className="descriptor-prompt">{currentContent.prompt}</h2>
+      {/* Scenario card */}
+      <div style={{
+        background: "white",
+        border: "2px solid #e5e7eb",
+        borderRadius: "16px",
+        padding: "2rem",
+        marginBottom: "1.25rem",
+        boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
+      }}>
+        <h2 style={{
+          margin: "0 0 1.5rem",
+          fontSize: "1.1rem",
+          fontWeight: 700,
+          color: "#111827",
+          lineHeight: 1.5,
+        }}>
+          {currentContent.prompt}
+        </h2>
 
-        {/* Descriptors */}
-        <div className="descriptor-options">
-          {currentContent.descriptors.map((descriptor, idx) => (
-            <button
-              key={idx}
-              className={`descriptor-option${selected.has(idx) ? " descriptor-option-selected" : ""}${
-                submitted
-                  ? currentContent.correctIndices.includes(idx)
-                    ? " descriptor-option-correct"
-                    : selected.has(idx)
-                    ? " descriptor-option-incorrect"
-                    : ""
-                  : ""
-              }`}
-              onClick={() => toggleDescriptor(idx)}
-              disabled={submitted}
-            >
-              <span className="descriptor-option-checkbox">
-                {selected.has(idx) ? "✓" : ""}
-              </span>
-              <span className="descriptor-option-text">{descriptor}</span>
-            </button>
-          ))}
+        {/* Descriptor options */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          {currentContent.descriptors.map((descriptor, idx) => {
+            const isSelected = selected.has(idx);
+            const isCorrectIdx = currentContent.correctIndices.includes(idx);
+            const isWrongSelected = submitted && isSelected && !isCorrectIdx;
+            const isCorrectHighlight = submitted && isCorrectIdx;
+
+            let borderColor = "#e5e7eb";
+            let bgColor = "#f9fafb";
+            let checkboxBg = "#e5e7eb";
+            let checkboxColor = "#9ca3af";
+
+            if (!submitted && isSelected) {
+              borderColor = "#1d4ed8";
+              bgColor = "#eff6ff";
+              checkboxBg = "#1d4ed8";
+              checkboxColor = "white";
+            } else if (isCorrectHighlight) {
+              borderColor = "#16a34a";
+              bgColor = "#f0fdf4";
+              checkboxBg = "#16a34a";
+              checkboxColor = "white";
+            } else if (isWrongSelected) {
+              borderColor = "#dc2626";
+              bgColor = "#fff1f2";
+              checkboxBg = "#dc2626";
+              checkboxColor = "white";
+            }
+
+            return (
+              <button
+                key={idx}
+                onClick={() => toggleDescriptor(idx)}
+                disabled={submitted}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "14px",
+                  padding: "14px 18px",
+                  borderRadius: "10px",
+                  border: `2px solid ${borderColor}`,
+                  background: bgColor,
+                  cursor: submitted ? "default" : "pointer",
+                  textAlign: "left",
+                  transition: "all 0.15s ease",
+                  width: "100%",
+                }}
+              >
+                <span style={{
+                  flexShrink: 0,
+                  width: "24px",
+                  height: "24px",
+                  borderRadius: "6px",
+                  background: checkboxBg,
+                  color: checkboxColor,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "0.85rem",
+                  fontWeight: 800,
+                  transition: "all 0.15s ease",
+                }}>
+                  {(isSelected || isCorrectHighlight) ? "✓" : ""}
+                </span>
+                <span style={{
+                  fontSize: "0.9375rem",
+                  fontWeight: isSelected || isCorrectHighlight ? 600 : 400,
+                  color: "#111827",
+                  lineHeight: 1.45,
+                }}>
+                  {descriptor}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Explanation */}
         {submitted && currentContent.explanation && (
-          <div
-            className={`descriptor-explanation${
-              wasCorrect
-                ? " descriptor-explanation-correct"
-                : " descriptor-explanation-incorrect"
-            }`}
-          >
-            <p>{currentContent.explanation}</p>
+          <div style={{
+            marginTop: "1.25rem",
+            padding: "1rem 1.25rem",
+            borderRadius: "10px",
+            background: wasCorrect ? "#f0fdf4" : "#fff1f2",
+            border: `1.5px solid ${wasCorrect ? "#86efac" : "#fca5a5"}`,
+          }}>
+            <p style={{
+              margin: 0,
+              fontSize: "0.9rem",
+              color: wasCorrect ? "#15803d" : "#b91c1c",
+              fontWeight: 500,
+              lineHeight: 1.5,
+            }}>
+              {wasCorrect ? "✓ Correct — " : "✗ Incorrect — "}{currentContent.explanation}
+            </p>
           </div>
         )}
       </div>
 
       {/* Actions */}
-      <div className="descriptor-actions">
+      <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
         {!submitted && (
           <button
-            className="btn btn-primary"
             onClick={handleSubmit}
             disabled={selected.size !== selectCount}
+            style={{
+              padding: "12px 28px",
+              background: selected.size === selectCount ? "#1d4ed8" : "#e5e7eb",
+              color: selected.size === selectCount ? "white" : "#9ca3af",
+              border: "none",
+              borderRadius: "10px",
+              fontWeight: 700,
+              fontSize: "0.9375rem",
+              cursor: selected.size === selectCount ? "pointer" : "default",
+              transition: "all 0.15s ease",
+            }}
           >
             {selected.size === selectCount
               ? `Submit ${selectCount} selected →`
@@ -222,27 +319,90 @@ export default function DescriptorSelector({
           </button>
         )}
 
-        {submitted && (
+        {submitted && !completed && !failed && (
           <button
-            className="btn btn-primary"
             onClick={nextQuestion}
-            disabled={completed || failed}
+            style={{
+              padding: "12px 28px",
+              background: "#1d4ed8",
+              color: "white",
+              border: "none",
+              borderRadius: "10px",
+              fontWeight: 700,
+              fontSize: "0.9375rem",
+              cursor: "pointer",
+            }}
           >
-            {completed ? "Stage Complete! →" : failed ? "Failed" : "Next →"}
+            Next → <span style={{ fontSize: "0.8rem", opacity: 0.7 }}>(or Enter)</span>
+          </button>
+        )}
+
+        {submitted && completed && (
+          <button
+            onClick={() => onComplete(correctCount)}
+            style={{
+              padding: "12px 28px",
+              background: "#16a34a",
+              color: "white",
+              border: "none",
+              borderRadius: "10px",
+              fontWeight: 700,
+              fontSize: "0.9375rem",
+              cursor: "pointer",
+            }}
+          >
+            Stage Complete! →
+          </button>
+        )}
+
+        {submitted && failed && (
+          <button
+            disabled
+            style={{
+              padding: "12px 28px",
+              background: "#fee2e2",
+              color: "#b91c1c",
+              border: "none",
+              borderRadius: "10px",
+              fontWeight: 700,
+              fontSize: "0.9375rem",
+              cursor: "default",
+            }}
+          >
+            Stage Failed
           </button>
         )}
       </div>
 
-      {/* Completion/Failure states */}
+      {/* Completion banner */}
       {completed && (
-        <div className="descriptor-completion">
-          <p>Level {level} complete!</p>
+        <div style={{
+          marginTop: "1.25rem",
+          padding: "1rem 1.25rem",
+          background: "#f0fdf4",
+          border: "1.5px solid #86efac",
+          borderRadius: "12px",
+          textAlign: "center",
+        }}>
+          <p style={{ margin: 0, fontWeight: 700, color: "#15803d", fontSize: "1rem" }}>
+            Stage {level} complete! You got {correctCount}/{requiredCorrect} correct.
+          </p>
         </div>
       )}
 
+      {/* Failure banner */}
       {failed && (
-        <div className="descriptor-failure">
-          <p>You needed {requiredCorrect} correct to pass. Better luck next time!</p>
+        <div style={{
+          marginTop: "1.25rem",
+          padding: "1rem 1.25rem",
+          background: "#fff1f2",
+          border: "1.5px solid #fca5a5",
+          borderRadius: "12px",
+          textAlign: "center",
+        }}>
+          <p style={{ margin: 0, fontWeight: 700, color: "#b91c1c", fontSize: "1rem" }}>
+            You needed {requiredCorrect} correct to pass. Try again!
+          </p>
         </div>
       )}
     </div>
