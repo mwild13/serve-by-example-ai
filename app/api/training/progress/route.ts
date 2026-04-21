@@ -6,72 +6,72 @@ import { resolveAccess } from "@/lib/session";
 
 const MANAGEMENT_ROLES = ["Manager", "Supervisor"];
 
+// Legacy 3-module names for backward-compat fields
+const LEGACY_MODULES = ["bartending", "sales", "management"] as const;
+
 export async function GET(req: Request) {
   try {
     const { user } = await getUserFromRequest(req);
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const admin = createSupabaseAdminClient();
-    const modules = ["bartending", "sales", "management"] as const;
 
-    // ── Mastery-based progress for each module ──
+    // ── Legacy mastery progress (modules 1-3 by string name) ──
     const masteryResults = await Promise.all(
-      modules.map(async (mod) => {
+      LEGACY_MODULES.map(async (mod) => {
         const progress = await getMasteryProgress(admin, user.id, mod);
         return [mod, progress] as const;
       }),
     );
     const masteryByModule = Object.fromEntries(masteryResults);
 
-    // Module completion % (mastery_level >= 1 / total scenarios)
-    const moduleCompletion = {
-      bartending: masteryByModule["bartending"].completion,
-      sales: masteryByModule["sales"].completion,
-      management: masteryByModule["management"].completion,
-    };
+    // ── Dynamic module progress (all modules via module_id) ──
+    const { data: allModules } = await admin
+      .from("modules")
+      .select("id, title, category")
+      .order("id", { ascending: true });
 
-    // Module mastery % (mastery_level == 3 / total scenarios)
-    const moduleMastery = {
-      bartending: masteryByModule["bartending"].mastery,
-      sales: masteryByModule["sales"].mastery,
-      management: masteryByModule["management"].mastery,
-    };
+    // Get all scenario_mastery records for this user that have module_id set
+    const { data: masteryRows } = await admin
+      .from("scenario_mastery")
+      .select("module_id, mastery_level, elo_rating, total_attempts, total_score_points, last_attempt_at")
+      .eq("user_id", user.id)
+      .not("module_id", "is", null);
 
-    // Average score per module (0–25 scale)
-    const scores = {
-      bartending: masteryByModule["bartending"].avgScore,
-      sales: masteryByModule["sales"].avgScore,
-      management: masteryByModule["management"].avgScore,
-    };
+    // Aggregate mastery data per module_id
+    const moduleProgress: Record<number, {
+      scenariosAttempted: number;
+      scenariosMastered: number;
+      avgElo: number;
+      completion: number;
+      mastery: number;
+    }> = {};
 
-    // Total attempts per module
-    const sessions = {
-      bartending: masteryByModule["bartending"].totalAttempts,
-      sales: masteryByModule["sales"].totalAttempts,
-      management: masteryByModule["management"].totalAttempts,
-    };
+    if (masteryRows && allModules) {
+      const byModuleId: Record<number, typeof masteryRows> = {};
+      for (const row of masteryRows) {
+        if (row.module_id == null) continue;
+        (byModuleId[row.module_id] ??= []).push(row);
+      }
 
-    // Elo ratings
-    const elo = {
-      bartending: masteryByModule["bartending"].avgElo,
-      sales: masteryByModule["sales"].avgElo,
-      management: masteryByModule["management"].avgElo,
-    };
+      for (const mod of allModules) {
+        const rows = byModuleId[mod.id] ?? [];
+        const attempted = rows.length;
+        const mastered = rows.filter((r) => r.mastery_level >= 3).length;
+        const totalElo = rows.reduce((sum, r) => sum + (r.elo_rating ?? 1200), 0);
+        const scenarioTotal = SCENARIO_COUNTS[`module_${mod.id}`] ?? 10;
 
-    // Scenarios mastered / attempted
-    const scenariosMastered = {
-      bartending: masteryByModule["bartending"].scenariosMastered,
-      sales: masteryByModule["sales"].scenariosMastered,
-      management: masteryByModule["management"].scenariosMastered,
-    };
+        moduleProgress[mod.id] = {
+          scenariosAttempted: attempted,
+          scenariosMastered: mastered,
+          avgElo: attempted > 0 ? Math.round(totalElo / attempted) : 1200,
+          completion: attempted > 0 ? Math.round((attempted / scenarioTotal) * 100) : 0,
+          mastery: attempted > 0 ? Math.round((mastered / scenarioTotal) * 100) : 0,
+        };
+      }
+    }
 
-    const scenariosAttempted = {
-      bartending: masteryByModule["bartending"].scenariosAttempted,
-      sales: masteryByModule["sales"].scenariosAttempted,
-      management: masteryByModule["management"].scenariosAttempted,
-    };
-
-    // ── Level progress (Stages 1-3) ──
+    // ── Level progress (Stages 1-3, legacy table) ──
     const { data: levelRows } = await admin
       .from("user_level_progress")
       .select("module, level1_completed, level2_completed, level3_completed, level4_unlocked, level1_score, level2_score, level3_score")
@@ -99,22 +99,20 @@ export async function GET(req: Request) {
       }
     }
 
-    // ── Spaced repetition queue (scenarios due for review) ──
+    // ── Spaced repetition queue ──
     const reviewQueue = await getReviewQueue(admin, user.id);
 
-    // ── Per-scenario mastery details (for the active module if requested) ──
+    // ── Per-scenario mastery details (for a specific module if requested) ──
     const url = new URL(req.url);
     const detailModule = url.searchParams.get("detail");
     let scenarioDetails: Awaited<ReturnType<typeof getScenarioMasteryDetails>> | null = null;
-    if (detailModule && modules.includes(detailModule as typeof modules[number])) {
+    if (detailModule && LEGACY_MODULES.includes(detailModule as typeof LEGACY_MODULES[number])) {
       scenarioDetails = await getScenarioMasteryDetails(admin, user.id, detailModule);
     }
 
-    // ── Staff role & management auto-unlock (unchanged) ──
+    // ── Staff role & management auto-unlock ──
     let staffRole: string | null = null;
     let autoUnlockManagement = false;
-
-    // ── Tier-based access info ──
     const access = await resolveAccess(admin, user.id, user.email ?? "");
 
     if (user.email) {
@@ -148,13 +146,45 @@ export async function GET(req: Request) {
     }
 
     return NextResponse.json({
-      modules: moduleCompletion,
-      mastery: moduleMastery,
-      scores,
-      sessions,
-      elo,
-      scenariosMastered,
-      scenariosAttempted,
+      // Legacy 3-module fields (backward compat)
+      modules: {
+        bartending: masteryByModule["bartending"].completion,
+        sales: masteryByModule["sales"].completion,
+        management: masteryByModule["management"].completion,
+      },
+      mastery: {
+        bartending: masteryByModule["bartending"].mastery,
+        sales: masteryByModule["sales"].mastery,
+        management: masteryByModule["management"].mastery,
+      },
+      scores: {
+        bartending: masteryByModule["bartending"].avgScore,
+        sales: masteryByModule["sales"].avgScore,
+        management: masteryByModule["management"].avgScore,
+      },
+      sessions: {
+        bartending: masteryByModule["bartending"].totalAttempts,
+        sales: masteryByModule["sales"].totalAttempts,
+        management: masteryByModule["management"].totalAttempts,
+      },
+      elo: {
+        bartending: masteryByModule["bartending"].avgElo,
+        sales: masteryByModule["sales"].avgElo,
+        management: masteryByModule["management"].avgElo,
+      },
+      scenariosMastered: {
+        bartending: masteryByModule["bartending"].scenariosMastered,
+        sales: masteryByModule["sales"].scenariosMastered,
+        management: masteryByModule["management"].scenariosMastered,
+      },
+      scenariosAttempted: {
+        bartending: masteryByModule["bartending"].scenariosAttempted,
+        sales: masteryByModule["sales"].scenariosAttempted,
+        management: masteryByModule["management"].scenariosAttempted,
+      },
+      // New: per-module progress for all 20 modules
+      moduleProgress,
+      allModules: allModules ?? [],
       scenarioCounts: SCENARIO_COUNTS,
       levelProgress,
       reviewQueue,
@@ -172,4 +202,3 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Failed to load training progress." }, { status: 500 });
   }
 }
-

@@ -71,10 +71,22 @@ export type SpacedRepetitionItem = {
 export type RecordAttemptInput = {
   userId: string;
   module: string;
+  moduleId?: number; // numeric module id for new 20-module system
   scenarioIndex: number;
   overallScore: number;
   confidence: ConfidenceLevel;
 };
+
+// Map numeric moduleId to legacy string for modules 1-3 (backward compat)
+const LEGACY_MODULE_NAMES: Record<number, string> = {
+  1: "bartending",
+  2: "sales",
+  3: "management",
+};
+
+export function moduleIdToString(moduleId: number): string {
+  return LEGACY_MODULE_NAMES[moduleId] ?? `module_${moduleId}`;
+}
 
 export type RecordAttemptResult = {
   masteryLevel: number;
@@ -136,7 +148,14 @@ export async function recordAttempt(
   admin: SupabaseClient,
   input: RecordAttemptInput,
 ): Promise<RecordAttemptResult> {
-  const { userId, module, scenarioIndex, overallScore, confidence } = input;
+  const { userId, scenarioIndex, overallScore, confidence } = input;
+
+  // Resolve module string — if moduleId is provided, derive from it
+  const module = input.moduleId
+    ? moduleIdToString(input.moduleId)
+    : input.module;
+  const moduleId = input.moduleId ?? null;
+
   const isCorrect = overallScore >= PASS_SCORE;
   const now = new Date();
 
@@ -215,6 +234,7 @@ export async function recordAttempt(
     {
       user_id: userId,
       module,
+      module_id: moduleId,
       scenario_index: scenarioIndex,
       mastery_level: newMasteryLevel,
       consecutive_correct: newConsecutiveCorrect,
