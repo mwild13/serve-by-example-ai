@@ -55,6 +55,15 @@ export default function DynamicModuleNav({
         }
 
         const data: AvailableModulesResponse = await response.json();
+        console.log(
+          "[DynamicModuleNav] Modules loaded:",
+          {
+            count: data.modules.length,
+            platform_version: data.platform_version,
+            user_role: data.user_role,
+            modules: data.modules.map((m) => ({ id: m.id, title: m.title })).slice(0, 5),
+          }
+        );
         setModules(data.modules);
         setPlatformVersion(data.platform_version);
 
