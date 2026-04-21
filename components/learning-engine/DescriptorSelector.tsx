@@ -216,7 +216,9 @@ export default function DescriptorSelector({
             onClick={handleSubmit}
             disabled={selected.size !== selectCount}
           >
-            Submit ({selectCount} selected)
+            {selected.size === selectCount
+              ? `Submit ${selectCount} selected →`
+              : `Select ${selectCount - selected.size} more`}
           </button>
         )}
 
