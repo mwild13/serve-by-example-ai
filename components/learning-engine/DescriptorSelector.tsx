@@ -192,7 +192,7 @@ export default function DescriptorSelector({
           color: "#111827",
           lineHeight: 1.5,
         }}>
-          {currentContent.prompt}
+          {currentScenario?.prompt ?? currentContent.prompt}
         </h2>
 
         {/* Descriptor options */}

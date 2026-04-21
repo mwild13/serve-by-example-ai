@@ -64,7 +64,8 @@ export default function RapidFireQuiz({
       if (answered !== null || !currentContent) return;
 
       const elapsed = Date.now() - questionStartRef.current;
-      const correct = userAnswer === currentContent.answer;
+      const correctAnswer = String(currentContent.answer).toLowerCase();
+      const correct = userAnswer === correctAnswer;
       setAnswered(userAnswer);
       setWasCorrect(correct);
       setShowExplanation(true);
@@ -112,10 +113,10 @@ export default function RapidFireQuiz({
       if (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return;
 
       if (answered === null) {
-        if ((e.key === "t" || e.key === "T") && currentContent?.answer === "true") {
+        if (e.key === "t" || e.key === "T") {
           handleAnswer("true");
         }
-        if ((e.key === "f" || e.key === "F") && currentContent?.answer === "false") {
+        if (e.key === "f" || e.key === "F") {
           handleAnswer("false");
         }
       } else {
@@ -164,42 +165,38 @@ export default function RapidFireQuiz({
 
       {/* Question */}
       <div className="quiz-question-card">
-        <h2 className="quiz-question-text">{currentContent?.question}</h2>
-        {currentContent?.option_type === "truefalse" && (
-          <>
-            <div className="quiz-button-group">
-              <button
-                className={`quiz-button quiz-button-true${
-                  answered === "true"
-                    ? wasCorrect
-                      ? " quiz-button-correct"
-                      : " quiz-button-incorrect"
-                    : ""
-                }${buttonFlash === "true" ? " quiz-button-flash" : ""}`}
-                onClick={() => handleAnswer("true")}
-                disabled={answered !== null}
-              >
-                <span className="quiz-button-label">True</span>
-                <span className="quiz-button-hint">or press T</span>
-              </button>
+        <h2 className="quiz-question-text">{currentScenario?.prompt ?? currentContent?.question ?? ""}</h2>
+        <div className="quiz-button-group">
+          <button
+            className={`quiz-button quiz-button-true${
+              answered === "true"
+                ? wasCorrect
+                  ? " quiz-button-correct"
+                  : " quiz-button-incorrect"
+                : ""
+            }${buttonFlash === "true" ? " quiz-button-flash" : ""}`}
+            onClick={() => handleAnswer("true")}
+            disabled={answered !== null}
+          >
+            <span className="quiz-button-label">True</span>
+            <span className="quiz-button-hint">or press T</span>
+          </button>
 
-              <button
-                className={`quiz-button quiz-button-false${
-                  answered === "false"
-                    ? wasCorrect
-                      ? " quiz-button-correct"
-                      : " quiz-button-incorrect"
-                    : ""
-                }${buttonFlash === "false" ? " quiz-button-flash" : ""}`}
-                onClick={() => handleAnswer("false")}
-                disabled={answered !== null}
-              >
-                <span className="quiz-button-label">False</span>
-                <span className="quiz-button-hint">or press F</span>
-              </button>
-            </div>
-          </>
-        )}
+          <button
+            className={`quiz-button quiz-button-false${
+              answered === "false"
+                ? wasCorrect
+                  ? " quiz-button-correct"
+                  : " quiz-button-incorrect"
+                : ""
+            }${buttonFlash === "false" ? " quiz-button-flash" : ""}`}
+            onClick={() => handleAnswer("false")}
+            disabled={answered !== null}
+          >
+            <span className="quiz-button-label">False</span>
+            <span className="quiz-button-hint">or press F</span>
+          </button>
+        </div>
       </div>
 
       {/* Explanation */}

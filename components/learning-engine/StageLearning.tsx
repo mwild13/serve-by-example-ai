@@ -4,6 +4,12 @@ import { useState, useEffect, useCallback } from "react";
 import RapidFireQuiz from "@/components/learning-engine/RapidFireQuiz";
 import DescriptorSelector from "@/components/learning-engine/DescriptorSelector";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
+import {
+  LEVEL1_QUESTIONS,
+  LEVEL2_DESCRIPTORS,
+  LEVEL3_DESCRIPTORS,
+  type Module,
+} from "@/lib/scaffolded-questions";
 
 type StageLevel = 1 | 2 | 3 | 4;
 
@@ -35,13 +41,74 @@ type ModuleProgress = {
   score: number;
 };
 
-// Fallback scenarios used when DB hasn't been seeded yet
-// Covers all 4 stage types so training is always functional
+// Map module IDs 1-3 to their scaffolded question module keys
+const SCAFFOLDED_MODULE_KEY: Record<number, Module> = {
+  1: "bartending",
+  2: "sales",
+  3: "management",
+};
+
+// Build rich fallback scenarios from scaffolded-questions.ts for modules 1-3
+// For modules 4-20, use generic content so training is always functional
 function getFallbackScenarios(moduleId: number): Scenario[] {
+  const moduleKey = SCAFFOLDED_MODULE_KEY[moduleId];
+
+  if (moduleKey) {
+    const l1 = LEVEL1_QUESTIONS[moduleKey];
+    const l2 = LEVEL2_DESCRIPTORS[moduleKey];
+    const l3 = LEVEL3_DESCRIPTORS[moduleKey];
+
+    const quizScenarios: Scenario[] = l1.map((q, i) => ({
+      id: `scaffolded-${moduleId}-l1-${i}`,
+      module_id: moduleId,
+      scenario_index: i,
+      scenario_type: "quiz",
+      prompt: q.question,
+      content: { answer: String(q.answer), explanation: q.explanation },
+      difficulty: 1,
+    }));
+
+    const l2Scenarios: Scenario[] = l2.map((q, i) => ({
+      id: `scaffolded-${moduleId}-l2-${i}`,
+      module_id: moduleId,
+      scenario_index: 20 + i,
+      scenario_type: "descriptor_l2",
+      prompt: q.prompt,
+      content: {
+        descriptors: q.descriptors,
+        correctIndices: q.correctIndices,
+        explanation: q.explanation,
+      },
+      difficulty: 2,
+    }));
+
+    const l3Scenarios: Scenario[] = l3.map((q, i) => ({
+      id: `scaffolded-${moduleId}-l3-${i}`,
+      module_id: moduleId,
+      scenario_index: 30 + i,
+      scenario_type: "descriptor_l3",
+      prompt: q.prompt,
+      content: {
+        descriptors: q.descriptors,
+        correctIndices: q.correctIndices,
+        explanation: q.explanation,
+      },
+      difficulty: 3,
+    }));
+
+    return [...quizScenarios, ...l2Scenarios, ...l3Scenarios, {
+      id: `scaffolded-${moduleId}-l4-0`,
+      module_id: moduleId,
+      scenario_index: 40,
+      scenario_type: "roleplay",
+      prompt: `You are on shift and a guest needs your help. Demonstrate your ${moduleKey} knowledge by walking through your approach step by step.`,
+      content: { context: `Real-world scenario for ${moduleKey}.`, evaluation_criteria: ["Empathy", "Knowledge", "Problem-solving", "Communication"] },
+      difficulty: 4,
+    }];
+  }
+
+  // Generic fallback for modules 4-20
   const moduleTopics: Record<number, { topic: string; keyword: string }> = {
-    1: { topic: "beer service", keyword: "pouring a beer" },
-    2: { topic: "wine service", keyword: "serving wine" },
-    3: { topic: "cocktail making", keyword: "making cocktails" },
     4: { topic: "coffee preparation", keyword: "coffee and espresso" },
     5: { topic: "carrying glassware", keyword: "carrying trays safely" },
     6: { topic: "cleaning procedures", keyword: "cleaning and sanitation" },
@@ -64,143 +131,36 @@ function getFallbackScenarios(moduleId: number): Scenario[] {
   const info = moduleTopics[moduleId] || { topic: "hospitality", keyword: "service" };
 
   return [
-    // Stage 1: Quiz (true/false)
+    { id: `fallback-${moduleId}-1`, module_id: moduleId, scenario_index: 0, scenario_type: "quiz", prompt: `Proper technique is essential when ${info.keyword}.`, content: { answer: "true", explanation: `Good technique in ${info.topic} is fundamental to quality service.` }, difficulty: 1 },
+    { id: `fallback-${moduleId}-2`, module_id: moduleId, scenario_index: 1, scenario_type: "quiz", prompt: `You can skip ${info.topic} training if you have prior experience.`, content: { answer: "false", explanation: `Every venue has specific standards. Even experienced staff need to learn house procedures.` }, difficulty: 1 },
+    { id: `fallback-${moduleId}-3`, module_id: moduleId, scenario_index: 2, scenario_type: "quiz", prompt: `Guest satisfaction improves when staff are skilled in ${info.topic}.`, content: { answer: "true", explanation: `Proficiency in ${info.topic} directly contributes to a positive guest experience.` }, difficulty: 1 },
+    { id: `fallback-${moduleId}-4`, module_id: moduleId, scenario_index: 3, scenario_type: "quiz", prompt: `Speed is more important than quality when ${info.keyword}.`, content: { answer: "false", explanation: `Quality should never be compromised. Rushed ${info.topic} leads to errors and dissatisfaction.` }, difficulty: 2 },
+    { id: `fallback-${moduleId}-5`, module_id: moduleId, scenario_index: 4, scenario_type: "quiz", prompt: `Understanding ${info.topic} helps you handle difficult situations at work.`, content: { answer: "true", explanation: `Strong ${info.topic} knowledge gives you confidence to adapt when things don't go to plan.` }, difficulty: 2 },
     {
-      id: `fallback-${moduleId}-1`,
-      module_id: moduleId,
-      scenario_index: 0,
-      scenario_type: "quiz",
-      prompt: `True or false: Proper technique is essential when ${info.keyword}.`,
-      content: { answer: "true", explanation: `Correct! Good technique in ${info.topic} is fundamental to delivering quality service and maintaining safety standards.` },
-      difficulty: 1,
-    },
-    {
-      id: `fallback-${moduleId}-2`,
-      module_id: moduleId,
-      scenario_index: 1,
-      scenario_type: "quiz",
-      prompt: `True or false: You can skip ${info.topic} training if you have prior experience.`,
-      content: { answer: "false", explanation: `Incorrect. Every venue has specific standards. Even experienced staff need to learn the house procedures for ${info.topic}.` },
-      difficulty: 1,
-    },
-    {
-      id: `fallback-${moduleId}-3`,
-      module_id: moduleId,
-      scenario_index: 2,
-      scenario_type: "quiz",
-      prompt: `True or false: Guest satisfaction improves when staff are skilled in ${info.topic}.`,
-      content: { answer: "true", explanation: `Absolutely. Proficiency in ${info.topic} directly contributes to a positive guest experience and repeat business.` },
-      difficulty: 1,
-    },
-    {
-      id: `fallback-${moduleId}-4`,
-      module_id: moduleId,
-      scenario_index: 3,
-      scenario_type: "quiz",
-      prompt: `True or false: Speed is more important than quality when ${info.keyword}.`,
-      content: { answer: "false", explanation: `False. While efficiency matters, quality should never be compromised. Rushed ${info.topic} can lead to errors, waste, or guest dissatisfaction.` },
-      difficulty: 2,
-    },
-    {
-      id: `fallback-${moduleId}-5`,
-      module_id: moduleId,
-      scenario_index: 4,
-      scenario_type: "quiz",
-      prompt: `True or false: Understanding ${info.topic} helps you handle difficult situations at work.`,
-      content: { answer: "true", explanation: `True. A strong knowledge of ${info.topic} gives you confidence and the ability to adapt when things don't go to plan.` },
-      difficulty: 2,
-    },
-    // Stage 2: Descriptor L2 (select 2 of 5)
-    {
-      id: `fallback-${moduleId}-6`,
-      module_id: moduleId,
-      scenario_index: 5,
-      scenario_type: "descriptor_l2",
+      id: `fallback-${moduleId}-6`, module_id: moduleId, scenario_index: 5, scenario_type: "descriptor_l2",
       prompt: `A guest asks for help with ${info.keyword}. Which TWO actions best reflect professional service?`,
-      content: {
-        descriptors: [
-          `Respond promptly and with a smile`,
-          `Ignore the request until you finish another task`,
-          `Apply proper ${info.topic} technique`,
-          `Guess without checking your training`,
-          `Tell the guest to wait indefinitely`,
-        ],
-        correctIndices: [0, 2],
-        explanation: `Promptness and applying correct ${info.topic} technique are the cornerstones of professional service.`,
-      },
+      content: { descriptors: [`Respond promptly and with a smile`, `Ignore the request`, `Apply proper ${info.topic} technique`, `Guess without checking`, `Tell the guest to wait indefinitely`], correctIndices: [0, 2], explanation: `Promptness and applying correct technique are the cornerstones of professional service.` },
       difficulty: 2,
     },
     {
-      id: `fallback-${moduleId}-7`,
-      module_id: moduleId,
-      scenario_index: 6,
-      scenario_type: "descriptor_l2",
+      id: `fallback-${moduleId}-7`, module_id: moduleId, scenario_index: 6, scenario_type: "descriptor_l2",
       prompt: `You notice a problem during ${info.keyword}. Which TWO steps should you take?`,
-      content: {
-        descriptors: [
-          `Address it immediately before it escalates`,
-          `Ignore it and hope it resolves itself`,
-          `Inform your supervisor if needed`,
-          `Blame a colleague`,
-          `Walk away from the situation`,
-        ],
-        correctIndices: [0, 2],
-        explanation: `Acting quickly and involving your supervisor when appropriate are both hallmarks of responsible service.`,
-      },
+      content: { descriptors: [`Address it immediately before it escalates`, `Ignore it and hope it resolves`, `Inform your supervisor if needed`, `Blame a colleague`, `Walk away from the situation`], correctIndices: [0, 2], explanation: `Acting quickly and involving your supervisor when appropriate are hallmarks of responsible service.` },
       difficulty: 2,
     },
-    // Stage 3: Descriptor L3 (select 3 of 5)
     {
-      id: `fallback-${moduleId}-8`,
-      module_id: moduleId,
-      scenario_index: 7,
-      scenario_type: "descriptor_l3",
+      id: `fallback-${moduleId}-8`, module_id: moduleId, scenario_index: 7, scenario_type: "descriptor_l3",
       prompt: `During a busy shift involving ${info.keyword}, which THREE behaviours demonstrate excellence?`,
-      content: {
-        descriptors: [
-          `Maintain composure under pressure`,
-          `Prioritise tasks by urgency`,
-          `Cut corners to save time`,
-          `Communicate clearly with your team`,
-          `Dismiss guest feedback`,
-        ],
-        correctIndices: [0, 1, 3],
-        explanation: `Composure, prioritisation, and clear communication are the key pillars of excellence in ${info.topic} during busy periods.`,
-      },
+      content: { descriptors: [`Maintain composure under pressure`, `Prioritise tasks by urgency`, `Cut corners to save time`, `Communicate clearly with your team`, `Dismiss guest feedback`], correctIndices: [0, 1, 3], explanation: `Composure, prioritisation, and clear communication are the key pillars of excellence.` },
       difficulty: 3,
     },
     {
-      id: `fallback-${moduleId}-9`,
-      module_id: moduleId,
-      scenario_index: 8,
-      scenario_type: "descriptor_l3",
+      id: `fallback-${moduleId}-9`, module_id: moduleId, scenario_index: 8, scenario_type: "descriptor_l3",
       prompt: `A guest gives feedback about ${info.keyword}. Which THREE responses show professionalism?`,
-      content: {
-        descriptors: [
-          `Thank them for the feedback`,
-          `Dismiss what they said`,
-          `Take note of what can be improved`,
-          `Argue with the guest`,
-          `Follow up to ensure satisfaction`,
-        ],
-        correctIndices: [0, 2, 4],
-        explanation: `Thanking guests, noting improvements, and following up are all signs of professional service recovery.`,
-      },
+      content: { descriptors: [`Thank them for the feedback`, `Dismiss what they said`, `Take note of what can be improved`, `Argue with the guest`, `Follow up to ensure satisfaction`], correctIndices: [0, 2, 4], explanation: `Thanking guests, noting improvements, and following up are signs of professional service recovery.` },
       difficulty: 3,
     },
-    // Stage 4: Roleplay
-    {
-      id: `fallback-${moduleId}-10`,
-      module_id: moduleId,
-      scenario_index: 9,
-      scenario_type: "roleplay",
-      prompt: `You are working a busy shift and a guest approaches you with a concern related to ${info.topic}. They seem frustrated. How do you handle this situation? Describe your approach step by step.`,
-      content: {
-        context: `This is a real-world scenario testing your ability to apply ${info.topic} knowledge under pressure.`,
-        evaluation_criteria: [`Empathy`, `Knowledge of ${info.topic}`, `Problem-solving`, `Communication`],
-      },
-      difficulty: 4,
-    },
+    { id: `fallback-${moduleId}-10`, module_id: moduleId, scenario_index: 9, scenario_type: "roleplay", prompt: `A guest approaches you with a concern about ${info.topic}. How do you handle this situation?`, content: { context: `Testing ${info.topic} knowledge under pressure.`, evaluation_criteria: [`Empathy`, `Knowledge`, `Problem-solving`, `Communication`] }, difficulty: 4 },
   ];
 }
 
@@ -254,7 +214,16 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
           const dbScenarios = scenariosData.scenarios || [];
 
           if (dbScenarios.length > 0) {
-            setScenarios(dbScenarios);
+            // Check if DB has scenarios for all stage types — if not, use scaffolded fallback
+            const hasDescriptors = dbScenarios.some(
+              (s: Scenario) => s.scenario_type === "descriptor_l2" || s.scenario_type === "descriptor_l3"
+            );
+            if (!hasDescriptors && SCAFFOLDED_MODULE_KEY[moduleId]) {
+              // DB only has quiz-type scenarios (old data), use full scaffolded set
+              setScenarios(getFallbackScenarios(moduleId));
+            } else {
+              setScenarios(dbScenarios);
+            }
           } else {
             // DB scenarios not yet seeded — use fallback so training works
             setScenarios(getFallbackScenarios(moduleId));
