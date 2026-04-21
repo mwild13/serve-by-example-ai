@@ -314,7 +314,7 @@ export default function DescriptorSelector({
             }}
           >
             {selected.size === selectCount
-              ? `Submit ${selectCount} selected →`
+              ? `Confirm →`
               : `Select ${selectCount - selected.size} more`}
           </button>
         )}
