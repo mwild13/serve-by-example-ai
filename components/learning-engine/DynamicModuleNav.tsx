@@ -28,7 +28,6 @@ export default function DynamicModuleNav({
   const [sortBy, setSortBy] = useState<"recommended" | "elo" | "title">(
     "recommended"
   );
-  const [platformVersion, setPlatformVersion] = useState(1);
 
   // Fetch available modules on mount
   useEffect(() => {
@@ -65,7 +64,6 @@ export default function DynamicModuleNav({
           }
         );
         setModules(data.modules);
-        setPlatformVersion(data.platform_version);
 
         // Apply category filter if needed
         if (selectedCategory === "all") {
@@ -147,9 +145,9 @@ export default function DynamicModuleNav({
           Training Modules
         </h2>
         <p className="text-gray-600">
-          {platformVersion === 1
-            ? "Legacy training (3 modules)"
-            : `Complete your personalized learning path across ${modules.length} modules`}
+          {modules.length > 0
+            ? `Complete your personalized learning path across ${modules.length} modules`
+            : "Loading your training modules..."}
         </p>
       </div>
 
