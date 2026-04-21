@@ -1,32 +1,46 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo } from "react";
-import {
-  LEVEL2_DESCRIPTORS,
-  LEVEL3_DESCRIPTORS,
-  LEVEL_THRESHOLDS,
-  shuffleDescriptors,
-  type Module,
-  type DescriptorQuestion,
-} from "@/lib/scaffolded-questions";
+
+type Scenario = {
+  id: string;
+  module_id: number;
+  scenario_index: number;
+  scenario_type: string;
+  prompt: string;
+  content: Record<string, unknown>;
+  difficulty: number;
+};
+
+type DescriptorContent = {
+  prompt: string;
+  descriptors: string[];
+  correctIndices: number[];
+  explanation: string;
+};
 
 type Props = {
-  module: Module;
+  scenarios: Scenario[];
+  moduleId: number;
   level: 2 | 3;
-  onComplete: () => void;
+  onComplete: (score: number) => void;
   initialScore?: number;
 };
 
-export default function DescriptorSelector({ module, level, onComplete, initialScore = 0 }: Props) {
-  const rawQuestions = level === 2 ? LEVEL2_DESCRIPTORS[module] : LEVEL3_DESCRIPTORS[module];
-  const requiredCorrect = level === 2 ? LEVEL_THRESHOLDS.level2CorrectRequired : LEVEL_THRESHOLDS.level3CorrectRequired;
-  const totalQuestions = level === 2 ? LEVEL_THRESHOLDS.level2TotalQuestions : LEVEL_THRESHOLDS.level3TotalQuestions;
-  const selectCount = level === 2 ? 2 : 3;
+const selectCountByLevel = { 2: 2, 3: 3 };
+const requiredCorrectByLevel = { 2: 4, 3: 5 };
+const totalQuestionsTarget = { 2: 6, 3: 7 };
 
-  const questions: DescriptorQuestion[] = useMemo(() => {
-    if (level === 3) return rawQuestions.map(shuffleDescriptors);
-    return rawQuestions;
-  }, [rawQuestions, level]);
+export default function DescriptorSelector({
+  scenarios,
+  moduleId,
+  level,
+  onComplete,
+  initialScore = 0,
+}: Props) {
+  const selectCount = selectCountByLevel[level];
+  const requiredCorrect = requiredCorrectByLevel[level];
+  const totalQuestionsValue: number = totalQuestionsTarget[level];
 
   const [questionIndex, setQuestionIndex] = useState(0);
   const [correctCount, setCorrectCount] = useState(initialScore);
@@ -36,28 +50,46 @@ export default function DescriptorSelector({ module, level, onComplete, initialS
   const [wasCorrect, setWasCorrect] = useState<boolean | null>(null);
   const [completed, setCompleted] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [shuffleKey, setShuffleKey] = useState(0); // triggers re-shuffle animation
+  const [shuffleKey, setShuffleKey] = useState(0);
 
-  const currentQuestion = questions[questionIndex % questions.length];
+  const shuffledScenarios = useMemo(() => {
+    if (level === 3) {
+      // For level 3, shuffle descriptors within each scenario
+      return scenarios.map((scenario) => ({
+        ...scenario,
+        content: {
+          ...(scenario.content as DescriptorContent),
+          shuffled_indices: shuffleArray([0, 1, 2, 3, 4]),
+        },
+      }));
+    }
+    return scenarios;
+  }, [scenarios, level, shuffleKey]);
 
-  const toggleDescriptor = useCallback((index: number) => {
-    if (submitted) return;
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(index)) {
-        next.delete(index);
-      } else if (next.size < selectCount) {
-        next.add(index);
-      }
-      return next;
-    });
-  }, [submitted, selectCount]);
+  const currentScenario = shuffledScenarios[questionIndex % shuffledScenarios.length];
+  const currentContent = currentScenario?.content as DescriptorContent | undefined;
+
+  const toggleDescriptor = useCallback(
+    (index: number) => {
+      if (submitted) return;
+      setSelected((prev) => {
+        const next = new Set(prev);
+        if (next.has(index)) {
+          next.delete(index);
+        } else if (next.size < selectCount) {
+          next.add(index);
+        }
+        return next;
+      });
+    },
+    [submitted, selectCount]
+  );
 
   const handleSubmit = useCallback(() => {
-    if (submitted || selected.size !== selectCount || !currentQuestion) return;
+    if (submitted || selected.size !== selectCount || !currentContent) return;
     setSubmitted(true);
 
-    const correct = currentQuestion.correctIndices;
+    const correct = currentContent.correctIndices;
     const isCorrect = correct.length === selected.size &&
       correct.every((ci) => selected.has(ci));
 
@@ -73,199 +105,153 @@ export default function DescriptorSelector({ module, level, onComplete, initialS
       }
     }
 
-    const remaining = totalQuestions - newAnswered;
+    const remaining = totalQuestionsValue - newAnswered;
     const currentCorrects = isCorrect ? correctCount + 1 : correctCount;
     if (remaining + currentCorrects < requiredCorrect && !isCorrect) {
       setFailed(true);
     }
-  }, [submitted, selected, selectCount, currentQuestion, questionsAnswered, correctCount, requiredCorrect, totalQuestions]);
+  }, [submitted, selected.size, selectCount, currentContent, questionsAnswered, correctCount, requiredCorrect, totalQuestionsValue]);
 
   const nextQuestion = useCallback(() => {
     if (completed) {
-      onComplete();
+      onComplete(correctCount);
       return;
     }
-    if (failed) {
-      setQuestionIndex(0);
-      setCorrectCount(0);
-      setQuestionsAnswered(0);
+    if (!failed) {
+      setQuestionIndex((i) => (i + 1) % shuffledScenarios.length);
       setSelected(new Set());
       setSubmitted(false);
       setWasCorrect(null);
-      setFailed(false);
-      setShuffleKey((k) => k + 1);
-      return;
-    }
-    setQuestionIndex((i) => (i + 1) % questions.length);
-    setSelected(new Set());
-    setSubmitted(false);
-    setWasCorrect(null);
-    // In Stage 3, trigger shuffle animation on incorrect answers
-    if (level === 3 && wasCorrect === false) {
       setShuffleKey((k) => k + 1);
     }
-  }, [completed, failed, onComplete, questions.length, level, wasCorrect]);
+  }, [completed, failed, onComplete, correctCount, shuffledScenarios.length]);
 
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       const target = e.target as HTMLElement;
       if (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return;
-      if (e.key === "Enter") {
+
+      if (e.key === "Enter" && submitted) {
         e.preventDefault();
-        if (!submitted && selected.size === selectCount) {
-          handleSubmit();
-        } else if (submitted) {
-          nextQuestion();
-        }
-      }
-      if (!submitted && e.key >= "1" && e.key <= "5") {
-        const idx = parseInt(e.key) - 1;
-        if (idx < (currentQuestion?.descriptors.length ?? 0)) {
-          toggleDescriptor(idx);
-        }
+        nextQuestion();
       }
     }
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [submitted, selected, selectCount, handleSubmit, nextQuestion, currentQuestion, toggleDescriptor]);
+  }, [submitted, nextQuestion]);
 
-  if (questions.length === 0) return null;
-
-  const progressPct = Math.min((questionsAnswered / totalQuestions) * 100, 100);
-  const nextStage = level === 2 ? 3 : 4;
-  const remaining = selectCount - selected.size;
-
-  // Contextual button text
-  const submitLabel = submitted
-    ? (completed ? `Continue to Stage ${nextStage} →` : "Next question →")
-    : remaining > 0
-      ? `Select ${remaining} more`
-      : "Submit recommendation";
+  if (scenarios.length === 0 || !currentContent) {
+    return (
+      <div style={{ padding: "48px 24px", textAlign: "center" }}>
+        <p>No scenarios available</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="ds-container">
-      {/* Header */}
-      <div className="ds-header">
-        <div className="ds-level-badge">Stage {level}</div>
-        <h2 className="ds-title">
-          {level === 2 ? "Descriptor Selection" : "Advanced Descriptors"}
-        </h2>
-        <p className="ds-subtitle">
-          Select {selectCount} correct descriptors — {requiredCorrect}/{totalQuestions} correct to advance
-        </p>
-      </div>
-
+    <div className="descriptor-container">
       {/* Progress */}
-      <div className="ds-progress-section">
-        <div className="ds-progress-bar">
-          <div className="ds-progress-fill" style={{ width: `${progressPct}%` }} />
-        </div>
-        <div className="ds-progress-stats">
-          <span>Correct: <strong>{correctCount}</strong> / {requiredCorrect} needed</span>
-          <span>Questions: {questionsAnswered} / {totalQuestions}</span>
+      <div className="descriptor-progress">
+        <p className="descriptor-progress-text">
+          Question {questionIndex + 1} of {totalQuestionsValue} • {correctCount}/{requiredCorrect} correct
+        </p>
+        <div className="descriptor-progress-bar">
+          <div
+            className="descriptor-progress-fill"
+            style={{
+              width: `${(correctCount / requiredCorrect) * 100}%`,
+            }}
+          />
         </div>
       </div>
 
-      {/* Completion */}
-      {completed && (
-        <div className="ds-complete">
-          <div className="ds-complete-icon">🎉</div>
-          <h3>Stage {level} Complete!</h3>
-          <p>
-            You got {correctCount}/{questionsAnswered} correct. Stage {nextStage} is now unlocked.
-          </p>
-          <button className="btn btn-primary" onClick={onComplete}>
-            Continue to Stage {nextStage} &rarr;
-          </button>
-        </div>
-      )}
+      {/* Scenario */}
+      <div className="descriptor-card">
+        <h2 className="descriptor-prompt">{currentContent.prompt}</h2>
 
-      {/* Failed */}
-      {failed && !completed && (
-        <div className="ds-failed">
-          <div className="ds-failed-icon">✗</div>
-          <h3>Not quite</h3>
-          <p>
-            You got {correctCount}/{questionsAnswered}. You need {requiredCorrect}/{totalQuestions} to advance. Try again — the review helps.
-          </p>
-          <button className="btn btn-primary" onClick={nextQuestion}>
-            Retry Stage {level}
-          </button>
+        {/* Descriptors */}
+        <div className="descriptor-options">
+          {currentContent.descriptors.map((descriptor, idx) => (
+            <button
+              key={idx}
+              className={`descriptor-option${selected.has(idx) ? " descriptor-option-selected" : ""}${
+                submitted
+                  ? currentContent.correctIndices.includes(idx)
+                    ? " descriptor-option-correct"
+                    : selected.has(idx)
+                    ? " descriptor-option-incorrect"
+                    : ""
+                  : ""
+              }`}
+              onClick={() => toggleDescriptor(idx)}
+              disabled={submitted}
+            >
+              <span className="descriptor-option-checkbox">
+                {selected.has(idx) ? "✓" : ""}
+              </span>
+              <span className="descriptor-option-text">{descriptor}</span>
+            </button>
+          ))}
         </div>
-      )}
 
-      {/* Question card */}
-      {!completed && !failed && currentQuestion && (
-        <div className="ds-question-card" key={`q-${shuffleKey}-${questionIndex}`}>
-          <div className="ds-question-number">
-            Question {questionsAnswered + 1} of {totalQuestions}
+        {/* Explanation */}
+        {submitted && currentContent.explanation && (
+          <div
+            className={`descriptor-explanation${
+              wasCorrect
+                ? " descriptor-explanation-correct"
+                : " descriptor-explanation-incorrect"
+            }`}
+          >
+            <p>{currentContent.explanation}</p>
           </div>
-          <p className="ds-question-text">{currentQuestion.prompt}</p>
-
-          <div className="ds-descriptor-grid">
-            {currentQuestion.descriptors.map((desc, i) => {
-              const isSelected = selected.has(i);
-              const isCorrectAnswer = submitted && currentQuestion.correctIndices.includes(i);
-              const isWrongSelection = submitted && isSelected && !isCorrectAnswer;
-
-              return (
-                <button
-                  key={`${shuffleKey}-${i}`}
-                  className={[
-                    "ds-chip",
-                    isSelected && !submitted ? "ds-chip-selected" : "",
-                    submitted && isCorrectAnswer ? "ds-chip-correct" : "",
-                    isWrongSelection ? "ds-chip-wrong" : "",
-                    submitted ? "ds-chip-disabled" : "",
-                  ].filter(Boolean).join(" ")}
-                  onClick={() => toggleDescriptor(i)}
-                  disabled={submitted}
-                >
-                  <span className="ds-chip-text">{desc}</span>
-                  {isSelected && !submitted && <span className="ds-chip-check">✓</span>}
-                  {submitted && isCorrectAnswer && <span className="ds-chip-check">✓</span>}
-                  {isWrongSelection && <span className="ds-chip-x">✗</span>}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Submit button — contextual */}
-          {!submitted && (
-            <div className="ds-submit-row">
-              <button
-                className="btn btn-primary"
-                disabled={selected.size !== selectCount}
-                onClick={handleSubmit}
-              >
-                {submitLabel}
-              </button>
-            </div>
-          )}
-
-          {/* Explanation */}
-          {submitted && (
-            <div className={`ds-explanation${wasCorrect ? " ds-explanation-correct" : " ds-explanation-incorrect"}`}>
-              <div className="ds-result-label">
-                {wasCorrect ? "✓ Correct" : "✗ Incorrect"}
-              </div>
-              <p>{currentQuestion.explanation}</p>
-              <button className="btn btn-primary ds-next-btn" onClick={nextQuestion}>
-                {submitLabel}
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Keyboard hints */}
-      <div className="ds-keyboard-hints">
-        {!submitted ? (
-          <>Press <kbd>1</kbd>-<kbd>5</kbd> to toggle, <kbd>Enter</kbd> to submit</>
-        ) : (
-          <>Press <kbd>Enter</kbd> to continue</>
         )}
       </div>
+
+      {/* Actions */}
+      <div className="descriptor-actions">
+        {!submitted && (
+          <button
+            className="btn btn-primary"
+            onClick={handleSubmit}
+            disabled={selected.size !== selectCount}
+          >
+            Submit ({selectCount} selected)
+          </button>
+        )}
+
+        {submitted && (
+          <button
+            className="btn btn-primary"
+            onClick={nextQuestion}
+            disabled={completed || failed}
+          >
+            {completed ? "Stage Complete! →" : failed ? "Failed" : "Next →"}
+          </button>
+        )}
+      </div>
+
+      {/* Completion/Failure states */}
+      {completed && (
+        <div className="descriptor-completion">
+          <p>Level {level} complete!</p>
+        </div>
+      )}
+
+      {failed && (
+        <div className="descriptor-failure">
+          <p>You needed {requiredCorrect} correct to pass. Better luck next time!</p>
+        </div>
+      )}
     </div>
   );
+}
+
+function shuffleArray<T>(arr: T[]): T[] {
+  const shuffled = [...arr];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
 }

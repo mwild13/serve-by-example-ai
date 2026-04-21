@@ -6,6 +6,8 @@ import SignOutButton from "@/components/ui/SignOutButton";
 import DashboardTrainer from "@/components/learning-engine/DashboardTrainer";
 import StageLearning from "@/components/learning-engine/StageLearning";
 import AdvancedScenarios from "@/components/learning-engine/AdvancedScenarios";
+import DiagnosticFlow from "@/components/learning-engine/DiagnosticFlow";
+import DynamicModuleNav from "@/components/learning-engine/DynamicModuleNav";
 import { CocktailGridSkeleton } from "@/components/ui/Skeletons";
 const CocktailLibrary = lazy(() => import("@/components/knowledge-base/CocktailLibrary"));
 const KnowledgeBase = lazy(() => import("@/components/knowledge-base/KnowledgeBase"));
@@ -15,13 +17,11 @@ import SessionRefresher from "@/components/ui/SessionRefresher";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
-type NavItem = "home" | "stage1" | "stage2" | "stage3" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
+type NavItem = "home" | "module" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
 
 const NAV_ITEMS: { id: NavItem; label: string }[] = [
   { id: "home", label: "Home" },
-  { id: "stage1", label: "Stage 1 Learning" },
-  { id: "stage2", label: "Stage 2 Learning" },
-  { id: "stage3", label: "Stage 3 Learning" },
+  { id: "module", label: "Training Modules" },
   { id: "stage4", label: "Stage 4 Learning" },
   { id: "scenarios", label: "Advanced Scenarios" },
   { id: "cocktails", label: "Cocktail Library" },
@@ -418,10 +418,10 @@ function RightPanel({
   const challenge = DAILY_CHALLENGES[dayOfYear % DAILY_CHALLENGES.length];
 
   const quickStarts: { emoji: string; label: string; nav: NavItem }[] = [
-    { emoji: "🍹", label: "Stage 1", nav: "stage1" },
-    { emoji: "💼", label: "Stage 2", nav: "stage2" },
-    { emoji: "🎭", label: "Stage 4 Scenarios", nav: "stage4" },
+    { emoji: "🎓", label: "Training Modules", nav: "module" },
+    { emoji: "🎭", label: "Advanced Scenarios", nav: "stage4" },
     { emoji: "📈", label: "My progress", nav: "progress" },
+    { emoji: "⚙️", label: "Settings", nav: "settings" },
   ];
   const filteredQuickStarts = isPremium ? quickStarts : quickStarts.filter((q) => q.nav === "progress");
 
@@ -547,6 +547,12 @@ export default function DashboardShell({
   const [managementCodeMessage, setManagementCodeMessage] = useState("");
   const [isUnlockingManagement, setIsUnlockingManagement] = useState(false);
 
+  // Phase 4: Dynamic module system
+  const [selectedModuleId, setSelectedModuleId] = useState<number | null>(null);
+  const [showDiagnostic, setShowDiagnostic] = useState(false);
+  const [diagnosticCompleted, setDiagnosticCompleted] = useState(false);
+  const [userToken, setUserToken] = useState<string>("");
+
   // Initialize dark mode from localStorage
   useEffect(() => {
     try {
@@ -555,6 +561,39 @@ export default function DashboardShell({
       }
     } catch {}
   }, []);
+
+  // Phase 4: Check diagnostic completion status and get user token
+  useEffect(() => {
+    async function checkDiagnostic() {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (session?.access_token) {
+          setUserToken(session.access_token);
+
+          // Check if user has completed diagnostic
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("diagnostic_completed")
+            .eq("id", session.user.id)
+            .single();
+
+          // Show diagnostic if not completed (only for B2B users - check plan)
+          if (!profile?.diagnostic_completed && (plan === "single-venue" || plan === "multi-venue")) {
+            setShowDiagnostic(true);
+          } else {
+            setDiagnosticCompleted(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking diagnostic status:", error);
+        setDiagnosticCompleted(true); // Allow access even if check fails
+      }
+    }
+
+    checkDiagnostic();
+  }, [plan]);
 
   const planTitle =
     plan === "multi-venue"
@@ -572,7 +611,7 @@ export default function DashboardShell({
       ? "Pro member access with bartender, sales and management modules."
       : "Venue plan access with team management dashboards.";
 
-  const PREMIUM_NAV_ITEMS: NavItem[] = ["stage1", "stage2", "stage3", "stage4", "scenarios", "cocktails", "knowledge"];
+  const PREMIUM_NAV_ITEMS: NavItem[] = ["module", "stage4", "scenarios", "cocktails", "knowledge"];
   const FALLBACK_ADMIN_EMAILS = [
     "wild07man@gmail.com",
     "mitchellwildman1994@gmail.com",
@@ -710,6 +749,20 @@ export default function DashboardShell({
       </aside>
 
       <section className="dashboard-main">
+        {/* Phase 4: Show diagnostic modal if not completed */}
+        {showDiagnostic && userToken && (
+          <DiagnosticFlow
+            userId=""
+            userToken={userToken}
+            onComplete={(categoryScores) => {
+              setShowDiagnostic(false);
+              setDiagnosticCompleted(true);
+              // Redirect to module training
+              setActiveNav("module");
+            }}
+          />
+        )}
+
         {false && !managementUnlocked ? (
           <div className="management-unlock-card">
             <div className="eyebrow">Manager code required</div>
@@ -743,12 +796,22 @@ export default function DashboardShell({
               </button>
             </form>
           </div>
-        ) : activeNav === "stage1" ? (
-          <StageLearning key="stage1" stage={1} managementUnlocked={managementUnlocked} />
-        ) : activeNav === "stage2" ? (
-          <StageLearning key="stage2" stage={2} managementUnlocked={managementUnlocked} />
-        ) : activeNav === "stage3" ? (
-          <StageLearning key="stage3" stage={3} managementUnlocked={managementUnlocked} />
+        ) : activeNav === "module" ? (
+          <div key="module" style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            {/* Dynamic Module Navigation Section */}
+            <DynamicModuleNav
+              userId=""
+              userEmail={userEmail}
+              onModuleSelect={(moduleId) => setSelectedModuleId(moduleId)}
+              selectedModuleId={selectedModuleId || undefined}
+            />
+            {/* Show StageLearning when a module is selected */}
+            {selectedModuleId && (
+              <div style={{ marginTop: "24px", padding: "24px", backgroundColor: "var(--bg-card)", borderRadius: "8px" }}>
+                <StageLearning key={`module-${selectedModuleId}`} moduleId={selectedModuleId} managementUnlocked={managementUnlocked} />
+              </div>
+            )}
+          </div>
         ) : activeNav === "stage4" ? (
           <DashboardTrainer
             key="stage4"
