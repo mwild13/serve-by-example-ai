@@ -55,7 +55,7 @@ export default function ObjectionsSection() {
                 color: "#dc2626",
                 margin: "0 0 12px",
               }}>
-                ❌ {item.issue}
+                {item.issue}
               </h3>
               <p style={{
                 fontSize: "0.95rem",
@@ -63,7 +63,7 @@ export default function ObjectionsSection() {
                 lineHeight: 1.6,
                 margin: 0,
               }}>
-                <strong style={{ color: "#059669" }}>✓ Solution:</strong> {item.solution}
+                <strong style={{ color: "#059669" }}>Solution:</strong> {item.solution}
               </p>
             </div>
           ))}
