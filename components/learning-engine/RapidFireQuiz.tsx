@@ -178,8 +178,9 @@ export default function RapidFireQuiz({
         <span className="quiz-streak-label">in a row</span>
       </div>
 
-      {/* Question */}
-      <div className="quiz-question-card">
+      {/* Question — key forces a fresh mount on every question change,
+          guaranteeing the text and buttons never show stale content */}
+      <div key={questionIndex} className="quiz-question-card">
         <h2 className="quiz-question-text">{currentScenario?.prompt ?? currentContent?.question ?? ""}</h2>
         <div className="quiz-button-group">
           <button
