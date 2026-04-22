@@ -155,18 +155,18 @@ export default function RapidFireQuiz({
 
   return (
     <div className="quiz-container">
-      {/* Progress */}
+      {/* Progress — tracks streak goal, not question index */}
       <div className="quiz-progress">
         <div className="quiz-progress-bar">
           <div
             className="quiz-progress-fill"
             style={{
-              width: `${((questionIndex + 1) / shuffledScenarios.length) * 100}%`,
+              width: `${(consecutiveCorrect / CONSECUTIVE_REQUIRED) * 100}%`,
             }}
           />
         </div>
         <p className="quiz-progress-text">
-          Question {questionIndex + 1} of {shuffledScenarios.length}
+          {consecutiveCorrect} / {CONSECUTIVE_REQUIRED} correct in a row
         </p>
       </div>
 

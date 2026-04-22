@@ -52,6 +52,18 @@ export default function DescriptorSelector({
   const [failed, setFailed] = useState(false);
   const [shuffleKey, setShuffleKey] = useState(0);
 
+  const resetStage = useCallback(() => {
+    setQuestionIndex(0);
+    setCorrectCount(initialScore);
+    setQuestionsAnswered(0);
+    setSelected(new Set());
+    setSubmitted(false);
+    setWasCorrect(null);
+    setCompleted(false);
+    setFailed(false);
+    setShuffleKey((k) => k + 1);
+  }, [initialScore]);
+
   const shuffledScenarios = useMemo(() => {
     if (level === 3) {
       return scenarios.map((scenario) => ({
@@ -357,19 +369,19 @@ export default function DescriptorSelector({
 
         {submitted && failed && (
           <button
-            disabled
+            onClick={resetStage}
             style={{
               padding: "12px 28px",
-              background: "#fee2e2",
-              color: "#b91c1c",
+              background: "#111827",
+              color: "white",
               border: "none",
               borderRadius: "10px",
               fontWeight: 700,
               fontSize: "0.9375rem",
-              cursor: "default",
+              cursor: "pointer",
             }}
           >
-            Stage Failed
+            Try Again →
           </button>
         )}
       </div>
@@ -400,9 +412,24 @@ export default function DescriptorSelector({
           borderRadius: "12px",
           textAlign: "center",
         }}>
-          <p style={{ margin: 0, fontWeight: 700, color: "#b91c1c", fontSize: "1rem" }}>
-            You needed {requiredCorrect} correct to pass. Try again!
+          <p style={{ margin: "0 0 0.75rem", fontWeight: 700, color: "#b91c1c", fontSize: "1rem" }}>
+            You needed {requiredCorrect} correct to pass. Give it another go!
           </p>
+          <button
+            onClick={resetStage}
+            style={{
+              padding: "10px 24px",
+              background: "#111827",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              fontWeight: 700,
+              fontSize: "0.9rem",
+              cursor: "pointer",
+            }}
+          >
+            Retry Stage →
+          </button>
         </div>
       )}
     </div>

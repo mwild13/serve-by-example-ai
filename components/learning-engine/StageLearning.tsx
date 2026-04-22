@@ -241,11 +241,19 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
 
             // Stage 1 requires 5 consecutive correct — need at least 5 unique questions.
             const MIN_QUIZ_QUESTIONS = 5;
-            const hasDescriptors = validScenarios.some(
-              (s: Scenario) =>
-                s.scenario_type === "descriptor_l2" ||
-                s.scenario_type === "descriptor_l3"
-            );
+
+            // Require at least 4 scenarios per descriptor stage so questions cycle properly.
+            // A single L2/L3 scenario causes the modulo-cycling to always return index 0.
+            const MIN_L2_QUESTIONS = 4;
+            const MIN_L3_QUESTIONS = 4;
+            const dbL2Count = validScenarios.filter(
+              (s: Scenario) => s.scenario_type === "descriptor_l2"
+            ).length;
+            const dbL3Count = validScenarios.filter(
+              (s: Scenario) => s.scenario_type === "descriptor_l3"
+            ).length;
+            const hasEnoughDescriptors =
+              dbL2Count >= MIN_L2_QUESTIONS && dbL3Count >= MIN_L3_QUESTIONS;
 
             if (dbQuizCount < MIN_QUIZ_QUESTIONS) {
               // Not enough valid T/F questions in DB.
@@ -259,15 +267,16 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
                 (s: Scenario) => s.scenario_type !== "quiz"
               );
 
-              if (hasDescriptors && dbNonQuiz.length >= 4) {
+              if (hasEnoughDescriptors && dbNonQuiz.length >= 4) {
                 // Good descriptor/roleplay data in DB — just replace quiz layer
                 setScenarios([...fallbackQuiz, ...dbNonQuiz]);
               } else {
                 // Full fallback (DB data too sparse overall)
                 setScenarios(fallback);
               }
-            } else if (!hasDescriptors && (scaffoldedModuleKey ?? SCAFFOLDED_MODULE_KEY[moduleId])) {
-              // DB has quiz but no descriptors — use full scaffolded set
+            } else if (!hasEnoughDescriptors && (scaffoldedModuleKey ?? SCAFFOLDED_MODULE_KEY[moduleId])) {
+              // DB has quiz but not enough descriptor scenarios — use full scaffolded set
+              // so stages 2 and 3 have varied questions that cycle properly
               setScenarios(getFallbackScenarios(moduleId, scaffoldedModuleKey));
             } else {
               setScenarios(validScenarios);
@@ -368,8 +377,9 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
 
   return (
     <div className="stage-container">
-      {/* Module header */}
-      <div className="stage-header">
+      {/* Module header — keyed to currentStage so it remounts on every stage change,
+          guaranteeing the heading text is never stale after a stage transition */}
+      <div key={`stage-header-${currentStage}`} className="stage-header">
         <h2 style={{ marginBottom: "8px" }}>{moduleName}</h2>
         <h1 className="stage-title">{meta.name}</h1>
         <p className="stage-subtitle">{meta.subtitle}</p>
@@ -419,7 +429,10 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
             <button
               key={stage}
               className={`stage-progress-item${isCurrent ? " stage-progress-item-active" : ""}${isCompleted ? " stage-progress-item-completed" : ""}`}
-              onClick={() => setCurrentStage(stage)}
+              onClick={() => {
+                setShowSummary(false);
+                setCurrentStage(stage);
+              }}
             >
               <span className="stage-progress-number">{stage}</span>
               <span className="stage-progress-label">Stage {stage}</span>
@@ -429,10 +442,11 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
         })}
       </div>
 
-      {/* Stage content */}
+      {/* Stage content — each stage gets a stable key so it mounts fresh when
+          the stage changes and never carries over stale answer state */}
       {currentStage === 1 && (
         <RapidFireQuiz
-          key={`quiz-${moduleId}-stage-${currentStage}`}
+          key={`quiz-${moduleId}-stage-1`}
           scenarios={stageScenarios}
           moduleId={moduleId}
           onComplete={handleStageComplete}
@@ -441,6 +455,7 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
 
       {(currentStage === 2 || currentStage === 3) && (
         <DescriptorSelector
+          key={`descriptor-${moduleId}-stage-${currentStage}`}
           scenarios={stageScenarios}
           moduleId={moduleId}
           level={currentStage}
