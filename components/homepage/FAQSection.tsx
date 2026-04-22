@@ -41,7 +41,7 @@ export default function FAQSection() {
           textAlign: "center",
           margin: "0 0 50px",
         }}>
-          Questions? We've Answered Them.
+          Questions? We&apos;ve Answered Them.
         </h2>
 
         {/* FAQ Accordion */}
@@ -144,7 +144,7 @@ export default function FAQSection() {
             margin: "0 0 12px",
             lineHeight: 1.6,
           }}>
-            "Training is the #1 lever for guest satisfaction. Serve By Example removes the friction."
+            &ldquo;Training is the #1 lever for guest satisfaction. Serve By Example removes the friction.&rdquo;
           </p>
 
           <p style={{
