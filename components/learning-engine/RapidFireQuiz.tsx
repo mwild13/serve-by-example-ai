@@ -51,8 +51,12 @@ export default function RapidFireQuiz({
   // Ref always holds the latest shuffledScenarios to avoid stale closure in nextQuestion
   const shuffledScenariosRef = useRef<Scenario[]>([]);
 
-  // Shuffle scenarios whenever the scenarios prop changes
+  // Shuffle scenarios only when the set of scenario IDs actually changes.
+  // Comparing by ID string (not array reference) prevents reshuffling — and
+  // resetting questionIndex to 0 — every time the parent re-renders.
+  const scenarioIds = scenarios.map((s) => s.id).join(",");
   useEffect(() => {
+    if (scenarios.length === 0) return;
     const shuffled = [...scenarios];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -60,8 +64,9 @@ export default function RapidFireQuiz({
     }
     shuffledScenariosRef.current = shuffled;
     setShuffledScenarios(shuffled);
-    setQuestionIndex(0); // Reset to first question when scenarios change
-  }, [scenarios]);
+    setQuestionIndex(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scenarioIds]);
 
   const currentScenario = shuffledScenarios[questionIndex % shuffledScenarios.length];
   const currentContent = currentScenario?.content as QuizContent | undefined;

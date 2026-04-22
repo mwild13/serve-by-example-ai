@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import RapidFireQuiz from "@/components/learning-engine/RapidFireQuiz";
 import DescriptorSelector from "@/components/learning-engine/DescriptorSelector";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
@@ -293,16 +293,17 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
     }
   }, [moduleId, overrideModuleName, scaffoldedModuleKey]);
 
-  // Get scenarios for current stage
-  const getCurrentStageScenarios = useCallback((): Scenario[] => {
+  // Get scenarios for current stage — memoized so the array reference is stable.
+  // A new array reference on every render would trigger RapidFireQuiz's useEffect,
+  // reshuffling and resetting questionIndex mid-quiz.
+  const stageScenarios = useMemo((): Scenario[] => {
     const stageTypeMap: Record<StageLevel, string> = {
       1: "quiz",
       2: "descriptor_l2",
       3: "descriptor_l3",
       4: "roleplay",
     };
-    const stageType = stageTypeMap[currentStage];
-    return scenarios.filter((s) => s.scenario_type === stageType);
+    return scenarios.filter((s) => s.scenario_type === stageTypeMap[currentStage]);
   }, [scenarios, currentStage]);
 
   // Handle stage completion
@@ -342,7 +343,6 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
     [currentStage, moduleId]
   );
 
-  const stageScenarios = getCurrentStageScenarios();
   const meta = STAGE_META[currentStage];
 
   if (loading) {
