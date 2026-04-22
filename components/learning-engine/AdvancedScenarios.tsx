@@ -208,7 +208,7 @@ export default function AdvancedScenarios() {
       {/* Command bar — always visible */}
       <div className="sbe-command-bar sbe-command-bar-active">
         <div className="sbe-command-text">
-          <span className="sbe-command-eyebrow">Advanced Scenarios</span>
+          <span className="sbe-command-eyebrow">AI Scenarios</span>
           <strong>Scenario {scenarioIndex + 1} of {SCENARIOS.length}</strong>
           <span className="sbe-command-meta">💡 Real-world challenges</span>
         </div>

@@ -107,7 +107,7 @@ export default function DynamicModuleNav({
       {/* Header */}
       <div style={{ marginBottom: "1.5rem" }}>
         <h2 style={{ fontSize: "1.875rem", fontWeight: 800, color: "#111827", marginBottom: "0.375rem", letterSpacing: "-0.025em" }}>
-          Training Modules
+          Modules
         </h2>
         <p style={{ color: "#6b7280", fontSize: "1rem" }}>
           {modules.length > 0

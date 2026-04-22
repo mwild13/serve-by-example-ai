@@ -22,10 +22,10 @@ type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "cock
 
 const NAV_ITEMS: { id: NavItem; label: string }[] = [
   { id: "home", label: "Home" },
-  { id: "module", label: "Training Modules" },
-  { id: "rapid-fire", label: "Rapid Fire Questions" },
-  { id: "stage4", label: "Stage 4 Learning" },
-  { id: "scenarios", label: "Advanced Scenarios" },
+  { id: "module", label: "Modules" },
+  { id: "rapid-fire", label: "Quick Drills" },
+  { id: "stage4", label: "Scenario Training" },
+  { id: "scenarios", label: "AI Scenarios" },
   { id: "cocktails", label: "Cocktail Library" },
   { id: "knowledge", label: "101 Knowledge Base" },
   { id: "progress", label: "How I'm improving" },
@@ -420,8 +420,8 @@ function RightPanel({
   const challenge = DAILY_CHALLENGES[dayOfYear % DAILY_CHALLENGES.length];
 
   const quickStarts: { emoji: string; label: string; nav: NavItem }[] = [
-    { emoji: "🎓", label: "Training Modules", nav: "module" },
-    { emoji: "🎭", label: "Advanced Scenarios", nav: "stage4" },
+    { emoji: "🎓", label: "Modules", nav: "module" },
+    { emoji: "🎭", label: "Scenario Training", nav: "stage4" },
     { emoji: "📈", label: "My progress", nav: "progress" },
     { emoji: "⚙️", label: "Settings", nav: "settings" },
   ];

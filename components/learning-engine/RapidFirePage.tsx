@@ -152,7 +152,7 @@ export default function RapidFirePage({ managementUnlocked }: { managementUnlock
       {/* Header */}
       <div style={{ marginBottom: "2rem" }}>
         <h2 style={{ fontSize: "1.875rem", fontWeight: 800, color: "#111827", marginBottom: "0.375rem", letterSpacing: "-0.025em" }}>
-          Rapid Fire Questions
+          Quick Drills
         </h2>
         <p style={{ color: "#6b7280", fontSize: "1rem" }}>
           Your 3 core modules — 4 stages each. Work through S1 → S4 to reach mastery.
