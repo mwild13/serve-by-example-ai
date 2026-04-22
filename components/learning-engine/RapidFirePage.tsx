@@ -116,25 +116,20 @@ export default function RapidFirePage({ managementUnlocked }: { managementUnlock
     const config = MODULE_CONFIG[selected.module];
     return (
       <div>
-        <button
-          onClick={() => setSelected(null)}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "6px",
-            marginBottom: "20px",
-            padding: "8px 16px",
-            background: "transparent",
-            border: "2px solid #e5e7eb",
-            borderRadius: "8px",
-            fontSize: "0.875rem",
-            fontWeight: 600,
-            color: "#374151",
-            cursor: "pointer",
-          }}
-        >
-          ← Rapid Fire Modules
-        </button>
+        <div className="sbe-command-bar sbe-command-bar-active" style={{ color: "white", marginBottom: "1.75rem" }}>
+          <div className="sbe-command-text">
+            <span className="sbe-command-eyebrow">Quick Drills</span>
+            <strong>{config.label}</strong>
+            <span className="sbe-command-meta">Stage {selected.stage} of 4</span>
+          </div>
+          <button
+            onClick={() => setSelected(null)}
+            className="sbe-command-btn btn"
+            style={{ flexShrink: 0 }}
+          >
+            ← Back
+          </button>
+        </div>
         <StageLearning
           key={`rf-${selected.module}-${selected.stage}`}
           moduleId={config.id}
@@ -149,140 +144,112 @@ export default function RapidFirePage({ managementUnlocked }: { managementUnlock
 
   return (
     <div>
-      {/* Header */}
-      <div style={{ marginBottom: "2rem" }}>
-        <h2 style={{ fontSize: "1.875rem", fontWeight: 800, color: "#111827", marginBottom: "0.375rem", letterSpacing: "-0.025em" }}>
-          Quick Drills
-        </h2>
-        <p style={{ color: "#6b7280", fontSize: "1rem" }}>
-          Your 3 core modules — 4 stages each. Work through S1 → S4 to reach mastery.
-        </p>
-      </div>
-
-      {/* Stage legend */}
-      <div style={{ display: "flex", gap: "0.75rem", marginBottom: "2rem", flexWrap: "wrap" }}>
-        {[
-          { stage: 1, label: "S1 — Recall", desc: "True / false knowledge checks" },
-          { stage: 2, label: "S2 — Application", desc: "Pick correct descriptors" },
-          { stage: 3, label: "S3 — Advanced", desc: "Harder descriptor challenges" },
-          { stage: 4, label: "S4 — Scenarios", desc: "AI roleplay scenarios" },
-        ].map(({ stage, label, desc }) => (
-          <div key={stage} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 14px", background: "white", border: "1px solid #e5e7eb", borderRadius: "8px" }}>
-            <span style={{ width: "28px", height: "28px", borderRadius: "6px", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "0.75rem", color: "#374151" }}>S{stage}</span>
-            <div>
-              <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 700, color: "#111827" }}>{label}</p>
-              <p style={{ margin: 0, fontSize: "0.7rem", color: "#9ca3af" }}>{desc}</p>
-            </div>
-          </div>
-        ))}
+      {/* Command bar */}
+      <div className="sbe-command-bar sbe-command-bar-active" style={{ color: "white", marginBottom: "1.75rem" }}>
+        <div className="sbe-command-text">
+          <span className="sbe-command-eyebrow">Quick Drills</span>
+          <strong>Choose a module</strong>
+          <span className="sbe-command-meta">4 stages per module · work through Stage 1 → 4 to reach mastery</span>
+        </div>
       </div>
 
       {/* Module cards */}
       {loading ? (
         <div style={{ textAlign: "center", padding: "3rem 0" }}>
-          <div style={{ width: "40px", height: "40px", border: "3px solid #e5e7eb", borderTopColor: "#1d4ed8", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 1rem" }} />
+          <div style={{ width: "40px", height: "40px", border: "3px solid #e5e7eb", borderTopColor: "#2d6a4f", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 1rem" }} />
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-          <p style={{ color: "#6b7280" }}>Loading your progress...</p>
+          <p style={{ color: "#6b7280" }}>Loading your progress…</p>
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1.25rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem" }}>
           {(Object.keys(MODULE_CONFIG) as ModuleKey[]).map((mod) => {
             const config = MODULE_CONFIG[mod];
             const lp = data.levelProgress[mod];
             const nextStage = getNextStage(lp, data.sessions[mod], data.scores[mod]);
             const s4Done = data.sessions[mod] >= 1 && data.scores[mod] >= 21;
             const allDone = lp.level1_completed && lp.level2_completed && lp.level3_completed && s4Done;
+            const stagesComplete = [lp.level1_completed, lp.level2_completed, lp.level3_completed, s4Done].filter(Boolean).length;
+            const progressPct = Math.round((stagesComplete / 4) * 100);
 
-            const stageStatus: Record<StageLevel, "done" | "active" | "locked"> = {
-              1: lp.level1_completed ? "done" : nextStage === 1 ? "active" : "locked",
-              2: lp.level2_completed ? "done" : nextStage === 2 ? "active" : "locked",
-              3: lp.level3_completed ? "done" : nextStage === 3 ? "active" : "locked",
-              4: s4Done ? "done" : nextStage === 4 ? "active" : "locked",
-            };
+            const nextLabel: Record<number, string> = { 1: "Recall", 2: "Application", 3: "Advanced", 4: "Scenarios" };
 
             return (
               <div
                 key={mod}
+                onClick={() => setSelected({ module: mod, stage: nextStage })}
                 style={{
                   background: "white",
-                  border: "2px solid #e5e7eb",
+                  border: "1.5px solid #e5e7eb",
                   borderRadius: "14px",
-                  padding: "1.75rem",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "1rem",
+                  padding: "1.25rem 1.4rem",
+                  cursor: "pointer",
+                  transition: "all 0.18s ease",
+                  boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "#40916c";
+                  e.currentTarget.style.boxShadow = "0 4px 16px rgba(45,106,79,0.1)";
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "#e5e7eb";
+                  e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.05)";
+                  e.currentTarget.style.transform = "translateY(0)";
                 }}
               >
-                {/* Module header */}
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <span style={{ fontSize: "2rem" }}>{config.icon}</span>
-                  <div>
-                    <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#111827" }}>{config.short}</h3>
-                    <p style={{ margin: 0, fontSize: "0.8rem", color: "#6b7280" }}>{config.label}</p>
-                  </div>
+                {/* Title */}
+                <strong style={{ display: "block", fontSize: "1rem", fontWeight: 800, color: "#1b4332", marginBottom: "12px", lineHeight: 1.3 }}>
+                  {config.icon} {config.label}
+                </strong>
+
+                {/* Progress bar */}
+                <div style={{ height: "4px", background: "#f3f4f6", borderRadius: "2px", overflow: "hidden", marginBottom: "5px" }}>
+                  <div style={{ width: `${progressPct}%`, height: "100%", background: "linear-gradient(90deg, #40916c, #2d6a4f)", borderRadius: "2px", transition: "width 0.4s ease" }} />
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
+                  <span style={{ fontSize: "0.75rem", color: "#6b7280" }}>
+                    {allDone ? "All stages complete" : `Next: ${nextLabel[nextStage]}`}
+                  </span>
+                  <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#1b4332" }}>{progressPct}%</span>
                 </div>
 
-                {/* Description */}
-                <p style={{ margin: 0, fontSize: "0.875rem", color: "#4b5563", lineHeight: 1.5 }}>
-                  {config.description}
-                </p>
-
-                {/* Stage badges */}
-                <div style={{ display: "flex", gap: "8px" }}>
-                  {([1, 2, 3, 4] as StageLevel[]).map((stage) => {
-                    const status = stageStatus[stage];
-                    const bgColor = status === "done" ? "#16a34a" : status === "active" ? "#1d4ed8" : "#f3f4f6";
-                    const textColor = status === "done" || status === "active" ? "white" : "#9ca3af";
-                    return (
-                      <button
-                        key={stage}
-                        onClick={() => setSelected({ module: mod, stage })}
-                        style={{
-                          width: "44px",
-                          height: "44px",
-                          borderRadius: "8px",
-                          border: "none",
-                          background: bgColor,
-                          color: textColor,
-                          fontWeight: 800,
-                          fontSize: "0.8rem",
-                          cursor: "pointer",
-                          transition: "all 0.15s ease",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                        onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
-                        title={getNextStageLabel(stage)}
-                      >
-                        S{stage}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Next stage CTA */}
-                <button
-                  onClick={() => setSelected({ module: mod, stage: nextStage })}
-                  style={{
-                    padding: "10px 16px",
-                    background: allDone ? "#f0fdf4" : "#1d4ed8",
-                    color: allDone ? "#16a34a" : "white",
-                    border: "none",
-                    borderRadius: "8px",
-                    fontWeight: 700,
-                    fontSize: "0.875rem",
-                    cursor: "pointer",
-                    transition: "all 0.15s ease",
-                    textAlign: "left",
-                  }}
-                >
-                  {allDone ? "✓ Mastered — Replay any stage" : `Start: ${getNextStageLabel(nextStage)} →`}
-                </button>
+                {/* Status badge */}
+                {allDone ? (
+                  <span style={{ display: "inline-block", fontSize: "0.7rem", fontWeight: 800, color: "#1b4332", background: "#d1fae5", borderRadius: "999px", padding: "3px 12px", letterSpacing: "0.05em" }}>
+                    ✓ MASTERED
+                  </span>
+                ) : stagesComplete === 0 ? (
+                  <span style={{ display: "inline-block", fontSize: "0.7rem", fontWeight: 800, color: "#92400e", background: "#fef3c7", borderRadius: "999px", padding: "3px 12px", letterSpacing: "0.05em" }}>
+                    START
+                  </span>
+                ) : (
+                  <span style={{ display: "inline-block", fontSize: "0.7rem", fontWeight: 800, color: "#1b4332", background: "#d1fae5", borderRadius: "999px", padding: "3px 12px", letterSpacing: "0.05em" }}>
+                    ACTIVE
+                  </span>
+                )}
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Stage legend */}
+      {!loading && (
+        <div style={{ display: "flex", gap: "0.625rem", marginTop: "1.5rem", flexWrap: "wrap" }}>
+          {[
+            { n: 1, label: "Recall", desc: "True / false" },
+            { n: 2, label: "Application", desc: "Pick descriptors" },
+            { n: 3, label: "Advanced", desc: "Harder challenges" },
+            { n: 4, label: "Scenarios", desc: "AI roleplay" },
+          ].map(({ n, label, desc }) => (
+            <div key={n} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "7px 12px", background: "white", border: "1px solid #e5e7eb", borderRadius: "8px" }}>
+              <span style={{ width: "24px", height: "24px", borderRadius: "6px", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "0.7rem", color: "#1b4332", flexShrink: 0 }}>S{n}</span>
+              <div>
+                <p style={{ margin: 0, fontSize: "0.78rem", fontWeight: 700, color: "#111827" }}>{label}</p>
+                <p style={{ margin: 0, fontSize: "0.68rem", color: "#9ca3af" }}>{desc}</p>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

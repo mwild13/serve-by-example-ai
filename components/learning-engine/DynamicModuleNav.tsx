@@ -104,252 +104,135 @@ export default function DynamicModuleNav({
 
   return (
     <div style={{ width: "100%" }}>
-      {/* Header */}
-      <div style={{ marginBottom: "1.5rem" }}>
-        <h2 style={{ fontSize: "1.875rem", fontWeight: 800, color: "#111827", marginBottom: "0.375rem", letterSpacing: "-0.025em" }}>
-          Modules
-        </h2>
-        <p style={{ color: "#6b7280", fontSize: "1rem" }}>
-          {modules.length > 0
-            ? `${modules.length} modules · personalised to your skill level`
-            : "Loading your training modules..."}
-        </p>
-      </div>
-
-      {/* Controls */}
-      <div style={{ background: "white", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "1.25rem", marginBottom: "1.75rem", display: "flex", flexWrap: "wrap", gap: "1.5rem", alignItems: "flex-start" }}>
-        <div>
-          <p style={{ fontSize: "0.75rem", fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.625rem" }}>
-            Category
-          </p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+      {/* Command bar */}
+      <div className="sbe-command-bar sbe-command-bar-active" style={{ color: "white", marginBottom: "1.75rem" }}>
+        <div className="sbe-command-text">
+          <span className="sbe-command-eyebrow">Training Library</span>
+          <strong>Modules</strong>
+          <span className="sbe-command-meta">
+            {loading ? "Loading your modules…" : `${modules.length} module${modules.length !== 1 ? "s" : ""} · personalised to your skill level`}
+          </span>
+        </div>
+        {/* Category filter pills */}
+        {!loading && (
+          <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", justifyContent: "flex-end" }}>
             {(["all", "technical", "service", "compliance"] as const).map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
                 style={{
-                  padding: "0.5rem 1rem",
-                  borderRadius: "8px",
-                  fontSize: "0.875rem",
-                  fontWeight: 600,
-                  border: "none",
+                  padding: "5px 14px",
+                  borderRadius: "999px",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  border: "1.5px solid rgba(255,255,255,0.4)",
                   cursor: "pointer",
-                  transition: "all 0.15s ease",
-                  background: selectedCategory === cat ? "#1d4ed8" : "#f3f4f6",
-                  color: selectedCategory === cat ? "white" : "#374151",
+                  background: selectedCategory === cat ? "rgba(255,255,255,0.25)" : "transparent",
+                  color: "white",
+                  letterSpacing: "0.03em",
+                  transition: "all 0.15s",
                 }}
               >
                 {cat.charAt(0).toUpperCase() + cat.slice(1)}
               </button>
             ))}
           </div>
-        </div>
-
-        <div>
-          <p style={{ fontSize: "0.75rem", fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.625rem" }}>
-            Sort by
-          </p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-            {(["recommended", "title"] as const).map((sort) => (
-              <button
-                key={sort}
-                onClick={() => setSortBy(sort)}
-                style={{
-                  padding: "0.5rem 1rem",
-                  borderRadius: "8px",
-                  fontSize: "0.875rem",
-                  fontWeight: 600,
-                  border: "none",
-                  cursor: "pointer",
-                  transition: "all 0.15s ease",
-                  background: sortBy === sort ? "#1d4ed8" : "#f3f4f6",
-                  color: sortBy === sort ? "white" : "#374151",
-                }}
-              >
-                {sort.charAt(0).toUpperCase() + sort.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Loading */}
       {loading && (
         <div style={{ textAlign: "center", padding: "4rem 0" }}>
-          <div style={{ width: "48px", height: "48px", border: "3px solid #e5e7eb", borderTopColor: "#1d4ed8", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 1rem" }} />
-          <p style={{ color: "#6b7280", fontSize: "1rem" }}>Loading modules...</p>
+          <div style={{ width: "40px", height: "40px", border: "3px solid #e5e7eb", borderTopColor: "#2d6a4f", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 1rem" }} />
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          <p style={{ color: "#6b7280" }}>Loading modules…</p>
         </div>
       )}
 
       {/* Modules Grid */}
       {!loading && filteredModules.length > 0 && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-            gap: "1.25rem",
-          }}
-        >
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "1rem" }}>
           {filteredModules.map((module) => {
-            const accent = getCategoryAccent(module.category);
-            const eloDisplay = getEloDisplay(module.current_elo);
             const isSelected = selectedModuleId === module.id;
+            const eloDisplay = getEloDisplay(module.current_elo);
 
             return (
               <div
                 key={module.id}
                 onClick={() => onModuleSelect(module.id)}
                 style={{
-                  background: isSelected ? "#eff6ff" : "white",
-                  border: `2px solid ${isSelected ? "#1d4ed8" : accent.border}`,
+                  background: "white",
+                  border: `1.5px solid ${isSelected ? "#2d6a4f" : "#e5e7eb"}`,
                   borderRadius: "14px",
-                  padding: "1.75rem",
+                  padding: "1.4rem 1.5rem",
                   cursor: "pointer",
-                  transition: "all 0.2s ease",
-                  boxShadow: isSelected
-                    ? "0 0 0 4px rgba(29,78,216,0.15), 0 4px 16px rgba(29,78,216,0.12)"
-                    : "0 1px 4px rgba(0,0,0,0.06)",
-                  position: "relative",
-                  overflow: "hidden",
+                  transition: "all 0.18s ease",
+                  boxShadow: isSelected ? "0 0 0 3px rgba(45,106,79,0.15)" : "0 1px 4px rgba(0,0,0,0.05)",
                 }}
                 onMouseEnter={(e) => {
                   if (!isSelected) {
-                    e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.12)";
+                    e.currentTarget.style.borderColor = "#40916c";
+                    e.currentTarget.style.boxShadow = "0 4px 16px rgba(45,106,79,0.1)";
                     e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.borderColor = "#93c5fd";
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isSelected) {
-                    e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.06)";
+                    e.currentTarget.style.borderColor = "#e5e7eb";
+                    e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.05)";
                     e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.borderColor = accent.border;
                   }
                 }}
               >
-                {/* Top row: recommended badge + category badge */}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
+                {/* Top: recommended + status */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px", gap: "8px" }}>
                   {module.recommended ? (
-                    <span style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "0.35rem",
-                      padding: "0.35rem 0.875rem",
-                      background: "#fef3c7",
-                      color: "#92400e",
-                      fontSize: "0.75rem",
-                      fontWeight: 800,
-                      borderRadius: "999px",
-                      border: "1px solid #fcd34d",
-                      letterSpacing: "0.05em",
-                      textTransform: "uppercase",
-                    }}>
+                    <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "#92400e", background: "#fef3c7", border: "1px solid #fcd34d", borderRadius: "999px", padding: "3px 10px", letterSpacing: "0.05em", textTransform: "uppercase" }}>
                       ★ Recommended
                     </span>
                   ) : <span />}
-
-                  <span style={{
-                    padding: "0.3rem 0.75rem",
-                    background: accent.badgeBg,
-                    color: accent.label,
-                    fontSize: "0.7rem",
-                    fontWeight: 700,
-                    borderRadius: "6px",
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                  }}>
-                    {module.category}
+                  <span style={{ fontSize: "0.7rem", fontWeight: 700, color: eloDisplay.color, background: "#f9fafb", borderRadius: "6px", padding: "3px 8px" }}>
+                    {eloDisplay.label}
                   </span>
                 </div>
 
                 {/* Title */}
-                <h3 style={{
-                  fontSize: "1.2rem",
-                  fontWeight: 800,
-                  color: "#111827",
-                  marginBottom: "0.625rem",
-                  lineHeight: 1.3,
-                  letterSpacing: "-0.01em",
-                }}>
+                <h3 style={{ fontSize: "1.05rem", fontWeight: 800, color: "#1b4332", marginBottom: "6px", lineHeight: 1.3, letterSpacing: "-0.01em" }}>
                   {module.title}
                 </h3>
 
                 {/* Description */}
-                <p style={{
-                  fontSize: "0.9rem",
-                  color: "#4b5563",
-                  lineHeight: 1.6,
-                  marginBottom: "1.25rem",
-                  minHeight: "2.8rem",
-                }}>
+                <p style={{ fontSize: "0.85rem", color: "#4b5563", lineHeight: 1.55, marginBottom: "14px" }}>
                   {module.description || `Train and master ${module.title.toLowerCase()} skills.`}
                 </p>
 
-                {/* Stats */}
-                <div style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr 1fr",
-                  gap: "0.75rem",
-                  background: "#f9fafb",
-                  borderRadius: "10px",
-                  padding: "1rem",
-                  marginBottom: "1.25rem",
-                  border: "1px solid #f3f4f6",
-                }}>
-                  <div style={{ textAlign: "center" }}>
-                    <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.3rem" }}>Skill</p>
-                    <p style={{ fontSize: "1.1rem", fontWeight: 800, color: eloDisplay.color }}>{eloDisplay.label}</p>
-                    <p style={{ fontSize: "0.65rem", color: eloDisplay.color, fontWeight: 600 }}>{eloDisplay.label}</p>
+                {/* Mastery progress bar */}
+                <div style={{ marginBottom: "14px" }}>
+                  <div style={{ height: "5px", background: "#f3f4f6", borderRadius: "3px", overflow: "hidden" }}>
+                    <div style={{ width: `${module.mastery_pct}%`, height: "100%", background: "linear-gradient(90deg, #40916c, #2d6a4f)", borderRadius: "3px", transition: "width 0.4s ease" }} />
                   </div>
-                  <div style={{ textAlign: "center", borderLeft: "1px solid #e5e7eb", borderRight: "1px solid #e5e7eb" }}>
-                    <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.3rem" }}>Mastery</p>
-                    <p style={{ fontSize: "1.1rem", fontWeight: 800, color: "#111827" }}>{module.mastery_pct}%</p>
-                    <p style={{ fontSize: "0.65rem", color: "#6b7280", fontWeight: 600 }}>of scenarios</p>
-                  </div>
-                  <div style={{ textAlign: "center" }}>
-                    <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.3rem" }}>Done</p>
-                    <p style={{ fontSize: "1.1rem", fontWeight: 800, color: "#111827" }}>{module.completion_pct}%</p>
-                    <p style={{ fontSize: "0.65rem", color: "#6b7280", fontWeight: 600 }}>completed</p>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: "5px" }}>
+                    <span style={{ fontSize: "0.72rem", color: "#9ca3af" }}>Mastery</span>
+                    <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#1b4332" }}>{module.mastery_pct}%</span>
                   </div>
                 </div>
 
                 {/* Recommendation reason */}
                 {module.recommendation_reason && (
-                  <p style={{ fontSize: "0.8rem", color: "#6b7280", fontStyle: "italic", marginBottom: "1rem", lineHeight: 1.5 }}>
+                  <p style={{ fontSize: "0.78rem", color: "#6b7280", fontStyle: "italic", marginBottom: "14px", lineHeight: 1.5 }}>
                     {module.recommendation_reason}
                   </p>
                 )}
 
-                {/* Footer: difficulty + CTA */}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#9ca3af" }}>Difficulty</span>
-                    <div style={{ display: "flex", gap: "4px" }}>
-                      {[...Array(5)].map((_, i) => (
-                        <div
-                          key={i}
-                          style={{
-                            width: "10px",
-                            height: "10px",
-                            borderRadius: "50%",
-                            background: i < module.difficulty_level ? "#f97316" : "#e5e7eb",
-                          }}
-                        />
-                      ))}
-                    </div>
+                {/* Footer */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ display: "flex", gap: "3px" }}>
+                    {[...Array(5)].map((_, i) => (
+                      <div key={i} style={{ width: "7px", height: "7px", borderRadius: "50%", background: i < module.difficulty_level ? "#2d6a4f" : "#e5e7eb" }} />
+                    ))}
                   </div>
-
-                  <span style={{
-                    fontSize: "0.8rem",
-                    fontWeight: 700,
-                    color: isSelected ? "#1d4ed8" : "#6b7280",
-                    padding: "0.3rem 0.75rem",
-                    background: isSelected ? "#dbeafe" : "#f3f4f6",
-                    borderRadius: "6px",
-                    transition: "all 0.15s ease",
-                  }}>
-                    {isSelected ? "Selected →" : "Start →"}
+                  <span style={{ fontSize: "0.78rem", fontWeight: 700, padding: "4px 12px", borderRadius: "6px", transition: "all 0.15s", background: isSelected ? "#d1fae5" : "#f3f4f6", color: isSelected ? "#1b4332" : "#6b7280" }}>
+                    {isSelected ? "Selected ✓" : "Start →"}
                   </span>
                 </div>
               </div>
