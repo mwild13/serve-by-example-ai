@@ -9,7 +9,7 @@ export default function Footer() {
         <div className="footer-brand">
           <div className="footer-brand-mark">
             <span className="footer-brand-icon-bg">
-              <Image src="/logo.ico" alt="Serve By Example" width={28} height={28} />
+              <Image src="/logo.png" alt="Serve By Example" width={28} height={28} />
             </span>
             <div className="footer-brand-name">Serve By Example</div>
           </div>

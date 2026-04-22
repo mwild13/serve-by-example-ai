@@ -724,7 +724,7 @@ export default function DashboardShell({
       <aside className="dashboard-sidebar">
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: 16 }}>
           <div style={{ backgroundColor: "#f5f5f5", padding: "6px", borderRadius: "8px", flexShrink: 0 }}>
-            <Image src="/logo.ico" alt="SBE AI" width={38} height={38} style={{ borderRadius: 10, display: "block" }} />
+            <Image src="/logo.png" alt="SBE AI" width={38} height={38} style={{ borderRadius: 10, display: "block" }} />
           </div>
           <span style={{ fontSize: "18px", fontWeight: 700, color: "#fff", whiteSpace: "nowrap" }}>Serve By Example</span>
         </div>

@@ -89,7 +89,7 @@ export default function OnboardingPage() {
     <div className="onboarding-shell">
       <div className="onboarding-header">
         <span className="onboarding-logo-bg">
-          <Image src="/logo.ico" alt="Serve By Example" width={28} height={28} />
+          <Image src="/logo.png" alt="Serve By Example" width={28} height={28} />
         </span>
         <span className="onboarding-brand">Serve By Example</span>
       </div>

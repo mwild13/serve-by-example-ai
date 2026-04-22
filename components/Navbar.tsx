@@ -36,7 +36,7 @@ export default function Navbar({
       <header className="navbar">
         <div className="container navbar-inner">
           <Link href="/" className="brand" onClick={close}>
-            <Image src="/logo.ico" alt="Serve By Example AI" width={40} height={40} className="brand-mark-img" />
+            <Image src="/logo.png" alt="Serve By Example AI" width={40} height={40} className="brand-mark-img" />
             <div className="brand-copy">
               <span className="brand-title">Serve By Example</span>
               <span className="brand-subtitle">AI Training Platform</span>
