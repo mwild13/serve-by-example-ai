@@ -248,6 +248,15 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
           return;
         }
 
+        // Quick Drills pass scaffoldedModuleKey explicitly. Their moduleIds (1=bartending,
+        // 2=sales, 3=management) collide with DB module IDs (1=Beer, 2=Wine, 3=Cocktails).
+        // Always use scaffolded questions when the key is explicitly provided — never fetch DB.
+        if (scaffoldedModuleKey) {
+          setScenarios(getFallbackScenarios(moduleId, scaffoldedModuleKey));
+          setLoading(false);
+          return;
+        }
+
         // Fetch module details (skip if name is already provided via prop)
         if (!overrideModuleName) {
           const moduleRes = await fetch(`/api/training/modules/${moduleId}`, {
