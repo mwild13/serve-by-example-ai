@@ -155,6 +155,30 @@ function getFallbackScenarios(moduleId: number, overrideKey?: Module): Scenario[
       difficulty: 2,
     },
     {
+      id: `fallback-${moduleId}-11`, module_id: moduleId, scenario_index: 10, scenario_type: "descriptor_l2",
+      prompt: `A guest gives you direct feedback about ${info.topic}. Which TWO responses demonstrate professionalism?`,
+      content: { descriptors: [`Thank them sincerely and acknowledge what they said`, `Take note and escalate to a supervisor if needed`, `Dismiss the feedback politely without acting on it`, `Argue with the guest's point`, `Apologise repeatedly without taking any action`], correctIndices: [0, 1], explanation: `Acknowledging feedback and escalating appropriately are signs of professional maturity — guests who give feedback are giving you a chance to improve.` },
+      difficulty: 2,
+    },
+    {
+      id: `fallback-${moduleId}-12`, module_id: moduleId, scenario_index: 11, scenario_type: "descriptor_l2",
+      prompt: `Before starting a ${info.topic} task, which TWO preparation steps ensure a quality outcome?`,
+      content: { descriptors: [`Check all required equipment is available and in working order`, `Review any relevant procedures or standards before starting`, `Wing it and figure it out as you go`, `Start immediately without any preparation`, `Ask a colleague to do it instead of preparing yourself`], correctIndices: [0, 1], explanation: `Checking your equipment and reviewing procedures before you start prevents errors and ensures consistent quality — preparation is professionalism.` },
+      difficulty: 2,
+    },
+    {
+      id: `fallback-${moduleId}-13`, module_id: moduleId, scenario_index: 12, scenario_type: "descriptor_l2",
+      prompt: `During a busy service involving ${info.keyword}, a colleague needs assistance. Which TWO actions are appropriate?`,
+      content: { descriptors: [`Offer to help once your own duties are covered`, `Communicate clearly about what you can assist with and for how long`, `Ignore the request and stay focused on your own station`, `Take over their entire role without being asked`, `Complain about the extra workload`], correctIndices: [0, 1], explanation: `Good teamwork means helping when you have capacity, with honest communication about your availability — not abandoning your own post.` },
+      difficulty: 2,
+    },
+    {
+      id: `fallback-${moduleId}-14`, module_id: moduleId, scenario_index: 13, scenario_type: "descriptor_l2",
+      prompt: `A new team member is struggling with ${info.topic}. Which TWO mentoring approaches are most effective?`,
+      content: { descriptors: [`Demonstrate the correct technique and explain the reason behind it`, `Encourage them by acknowledging that everyone finds it hard at first`, `Tell them to figure it out on their own`, `Report them to management immediately`, `Take over without letting them try again`], correctIndices: [0, 1], explanation: `Showing the correct method with an explanation, combined with empathy, builds long-term confidence and skill. Taking over without coaching creates dependency.` },
+      difficulty: 2,
+    },
+    {
       id: `fallback-${moduleId}-8`, module_id: moduleId, scenario_index: 7, scenario_type: "descriptor_l3",
       prompt: `During a busy shift involving ${info.keyword}, which THREE behaviours demonstrate excellence?`,
       content: { descriptors: [`Maintain composure under pressure`, `Prioritise tasks by urgency`, `Cut corners to save time`, `Communicate clearly with your team`, `Dismiss guest feedback`], correctIndices: [0, 1, 3], explanation: `Composure, prioritisation, and clear communication are the key pillars of excellence.` },

@@ -52,21 +52,26 @@ export default function DescriptorSelector({
   const [failed, setFailed] = useState(false);
   const [shuffleKey, setShuffleKey] = useState(0);
 
-  const resetStage = useCallback(() => {
+  // Shuffle question order once per scenarios set so questions cycle in random
+  // order and the same question doesn't appear on consecutive turns.
+  const scenarioIds = scenarios.map((s) => s.id).join(",");
+  const [sessionOrder, setSessionOrder] = useState<Scenario[]>([]);
+  useEffect(() => {
+    if (scenarios.length === 0) return;
+    const arr = [...scenarios];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    setSessionOrder(arr);
     setQuestionIndex(0);
-    setCorrectCount(initialScore);
-    setQuestionsAnswered(0);
-    setSelected(new Set());
-    setSubmitted(false);
-    setWasCorrect(null);
-    setCompleted(false);
-    setFailed(false);
-    setShuffleKey((k) => k + 1);
-  }, [initialScore]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scenarioIds]);
 
   const shuffledScenarios = useMemo(() => {
+    const base = sessionOrder.length > 0 ? sessionOrder : scenarios;
     if (level === 3) {
-      return scenarios.map((scenario) => ({
+      return base.map((scenario) => ({
         ...scenario,
         content: {
           ...(scenario.content as DescriptorContent),
@@ -74,8 +79,8 @@ export default function DescriptorSelector({
         },
       }));
     }
-    return scenarios;
-  }, [scenarios, level, shuffleKey]);
+    return base;
+  }, [sessionOrder, scenarios, level, shuffleKey]);
 
   const currentScenario = shuffledScenarios[questionIndex % shuffledScenarios.length];
   const currentContent = currentScenario?.content as DescriptorContent | undefined;
@@ -369,19 +374,19 @@ export default function DescriptorSelector({
 
         {submitted && failed && (
           <button
-            onClick={resetStage}
+            disabled
             style={{
               padding: "12px 28px",
-              background: "#111827",
-              color: "white",
+              background: "#fee2e2",
+              color: "#b91c1c",
               border: "none",
               borderRadius: "10px",
               fontWeight: 700,
               fontSize: "0.9375rem",
-              cursor: "pointer",
+              cursor: "default",
             }}
           >
-            Try Again →
+            Stage Failed
           </button>
         )}
       </div>
@@ -412,24 +417,9 @@ export default function DescriptorSelector({
           borderRadius: "12px",
           textAlign: "center",
         }}>
-          <p style={{ margin: "0 0 0.75rem", fontWeight: 700, color: "#b91c1c", fontSize: "1rem" }}>
-            You needed {requiredCorrect} correct to pass. Give it another go!
+          <p style={{ margin: 0, fontWeight: 700, color: "#b91c1c", fontSize: "1rem" }}>
+            You needed {requiredCorrect} correct to pass. Try again!
           </p>
-          <button
-            onClick={resetStage}
-            style={{
-              padding: "10px 24px",
-              background: "#111827",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              fontWeight: 700,
-              fontSize: "0.9rem",
-              cursor: "pointer",
-            }}
-          >
-            Retry Stage →
-          </button>
         </div>
       )}
     </div>
