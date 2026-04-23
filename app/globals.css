@@ -118,7 +118,7 @@ ul {
 }
 
 .section {
-  padding: 96px 0;
+  padding: 80px 0;
 }
 
 .section-alt {
@@ -159,7 +159,7 @@ ul {
 /* ── Ecosystem Section ──────────────────────────– */
 .section-ecosystem {
   background: var(--bg-alt);
-  padding: 120px 0;
+  padding: 80px 0;
 }
 
 .ecosystem-header {
@@ -7831,7 +7831,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   }
 
   .section {
-    padding: 88px 0;
+    padding: 80px 0;
   }
 
   .section + .section {

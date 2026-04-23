@@ -110,7 +110,7 @@ function PaymentSuccessContent() {
       {(status === "exists" || status === "new") && (
         <div className="login-form-wrapper" style={{ maxWidth: 420, width: "100%" }}>
           <div className="auth-status" style={{ marginBottom: 24, textAlign: "center", background: "var(--success-bg, #d1fae5)", color: "var(--success-text, #065f46)", borderRadius: 8, padding: "12px 20px" }}>
-            🎉 Payment successful! {status === "exists" ? "Sign in to access your plan." : "Create your account to get started."}
+            Payment successful. {status === "exists" ? "Sign in to access your plan." : "Create your account to get started."}
           </div>
 
           <form onSubmit={status === "exists" ? handleSignIn : handleSignUp} style={{ display: "flex", flexDirection: "column", gap: 16 }}>

@@ -175,7 +175,7 @@ function LoginPageContent() {
               {success ? <div className="auth-status auth-status-success">{success}</div> : null}
               <div className="auth-actions">
                 <button className="btn btn-primary btn-block" type="submit" disabled={loading}>
-                  {loading ? "Sending..." : "Send reset link 📧"}
+                  {loading ? "Sending..." : "Send reset link"}
                 </button>
                 <p className="auth-help">
                   <button
@@ -200,10 +200,10 @@ function LoginPageContent() {
         <div className="login-card">
           {checkoutSuccess && (
             <div className="auth-status auth-status-success" style={{ marginBottom: 16 }}>
-              🎉 Payment successful! Create your account or sign in below to access your plan.
+              Payment successful. Create your account or sign in below to access your plan.
             </div>
           )}
-          <h1>{isSignUp ? "Create your Serve By Example AI account 🚀" : "Staff login: jump back in"}</h1>
+          <h1>{isSignUp ? "Create your Serve By Example AI account" : "Staff login: jump back in"}</h1>
           <p className="login-copy">
             {isSignUp
               ? "Create an account to unlock training modules, AI coaching, progress streaks, and leaderboard-ready momentum."
@@ -211,9 +211,9 @@ function LoginPageContent() {
           </p>
 
           <div className="login-perks" aria-label="Training perks">
-            <span>🔥 Keep streaks</span>
-            <span>🏆 Level up</span>
-            <span>🎓 Earn progress</span>
+            <span>Keep streaks</span>
+            <span>Level up</span>
+            <span>Earn progress</span>
           </div>
 
           <div className="auth-toggle" role="tablist" aria-label="Authentication mode">

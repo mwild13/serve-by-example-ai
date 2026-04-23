@@ -48,7 +48,7 @@ export default function ResetPasswordPage() {
       <main className="login-shell">
         <div className="login-card">
           <div className="eyebrow">Account recovery</div>
-          <h1>Set a new password 🔐</h1>
+          <h1>Set a new password</h1>
           <p className="login-copy">
             Choose a strong password for your Serve By Example account. At least 6 characters.
           </p>
@@ -89,7 +89,7 @@ export default function ResetPasswordPage() {
 
             <div className="auth-actions">
               <button className="btn btn-primary btn-block" type="submit" disabled={loading}>
-                {loading ? "Updating…" : "Update password ✅"}
+                {loading ? "Updating…" : "Update password"}
               </button>
             </div>
           </form>

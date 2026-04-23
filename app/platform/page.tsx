@@ -4,19 +4,19 @@ import Footer from "@/components/Footer";
 
 const features = [
   {
-    icon: "🤖",
+    icon: "AI",
     title: "AI Scenario Training",
     description:
       "Staff practice real hospitality situations through guided AI roleplay — upselling, de-escalation, cocktail knowledge, service recovery.",
   },
   {
-    icon: "🗺️",
+    icon: "→",
     title: "Role-Based Learning Paths",
     description:
       "Tailor training to bartenders, floor staff, sales-focused team members and managers. Each role gets a targeted pathway.",
   },
   {
-    icon: "📊",
+    icon: "◈",
     title: "Live Performance Tracking",
     description:
       "Track progress across service, product knowledge, and sales skills. Real data shows you who is on-track and who needs support.",
@@ -28,13 +28,13 @@ const features = [
       "A venue AI coach answers management questions in plain language. Ask who needs training this week and get an instant answer.",
   },
   {
-    icon: "🏆",
+    icon: "◆",
     title: "Gamification & Badges",
     description:
       "Staff earn milestone badges for completion, skill mastery, and top performance. Portable digital credentials boost engagement.",
   },
   {
-    icon: "🏢",
+    icon: "▣",
     title: "Multi-Venue Management",
     description:
       "Manage multiple sites from a single console. Compare venue health scores, spot group-wide skill gaps, and standardize training.",
@@ -57,7 +57,7 @@ const coachQuestions = [
 
 const productBlocks = [
   {
-    icon: "👤",
+    icon: "◉",
     heading: "For staff",
     points: [
       "Short, mobile-first learning modules",
@@ -67,7 +67,7 @@ const productBlocks = [
     ],
   },
   {
-    icon: "📋",
+    icon: "≡",
     heading: "For managers",
     points: [
       "Full staff roster with skill analytics",
@@ -77,7 +77,7 @@ const productBlocks = [
     ],
   },
   {
-    icon: "🏛️",
+    icon: "◆",
     heading: "For venues",
     points: [
       "Faster onboarding with starter templates",
@@ -320,8 +320,8 @@ export default function PlatformPage() {
                     <p>A customer orders a house vodka. Guide them toward a premium option.</p>
                   </div>
                   <div className="platform-phone-badges">
-                    <span className="ops-badge ops-badge-earned">⭐ Training Complete</span>
-                    <span className="ops-badge ops-badge-earned">💰 Sales Champion</span>
+                    <span className="ops-badge ops-badge-earned">Training Complete</span>
+                    <span className="ops-badge ops-badge-earned">Sales Champion</span>
                   </div>
                 </div>
               </div>

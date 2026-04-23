@@ -57,7 +57,12 @@ export default function SessionConflictPage() {
       <main>
         <section className="section" style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div className="container" style={{ maxWidth: 520, textAlign: "center" }}>
-            <div style={{ fontSize: "3rem", marginBottom: 16 }}>🔒</div>
+            <div style={{ marginBottom: 16 }}>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}>
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </div>
             <h1 style={{ marginBottom: 12 }}>Session active on another device</h1>
             <p style={{ color: "var(--text-soft)", marginBottom: 24, lineHeight: 1.6 }}>
               Your account is currently being used on another browser or device.

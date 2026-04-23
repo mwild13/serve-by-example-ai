@@ -34,3 +34,21 @@ Serve By Example is an AI-powered hospitality staff training platform.
 - Server components fetch data; client components handle interaction
 - API routes validate input at the boundary before any DB access
 - Rate limiting applied to all public-facing API routes
+
+## Landing Page Refactor — Global Rules
+
+These rules apply to all landing page work across `app/` and `components/`:
+
+1. **No emojis** — Remove all emoji characters from every file. Use SVG icons or text instead.
+2. **Typography** — Standardize to a professional sans-serif (Inter or system-ui). No decorative or display fonts on landing content.
+3. **Section spacing** — Apply 80px (`py-20`) vertical padding between all top-level page sections.
+4. **Section consolidation** — Merge 'Who it's for' and 'How it works' into a single section titled 'The Complete Hospitality Solution'.
+5. **Command Center cards** — Implement as a 3-column data card grid layout.
+6. **Pricing table** — 3-tier layout with a 'Founding Member' banner on the recommended tier.
+
+### Refactor Phases
+
+- **Phase 1** — Audit `app/` directory: remove all emojis, apply 80px vertical padding between sections.
+- **Phase 2** — Merge 'Who it's for' + 'How it works' into 'The Complete Hospitality Solution'.
+- **Phase 3** — Rebuild Command Center section with 3-column data cards.
+- **Phase 4** — Build 3-tier pricing table with 'Founding Member' banner.
