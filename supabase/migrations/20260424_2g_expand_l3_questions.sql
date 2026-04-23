@@ -1,0 +1,147 @@
+-- Expand Stage 3 (descriptor_l3) question banks to 7 per module.
+-- Uses scenario_index values 30+ to avoid conflicts with existing rows.
+-- Safe to re-run: ON CONFLICT DO NOTHING.
+
+INSERT INTO scenarios (module_id, scenario_index, scenario_type, prompt, content, difficulty) VALUES
+
+-- Module 1: Beer Knowledge & Service (currently 3 L3, adding 4 → total 7)
+(1, 30, 'descriptor_l3', 'A guest asks for a beer recommendation to match their beef burger. Which THREE suggestions are most appropriate?',
+ '{"descriptors":["A malty amber ale or red ale — caramel notes match the char","A crisp lager to cleanse the palate between bites","A heavily hopped double IPA for contrast","A dark stout for a bold, classic pairing","A low-ABV session beer to keep it light"],"correctIndices":[0,1,3],"explanation":"Amber or red ale, lager, and stout are three proven burger companions — the malt and roast notes complement meat without overpowering."}',
+ 3),
+(1, 31, 'descriptor_l3', 'Your draught beer is coming out flat and under-carbonated. Which THREE steps diagnose and fix the problem?',
+ '{"descriptors":["Check CO2 pressure on the regulator","Inspect the keg coupler connection for leaks","Change the beer style on tap without investigating","Check that the keg is within its best-before date","Clean the beer lines if recently due for cleaning"],"correctIndices":[0,1,4],"explanation":"Pressure, coupler integrity, and line cleanliness cover the three most common causes of flat beer. Changing the product without investigating is never the answer."}',
+ 3),
+(1, 32, 'descriptor_l3', 'A guest wants to understand the difference between ale and lager. Which THREE points are most accurate?',
+ '{"descriptors":["Ales use top-fermenting yeast and are typically fermented warmer","Lagers use bottom-fermenting yeast and are conditioned cold","Both styles are fermented at identical temperatures","Ales are always darker than lagers","Lagers are generally crisper and more neutral in flavour than ales"],"correctIndices":[0,1,4],"explanation":"Yeast type, fermentation temperature, and the resulting flavour profile are the three core differences between ale and lager."}',
+ 3),
+(1, 33, 'descriptor_l3', 'You are serving a beer-tasting flight. Which THREE practices ensure the best guest experience?',
+ '{"descriptors":["Serve lightest beer first through to darkest/strongest","Provide a glass of water and plain crackers as palate cleansers","Mix all beers into one glass to save time","Give a one-line tasting note for each beer before they taste it","Serve all beers at the same temperature regardless of style"],"correctIndices":[0,1,3],"explanation":"Progression from lightest to darkest, palate cleansers, and brief tasting notes turn a flight into an education moment."}',
+ 3),
+
+-- Module 2: Wine Knowledge & Service (currently 4 L3, adding 3 → total 7)
+(2, 30, 'descriptor_l3', 'A guest says their wine is corked. Which THREE actions are correct?',
+ '{"descriptors":["Accept the bottle back without argument","Smell the wine yourself to verify the fault","Offer a replacement bottle from the same or similar wine","Argue that the wine is fine","Inform the sommelier or manager if you are unsure"],"correctIndices":[0,1,2],"explanation":"Accept, verify, and replace. A genuine cork taint has a distinct musty, wet-cardboard smell — and the guest should never feel doubted."}',
+ 3),
+(2, 31, 'descriptor_l3', 'You are pairing wine for a guest ordering lamb with a red wine sauce. Which THREE suggestions are appropriate?',
+ '{"descriptors":["A medium-to-full bodied Syrah or Shiraz","A crisp Pinot Grigio","A structured Cabernet Sauvignon with good tannin","A bold Malbec for its fruit and earthiness","A light Moscato"],"correctIndices":[0,2,3],"explanation":"Syrah, Cabernet Sauvignon, and Malbec all have the structure and flavour profile to complement lamb and a rich sauce. Whites and dessert wines clash."}',
+ 3),
+(2, 32, 'descriptor_l3', 'A table of four wants a bottle to share between red and white drinkers. Which THREE strategies help reach a decision?',
+ '{"descriptors":["Suggest a versatile Pinot Noir — light enough for white wine drinkers","Ask whether the table is open to trying a rosé","Recommend the cheapest bottle to keep everyone happy","Ask what food they are ordering so the pairing guides the choice","Insist they order two separate bottles immediately"],"correctIndices":[0,1,3],"explanation":"A versatile Pinot Noir, an open question about rosé, and using the food order to anchor the pairing are the three guest-led ways to resolve this diplomatically."}',
+ 3),
+
+-- Module 3: Cocktail Fundamentals (currently 4 L3, adding 3 → total 7)
+(3, 30, 'descriptor_l3', 'A guest orders a Negroni but says they find Campari too bitter. How do you handle this professionally?',
+ '{"descriptors":["Explain the Campari is what defines a Negroni and offer a suitable alternative","Suggest a Paper Plane or Aperol Spritz as a lower-bitterness option","Make the Negroni without Campari and call it the same drink","Offer a half-Campari, half-Aperol riff with the guest''s knowledge","Tell them they simply need to acquire the taste"],"correctIndices":[0,1,3],"explanation":"Explain the ingredient''s role, suggest a genuine alternative, or offer a compromise riff — always with the guest''s buy-in. Never silently change a recipe."}',
+ 3),
+(3, 31, 'descriptor_l3', 'You are behind the bar solo during a rush with six cocktail tickets. Which THREE practices maintain quality under pressure?',
+ '{"descriptors":["Batch build any duplicate orders at the same time","Communicate clearly with floor staff on ticket status","Skip garnishes to save 10 seconds per drink","Work from most time-sensitive to least","Use the shaker to make everything, even stirred cocktails, to save switching tools"],"correctIndices":[0,1,3],"explanation":"Batching duplicates, honest communication, and triage by urgency are the three tools that preserve quality under a rush without cutting corners."}',
+ 3),
+(3, 32, 'descriptor_l3', 'A guest asks you to explain what makes a cocktail ''balanced''. Which THREE elements are most relevant?',
+ '{"descriptors":["The ratio of spirit, acid, and sweetness in the recipe","The level of dilution from ice contact during shaking or stirring","The temperature and texture of the final drink","The colour of the garnish","The brand of spirit used exclusively"],"correctIndices":[0,1,2],"explanation":"Balance is built on spirit-acid-sweet ratio, dilution level, and temperature/texture. Garnish colour and brand prestige are secondary."}',
+ 3),
+
+-- Module 4: Coffee Preparation (currently 3 L3, adding 4 → total 7)
+(4, 30, 'descriptor_l3', 'A guest says their flat white tastes sour. Which THREE steps diagnose the cause?',
+ '{"descriptors":["Check the espresso extraction time — under-extraction causes sourness","Verify grind setting has not drifted finer or coarser","Confirm the coffee beans are within their roast freshness window","Add extra sugar to the drink to compensate","Check the group head temperature"],"correctIndices":[0,1,4],"explanation":"Extraction time, grind consistency, and brew temperature are the three variables most likely to cause sourness. Adding sugar masks rather than fixes the problem."}',
+ 3),
+(4, 31, 'descriptor_l3', 'You are training a new barista on milk steaming. Which THREE technique points are non-negotiable?',
+ '{"descriptors":["Position the steam wand tip just below the milk surface to create microfoam","Keep the jug moving in a circular motion to incorporate the foam evenly","Overheat the milk past 75°C for a stronger flavour","Stop steaming at approximately 65°C for optimal texture and temperature","Purge the steam wand before and after each use"],"correctIndices":[0,1,3],"explanation":"Wand placement, swirling motion, and correct temperature (not above 65-70°C) define good milk technique. Overheating scalds proteins and kills flavour."}',
+ 3),
+(4, 32, 'descriptor_l3', 'A corporate client wants a coffee station set up for a 50-person morning event. Which THREE preparations are essential?',
+ '{"descriptors":["Pre-grind and dose espresso shots to match expected volume","Set up a clear self-service area with labelled milk options","Prepare the grinder and machine at least 20 minutes before guests arrive","Leave guests to manage the station without staff presence","Set up a station with only one milk option to simplify"],"correctIndices":[0,1,2],"explanation":"Pre-dosing, clear labelling, and a warmed-up machine ready before guests arrive are the three essentials of a professional coffee event setup."}',
+ 3),
+(4, 33, 'descriptor_l3', 'During a busy service the espresso machine pressure drops. Which THREE actions are appropriate?',
+ '{"descriptors":["Notify your manager or technician immediately","Check that the water supply to the machine is not interrupted","Continue serving and hope it resolves itself","Attempt to adjust the boiler pressure yourself without training","Document the issue with time and symptoms for the technician"],"correctIndices":[0,1,3],"explanation":"Notify, check the water supply, and document. Never attempt technical repairs you are not trained for — you risk injury and void warranties."}',
+ 3),
+
+-- Module 5: Carrying Glassware & Trays (currently 2 L3, adding 5 → total 7)
+(5, 30, 'descriptor_l3', 'You are carrying a loaded cocktail tray and a guest suddenly steps back into your path. Which THREE responses are safest?',
+ '{"descriptors":["Shift your weight to slow momentum and brace to absorb contact","Call out calmly to alert the guest before impact","Attempt to jump sideways at full speed regardless of what you are carrying","Lower your centre of gravity slightly and keep the tray level","Drop the tray immediately if any collision is unavoidable"],"correctIndices":[0,1,3],"explanation":"Slowing momentum, verbal warning, and a low stable centre of gravity are the three safest in-motion responses. Full-speed evasion with a full tray is how glassware breaks."}',
+ 3),
+(5, 31, 'descriptor_l3', 'You need to carry six tall cocktail glasses and four wine glasses at once. Which THREE practices reduce breakage risk?',
+ '{"descriptors":["Use a non-slip tray liner to stabilise glassware","Load heaviest and tallest items towards the centre of the tray","Stack glasses inside each other to save space on the tray","Carry wine glasses by the stem rather than the bowl","Walk with a stable, controlled pace rather than rushing"],"correctIndices":[0,1,4],"explanation":"Non-slip liner, weight in the centre, and controlled pace reduce physics and friction risks. Stacking glassware on a service tray damages both pieces."}',
+ 3),
+(5, 32, 'descriptor_l3', 'A colleague asks you to carry a tray that you believe is overloaded. Which THREE responses are appropriate?',
+ '{"descriptors":["Refuse the load and explain the safety risk clearly","Split the load into two trips","Accept it without comment to avoid conflict","Suggest using a service trolley instead","Report the unsafe practice to your supervisor if it happens repeatedly"],"correctIndices":[0,1,3],"explanation":"Refusing, splitting the load, or using a trolley are all safe responses. Staying silent creates a safety culture where accidents happen."}',
+ 3),
+(5, 33, 'descriptor_l3', 'Before starting a large glassware carry, which THREE pre-carry checks should you complete?',
+ '{"descriptors":["Confirm the tray surface is clean and dry","Visually inspect each piece of glassware for chips or cracks","Start carrying immediately to save time","Check your path for obstacles, wet floors, or blind corners","Ensure you have a clear landing spot at your destination"],"correctIndices":[0,1,3],"explanation":"Surface, glass integrity, and a safe path are the three checks that prevent most glassware carrying incidents before they happen."}',
+ 3),
+(5, 34, 'descriptor_l3', 'You drop a glass on the floor of a busy dining room. Which THREE actions are correct?',
+ '{"descriptors":["Secure the area immediately to prevent guests walking through broken glass","Sweep and mop the area thoroughly before re-opening","Ask a guest to help you pick up the pieces","Notify your manager of the incident","Collect visible pieces with a damp cloth only — never bare hands"],"correctIndices":[0,1,3],"explanation":"Secure, clean thoroughly, and notify your manager. Bare hands on glass causes cuts; guest involvement is never appropriate."}',
+ 3),
+
+-- Module 6: Cleaning Procedures (currently 2 L3, adding 5 → total 7)
+(6, 30, 'descriptor_l3', 'The bar area passes visual inspection but a health auditor flags a hygiene issue. Which THREE causes are most likely?',
+ '{"descriptors":["Ice scoop stored directly in the ice well without a holder","Cloths being used for multiple surfaces without sanitising between uses","Bar drains cleaned and sanitised on schedule","Garnish containers left uncovered at room temperature","Speed rail bottles wiped with the same cloth as the bar top"],"correctIndices":[0,1,3],"explanation":"Ice scoop contamination, multi-surface cloths, and uncovered garnishes are three common audit failures invisible to casual inspection."}',
+ 3),
+(6, 31, 'descriptor_l3', 'You are responsible for closing the bar kitchen. Which THREE sanitation steps are non-negotiable?',
+ '{"descriptors":["Sanitise all food-contact surfaces with an approved solution after cleaning","Dispose of all open perishables or store correctly at temperature","Leave equipment soaking in water overnight to soften grease","Clean and sanitise floor drains to prevent odour and bacterial build-up","Turn off all equipment without cleaning it to save time"],"correctIndices":[0,1,3],"explanation":"Sanitise surfaces, store or dispose of perishables, and clean drains. Soaking equipment or skipping cleaning creates overnight bacterial growth."}',
+ 3),
+(6, 32, 'descriptor_l3', 'A new staff member uses a cleaning chemical at double the recommended concentration to ''clean faster''. Which THREE things should you explain?',
+ '{"descriptors":["Excess concentration can leave chemical residues on food-contact surfaces","Follow the manufacturer''s dilution instructions exactly","Double concentration always kills more bacteria and is therefore safer","It may damage equipment surfaces and reduce their service life","Correct concentration is a health and safety compliance requirement"],"correctIndices":[0,1,3],"explanation":"Residues, equipment damage, and compliance are the three real consequences of incorrect chemical dilution. More chemical does not mean more clean."}',
+ 3),
+(6, 33, 'descriptor_l3', 'There is a visible mould spot on the underside of a bar shelf. Which THREE steps address this correctly?',
+ '{"descriptors":["Remove and quarantine any products stored near the affected area","Clean and treat the surface with an appropriate anti-mould solution","Cover the spot with a tray to avoid guests seeing it","Report the finding to your manager and log it","Inspect surrounding areas for any additional affected surfaces"],"correctIndices":[0,1,3],"explanation":"Quarantine product, treat the surface, report and log it. Covering it up is a health violation and does nothing to stop spread."}',
+ 3),
+(6, 34, 'descriptor_l3', 'During service you notice a colleague is not following the correct dishwashing temperature standard. Which THREE actions are appropriate?',
+ '{"descriptors":["Politely point out the correct temperature standard to your colleague","Check the dishwasher''s temperature log or indicator","Escalate to your supervisor if the issue continues after one reminder","Ignore it because the dishes look clean anyway","Retrain the correct procedure on your next break if appropriate"],"correctIndices":[0,1,2],"explanation":"Correct, verify, and escalate if needed. Visible cleanliness is not the same as sanitisation — temperature standards exist for pathogen kill rates."}',
+ 3),
+
+-- Module 7: Bar Back Duties (currently 3 L3, adding 4 → total 7)
+(7, 30, 'descriptor_l3', 'The bar is running low on several key spirits mid-service. Which THREE actions keep service running?',
+ '{"descriptors":["Alert the bartender immediately so they can manage guest expectations","Retrieve replacements from the storeroom without being asked","Document what was used so par stock can be replenished before next service","Argue with the bartender about whose job it is","Wait until you are asked before doing anything"],"correctIndices":[0,1,2],"explanation":"Alert, action, and document. Bar back excellence is anticipating the bartender''s needs before they ask — and keeping a record for restocking."}',
+ 3),
+(7, 31, 'descriptor_l3', 'You are setting up the bar before a busy Friday night. Which THREE priorities matter most?',
+ '{"descriptors":["Ensure all glassware is clean, polished, and in its correct position","Stock the speed rail and back bar to par level","Leave garnish prep until service starts to keep it fresh","Check and refill ice wells to full capacity","Pre-chill beer taps and draft lines if required by the venue"],"correctIndices":[0,1,3],"explanation":"Glassware, par stock, and ice capacity are the three pre-service foundations. Garnish can be prepped before service — waiting until service creates bottlenecks."}',
+ 3),
+(7, 32, 'descriptor_l3', 'A bartender is in the weeds and you are caught up in a restocking run. Which THREE options are most helpful?',
+ '{"descriptors":["Quickly finish the most urgent restocking task and then return to support","Verbally communicate your current status so the bartender can prioritise","Abandon the restock immediately to help, leaving the job half done","Prioritise tasks by which helps the guest experience most","Ask the bartender what the single most pressing need is"],"correctIndices":[0,1,3],"explanation":"Finish the urgent task, communicate your status, and triage by guest impact. Abandoning a half-done restock can create a new problem while solving the current one."}',
+ 3),
+(7, 33, 'descriptor_l3', 'You notice a tapped keg is nearly empty on a busy night. Which THREE steps are correct?',
+ '{"descriptors":["Alert the bartender so they can manage the last pours","Locate the replacement keg in the cellar before the current one blows","Attempt to change the keg yourself without checking you are trained to do so","Change the keg according to the venue''s procedure when the current one blows","Inform a manager if you are not trained in keg changing"],"correctIndices":[0,1,3],"explanation":"Alert, locate, and change safely according to procedure. If you are not trained, inform the manager — untrained keg changes risk CO2 injury and product loss."}',
+ 3),
+
+-- Module 8: Greeting Guests (currently 2 L3, adding 5 → total 7)
+(8, 30, 'descriptor_l3', 'A large group arrives without a reservation on your busiest night. Which THREE responses balance hospitality and honesty?',
+ '{"descriptors":["Welcome them warmly and check availability before making any promises","Give an honest wait time estimate","Promise them a table immediately to avoid disappointment","Offer the bar or lounge area as a comfortable waiting option","Ask how long they can wait before committing to anything"],"correctIndices":[0,1,3],"explanation":"Warm welcome, honest wait time, and a comfortable alternative are the three hospitality levers that turn a difficult situation into a positive experience."}',
+ 3),
+(8, 31, 'descriptor_l3', 'You are greeting guests at the door and notice one guest appears to have a mobility impairment. Which THREE actions are appropriate?',
+ '{"descriptors":["Offer assistance naturally without making it conspicuous","Check whether they have any specific seating needs before guiding them","Ask loudly about their disability in front of other guests","Guide them to a table with accessible seating and clear egress","Let them navigate without any offer of assistance"],"correctIndices":[0,1,3],"explanation":"Natural assistance, proactively checking their needs, and accessible seating are the three actions that make every guest feel welcomed equally."}',
+ 3),
+(8, 32, 'descriptor_l3', 'A guest arrives visibly upset — not at your venue, just having a bad day. Which THREE greeting approaches are most appropriate?',
+ '{"descriptors":["Acknowledge their arrival warmly without commenting on their mood","Give them a moment to settle before engaging further","Ask them loudly ''what''s wrong?'' in front of other guests","Seat them in a quieter area of the venue if available","Inform a senior staff member so the team is aware"],"correctIndices":[0,1,3],"explanation":"Warmth, space to settle, and a quieter seat are low-key ways to improve a difficult guest''s experience without invading their privacy."}',
+ 3),
+(8, 33, 'descriptor_l3', 'You are alone at the door and two separate parties arrive at the same time. Which THREE practices handle this professionally?',
+ '{"descriptors":["Acknowledge both parties immediately so neither feels invisible","Greet the first arrival and let the second party know you will be with them in a moment","Ignore the second party until the first is fully seated","Handle each party in order of arrival with a brief acknowledgement to the other","Seat both parties simultaneously without checking their reservation details"],"correctIndices":[0,1,3],"explanation":"Acknowledge all guests instantly, work in arrival order, and keep each party informed. No one should feel invisible even for 30 seconds."}',
+ 3),
+(8, 34, 'descriptor_l3', 'A regular guest arrives and you remember they had a bad experience on their last visit. Which THREE actions acknowledge this?',
+ '{"descriptors":["Welcome them back warmly and acknowledge them as a returning guest","Quietly let your manager know the guest has returned","Pretend the previous visit did not happen and say nothing","Ensure their experience tonight is flawless and prioritise their table","Remind them of the bad experience to show you remember"],"correctIndices":[0,1,3],"explanation":"Warm welcome, manager awareness, and an elevated experience tonight are the three ways to rebuild trust. Bringing up the incident unprompted reopens the wound."}',
+ 3),
+
+-- Module 9: Table Management (currently 4 L3, adding 3 → total 7)
+(9, 30, 'descriptor_l3', 'A table is occupying a prime spot for three hours on a fully booked Friday night. Which THREE options are most appropriate?',
+ '{"descriptors":["Ensure the table always has a drink or dessert to extend the hospitality moment","Politely let the table know when the next reservation is arriving if needed","Ask them to leave immediately to free up the table","Offer a comfortable lounge area if they wish to continue their evening elsewhere","Inform your manager so the reservation strategy can be managed proactively"],"correctIndices":[0,1,3],"explanation":"Extend the experience, communicate proactively, and offer an alternative. Rushing guests out destroys the evening; doing nothing risks turning away the next reservation."}',
+ 3),
+(9, 31, 'descriptor_l3', 'You are managing a section where three tables all need attention at the same time. Which THREE strategies keep service flowing?',
+ '{"descriptors":["Acknowledge all three tables immediately so none feel ignored","Triage by urgency — food safety and guest needs first","Ignore the table that looks least impatient","Communicate with your team to share the load","Batch tasks where possible — one trip to the kitchen for multiple tables"],"correctIndices":[0,1,3],"explanation":"Acknowledge all, triage by urgency, and batch tasks. Ignoring lower-priority tables creates the next crisis before you have resolved the current one."}',
+ 3),
+(9, 32, 'descriptor_l3', 'A table of guests has complaints about their wait time for food. Which THREE actions manage this well?',
+ '{"descriptors":["Acknowledge the wait and apologise sincerely","Immediately check with the kitchen on the order status","Tell them to wait because the kitchen is busy and that is normal","Offer a complimentary item as a gesture if the wait is excessive","Keep the table informed with a realistic updated time"],"correctIndices":[0,1,3],"explanation":"Acknowledge, investigate, and keep the table informed. A complimentary gesture is a judgment call for excessive waits. Telling guests to ''just wait'' is dismissive."}',
+ 3),
+
+-- Module 10: Anticipatory Service (currently 3 L3, adding 4 → total 7)
+(10, 30, 'descriptor_l3', 'A guest''s wine glass is nearly empty and they are deep in conversation. Which THREE responses reflect anticipatory service?',
+ '{"descriptors":["Approach quietly and offer to refill without interrupting the conversation","Make eye contact briefly to signal your presence before approaching","Top up the glass without asking or signalling your approach","Wait until they flag you down to avoid being intrusive","Use a pause in the conversation as a natural moment to offer service"],"correctIndices":[0,1,3],"explanation":"Quiet approach, a brief signal before acting, and timing to a natural pause are the three ways to refill a glass that feel seamless, not intrusive."}',
+ 3),
+(10, 31, 'descriptor_l3', 'A guest''s main course is arriving and their side plates are still dirty from the starter. Which THREE actions are correct?',
+ '{"descriptors":["Clear the dirty plates before the main course is set down","Alert the food runner to hold the main course briefly if clearing is not complete","Rush the mains out anyway and hope the guest does not notice","Apologise briefly to the guest and clear efficiently","Ask the guest if they mind waiting a moment while you clear"],"correctIndices":[0,1,3],"explanation":"Clear before the main arrives, hold the runner if needed, and apologise gracefully. Rushing food onto a cluttered table is a service failure."}',
+ 3),
+(10, 32, 'descriptor_l3', 'A family with a young child is seated and neither parent has mentioned needing anything specific. Which THREE anticipatory actions add value?',
+ '{"descriptors":["Offer a high chair proactively if the child appears to need one","Bring a small snack or kids'' drink option before being asked","Wait until they specifically request anything child-related","Suggest a quieter table if the current one is near a high-traffic area","Check in shortly after seating to see if they need anything for the child"],"correctIndices":[0,1,3],"explanation":"High chair offer, proactive child-friendly gesture, and an early check-in are three anticipatory moves that tell a family with children they are welcome and catered for."}',
+ 3),
+(10, 33, 'descriptor_l3', 'A guest''s celebration dinner is going well. Which THREE moments are natural anticipatory service opportunities?',
+ '{"descriptors":["When the main course is cleared — ideal moment to mention dessert and digestifs","When a glass is nearly empty during a toast — a natural refill moment","When you notice the couple seems to want privacy — back away and monitor discreetly","When the dessert menu goes down — an opportunity to suggest a celebratory final drink","When the bill arrives — offer to take a photo for them as a final touch"],"correctIndices":[0,1,3],"explanation":"Course transitions, empty glasses during toasts, and dessert-to-digestif suggestions are three natural service moments that feel like good timing, not pushing."}',
+ 3)
+
+ON CONFLICT (module_id, scenario_index) DO NOTHING;

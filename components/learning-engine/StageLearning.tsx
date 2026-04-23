@@ -190,6 +190,30 @@ function getFallbackScenarios(moduleId: number, overrideKey?: Module): Scenario[
       content: { descriptors: [`Thank them for the feedback`, `Dismiss what they said`, `Take note of what can be improved`, `Argue with the guest`, `Follow up to ensure satisfaction`], correctIndices: [0, 2, 4], explanation: `Thanking guests, noting improvements, and following up are signs of professional service recovery.` },
       difficulty: 3,
     },
+    {
+      id: `fallback-${moduleId}-15`, module_id: moduleId, scenario_index: 14, scenario_type: "descriptor_l3",
+      prompt: `A colleague is struggling during service related to ${info.topic}. Which THREE actions show leadership?`,
+      content: { descriptors: [`Step in and help without being asked`, `Communicate clearly about what you can cover`, `Ignore it and focus on your own station only`, `Flag it to a supervisor if needed`, `Criticise them in front of guests`], correctIndices: [0, 1, 3], explanation: `Proactive support, clear communication, and escalation when needed are the hallmarks of a team leader.` },
+      difficulty: 3,
+    },
+    {
+      id: `fallback-${moduleId}-16`, module_id: moduleId, scenario_index: 15, scenario_type: "descriptor_l3",
+      prompt: `You are training a new staff member on ${info.topic}. Which THREE approaches build confidence and skill fastest?`,
+      content: { descriptors: [`Demonstrate the correct technique and explain the reason why`, `Let them attempt the task first, then coach on what to improve`, `Tell them to read the manual and figure it out`, `Give specific and constructive feedback after each attempt`, `Take over every time they make a small error`], correctIndices: [0, 1, 3], explanation: `Show, let them try, and give targeted feedback. Taking over creates dependency; reading alone without practice builds nothing.` },
+      difficulty: 3,
+    },
+    {
+      id: `fallback-${moduleId}-17`, module_id: moduleId, scenario_index: 16, scenario_type: "descriptor_l3",
+      prompt: `Service standards are slipping on your section due to ${info.keyword} issues. Which THREE steps address the root cause?`,
+      content: { descriptors: [`Identify the specific step where quality breaks down`, `Retrain the relevant technique on the next quiet shift`, `Blame the front-of-house team without investigating`, `Implement a quick checklist to standardise the process`, `Accept the lower standard to keep the peace`], correctIndices: [0, 1, 3], explanation: `Diagnosis, targeted retraining, and a checklist create a system fix rather than a band-aid.` },
+      difficulty: 3,
+    },
+    {
+      id: `fallback-${moduleId}-18`, module_id: moduleId, scenario_index: 17, scenario_type: "descriptor_l3",
+      prompt: `A VIP guest has a complaint about ${info.topic} on arrival. Which THREE actions resolve the situation professionally?`,
+      content: { descriptors: [`Acknowledge the issue immediately and apologise sincerely`, `Offer a tangible remedy without overpromising`, `Make excuses and explain why it wasn't your fault`, `Escalate to a manager while staying with the guest`, `Walk away and let someone else handle it`], correctIndices: [0, 1, 3], explanation: `Acknowledge, remedy, and escalate with the guest. Excuses and abandonment destroy the relationship.` },
+      difficulty: 3,
+    },
     { id: `fallback-${moduleId}-10`, module_id: moduleId, scenario_index: 9, scenario_type: "roleplay", prompt: `A guest approaches you with a concern about ${info.topic}. How do you handle this situation?`, content: { context: `Testing ${info.topic} knowledge under pressure.`, evaluation_criteria: [`Empathy`, `Knowledge`, `Problem-solving`, `Communication`] }, difficulty: 4 },
   ];
 }
