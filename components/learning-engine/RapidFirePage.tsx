@@ -82,33 +82,35 @@ export default function RapidFirePage({ managementUnlocked }: { managementUnlock
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Selection>(null);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const supabase = createSupabaseBrowserClient();
-        const { data: { session } } = await supabase.auth.getSession();
-        const r = await fetch("/api/training/progress", {
-          headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+  async function loadProgress() {
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      const r = await fetch("/api/training/progress", {
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+      });
+      const res = await r.json();
+      if (res.levelProgress) {
+        setData({
+          sessions: res.sessions ?? EMPTY.sessions,
+          scores: res.scores ?? EMPTY.scores,
+          levelProgress: {
+            bartending: res.levelProgress?.bartending ?? EMPTY.levelProgress.bartending,
+            sales: res.levelProgress?.sales ?? EMPTY.levelProgress.sales,
+            management: res.levelProgress?.management ?? EMPTY.levelProgress.management,
+          },
         });
-        const res = await r.json();
-        if (res.levelProgress) {
-          setData({
-            sessions: res.sessions ?? EMPTY.sessions,
-            scores: res.scores ?? EMPTY.scores,
-            levelProgress: {
-              bartending: res.levelProgress?.bartending ?? EMPTY.levelProgress.bartending,
-              sales: res.levelProgress?.sales ?? EMPTY.levelProgress.sales,
-              management: res.levelProgress?.management ?? EMPTY.levelProgress.management,
-            },
-          });
-        }
-      } catch {
-        // show empty state
-      } finally {
-        setLoading(false);
       }
+    } catch {
+      // show empty state
+    } finally {
+      setLoading(false);
     }
-    void load();
+  }
+
+  useEffect(() => {
+    void loadProgress();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Show StageLearning when a module+stage is selected
@@ -123,7 +125,7 @@ export default function RapidFirePage({ managementUnlocked }: { managementUnlock
             <span className="sbe-command-meta">Stage {selected.stage} of 4</span>
           </div>
           <button
-            onClick={() => setSelected(null)}
+            onClick={() => { setSelected(null); void loadProgress(); }}
             className="sbe-command-btn btn"
             style={{ flexShrink: 0 }}
           >
