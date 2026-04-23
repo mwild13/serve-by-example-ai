@@ -389,7 +389,7 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
       {showSummary && sessionProgress.length > 0 && (
         <div className="stage-summary-card">
           <div className="stage-summary-header">
-            <span className="stage-summary-icon">🎯</span>
+            <span className="stage-summary-icon">◆</span>
             <strong>Stage {currentStage} complete!</strong>
           </div>
           <div className="stage-summary-stats">

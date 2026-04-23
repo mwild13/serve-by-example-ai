@@ -39,9 +39,9 @@ const EMPTY: ProgressData = {
 };
 
 const MODULE_LABELS: Record<ModuleKey, { label: string; short: string; icon: string }> = {
-  bartending: { label: "Bartending Fundamentals", short: "Bartending", icon: "🍸" },
-  sales: { label: "Sales & Upselling", short: "Sales", icon: "💬" },
-  management: { label: "Shift Leadership", short: "Leadership", icon: "📋" },
+  bartending: { label: "Bartending Fundamentals", short: "Bartending", icon: "◉" },
+  sales: { label: "Sales & Upselling", short: "Sales", icon: "→" },
+  management: { label: "Shift Leadership", short: "Leadership", icon: "≡" },
 };
 
 const COACH_FOCUS: Record<ModuleKey, string[]> = {
@@ -198,7 +198,7 @@ export default function PreShiftHome({
           onClick={() => setActiveNav("module")}
           type="button"
         >
-          <span className="psh-tile-icon">⚡</span>
+          <span className="psh-tile-icon">→</span>
           <strong>Quick Warm-Up</strong>
           <p>60-second Stage 1 Recall quiz to get your brain shift-ready</p>
         </button>
@@ -208,7 +208,7 @@ export default function PreShiftHome({
           onClick={() => setActiveNav("cocktails")}
           type="button"
         >
-          <span className="psh-tile-icon">🍹</span>
+          <span className="psh-tile-icon">◉</span>
           <strong>Cocktail Specs</strong>
           <p>Check a recipe or review specs before the rush</p>
         </button>
@@ -218,7 +218,7 @@ export default function PreShiftHome({
           onClick={() => setActiveNav("knowledge")}
           type="button"
         >
-          <span className="psh-tile-icon">📖</span>
+          <span className="psh-tile-icon">≡</span>
           <strong>Knowledge Base</strong>
           <p>Quick-access 101 guides for wine, spirits, and service</p>
         </button>
@@ -228,7 +228,7 @@ export default function PreShiftHome({
           onClick={() => setActiveNav("progress")}
           type="button"
         >
-          <span className="psh-tile-icon">📈</span>
+          <span className="psh-tile-icon">↑</span>
           <strong>My Progress</strong>
           <p>View badges, scores, and training history</p>
         </button>

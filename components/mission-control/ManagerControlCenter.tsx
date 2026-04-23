@@ -128,7 +128,7 @@ const SCENARIO_TEMPLATES = [
     id: "upsell-challenge",
     name: "Upsell challenge",
     description: "Customer orders a standard drink. Practice guiding them toward a premium option and pairing.",
-    icon: "💰",
+    icon: "→",
     focus: "Sales & upselling",
     difficulty: "Intermediate",
   },
@@ -136,7 +136,7 @@ const SCENARIO_TEMPLATES = [
     id: "difficult-customer",
     name: "Difficult customer",
     description: "Customer is frustrated with wait times and makes a complaint at the bar.",
-    icon: "😤",
+    icon: "◆",
     focus: "De-escalation & service recovery",
     difficulty: "Advanced",
   },
@@ -144,7 +144,7 @@ const SCENARIO_TEMPLATES = [
     id: "menu-knowledge",
     name: "Menu knowledge quiz",
     description: "Staff must answer questions about current seasonal menu items and ingredients.",
-    icon: "📋",
+    icon: "≡",
     focus: "Product knowledge",
     difficulty: "Beginner",
   },
@@ -152,7 +152,7 @@ const SCENARIO_TEMPLATES = [
     id: "cocktail-build",
     name: "Cocktail build test",
     description: "Step-by-step scenario where staff recall the correct build order and garnish.",
-    icon: "🍹",
+    icon: "◉",
     focus: "Technical skills",
     difficulty: "Intermediate",
   },
@@ -496,7 +496,7 @@ export default function ManagerControlCenter({
     if (lowScoreStaff.length > 0) {
       tips.push({
         id: "low-score",
-        icon: "⚠️",
+        icon: "!",
         text: `${lowScoreStaff.length} staff member${lowScoreStaff.length > 1 ? "s" : ""} scoring below 50% average (${lowScoreStaff.map((s) => s.name).join(", ")}). Consider assigning targeted training.`,
         priority: "high",
       });
@@ -506,7 +506,7 @@ export default function ManagerControlCenter({
     if (metrics.productSkill > 0 && metrics.productSkill < 60) {
       tips.push({
         id: "product-weak",
-        icon: "📋",
+        icon: "≡",
         text: `Team product knowledge at ${metrics.productSkill}%. Schedule a tasting or assign Spirit/Wine 101 modules.`,
         priority: "medium",
       });
@@ -516,7 +516,7 @@ export default function ManagerControlCenter({
     if (metrics.salesSkill > 0 && metrics.salesSkill < 50) {
       tips.push({
         id: "upsell-low",
-        icon: "💰",
+        icon: "→",
         text: `Upsell performance at ${metrics.salesSkill}%. Run a sales scenario drill with the team to build recommendation confidence.`,
         priority: "medium",
       });
@@ -526,7 +526,7 @@ export default function ManagerControlCenter({
     if (inactiveCount > 0) {
       tips.push({
         id: "inactive",
-        icon: "🔔",
+        icon: "◉",
         text: `${inactiveCount} staff inactive for 7+ days. A quick check-in or refresher assignment can re-engage them.`,
         priority: "medium",
       });
@@ -537,7 +537,7 @@ export default function ManagerControlCenter({
     if (onTrackCount > 0 && venueStaff.length > 0 && onTrackCount === venueStaff.length) {
       tips.push({
         id: "all-good",
-        icon: "✅",
+        icon: "◆",
         text: "All staff are on track. Great momentum — keep the training rhythm going.",
         priority: "low",
       });
@@ -547,7 +547,7 @@ export default function ManagerControlCenter({
     if (venueStaff.length === 0) {
       tips.push({
         id: "no-staff",
-        icon: "👤",
+        icon: "◉",
         text: "Add staff members to start seeing performance insights and training recommendations.",
         priority: "high",
       });
@@ -1200,9 +1200,9 @@ export default function ManagerControlCenter({
               <div className={`ops-invite-link-panel${pendingInviteLink.emailSent ? " ops-invite-link-panel--sent" : " ops-invite-link-panel--manual"}`}>
                 <div className="ops-invite-link-header">
                   {pendingInviteLink.emailSent ? (
-                    <>✅ <strong>Invite email sent</strong> to {pendingInviteLink.email}</>
+                    <><strong>Invite email sent</strong> to {pendingInviteLink.email}</>
                   ) : (
-                    <>⚠️ <strong>Email not delivered</strong> — SMTP not configured in Supabase.</>
+                    <><strong>Email not delivered</strong> — SMTP not configured in Supabase.</>
                   )}
                 </div>
                 {!pendingInviteLink.emailSent && (
@@ -2005,7 +2005,7 @@ export default function ManagerControlCenter({
                     className={`ops-menu-tab${menuTab === tab ? " active" : ""}`}
                     onClick={() => setMenuTab(tab)}
                   >
-                    {tab === "food" ? "🍽 Food" : tab === "cocktails" ? "🍹 Cocktails" : "🍷 Wine"}
+                    {tab === "food" ? "Food" : tab === "cocktails" ? "Cocktails" : "Wine"}
                     {menuItems[tab].length > 0 ? <span className="ops-menu-count">{menuItems[tab].length}</span> : null}
                   </button>
                 ))}
@@ -2477,7 +2477,9 @@ export default function ManagerControlCenter({
                 </div>
                 {predictions.length === 0 ? (
                   <div style={{ textAlign: "center", padding: "40px 0", color: "var(--text-soft)" }}>
-                    <div style={{ fontSize: "2rem", marginBottom: 8 }}>✅</div>
+                    <div style={{ marginBottom: 8 }}>
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4 }}><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
                     <strong>No skill gap flags detected.</strong>
                     <p style={{ marginTop: 4, fontSize: ".9rem" }}>All staff scores are above thresholds. Keep an eye on this as new staff join.</p>
                   </div>
@@ -2662,7 +2664,7 @@ export default function ManagerControlCenter({
               {testEmailResult && (
                 <div className={`ops-invite-link-panel${testEmailStatus === "ok" ? " ops-invite-link-panel--sent" : " ops-invite-link-panel--manual"}`} style={{ marginTop: 14 }}>
                   <div className="ops-invite-link-header">
-                    {testEmailStatus === "ok" ? "✅" : "⚠️"} {testEmailResult.message}
+                    {testEmailStatus === "ok" ? "Sent:" : "Failed:"} {testEmailResult.message}
                   </div>
                   {testEmailResult.smtpConfigured === false && (
                     <p className="ops-invite-link-hint">
@@ -2934,12 +2936,12 @@ function formatPercent(value: number) {
 
 function StaffBadges({ staff }: { staff: { progress: number; serviceScore: number; salesScore: number; productScore: number; status: string } }) {
   const badges: Array<{ icon: string; label: string; earned: boolean }> = [
-    { icon: "🎓", label: "Training Started", earned: staff.progress > 0 },
-    { icon: "⭐", label: "Training Complete", earned: staff.progress >= 100 },
-    { icon: "🤝", label: "Service Star", earned: staff.serviceScore >= 75 },
-    { icon: "💰", label: "Sales Champion", earned: staff.salesScore >= 75 },
-    { icon: "🍹", label: "Product Expert", earned: staff.productScore >= 75 },
-    { icon: "🏆", label: "Top Performer", earned: staff.serviceScore >= 80 && staff.salesScore >= 80 && staff.productScore >= 80 },
+    { icon: "◆", label: "Training Started", earned: staff.progress > 0 },
+    { icon: "★", label: "Training Complete", earned: staff.progress >= 100 },
+    { icon: "◉", label: "Service Star", earned: staff.serviceScore >= 75 },
+    { icon: "→", label: "Sales Champion", earned: staff.salesScore >= 75 },
+    { icon: "◈", label: "Product Expert", earned: staff.productScore >= 75 },
+    { icon: "▲", label: "Top Performer", earned: staff.serviceScore >= 80 && staff.salesScore >= 80 && staff.productScore >= 80 },
   ];
 
   const earned = badges.filter((b) => b.earned);

@@ -61,10 +61,10 @@ const MODULE_LABELS: Record<ModuleKey, { label: string; detail: string; short: s
 };
 
 const BADGE_LEGEND = [
-  { label: "Stage Complete", icon: "🏅", note: "Stage 1 or 2 passed" },
-  { label: "Advanced", icon: "🥇", note: "Stage 3 passed" },
-  { label: "Scenario Master", icon: "👑", note: "Stage 4 avg ≥ 21/25" },
-  { label: "Perfect", icon: "⭐", note: "100% module mastery" },
+  { label: "Stage Complete", icon: "◆", note: "Stage 1 or 2 passed" },
+  { label: "Advanced", icon: "◈", note: "Stage 3 passed" },
+  { label: "Scenario Master", icon: "▲", note: "Stage 4 avg ≥ 21/25" },
+  { label: "Perfect", icon: "★", note: "100% module mastery" },
 ];
 
 // Coach focus commands keyed by weakest module
@@ -100,7 +100,7 @@ function buildBadgeStages(data: TrainingData) {
         return {
           id: `stage1-${mod}`,
           label: badgeLabels[i],
-          icon: earned ? "🏅" : "🛡️",
+          icon: earned ? "◆" : "–",
           earned,
           earnedNote: earned ? `Quiz passed (${lp.level1_score} streak)` : undefined,
         };
@@ -115,7 +115,7 @@ function buildBadgeStages(data: TrainingData) {
         return {
           id: `stage2-${mod}`,
           label: badgeLabels[i],
-          icon: earned ? "🏅" : "🛡️",
+          icon: earned ? "◆" : "–",
           earned,
           earnedNote: earned ? `Descriptors mastered (${lp.level2_score} correct)` : undefined,
         };
@@ -130,7 +130,7 @@ function buildBadgeStages(data: TrainingData) {
         return {
           id: `stage3-${mod}`,
           label: badgeLabels[i],
-          icon: earned ? "🥇" : "🛡️",
+          icon: earned ? "◈" : "–",
           earned,
           earnedNote: earned ? `Advanced complete (${lp.level3_score} correct)` : undefined,
         };
@@ -147,7 +147,7 @@ function buildBadgeStages(data: TrainingData) {
         return {
           id: `stage4-${mod}`,
           label: badgeLabels[i],
-          icon: earned ? (isPerfect ? "⭐" : "👑") : "🛡️",
+          icon: earned ? (isPerfect ? "★" : "▲") : "–",
           earned,
           earnedNote: earned
             ? isPerfect
@@ -256,10 +256,10 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
   }));
 
   const MOMENTUM_METRICS = [
-    { icon: "📊", headline: `${avgProgress}% complete · ${avgMastery}% mastered`, sub: "Completion = scenarios passed. Mastery = repeated excellence." },
-    { icon: "⚡", headline: `${totalSessions} session${totalSessions !== 1 ? "s" : ""}`, sub: "Total training sessions completed." },
+    { icon: "◈", headline: `${avgProgress}% complete · ${avgMastery}% mastered`, sub: "Completion = scenarios passed. Mastery = repeated excellence." },
+    { icon: "↑", headline: `${totalSessions} session${totalSessions !== 1 ? "s" : ""}`, sub: "Total training sessions completed." },
     {
-      icon: "🎯",
+      icon: "→",
       headline: totalSessions === 0 ? "Start training below" : data.reviewDue > 0 ? `${data.reviewDue} review${data.reviewDue !== 1 ? "s" : ""} due` : `Strongest: ${MODULE_LABELS[strongest].short}`,
       sub: totalSessions === 0 ? "Complete a scenario to track your momentum." : data.reviewDue > 0 ? "Spaced repetition items ready for review." : "Keep pushing your weakest module to round out your skills.",
     },

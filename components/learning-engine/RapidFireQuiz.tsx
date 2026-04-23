@@ -229,7 +229,7 @@ export default function RapidFireQuiz({
           className={`quiz-explanation${wasCorrect ? " quiz-explanation-correct" : " quiz-explanation-incorrect"}`}
         >
           <p className="quiz-explanation-text">{currentContent.explanation}</p>
-          {speedBonus && <p className="quiz-explanation-bonus">⚡ Speed bonus!</p>}
+          {speedBonus && <p className="quiz-explanation-bonus">Speed bonus!</p>}
         </div>
       )}
 

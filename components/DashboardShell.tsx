@@ -32,7 +32,7 @@ const NAV_ITEMS: { id: NavItem; label: string }[] = [
   { id: "settings", label: "Settings" },
 ];
 
-const AVATAR_CHOICES = ["😀", "😎", "🙂", "🤠", "🥳", "🧠", "🫶", "😺"];
+const AVATAR_CHOICES = ["A", "B", "C", "D", "E", "F", "G", "H"];
 
 function StaffSettingsPanel({
   displayName,
@@ -351,7 +351,7 @@ function StaffSettingsPanel({
 function ComingSoon({ label }: { label: string }) {
   return (
     <div style={{ padding: "48px 24px", textAlign: "center" }}>
-      <div style={{ fontSize: "2.5rem", marginBottom: 16 }}>🚧</div>
+      <div style={{ fontSize: "1rem", marginBottom: 16, color: "var(--text-soft)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Coming soon</div>
       <h2 style={{ marginBottom: 8 }}>{label}</h2>
       <p style={{ color: "var(--text-soft)" }}>
         This module is coming soon. Keep training with the modules available now!
@@ -362,43 +362,43 @@ function ComingSoon({ label }: { label: string }) {
 
 const DAILY_CHALLENGES = [
   {
-    emoji: "🍸",
+    emoji: "◉",
     title: "Perfect the Martini",
     desc: "Describe the classic variants and how to read a guest's preference.",
     nav: "rapid-fire" as NavItem,
   },
   {
-    emoji: "💬",
+    emoji: "→",
     title: "Upsell without pressure",
     desc: "Practise guiding a guest from the house wine to a premium option.",
     nav: "rapid-fire" as NavItem,
   },
   {
-    emoji: "🔥",
+    emoji: "↑",
     title: "Survive a rush",
     desc: "Handle three simultaneous orders while keeping guests happy.",
     nav: "scenarios" as NavItem,
   },
   {
-    emoji: "🤝",
+    emoji: "◆",
     title: "Difficult guest recovery",
     desc: "Turn a frustrated guest into a loyal advocate in under 2 minutes.",
     nav: "scenarios" as NavItem,
   },
   {
-    emoji: "📋",
+    emoji: "≡",
     title: "Menu knowledge drill",
     desc: "Describe today's specials confidently and pair them with drinks.",
     nav: "rapid-fire" as NavItem,
   },
   {
-    emoji: "🧠",
+    emoji: "▣",
     title: "Management mindset",
     desc: "Walk through how to brief a new hire on service standards.",
     nav: "rapid-fire" as NavItem,
   },
   {
-    emoji: "🎯",
+    emoji: "◈",
     title: "Sales target scenario",
     desc: "Your venue needs to hit a cover target — walk through your plan.",
     nav: "rapid-fire" as NavItem,
@@ -420,10 +420,10 @@ function RightPanel({
   const challenge = DAILY_CHALLENGES[dayOfYear % DAILY_CHALLENGES.length];
 
   const quickStarts: { emoji: string; label: string; nav: NavItem }[] = [
-    { emoji: "🎓", label: "Modules", nav: "module" },
-    { emoji: "🎭", label: "Scenario Training", nav: "stage4" },
-    { emoji: "📈", label: "My progress", nav: "progress" },
-    { emoji: "⚙️", label: "Settings", nav: "settings" },
+    { emoji: "◆", label: "Modules", nav: "module" },
+    { emoji: "→", label: "Scenario Training", nav: "stage4" },
+    { emoji: "↑", label: "My progress", nav: "progress" },
+    { emoji: "◉", label: "Settings", nav: "settings" },
   ];
   const filteredQuickStarts = isPremium ? quickStarts : quickStarts.filter((q) => q.nav === "progress");
 
@@ -496,8 +496,8 @@ function RightPanel({
             <span className="rp-stat-key">Badges</span>
           </div>
           <div className="rp-stat">
-            <span className="rp-stat-value">⚡</span>
-            <span className="rp-stat-key">{isPremium ? "Pro" : "Free"}</span>
+            <span className="rp-stat-value">{isPremium ? "Pro" : "Free"}</span>
+            <span className="rp-stat-key">Plan</span>
           </div>
         </div>
       </div>
@@ -747,7 +747,7 @@ export default function DashboardShell({
               aria-current={activeNav === item.id ? "page" : undefined}
               aria-label={!isPremium && PREMIUM_NAV_ITEMS.includes(item.id) ? `${item.label} (locked)` : item.label}
             >
-              {!isPremium && PREMIUM_NAV_ITEMS.includes(item.id) ? `${item.label} 🔒` : item.label}
+              {!isPremium && PREMIUM_NAV_ITEMS.includes(item.id) ? `${item.label} (locked)` : item.label}
             </div>
           ))}
         </div>

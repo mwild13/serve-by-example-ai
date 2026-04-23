@@ -762,7 +762,7 @@ export default function DashboardTrainer({
               onKeyDown={(e) => { if (!isLocked && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); selectModule(mod); } }}
               style={activeModule === mod ? { borderColor: MODULE_META[mod].color, boxShadow: `0 0 0 3px ${MODULE_META[mod].color}22` } : {}}
             >
-              <h3>{MODULE_META[mod].label}{isLocked ? " 🔒" : ""}</h3>
+              <h3>{MODULE_META[mod].label}{isLocked ? " (locked)" : ""}</h3>
               <div className="dash-card-progress-row">
                 <div className="dash-card-progress-bar">
                   <div className="dash-card-progress-fill" style={{ width: `${moduleProgress[mod]}%`, background: MODULE_META[mod].color }} />
@@ -806,7 +806,7 @@ export default function DashboardTrainer({
             <p>{currentScenario.text}</p>
             {masteryFeedback?.isBridge && (
               <div className="sbe-bridge-hint">
-                💡 <strong>Hint:</strong> Focus on the guest&apos;s emotional state first, then address their request. What would make them feel heard?
+                <strong>Hint:</strong> Focus on the guest&apos;s emotional state first, then address their request. What would make them feel heard?
               </div>
             )}
           </div>
@@ -823,7 +823,7 @@ export default function DashboardTrainer({
                       className={`sbe-intent-pill${response === pill.text ? " sbe-intent-pill-active" : ""}${!pill.positive ? " sbe-intent-pill-negative" : ""}`}
                       onClick={() => applyPill(pill.text)}
                     >
-                      <span className="sbe-intent-icon">{pill.positive ? "✅" : "❌"}</span>
+                      <span className="sbe-intent-icon">{pill.positive ? "+" : "–"}</span>
                       {pill.intent}
                     </button>
                   ))}
@@ -966,7 +966,7 @@ export default function DashboardTrainer({
 
                 {currentInsight && (
                   <div className="sbe-scenario-insight">
-                    <strong>💡 Why this matters</strong>
+                    <strong>Why this matters</strong>
                     <p>{currentInsight}</p>
                   </div>
                 )}
@@ -994,7 +994,7 @@ export default function DashboardTrainer({
                     <div className="sbe-mastery-feedback-row">
                       <span>Mastery Level: <strong>{['Novice', 'Learning', 'Proficient', 'Mastered'][masteryFeedback.level]}</strong></span>
                       {masteryFeedback.levelChanged && (
-                        <span className="sbe-level-up">🎉 Level up!</span>
+                        <span className="sbe-level-up">Level up!</span>
                       )}
                     </div>
                     <div className="sbe-mastery-feedback-row">

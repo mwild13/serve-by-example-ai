@@ -161,7 +161,7 @@ export default function CocktailLibrary() {
                         onClick={(e) => addToPractice(cocktail.name, e)}
                         disabled={inPractice}
                       >
-                        {inPractice ? "✓ Bookmarked" : "🔖 Bookmark"}
+                        {inPractice ? "✓ Bookmarked" : "Bookmark"}
                       </button>
                       <button
                         className="btn btn-secondary"

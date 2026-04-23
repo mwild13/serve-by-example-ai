@@ -210,7 +210,7 @@ export default function AdvancedScenarios() {
         <div className="sbe-command-text">
           <span className="sbe-command-eyebrow">AI Scenarios</span>
           <strong>Scenario {scenarioIndex + 1} of {SCENARIOS.length}</strong>
-          <span className="sbe-command-meta">💡 Real-world challenges</span>
+          <span className="sbe-command-meta">Real-world challenges</span>
         </div>
       </div>
 
@@ -253,7 +253,7 @@ export default function AdvancedScenarios() {
                   className={`sbe-intent-pill${response === pill.text ? " sbe-intent-pill-active" : ""}${!pill.positive ? " sbe-intent-pill-negative" : ""}`}
                   onClick={() => applyPill(pill.text)}
                 >
-                  <span className="sbe-intent-icon">{pill.positive ? "✅" : "❌"}</span>
+                  <span className="sbe-intent-icon">{pill.positive ? "+" : "–"}</span>
                   {pill.intent}
                 </button>
               ))}
@@ -330,7 +330,7 @@ export default function AdvancedScenarios() {
 
             {currentInsight && (
               <div className="sbe-scenario-insight">
-                <strong>💡 Why this matters</strong>
+                <strong>Why this matters</strong>
                 <p>{currentInsight}</p>
               </div>
             )}
