@@ -5,13 +5,248 @@ import WaitlistSection from "@/components/ui/WaitlistSection";
 import ROICalculator from "@/components/ui/ROICalculator";
 import BrowserMockup from "@/components/ui/BrowserMockup";
 
+// ── SVG Icons ─────────────────────────────────────────────────────────────────
+
+function IcoUsers({ size = 22 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  );
+}
+
+function IcoBuilding({ size = 22 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="4" y="2" width="16" height="20" rx="2"/>
+      <path d="M9 22v-4h6v4"/>
+      <path d="M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/>
+    </svg>
+  );
+}
+
+function IcoEye({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+  );
+}
+
+function IcoAlertTriangle({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m10.29 3.86-8.5 14.72A2 2 0 0 0 3.5 21h17a2 2 0 0 0 1.71-3.02l-8.5-14.72a2 2 0 0 0-3.42 0z"/>
+      <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>
+  );
+}
+
+function IcoClipboard({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+      <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+    </svg>
+  );
+}
+
+function IcoBarChart({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+    </svg>
+  );
+}
+
+function IcoSparkles({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+      <circle cx="12" cy="12" r="4"/>
+    </svg>
+  );
+}
+
+function IcoPlay({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <polygon points="10,8 16,12 10,16"/>
+    </svg>
+  );
+}
+
+function IcoBot({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="11" width="18" height="10" rx="2"/>
+      <circle cx="12" cy="5" r="2"/>
+      <path d="M12 7v4"/>
+      <line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/>
+    </svg>
+  );
+}
+
+function IcoBook({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+    </svg>
+  );
+}
+
+function IcoRefresh({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="23 4 23 10 17 10"/>
+      <polyline points="1 20 1 14 7 14"/>
+      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+    </svg>
+  );
+}
+
+function IcoTrophy({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="8 21 12 17 16 21"/>
+      <line x1="12" y1="17" x2="12" y2="11"/>
+      <path d="M7 4H4a2 2 0 0 0-2 2v2a4 4 0 0 0 4 4h.5"/>
+      <path d="M17 4h3a2 2 0 0 1 2 2v2a4 4 0 0 1-4 4h-.5"/>
+      <rect x="7" y="2" width="10" height="10" rx="1"/>
+    </svg>
+  );
+}
+
+function IcoZap({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+    </svg>
+  );
+}
+
+function IcoBrain({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/>
+      <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/>
+      <path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/>
+      <path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/>
+      <path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/>
+      <path d="M3.477 10.896a4 4 0 0 1 .585-.396"/>
+      <path d="M19.938 10.5a4 4 0 0 1 .585.396"/>
+    </svg>
+  );
+}
+
+function IcoLayers({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+      <polyline points="2 17 12 22 22 17"/>
+      <polyline points="2 12 12 17 22 12"/>
+    </svg>
+  );
+}
+
+function IcoLock({ size = 32 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    </svg>
+  );
+}
+
+function IcoHandshake({ size = 32 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m11 17 2 2a1 1 0 1 0 3-3"/>
+      <path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/>
+      <path d="m21 3 1 11h-2"/>
+      <path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/>
+      <path d="M3 4h8"/>
+    </svg>
+  );
+}
+
+function IcoCompass({ size = 32 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+    </svg>
+  );
+}
+
+function IcoGrid({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+      <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+    </svg>
+  );
+}
+
+function IcoGlass({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8 22h8M7 2h10l-2 8H9z"/><line x1="12" y1="10" x2="12" y2="22"/>
+    </svg>
+  );
+}
+
+function IcoChat({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+  );
+}
+
+function IcoLineChart({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+    </svg>
+  );
+}
+
+function IcoGear({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+  );
+}
+
+function IcoCalendar({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+  );
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+
 export default function Home() {
   return (
     <div className="page-shell">
       <Navbar showActions={false} showTextLogin showNavbarLanguageOnMobile={false} />
 
       <main>
-        {/* ── Hero (Split-Screen) ──────────────────── */}
+
+        {/* ── Hero ─────────────────────────────────── */}
         <section className="hero">
           <div className="container">
             <div className="hero-split">
@@ -39,10 +274,10 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── ROI Calculator (Sticky Lead Magnet) ──── */}
+        {/* ── ROI Calculator ───────────────────────── */}
         <ROICalculator />
 
-        {/* ── Trust ──────────────────────────────── */}
+        {/* ── Trust Stats ──────────────────────────── */}
         <section className="section trust-section">
           <div className="container">
             <div className="section-header center">
@@ -56,7 +291,7 @@ export default function Home() {
               </article>
               <article className="stat-card">
                 <div className="stat-value">65+</div>
-                <div className="stat-label">Cocktail & Scenario<br/><span style={{fontSize: '0.7rem', fontWeight: 400}}>Training Content</span></div>
+                <div className="stat-label">Cocktail &amp; Scenario<br/><span style={{fontSize: '0.7rem', fontWeight: 400}}>Training Content</span></div>
               </article>
               <article className="stat-card">
                 <div className="stat-value">19</div>
@@ -66,40 +301,151 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── THE SBE SYSTEM ─────────────────────────── */}
+        {/* ── The Complete Hospitality Solution ────── */}
         <section className="section section-ecosystem">
           <div className="container">
             <div className="section-header center">
-              <h2>Two Sides of One System</h2>
-              <p>Unified learning for staff and real-time insights for managers.</p>
+              <h2>The Complete Hospitality Solution</h2>
+              <p>One platform. Two powerful tools working together to lift your team and your venue.</p>
             </div>
 
-            <div className="ecosystem-comparison">
-              <div className="ecosystem-card">
-                <div className="ecosystem-card-icon">👥</div>
-                <h3>For Your Staff</h3>
-                <p className="ecosystem-card-intro">A personal digital training campus.</p>
-                <ul className="ecosystem-features">
-                  <li>🎯 <strong>Interactive Scenarios:</strong> Realistic situations they&apos;ll face every shift</li>
-                  <li>🤖 <strong>AI Coaching:</strong> Instant feedback on every response (24/7)</li>
-                  <li>📊 <strong>Visible Progress:</strong> ELO ratings, skill levels, mastery badges</li>
-                  <li>📚 <strong>Knowledge Hub:</strong> 65 cocktail specs + 26 reference articles</li>
-                  <li>⚡ <strong>Smart Review:</strong> Spaced repetition resurfaces weak areas automatically</li>
+            <div className="solution-grid">
+
+              {/* Venues Column */}
+              <div className="solution-col">
+                <div className="solution-col-header">
+                  <span className="solution-col-icon"><IcoBuilding size={20} /></span>
+                  <div>
+                    <h3>For Your Venues</h3>
+                    <p>Complete Operational Control: Track performance and compliance in real-time</p>
+                  </div>
+                </div>
+                <div className="command-cards">
+                  <div className="command-card">
+                    <div className="command-card-label">
+                      <IcoEye size={14} /> Visibility &amp; Compliance
+                    </div>
+                    <div className="command-card-rows">
+                      <div className="command-card-row">
+                        <span className="status-dot certified" />
+                        <span className="command-card-row-label">Certified</span>
+                        <span className="command-card-row-bar"><span style={{width: "78%"}} className="bar-fill certified-fill"/></span>
+                        <span className="command-card-row-val">14</span>
+                      </div>
+                      <div className="command-card-row">
+                        <span className="status-dot in-progress" />
+                        <span className="command-card-row-label">In Progress</span>
+                        <span className="command-card-row-bar"><span style={{width: "26%"}} className="bar-fill progress-fill"/></span>
+                        <span className="command-card-row-val">5</span>
+                      </div>
+                      <div className="command-card-row">
+                        <span className="status-dot at-risk" />
+                        <span className="command-card-row-label">At Risk</span>
+                        <span className="command-card-row-bar"><span style={{width: "11%"}} className="bar-fill risk-fill"/></span>
+                        <span className="command-card-row-val">2</span>
+                      </div>
+                    </div>
+                    <div className="command-card-footer">Updated 2 min ago</div>
+                  </div>
+
+                  <div className="command-card">
+                    <div className="command-card-label">
+                      <IcoBarChart size={14} /> Management Efficiency
+                    </div>
+                    <div className="command-card-stat-row">
+                      <div className="command-card-before-after">
+                        <div className="before-after-col">
+                          <span className="before-after-label">Before</span>
+                          <span className="before-after-val muted">6 months</span>
+                        </div>
+                        <span className="before-after-arrow">→</span>
+                        <div className="before-after-col">
+                          <span className="before-after-label">After SBE</span>
+                          <span className="before-after-val green">6 weeks</span>
+                        </div>
+                      </div>
+                      <div className="command-card-badge">3× Faster Onboarding</div>
+                    </div>
+                    <div className="command-card-footer">Avg. staff completion: 12 days</div>
+                  </div>
+
+                  <div className="command-card">
+                    <div className="command-card-label">
+                      <IcoAlertTriangle size={14} /> Knowledge Decay Risk
+                    </div>
+                    <div className="command-card-rows">
+                      <div className="command-card-row">
+                        <span className="status-dot certified" />
+                        <span className="command-card-row-label">Low Risk</span>
+                        <span className="command-card-row-bar"><span style={{width: "71%"}} className="bar-fill certified-fill"/></span>
+                        <span className="command-card-row-val">12</span>
+                      </div>
+                      <div className="command-card-row">
+                        <span className="status-dot in-progress" />
+                        <span className="command-card-row-label">Medium Risk</span>
+                        <span className="command-card-row-bar"><span style={{width: "18%"}} className="bar-fill progress-fill"/></span>
+                        <span className="command-card-row-val">3</span>
+                      </div>
+                      <div className="command-card-row">
+                        <span className="status-dot at-risk" />
+                        <span className="command-card-row-label">High Risk</span>
+                        <span className="command-card-row-bar"><span style={{width: "12%"}} className="bar-fill risk-fill"/></span>
+                        <span className="command-card-row-val">2</span>
+                      </div>
+                    </div>
+                    <div className="command-card-footer command-card-footer-ai">AI Coach: 2 active recommendations</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Staff Column */}
+              <div className="solution-col">
+                <div className="solution-col-header">
+                  <span className="solution-col-icon"><IcoUsers size={20} /></span>
+                  <div>
+                    <h3>For Your Staff</h3>
+                    <p>Professional Development, On Demand: AI-powered training that scales with your venue</p>
+                  </div>
+                </div>
+                <ul className="solution-features">
+                  <li>
+                    <span className="solution-feature-icon"><IcoPlay /></span>
+                    <div>
+                      <strong>Interactive Scenarios</strong>
+                      <span>Realistic situations staff face every shift — guided by AI</span>
+                    </div>
+                  </li>
+                  <li>
+                    <span className="solution-feature-icon"><IcoBot /></span>
+                    <div>
+                      <strong>AI Coaching</strong>
+                      <span>Instant personalised feedback on every response, available 24/7</span>
+                    </div>
+                  </li>
+                  <li>
+                    <span className="solution-feature-icon"><IcoBarChart /></span>
+                    <div>
+                      <strong>Visible Progress</strong>
+                      <span>ELO ratings, skill levels, and mastery badges track real growth</span>
+                    </div>
+                  </li>
+                  <li>
+                    <span className="solution-feature-icon"><IcoBook /></span>
+                    <div>
+                      <strong>Knowledge Hub</strong>
+                      <span>65 cocktail specs + 26 reference articles on demand</span>
+                    </div>
+                  </li>
+                  <li>
+                    <span className="solution-feature-icon"><IcoRefresh /></span>
+                    <div>
+                      <strong>Smart Review</strong>
+                      <span>Spaced repetition resurfaces weak areas automatically</span>
+                    </div>
+                  </li>
                 </ul>
               </div>
 
-              <div className="ecosystem-card">
-                <div className="ecosystem-card-icon">📊</div>
-                <h3>For Your Venues</h3>
-                <p className="ecosystem-card-intro">A command center for team readiness.</p>
-                <ul className="ecosystem-features">
-                  <li>👀 <strong>Real-Time Visibility:</strong> See team progress and compliance status instantly</li>
-                  <li>⚠️ <strong>Smart Alerts:</strong> Know who&apos;s at risk, falling behind, or knowledge decay</li>
-                  <li>🎓 <strong>Training Management:</strong> Assign programs, track completion across venues</li>
-                  <li>🏆 <strong>Performance Insights:</strong> Leaderboards, upselling trends, service scores</li>
-                  <li>🤖 <strong>Context-Aware AI:</strong> Coach gives venue-specific operational advice</li>
-                </ul>
-              </div>
             </div>
           </div>
         </section>
@@ -116,22 +462,22 @@ export default function Home() {
                     Serve By Example
                   </div>
                   <div className="mockup-nav-item active">
-                    <span className="mockup-nav-icon">📊</span> Dashboard
+                    <span className="mockup-nav-icon"><IcoGrid /></span> Dashboard
                   </div>
                   <div className="mockup-nav-item">
-                    <span className="mockup-nav-icon">🍸</span> Bartending
+                    <span className="mockup-nav-icon"><IcoGlass /></span> Bartending
                   </div>
                   <div className="mockup-nav-item">
-                    <span className="mockup-nav-icon">💬</span> Sales
+                    <span className="mockup-nav-icon"><IcoChat /></span> Sales
                   </div>
                   <div className="mockup-nav-item">
-                    <span className="mockup-nav-icon">📋</span> Management
+                    <span className="mockup-nav-icon"><IcoClipboard size={14} /></span> Management
                   </div>
                   <div className="mockup-nav-item">
-                    <span className="mockup-nav-icon">📈</span> Progress
+                    <span className="mockup-nav-icon"><IcoLineChart /></span> Progress
                   </div>
                   <div className="mockup-nav-item">
-                    <span className="mockup-nav-icon">⚙️</span> Settings
+                    <span className="mockup-nav-icon"><IcoGear /></span> Settings
                   </div>
                 </div>
                 <div className="mockup-main">
@@ -145,7 +491,7 @@ export default function Home() {
                   <div className="mockup-cards">
                     <div className="mockup-card">
                       <div className="mockup-card-top">
-                        <div className="mockup-card-icon">🍸</div>
+                        <div className="mockup-card-icon"><IcoGlass size={16} /></div>
                         <span className="mockup-card-status in-progress">
                           In Progress
                         </span>
@@ -163,7 +509,7 @@ export default function Home() {
                     </div>
                     <div className="mockup-card">
                       <div className="mockup-card-top">
-                        <div className="mockup-card-icon">💬</div>
+                        <div className="mockup-card-icon"><IcoChat size={16} /></div>
                         <span className="mockup-card-status in-progress">
                           In Progress
                         </span>
@@ -190,7 +536,7 @@ export default function Home() {
                       cocktail. What do you recommend and why?
                     </div>
                     <div className="mockup-chat-msg user">
-                      I&rsquo;d suggest an Old Fashioned&nbsp;— it&rsquo;s
+                      I&rsquo;d suggest an Old Fashioned&nbsp;&mdash; it&rsquo;s
                       spirit-forward, smooth from the sugar and bitters, and
                       feels premium.
                     </div>
@@ -206,324 +552,223 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── How It Works ─────────────────────────── */}
-        <section id="how-it-works" className="section">
-          <div className="container">
-            <div className="section-header center">
-              <span className="eyebrow">The 4-Stage Mastery Path</span>
-              <h2>Progressive learning that sticks</h2>
-            </div>
-            <div className="steps-grid">
-              <div className="step">
-                <div className="step-illustration" aria-hidden="true">
-                  1️⃣
-                </div>
-                <div className="step-num">Stage 1</div>
-                <h3>Rapid-Fire Quiz</h3>
-                <p>
-                  Quick true/false questions to build foundational knowledge.
-                  5 correct answers in a row = mastery.
-                </p>
-              </div>
-              <div className="step">
-                <div className="step-illustration" aria-hidden="true">
-                  2️⃣
-                </div>
-                <div className="step-num">Stage 2</div>
-                <h3>Descriptor Selection</h3>
-                <p>
-                  Pick 2 correct descriptors from 5 options for realistic scenarios.
-                  Builds application of knowledge.
-                </p>
-              </div>
-              <div className="step">
-                <div className="step-illustration" aria-hidden="true">
-                  3️⃣
-                </div>
-                <div className="step-num">Stage 3</div>
-                <h3>Advanced Application</h3>
-                <p>
-                  Pick 3 descriptors from 5 (harder) with shuffled scenarios.
-                  Proves deep understanding.
-                </p>
-              </div>
-              <div className="step">
-                <div className="step-illustration" aria-hidden="true">
-                  4️⃣
-                </div>
-                <div className="step-num">Stage 4</div>
-                <h3>AI Scenario Simulation</h3>
-                <p>
-                  Build your approach from 3 action pills. AI scores across 5 dimensions.
-                  Immediate feedback on hospitality judgment.
-                </p>
-              </div>
-            </div>
-            <div className="steps-cta-wrap">
-              <Link href="/demo" className="btn btn-primary">
-                Start Your First Scenario
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Who It's For ─────────────────────────── */}
+        {/* ── Mastery Engine — 3-Step Process ─────── */}
         <section className="section section-alt">
-          <div className="container">
-            <div className="section-header center">
-              <span className="eyebrow">Who It&rsquo;s For</span>
-              <h2>Training that fits every role in hospitality</h2>
-              <p>
-                Clear pathways for frontline teams and leaders.
-              </p>
-            </div>
-            <div className="audience-grid">
-              <article className="audience-card">
-                <div className="audience-icon">🍹</div>
-                <h3>Bartenders & Mixologists</h3>
-                <p className="audience-benefit">
-                  Master cocktail specs, build speed under pressure, and develop confidence.
-                </p>
-                <div className="audience-examples">
-                  <small><strong>Example:</strong> Practice Friday-night rush with 3 simultaneous orders</small>
-                </div>
-              </article>
-              <article className="audience-card">
-                <div className="audience-icon">⭐</div>
-                <h3>Floor & Service Staff</h3>
-                <p className="audience-benefit">
-                  Improve service consistency, compliance, and upselling across every interaction.
-                </p>
-                <div className="audience-examples">
-                  <small><strong>Example:</strong> Train on RSA, wine pairing, and premium spirit recommendations</small>
-                </div>
-              </article>
-              <article className="audience-card">
-                <div className="audience-icon">📋</div>
-                <h3>Venue Managers & Groups</h3>
-                <p className="audience-benefit">
-                  Onboard teams 3× faster, track compliance, and manage multiple locations.
-                </p>
-                <div className="audience-examples">
-                  <small><strong>Example:</strong> Monitor knowledge decay risk across 5 venues in real-time</small>
-                </div>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Features ─────────────────────────────── */}
-        <section className="section section-warm">
           <div className="container">
             <div className="section-header center">
               <span className="eyebrow">Powered by Mastery Engine</span>
               <h2>Intelligent learning that actually works</h2>
+              <p>Three proven mechanisms working in combination to build lasting capability — not just passing scores.</p>
             </div>
-            <div className="feature-grid feature-grid-3">
-              <article className="feature-card">
-                <div className="feature-icon">⭐</div>
-                <h4>ELO Rating System</h4>
-                <p>
-                  Each scenario has a difficulty rating. Staff earn points by choosing harder scenarios and completing them correctly.
-                </p>
-              </article>
-              <article className="feature-card">
-                <div className="feature-icon">🔄</div>
-                <h4>Spaced Repetition</h4>
-                <p>
-                  Weak areas resurface automatically at the right time (1, 4, 9, 16 days) for long-term retention, not cramming.
-                </p>
-              </article>
-              <article className="feature-card">
-                <div className="feature-icon">🧩</div>
-                <h4>Confidence-Accuracy Tracking</h4>
-                <p>
-                  Identify true experts vs. lucky guessers vs. liabilities. Personalize coaching accordingly.
-                </p>
-              </article>
-              <article className="feature-card">
-                <div className="feature-icon">🌉</div>
-                <h4>Bridge Logic</h4>
-                <p>
-                  After 2 failures, the system offers easier scenarios to rebuild confidence before retrying.
-                </p>
-              </article>
-              <article className="feature-card">
-                <div className="feature-icon">🤖</div>
-                <h4>AI Evaluation (5 Dimensions)</h4>
-                <p>
-                  Scenarios scored across communication, hospitality, problem-solving, professionalism, and guest experience.
-                </p>
-              </article>
-              <article className="feature-card">
-                <div className="feature-icon">👀</div>
-                <h4>Real-Time Manager Dashboard</h4>
-                <p>
-                  See team progress, compliance, knowledge decay risk, and leaderboards — all synced instantly.
-                </p>
-              </article>
+
+            <div className="mastery-steps-flow">
+              <div className="mastery-step-item">
+                <div className="mastery-step-icon-wrap">
+                  <IcoTrophy size={28} />
+                </div>
+                <div className="mastery-step-num">Step 1</div>
+                <h3>Adaptive Skill-Level Matching</h3>
+                <p>The ELO rating system matches each staff member to scenarios at their current level. Pass harder challenges and your rating climbs. Struggle and the system adjusts — always finding the optimal training edge.</p>
+              </div>
+
+              <div className="mastery-step-connector" aria-hidden="true">
+                <svg width="40" height="16" viewBox="0 0 40 16" fill="none">
+                  <path d="M0 8h32M26 2l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+
+              <div className="mastery-step-item">
+                <div className="mastery-step-icon-wrap">
+                  <IcoCalendar size={28} />
+                </div>
+                <div className="mastery-step-num">Step 2</div>
+                <h3>Automated Knowledge Retention</h3>
+                <p>Spaced repetition resurfaces weak areas at the scientifically optimal intervals — 1, 4, 9, and 16 days. Staff don&rsquo;t cram. They retain. Knowledge decay is monitored and corrected automatically.</p>
+              </div>
+
+              <div className="mastery-step-connector" aria-hidden="true">
+                <svg width="40" height="16" viewBox="0 0 40 16" fill="none">
+                  <path d="M0 8h32M26 2l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+
+              <div className="mastery-step-item">
+                <div className="mastery-step-icon-wrap">
+                  <IcoZap size={28} />
+                </div>
+                <div className="mastery-step-num">Step 3</div>
+                <h3>Real-Time Performance Evaluation</h3>
+                <p>AI scores every response across 5 dimensions: communication, hospitality, problem-solving, professionalism, and guest experience. Feedback is immediate — no waiting for a manager&rsquo;s opinion.</p>
+              </div>
             </div>
           </div>
         </section>
 
         {/* ── Why SBE Works ──────────────────────────── */}
-        <section className="section section-alt">
+        <section className="section section-warm">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">Why SBE Works</span>
-              <h2>The science behind faster learning</h2>
+              <span className="eyebrow">The Science Behind It</span>
+              <h2>Why SBE produces results others can&rsquo;t</h2>
             </div>
             <div className="why-sbe-grid">
               <div className="why-sbe-card">
-                <div className="why-sbe-icon">🎯</div>
+                <div className="why-sbe-icon why-sbe-icon-svg">
+                  <IcoRefresh size={22} />
+                </div>
                 <h3>Spaced Repetition</h3>
                 <p>
-                  Decades of learning science prove that reviewing material at optimal intervals creates lasting memory. We resurface weak areas automatically — no cramming required.
+                  Decades of learning science prove that reviewing material at optimal intervals creates lasting memory. We resurface weak areas automatically &mdash; no cramming required.
                 </p>
               </div>
               <div className="why-sbe-card">
-                <div className="why-sbe-icon">📊</div>
+                <div className="why-sbe-icon why-sbe-icon-svg">
+                  <IcoTrophy size={22} />
+                </div>
                 <h3>ELO Rating System</h3>
                 <p>
                   Just like chess, staff face scenarios matched to their skill level. Pass a hard scenario? Your rating jumps. Struggle with easy ones? We adjust to help you improve faster.
                 </p>
               </div>
               <div className="why-sbe-card">
-                <div className="why-sbe-icon">🧠</div>
+                <div className="why-sbe-icon why-sbe-icon-svg">
+                  <IcoZap size={22} />
+                </div>
                 <h3>Immediate Feedback</h3>
                 <p>
-                  AI evaluates every response in real-time across 5 dimensions. Staff learn what works immediately — no waiting for a manager&apos;s opinion or guessing if they got it right.
+                  AI evaluates every response in real-time across 5 dimensions. Staff learn what works immediately &mdash; no waiting for a manager&rsquo;s opinion or guessing if they got it right.
                 </p>
               </div>
               <div className="why-sbe-card">
-                <div className="why-sbe-icon">🎓</div>
+                <div className="why-sbe-icon why-sbe-icon-svg">
+                  <IcoLayers size={22} />
+                </div>
                 <h3>Progressive Difficulty</h3>
                 <p>
-                  The 4-stage path starts simple (true/false) and progresses to complex judgment calls. Each stage builds on the last — not a random quiz every time.
+                  The 4-stage path starts simple and progresses to complex judgment calls. Each stage builds on the last &mdash; not a random quiz every time.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ── Pricing Preview ──────────────────────── */}
+        {/* ── Pricing ──────────────────────────────── */}
         <section className="section section-alt">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">App Pricing</span>
+              <span className="eyebrow">Pricing</span>
               <h2>Simple, transparent pricing for every team size</h2>
-              <p>Understand costs quickly and choose the best fit for your venue.</p>
+              <p>Choose the plan that fits your venue. No lock-in, no hidden fees.</p>
             </div>
-            <div className="pricing-grid" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
+            <div className="pricing-grid pricing-grid-3">
+
               <div className="price-card">
                 <div className="price-tier">Free Demo</div>
                 <div className="price-amount">Free</div>
                 <p className="price-desc">
-                  Try the demo modules and see what AI training can do.
+                  Explore the training engine and see what AI-powered learning delivers.
                 </p>
-                <p className="price-fit">Who this is for: individuals getting started.</p>
-                <ul>
-                  <li>3 demo scenarios</li>
-                  <li>Basic progress tracking</li>
-                  <li>Email support</li>
-                </ul>
-                <Link href="/demo" className="btn btn-primary btn-block starter-cta">
-                  Start Free
-                </Link>
-              </div>
-              <div className="price-card featured">
-                <div className="price-badge">Most Popular</div>
-                <div className="price-tier">Pro</div>
-                <div className="price-amount">
-                  AUD $19<span>/month</span>
+                <p className="price-fit">For individuals getting started.</p>
+                <div className="price-cta-solo">
+                  <Link href="/demo" className="btn btn-primary btn-block">
+                    See the Engine in Action
+                  </Link>
                 </div>
-                <p className="price-desc">
-                  Full access for individual bartenders and hospitality pros.
-                </p>
-                <p className="price-fit">Who this is for: serious staff building career-ready skills.</p>
-                <ul>
-                  <li>All training modules</li>
-                  <li>Unlimited AI coaching</li>
-                  <li>Progress analytics</li>
-                  <li>Certificate of completion</li>
-                </ul>
-                <Link href="/login" className="btn btn-primary btn-block">
-                  Join Pro
-                </Link>
               </div>
-              <div className="price-card">
+
+              <div className="price-card price-card-recommended">
+                <div className="price-badge-recommended">Recommended</div>
                 <div className="price-tier">Single Venue</div>
                 <div className="price-amount">
                   AUD $49<span>/month</span>
                 </div>
                 <p className="price-desc">
-                  Train one venue with team dashboards.
+                  Full Command Center and staff training for one venue.
                 </p>
-                <p className="price-fit">Who this is for: small venues managing a single location.</p>
+                <p className="price-fit">For venues ready to professionalise their training.</p>
                 <ul>
-                  <li>One venue management</li>
-                  <li>Team member logins</li>
-                  <li>Basic dashboards</li>
-                  <li>Progress tracking</li>
-                  <li>Email support</li>
+                  <li>Full manager dashboard</li>
+                  <li>Unlimited staff logins</li>
+                  <li>All training modules</li>
+                  <li>AI coaching &amp; evaluation</li>
+                  <li>Compliance tracking</li>
+                  <li>Priority support</li>
                 </ul>
-                <Link href="/for-venues#venue-enquiry" className="btn btn-secondary btn-block">
+                <Link href="/for-venues#venue-enquiry" className="btn btn-primary btn-block">
                   Request Access
                 </Link>
               </div>
+
               <div className="price-card">
                 <div className="price-tier">Multi-Venue</div>
                 <div className="price-amount">
                   AUD $149<span>/month</span>
                 </div>
                 <p className="price-desc">
-                  Manage multiple locations with unified dashboards.
+                  Manage multiple locations with unified dashboards and cross-venue analytics.
                 </p>
-                <p className="price-fit">Who this is for: venue groups and multi-site operators.</p>
+                <p className="price-fit">For venue groups and multi-site operators.</p>
                 <ul>
-                  <li><strong>Up to 5 venues</strong></li>
-                  <li>Multiple user logins</li>
+                  <li>Up to 5 venues</li>
                   <li>Cross-venue comparison</li>
                   <li>Advanced analytics</li>
+                  <li>Centralised compliance</li>
                   <li>Priority support</li>
                 </ul>
                 <Link href="/for-venues#venue-enquiry" className="btn btn-secondary btn-block">
                   Request Multi-Venue
                 </Link>
               </div>
+
             </div>
           </div>
         </section>
 
-        {/* ── Early Access ─────────────────────────── */}
-        <section className="section early-access-section">
+        {/* ── Founding Member Banner ───────────────── */}
+        <section className="section founding-section">
           <div className="container">
-            <div className="section-header center">
-              <span className="eyebrow">Early Access</span>
-              <h2>Lock in founding member rates</h2>
-              <p>Serve By Example is opening to its first venues now. Get early pricing, hands-on setup, and influence what gets built next.</p>
-            </div>
-            <div className="early-access-grid">
-              <div className="early-access-card">
-                <div className="early-access-card-icon">🔒</div>
-                <h3>Lock-in Pricing Forever</h3>
+            <div className="founding-inner">
+              <div className="founding-header">
+                <span className="eyebrow eyebrow-gold">Investment Protection</span>
+                <h2>Lock In Founding Member Rates &mdash; Before Prices Rise</h2>
                 <p>
-                  Pay <strong>AUD $49/venue</strong> today (vs. future <strong>AUD $79/venue</strong>). Your founding rate stays locked in as long as you&apos;re subscribed — guaranteed.
+                  Serve By Example is opening to its first venues now. Join as a Founding Member and your rate is locked in for life — guaranteed, regardless of future pricing. This isn&rsquo;t a discount. It&rsquo;s rate protection.
                 </p>
               </div>
-              <div className="early-access-card">
-                <div className="early-access-card-icon">🤝</div>
-                <h3>1-on-1 Onboarding</h3>
-                <p>
-                  We walk your team through setup personally. Get your first 10 staff trained in the first week — not a video tutorial.
-                </p>
+              <div className="founding-cards">
+                <div className="founding-card">
+                  <div className="founding-card-icon">
+                    <IcoLock size={28} />
+                  </div>
+                  <h3>Locked Rates, Forever</h3>
+                  <p>
+                    Join at <strong>AUD $49/venue</strong> today — our future rate is <strong>AUD $79/venue</strong>. As long as you&rsquo;re subscribed, your founding rate is protected. No price rises. No surprises.
+                  </p>
+                </div>
+                <div className="founding-card">
+                  <div className="founding-card-icon">
+                    <IcoHandshake size={28} />
+                  </div>
+                  <h3>1-on-1 Onboarding</h3>
+                  <p>
+                    We personally walk your team through setup. Get your first 10 staff trained in week one &mdash; not a video tutorial, a direct conversation with our team.
+                  </p>
+                </div>
+                <div className="founding-card">
+                  <div className="founding-card-icon">
+                    <IcoCompass size={28} />
+                  </div>
+                  <h3>Shape What We Build Next</h3>
+                  <p>
+                    Monthly calls with our product team. Founding members directly influence what modules, features, and tools get prioritised. Your operation shapes the roadmap.
+                  </p>
+                </div>
               </div>
-              <div className="early-access-card">
-                <div className="early-access-card-icon">💡</div>
-                <h3>Shape the Roadmap</h3>
-                <p>
-                  Monthly calls with our product team. Your feedback directly influences what modules, features, and tools we build next.
-                </p>
+              <div className="founding-cta">
+                <Link href="/for-venues#venue-enquiry" className="btn btn-gold btn-lg">
+                  Secure Founding Member Rate
+                </Link>
+                <p className="founding-cta-note">Strictly limited spots. Month-to-month. Cancel anytime.</p>
               </div>
             </div>
           </div>
@@ -532,11 +777,11 @@ export default function Home() {
         <WaitlistSection
           eyebrow="Stay in the loop"
           title="Get notified when we launch."
-          copy="No credit card required. We'll send you early access updates and launch-stage pricing — no spam."
+          copy="No credit card required. We&apos;ll send you early access updates and launch-stage pricing &mdash; no spam."
           inputPlaceholder="your@email.com"
           buttonLabel="Notify me"
-          successTitle="You're on the list."
-          successCopy="We'll reach out with early access details and launch updates."
+          successTitle="You&apos;re on the list."
+          successCopy="We&apos;ll reach out with early access details and launch updates."
           successSteps={[
             "You'll receive launch updates and early access invites by email.",
             "Founding members lock in launch pricing for life.",
@@ -558,6 +803,7 @@ export default function Home() {
             </div>
           </div>
         </section>
+
       </main>
 
       <Footer />
