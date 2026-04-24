@@ -32,24 +32,19 @@ const NAV_ITEMS: { id: NavItem; label: string }[] = [
   { id: "settings", label: "Settings" },
 ];
 
-const AVATAR_CHOICES = ["A", "B", "C", "D", "E", "F", "G", "H"];
-
 function StaffSettingsPanel({
   displayName,
   userEmail,
-  savedAvatar,
   notifReminders,
   notifWeeklyDigest,
   notifAchievementAlerts,
 }: {
   displayName: string;
   userEmail: string;
-  savedAvatar: string;
   notifReminders: boolean;
   notifWeeklyDigest: boolean;
   notifAchievementAlerts: boolean;
 }) {
-  const [avatar, setAvatar] = useState(savedAvatar || AVATAR_CHOICES[0]);
   const [profileName, setProfileName] = useState(displayName);
   const [email, setEmail] = useState(userEmail);
   const [password, setPassword] = useState("");
@@ -101,21 +96,6 @@ function StaffSettingsPanel({
       setProfileError(updateError instanceof Error ? updateError.message : "Unable to update name.");
     } finally {
       setIsSavingProfile(false);
-    }
-  }
-
-  async function handleAvatarChange(option: string) {
-    setAvatar(option);
-    try {
-      const supabase = createSupabaseBrowserClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user?.id) {
-        await supabase.from("profiles").update({ avatar: option }).eq("id", user.id);
-      }
-    } catch {
-      // avatar state is already updated locally; silent fail
     }
   }
 
@@ -193,47 +173,27 @@ function StaffSettingsPanel({
   return (
     <div className="staff-settings-wrap">
       <div className="card">
-        <h3>Profile avatar</h3>
-        <p>Choose a face emoji for your training identity.</p>
-        <div className="staff-avatar-preview" aria-label="Selected avatar">
-          <span>{avatar}</span>
-          <strong>{profileName}</strong>
-          <form
-            className="staff-settings-form staff-avatar-name-form"
-            onSubmit={handleDisplayNameUpdate}
-          >
-            <label className="label staff-avatar-name-label" htmlFor="staff-display-name">
-              <input
-                id="staff-display-name"
-                className="input"
-                type="text"
-                aria-label="Display name"
-                value={profileName}
-                onChange={(event) => setProfileName(event.target.value)}
-                placeholder="Your display name"
-                required
-              />
-            </label>
-            <button type="submit" className="btn btn-secondary" disabled={isSavingProfile}>
-              {isSavingProfile ? "Saving..." : "Change name"}
-            </button>
-          </form>
-        </div>
+        <h3>Display name</h3>
+        <p>Update the name shown across your training dashboard.</p>
+        <form className="staff-settings-form" onSubmit={handleDisplayNameUpdate}>
+          <label className="label" htmlFor="staff-display-name">
+            Display name
+            <input
+              id="staff-display-name"
+              className="input"
+              type="text"
+              value={profileName}
+              onChange={(event) => setProfileName(event.target.value)}
+              placeholder="Your display name"
+              required
+            />
+          </label>
+          <button type="submit" className="btn btn-secondary" disabled={isSavingProfile}>
+            {isSavingProfile ? "Saving..." : "Change name"}
+          </button>
+        </form>
         {profileError ? <div className="auth-status auth-status-error">{profileError}</div> : null}
         {profileMessage ? <div className="auth-status auth-status-success">{profileMessage}</div> : null}
-        <div className="staff-avatar-grid" role="listbox" aria-label="Avatar choices">
-          {AVATAR_CHOICES.map((option) => (
-            <button
-              key={option}
-              type="button"
-              className={`staff-avatar-choice${avatar === option ? " active" : ""}`}
-              onClick={() => handleAvatarChange(option)}
-              aria-pressed={avatar === option}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
       </div>
 
       <div className="grid-2">
@@ -527,7 +487,6 @@ export default function DashboardShell({
   displayName,
   plan,
   userEmail,
-  savedAvatar,
   managementUnlockedInitial,
   notifReminders,
   notifWeeklyDigest,
@@ -536,7 +495,6 @@ export default function DashboardShell({
   displayName: string;
   plan: string;
   userEmail: string;
-  savedAvatar: string;
   managementUnlockedInitial: boolean;
   notifReminders: boolean;
   notifWeeklyDigest: boolean;
@@ -875,7 +833,6 @@ export default function DashboardShell({
           <StaffSettingsPanel
             displayName={displayName}
             userEmail={userEmail}
-            savedAvatar={savedAvatar}
             notifReminders={notifReminders}
             notifWeeklyDigest={notifWeeklyDigest}
             notifAchievementAlerts={notifAchievementAlerts}

@@ -72,6 +72,12 @@ function getWeakestModule(data: ProgressData): ModuleKey {
   return keys.reduce((w, k) => (data.modules[k] < data.modules[w] ? k : w));
 }
 
+function isMastered(data: ProgressData, mod: ModuleKey): boolean {
+  const lp = data.levelProgress[mod];
+  return lp.level1_completed && lp.level2_completed && lp.level3_completed &&
+    data.sessions[mod] >= 1 && data.scores[mod] >= 21;
+}
+
 function getNextStage(lp: LevelProgress): { stage: number; label: string } {
   if (!lp.level1_completed) return { stage: 1, label: "Stage 1 Recall" };
   if (!lp.level2_completed) return { stage: 2, label: "Stage 2 Application" };
@@ -129,6 +135,13 @@ export default function PreShiftHome({
   const weakest = getWeakestModule(data);
   const weakestNext = getNextStage(data.levelProgress[weakest]);
   const coachTips = COACH_FOCUS[weakest];
+
+  const sortedModules = (["bartending", "sales", "management"] as ModuleKey[]).slice().sort((a, b) => {
+    const aM = isMastered(data, a);
+    const bM = isMastered(data, b);
+    if (aM === bM) return 0;
+    return aM ? 1 : -1;
+  });
 
   // Badge count
   const badgesEarned = (["bartending", "sales", "management"] as ModuleKey[]).reduce((count, mod) => {
@@ -250,13 +263,45 @@ export default function PreShiftHome({
         </ul>
       </div>
 
-      {/* ── Module Progress Summary ── */}
+      {/* ── Modules ── */}
       <div className="psh-modules">
-        <h2>Your modules</h2>
+        <h2>Modules</h2>
+        <div className="psh-module-row">
+          {sortedModules.map((mod) => {
+            const mastered = isMastered(data, mod);
+            const pct = Math.round(data.modules[mod]);
+            return (
+              <button
+                key={mod}
+                className="psh-module-card"
+                type="button"
+                onClick={() => setActiveNav("module")}
+                style={mastered ? { opacity: 0.7, borderColor: "#2d6a4f" } : undefined}
+              >
+                <span className="psh-module-icon">{MODULE_LABELS[mod].icon}</span>
+                <strong>{MODULE_LABELS[mod].short}</strong>
+                {mastered ? (
+                  <p className="psh-module-next" style={{ color: "#2d6a4f", fontWeight: 700 }}>Mastered</p>
+                ) : (
+                  <>
+                    <div style={{ width: "100%", height: "4px", background: "#e5e7eb", borderRadius: "999px", margin: "8px 0 4px" }}>
+                      <div style={{ width: `${pct}%`, height: "100%", background: "#2d6a4f", borderRadius: "999px" }} />
+                    </div>
+                    <p className="psh-module-next">{pct}% complete</p>
+                  </>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── Quick Drills ── */}
+      <div className="psh-modules">
+        <h2>Quick Drills</h2>
         <div className="psh-module-row">
           {(["bartending", "sales", "management"] as ModuleKey[]).map((mod) => {
             const lp = data.levelProgress[mod];
-            const stagesComplete = (lp.level1_completed ? 1 : 0) + (lp.level2_completed ? 1 : 0) + (lp.level3_completed ? 1 : 0);
             const nextStage = getNextStage(lp);
             return (
               <button
@@ -274,13 +319,33 @@ export default function PreShiftHome({
                   <span className={data.sessions[mod] >= 1 && data.scores[mod] >= 21 ? "done" : ""}>S4</span>
                 </div>
                 <p className="psh-module-next">
-                  {stagesComplete === 4 && data.scores[mod] >= 21
-                    ? "Mastered"
-                    : `Next: ${nextStage.label}`}
+                  {isMastered(data, mod) ? "Mastered" : `Next: ${nextStage.label}`}
                 </p>
               </button>
             );
           })}
+        </div>
+      </div>
+
+      {/* ── Training Shortcuts ── */}
+      <div className="psh-modules">
+        <h2>Training</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "14px" }}>
+          {([
+            { nav: "stage4" as NavItem, icon: "→", title: "Scenario Training", desc: "Practice real service situations with instant AI scoring and coaching." },
+            { nav: "scenarios" as NavItem, icon: "◉", title: "AI Scenarios", desc: "Advanced AI-driven simulations for high-pressure hospitality moments." },
+          ]).map(({ nav, icon, title, desc }) => (
+            <button
+              key={nav}
+              type="button"
+              onClick={() => setActiveNav(nav)}
+              style={{ background: "#1b4332", border: "none", borderRadius: "10px", padding: "20px", textAlign: "left", cursor: "pointer", width: "100%" }}
+            >
+              <span style={{ fontSize: "1.25rem", display: "block", marginBottom: "8px", color: "rgba(255,255,255,0.65)" }}>{icon}</span>
+              <strong style={{ display: "block", fontSize: "0.95rem", marginBottom: "6px", color: "white" }}>{title}</strong>
+              <p style={{ margin: 0, fontSize: "0.8rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.5 }}>{desc}</p>
+            </button>
+          ))}
         </div>
       </div>
     </div>
