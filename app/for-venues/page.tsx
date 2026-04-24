@@ -2,6 +2,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WaitlistSection from "@/components/ui/WaitlistSection";
+import DashboardMockup from "@/components/ui/DashboardMockup";
 
 const whyItMatters = [
   {
@@ -75,12 +76,8 @@ export default function ForVenuesPage() {
                 Everything you need to manage and measure your team&rsquo;s training.
               </h3>
             </div>
-            <div style={{ borderRadius: "16px", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.1)", border: "1px solid #e5e7eb", maxWidth: "900px", margin: "0 auto" }}>
-              <img
-                src="/screenshot-dashboard.png"
-                alt="Serve By Example Manager Dashboard — team training insights, performance tracking and operational alerts"
-                style={{ width: "100%", display: "block" }}
-              />
+            <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+              <DashboardMockup />
             </div>
           </div>
         </section>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import DashboardMockup from "@/components/ui/DashboardMockup";
 
 const steps = [
   {
@@ -219,13 +220,9 @@ export default function HowItWorksPage() {
               </div>
             </div>
 
-            {/* Product screenshot */}
-            <div style={{ marginTop: "2.5rem", borderRadius: "16px", overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.12)", border: "1px solid #e5e7eb" }}>
-              <img
-                src="/screenshot-training.png"
-                alt="Serve By Example training scenario — score 22/25 with communication, hospitality and problem-solving ratings"
-                style={{ width: "100%", display: "block" }}
-              />
+            {/* Management console mockup */}
+            <div style={{ marginTop: "2.5rem" }}>
+              <DashboardMockup />
             </div>
           </div>
         </section>
