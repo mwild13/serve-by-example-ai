@@ -9,6 +9,7 @@ import SectionHeading from "@/components/ui/SectionHeading";
 export default function PricingPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
 
   // Reset stuck "Redirecting..." when user presses browser back from Stripe
   useEffect(() => {
@@ -65,6 +66,28 @@ export default function PricingPage() {
                 {checkoutError}
               </div>
             )}
+
+            {/* Billing toggle */}
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: "2rem" }}>
+              <div style={{ display: "flex", background: "#f3f4f6", borderRadius: "10px", padding: "4px", gap: "2px" }}>
+                <button
+                  onClick={() => setBilling("monthly")}
+                  style={{ padding: "8px 22px", borderRadius: "7px", border: "none", background: billing === "monthly" ? "white" : "transparent", fontWeight: 700, fontSize: "0.875rem", color: billing === "monthly" ? "#111827" : "#6b7280", cursor: "pointer", boxShadow: billing === "monthly" ? "0 1px 4px rgba(0,0,0,0.1)" : "none", transition: "all 0.15s" }}
+                >
+                  Monthly
+                </button>
+                <button
+                  onClick={() => setBilling("yearly")}
+                  style={{ padding: "8px 22px", borderRadius: "7px", border: "none", background: billing === "yearly" ? "white" : "transparent", fontWeight: 700, fontSize: "0.875rem", color: billing === "yearly" ? "#111827" : "#6b7280", cursor: "pointer", boxShadow: billing === "yearly" ? "0 1px 4px rgba(0,0,0,0.1)" : "none", transition: "all 0.15s", display: "flex", alignItems: "center", gap: "7px" }}
+                >
+                  Yearly
+                  <span style={{ fontSize: "0.68rem", fontWeight: 800, color: "#16a34a", background: "#d1fae5", borderRadius: "999px", padding: "2px 8px", letterSpacing: "0.03em" }}>
+                    2 months free
+                  </span>
+                </button>
+              </div>
+            </div>
+
             <div className="pricing-grid" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
               <div className="price-card">
                 <h3>Free Demo</h3>
@@ -87,8 +110,11 @@ export default function PricingPage() {
               <div className="price-card featured">
                 <h3>Pro</h3>
                 <div className="price">
-                  AUD $19 <small>/ month</small>
+                  AUD ${billing === "monthly" ? "19" : "190"} <small>/ {billing === "monthly" ? "month" : "year"}</small>
                 </div>
+                {billing === "yearly" && (
+                  <div style={{ fontSize: "0.8rem", color: "#6b7280", marginTop: "-4px", marginBottom: "4px" }}>AUD $15.83/month billed annually</div>
+                )}
                 <div className="price-note">
                   Best for individual bartenders and hospitality staff.
                 </div>
@@ -100,18 +126,21 @@ export default function PricingPage() {
                 </ul>
                 <button
                   className="btn btn-gold"
-                  onClick={() => handleCheckout("pro")}
-                  disabled={loading === "pro"}
+                  onClick={() => handleCheckout(billing === "monthly" ? "pro" : "pro_yearly")}
+                  disabled={loading === "pro" || loading === "pro_yearly"}
                 >
-                  {loading === "pro" ? "Redirecting..." : "Join Pro"}
+                  {(loading === "pro" || loading === "pro_yearly") ? "Redirecting..." : "Join Pro"}
                 </button>
               </div>
 
               <div className="price-card">
                 <h3>Single Venue</h3>
                 <div className="price">
-                  AUD $49 <small>/ month</small>
+                  AUD ${billing === "monthly" ? "49" : "490"} <small>/ {billing === "monthly" ? "month" : "year"}</small>
                 </div>
+                {billing === "yearly" && (
+                  <div style={{ fontSize: "0.8rem", color: "#6b7280", marginTop: "-4px", marginBottom: "4px" }}>AUD $40.83/month billed annually</div>
+                )}
                 <div className="price-note">
                   Best for small venues with one location.
                 </div>
@@ -124,18 +153,21 @@ export default function PricingPage() {
                 </ul>
                 <button
                   className="btn btn-secondary"
-                  onClick={() => handleCheckout("single_venue")}
-                  disabled={loading === "single_venue"}
+                  onClick={() => handleCheckout(billing === "monthly" ? "single_venue" : "single_venue_yearly")}
+                  disabled={loading === "single_venue" || loading === "single_venue_yearly"}
                 >
-                  {loading === "single_venue" ? "Redirecting..." : "Join Now"}
+                  {(loading === "single_venue" || loading === "single_venue_yearly") ? "Redirecting..." : "Join Now"}
                 </button>
               </div>
 
               <div className="price-card">
                 <h3>Multi-Venue</h3>
                 <div className="price">
-                  AUD $149 <small>/ month</small>
+                  AUD ${billing === "monthly" ? "149" : "1,490"} <small>/ {billing === "monthly" ? "month" : "year"}</small>
                 </div>
+                {billing === "yearly" && (
+                  <div style={{ fontSize: "0.8rem", color: "#6b7280", marginTop: "-4px", marginBottom: "4px" }}>AUD $124.17/month billed annually</div>
+                )}
                 <div className="price-note">
                   Best for multi-location teams wanting unified management.
                 </div>
@@ -144,15 +176,15 @@ export default function PricingPage() {
                   <li>Multiple user logins</li>
                   <li>Full management modules</li>
                   <li>Cross-venue comparison reporting</li>
-                  <li>Advanced analytics & leaderboards</li>
+                  <li>Advanced analytics &amp; leaderboards</li>
                   <li>Priority support</li>
                 </ul>
                 <button
                   className="btn btn-secondary"
-                  onClick={() => handleCheckout("multi_venue")}
-                  disabled={loading === "multi_venue"}
+                  onClick={() => handleCheckout(billing === "monthly" ? "multi_venue" : "multi_venue_yearly")}
+                  disabled={loading === "multi_venue" || loading === "multi_venue_yearly"}
                 >
-                  {loading === "multi_venue" ? "Redirecting..." : "Join Now"}
+                  {(loading === "multi_venue" || loading === "multi_venue_yearly") ? "Redirecting..." : "Join Now"}
                 </button>
               </div>
             </div>

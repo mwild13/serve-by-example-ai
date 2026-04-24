@@ -14,8 +14,11 @@ function getStripeClient() {
 function getPriceIds(): Record<string, string> {
   return {
     pro: process.env.STRIPE_PRICE_PRO!,
+    pro_yearly: process.env.STRIPE_PRICE_PRO_YEARLY!,
     single_venue: process.env.STRIPE_PRICE_SINGLE_VENUE!,
+    single_venue_yearly: process.env.STRIPE_PRICE_SINGLE_VENUE_YEARLY!,
     multi_venue: process.env.STRIPE_PRICE_MULTI_VENUE!,
+    multi_venue_yearly: process.env.STRIPE_PRICE_MULTI_VENUE_YEARLY!,
   };
 }
 
