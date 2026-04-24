@@ -752,11 +752,6 @@ export default function DashboardShell({
           ))}
         </div>
 
-        <div className="dashboard-plan-card dashboard-plan-card-sidebar">
-          <strong>{planTitle}</strong>
-          <div>{planMessage}</div>
-        </div>
-
         <div className="dashboard-sidebar-signout">
           <SignOutButton />
         </div>
@@ -890,10 +885,6 @@ export default function DashboardShell({
         )}
 
         <div className="dashboard-mobile-footer-actions">
-          <div className="dashboard-plan-card dashboard-plan-card-mobile">
-            <strong>{planTitle}</strong>
-            <div>{planMessage}</div>
-          </div>
           <SignOutButton />
         </div>
       </section>

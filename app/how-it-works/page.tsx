@@ -162,6 +162,9 @@ export default function HowItWorksPage() {
             <div className="section-header center">
               <span className="eyebrow">Example Scenario</span>
               <h2>See the product in one glance.</h2>
+              <p style={{ maxWidth: "560px", margin: "0 auto" }}>
+                Every response is scored instantly. Over time, the AI tracks your weak areas and resurfaces them — so improvement isn&rsquo;t left to chance.
+              </p>
             </div>
             <div className="card-grid card-grid-3">
               <article className="info-card">
@@ -185,6 +188,44 @@ export default function HowItWorksPage() {
                   guest awareness. A strong service response.
                 </p>
               </article>
+            </div>
+
+            {/* How AI improves your score */}
+            <div style={{
+              marginTop: "2.5rem",
+              background: "#f0fdf4",
+              border: "1.5px solid #bbf7d0",
+              borderRadius: "16px",
+              padding: "2rem 2.5rem",
+            }}>
+              <h3 style={{ margin: "0 0 1.25rem", fontSize: "1.1rem", fontWeight: 700, color: "#1b4332" }}>
+                How AI improves your score over time
+              </h3>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.25rem" }}>
+                {[
+                  { n: "01", title: "Score every response", desc: "Rated across 5 dimensions: communication, hospitality, problem-solving, professionalism and guest experience." },
+                  { n: "02", title: "Identify weak areas", desc: "The system flags dimensions where your score drops consistently — not just one-off mistakes." },
+                  { n: "03", title: "Resurface weak areas automatically", desc: "Spaced repetition brings back scenarios in those areas at the right intervals — 1, 4, 9 and 16 days." },
+                  { n: "04", title: "Adjust difficulty to your level", desc: "The ELO rating system matches you to harder scenarios as you improve — always training at your current edge." },
+                ].map(({ n, title, desc }) => (
+                  <div key={n} style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
+                    <span style={{ flexShrink: 0, width: "32px", height: "32px", borderRadius: "8px", background: "#2d6a4f", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 800 }}>{n}</span>
+                    <div>
+                      <p style={{ margin: "0 0 4px", fontWeight: 700, fontSize: "0.875rem", color: "#1b4332" }}>{title}</p>
+                      <p style={{ margin: 0, fontSize: "0.825rem", color: "#374151", lineHeight: 1.5 }}>{desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Product screenshot */}
+            <div style={{ marginTop: "2.5rem", borderRadius: "16px", overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.12)", border: "1px solid #e5e7eb" }}>
+              <img
+                src="/screenshot-training.png"
+                alt="Serve By Example training scenario — score 22/25 with communication, hospitality and problem-solving ratings"
+                style={{ width: "100%", display: "block" }}
+              />
             </div>
           </div>
         </section>

@@ -7,7 +7,7 @@ export default function BrowserMockup() {
         <span className="browser-dot" />
         <span className="browser-dot" />
         <span className="browser-dot" />
-        <span className="browser-url">servebyexample.com/training</span>
+        <span className="browser-url">Dashboard/</span>
       </div>
       <div className="browser-body">
         <div className="mockup-scenario-anim">

@@ -256,7 +256,7 @@ export default function Home() {
                   From 6 months of onboarding to 6 weeks with AI
                 </h1>
                 <p className="hero-sub">
-                  Scenario-based training that turns staff into confident service pros. Bartenders master cocktail specs and upselling. Managers track team readiness in real-time. All powered by adaptive learning and AI coaching.
+                  Scenario-based training that turns staff into confident service pros. Bartenders master cocktail specs and upselling. Managers track team readiness in real-time. All powered by adaptive learning and AI coaching
                 </p>
                 <div className="hero-actions">
                   <Link href="/demo" className="btn btn-primary btn-lg">
@@ -720,6 +720,50 @@ export default function Home() {
                 </Link>
               </div>
 
+            </div>
+          </div>
+        </section>
+
+        {/* ── Founder Story ────────────────────────── */}
+        <section className="section section-alt">
+          <div className="container">
+            <div style={{ maxWidth: "880px", margin: "0 auto", textAlign: "center" }}>
+              <span className="eyebrow">Built From Experience</span>
+              <h2 style={{ marginBottom: "1rem" }}>Created by someone who&rsquo;s lived it.</h2>
+              <p style={{ fontSize: "1.125rem", color: "#374151", lineHeight: 1.7, marginBottom: "2.5rem", maxWidth: "680px", margin: "0 auto 2.5rem" }}>
+                Serve By Example was created and is managed by a real hospitality professional with over 15 years of experience across Australian bars, pubs and venues. Not built in a boardroom &mdash; built behind the bar.
+              </p>
+              <div style={{ display: "flex", justifyContent: "center", gap: "3rem", flexWrap: "wrap", marginBottom: "2.5rem" }}>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "#1b4332", lineHeight: 1 }}>15+</div>
+                  <div style={{ fontSize: "0.875rem", color: "#6b7280", marginTop: "6px", fontWeight: 500 }}>Years in Australian Hospitality</div>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "#1b4332", lineHeight: 1 }}>100s</div>
+                  <div style={{ fontSize: "0.875rem", color: "#6b7280", marginTop: "6px", fontWeight: 500 }}>Staff Trained &amp; Managed</div>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "#1b4332", lineHeight: 1 }}>1</div>
+                  <div style={{ fontSize: "0.875rem", color: "#6b7280", marginTop: "6px", fontWeight: 500 }}>Platform Built From Real Experience</div>
+                </div>
+              </div>
+              <blockquote style={{
+                margin: "0 auto",
+                maxWidth: "600px",
+                padding: "1.5rem 2rem",
+                background: "white",
+                border: "1.5px solid #d1fae5",
+                borderLeft: "4px solid #2d6a4f",
+                borderRadius: "12px",
+                textAlign: "left",
+              }}>
+                <p style={{ margin: 0, fontSize: "1.05rem", fontStyle: "italic", color: "#1b4332", lineHeight: 1.65, fontWeight: 500 }}>
+                  &ldquo;I built the training tool I always wished I had &mdash; one that works for real venues, real staff, and the real pressure of a busy service.&rdquo;
+                </p>
+                <footer style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: "#6b7280", fontStyle: "normal", fontWeight: 600 }}>
+                  Founder, Serve By Example &mdash; Australia
+                </footer>
+              </blockquote>
             </div>
           </div>
         </section>

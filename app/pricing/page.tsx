@@ -159,6 +159,36 @@ export default function PricingPage() {
           </div>
         </section>
 
+        {/* ── Future Updates ── */}
+        <section className="section">
+          <div className="container">
+            <SectionHeading
+              eyebrow="Roadmap"
+              title="Future Updates."
+              copy="We're actively building and improving the platform. V2 updates are planned within 6 months. Here's what's coming."
+            />
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1.25rem", marginTop: "2rem" }}>
+              {[
+                { eta: "2 months", soon: true, title: "More Staff Modules", desc: "New training modules covering coffee service, food pairing, wine fundamentals and advanced guest interaction." },
+                { eta: "4 months", soon: true, title: "More Staff Modules", desc: "Expanded scenario sets for large-venue management, events service and high-volume bar operations." },
+                { eta: "6 months", soon: false, title: "More Staff Modules", desc: "Deep-dive certifications in spirits, cocktail history, advanced bar technique and cellar management." },
+                { eta: "Within 6 months", soon: true, title: "V2 — Major Feature Release", desc: "A significant platform update informed by founding member feedback, with new features across training, analytics and management." },
+                { eta: "TBA", soon: false, title: "Further Design & Functionality", desc: "Continuous UI improvements, accessibility updates and performance enhancements across all pages and flows." },
+                { eta: "TBA", soon: false, title: "Management & POS Integrations", desc: "Connect Serve By Example with your existing POS and scheduling systems for a unified operations view." },
+                { eta: "TBA", soon: false, title: "App Store — iOS & Android", desc: "Native mobile apps so staff can train on the go, anytime, anywhere — fully synced with their progress." },
+              ].map((item, i) => (
+                <div key={i} style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "12px", padding: "1.5rem" }}>
+                  <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", color: item.soon ? "#16a34a" : "#9ca3af", textTransform: "uppercase", marginBottom: "0.5rem" }}>
+                    {item.eta}
+                  </div>
+                  <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.9375rem", fontWeight: 700, color: "#111827" }}>{item.title}</h3>
+                  <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.55 }}>{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="section section-alt">
           <div className="container">
             <SectionHeading

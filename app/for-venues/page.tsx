@@ -3,22 +3,30 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WaitlistSection from "@/components/ui/WaitlistSection";
 
-const benefits = [
+const whyItMatters = [
   {
-    title: "Faster staff onboarding",
-    text: "Give new team members structured training before and between shifts instead of relying only on busy floor time.",
+    title: "Poor training is a revenue problem",
+    text: "When staff can't upsell confidently, handle complaints or recommend drinks well, every shift costs you in missed sales and guests who don't come back.",
   },
   {
-    title: "More consistent service",
-    text: "Train staff on communication, sales, drink knowledge and venue decision-making through one clear system.",
+    title: "Turnover starts with poor onboarding",
+    text: "New staff who feel underprepared leave faster. A structured, scenario-based start builds confidence — and confident staff stay.",
   },
   {
-    title: "Better sales confidence",
-    text: "Build natural upselling and recommendation skills that improve guest experience and increase spend.",
+    title: "Manager time is your most expensive resource",
+    text: "Every hour spent repeating the same onboarding basics is time away from service, operations and developing your team.",
   },
   {
-    title: "Manager visibility",
-    text: "See who is completing training, where the gaps are and which areas need reinforcement across the team.",
+    title: "Gaps are invisible until they become complaints",
+    text: "Without visibility into where your team stands, training failures only surface as incidents. SBE shows you weak areas before they reach your guests.",
+  },
+  {
+    title: "Your staff are your brand",
+    text: "Every greeting, recommendation and guest interaction is a brand moment. How your team performs on shift determines your venue's reputation.",
+  },
+  {
+    title: "Training only works if staff actually do it",
+    text: "Passive training gets ignored. AI-powered scenario practice is short, relevant and engaging — designed to fit between shifts, not replace them.",
   },
 ];
 
@@ -58,28 +66,52 @@ export default function ForVenuesPage() {
           </div>
         </section>
 
-        {/* ── Benefits Grid ── */}
+        {/* ── Platform Screenshot ── */}
+        <section className="section" style={{ paddingTop: "2.5rem", paddingBottom: "2.5rem" }}>
+          <div className="container">
+            <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+              <span className="eyebrow">The Platform</span>
+              <h3 style={{ margin: "0.5rem 0 0", fontSize: "1.35rem", fontWeight: 700, color: "#111827" }}>
+                Everything you need to manage and measure your team&rsquo;s training.
+              </h3>
+            </div>
+            <div style={{ borderRadius: "16px", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.1)", border: "1px solid #e5e7eb", maxWidth: "900px", margin: "0 auto" }}>
+              <img
+                src="/screenshot-dashboard.png"
+                alt="Serve By Example Manager Dashboard — team training insights, performance tracking and operational alerts"
+                style={{ width: "100%", display: "block" }}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* ── Why It Matters ── */}
         <section className="section section-alt">
           <div className="container">
-            <div className="card-grid card-grid-2">
-              {benefits.map((benefit) => (
-                <article key={benefit.title} className="info-card">
-                  <h3>{benefit.title}</h3>
-                  <p>{benefit.text}</p>
+            <div className="section-header center">
+              <span className="eyebrow">Why It Matters</span>
+              <h2>The business case for better-trained staff.</h2>
+              <p>Australia&rsquo;s hospitality sector faces some of the highest staff turnover of any industry. The cost isn&rsquo;t just recruitment &mdash; it&rsquo;s every inconsistent shift in between.</p>
+            </div>
+            <div className="card-grid card-grid-3">
+              {whyItMatters.map((item) => (
+                <article key={item.title} className="info-card">
+                  <h3>{item.title}</h3>
+                  <p>{item.text}</p>
                 </article>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ── Why It Matters ── */}
+        {/* ── The Approach ── */}
         <section className="section">
           <div className="container">
             <div className="split-grid">
               <div>
-                <span className="eyebrow">Why It Matters</span>
+                <span className="eyebrow">The Approach</span>
                 <h2 className="split-heading">
-                  Training should support service, not slow it down.
+                  Training that supports service, not slows it down.
                 </h2>
                 <p className="split-sub">
                   Venue teams are often trained in rushed moments,
