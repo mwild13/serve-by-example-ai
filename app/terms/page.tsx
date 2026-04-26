@@ -16,7 +16,7 @@ export default function TermsPage() {
           <div className="container">
             <div className="eyebrow">Legal</div>
             <h1>Terms of Service</h1>
-            <p className="inner-hero-sub">Last updated: 20 April 2026</p>
+            <p className="inner-hero-sub">Last updated: April 26, 2026</p>
           </div>
         </section>
 
@@ -25,165 +25,162 @@ export default function TermsPage() {
             <div className="legal-prose">
               <p>
                 Please read these Terms of Service (&ldquo;Terms&rdquo;) carefully before using the
-                Serve By Example platform (&ldquo;Service&rdquo;) operated by Serve By Example
-                (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;). By accessing or using
-                the Service, you agree to be bound by these Terms.
+                Serve By Example platform (&ldquo;Service&rdquo;). By accessing or using the
+                Service, you confirm your acceptance of these Terms.
               </p>
 
-              <h2>1. Acceptance of Terms</h2>
+              <h2>1. Acceptance and Eligibility</h2>
               <p>
-                By creating an account or using any part of the Service, you confirm that you are at
-                least 16 years old, have read and understood these Terms, and agree to be bound by
-                them. If you are using the Service on behalf of an organisation, you represent that
-                you have authority to bind that organisation to these Terms.
+                By creating an account, you confirm that you are at least 16 years old. If you are
+                using the Service on behalf of an organisation (e.g., a hospitality venue), you
+                represent that you have the legal authority to bind that organisation to these Terms.
+                If you do not agree to these Terms, you must not use the Service.
               </p>
 
-              <h2>2. Description of Service</h2>
+              <h2>2. Service Description</h2>
               <p>
-                Serve By Example provides an AI-powered hospitality training platform that includes
-                scenario-based learning, AI coaching, progress tracking, and management tools for
-                individual hospitality workers and venue operators. Features available to you depend
-                on the plan you subscribe to.
+                Serve By Example provides an AI-powered hospitality training platform. Features
+                include scenario-based learning, AI coaching, progress tracking, and management
+                tools. We reserve the right to modify, update, or discontinue features of the
+                Service at any time, provided that we give you reasonable notice for material
+                changes that negatively affect your access.
               </p>
 
-              <h2>3. Account Registration</h2>
+              <h2>3. Account and Security</h2>
               <p>
-                To access the full Service, you must create an account with a valid email address
-                and password. You are responsible for:
+                You are responsible for all activity that occurs under your account. You agree to:
               </p>
               <ul>
-                <li>Keeping your login credentials secure and confidential</li>
-                <li>All activity that occurs under your account</li>
-                <li>Notifying us immediately of any unauthorised use of your account</li>
+                <li>Keep your login credentials confidential.</li>
+                <li>Notify us immediately of any unauthorised use.</li>
               </ul>
               <p>
                 We reserve the right to suspend or terminate accounts that violate these Terms or
-                that we reasonably believe have been compromised.
+                are reasonably suspected of being compromised.
               </p>
 
-              <h2>4. Acceptable Use</h2>
-              <p>
-                You agree to use the Service only for lawful purposes and in accordance with these
-                Terms. You must not:
-              </p>
+              <h2>4. Acceptable Use Policy</h2>
+              <p>You agree to use the Service lawfully. You must not:</p>
               <ul>
-                <li>Use the Service in any way that violates applicable laws or regulations</li>
+                <li>Use the Service for any unlawful activity or to transmit malicious code/viruses.</li>
+                <li>Attempt to gain unauthorised access to our systems or data.</li>
+                <li>Reverse engineer, decompile, or disassemble our software.</li>
+                <li>Use automated scripts, bots, or scrapers to extract data.</li>
                 <li>
-                  Attempt to gain unauthorised access to any part of the Service or its underlying
-                  systems
-                </li>
-                <li>
-                  Reverse engineer, decompile, or disassemble any part of the Service
-                </li>
-                <li>
-                  Use automated scripts, bots, or scrapers to access or extract data from the Service
-                </li>
-                <li>
-                  Upload or transmit any malicious code, viruses, or harmful content
-                </li>
-                <li>
-                  Impersonate another person or entity, or misrepresent your affiliation with any
-                  organisation
-                </li>
-                <li>
-                  Share your account credentials with others or allow multiple individuals to use a
-                  single-user account
+                  Share account credentials; the Service is for licensed users only.
                 </li>
               </ul>
 
-              <h2>5. Subscription Plans and Payments</h2>
-              <p>
-                The Service offers free and paid subscription tiers. Paid subscriptions are billed
-                in advance on a recurring basis. By subscribing to a paid plan, you authorise us to
-                charge your payment method on the agreed billing cycle.
-              </p>
+              <h2>5. Subscription, Payments, and Refunds</h2>
               <ul>
                 <li>
-                  <strong>Cancellation</strong> — You may cancel your subscription at any time.
-                  Cancellation takes effect at the end of the current billing period; you will retain
-                  access until then.
+                  <strong>Billing</strong> — Paid subscriptions are billed in advance. By
+                  subscribing, you authorise recurring charges on your chosen billing cycle.
                 </li>
                 <li>
-                  <strong>Refunds</strong> — We offer a 14-day refund on your first subscription
-                  payment if you are not satisfied. Refunds are not available after this period
-                  except where required by law.
+                  <strong>Australian Consumer Law (ACL)</strong> — Our services come with
+                  guarantees that cannot be excluded under the ACL. For major failures, you are
+                  entitled to cancel your contract and receive a refund for the unused portion.
                 </li>
                 <li>
-                  <strong>Price changes</strong> — We may change subscription fees with at least 30
-                  days&apos; advance notice. Continued use after the new pricing takes effect
-                  constitutes acceptance.
+                  <strong>Cancellations</strong> — You may cancel at any time. You will retain
+                  access until the end of your current billing period.
+                </li>
+                <li>
+                  <strong>Refunds</strong> — Beyond your statutory rights under the ACL, we offer a
+                  14-day &ldquo;cooling-off&rdquo; period for your first subscription payment if you
+                  are dissatisfied.
+                </li>
+                <li>
+                  <strong>Price Changes</strong> — We will provide at least 30 days&apos; advance
+                  notice of any subscription fee changes.
                 </li>
               </ul>
 
-              <h2>6. Intellectual Property</h2>
+              <h2>6. Intellectual Property and Data</h2>
               <p>
-                All content, features, and functionality of the Service — including but not limited
-                to text, graphics, AI-generated evaluations, training scenarios, logos, and software
-                — are owned by Serve By Example and are protected by copyright, trademark, and other
-                intellectual property laws.
+                <strong>Our IP</strong> — All content, software, AI models, and training scenarios
+                are the property of Serve By Example.
               </p>
               <p>
-                You retain ownership of any content you submit to the Service (such as your training
-                responses). By submitting content, you grant us a limited licence to process and
-                display that content solely to provide the Service to you.
+                <strong>Your Content</strong> — You retain ownership of any content you submit. By
+                submitting content, you grant us a non-exclusive, royalty-free licence to process
+                and display that content solely to provide the Service to you.
               </p>
-
-              <h2>7. AI-Generated Content</h2>
               <p>
-                The Service uses artificial intelligence to generate training feedback and coaching
-                responses. AI-generated content is provided for educational and training purposes
-                only and does not constitute professional advice. We make no guarantee that
-                AI-generated content is accurate, complete, or suitable for any particular purpose.
-                You are responsible for using your own judgement when acting on any AI-generated
-                feedback.
+                <strong>Prohibition on Training</strong> — Serve By Example will not use your
+                proprietary input data or training responses to train third-party AI models without
+                your express written consent.
               </p>
 
-              <h2>8. Disclaimers</h2>
+              <h2>7. AI-Generated Content and Physical Safety Disclaimer</h2>
               <p>
-                The Service is provided on an &ldquo;as is&rdquo; and &ldquo;as available&rdquo;
-                basis without warranties of any kind, either express or implied. We do not warrant
-                that the Service will be uninterrupted, error-free, or free of harmful components.
+                <strong>Educational Purpose Only</strong> — AI output is provided for educational
+                and training purposes only. It does not constitute professional business, legal, or
+                OHS/WHS advice.
               </p>
+              <p>
+                <strong>No Replacement for Physical Supervision</strong> — The Service is a
+                supplement to, and not a replacement for, venue-specific safety inductions,
+                hands-on physical training, or on-site supervision.
+              </p>
+              <p>
+                <strong>Assumption of Risk</strong> — Hospitality work involves inherent physical
+                hazards. Serve By Example is not responsible for any physical injury, property
+                damage, or legal consequences arising from the application of training scenarios in
+                a physical workspace. Users and their employers remain solely responsible for
+                ensuring compliance with local OHS/WHS laws and venue policies.
+              </p>
+
+              <h2>8. Venue Compliance and Indemnity</h2>
+              <p>If you are a Venue Operator using this Service to train staff:</p>
+              <ul>
+                <li>
+                  <strong>Responsibility</strong> — You acknowledge that you retain primary duty of
+                  care for your staff under applicable workplace safety laws.
+                </li>
+                <li>
+                  <strong>Indemnity</strong> — To the extent permitted by law, you agree to
+                  indemnify and hold harmless Serve By Example from any claims, damages, or losses
+                  resulting from your staff&apos;s actions, including injuries occurring on your
+                  premises, provided such claims do not arise from our gross negligence.
+                </li>
+              </ul>
 
               <h2>9. Limitation of Liability</h2>
+              <p>To the extent permitted by law:</p>
+              <ul>
+                <li>The Service is provided on an &ldquo;as is&rdquo; basis.</li>
+                <li>
+                  Our total liability shall be limited to the total amount paid by you to us in the
+                  12 months preceding the claim, or AUD $100, whichever is greater.
+                </li>
+                <li>
+                  This does not apply to liabilities that cannot be excluded under the Australian
+                  Consumer Law (ACL).
+                </li>
+              </ul>
+
+              <h2>10. Termination, Governing Law, and Changes</h2>
               <p>
-                To the maximum extent permitted by law, Serve By Example shall not be liable for any
-                indirect, incidental, special, consequential, or punitive damages, including but not
-                limited to loss of profits, data, goodwill, or other intangible losses arising from
-                your use of, or inability to use, the Service.
+                <strong>Termination</strong> — We may suspend access for conduct that violates
+                these Terms.
               </p>
               <p>
-                Our total aggregate liability to you shall not exceed the greater of (a) the amounts
-                you paid us in the 12 months prior to the claim, or (b) AUD $100.
+                <strong>Governing Law</strong> — These Terms are governed by the laws of New South
+                Wales, Australia.
+              </p>
+              <p>
+                <strong>Severability</strong> — If any provision is found to be unenforceable, the
+                remaining provisions will remain in full force.
+              </p>
+              <p>
+                <strong>Changes</strong> — Continued use of the Service after the effective date of
+                updated Terms constitutes your agreement.
               </p>
 
-              <h2>10. Termination</h2>
-              <p>
-                We may suspend or terminate your access to the Service at our discretion, without
-                notice, for conduct that we believe violates these Terms or is harmful to other
-                users, us, or third parties.
-              </p>
-              <p>
-                You may terminate your account at any time by contacting us at{" "}
-                <a href="mailto:info@serve-by-example.com">info@serve-by-example.com</a>. Upon
-                termination, your right to use the Service ceases immediately.
-              </p>
-
-              <h2>11. Governing Law</h2>
-              <p>
-                These Terms are governed by and construed in accordance with the laws of New South Wales, Australia. Any disputes arising under these Terms shall be subject to the exclusive
-                jurisdiction of the courts of New South Wales.
-              </p>
-
-              <h2>12. Changes to Terms</h2>
-              <p>
-                We may modify these Terms at any time. We will provide notice of material changes by
-                email or by posting a notice on the Service. Your continued use of the Service after
-                the effective date of the revised Terms constitutes your acceptance.
-              </p>
-
-              <h2>13. Contact Us</h2>
-              <p>If you have questions about these Terms, please contact:</p>
+              <h2>Contact Us</h2>
+              <p>For terms inquiries, please contact:</p>
               <p>
                 <strong>Serve By Example</strong>
                 <br />
