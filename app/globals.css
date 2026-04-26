@@ -3000,6 +3000,26 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   font-size: 0.8rem;
   opacity: 0.6;
 }
+.psh-streak-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 999px;
+  padding: 3px 9px;
+  white-space: nowrap;
+}
+.psh-last-trained {
+  font-size: 0.68rem;
+  opacity: 0.55;
+  white-space: nowrap;
+  align-self: center;
+}
 .psh-mastery-right {
   display: flex;
   gap: 16px;
@@ -3068,6 +3088,12 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   align-items: flex-start;
   gap: 12px;
 }
+.psh-warmup-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 16px;
+}
 .psh-action-icon {
   font-size: 1.6rem;
   flex-shrink: 0;
@@ -3105,15 +3131,18 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   text-align: left;
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
 }
 .psh-tile:hover {
   border-color: var(--green-mid);
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 .psh-tile-icon {
-  font-size: 1.3rem;
-  display: block;
+  display: flex;
+  align-items: center;
   margin-bottom: 8px;
+  color: var(--green-mid);
 }
 .psh-tile strong {
   display: block;
@@ -3125,7 +3154,25 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   font-size: 0.78rem;
   color: var(--text-muted);
   line-height: 1.45;
-  margin: 0;
+  margin: 0 0 10px;
+  flex: 1;
+}
+.psh-tile-meta {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+.psh-tile-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--text-muted);
 }
 
 /* Coach focus */
@@ -3199,9 +3246,30 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   border-color: var(--green-mid);
 }
 .psh-module-icon {
-  font-size: 1.4rem;
-  display: block;
-  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  color: var(--green-mid);
+}
+.psh-module-card--deep {
+  border-width: 2px;
+  padding: 20px 16px;
+}
+.psh-module-card--deep .psh-module-icon {
+  margin-bottom: 10px;
+}
+.psh-badge-new {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--green);
+  color: #fff;
+  text-transform: uppercase;
 }
 .psh-module-card strong {
   display: block;

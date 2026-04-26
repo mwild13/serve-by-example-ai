@@ -99,6 +99,17 @@ export async function GET(req: Request) {
       }
     }
 
+    // ── Most recent training attempt (for "last trained" display) ──
+    const { data: recentAttemptRow } = await admin
+      .from("scenario_mastery")
+      .select("last_attempt_at")
+      .eq("user_id", user.id)
+      .not("last_attempt_at", "is", null)
+      .order("last_attempt_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const lastAttemptAt = recentAttemptRow?.last_attempt_at ?? null;
+
     // ── Spaced repetition queue ──
     const reviewQueue = await getReviewQueue(admin, user.id);
 
@@ -188,6 +199,7 @@ export async function GET(req: Request) {
       scenarioCounts: SCENARIO_COUNTS,
       levelProgress,
       reviewQueue,
+      lastAttemptAt,
       scenarioDetails,
       staffRole,
       autoUnlockManagement,

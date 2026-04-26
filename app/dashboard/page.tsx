@@ -21,8 +21,7 @@ export default async function DashboardPage() {
     .eq("id", user.id)
     .single();
 
-  const displayName =
-    profile?.display_name || user.email?.split("@")[0] || "there";
+  const displayName = profile?.display_name || "Legend";
   const plan = profile?.plan ?? "free";
 
   return (
