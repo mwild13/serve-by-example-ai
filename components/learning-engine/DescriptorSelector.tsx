@@ -31,6 +31,15 @@ const selectCountByLevel = { 2: 2, 3: 3 };
 const requiredCorrectByLevel = { 2: 4, 3: 5 };
 const totalQuestionsTarget = { 2: 6, 3: 7 };
 
+function shuffleArray<T>(arr: T[]): T[] {
+  const out = [...arr];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
 export default function DescriptorSelector({
   scenarios,
   moduleId,
@@ -50,40 +59,46 @@ export default function DescriptorSelector({
   const [wasCorrect, setWasCorrect] = useState<boolean | null>(null);
   const [completed, setCompleted] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [shuffleKey, setShuffleKey] = useState(0);
 
-  // Shuffle question order once per scenarios set so questions cycle in random
-  // order and the same question doesn't appear on consecutive turns.
+  // Shuffle scenario ORDER once per scenarios set so questions rotate in random
+  // order. Stable across re-renders — only recomputed when the scenario list changes.
   const scenarioIds = scenarios.map((s) => s.id).join(",");
   const [sessionOrder, setSessionOrder] = useState<Scenario[]>([]);
   useEffect(() => {
     if (scenarios.length === 0) return;
-    const arr = [...scenarios];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    setSessionOrder(arr);
+    setSessionOrder(shuffleArray(scenarios));
     setQuestionIndex(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scenarioIds]);
 
-  const shuffledScenarios = useMemo(() => {
-    const base = sessionOrder.length > 0 ? sessionOrder : scenarios;
-    if (level === 3) {
-      return base.map((scenario) => ({
-        ...scenario,
-        content: {
-          ...(scenario.content as DescriptorContent),
-          shuffled_indices: shuffleArray([0, 1, 2, 3, 4]),
-        },
-      }));
-    }
-    return base;
-  }, [sessionOrder, scenarios, level, shuffleKey]);
+  // Stable list of scenarios in shuffled session order.
+  // Does NOT include shuffleKey — order is fixed for the whole session.
+  const orderedScenarios = useMemo(
+    () => (sessionOrder.length > 0 ? sessionOrder : scenarios),
+    [sessionOrder, scenarios],
+  );
 
-  const currentScenario = shuffledScenarios[questionIndex % shuffledScenarios.length];
-  const currentContent = currentScenario?.content as DescriptorContent | undefined;
+  const currentScenario = orderedScenarios[questionIndex % orderedScenarios.length];
+  const rawContent = currentScenario?.content as DescriptorContent | undefined;
+
+  // For Level 3: shuffle the DISPLAY order of descriptors per question so users
+  // cannot memorise positions between attempts. Recomputed only when the scenario
+  // changes (identified by id). correctIndices are remapped to match the new order.
+  const perQuestionDisplay = useMemo(() => {
+    if (!rawContent) return null;
+    if (level !== 3) return null;
+
+    const permutation = shuffleArray([0, 1, 2, 3, 4].slice(0, rawContent.descriptors.length));
+    const descriptors = permutation.map((i) => rawContent.descriptors[i]);
+    // Map original correctIndices → new visual positions
+    const correctIndices = rawContent.correctIndices.map((ci) => permutation.indexOf(ci));
+    return { descriptors, correctIndices };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentScenario?.id, level]);
+
+  // What the user actually sees and interacts with
+  const displayDescriptors = perQuestionDisplay?.descriptors ?? rawContent?.descriptors ?? [];
+  const displayCorrectIndices = perQuestionDisplay?.correctIndices ?? rawContent?.correctIndices ?? [];
 
   const toggleDescriptor = useCallback(
     (index: number) => {
@@ -98,16 +113,16 @@ export default function DescriptorSelector({
         return next;
       });
     },
-    [submitted, selectCount]
+    [submitted, selectCount],
   );
 
   const handleSubmit = useCallback(() => {
-    if (submitted || selected.size !== selectCount || !currentContent) return;
+    if (submitted || selected.size !== selectCount || displayCorrectIndices.length === 0) return;
     setSubmitted(true);
 
-    const correct = currentContent.correctIndices;
-    const isCorrect = correct.length === selected.size &&
-      correct.every((ci) => selected.has(ci));
+    const isCorrect =
+      displayCorrectIndices.length === selected.size &&
+      displayCorrectIndices.every((ci) => selected.has(ci));
 
     setWasCorrect(isCorrect);
     const newAnswered = questionsAnswered + 1;
@@ -126,7 +141,7 @@ export default function DescriptorSelector({
     if (remaining + currentCorrects < requiredCorrect && !isCorrect) {
       setFailed(true);
     }
-  }, [submitted, selected.size, selectCount, currentContent, questionsAnswered, correctCount, requiredCorrect, totalQuestionsValue]);
+  }, [submitted, selected.size, selectCount, displayCorrectIndices, questionsAnswered, correctCount, requiredCorrect, totalQuestionsValue]);
 
   const nextQuestion = useCallback(() => {
     if (completed) {
@@ -134,13 +149,12 @@ export default function DescriptorSelector({
       return;
     }
     if (!failed) {
-      setQuestionIndex((i) => (i + 1) % shuffledScenarios.length);
+      setQuestionIndex((i) => (i + 1) % orderedScenarios.length);
       setSelected(new Set());
       setSubmitted(false);
       setWasCorrect(null);
-      setShuffleKey((k) => k + 1);
     }
-  }, [completed, failed, onComplete, correctCount, shuffledScenarios.length]);
+  }, [completed, failed, onComplete, correctCount, orderedScenarios.length]);
 
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
@@ -155,7 +169,7 @@ export default function DescriptorSelector({
     return () => window.removeEventListener("keydown", handleKey);
   }, [submitted, nextQuestion]);
 
-  if (scenarios.length === 0 || !currentContent) {
+  if (scenarios.length === 0 || !rawContent) {
     return (
       <div style={{ padding: "48px 24px", textAlign: "center" }}>
         <p style={{ color: "#6b7280" }}>No scenarios available</p>
@@ -189,7 +203,7 @@ export default function DescriptorSelector({
           />
         </div>
         <p style={{ margin: "6px 0 0", fontSize: "0.8rem", color: "#9ca3af" }}>
-          Stage {level} — Select {selectCount} descriptors that best describe the scenario
+          Stage {level} — Select {selectCount} descriptor{selectCount !== 1 ? "s" : ""} that best describe the scenario
         </p>
       </div>
 
@@ -209,14 +223,14 @@ export default function DescriptorSelector({
           color: "#111827",
           lineHeight: 1.5,
         }}>
-          {currentScenario?.prompt ?? currentContent.prompt}
+          {currentScenario?.prompt ?? rawContent.prompt}
         </h2>
 
         {/* Descriptor options */}
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          {currentContent.descriptors.map((descriptor, idx) => {
+          {displayDescriptors.map((descriptor, idx) => {
             const isSelected = selected.has(idx);
-            const isCorrectIdx = currentContent.correctIndices.includes(idx);
+            const isCorrectIdx = displayCorrectIndices.includes(idx);
             const isWrongSelected = submitted && isSelected && !isCorrectIdx;
             const isCorrectHighlight = submitted && isCorrectIdx;
 
@@ -291,7 +305,7 @@ export default function DescriptorSelector({
         </div>
 
         {/* Explanation */}
-        {submitted && currentContent.explanation && (
+        {submitted && rawContent.explanation && (
           <div style={{
             marginTop: "1.25rem",
             padding: "1rem 1.25rem",
@@ -306,7 +320,7 @@ export default function DescriptorSelector({
               fontWeight: 500,
               lineHeight: 1.5,
             }}>
-              {wasCorrect ? "✓ Correct — " : "✗ Incorrect — "}{currentContent.explanation}
+              {wasCorrect ? "✓ Correct — " : "✗ Incorrect — "}{rawContent.explanation}
             </p>
           </div>
         )}
@@ -330,9 +344,7 @@ export default function DescriptorSelector({
               transition: "all 0.15s ease",
             }}
           >
-            {selected.size === selectCount
-              ? `Confirm →`
-              : `Select ${selectCount - selected.size} more`}
+            {selected.size === selectCount ? `Confirm →` : `Select ${selectCount - selected.size} more`}
           </button>
         )}
 
@@ -424,13 +436,4 @@ export default function DescriptorSelector({
       )}
     </div>
   );
-}
-
-function shuffleArray<T>(arr: T[]): T[] {
-  const shuffled = [...arr];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
 }
