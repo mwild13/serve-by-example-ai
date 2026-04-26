@@ -14,6 +14,7 @@ const CocktailLibrary = lazy(() => import("@/components/knowledge-base/CocktailL
 const KnowledgeBase = lazy(() => import("@/components/knowledge-base/KnowledgeBase"));
 import ProgressOverview from "@/components/learning-engine/ProgressOverview";
 import PreShiftHome from "@/components/learning-engine/PreShiftHome";
+import MobileDashboardV3 from "@/components/learning-engine/MobileDashboardV3";
 import SessionRefresher from "@/components/ui/SessionRefresher";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
@@ -812,11 +813,23 @@ export default function DashboardShell({
             managementUnlocked={managementUnlocked}
           />
         ) : activeNav === "home" ? (
-          <PreShiftHome
-            key="home"
-            displayName={displayName}
-            setActiveNav={handleNavClick}
-          />
+          <>
+            <div className="mobile-v3-only">
+              <MobileDashboardV3
+                key="home-mobile"
+                displayName={displayName}
+                setActiveNav={handleNavClick}
+                plan={plan}
+              />
+            </div>
+            <div className="desktop-psh-only">
+              <PreShiftHome
+                key="home"
+                displayName={displayName}
+                setActiveNav={handleNavClick}
+              />
+            </div>
+          </>
         ) : activeNav === "scenarios" ? (
           <AdvancedScenarios />
         ) : activeNav === "cocktails" ? (

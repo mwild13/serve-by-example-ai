@@ -11188,3 +11188,17 @@ body {
     grid-template-columns: 10px 60px 1fr 24px;
   }
 }
+
+/* ── V3 Field mobile dashboard — show/hide helpers ── */
+.mobile-v3-only  { display: none; }
+.desktop-psh-only { display: block; }
+
+@media (max-width: 720px) {
+  .mobile-v3-only {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+  }
+  .desktop-psh-only { display: none; }
+}
