@@ -476,7 +476,7 @@ export default function MobileDashboardV3({
         <div style={{ height: 1, background: C.cardEdge, margin: "0 18px" }} />
 
         {/* V1 Section 4: Training cards */}
-        <div style={{ padding: "16px 18px 24px" }}>
+        <div style={{ padding: "16px 18px 0" }}>
           <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: "0.12em", color: C.inkMute, textTransform: "uppercase", marginBottom: 12 }}>
             TRAINING
           </div>
@@ -506,6 +506,43 @@ export default function MobileDashboardV3({
               </button>
             ))}
           </div>
+        </div>
+
+        {/* AI Coach hero tile */}
+        <div style={{ padding: "12px 18px 28px" }}>
+          <button
+            onClick={() => setCoach(true)}
+            style={{
+              width: "100%",
+              background: "radial-gradient(ellipse at 30% 40%, #4a86ff 0%, #1f64ff 65%)",
+              boxShadow: "0 0 28px rgba(31, 100, 255, 0.38), 0 4px 16px rgba(31, 100, 255, 0.22)",
+              border: "none",
+              borderRadius: 6,
+              padding: "22px 20px",
+              textAlign: "left",
+              cursor: "pointer",
+              display: "flex",
+              flexDirection: "column",
+              gap: 6,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 2 }}>
+              <div style={{
+                width: 32, height: 32,
+                background: "rgba(255,255,255,0.18)",
+                borderRadius: 16,
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <Sparkles size={16} color="#fff" />
+              </div>
+              <div style={{ fontFamily: SANS, fontSize: 17, fontWeight: 700, color: "#fff", letterSpacing: "-0.01em" }}>
+                AI Coach
+              </div>
+            </div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.75)", lineHeight: 1.45, fontWeight: 400 }}>
+              Get instant tactical support for your shift
+            </div>
+          </button>
         </div>
       </div>
 

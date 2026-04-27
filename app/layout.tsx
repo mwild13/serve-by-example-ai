@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import LanguageRuntimeTranslator from "@/components/LanguageRuntimeTranslator";
-import FloatingCoach from "@/components/FloatingCoach";
 import ErrorLogger from "@/components/ErrorLogger";
 
 const siteUrl = "https://www.serve-by-example.com";
@@ -72,7 +71,6 @@ export default function RootLayout({
         {children}
         <ErrorLogger />
         <LanguageRuntimeTranslator />
-        <FloatingCoach />
       </body>
     </html>
   );
