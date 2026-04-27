@@ -140,10 +140,10 @@ function getFallbackScenarios(moduleId: number, overrideKey?: Module): Scenario[
   const info = moduleTopics[moduleId] || { topic: "hospitality", keyword: "service" };
 
   return [
-    { id: `fallback-${moduleId}-1`, module_id: moduleId, scenario_index: 0, scenario_type: "quiz", prompt: `Proper technique is essential when ${info.keyword}.`, content: { answer: "true", explanation: `Good technique in ${info.topic} is fundamental to quality service.` }, difficulty: 1 },
+    { id: `fallback-${moduleId}-1`, module_id: moduleId, scenario_index: 0, scenario_type: "quiz", prompt: `Proper technique is essential in ${info.topic}.`, content: { answer: "true", explanation: `Good technique in ${info.topic} is fundamental to quality service.` }, difficulty: 1 },
     { id: `fallback-${moduleId}-2`, module_id: moduleId, scenario_index: 1, scenario_type: "quiz", prompt: `You can skip ${info.topic} training if you have prior experience.`, content: { answer: "false", explanation: `Every venue has specific standards. Even experienced staff need to learn house procedures.` }, difficulty: 1 },
     { id: `fallback-${moduleId}-3`, module_id: moduleId, scenario_index: 2, scenario_type: "quiz", prompt: `Guest satisfaction improves when staff are skilled in ${info.topic}.`, content: { answer: "true", explanation: `Proficiency in ${info.topic} directly contributes to a positive guest experience.` }, difficulty: 1 },
-    { id: `fallback-${moduleId}-4`, module_id: moduleId, scenario_index: 3, scenario_type: "quiz", prompt: `Speed is more important than quality when ${info.keyword}.`, content: { answer: "false", explanation: `Quality should never be compromised. Rushed ${info.topic} leads to errors and dissatisfaction.` }, difficulty: 2 },
+    { id: `fallback-${moduleId}-4`, module_id: moduleId, scenario_index: 3, scenario_type: "quiz", prompt: `Speed is more important than quality when it comes to ${info.topic}.`, content: { answer: "false", explanation: `Quality should never be compromised. Rushed ${info.topic} leads to errors and dissatisfaction.` }, difficulty: 2 },
     { id: `fallback-${moduleId}-5`, module_id: moduleId, scenario_index: 4, scenario_type: "quiz", prompt: `Understanding ${info.topic} helps you handle difficult situations at work.`, content: { answer: "true", explanation: `Strong ${info.topic} knowledge gives you confidence to adapt when things don't go to plan.` }, difficulty: 2 },
     {
       id: `fallback-${moduleId}-6`, module_id: moduleId, scenario_index: 5, scenario_type: "descriptor_l2",
