@@ -44,6 +44,9 @@ type ModuleProgress = {
   score: number;
 };
 
+// Maps moduleId 1-3 to the legacy string keys used in user_level_progress.
+const LEGACY_MODULE_NAMES: Record<number, string> = { 1: "bartending", 2: "sales", 3: "management" };
+
 // Map module IDs 1-3 to their correct topic question banks.
 // DB module ID 1 = "Pouring the Perfect Beer"
 // DB module ID 2 = "Wine Knowledge & Service"
@@ -383,12 +386,34 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
       setSessionProgress((prev) => (prev.includes(currentStage) ? prev : [...prev, currentStage]));
       setShowSummary(true);
 
-      // Persist to API
       try {
         const supabase = createSupabaseBrowserClient();
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.access_token) return;
 
+        // Stages 1-3 write directly to level-progress (no session cookie required).
+        // This is the primary badge write — it always runs regardless of whether
+        // the mastery save below succeeds.
+        const levelModule = scaffoldedModuleKey ?? LEGACY_MODULE_NAMES[moduleId] ?? null;
+        if (levelModule && currentStage <= 3) {
+          await fetch("/api/training/level-progress", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({
+              module: levelModule,
+              currentLevel: currentStage,
+              [`level${currentStage}Score`]: score,
+              [`level${currentStage}Completed`]: true,
+            }),
+          }).catch((err) => console.error("Level progress write failed:", err));
+        }
+
+        // Also fire the mastery save — requires sbe_session_id cookie.
+        // May fail for users without a stamped session; that is acceptable
+        // because the level-progress write above already secured badge data.
         await fetch("/api/training/save", {
           method: "POST",
           headers: {
@@ -398,15 +423,15 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
           body: JSON.stringify({
             moduleId,
             stageLevel: currentStage,
-            overallScore: score,   // field name the save route expects
+            overallScore: score,
             completed: true,
           }),
-        });
+        }).catch((err) => console.error("Mastery save failed:", err));
       } catch (err) {
         console.error("Error saving progress:", err);
       }
     },
-    [currentStage, moduleId]
+    [currentStage, moduleId, scaffoldedModuleKey]
   );
 
   const meta = STAGE_META[currentStage];

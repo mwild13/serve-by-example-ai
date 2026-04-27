@@ -65,18 +65,27 @@ export async function POST(req: Request) {
     const admin = createSupabaseAdminClient();
     const now = new Date().toISOString();
 
+    // Read existing row so we never clear previously-earned stage completions.
+    // Completed flags and scores are additive — once earned, never revoked.
+    const { data: existing } = await admin
+      .from("user_level_progress")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("module", mod)
+      .maybeSingle();
+
     await admin.from("user_level_progress").upsert(
       {
         user_id: user.id,
         module: mod,
-        current_level: currentLevel,
-        level1_score: level1Score,
-        level1_completed: level1Completed,
-        level2_score: level2Score,
-        level2_completed: level2Completed,
-        level3_score: level3Score,
-        level3_completed: level3Completed,
-        level4_unlocked: level4Unlocked,
+        current_level: Math.max(currentLevel, existing?.current_level ?? 1),
+        level1_score: Math.max(level1Score, existing?.level1_score ?? 0),
+        level1_completed: level1Completed || (existing?.level1_completed ?? false),
+        level2_score: Math.max(level2Score, existing?.level2_score ?? 0),
+        level2_completed: level2Completed || (existing?.level2_completed ?? false),
+        level3_score: Math.max(level3Score, existing?.level3_score ?? 0),
+        level3_completed: level3Completed || (existing?.level3_completed ?? false),
+        level4_unlocked: level4Unlocked || (existing?.level4_unlocked ?? false),
         last_active_at: now,
         updated_at: now,
       },
