@@ -56,6 +56,10 @@ function StaffSettingsPanel({
   const [securityError, setSecurityError] = useState("");
   const [isSavingSecurity, setIsSavingSecurity] = useState(false);
 
+  const [venueCode, setVenueCode] = useState("");
+  const [joinVenueStatus, setJoinVenueStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [joinVenueMessage, setJoinVenueMessage] = useState("");
+
   const [enableReminders, setEnableReminders] = useState(notifReminders);
   const [enableWeeklyDigest, setEnableWeeklyDigest] = useState(notifWeeklyDigest);
   const [enableAchievementAlerts, setEnableAchievementAlerts] = useState(notifAchievementAlerts);
@@ -168,6 +172,42 @@ function StaffSettingsPanel({
       setSecurityError(updateError instanceof Error ? updateError.message : "Unable to update password.");
     } finally {
       setIsSavingSecurity(false);
+    }
+  }
+
+  async function handleJoinVenue(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const code = parseInt(venueCode.trim(), 10);
+    if (isNaN(code)) {
+      setJoinVenueStatus("error");
+      setJoinVenueMessage("Please enter a valid venue code.");
+      return;
+    }
+    setJoinVenueStatus("loading");
+    setJoinVenueMessage("");
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch("/api/management/join-venue", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({ venueCode: code }),
+      });
+      const data = await res.json() as { success?: boolean; venueName?: string; alreadyLinked?: boolean; error?: string };
+      if (!res.ok) throw new Error(data.error || "Could not join venue.");
+      setJoinVenueStatus("success");
+      setJoinVenueMessage(
+        data.alreadyLinked
+          ? `Already connected to ${data.venueName}.`
+          : `Connected to ${data.venueName}. Your training progress is now visible to your manager.`
+      );
+      setVenueCode("");
+    } catch (err) {
+      setJoinVenueStatus("error");
+      setJoinVenueMessage(err instanceof Error ? err.message : "Could not join venue.");
     }
   }
 
@@ -304,6 +344,37 @@ function StaffSettingsPanel({
             <span className="sbe-trust-value">Your responses are used only to generate your personal feedback scores. They are never shared with other staff or venues.</span>
           </div>
         </div>
+      </div>
+
+      <div className="card">
+        <h3>Join your venue</h3>
+        <p>Enter the code your manager shares with you to link your training progress to their dashboard.</p>
+        {joinVenueStatus === "success" ? (
+          <div className="auth-status auth-status-success" style={{ marginTop: "0.75rem" }}>{joinVenueMessage}</div>
+        ) : (
+          <form className="staff-settings-form" onSubmit={handleJoinVenue}>
+            <label className="label" htmlFor="venue-code-input">
+              Venue code
+              <input
+                id="venue-code-input"
+                className="input"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={venueCode}
+                onChange={(e) => setVenueCode(e.target.value)}
+                placeholder="e.g. 4821"
+                required
+              />
+            </label>
+            <button type="submit" className="btn btn-primary" disabled={joinVenueStatus === "loading"}>
+              {joinVenueStatus === "loading" ? "Connecting..." : "Connect to venue"}
+            </button>
+            {joinVenueStatus === "error" && (
+              <div className="auth-status auth-status-error">{joinVenueMessage}</div>
+            )}
+          </form>
+        )}
       </div>
     </div>
   );

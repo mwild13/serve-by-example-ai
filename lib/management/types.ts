@@ -49,6 +49,8 @@ export type StaffMember = {
   highConfidenceIncorrectRatio?: number;
   scenariosMastered?: number;
   scenariosAttempted?: number;
+  // Connection linkage — set when staff member has signed in and linked their account
+  staffUserId?: string | null;
 };
 
 export type Venue = {

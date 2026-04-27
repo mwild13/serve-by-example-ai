@@ -178,6 +178,7 @@ function mapStaff(row: Record<string, unknown>): StaffMember {
     highConfidenceIncorrectRatio: typeof row.high_confidence_incorrect_ratio === "number" ? row.high_confidence_incorrect_ratio : undefined,
     scenariosMastered: typeof row.scenarios_mastered === "number" ? row.scenarios_mastered : undefined,
     scenariosAttempted: typeof row.scenarios_attempted === "number" ? row.scenarios_attempted : undefined,
+    staffUserId: typeof row.staff_user_id === "string" ? row.staff_user_id : null,
   };
 }
 
@@ -286,7 +287,7 @@ async function getStaffRows(
 ): Promise<QueryResult<Record<string, unknown>[]>> {
   const latestStaffQuery = await supabase
     .from("venue_staff")
-    .select("id, venue_id, name, email, role, progress, service_score, sales_score, product_score, last_active_at, status, strengths, improvements, mastery_status, elo_rating, knowledge_decay_risk, high_confidence_incorrect_ratio, scenarios_mastered, scenarios_attempted")
+    .select("id, venue_id, name, email, role, progress, service_score, sales_score, product_score, last_active_at, status, strengths, improvements, mastery_status, elo_rating, knowledge_decay_risk, high_confidence_incorrect_ratio, scenarios_mastered, scenarios_attempted, staff_user_id")
     .in("venue_id", venueIds)
     .order("created_at", { ascending: true });
 

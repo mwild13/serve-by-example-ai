@@ -130,7 +130,7 @@ export async function GET(req: Request) {
       const { data: staffRows } = await admin
         .from("venue_staff")
         .select("id, role, staff_user_id")
-        .eq("email", user.email);
+        .ilike("email", user.email);
 
       if (staffRows && staffRows.length > 0) {
         staffRole = staffRows[0].role as string;
@@ -140,7 +140,7 @@ export async function GET(req: Request) {
           await admin
             .from("venue_staff")
             .update({ staff_user_id: user.id })
-            .eq("email", user.email)
+            .ilike("email", user.email)
             .is("staff_user_id", null)
             .then();
         }

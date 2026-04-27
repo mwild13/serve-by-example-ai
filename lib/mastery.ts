@@ -381,7 +381,7 @@ export async function syncMasteryToVenueStaff(
     const { data } = await admin
       .from("venue_staff")
       .select("id")
-      .eq("email", userEmail);
+      .ilike("email", userEmail);
     staffRows = data ?? null;
   }
 
@@ -494,7 +494,7 @@ export async function syncMasteryToVenueStaff(
   await admin
     .from("venue_staff")
     .update({ staff_user_id: userId })
-    .eq("email", userEmail)
+    .ilike("email", userEmail)
     .is("staff_user_id", null)
     .then();
 }

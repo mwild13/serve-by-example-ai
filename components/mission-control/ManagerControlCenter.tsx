@@ -1613,6 +1613,7 @@ export default function ManagerControlCenter({
                           <th>Contact</th>
                           <th>Role</th>
                           <th>Status</th>
+                          <th>Connection</th>
                           <th>Training progress</th>
                           <th>Last active</th>
                           <th></th>
@@ -1638,6 +1639,15 @@ export default function ManagerControlCenter({
                                 <span className={`ops-badge ops-badge-${member.status === "on-track" ? "active" : member.status === "attention" ? "pending" : "removed"}`}>
                                   {member.status === "on-track" ? "On track" : member.status === "attention" ? "Needs attention" : "Inactive"}
                                 </span>
+                              </td>
+                              <td>
+                                {member.staffUserId ? (
+                                  <span className="ops-badge ops-badge-active">Connected</span>
+                                ) : member.email ? (
+                                  <span className="ops-badge ops-badge-pending">Invited</span>
+                                ) : (
+                                  <span className="ops-badge ops-badge-removed">No account</span>
+                                )}
                               </td>
                               <td>
                                 <div className="ops-progress-inline">
@@ -2615,6 +2625,43 @@ export default function ManagerControlCenter({
                 </div>
               </dl>
             </article>
+
+            {selectedVenue?.venueCode && (
+              <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+                <div className="ops-card-head">
+                  <h3>Staff join code</h3>
+                </div>
+                <p style={{ marginBottom: "1rem", color: "var(--ops-text-soft, #6b7280)" }}>
+                  Share this code with your staff. They enter it in their training dashboard under <strong>Settings → Join Venue</strong> to link their account and sync their training data here.
+                </p>
+                <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
+                  <div style={{
+                    fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+                    fontSize: "2.5rem",
+                    fontWeight: 800,
+                    letterSpacing: "0.15em",
+                    color: "#0B2B1E",
+                    background: "#f0fdf4",
+                    border: "2px solid #86efac",
+                    borderRadius: "12px",
+                    padding: "0.5rem 1.5rem",
+                    userSelect: "all",
+                  }}>
+                    {selectedVenue.venueCode}
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => navigator.clipboard.writeText(String(selectedVenue.venueCode))}
+                  >
+                    Copy code
+                  </button>
+                </div>
+                <p style={{ marginTop: "0.75rem", fontSize: "0.8rem", color: "var(--ops-text-soft, #9ca3af)" }}>
+                  Once a staff member joins, their training progress will appear in real time in your staff directory.
+                </p>
+              </article>
+            )}
 
             <article className="ops-card">
               <div className="ops-card-head">
