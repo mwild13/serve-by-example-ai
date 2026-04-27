@@ -11202,3 +11202,26 @@ body {
   }
   .desktop-psh-only { display: none; }
 }
+
+/* ── Persistent mobile bottom nav (DashboardShell) ── */
+.mobile-bottom-nav { display: none; }
+
+@media (max-width: 720px) {
+  /* Hide top sidebar — replaced by bottom nav */
+  .dashboard-sidebar { display: none !important; }
+
+  /* Room for fixed bottom nav */
+  .dashboard-main { padding-bottom: 72px !important; }
+
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 45;
+    background: #06170F;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    justify-content: space-around;
+    padding: 8px 8px 0;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+  }
+}

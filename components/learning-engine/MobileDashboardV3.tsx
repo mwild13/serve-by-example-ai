@@ -585,40 +585,6 @@ export default function MobileDashboardV3({
         </div>
       </div>
 
-      {/* ── AI Coach pill ── */}
-      <div style={{ padding: "10px 14px 6px", flexShrink: 0 }}>
-        <button
-          onClick={() => setCoach(true)}
-          style={{
-            width: "100%",
-            background: "rgba(255,255,255,0.08)",
-            border: "1px solid rgba(255,255,255,0.18)",
-            color: C.parchment,
-            padding: "11px 14px",
-            display: "flex", alignItems: "center", gap: 12,
-            fontFamily: SANS, fontSize: 13,
-            cursor: "pointer", borderRadius: 4,
-          }}
-        >
-          <div style={{
-            width: 28, height: 28,
-            background: C.amber,
-            color: C.green,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            borderRadius: 14, flexShrink: 0,
-          }}>
-            <IconAI />
-          </div>
-          <div style={{ textAlign: "left", flex: 1 }}>
-            <div style={{ fontWeight: 600 }}>Ask the Coach</div>
-            <div style={{ fontSize: 11, opacity: 0.6, fontFamily: MONO }}>
-              Drill any spec · roleplay any guest
-            </div>
-          </div>
-          <IconArrow />
-        </button>
-      </div>
-
       {/* ── Bottom nav ── */}
       <BottomNav onNavigate={navigate} />
 

@@ -484,6 +484,62 @@ function RightPanel({
   );
 }
 
+// Persistent bottom nav rendered on all mobile screens (z-index: 45, below V3 home overlay at 50)
+function MobileBottomNavBar({
+  activeNav,
+  onNavigate,
+}: {
+  activeNav: NavItem;
+  onNavigate: (id: NavItem) => void;
+}) {
+  const tabs = [
+    { id: "home" as NavItem,       label: "Home",    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1v-9z"/></svg> },
+    { id: "module" as NavItem,     label: "Modules", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2V5z"/><path d="M4 19h15"/></svg> },
+    { id: "rapid-fire" as NavItem, label: "Drills",  icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg> },
+    { id: "cocktails" as NavItem,  label: "Library", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"><path d="M9 3h6M10 3v6L4 19a2 2 0 002 2h12a2 2 0 002-2L14 9V3"/></svg> },
+    { id: "progress" as NavItem,   label: "Me",      icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg> },
+  ];
+  // Map activeNav to which tab is highlighted
+  const activeTab =
+    activeNav === "module" ? "module" :
+    activeNav === "rapid-fire" ? "rapid-fire" :
+    activeNav === "cocktails" || activeNav === "knowledge" ? "cocktails" :
+    activeNav === "progress" || activeNav === "settings" ? "progress" :
+    "home";
+
+  return (
+    <nav className="mobile-bottom-nav">
+      {tabs.map(({ id, label, icon }) => {
+        const on = activeTab === id;
+        return (
+          <button
+            key={id}
+            onClick={() => onNavigate(id)}
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+              padding: "6px 4px 8px", color: on ? "#F2EEE5" : "rgba(255,255,255,0.45)",
+              flex: 1, position: "relative",
+              fontFamily: 'ui-monospace, "SF Mono", Menlo, monospace',
+            }}
+          >
+            {on && (
+              <div style={{
+                position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
+                width: 18, height: 2, background: "#B8841F",
+              }} />
+            )}
+            {icon}
+            <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+              {label}
+            </span>
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
 export default function DashboardShell({
   displayName,
   plan,
@@ -862,6 +918,9 @@ export default function DashboardShell({
       <aside className="dashboard-right">
         <RightPanel setActiveNav={handleNavClick} plan={plan} />
       </aside>
+
+      {/* Persistent mobile bottom nav — sits at z-index 45, below V3 home overlay (50) */}
+      <MobileBottomNavBar activeNav={activeNav} onNavigate={handleNavClick} />
     </main>
   );
 }
