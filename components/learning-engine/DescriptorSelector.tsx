@@ -104,13 +104,17 @@ export default function DescriptorSelector({
     (index: number) => {
       if (submitted) return;
       setSelected((prev) => {
-        const next = new Set(prev);
-        if (next.has(index)) {
+        if (prev.has(index)) {
+          const next = new Set(prev);
           next.delete(index);
-        } else if (next.size < selectCount) {
-          next.add(index);
+          return next;
         }
-        return next;
+        if (prev.size < selectCount) {
+          const next = new Set(prev);
+          next.add(index);
+          return next;
+        }
+        return prev; // already at limit — return same ref to skip re-render
       });
     },
     [submitted, selectCount],
@@ -334,17 +338,18 @@ export default function DescriptorSelector({
             disabled={selected.size !== selectCount}
             style={{
               padding: "12px 28px",
-              background: selected.size === selectCount ? "#1d4ed8" : "#e5e7eb",
+              background: selected.size === selectCount ? "#0B2B1E" : "#e5e7eb",
               color: selected.size === selectCount ? "white" : "#9ca3af",
               border: "none",
               borderRadius: "10px",
-              fontWeight: 700,
+              fontWeight: 600,
+              fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif",
               fontSize: "0.9375rem",
               cursor: selected.size === selectCount ? "pointer" : "default",
-              transition: "all 0.15s ease",
+              transition: "all 0.2s ease",
             }}
           >
-            {selected.size === selectCount ? `Confirm →` : `Select ${selectCount - selected.size} more`}
+            {selected.size === selectCount ? "Check answer" : `Identify ${selectCount - selected.size} more`}
           </button>
         )}
 

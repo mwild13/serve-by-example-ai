@@ -21,7 +21,12 @@ export default async function DashboardPage() {
     .eq("id", user.id)
     .single();
 
-  const displayName = profile?.display_name || "Legend";
+  const displayName =
+    profile?.display_name ||
+    (user.user_metadata?.full_name as string | undefined) ||
+    (user.user_metadata?.name as string | undefined) ||
+    user.email?.split("@")[0] ||
+    "there";
   const plan = profile?.plan ?? "free";
 
   return (
