@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
+import {
+  Menu, Flame, Play, ArrowRight, Sparkles, X, Home,
+  BookOpen, Zap, GlassWater, BarChart2, Target, Cpu, Mic,
+} from "lucide-react";
 
 type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
 type ModuleKey = "bartending" | "sales" | "management";
@@ -46,21 +50,21 @@ const MODULE_LABELS: Record<ModuleKey, string> = {
   management: "Shift Leadership",
 };
 
-// ── Design tokens ──────────────────────────────────────────────
+// ── Design tokens — reference CSS vars from globals.css :root ──
 const C = {
-  green:        "#0B2B1E",
-  greenDeep:    "#06170F",
-  greenMute:    "#2C5C46",
-  greenTint:    "#E6EDE8",
-  parchment:    "#F2EEE5",
-  parchmentDeep:"#E8E2D4",
-  card:         "#FCFAF5",
-  cardEdge:     "#E1DBCB",
-  ink:          "#1A1814",
-  inkSoft:      "#3F3A30",
-  inkMute:      "#7A7264",
-  inkFaint:     "#A89F8B",
-  amber:        "#B8841F",
+  green:        "var(--ip-green)",
+  greenDeep:    "var(--ip-green-deep)",
+  greenMute:    "var(--ip-green-soft)",
+  greenTint:    "var(--ip-green-tint)",
+  parchment:    "var(--ip-parchment)",
+  parchmentDeep:"var(--ip-parchment-deep)",
+  card:         "var(--ip-card)",
+  cardEdge:     "var(--ip-card-edge)",
+  ink:          "var(--ip-ink)",
+  inkSoft:      "var(--ip-ink-soft)",
+  inkMute:      "var(--ip-ink-mute)",
+  inkFaint:     "var(--ip-ink-faint)",
+  amber:        "var(--ip-amber)",
 };
 
 const MONO = 'ui-monospace, "SF Mono", Menlo, monospace';
@@ -105,86 +109,6 @@ function computeStreak(): number {
   }
 }
 
-// ── SVG Icons ──────────────────────────────────────────────────
-const IconMenu = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-    <path d="M4 7h16M4 12h16M4 17h16" />
-  </svg>
-);
-const IconFlame = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2c0 4-4 5-4 9a4 4 0 008 0c0-2-1-3-1-5 2 1 4 3 4 6a7 7 0 11-14 0c0-5 4-7 7-10z" />
-  </svg>
-);
-const IconPlay = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M6 4l14 8-14 8V4z" />
-  </svg>
-);
-const IconArrow = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M5 12h14M13 6l6 6-6 6" />
-  </svg>
-);
-const IconAI = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" opacity=".95" />
-  </svg>
-);
-const IconClose = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-    <path d="M6 6l12 12M18 6l-12 12" />
-  </svg>
-);
-const IconSpark = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2l1.5 6.5L20 10l-6.5 1.5L12 18l-1.5-6.5L4 10l6.5-1.5z" />
-  </svg>
-);
-const IconMic = () => (
-  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-    <rect x="9" y="3" width="6" height="12" rx="3" />
-    <path d="M5 11a7 7 0 0014 0M12 18v3" />
-  </svg>
-);
-const IconHome = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-    <path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1v-9z" />
-  </svg>
-);
-const IconBook = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-    <path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2V5z" /><path d="M4 19h15" />
-  </svg>
-);
-const IconBolt = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round">
-    <path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" />
-  </svg>
-);
-const IconFlask = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round">
-    <path d="M9 3h6M10 3v6L4 19a2 2 0 002 2h12a2 2 0 002-2L14 9V3" />
-  </svg>
-);
-const IconChart = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-    <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
-  </svg>
-);
-const IconTarget = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-    <circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1.5" fill="currentColor" />
-  </svg>
-);
-const IconCpu = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-    <rect x="4" y="4" width="16" height="16" rx="2" />
-    <rect x="9" y="9" width="6" height="6" />
-    <path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2" />
-  </svg>
-);
-
 // ── AI Coach bottom sheet ──────────────────────────────────────
 function AICoachSheet({ onClose }: { onClose: () => void }) {
   return (
@@ -209,12 +133,12 @@ function AICoachSheet({ onClose }: { onClose: () => void }) {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 28, height: 28, background: C.green, color: C.parchment, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 14 }}>
-              <IconAI />
+              <Sparkles size={14} />
             </div>
             <div style={{ fontWeight: 700, fontSize: 15 }}>AI Coach</div>
           </div>
           <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: C.inkMute, padding: 4 }}>
-            <IconClose />
+            <X size={20} />
           </button>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
@@ -238,7 +162,7 @@ function AICoachSheet({ onClose }: { onClose: () => void }) {
                 color: C.ink,
               }}
             >
-              <span style={{ color: C.green }}><IconSpark /></span>
+              <span style={{ color: C.green }}><Sparkles size={13} /></span>
               <span>{q}</span>
             </button>
           ))}
@@ -255,7 +179,7 @@ function AICoachSheet({ onClose }: { onClose: () => void }) {
             placeholder="Ask anything…"
             style={{ flex: 1, border: "none", background: "transparent", outline: "none", fontFamily: SANS, fontSize: 14, color: C.ink }}
           />
-          <span style={{ color: C.inkMute }}><IconMic /></span>
+          <span style={{ color: C.inkMute }}><Mic size={17} /></span>
         </div>
       </div>
     </div>
@@ -264,11 +188,11 @@ function AICoachSheet({ onClose }: { onClose: () => void }) {
 
 // ── Bottom nav (dark) ──────────────────────────────────────────
 const NAV_TABS = [
-  { id: "home",       label: "Home",    Icon: IconHome  },
-  { id: "module",     label: "Modules", Icon: IconBook  },
-  { id: "rapid-fire", label: "Drills",  Icon: IconBolt  },
-  { id: "cocktails",  label: "Library", Icon: IconFlask },
-  { id: "progress",   label: "Me",      Icon: IconChart },
+  { id: "home",       label: "Home",    Icon: Home       },
+  { id: "module",     label: "Modules", Icon: BookOpen   },
+  { id: "rapid-fire", label: "Drills",  Icon: Zap        },
+  { id: "cocktails",  label: "Library", Icon: GlassWater },
+  { id: "progress",   label: "Me",      Icon: BarChart2  },
 ] as const;
 
 function BottomNav({ onNavigate }: { onNavigate: (id: NavItem) => void }) {
@@ -393,7 +317,7 @@ export default function MobileDashboardV3({
         flexShrink: 0,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, opacity: 0.9 }}>
-          <IconMenu />
+          <Menu size={20} />
           <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: "0.16em" }}>
             SERVE BY EXAMPLE
           </span>
@@ -403,7 +327,7 @@ export default function MobileDashboardV3({
         </div>
         {streak > 0 && (
           <div style={{ display: "flex", alignItems: "center", gap: 4, color: C.amber }}>
-            <IconFlame />
+            <Flame size={13} />
             <span style={{ fontFamily: MONO, fontSize: 11, fontWeight: 700 }}>{streak}D</span>
           </div>
         )}
@@ -468,7 +392,7 @@ export default function MobileDashboardV3({
               letterSpacing: "0.01em", cursor: "pointer",
             }}
           >
-            <IconPlay />
+            <Play size={13} />
             Start Pre-Shift Warm-Up
           </button>
         </div>
@@ -503,7 +427,7 @@ export default function MobileDashboardV3({
               }}
             >
               Start {weakestNext.label}
-              <IconArrow />
+              <ArrowRight size={13} />
             </button>
           </div>
         </div>
@@ -518,10 +442,10 @@ export default function MobileDashboardV3({
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             {([
-              { label: "Modules",           sub: "Stage-based learning",         Icon: IconBook,   nav: "module"      as NavItem, locked: !isPremium },
-              { label: "Quick Drills",      sub: "60-sec recall quizzes",         Icon: IconBolt,   nav: "rapid-fire"  as NavItem, locked: !isPremium },
-              { label: "Scenario Training", sub: "AI-scored service situations",  Icon: IconTarget, nav: "stage4"      as NavItem, locked: !isPremium },
-              { label: "AI Scenarios",      sub: "Adaptive simulations",          Icon: IconCpu,    nav: "scenarios"   as NavItem, locked: !isPremium },
+              { label: "Modules",           sub: "Stage-based learning",         Icon: BookOpen, nav: "module"      as NavItem, locked: !isPremium },
+              { label: "Quick Drills",      sub: "60-sec recall quizzes",         Icon: Zap,      nav: "rapid-fire"  as NavItem, locked: !isPremium },
+              { label: "Scenario Training", sub: "AI-scored service situations",  Icon: Target,   nav: "stage4"      as NavItem, locked: !isPremium },
+              { label: "AI Scenarios",      sub: "Adaptive simulations",          Icon: Cpu,      nav: "scenarios"   as NavItem, locked: !isPremium },
             ] as { label: string; sub: string; Icon: React.FC; nav: NavItem; locked: boolean }[]).map(({ label, sub, Icon, nav, locked }) => (
               <button
                 key={nav}
@@ -558,8 +482,8 @@ export default function MobileDashboardV3({
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {([
-              { Icon: IconTarget, nav: "stage4"    as NavItem, title: "Scenario Training", body: "Practice real service situations with instant AI scoring and coaching." },
-              { Icon: IconCpu,    nav: "scenarios"  as NavItem, title: "AI Scenarios",      body: "Advanced AI-driven simulations for high-pressure hospitality moments." },
+              { Icon: Target, nav: "stage4"    as NavItem, title: "Scenario Training", body: "Practice real service situations with instant AI scoring and coaching." },
+              { Icon: Cpu,    nav: "scenarios"  as NavItem, title: "AI Scenarios",      body: "Advanced AI-driven simulations for high-pressure hospitality moments." },
             ] as { Icon: React.FC; nav: NavItem; title: string; body: string }[]).map(({ Icon, nav, title, body }) => (
               <button
                 key={nav}

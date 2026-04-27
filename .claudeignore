@@ -1,16 +1,43 @@
-# Secrets and credentials — never read these
-.env
-.env.local
-.env.*.local
-.env.development
-.env.production
-.env.local.SECURE
-
-# Build output — not useful for code tasks
-node_modules/
+# Build artifacts
 .next/
 .open-next/
-.vercel/
+.wrangler/
+node_modules/
 
-# Large generated files
-*.tsbuildinfo
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Static assets
+public/
+favicon_io/
+
+# Large deployment/ops docs
+OPERATIONAL_DEPLOYMENT_HANDOFF.md
+RELEASE_READINESS_ACTION_PLAN.md
+FINAL_DEPLOYMENT_VALIDATION.md
+FINAL_DEPLOYMENT_CHECKLIST.md
+DEPLOYMENT_TASK_STATUS.md
+DEPLOYMENT_VERIFIED_LIVE.md
+DEPLOYMENT_LOG.md
+DEPLOYMENT_COMPLETE.md
+PRODUCTION_VERIFICATION.md
+RAPID_FIRE_QUIZ_FIX_DOCUMENTATION.md
+PHASE_1_IMPLEMENTATIONS_COMPLETE.md
+PROJECT_COMPLETION_CERTIFICATE.md
+EXECUTIVE_SUMMARY.md
+README_RELEASE_READINESS.md
+
+# Content blueprints
+CONTENT_BLUEPRINT.md
+SCENARIO_ANSWERS_25-25.md
+
+# Supabase migrations — schema history, rarely needed during UI work
+supabase/migrations/
+
+# Images and PDFs at root
+*.png
+*.jpg
+*.jpeg
+*.pdf

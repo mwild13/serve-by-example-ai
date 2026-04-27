@@ -518,7 +518,7 @@ function MobileBottomNavBar({
             style={{
               background: "none", border: "none", cursor: "pointer",
               display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-              padding: "6px 4px 8px", color: on ? "#F2EEE5" : "rgba(255,255,255,0.45)",
+              padding: "6px 4px 8px", color: on ? "var(--ip-parchment)" : "rgba(255,255,255,0.45)",
               flex: 1, position: "relative",
               fontFamily: 'ui-monospace, "SF Mono", Menlo, monospace',
             }}
@@ -526,7 +526,7 @@ function MobileBottomNavBar({
             {on && (
               <div style={{
                 position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
-                width: 18, height: 2, background: "#B8841F",
+                width: 18, height: 2, background: "var(--ip-amber)",
               }} />
             )}
             {icon}

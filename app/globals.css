@@ -35,6 +35,21 @@
   --shadow-xl: 0 20px 60px rgba(15, 45, 29, 0.14), 0 6px 16px rgba(15, 45, 29, 0.06);
   --font-heading: "Fraunces", Georgia, serif;
   --font-body: "Manrope", "Segoe UI", system-ui, sans-serif;
+
+  /* ── Industrial Premium tokens (mobile dashboard) ── */
+  --ip-green:         #0B2B1E;
+  --ip-green-deep:    #06170F;
+  --ip-green-soft:    #1E4A37;
+  --ip-green-tint:    #E6EDE8;
+  --ip-parchment:     #F2EEE5;
+  --ip-parchment-deep:#E8E2D4;
+  --ip-card:          #FCFAF5;
+  --ip-card-edge:     #E1DBCB;
+  --ip-ink:           #1A1814;
+  --ip-ink-soft:      #3F3A30;
+  --ip-ink-mute:      #7A7264;
+  --ip-ink-faint:     #A89F8B;
+  --ip-amber:         #B8841F;
   --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -11218,7 +11233,7 @@ body {
     position: fixed;
     bottom: 0; left: 0; right: 0;
     z-index: 45;
-    background: #06170F;
+    background: var(--ip-green-deep);
     border-top: 1px solid rgba(255,255,255,0.1);
     justify-content: space-around;
     padding: 8px 8px 0;
