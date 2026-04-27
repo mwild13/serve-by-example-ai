@@ -287,7 +287,7 @@ function LoginPageContent() {
                     : "Signing in..."
                   : isSignUp
                     ? "Create account"
-                    : "Log in"}
+                    : "Sign in"}
               </button>
 
               <p className="auth-help">
