@@ -165,6 +165,21 @@ function buildBadgeStages(data: TrainingData) {
   }));
 }
 
+function buildModuleCertifications(data: TrainingData) {
+  const certs = [
+    { mod: "bartending" as ModuleKey, label: "Certified Bartender", sub: "All 4 stages complete" },
+    { mod: "sales" as ModuleKey, label: "Sales Specialist", sub: "All 4 stages complete" },
+    { mod: "management" as ModuleKey, label: "Lead Communicator", sub: "All 4 stages complete" },
+  ];
+  return certs.map(({ mod, label, sub }) => {
+    const lp = data.levelProgress[mod];
+    const s = data.sessions[mod];
+    const avg = data.scores[mod];
+    const certified = lp.level1_completed && lp.level2_completed && lp.level3_completed && s >= 1 && avg >= 21;
+    return { mod, label, sub, certified };
+  });
+}
+
 function getWeakestModule(data: TrainingData): ModuleKey {
   const keys: ModuleKey[] = ["bartending", "sales", "management"];
   return keys.reduce((weakest, k) =>
@@ -239,6 +254,10 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
   const strongest = getStrongestModule(data);
 
   const BADGE_STAGES = buildBadgeStages(data);
+  const MODULE_CERTS = buildModuleCertifications(data);
+  const certifiedCount = MODULE_CERTS.filter((c) => c.certified).length;
+  const isVeteran = totalSessions >= 25;
+  const isPrecisionExpert = (["bartending", "sales", "management"] as ModuleKey[]).some((mod) => data.scores[mod] >= 25);
   const COACH_COMMANDS = COACH_FOCUS[weakest];
   const RECENT_WINS = buildRecentWins(data);
 
@@ -293,6 +312,53 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
         </div>
       </div>
 
+      <div style={{
+        background: "#f5f3ee",
+        borderRadius: 12,
+        padding: "18px 24px",
+        marginBottom: 24,
+        border: "1.5px solid #e5e1d8",
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <strong style={{
+            fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif",
+            fontSize: "0.85rem",
+            fontWeight: 600,
+            color: "#0B2B1E",
+          }}>
+            Total Mastery
+          </strong>
+          <span style={{
+            fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif",
+            fontSize: "0.8rem",
+            color: "#6b6860",
+          }}>
+            {certifiedCount}/3 modules certified
+          </span>
+        </div>
+        <div style={{ background: "#e5e1d8", borderRadius: 6, height: 8, overflow: "hidden" }}>
+          <div style={{
+            background: "#0B2B1E",
+            height: "100%",
+            width: `${Math.round((certifiedCount / 3) * 100)}%`,
+            borderRadius: 6,
+            transition: "width 0.4s ease",
+          }} />
+        </div>
+        <p style={{
+          margin: "8px 0 0",
+          fontSize: "0.75rem",
+          color: "#a39e95",
+          fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif",
+        }}>
+          {certifiedCount === 0
+            ? "Complete all 4 stages in a module to earn your first certification."
+            : certifiedCount === 3
+            ? "All modules certified — full mastery achieved."
+            : `${3 - certifiedCount} module${3 - certifiedCount !== 1 ? "s" : ""} remaining to reach full mastery.`}
+        </p>
+      </div>
+
       <div className="progress-metric-grid">
         {MOMENTUM_METRICS.map((metric) => (
           <article key={metric.icon} className="progress-metric-card sbe-momentum-card">
@@ -340,57 +406,147 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
         <section className="progress-panel">
           <div className="progress-panel-header">
             <h2>Badges &amp; Achievements</h2>
-            <span>Earn badges by completing each stage per module</span>
+            <span>Certifications · Milestones · Skill Drills</span>
           </div>
 
-          <div className="badge-legend">
-            <span className="badge-legend-label">Badge progression:</span>
-            <div className="badge-legend-items">
-              {BADGE_LEGEND.map((item) => (
-                <div key={item.label} className="badge-legend-item">
-                  <span className="badge-legend-icon">{item.icon}</span>
-                  <strong>{item.label}</strong>
-                  <span className="badge-legend-note">{item.note}</span>
+          {/* Tier 1 — Module Certifications */}
+          <div style={{ marginBottom: 28 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
+              <h3 style={{ margin: 0, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.06em", color: "#6b6860", fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif", fontWeight: 600 }}>Module Certifications</h3>
+              <span style={{ fontSize: "0.73rem", color: "#a39e95" }}>All 4 stages required</span>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+              {MODULE_CERTS.map((cert) => (
+                <div
+                  key={cert.mod}
+                  style={{
+                    background: cert.certified ? "#0B2B1E" : "#f5f3ee",
+                    borderRadius: 10,
+                    padding: "18px 12px",
+                    textAlign: "center",
+                    border: cert.certified ? "none" : "1.5px solid #e5e1d8",
+                  }}
+                >
+                  <div style={{
+                    fontSize: 26,
+                    lineHeight: 1,
+                    marginBottom: 8,
+                    color: cert.certified ? "#a3e635" : "#c9c4bb",
+                    fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif",
+                  }}>
+                    {cert.certified ? "★" : "–"}
+                  </div>
+                  <strong style={{
+                    display: "block",
+                    fontSize: "0.76rem",
+                    fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif",
+                    fontWeight: 600,
+                    color: cert.certified ? "#fff" : "#5a5650",
+                    marginBottom: 4,
+                    lineHeight: 1.3,
+                  }}>
+                    {cert.label}
+                  </strong>
+                  <span style={{
+                    fontSize: "0.68rem",
+                    color: cert.certified ? "rgba(255,255,255,0.6)" : "#a39e95",
+                    fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif",
+                  }}>
+                    {cert.certified ? "Certified" : cert.sub}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="progress-badges-container">
-            {BADGE_STAGES.map((stageData) => (
-              <div key={stageData.stage} className="badge-stage">
-                <div className="badge-stage-header">
-                  <div className="badge-stage-title">
-                    <h3>{stageData.stage}</h3>
-                    {stageData.masteryComplete && (
-                      <span className="badge-mastery-note">✓ All modules complete</span>
-                    )}
-                  </div>
-                  {"desc" in stageData && stageData.desc && (
-                    <span className="badge-stage-desc">{stageData.desc}</span>
-                  )}
+          {/* Tier 2 — Tactical Experience */}
+          <div style={{ marginBottom: 28 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
+              <h3 style={{ margin: 0, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.06em", color: "#6b6860", fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif", fontWeight: 600 }}>Tactical Experience</h3>
+              <span style={{ fontSize: "0.73rem", color: "#a39e95" }}>Performance milestones</span>
+            </div>
+            <div className="badge-row">
+              <div
+                className={`badge-item ${isVeteran ? "earned" : "tba"}`}
+                title={isVeteran ? `${totalSessions} sessions completed` : "Complete 25 training sessions to unlock"}
+              >
+                <div className="badge-shield">
+                  <span className="badge-icon">{isVeteran ? "▲" : "–"}</span>
                 </div>
-                <div className={`badge-row badge-row-${stageData.badges.length}`}>
-                  {stageData.badges.map((badge) => (
-                    <div
-                      key={badge.id}
-                      className={`badge-item ${badge.earned ? "earned" : "tba"}`}
-                      title={badge.earnedNote || "Not yet earned"}
-                    >
-                      <div className="badge-shield">
-                        <span className="badge-icon">{badge.icon}</span>
-                      </div>
-                      <div className="badge-label">
-                        <strong>{badge.label}</strong>
-                        {badge.earned && badge.earnedNote && (
-                          <span className="badge-note">{badge.earnedNote}</span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                <div className="badge-label">
+                  <strong>Veteran</strong>
+                  <span className="badge-note">{isVeteran ? `${totalSessions} sessions done` : `${totalSessions}/25 sessions`}</span>
                 </div>
               </div>
-            ))}
+              <div
+                className={`badge-item ${isPrecisionExpert ? "earned" : "tba"}`}
+                title={isPrecisionExpert ? "Perfect 25/25 achieved" : "Achieve a 25/25 avg score in any module"}
+              >
+                <div className="badge-shield">
+                  <span className="badge-icon">{isPrecisionExpert ? "★" : "–"}</span>
+                </div>
+                <div className="badge-label">
+                  <strong>Precision Expert</strong>
+                  <span className="badge-note">{isPrecisionExpert ? "Perfect score achieved" : "25/25 avg to unlock"}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Tier 3 — Skill Drills */}
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
+              <h3 style={{ margin: 0, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.06em", color: "#6b6860", fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif", fontWeight: 600 }}>Skill Drills</h3>
+              <span style={{ fontSize: "0.73rem", color: "#a39e95" }}>Stage-by-stage progress</span>
+            </div>
+            <div className="badge-legend">
+              <span className="badge-legend-label">Badge progression:</span>
+              <div className="badge-legend-items">
+                {BADGE_LEGEND.map((item) => (
+                  <div key={item.label} className="badge-legend-item">
+                    <span className="badge-legend-icon">{item.icon}</span>
+                    <strong>{item.label}</strong>
+                    <span className="badge-legend-note">{item.note}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="progress-badges-container">
+              {BADGE_STAGES.map((stageData) => (
+                <div key={stageData.stage} className="badge-stage">
+                  <div className="badge-stage-header">
+                    <div className="badge-stage-title">
+                      <h3>{stageData.stage}</h3>
+                      {stageData.masteryComplete && (
+                        <span className="badge-mastery-note">All modules complete</span>
+                      )}
+                    </div>
+                    {"desc" in stageData && stageData.desc && (
+                      <span className="badge-stage-desc">{stageData.desc}</span>
+                    )}
+                  </div>
+                  <div className={`badge-row badge-row-${stageData.badges.length}`}>
+                    {stageData.badges.map((badge) => (
+                      <div
+                        key={badge.id}
+                        className={`badge-item ${badge.earned ? "earned" : "tba"}`}
+                        title={badge.earnedNote || "Not yet earned"}
+                      >
+                        <div className="badge-shield">
+                          <span className="badge-icon">{badge.icon}</span>
+                        </div>
+                        <div className="badge-label">
+                          <strong>{badge.label}</strong>
+                          {badge.earned && badge.earnedNote && (
+                            <span className="badge-note">{badge.earnedNote}</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
