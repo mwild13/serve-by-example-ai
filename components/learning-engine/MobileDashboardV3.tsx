@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import {
   Menu, Flame, Play, ArrowRight, Sparkles, X, Home,
@@ -110,7 +110,58 @@ function computeStreak(): number {
 }
 
 // ── AI Coach bottom sheet ──────────────────────────────────────
+type ChatMessage = { role: "user" | "assistant"; text: string };
+
+const PRESET_QUESTIONS = [
+  "Quiz me on tonight's specials",
+  "Roleplay: angry guest, missing entrée",
+  "What's the spec for an Old Fashioned?",
+];
+
 function AICoachSheet({ onClose }: { onClose: () => void }) {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, isLoading]);
+
+  async function askCoach(question: string) {
+    const trimmed = question.trim();
+    if (!trimmed || isLoading) return;
+    setError("");
+    setIsLoading(true);
+    setMessages((prev) => [...prev, { role: "user", text: trimmed }]);
+    try {
+      const res = await fetch("/api/coach", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: trimmed, language: "en-AU" }),
+      });
+      const data = (await res.json()) as { answer?: string; error?: string };
+      if (!res.ok || !data.answer) throw new Error(data.error || "Could not get a response.");
+      setMessages((prev) => [...prev, { role: "assistant", text: data.answer! }]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "AI Coach is unavailable right now.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  function handleSubmit(e: { preventDefault(): void }) {
+    e.preventDefault();
+    const q = input;
+    setInput("");
+    askCoach(q);
+  }
+
+  const hasConversation = messages.length > 0 || isLoading;
+
   return (
     <div
       style={{ position: "absolute", inset: 0, zIndex: 80 }}
@@ -123,13 +174,17 @@ function AICoachSheet({ onClose }: { onClose: () => void }) {
           position: "absolute", left: 0, right: 0, bottom: 0,
           background: C.parchment,
           color: C.ink,
-          padding: "14px 18px 32px",
+          padding: "14px 18px 0",
           borderRadius: "12px 12px 0 0",
-          maxHeight: "70%",
+          maxHeight: "78%",
           display: "flex", flexDirection: "column",
+          paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)",
         }}
       >
+        {/* drag handle */}
         <div style={{ width: 36, height: 4, background: C.cardEdge, borderRadius: 2, margin: "0 auto 14px" }} />
+
+        {/* header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 28, height: 28, background: C.green, color: C.parchment, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 14 }}>
@@ -141,46 +196,90 @@ function AICoachSheet({ onClose }: { onClose: () => void }) {
             <X size={20} />
           </button>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
-          {[
-            "Quiz me on tonight's specials",
-            "Roleplay: angry guest, missing entrée",
-            "What's the spec for an Old Fashioned?",
-          ].map((q) => (
-            <button
-              key={q}
-              style={{
-                textAlign: "left",
-                background: C.card,
-                border: `1px solid ${C.cardEdge}`,
-                padding: "12px 14px",
-                fontFamily: SANS,
-                fontSize: 13,
-                cursor: "pointer",
-                borderRadius: 4,
-                display: "flex", alignItems: "center", gap: 10,
-                color: C.ink,
-              }}
-            >
-              <span style={{ color: C.green }}><Sparkles size={13} /></span>
-              <span>{q}</span>
-            </button>
-          ))}
-        </div>
-        <div
-          style={{
-            display: "flex", gap: 8, alignItems: "center",
-            background: C.card,
-            border: `1px solid ${C.cardEdge}`,
-            padding: "10px 14px", borderRadius: 4,
-          }}
-        >
+
+        {/* conversation or preset prompts */}
+        {hasConversation ? (
+          <div
+            ref={scrollRef}
+            style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10, marginBottom: 12 }}
+          >
+            {messages.map((msg, i) => (
+              <div
+                key={i}
+                style={{
+                  alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
+                  maxWidth: "85%",
+                  background: msg.role === "user" ? C.green : C.card,
+                  color: msg.role === "user" ? C.parchment : C.ink,
+                  border: msg.role === "assistant" ? `1px solid ${C.cardEdge}` : "none",
+                  borderRadius: 8,
+                  padding: "10px 13px",
+                  fontSize: 13,
+                  lineHeight: 1.5,
+                  fontFamily: SANS,
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                {msg.text}
+              </div>
+            ))}
+            {isLoading && (
+              <div style={{
+                alignSelf: "flex-start", background: C.card, border: `1px solid ${C.cardEdge}`,
+                borderRadius: 8, padding: "10px 13px", fontSize: 13, color: C.inkMute, fontFamily: SANS,
+              }}>
+                Thinking…
+              </div>
+            )}
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+            {PRESET_QUESTIONS.map((q) => (
+              <button
+                key={q}
+                onClick={() => askCoach(q)}
+                style={{
+                  textAlign: "left",
+                  background: C.card,
+                  border: `1px solid ${C.cardEdge}`,
+                  padding: "12px 14px",
+                  fontFamily: SANS,
+                  fontSize: 13,
+                  cursor: "pointer",
+                  borderRadius: 4,
+                  display: "flex", alignItems: "center", gap: 10,
+                  color: C.ink,
+                }}
+              >
+                <span style={{ color: C.green }}><Sparkles size={13} /></span>
+                <span>{q}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* error */}
+        {error && (
+          <div style={{ fontSize: 12, color: "#c0392b", marginBottom: 10, fontFamily: SANS }}>{error}</div>
+        )}
+
+        {/* input */}
+        <form onSubmit={handleSubmit} style={{ display: "flex", gap: 8, alignItems: "center", background: C.card, border: `1px solid ${C.cardEdge}`, padding: "10px 14px", borderRadius: 4 }}>
           <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
             placeholder="Ask anything…"
             style={{ flex: 1, border: "none", background: "transparent", outline: "none", fontFamily: SANS, fontSize: 14, color: C.ink }}
           />
-          <span style={{ color: C.inkMute }}><Mic size={17} /></span>
-        </div>
+          <button
+            type="submit"
+            disabled={isLoading || !input.trim()}
+            style={{ background: "none", border: "none", cursor: input.trim() ? "pointer" : "default", padding: 0, color: input.trim() ? C.green : C.inkMute, display: "flex" }}
+            aria-label="Send"
+          >
+            <Mic size={17} />
+          </button>
+        </form>
       </div>
     </div>
   );
