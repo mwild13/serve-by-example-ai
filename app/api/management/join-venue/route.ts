@@ -3,8 +3,6 @@ import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { syncMasteryToVenueStaff } from "@/lib/mastery";
 
-export const runtime = "edge";
-
 export async function POST(req: Request) {
   try {
     const { user } = await getUserFromRequest(req);
