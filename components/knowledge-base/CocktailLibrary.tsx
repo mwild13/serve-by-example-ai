@@ -91,7 +91,7 @@ function DetailSheet({
         </div>
 
         {/* scrollable body */}
-        <div style={{ overflowY: "auto", WebkitOverflowScrolling: "touch" as "touch", flex: 1, padding: "16px 20px" }}>
+        <div style={{ overflowY: "auto", WebkitOverflowScrolling: "touch" as const, flex: 1, padding: "16px 20px" }}>
 
           {/* Ingredients + Method side by side on wider, stacked on narrow */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
@@ -175,7 +175,7 @@ function DetailSheet({
 
 export default function CocktailLibrary() {
   const [activeCategory, setActiveCategory] = useState<Category | "all">("all");
-  const [purposeFilter, setPurposeFilter] = useState<PurposeFilter>("all");
+  const [purposeFilter] = useState<PurposeFilter>("all");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Cocktail | null>(null);
   const [practiceAdded, setPracticeAdded] = useState<Set<string>>(new Set());
