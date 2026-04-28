@@ -133,12 +133,23 @@ export async function POST(req: Request) {
         } else {
           inviteLink = linkData?.properties?.action_link ?? undefined;
 
-          // Step 2: Send invite email via Brevo API (direct — no Supabase SMTP needed).
+          // Step 2: Send invite email via Brevo API using template.
           const brevoApiKey = process.env.BREVO_API_KEY;
           if (brevoApiKey && inviteLink) {
             try {
-              const fromEmail = process.env.BREVO_FROM_EMAIL ?? "noreply@serve-by-example.com";
-              const fromName = process.env.BREVO_FROM_NAME ?? "Serve By Example";
+              // Fetch venue name for the template param.
+              let venueName = "Serve By Example";
+              if (venueId) {
+                const { data: venueData } = await admin
+                  .from("venues")
+                  .select("name")
+                  .eq("id", venueId)
+                  .single();
+                if (venueData?.name) {
+                  venueName = venueData.name;
+                }
+              }
+
               const emailRes = await fetch("https://api.brevo.com/v3/smtp/email", {
                 method: "POST",
                 headers: {
@@ -147,21 +158,13 @@ export async function POST(req: Request) {
                   Accept: "application/json",
                 },
                 body: JSON.stringify({
-                  sender: { name: fromName, email: fromEmail },
                   to: [{ email, name }],
-                  subject: `You've been invited to join ${fromName}`,
-                  htmlContent: `
-                    <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px">
-                      <h2 style="margin-bottom:8px">You&apos;ve been invited!</h2>
-                      <p style="color:#555">Hi ${name},</p>
-                      <p style="color:#555">You&apos;ve been added as a staff member on <strong>Serve By Example</strong>. Click the button below to set up your account and start your training.</p>
-                      <p style="margin:32px 0">
-                        <a href="${inviteLink}" style="background:#22c55e;color:#fff;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-block">Accept invitation</a>
-                      </p>
-                      <p style="color:#aaa;font-size:13px">If the button doesn&apos;t work, copy and paste this link into your browser:<br>${inviteLink}</p>
-                      <p style="color:#aaa;font-size:13px">This link expires in 7 days.</p>
-                    </div>
-                  `,
+                  templateId: 2,
+                  params: {
+                    STAFF_NAME: name,
+                    VENUE_NAME: venueName,
+                    INVITE_LINK: inviteLink,
+                  },
                 }),
               });
 
