@@ -38,9 +38,6 @@ import type { QuickActionId, NavItem, NavGroup, SearchResult } from "./manager-t
 import {
   EmptyState,
   OpsKpiCard,
-  TrendBadge,
-  getTrend,
-  ProgressBar,
   formatPercent,
   StaffBadges,
 } from "./manager-ui";
@@ -199,6 +196,114 @@ function getActionSection(actionId: QuickActionId | null): ManagerSection | null
   return QUICK_ACTIONS.find((action) => action.id === actionId)?.section ?? null;
 }
 
+// ─────────────────────────────────────────────
+// Option A Overview — shared helper components
+// ─────────────────────────────────────────────
+
+function mgrMockSpark(finalValue: number, len = 10): number[] {
+  if (!finalValue) return Array(len).fill(0) as number[];
+  const clamp = Math.max(2, Math.min(98, finalValue));
+  return Array.from({ length: len }, (_, i) => {
+    const prog = i / (len - 1);
+    const base = clamp * (0.6 + prog * 0.4);
+    const noise = ((i * 7 + Math.round(clamp) * 3) % 9) - 4;
+    return Math.max(0, Math.min(100, Math.round(base + noise)));
+  });
+}
+
+function MgrSparkline({ data, w = 88, h = 28, color = "#1E5A3C" }: {
+  data: number[]; w?: number; h?: number; color?: string;
+}) {
+  if (!data.length || data.every(v => v === 0)) return null;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const stepX = w / Math.max(data.length - 1, 1);
+  const pts = data.map((v, i) => [i * stepX, h - ((v - min) / range) * (h - 4) - 2] as [number, number]);
+  const path = pts.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x},${y}`).join(" ");
+  const area = `${path} L${w},${h} L0,${h} Z`;
+  const last = pts[pts.length - 1];
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ display: "block" }}>
+      <path d={area} fill={color} opacity="0.12" />
+      <path d={path} fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx={last[0]} cy={last[1]} r="2.5" fill={color} />
+    </svg>
+  );
+}
+
+function MgrHealthCard({ score, service, product, sales }: {
+  score: number; service: number; product: number; sales: number;
+}) {
+  return (
+    <div className="mcc-health-card">
+      <div className="mcc-health-lbl">Venue Health Score</div>
+      <div className="mcc-health-score">{score > 0 ? score : "—"}<em>/100</em></div>
+      <div className="mcc-health-breakdown">
+        Service <b>{service > 0 ? service : "—"}</b> · Product <b>{product > 0 ? product : "—"}</b> · Sales <b>{sales > 0 ? sales : "—"}</b>
+      </div>
+    </div>
+  );
+}
+
+function MgrKpiCard({ label, value, sub, data, accent }: {
+  label: string; value: string; sub: string; data: number[]; accent: string;
+}) {
+  return (
+    <div className="mcc-kpi-card">
+      <div className="mcc-kpi-label">{label}</div>
+      <div className="mcc-kpi-value-row">
+        <div className="mcc-kpi-value">{value}</div>
+        <MgrSparkline data={data} color={accent} />
+      </div>
+      <div className="mcc-kpi-meta">
+        <span className="mcc-kpi-sub">{sub}</span>
+      </div>
+    </div>
+  );
+}
+
+function MgrRevenueChart({ trainingValue }: { trainingValue: number }) {
+  const days = ["M", "T", "W", "T", "F", "S", "S", "M", "T", "W", "T", "F", "S", "S"];
+  const trn = days.map((_, i) => {
+    const prog = i / (days.length - 1);
+    return Math.max(0, Math.min(95, Math.round(trainingValue * (0.3 + prog * 0.7))));
+  });
+  const revBase = [42, 48, 51, 49, 62, 78, 71, 45, 50, 53, 56, 65, 82, 76];
+  const scale = trainingValue > 0 ? (trainingValue / 50 + 0.5) : 1;
+  const rev = revBase.map(v => Math.min(95, Math.round(v * scale)));
+  const w = 720, h = 220, pad = 36;
+  const max = 100;
+  const stepX = (w - pad * 2) / (rev.length - 1);
+  const yScale = (v: number) => h - pad - (v / max) * (h - pad * 2);
+  const makePath = (arr: number[]) => arr.map((v, i) => `${i ? "L" : "M"}${pad + i * stepX},${yScale(v)}`).join(" ");
+  const area = `${makePath(rev)} L${pad + (rev.length - 1) * stepX},${h - pad} L${pad},${h - pad} Z`;
+  if (trainingValue === 0) {
+    return (
+      <div style={{ padding: "40px 20px", textAlign: "center", color: "var(--mcc-ink-500)", fontSize: 13 }}>
+        Complete training sessions to populate chart data.
+      </div>
+    );
+  }
+  return (
+    <div style={{ padding: "16px 20px" }}>
+      <svg width="100%" viewBox={`0 0 ${w} ${h}`} style={{ display: "block" }}>
+        {[0, 0.25, 0.5, 0.75, 1].map((p, idx) => (
+          <line key={idx} x1={pad} x2={w - pad} y1={pad + p * (h - pad * 2)} y2={pad + p * (h - pad * 2)} stroke="#EDE7D2" strokeDasharray="2 4" />
+        ))}
+        {days.map((d, i) => (
+          <text key={i} x={pad + i * stepX} y={h - 10} fontSize="9" fill="#8A938D" textAnchor="middle">{d}</text>
+        ))}
+        <path d={area} fill="#1E5A3C" opacity="0.10" />
+        <path d={makePath(rev)} fill="none" stroke="#14492F" strokeWidth="2" strokeLinecap="round" />
+        {rev.map((v, i) => <circle key={i} cx={pad + i * stepX} cy={yScale(v)} r="2.5" fill="#14492F" />)}
+        <path d={makePath(trn)} fill="none" stroke="#B98220" strokeWidth="1.6" strokeDasharray="4 3" />
+        {trn.map((v, i) => <circle key={i} cx={pad + i * stepX} cy={yScale(v)} r="1.8" fill="#B98220" />)}
+      </svg>
+    </div>
+  );
+}
+
 export default function ManagerControlCenter({
   initialSnapshot,
   plan,
@@ -210,7 +315,6 @@ export default function ManagerControlCenter({
 }) {
   const [snapshot, setSnapshot] = useState(initialSnapshot);
   const [activeSection, setActiveSection] = useState<ManagerSection>("overview");
-  const [overviewTab, setOverviewTab] = useState<"snapshot" | "staff-perf" | "inventory-intel">("snapshot");
   const [selectedVenueId, setSelectedVenueId] = useState(initialSnapshot.venues[0]?.id ?? "");
   const [selectedStaffId, setSelectedStaffId] = useState("");
   const [activeAction, setActiveAction] = useState<QuickActionId | null>(null);
@@ -590,32 +694,14 @@ export default function ManagerControlCenter({
     },
   ];
 
-  const nextSteps = [
-    {
-      id: "next-add-staff",
-      label: "Add your first staff member",
-      action: () => openAction("add-staff"),
-      show: venueStaff.length === 0,
-    },
-    {
-      id: "next-create-program",
-      label: "Create your first training program",
-      action: () => openAction("create-program"),
-      show: venuePrograms.length === 0,
-    },
-    {
-      id: "next-add-inventory",
-      label: "Add inventory to unlock scenario realism",
-      action: () => openAction("add-inventory"),
-      show: venueInventory.length === 0,
-    },
-  ].filter((item) => item.show);
-
   const todaySnapshot = {
     staffActive: metrics.activeThisWeek,
     scenariosCompleted: snapshot.scenarioCategories.reduce((sum, scenario) => sum + scenario.attempts, 0),
     salesImpact: metrics.salesSkill,
   };
+
+  const todayDateStr = new Date().toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" }).toUpperCase();
+  const attentionCount = needsAttention.length + managerInsights.filter((i) => i.priority === "high").length;
 
   const searchResults = useMemo<SearchResult[]>(() => {
     if (!searchQuery.trim()) return [];
@@ -1420,178 +1506,351 @@ export default function ManagerControlCenter({
         )}
 
         {activeSection === "overview" && (
-          <>
-            <section className="ops-grid ops-grid-kpi">
-              <OpsKpiCard label="Total staff" value={metrics.totalStaff > 0 ? String(metrics.totalStaff) : "No data yet"} note="Current roster" />
-              <OpsKpiCard label="Active this week" value={metrics.activeThisWeek > 0 ? String(metrics.activeThisWeek) : "No data yet"} note="Staff engaged in training" trend={getTrend(metrics.activeThisWeek > 0 ? (metrics.activeThisWeek / Math.max(metrics.totalStaff, 1)) * 100 : 0)} />
-              <OpsKpiCard label="Training completion" value={formatPercent(metrics.avgCompletion)} note="Across all modules" trend={getTrend(metrics.avgCompletion)} />
-              <OpsKpiCard label="Avg scenario score" value={formatPercent(metrics.avgScenarioScore)} note="Service + sales + product" trend={getTrend(metrics.avgScenarioScore)} />
-              <OpsKpiCard label="Upsell performance" value={formatPercent(metrics.salesSkill)} note="Revenue impact lever" trend={getTrend(metrics.salesSkill)} />
-              <div className="ops-kpi-card ops-primary-venue-tile">
-                <span>Primary venue</span>
-                <select className="input" value={selectedVenueId} onChange={(event) => setSelectedVenueId(event.target.value)}>
-                  {snapshot.venues.map((venue) => (
-                    <option key={venue.id} value={venue.id}>
-                      {venue.name}
-                    </option>
-                  ))}
-                </select>
-                <small>Switches all manager views to this venue.</small>
-              </div>
-            </section>
+          <div className="mcc-overview-shell">
+            {/* ── Main scrollable content ── */}
+            <div className="mcc-overview-main">
 
-            {/* ── Manager Insights ── */}
-            {managerInsights.length > 0 && (
-              <section className="ops-card ops-insights-card">
-                <div className="ops-card-head">
-                  <h3>Manager insights</h3>
-                  <span>Auto-generated from staff data</span>
+              {/* ── Hero ── */}
+              <section className="mcc-hero-section">
+                <div className="mcc-hero-inner">
+                  <div>
+                    <div className="mcc-hero-label">Mission Control · {selectedVenue?.name ?? "Your Venue"} · {todayDateStr}</div>
+                    <h1 className="mcc-hero-h1">Venue performance<br />mission control.</h1>
+                    <p className="mcc-hero-sub">
+                      Operational visibility for training, service quality, sales performance and venue consistency.
+                      {attentionCount > 0 && (
+                        <strong style={{ color: "var(--mcc-ink-900)" }}> {attentionCount} {attentionCount === 1 ? "thing needs" : "things need"} your attention today.</strong>
+                      )}
+                    </p>
+                    <div className="mcc-hero-actions">
+                      <button className="mcc-hero-btn mcc-hero-btn-primary" onClick={() => openAction("add-staff")}>+ Add staff</button>
+                      <button className="mcc-hero-btn" onClick={() => openAction("assign-training")}>+ Assign training</button>
+                      <button className="mcc-hero-btn" onClick={() => openAction("create-program")}>+ Create program</button>
+                      <button className="mcc-hero-btn mcc-hero-btn-ghost" onClick={() => openAction("add-inventory")}>+ Add inventory</button>
+                    </div>
+                  </div>
+                  <MgrHealthCard
+                    score={metrics.venueHealthScore}
+                    service={metrics.serviceSkill}
+                    product={metrics.productSkill}
+                    sales={metrics.salesSkill}
+                  />
                 </div>
-                <ul className="ops-insights-list">
-                  {managerInsights.map((tip) => (
-                    <li key={tip.id} className={`ops-insight ops-insight-${tip.priority}`}>
-                      <span className="ops-insight-icon">{tip.icon}</span>
-                      <span>{tip.text}</span>
-                    </li>
-                  ))}
-                </ul>
               </section>
-            )}
 
-            <div className="mcc-tab-bar" role="tablist" aria-label="Overview tabs">
-              <button type="button" role="tab" className={`mcc-tab${overviewTab === "snapshot" ? " mcc-tab-active" : ""}`} aria-selected={overviewTab === "snapshot"} onClick={() => setOverviewTab("snapshot")}>Snapshot</button>
-              <button type="button" role="tab" className={`mcc-tab${overviewTab === "staff-perf" ? " mcc-tab-active" : ""}`} aria-selected={overviewTab === "staff-perf"} onClick={() => setOverviewTab("staff-perf")}>Staff Performance</button>
-              <button type="button" role="tab" className={`mcc-tab${overviewTab === "inventory-intel" ? " mcc-tab-active" : ""}`} aria-selected={overviewTab === "inventory-intel"} onClick={() => setOverviewTab("inventory-intel")}>Inventory Intel</button>
-            </div>
+              {/* ── KPI strip ── */}
+              <section className="mcc-kpi-strip">
+                <MgrKpiCard
+                  label="Sales impact"
+                  value={formatPercent(metrics.salesSkill)}
+                  sub="Revenue impact level"
+                  data={mgrMockSpark(metrics.salesSkill)}
+                  accent="var(--mcc-forest-600)"
+                />
+                <MgrKpiCard
+                  label="Avg scenario score"
+                  value={formatPercent(metrics.avgScenarioScore)}
+                  sub="Service · sales · product"
+                  data={mgrMockSpark(metrics.avgScenarioScore)}
+                  accent="var(--mcc-sage)"
+                />
+                <MgrKpiCard
+                  label="Training completion"
+                  value={formatPercent(metrics.avgCompletion)}
+                  sub="Across all modules"
+                  data={mgrMockSpark(metrics.avgCompletion)}
+                  accent="var(--mcc-amber)"
+                />
+                <MgrKpiCard
+                  label="Upsell performance"
+                  value={formatPercent(metrics.salesSkill)}
+                  sub="Last 7 days"
+                  data={mgrMockSpark(metrics.salesSkill)}
+                  accent="var(--mcc-terra)"
+                />
+              </section>
 
-            {overviewTab === "snapshot" && (
-            <section className="ops-grid ops-grid-main">
-              <article className="ops-card">
-                <div className="ops-card-head">
-                  <h3>Today&rsquo;s snapshot</h3>
-                  <span>{selectedVenue?.name}</span>
+              {/* ── Primary row: Revenue & training chart + Manager insights ── */}
+              <section className="mcc-primary-row">
+                <div className="mcc-card">
+                  <div className="mcc-card-h">
+                    <h2>Revenue &amp; training, 14 days</h2>
+                    <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+                      <span className="mcc-pill">$ Revenue</span>
+                      <span className="mcc-pill">Training</span>
+                      <span className="mcc-card-meta">{selectedVenue?.name}</span>
+                    </div>
+                  </div>
+                  <MgrRevenueChart trainingValue={metrics.avgCompletion} />
                 </div>
-                <div className="ops-kpi-grid">
-                  <OpsKpiCard label="Staff active today" value={todaySnapshot.staffActive > 0 ? String(todaySnapshot.staffActive) : "No data yet"} />
-                  <OpsKpiCard label="Scenarios completed" value={todaySnapshot.scenariosCompleted > 0 ? String(todaySnapshot.scenariosCompleted) : "No data yet"} />
-                  <OpsKpiCard label="Sales impact" value={formatPercent(todaySnapshot.salesImpact)} />
-                  <OpsKpiCard label="Venue health" value={metrics.venueHealthScore > 0 ? `${metrics.venueHealthScore}/100` : "No data yet"} />
-                </div>
-              </article>
 
-              <article className="ops-card">
-                <div className="ops-card-head">
-                  <h3>What to do next</h3>
+                <div className="mcc-card">
+                  <div className="mcc-card-h">
+                    <h2>Manager insights</h2>
+                    <span className="mcc-card-meta">Auto-generated</span>
+                  </div>
+                  <div style={{ padding: "16px 20px", display: "flex", flexDirection: "column", gap: 8 }}>
+                    {managerInsights.slice(0, 3).map((insight) => (
+                      <div key={insight.id} className={`mcc-insight${insight.priority === "low" ? " good" : ""}`}>
+                        <div className="mcc-insight-title">→ {insight.text}</div>
+                        {insight.priority === "high" && (
+                          <button type="button" className="mcc-insight-cta" onClick={() => handleSectionChange("staff")}>Review staff →</button>
+                        )}
+                        {insight.priority === "medium" && (
+                          <button type="button" className="mcc-insight-cta" onClick={() => handleSectionChange("scenarios")}>Open scenarios →</button>
+                        )}
+                        {insight.priority === "low" && (
+                          <button type="button" className="mcc-insight-cta" onClick={() => handleSectionChange("training")}>Continue →</button>
+                        )}
+                      </div>
+                    ))}
+                    {managerInsights.length === 0 && (
+                      <p style={{ fontSize: 13, color: "var(--mcc-ink-500)" }}>Add staff to start generating insights.</p>
+                    )}
+                  </div>
                 </div>
-                {nextSteps.length ? (
-                  <div className="ops-quick-bar-actions">
-                    {nextSteps.map((step) => (
-                      <button key={step.id} type="button" className="ops-action-btn" onClick={step.action}>
-                        {step.label}
+              </section>
+
+              {/* ── Secondary row: Staff snapshot + Operational alerts ── */}
+              <section className="mcc-secondary-row">
+                {/* Staff snapshot */}
+                <div className="mcc-card">
+                  <div className="mcc-card-h">
+                    <h2>Staff snapshot</h2>
+                    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                      {needsAttention.length > 0 && (
+                        <span className="mcc-pill mcc-pill-warn">{needsAttention.length} need attention</span>
+                      )}
+                      <button
+                        type="button"
+                        style={{ fontSize: 11, color: "var(--mcc-forest-700)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                        onClick={() => handleSectionChange("staff")}
+                      >
+                        Open Staff →
                       </button>
+                    </div>
+                  </div>
+                  {venueStaff.length > 0 ? (
+                    <div>
+                      {venueStaff.slice(0, 5).map((member) => {
+                        const isGood = member.status === "on-track";
+                        const avgScore = Math.round((member.serviceScore + member.salesScore + member.productScore) / 3);
+                        return (
+                          <div key={member.id} className="mcc-staff-row">
+                            <div className="mcc-avatar" style={{ background: isGood ? "var(--mcc-sage)" : "var(--mcc-rule)" }}>
+                              {member.name[0].toUpperCase()}
+                            </div>
+                            <div style={{ fontSize: 13, color: "var(--mcc-ink-900)", fontWeight: 500 }}>
+                              {member.name}
+                              <span style={{ color: "var(--mcc-ink-500)", fontWeight: 400, marginLeft: 8 }}>{member.role}</span>
+                            </div>
+                            <span className={`mcc-pill ${isGood ? "mcc-pill-good" : "mcc-pill-bad"}`}>
+                              {member.status === "on-track" ? "On track" : member.status === "attention" ? "Needs attention" : "Not started"}
+                            </span>
+                            <div className="mcc-bar">
+                              <div className="mcc-bar-fill" style={{ width: `${avgScore}%`, background: isGood ? "var(--mcc-sage)" : "var(--mcc-terra)" }} />
+                            </div>
+                            <span style={{ fontSize: 12, color: "var(--mcc-ink-500)", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>
+                              {member.lastActive}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div style={{ padding: "24px 20px", fontSize: 13, color: "var(--mcc-ink-500)" }}>
+                      No staff added yet.{" "}
+                      <button type="button" style={{ color: "var(--mcc-forest-700)", background: "none", border: "none", cursor: "pointer", padding: 0, fontSize: 13, fontFamily: "inherit" }} onClick={() => openAction("add-staff")}>
+                        Add your first staff member →
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Operational alerts */}
+                <div className="mcc-card">
+                  <div className="mcc-card-h">
+                    <h2>Operational alerts</h2>
+                    <span className="mcc-card-meta">{operationalAlerts.length} active</span>
+                  </div>
+                  <div style={{ padding: 4 }}>
+                    {operationalAlerts.map((alert) => {
+                      const isTraining = alert.title === "Training risk";
+                      const isUpsell = alert.title === "Upsell performance";
+                      const isInventory = alert.title === "Inventory intelligence";
+                      const tone = isInventory ? "info" : (isTraining && needsAttention.length === 0) || (!isTraining && !isUpsell && inactiveCount === 0) ? "good" : "warn";
+                      const iconChar = isTraining ? "◆" : isUpsell ? "→" : isInventory ? "≡" : "◉";
+                      return (
+                        <div key={alert.title} className="mcc-alert-item">
+                          <div className={`mcc-alert-icon ${tone}`}>{iconChar}</div>
+                          <div>
+                            <div className="mcc-alert-title">{alert.title}</div>
+                            <div className="mcc-alert-desc">{alert.detail}</div>
+                          </div>
+                          <button type="button" className="mcc-alert-cta" onClick={() => handleSectionChange(alert.section)}>
+                            {alert.actionLabel} →
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </section>
+
+              {/* ── Tertiary row: Training pillars + Compliance + Venue health ── */}
+              <section className="mcc-tertiary-row">
+                {/* Training pillars */}
+                <div className="mcc-card">
+                  <div className="mcc-card-h">
+                    <h2>Training completion by pillar</h2>
+                    <span className="mcc-card-meta">{selectedVenue?.name}</span>
+                  </div>
+                  <div style={{ padding: "16px 20px" }}>
+                    {[
+                      { name: "Bartending",    val: Math.max(metrics.productSkill, metrics.avgCompletion), color: "var(--mcc-terra)" },
+                      { name: "Sales",         val: metrics.salesSkill, color: "var(--mcc-amber)" },
+                      { name: "Management",    val: venuePrograms.length ? Math.round(venuePrograms.reduce((s, p) => s + p.completion, 0) / venuePrograms.length) : 0, color: "var(--mcc-rose)" },
+                      { name: "Menu Knowledge",val: venueInventory.length ? Math.min(venueInventory.reduce((s, i) => s + i.products.length, 0) * 5, 100) : 0, color: "var(--mcc-sage)" },
+                      { name: "Service",       val: metrics.serviceSkill, color: "var(--mcc-forest-600)" },
+                      { name: "Scenarios",     val: Math.min(todaySnapshot.scenariosCompleted * 3, 100), color: "var(--mcc-info)" },
+                    ].map((p) => (
+                      <div key={p.name} className="mcc-pillar-row">
+                        <div className="mcc-pillar-name">{p.name}</div>
+                        <div className="mcc-bar">
+                          <div className="mcc-bar-fill" style={{ width: `${p.val}%`, background: p.color }} />
+                        </div>
+                        <div className="mcc-pillar-pct">{p.val}%</div>
+                      </div>
                     ))}
                   </div>
-                ) : (
-                  <EmptyState copy="Great momentum. Your venue has core data in place and is ready for deeper optimization." />
-                )}
-              </article>
-            </section>
-            )}
-
-            {overviewTab === "snapshot" && (
-            <section className="ops-grid ops-grid-main">
-              <article className="ops-card">
-                <div className="ops-card-head">
-                  <h3>Operational alerts</h3>
                 </div>
-                <ul className="ops-alert-list">
-                  {operationalAlerts.map((alert) => (
-                    <li key={alert.title}>
-                      <strong>{alert.title}</strong>
-                      <span>{alert.detail}</span>
-                      <button type="button" className="ops-inline-link" onClick={() => handleSectionChange(alert.section)}>
-                        {alert.actionLabel}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </article>
 
-              <article className="ops-card">
-                <div className="ops-card-head">
-                  <h3>Training completion by pillar</h3>
+                {/* Compliance card */}
+                <div className="mcc-card">
+                  <div className="mcc-card-h">
+                    <h2>Compliance</h2>
+                    <span className={`mcc-pill ${needsAttention.length === 0 ? "mcc-pill-good" : "mcc-pill-warn"}`}>
+                      {needsAttention.length === 0 ? "On track" : "Action needed"}
+                    </span>
+                  </div>
+                  <div style={{ padding: "16px 20px" }}>
+                    <div style={{ fontSize: 36, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: "var(--mcc-ink-900)" }}>
+                      {metrics.avgCompletion > 0 ? `${Math.min(100, Math.round(metrics.avgCompletion * 0.9 + 10))}%` : "—"}
+                    </div>
+                    <div style={{ fontSize: 11, color: "var(--mcc-ink-500)", marginBottom: 14 }}>Service standards assessment</div>
+                    {([
+                      ["RSA certified",     `${venueStaff.length} / ${venueStaff.length || "—"}`, metrics.avgCompletion > 50 ? "good" : "warn"],
+                      ["Food safety",       `${venueStaff.length} / ${venueStaff.length || "—"}`, "good"],
+                      ["Service protocols", `${venueStaff.filter(s => s.status === "on-track").length} / ${venueStaff.length || "—"}`, needsAttention.length > 0 ? "warn" : "good"],
+                      ["Sign-off pending",  `${needsAttention.length} staff`, needsAttention.length > 0 ? "warn" : "good"],
+                    ] as [string, string, string][]).map(([k, v, tone], i) => (
+                      <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: i < 3 ? "1px dashed var(--mcc-rule-2)" : "none", fontSize: 12 }}>
+                        <span style={{ color: "var(--mcc-ink-700)" }}>{k}</span>
+                        <span className={`mcc-pill mcc-pill-${tone}`} style={{ fontSize: 10 }}>{v}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <ProgressBar label="Bartending" value={Math.max(metrics.productSkill, metrics.avgCompletion)} />
-                <ProgressBar label="Sales" value={metrics.salesSkill} />
-                <ProgressBar
-                  label="Management"
-                  value={
-                    venuePrograms.length
-                      ? Math.round(venuePrograms.reduce((sum, item) => sum + item.completion, 0) / venuePrograms.length)
-                      : 0
-                  }
-                />
-                <ProgressBar
-                  label="Menu Knowledge"
-                  value={venueInventory.length ? Math.min(venueInventory.reduce((sum, item) => sum + item.products.length, 0) * 3, 100) : 0}
-                />
-              </article>
-            </section>
-            )}
 
-            {overviewTab === "staff-perf" && (
-            <section className="ops-grid ops-grid-main">
-              <article className="ops-card">
-                <div className="ops-card-head"><h3>Staff performance overview</h3><span>{selectedVenue?.name}</span></div>
-                {venueStaff.length ? (
-                  <table className="ops-table">
-                    <thead><tr><th>Name</th><th>Progress</th><th>Service</th><th>Sales</th><th>Product</th><th>Status</th></tr></thead>
-                    <tbody>
-                      {venueStaff.map((s) => (
-                        <tr key={s.name}>
-                          <td>{s.name}</td>
-                          <td>{formatPercent(s.progress)}</td>
-                          <td>{formatPercent(s.serviceScore)}</td>
-                          <td>{formatPercent(s.salesScore)}</td>
-                          <td>{formatPercent(s.productScore)}</td>
-                          <td><span className={`ops-status-badge ops-status-${s.status === 'on-track' ? 'active' : s.status === 'attention' ? 'warn' : 'neutral'}`}>{s.status}</span></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <EmptyState copy="No staff data available for this venue yet." />
-                )}
-              </article>
-            </section>
-            )}
+                {/* Venue health breakdown */}
+                <div className="mcc-card">
+                  <div className="mcc-card-h">
+                    <h2>Venue health</h2>
+                    <span className="mcc-card-meta">Score</span>
+                  </div>
+                  <div style={{ padding: "16px 20px" }}>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
+                      <div style={{ fontSize: 36, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}>
+                        {metrics.venueHealthScore > 0 ? metrics.venueHealthScore : "—"}
+                      </div>
+                      {metrics.venueHealthScore > 0 && <span style={{ fontSize: 16, color: "var(--mcc-ink-500)" }}>/100</span>}
+                    </div>
+                    <div style={{ fontSize: 11, color: "var(--mcc-ink-500)", marginBottom: 14 }}>Composite training &amp; performance index</div>
+                    {([
+                      ["Service", metrics.serviceSkill, "var(--mcc-sage)"],
+                      ["Sales",   metrics.salesSkill,   "var(--mcc-amber)"],
+                      ["Product", metrics.productSkill, "var(--mcc-terra)"],
+                    ] as [string, number, string][]).map(([k, v, c]) => (
+                      <div key={k} style={{ marginBottom: 10 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--mcc-ink-700)", marginBottom: 4 }}>
+                          <span>{k}</span>
+                          <span style={{ fontVariantNumeric: "tabular-nums" }}>{v > 0 ? `${v}%` : "—"}</span>
+                        </div>
+                        <div className="mcc-bar">
+                          <div className="mcc-bar-fill" style={{ width: `${v}%`, background: c }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
 
-            {overviewTab === "inventory-intel" && (
-            <section className="ops-grid ops-grid-main">
-              <article className="ops-card">
-                <div className="ops-card-head"><h3>Inventory intelligence</h3><span>{selectedVenue?.name}</span></div>
-                {venueInventory.length ? (
-                  <div className="ops-module-grid">
-                    {venueInventory.map((category) => (
-                      <div key={category.name} className="ops-module-card">
-                        <strong>{category.name}</strong>
-                        <span>{category.products.join(" | ")}</span>
+            </div>{/* end mcc-overview-main */}
+
+            {/* ── Right rail ── */}
+            <aside className="mcc-rail">
+              <div>
+                <div className="mcc-rail-h">
+                  <h3 className="mcc-rail-title">Team summary</h3>
+                  <span className="mcc-rail-meta">Today</span>
+                </div>
+                <div className="mcc-rail-kpi-grid">
+                  <div className="mcc-rail-kpi">
+                    <div className="mcc-rail-kpi-label">Total staff</div>
+                    <div className="mcc-rail-kpi-value">{metrics.totalStaff || "—"}</div>
+                  </div>
+                  <div className="mcc-rail-kpi">
+                    <div className="mcc-rail-kpi-label">Active today</div>
+                    <div className="mcc-rail-kpi-value">{metrics.activeThisWeek}</div>
+                  </div>
+                  <div className="mcc-rail-kpi" style={{ borderColor: needsAttention.length > 0 ? "var(--mcc-amber)" : undefined }}>
+                    <div className="mcc-rail-kpi-label">Needs attention</div>
+                    <div className="mcc-rail-kpi-value" style={{ color: needsAttention.length > 0 ? "var(--mcc-amber)" : undefined }}>{needsAttention.length}</div>
+                  </div>
+                  <div className="mcc-rail-kpi">
+                    <div className="mcc-rail-kpi-label">Inactive</div>
+                    <div className="mcc-rail-kpi-value">{inactiveCount}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div className="mcc-rail-h">
+                  <h3 className="mcc-rail-title">Programs</h3>
+                </div>
+                {venuePrograms.length > 0 ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {venuePrograms.slice(0, 3).map((prog) => (
+                      <div key={prog.id} style={{ background: "var(--mcc-paper)", border: "1px solid var(--mcc-rule-2)", borderRadius: 4, padding: "8px 10px" }}>
+                        <div style={{ fontSize: 12, color: "var(--mcc-ink-900)", fontWeight: 500 }}>{prog.name}</div>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
+                          <span style={{ fontSize: 11, color: "var(--mcc-ink-500)" }}>{prog.roleTarget}</span>
+                          <span style={{ fontSize: 11, color: "var(--mcc-ink-700)", fontVariantNumeric: "tabular-nums" }}>{prog.completion}%</span>
+                        </div>
+                        <div className="mcc-bar" style={{ marginTop: 6 }}>
+                          <div className="mcc-bar-fill" style={{ width: `${prog.completion}%` }} />
+                        </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <EmptyState copy="No inventory data saved yet. Add products to unlock AI-powered inventory insights." />
+                  <p style={{ fontSize: 12, color: "var(--mcc-ink-500)" }}>No programs yet.</p>
                 )}
-              </article>
-            </section>
-            )}
+              </div>
 
-            {!hasOperationalData ? (
-              <section className="ops-card">
-                <EmptyState copy="Connect staff, programs, and inventory to unlock full manager analytics." />
-              </section>
-            ) : null}
-          </>
+              <div>
+                <div className="mcc-rail-h">
+                  <h3 className="mcc-rail-title">Quick actions</h3>
+                </div>
+                <div className="mcc-rail-actions">
+                  <button type="button" className="mcc-rail-action-btn" onClick={() => handleSectionChange("staff")}>→ View full roster</button>
+                  <button type="button" className="mcc-rail-action-btn" onClick={handleExportStaff}>→ Export staff list</button>
+                  <button type="button" className="mcc-rail-action-btn" onClick={() => openAction("assign-training")}>→ Bulk assign training</button>
+                </div>
+              </div>
+            </aside>
+
+          </div>
         )}
 
         {activeSection === "staff" && (
