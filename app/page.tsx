@@ -660,7 +660,7 @@ export default function Home() {
               <h2>Simple, transparent pricing for every team size</h2>
               <p>Choose the plan that fits your venue. No lock-in, no hidden fees.</p>
             </div>
-            <div className="pricing-grid pricing-grid-3">
+            <div className="pricing-grid" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
 
               <div className="price-card">
                 <div className="price-tier">Free Demo</div>
@@ -674,6 +674,27 @@ export default function Home() {
                     See the Engine in Action
                   </Link>
                 </div>
+              </div>
+
+              <div className="price-card featured">
+                <div className="price-badge">Most Popular</div>
+                <div className="price-tier">Pro</div>
+                <div className="price-amount">
+                  AUD $19<span>/month</span>
+                </div>
+                <p className="price-desc">
+                  Full access for individual bartenders and hospitality professionals.
+                </p>
+                <p className="price-fit">For serious staff building career-ready skills.</p>
+                <ul>
+                  <li>All training modules</li>
+                  <li>Unlimited AI coaching</li>
+                  <li>Progress analytics</li>
+                  <li>Certificate of completion</li>
+                </ul>
+                <Link href="/login" className="btn btn-primary btn-block">
+                  Join Pro
+                </Link>
               </div>
 
               <div className="price-card price-card-recommended">
