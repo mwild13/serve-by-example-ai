@@ -1194,55 +1194,6 @@ export default function ManagerControlCenter({
           ))}
         </nav>
 
-        <header className="ops-header">
-          <div>
-            <h1>Venue performance mission control</h1>
-            <p>
-              Daily operational visibility for training, service quality, sales performance and venue consistency.
-            </p>
-          </div>
-          <div className="ops-health-card">
-            <span>Venue health score</span>
-            <strong>{metrics.venueHealthScore > 0 ? `${metrics.venueHealthScore}/100` : "No data yet"}</strong>
-            <p>
-              Service {metrics.serviceSkill || "-"} | Product {metrics.productSkill || "-"} | Sales {metrics.salesSkill || "-"}
-            </p>
-          </div>
-        </header>
-
-        <div className="ops-quick-bar">
-          <strong>Quick actions</strong>
-          <div className="ops-quick-bar-actions">
-            {QUICK_ACTIONS.map((action) => (
-              <button
-                key={action.id}
-                type="button"
-                className={`ops-action-btn${activeAction === action.id ? " active" : ""}`}
-                onClick={() => openAction(action.id)}
-              >
-                + {action.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <section className={`ops-status-banner ${snapshot.source === "database" ? "live" : "seed"}`}>
-          <div>
-            <strong>{snapshot.source === "database" ? "Live manager data connected" : "Seeded manager preview mode"}</strong>
-            <p>
-              {snapshot.source === "database"
-                ? "Staff, inventory and training programs can now move toward real venue persistence."
-                : "The UI is product-ready, but the manager tables still need to be created in Supabase before writes become real."}
-            </p>
-          </div>
-          {snapshot.notices.length ? (
-            <ul className="ops-inline-list">
-              {snapshot.notices.map((notice) => (
-                <li key={notice}>{notice}</li>
-              ))}
-            </ul>
-          ) : null}
-        </section>
 
         {((activeAction && getActionSection(activeAction) === activeSection) ||
           (activeSection === "settings" && (requestError || requestSuccess))) && (
@@ -1785,70 +1736,7 @@ export default function ManagerControlCenter({
                 </div>
               </section>
 
-            </div>{/* end mcc-overview-main */}
-
-            {/* ── Right rail ── */}
-            <aside className="mcc-rail">
-              <div>
-                <div className="mcc-rail-h">
-                  <h3 className="mcc-rail-title">Team summary</h3>
-                  <span className="mcc-rail-meta">Today</span>
-                </div>
-                <div className="mcc-rail-kpi-grid">
-                  <div className="mcc-rail-kpi">
-                    <div className="mcc-rail-kpi-label">Total staff</div>
-                    <div className="mcc-rail-kpi-value">{metrics.totalStaff || "—"}</div>
-                  </div>
-                  <div className="mcc-rail-kpi">
-                    <div className="mcc-rail-kpi-label">Active today</div>
-                    <div className="mcc-rail-kpi-value">{metrics.activeThisWeek}</div>
-                  </div>
-                  <div className="mcc-rail-kpi" style={{ borderColor: needsAttention.length > 0 ? "var(--mcc-amber)" : undefined }}>
-                    <div className="mcc-rail-kpi-label">Needs attention</div>
-                    <div className="mcc-rail-kpi-value" style={{ color: needsAttention.length > 0 ? "var(--mcc-amber)" : undefined }}>{needsAttention.length}</div>
-                  </div>
-                  <div className="mcc-rail-kpi">
-                    <div className="mcc-rail-kpi-label">Inactive</div>
-                    <div className="mcc-rail-kpi-value">{inactiveCount}</div>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <div className="mcc-rail-h">
-                  <h3 className="mcc-rail-title">Programs</h3>
-                </div>
-                {venuePrograms.length > 0 ? (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    {venuePrograms.slice(0, 3).map((prog) => (
-                      <div key={prog.id} style={{ background: "var(--mcc-paper)", border: "1px solid var(--mcc-rule-2)", borderRadius: 4, padding: "8px 10px" }}>
-                        <div style={{ fontSize: 12, color: "var(--mcc-ink-900)", fontWeight: 500 }}>{prog.name}</div>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
-                          <span style={{ fontSize: 11, color: "var(--mcc-ink-500)" }}>{prog.roleTarget}</span>
-                          <span style={{ fontSize: 11, color: "var(--mcc-ink-700)", fontVariantNumeric: "tabular-nums" }}>{prog.completion}%</span>
-                        </div>
-                        <div className="mcc-bar" style={{ marginTop: 6 }}>
-                          <div className="mcc-bar-fill" style={{ width: `${prog.completion}%` }} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p style={{ fontSize: 12, color: "var(--mcc-ink-500)" }}>No programs yet.</p>
-                )}
-              </div>
-
-              <div>
-                <div className="mcc-rail-h">
-                  <h3 className="mcc-rail-title">Quick actions</h3>
-                </div>
-                <div className="mcc-rail-actions">
-                  <button type="button" className="mcc-rail-action-btn" onClick={() => handleSectionChange("staff")}>→ View full roster</button>
-                  <button type="button" className="mcc-rail-action-btn" onClick={handleExportStaff}>→ Export staff list</button>
-                  <button type="button" className="mcc-rail-action-btn" onClick={() => openAction("assign-training")}>→ Bulk assign training</button>
-                </div>
-              </div>
-            </aside>
+            </div>
 
           </div>
         )}
