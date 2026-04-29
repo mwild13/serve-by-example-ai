@@ -551,95 +551,62 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── Pricing ──────────────────────────────── */}
+        {/* ── Scalable Training Tiers ──────────────── */}
         <section className="section section-alt">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">Pricing</span>
-              <h2>Simple, transparent pricing for every team size</h2>
-              <p>Choose the plan that fits your venue. No lock-in, no hidden fees.</p>
+              <span className="eyebrow">Scalable Training Tiers</span>
+              <h2>Built for every level of your team</h2>
+              <p>From individual staff to multi-site venue groups — one platform that grows with you.</p>
             </div>
-            <div className="pricing-grid" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.25rem", marginTop: "2rem" }}>
 
-              <div className="price-card">
-                <div className="price-tier">Free Demo</div>
-                <div className="price-amount">Free</div>
-                <p className="price-desc">
-                  Explore the training engine and see what AI-powered learning delivers.
-                </p>
-                <p className="price-fit">For individuals getting started.</p>
-                <div className="price-cta-solo">
-                  <Link href="/demo" className="btn btn-primary btn-block">
-                    See the Engine in Action
-                  </Link>
+              <div style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9ca3af" }}>Try it free</div>
+                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Free Demo</h3>
+                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Experience the AI training engine first-hand — no commitment required. See what your team would be working with before making a decision.</p>
+                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For individuals who want to explore the platform.</p>
+                <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
+                  <Link href="/demo" className="btn btn-primary btn-block">Try the Demo</Link>
                 </div>
               </div>
 
-              <div className="price-card featured">
-                <div className="price-badge">Most Popular</div>
-                <div className="price-tier">Pro</div>
-                <div className="price-amount">
-                  AUD $19<span>/month</span>
+              <div style={{ background: "white", border: "2px solid #0B2B1E", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem", position: "relative" }}>
+                <div style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: "#0B2B1E", color: "white", fontSize: "0.65rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", borderRadius: "999px", padding: "4px 14px" }}>Most Popular</div>
+                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#16a34a" }}>Individual</div>
+                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Pro</h3>
+                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Full access to all training modules, unlimited AI coaching and progress analytics. Build career-ready skills at your own pace.</p>
+                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For bartenders and hospitality staff investing in their craft.</p>
+                <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
+                  <Link href="/pricing" className="btn btn-primary btn-block">See Pro Pricing</Link>
                 </div>
-                <p className="price-desc">
-                  Full access for individual bartenders and hospitality professionals.
-                </p>
-                <p className="price-fit">For serious staff building career-ready skills.</p>
-                <ul>
-                  <li>All training modules</li>
-                  <li>Unlimited AI coaching</li>
-                  <li>Progress analytics</li>
-                  <li>Certificate of completion</li>
-                </ul>
-                <Link href="/login" className="btn btn-primary btn-block">
-                  Join Pro
-                </Link>
               </div>
 
-              <div className="price-card price-card-recommended">
-                <div className="price-badge-recommended">Recommended</div>
-                <div className="price-tier">Single Venue</div>
-                <div className="price-amount">
-                  AUD $49<span>/month</span>
+              <div style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9ca3af" }}>Single location</div>
+                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Single Venue</h3>
+                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>The full manager console, unlimited staff logins, compliance tracking and hands-on onboarding for one venue. Get your team trained in week one.</p>
+                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For venues ready to professionalise their training.</p>
+                <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
+                  <Link href="/for-venues#venue-enquiry" className="btn btn-secondary btn-block">Request Venue Access</Link>
                 </div>
-                <p className="price-desc">
-                  Full Command Center and staff training for one venue.
-                </p>
-                <p className="price-fit">For venues ready to professionalise their training.</p>
-                <ul>
-                  <li>Full manager dashboard</li>
-                  <li>Unlimited staff logins</li>
-                  <li>All training modules</li>
-                  <li>AI coaching &amp; evaluation</li>
-                  <li>Compliance tracking</li>
-                  <li>Priority support</li>
-                </ul>
-                <Link href="/for-venues#venue-enquiry" className="btn btn-primary btn-block">
-                  Request Access
-                </Link>
               </div>
 
-              <div className="price-card">
-                <div className="price-tier">Multi-Venue</div>
-                <div className="price-amount">
-                  AUD $149<span>/month</span>
+              <div style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9ca3af" }}>Multi-location</div>
+                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Multi-Venue</h3>
+                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Unified dashboards across up to 5 venues, cross-venue analytics, leaderboards and a dedicated account process tailored to your group&rsquo;s needs.</p>
+                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For venue groups and multi-site operators.</p>
+                <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
+                  <Link href="/for-venues#venue-enquiry" className="btn btn-secondary btn-block">Scale Your Team</Link>
                 </div>
-                <p className="price-desc">
-                  Manage multiple locations with unified dashboards and cross-venue analytics.
-                </p>
-                <p className="price-fit">For venue groups and multi-site operators.</p>
-                <ul>
-                  <li>Up to 5 venues</li>
-                  <li>Cross-venue comparison</li>
-                  <li>Advanced analytics</li>
-                  <li>Centralised compliance</li>
-                  <li>Priority support</li>
-                </ul>
-                <Link href="/for-venues#venue-enquiry" className="btn btn-secondary btn-block">
-                  Request Multi-Venue
-                </Link>
               </div>
 
+            </div>
+            <div style={{ textAlign: "center", marginTop: "1.75rem" }}>
+              <Link href="/pricing" style={{ fontSize: "0.875rem", color: "#6b7280", textDecoration: "underline", textUnderlineOffset: "3px" }}>
+                View full pricing and plan details
+              </Link>
             </div>
           </div>
         </section>
