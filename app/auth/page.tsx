@@ -71,14 +71,10 @@ function AuthCard() {
               method: "POST",
               headers: { "Authorization": `Bearer ${authSession.access_token}` },
             });
-            const stampRes = await fetch("/api/session/stamp", {
+            await fetch("/api/session/stamp", {
               method: "POST",
               headers: { "Authorization": `Bearer ${authSession.access_token}` },
             });
-            const stampData = await stampRes.json();
-            if (stampData.sessionId) {
-              document.cookie = `sbe_session_id=${stampData.sessionId};path=/;max-age=31536000;samesite=lax`;
-            }
           }
           // Route based on role
           await routeByRole(supabase, data.user?.id);
@@ -97,14 +93,10 @@ function AuthCard() {
             method: "POST",
             headers: { "Authorization": `Bearer ${authSession.access_token}` },
           });
-          const stampRes = await fetch("/api/session/stamp", {
+          await fetch("/api/session/stamp", {
             method: "POST",
             headers: { "Authorization": `Bearer ${authSession.access_token}` },
           });
-          const stampData = await stampRes.json();
-          if (stampData.sessionId) {
-            document.cookie = `sbe_session_id=${stampData.sessionId};path=/;max-age=31536000;samesite=lax`;
-          }
         }
 
         await routeByRole(supabase, data.user?.id);

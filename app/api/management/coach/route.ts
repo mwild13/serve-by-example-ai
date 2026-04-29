@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { getUserFromRequest } from "@/lib/supabase-server";
+import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getManagementSnapshot } from "@/lib/management/service";
 
 export const dynamic = "force-dynamic";
@@ -9,12 +10,35 @@ function getOpenAIClient() {
   return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 }
 
+function getCookieValue(req: Request, name: string): string | null {
+  const header = req.headers.get("cookie");
+  if (!header) return null;
+  const pair = header.split(";").map((c) => c.trim()).find((c) => c.startsWith(`${name}=`));
+  if (!pair) return null;
+  const [, value = ""] = pair.split("=");
+  return value || null;
+}
+
 export async function POST(req: Request) {
   try {
     const { user, supabase } = await getUserFromRequest(req);
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Session displacement guard — prevents a displaced session from burning OpenAI tokens
+    const browserSessionId = getCookieValue(req, "sbe_session_id");
+    if (browserSessionId) {
+      const admin = createSupabaseAdminClient();
+      const { data: profile } = await admin
+        .from("profiles")
+        .select("current_session_id")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (profile?.current_session_id && profile.current_session_id !== browserSessionId) {
+        return NextResponse.json({ error: "Session conflict. Please resume this device." }, { status: 401 });
+      }
     }
 
     const body = await req.json();
@@ -77,15 +101,25 @@ Your role:
 `;
 
     const openai = getOpenAIClient();
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: question },
-      ],
-      max_tokens: 300,
-      temperature: 0.5,
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    let completion;
+    try {
+      completion = await openai.chat.completions.create(
+        {
+          model: "gpt-4o-mini",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: question },
+          ],
+          max_tokens: 300,
+          temperature: 0.5,
+        },
+        { signal: controller.signal }
+      );
+    } finally {
+      clearTimeout(timeout);
+    }
 
     const answer = completion.choices[0]?.message?.content ?? "Unable to generate a response.";
     return NextResponse.json({ answer });

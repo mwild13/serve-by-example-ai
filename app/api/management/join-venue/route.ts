@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     // Find venue by code
     const { data: venue, error: venueError } = await admin
       .from("venues")
-      .select("id, name")
+      .select("id, name, manager_user_id")
       .eq("venue_code", venueCode)
       .single();
 
@@ -89,7 +89,7 @@ export async function POST(req: Request) {
         .insert({
           id: crypto.randomUUID(),
           venue_id: venue.id,
-          manager_user_id: user.id,
+          manager_user_id: (venue as { manager_user_id?: string }).manager_user_id ?? user.id,
           staff_user_id: user.id,
           name: staffName,
           email: user.email ?? null,

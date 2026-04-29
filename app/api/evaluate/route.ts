@@ -80,21 +80,31 @@ Rules:
 `;
 
     const openai = getOpenAIClient();
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      temperature: 0.3,
-      messages: [
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+    let response;
+    try {
+      response = await openai.chat.completions.create(
         {
-          role: "system",
-          content:
-            "You are a structured hospitality training evaluator. You always return valid JSON only.",
+          model: "gpt-4o-mini",
+          temperature: 0.3,
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a structured hospitality training evaluator. You always return valid JSON only.",
+            },
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
         },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-    });
+        { signal: controller.signal }
+      );
+    } finally {
+      clearTimeout(timeout);
+    }
 
     const raw = response.choices[0]?.message?.content;
 

@@ -46,6 +46,12 @@ type ModuleProgress = {
 
 // Maps moduleId 1-3 to the legacy string keys used in user_level_progress.
 const LEGACY_MODULE_NAMES: Record<number, string> = { 1: "bartending", 2: "sales", 3: "management" };
+// Quick Drill sub-modules that aren't valid level-progress keys → map to parent module
+const QUICK_DRILL_MODULE_MAP: Record<string, string> = {
+  beer: "bartending",
+  wine: "bartending",
+  cocktails: "bartending",
+};
 
 // Map module IDs 1-3 to their correct topic question banks.
 // DB module ID 1 = "Pouring the Perfect Beer"
@@ -394,7 +400,8 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
         // Stages 1-3 write directly to level-progress (no session cookie required).
         // This is the primary badge write — it always runs regardless of whether
         // the mastery save below succeeds.
-        const levelModule = scaffoldedModuleKey ?? LEGACY_MODULE_NAMES[moduleId] ?? null;
+        const rawModule = scaffoldedModuleKey ?? LEGACY_MODULE_NAMES[moduleId] ?? null;
+        const levelModule = rawModule ? (QUICK_DRILL_MODULE_MAP[rawModule] ?? rawModule) : null;
         if (levelModule && currentStage <= 3) {
           await fetch("/api/training/level-progress", {
             method: "POST",
@@ -414,6 +421,9 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
         // Also fire the mastery save — requires sbe_session_id cookie.
         // May fail for users without a stamped session; that is acceptable
         // because the level-progress write above already secured badge data.
+        // Stage 1-3 scores are 0-5 (consecutive correct); scale to 0-25 for the mastery engine.
+        // Stage 4 scores are already 0-25 from the AI evaluator.
+        const masteryScore = currentStage === 4 ? score : Math.min(score * 5, 25);
         await fetch("/api/training/save", {
           method: "POST",
           headers: {
@@ -423,7 +433,8 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
           body: JSON.stringify({
             moduleId,
             stageLevel: currentStage,
-            overallScore: score,
+            scenarioIndex: currentStage - 1,
+            overallScore: masteryScore,
             completed: true,
           }),
         }).catch((err) => console.error("Mastery save failed:", err));

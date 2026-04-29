@@ -82,14 +82,24 @@ Rules:
 - Never invent legal/safety policy facts`;
 
     const openai = getOpenAIClient();
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      temperature: 0.25,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: question },
-      ],
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    let completion;
+    try {
+      completion = await openai.chat.completions.create(
+        {
+          model: "gpt-4o-mini",
+          temperature: 0.25,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: question },
+          ],
+        },
+        { signal: controller.signal }
+      );
+    } finally {
+      clearTimeout(timeout);
+    }
 
     const answer = completion.choices[0]?.message?.content?.trim();
 

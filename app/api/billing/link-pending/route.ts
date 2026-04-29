@@ -3,8 +3,13 @@ import Stripe from "stripe";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 
-// Prevent static generation for this route (requires Stripe credentials at runtime)
 export const dynamic = "force-dynamic";
+
+const PLAN_TO_TIER: Record<string, string> = {
+  pro: "pro",
+  "single-venue": "venue_single",
+  "multi-venue": "venue_multi",
+};
 
 function getStripeClient() {
   return new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -34,9 +39,10 @@ export async function POST(req: Request) {
       if (pendingPlan) {
         const adminSupabase = createSupabaseAdminClient();
 
+        const tier = PLAN_TO_TIER[pendingPlan] ?? "free";
         await adminSupabase
           .from("profiles")
-          .update({ plan: pendingPlan, stripe_customer_id: customer.id })
+          .update({ plan: pendingPlan, tier, stripe_customer_id: customer.id })
           .eq("id", user.id);
 
         // Clear the pending flag so it isn't applied twice

@@ -28,10 +28,7 @@ export default function SessionConflictPage() {
         method: "POST",
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
-      const data = await res.json();
-
-      if (data.sessionId) {
-        document.cookie = `sbe_session_id=${data.sessionId};path=/;max-age=31536000;samesite=lax`;
+      if (res.ok) {
         router.push("/dashboard");
         router.refresh();
       } else {
@@ -47,7 +44,7 @@ export default function SessionConflictPage() {
   async function handleSignOut() {
     const supabase = createSupabaseBrowserClient();
     await supabase.auth.signOut();
-    document.cookie = "sbe_session_id=;path=/;max-age=0";
+    await fetch("/api/session/stamp", { method: "DELETE" });
     router.push("/login");
   }
 

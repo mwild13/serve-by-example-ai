@@ -131,7 +131,7 @@ export async function resolveAccess(
     const { data: membership } = await admin
       .from("venue_memberships")
       .select("manager_id, status")
-      .eq("staff_email", userEmail)
+      .ilike("staff_email", userEmail)
       .eq("status", "active")
       .limit(1)
       .maybeSingle();

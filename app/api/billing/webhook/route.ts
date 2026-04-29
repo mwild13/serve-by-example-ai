@@ -24,8 +24,11 @@ export async function POST(req: Request) {
   // Map Stripe Price IDs back to plan names (requires env vars at runtime)
   const PRICE_TO_PLAN: Record<string, string> = {
     [process.env.STRIPE_PRICE_PRO!]: "pro",
+    [process.env.STRIPE_PRICE_PRO_YEARLY!]: "pro",
     [process.env.STRIPE_PRICE_SINGLE_VENUE!]: "single-venue",
+    [process.env.STRIPE_PRICE_SINGLE_VENUE_YEARLY!]: "single-venue",
     [process.env.STRIPE_PRICE_MULTI_VENUE!]: "multi-venue",
+    [process.env.STRIPE_PRICE_MULTI_VENUE_YEARLY!]: "multi-venue",
   };
 
   let event;
@@ -63,9 +66,14 @@ export async function POST(req: Request) {
         // Logged-in user: directly update by user ID
         await supabase.from("profiles").update(profileUpdate).eq("id", userId);
       } else if (customerEmail) {
-        // Guest checkout: find existing Supabase user by email
-        const { data: { users } } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-        const matched = users.find((u) => u.email === customerEmail);
+        // Guest checkout: find existing Supabase user by email via auth schema
+        const { data: authRows } = await supabase
+          .schema("auth")
+          .from("users")
+          .select("id")
+          .ilike("email", customerEmail)
+          .limit(1);
+        const matched = authRows?.[0] ? { id: authRows[0].id } : null;
 
         if (matched) {
           await supabase.from("profiles").update(profileUpdate).eq("id", matched.id);

@@ -80,14 +80,10 @@ function LoginPageContent() {
               headers: { "Authorization": `Bearer ${authSession.access_token}` },
             });
             // Stamp session for one-device enforcement
-            const stampRes = await fetch("/api/session/stamp", {
+            await fetch("/api/session/stamp", {
               method: "POST",
               headers: { "Authorization": `Bearer ${authSession.access_token}` },
             });
-            const stampData = await stampRes.json();
-            if (stampData.sessionId) {
-              document.cookie = `sbe_session_id=${stampData.sessionId};path=/;max-age=31536000;samesite=lax`;
-            }
           }
           router.push("/onboarding");
           router.refresh();
@@ -115,15 +111,10 @@ function LoginPageContent() {
             method: "POST",
             headers: { "Authorization": `Bearer ${authSession.access_token}` },
           });
-          // Stamp session for one-device enforcement
-          const stampRes = await fetch("/api/session/stamp", {
+          await fetch("/api/session/stamp", {
             method: "POST",
             headers: { "Authorization": `Bearer ${authSession.access_token}` },
           });
-          const stampData = await stampRes.json();
-          if (stampData.sessionId) {
-            document.cookie = `sbe_session_id=${stampData.sessionId};path=/;max-age=31536000;samesite=lax`;
-          }
         }
 
         router.push("/dashboard");

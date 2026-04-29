@@ -253,13 +253,6 @@ export async function recordAttempt(
     },
     { onConflict: "user_id,module,scenario_index" },
   );
-    // ── Error handling: Log any data anomalies ─────────────────
-    if (spamGuarded && newMasteryLevel !== previousLevel) {
-      console.warn(
-        `Spam guard bypass detected: user=${userId}, module=${moduleName}, ` +
-        `scenario=${scenarioIndex}, old_level=${previousLevel}, new_level=${newMasteryLevel}`
-      );
-    }
 
   // ── Bridge logic ───────────────────────────────────────────
   const isBridge = newConsecutiveFails >= 2;
