@@ -60,23 +60,12 @@ export default function DescriptorSelector({
   const [completed, setCompleted] = useState(false);
   const [failed, setFailed] = useState(false);
 
-  // Shuffle scenario ORDER once per scenarios set so questions rotate in random
-  // order. Stable across re-renders — only recomputed when the scenario list changes.
-  const scenarioIds = scenarios.map((s) => s.id).join(",");
-  const [sessionOrder, setSessionOrder] = useState<Scenario[]>([]);
-  useEffect(() => {
-    if (scenarios.length === 0) return;
-    setSessionOrder(shuffleArray(scenarios));
-    setQuestionIndex(0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scenarioIds]);
-
-  // Stable list of scenarios in shuffled session order.
-  // Does NOT include shuffleKey — order is fixed for the whole session.
-  const orderedScenarios = useMemo(
-    () => (sessionOrder.length > 0 ? sessionOrder : scenarios),
-    [sessionOrder, scenarios],
-  );
+  // Shuffle order computed once at mount — lazy useState ensures the shuffle
+  // is synchronous and never causes a second render that could swap the question
+  // out from under an in-progress interaction.
+  // DescriptorSelector is keyed by stage in StageLearning, so it remounts
+  // (and reshuffles) whenever the stage changes.
+  const [orderedScenarios] = useState<Scenario[]>(() => shuffleArray([...scenarios]));
 
   const currentScenario = orderedScenarios[questionIndex % orderedScenarios.length];
   const rawContent = currentScenario?.content as DescriptorContent | undefined;

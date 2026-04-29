@@ -47,26 +47,20 @@ export default function RapidFireQuiz({
   const [buttonFlash, setButtonFlash] = useState<string | null>(null);
   const questionStartRef = useRef(Date.now());
 
-  const [shuffledScenarios, setShuffledScenarios] = useState<Scenario[]>([]);
-  // Ref always holds the latest shuffledScenarios to avoid stale closure in nextQuestion
-  const shuffledScenariosRef = useRef<Scenario[]>([]);
-
-  // Shuffle scenarios only when the set of scenario IDs actually changes.
-  // Comparing by ID string (not array reference) prevents reshuffling — and
-  // resetting questionIndex to 0 — every time the parent re-renders.
-  const scenarioIds = scenarios.map((s) => s.id).join(",");
-  useEffect(() => {
-    if (scenarios.length === 0) return;
-    const shuffled = [...scenarios];
-    for (let i = shuffled.length - 1; i > 0; i--) {
+  // Shuffle computed once at mount via lazy init — no effect needed, no
+  // second render that could swap the question mid-interaction.
+  // RapidFireQuiz is keyed by stage so it remounts (and reshuffles) when the
+  // stage changes.
+  const [shuffledScenarios] = useState<Scenario[]>(() => {
+    const arr = [...scenarios];
+    for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      [arr[i], arr[j]] = [arr[j], arr[i]];
     }
-    shuffledScenariosRef.current = shuffled;
-    setShuffledScenarios(shuffled);
-    setQuestionIndex(0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scenarioIds]);
+    return arr;
+  });
+  // Ref mirrors stable state so nextQuestion avoids a stale closure.
+  const shuffledScenariosRef = useRef<Scenario[]>(shuffledScenarios);
 
   const currentScenario = shuffledScenarios[questionIndex % shuffledScenarios.length];
   const currentContent = currentScenario?.content as QuizContent | undefined;
