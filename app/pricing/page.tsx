@@ -224,39 +224,43 @@ export default function PricingPage() {
         <section className="section section-alt">
           <div className="container">
             <SectionHeading
-              eyebrow="FAQ"
+              eyebrow="Support & Operations"
               title="Common questions."
-              copy=""
+              copy="Everything you need to know before getting started."
             />
             <div className="faq-list">
-              <div className="faq-item">
-                <p className="faq-question">Is there a free trial?</p>
-                <p className="faq-answer">Yes. The Free Demo plan gives you access to three AI scenario evaluations with no credit card required. You can try the platform before committing to a paid plan.</p>
-              </div>
-              <div className="faq-item">
-                <p className="faq-question">How does billing work?</p>
-                <p className="faq-answer">Paid plans are billed monthly. You can cancel any time and your access continues until the end of the billing period. No contracts, no lock-in.</p>
-              </div>
-              <div className="faq-item">
-                <p className="faq-question">Can I get a refund?</p>
-                <p className="faq-answer">We offer a 14-day refund on your first payment if you are not satisfied. After that, refunds are not available but you are always free to cancel.</p>
-              </div>
-              <div className="faq-item">
-                <p className="faq-question">What happens if I cancel?</p>
-                <p className="faq-answer">Your access stays active to the end of your paid period. After that your account moves to the Free Demo tier — your training history is preserved and you can resubscribe at any time.</p>
-              </div>
-              <div className="faq-item">
-                <p className="faq-question">How many staff can join on the Single Venue and Multi-Venue plans?</p>
-                <p className="faq-answer">Single Venue plans support multiple staff logins for one location. Multi-Venue plans support multiple user logins across up to 5 venues. Get in touch via the venue enquiry form and we will confirm capacity for your specific venue size.</p>
-              </div>
-              <div className="faq-item">
-                <p className="faq-question">Is my training data private?</p>
-                <p className="faq-answer">Yes. Your scenario responses are used only to generate your personal feedback scores. They are never shared with other staff, managers, or venues without your consent. See our <a href="/privacy">Privacy Policy</a> for full details.</p>
-              </div>
-              <div className="faq-item">
-                <p className="faq-question">Do you offer a larger team or enterprise plan?</p>
-                <p className="faq-answer">Not yet, but if you have a group of venues or a large team, reach out via the venue enquiry form and we will work out a custom arrangement.</p>
-              </div>
+              <details className="faq-item">
+                <summary>Is there a trial available?</summary>
+                <p>Yes. The <strong>Free Demo</strong> provides access to three AI scenario evaluations — no credit card required. Experience the platform&apos;s tactical feedback before upgrading to a paid tier.</p>
+              </details>
+              <details className="faq-item">
+                <summary>How is billing structured?</summary>
+                <p>We operate on a transparent, monthly subscription model. There are no long-term contracts or lock-in periods; you may cancel at any time, with access continuing through the end of your billing cycle.</p>
+              </details>
+              <details className="faq-item">
+                <summary>What is your refund policy?</summary>
+                <p>We offer a 14-day window on your initial payment should the platform not meet your operational standards. Beyond this period, we do not offer refunds, though you retain the flexibility to cancel at any time.</p>
+              </details>
+              <details className="faq-item">
+                <summary>What occurs upon cancellation?</summary>
+                <p>Your access remains active until your current paid period concludes. Afterward, your account transitions to the <strong>Free Demo</strong> tier; your historical training data is securely archived, allowing you to reactivate your subscription whenever you are ready.</p>
+              </details>
+              <details className="faq-item">
+                <summary>What are the limits on staff access?</summary>
+                <p><strong>Single Venue</strong> plans provide unlimited staff logins for one location. <strong>Multi-Venue</strong> plans support teams across up to 5 venues. For larger venue groups, please use our venue enquiry form to discuss custom scaling.</p>
+              </details>
+              <details className="faq-item">
+                <summary>Is my training data secure and private?</summary>
+                <p>Absolutely. All scenario responses are utilised exclusively to calculate your personal performance metrics. Your data is strictly private and is never disclosed to third parties or other venues without your explicit consent. Refer to our <a href="/privacy">Privacy Policy</a> for technical specifications.</p>
+              </details>
+              <details className="faq-item">
+                <summary>Do you provide enterprise-level solutions?</summary>
+                <p>While we are currently focused on individual and multi-venue setups, we are equipped to support larger organisations. Please submit your requirements via the venue enquiry form, and we will coordinate a custom arrangement.</p>
+              </details>
+            </div>
+            <div style={{ textAlign: "center", marginTop: "2.5rem" }}>
+              <p style={{ color: "var(--text-soft)", marginBottom: "1rem", fontSize: "0.95rem" }}>Still have questions?</p>
+              <a href="mailto:hello@serve-by-example.com" className="btn btn-secondary">Contact support</a>
             </div>
           </div>
         </section>
