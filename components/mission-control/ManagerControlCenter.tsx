@@ -2244,32 +2244,159 @@ export default function ManagerControlCenter({
           );
         })()}
 
-        {activeSection === "training" && (
-          <section className="ops-grid ops-grid-main">
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Training program builder</h3>
-                <span>{selectedVenue?.name}</span>
-              </div>
-              {venuePrograms.length ? (
-                venuePrograms.map((program) => (
-                  <div key={program.id} className="ops-program-card">
-                    <strong>{program.name}</strong>
-                    <p>{program.description}</p>
-                    <span className="ops-program-meta">{program.roleTarget}</span>
-                    <ul className="ops-plain-list ops-compact-list">
-                      {program.dayPlan.map((step) => (
-                        <li key={step}>{step}</li>
-                      ))}
-                    </ul>
+        {activeSection === "training" && (() => {
+          // Derive per-program enrollment and step completion approximations
+          type ProgramStat = {
+            program: typeof venuePrograms[0];
+            enrolled: typeof venueStaff;
+            avgCompletion: number;
+            stepCompletionPct: number[];
+          };
+          const programStats: ProgramStat[] = venuePrograms.map((program) => {
+            const enrolled = venueStaff.filter((s) =>
+              s.role.toLowerCase().includes(program.roleTarget.toLowerCase()) ||
+              program.roleTarget.toLowerCase().includes(s.role.toLowerCase())
+            );
+            const avgCompletion = enrolled.length
+              ? Math.round(enrolled.reduce((sum, s) => sum + s.progress, 0) / enrolled.length)
+              : program.completion;
+            const stepCount = program.dayPlan.length || 1;
+            const stepCompletionPct = program.dayPlan.map((_, i) => {
+              const threshold = ((i + 1) / stepCount) * 100;
+              if (!enrolled.length) return 0;
+              const done = enrolled.filter((s) => s.progress >= threshold).length;
+              return Math.round((done / enrolled.length) * 100);
+            });
+            return { program, enrolled, avgCompletion, stepCompletionPct };
+          });
+
+          const totalEnrolled = new Set(programStats.flatMap((ps) => ps.enrolled.map((s) => s.id))).size;
+          const coveredRoles = new Set(venuePrograms.map((p) => p.roleTarget));
+          const allRoles: string[] = ["Bartender", "Floor", "Supervisor", "Manager", "New Staff"];
+          const uncoveredRoles = allRoles.filter((r) => !coveredRoles.has(r) && venueStaff.some((s) => s.role === r));
+
+          return (
+            <section className="ops-grid ops-grid-main">
+              {/* Summary stat strip */}
+              <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+                <div className="ops-card-head" style={{ marginBottom: "1rem" }}>
+                  <h3>Training programs</h3>
+                  <span>{selectedVenue?.name}</span>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem", marginBottom: "1.5rem" }}>
+                  {[
+                    { label: "Programs", value: venuePrograms.length },
+                    { label: "Staff enrolled", value: totalEnrolled },
+                    { label: "Avg completion", value: venuePrograms.length ? `${Math.round(venuePrograms.reduce((s, p) => s + p.completion, 0) / venuePrograms.length)}%` : "—" },
+                    { label: "Roles covered", value: `${coveredRoles.size} / ${allRoles.filter((r) => venueStaff.some((s) => s.role === r)).length}` },
+                  ].map((stat) => (
+                    <div key={stat.label} style={{ background: "var(--mcc-surface-2)", borderRadius: 10, padding: "14px 16px" }}>
+                      <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "var(--mcc-ink-900)" }}>{stat.value}</div>
+                      <div style={{ fontSize: "0.75rem", color: "var(--mcc-ink-500)", marginTop: 2 }}>{stat.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {venuePrograms.length === 0 ? (
+                  <EmptyState copy="No saved programs yet. Use Create program to start building role-specific onboarding." />
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                    {programStats.map(({ program, enrolled, avgCompletion, stepCompletionPct }) => (
+                      <div key={program.id} style={{ border: "1.5px solid var(--mcc-border)", borderRadius: 12, padding: "1.25rem", background: "var(--mcc-bg)" }}>
+                        {/* Program header */}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem", flexWrap: "wrap", gap: 8 }}>
+                          <div>
+                            <div style={{ fontWeight: 700, fontSize: "1rem", color: "var(--mcc-ink-900)" }}>{program.name}</div>
+                            <div style={{ fontSize: "0.82rem", color: "var(--mcc-ink-500)", marginTop: 3 }}>{program.description}</div>
+                          </div>
+                          <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
+                            <span style={{ padding: "4px 10px", borderRadius: 999, background: "#EFF6FF", color: "#1d4ed8", fontWeight: 600, fontSize: "0.75rem" }}>
+                              {program.roleTarget}
+                            </span>
+                            <span style={{ padding: "4px 10px", borderRadius: 999, background: "var(--mcc-surface-2)", color: "var(--mcc-ink-600)", fontWeight: 600, fontSize: "0.75rem" }}>
+                              {enrolled.length} staff enrolled
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Completion bar */}
+                        <div style={{ marginBottom: "1rem" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                            <span style={{ fontSize: "0.78rem", color: "var(--mcc-ink-500)" }}>Avg completion</span>
+                            <span style={{ fontSize: "0.78rem", fontWeight: 700, color: avgCompletion >= 70 ? "#16a34a" : avgCompletion >= 40 ? "#f59e0b" : "#dc2626" }}>{avgCompletion}%</span>
+                          </div>
+                          <div style={{ height: 6, background: "var(--mcc-surface-2)", borderRadius: 999, overflow: "hidden" }}>
+                            <div style={{ height: "100%", width: `${avgCompletion}%`, background: avgCompletion >= 70 ? "#16a34a" : avgCompletion >= 40 ? "#f59e0b" : "#dc2626", borderRadius: 999, transition: "width 0.3s ease" }} />
+                          </div>
+                        </div>
+
+                        {/* Step heatmap */}
+                        {program.dayPlan.length > 0 && (
+                          <div>
+                            <div style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--mcc-ink-500)", marginBottom: "0.5rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                              Step completion heatmap
+                            </div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                              {program.dayPlan.map((step, i) => {
+                                const pct = stepCompletionPct[i] ?? 0;
+                                const hue = pct >= 70 ? "#16a34a" : pct >= 40 ? "#f59e0b" : pct > 0 ? "#dc2626" : "#e5e7eb";
+                                return (
+                                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                    <div style={{ flex: 1, fontSize: "0.82rem", color: "var(--mcc-ink-700)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", minWidth: 0 }}>
+                                      <span style={{ color: "var(--mcc-ink-400)", fontSize: "0.72rem", fontWeight: 700, marginRight: 6 }}>Day {i + 1}</span>
+                                      {step}
+                                    </div>
+                                    <div style={{ flexShrink: 0, width: 120, display: "flex", alignItems: "center", gap: 6 }}>
+                                      <div style={{ flex: 1, height: 6, background: "var(--mcc-surface-2)", borderRadius: 999, overflow: "hidden" }}>
+                                        <div style={{ height: "100%", width: `${pct}%`, background: hue, borderRadius: 999 }} />
+                                      </div>
+                                      <span style={{ fontSize: "0.72rem", fontWeight: 700, color: hue, width: 28, textAlign: "right" }}>{pct > 0 ? `${pct}%` : "—"}</span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Enrolled staff mini-list */}
+                        {enrolled.length > 0 && (
+                          <div style={{ marginTop: "1rem", borderTop: "1px solid var(--mcc-border)", paddingTop: "0.75rem" }}>
+                            <div style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--mcc-ink-500)", marginBottom: "0.5rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                              Enrolled staff
+                            </div>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                              {enrolled.map((s) => (
+                                <span key={s.id} style={{
+                                  padding: "3px 10px", borderRadius: 999, fontSize: "0.75rem", fontWeight: 600,
+                                  background: s.status === "on-track" ? "#f0fdf4" : s.status === "attention" ? "#fff7ed" : "#fff1f2",
+                                  color: s.status === "on-track" ? "#15803d" : s.status === "attention" ? "#c2410c" : "#b91c1c",
+                                  border: `1px solid ${s.status === "on-track" ? "#86efac" : s.status === "attention" ? "#fdba74" : "#fca5a5"}`,
+                                }}>
+                                  {s.name} — {Math.round(s.progress)}%
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                ))
-              ) : (
-                <EmptyState copy="No saved programs yet. Use Create program to start building role-specific onboarding." />
-              )}
-            </article>
-          </section>
-        )}
+                )}
+
+                {/* Uncovered roles callout */}
+                {uncoveredRoles.length > 0 && (
+                  <div style={{ marginTop: "1.25rem", padding: "12px 16px", background: "#fff7ed", border: "1.5px solid #fed7aa", borderRadius: 10, display: "flex", gap: 10, alignItems: "flex-start" }}>
+                    <span style={{ color: "#f59e0b", fontWeight: 700, fontSize: "0.9rem", flexShrink: 0 }}>No program</span>
+                    <p style={{ margin: 0, fontSize: "0.82rem", color: "#92400e" }}>
+                      {uncoveredRoles.join(", ")} {uncoveredRoles.length === 1 ? "has" : "have"} active staff but no training program assigned. Create one to structure their onboarding.
+                    </p>
+                  </div>
+                )}
+              </article>
+            </section>
+          );
+        })()}
 
         {activeSection === "inventory" && (
           <section className="ops-grid ops-grid-main">
@@ -2638,21 +2765,191 @@ export default function ManagerControlCenter({
           </>
         )}
 
-        {activeSection === "reports" && (
-          <section className="ops-grid ops-grid-main">
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Report center</h3>
-              </div>
-              {snapshot.reportSummaries.map((report) => (
-                <div key={report.title} className="ops-program-card">
-                  <strong>{report.title}</strong>
-                  <p>{report.summary}</p>
+        {activeSection === "reports" && (() => {
+          // Compliance helper (matches Compliance tab logic)
+          const reqModules: Record<string, string[]> = {
+            Bartender: ["Bartending", "Sales"],
+            Floor: ["Sales"],
+            Supervisor: ["Sales", "Bartending"],
+            Manager: ["Sales", "Bartending", "Management"],
+            "New Staff": ["Bartending"],
+          };
+          const hasModule = (s: typeof venueStaff[0], mod: string) => {
+            if (mod === "Sales") return s.salesScore >= 60 || s.progress >= 60;
+            if (mod === "Bartending") return s.serviceScore >= 60;
+            if (mod === "Management") return s.productScore >= 60;
+            return false;
+          };
+          const fullyCompliant = venueStaff.filter((s) =>
+            (reqModules[s.role] ?? []).every((m) => hasModule(s, m))
+          );
+          const sortedByProgress = [...venueStaff].sort((a, b) => b.progress - a.progress);
+          const topPerformers = sortedByProgress.slice(0, 3);
+          const needsHelp = venueStaff.filter((s) => s.status !== "on-track").slice(0, 5);
+
+          const statusBadge = (status: string) => {
+            const map: Record<string, { bg: string; color: string; label: string }> = {
+              "on-track": { bg: "#f0fdf4", color: "#15803d", label: "On track" },
+              attention:  { bg: "#fff7ed", color: "#c2410c", label: "Attention" },
+              inactive:   { bg: "#fff1f2", color: "#b91c1c", label: "Inactive" },
+            };
+            const s = map[status] ?? map["inactive"];
+            return (
+              <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: "0.72rem", fontWeight: 700, background: s.bg, color: s.color }}>
+                {s.label}
+              </span>
+            );
+          };
+
+          return (
+            <section className="ops-grid ops-grid-main">
+              {/* Header with export */}
+              <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem", flexWrap: "wrap", gap: 12 }}>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "var(--mcc-ink-900)" }}>Report center</h3>
+                    <div style={{ fontSize: "0.8rem", color: "var(--mcc-ink-500)", marginTop: 3 }}>{selectedVenue?.name}</div>
+                  </div>
+                  {venueStaff.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleExportStaff}
+                      style={{ padding: "9px 18px", borderRadius: 8, border: "1.5px solid var(--mcc-border)", background: "var(--mcc-bg)", color: "var(--mcc-ink-700)", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                      Export staff CSV
+                    </button>
+                  )}
                 </div>
-              ))}
-            </article>
-          </section>
-        )}
+
+                {/* KPI summary strip */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.75rem", marginBottom: "1.5rem" }}>
+                  {[
+                    { label: "Total staff", value: venueStaff.length },
+                    { label: "Avg training", value: venueStaff.length ? `${metrics.avgCompletion}%` : "—" },
+                    { label: "Avg score", value: venueStaff.length ? `${metrics.avgScenarioScore}%` : "—" },
+                    { label: "Compliant", value: venueStaff.length ? `${fullyCompliant.length}/${venueStaff.length}` : "—" },
+                  ].map((kpi) => (
+                    <div key={kpi.label} style={{ padding: "14px 16px", background: "var(--mcc-surface-2)", borderRadius: 10 }}>
+                      <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "var(--mcc-ink-900)" }}>{kpi.value}</div>
+                      <div style={{ fontSize: "0.75rem", color: "var(--mcc-ink-500)", marginTop: 2 }}>{kpi.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {venueStaff.length === 0 ? (
+                  <EmptyState copy="Add staff to generate reports." />
+                ) : (
+                  <>
+                    {/* Training summary table */}
+                    <div style={{ marginBottom: "1.5rem" }}>
+                      <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--mcc-ink-500)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.75rem" }}>
+                        Weekly training summary
+                      </div>
+                      <div style={{ overflowX: "auto" }}>
+                        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+                          <thead>
+                            <tr style={{ borderBottom: "2px solid var(--mcc-border)" }}>
+                              {["Staff member", "Role", "Progress", "Service", "Sales", "Product", "Status"].map((h) => (
+                                <th key={h} style={{ padding: "6px 10px", textAlign: "left", fontWeight: 700, fontSize: "0.75rem", color: "var(--mcc-ink-500)", whiteSpace: "nowrap" }}>{h}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {sortedByProgress.map((s) => (
+                              <tr key={s.id} style={{ borderBottom: "1px solid var(--mcc-border)" }}>
+                                <td style={{ padding: "8px 10px", fontWeight: 600, color: "var(--mcc-ink-900)", whiteSpace: "nowrap" }}>{s.name}</td>
+                                <td style={{ padding: "8px 10px", color: "var(--mcc-ink-600)", whiteSpace: "nowrap" }}>{s.role}</td>
+                                <td style={{ padding: "8px 10px", minWidth: 90 }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                    <div style={{ flex: 1, height: 5, background: "var(--mcc-surface-2)", borderRadius: 999 }}>
+                                      <div style={{ height: "100%", width: `${s.progress}%`, background: s.progress >= 70 ? "#16a34a" : s.progress >= 40 ? "#f59e0b" : "#dc2626", borderRadius: 999 }} />
+                                    </div>
+                                    <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--mcc-ink-700)", width: 32, textAlign: "right" }}>{Math.round(s.progress)}%</span>
+                                  </div>
+                                </td>
+                                <td style={{ padding: "8px 10px", textAlign: "center", fontWeight: 600, color: "var(--mcc-ink-700)" }}>{s.serviceScore}%</td>
+                                <td style={{ padding: "8px 10px", textAlign: "center", fontWeight: 600, color: "var(--mcc-ink-700)" }}>{s.salesScore}%</td>
+                                <td style={{ padding: "8px 10px", textAlign: "center", fontWeight: 600, color: "var(--mcc-ink-700)" }}>{s.productScore}%</td>
+                                <td style={{ padding: "8px 10px" }}>{statusBadge(s.status)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* Bottom two panels */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                      {/* Top performers */}
+                      <div style={{ background: "var(--mcc-surface-2)", borderRadius: 12, padding: "1rem" }}>
+                        <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--mcc-ink-500)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.75rem" }}>
+                          Top performers
+                        </div>
+                        {topPerformers.map((s, i) => (
+                          <div key={s.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: i < topPerformers.length - 1 ? "1px solid var(--mcc-border)" : "none" }}>
+                            <div>
+                              <div style={{ fontWeight: 600, fontSize: "0.875rem", color: "var(--mcc-ink-900)" }}>{s.name}</div>
+                              <div style={{ fontSize: "0.75rem", color: "var(--mcc-ink-500)" }}>{s.role}</div>
+                            </div>
+                            <div style={{ textAlign: "right" }}>
+                              <div style={{ fontWeight: 800, fontSize: "0.9rem", color: "#1E5A3C" }}>{Math.round(s.progress)}%</div>
+                              <div style={{ fontSize: "0.7rem", color: "var(--mcc-ink-400)" }}>completion</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Needs attention */}
+                      <div style={{ background: needsHelp.length > 0 ? "#fff7ed" : "var(--mcc-surface-2)", borderRadius: 12, padding: "1rem", border: needsHelp.length > 0 ? "1.5px solid #fed7aa" : "none" }}>
+                        <div style={{ fontSize: "0.8rem", fontWeight: 700, color: needsHelp.length > 0 ? "#c2410c" : "var(--mcc-ink-500)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.75rem" }}>
+                          Needs attention {needsHelp.length > 0 ? `(${needsHelp.length})` : ""}
+                        </div>
+                        {needsHelp.length === 0 ? (
+                          <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--mcc-ink-500)" }}>All staff are on track.</p>
+                        ) : (
+                          needsHelp.map((s, i) => (
+                            <div key={s.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: i < needsHelp.length - 1 ? "1px solid #fed7aa" : "none" }}>
+                              <div>
+                                <div style={{ fontWeight: 600, fontSize: "0.875rem", color: "#7c2d12" }}>{s.name}</div>
+                                <div style={{ fontSize: "0.75rem", color: "#92400e" }}>{s.role} · {s.lastActive}</div>
+                              </div>
+                              <div>{statusBadge(s.status)}</div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Skill breakdown */}
+                    <div style={{ marginTop: "1rem", background: "var(--mcc-surface-2)", borderRadius: 12, padding: "1rem" }}>
+                      <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--mcc-ink-500)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.75rem" }}>
+                        Venue skill breakdown
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
+                        {[
+                          { label: "Service", value: metrics.serviceSkill, color: "#1E5A3C" },
+                          { label: "Sales", value: metrics.salesSkill, color: "#f59e0b" },
+                          { label: "Product knowledge", value: metrics.productSkill, color: "#1d4ed8" },
+                        ].map((skill) => (
+                          <div key={skill.label}>
+                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                              <span style={{ fontSize: "0.8rem", color: "var(--mcc-ink-600)", fontWeight: 600 }}>{skill.label}</span>
+                              <span style={{ fontSize: "0.8rem", fontWeight: 800, color: skill.color }}>{skill.value > 0 ? `${skill.value}%` : "—"}</span>
+                            </div>
+                            <div style={{ height: 7, background: "#e5e7eb", borderRadius: 999, overflow: "hidden" }}>
+                              <div style={{ height: "100%", width: `${skill.value}%`, background: skill.color, borderRadius: 999, transition: "width 0.3s ease" }} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </article>
+            </section>
+          );
+        })()}
 
         {activeSection === "leaderboards" && (() => {
           const sorted = {
