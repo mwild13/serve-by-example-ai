@@ -64,8 +64,9 @@ function LoginPageContent() {
             msg.toLowerCase().includes("already registered") ||
             msg.toLowerCase().includes("user already registered")
           ) {
-            setError("That email is already registered. Switch to Sign in.");
-            setMode("sign-in");
+            setError(
+              "An account with this email already exists. Try signing in, or check your email for an invite link from your manager.",
+            );
             setLoading(false);
             return;
           }
