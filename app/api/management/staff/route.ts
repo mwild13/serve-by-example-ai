@@ -108,7 +108,10 @@ export async function POST(req: Request) {
 
     if (sendInvite && email) {
       const admin = createSupabaseAdminClient();
-      const appOrigin = new URL(req.url).origin;
+      // Prefer NEXT_PUBLIC_SITE_URL so the redirectTo is always the real public
+      // domain. Falling back to req.url origin can produce an internal Cloudflare
+      // worker address that isn't in Supabase's Redirect URLs allowlist.
+      const appOrigin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? new URL(req.url).origin;
       const redirectTo = `${appOrigin}/login`;
 
       // Step 1: Generate the invite link (works regardless of SMTP config).
@@ -123,8 +126,8 @@ export async function POST(req: Request) {
         });
 
         if (linkError) {
-          // User may already exist — surface a clear message.
           const msg = linkError.message ?? "";
+          console.error("[staff/invite] generateLink failed:", msg, "| redirectTo:", redirectTo);
           if (msg.toLowerCase().includes("already registered") || msg.toLowerCase().includes("already been registered")) {
             inviteMessage = `${name} added. Note: ${email} already has a Serve by Example account — they can log in directly.`;
           } else {
@@ -135,6 +138,10 @@ export async function POST(req: Request) {
 
           // Step 2: Send invite email via Brevo API (direct — no Supabase SMTP needed).
           const brevoApiKey = process.env.BREVO_API_KEY;
+          if (!brevoApiKey) {
+            console.error("[staff/invite] BREVO_API_KEY is not set in environment. Add it to Cloudflare Pages env vars to enable automatic invite emails.");
+          }
+
           if (brevoApiKey && inviteLink) {
             try {
               const fromEmail = process.env.BREVO_FROM_EMAIL ?? "noreply@serve-by-example.com";
@@ -170,9 +177,11 @@ export async function POST(req: Request) {
                 inviteMessage = `Invite email sent to ${email}.`;
               } else {
                 const errBody = await emailRes.text();
+                console.error(`[staff/invite] Brevo send failed (${emailRes.status}):`, errBody, "| from:", fromEmail);
                 inviteMessage = `Staff member added. Brevo email failed (${emailRes.status}): ${errBody}. Use the invite link below.`;
               }
             } catch (brevoErr) {
+              console.error("[staff/invite] Brevo fetch threw:", brevoErr);
               inviteMessage = `Staff member added. Email send error: ${brevoErr instanceof Error ? brevoErr.message : "Unknown error"}. Use the invite link below.`;
             }
           } else {
@@ -184,12 +193,14 @@ export async function POST(req: Request) {
               });
 
               if (emailError) {
+                console.error("[staff/invite] Supabase inviteUserByEmail failed:", emailError.message);
                 inviteMessage = `Staff member added. Set BREVO_API_KEY in Cloudflare env to enable automatic emails, or use the invite link below to onboard ${name}.`;
               } else {
                 emailSent = true;
                 inviteMessage = `Invite email sent to ${email}.`;
               }
-            } catch {
+            } catch (supabaseInviteErr) {
+              console.error("[staff/invite] Supabase inviteUserByEmail threw:", supabaseInviteErr);
               inviteMessage = `Staff member added. Share the invite link below with ${name} directly.`;
             }
           }
@@ -208,6 +219,7 @@ export async function POST(req: Request) {
           }
         }
       } catch (linkSetupError) {
+        console.error("[staff/invite] Unexpected error in invite setup:", linkSetupError);
         inviteMessage =
           linkSetupError instanceof Error
             ? `Staff member added, but invite setup failed: ${linkSetupError.message}`

@@ -1355,7 +1355,7 @@ export default function ManagerControlCenter({
                       setStaffForm((current) => ({ ...current, sendInvite: event.target.checked }))
                     }
                   />
-                  Send a Supabase signup invite email for this staff member
+                  Send a signup invite email to this staff member
                 </label>
                 <button className="btn btn-primary ops-action-span-full" type="submit" disabled={isSaving}>
                   {isSaving ? "Saving..." : "Save staff member"}
