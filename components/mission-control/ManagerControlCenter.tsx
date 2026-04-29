@@ -392,6 +392,9 @@ export default function ManagerControlCenter({
   const [aiCoachInput, setAiCoachInput] = useState("");
   const [aiCoachMessages, setAiCoachMessages] = useState<Array<{ role: "user" | "coach"; content: string }>>([]);
   const [aiCoachLoading, setAiCoachLoading] = useState(false);
+  const [leaderboardTab, setLeaderboardTab] = useState<"progress" | "score" | "active">("progress");
+  const [notifFilter, setNotifFilter] = useState<"all" | "training" | "performance" | "inventory">("all");
+  const [dismissedNotifs, setDismissedNotifs] = useState<Set<string>>(new Set());
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -2013,54 +2016,233 @@ export default function ManagerControlCenter({
           </section>
         )}
 
-        {activeSection === "teams" && (
-          <section className="ops-grid ops-grid-main">
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Team groups</h3>
-                <span>{selectedVenue?.name}</span>
-              </div>
-              <div className="ops-module-grid">
-                <div className="ops-module-card">
-                  <strong>Bar Team</strong>
-                  <span>{venueStaff.filter((member) => member.role === "Bartender").length} members</span>
+        {activeSection === "teams" && (() => {
+          const teamDefs = [
+            { label: "Bar Team", roles: ["Bartender"] as StaffRole[] },
+            { label: "Floor Team", roles: ["Floor", "New Staff"] as StaffRole[] },
+            { label: "Leadership", roles: ["Supervisor", "Manager"] as StaffRole[] },
+          ];
+          const teams = teamDefs.map((def) => {
+            const members = venueStaff.filter((s) => def.roles.includes(s.role));
+            const avg = (arr: number[]) => arr.length ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : 0;
+            const avgProgress = avg(members.map((s) => s.progress));
+            const avgService = avg(members.map((s) => s.serviceScore));
+            const avgSales = avg(members.map((s) => s.salesScore));
+            const avgProduct = avg(members.map((s) => s.productScore));
+            const avgScore = avg(members.map((s) => Math.round((s.serviceScore + s.salesScore + s.productScore) / 3)));
+            const attention = members.filter((s) => s.status !== "on-track");
+            const top = members.length ? [...members].sort((a, b) => b.progress - a.progress)[0] : null;
+            const weakest = (() => {
+              const scores = { Service: avgService, Sales: avgSales, "Product knowledge": avgProduct };
+              const [label] = Object.entries(scores).sort((a, b) => a[1] - b[1])[0] ?? [];
+              return label ?? null;
+            })();
+            return { ...def, members, avgProgress, avgScore, avgService, avgSales, avgProduct, attention, top, weakest };
+          });
+          const allScores = teams.map((t) => t.avgScore);
+          const maxScore = Math.max(...allScores, 1);
+          return (
+            <section className="ops-grid ops-grid-main">
+              <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+                <div className="ops-card-head">
+                  <h3>Team performance</h3>
+                  <span>{selectedVenue?.name}</span>
                 </div>
-                <div className="ops-module-card">
-                  <strong>Floor Team</strong>
-                  <span>{venueStaff.filter((member) => member.role === "Floor").length} members</span>
-                </div>
-                <div className="ops-module-card">
-                  <strong>Leadership Team</strong>
-                  <span>{venueStaff.filter((member) => member.role === "Supervisor" || member.role === "Manager").length} members</span>
-                </div>
-              </div>
-            </article>
-          </section>
-        )}
+                {venueStaff.length === 0 ? (
+                  <EmptyState copy="Add staff to see team performance breakdowns." />
+                ) : (
+                  <>
+                    <div className="ops-module-grid" style={{ marginBottom: "1.5rem" }}>
+                      {teams.map((team) => (
+                        <div key={team.label} className="ops-module-card" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <strong>{team.label}</strong>
+                            <span style={{ fontSize: "0.78rem", color: "var(--mcc-ink-500)" }}>{team.members.length} member{team.members.length !== 1 ? "s" : ""}</span>
+                          </div>
+                          <div style={{ fontSize: "0.82rem", color: "var(--mcc-ink-500)", display: "flex", flexDirection: "column", gap: 4 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between" }}>
+                              <span>Training completion</span>
+                              <b style={{ color: "var(--mcc-ink-900)" }}>{team.avgProgress > 0 ? `${team.avgProgress}%` : "—"}</b>
+                            </div>
+                            <div style={{ display: "flex", justifyContent: "space-between" }}>
+                              <span>Avg scenario score</span>
+                              <b style={{ color: "var(--mcc-ink-900)" }}>{team.avgScore > 0 ? `${team.avgScore}%` : "—"}</b>
+                            </div>
+                            <div style={{ display: "flex", justifyContent: "space-between" }}>
+                              <span>Needs attention</span>
+                              <b style={{ color: team.attention.length > 0 ? "#b45309" : "#15803d" }}>{team.attention.length}</b>
+                            </div>
+                          </div>
+                          {team.top && (
+                            <div style={{ fontSize: "0.78rem", borderTop: "1px solid var(--mcc-border)", paddingTop: 6, marginTop: 2 }}>
+                              <span style={{ color: "var(--mcc-ink-500)" }}>Top: </span>
+                              <span style={{ fontWeight: 600, color: "var(--mcc-ink-900)" }}>{team.top.name}</span>
+                              <span style={{ color: "var(--mcc-ink-500)" }}> · {team.top.progress}%</span>
+                            </div>
+                          )}
+                          {team.weakest && team.members.length > 0 && (
+                            <div style={{ fontSize: "0.78rem", color: "#b45309" }}>
+                              Training gap: {team.weakest}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ borderTop: "1px solid var(--mcc-border)", paddingTop: "1rem" }}>
+                      <p style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--mcc-ink-500)", marginBottom: 10 }}>Team comparison — avg scenario score</p>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        {teams.map((team) => (
+                          <div key={team.label} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                            <span style={{ width: 96, fontSize: "0.82rem", color: "var(--mcc-ink-700)", flexShrink: 0 }}>{team.label}</span>
+                            <div style={{ flex: 1, height: 10, background: "var(--mcc-surface-2)", borderRadius: 999, overflow: "hidden" }}>
+                              <div style={{ height: "100%", width: `${team.members.length ? (team.avgScore / maxScore) * 100 : 0}%`, background: "#1E5A3C", borderRadius: 999, transition: "width 0.4s ease" }} />
+                            </div>
+                            <span style={{ width: 36, fontSize: "0.82rem", fontWeight: 700, color: "var(--mcc-ink-900)", textAlign: "right" }}>
+                              {team.members.length ? `${team.avgScore}%` : "—"}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    {teams.some((t) => t.attention.length > 0) && (
+                      <div style={{ marginTop: "1.25rem", borderTop: "1px solid var(--mcc-border)", paddingTop: "1rem" }}>
+                        <p style={{ fontSize: "0.8rem", fontWeight: 600, color: "#b45309", marginBottom: 8 }}>Needs attention</p>
+                        <ul className="ops-plain-list ops-compact-list">
+                          {teams.flatMap((t) => t.attention.map((s) => (
+                            <li key={s.id}>
+                              <span style={{ fontWeight: 600 }}>{s.name}</span>
+                              <span style={{ color: "var(--mcc-ink-500)", marginLeft: 6 }}>{t.label} · {s.status === "inactive" ? "Inactive" : "Needs attention"} · {s.progress}% complete</span>
+                            </li>
+                          )))}
+                        </ul>
+                      </div>
+                    )}
+                  </>
+                )}
+              </article>
+            </section>
+          );
+        })()}
 
-        {activeSection === "roles" && (
-          <section className="ops-grid ops-grid-main">
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Roles &amp; permissions</h3>
-              </div>
-              <div className="ops-module-grid">
-                <div className="ops-module-card">
-                  <strong>Manager</strong>
-                  <span>Can manage staff, programs, inventory and reports.</span>
+        {activeSection === "roles" && (() => {
+          // Required modules per role (static config — editable in V2)
+          const MODULE_REQS: Record<StaffRole, { label: string; required: boolean }[]> = {
+            "Bartender":  [{ label: "Bartending", required: true }, { label: "Sales", required: true }, { label: "Management", required: false }],
+            "Floor":      [{ label: "Bartending", required: false }, { label: "Sales", required: true }, { label: "Management", required: false }],
+            "Supervisor": [{ label: "Bartending", required: false }, { label: "Sales", required: true }, { label: "Management", required: true }],
+            "Manager":    [{ label: "Bartending", required: false }, { label: "Sales", required: true }, { label: "Management", required: true }],
+            "New Staff":  [{ label: "Bartending", required: false }, { label: "Sales", required: true }, { label: "Management", required: false }],
+          };
+          const PERMISSIONS: { label: string; manager: boolean; supervisor: boolean; staff: boolean }[] = [
+            { label: "Manager dashboard", manager: true, supervisor: false, staff: false },
+            { label: "Staff management", manager: true, supervisor: true, staff: false },
+            { label: "Training programs", manager: true, supervisor: true, staff: false },
+            { label: "Inventory & menu", manager: true, supervisor: false, staff: false },
+            { label: "Reports & analytics", manager: true, supervisor: true, staff: false },
+            { label: "Complete training", manager: true, supervisor: true, staff: true },
+            { label: "View own progress", manager: true, supervisor: true, staff: true },
+          ];
+          const roleGroups: StaffRole[] = ["Bartender", "Floor", "Supervisor", "Manager", "New Staff"];
+          const roleStats = roleGroups.map((role) => {
+            const members = venueStaff.filter((s) => s.role === role);
+            const avgProgress = members.length ? Math.round(members.reduce((a, s) => a + s.progress, 0) / members.length) : null;
+            const reqs = MODULE_REQS[role].filter((m) => m.required);
+            const compliant = members.filter((s) => s.progress >= 80).length;
+            return { role, members, avgProgress, reqs, compliant };
+          });
+          return (
+            <section className="ops-grid ops-grid-main">
+              <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+                <div className="ops-card-head">
+                  <h3>Role training matrix</h3>
+                  <span>{selectedVenue?.name}</span>
                 </div>
-                <div className="ops-module-card">
-                  <strong>Supervisor</strong>
-                  <span>Can assign training and review performance dashboards.</span>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+                    <thead>
+                      <tr style={{ borderBottom: "2px solid var(--mcc-border)" }}>
+                        <th style={{ textAlign: "left", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Role</th>
+                        <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Staff</th>
+                        <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Bartending</th>
+                        <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Sales</th>
+                        <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Management</th>
+                        <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Avg progress</th>
+                        <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Compliant (&ge;80%)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {roleStats.map((row) => {
+                        const mods = MODULE_REQS[row.role];
+                        const cell = (mod: { label: string; required: boolean }) => (
+                          <td key={mod.label} style={{ textAlign: "center", padding: "10px 12px", borderBottom: "1px solid var(--mcc-border)" }}>
+                            <span style={{
+                              display: "inline-block", padding: "2px 8px", borderRadius: 999, fontSize: "0.75rem", fontWeight: 600,
+                              background: mod.required ? "#dcfce7" : "#f3f4f6",
+                              color: mod.required ? "#15803d" : "#9ca3af",
+                            }}>
+                              {mod.required ? "Required" : "Optional"}
+                            </span>
+                          </td>
+                        );
+                        return (
+                          <tr key={row.role} style={{ background: row.members.length ? "transparent" : "var(--mcc-surface-2)" }}>
+                            <td style={{ padding: "10px 12px", fontWeight: 600, borderBottom: "1px solid var(--mcc-border)", color: "var(--mcc-ink-900)" }}>{row.role}</td>
+                            <td style={{ textAlign: "center", padding: "10px 12px", borderBottom: "1px solid var(--mcc-border)", color: "var(--mcc-ink-700)" }}>{row.members.length}</td>
+                            {mods.map(cell)}
+                            <td style={{ textAlign: "center", padding: "10px 12px", borderBottom: "1px solid var(--mcc-border)", fontWeight: 700, color: "var(--mcc-ink-900)" }}>
+                              {row.avgProgress !== null ? `${row.avgProgress}%` : "—"}
+                            </td>
+                            <td style={{ textAlign: "center", padding: "10px 12px", borderBottom: "1px solid var(--mcc-border)" }}>
+                              {row.members.length > 0
+                                ? <span style={{ fontWeight: 600, color: row.compliant === row.members.length ? "#15803d" : "#b45309" }}>{row.compliant}/{row.members.length}</span>
+                                : <span style={{ color: "var(--mcc-ink-400)" }}>—</span>
+                              }
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
-                <div className="ops-module-card">
-                  <strong>Staff</strong>
-                  <span>Can complete training and view personal progress.</span>
+              </article>
+              <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+                <div className="ops-card-head">
+                  <h3>Permission matrix</h3>
+                  <span>Dashboard access by role</span>
                 </div>
-              </div>
-            </article>
-          </section>
-        )}
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+                    <thead>
+                      <tr style={{ borderBottom: "2px solid var(--mcc-border)" }}>
+                        <th style={{ textAlign: "left", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Capability</th>
+                        <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Manager</th>
+                        <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Supervisor</th>
+                        <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Staff</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {PERMISSIONS.map((perm) => {
+                        const dot = (has: boolean) => (
+                          <td style={{ textAlign: "center", padding: "9px 12px", borderBottom: "1px solid var(--mcc-border)" }}>
+                            <span style={{ display: "inline-block", width: 12, height: 12, borderRadius: "50%", background: has ? "#1E5A3C" : "#e5e7eb" }} />
+                          </td>
+                        );
+                        return (
+                          <tr key={perm.label}>
+                            <td style={{ padding: "9px 12px", borderBottom: "1px solid var(--mcc-border)", color: "var(--mcc-ink-700)" }}>{perm.label}</td>
+                            {dot(perm.manager)}
+                            {dot(perm.supervisor)}
+                            {dot(perm.staff)}
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+            </section>
+          );
+        })()}
 
         {activeSection === "training" && (
           <section className="ops-grid ops-grid-main">
@@ -2189,31 +2371,104 @@ export default function ManagerControlCenter({
           </section>
         )}
 
-        {activeSection === "compliance" && (
-          <section className="ops-grid ops-grid-main">
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Compliance readiness</h3>
-                <span>{selectedVenue?.name}</span>
-              </div>
-              <p style={{ fontSize: "0.85rem", color: "var(--text-soft)", marginBottom: 12 }}>Sample data — live compliance tracking coming soon.</p>
-              <ul className="ops-alert-list">
-                <li>
-                  <strong>Service protocol checks</strong>
-                  <span>86% of active staff completed service standards assessment.</span>
-                </li>
-                <li>
-                  <strong>Responsible service module</strong>
-                  <span>2 staff still need completion this week.</span>
-                </li>
-                <li>
-                  <strong>Manager sign-off</strong>
-                  <span>Supervisor review due for new starter onboarding plans.</span>
-                </li>
-              </ul>
-            </article>
-          </section>
-        )}
+        {activeSection === "compliance" && (() => {
+          // Required modules per role (same mapping as Roles tab)
+          const ROLE_REQUIRED: Record<StaffRole, string[]> = {
+            "Bartender":  ["Bartending", "Sales"],
+            "Floor":      ["Sales"],
+            "Supervisor": ["Sales", "Management"],
+            "Manager":    ["Sales", "Management"],
+            "New Staff":  ["Sales"],
+          };
+          // Approximate which module a staff member has completed by score thresholds
+          // Progress >= 60 → Sales; serviceScore >= 60 → Bartending; productScore >= 60 → Management
+          const hasModule = (s: typeof venueStaff[0], mod: string) => {
+            if (mod === "Sales") return s.salesScore >= 60 || s.progress >= 60;
+            if (mod === "Bartending") return s.serviceScore >= 60;
+            if (mod === "Management") return s.productScore >= 60;
+            return false;
+          };
+          const complianceRows = venueStaff.map((s) => {
+            const required = ROLE_REQUIRED[s.role] ?? [];
+            const passed = required.filter((mod) => hasModule(s, mod));
+            const isCompliant = passed.length === required.length && required.length > 0;
+            return { ...s, required, passed, isCompliant };
+          });
+          const compliantCount = complianceRows.filter((r) => r.isCompliant).length;
+          const totalWithRequired = complianceRows.filter((r) => r.required.length > 0).length;
+          const allModules = ["Bartending", "Sales", "Management"];
+          return (
+            <section className="ops-grid ops-grid-main">
+              <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+                <div className="ops-card-head">
+                  <h3>Training compliance</h3>
+                  <span>{selectedVenue?.name}</span>
+                </div>
+                {venueStaff.length === 0 ? (
+                  <EmptyState copy="Add staff to track training compliance." />
+                ) : (
+                  <>
+                    <div style={{ display: "flex", gap: "1rem", marginBottom: "1.25rem", flexWrap: "wrap" }}>
+                      <div style={{ flex: 1, minWidth: 160, padding: "14px 18px", background: compliantCount === totalWithRequired && totalWithRequired > 0 ? "#f0fdf4" : "#fff7ed", borderRadius: 10, border: `1.5px solid ${compliantCount === totalWithRequired && totalWithRequired > 0 ? "#86efac" : "#fed7aa"}` }}>
+                        <div style={{ fontSize: "1.5rem", fontWeight: 800, color: compliantCount === totalWithRequired && totalWithRequired > 0 ? "#15803d" : "#b45309" }}>{compliantCount}/{totalWithRequired}</div>
+                        <div style={{ fontSize: "0.8rem", color: "var(--mcc-ink-500)", marginTop: 2 }}>staff fully compliant with required training</div>
+                      </div>
+                      <div style={{ flex: 1, minWidth: 160, padding: "14px 18px", background: "var(--mcc-surface-2)", borderRadius: 10, border: "1.5px solid var(--mcc-border)" }}>
+                        <div style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--mcc-ink-900)" }}>{venueStaff.filter((s) => s.status !== "on-track").length}</div>
+                        <div style={{ fontSize: "0.8rem", color: "var(--mcc-ink-500)", marginTop: 2 }}>staff need attention or are inactive</div>
+                      </div>
+                    </div>
+                    <div style={{ overflowX: "auto" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.84rem" }}>
+                        <thead>
+                          <tr style={{ borderBottom: "2px solid var(--mcc-border)" }}>
+                            <th style={{ textAlign: "left", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Staff member</th>
+                            <th style={{ textAlign: "left", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Role</th>
+                            {allModules.map((mod) => (
+                              <th key={mod} style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>{mod}</th>
+                            ))}
+                            <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {complianceRows.map((row) => (
+                            <tr key={row.id}>
+                              <td style={{ padding: "9px 12px", borderBottom: "1px solid var(--mcc-border)", fontWeight: 600, color: "var(--mcc-ink-900)" }}>{row.name}</td>
+                              <td style={{ padding: "9px 12px", borderBottom: "1px solid var(--mcc-border)", color: "var(--mcc-ink-600)", fontSize: "0.8rem" }}>{row.role}</td>
+                              {allModules.map((mod) => {
+                                const isRequired = row.required.includes(mod);
+                                const passed = hasModule(row, mod);
+                                let bg = "#f3f4f6", color = "#9ca3af", label = "N/A";
+                                if (isRequired && passed) { bg = "#dcfce7"; color = "#15803d"; label = "Done"; }
+                                else if (isRequired && !passed) { bg = "#fff7ed"; color = "#b45309"; label = "Needed"; }
+                                return (
+                                  <td key={mod} style={{ textAlign: "center", padding: "9px 12px", borderBottom: "1px solid var(--mcc-border)" }}>
+                                    <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 999, fontSize: "0.72rem", fontWeight: 600, background: bg, color }}>{label}</span>
+                                  </td>
+                                );
+                              })}
+                              <td style={{ textAlign: "center", padding: "9px 12px", borderBottom: "1px solid var(--mcc-border)" }}>
+                                {row.required.length === 0
+                                  ? <span style={{ color: "var(--mcc-ink-400)", fontSize: "0.78rem" }}>No req.</span>
+                                  : row.isCompliant
+                                  ? <span style={{ fontWeight: 700, color: "#15803d", fontSize: "0.78rem" }}>Compliant</span>
+                                  : <span style={{ fontWeight: 700, color: "#b45309", fontSize: "0.78rem" }}>Incomplete</span>
+                                }
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <p style={{ marginTop: 12, fontSize: "0.78rem", color: "var(--mcc-ink-400)" }}>
+                      Module completion is estimated from training scores. Required modules are set by role — editable in Roles &amp; Permissions.
+                    </p>
+                  </>
+                )}
+              </article>
+            </section>
+          );
+        })()}
 
         {activeSection === "scenarios" && (
           <section className="ops-grid ops-grid-main">
@@ -2399,63 +2654,237 @@ export default function ManagerControlCenter({
           </section>
         )}
 
-        {activeSection === "leaderboards" && (
-          <section className="ops-grid ops-grid-main">
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Team leaderboards</h3>
-                <span>{selectedVenue?.name}</span>
-              </div>
-              {venueStaff.length ? (
-                <ul className="ops-ranked-list">
-                  {[...venueStaff]
-                    .sort((a, b) => b.progress - a.progress)
-                    .slice(0, 6)
-                    .map((member) => (
-                      <li key={member.id}>
-                        <div>
-                          <strong>{member.name}</strong>
-                          <span>{member.role}</span>
-                        </div>
-                        <b>{parseFloat(member.progress.toFixed(2))}%</b>
-                      </li>
-                    ))}
-                </ul>
-              ) : (
-                <EmptyState copy="No leaderboard data yet. Add staff to start ranking progress." />
-              )}
-            </article>
-          </section>
-        )}
+        {activeSection === "leaderboards" && (() => {
+          const sorted = {
+            progress: [...venueStaff].sort((a, b) => b.progress - a.progress),
+            score: [...venueStaff].sort((a, b) => {
+              const avgA = (a.serviceScore + a.salesScore + a.productScore) / 3;
+              const avgB = (b.serviceScore + b.salesScore + b.productScore) / 3;
+              return avgB - avgA;
+            }),
+            active: [...venueStaff].filter((s) => s.status === "on-track").sort((a, b) => b.progress - a.progress),
+          };
+          const ranked = sorted[leaderboardTab];
+          const tabLabels: { key: "progress" | "score" | "active"; label: string }[] = [
+            { key: "progress", label: "Training progress" },
+            { key: "score", label: "Scenario score" },
+            { key: "active", label: "On track" },
+          ];
+          const getValue = (s: typeof venueStaff[0]) => {
+            if (leaderboardTab === "progress") return `${parseFloat(s.progress.toFixed(1))}%`;
+            if (leaderboardTab === "score") return `${Math.round((s.serviceScore + s.salesScore + s.productScore) / 3)}%`;
+            return `${parseFloat(s.progress.toFixed(1))}%`;
+          };
+          const podiumColors = ["#F59E0B", "#94A3B8", "#CD7F32"];
+          const podiumLabels = ["1st", "2nd", "3rd"];
+          return (
+            <section className="ops-grid ops-grid-main">
+              <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+                <div className="ops-card-head">
+                  <h3>Leaderboards</h3>
+                  <span>{selectedVenue?.name}</span>
+                </div>
+                {venueStaff.length === 0 ? (
+                  <EmptyState copy="No leaderboard data yet. Add staff to start ranking progress." />
+                ) : (
+                  <>
+                    <div style={{ display: "flex", gap: 8, marginBottom: "1.5rem", flexWrap: "wrap" }}>
+                      {tabLabels.map((t) => (
+                        <button
+                          key={t.key}
+                          type="button"
+                          onClick={() => setLeaderboardTab(t.key)}
+                          style={{
+                            padding: "7px 16px", borderRadius: 999, border: "1.5px solid",
+                            borderColor: leaderboardTab === t.key ? "#1E5A3C" : "var(--mcc-border)",
+                            background: leaderboardTab === t.key ? "#1E5A3C" : "transparent",
+                            color: leaderboardTab === t.key ? "white" : "var(--mcc-ink-600)",
+                            fontWeight: 600, fontSize: "0.82rem", cursor: "pointer",
+                          }}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+                    {ranked.length >= 3 && (
+                      <div style={{ display: "flex", justifyContent: "center", gap: "1.5rem", marginBottom: "2rem", alignItems: "flex-end" }}>
+                        {[1, 0, 2].map((pos) => {
+                          const m = ranked[pos];
+                          if (!m) return null;
+                          const isFirst = pos === 0;
+                          return (
+                            <div key={m.id} style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                              <div style={{ fontSize: isFirst ? "2rem" : "1.5rem", lineHeight: 1 }}>{isFirst ? "🥇" : pos === 1 ? "🥈" : "🥉"}</div>
+                              <div style={{ fontWeight: 700, fontSize: isFirst ? "1rem" : "0.9rem", color: "var(--mcc-ink-900)" }}>{m.name}</div>
+                              <div style={{ fontSize: "0.78rem", color: "var(--mcc-ink-500)" }}>{m.role}</div>
+                              <div style={{
+                                padding: "4px 12px", borderRadius: 999, fontWeight: 800, fontSize: "0.85rem",
+                                background: podiumColors[pos] + "20", color: podiumColors[pos], border: `1.5px solid ${podiumColors[pos]}40`,
+                              }}>{getValue(m)}</div>
+                              <div style={{
+                                width: isFirst ? 80 : 64, height: isFirst ? 10 : 7, borderRadius: 4,
+                                background: podiumColors[pos], opacity: 0.7,
+                              }} />
+                              <div style={{ fontSize: "0.72rem", fontWeight: 700, color: podiumColors[pos] }}>{podiumLabels[pos]}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                    <ul className="ops-ranked-list">
+                      {ranked.slice(0, 8).map((member, idx) => (
+                        <li key={member.id} style={{ paddingLeft: 4 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            <span style={{ width: 22, fontSize: "0.78rem", fontWeight: 700, color: idx < 3 ? podiumColors[idx] : "var(--mcc-ink-400)", textAlign: "center" }}>
+                              {idx + 1}
+                            </span>
+                            <div>
+                              <strong>{member.name}</strong>
+                              <span>{member.role}</span>
+                            </div>
+                          </div>
+                          <b>{getValue(member)}</b>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </article>
+            </section>
+          );
+        })()}
 
-        {activeSection === "notifications" && (
-          <section className="ops-grid ops-grid-main">
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Notifications center</h3>
-                <span>{selectedVenue?.name}</span>
-              </div>
-              <ul className="ops-alert-list">
-                <li>
-                  <strong>Staff overdue</strong>
-                  <span>{needsAttention.length > 0 ? `${needsAttention.length} staff need attention this week.` : "No overdue staff right now."}</span>
-                </li>
-                <li>
-                  <strong>Low inventory signals</strong>
-                  <span>{venueInventory.length ? "Inventory categories available for scenario realism." : "No inventory categories connected yet."}</span>
-                </li>
-                <li>
-                  <strong>Training assignments</strong>
-                  <span>{venuePrograms.length ? `${venuePrograms.length} programs ready to assign.` : "Create your first program to trigger assignment alerts."}</span>
-                </li>
-                <li>
-                  <strong>Upsell alerts</strong>
-                  <span>{metrics.salesSkill > 0 ? `Current upsell performance: ${metrics.salesSkill}%.` : "No sales performance data yet."}</span>
-                </li>
-              </ul>
-            </article>
-          </section>
-        )}
+        {activeSection === "notifications" && (() => {
+          type NotifItem = { id: string; category: "training" | "performance" | "inventory"; urgency: "critical" | "warning" | "info"; title: string; body: string };
+          const allNotifs: NotifItem[] = [
+            ...(needsAttention.filter((s) => s.status === "inactive").map((s) => ({
+              id: `inactive-${s.id}`,
+              category: "training" as const,
+              urgency: "critical" as const,
+              title: "Staff inactive",
+              body: `${s.name} (${s.role}) has not completed any training and is inactive.`,
+            }))),
+            ...(needsAttention.filter((s) => s.status === "attention").map((s) => ({
+              id: `attention-${s.id}`,
+              category: "training" as const,
+              urgency: "warning" as const,
+              title: "Training overdue",
+              body: `${s.name} needs attention — currently at ${parseFloat(s.progress.toFixed(0))}% completion.`,
+            }))),
+            ...(venueStaff.filter((s) => s.salesScore > 0 && s.salesScore < 50).map((s) => ({
+              id: `lowsales-${s.id}`,
+              category: "performance" as const,
+              urgency: "warning" as const,
+              title: "Low upsell score",
+              body: `${s.name} has a sales score of ${s.salesScore}% — consider targeted upsell training.`,
+            }))),
+            ...(metrics.salesSkill > 0 ? [{
+              id: "upsell-avg",
+              category: "performance" as const,
+              urgency: metrics.salesSkill < 60 ? "warning" as const : "info" as const,
+              title: "Venue upsell performance",
+              body: `Average upsell performance is ${metrics.salesSkill}%.${metrics.salesSkill < 60 ? " Consider running a sales-focus training session." : " Tracking well."}`,
+            }] : []),
+            ...(venueInventory.length === 0 ? [{
+              id: "no-inventory",
+              category: "inventory" as const,
+              urgency: "info" as const,
+              title: "No inventory connected",
+              body: "Add inventory categories to improve scenario realism for your team.",
+            }] : [{
+              id: "inventory-ok",
+              category: "inventory" as const,
+              urgency: "info" as const,
+              title: "Inventory connected",
+              body: `${venueInventory.length} inventory categor${venueInventory.length !== 1 ? "ies" : "y"} linked to training scenarios.`,
+            }]),
+            ...(venuePrograms.length === 0 ? [{
+              id: "no-programs",
+              category: "training" as const,
+              urgency: "info" as const,
+              title: "No training programs",
+              body: "Create a training program to assign structured onboarding to your staff.",
+            }] : []),
+          ];
+          const urgencyOrder = { critical: 0, warning: 1, info: 2 };
+          const urgencyStyle: Record<string, { bg: string; border: string; dot: string; label: string }> = {
+            critical: { bg: "#fff1f2", border: "#fca5a5", dot: "#dc2626", label: "Critical" },
+            warning:  { bg: "#fff7ed", border: "#fed7aa", dot: "#f59e0b", label: "Warning" },
+            info:     { bg: "var(--mcc-surface-2)", border: "var(--mcc-border)", dot: "#60a5fa", label: "Info" },
+          };
+          const filterTabs: { key: "all" | "training" | "performance" | "inventory"; label: string }[] = [
+            { key: "all", label: "All" },
+            { key: "training", label: "Training" },
+            { key: "performance", label: "Performance" },
+            { key: "inventory", label: "Inventory" },
+          ];
+          const visible = allNotifs
+            .filter((n) => notifFilter === "all" || n.category === notifFilter)
+            .filter((n) => !dismissedNotifs.has(n.id))
+            .sort((a, b) => urgencyOrder[a.urgency] - urgencyOrder[b.urgency]);
+          return (
+            <section className="ops-grid ops-grid-main">
+              <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+                <div className="ops-card-head">
+                  <h3>Notifications</h3>
+                  <span>{selectedVenue?.name}</span>
+                </div>
+                <div style={{ display: "flex", gap: 8, marginBottom: "1.25rem", flexWrap: "wrap" }}>
+                  {filterTabs.map((t) => {
+                    const count = allNotifs.filter((n) => (t.key === "all" || n.category === t.key) && !dismissedNotifs.has(n.id)).length;
+                    return (
+                      <button
+                        key={t.key}
+                        type="button"
+                        onClick={() => setNotifFilter(t.key)}
+                        style={{
+                          padding: "6px 14px", borderRadius: 999, border: "1.5px solid",
+                          borderColor: notifFilter === t.key ? "#1E5A3C" : "var(--mcc-border)",
+                          background: notifFilter === t.key ? "#1E5A3C" : "transparent",
+                          color: notifFilter === t.key ? "white" : "var(--mcc-ink-600)",
+                          fontWeight: 600, fontSize: "0.8rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
+                        }}
+                      >
+                        {t.label}
+                        {count > 0 && (
+                          <span style={{
+                            background: notifFilter === t.key ? "rgba(255,255,255,0.25)" : "#e5e7eb",
+                            color: notifFilter === t.key ? "white" : "var(--mcc-ink-600)",
+                            borderRadius: 999, padding: "1px 7px", fontSize: "0.72rem", fontWeight: 700,
+                          }}>{count}</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+                {visible.length === 0 ? (
+                  <EmptyState copy="No notifications in this category right now." />
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {visible.map((notif) => {
+                      const style = urgencyStyle[notif.urgency];
+                      return (
+                        <div key={notif.id} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "12px 16px", borderRadius: 10, background: style.bg, border: `1.5px solid ${style.border}` }}>
+                          <span style={{ marginTop: 3, flexShrink: 0, width: 10, height: 10, borderRadius: "50%", background: style.dot, display: "inline-block" }} />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 700, fontSize: "0.88rem", color: "var(--mcc-ink-900)", marginBottom: 2 }}>{notif.title}</div>
+                            <div style={{ fontSize: "0.82rem", color: "var(--mcc-ink-600)", lineHeight: 1.45 }}>{notif.body}</div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setDismissedNotifs((prev) => new Set([...prev, notif.id]))}
+                            style={{ flexShrink: 0, background: "none", border: "none", cursor: "pointer", color: "var(--mcc-ink-400)", fontSize: "1rem", lineHeight: 1, padding: "2px 4px" }}
+                            aria-label="Dismiss"
+                          >×</button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </article>
+            </section>
+          );
+        })()}
 
         {activeSection === "aicoach" && (
           <section className="ops-grid ops-grid-main">
