@@ -100,18 +100,72 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Failed to invite staff member." }, { status: 500 });
     }
 
-    // Send Supabase auth invite email (creates account if not exists)
-    const { error: inviteError } = await admin.auth.admin.inviteUserByEmail(
-      email,
-      {
-        data: { invited_by_manager: user.id },
-        redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL ?? ""}/dashboard`,
-      },
-    );
+    // Send invite email via Brevo. For new users: generate a signup link.
+    // For existing users: send a login notification instead.
+    const appOrigin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? new URL(req.url).origin;
+    const brevoApiKey = process.env.BREVO_API_KEY;
+    const fromEmail = process.env.BREVO_FROM_EMAIL ?? "noreply@serve-by-example.com";
+    const fromName = process.env.BREVO_FROM_NAME ?? "Serve By Example";
+    let inviteSent = false;
 
-    const inviteSent = !inviteError;
-    if (inviteError) {
-      console.warn("Auth invite email failed (user may already exist):", inviteError.message);
+    if (brevoApiKey) {
+      // Try to generate a signup link for new users
+      const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+        type: "invite",
+        email,
+        options: { redirectTo: `${appOrigin}/login`, data: { invited_by_manager: user.id } },
+      });
+
+      const isExistingUser =
+        linkError &&
+        (linkError.message?.toLowerCase().includes("already registered") ||
+          linkError.message?.toLowerCase().includes("already been registered"));
+
+      const inviteLink = linkData?.properties?.action_link ?? null;
+      const ctaHref = inviteLink ?? `${appOrigin}/login`;
+      const ctaLabel = inviteLink ? "Accept invitation" : "Log in to your account";
+      const bodyText = inviteLink
+        ? "You've been added as a staff member on <strong>Serve By Example</strong>. Click the button below to set up your account and start your training."
+        : "You've been added as a staff member on <strong>Serve By Example</strong>. Log in to your existing account to get started with your training.";
+
+      if (!linkError || isExistingUser) {
+        try {
+          const emailRes = await fetch("https://api.brevo.com/v3/smtp/email", {
+            method: "POST",
+            headers: {
+              "api-key": brevoApiKey,
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({
+              sender: { name: fromName, email: fromEmail },
+              to: [{ email }],
+              subject: `You've been invited to join ${fromName}`,
+              htmlContent: `
+                <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px">
+                  <h2 style="margin-bottom:8px">You've been invited!</h2>
+                  <p style="color:#555">${bodyText}</p>
+                  <p style="margin:32px 0">
+                    <a href="${ctaHref}" style="background:#22c55e;color:#fff;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-block">${ctaLabel}</a>
+                  </p>
+                  <p style="color:#aaa;font-size:13px">If the button doesn't work, copy and paste this link:<br>${ctaHref}</p>
+                  ${inviteLink ? '<p style="color:#aaa;font-size:13px">This link expires in 7 days.</p>' : ""}
+                </div>
+              `,
+            }),
+          });
+          inviteSent = emailRes.ok;
+          if (!emailRes.ok) {
+            console.warn("Memberships: Brevo send failed:", emailRes.status, await emailRes.text());
+          }
+        } catch (err) {
+          console.warn("Memberships: Brevo fetch threw:", err);
+        }
+      } else {
+        console.warn("Memberships: generateLink failed:", linkError.message);
+      }
+    } else {
+      console.warn("Memberships: BREVO_API_KEY not set — no invite email sent.");
     }
 
     return NextResponse.json({
