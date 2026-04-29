@@ -59,6 +59,16 @@ function LoginPageContent() {
         });
 
         if (signUpError) {
+          const msg = signUpError.message ?? "";
+          if (
+            msg.toLowerCase().includes("already registered") ||
+            msg.toLowerCase().includes("user already registered")
+          ) {
+            setError("That email is already registered. Switch to Sign in.");
+            setMode("sign-in");
+            setLoading(false);
+            return;
+          }
           throw signUpError;
         }
 
@@ -281,11 +291,6 @@ function LoginPageContent() {
                     : "Sign in"}
               </button>
 
-              <p className="auth-help">
-                {isSignUp
-                  ? "Already have an account? Switch to sign in."
-                  : "Need an account? Switch to create account."}
-              </p>
             </div>
           </form>
           <div className="login-footer" style={{ marginTop: 48, paddingTop: 32, borderTop: "1px solid var(--line-light)", textAlign: "center" }}>
