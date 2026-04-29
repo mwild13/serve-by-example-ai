@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import {
-  Menu, Flame, Play, ArrowRight, Sparkles, X, Home,
+  Flame, Play, ArrowRight, Sparkles, X, Home,
   BookOpen, Zap, GlassWater, BarChart2, Target, Cpu, Mic,
 } from "lucide-react";
 
@@ -416,7 +417,14 @@ export default function MobileDashboardV3({
         flexShrink: 0,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, opacity: 0.9 }}>
-          <Menu size={20} />
+          <div style={{
+            width: 28, height: 28, borderRadius: "50%",
+            background: "rgba(255,255,255,0.92)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            flexShrink: 0,
+          }}>
+            <Image src="/logo.png" alt="SBE" width={20} height={20} style={{ borderRadius: 4, display: "block" }} />
+          </div>
           <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: "0.16em" }}>
             SERVE BY EXAMPLE
           </span>

@@ -349,13 +349,15 @@ export default function ManagerControlCenter({
   const [openRosterSections, setOpenRosterSections] = useState<Set<string>>(new Set(["Bar Team"]));
 
   // ── Staff membership invite state ──
-  type MembershipRow = { id: string; staff_email: string; venue_id: string | null; status: string; created_at: string };
+  type MembershipRow = { id: string; staff_email: string; staff_name?: string; venue_id: string | null; status: string; created_at: string };
   const [memberships, setMemberships] = useState<MembershipRow[]>([]);
   const [membershipSeats, setMembershipSeats] = useState<{ used: number; max: number }>({ used: 0, max: 0 });
   const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteName, setInviteName] = useState("");
   const [inviteLoading, setInviteLoading] = useState(false);
   const [inviteError, setInviteError] = useState("");
   const [membershipsLoaded, setMembershipsLoaded] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ staffId: string; staffName: string } | null>(null);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [menuTab, setMenuTab] = useState<"food" | "cocktails" | "wine">("food");
@@ -798,18 +800,26 @@ export default function ManagerControlCenter({
     try {
       const res = await apiFetch("/api/management/memberships", {
         method: "POST",
-        body: JSON.stringify({ staffEmail: inviteEmail.trim(), venueId: selectedVenueId || undefined }),
+        body: JSON.stringify({
+          staffEmail: inviteEmail.trim(),
+          staffName: inviteName.trim() || undefined,
+          venueId: selectedVenueId || undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) { setInviteError(data.error ?? "Failed to invite"); return; }
       setInviteEmail("");
+      setInviteName("");
       await loadMemberships();
     } catch { setInviteError("Network error"); } finally { setInviteLoading(false); }
   }
 
   async function handleRemoveMembership(id: string) {
     try {
-      const res = await apiFetch(`/api/management/memberships?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+      const res = await apiFetch("/api/management/memberships", {
+        method: "DELETE",
+        body: JSON.stringify({ membershipId: id }),
+      });
       if (res.ok) await loadMemberships();
     } catch { /* silent */ }
   }
@@ -1006,7 +1016,13 @@ export default function ManagerControlCenter({
   }
 
   async function handleDeleteStaff(staffId: string, staffName: string) {
-    if (!window.confirm(`Remove ${staffName} from the roster?`)) return;
+    setDeleteConfirm({ staffId, staffName });
+  }
+
+  async function confirmDeleteStaff() {
+    if (!deleteConfirm) return;
+    const { staffId, staffName } = deleteConfirm;
+    setDeleteConfirm(null);
     setIsSaving(true);
     setRequestError("");
     setRequestSuccess("");
@@ -1958,18 +1974,30 @@ export default function ManagerControlCenter({
               </div>
 
               <form className="ops-action-form" onSubmit={handleInviteStaff} style={{ marginBottom: 16 }}>
-                <label className="label">
-                  Staff email
-                  <input
-                    className="input"
-                    type="email"
-                    value={inviteEmail}
-                    onChange={(e) => setInviteEmail(e.target.value)}
-                    placeholder="staff@venue.com"
-                    required
-                  />
-                </label>
-                <button className="btn btn-primary" type="submit" disabled={inviteLoading}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <label className="label">
+                    Name
+                    <input
+                      className="input"
+                      type="text"
+                      value={inviteName}
+                      onChange={(e) => setInviteName(e.target.value)}
+                      placeholder="Jane Smith"
+                    />
+                  </label>
+                  <label className="label">
+                    Staff email
+                    <input
+                      className="input"
+                      type="email"
+                      value={inviteEmail}
+                      onChange={(e) => setInviteEmail(e.target.value)}
+                      placeholder="staff@venue.com"
+                      required
+                    />
+                  </label>
+                </div>
+                <button className="btn btn-primary" type="submit" disabled={inviteLoading} style={{ marginTop: 4 }}>
                   {inviteLoading ? "Inviting..." : "Invite staff member"}
                 </button>
               </form>
@@ -1980,6 +2008,7 @@ export default function ManagerControlCenter({
                   <table className="ops-table">
                     <thead>
                       <tr>
+                        <th>Name</th>
                         <th>Email</th>
                         <th>Status</th>
                         <th>Invited</th>
@@ -1989,6 +2018,7 @@ export default function ManagerControlCenter({
                     <tbody>
                       {memberships.map((m) => (
                         <tr key={m.id}>
+                          <td>{m.staff_name || <span style={{ color: "#9ca3af", fontSize: "0.8rem" }}>—</span>}</td>
                           <td>{m.staff_email}</td>
                           <td><span className={`ops-badge ops-badge-${m.status}`}>{m.status}</span></td>
                           <td>{new Date(m.created_at).toLocaleDateString()}</td>
@@ -3769,6 +3799,55 @@ export default function ManagerControlCenter({
           </ul>
         </article>
       </aside>
+
+      {/* ── Delete confirmation modal ── */}
+      {deleteConfirm && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 9999,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          background: "rgba(0,0,0,0.45)",
+        }} onClick={() => setDeleteConfirm(null)}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "white", borderRadius: 12, padding: "28px 32px",
+              maxWidth: 400, width: "calc(100% - 48px)",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+            }}
+          >
+            <h3 style={{ margin: "0 0 8px", fontSize: "1rem", fontWeight: 700, color: "#111827" }}>
+              Remove staff member?
+            </h3>
+            <p style={{ margin: "0 0 24px", fontSize: "0.9rem", color: "#6b7280", lineHeight: 1.55 }}>
+              Are you sure you want to remove <strong>{deleteConfirm.staffName}</strong> from the roster? This cannot be undone.
+            </p>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <button
+                type="button"
+                onClick={() => setDeleteConfirm(null)}
+                style={{
+                  padding: "9px 20px", borderRadius: 8, border: "1.5px solid #e5e7eb",
+                  background: "white", fontWeight: 600, fontSize: "0.875rem",
+                  cursor: "pointer", color: "#374151",
+                }}
+              >
+                No, keep
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteStaff}
+                style={{
+                  padding: "9px 20px", borderRadius: 8, border: "none",
+                  background: "#dc2626", color: "white",
+                  fontWeight: 700, fontSize: "0.875rem", cursor: "pointer",
+                }}
+              >
+                Yes, remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

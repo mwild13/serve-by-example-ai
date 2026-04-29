@@ -415,7 +415,7 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
               <h3 style={{ margin: 0, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.06em", color: "#6b6860", fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif", fontWeight: 600 }}>Module Certifications</h3>
               <span style={{ fontSize: "0.73rem", color: "#a39e95" }}>All 4 stages required</span>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(80px, 1fr))", gap: 10 }}>
               {MODULE_CERTS.map((cert) => (
                 <div
                   key={cert.mod}

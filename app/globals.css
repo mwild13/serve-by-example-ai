@@ -8116,6 +8116,23 @@ html[data-staff-high-contrast="1"] .dashboard-main {
     grid-template-columns: 1fr;
   }
 
+  .progress-overview {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .badge-row-3 {
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  }
+
+  .badge-row-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .badge-stage {
+    overflow: hidden;
+  }
+
   .login-card {
     width: min(560px, calc(100% - 32px));
     padding: 30px 24px;

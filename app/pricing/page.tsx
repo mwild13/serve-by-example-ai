@@ -110,11 +110,8 @@ export default function PricingPage() {
               <div className="price-card featured">
                 <h3>Pro</h3>
                 <div className="price">
-                  AUD ${billing === "monthly" ? "19" : "190"} <small>/ {billing === "monthly" ? "month" : "year"}</small>
+                  AUD ${billing === "monthly" ? "19" : "190"} <small>/ {billing === "monthly" ? "month" : "year billed annually"}</small>
                 </div>
-                {billing === "yearly" && (
-                  <div style={{ fontSize: "0.8rem", color: "#6b7280", marginTop: "-4px", marginBottom: "4px" }}>AUD $15.83/month billed annually</div>
-                )}
                 <div className="price-note">
                   Best for individual bartenders and hospitality staff.
                 </div>
@@ -136,11 +133,8 @@ export default function PricingPage() {
               <div className="price-card">
                 <h3>Single Venue</h3>
                 <div className="price">
-                  AUD ${billing === "monthly" ? "49" : "490"} <small>/ {billing === "monthly" ? "month" : "year"}</small>
+                  AUD ${billing === "monthly" ? "49" : "490"} <small>/ {billing === "monthly" ? "month" : "year billed annually"}</small>
                 </div>
-                {billing === "yearly" && (
-                  <div style={{ fontSize: "0.8rem", color: "#6b7280", marginTop: "-4px", marginBottom: "4px" }}>AUD $40.83/month billed annually</div>
-                )}
                 <div className="price-note">
                   Best for small venues with one location.
                 </div>
@@ -163,11 +157,8 @@ export default function PricingPage() {
               <div className="price-card">
                 <h3>Multi-Venue</h3>
                 <div className="price">
-                  AUD ${billing === "monthly" ? "149" : "1,490"} <small>/ {billing === "monthly" ? "month" : "year"}</small>
+                  AUD ${billing === "monthly" ? "149" : "1,490"} <small>/ {billing === "monthly" ? "month" : "year billed annually"}</small>
                 </div>
-                {billing === "yearly" && (
-                  <div style={{ fontSize: "0.8rem", color: "#6b7280", marginTop: "-4px", marginBottom: "4px" }}>AUD $124.17/month billed annually</div>
-                )}
                 <div className="price-note">
                   Best for multi-location teams wanting unified management.
                 </div>
@@ -191,7 +182,51 @@ export default function PricingPage() {
           </div>
         </section>
 
-        {/* ── Future Updates ── */}
+        {/* ── Investment Protection ── */}
+        <section className="section founding-section">
+          <div className="container">
+            <div className="founding-inner">
+              <div className="founding-header">
+                <span className="eyebrow eyebrow-gold">Investment Protection</span>
+                <h2>Lock In Founding Member Rates &mdash; Before Prices Rise</h2>
+                <p>
+                  Serve By Example is opening to its first venues now. Join as a Founding Member and your rate is locked in for life &mdash; guaranteed, regardless of future pricing. This isn&apos;t a discount. It&apos;s rate protection.
+                </p>
+              </div>
+              <div className="founding-cards">
+                <div className="founding-card">
+                  <div className="founding-card-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  </div>
+                  <h3>Locked Rates, Forever</h3>
+                  <p>Join at <strong>AUD $49/venue</strong> today &mdash; our future rate is <strong>AUD $79/venue</strong>. As long as you&apos;re subscribed, your founding rate is protected.</p>
+                </div>
+                <div className="founding-card">
+                  <div className="founding-card-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></svg>
+                  </div>
+                  <h3>1-on-1 Onboarding</h3>
+                  <p>We personally walk your team through setup. Get your first 10 staff trained in week one &mdash; a direct conversation, not a video tutorial.</p>
+                </div>
+                <div className="founding-card">
+                  <div className="founding-card-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+                  </div>
+                  <h3>Shape What We Build Next</h3>
+                  <p>Monthly calls with our product team. Founding members directly influence what modules, features, and tools get prioritised. Your operation shapes the roadmap.</p>
+                </div>
+              </div>
+              <div className="founding-cta">
+                <Link href="/for-venues#venue-enquiry" className="btn btn-gold btn-lg">
+                  Secure Founding Member Rate
+                </Link>
+                <p className="founding-cta-note">Strictly limited spots. Month-to-month. Cancel anytime.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Roadmap ── */}
         <section className="section">
           <div className="container">
             <SectionHeading

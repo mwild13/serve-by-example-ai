@@ -23,7 +23,7 @@ export async function GET(req: Request) {
     const admin = createSupabaseAdminClient();
     const { data, error } = await admin
       .from("venue_memberships")
-      .select("id, staff_email, venue_id, status, created_at")
+      .select("id, staff_email, staff_name, venue_id, status, created_at")
       .eq("manager_id", user.id)
       .order("created_at", { ascending: true });
 
@@ -44,12 +44,13 @@ export async function POST(req: Request) {
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const body = await req.json();
-    const { staffEmail, venueId } = body as { staffEmail?: string; venueId?: string };
+    const { staffEmail, staffName, venueId } = body as { staffEmail?: string; staffName?: string; venueId?: string };
 
     if (!staffEmail || typeof staffEmail !== "string") {
       return NextResponse.json({ error: "staffEmail is required." }, { status: 400 });
     }
     const email = staffEmail.trim().toLowerCase();
+    const name = staffName?.trim() || null;
 
     const admin = createSupabaseAdminClient();
 
@@ -86,13 +87,14 @@ export async function POST(req: Request) {
         {
           manager_id: user.id,
           staff_email: email,
+          ...(name ? { staff_name: name } : {}),
           venue_id: venueId ?? null,
           status: "invited",
           updated_at: new Date().toISOString(),
         },
         { onConflict: "manager_id,staff_email" },
       )
-      .select("id, staff_email, venue_id, status")
+      .select("id, staff_email, staff_name, venue_id, status")
       .single();
 
     if (insertError) {

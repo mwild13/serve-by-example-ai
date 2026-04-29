@@ -29,6 +29,20 @@ export default async function DashboardPage() {
     "there";
   const plan = profile?.plan ?? "free";
 
+  // Check if user has an active venue membership (invited by a manager).
+  // These users get full training access even on the free plan tier.
+  let hasVenueMembership = false;
+  if (plan === "free" && user.email) {
+    const { data: membership } = await supabase
+      .from("venue_memberships")
+      .select("id")
+      .eq("staff_email", user.email.toLowerCase())
+      .in("status", ["invited", "active"])
+      .limit(1)
+      .maybeSingle();
+    hasVenueMembership = !!membership;
+  }
+
   return (
     <DashboardShell
       displayName={displayName}
@@ -38,6 +52,7 @@ export default async function DashboardPage() {
       notifReminders={profile?.notif_reminders ?? true}
       notifWeeklyDigest={profile?.notif_weekly_digest ?? true}
       notifAchievementAlerts={profile?.notif_achievement_alerts ?? true}
+      hasVenueMembership={hasVenueMembership}
     />
   );
 }

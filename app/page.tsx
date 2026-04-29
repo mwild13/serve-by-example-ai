@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import WaitlistSection from "@/components/ui/WaitlistSection";
 import ROICalculator from "@/components/ui/ROICalculator";
 import BrowserMockup from "@/components/ui/BrowserMockup";
+import DashboardMockup from "@/components/ui/DashboardMockup";
 
 // ── SVG Icons ─────────────────────────────────────────────────────────────────
 
@@ -28,24 +29,6 @@ function IcoBuilding({ size = 22 }: { size?: number }) {
   );
 }
 
-function IcoEye({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-      <circle cx="12" cy="12" r="3"/>
-    </svg>
-  );
-}
-
-function IcoAlertTriangle({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m10.29 3.86-8.5 14.72A2 2 0 0 0 3.5 21h17a2 2 0 0 0 1.71-3.02l-8.5-14.72a2 2 0 0 0-3.42 0z"/>
-      <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-    </svg>
-  );
-}
-
 function IcoClipboard({ size = 18 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -59,15 +42,6 @@ function IcoBarChart({ size = 18 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
-    </svg>
-  );
-}
-
-function IcoSparkles({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
-      <circle cx="12" cy="12" r="4"/>
     </svg>
   );
 }
@@ -311,91 +285,16 @@ export default function Home() {
 
             <div className="solution-grid">
 
-              {/* Venues Column */}
+              {/* Management Console Column */}
               <div className="solution-col">
                 <div className="solution-col-header">
                   <span className="solution-col-icon"><IcoBuilding size={20} /></span>
                   <div>
-                    <h3>For Your Venues</h3>
-                    <p>Complete Operational Control: Track performance and compliance in real-time</p>
+                    <h3>Management Console</h3>
+                    <p>Venue Performance Mission Control: Track team performance and compliance in real-time</p>
                   </div>
                 </div>
-                <div className="command-cards">
-                  <div className="command-card">
-                    <div className="command-card-label">
-                      <IcoEye size={14} /> Visibility &amp; Compliance
-                    </div>
-                    <div className="command-card-rows">
-                      <div className="command-card-row">
-                        <span className="status-dot certified" />
-                        <span className="command-card-row-label">Certified</span>
-                        <span className="command-card-row-bar"><span style={{width: "78%"}} className="bar-fill certified-fill"/></span>
-                        <span className="command-card-row-val">14</span>
-                      </div>
-                      <div className="command-card-row">
-                        <span className="status-dot in-progress" />
-                        <span className="command-card-row-label">In Progress</span>
-                        <span className="command-card-row-bar"><span style={{width: "26%"}} className="bar-fill progress-fill"/></span>
-                        <span className="command-card-row-val">5</span>
-                      </div>
-                      <div className="command-card-row">
-                        <span className="status-dot at-risk" />
-                        <span className="command-card-row-label">At Risk</span>
-                        <span className="command-card-row-bar"><span style={{width: "11%"}} className="bar-fill risk-fill"/></span>
-                        <span className="command-card-row-val">2</span>
-                      </div>
-                    </div>
-                    <div className="command-card-footer">Updated 2 min ago</div>
-                  </div>
-
-                  <div className="command-card">
-                    <div className="command-card-label">
-                      <IcoBarChart size={14} /> Management Efficiency
-                    </div>
-                    <div className="command-card-stat-row">
-                      <div className="command-card-before-after">
-                        <div className="before-after-col">
-                          <span className="before-after-label">Before</span>
-                          <span className="before-after-val muted">6 months</span>
-                        </div>
-                        <span className="before-after-arrow">→</span>
-                        <div className="before-after-col">
-                          <span className="before-after-label">After SBE</span>
-                          <span className="before-after-val green">6 weeks</span>
-                        </div>
-                      </div>
-                      <div className="command-card-badge">3× Faster Onboarding</div>
-                    </div>
-                    <div className="command-card-footer">Avg. staff completion: 12 days</div>
-                  </div>
-
-                  <div className="command-card">
-                    <div className="command-card-label">
-                      <IcoAlertTriangle size={14} /> Knowledge Decay Risk
-                    </div>
-                    <div className="command-card-rows">
-                      <div className="command-card-row">
-                        <span className="status-dot certified" />
-                        <span className="command-card-row-label">Low Risk</span>
-                        <span className="command-card-row-bar"><span style={{width: "71%"}} className="bar-fill certified-fill"/></span>
-                        <span className="command-card-row-val">12</span>
-                      </div>
-                      <div className="command-card-row">
-                        <span className="status-dot in-progress" />
-                        <span className="command-card-row-label">Medium Risk</span>
-                        <span className="command-card-row-bar"><span style={{width: "18%"}} className="bar-fill progress-fill"/></span>
-                        <span className="command-card-row-val">3</span>
-                      </div>
-                      <div className="command-card-row">
-                        <span className="status-dot at-risk" />
-                        <span className="command-card-row-label">High Risk</span>
-                        <span className="command-card-row-bar"><span style={{width: "12%"}} className="bar-fill risk-fill"/></span>
-                        <span className="command-card-row-val">2</span>
-                      </div>
-                    </div>
-                    <div className="command-card-footer command-card-footer-ai">AI Coach: 2 active recommendations</div>
-                  </div>
-                </div>
+                <DashboardMockup />
               </div>
 
               {/* Staff Column */}
@@ -745,6 +644,33 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ── Roadmap ──────────────────────────────── */}
+        <section className="section">
+          <div className="container">
+            <div className="section-header center">
+              <span className="eyebrow">Roadmap</span>
+              <h2>Future Updates.</h2>
+              <p>We&rsquo;re actively building and improving the platform. V2 updates are planned within 6 months.</p>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.25rem", marginTop: "2rem" }}>
+              {[
+                { eta: "2 months", soon: true, title: "More Staff Modules", desc: "New training modules covering coffee service, food pairing, wine fundamentals and advanced guest interaction." },
+                { eta: "4 months", soon: true, title: "More Staff Modules", desc: "Expanded scenario sets for large-venue management, events service and high-volume bar operations." },
+                { eta: "Within 6 months", soon: true, title: "V2 — Major Feature Release", desc: "A significant platform update informed by founding member feedback, with new features across training, analytics and management." },
+                { eta: "TBA", soon: false, title: "App Store — iOS & Android", desc: "Native mobile apps so staff can train on the go, anytime, anywhere — fully synced with their progress." },
+              ].map((item, i) => (
+                <div key={i} style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "12px", padding: "1.5rem" }}>
+                  <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", color: item.soon ? "#16a34a" : "#9ca3af", textTransform: "uppercase", marginBottom: "0.5rem" }}>
+                    {item.eta}
+                  </div>
+                  <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.9375rem", fontWeight: 700, color: "#111827" }}>{item.title}</h3>
+                  <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.55 }}>{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* ── Founder Story ────────────────────────── */}
         <section className="section section-alt">
           <div className="container">
@@ -785,56 +711,6 @@ export default function Home() {
                   Founder, Serve By Example &mdash; Australia
                 </footer>
               </blockquote>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Founding Member Banner ───────────────── */}
-        <section className="section founding-section">
-          <div className="container">
-            <div className="founding-inner">
-              <div className="founding-header">
-                <span className="eyebrow eyebrow-gold">Investment Protection</span>
-                <h2>Lock In Founding Member Rates &mdash; Before Prices Rise</h2>
-                <p>
-                  Serve By Example is opening to its first venues now. Join as a Founding Member and your rate is locked in for life — guaranteed, regardless of future pricing. This isn&rsquo;t a discount. It&rsquo;s rate protection.
-                </p>
-              </div>
-              <div className="founding-cards">
-                <div className="founding-card">
-                  <div className="founding-card-icon">
-                    <IcoLock size={28} />
-                  </div>
-                  <h3>Locked Rates, Forever</h3>
-                  <p>
-                    Join at <strong>AUD $49/venue</strong> today — our future rate is <strong>AUD $79/venue</strong>. As long as you&rsquo;re subscribed, your founding rate is protected. No price rises. No surprises.
-                  </p>
-                </div>
-                <div className="founding-card">
-                  <div className="founding-card-icon">
-                    <IcoHandshake size={28} />
-                  </div>
-                  <h3>1-on-1 Onboarding</h3>
-                  <p>
-                    We personally walk your team through setup. Get your first 10 staff trained in week one &mdash; not a video tutorial, a direct conversation with our team.
-                  </p>
-                </div>
-                <div className="founding-card">
-                  <div className="founding-card-icon">
-                    <IcoCompass size={28} />
-                  </div>
-                  <h3>Shape What We Build Next</h3>
-                  <p>
-                    Monthly calls with our product team. Founding members directly influence what modules, features, and tools get prioritised. Your operation shapes the roadmap.
-                  </p>
-                </div>
-              </div>
-              <div className="founding-cta">
-                <Link href="/for-venues#venue-enquiry" className="btn btn-gold btn-lg">
-                  Secure Founding Member Rate
-                </Link>
-                <p className="founding-cta-note">Strictly limited spots. Month-to-month. Cancel anytime.</p>
-              </div>
             </div>
           </div>
         </section>

@@ -220,9 +220,116 @@ export default function HowItWorksPage() {
               </div>
             </div>
 
-            {/* Management console mockup */}
-            <div style={{ marginTop: "2.5rem" }}>
-              <DashboardMockup />
+          </div>
+        </section>
+
+        {/* ── Consoles ── */}
+        <section className="section" style={{ background: "#0B2B1E" }}>
+          <div className="container">
+            <div className="section-header center">
+              <span className="eyebrow" style={{ color: "#86efac" }}>Consoles</span>
+              <h2 style={{ color: "white", marginBottom: "0.5rem" }}>See the platform in one glance.</h2>
+              <p style={{ color: "#9ca3af", maxWidth: "560px", margin: "0 auto" }}>
+                Two powerful tools working together — one for managers, one for staff.
+              </p>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2.5rem", marginTop: "2.5rem", alignItems: "start" }}>
+
+              {/* Management Console */}
+              <div>
+                <p style={{ color: "#d1fae5", fontWeight: 700, fontSize: "0.8125rem", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "1rem" }}>Management Console</p>
+                <DashboardMockup />
+              </div>
+
+              {/* Staff Mobile Console */}
+              <div>
+                <p style={{ color: "#d1fae5", fontWeight: 700, fontSize: "0.8125rem", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "1rem" }}>Staff Mobile Console</p>
+                <div style={{ maxWidth: "340px", margin: "0 auto", background: "#111827", borderRadius: "20px", overflow: "hidden", border: "1.5px solid #374151", boxShadow: "0 8px 40px rgba(0,0,0,0.5)" }}>
+                  {/* Top bar */}
+                  <div style={{ background: "linear-gradient(135deg, #0B2B1E 0%, #1b4332 100%)", padding: "16px 18px 20px" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <div style={{ width: "28px", height: "28px", borderRadius: "50%", background: "rgba(255,255,255,0.92)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <span style={{ fontSize: "8px", fontWeight: 900, color: "#0B2B1E", letterSpacing: "-0.5px" }}>SBE</span>
+                        </div>
+                        <span style={{ color: "rgba(255,255,255,0.85)", fontSize: "0.8rem", fontWeight: 600 }}>Serve By Example</span>
+                      </div>
+                      <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                      </div>
+                    </div>
+                    <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.7rem", margin: "0 0 2px" }}>Good morning</p>
+                    <h4 style={{ color: "white", margin: "0 0 14px", fontSize: "1.05rem", fontWeight: 700 }}>Alex</h4>
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: "8px", padding: "7px 12px", textAlign: "center", flex: 1 }}>
+                        <div style={{ color: "#86efac", fontSize: "0.95rem", fontWeight: 800 }}>1,240</div>
+                        <div style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.6rem", marginTop: "2px" }}>XP</div>
+                      </div>
+                      <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: "8px", padding: "7px 12px", textAlign: "center", flex: 1 }}>
+                        <div style={{ color: "#fbbf24", fontSize: "0.95rem", fontWeight: 800 }}>5</div>
+                        <div style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.6rem", marginTop: "2px" }}>Day Streak</div>
+                      </div>
+                      <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: "8px", padding: "7px 12px", textAlign: "center", flex: 1 }}>
+                        <div style={{ color: "white", fontSize: "0.95rem", fontWeight: 800 }}>72%</div>
+                        <div style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.6rem", marginTop: "2px" }}>Progress</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quick actions */}
+                  <div style={{ padding: "14px 18px 10px", background: "#1a2332" }}>
+                    <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 10px" }}>Quick actions</p>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
+                      {[
+                        { label: "S", name: "Scenarios" },
+                        { label: "A", name: "AI Coach" },
+                        { label: "T", name: "Modules" },
+                        { label: "I", name: "Progress" },
+                      ].map(({ label, name }) => (
+                        <div key={label} style={{ background: "#0B2B1E", borderRadius: "10px", padding: "10px 4px 8px", textAlign: "center" }}>
+                          <div style={{ color: "#86efac", fontWeight: 900, fontSize: "0.95rem" }}>{label}</div>
+                          <div style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.55rem", marginTop: "4px" }}>{name}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Module cards */}
+                  <div style={{ padding: "10px 18px 6px", background: "#1a2332" }}>
+                    <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 10px" }}>Current modules</p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                      {[
+                        { title: "Cocktail Fundamentals", pct: 72, color: "#86efac" },
+                        { title: "Upselling Mastery", pct: 45, color: "#fbbf24" },
+                      ].map(({ title, pct, color }) => (
+                        <div key={title} style={{ background: "#111827", borderRadius: "10px", padding: "10px 12px" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+                            <span style={{ color: "white", fontSize: "0.75rem", fontWeight: 600 }}>{title}</span>
+                            <span style={{ color, fontSize: "0.7rem", fontWeight: 700 }}>{pct}%</span>
+                          </div>
+                          <div style={{ background: "#374151", borderRadius: "4px", height: "4px" }}>
+                            <div style={{ background: color, width: `${pct}%`, height: "100%", borderRadius: "4px" }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* AI Coach */}
+                  <div style={{ padding: "10px 18px 18px", background: "#1a2332" }}>
+                    <div style={{ background: "#0B2B1E", borderRadius: "10px", padding: "12px 14px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                        <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#86efac" }} />
+                        <span style={{ color: "#86efac", fontSize: "0.7rem", fontWeight: 700 }}>AI Training Coach</span>
+                      </div>
+                      <p style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.725rem", margin: 0, lineHeight: 1.5 }}>
+                        A guest asks for a &ldquo;smooth but strong&rdquo; cocktail. What do you recommend and why?
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         </section>

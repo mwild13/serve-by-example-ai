@@ -619,6 +619,7 @@ export default function DashboardShell({
   notifReminders,
   notifWeeklyDigest,
   notifAchievementAlerts,
+  hasVenueMembership = false,
 }: {
   displayName: string;
   plan: string;
@@ -627,6 +628,7 @@ export default function DashboardShell({
   notifReminders: boolean;
   notifWeeklyDigest: boolean;
   notifAchievementAlerts: boolean;
+  hasVenueMembership?: boolean;
 }) {
   const [activeNav, setActiveNav] = useState<NavItem>("home");
   const [managementUnlocked, setManagementUnlocked] = useState(managementUnlockedInitial);
@@ -724,7 +726,7 @@ export default function DashboardShell({
   const envAdminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
   const ADMIN_EMAILS = envAdminEmails.length > 0 ? envAdminEmails : FALLBACK_ADMIN_EMAILS;
   const isAdmin = ADMIN_EMAILS.includes(userEmail.toLowerCase());
-  const isPremium = isAdmin || plan !== "free";
+  const isPremium = isAdmin || plan !== "free" || hasVenueMembership;
 
   function handleNavClick(id: NavItem) {
     if (!isPremium && PREMIUM_NAV_ITEMS.includes(id)) {
@@ -838,6 +840,38 @@ export default function DashboardShell({
           ))}
         </div>
 
+        {/* Quick actions */}
+        {isPremium && (
+          <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.12)" }}>
+            <div style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginBottom: 8 }}>
+              Quick actions
+            </div>
+            {[
+              { label: "Scenario Training", nav: "stage4" as NavItem },
+              { label: "AI Scenarios", nav: "scenarios" as NavItem },
+              { label: "Training Modules", nav: "module" as NavItem },
+              { label: "My Progress", nav: "progress" as NavItem },
+            ].map((q) => (
+              <button
+                key={q.nav}
+                type="button"
+                onClick={() => handleNavClick(q.nav)}
+                style={{
+                  display: "block", width: "100%", textAlign: "left",
+                  background: "none", border: "none", cursor: "pointer",
+                  padding: "6px 10px", borderRadius: 6, marginBottom: 2,
+                  fontSize: "0.82rem", fontWeight: 500, color: "rgba(255,255,255,0.65)",
+                  transition: "background 0.15s, color 0.15s",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "white"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "none"; e.currentTarget.style.color = "rgba(255,255,255,0.65)"; }}
+              >
+                → {q.label}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="dashboard-sidebar-signout">
           <SignOutButton />
         </div>
@@ -946,7 +980,7 @@ export default function DashboardShell({
                 key="home-mobile"
                 displayName={displayName}
                 setActiveNav={handleNavClick}
-                plan={plan}
+                plan={hasVenueMembership && plan === "free" ? "venue_member" : plan}
               />
             </div>
             <div className="desktop-psh-only">
@@ -987,7 +1021,7 @@ export default function DashboardShell({
       </section>
 
       <aside className="dashboard-right">
-        <RightPanel setActiveNav={handleNavClick} plan={plan} />
+        <RightPanel setActiveNav={handleNavClick} plan={hasVenueMembership && plan === "free" ? "venue_member" : plan} />
       </aside>
 
       {/* Persistent mobile bottom nav — sits at z-index 45, below V3 home overlay (50) */}
