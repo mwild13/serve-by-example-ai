@@ -28,7 +28,7 @@ export async function GET(req: Request) {
     // ── Dynamic module progress (all modules via module_id) ──
     const { data: allModules } = await admin
       .from("modules")
-      .select("id, title, category")
+      .select("id, title, category, description, difficulty_level")
       .order("id", { ascending: true });
 
     // Get all scenario_mastery records for this user that have module_id set
