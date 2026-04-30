@@ -894,7 +894,10 @@ export default function ManagerControlCenter({
   async function submitAction(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!activeAction || !selectedVenue) {
+    if (!activeAction) return;
+
+    if (!selectedVenue) {
+      setRequestError("No venue selected. Add a venue first before adding staff or inventory.");
       return;
     }
 
@@ -1196,14 +1199,6 @@ export default function ManagerControlCenter({
             </ul>
           )}
         </div>
-        <div className="ops-shortcut-bar">
-          <span>Shortcuts:</span>
-          <kbd>S</kbd><span>search</span>
-          <kbd>A</kbd><span>add staff</span>
-          <kbd>T</kbd><span>create program</span>
-          <kbd>I</kbd><span>add inventory</span>
-        </div>
-
         <nav className="ops-breadcrumbs" aria-label="Breadcrumb">
           {breadcrumbs.map((crumb, index) => (
             <span key={`${crumb}-${index}`}>
@@ -3797,6 +3792,13 @@ export default function ManagerControlCenter({
               </button>
             </li>
           </ul>
+          <div className="ops-shortcut-bar" style={{ marginTop: 16 }}>
+            <span>Shortcuts:</span>
+            <kbd>S</kbd><span>search</span>
+            <kbd>A</kbd><span>add staff</span>
+            <kbd>T</kbd><span>create program</span>
+            <kbd>I</kbd><span>add inventory</span>
+          </div>
         </article>
       </aside>
 

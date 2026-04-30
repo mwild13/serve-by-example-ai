@@ -84,26 +84,28 @@ function getNextStage(lp: LevelProgress): { stage: number; label: string } {
   return { stage: 4, label: "Stage 4 Scenario" };
 }
 
-function computeStreak(): number {
+function computeStreak(userId: string): number {
   try {
     const today = new Date().toISOString().slice(0, 10);
-    const lastDate = localStorage.getItem("sbe-streak-last");
-    const streakCount = parseInt(localStorage.getItem("sbe-streak-count") ?? "0", 10);
+    const lastKey = `sbe-streak-last-${userId}`;
+    const countKey = `sbe-streak-count-${userId}`;
+    const lastDate = localStorage.getItem(lastKey);
+    const streakCount = parseInt(localStorage.getItem(countKey) ?? "0", 10);
     if (!lastDate) {
-      localStorage.setItem("sbe-streak-last", today);
-      localStorage.setItem("sbe-streak-count", "1");
+      localStorage.setItem(lastKey, today);
+      localStorage.setItem(countKey, "1");
       return 1;
     }
     if (lastDate === today) return streakCount || 1;
     const daysDiff = Math.round((new Date(today).getTime() - new Date(lastDate).getTime()) / 86400000);
     if (daysDiff === 1) {
       const next = streakCount + 1;
-      localStorage.setItem("sbe-streak-last", today);
-      localStorage.setItem("sbe-streak-count", String(next));
+      localStorage.setItem(lastKey, today);
+      localStorage.setItem(countKey, String(next));
       return next;
     }
-    localStorage.setItem("sbe-streak-last", today);
-    localStorage.setItem("sbe-streak-count", "1");
+    localStorage.setItem(lastKey, today);
+    localStorage.setItem(countKey, "1");
     return 1;
   } catch {
     return 0;
@@ -353,14 +355,13 @@ export default function MobileDashboardV3({
   const [coach, setCoach] = useState(false);
 
   useEffect(() => {
-    setStreak(computeStreak());
-  }, []);
-
-  useEffect(() => {
     async function load() {
       try {
         const supabase = createSupabaseBrowserClient();
         const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user?.id) {
+          setStreak(computeStreak(session.user.id));
+        }
         const r = await fetch("/api/training/progress", {
           headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
         });

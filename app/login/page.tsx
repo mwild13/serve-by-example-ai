@@ -225,7 +225,7 @@ function LoginPageContent() {
               onClick={() => switchMode("sign-in")}
               aria-pressed={!isSignUp}
             >
-              Sign in
+              Staff Login
             </button>
             <button
               type="button"

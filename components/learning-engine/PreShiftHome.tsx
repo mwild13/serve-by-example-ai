@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
-import { Zap, BookOpen, BarChart2, GlassWater, TrendingUp, Users, Target, Cpu, Flame } from "lucide-react";
+import { Zap, BookOpen, BarChart2, GlassWater, TrendingUp, Users, Flame } from "lucide-react";
 
 type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
 type ModuleKey = "bartending" | "sales" | "management";
@@ -444,7 +444,6 @@ export default function PreShiftHome({
                   <span className={lp.level1_completed ? "done" : ""}>S1</span>
                   <span className={lp.level2_completed ? "done" : ""}>S2</span>
                   <span className={lp.level3_completed ? "done" : ""}>S3</span>
-                  <span className={data.sessions[mod] >= 1 && data.scores[mod] >= 21 ? "done" : ""}>S4</span>
                 </div>
                 <p className="psh-module-next">
                   {isMastered(data, mod) ? "Mastered" : `Next: ${nextStage.label}`}
@@ -455,27 +454,6 @@ export default function PreShiftHome({
         </div>
       </div>
 
-      {/* ── Training Shortcuts ── */}
-      <div className="psh-modules">
-        <h2>Training</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "14px" }}>
-          {([
-            { Icon: Target, nav: "stage4" as NavItem, title: "Scenario Training", desc: "Practice real service situations with instant AI scoring and coaching." },
-            { Icon: Cpu, nav: "scenarios" as NavItem, title: "AI Scenarios", desc: "Advanced AI-driven simulations for high-pressure hospitality moments." },
-          ]).map(({ Icon, nav, title, desc }) => (
-            <button
-              key={nav}
-              type="button"
-              onClick={() => setActiveNav(nav)}
-              style={{ background: "#1b4332", border: "none", borderRadius: "10px", padding: "20px", textAlign: "left", cursor: "pointer", width: "100%" }}
-            >
-              <Icon size={20} style={{ display: "block", marginBottom: "8px", color: "rgba(255,255,255,0.65)" }} />
-              <strong style={{ display: "block", fontSize: "0.95rem", marginBottom: "6px", color: "white" }}>{title}</strong>
-              <p style={{ margin: 0, fontSize: "0.8rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.5 }}>{desc}</p>
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

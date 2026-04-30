@@ -8129,6 +8129,10 @@ html[data-staff-high-contrast="1"] .dashboard-main {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .badge-legend-items {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .badge-stage {
     overflow: hidden;
   }
