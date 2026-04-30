@@ -956,6 +956,7 @@ export default function DashboardShell({
                 key="home"
                 displayName={displayName}
                 setActiveNav={handleNavClick}
+                managementUnlocked={managementUnlocked}
               />
             </div>
           </>

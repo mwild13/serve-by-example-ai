@@ -136,9 +136,11 @@ function formatLastTrained(iso: string | null): string | null {
 export default function PreShiftHome({
   displayName,
   setActiveNav,
+  managementUnlocked = false,
 }: {
   displayName: string;
   setActiveNav: (nav: NavItem) => void;
+  managementUnlocked?: boolean;
 }) {
   const [data, setData] = useState<ProgressData>(EMPTY);
   const [streak, setStreak] = useState(0);
@@ -188,7 +190,7 @@ export default function PreShiftHome({
   const lastTrainedLabel = formatLastTrained(data.lastAttemptAt);
   const WeakestIcon = MODULE_META[weakest].Icon;
 
-  const sortedModules = (["bartending", "sales", "management"] as ModuleKey[]).slice().sort((a, b) => {
+  const sortedModules = (["bartending", "sales", "management"] as ModuleKey[]).filter((m) => managementUnlocked || m !== "management").slice().sort((a, b) => {
     const aM = isMastered(data, a);
     const bM = isMastered(data, b);
     if (aM === bM) return 0;
@@ -352,7 +354,7 @@ export default function PreShiftHome({
       <div className="psh-modules">
         <h2>Quick Drills</h2>
         <div className="psh-module-row">
-          {(["bartending", "sales", "management"] as ModuleKey[]).map((mod) => {
+          {(["bartending", "sales", "management"] as ModuleKey[]).filter((m) => managementUnlocked || m !== "management").map((mod) => {
             const lp = data.levelProgress[mod];
             const nextStage = getNextStage(lp);
             const { short } = MODULE_META[mod];
