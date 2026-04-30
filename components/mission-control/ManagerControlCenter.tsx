@@ -1153,17 +1153,21 @@ export default function ManagerControlCenter({
                 ) : (
                   <div className="ops-nav-group-label">{group.label}</div>
                 )}
-                {!isCollapsed && group.items.map((section) => (
-                  <button
-                    key={section.id}
-                    type="button"
-                    className={`ops-nav-item${activeSection === section.id ? " active" : ""}`}
-                    onClick={() => handleSectionChange(section.id)}
-                  >
-                    <section.icon size={15} strokeWidth={1.5} aria-hidden="true" />
-                    <span>{section.label}</span>
-                  </button>
-                ))}
+                {!isCollapsed && group.items.map((section) => {
+                  const isComingSoon = section.id === "training" || section.id === "scenarios";
+                  return (
+                    <button
+                      key={section.id}
+                      type="button"
+                      className={`ops-nav-item${activeSection === section.id ? " active" : ""}${isComingSoon ? " ops-nav-item-locked" : ""}`}
+                      onClick={() => handleSectionChange(section.id)}
+                    >
+                      <section.icon size={15} strokeWidth={1.5} aria-hidden="true" />
+                      <span>{section.label}</span>
+                      {isComingSoon && <span className="ops-nav-badge-soon">Next update</span>}
+                    </button>
+                  );
+                })}
               </div>
             );
           })}
@@ -1575,6 +1579,14 @@ export default function ManagerControlCenter({
                   </div>
                 </div>
               </section>
+
+              {/* ── Training next update notice ── */}
+              <div className="mcc-training-notice">
+                <span className="mcc-training-notice-badge">Next update</span>
+                <span className="mcc-training-notice-text">
+                  <strong>Training (Programs)</strong> and <strong>Training (Scenarios)</strong> are locked and coming in the next update — your data is safe and will be visible here once released.
+                </span>
+              </div>
 
               {/* ── Secondary row: Staff snapshot + Operational alerts ── */}
               <section className="mcc-secondary-row">
@@ -2003,7 +2015,6 @@ export default function ManagerControlCenter({
                   <table className="ops-table">
                     <thead>
                       <tr>
-                        <th>Name</th>
                         <th>Email</th>
                         <th>Status</th>
                         <th>Invited</th>
@@ -2013,7 +2024,6 @@ export default function ManagerControlCenter({
                     <tbody>
                       {memberships.map((m) => (
                         <tr key={m.id}>
-                          <td>{m.staff_name || <span style={{ color: "#9ca3af", fontSize: "0.8rem" }}>—</span>}</td>
                           <td>{m.staff_email}</td>
                           <td><span className={`ops-badge ops-badge-${m.status}`}>{m.status}</span></td>
                           <td>{new Date(m.created_at).toLocaleDateString()}</td>
@@ -2269,401 +2279,37 @@ export default function ManagerControlCenter({
           );
         })()}
 
-        {activeSection === "training" && (() => {
-          // Derive per-program enrollment and step completion approximations
-          type ProgramStat = {
-            program: typeof venuePrograms[0];
-            enrolled: typeof venueStaff;
-            avgCompletion: number;
-            stepCompletionPct: number[];
-          };
-          const programStats: ProgramStat[] = venuePrograms.map((program) => {
-            const enrolled = venueStaff.filter((s) =>
-              s.role.toLowerCase().includes(program.roleTarget.toLowerCase()) ||
-              program.roleTarget.toLowerCase().includes(s.role.toLowerCase())
-            );
-            const avgCompletion = enrolled.length
-              ? Math.round(enrolled.reduce((sum, s) => sum + s.progress, 0) / enrolled.length)
-              : program.completion;
-            const stepCount = program.dayPlan.length || 1;
-            const stepCompletionPct = program.dayPlan.map((_, i) => {
-              const threshold = ((i + 1) / stepCount) * 100;
-              if (!enrolled.length) return 0;
-              const done = enrolled.filter((s) => s.progress >= threshold).length;
-              return Math.round((done / enrolled.length) * 100);
-            });
-            return { program, enrolled, avgCompletion, stepCompletionPct };
-          });
-
-          const totalEnrolled = new Set(programStats.flatMap((ps) => ps.enrolled.map((s) => s.id))).size;
-          const coveredRoles = new Set(venuePrograms.map((p) => p.roleTarget));
-          const allRoles: string[] = ["Bartender", "Floor", "Supervisor", "Manager", "New Staff"];
-          const uncoveredRoles = allRoles.filter((r) => !coveredRoles.has(r) && venueStaff.some((s) => s.role === r));
-
-          return (
-            <section className="ops-grid ops-grid-main">
-              {/* Summary stat strip */}
-              <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
-                <div className="ops-card-head" style={{ marginBottom: "1rem" }}>
-                  <h3>Training programs</h3>
-                  <span>{selectedVenue?.name}</span>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem", marginBottom: "1.5rem" }}>
-                  {[
-                    { label: "Programs", value: venuePrograms.length },
-                    { label: "Staff enrolled", value: totalEnrolled },
-                    { label: "Avg completion", value: venuePrograms.length ? `${Math.round(venuePrograms.reduce((s, p) => s + p.completion, 0) / venuePrograms.length)}%` : "—" },
-                    { label: "Roles covered", value: `${coveredRoles.size} / ${allRoles.filter((r) => venueStaff.some((s) => s.role === r)).length}` },
-                  ].map((stat) => (
-                    <div key={stat.label} style={{ background: "var(--mcc-surface-2)", borderRadius: 10, padding: "14px 16px" }}>
-                      <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "var(--mcc-ink-900)" }}>{stat.value}</div>
-                      <div style={{ fontSize: "0.75rem", color: "var(--mcc-ink-500)", marginTop: 2 }}>{stat.label}</div>
-                    </div>
-                  ))}
-                </div>
-
-                {venuePrograms.length === 0 ? (
-                  <EmptyState copy="No saved programs yet. Use Create program to start building role-specific onboarding." />
-                ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-                    {programStats.map(({ program, enrolled, avgCompletion, stepCompletionPct }) => (
-                      <div key={program.id} style={{ border: "1.5px solid var(--mcc-border)", borderRadius: 12, padding: "1.25rem", background: "var(--mcc-bg)" }}>
-                        {/* Program header */}
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem", flexWrap: "wrap", gap: 8 }}>
-                          <div>
-                            <div style={{ fontWeight: 700, fontSize: "1rem", color: "var(--mcc-ink-900)" }}>{program.name}</div>
-                            <div style={{ fontSize: "0.82rem", color: "var(--mcc-ink-500)", marginTop: 3 }}>{program.description}</div>
-                          </div>
-                          <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
-                            <span style={{ padding: "4px 10px", borderRadius: 999, background: "#EFF6FF", color: "#1d4ed8", fontWeight: 600, fontSize: "0.75rem" }}>
-                              {program.roleTarget}
-                            </span>
-                            <span style={{ padding: "4px 10px", borderRadius: 999, background: "var(--mcc-surface-2)", color: "var(--mcc-ink-600)", fontWeight: 600, fontSize: "0.75rem" }}>
-                              {enrolled.length} staff enrolled
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Completion bar */}
-                        <div style={{ marginBottom: "1rem" }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                            <span style={{ fontSize: "0.78rem", color: "var(--mcc-ink-500)" }}>Avg completion</span>
-                            <span style={{ fontSize: "0.78rem", fontWeight: 700, color: avgCompletion >= 70 ? "#16a34a" : avgCompletion >= 40 ? "#f59e0b" : "#dc2626" }}>{avgCompletion}%</span>
-                          </div>
-                          <div style={{ height: 6, background: "var(--mcc-surface-2)", borderRadius: 999, overflow: "hidden" }}>
-                            <div style={{ height: "100%", width: `${avgCompletion}%`, background: avgCompletion >= 70 ? "#16a34a" : avgCompletion >= 40 ? "#f59e0b" : "#dc2626", borderRadius: 999, transition: "width 0.3s ease" }} />
-                          </div>
-                        </div>
-
-                        {/* Step heatmap */}
-                        {program.dayPlan.length > 0 && (
-                          <div>
-                            <div style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--mcc-ink-500)", marginBottom: "0.5rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                              Step completion heatmap
-                            </div>
-                            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                              {program.dayPlan.map((step, i) => {
-                                const pct = stepCompletionPct[i] ?? 0;
-                                const hue = pct >= 70 ? "#16a34a" : pct >= 40 ? "#f59e0b" : pct > 0 ? "#dc2626" : "#e5e7eb";
-                                return (
-                                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                    <div style={{ flex: 1, fontSize: "0.82rem", color: "var(--mcc-ink-700)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", minWidth: 0 }}>
-                                      <span style={{ color: "var(--mcc-ink-400)", fontSize: "0.72rem", fontWeight: 700, marginRight: 6 }}>Day {i + 1}</span>
-                                      {step}
-                                    </div>
-                                    <div style={{ flexShrink: 0, width: 120, display: "flex", alignItems: "center", gap: 6 }}>
-                                      <div style={{ flex: 1, height: 6, background: "var(--mcc-surface-2)", borderRadius: 999, overflow: "hidden" }}>
-                                        <div style={{ height: "100%", width: `${pct}%`, background: hue, borderRadius: 999 }} />
-                                      </div>
-                                      <span style={{ fontSize: "0.72rem", fontWeight: 700, color: hue, width: 28, textAlign: "right" }}>{pct > 0 ? `${pct}%` : "—"}</span>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Enrolled staff mini-list */}
-                        {enrolled.length > 0 && (
-                          <div style={{ marginTop: "1rem", borderTop: "1px solid var(--mcc-border)", paddingTop: "0.75rem" }}>
-                            <div style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--mcc-ink-500)", marginBottom: "0.5rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                              Enrolled staff
-                            </div>
-                            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                              {enrolled.map((s) => (
-                                <span key={s.id} style={{
-                                  padding: "3px 10px", borderRadius: 999, fontSize: "0.75rem", fontWeight: 600,
-                                  background: s.status === "on-track" ? "#f0fdf4" : s.status === "attention" ? "#fff7ed" : "#fff1f2",
-                                  color: s.status === "on-track" ? "#15803d" : s.status === "attention" ? "#c2410c" : "#b91c1c",
-                                  border: `1px solid ${s.status === "on-track" ? "#86efac" : s.status === "attention" ? "#fdba74" : "#fca5a5"}`,
-                                }}>
-                                  {s.name} — {Math.round(s.progress)}%
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Uncovered roles callout */}
-                {uncoveredRoles.length > 0 && (
-                  <div style={{ marginTop: "1.25rem", padding: "12px 16px", background: "#fff7ed", border: "1.5px solid #fed7aa", borderRadius: 10, display: "flex", gap: 10, alignItems: "flex-start" }}>
-                    <span style={{ color: "#f59e0b", fontWeight: 700, fontSize: "0.9rem", flexShrink: 0 }}>No program</span>
-                    <p style={{ margin: 0, fontSize: "0.82rem", color: "#92400e" }}>
-                      {uncoveredRoles.join(", ")} {uncoveredRoles.length === 1 ? "has" : "have"} active staff but no training program assigned. Create one to structure their onboarding.
-                    </p>
-                  </div>
-                )}
-              </article>
-            </section>
-          );
-        })()}
-
-        {activeSection === "inventory" && (
+        {activeSection === "training" && (
           <section className="ops-grid ops-grid-main">
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Venue inventory knowledge</h3>
-                <span>{selectedVenue?.name}</span>
+            <article className="ops-card ops-coming-soon-card">
+              <div className="ops-coming-soon-inner">
+                <div className="ops-coming-soon-badge">Next update</div>
+                <h2 className="ops-coming-soon-title">Training — Programs</h2>
+                <p className="ops-coming-soon-body">
+                  The full Programs builder — day plans, role targets, completion heatmaps, and assign-to-role actions — is coming in the next update.
+                  Your existing program data is safe and will be available here once the feature ships.
+                </p>
+                <button type="button" className="btn btn-secondary" onClick={() => handleSectionChange("overview")}>
+                  Return to Mission Control
+                </button>
               </div>
-              {venueInventory.length ? (
-                <div className="ops-module-grid">
-                  {venueInventory.map((category) => (
-                    <div key={`${category.venueId}-${category.name}`} className="ops-module-card">
-                      <strong>{category.name}</strong>
-                      <span>{category.products.join(" | ")}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <EmptyState copy="No inventory categories saved yet. Start with spirits, wine or beer and the AI will get smarter fast." />
-              )}
             </article>
           </section>
         )}
-
-        {activeSection === "menu" && (
-          <section className="ops-grid ops-grid-main">
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Menu item intelligence</h3>
-                <span>{selectedVenue?.name}</span>
-              </div>
-              <p style={{ fontSize: "0.85rem", color: "var(--text-soft)", marginBottom: 12 }}>Menu items added here are stored in your browser session only. Database persistence coming soon.</p>
-              {snapshot.menuKnowledge.length ? (
-                <ul className="ops-ranked-list">
-                  {snapshot.menuKnowledge.map((item) => (
-                    <li key={item.name}>
-                      <div>
-                        <strong>{item.name}</strong>
-                        <span>{item.note}</span>
-                      </div>
-                      <b>{item.count}</b>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <EmptyState copy="No menu items yet. Use the menu engineering tools on the right to add your categories." />
-              )}
-            </article>
-
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Menu engineering tools</h3>
-                <span>Add items by category</span>
-              </div>
-              <div className="ops-menu-tabs">
-                {(["food", "cocktails", "wine"] as const).map((tab) => (
-                  <button
-                    key={tab}
-                    type="button"
-                    className={`ops-menu-tab${menuTab === tab ? " active" : ""}`}
-                    onClick={() => setMenuTab(tab)}
-                  >
-                    {tab === "food" ? "Food" : tab === "cocktails" ? "Cocktails" : "Wine"}
-                    {menuItems[tab].length > 0 ? <span className="ops-menu-count">{menuItems[tab].length}</span> : null}
-                  </button>
-                ))}
-              </div>
-              {menuItems[menuTab].length > 0 && (
-                <ul className="ops-plain-list ops-compact-list">
-                  {menuItems[menuTab].map((item) => (
-                    <li key={item} className="ops-menu-item-row">
-                      <span>{item}</span>
-                      <button
-                        type="button"
-                        className="ops-menu-remove"
-                        onClick={() => setMenuItems((prev) => ({ ...prev, [menuTab]: prev[menuTab].filter((i) => i !== item) }))}
-                        aria-label={`Remove ${item}`}
-                      >
-                        ×
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <label className="label">
-                Paste items (one per line)
-                <textarea
-                  className="input ops-textarea"
-                  rows={4}
-                  value={menuInputText}
-                  onChange={(e) => setMenuInputText(e.target.value)}
-                  placeholder={menuTab === "food" ? "Wagyu sliders\nTruffle fries\nBurrata salad" : menuTab === "cocktails" ? "Espresso Martini\nAperol Spritz\nNegroni" : "Barossa Shiraz\nMarlborough Sauvignon Blanc\nNapa Cabernet"}
-                />
-              </label>
-              <button type="button" className="btn btn-primary" onClick={handleMenuSave} disabled={!menuInputText.trim()}>
-                Add to {menuTab} menu
-              </button>
-            </article>
-          </section>
-        )}
-
-        {activeSection === "compliance" && (() => {
-          // Required modules per role (same mapping as Roles tab)
-          const ROLE_REQUIRED: Record<StaffRole, string[]> = {
-            "Bartender":  ["Bartending", "Sales"],
-            "Floor":      ["Sales"],
-            "Supervisor": ["Sales", "Management"],
-            "Manager":    ["Sales", "Management"],
-            "New Staff":  ["Sales"],
-          };
-          // Approximate which module a staff member has completed by score thresholds
-          // Progress >= 60 → Sales; serviceScore >= 60 → Bartending; productScore >= 60 → Management
-          const hasModule = (s: typeof venueStaff[0], mod: string) => {
-            if (mod === "Sales") return s.salesScore >= 60 || s.progress >= 60;
-            if (mod === "Bartending") return s.serviceScore >= 60;
-            if (mod === "Management") return s.productScore >= 60;
-            return false;
-          };
-          const complianceRows = venueStaff.map((s) => {
-            const required = ROLE_REQUIRED[s.role] ?? [];
-            const passed = required.filter((mod) => hasModule(s, mod));
-            const isCompliant = passed.length === required.length && required.length > 0;
-            return { ...s, required, passed, isCompliant };
-          });
-          const compliantCount = complianceRows.filter((r) => r.isCompliant).length;
-          const totalWithRequired = complianceRows.filter((r) => r.required.length > 0).length;
-          const allModules = ["Bartending", "Sales", "Management"];
-          return (
-            <section className="ops-grid ops-grid-main">
-              <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
-                <div className="ops-card-head">
-                  <h3>Training compliance</h3>
-                  <span>{selectedVenue?.name}</span>
-                </div>
-                {venueStaff.length === 0 ? (
-                  <EmptyState copy="Add staff to track training compliance." />
-                ) : (
-                  <>
-                    <div style={{ display: "flex", gap: "1rem", marginBottom: "1.25rem", flexWrap: "wrap" }}>
-                      <div style={{ flex: 1, minWidth: 160, padding: "14px 18px", background: compliantCount === totalWithRequired && totalWithRequired > 0 ? "#f0fdf4" : "#fff7ed", borderRadius: 10, border: `1.5px solid ${compliantCount === totalWithRequired && totalWithRequired > 0 ? "#86efac" : "#fed7aa"}` }}>
-                        <div style={{ fontSize: "1.5rem", fontWeight: 800, color: compliantCount === totalWithRequired && totalWithRequired > 0 ? "#15803d" : "#b45309" }}>{compliantCount}/{totalWithRequired}</div>
-                        <div style={{ fontSize: "0.8rem", color: "var(--mcc-ink-500)", marginTop: 2 }}>staff fully compliant with required training</div>
-                      </div>
-                      <div style={{ flex: 1, minWidth: 160, padding: "14px 18px", background: "var(--mcc-surface-2)", borderRadius: 10, border: "1.5px solid var(--mcc-border)" }}>
-                        <div style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--mcc-ink-900)" }}>{venueStaff.filter((s) => s.status !== "on-track").length}</div>
-                        <div style={{ fontSize: "0.8rem", color: "var(--mcc-ink-500)", marginTop: 2 }}>staff need attention or are inactive</div>
-                      </div>
-                    </div>
-                    <div style={{ overflowX: "auto" }}>
-                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.84rem" }}>
-                        <thead>
-                          <tr style={{ borderBottom: "2px solid var(--mcc-border)" }}>
-                            <th style={{ textAlign: "left", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Staff member</th>
-                            <th style={{ textAlign: "left", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Role</th>
-                            {allModules.map((mod) => (
-                              <th key={mod} style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>{mod}</th>
-                            ))}
-                            <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {complianceRows.map((row) => (
-                            <tr key={row.id}>
-                              <td style={{ padding: "9px 12px", borderBottom: "1px solid var(--mcc-border)", fontWeight: 600, color: "var(--mcc-ink-900)" }}>{row.name}</td>
-                              <td style={{ padding: "9px 12px", borderBottom: "1px solid var(--mcc-border)", color: "var(--mcc-ink-600)", fontSize: "0.8rem" }}>{row.role}</td>
-                              {allModules.map((mod) => {
-                                const isRequired = row.required.includes(mod);
-                                const passed = hasModule(row, mod);
-                                let bg = "#f3f4f6", color = "#9ca3af", label = "N/A";
-                                if (isRequired && passed) { bg = "#dcfce7"; color = "#15803d"; label = "Done"; }
-                                else if (isRequired && !passed) { bg = "#fff7ed"; color = "#b45309"; label = "Needed"; }
-                                return (
-                                  <td key={mod} style={{ textAlign: "center", padding: "9px 12px", borderBottom: "1px solid var(--mcc-border)" }}>
-                                    <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 999, fontSize: "0.72rem", fontWeight: 600, background: bg, color }}>{label}</span>
-                                  </td>
-                                );
-                              })}
-                              <td style={{ textAlign: "center", padding: "9px 12px", borderBottom: "1px solid var(--mcc-border)" }}>
-                                {row.required.length === 0
-                                  ? <span style={{ color: "var(--mcc-ink-400)", fontSize: "0.78rem" }}>No req.</span>
-                                  : row.isCompliant
-                                  ? <span style={{ fontWeight: 700, color: "#15803d", fontSize: "0.78rem" }}>Compliant</span>
-                                  : <span style={{ fontWeight: 700, color: "#b45309", fontSize: "0.78rem" }}>Incomplete</span>
-                                }
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                    <p style={{ marginTop: 12, fontSize: "0.78rem", color: "var(--mcc-ink-400)" }}>
-                      Module completion is estimated from training scores. Required modules are set by role — editable in Roles &amp; Permissions.
-                    </p>
-                  </>
-                )}
-              </article>
-            </section>
-          );
-        })()}
 
         {activeSection === "scenarios" && (
           <section className="ops-grid ops-grid-main">
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Scenario performance snapshot</h3>
-                <span>{selectedVenue?.name}</span>
-              </div>
-              <ul className="ops-plain-list">
-                {snapshot.scenarioCategories.map((scenario) => (
-                  <li key={scenario.name}>
-                    {scenario.name}: {scenario.avgScore}% average across {scenario.attempts} attempts
-                  </li>
-                ))}
-              </ul>
-            </article>
-
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Scenario builder templates</h3>
-                <span>Start from a proven format</span>
-              </div>
-              <div className="ops-template-grid">
-                {SCENARIO_TEMPLATES.map((template) => (
-                  <div key={template.id} className="ops-template-card">
-                    <div className="ops-template-icon">{template.icon}</div>
-                    <div className="ops-template-body">
-                      <strong>{template.name}</strong>
-                      <p>{template.description}</p>
-                      <div className="ops-template-meta">
-                        <span className="ops-template-focus">{template.focus}</span>
-                        <span className={`ops-template-difficulty ops-diff-${template.difficulty.toLowerCase()}`}>{template.difficulty}</span>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={() => { openAction("create-program"); }}
-                    >
-                      Use template
-                    </button>
-                  </div>
-                ))}
+            <article className="ops-card ops-coming-soon-card">
+              <div className="ops-coming-soon-inner">
+                <div className="ops-coming-soon-badge">Next update</div>
+                <h2 className="ops-coming-soon-title">Training — Scenarios</h2>
+                <p className="ops-coming-soon-body">
+                  AI-powered scenario builder — upsell challenges, service recovery, menu knowledge quizzes, and cocktail build tests — is coming in the next update.
+                  Scenario performance data continues to be tracked and will appear here when the feature ships.
+                </p>
+                <button type="button" className="btn btn-secondary" onClick={() => handleSectionChange("overview")}>
+                  Return to Mission Control
+                </button>
               </div>
             </article>
           </section>

@@ -4716,6 +4716,107 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   font-weight: 600;
 }
 
+.ops-nav-item-locked {
+  opacity: 0.65;
+  cursor: default;
+}
+.ops-nav-item-locked:hover {
+  background: transparent;
+  color: rgba(255,255,255,0.6);
+}
+
+.ops-nav-badge-soon {
+  margin-left: auto;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(251,191,36,0.18);
+  color: #fbbf24;
+  border: 1px solid rgba(251,191,36,0.28);
+  border-radius: 3px;
+  padding: 1px 5px;
+  flex-shrink: 0;
+}
+
+/* ── Coming Soon panel ── */
+.ops-coming-soon-card {
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  grid-column: 1 / -1;
+}
+
+.ops-coming-soon-inner {
+  max-width: 480px;
+  text-align: center;
+  padding: 48px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.ops-coming-soon-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: rgba(251,191,36,0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(251,191,36,0.25);
+  border-radius: 4px;
+  padding: 3px 10px;
+}
+
+.ops-coming-soon-title {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--mcc-ink-900, #111827);
+  margin: 0;
+}
+
+.ops-coming-soon-body {
+  font-size: 0.9rem;
+  color: var(--mcc-ink-500, #6b7280);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Mission Control training notice bar ── */
+.mcc-training-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(251,191,36,0.07);
+  border: 1px solid rgba(251,191,36,0.2);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 6px;
+}
+
+.mcc-training-notice-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: rgba(251,191,36,0.18);
+  color: #d97706;
+  border: 1px solid rgba(251,191,36,0.28);
+  border-radius: 3px;
+  padding: 2px 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.mcc-training-notice-text {
+  font-size: 0.82rem;
+  color: var(--mcc-ink-600, #4b5563);
+  line-height: 1.5;
+}
+
 .ops-quick-actions {
   margin-top: 6px;
   display: grid;
