@@ -3,14 +3,14 @@ export const GEO_CONFIG = {
   allowedCountries: ['AU'],
 
   // Routes accessible to all countries (not behind geo-lock)
-  publicRoutes: ['/geo-block', '/privacy', '/terms', '/cookies', '/'],
+  publicRoutes: ['/restricted', '/geo-block', '/privacy', '/terms', '/cookies', '/'],
 
   // Routes that allow all countries to view (marketing pages)
   // Non-Australian users can see these but will be redirected when trying to access paid/training features
   marketingRoutes: ['/pricing', '/for-venues', '/demo', '/platform'],
 
   // Geo-block page path
-  geoBlockPath: '/geo-block',
+  geoBlockPath: '/restricted',
 
   // Routes to apply geo-blocking to (non-Australian users redirected)
   restrictedRoutes: [
@@ -23,12 +23,12 @@ export const GEO_CONFIG = {
 };
 
 export function isCountryAllowed(country?: string): boolean {
-  if (!country) return false;
+  if (!country || country === 'XX') return true; // local dev or Cloudflare unknown
   return GEO_CONFIG.allowedCountries.includes(country.toUpperCase());
 }
 
 export function shouldApplyGeoBlock(pathname: string, country?: string): boolean {
-  if (!country || isCountryAllowed(country)) return false;
+  if (isCountryAllowed(country)) return false;
 
   // Allow public routes to pass through
   if (GEO_CONFIG.publicRoutes.includes(pathname)) return false;

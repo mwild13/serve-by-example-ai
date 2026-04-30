@@ -7,10 +7,11 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   // ── Geo-blocking check (before auth) ────────
-  const country = (request as any).geo?.country;
+  // Cloudflare sets cf-ipcountry; falls back to undefined for local dev (treated as allowed)
+  const country = request.headers.get("cf-ipcountry") ?? undefined;
   if (shouldApplyGeoBlock(path, country)) {
     const geoBlockUrl = request.nextUrl.clone();
-    geoBlockUrl.pathname = "/geo-block";
+    geoBlockUrl.pathname = "/restricted";
     return NextResponse.redirect(geoBlockUrl);
   }
 
