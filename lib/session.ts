@@ -157,14 +157,12 @@ export async function resolveAccess(
         managerRole === "admin";
 
       if (managerHasVenueAccess) {
-        const effectiveTier: Tier =
-          managerTier === "venue_multi" || managerRole === "multi_venue_manager"
-            ? "venue_multi"
-            : "venue_single";
+        // Sponsored staff get bartending + sales only (modules 1 & 2).
+        // Management training (3) and console (4) are manager-only.
         return {
-          tier: effectiveTier,
-          allowedModules: TIER_MODULES[effectiveTier],
-          maxSeats: 0, // staff don't manage seats
+          tier: "venue_single",
+          allowedModules: [1, 2],
+          maxSeats: 0,
           isSponsored: true,
           sponsorManagerId: membership.manager_id as string,
         };
