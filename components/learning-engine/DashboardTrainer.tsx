@@ -748,8 +748,8 @@ export default function DashboardTrainer({
       {/* Module cards */}
       {!result && (
         <div className="dash-cards">
-          {(Object.keys(MODULE_META) as Module[]).map((mod) => {
-            const isLocked = mod === "management" && !mgmtUnlocked;
+          {(Object.keys(MODULE_META) as Module[]).filter((mod) => mgmtUnlocked || mod !== "management").map((mod) => {
+            const isLocked = false;
             return (
             <div
               key={mod}
