@@ -164,7 +164,7 @@ export default function RapidFirePage({ managementUnlocked }: { managementUnlock
         </div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem" }}>
-          {(Object.keys(MODULE_CONFIG) as ModuleKey[]).map((mod) => {
+          {(Object.keys(MODULE_CONFIG) as ModuleKey[]).filter((mod) => managementUnlocked || mod !== "management").map((mod) => {
             const config = MODULE_CONFIG[mod];
             const lp = data.levelProgress[mod];
             const nextStage = getNextStage(lp, data.sessions[mod], data.scores[mod]);
