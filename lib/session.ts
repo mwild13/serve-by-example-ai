@@ -137,20 +137,33 @@ export async function resolveAccess(
       .maybeSingle();
 
     if (membership) {
-      // Get the manager's tier to determine what access the staff gets
+      // Get the manager's tier and role to determine what access the staff gets
       const { data: managerProfile } = await admin
         .from("profiles")
-        .select("plan")
+        .select("plan, platform_role")
         .eq("id", membership.manager_id)
         .single();
 
       const managerRawTier = managerProfile?.plan ?? "free";
       const managerTier = tierMap[managerRawTier] ?? "free";
+      const managerRole = (managerProfile?.platform_role ?? "staff") as string;
 
-      if (managerTier === "venue_single" || managerTier === "venue_multi") {
+      // Grant access if manager has a venue plan OR a venue/admin platform role
+      const managerHasVenueAccess =
+        managerTier === "venue_single" ||
+        managerTier === "venue_multi" ||
+        managerRole === "venue_manager" ||
+        managerRole === "multi_venue_manager" ||
+        managerRole === "admin";
+
+      if (managerHasVenueAccess) {
+        const effectiveTier: Tier =
+          managerTier === "venue_multi" || managerRole === "multi_venue_manager"
+            ? "venue_multi"
+            : "venue_single";
         return {
-          tier: managerTier,
-          allowedModules: TIER_MODULES[managerTier],
+          tier: effectiveTier,
+          allowedModules: TIER_MODULES[effectiveTier],
           maxSeats: 0, // staff don't manage seats
           isSponsored: true,
           sponsorManagerId: membership.manager_id as string,
