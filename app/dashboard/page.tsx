@@ -46,12 +46,18 @@ export default async function DashboardPage() {
     hasVenueMembership = !!membership;
   }
 
+  // Sponsored venue staff (free plan + venue membership) must never see management content,
+  // even if management_unlocked was previously set in their profile.
+  const managementUnlocked = hasVenueMembership && plan === "free"
+    ? false
+    : (profile?.management_unlocked ?? false);
+
   return (
     <DashboardShell
       displayName={displayName}
       plan={plan}
       userEmail={user.email ?? ""}
-      managementUnlockedInitial={profile?.management_unlocked ?? false}
+      managementUnlockedInitial={managementUnlocked}
       notifReminders={profile?.notif_reminders ?? true}
       notifWeeklyDigest={profile?.notif_weekly_digest ?? true}
       notifAchievementAlerts={profile?.notif_achievement_alerts ?? true}

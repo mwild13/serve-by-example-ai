@@ -145,7 +145,9 @@ export async function GET(req: Request) {
             .then();
         }
 
-        if (MANAGEMENT_ROLES.includes(staffRole)) {
+        // Only auto-unlock management for users with their own paid plan.
+        // Sponsored venue staff (isSponsored = true) must never receive management access.
+        if (MANAGEMENT_ROLES.includes(staffRole) && !access.isSponsored) {
           autoUnlockManagement = true;
           await admin
             .from("profiles")
