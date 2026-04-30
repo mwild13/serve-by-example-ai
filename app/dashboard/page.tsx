@@ -1,5 +1,6 @@
 ﻿import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import DashboardShell from "@/components/DashboardShell";
 
 // Prevent static generation — this page requires auth at runtime
@@ -31,9 +32,11 @@ export default async function DashboardPage() {
 
   // Check if user has an active venue membership (invited by a manager).
   // These users get full training access even on the free plan tier.
+  // Use admin client to bypass RLS — the filter is scoped to this user's email.
   let hasVenueMembership = false;
   if (plan === "free" && user.email) {
-    const { data: membership } = await supabase
+    const admin = createSupabaseAdminClient();
+    const { data: membership } = await admin
       .from("venue_memberships")
       .select("id")
       .eq("staff_email", user.email.toLowerCase())
