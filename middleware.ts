@@ -16,8 +16,9 @@ export async function middleware(request: NextRequest) {
   }
 
   let user = null;
+  let supabase: ReturnType<typeof createSupabaseMiddlewareClient> | null = null;
   try {
-    const supabase = createSupabaseMiddlewareClient(request, response);
+    supabase = createSupabaseMiddlewareClient(request, response);
     const {
       data: { user: authUser },
       error,
@@ -67,7 +68,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // ── Session displacement check for protected routes ────────
-  if (user && (isDashboard || isManagementDashboard)) {
+  if (user && supabase && (isDashboard || isManagementDashboard)) {
     const browserSessionId = request.cookies.get("sbe_session_id")?.value;
 
     if (browserSessionId) {
