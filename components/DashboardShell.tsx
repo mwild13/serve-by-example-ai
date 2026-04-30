@@ -840,38 +840,6 @@ export default function DashboardShell({
           ))}
         </div>
 
-        {/* Quick actions */}
-        {isPremium && (
-          <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.12)" }}>
-            <div style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginBottom: 8 }}>
-              Quick actions
-            </div>
-            {[
-              { label: "Scenario Training", nav: "stage4" as NavItem },
-              { label: "AI Scenarios", nav: "scenarios" as NavItem },
-              { label: "Training Modules", nav: "module" as NavItem },
-              { label: "My Progress", nav: "progress" as NavItem },
-            ].map((q) => (
-              <button
-                key={q.nav}
-                type="button"
-                onClick={() => handleNavClick(q.nav)}
-                style={{
-                  display: "block", width: "100%", textAlign: "left",
-                  background: "none", border: "none", cursor: "pointer",
-                  padding: "6px 10px", borderRadius: 6, marginBottom: 2,
-                  fontSize: "0.82rem", fontWeight: 500, color: "rgba(255,255,255,0.65)",
-                  transition: "background 0.15s, color 0.15s",
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "white"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "none"; e.currentTarget.style.color = "rgba(255,255,255,0.65)"; }}
-              >
-                → {q.label}
-              </button>
-            ))}
-          </div>
-        )}
-
         <div className="dashboard-sidebar-signout">
           <SignOutButton />
         </div>

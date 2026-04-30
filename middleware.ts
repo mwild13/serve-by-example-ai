@@ -15,20 +15,19 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(geoBlockUrl);
   }
 
-  const supabase = createSupabaseMiddlewareClient(request, response);
-  
   let user = null;
   try {
+    const supabase = createSupabaseMiddlewareClient(request, response);
     const {
       data: { user: authUser },
       error,
     } = await supabase.auth.getUser();
-    
+
     if (!error) {
       user = authUser;
     }
   } catch (err) {
-    // Silently handle refresh token errors in middleware
+    // Silently handle missing env vars (local dev) or refresh token errors
     // User will be redirected to login if needed
   }
 
