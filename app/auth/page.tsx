@@ -113,13 +113,21 @@ function AuthCard() {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("plan, tier, management_unlocked")
+      .select("platform_role, plan, tier, management_unlocked")
       .eq("id", userId)
       .single();
 
+    const platformRole = profile?.platform_role ?? "staff";
     const plan = profile?.plan ?? "free";
     const tier = profile?.tier ?? "free";
-    const isManager = plan === "single-venue" || plan === "multi-venue" || tier === "venue_single" || tier === "venue_multi" || profile?.management_unlocked;
+    const isManager =
+      platformRole === "venue_manager" ||
+      platformRole === "multi_venue_manager" ||
+      platformRole === "admin" ||
+      // Legacy fallback for users before platform_role was added
+      plan === "single-venue" || plan === "multi-venue" ||
+      tier === "venue_single" || tier === "venue_multi" ||
+      profile?.management_unlocked;
 
     if (isManager) {
       router.push("/management/dashboard");

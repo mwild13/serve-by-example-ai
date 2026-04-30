@@ -31,7 +31,7 @@ export default async function ManagementDashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, plan, tier")
+    .select("display_name, plan, tier, platform_role")
     .eq("id", user.id)
     .single();
 
@@ -39,12 +39,14 @@ export default async function ManagementDashboardPage() {
     profile?.display_name || user.email?.split("@")[0] || "Manager";
   const plan = profile?.plan ?? "free";
   const tier = profile?.tier ?? "free";
+  const platformRole = profile?.platform_role ?? "staff";
 
   const isAdmin = ADMIN_EMAILS.includes(user.email ?? "");
   const hasVenuePlan = plan === "single-venue" || plan === "multi-venue";
   const hasVenueTier = tier === "venue_single" || tier === "venue_multi";
+  const hasManagerRole = platformRole === "venue_manager" || platformRole === "multi_venue_manager" || platformRole === "admin";
 
-  if (!isAdmin && !hasVenuePlan && !hasVenueTier) {
+  if (!isAdmin && !hasVenuePlan && !hasVenueTier && !hasManagerRole) {
     redirect("/pricing");
   }
   const snapshot = await getManagementSnapshot(supabase, user.id);
