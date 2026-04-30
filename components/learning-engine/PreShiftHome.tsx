@@ -353,6 +353,7 @@ export default function PreShiftHome({
               if (aMastered === bMastered) return a.id - b.id;
               return aMastered ? 1 : -1;
             })
+            .slice(0, 3)
             .map((mod) => {
               const progress = data.moduleProgress[mod.id] ?? { completion: 0, mastery: 0, scenariosAttempted: 0, scenariosMastered: 0, avgElo: 1200 };
               const mastered = progress.mastery >= 80;
