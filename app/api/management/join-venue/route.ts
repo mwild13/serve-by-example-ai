@@ -112,7 +112,6 @@ export async function POST(req: Request) {
           {
             manager_id: venue.owner_user_id,
             staff_email: user.email.toLowerCase(),
-            staff_name: staffName,
             venue_id: venue.id,
             status: "active",
             updated_at: new Date().toISOString(),
