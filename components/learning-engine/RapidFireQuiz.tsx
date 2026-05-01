@@ -47,22 +47,36 @@ export default function RapidFireQuiz({
   const [buttonFlash, setButtonFlash] = useState<string | null>(null);
   const questionStartRef = useRef(Date.now());
 
-  // Shuffle computed once at mount via lazy init — no effect needed, no
-  // second render that could swap the question mid-interaction.
-  // RapidFireQuiz is keyed by stage so it remounts (and reshuffles) when the
-  // stage changes.
-  const [shuffledScenarios] = useState<Scenario[]>(() => {
-    const arr = [...scenarios];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
+  // Pre-generate 3 shuffled rounds at mount so questions never repeat within a session.
+  // Stage 1 needs at most ~30 questions (5 consecutive; realistic worst case ~20 with bad luck).
+  // 3 full rounds (60 questions for a 20-item pool) means we never exhaust the pool mid-session.
+  // RapidFireQuiz is keyed by stage so it remounts (and reshuffles) when the stage changes.
+  const [questionPool] = useState<Scenario[]>(() => {
+    function shuffle(arr: Scenario[]): Scenario[] {
+      const out = [...arr];
+      for (let i = out.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [out[i], out[j]] = [out[j], out[i]];
+      }
+      return out;
     }
-    return arr;
+    if (scenarios.length === 0) return [];
+    const r1 = shuffle(scenarios);
+    const r2 = shuffle(scenarios);
+    const r3 = shuffle(scenarios);
+    // Avoid showing the same question at round join points
+    if (r1.length > 1 && r2.length > 1 && r1[r1.length - 1].id === r2[0].id) {
+      [r2[0], r2[1]] = [r2[1], r2[0]];
+    }
+    if (r2.length > 1 && r3.length > 1 && r2[r2.length - 1].id === r3[0].id) {
+      [r3[0], r3[1]] = [r3[1], r3[0]];
+    }
+    return [...r1, ...r2, ...r3];
   });
   // Ref mirrors stable state so nextQuestion avoids a stale closure.
-  const shuffledScenariosRef = useRef<Scenario[]>(shuffledScenarios);
+  const questionPoolRef = useRef<Scenario[]>(questionPool);
 
-  const currentScenario = shuffledScenarios[questionIndex % shuffledScenarios.length];
+  const currentScenario = questionPool[questionIndex] ?? questionPool[questionPool.length - 1];
   const currentContent = currentScenario?.content as QuizContent | undefined;
 
   const handleAnswer = useCallback(
@@ -105,9 +119,9 @@ export default function RapidFireQuiz({
       onComplete(consecutiveCorrect);
       return;
     }
-    const len = shuffledScenariosRef.current.length;
+    const len = questionPoolRef.current.length;
     if (len > 0) {
-      setQuestionIndex((i) => (i + 1) % len);
+      setQuestionIndex((i) => i + 1);
     }
     setAnswered(null);
     setWasCorrect(null);

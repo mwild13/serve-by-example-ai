@@ -60,14 +60,26 @@ export default function DescriptorSelector({
   const [completed, setCompleted] = useState(false);
   const [failed, setFailed] = useState(false);
 
-  // Shuffle order computed once at mount — lazy useState ensures the shuffle
-  // is synchronous and never causes a second render that could swap the question
-  // out from under an in-progress interaction.
+  // Pre-generate 3 shuffled rounds at mount so questions never repeat within a session.
+  // Level 2/3 need at most 10 questions total — 3 rounds (30 for a 10-item pool) is ample.
   // DescriptorSelector is keyed by stage in StageLearning, so it remounts
   // (and reshuffles) whenever the stage changes.
-  const [orderedScenarios] = useState<Scenario[]>(() => shuffleArray([...scenarios]));
+  const [questionPool] = useState<Scenario[]>(() => {
+    if (scenarios.length === 0) return [];
+    const r1 = shuffleArray(scenarios);
+    const r2 = shuffleArray(scenarios);
+    const r3 = shuffleArray(scenarios);
+    // Avoid showing the same question at round join points
+    if (r1.length > 1 && r2.length > 1 && r1[r1.length - 1].id === r2[0].id) {
+      [r2[0], r2[1]] = [r2[1], r2[0]];
+    }
+    if (r2.length > 1 && r3.length > 1 && r2[r2.length - 1].id === r3[0].id) {
+      [r3[0], r3[1]] = [r3[1], r3[0]];
+    }
+    return [...r1, ...r2, ...r3];
+  });
 
-  const currentScenario = orderedScenarios[questionIndex % orderedScenarios.length];
+  const currentScenario = questionPool[questionIndex] ?? questionPool[questionPool.length - 1];
   const rawContent = currentScenario?.content as DescriptorContent | undefined;
 
   // For Level 3: shuffle the DISPLAY order of descriptors per question so users
@@ -142,12 +154,12 @@ export default function DescriptorSelector({
       return;
     }
     if (!failed) {
-      setQuestionIndex((i) => (i + 1) % orderedScenarios.length);
+      setQuestionIndex((i) => i + 1);
       setSelected(new Set());
       setSubmitted(false);
       setWasCorrect(null);
     }
-  }, [completed, failed, onComplete, correctCount, orderedScenarios.length]);
+  }, [completed, failed, onComplete, correctCount]);
 
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
