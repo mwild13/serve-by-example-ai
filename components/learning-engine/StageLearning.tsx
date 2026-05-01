@@ -350,11 +350,11 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
             // Stage 1 requires 5 consecutive correct — need at least 5 unique questions.
             const MIN_QUIZ_QUESTIONS = 5;
 
-            // Stage 2 max = 6 questions; need 7+ unique L2 so no repeats within a session.
-            // Stage 3 max = 7 questions; need 8+ unique L3 for the same reason.
-            // Below these thresholds the 10-question generic fallback is used instead.
-            const MIN_L2_QUESTIONS = 7;
-            const MIN_L3_QUESTIONS = 8;
+            // Stage 2 max = 6 questions; 6 unique fills exactly one shuffle round = no repeats.
+            // Stage 3 max = 7 questions; 7 unique fills exactly one shuffle round = no repeats.
+            // Below these thresholds the generic fallback (9 L2 / 10 L3) is used instead.
+            const MIN_L2_QUESTIONS = 6;
+            const MIN_L3_QUESTIONS = 7;
             const dbL2Count = validScenarios.filter(
               (s: Scenario) => s.scenario_type === "descriptor_l2"
             ).length;
