@@ -188,6 +188,24 @@ function getFallbackScenarios(moduleId: number, overrideKey?: Module): Scenario[
       difficulty: 2,
     },
     {
+      id: `fallback-${moduleId}-19`, module_id: moduleId, scenario_index: 18, scenario_type: "descriptor_l2",
+      prompt: `A rush of guests arrives during ${info.keyword}. Which TWO approaches keep service quality high?`,
+      content: { descriptors: [`Stay composed and address one guest at a time`, `Ask a colleague for backup if workload exceeds capacity`, `Rush through each guest with minimal attention`, `Make guests feel dismissed to serve everyone faster`, `Wait until the rush passes before helping anyone`], correctIndices: [0, 1], explanation: `Composure and calling for backup maintain quality without sacrificing speed — rushing always costs more than it saves.` },
+      difficulty: 2,
+    },
+    {
+      id: `fallback-${moduleId}-20`, module_id: moduleId, scenario_index: 19, scenario_type: "descriptor_l2",
+      prompt: `Your supervisor asks you to handle ${info.topic} in a way you believe is incorrect. Which TWO responses are appropriate?`,
+      content: { descriptors: [`Follow the instruction and note your concern privately`, `Raise your concern respectfully at the next right moment`, `Refuse the instruction immediately on the floor`, `Ignore the instruction without explanation`, `Complain to other staff in front of guests`], correctIndices: [0, 1], explanation: `Following reasonable instructions while raising concerns through the right channel is how professional teams operate.` },
+      difficulty: 2,
+    },
+    {
+      id: `fallback-${moduleId}-21`, module_id: moduleId, scenario_index: 20, scenario_type: "descriptor_l2",
+      prompt: `You are asked to take on a ${info.topic} task outside your usual responsibilities. Which TWO responses show professionalism?`,
+      content: { descriptors: [`Confirm you understand the task and ask any clarifying questions`, `Attempt it with genuine effort even if it is unfamiliar`, `Refuse because it is not your usual role`, `Do it carelessly since it is not normally your job`, `Wait for someone else to volunteer`], correctIndices: [0, 1], explanation: `Adaptability and willingness to step up — with clear understanding first — are marks of a professional who grows into greater responsibility.` },
+      difficulty: 2,
+    },
+    {
       id: `fallback-${moduleId}-8`, module_id: moduleId, scenario_index: 7, scenario_type: "descriptor_l3",
       prompt: `During a busy shift involving ${info.keyword}, which THREE behaviours demonstrate excellence?`,
       content: { descriptors: [`Maintain composure under pressure`, `Prioritise tasks by urgency`, `Cut corners to save time`, `Communicate clearly with your team`, `Dismiss guest feedback`], correctIndices: [0, 1, 3], explanation: `Composure, prioritisation, and clear communication are the key pillars of excellence.` },
@@ -221,6 +239,30 @@ function getFallbackScenarios(moduleId: number, overrideKey?: Module): Scenario[
       id: `fallback-${moduleId}-18`, module_id: moduleId, scenario_index: 17, scenario_type: "descriptor_l3",
       prompt: `A VIP guest has a complaint about ${info.topic} on arrival. Which THREE actions resolve the situation professionally?`,
       content: { descriptors: [`Acknowledge the issue immediately and apologise sincerely`, `Offer a tangible remedy without overpromising`, `Make excuses and explain why it wasn't your fault`, `Escalate to a manager while staying with the guest`, `Walk away and let someone else handle it`], correctIndices: [0, 1, 3], explanation: `Acknowledge, remedy, and escalate with the guest. Excuses and abandonment destroy the relationship.` },
+      difficulty: 3,
+    },
+    {
+      id: `fallback-${moduleId}-22`, module_id: moduleId, scenario_index: 21, scenario_type: "descriptor_l3",
+      prompt: `A difficult situation arises during ${info.keyword} that you cannot resolve alone. Which THREE responses demonstrate maturity?`,
+      content: { descriptors: [`Acknowledge the issue to the affected guest`, `Escalate to your supervisor with clear context`, `Keep the guest informed while a workaround is found`, `Pretend the issue does not exist`, `Walk away and let someone else deal with it`], correctIndices: [0, 1, 2], explanation: `Acknowledge, escalate with context, and keep the guest informed — these three actions are the professional standard for problems that exceed your authority.` },
+      difficulty: 3,
+    },
+    {
+      id: `fallback-${moduleId}-23`, module_id: moduleId, scenario_index: 22, scenario_type: "descriptor_l3",
+      prompt: `You observe a consistent gap in how your team approaches ${info.topic}. Which THREE actions are most effective?`,
+      content: { descriptors: [`Document the gap with specific examples`, `Raise it in the next team meeting constructively`, `Model the correct approach yourself`, `Ignore it to avoid conflict`, `Publicly criticise underperforming team members`], correctIndices: [0, 1, 2], explanation: `Documentation, constructive discussion, and leading by example create lasting improvement without damaging morale.` },
+      difficulty: 3,
+    },
+    {
+      id: `fallback-${moduleId}-24`, module_id: moduleId, scenario_index: 23, scenario_type: "descriptor_l3",
+      prompt: `Your supervisor gives you critical feedback after a difficult shift involving ${info.keyword}. Which THREE responses reflect emotional intelligence?`,
+      content: { descriptors: [`Listen without interrupting or becoming defensive`, `Ask clarifying questions to understand the feedback`, `Thank them for taking the time to give feedback`, `Argue that the shift was harder than usual`, `Dismiss the feedback as unfair immediately`], correctIndices: [0, 1, 2], explanation: `Listening, clarifying, and expressing gratitude for feedback are habits of high performers — defensiveness closes the feedback loop permanently.` },
+      difficulty: 3,
+    },
+    {
+      id: `fallback-${moduleId}-25`, module_id: moduleId, scenario_index: 24, scenario_type: "descriptor_l3",
+      prompt: `You notice your own performance slipping under pressure during ${info.keyword}. Which THREE actions show self-awareness?`,
+      content: { descriptors: [`Acknowledge the pressure internally and refocus on the next task`, `Ask a colleague to cover one task while you reset`, `Communicate honestly with your team if you need a moment`, `Pretend nothing is wrong and push through with declining quality`, `Take your frustration out on a colleague or guest`], correctIndices: [0, 1, 2], explanation: `Self-awareness, strategic delegation, and honest communication are how resilient hospitality professionals handle pressure — not silence and declining output.` },
       difficulty: 3,
     },
     { id: `fallback-${moduleId}-10`, module_id: moduleId, scenario_index: 9, scenario_type: "roleplay", prompt: `A guest approaches you with a concern about ${info.topic}. How do you handle this situation?`, content: { context: `Testing ${info.topic} knowledge under pressure.`, evaluation_criteria: [`Empathy`, `Knowledge`, `Problem-solving`, `Communication`] }, difficulty: 4 },
@@ -308,10 +350,11 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
             // Stage 1 requires 5 consecutive correct — need at least 5 unique questions.
             const MIN_QUIZ_QUESTIONS = 5;
 
-            // Require at least 4 scenarios per descriptor stage so questions cycle properly.
-            // A single L2/L3 scenario causes the modulo-cycling to always return index 0.
-            const MIN_L2_QUESTIONS = 4;
-            const MIN_L3_QUESTIONS = 4;
+            // Stage 2 max = 6 questions; need 7+ unique L2 so no repeats within a session.
+            // Stage 3 max = 7 questions; need 8+ unique L3 for the same reason.
+            // Below these thresholds the 10-question generic fallback is used instead.
+            const MIN_L2_QUESTIONS = 7;
+            const MIN_L3_QUESTIONS = 8;
             const dbL2Count = validScenarios.filter(
               (s: Scenario) => s.scenario_type === "descriptor_l2"
             ).length;
