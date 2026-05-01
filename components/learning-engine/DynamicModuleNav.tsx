@@ -212,7 +212,7 @@ export default function DynamicModuleNav({
                     <div style={{ width: `${module.mastery_pct}%`, height: "100%", background: "linear-gradient(90deg, #40916c, #2d6a4f)", borderRadius: "3px", transition: "width 0.4s ease" }} />
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", marginTop: "5px" }}>
-                    <span style={{ fontSize: "0.72rem", color: "#9ca3af" }}>Mastery</span>
+                    <span style={{ fontSize: "0.72rem", color: "#6b7280" }}>Mastery</span>
                     <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#1b4332" }}>{module.mastery_pct}%</span>
                   </div>
                 </div>

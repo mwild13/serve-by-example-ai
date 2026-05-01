@@ -207,7 +207,7 @@ export default function DescriptorSelector({
             }}
           />
         </div>
-        <p style={{ margin: "6px 0 0", fontSize: "0.8rem", color: "#9ca3af" }}>
+        <p style={{ margin: "6px 0 0", fontSize: "0.8rem", color: "#6b7280" }}>
           Stage {level} — Select {selectCount} descriptor{selectCount !== 1 ? "s" : ""} that best describe the scenario
         </p>
       </div>

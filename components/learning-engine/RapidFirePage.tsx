@@ -248,7 +248,7 @@ export default function RapidFirePage({ managementUnlocked }: { managementUnlock
               <span style={{ width: "24px", height: "24px", borderRadius: "6px", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "0.7rem", color: "#1b4332", flexShrink: 0 }}>S{n}</span>
               <div>
                 <p style={{ margin: 0, fontSize: "0.78rem", fontWeight: 700, color: "#111827" }}>{label}</p>
-                <p style={{ margin: 0, fontSize: "0.68rem", color: "#9ca3af" }}>{desc}</p>
+                <p style={{ margin: 0, fontSize: "0.68rem", color: "#6b7280" }}>{desc}</p>
               </div>
             </div>
           ))}

@@ -398,7 +398,7 @@ export default function PreShiftHome({
                   )}
                   <hr style={{ margin: "2px 0", border: "none", borderTop: "1px solid #f3f4f6" }} />
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: "0.78rem", color: "#9ca3af" }}>Mastery</span>
+                    <span style={{ fontSize: "0.78rem", color: "#6b7280" }}>Mastery</span>
                     <strong style={{ fontSize: "0.78rem", color: "#111827" }}>{Math.round(progress.mastery)}%</strong>
                   </div>
                   <p style={{ margin: 0, fontSize: "0.75rem", color: "#6b7280", fontStyle: "italic" }}>
