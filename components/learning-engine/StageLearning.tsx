@@ -383,7 +383,7 @@ export default function StageLearning({ moduleId, managementUnlocked, initialSta
                 // Full fallback (DB data too sparse overall)
                 setScenarios(fallback);
               }
-            } else if (!hasEnoughDescriptors && (scaffoldedModuleKey ?? SCAFFOLDED_MODULE_KEY[moduleId])) {
+            } else if (!hasEnoughDescriptors) {
               // DB has quiz but not enough descriptor scenarios — use full scaffolded set
               // so stages 2 and 3 have varied questions that cycle properly
               setScenarios(getFallbackScenarios(moduleId, scaffoldedModuleKey));
