@@ -7,7 +7,6 @@ import ErrorLogger from "@/components/ErrorLogger";
 const fraunces = Fraunces({
   subsets: ["latin"],
   weight: ["400", "600", "700", "800"],
-  axes: ["opsz"],
   display: "swap",
   variable: "--font-fraunces",
 });
