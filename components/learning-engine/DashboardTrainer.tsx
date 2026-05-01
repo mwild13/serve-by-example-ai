@@ -806,7 +806,7 @@ export default function DashboardTrainer({
             <p>{currentScenario.text}</p>
             {masteryFeedback?.isBridge && (
               <div className="sbe-bridge-hint">
-                <strong>Hint:</strong> Focus on the guest's emotional state first, then address their request. What would make them feel heard?
+                <strong>Hint:</strong> Focus on the guest&apos;s emotional state first, then address their request. What would make them feel heard?
               </div>
             )}
           </div>
@@ -1001,7 +1001,7 @@ export default function DashboardTrainer({
                       <span>Confidence: {masteryFeedback.confidenceAccuracy}</span>
                     </div>
                     {masteryFeedback.spamGuarded && (
-                      <p className="sbe-spam-notice">⏳ This attempt was recorded but won't advance mastery — retry after 60 min for credit.</p>
+                      <p className="sbe-spam-notice">⏳ This attempt was recorded but won&apos;t advance mastery — retry after 60 min for credit.</p>
                     )}
                   </div>
                 )}
@@ -1022,7 +1022,7 @@ export default function DashboardTrainer({
 
                 <div className="trainer-after">
                   <button className="btn btn-primary" onClick={nextScenario}>
-                    I'm ready →
+                    I&apos;m ready →
                   </button>
                   <button className="btn btn-secondary" onClick={() => { setResult(null); setResponse(""); }}>
                     Try again
