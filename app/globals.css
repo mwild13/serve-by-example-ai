@@ -8648,6 +8648,19 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   margin-bottom: 20px;
 }
 
+.onboarding-hint {
+  color: var(--text-soft, #6b7280);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin-bottom: 20px;
+}
+
+.onboarding-input-group {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
 .onboarding-option-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

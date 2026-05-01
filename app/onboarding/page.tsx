@@ -7,19 +7,6 @@ import { createSupabaseBrowserClient } from "@/lib/supabase";
 
 type Step = 1 | 2 | 3;
 
-const ROLES = [
-  {
-    id: "staff",
-    label: "I\u2019m venue staff",
-    description: "Bartender, server, host or FOH team member",
-  },
-  {
-    id: "manager",
-    label: "I\u2019m a manager",
-    description: "Venue manager, team lead or training coordinator",
-  },
-];
-
 const VENUE_TYPES = [
   { id: "bar", label: "Bar / Pub" },
   { id: "restaurant", label: "Restaurant" },
@@ -48,11 +35,47 @@ const EXPERIENCE_LEVELS = [
 export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>(1);
-  const [role, setRole] = useState("");
+  const [venueCode, setVenueCode] = useState("");
+  const [venueCodeStatus, setVenueCodeStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [venueCodeMessage, setVenueCodeMessage] = useState("");
   const [venueType, setVenueType] = useState("");
   const [experience, setExperience] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  async function handleConnectVenue() {
+    const code = parseInt(venueCode.trim(), 10);
+    if (isNaN(code)) {
+      setVenueCodeStatus("error");
+      setVenueCodeMessage("Please enter a valid numeric venue code.");
+      return;
+    }
+    setVenueCodeStatus("loading");
+    setVenueCodeMessage("");
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch("/api/management/join-venue", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({ venueCode: code }),
+      });
+      const data = await res.json() as { success?: boolean; venueName?: string; alreadyLinked?: boolean; error?: string };
+      if (!res.ok) throw new Error(data.error || "Could not connect to venue.");
+      setVenueCodeStatus("success");
+      setVenueCodeMessage(
+        data.alreadyLinked
+          ? `Already connected to ${data.venueName}.`
+          : `Connected to ${data.venueName}.`
+      );
+    } catch (err) {
+      setVenueCodeStatus("error");
+      setVenueCodeMessage(err instanceof Error ? err.message : "Could not connect to venue.");
+    }
+  }
 
   async function save(skip = false) {
     setSaving(true);
@@ -70,7 +93,6 @@ export default function OnboardingPage() {
           ...(skip
             ? {}
             : {
-                role: role || null,
                 venue_type: venueType || null,
                 experience_level: experience || null,
               }),
@@ -107,27 +129,43 @@ export default function OnboardingPage() {
         {step === 1 && (
           <>
             <div className="eyebrow">Step 1 of 3</div>
-            <h2 className="onboarding-heading">What best describes you?</h2>
-            <div className="onboarding-option-grid">
-              {ROLES.map((r) => (
-                <button
-                  key={r.id}
-                  className={`onboarding-option${role === r.id ? " selected" : ""}`}
-                  onClick={() => setRole(r.id)}
-                  type="button"
-                >
-                  <span className="onboarding-option-label">{r.label}</span>
-                  <span className="onboarding-option-desc">{r.description}</span>
-                </button>
-              ))}
+            <h2 className="onboarding-heading">Do you have a venue code?</h2>
+            <p className="onboarding-hint">Your manager shares a venue code to link your training progress to their dashboard. You can skip this and add a code later from Settings.</p>
+            <div className="onboarding-input-group">
+              <label className="label" htmlFor="onboarding-venue-code">
+                Venue code
+                <input
+                  id="onboarding-venue-code"
+                  className="input"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  value={venueCode}
+                  onChange={(e) => { setVenueCode(e.target.value); setVenueCodeStatus("idle"); setVenueCodeMessage(""); }}
+                  placeholder="e.g. 4821"
+                />
+              </label>
+              {venueCodeStatus === "success" && (
+                <div className="auth-status auth-status-success">{venueCodeMessage}</div>
+              )}
+              {venueCodeStatus === "error" && (
+                <div className="auth-status auth-status-error">{venueCodeMessage}</div>
+              )}
+              <button
+                className="btn btn-primary btn-block"
+                type="button"
+                disabled={!venueCode.trim() || venueCodeStatus === "loading" || venueCodeStatus === "success"}
+                onClick={handleConnectVenue}
+              >
+                {venueCodeStatus === "loading" ? "Connecting..." : venueCodeStatus === "success" ? "Connected" : "Connect to venue"}
+              </button>
             </div>
             <button
-              className="btn btn-primary btn-block"
-              disabled={!role}
-              onClick={() => setStep(2)}
+              className="btn btn-secondary btn-block"
               type="button"
+              onClick={() => setStep(2)}
             >
-              Continue
+              {venueCodeStatus === "success" ? "Continue" : "Skip for now"}
             </button>
           </>
         )}

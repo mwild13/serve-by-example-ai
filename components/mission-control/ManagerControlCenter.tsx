@@ -344,6 +344,7 @@ export default function ManagerControlCenter({
   const [pendingInviteLink, setPendingInviteLink] = useState<{ link: string; email: string; name: string; emailSent: boolean } | null>(null);
   const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [copiedVenueId, setCopiedVenueId] = useState<string | null>(null);
   const [testEmailStatus, setTestEmailStatus] = useState<"idle" | "loading" | "ok" | "fail">("idle");
   const [testEmailResult, setTestEmailResult] = useState<{ message: string; smtpConfigured?: boolean; testLink?: string } | null>(null);
   const [openRosterSections, setOpenRosterSections] = useState<Set<string>>(new Set(["Bar Team"]));
@@ -1974,7 +1975,7 @@ export default function ManagerControlCenter({
         {/* ── Staff membership invites card ── */}
         {activeSection === "staff" && (
           <section className="ops-grid ops-grid-main" style={{ marginTop: 16 }}>
-            <article className="ops-card">
+            <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
               <div className="ops-card-head">
                 <h3>Staff invites &amp; seat management</h3>
                 <span>{membershipSeats.used} / {membershipSeats.max || "∞"} seats used</span>
@@ -3139,14 +3140,30 @@ export default function ManagerControlCenter({
                     snapshot.venues.map((venue) => (
                       <div key={venue.id} className="ops-venue-row">
                         <strong>{venue.name}</strong>
-                        <button
-                          type="button"
-                          className="btn btn-secondary"
-                          onClick={() => handleDeleteVenue(venue.id, venue.name)}
-                          disabled={isSaving}
-                        >
-                          Delete
-                        </button>
+                        <div style={{ display: "flex", gap: 8 }}>
+                          {venue.venueCode && (
+                            <button
+                              type="button"
+                              className="btn btn-secondary"
+                              onClick={() => {
+                                const url = `${window.location.origin}/dashboard?join=${venue.venueCode}`;
+                                navigator.clipboard.writeText(url);
+                                setCopiedVenueId(venue.id);
+                                setTimeout(() => setCopiedVenueId(null), 2000);
+                              }}
+                            >
+                              {copiedVenueId === venue.id ? "Copied!" : "Share link"}
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={() => handleDeleteVenue(venue.id, venue.name)}
+                            disabled={isSaving}
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     ))
                   )}

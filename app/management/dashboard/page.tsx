@@ -15,6 +15,7 @@ const FALLBACK_ADMIN_EMAILS = [
   "wildmanemmet@gmail.com",
   "hjallanson@gmail.com",
   "hello@studio-ell.com.au",
+  "littlepub@hcs.on.net",
 ];
 const envAdminEmails = (process.env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
 const ADMIN_EMAILS = envAdminEmails.length > 0 ? envAdminEmails : FALLBACK_ADMIN_EMAILS;

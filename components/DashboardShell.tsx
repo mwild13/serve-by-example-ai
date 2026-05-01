@@ -39,12 +39,14 @@ function StaffSettingsPanel({
   notifReminders,
   notifWeeklyDigest,
   notifAchievementAlerts,
+  initialJoinCode,
 }: {
   displayName: string;
   userEmail: string;
   notifReminders: boolean;
   notifWeeklyDigest: boolean;
   notifAchievementAlerts: boolean;
+  initialJoinCode?: string;
 }) {
   const [profileName, setProfileName] = useState(displayName);
   const [email, setEmail] = useState(userEmail);
@@ -56,7 +58,7 @@ function StaffSettingsPanel({
   const [securityError, setSecurityError] = useState("");
   const [isSavingSecurity, setIsSavingSecurity] = useState(false);
 
-  const [venueCode, setVenueCode] = useState("");
+  const [venueCode, setVenueCode] = useState(initialJoinCode ?? "");
   const [joinVenueStatus, setJoinVenueStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [joinVenueMessage, setJoinVenueMessage] = useState("");
 
@@ -631,6 +633,7 @@ export default function DashboardShell({
   hasVenueMembership?: boolean;
 }) {
   const [activeNav, setActiveNav] = useState<NavItem>("home");
+  const [joinCodeFromUrl, setJoinCodeFromUrl] = useState<string | undefined>(undefined);
   const [managementUnlocked, setManagementUnlocked] = useState(managementUnlockedInitial);
   const [managementCode, setManagementCode] = useState("");
   const [managementCodeError, setManagementCodeError] = useState("");
@@ -649,6 +652,21 @@ export default function DashboardShell({
     try {
       if (localStorage.getItem("sbe-dark-mode") === "1") {
         document.documentElement.classList.add("sbe-dark");
+      }
+    } catch {}
+  }, []);
+
+  // Auto-navigate to settings and pre-fill venue code if ?join= is in URL
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const joinCode = params.get("join");
+      if (joinCode) {
+        setJoinCodeFromUrl(joinCode);
+        setActiveNav("settings");
+        const url = new URL(window.location.href);
+        url.searchParams.delete("join");
+        window.history.replaceState({}, "", url.toString());
       }
     } catch {}
   }, []);
@@ -979,6 +997,7 @@ export default function DashboardShell({
             notifReminders={notifReminders}
             notifWeeklyDigest={notifWeeklyDigest}
             notifAchievementAlerts={notifAchievementAlerts}
+            initialJoinCode={joinCodeFromUrl}
           />
         ) : (
           <ComingSoon label={NAV_ITEMS.find((n) => n.id === activeNav)?.label ?? activeNav} />
