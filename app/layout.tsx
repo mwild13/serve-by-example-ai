@@ -1,7 +1,23 @@
 import type { Metadata } from "next";
+import { Fraunces, Manrope } from "next/font/google";
 import "./globals.css";
 import LanguageRuntimeTranslator from "@/components/LanguageRuntimeTranslator";
 import ErrorLogger from "@/components/ErrorLogger";
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "800"],
+  axes: ["opsz"],
+  display: "swap",
+  variable: "--font-fraunces",
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-manrope",
+});
 
 const siteUrl = "https://www.serve-by-example.com";
 
@@ -54,19 +70,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en-US">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="en-US" className={`${fraunces.variable} ${manrope.variable}`}>
       <body>
         {children}
         <ErrorLogger />
