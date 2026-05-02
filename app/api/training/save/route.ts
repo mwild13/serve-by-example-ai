@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
-import { recordAttempt, syncMasteryToVenueStaff, moduleIdToString, SCENARIO_COUNTS, type ConfidenceLevel } from "@/lib/mastery";
+import { recordAttempt, syncMasteryToVenueStaff, markModuleMastered, moduleIdToString, SCENARIO_COUNTS, type ConfidenceLevel } from "@/lib/mastery";
 import { resolveAccess, validateSession } from "@/lib/session";
 
 // Legacy 3-module string names (backward compat)
@@ -36,6 +36,9 @@ export async function POST(req: Request) {
     const overallScore = Number(body.overallScore);
     const scenarioIndex = Number(body.scenarioIndex ?? 0);
     const confidence = (body.confidence ?? "medium") as ConfidenceLevel;
+
+    // V3 ModuleVerify signal — flips is_mastered for (user, module).
+    const verifyPassed = Boolean(body.verifyPassed);
 
     // Support both new numeric moduleId and legacy string module name
     const rawModuleId = body.moduleId != null ? Number(body.moduleId) : null;
@@ -87,6 +90,30 @@ export async function POST(req: Request) {
       console.log(
         `Training save: user=${user.id}, module=${moduleName}, moduleId=${moduleId}, tier=${access.tier}, allowed_modules=${access.allowedModules.join(",")}`
       );
+
+    // ── V3 Verify pass branch ─────────────────────────────────
+    // ModuleVerify posts { verifyPassed: true, consecutiveCorrect }.
+    // Skip the legacy stage tracking entirely and write the binary
+    // is_mastered flag, then sync the manager dashboard cache.
+    if (verifyPassed && moduleId) {
+      const consecutiveCorrect = Math.max(0, Math.min(5, Number(body.consecutiveCorrect ?? 5)));
+      const result = await markModuleMastered(admin, {
+        userId: user.id,
+        moduleId,
+        consecutiveCorrect,
+      });
+      if (user.email) {
+        await syncMasteryToVenueStaff(admin, user.id, user.email);
+      }
+      return NextResponse.json({
+        success: true,
+        v3: {
+          isMastered: result.isMastered,
+          alreadyMastered: result.alreadyMastered,
+          moduleId,
+        },
+      });
+    }
 
     if (!Number.isFinite(overallScore) || overallScore < 0 || overallScore > 25) {
       return NextResponse.json({ error: "Invalid score.", code: "INVALID_SCORE" }, { status: 400 });
@@ -145,9 +172,8 @@ export async function POST(req: Request) {
       );
 
       // ── Update stage completion for badge/progress display ──
-      // StageLearning sends stageLevel + completed:true when a stage finishes.
-      // user_level_progress drives the badge awards in ProgressOverview —
-      // without this update, badges are permanently locked regardless of effort.
+      // Legacy stageLevel + completed:true path — drives badge awards in ProgressOverview.
+      // user_level_progress must be updated here or badges remain permanently locked.
       const stageLevel = Number(body.stageLevel);
       const stageCompleted = Boolean(body.completed);
 

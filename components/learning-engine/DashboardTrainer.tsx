@@ -562,7 +562,7 @@ export default function DashboardTrainer({
   }, [activeModule]);
 
   function selectModule(mod: Module) {
-    // Go directly to scenarios (level gating handled by StageLearning)
+    // Go directly to scenarios (level gating handled by ModuleVerify in V3)
     const dueReview = reviewQueue.find((r) => r.module === mod);
     setActiveModule(mod);
     setScenarioIndex(dueReview ? dueReview.scenarioIndex : 0);

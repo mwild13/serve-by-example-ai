@@ -15,6 +15,25 @@ export const SCENARIO_COUNTS: Record<string, number> = {
   management: 20,
 };
 
+/**
+ * V3: Total modules in the platform. Drives the binary mastery
+ * percentage shown on the manager dashboard (mastered / TOTAL_MODULES).
+ */
+export const V3_TOTAL_MODULES = 20;
+
+/**
+ * V3: Module category mapping. Mirrors supabase/migrations/20260421_1_create_modules.sql.
+ * Used by the Manager dashboard StaffBadges to compute category mastery.
+ */
+export const V3_MODULE_CATEGORIES: Record<number, "technical" | "service" | "compliance"> = {
+  1: "technical", 2: "technical", 3: "technical", 4: "technical",
+  5: "technical", 6: "technical", 7: "technical",
+  8: "service", 9: "service", 10: "service", 11: "service",
+  12: "service", 13: "service", 14: "service",
+  15: "compliance", 16: "compliance", 17: "compliance",
+  18: "compliance", 19: "compliance", 20: "compliance",
+};
+
 const MASTERY_THRESHOLD = 3; // consecutive correct for mastery
 const SPAM_GUARD_MINUTES = 60; // min gap between mastery-advancing attempts on same scenario
 const ELO_K = 32; // Elo sensitivity factor
@@ -271,6 +290,67 @@ export async function recordAttempt(
   };
 }
 
+// ── V3: Binary mastery write ─────────────────────────────────
+//
+// ModuleVerify calls this when a user passes the verification quiz.
+// Single row per (user_id, module_id) at scenario_index = 0.
+// Sets is_mastered = true and never reverses it within this function.
+
+export type MarkMasteredInput = {
+  userId: string;
+  moduleId: number;
+  consecutiveCorrect: number;
+};
+
+export type MarkMasteredResult = {
+  isMastered: true;
+  alreadyMastered: boolean;
+};
+
+export async function markModuleMastered(
+  admin: SupabaseClient,
+  input: MarkMasteredInput,
+): Promise<MarkMasteredResult> {
+  const { userId, moduleId, consecutiveCorrect } = input;
+  const moduleName = moduleIdToString(moduleId);
+  const now = new Date().toISOString();
+
+  const { data: existing } = await admin
+    .from("scenario_mastery")
+    .select("is_mastered, total_attempts")
+    .eq("user_id", userId)
+    .eq("module", moduleName)
+    .eq("scenario_index", 0)
+    .maybeSingle();
+
+  const alreadyMastered = Boolean(existing?.is_mastered);
+  const totalAttempts = (existing?.total_attempts ?? 0) + 1;
+  const overallScore = Math.min(consecutiveCorrect * 5, 25);
+
+  await admin.from("scenario_mastery").upsert(
+    {
+      user_id: userId,
+      module: moduleName,
+      module_id: moduleId,
+      scenario_index: 0,
+      is_mastered: true,
+      mastery_level: 3,
+      consecutive_correct: consecutiveCorrect,
+      consecutive_fails: 0,
+      total_attempts: totalAttempts,
+      total_score_points: overallScore * totalAttempts,
+      best_score: overallScore,
+      last_score: overallScore,
+      last_attempt_at: now,
+      next_review_at: now,
+      updated_at: now,
+    },
+    { onConflict: "user_id,module,scenario_index" },
+  );
+
+  return { isMastered: true, alreadyMastered };
+}
+
 // ── Get mastery progress for a module ────────────────────────
 
 export async function getMasteryProgress(
@@ -388,90 +468,76 @@ export async function syncMasteryToVenueStaff(
 
   if (!staffRows || staffRows.length === 0) return;
 
-  // Fetch all mastery rows for this user
+  // Dynamic module discovery: query the modules table for live totals and categories.
+  // Falls back to V3 hardcoded constants if the table is empty (e.g. pre-migration).
+  const { data: moduleRows } = await admin
+    .from("modules")
+    .select("id, category");
+
+  const activeModules = (moduleRows ?? []) as Array<{ id: number; category: string }>;
+  const totalModules = activeModules.length > 0 ? activeModules.length : V3_TOTAL_MODULES;
+
+  const categoryMap = new Map<number, string>(activeModules.map((m) => [m.id, m.category]));
+  const totalTechnical = activeModules.length > 0
+    ? activeModules.filter((m) => m.category === "technical").length
+    : Object.values(V3_MODULE_CATEGORIES).filter((c) => c === "technical").length;
+
+  // V3 binary mastery aggregation. The Verify quiz sets is_mastered=true on a
+  // single row per (user_id, module_id). product_score tracks technical mastery %.
+  // service_score is Arena-driven and intentionally left untouched here.
   const { data: allMastery } = await admin
     .from("scenario_mastery")
-    .select("module, mastery_level, total_attempts, total_score_points, elo_rating, high_confidence_incorrect, next_review_at")
+    .select("module, module_id, is_mastered, elo_rating")
     .eq("user_id", userId);
 
   const rows = (allMastery ?? []) as Array<{
     module: string;
-    mastery_level: number;
-    total_attempts: number;
-    total_score_points: number;
+    module_id: number | null;
+    is_mastered: boolean;
     elo_rating: number;
-    high_confidence_incorrect: number;
-    next_review_at: string;
   }>;
 
-  // Compute aggregates
-  const totalAttempted = rows.length;
-  const totalMastered = rows.filter((r) => r.mastery_level >= 3).length;
-  const totalAttempts = rows.reduce((s, r) => s + r.total_attempts, 0);
-  const totalScore = rows.reduce((s, r) => s + r.total_score_points, 0);
-  const avgElo = totalAttempted > 0
-    ? Math.round(rows.reduce((s, r) => s + r.elo_rating, 0) / totalAttempted)
+  const attemptedIds = new Set<number>();
+  const masteredIds = new Set<number>();
+  for (const r of rows) {
+    if (r.module_id == null) continue;
+    attemptedIds.add(r.module_id);
+    if (r.is_mastered) masteredIds.add(r.module_id);
+  }
+
+  const totalAttempted = attemptedIds.size;
+  const totalMastered = masteredIds.size;
+
+  const avgElo = rows.length > 0
+    ? Math.round(rows.reduce((s, r) => s + (r.elo_rating ?? 1200), 0) / rows.length)
     : 1200;
-  const totalHighConfIncorrect = rows.reduce((s, r) => s + r.high_confidence_incorrect, 0);
-  const highConfIncorrectRatio = totalAttempts > 0
-    ? Math.round((totalHighConfIncorrect / totalAttempts) * 100) / 100
+
+  // product_score = % of technical-category modules mastered
+  let technicalMastered = 0;
+  for (const id of masteredIds) {
+    const cat = categoryMap.get(id) ?? V3_MODULE_CATEGORIES[id];
+    if (cat === "technical") technicalMastered++;
+  }
+  const productScore = totalTechnical > 0
+    ? Math.round((technicalMastered / totalTechnical) * 100)
     : 0;
 
-  // Knowledge decay: any scenario past review date with mastery < 3
-  const now = new Date();
-  const decayRisk = rows.some(
-    (r) => r.mastery_level < 3 && r.next_review_at && new Date(r.next_review_at) < now,
-  );
+  const overallProgress = Math.round((totalMastered / totalModules) * 100);
 
-  // Per-module scores for venue_staff compatibility
-  const byModule: Record<string, typeof rows> = {};
-  for (const r of rows) {
-    (byModule[r.module] ??= []).push(r);
-  }
-
-  function moduleScorePercent(mod: string): number {
-    const modRows = byModule[mod] ?? [];
-    const attempts = modRows.reduce((s, r) => s + r.total_attempts, 0);
-    const pts = modRows.reduce((s, r) => s + r.total_score_points, 0);
-    if (attempts === 0) return 0;
-    return Math.min(Math.round((pts / attempts / 25) * 100), 100);
-  }
-
-  function moduleCompletion(mod: string): number {
-    const modRows = byModule[mod] ?? [];
-    const passed = modRows.filter((r) => r.mastery_level >= 1).length;
-    const total = SCENARIO_COUNTS[mod] ?? 10;
-    return Math.min(Math.round((passed / total) * 100), 100);
-  }
-
-  const serviceScore = moduleScorePercent("bartending");
-  const salesScore = moduleScorePercent("sales");
-  const productScore = moduleScorePercent("management");
-  const completions = ["bartending", "sales", "management"].map(moduleCompletion);
-  const overallProgress = Math.round(completions.reduce((a, b) => a + b, 0) / 3);
-
-  // Mastery status
   let masteryStatus = "not-started";
-  if (totalMastered > 0 && totalMastered >= totalAttempted) {
+  if (totalMastered >= totalModules) {
     masteryStatus = "mastered";
   } else if (totalAttempted > 0) {
     masteryStatus = "in-progress";
   }
-  if (decayRisk && masteryStatus !== "not-started") {
-    masteryStatus = "at-risk";
-  }
 
   const updatePayload = {
-    service_score: serviceScore,
-    sales_score: salesScore,
-    product_score: productScore,
     progress: overallProgress,
     elo_rating: avgElo,
     mastery_status: masteryStatus,
-    knowledge_decay_risk: decayRisk,
-    high_confidence_incorrect_ratio: highConfIncorrectRatio,
     scenarios_mastered: totalMastered,
     scenarios_attempted: totalAttempted,
+    product_score: productScore,
     last_active_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };

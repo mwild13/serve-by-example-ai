@@ -40,6 +40,7 @@ import {
   OpsKpiCard,
   formatPercent,
   StaffBadges,
+  MasteryMicroGrid,
 } from "./manager-ui";
 
 type SnapshotResponse = ManagementSnapshot & {
@@ -1625,9 +1626,10 @@ export default function ManagerControlCenter({
                             <span className={`mcc-pill ${isGood ? "mcc-pill-good" : "mcc-pill-bad"}`}>
                               {member.status === "on-track" ? "On track" : member.status === "attention" ? "Needs attention" : "Not started"}
                             </span>
-                            <div className="mcc-bar">
-                              <div className="mcc-bar-fill" style={{ width: `${avgScore}%`, background: isGood ? "var(--mcc-sage)" : "var(--mcc-terra)" }} />
-                            </div>
+                            <MasteryMicroGrid
+                              scenariosMastered={member.scenariosMastered}
+                              scenariosAttempted={member.scenariosAttempted}
+                            />
                             <span style={{ fontSize: 12, color: "var(--mcc-ink-500)", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>
                               {member.lastActive}
                             </span>
@@ -1788,7 +1790,7 @@ export default function ManagerControlCenter({
                           <th>Role</th>
                           <th>Status</th>
                           <th>Connection</th>
-                          <th>Training progress</th>
+                          <th>Module mastery</th>
                           <th>Last active</th>
                           <th></th>
                         </tr>
@@ -1824,12 +1826,10 @@ export default function ManagerControlCenter({
                                 )}
                               </td>
                               <td>
-                                <div className="ops-progress-inline">
-                                  <div className="ops-progress-inline-bar">
-                                    <div className="ops-progress-inline-fill" style={{ width: `${Math.max(0, Math.min(100, member.progress))}%` }} />
-                                  </div>
-                                  <span>{parseFloat(member.progress.toFixed(2))}%</span>
-                                </div>
+                                <MasteryMicroGrid
+                                  scenariosMastered={member.scenariosMastered}
+                                  scenariosAttempted={member.scenariosAttempted}
+                                />
                               </td>
                               <td>{member.lastActive}</td>
                               <td>

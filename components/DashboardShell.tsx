@@ -4,8 +4,8 @@ import { FormEvent, useState, useEffect, Suspense, lazy } from "react";
 import Image from "next/image";
 import SignOutButton from "@/components/ui/SignOutButton";
 import DashboardTrainer from "@/components/learning-engine/DashboardTrainer";
-import StageLearning from "@/components/learning-engine/StageLearning";
-import AdvancedScenarios from "@/components/learning-engine/AdvancedScenarios";
+import ModuleVerify from "@/components/learning-engine/ModuleVerify";
+import ArenaPage from "@/components/learning-engine/ArenaPage";
 import DiagnosticFlow from "@/components/learning-engine/DiagnosticFlow";
 import DynamicModuleNav from "@/components/learning-engine/DynamicModuleNav";
 import RapidFirePage from "@/components/learning-engine/RapidFirePage";
@@ -935,7 +935,7 @@ export default function DashboardShell({
                 >
                   ← All Modules
                 </button>
-                <StageLearning key={`module-${selectedModuleId}`} moduleId={selectedModuleId} managementUnlocked={managementUnlocked} />
+                <ModuleVerify key={`module-${selectedModuleId}`} moduleId={selectedModuleId} userId={userId} />
               </div>
             ) : (
               /* Module grid */
@@ -950,7 +950,7 @@ export default function DashboardShell({
           </div>
         ) : activeNav === "rapid-fire" ? (
           <div key="rapid-fire">
-            <RapidFirePage managementUnlocked={managementUnlocked} />
+            <RapidFirePage userId={userId} />
           </div>
         ) : activeNav === "stage4" ? (
           <DashboardTrainer
@@ -979,7 +979,7 @@ export default function DashboardShell({
             </div>
           </>
         ) : activeNav === "scenarios" ? (
-          <AdvancedScenarios />
+          <ArenaPage userId={userId} />
         ) : activeNav === "cocktails" ? (
           <Suspense fallback={<CocktailGridSkeleton count={12} />}>
             <CocktailLibrary />
