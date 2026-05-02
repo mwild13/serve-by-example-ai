@@ -26,6 +26,17 @@ CREATE TABLE IF NOT EXISTS modules (
   updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Add is_active if the table pre-existed without it
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'modules' AND column_name = 'is_active'
+  ) THEN
+    ALTER TABLE modules ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT true;
+  END IF;
+END$$;
+
 -- Enable RLS — managers read all; users read active only
 ALTER TABLE modules ENABLE ROW LEVEL SECURITY;
 
@@ -73,7 +84,15 @@ ON CONFLICT (id) DO UPDATE
       updated_at       = NOW();
 
 -- Reset the sequence so future inserts start above 20
-SELECT setval('modules_id_seq', (SELECT MAX(id) FROM modules));
+DO $$
+DECLARE
+  seq_name text;
+BEGIN
+  seq_name := pg_get_serial_sequence('modules', 'id');
+  IF seq_name IS NOT NULL THEN
+    PERFORM setval(seq_name, COALESCE((SELECT MAX(id) FROM modules), 20));
+  END IF;
+END$$;
 
 -- ── 3. Clean HTML entity encoding from scenarios table ───────
 --

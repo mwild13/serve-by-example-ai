@@ -33,7 +33,6 @@ README_RELEASE_READINESS.md
 CONTENT_BLUEPRINT.md
 SCENARIO_ANSWERS_25-25.md
 
-# Supabase migrations — schema history, rarely needed during UI work
 supabase/migrations/
 
 # Images and PDFs at root

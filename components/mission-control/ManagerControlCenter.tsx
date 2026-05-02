@@ -1155,7 +1155,7 @@ export default function ManagerControlCenter({
                   <div className="ops-nav-group-label">{group.label}</div>
                 )}
                 {!isCollapsed && group.items.map((section) => {
-                  const isComingSoon = section.id === "training" || section.id === "scenarios";
+                  const isComingSoon = section.id === "training" || section.id === "scenarios" || section.id === "inventory" || section.id === "menu" || section.id === "compliance";
                   return (
                     <button
                       key={section.id}
@@ -2307,6 +2307,60 @@ export default function ManagerControlCenter({
                 <p className="ops-coming-soon-body">
                   AI-powered scenario builder — upsell challenges, service recovery, menu knowledge quizzes, and cocktail build tests — is coming in the next update.
                   Scenario performance data continues to be tracked and will appear here when the feature ships.
+                </p>
+                <button type="button" className="btn btn-secondary" onClick={() => handleSectionChange("overview")}>
+                  Return to Mission Control
+                </button>
+              </div>
+            </article>
+          </section>
+        )}
+
+        {activeSection === "inventory" && (
+          <section className="ops-grid ops-grid-main">
+            <article className="ops-card ops-coming-soon-card">
+              <div className="ops-coming-soon-inner">
+                <div className="ops-coming-soon-badge">Next update</div>
+                <h2 className="ops-coming-soon-title">Operations — Inventory</h2>
+                <p className="ops-coming-soon-body">
+                  Full inventory management — category tracking, par levels, low-stock alerts, and knowledge coverage indicators linking your stock to training scenarios — is coming in the next update.
+                  Any inventory data you have saved is safe and will appear here when the feature ships.
+                </p>
+                <button type="button" className="btn btn-secondary" onClick={() => handleSectionChange("overview")}>
+                  Return to Mission Control
+                </button>
+              </div>
+            </article>
+          </section>
+        )}
+
+        {activeSection === "menu" && (
+          <section className="ops-grid ops-grid-main">
+            <article className="ops-card ops-coming-soon-card">
+              <div className="ops-coming-soon-inner">
+                <div className="ops-coming-soon-badge">Next update</div>
+                <h2 className="ops-coming-soon-title">Operations — Menu Items</h2>
+                <p className="ops-coming-soon-body">
+                  Menu engineering tools — Stars, Puzzles, Ploughs, and Dogs quadrant analysis, staff knowledge scores per menu item, and cocktail build tracking — are coming in the next update.
+                  Your menu data continues to power scenario training in the background.
+                </p>
+                <button type="button" className="btn btn-secondary" onClick={() => handleSectionChange("overview")}>
+                  Return to Mission Control
+                </button>
+              </div>
+            </article>
+          </section>
+        )}
+
+        {activeSection === "compliance" && (
+          <section className="ops-grid ops-grid-main">
+            <article className="ops-card ops-coming-soon-card">
+              <div className="ops-coming-soon-inner">
+                <div className="ops-coming-soon-badge">Next update</div>
+                <h2 className="ops-coming-soon-title">Operations — Compliance</h2>
+                <p className="ops-coming-soon-body">
+                  Training compliance tracking, RSA and certification expiry alerts, and required acknowledgements per staff member are coming in the next update.
+                  Staff training progress is already being recorded and will populate the compliance dashboard automatically.
                 </p>
                 <button type="button" className="btn btn-secondary" onClick={() => handleSectionChange("overview")}>
                   Return to Mission Control
