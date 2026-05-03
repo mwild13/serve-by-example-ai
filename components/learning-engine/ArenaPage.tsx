@@ -5,6 +5,12 @@ import { createSupabaseBrowserClient } from "@/lib/supabase";
 
 type ChatMessage = { role: "assistant" | "user"; content: string };
 
+type SeedContent = {
+  opening_line: string;
+  context: string;
+  goal?: string;
+};
+
 type ArenaResult = {
   serviceScore: number;
   strengths: string;
@@ -45,10 +51,17 @@ const CATEGORY_ACCENT: Record<"technical" | "service" | "compliance", string> = 
 
 const MIN_TURNS_FOR_SCORE = 3;
 
+function buildSeedText(seed: SeedContent): string {
+  let text = `${seed.opening_line}\nContext: ${seed.context}`;
+  if (seed.goal) text += `\nGoal: ${seed.goal}`;
+  return text;
+}
+
 export default function ArenaPage({ userId }: Props) {
   const [phase, setPhase] = useState<"select" | "chat" | "result">("select");
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [seedContent, setSeedContent] = useState<SeedContent | null>(null);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -77,17 +90,35 @@ export default function ArenaPage({ userId }: Props) {
   async function startArena(moduleId: number) {
     setSelectedId(moduleId);
     setMessages([]);
+    setSeedContent(null);
     setLoading(true);
     setError(null);
     try {
-      const data = await arenaFetch({
-        action: "start",
-        moduleId,
-        moduleTitle: MODULE_META[moduleId]?.title,
-        userId,
-      });
-      setMessages([{ role: "assistant", content: data.opening as string }]);
-      setPhase("chat");
+      const supabase = createSupabaseBrowserClient();
+      const { data: scenario } = await supabase
+        .from("scenarios")
+        .select("content")
+        .eq("module_id", moduleId)
+        .eq("scenario_type", "roleplay")
+        .eq("scenario_index", 40)
+        .maybeSingle();
+
+      if (scenario?.content) {
+        const seed = scenario.content as SeedContent;
+        setSeedContent(seed);
+        setMessages([{ role: "assistant", content: seed.opening_line }]);
+        setPhase("chat");
+      } else {
+        // Fallback: AI-generated opening if seed scenario not found
+        const data = await arenaFetch({
+          action: "start",
+          moduleId,
+          moduleTitle: MODULE_META[moduleId]?.title,
+          userId,
+        });
+        setMessages([{ role: "assistant", content: data.opening as string }]);
+        setPhase("chat");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to start Arena.");
     } finally {
@@ -110,6 +141,7 @@ export default function ArenaPage({ userId }: Props) {
         moduleTitle: MODULE_META[selectedId]?.title,
         messages: next,
         userId,
+        seedScenario: seedContent ? buildSeedText(seedContent) : undefined,
       });
       setMessages([...next, { role: "assistant", content: data.reply as string }]);
     } catch (err) {
@@ -133,6 +165,7 @@ export default function ArenaPage({ userId }: Props) {
         moduleTitle: MODULE_META[selectedId]?.title,
         transcript,
         userId,
+        seedScenario: seedContent ? buildSeedText(seedContent) : undefined,
       });
       setResult((data.arena as ArenaResult));
       setPhase("result");
@@ -147,6 +180,7 @@ export default function ArenaPage({ userId }: Props) {
     setPhase("select");
     setSelectedId(null);
     setMessages([]);
+    setSeedContent(null);
     setResult(null);
     setError(null);
     setInput("");

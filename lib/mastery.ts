@@ -482,27 +482,31 @@ export async function syncMasteryToVenueStaff(
     ? activeModules.filter((m) => m.category === "technical").length
     : Object.values(V3_MODULE_CATEGORIES).filter((c) => c === "technical").length;
 
-  // V3 binary mastery aggregation. The Verify quiz sets is_mastered=true on a
-  // single row per (user_id, module_id). product_score tracks technical mastery %.
-  // service_score is Arena-driven and intentionally left untouched here.
+  // V3 binary mastery aggregation.
+  // scenario_index=0 rows: set is_mastered=true by ModuleVerify (quiz gate).
+  // scenario_index=40 rows: set is_mastered=true by Arena roleplay (service gate).
+  // service_score = 80% quiz mastery + 20% roleplay mastery.
   const { data: allMastery } = await admin
     .from("scenario_mastery")
-    .select("module, module_id, is_mastered, elo_rating")
+    .select("module, module_id, scenario_index, is_mastered, elo_rating")
     .eq("user_id", userId);
 
   const rows = (allMastery ?? []) as Array<{
     module: string;
     module_id: number | null;
+    scenario_index: number;
     is_mastered: boolean;
     elo_rating: number;
   }>;
 
   const attemptedIds = new Set<number>();
-  const masteredIds = new Set<number>();
+  const masteredIds = new Set<number>();       // quiz mastered (scenario_index = 0)
+  const roleplayMasteredIds = new Set<number>(); // Arena passed (scenario_index = 40)
   for (const r of rows) {
     if (r.module_id == null) continue;
     attemptedIds.add(r.module_id);
-    if (r.is_mastered) masteredIds.add(r.module_id);
+    if (r.scenario_index === 0 && r.is_mastered) masteredIds.add(r.module_id);
+    if (r.scenario_index === 40 && r.is_mastered) roleplayMasteredIds.add(r.module_id);
   }
 
   const totalAttempted = attemptedIds.size;
@@ -523,6 +527,9 @@ export async function syncMasteryToVenueStaff(
     : 0;
 
   const overallProgress = Math.round((totalMastered / totalModules) * 100);
+  const roleplayProgress = Math.round((roleplayMasteredIds.size / totalModules) * 100);
+  // Weighted service score: 80% from quiz mastery, 20% from Arena roleplay completion
+  const computedServiceScore = Math.round(overallProgress * 0.8 + roleplayProgress * 0.2);
 
   let masteryStatus = "not-started";
   if (totalMastered >= totalModules) {
@@ -538,6 +545,7 @@ export async function syncMasteryToVenueStaff(
     scenarios_mastered: totalMastered,
     scenarios_attempted: totalAttempted,
     product_score: productScore,
+    service_score: computedServiceScore,
     last_active_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
