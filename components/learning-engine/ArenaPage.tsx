@@ -3,19 +3,11 @@
 import { useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
-type ChatMessage = { role: "assistant" | "user"; content: string };
-
-type SeedContent = {
-  opening_line: string;
-  context: string;
-  goal?: string;
-};
-
-type ArenaResult = {
-  serviceScore: number;
-  strengths: string;
-  improvement: string;
-  summary: string;
+type AssessmentResult = {
+  score: number;
+  what_you_did_well: string;
+  room_for_improvement: string;
+  passed: boolean;
 };
 
 type Props = { userId: string };
@@ -49,23 +41,76 @@ const CATEGORY_ACCENT: Record<"technical" | "service" | "compliance", string> = 
   compliance: "#7A4F2C",
 };
 
-const MIN_TURNS_FOR_SCORE = 3;
+const ARENA_SEED_SCENARIOS: Record<number, { situation: string; context: string; task: string }> = {
+  1:  { situation: "A guest sends back a schooner of draught, complaining it's 'mostly head and tastes flat.' You notice the glass feels warm to the touch.",
+        context: "The pub is packed and you are mid-rush.",
+        task: "Explain how you fix the drink and handle the guest professionally." },
+  2:  { situation: "A guest says: 'I usually like a heavy red, something like a Cabernet, but I want to try an Australian Shiraz. Is the one from the Barossa very different?'",
+        context: "A couple is looking at the wine list. One is a confident heavy-red drinker curious about local varietals.",
+        task: "Explain the profile difference and make a confident recommendation." },
+  3:  { situation: "A guest yells over the music: 'I want something sweet but strong, not too fruity, maybe with gin? But I hate tonic. Just make me something good!'",
+        context: "It is 9 PM on a Saturday, the bar is three-deep, and a rowdy hens party has arrived.",
+        task: "Describe what you recommend and how you handle this efficiently." },
+  4:  { situation: "A customer shouts their order over the grinder: 'Can I get a large skinny cap, extra hot, and a flat white on soy?'",
+        context: "It is the 8 AM weekday rush and you already have five dockets on the machine.",
+        task: "Explain how you confirm the order and manage the queue professionally." },
+  5:  { situation: "You are clearing a large table with heavy schooner glasses, wine glasses, and a half-full water jug. A guest tries to help by handing you a stack of unstable plates while you are mid-lift.",
+        context: "The bistro is busy and your load is already at safe capacity.",
+        task: "Describe how you respond to protect your load while keeping the guest feeling appreciated." },
+  6:  { situation: "While clearing the floor, you notice a broken glass and a spilled drink near the high-traffic entrance to the toilets.",
+        context: "You are the only staff member on the floor and you have three drinks in your hand.",
+        task: "Explain your immediate actions to secure the hazard and protect guest safety." },
+  7:  { situation: "The bartender yells that they are out of clean schooner glasses and the ice bin is empty.",
+        context: "The main bar is getting slammed and you are currently restocking the coolroom.",
+        task: "Explain how you prioritise your next 60 seconds and why." },
+  8:  { situation: "A local regular and a group of tourists who look lost arrive at the bar at the same time.",
+        context: "You are mid-pour on a Guinness and cannot leave your station.",
+        task: "Describe exactly how you acknowledge both parties within three seconds without abandoning your pour." },
+  9:  { situation: "Two guests at a table of eight are ready to order, but the other six are deep in conversation with their menus closed.",
+        context: "The kitchen closes in 15 minutes.",
+        task: "Explain how you move the table along professionally without making anyone feel rushed." },
+  10: { situation: "You notice a guest in the lounge has just finished their Shiraz and is looking around the room for staff.",
+        context: "You are currently heading to the bistro with another table's order.",
+        task: "Describe how you handle this check-in without dropping your current task." },
+  11: { situation: "A guest pushes to the front of the bar: 'Mate, we ordered our parmys 45 minutes ago. Those guys next to us sat down after we did and they are already eating. What is going on?'",
+        context: "It is a busy Sunday session and the bistro is slammed.",
+        task: "Explain how you empathise, investigate, and resolve this without blaming the kitchen in front of the guest." },
+  12: { situation: "A guest asks: 'What lagers do you have on tap?'",
+        context: "You have a standard house pour and a premium local craft lager that was just tapped, costing $2 more.",
+        task: "Explain how you steer them toward the premium option naturally and without being pushy." },
+  13: { situation: "A VIP regular who always spends big arrives without a booking: 'Hey, I am here for my usual booth. You know I always sit there.'",
+        context: "It is a fully committed Saturday night and their usual booth is occupied by a family.",
+        task: "Explain how you protect the seated guests while retaining the VIP's goodwill." },
+  14: { situation: "The phone rings during the lunch rush. A guest wants to book a table for twenty people tonight.",
+        context: "Your system shows you are already at full capacity for tonight.",
+        task: "Explain how you deliver the bad news warmly and protect the relationship for a future booking." },
+  15: { situation: "It is Friday night, 11:30 PM. A regular stumbles up, leaning heavily against the counter. He slaps a $50 note down: 'Mate, just give us one more schooner of New and a shot of JD. I am fine, I promise.'",
+        context: "The guest is clearly intoxicated and other patrons are watching.",
+        task: "Explain how you refuse service firmly and compassionately in compliance with RSA, without escalating or humiliating the guest." },
+  16: { situation: "You are about to run a tray of food when you notice the Gluten Free burger is on the same plate as a regular bun.",
+        context: "The guest is a known coeliac and the food is about to leave the pass.",
+        task: "Explain what you say to the kitchen and how you manage the guest's wait without alarming them." },
+  17: { situation: "A group in the TAB area are getting loud, swearing, and leaning over other patrons' tables.",
+        context: "Other guests are visibly uncomfortable. You have approached to settle them down.",
+        task: "Explain your approach to de-escalate without confrontation and protect the comfort of surrounding guests." },
+  18: { situation: "The fire alarm starts ringing during a busy Friday night service.",
+        context: "Patrons are confused — some are trying to finish their drinks, others are heading back for their bags.",
+        task: "Explain how you take command of the room calmly and direct all guests to the exit without creating panic." },
+  19: { situation: "You have just completed the final till count at 2 AM and you are $100 short.",
+        context: "Your lift home is waiting outside and the alarm needs to be set.",
+        task: "Explain the correct protocol you follow before leaving, and why skipping it is not an option." },
+  20: { situation: "You notice a co-worker is consistently over-pouring spirits and forgetting to ring up staff drinks for their mates.",
+        context: "This has been happening repeatedly and is hitting the venue's gross profit.",
+        task: "Explain how you address this — whether directly with the co-worker or by escalating to management — and why." },
+};
 
-function buildSeedText(seed: SeedContent): string {
-  let text = `${seed.opening_line}\nContext: ${seed.context}`;
-  if (seed.goal) text += `\nGoal: ${seed.goal}`;
-  return text;
-}
-
-export default function ArenaPage({ userId }: Props) {
-  const [phase, setPhase] = useState<"select" | "chat" | "result">("select");
+export default function ArenaPage({ userId: _userId }: Props) {
+  const [phase, setPhase] = useState<"select" | "writing" | "result">("select");
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [seedContent, setSeedContent] = useState<SeedContent | null>(null);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<ArenaResult | null>(null);
+  const [result, setResult] = useState<AssessmentResult | null>(null);
 
   async function authHeaders(): Promise<Record<string, string>> {
     const supabase = createSupabaseBrowserClient();
@@ -75,118 +120,51 @@ export default function ArenaPage({ userId }: Props) {
     return headers;
   }
 
-  async function arenaFetch(body: Record<string, unknown>) {
-    const headers = await authHeaders();
-    const res = await fetch("/api/arena/evaluate", {
-      method: "POST",
-      headers,
-      body: JSON.stringify(body),
-    });
-    const data = await res.json() as Record<string, unknown>;
-    if (!res.ok) throw new Error((data.error as string | undefined) ?? `Request failed (${res.status})`);
-    return data;
-  }
-
-  async function startArena(moduleId: number) {
+  function selectModule(moduleId: number) {
     setSelectedId(moduleId);
-    setMessages([]);
-    setSeedContent(null);
-    setLoading(true);
+    setResponse("");
     setError(null);
-    try {
-      const supabase = createSupabaseBrowserClient();
-      const { data: scenario } = await supabase
-        .from("scenarios")
-        .select("content")
-        .eq("module_id", moduleId)
-        .eq("scenario_type", "roleplay")
-        .eq("scenario_index", 40)
-        .maybeSingle();
-
-      if (scenario?.content) {
-        const seed = scenario.content as SeedContent;
-        setSeedContent(seed);
-        setMessages([{ role: "assistant", content: seed.opening_line }]);
-        setPhase("chat");
-      } else {
-        // Fallback: AI-generated opening if seed scenario not found
-        const data = await arenaFetch({
-          action: "start",
-          moduleId,
-          moduleTitle: MODULE_META[moduleId]?.title,
-          userId,
-        });
-        setMessages([{ role: "assistant", content: data.opening as string }]);
-        setPhase("chat");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to start Arena.");
-    } finally {
-      setLoading(false);
-    }
+    setResult(null);
+    setPhase("writing");
   }
 
-  async function sendReply() {
-    if (!input.trim() || !selectedId || loading) return;
-    const userMsg: ChatMessage = { role: "user", content: input.trim() };
-    const next = [...messages, userMsg];
-    setMessages(next);
-    setInput("");
-    setLoading(true);
+  async function submitResponse() {
+    if (!response.trim() || !selectedId || submitting) return;
+    setSubmitting(true);
     setError(null);
     try {
-      const data = await arenaFetch({
-        action: "reply",
-        moduleId: selectedId,
-        moduleTitle: MODULE_META[selectedId]?.title,
-        messages: next,
-        userId,
-        seedScenario: seedContent ? buildSeedText(seedContent) : undefined,
+      const seed = ARENA_SEED_SCENARIOS[selectedId]!;
+      const scenario = `Situation: ${seed.situation}\nContext: ${seed.context}\nTask: ${seed.task}`;
+      const headers = await authHeaders();
+      const res = await fetch("/api/arena/evaluate", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          action: "evaluate",
+          moduleId: selectedId,
+          moduleTitle: MODULE_META[selectedId]?.title,
+          scenario,
+          response: response.trim(),
+        }),
       });
-      setMessages([...next, { role: "assistant", content: data.reply as string }]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to get reply.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function endAndScore() {
-    if (!selectedId || loading) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const transcript = messages
-        .map((m) => `${m.role === "assistant" ? "Guest" : "Staff"}: ${m.content}`)
-        .join("\n\n");
-      const data = await arenaFetch({
-        action: "score",
-        moduleId: selectedId,
-        moduleTitle: MODULE_META[selectedId]?.title,
-        transcript,
-        userId,
-        seedScenario: seedContent ? buildSeedText(seedContent) : undefined,
-      });
-      setResult((data.arena as ArenaResult));
+      const data = await res.json() as Record<string, unknown>;
+      if (!res.ok) throw new Error((data.error as string | undefined) ?? `Request failed (${res.status})`);
+      setResult(data.assessment as AssessmentResult);
       setPhase("result");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to score session.");
+      setError(err instanceof Error ? err.message : "Evaluation failed. Please try again.");
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   }
 
-  function resetToSelect() {
+  function reset() {
     setPhase("select");
     setSelectedId(null);
-    setMessages([]);
-    setSeedContent(null);
+    setResponse("");
     setResult(null);
     setError(null);
-    setInput("");
   }
-
-  const userTurns = messages.filter((m) => m.role === "user").length;
 
   // ── Module selection ────────────────────────────────────────────────────────
   if (phase === "select") {
@@ -197,10 +175,10 @@ export default function ArenaPage({ userId }: Props) {
           style={{ color: "white", marginBottom: "1.75rem" }}
         >
           <div className="sbe-command-text">
-            <span className="sbe-command-eyebrow">The Arena</span>
-            <strong>Choose a module to practice</strong>
+            <span className="sbe-command-eyebrow">AI Scenarios</span>
+            <strong>Choose a scenario to assess</strong>
             <span className="sbe-command-meta">
-              AI roleplay with a Difficult Guest — earn your Service Score
+              Read the scenario, write your full response, receive an AI score out of 100
             </span>
           </div>
         </div>
@@ -220,13 +198,13 @@ export default function ArenaPage({ userId }: Props) {
             return (
               <div
                 key={id}
-                onClick={() => { if (!loading) void startArena(id); }}
+                onClick={() => selectModule(id)}
                 style={{
                   background: "white",
                   border: "1.5px solid #e5e7eb",
                   borderRadius: "14px",
                   padding: "1.25rem 1.4rem",
-                  cursor: loading ? "wait" : "pointer",
+                  cursor: "pointer",
                   transition: "all 0.18s ease",
                   boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
                 }}
@@ -277,7 +255,7 @@ export default function ArenaPage({ userId }: Props) {
                     letterSpacing: "0.05em",
                   }}
                 >
-                  Enter Arena
+                  Start Assessment
                 </span>
               </div>
             );
@@ -290,11 +268,8 @@ export default function ArenaPage({ userId }: Props) {
   // ── Result screen ───────────────────────────────────────────────────────────
   if (phase === "result" && result) {
     const scoreColor =
-      result.serviceScore >= 75
-        ? "#1E5A3C"
-        : result.serviceScore >= 50
-        ? "#B98220"
-        : "#7A4F2C";
+      result.score >= 75 ? "#1E5A3C" : result.score >= 50 ? "#B98220" : "#7A4F2C";
+    const meta = MODULE_META[selectedId!];
     return (
       <div>
         <div
@@ -302,19 +277,26 @@ export default function ArenaPage({ userId }: Props) {
           style={{ color: "white", marginBottom: "1.75rem" }}
         >
           <div className="sbe-command-text">
-            <span className="sbe-command-eyebrow">The Arena</span>
-            <strong>Session Complete</strong>
-            <span className="sbe-command-meta">
-              {MODULE_META[selectedId!]?.title ?? "Arena"}
-            </span>
+            <span className="sbe-command-eyebrow">AI Scenarios</span>
+            <strong>Assessment Complete</strong>
+            <span className="sbe-command-meta">{meta?.title ?? "Scenario"}</span>
           </div>
-          <button
-            onClick={resetToSelect}
-            className="sbe-command-btn btn"
-            style={{ flexShrink: 0 }}
-          >
-            New Session
-          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={() => { setPhase("writing"); setResult(null); setResponse(""); setError(null); }}
+              className="sbe-command-btn btn"
+              style={{ flexShrink: 0 }}
+            >
+              Try Again
+            </button>
+            <button
+              onClick={reset}
+              className="sbe-command-btn btn"
+              style={{ flexShrink: 0 }}
+            >
+              All Scenarios
+            </button>
+          </div>
         </div>
 
         <div
@@ -323,62 +305,74 @@ export default function ArenaPage({ userId }: Props) {
             border: "1.5px solid #e5e7eb",
             borderRadius: "14px",
             padding: "2rem",
-            maxWidth: 540,
+            maxWidth: 560,
           }}
         >
-          <div style={{ textAlign: "center", marginBottom: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 24 }}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: "4rem", fontWeight: 900, color: scoreColor, lineHeight: 1 }}>
+                {result.score}
+              </div>
+              <div style={{ fontSize: "0.75rem", color: "#6b7280", marginTop: 2, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                out of 100
+              </div>
+            </div>
             <div
               style={{
-                fontSize: "4rem",
-                fontWeight: 900,
-                color: scoreColor,
-                lineHeight: 1,
+                padding: "6px 16px",
+                borderRadius: "999px",
+                background: result.passed ? "#d1fae5" : "#fee2e2",
+                color: result.passed ? "#065f46" : "#7f1d1d",
+                fontWeight: 800,
+                fontSize: "0.85rem",
+                letterSpacing: "0.04em",
               }}
             >
-              {result.serviceScore}
-            </div>
-            <div style={{ fontSize: "0.8rem", color: "#6b7280", marginTop: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-              Service Score
+              {result.passed ? "Passed" : "Not Yet"}
             </div>
           </div>
 
-          <p style={{ fontSize: "0.95rem", fontWeight: 600, color: "#1b4332", marginBottom: 20 }}>
-            {result.summary}
-          </p>
-
-          <div style={{ marginBottom: 16 }}>
+          <div style={{ marginBottom: 20 }}>
             <strong
               style={{
-                fontSize: "0.7rem",
+                fontSize: "0.68rem",
                 textTransform: "uppercase",
                 letterSpacing: "0.06em",
                 color: "#1E5A3C",
               }}
             >
-              Strengths
+              What you did well
             </strong>
-            <p style={{ marginTop: 4, color: "#374151", fontSize: "0.9rem" }}>{result.strengths}</p>
+            <p style={{ marginTop: 6, color: "#374151", fontSize: "0.9rem", lineHeight: 1.55 }}>
+              {result.what_you_did_well}
+            </p>
           </div>
 
           <div>
             <strong
               style={{
-                fontSize: "0.7rem",
+                fontSize: "0.68rem",
                 textTransform: "uppercase",
                 letterSpacing: "0.06em",
                 color: "#B98220",
               }}
             >
-              Coaching Note
+              Room for improvement
             </strong>
-            <p style={{ marginTop: 4, color: "#374151", fontSize: "0.9rem" }}>{result.improvement}</p>
+            <p style={{ marginTop: 6, color: "#374151", fontSize: "0.9rem", lineHeight: 1.55 }}>
+              {result.room_for_improvement}
+            </p>
           </div>
         </div>
       </div>
     );
   }
 
-  // ── Chat phase ──────────────────────────────────────────────────────────────
+  // ── Writing phase ───────────────────────────────────────────────────────────
+  const seed = ARENA_SEED_SCENARIOS[selectedId!];
+  const meta = MODULE_META[selectedId!];
+  const accent = meta ? CATEGORY_ACCENT[meta.category] : "#1E5A3C";
+
   return (
     <div>
       <div
@@ -386,149 +380,107 @@ export default function ArenaPage({ userId }: Props) {
         style={{ color: "white", marginBottom: "1.75rem" }}
       >
         <div className="sbe-command-text">
-          <span className="sbe-command-eyebrow">The Arena</span>
-          <strong>{MODULE_META[selectedId!]?.title ?? "Roleplay"}</strong>
-          <span className="sbe-command-meta">Respond to the Difficult Guest</span>
+          <span className="sbe-command-eyebrow">AI Scenarios</span>
+          <strong>{meta?.title ?? "Scenario"}</strong>
+          <span className="sbe-command-meta">Read the scenario, then write your full response below</span>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          {userTurns >= MIN_TURNS_FOR_SCORE && (
-            <button
-              onClick={() => { void endAndScore(); }}
-              disabled={loading}
-              className="sbe-command-btn btn"
-              style={{ flexShrink: 0, background: "#1E5A3C", color: "white" }}
-            >
-              End &amp; Score
-            </button>
-          )}
-          <button
-            onClick={resetToSelect}
-            className="sbe-command-btn btn"
-            style={{ flexShrink: 0 }}
-          >
-            Exit
-          </button>
-        </div>
+        <button onClick={reset} className="sbe-command-btn btn" style={{ flexShrink: 0 }}>
+          Exit
+        </button>
       </div>
 
-      <div
-        style={{
-          background: "white",
-          border: "1.5px solid #e5e7eb",
-          borderRadius: "14px",
-          padding: "1.5rem",
-          maxWidth: 640,
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 12,
-            marginBottom: 16,
-            maxHeight: 400,
-            overflowY: "auto",
-          }}
-        >
-          {messages.map((m, i) => (
+      <div style={{ maxWidth: 640, display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+        {seed && (
+          <div
+            style={{
+              background: "white",
+              border: `1.5px solid ${accent}22`,
+              borderLeft: `4px solid ${accent}`,
+              borderRadius: "12px",
+              padding: "1.5rem",
+            }}
+          >
             <div
-              key={i}
               style={{
-                display: "flex",
-                justifyContent: m.role === "user" ? "flex-end" : "flex-start",
+                fontSize: "0.65rem",
+                fontWeight: 800,
+                letterSpacing: "0.08em",
+                color: accent,
+                textTransform: "uppercase",
+                marginBottom: 10,
               }}
             >
-              <div
-                style={{
-                  maxWidth: "80%",
-                  padding: "10px 14px",
-                  borderRadius:
-                    m.role === "user"
-                      ? "14px 14px 4px 14px"
-                      : "14px 14px 14px 4px",
-                  background: m.role === "user" ? "#1E5A3C" : "#f3f4f6",
-                  color: m.role === "user" ? "white" : "#1f2937",
-                  fontSize: "0.9rem",
-                  lineHeight: 1.5,
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: "0.6rem",
-                    fontWeight: 700,
-                    marginBottom: 4,
-                    opacity: 0.65,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                  }}
-                >
-                  {m.role === "assistant" ? "Difficult Guest" : "You"}
-                </div>
-                {m.content}
-              </div>
+              {meta?.category} — Scenario
             </div>
-          ))}
-
-          {loading && (
-            <div style={{ display: "flex", justifyContent: "flex-start" }}>
-              <div
-                style={{
-                  padding: "10px 14px",
-                  borderRadius: "14px 14px 14px 4px",
-                  background: "#f3f4f6",
-                  color: "#9ca3af",
-                  fontSize: "0.9rem",
-                }}
-              >
-                ...
-              </div>
-            </div>
-          )}
-        </div>
-
-        {error && (
-          <p style={{ color: "#7a1d1d", fontSize: "0.85rem", marginBottom: 8 }}>
-            {error}
-          </p>
+            <p style={{ fontWeight: 700, color: "#1b4332", fontSize: "0.95rem", lineHeight: 1.55, marginBottom: 10 }}>
+              {seed.situation}
+            </p>
+            <p style={{ color: "#6b7280", fontSize: "0.85rem", lineHeight: 1.5, marginBottom: 10 }}>
+              <strong style={{ color: "#374151" }}>Context:</strong> {seed.context}
+            </p>
+            <p style={{ color: "#374151", fontSize: "0.85rem", lineHeight: 1.5 }}>
+              <strong>Your task:</strong> {seed.task}
+            </p>
+          </div>
         )}
 
-        <div style={{ display: "flex", gap: 8 }}>
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                void sendReply();
-              }
-            }}
-            placeholder="Type your response as the staff member..."
-            disabled={loading}
+        <div
+          style={{
+            background: "white",
+            border: "1.5px solid #e5e7eb",
+            borderRadius: "12px",
+            padding: "1.5rem",
+          }}
+        >
+          <label
+            htmlFor="arena-response"
             style={{
-              flex: 1,
-              padding: "10px 14px",
+              display: "block",
+              fontSize: "0.7rem",
+              fontWeight: 800,
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              color: "#6b7280",
+              marginBottom: 10,
+            }}
+          >
+            Your response
+          </label>
+          <textarea
+            id="arena-response"
+            value={response}
+            onChange={(e) => setResponse(e.target.value)}
+            placeholder="Write exactly what you would say and do in this situation. Be specific — the AI evaluates based on Australian hospitality standards."
+            disabled={submitting}
+            rows={8}
+            style={{
+              width: "100%",
+              padding: "12px 14px",
               borderRadius: 8,
               border: "1.5px solid #e5e7eb",
               fontSize: "0.9rem",
+              lineHeight: 1.55,
+              resize: "vertical",
               outline: "none",
+              fontFamily: "inherit",
+              color: "#1f2937",
+              boxSizing: "border-box",
             }}
           />
+
+          {error && (
+            <p style={{ color: "#7a1d1d", fontSize: "0.85rem", marginTop: 8 }}>{error}</p>
+          )}
+
           <button
-            onClick={() => { void sendReply(); }}
-            disabled={loading || !input.trim()}
+            onClick={() => { void submitResponse(); }}
+            disabled={submitting || !response.trim()}
             className="btn btn-primary"
-            style={{ flexShrink: 0 }}
+            style={{ marginTop: 14, width: "100%", padding: "12px", fontSize: "0.95rem", fontWeight: 700 }}
           >
-            Send
+            {submitting ? "Evaluating..." : "Submit for Evaluation"}
           </button>
         </div>
-
-        {userTurns < MIN_TURNS_FOR_SCORE && userTurns > 0 && (
-          <p style={{ fontSize: "0.75rem", color: "#9ca3af", marginTop: 8 }}>
-            {MIN_TURNS_FOR_SCORE - userTurns} more response
-            {MIN_TURNS_FOR_SCORE - userTurns > 1 ? "s" : ""} before you can end and score
-          </p>
-        )}
       </div>
     </div>
   );
