@@ -1,42 +1,30 @@
-# Build artifacts
+# Build & Environment
 .next/
-.open-next/
-.wrangler/
 node_modules/
+.git/
+worktrees/
 
-# Lock files
+# Lock files (Essential to ignore)
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
-# Static assets
-public/
-favicon_io/
+# Large Source Data (Use Supabase instead)
+lib/scaffolded-questions.ts
+lib/cocktails.ts
+lib/knowledge-base.ts
 
-# Large deployment/ops docs
-OPERATIONAL_DEPLOYMENT_HANDOFF.md
-RELEASE_READINESS_ACTION_PLAN.md
-FINAL_DEPLOYMENT_VALIDATION.md
-FINAL_DEPLOYMENT_CHECKLIST.md
-DEPLOYMENT_TASK_STATUS.md
-DEPLOYMENT_VERIFIED_LIVE.md
-DEPLOYMENT_LOG.md
-DEPLOYMENT_COMPLETE.md
-PRODUCTION_VERIFICATION.md
-RAPID_FIRE_QUIZ_FIX_DOCUMENTATION.md
-PHASE_1_IMPLEMENTATIONS_COMPLETE.md
-PROJECT_COMPLETION_CERTIFICATE.md
-EXECUTIVE_SUMMARY.md
-README_RELEASE_READINESS.md
+# The Monolith (Optional: Ignore to save tokens, provide snippets manually)
+# app/manager/ManagerControlCenter.tsx
 
-# Content blueprints
-CONTENT_BLUEPRINT.md
-SCENARIO_ANSWERS_25-25.md
-
+# Supabase
 supabase/migrations/
 
-# Images and PDFs at root
+# Assets & Docs
+public/
 *.png
 *.jpg
 *.jpeg
 *.pdf
+*.md
+!docs/v3-architecture.md  # Keep the V3 anchor file visible!
