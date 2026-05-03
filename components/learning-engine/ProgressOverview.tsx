@@ -10,34 +10,13 @@ type ProgressOverviewProps = {
 
 type ModuleKey = "bartending" | "sales" | "management";
 
-type LevelProgress = {
-  level1_completed: boolean;
-  level2_completed: boolean;
-  level3_completed: boolean;
-  level4_unlocked: boolean;
-  level1_score: number;
-  level2_score: number;
-  level3_score: number;
-};
-
 type TrainingData = {
   modules: Record<ModuleKey, number>;   // completion 0–100%
-  mastery: Record<ModuleKey, number>;   // mastery 0–100% (scenarios at level 3)
+  mastery: Record<ModuleKey, number>;   // mastery 0–100% (ELO-based)
   scores: Record<ModuleKey, number>;    // avg score 0–25
   sessions: Record<ModuleKey, number>;  // total sessions completed
   elo: Record<ModuleKey, number>;       // Elo rating per module
   reviewDue: number;                    // spaced repetition items due now
-  levelProgress: Record<ModuleKey, LevelProgress>;
-};
-
-const DEFAULT_LEVEL: LevelProgress = {
-  level1_completed: false,
-  level2_completed: false,
-  level3_completed: false,
-  level4_unlocked: false,
-  level1_score: 0,
-  level2_score: 0,
-  level3_score: 0,
 };
 
 const EMPTY: TrainingData = {
@@ -47,11 +26,6 @@ const EMPTY: TrainingData = {
   sessions: { bartending: 0, sales: 0, management: 0 },
   elo: { bartending: 1200, sales: 1200, management: 1200 },
   reviewDue: 0,
-  levelProgress: {
-    bartending: { ...DEFAULT_LEVEL },
-    sales: { ...DEFAULT_LEVEL },
-    management: { ...DEFAULT_LEVEL },
-  },
 };
 
 const MODULE_LABELS: Record<ModuleKey, { label: string; detail: string; short: string }> = {
@@ -60,14 +34,6 @@ const MODULE_LABELS: Record<ModuleKey, { label: string; detail: string; short: s
   management: { label: "Shift leadership", detail: "Delegation, coaching and short-notice problem solving", short: "Leadership" },
 };
 
-const BADGE_LEGEND = [
-  { label: "Stage Complete", icon: "◆", note: "Stage 1 or 2 passed" },
-  { label: "Advanced", icon: "◈", note: "Stage 3 passed" },
-  { label: "Scenario Master", icon: "▲", note: "Stage 4 avg ≥ 21/25" },
-  { label: "Perfect", icon: "★", note: "100% module mastery" },
-];
-
-// Coach focus commands keyed by weakest module
 const COACH_FOCUS: Record<ModuleKey, string[]> = {
   bartending: [
     "Acknowledge guests within 3 seconds of them reaching the bar.",
@@ -86,96 +52,14 @@ const COACH_FOCUS: Record<ModuleKey, string[]> = {
   ],
 };
 
-function buildBadgeStages(data: TrainingData) {
-  const modules: ModuleKey[] = ["bartending", "sales", "management"];
-  const badgeLabels = ["Bartending", "Sales & Upselling", "Leadership"];
-
-  const stages = [
-    {
-      stage: "Stage 1 — Recall",
-      desc: "Complete the rapid-fire quiz for each module",
-      badges: modules.map((mod, i) => {
-        const lp = data.levelProgress[mod];
-        const earned = lp.level1_completed;
-        return {
-          id: `stage1-${mod}`,
-          label: badgeLabels[i],
-          icon: earned ? "◆" : "–",
-          earned,
-          earnedNote: earned ? `Quiz passed (${lp.level1_score} streak)` : undefined,
-        };
-      }),
-    },
-    {
-      stage: "Stage 2 — Application",
-      desc: "Pass the descriptor selection challenge for each module",
-      badges: modules.map((mod, i) => {
-        const lp = data.levelProgress[mod];
-        const earned = lp.level2_completed;
-        return {
-          id: `stage2-${mod}`,
-          label: badgeLabels[i],
-          icon: earned ? "◆" : "–",
-          earned,
-          earnedNote: earned ? `Descriptors mastered (${lp.level2_score} correct)` : undefined,
-        };
-      }),
-    },
-    {
-      stage: "Stage 3 — Advanced",
-      desc: "Complete the advanced descriptor challenge for each module",
-      badges: modules.map((mod, i) => {
-        const lp = data.levelProgress[mod];
-        const earned = lp.level3_completed;
-        return {
-          id: `stage3-${mod}`,
-          label: badgeLabels[i],
-          icon: earned ? "◈" : "–",
-          earned,
-          earnedNote: earned ? `Advanced complete (${lp.level3_score} correct)` : undefined,
-        };
-      }),
-    },
-    {
-      stage: "Stage 4 — Scenario Mastery",
-      desc: "Score ≥ 21/25 in a live scenario session for each module",
-      badges: modules.map((mod, i) => {
-        const s = data.sessions[mod];
-        const avg = data.scores[mod];
-        const earned = s >= 1 && avg >= 21;
-        const isPerfect = data.modules[mod] >= 100;
-        return {
-          id: `stage4-${mod}`,
-          label: badgeLabels[i],
-          icon: earned ? (isPerfect ? "★" : "▲") : "–",
-          earned,
-          earnedNote: earned
-            ? isPerfect
-              ? "Module mastered!"
-              : `Avg ${avg}/25 over ${s} session${s !== 1 ? "s" : ""}`
-            : undefined,
-        };
-      }),
-    },
-  ];
-
-  return stages.map((s) => ({
-    ...s,
-    masteryComplete: s.badges.every((b) => b.earned),
-  }));
-}
-
 function buildModuleCertifications(data: TrainingData) {
   const certs = [
-    { mod: "bartending" as ModuleKey, label: "Certified Bartender", sub: "All 4 stages complete" },
-    { mod: "sales" as ModuleKey, label: "Sales Specialist", sub: "All 4 stages complete" },
-    { mod: "management" as ModuleKey, label: "Lead Communicator", sub: "All 4 stages complete" },
+    { mod: "bartending" as ModuleKey, label: "Certified Bartender", sub: "Train and verify to earn" },
+    { mod: "sales" as ModuleKey, label: "Sales Specialist", sub: "Train and verify to earn" },
+    { mod: "management" as ModuleKey, label: "Lead Communicator", sub: "Train and verify to earn" },
   ];
   return certs.map(({ mod, label, sub }) => {
-    const lp = data.levelProgress[mod];
-    const s = data.sessions[mod];
-    const avg = data.scores[mod];
-    const certified = lp.level1_completed && lp.level2_completed && lp.level3_completed && s >= 1 && avg >= 21;
+    const certified = (data.mastery[mod] ?? 0) >= 80;
     return { mod, label, sub, certified };
   });
 }
@@ -183,14 +67,14 @@ function buildModuleCertifications(data: TrainingData) {
 function getWeakestModule(data: TrainingData): ModuleKey {
   const keys: ModuleKey[] = ["bartending", "sales", "management"];
   return keys.reduce((weakest, k) =>
-    data.modules[k] < data.modules[weakest] ? k : weakest
+    (data.mastery[k] ?? 0) < (data.mastery[weakest] ?? 0) ? k : weakest
   );
 }
 
 function getStrongestModule(data: TrainingData): ModuleKey {
   const keys: ModuleKey[] = ["bartending", "sales", "management"];
   return keys.reduce((strongest, k) =>
-    data.modules[k] > data.modules[strongest] ? k : strongest
+    (data.mastery[k] ?? 0) > (data.mastery[strongest] ?? 0) ? k : strongest
   );
 }
 
@@ -200,11 +84,13 @@ function buildRecentWins(data: TrainingData): string[] {
   for (const mod of keys) {
     const s = data.sessions[mod];
     const avg = data.scores[mod];
-    const pct = data.modules[mod];
+    const mastery = data.mastery[mod] ?? 0;
     if (s === 0) continue;
-    if (avg >= 21) {
+    if (mastery >= 80) {
+      wins.push(`${MODULE_LABELS[mod].short} mastered — keep drilling to stay sharp.`);
+    } else if (avg >= 21) {
       wins.push(`${MODULE_LABELS[mod].short} averaging ${avg}/25 — above the pass threshold.`);
-    } else if (pct > 0) {
+    } else if (s > 0) {
       wins.push(`${MODULE_LABELS[mod].short} underway — ${s} session${s !== 1 ? "s" : ""} completed, avg score ${avg}/25.`);
     }
   }
@@ -234,11 +120,6 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
             sessions: res.sessions ?? { bartending: 0, sales: 0, management: 0 },
             elo: res.elo ?? { bartending: 1200, sales: 1200, management: 1200 },
             reviewDue: Array.isArray(res.reviewQueue) ? res.reviewQueue.length : 0,
-            levelProgress: {
-              bartending: res.levelProgress?.bartending ?? { ...DEFAULT_LEVEL },
-              sales: res.levelProgress?.sales ?? { ...DEFAULT_LEVEL },
-              management: res.levelProgress?.management ?? { ...DEFAULT_LEVEL },
-            },
           });
         }
       } catch {
@@ -250,18 +131,16 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
 
   const totalSessions = data.sessions.bartending + data.sessions.sales + data.sessions.management;
   const avgProgress = Math.round((data.modules.bartending + data.modules.sales + data.modules.management) / 3);
+  const avgMastery = Math.round((data.mastery.bartending + data.mastery.sales + data.mastery.management) / 3);
   const weakest = getWeakestModule(data);
   const strongest = getStrongestModule(data);
 
-  const BADGE_STAGES = buildBadgeStages(data);
   const MODULE_CERTS = buildModuleCertifications(data);
   const certifiedCount = MODULE_CERTS.filter((c) => c.certified).length;
   const isVeteran = totalSessions >= 25;
   const isPrecisionExpert = (["bartending", "sales", "management"] as ModuleKey[]).some((mod) => data.scores[mod] >= 25);
   const COACH_COMMANDS = COACH_FOCUS[weakest];
   const RECENT_WINS = buildRecentWins(data);
-
-  const avgMastery = Math.round((data.mastery.bartending + data.mastery.sales + data.mastery.management) / 3);
 
   const MODULE_PROGRESS = (["bartending", "sales", "management"] as ModuleKey[]).map((mod) => ({
     mod,
@@ -271,7 +150,7 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
     mastery: data.mastery[mod],
     avgScore: data.scores[mod],
     sessions: data.sessions[mod],
-    status: data.mastery[mod] >= 80 ? "Mastered" : data.modules[mod] > 60 ? "On track" : data.modules[mod] > 30 ? "Improving" : data.modules[mod] > 0 ? "Building" : "Not started",
+    status: (data.mastery[mod] ?? 0) >= 80 ? "Mastered" : data.modules[mod] > 60 ? "On track" : data.modules[mod] > 30 ? "Improving" : data.modules[mod] > 0 ? "Building" : "Not started",
   }));
 
   const MOMENTUM_METRICS = [
@@ -352,7 +231,7 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
           fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif",
         }}>
           {certifiedCount === 0
-            ? "Complete all 4 stages in a module to earn your first certification."
+            ? "Train each module to mastery to earn your first certification."
             : certifiedCount === 3
             ? "All modules certified — full mastery achieved."
             : `${3 - certifiedCount} module${3 - certifiedCount !== 1 ? "s" : ""} remaining to reach full mastery.`}
@@ -406,14 +285,14 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
         <section className="progress-panel">
           <div className="progress-panel-header">
             <h2>Badges &amp; Achievements</h2>
-            <span>Certifications · Milestones · Skill Drills</span>
+            <span>Certifications · Milestones · Mastery</span>
           </div>
 
-          {/* Tier 1 — Module Certifications */}
+          {/* Module Certifications */}
           <div style={{ marginBottom: 28 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
               <h3 style={{ margin: 0, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.06em", color: "#6b6860", fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif", fontWeight: 600 }}>Module Certifications</h3>
-              <span style={{ fontSize: "0.73rem", color: "#a39e95" }}>All 4 stages required</span>
+              <span style={{ fontSize: "0.73rem", color: "#a39e95" }}>Mastery required</span>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(80px, 1fr))", gap: 10 }}>
               {MODULE_CERTS.map((cert) => (
@@ -459,7 +338,7 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
             </div>
           </div>
 
-          {/* Tier 2 — Tactical Experience */}
+          {/* Tactical Experience */}
           <div style={{ marginBottom: 28 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
               <h3 style={{ margin: 0, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.06em", color: "#6b6860", fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif", fontWeight: 600 }}>Tactical Experience</h3>
@@ -493,59 +372,45 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
             </div>
           </div>
 
-          {/* Tier 3 — Skill Drills */}
+          {/* Module Mastery */}
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
-              <h3 style={{ margin: 0, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.06em", color: "#6b6860", fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif", fontWeight: 600 }}>Skill Drills</h3>
-              <span style={{ fontSize: "0.73rem", color: "#a39e95" }}>Stage-by-stage progress</span>
+              <h3 style={{ margin: 0, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.06em", color: "#6b6860", fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif", fontWeight: 600 }}>Module Mastery</h3>
+              <span style={{ fontSize: "0.73rem", color: "#a39e95" }}>ELO-tracked progress</span>
             </div>
-            <div className="badge-legend">
-              <span className="badge-legend-label">Badge progression:</span>
-              <div className="badge-legend-items">
-                {BADGE_LEGEND.map((item) => (
-                  <div key={item.label} className="badge-legend-item">
-                    <span className="badge-legend-icon">{item.icon}</span>
-                    <strong>{item.label}</strong>
-                    <span className="badge-legend-note">{item.note}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="progress-badges-container">
-              {BADGE_STAGES.map((stageData) => (
-                <div key={stageData.stage} className="badge-stage">
-                  <div className="badge-stage-header">
-                    <div className="badge-stage-title">
-                      <h3>{stageData.stage}</h3>
-                      {stageData.masteryComplete && (
-                        <span className="badge-mastery-note">All modules complete</span>
-                      )}
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {(["bartending", "sales", "management"] as ModuleKey[]).map((mod) => {
+                const mastery = Math.round(data.mastery[mod] ?? 0);
+                const mastered = mastery >= 80;
+                return (
+                  <div
+                    key={mod}
+                    style={{
+                      background: mastered ? "#f0fdf4" : "#f9fafb",
+                      border: `1.5px solid ${mastered ? "#86efac" : "#e5e7eb"}`,
+                      borderRadius: 8,
+                      padding: "14px 16px",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                      <strong style={{ fontSize: "0.85rem", color: "#111827", fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif" }}>
+                        {MODULE_LABELS[mod].short}
+                      </strong>
+                      <span style={{ fontSize: "0.78rem", fontWeight: 700, color: mastered ? "#065f46" : "#6b7280", fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif" }}>
+                        {mastered ? "Mastered" : mastery > 0 ? `${mastery}%` : "Not started"}
+                      </span>
                     </div>
-                    {"desc" in stageData && stageData.desc && (
-                      <span className="badge-stage-desc">{stageData.desc}</span>
+                    <div style={{ background: "#e5e7eb", borderRadius: 4, height: 6, overflow: "hidden" }}>
+                      <div style={{ background: mastered ? "#0B2B1E" : "#2d6a4f", height: "100%", width: `${mastery}%`, borderRadius: 4, transition: "width 0.3s ease" }} />
+                    </div>
+                    {data.sessions[mod] > 0 && (
+                      <p style={{ margin: "6px 0 0", fontSize: "0.72rem", color: "#9ca3af", fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif" }}>
+                        {data.sessions[mod]} session{data.sessions[mod] !== 1 ? "s" : ""} · avg {Math.round(data.scores[mod])}/25
+                      </p>
                     )}
                   </div>
-                  <div className={`badge-row badge-row-${stageData.badges.length}`}>
-                    {stageData.badges.map((badge) => (
-                      <div
-                        key={badge.id}
-                        className={`badge-item ${badge.earned ? "earned" : "tba"}`}
-                        title={badge.earnedNote || "Not yet earned"}
-                      >
-                        <div className="badge-shield">
-                          <span className="badge-icon">{badge.icon}</span>
-                        </div>
-                        <div className="badge-label">
-                          <strong>{badge.label}</strong>
-                          {badge.earned && badge.earnedNote && (
-                            <span className="badge-note">{badge.earnedNote}</span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
@@ -582,4 +447,3 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
     </div>
   );
 }
-

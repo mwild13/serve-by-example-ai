@@ -86,7 +86,7 @@ const COACH_FOCUS: Record<ModuleKey, string[]> = {
 };
 
 const QUICK_ACTIONS: { Icon: React.ElementType; title: string; desc: string; time: string; difficulty: string; nav: NavItem }[] = [
-  { Icon: Zap, title: "Quick Warm-Up", desc: "60-second Stage 1 Recall quiz to get your brain shift-ready", time: "60s", difficulty: "Easy", nav: "rapid-fire" },
+  { Icon: Zap, title: "Quick Warm-Up", desc: "60-second recall warm-up to get your brain shift-ready", time: "60s", difficulty: "Easy", nav: "rapid-fire" },
   { Icon: GlassWater, title: "Cocktail Specs", desc: "Check a recipe or review specs before the rush", time: "5m", difficulty: "Reference", nav: "cocktails" },
   { Icon: BookOpen, title: "Knowledge Base", desc: "101 guides for wine, spirits, and service", time: "5m", difficulty: "Reference", nav: "knowledge" },
   { Icon: BarChart2, title: "My Progress", desc: "View badges, scores, and training history", time: "—", difficulty: "Review", nav: "progress" },
@@ -99,20 +99,17 @@ function getSkillLevel(avgCompletion: number, avgMastery: number): number {
 
 function getWeakestModule(data: ProgressData): ModuleKey {
   const keys: ModuleKey[] = ["bartending", "sales", "management"];
-  return keys.reduce((w, k) => (data.modules[k] < data.modules[w] ? k : w));
+  return keys.reduce((w, k) => ((data.mastery[k] ?? 0) < (data.mastery[w] ?? 0) ? k : w));
 }
 
 function isMastered(data: ProgressData, mod: ModuleKey): boolean {
-  const lp = data.levelProgress[mod];
-  return lp.level1_completed && lp.level2_completed && lp.level3_completed &&
-    data.sessions[mod] >= 1 && data.scores[mod] >= 21;
+  return (data.mastery[mod] ?? 0) >= 80;
 }
 
-function getNextStage(lp: LevelProgress): { stage: number; label: string } {
-  if (!lp.level1_completed) return { stage: 1, label: "Stage 1 Recall" };
-  if (!lp.level2_completed) return { stage: 2, label: "Stage 2 Application" };
-  if (!lp.level3_completed) return { stage: 3, label: "Stage 3 Advanced" };
-  return { stage: 4, label: "Stage 4 Scenario" };
+function getMasteryLabel(mastery: number): string {
+  if (mastery >= 80) return "Keep it sharp";
+  if (mastery > 0) return "Continue training";
+  return "Start training";
 }
 
 function computeStreak(): number {
@@ -220,14 +217,13 @@ export default function PreShiftHome({
   const avgMastery = (data.mastery.bartending + data.mastery.sales + data.mastery.management) / 3;
   const skillLevel = getSkillLevel(avgCompletion, avgMastery);
   const weakest = getWeakestModule(data);
-  const weakestNext = getNextStage(data.levelProgress[weakest]);
+  const weakestMastery = Math.round(data.mastery[weakest] ?? 0);
   const coachTips = COACH_FOCUS[weakest];
   const lastTrainedLabel = formatLastTrained(data.lastAttemptAt);
   const WeakestIcon = MODULE_META[weakest].Icon;
 
   const badgesEarned = (["bartending", "sales", "management"] as ModuleKey[]).reduce((count, mod) => {
-    const lp = data.levelProgress[mod];
-    return count + (lp.level1_completed ? 1 : 0) + (lp.level2_completed ? 1 : 0) + (lp.level3_completed ? 1 : 0) + (data.sessions[mod] >= 1 && data.scores[mod] >= 21 ? 1 : 0);
+    return count + (isMastered(data, mod) ? 1 : 0);
   }, 0);
 
   return (
@@ -299,10 +295,10 @@ export default function PreShiftHome({
             <WeakestIcon size={22} style={{ flexShrink: 0, color: "var(--green)" }} />
             <div>
               <strong>{MODULE_META[weakest].label}</strong>
-              <p>{`${Math.round(data.modules[weakest])}% complete · Next: ${weakestNext.label}`}</p>
+              <p>{weakestMastery >= 80 ? "Mastered" : weakestMastery > 0 ? `${weakestMastery}% mastered · keep going` : "Not started yet"}</p>
             </div>
           </div>
-          <span className="psh-action-cta">Start {weakestNext.label} →</span>
+          <span className="psh-action-cta">{getMasteryLabel(weakestMastery)} →</span>
         </div>
       </div>
 
@@ -428,8 +424,7 @@ export default function PreShiftHome({
         <h2>Quick Drills</h2>
         <div className="psh-module-row">
           {(["bartending", "sales", "management"] as ModuleKey[]).filter((m) => managementUnlocked || m !== "management").map((mod) => {
-            const lp = data.levelProgress[mod];
-            const nextStage = getNextStage(lp);
+            const mastery = Math.round(data.mastery[mod] ?? 0);
             const { short } = MODULE_META[mod];
             return (
               <button
@@ -440,13 +435,13 @@ export default function PreShiftHome({
               >
                 <span className="psh-module-icon"><Zap size={18} style={{ color: "var(--green-mid)" }} /></span>
                 <strong>{short}</strong>
-                <div className="psh-module-stages">
-                  <span className={lp.level1_completed ? "done" : ""}>S1</span>
-                  <span className={lp.level2_completed ? "done" : ""}>S2</span>
-                  <span className={lp.level3_completed ? "done" : ""}>S3</span>
+                <div style={{ display: "flex", gap: 4, margin: "4px 0" }}>
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <span key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: i < Math.ceil(mastery / 20) ? "var(--green)" : "#e5e7eb", display: "inline-block" }} />
+                  ))}
                 </div>
                 <p className="psh-module-next">
-                  {isMastered(data, mod) ? "Mastered" : `Next: ${nextStage.label}`}
+                  {mastery >= 80 ? "Mastered" : mastery > 0 ? `${mastery}% mastered` : "Start training"}
                 </p>
               </button>
             );

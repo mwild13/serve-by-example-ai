@@ -77,11 +77,10 @@ function getWeakest(data: ProgressData): ModuleKey {
   return keys.reduce((w, k) => (data.modules[k] < data.modules[w] ? k : w));
 }
 
-function getNextStage(lp: LevelProgress): { stage: number; label: string } {
-  if (!lp.level1_completed) return { stage: 1, label: "Stage 1 Recall" };
-  if (!lp.level2_completed) return { stage: 2, label: "Stage 2 Application" };
-  if (!lp.level3_completed) return { stage: 3, label: "Stage 3 Advanced" };
-  return { stage: 4, label: "Stage 4 Scenario" };
+function getMasteryLabel(mastery: number): string {
+  if (mastery >= 80) return "Keep it sharp";
+  if (mastery > 0) return "Continue training";
+  return "Start training";
 }
 
 function computeStreak(userId: string): number {
@@ -391,8 +390,7 @@ export default function MobileDashboardV3({
   const totalSessions = data.sessions.bartending + data.sessions.sales + data.sessions.management;
   const weakest = getWeakest(data);
   const weakestLabel = MODULE_LABELS[weakest];
-  const weakestPct = Math.round(data.modules[weakest]);
-  const weakestNext = getNextStage(data.levelProgress[weakest]);
+  const weakestMastery = Math.round(data.mastery[weakest] ?? 0);
   const isPremium = plan !== "free";
 
   function navigate(id: NavItem) {
@@ -521,20 +519,20 @@ export default function MobileDashboardV3({
           }}>
             <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 3, color: C.ink }}>{weakestLabel}</div>
             <div style={{ fontSize: 11, color: C.inkMute, fontFamily: MONO, marginBottom: 10, letterSpacing: "0.06em" }}>
-              {weakestPct}% COMPLETE · NEXT: {weakestNext.label.toUpperCase()}
+              {weakestMastery >= 80 ? "MASTERED" : weakestMastery > 0 ? `${weakestMastery}% MASTERED · IN PROGRESS` : "NOT STARTED YET"}
             </div>
             <div style={{ height: 4, background: C.parchmentDeep, borderRadius: 1, marginBottom: 12 }}>
-              <div style={{ height: "100%", width: `${Math.max(weakestPct, 2)}%`, background: C.green, borderRadius: 1 }} />
+              <div style={{ height: "100%", width: `${Math.max(weakestMastery, 2)}%`, background: C.green, borderRadius: 1 }} />
             </div>
             <button
-              onClick={() => setActiveNav(weakestNext.stage <= 3 ? "module" : "stage4")}
+              onClick={() => setActiveNav("module")}
               style={{
                 background: "none", border: "none", padding: 0,
                 color: C.green, fontFamily: SANS, fontSize: 13, fontWeight: 600,
                 cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
               }}
             >
-              Start {weakestNext.label}
+              {getMasteryLabel(weakestMastery)}
               <ArrowRight size={13} />
             </button>
           </div>
@@ -550,7 +548,7 @@ export default function MobileDashboardV3({
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             {([
-              { label: "Modules",           sub: "Stage-based learning",         Icon: BookOpen, nav: "module"      as NavItem, locked: !isPremium },
+              { label: "Modules",           sub: "AI-powered mastery training",   Icon: BookOpen, nav: "module"      as NavItem, locked: !isPremium },
               { label: "Quick Drills",      sub: "60-sec recall quizzes",         Icon: Zap,      nav: "rapid-fire"  as NavItem, locked: !isPremium },
               { label: "Scenario Training", sub: "AI-scored service situations",  Icon: Target,   nav: "stage4"      as NavItem, locked: !isPremium },
               { label: "AI Scenarios",      sub: "Adaptive simulations",          Icon: Cpu,      nav: "scenarios"   as NavItem, locked: !isPremium },

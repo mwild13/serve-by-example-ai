@@ -477,13 +477,7 @@ function RightPanel({
           const topScore = Math.max(res.scores?.bartending ?? 0, res.scores?.sales ?? 0, res.scores?.management ?? 0);
           let badges = 0;
           for (const mod of ["bartending", "sales", "management"]) {
-            const lp = res.levelProgress?.[mod];
-            if (lp) {
-              if (lp.level1_completed) badges++;
-              if (lp.level2_completed) badges++;
-              if (lp.level3_completed) badges++;
-            }
-            if ((res.sessions?.[mod] ?? 0) >= 1 && (res.scores?.[mod] ?? 0) >= 21) badges++;
+            if ((res.mastery?.[mod] ?? 0) >= 80) badges++;
           }
           setStats({ sessions: totalSessions, topScore: Math.round(topScore), badges, loaded: true });
         }
