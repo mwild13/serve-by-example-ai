@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
-import { Zap, BookOpen, BarChart2, GlassWater, TrendingUp, Users, Flame } from "lucide-react";
+import { Zap, BookOpen, BarChart2, GlassWater, TrendingUp, Users, Flame, Bot } from "lucide-react";
 
 type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
 type ModuleKey = "bartending" | "sales" | "management";
@@ -86,9 +86,9 @@ const COACH_FOCUS: Record<ModuleKey, string[]> = {
 };
 
 const QUICK_ACTIONS: { Icon: React.ElementType; title: string; desc: string; time: string; difficulty: string; nav: NavItem }[] = [
-  { Icon: Zap, title: "Quick Warm-Up", desc: "60-second recall warm-up to get your brain shift-ready", time: "60s", difficulty: "Easy", nav: "rapid-fire" },
+  { Icon: Zap, title: "Module Training", desc: "Jump into a module and verify your knowledge", time: "5m+", difficulty: "Training", nav: "module" },
+  { Icon: Bot, title: "AI Scenarios", desc: "Roleplay high-pressure situations with AI evaluation", time: "15m", difficulty: "Advanced", nav: "scenarios" },
   { Icon: GlassWater, title: "Cocktail Specs", desc: "Check a recipe or review specs before the rush", time: "5m", difficulty: "Reference", nav: "cocktails" },
-  { Icon: BookOpen, title: "Knowledge Base", desc: "101 guides for wine, spirits, and service", time: "5m", difficulty: "Reference", nav: "knowledge" },
   { Icon: BarChart2, title: "My Progress", desc: "View badges, scores, and training history", time: "—", difficulty: "Review", nav: "progress" },
 ];
 
@@ -280,20 +280,20 @@ export default function PreShiftHome({
           </p>
           <button
             className="btn btn-primary psh-warmup-btn"
-            onClick={() => setActiveNav("rapid-fire")}
+            onClick={() => setActiveNav("module")}
             type="button"
           >
             <Zap size={15} />
-            Start Pre-Shift Warm-Up
+            Start Training
           </button>
         </div>
 
         <div
           className="psh-action-card"
-          onClick={() => setActiveNav("rapid-fire")}
+          onClick={() => setActiveNav("module")}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => { if (e.key === "Enter") setActiveNav("rapid-fire"); }}
+          onKeyDown={(e) => { if (e.key === "Enter") setActiveNav("module"); }}
         >
           <span className="psh-action-eyebrow">STRENGTHEN YOUR WEAKNESS</span>
           <div className="psh-action-body">
@@ -424,9 +424,9 @@ export default function PreShiftHome({
         </div>
       </div>
 
-      {/* ── Quick Drills ── */}
+      {/* ── Training Progress ── */}
       <div className="psh-modules">
-        <h2>Quick Drills</h2>
+        <h2>Training Progress</h2>
         <div className="psh-module-row">
           {(["bartending", "sales", "management"] as ModuleKey[]).filter((m) => managementUnlocked || m !== "management").map((mod) => {
             const mastery = Math.round(data.mastery[mod] ?? 0);
@@ -436,7 +436,7 @@ export default function PreShiftHome({
                 key={mod}
                 className="psh-module-card"
                 type="button"
-                onClick={() => setActiveNav("rapid-fire")}
+                onClick={() => setActiveNav("module")}
               >
                 <span className="psh-module-icon"><Zap size={18} style={{ color: "var(--green-mid)" }} /></span>
                 <strong>{short}</strong>

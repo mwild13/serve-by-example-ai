@@ -33,9 +33,10 @@ type Status = "loading" | "ready" | "error" | "mastered" | "retry" | "saving";
 type Props = {
   moduleId: number;
   userId: string;
+  onArena?: () => void;
 };
 
-export default function ModuleVerify({ moduleId, userId }: Props) {
+export default function ModuleVerify({ moduleId, userId, onArena }: Props) {
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [moduleTitle, setModuleTitle] = useState<string>("");
   const [status, setStatus] = useState<Status>("loading");
@@ -194,9 +195,18 @@ export default function ModuleVerify({ moduleId, userId }: Props) {
           <p style={{ fontSize: 18, fontWeight: 700, color: "var(--brand-green)" }}>
             ◆ Module Mastered
           </p>
-          <p style={{ marginTop: 12, color: "var(--text-soft)" }}>
+          <p style={{ marginTop: 12, marginBottom: 24, color: "var(--text-soft)" }}>
             You can now enter the Arena to put this knowledge into practice.
           </p>
+          {onArena && (
+            <button
+              className="btn btn-primary"
+              onClick={onArena}
+              style={{ fontSize: "1rem", padding: "12px 28px" }}
+            >
+              Enter the Arena →
+            </button>
+          )}
         </div>
       </div>
     );

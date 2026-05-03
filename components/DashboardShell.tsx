@@ -24,7 +24,6 @@ type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "cock
 const NAV_ITEMS: { id: NavItem; label: string }[] = [
   { id: "home", label: "Home" },
   { id: "module", label: "Modules" },
-  { id: "rapid-fire", label: "Quick Drills" },
   { id: "stage4", label: "Scenario Training" },
   { id: "scenarios", label: "AI Scenarios" },
   { id: "cocktails", label: "Cocktail Library" },
@@ -560,16 +559,16 @@ function MobileBottomNavBar({
   onNavigate: (id: NavItem) => void;
 }) {
   const tabs = [
-    { id: "home" as NavItem,       label: "Home",    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1v-9z"/></svg> },
-    { id: "module" as NavItem,     label: "Modules", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2V5z"/><path d="M4 19h15"/></svg> },
-    { id: "rapid-fire" as NavItem, label: "Drills",  icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg> },
-    { id: "cocktails" as NavItem,  label: "Library", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"><path d="M9 3h6M10 3v6L4 19a2 2 0 002 2h12a2 2 0 002-2L14 9V3"/></svg> },
-    { id: "progress" as NavItem,   label: "Me",      icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg> },
+    { id: "home" as NavItem,      label: "Home",    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1v-9z"/></svg> },
+    { id: "module" as NavItem,    label: "Modules", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2V5z"/><path d="M4 19h15"/></svg> },
+    { id: "scenarios" as NavItem, label: "Arena",   icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="currentColor"/></svg> },
+    { id: "cocktails" as NavItem, label: "Library", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"><path d="M9 3h6M10 3v6L4 19a2 2 0 002 2h12a2 2 0 002-2L14 9V3"/></svg> },
+    { id: "progress" as NavItem,  label: "Me",      icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg> },
   ];
   // Map activeNav to which tab is highlighted
   const activeTab =
-    activeNav === "module" ? "module" :
-    activeNav === "rapid-fire" ? "rapid-fire" :
+    activeNav === "module" || activeNav === "rapid-fire" ? "module" :
+    activeNav === "scenarios" ? "scenarios" :
     activeNav === "cocktails" || activeNav === "knowledge" ? "cocktails" :
     activeNav === "progress" || activeNav === "settings" ? "progress" :
     "home";
@@ -725,7 +724,7 @@ export default function DashboardShell({
       ? "Pro member access with bartender, sales and management modules."
       : "Venue plan access with team management dashboards.";
 
-  const PREMIUM_NAV_ITEMS: NavItem[] = ["module", "rapid-fire", "stage4", "scenarios", "cocktails", "knowledge"];
+  const PREMIUM_NAV_ITEMS: NavItem[] = ["module", "stage4", "scenarios", "cocktails", "knowledge"];
   const FALLBACK_ADMIN_EMAILS = [
     "wild07man@gmail.com",
     "mitchellwildman1994@gmail.com",
@@ -929,7 +928,7 @@ export default function DashboardShell({
                 >
                   ← All Modules
                 </button>
-                <ModuleVerify key={`module-${selectedModuleId}`} moduleId={selectedModuleId} userId={userId} />
+                <ModuleVerify key={`module-${selectedModuleId}`} moduleId={selectedModuleId} userId={userId} onArena={() => handleNavClick("scenarios")} />
               </div>
             ) : (
               /* Module grid */
