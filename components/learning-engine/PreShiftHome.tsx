@@ -144,8 +144,8 @@ function getDifficultyLabel(level?: number | null): string {
   return "Solid";
 }
 
-function getNextChallenge(mastery: number): string {
-  if (mastery === 0) return "start your first session";
+function getNextChallenge(mastery: number, completion: number): string {
+  if (completion === 0) return "start your first session";
   if (mastery < 40) return "build your foundations";
   if (mastery < 80) return "improve your technical skills";
   return "push to mastery";
@@ -174,6 +174,7 @@ export default function PreShiftHome({
 }) {
   const [data, setData] = useState<ProgressData>(EMPTY);
   const [streak, setStreak] = useState(0);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     setStreak(computeStreak());
@@ -207,6 +208,8 @@ export default function PreShiftHome({
         }
       } catch {
         // non-critical
+      } finally {
+        setLoaded(true);
       }
     }
     void load();
@@ -265,7 +268,9 @@ export default function PreShiftHome({
           <span className="eyebrow">Pre-shift brief</span>
           <h1>Welcome back, {displayName}</h1>
           <p>
-            {totalSessions === 0
+            {!loaded
+              ? "Preparing your training brief..."
+              : totalSessions === 0
               ? "Start your first training session to build your service skills."
               : `You've completed ${totalSessions} session${totalSessions !== 1 ? "s" : ""}. ${
                   data.reviewDue > 0
@@ -398,7 +403,7 @@ export default function PreShiftHome({
                     <strong style={{ fontSize: "0.78rem", color: "#111827" }}>{Math.round(progress.mastery)}%</strong>
                   </div>
                   <p style={{ margin: 0, fontSize: "0.75rem", color: "#6b7280", fontStyle: "italic" }}>
-                    {mastered ? "All scenarios mastered" : `Next challenge: ${getNextChallenge(progress.mastery)}`}
+                    {mastered ? "All scenarios mastered" : `Next challenge: ${getNextChallenge(progress.mastery, progress.completion)}`}
                   </p>
                   <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
                     {[0, 1, 2, 3, 4].map((i) => (
