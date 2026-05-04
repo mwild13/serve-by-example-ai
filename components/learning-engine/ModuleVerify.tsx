@@ -1,22 +1,35 @@
 "use client";
 
-/**
- * ModuleVerify — V3 binary mastery component.
- *
- * Replaces the legacy 4-stage StageLearning flow. One responsibility:
- * fetch quiz scenarios for `moduleId` from Supabase, render the
- * RapidFireQuiz, and on a passing run flip `is_mastered = true` for
- * the (userId, moduleId) pair via /api/training/save.
- *
- * See docs/v3-architecture.md for the V3 pipeline.
- */
-
 import { useEffect, useState } from "react";
 import RapidFireQuiz from "@/components/learning-engine/RapidFireQuiz";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
+import { VERIFY_QUESTIONS } from "@/lib/verify-questions";
 
 const PASS_THRESHOLD = 4; // out of 5 consecutive correct
 const MIN_QUIZ_SCENARIOS = 5;
+
+const MODULE_TITLES: Record<number, string> = {
+  1: "Pouring the Perfect Beer",
+  2: "Wine Knowledge & Service",
+  3: "Cocktail Fundamentals",
+  4: "Coffee/Barista Basics",
+  5: "Carrying Glassware & Trays",
+  6: "Cleaning & Sanitation",
+  7: "Bar Back Efficiency",
+  8: "The Art of the Greeting",
+  9: "Managing Table Dynamics",
+  10: "Anticipatory Service",
+  11: "Handling Guest Complaints",
+  12: "Up-selling & Suggestive Sales",
+  13: "VIP/Table Management",
+  14: "Phone Etiquette & Reservations",
+  15: "RSA (Responsible Service of Alcohol)",
+  16: "Food Safety & Hygiene",
+  17: "Conflict De-escalation",
+  18: "Emergency Evacuation Protocols",
+  19: "Opening & Closing Procedures",
+  20: "Inventory & Waste Control",
+};
 
 type Scenario = {
   id: string;
@@ -44,72 +57,34 @@ export default function ModuleVerify({ moduleId, userId, onArena }: Props) {
   const [attemptKey, setAttemptKey] = useState(0);
 
   useEffect(() => {
-    let cancelled = false;
+    const questions = VERIFY_QUESTIONS[moduleId] ?? [];
 
-    async function load() {
-      setStatus("loading");
-      setError(null);
-      try {
-        const supabase = createSupabaseBrowserClient();
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.access_token) {
-          if (!cancelled) {
-            setError("You must be signed in to start training.");
-            setStatus("error");
-          }
-          return;
-        }
-        const headers = { Authorization: `Bearer ${session.access_token}` };
-
-        const [moduleRes, scenariosRes] = await Promise.all([
-          fetch(`/api/training/modules/${moduleId}`, { headers }),
-          fetch(`/api/training/modules/${moduleId}/scenarios`, { headers }),
-        ]);
-
-        if (!moduleRes.ok) {
-          throw new Error(`Failed to load module ${moduleId} (${moduleRes.status}).`);
-        }
-        if (!scenariosRes.ok) {
-          throw new Error(`Failed to load scenarios for module ${moduleId} (${scenariosRes.status}).`);
-        }
-
-        const moduleData = await moduleRes.json();
-        const scenariosData = await scenariosRes.json();
-        const all: Scenario[] = scenariosData.scenarios ?? [];
-
-        const quizOnly = all.filter((s) => {
-          if (s.scenario_type !== "quiz") return false;
-          const ans = String((s.content as { answer?: unknown })?.answer ?? "")
-            .toLowerCase()
-            .trim();
-          return ans === "true" || ans === "false";
-        });
-
-        if (cancelled) return;
-
-        if (quizOnly.length < MIN_QUIZ_SCENARIOS) {
-          setError(
-            "This module does not yet have enough verification questions. Please check back soon.",
-          );
-          setStatus("error");
-          return;
-        }
-
-        setModuleTitle(moduleData.title ?? "Training Module");
-        setScenarios(quizOnly);
-        setStatus("ready");
-      } catch (err) {
-        if (cancelled) return;
-        console.error("ModuleVerify load failed:", err);
-        setError(err instanceof Error ? err.message : "Failed to load module.");
-        setStatus("error");
-      }
+    if (questions.length < MIN_QUIZ_SCENARIOS) {
+      setError(
+        "This module does not yet have enough verification questions. Please check back soon.",
+      );
+      setStatus("error");
+      return;
     }
 
-    void load();
-    return () => {
-      cancelled = true;
-    };
+    const mapped: Scenario[] = questions.map((q, i) => ({
+      id: `${moduleId}-${i}`,
+      module_id: moduleId,
+      scenario_index: i,
+      scenario_type: "quiz",
+      prompt: q.prompt,
+      content: {
+        question: q.prompt,
+        answer: q.answer,
+        explanation: q.explanation,
+        option_type: "truefalse",
+      },
+      difficulty: 2,
+    }));
+
+    setModuleTitle(MODULE_TITLES[moduleId] ?? `Module ${moduleId}`);
+    setScenarios(mapped);
+    setStatus("ready");
   }, [moduleId]);
 
   async function handleQuizComplete(score: number) {
