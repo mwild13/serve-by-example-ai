@@ -23,7 +23,7 @@ export default function DynamicModuleNav({
   const [selectedCategory, setSelectedCategory] = useState<
     "all" | "technical" | "service" | "compliance"
   >("all");
-  const [sortBy, setSortBy] = useState<"recommended" | "title">(
+  const [sortBy] = useState<"recommended" | "title">(
     "recommended"
   );
 
@@ -76,15 +76,6 @@ export default function DynamicModuleNav({
 
     fetchModules();
   }, [selectedCategory, sortBy, userToken]);
-
-  const getCategoryAccent = (category: string) => {
-    switch (category) {
-      case "technical": return { border: "#bfdbfe", bg: "#eff6ff", badge: "#1d4ed8", badgeBg: "#dbeafe", label: "#1e40af" };
-      case "service":   return { border: "#bbf7d0", bg: "#f0fdf4", badge: "#15803d", badgeBg: "#dcfce7", label: "#166534" };
-      case "compliance": return { border: "#fecaca", bg: "#fff1f2", badge: "#b91c1c", badgeBg: "#fee2e2", label: "#991b1b" };
-      default:          return { border: "#e5e7eb", bg: "#f9fafb", badge: "#374151", badgeBg: "#f3f4f6", label: "#4b5563" };
-    }
-  };
 
   const getEloDisplay = (elo: number) => {
     if (elo < 1100) return { color: "#dc2626", label: "Needs Work" };

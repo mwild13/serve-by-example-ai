@@ -449,7 +449,7 @@ export default function MobileDashboardV3({
         </div>
       </div>
 
-      {/* ── Parchment card — scrollable V1 content ── */}
+      {/* ── Parchment card — scrollable content ── */}
       <div style={{
         margin: "0 14px",
         flex: 1,
@@ -462,7 +462,7 @@ export default function MobileDashboardV3({
         WebkitOverflowScrolling: "touch",
       }}>
 
-        {/* V1 Section 1: Welcome + Warm-Up CTA */}
+        {/* Section: Welcome + Warm-Up CTA */}
         <div style={{ padding: "22px 18px 18px" }}>
           <div style={{
             display: "inline-block",
@@ -506,7 +506,7 @@ export default function MobileDashboardV3({
         {/* Hairline */}
         <div style={{ height: 1, background: C.cardEdge, margin: "0 18px" }} />
 
-        {/* V1 Section 2: Strengthen Your Weakness */}
+        {/* Section: Strengthen Your Weakness */}
         <div style={{ padding: "16px 18px" }}>
           <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: "0.12em", color: C.inkMute, textTransform: "uppercase", marginBottom: 10 }}>
             STRENGTHEN YOUR WEAKNESS
@@ -541,7 +541,7 @@ export default function MobileDashboardV3({
         {/* Hairline */}
         <div style={{ height: 1, background: C.cardEdge, margin: "0 18px" }} />
 
-        {/* V1 Section 3: Quick Access 2×2 grid */}
+        {/* Section: Quick Access 2×2 grid */}
         <div style={{ padding: "16px 18px" }}>
           <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: "0.12em", color: C.inkMute, textTransform: "uppercase", marginBottom: 12 }}>
             QUICK ACCESS
@@ -581,7 +581,7 @@ export default function MobileDashboardV3({
         {/* Hairline */}
         <div style={{ height: 1, background: C.cardEdge, margin: "0 18px" }} />
 
-        {/* V1 Section 4: Training cards */}
+        {/* Section: Training cards */}
         <div style={{ padding: "16px 18px 0" }}>
           <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: "0.12em", color: C.inkMute, textTransform: "uppercase", marginBottom: 12 }}>
             TRAINING

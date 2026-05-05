@@ -44,3 +44,6 @@ next-env.d.ts
 # scratch files
 DEPLOYMENT_TASK_STATUS.md
 Please
+
+# Claude Code internal state
+.claude/worktrees/

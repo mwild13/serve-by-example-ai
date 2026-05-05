@@ -14,7 +14,7 @@ type NavbarProps = {
 export default function Navbar({
   showActions = true,
   showTextLogin = false,
-  showNavbarLanguageOnMobile = true,
+  showNavbarLanguageOnMobile: _showNavbarLanguageOnMobile = true,
 }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const close = () => setMenuOpen(false);

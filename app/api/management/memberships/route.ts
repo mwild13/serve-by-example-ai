@@ -44,13 +44,12 @@ export async function POST(req: Request) {
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const body = await req.json();
-    const { staffEmail, staffName, venueId } = body as { staffEmail?: string; staffName?: string; venueId?: string };
+    const { staffEmail, venueId } = body as { staffEmail?: string; venueId?: string };
 
     if (!staffEmail || typeof staffEmail !== "string") {
       return NextResponse.json({ error: "staffEmail is required." }, { status: 400 });
     }
     const email = staffEmail.trim().toLowerCase();
-    const name = staffName?.trim() || null;
 
     const admin = createSupabaseAdminClient();
 

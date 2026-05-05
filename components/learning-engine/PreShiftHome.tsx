@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
-import { Zap, BookOpen, BarChart2, GlassWater, TrendingUp, Users, Flame, Bot } from "lucide-react";
+import { Zap, BarChart2, GlassWater, TrendingUp, Users, Flame, Bot } from "lucide-react";
 
 type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
 type ModuleKey = "bartending" | "sales" | "management";

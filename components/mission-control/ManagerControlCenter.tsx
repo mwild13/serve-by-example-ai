@@ -25,7 +25,6 @@ import {
   Plug,
   LogOut,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import type {
   ManagementSnapshot,
   ManagerSection,
@@ -34,7 +33,7 @@ import type {
   NewTrainingProgramPayload,
   StaffRole,
 } from "@/lib/management/types";
-import type { QuickActionId, NavItem, NavGroup, SearchResult } from "./manager-types";
+import type { QuickActionId, NavGroup, SearchResult } from "./manager-types";
 import {
   EmptyState,
   OpsKpiCard,
@@ -109,40 +108,6 @@ const NAV_GROUPS: NavGroup[] = [
   },
 ];
 
-const SCENARIO_TEMPLATES = [
-  {
-    id: "upsell-challenge",
-    name: "Upsell challenge",
-    description: "Customer orders a standard drink. Practice guiding them toward a premium option and pairing.",
-    icon: "→",
-    focus: "Sales & upselling",
-    difficulty: "Intermediate",
-  },
-  {
-    id: "difficult-customer",
-    name: "Difficult customer",
-    description: "Customer is frustrated with wait times and makes a complaint at the bar.",
-    icon: "◆",
-    focus: "De-escalation & service recovery",
-    difficulty: "Advanced",
-  },
-  {
-    id: "menu-knowledge",
-    name: "Menu knowledge quiz",
-    description: "Staff must answer questions about current seasonal menu items and ingredients.",
-    icon: "≡",
-    focus: "Product knowledge",
-    difficulty: "Beginner",
-  },
-  {
-    id: "cocktail-build",
-    name: "Cocktail build test",
-    description: "Step-by-step scenario where staff recall the correct build order and garnish.",
-    icon: "◉",
-    focus: "Technical skills",
-    difficulty: "Intermediate",
-  },
-];
 
 const SECTION_META: Record<ManagerSection, { cluster: string; label: string }> = {
   overview: { cluster: "Workspace", label: "Overview" },
@@ -362,7 +327,6 @@ export default function ManagerControlCenter({
   const [deleteConfirm, setDeleteConfirm] = useState<{ staffId: string; staffName: string } | null>(null);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
-  const [menuTab, setMenuTab] = useState<"food" | "cocktails" | "wine">("food");
   const [sessionToken, setSessionToken] = useState<string | null>(null);
 
   // Fetch the Supabase session token on mount. On Cloudflare Pages, cookies
@@ -390,8 +354,6 @@ export default function ManagerControlCenter({
     return fetch(url, { ...options, headers });
   }, [sessionToken]);
 
-  const [menuInputText, setMenuInputText] = useState("");
-  const [menuItems, setMenuItems] = useState<Record<string, string[]>>({ food: [], cocktails: [], wine: [] });
   const [revenueTransactionValue, setRevenueTransactionValue] = useState(45);
   const [aiCoachInput, setAiCoachInput] = useState("");
   const [aiCoachMessages, setAiCoachMessages] = useState<Array<{ role: "user" | "coach"; content: string }>>([]);
@@ -465,7 +427,6 @@ export default function ManagerControlCenter({
 
   const selectedStaff = venueStaff.find((member) => member.id === selectedStaffId) ?? venueStaff[0];
   const selectedProgram = venuePrograms.find((program) => program.id === assignmentForm.programId) ?? venuePrograms[0];
-  const hasOperationalData = venueStaff.length > 0 || venuePrograms.length > 0 || venueInventory.length > 0;
 
   const handleExportStaff = useCallback(() => {
     const rows = [
@@ -833,16 +794,6 @@ export default function ManagerControlCenter({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeSection, sessionToken]);
-
-  function handleMenuSave() {
-    const lines = menuInputText.split("\n").map((l) => l.trim()).filter(Boolean);
-    if (!lines.length) return;
-    setMenuItems((prev) => ({
-      ...prev,
-      [menuTab]: [...new Set([...prev[menuTab], ...lines])],
-    }));
-    setMenuInputText("");
-  }
 
   async function handleAiCoachSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -1613,7 +1564,6 @@ export default function ManagerControlCenter({
                     <div>
                       {venueStaff.slice(0, 5).map((member) => {
                         const isGood = member.status === "on-track";
-                        const avgScore = Math.round((member.serviceScore + member.salesScore + member.productScore) / 3);
                         return (
                           <div key={member.id} className="mcc-staff-row">
                             <div className="mcc-avatar" style={{ background: isGood ? "var(--mcc-sage)" : "var(--mcc-rule)" }}>

@@ -473,10 +473,6 @@ export default function DashboardTrainer({
   const [moduleMastery, setModuleMastery] = useState<Record<Module, number>>({
     bartending: 0, sales: 0, management: 0,
   });
-  // Elo ratings per module
-  const [moduleElo, setModuleElo] = useState<Record<Module, number>>({
-    bartending: 1200, sales: 1200, management: 1200,
-  });
   // Spaced repetition review queue
   type ReviewItem = { module: string; scenarioIndex: number; masteryLevel: number; consecutiveFails: number };
   const [reviewQueue, setReviewQueue] = useState<ReviewItem[]>([]);
@@ -523,7 +519,6 @@ export default function DashboardTrainer({
         const data = await res.json();
         if (data.modules) setModuleProgress(data.modules);
         if (data.mastery) setModuleMastery(data.mastery);
-        if (data.elo) setModuleElo(data.elo);
         if (data.reviewQueue) setReviewQueue(data.reviewQueue);
         if (data.autoUnlockManagement) setMgmtUnlocked(true);
       } catch {
@@ -669,8 +664,6 @@ export default function DashboardTrainer({
                   [mod]: Math.min(prev[mod] + Math.round(100 / scenarioCount), 100),
                 }));
               }
-              // Update Elo
-              setModuleElo((prev) => ({ ...prev, [mod]: saveData.mastery.eloRating }));
             }
           } catch {
             // Non-critical

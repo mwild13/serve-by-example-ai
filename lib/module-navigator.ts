@@ -179,26 +179,6 @@ export async function getAvailableModules(
 
     console.log(`[getAvailableModules] Processed ${Object.keys(masteryByModule).length} modules with mastery data`);
 
-    // Check venue module restrictions
-    let enabledModuleIds: number[] | null = null;
-    if (access.tier?.includes("venue")) {
-      try {
-        const { data: venueData, error: venueError } = await admin
-          .from("venues")
-          .select("enabled_module_ids")
-          .eq("owner_user_id", userId)
-          .maybeSingle();
-
-        if (venueError) {
-          console.error(`[getAvailableModules] Venue error:`, venueError);
-        } else {
-          enabledModuleIds = venueData?.enabled_module_ids || null;
-        }
-      } catch (venueQueryError) {
-        console.error(`[getAvailableModules] Error querying venues:`, venueQueryError);
-      }
-    }
-
     // Calculate module Elo and mastery percentage
     const modulesWithProgress = allModules.map((module) => {
       const moduleId = module.id;
@@ -327,44 +307,4 @@ export async function getAvailableModules(
       platform_version: 2,
     };
   }
-}
-
-/**
- * Get modules in a specific category
- */
-export async function getModulesByCategory(
-  category: "technical" | "service" | "compliance"
-): Promise<Record<string, unknown>[]> {
-  const admin = createSupabaseAdminClient();
-
-  const { data: modules, error } = await admin
-    .from("modules")
-    .select("*")
-    .eq("category", category)
-    .order("id", { ascending: true });
-
-  if (error) {
-    throw error;
-  }
-
-  return modules || [];
-}
-
-/**
- * Get a specific module by ID
- */
-export async function getModuleById(moduleId: number): Promise<Record<string, unknown>> {
-  const admin = createSupabaseAdminClient();
-
-  const { data: module, error } = await admin
-    .from("modules")
-    .select("*")
-    .eq("id", moduleId)
-    .single();
-
-  if (error) {
-    throw error;
-  }
-
-  return module;
 }

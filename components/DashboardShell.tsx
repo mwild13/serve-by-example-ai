@@ -16,7 +16,6 @@ import ProgressOverview from "@/components/learning-engine/ProgressOverview";
 import PreShiftHome from "@/components/learning-engine/PreShiftHome";
 import MobileDashboardV3 from "@/components/learning-engine/MobileDashboardV3";
 import SessionRefresher from "@/components/ui/SessionRefresher";
-import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
 type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
@@ -627,17 +626,11 @@ export default function DashboardShell({
 }) {
   const [activeNav, setActiveNav] = useState<NavItem>("home");
   const [joinCodeFromUrl, setJoinCodeFromUrl] = useState<string | undefined>(undefined);
-  const [managementUnlocked, setManagementUnlocked] = useState(managementUnlockedInitial);
-  const [managementCode, setManagementCode] = useState("");
-  const [managementCodeError, setManagementCodeError] = useState("");
-  const [managementCodeMessage, setManagementCodeMessage] = useState("");
-  const [isUnlockingManagement, setIsUnlockingManagement] = useState(false);
-
+  const [managementUnlocked] = useState(managementUnlockedInitial);
   // Phase 4: Dynamic module system
   const [userId, setUserId] = useState<string>("");
   const [selectedModuleId, setSelectedModuleId] = useState<number | null>(null);
   const [showDiagnostic, setShowDiagnostic] = useState(false);
-  const [diagnosticCompleted, setDiagnosticCompleted] = useState(false);
   const [userToken, setUserToken] = useState<string>("");
 
   // Initialize dark mode from localStorage
@@ -684,8 +677,6 @@ export default function DashboardShell({
 
           if (profileError) {
             console.error("[DashboardShell] Error fetching diagnostic status:", profileError);
-            // Default to not showing diagnostic on error
-            setDiagnosticCompleted(true);
           } else {
             // Show diagnostic if not completed (only for B2B users - check plan)
             const userPlan = profile?.plan || plan;
@@ -694,35 +685,16 @@ export default function DashboardShell({
 
             if (!hasDiagnostic && isBB2User) {
               setShowDiagnostic(true);
-            } else {
-              setDiagnosticCompleted(true);
             }
           }
         }
       } catch (error) {
         console.error("Error checking diagnostic status:", error);
-        setDiagnosticCompleted(true); // Allow access even if check fails
       }
     }
 
     checkDiagnostic();
   }, [plan]);
-
-  const planTitle =
-    plan === "multi-venue"
-      ? "Multi-Venue plan"
-      : plan === "single-venue"
-      ? "Single Venue plan"
-      : plan === "pro"
-      ? "Pro plan"
-      : "Free plan";
-
-  const planMessage =
-    plan === "free"
-      ? "Demo access. Upgrade to unlock full modules."
-      : plan === "pro"
-      ? "Pro member access with bartender, sales and management modules."
-      : "Venue plan access with team management dashboards.";
 
   const PREMIUM_NAV_ITEMS: NavItem[] = ["module", "stage4", "scenarios", "cocktails", "knowledge"];
   const FALLBACK_ADMIN_EMAILS = [
@@ -745,75 +717,6 @@ export default function DashboardShell({
       return;
     }
     setActiveNav(id);
-  }
-
-  async function handleManagementUnlock(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const normalizedCode = managementCode.trim();
-
-    if (!normalizedCode) {
-      setManagementCodeError("Enter your manager-provided code.");
-      setManagementCodeMessage("");
-      return;
-    }
-
-    if (!/^\d{2,3}$/.test(normalizedCode)) {
-      setManagementCodeError("Venue code must be a 2 or 3 digit number.");
-      setManagementCodeMessage("");
-      return;
-    }
-
-    setIsUnlockingManagement(true);
-    setManagementCodeError("");
-    setManagementCodeMessage("");
-
-    try {
-      const supabase = createSupabaseBrowserClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        throw new Error("You need to sign in again.");
-      }
-
-      const codeAsNumber = Number(normalizedCode);
-
-      const { data: managerMatch, error: managerLookupError } = await supabase
-        .from("venues")
-        .select("id")
-        .eq("venue_code", codeAsNumber)
-        .limit(1)
-        .maybeSingle();
-
-      if (managerLookupError) {
-        throw managerLookupError;
-      }
-
-      if (!managerMatch) {
-        throw new Error("That code was not recognised. Check with your venue manager.");
-      }
-
-      const { error: saveError } = await supabase
-        .from("profiles")
-        .update({ management_unlocked: true })
-        .eq("id", user.id);
-
-      if (saveError) {
-        throw saveError;
-      }
-
-      setManagementUnlocked(true);
-      setManagementCode("");
-      setManagementCodeMessage("Management Training unlocked.");
-      setActiveNav("stage4");
-    } catch (unlockError) {
-      setManagementCodeError(
-        unlockError instanceof Error ? unlockError.message : "Could not unlock management training.",
-      );
-    } finally {
-      setIsUnlockingManagement(false);
-    }
   }
 
   return (
@@ -862,49 +765,14 @@ export default function DashboardShell({
           <DiagnosticFlow
             userId={userId}
             userToken={userToken}
-            onComplete={(categoryScores) => {
+            onComplete={() => {
               setShowDiagnostic(false);
-              setDiagnosticCompleted(true);
-              // Redirect to module training
               setActiveNav("module");
             }}
           />
         )}
 
-        {false && !managementUnlocked ? (
-          <div className="management-unlock-card">
-            <div className="eyebrow">Manager code required</div>
-            <h2>Unlock Management Training</h2>
-            <p>
-              This section is restricted by your venue manager. Enter your venue&apos;s Management
-              Training code to continue.
-            </p>
-            <form className="management-unlock-form" onSubmit={handleManagementUnlock}>
-              <label className="label" htmlFor="management-code-input">
-                Venue manager code
-                <input
-                  id="management-code-input"
-                  className="input"
-                  type="text"
-                  value={managementCode}
-                  onChange={(event) => setManagementCode(event.target.value.replace(/[^0-9]/g, "").slice(0, 3))}
-                  placeholder="120"
-                  autoCapitalize="characters"
-                  required
-                />
-              </label>
-              {managementCodeError ? (
-                <div className="auth-status auth-status-error">{managementCodeError}</div>
-              ) : null}
-              {managementCodeMessage ? (
-                <div className="auth-status auth-status-success">{managementCodeMessage}</div>
-              ) : null}
-              <button className="btn btn-primary" type="submit" disabled={isUnlockingManagement}>
-                {isUnlockingManagement ? "Checking..." : "Unlock management section"}
-              </button>
-            </form>
-          </div>
-        ) : activeNav === "module" ? (
+        {activeNav === "module" ? (
           <div key="module">
             {selectedModuleId ? (
               /* Training view — replaces module grid */

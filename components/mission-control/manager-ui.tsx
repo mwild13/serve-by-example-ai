@@ -7,7 +7,7 @@ export function EmptyState({ copy }: { copy: string }) {
   return <p className="ops-empty-state">{copy}</p>;
 }
 
-export function TrendBadge({ dir, delta }: { dir: "up" | "down" | "steady"; delta: number }) {
+function TrendBadge({ dir, delta }: { dir: "up" | "down" | "steady"; delta: number }) {
   const fmt = parseFloat(delta.toFixed(2));
   if (dir === "steady" || delta === 0) return <span className="ops-trend-badge ops-trend-steady">~ steady</span>;
   if (dir === "up") return <span className="ops-trend-badge ops-trend-up">↑ {fmt}% this week</span>;
@@ -31,28 +31,6 @@ export function OpsKpiCard({
       <strong>{value}</strong>
       {trend && trend.delta > 0 ? <TrendBadge dir={trend.dir} delta={trend.delta} /> : null}
       {note ? <small>{note}</small> : null}
-    </div>
-  );
-}
-
-export function getTrend(value: number): { dir: "up" | "down" | "steady"; delta: number } {
-  if (!value) return { dir: "steady", delta: 0 };
-  const seed = Math.floor((Math.round(value) * 7 + 13) % 30);
-  if (value > 65) return { dir: "up", delta: (seed % 14) + 2 };
-  if (value < 35) return { dir: "down", delta: (seed % 11) + 2 };
-  return { dir: "steady", delta: (seed % 5) };
-}
-
-export function ProgressBar({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="ops-progress-item">
-      <div className="ops-progress-meta">
-        <span>{label}</span>
-        <strong>{parseFloat(value.toFixed(2))}%</strong>
-      </div>
-      <div className="ops-progress-track">
-        <div className="ops-progress-fill" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
-      </div>
     </div>
   );
 }

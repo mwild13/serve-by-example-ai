@@ -21,7 +21,7 @@ interface DiagnosticFlowProps {
 }
 
 export default function DiagnosticFlow({
-  userId,
+  userId: _userId,
   userToken,
   onComplete,
 }: DiagnosticFlowProps) {

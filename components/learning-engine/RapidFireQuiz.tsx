@@ -31,13 +31,12 @@ const CONSECUTIVE_REQUIRED = 5;
 
 export default function RapidFireQuiz({
   scenarios,
-  moduleId,
+  moduleId: _moduleId,
   onComplete,
   initialScore = 0,
 }: Props) {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [consecutiveCorrect, setConsecutiveCorrect] = useState(initialScore);
-  const [totalAttempted, setTotalAttempted] = useState(0);
   const [answered, setAnswered] = useState<string | null>(null);
   const [wasCorrect, setWasCorrect] = useState<boolean | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
@@ -89,7 +88,6 @@ export default function RapidFireQuiz({
       setAnswered(userAnswer);
       setWasCorrect(correct);
       setShowExplanation(true);
-      setTotalAttempted((p) => p + 1);
       setButtonFlash(userAnswer);
 
       if (correct) {

@@ -627,30 +627,11 @@ export async function deleteVenue(
   }
 
 
-  // Allow deleting the last venue (single-venue mode)
-  const ownedVenues = venueResult.data ?? [];
-
   const { error } = await supabase
     .from("venues")
     .delete()
     .eq("owner_user_id", userId)
     .eq("id", venueId);
-
-  if (error) {
-    throw error;
-  }
-}
-
-export async function deleteStaffMember(
-  supabase: ManagementSupabaseClient,
-  userId: string,
-  staffId: string,
-) {
-  const { error } = await supabase
-    .from("venue_staff")
-    .delete()
-    .eq("manager_user_id", userId)
-    .eq("id", staffId);
 
   if (error) {
     throw error;
