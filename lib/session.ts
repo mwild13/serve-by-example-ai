@@ -75,11 +75,13 @@ export type AccessInfo = {
   sponsorManagerId?: string;
 };
 
+const ALL_MODULES = Array.from({ length: 20 }, (_, i) => i + 1);
+
 const TIER_MODULES: Record<Tier, number[]> = {
   free: [],
-  pro: [1, 2],
-  venue_single: [1, 2, 3, 4],
-  venue_multi: [1, 2, 3, 4],
+  pro: ALL_MODULES,
+  venue_single: ALL_MODULES,
+  venue_multi: ALL_MODULES,
 };
 
 const TIER_SEATS: Record<Tier, number> = {
@@ -161,7 +163,7 @@ export async function resolveAccess(
         // Management training (3) and console (4) are manager-only.
         return {
           tier: "venue_single",
-          allowedModules: [1, 2],
+          allowedModules: ALL_MODULES,
           maxSeats: 0,
           isSponsored: true,
           sponsorManagerId: membership.manager_id as string,
