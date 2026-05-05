@@ -66,7 +66,9 @@
       "Bash(awk '/^export const LEVEL2_DESCRIPTORS/,/^export const LEVEL3_DESCRIPTORS/' /Users/mitchellwildman/Desktop/serve-by-example-ai-main/lib/scaffolded-questions.ts)",
       "Bash(awk '/^export const LEVEL3_DESCRIPTORS/,/^export const LEVEL_THRESHOLDS/' /Users/mitchellwildman/Desktop/serve-by-example-ai-main/lib/scaffolded-questions.ts)",
       "Bash(bash /tmp/analyze.sh)",
-      "Bash(bash /tmp/final_count.sh)"
+      "Bash(bash /tmp/final_count.sh)",
+      "Bash(grep -E \"\\\\.sql$\")",
+      "Bash(grep \"-- MODULE\\\\|'quiz'\" /Users/mitchellwildman/Desktop/serve-by-example-ai-main/supabase/migrations/20260421_2b_create_scenarios_part2.sql)"
     ]
   }
 }
