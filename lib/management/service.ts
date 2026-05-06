@@ -146,7 +146,7 @@ function mapVenue(row: Record<string, unknown>, staff: StaffMember[]): Venue {
   return {
     id: asString(row.id, crypto.randomUUID()),
     name: asString(row.name, "Venue"),
-    venueCode: Number.isFinite(parsedVenueCode) ? parsedVenueCode : undefined,
+    venueCode: Number.isFinite(parsedVenueCode) && parsedVenueCode > 0 ? parsedVenueCode : undefined,
     completionRate,
     avgScenarioScore,
     upsellRate,
@@ -381,7 +381,17 @@ export async function getManagementSnapshot(
     return fallbackSnapshot;
   }
 
-  const venueRows = venueResult.data ?? [];
+  let venueRows = venueResult.data ?? [];
+  if (!venueRows.length) {
+    // Auto-provision a real venue so settings (rename, join code) work immediately
+    try {
+      await ensureManagerVenue(supabase, userId);
+      const refetch = await getOwnedVenues(supabase, userId);
+      venueRows = refetch.data ?? [];
+    } catch {
+      // Non-critical — fall through to seed data
+    }
+  }
   if (!venueRows.length) {
     return {
       ...fallbackSnapshot,
