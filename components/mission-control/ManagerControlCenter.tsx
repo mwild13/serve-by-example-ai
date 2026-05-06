@@ -291,6 +291,8 @@ export default function ManagerControlCenter({
   const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [copiedVenueId, setCopiedVenueId] = useState<string | null>(null);
+  const [renameVenueName, setRenameVenueName] = useState(initialSnapshot.venues[0]?.name ?? "");
+  const [renameSaving, setRenameSaving] = useState(false);
   const [testEmailStatus, setTestEmailStatus] = useState<"idle" | "loading" | "ok" | "fail">("idle");
   const [testEmailResult, setTestEmailResult] = useState<{ message: string; smtpConfigured?: boolean; testLink?: string } | null>(null);
   const [openRosterSections, setOpenRosterSections] = useState<Set<string>>(new Set(["Bar Team"]));
@@ -352,6 +354,11 @@ export default function ManagerControlCenter({
       setSelectedVenueId(snapshot.venues[0]?.id ?? "");
     }
   }, [snapshot.venues, selectedVenueId]);
+
+  useEffect(() => {
+    const venue = snapshot.venues.find((v) => v.id === selectedVenueId) ?? snapshot.venues[0];
+    if (venue) setRenameVenueName(venue.name);
+  }, [selectedVenueId, snapshot.venues]);
 
   const selectedVenue = snapshot.venues.find((venue) => venue.id === selectedVenueId) ?? snapshot.venues[0];
   const venueStaff = useMemo(
@@ -1006,6 +1013,31 @@ export default function ManagerControlCenter({
       setRequestError(error instanceof Error ? error.message : "Unable to delete venue.");
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  async function handleRenameVenue(e: FormEvent) {
+    e.preventDefault();
+    if (!selectedVenueId || !renameVenueName.trim()) return;
+    setRenameSaving(true);
+    setRequestError("");
+    setRequestSuccess("");
+    try {
+      const response = await apiFetch("/api/management/venues", {
+        method: "PATCH",
+        body: JSON.stringify({ venueId: selectedVenueId, name: renameVenueName.trim() }),
+      });
+      if (!response.ok) {
+        const data = await response.json() as { error?: string };
+        setRequestError(data.error ?? "Failed to rename venue.");
+        return;
+      }
+      await applySnapshotResult(response);
+      setRequestSuccess("Venue name updated.");
+    } catch (error) {
+      setRequestError(error instanceof Error ? error.message : "Unable to rename venue.");
+    } finally {
+      setRenameSaving(false);
     }
   }
 
@@ -3082,80 +3114,92 @@ export default function ManagerControlCenter({
                 <h3>Venue setup</h3>
               </div>
               <div className="ops-venue-manager">
-                <label className="label">
-                  Venue name (primary dropdown)
-                  <select
-                    className="input"
-                    value={selectedVenueId}
-                    onChange={(event) => setSelectedVenueId(event.target.value)}
-                  >
-                    {snapshot.venues.map((venue) => (
-                      <option key={venue.id} value={venue.id}>
-                        {venue.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
                 {isMultiVenue ? (
-                  <form className="ops-venue-form" onSubmit={handleAddVenue}>
+                  <>
                     <label className="label">
-                      Add new venue
+                      Active venue
+                      <select
+                        className="input"
+                        value={selectedVenueId}
+                        onChange={(event) => setSelectedVenueId(event.target.value)}
+                      >
+                        {snapshot.venues.map((venue) => (
+                          <option key={venue.id} value={venue.id}>
+                            {venue.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <form className="ops-venue-form" onSubmit={handleAddVenue}>
+                      <label className="label">
+                        Add new venue
+                        <input
+                          className="input"
+                          value={newVenueName}
+                          onChange={(event) => setNewVenueName(event.target.value)}
+                          placeholder="New Venue Name"
+                          required
+                        />
+                      </label>
+                      <button type="submit" className="btn btn-primary" disabled={isSaving}>
+                        {isSaving ? "Saving..." : "Add venue"}
+                      </button>
+                    </form>
+                    <div className="ops-venue-list">
+                      {snapshot.venues.length === 0 ? (
+                        <div className="ops-venue-row-empty">
+                          <em>No venues found. Create your first venue to get started.</em>
+                        </div>
+                      ) : (
+                        snapshot.venues.map((venue) => (
+                          <div key={venue.id} className="ops-venue-row">
+                            <strong>{venue.name}</strong>
+                            <div style={{ display: "flex", gap: 8 }}>
+                              {venue.venueCode && (
+                                <button
+                                  type="button"
+                                  className="btn btn-secondary"
+                                  onClick={() => {
+                                    const url = `${window.location.origin}/dashboard?join=${venue.venueCode}`;
+                                    navigator.clipboard.writeText(url);
+                                    setCopiedVenueId(venue.id);
+                                    setTimeout(() => setCopiedVenueId(null), 2000);
+                                  }}
+                                >
+                                  {copiedVenueId === venue.id ? "Copied!" : "Share link"}
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                className="btn btn-secondary"
+                                onClick={() => handleDeleteVenue(venue.id, venue.name)}
+                                disabled={isSaving}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <form onSubmit={handleRenameVenue}>
+                    <label className="label">
+                      Venue name
                       <input
                         className="input"
-                        value={newVenueName}
-                        onChange={(event) => setNewVenueName(event.target.value)}
-                        placeholder="New Venue Name"
+                        value={renameVenueName}
+                        onChange={(event) => setRenameVenueName(event.target.value)}
+                        placeholder="Your venue name"
                         required
                       />
                     </label>
-                    <button type="submit" className="btn btn-primary" disabled={isSaving}>
-                      {isSaving ? "Saving..." : "Add venue"}
+                    <button type="submit" className="btn btn-primary" disabled={renameSaving} style={{ marginTop: 8 }}>
+                      {renameSaving ? "Saving..." : "Save changes"}
                     </button>
                   </form>
-                ) : (
-                  <p style={{ color: "var(--ops-text-soft, #6b7280)", fontSize: 13, padding: "8px 0" }}>
-                    Single venue plan — upgrade to Multi-Venue to manage multiple locations.
-                  </p>
                 )}
-
-                <div className="ops-venue-list">
-                  {snapshot.venues.length === 0 ? (
-                    <div className="ops-venue-row-empty">
-                      <em>No venues found. Create your first venue to get started.</em>
-                    </div>
-                  ) : (
-                    snapshot.venues.map((venue) => (
-                      <div key={venue.id} className="ops-venue-row">
-                        <strong>{venue.name}</strong>
-                        <div style={{ display: "flex", gap: 8 }}>
-                          {venue.venueCode && (
-                            <button
-                              type="button"
-                              className="btn btn-secondary"
-                              onClick={() => {
-                                const url = `${window.location.origin}/dashboard?join=${venue.venueCode}`;
-                                navigator.clipboard.writeText(url);
-                                setCopiedVenueId(venue.id);
-                                setTimeout(() => setCopiedVenueId(null), 2000);
-                              }}
-                            >
-                              {copiedVenueId === venue.id ? "Copied!" : "Share link"}
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            className="btn btn-secondary"
-                            onClick={() => handleDeleteVenue(venue.id, venue.name)}
-                            disabled={isSaving}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
               </div>
             </article>
 
@@ -3256,6 +3300,42 @@ export default function ManagerControlCenter({
                     </p>
                   )}
                 </div>
+              )}
+            </article>
+
+            <article className="ops-card">
+              <div className="ops-card-head">
+                <h3>Staff sign-up link</h3>
+              </div>
+              <p className="ops-settings-hint">
+                Share this link with staff to let them sign up and join your venue directly. No email setup required.
+              </p>
+              {selectedVenue?.venueCode ? (
+                <div style={{ marginTop: 16 }}>
+                  <input
+                    className="input"
+                    readOnly
+                    value={`${typeof window !== "undefined" ? window.location.origin : "https://serve-by-example.com"}/dashboard?join=${selectedVenue.venueCode}`}
+                    style={{ fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace", fontSize: "0.8rem", marginBottom: 8 }}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    style={{ width: "100%" }}
+                    onClick={() => {
+                      const url = `${window.location.origin}/dashboard?join=${selectedVenue.venueCode}`;
+                      navigator.clipboard.writeText(url);
+                      setCopiedVenueId(`signup-${selectedVenue.id}`);
+                      setTimeout(() => setCopiedVenueId(null), 2000);
+                    }}
+                  >
+                    {copiedVenueId === `signup-${selectedVenue.id}` ? "Copied!" : "Copy sign-up link"}
+                  </button>
+                </div>
+              ) : (
+                <p style={{ color: "var(--ops-text-soft, #9ca3af)", fontSize: 13, marginTop: 12 }}>
+                  No join code found for this venue. Try refreshing the page.
+                </p>
               )}
             </article>
           </section>

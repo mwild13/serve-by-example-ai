@@ -638,6 +638,21 @@ export async function deleteVenue(
   }
 }
 
+export async function renameVenue(
+  supabase: ManagementSupabaseClient,
+  userId: string,
+  venueId: string,
+  name: string,
+) {
+  const { error } = await supabase
+    .from("venues")
+    .update({ name })
+    .eq("id", venueId)
+    .eq("owner_user_id", userId);
+
+  if (error) throw error;
+}
+
 export async function createStaffMember(
   supabase: ManagementSupabaseClient,
   userId: string,
