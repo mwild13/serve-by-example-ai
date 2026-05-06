@@ -6,14 +6,9 @@ import SignOutButton from "@/components/ui/SignOutButton";
 import SessionRefresher from "@/components/ui/SessionRefresher";
 import {
   LayoutDashboard,
-  BookOpen,
-  Play,
   User,
   Users,
   ShieldCheck,
-  Package,
-  UtensilsCrossed,
-  ClipboardList,
   BarChart2,
   FileText,
   Trophy,
@@ -54,29 +49,12 @@ const NAV_GROUPS: NavGroup[] = [
     items: [{ id: "overview", label: "Overview", icon: LayoutDashboard }],
   },
   {
-    label: "Training",
-    collapsible: true,
-    items: [
-      { id: "training", label: "Programs", icon: BookOpen },
-      { id: "scenarios", label: "Scenarios", icon: Play },
-    ],
-  },
-  {
     label: "People",
     collapsible: true,
     items: [
       { id: "staff", label: "Staff", icon: User },
       { id: "teams", label: "Teams", icon: Users },
       { id: "roles", label: "Roles & Permissions", icon: ShieldCheck },
-    ],
-  },
-  {
-    label: "Operations",
-    collapsible: true,
-    items: [
-      { id: "inventory", label: "Inventory", icon: Package },
-      { id: "menu", label: "Menu Items", icon: UtensilsCrossed },
-      { id: "compliance", label: "Compliance", icon: ClipboardList },
     ],
   },
   {
@@ -279,6 +257,8 @@ export default function ManagerControlCenter({
   plan?: string;
   displayName?: string;
 }) {
+  const isMultiVenue = plan === "multi-venue" || plan === "venue_multi";
+
   const [snapshot, setSnapshot] = useState(initialSnapshot);
   const [activeSection, setActiveSection] = useState<ManagerSection>("overview");
   const [selectedVenueId, setSelectedVenueId] = useState(initialSnapshot.venues[0]?.id ?? "");
@@ -1043,7 +1023,7 @@ export default function ManagerControlCenter({
                 <strong>No venues</strong>
                 <p style={{ color: "var(--text-soft)", fontSize: ".95rem", margin: "8px 0 0 0" }}>Create your first venue to get started.</p>
               </div>
-            ) : snapshot.venues.length === 1 && plan !== "multi-venue" ? (
+            ) : !isMultiVenue ? (
               <div className="ops-venue-single">
                 <strong>{snapshot.venues[0]?.name || "Your Venue"}</strong>
                 <p style={{ color: "var(--text-soft)", fontSize: ".95rem", margin: "8px 0 0 0" }}>Single venue plan</p>
@@ -1106,21 +1086,17 @@ export default function ManagerControlCenter({
                 ) : (
                   <div className="ops-nav-group-label">{group.label}</div>
                 )}
-                {!isCollapsed && group.items.map((section) => {
-                  const isComingSoon = section.id === "training" || section.id === "scenarios" || section.id === "inventory" || section.id === "menu" || section.id === "compliance";
-                  return (
-                    <button
-                      key={section.id}
-                      type="button"
-                      className={`ops-nav-item${activeSection === section.id ? " active" : ""}${isComingSoon ? " ops-nav-item-locked" : ""}`}
-                      onClick={() => handleSectionChange(section.id)}
-                    >
-                      <section.icon size={15} strokeWidth={1.5} aria-hidden="true" />
-                      <span>{section.label}</span>
-                      {isComingSoon && <span className="ops-nav-badge-soon">Next update</span>}
-                    </button>
-                  );
-                })}
+                {!isCollapsed && group.items.map((section) => (
+                  <button
+                    key={section.id}
+                    type="button"
+                    className={`ops-nav-item${activeSection === section.id ? " active" : ""}`}
+                    onClick={() => handleSectionChange(section.id)}
+                  >
+                    <section.icon size={15} strokeWidth={1.5} aria-hidden="true" />
+                    <span>{section.label}</span>
+                  </button>
+                ))}
               </div>
             );
           })}
@@ -2323,22 +2299,24 @@ export default function ManagerControlCenter({
         {activeSection === "analytics" && (
           <>
             <section className="ops-grid ops-grid-main">
-              <article className="ops-card">
-                <div className="ops-card-head">
-                  <h3>Multi-venue comparison</h3>
-                  <span>All venues</span>
-                </div>
-                <div className="ops-module-grid">
-                  {snapshot.venues.map((venue) => (
-                    <div key={venue.id} className={`ops-module-card${selectedVenueId === venue.id ? " active" : ""}`}>
-                      <strong>{venue.name}</strong>
-                      <span>Completion: {venue.completionRate}%</span>
-                      <span>Scenario: {venue.avgScenarioScore}%</span>
-                      <span>Upsell: {venue.upsellRate}%</span>
-                    </div>
-                  ))}
-                </div>
-              </article>
+              {isMultiVenue && (
+                <article className="ops-card">
+                  <div className="ops-card-head">
+                    <h3>Multi-venue comparison</h3>
+                    <span>All venues</span>
+                  </div>
+                  <div className="ops-module-grid">
+                    {snapshot.venues.map((venue) => (
+                      <div key={venue.id} className={`ops-module-card${selectedVenueId === venue.id ? " active" : ""}`}>
+                        <strong>{venue.name}</strong>
+                        <span>Completion: {venue.completionRate}%</span>
+                        <span>Scenario: {venue.avgScenarioScore}%</span>
+                        <span>Upsell: {venue.upsellRate}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </article>
+              )}
 
               <article className="ops-card">
                 <div className="ops-card-head">
@@ -3119,21 +3097,27 @@ export default function ManagerControlCenter({
                   </select>
                 </label>
 
-                <form className="ops-venue-form" onSubmit={handleAddVenue}>
-                  <label className="label">
-                    Add new venue
-                    <input
-                      className="input"
-                      value={newVenueName}
-                      onChange={(event) => setNewVenueName(event.target.value)}
-                      placeholder="New Venue Name"
-                      required
-                    />
-                  </label>
-                  <button type="submit" className="btn btn-primary" disabled={isSaving}>
-                    {isSaving ? "Saving..." : "Add venue"}
-                  </button>
-                </form>
+                {isMultiVenue ? (
+                  <form className="ops-venue-form" onSubmit={handleAddVenue}>
+                    <label className="label">
+                      Add new venue
+                      <input
+                        className="input"
+                        value={newVenueName}
+                        onChange={(event) => setNewVenueName(event.target.value)}
+                        placeholder="New Venue Name"
+                        required
+                      />
+                    </label>
+                    <button type="submit" className="btn btn-primary" disabled={isSaving}>
+                      {isSaving ? "Saving..." : "Add venue"}
+                    </button>
+                  </form>
+                ) : (
+                  <p style={{ color: "var(--ops-text-soft, #6b7280)", fontSize: 13, padding: "8px 0" }}>
+                    Single venue plan — upgrade to Multi-Venue to manage multiple locations.
+                  </p>
+                )}
 
                 <div className="ops-venue-list">
                   {snapshot.venues.length === 0 ? (
@@ -3186,7 +3170,7 @@ export default function ManagerControlCenter({
                 </div>
                 <div>
                   <dt>Venue Limit</dt>
-                  <dd>5 Venues Maximum</dd>
+                  <dd>{isMultiVenue ? "5 Venues Maximum" : "1 Venue"}</dd>
                 </div>
               </dl>
             </article>
