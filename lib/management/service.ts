@@ -252,13 +252,13 @@ async function getOwnedVenues(supabase: ManagementSupabaseClient, userId: string
 }
 
 async function getNextVenueCode(supabase: ManagementSupabaseClient) {
-  const { data, error } = await supabase
+  // Just validate the column exists — don't query max value.
+  // Sequential "max+1" always collides because RLS means each new manager sees
+  // only their own (empty) venues table and always gets the same floor code.
+  const { error } = await supabase
     .from("venues")
     .select("venue_code")
-    .not("venue_code", "is", null)
-    .order("venue_code", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .limit(1);
 
   if (isMissingRelation(error)) {
     throw new Error("Management schema missing: venues table not found. Run supabase/management_schema.sql first.");
@@ -272,12 +272,8 @@ async function getNextVenueCode(supabase: ManagementSupabaseClient) {
     throw error;
   }
 
-  const highestCode = Number(data?.venue_code);
-  if (!Number.isFinite(highestCode) || highestCode < 120) {
-    return 120;
-  }
-
-  return Math.min(highestCode + 1, 999);
+  // Random 4-digit code. Caller retries on unique constraint collision (P ≈ 0.01%).
+  return 1000 + Math.floor(Math.random() * 9000);
 }
 
 async function getStaffRows(
@@ -475,50 +471,43 @@ export async function ensureManagerVenue(supabase: ManagementSupabaseClient, use
     return asString(existingVenue.id);
   }
 
-  const venueCode = await getNextVenueCode(supabase).catch((error) => {
-    if (
-      error instanceof Error &&
-      error.message.includes("venues.venue_code not found")
-    ) {
-      return null;
-    }
-    throw error;
+  const hasVenueCode = await getNextVenueCode(supabase).then(() => true).catch((err: unknown) => {
+    if (err instanceof Error && err.message.includes("venues.venue_code not found")) return false;
+    throw err;
   });
 
-  const insertPayload: Record<string, unknown> = {
-    owner_user_id: userId,
-    name: "Primary Venue",
-    staff_limit: 25,
-    manager_permissions: "2 managers, 1 supervisor admin",
-  };
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const insertPayload: Record<string, unknown> = {
+      owner_user_id: userId,
+      name: "Primary Venue",
+      staff_limit: 25,
+      manager_permissions: "2 managers, 1 supervisor admin",
+    };
 
-  if (typeof venueCode === "number") {
-    insertPayload.venue_code = venueCode;
-  }
+    if (hasVenueCode) {
+      insertPayload.venue_code = 1000 + Math.floor(Math.random() * 9000);
+    }
 
-  let insertResult = await supabase
-    .from("venues")
-    .insert(insertPayload)
-    .select("id")
-    .single();
-
-  if (insertResult.error && isMissingColumn(insertResult.error)) {
-    const fallbackPayload = { ...insertPayload };
-    delete fallbackPayload.venue_code;
-    insertResult = await supabase
+    let insertResult = await supabase
       .from("venues")
-      .insert(fallbackPayload)
+      .insert(insertPayload)
       .select("id")
       .single();
-  }
 
-  const { data, error } = insertResult;
+    if (insertResult.error && isMissingColumn(insertResult.error)) {
+      const fallbackPayload = { ...insertPayload };
+      delete fallbackPayload.venue_code;
+      insertResult = await supabase.from("venues").insert(fallbackPayload).select("id").single();
+    }
 
-  if (error) {
+    const { data, error } = insertResult;
+
+    if (!error) return asString(data.id);
+    if (error.code === "23505") continue;
     throw error;
   }
 
-  return asString(data.id);
+  throw new Error("Unable to create venue: code collision after 5 attempts.");
 }
 
 export async function createVenue(
@@ -526,43 +515,48 @@ export async function createVenue(
   userId: string,
   payload: NewVenuePayload,
 ) {
-  const venueCode = await getNextVenueCode(supabase).catch((error) => {
-    if (
-      error instanceof Error &&
-      error.message.includes("venues.venue_code not found")
-    ) {
-      return null;
-    }
-    throw error;
+  const hasVenueCode = await getNextVenueCode(supabase).then(() => true).catch((err: unknown) => {
+    if (err instanceof Error && err.message.includes("venues.venue_code not found")) return false;
+    throw err;
   });
 
-  const insertPayload: Record<string, unknown> = {
-    owner_user_id: userId,
-    name: payload.name,
-    staff_limit: 25,
-    manager_permissions: "2 managers, 1 supervisor admin",
-  };
+  let data: { id: string } | null = null;
 
-  if (typeof venueCode === "number") {
-    insertPayload.venue_code = venueCode;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const insertPayload: Record<string, unknown> = {
+      owner_user_id: userId,
+      name: payload.name,
+      staff_limit: 25,
+      manager_permissions: "2 managers, 1 supervisor admin",
+    };
+
+    if (hasVenueCode) {
+      insertPayload.venue_code = 1000 + Math.floor(Math.random() * 9000);
+    }
+
+    let insertResult = await supabase.from("venues").insert(insertPayload).select("id").single();
+
+    if (insertResult.error && isMissingColumn(insertResult.error)) {
+      const fallbackPayload = { ...insertPayload };
+      delete fallbackPayload.venue_code;
+      insertResult = await supabase.from("venues").insert(fallbackPayload).select("id").single();
+    }
+
+    if (isMissingRelation(insertResult.error)) {
+      throw new Error("Management schema missing: venues table not found. Run supabase/management_schema.sql first.");
+    }
+
+    if (!insertResult.error) {
+      data = insertResult.data as { id: string };
+      break;
+    }
+
+    if (insertResult.error.code === "23505") continue;
+    throw insertResult.error;
   }
 
-  let insertResult = await supabase.from("venues").insert(insertPayload).select("id").single();
-
-  if (insertResult.error && isMissingColumn(insertResult.error)) {
-    const fallbackPayload = { ...insertPayload };
-    delete fallbackPayload.venue_code;
-    insertResult = await supabase.from("venues").insert(fallbackPayload).select("id").single();
-  }
-
-  const { data, error } = insertResult;
-
-  if (isMissingRelation(error)) {
-    throw new Error("Management schema missing: venues table not found. Run supabase/management_schema.sql first.");
-  }
-
-  if (error) {
-    throw error;
+  if (!data) {
+    throw new Error("Unable to create venue: code collision after 5 attempts.");
   }
 
   // Phase 2: Initialize new venue with helpful starter data
