@@ -291,7 +291,7 @@ function AICoachSheet({ onClose }: { onClose: () => void }) {
 const NAV_TABS = [
   { id: "home",       label: "Home",    Icon: Home       },
   { id: "module",     label: "Modules", Icon: BookOpen   },
-  { id: "rapid-fire", label: "Drills",  Icon: Zap        },
+  { id: "scenarios",  label: "Arena",   Icon: Target     },
   { id: "cocktails",  label: "Library", Icon: GlassWater },
   { id: "progress",   label: "Me",      Icon: BarChart2  },
 ] as const;

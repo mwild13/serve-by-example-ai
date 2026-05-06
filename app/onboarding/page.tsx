@@ -71,6 +71,7 @@ export default function OnboardingPage() {
           ? `Already connected to ${data.venueName}.`
           : `Connected to ${data.venueName}.`
       );
+      setTimeout(() => setStep(2), 1500);
     } catch (err) {
       setVenueCodeStatus("error");
       setVenueCodeMessage(err instanceof Error ? err.message : "Could not connect to venue.");

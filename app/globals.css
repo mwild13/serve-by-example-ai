@@ -10669,6 +10669,48 @@ body {
   margin: 0;
 }
 
+/* ── Quiz mobile overrides — fit everything on screen without scrolling ── */
+@media (max-width: 720px) {
+  .quiz-container {
+    padding: 12px 16px;
+  }
+  .quiz-progress {
+    margin-bottom: 6px;
+  }
+  .quiz-streak {
+    margin-bottom: 10px;
+  }
+  .quiz-streak-number {
+    font-size: 1.4rem;
+  }
+  .quiz-question-card {
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+  .quiz-question-text {
+    font-size: 1rem;
+    line-height: 1.4;
+    margin: 0 0 14px;
+  }
+  .quiz-button {
+    padding: 12px 10px;
+  }
+  .quiz-button-label {
+    font-size: 1rem;
+  }
+  .quiz-button-hint {
+    display: none;
+  }
+  .quiz-explanation {
+    padding: 10px 12px;
+    margin-bottom: 8px;
+  }
+  .quiz-explanation-text {
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+}
+
 /* ============================================================
    DESCRIPTOR SELECTOR — Stage 2 & 3
    ============================================================ */
