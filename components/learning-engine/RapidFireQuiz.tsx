@@ -227,28 +227,26 @@ export default function RapidFireQuiz({
             <span className="quiz-button-hint">or press F</span>
           </button>
         </div>
+
+        {/* Explanation + Next button live inside the card so they never scroll off screen */}
+        {showExplanation && currentContent?.explanation && (
+          <div
+            className={`quiz-explanation${wasCorrect ? " quiz-explanation-correct" : " quiz-explanation-incorrect"}`}
+          >
+            <p className="quiz-explanation-text">{currentContent.explanation}</p>
+            {speedBonus && <p className="quiz-explanation-bonus">Speed bonus!</p>}
+          </div>
+        )}
+
+        {answered !== null && (
+          <button
+            className="btn btn-primary quiz-next-btn"
+            onClick={nextQuestion}
+          >
+            {completed ? "Complete Stage →" : "Next question →"}
+          </button>
+        )}
       </div>
-
-      {/* Explanation */}
-      {showExplanation && currentContent?.explanation && (
-        <div
-          className={`quiz-explanation${wasCorrect ? " quiz-explanation-correct" : " quiz-explanation-incorrect"}`}
-        >
-          <p className="quiz-explanation-text">{currentContent.explanation}</p>
-          {speedBonus && <p className="quiz-explanation-bonus">Speed bonus!</p>}
-        </div>
-      )}
-
-      {/* Next button */}
-      {answered !== null && (
-        <button
-          className="btn btn-primary"
-          onClick={nextQuestion}
-          style={{ marginTop: "16px", width: "100%" }}
-        >
-          {completed ? "Complete Stage →" : "Next question →"}
-        </button>
-      )}
 
       {/* Completion state */}
       {completed && (

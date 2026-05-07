@@ -10654,6 +10654,11 @@ body {
   margin: 6px 0 0;
 }
 
+.quiz-next-btn {
+  width: 100%;
+  margin-top: 16px;
+}
+
 .quiz-completion {
   text-align: center;
   padding: 40px 24px;
@@ -10669,28 +10674,36 @@ body {
   margin: 0;
 }
 
-/* ── Quiz mobile overrides — fit everything on screen without scrolling ── */
+/* ── Quiz mobile overrides — everything fits inside the question card, no page scroll ── */
 @media (max-width: 720px) {
   .quiz-container {
-    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100dvh - 72px); /* 72px = bottom nav */
+    padding: 10px 14px 14px;
   }
   .quiz-progress {
     margin-bottom: 6px;
   }
   .quiz-streak {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
   .quiz-streak-number {
     font-size: 1.4rem;
   }
+  /* Card fills remaining height; scrolls internally if explanation is very long */
   .quiz-question-card {
-    padding: 16px;
-    margin-bottom: 10px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 14px;
+    margin-bottom: 0;
+    overflow-y: auto;
   }
   .quiz-question-text {
     font-size: 1rem;
     line-height: 1.4;
-    margin: 0 0 14px;
+    margin: 0 0 12px;
   }
   .quiz-button {
     padding: 12px 10px;
@@ -10703,11 +10716,17 @@ body {
   }
   .quiz-explanation {
     padding: 10px 12px;
-    margin-bottom: 8px;
+    margin-top: 10px;
+    margin-bottom: 0;
   }
   .quiz-explanation-text {
     font-size: 0.82rem;
     line-height: 1.45;
+  }
+  /* Next / Complete button inside the card */
+  .quiz-next-btn {
+    width: 100%;
+    margin-top: 10px;
   }
 }
 
