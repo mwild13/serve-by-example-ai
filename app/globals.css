@@ -2506,7 +2506,7 @@ ul {
 }
 .dashboard-shell {
   display: grid;
-  grid-template-columns: 240px 1fr 220px;
+  grid-template-columns: 240px 1fr;
   min-height: 100vh;
   background: var(--bg);
   overflow-x: hidden;
@@ -3095,6 +3095,23 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   border-color: var(--gold);
   transform: translateY(-1px);
 }
+.psh-action-card-hero {
+  background: var(--green-deep);
+  border-color: var(--green-deep);
+  color: #fff;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(11, 43, 30, 0.18);
+}
+.psh-action-card-hero:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+.psh-action-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 .psh-action-eyebrow {
   font-size: 0.68rem;
   font-weight: 700;
@@ -3102,10 +3119,49 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   text-transform: uppercase;
   color: var(--green-mid);
 }
+.psh-action-card-hero .psh-action-eyebrow {
+  color: rgba(255,255,255,0.55);
+}
+.psh-daily-badge {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: var(--gold-warm, #d4a853);
+  color: #0B2B1E;
+  padding: 3px 9px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.psh-challenge-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.25;
+  display: block;
+}
+.psh-challenge-desc {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.7);
+  margin: 0;
+  line-height: 1.5;
+}
 .psh-action-body {
   display: flex;
   align-items: flex-start;
   gap: 12px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 4px;
+}
+.psh-action-card:not(.psh-action-card-hero) .psh-action-body {
+  background: none;
+  padding: 0;
+}
+.psh-action-card-hero .psh-action-body span,
+.psh-action-card-hero .psh-action-body p {
+  color: rgba(255,255,255,0.75) !important;
 }
 .psh-warmup-btn {
   display: inline-flex;
@@ -3133,6 +3189,9 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   font-weight: 700;
   color: var(--green);
   margin-top: auto;
+}
+.psh-action-card-hero .psh-action-cta {
+  color: var(--gold-warm, #d4a853);
 }
 
 /* Quick actions grid */
@@ -3367,10 +3426,6 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 @media (max-width: 1100px) {
   .dashboard-shell {
     grid-template-columns: 200px 1fr;
-  }
-
-  .dashboard-right {
-    display: none;
   }
 }
 

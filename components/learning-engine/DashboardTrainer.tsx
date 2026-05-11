@@ -559,8 +559,13 @@ export default function DashboardTrainer({
   function selectModule(mod: Module) {
     // Go directly to scenarios (level gating handled by ModuleVerify in V3)
     const dueReview = reviewQueue.find((r) => r.module === mod);
+    // Guard against stale review queue indices that exceed the current scenario count
+    const validIndex =
+      dueReview && dueReview.scenarioIndex < SCENARIOS[mod].length
+        ? dueReview.scenarioIndex
+        : 0;
     setActiveModule(mod);
-    setScenarioIndex(dueReview ? dueReview.scenarioIndex : 0);
+    setScenarioIndex(validIndex);
     setResponse("");
     setBubble1("");
     setBubble2("");
@@ -581,10 +586,11 @@ export default function DashboardTrainer({
       (r) => r.module === activeModule && r.scenarioIndex !== scenarioIndex,
     );
     let next: number;
-    if (dueInModule.length > 0) {
+    const scenarioCount = SCENARIOS[activeModule].length;
+    if (dueInModule.length > 0 && dueInModule[0].scenarioIndex < scenarioCount) {
       next = dueInModule[0].scenarioIndex;
     } else {
-      next = (scenarioIndex + 1) % SCENARIOS[activeModule].length;
+      next = (scenarioIndex + 1) % scenarioCount;
     }
 
     setScenarioIndex(next);

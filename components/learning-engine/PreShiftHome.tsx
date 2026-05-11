@@ -61,6 +61,23 @@ const EMPTY: ProgressData = {
   moduleProgress: {},
 };
 
+type DailyChallenge = { title: string; desc: string; nav: NavItem };
+
+const DAILY_CHALLENGES: DailyChallenge[] = [
+  { title: "Perfect the Martini", desc: "Describe the classic variants and how to read a guest's preference.", nav: "rapid-fire" },
+  { title: "Upsell without pressure", desc: "Practise guiding a guest from the house wine to a premium option.", nav: "rapid-fire" },
+  { title: "Survive a rush", desc: "Handle three simultaneous orders while keeping guests happy.", nav: "scenarios" },
+  { title: "Difficult guest recovery", desc: "Turn a frustrated guest into a loyal advocate in under 2 minutes.", nav: "scenarios" },
+  { title: "Menu knowledge drill", desc: "Describe today's specials confidently and pair them with drinks.", nav: "rapid-fire" },
+  { title: "Management mindset", desc: "Walk through how to brief a new hire on service standards.", nav: "rapid-fire" },
+  { title: "Sales target scenario", desc: "Your venue needs to hit a cover target — walk through your plan.", nav: "rapid-fire" },
+];
+
+function getDailyChallenge(): DailyChallenge {
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
+  return DAILY_CHALLENGES[dayOfYear % DAILY_CHALLENGES.length];
+}
+
 const MODULE_META: Record<ModuleKey, { label: string; short: string; Icon: React.ElementType }> = {
   bartending: { label: "Bartending Fundamentals", short: "Bartending", Icon: GlassWater },
   sales: { label: "Sales & Upselling", short: "Sales", Icon: TrendingUp },
@@ -102,15 +119,7 @@ function getWeakestModule(data: ProgressData): ModuleKey {
   return keys.reduce((w, k) => ((data.mastery[k] ?? 0) < (data.mastery[w] ?? 0) ? k : w));
 }
 
-function isMastered(data: ProgressData, mod: ModuleKey): boolean {
-  return (data.mastery[mod] ?? 0) >= 80;
-}
 
-function getMasteryLabel(mastery: number): string {
-  if (mastery >= 80) return "Keep it sharp";
-  if (mastery > 0) return "Continue training";
-  return "Start training";
-}
 
 function computeStreak(): number {
   try {
@@ -220,14 +229,11 @@ export default function PreShiftHome({
   const avgMastery = (data.mastery.bartending + data.mastery.sales + data.mastery.management) / 3;
   const skillLevel = getSkillLevel(avgCompletion, avgMastery);
   const weakest = getWeakestModule(data);
-  const weakestMastery = Math.round(data.mastery[weakest] ?? 0);
+  const weakestMastery = Math.min(100, Math.round(data.mastery[weakest] ?? 0));
   const coachTips = COACH_FOCUS[weakest];
   const lastTrainedLabel = formatLastTrained(data.lastAttemptAt);
   const WeakestIcon = MODULE_META[weakest].Icon;
-
-  const badgesEarned = (["bartending", "sales", "management"] as ModuleKey[]).reduce((count, mod) => {
-    return count + (isMastered(data, mod) ? 1 : 0);
-  }, 0);
+  const challenge = getDailyChallenge();
 
   return (
     <div className="psh">
@@ -251,14 +257,6 @@ export default function PreShiftHome({
           {lastTrainedLabel && (
             <span className="psh-last-trained">Last trained: {lastTrainedLabel}</span>
           )}
-          <div className="psh-stat-pill">
-            <span className="psh-stat-pill-val">{totalSessions}</span>
-            <span className="psh-stat-pill-key">SESSIONS</span>
-          </div>
-          <div className="psh-stat-pill">
-            <span className="psh-stat-pill-val">{badgesEarned}</span>
-            <span className="psh-stat-pill-key">BADGES</span>
-          </div>
         </div>
       </div>
 
@@ -289,21 +287,26 @@ export default function PreShiftHome({
         </div>
 
         <div
-          className="psh-action-card"
-          onClick={() => setActiveNav("module")}
+          className="psh-action-card psh-action-card-hero"
+          onClick={() => setActiveNav(challenge.nav)}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => { if (e.key === "Enter") setActiveNav("module"); }}
+          onKeyDown={(e) => { if (e.key === "Enter") setActiveNav(challenge.nav); }}
         >
-          <span className="psh-action-eyebrow">STRENGTHEN YOUR WEAKNESS</span>
+          <div className="psh-action-header-row">
+            <span className="psh-action-eyebrow">STRENGTHEN YOUR WEAKNESS</span>
+            <span className="psh-daily-badge">DAILY CHALLENGE</span>
+          </div>
+          <strong className="psh-challenge-title">{challenge.title}</strong>
+          <p className="psh-challenge-desc">{challenge.desc}</p>
           <div className="psh-action-body">
-            <WeakestIcon size={22} style={{ flexShrink: 0, color: "var(--green)" }} />
+            <WeakestIcon size={18} style={{ flexShrink: 0, color: "var(--green)" }} />
             <div>
-              <strong>{MODULE_META[weakest].label}</strong>
-              <p>{weakestMastery >= 80 ? "Mastered" : weakestMastery > 0 ? `${weakestMastery}% mastered · keep going` : "Not started yet"}</p>
+              <span style={{ fontSize: "0.82rem", fontWeight: 600 }}>{MODULE_META[weakest].label}</span>
+              <p style={{ margin: 0, fontSize: "0.78rem" }}>{weakestMastery >= 80 ? "Mastered" : weakestMastery > 0 ? `${weakestMastery}% mastered · keep going` : "Not started yet"}</p>
             </div>
           </div>
-          <span className="psh-action-cta">{getMasteryLabel(weakestMastery)} →</span>
+          <span className="psh-action-cta">Start Daily Challenge →</span>
         </div>
       </div>
 

@@ -19,9 +19,11 @@ type ModuleSummary = {
 type TrainingData = {
   modules: ModuleSummary[];
   reviewDue: number;
+  totalSessions: number;
+  badgesEarned: number;
 };
 
-const EMPTY: TrainingData = { modules: [], reviewDue: 0 };
+const EMPTY: TrainingData = { modules: [], reviewDue: 0, totalSessions: 0, badgesEarned: 0 };
 
 const CATEGORY_LABELS: Record<string, string> = {
   technical: "Technical",
@@ -77,9 +79,18 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
               attempted: (p.scenariosAttempted ?? 0) > 0,
             };
           });
+          const totalSessions =
+            (res.sessions?.bartending ?? 0) +
+            (res.sessions?.sales ?? 0) +
+            (res.sessions?.management ?? 0);
+          const badgesEarned = (["bartending", "sales", "management"] as const).reduce(
+            (n, mod) => n + ((res.mastery?.[mod] ?? 0) >= 80 ? 1 : 0), 0
+          );
           setData({
             modules,
             reviewDue: Array.isArray(res.reviewQueue) ? res.reviewQueue.length : 0,
+            totalSessions,
+            badgesEarned,
           });
         }
       } catch {
@@ -233,6 +244,16 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
               ? "Spaced repetition items ready for review."
               : "Your weakest category — prioritise these modules."}
           </p>
+        </article>
+        <article className="progress-metric-card sbe-momentum-card">
+          <span className="sbe-momentum-icon">◉</span>
+          <strong className="progress-metric-value">{data.totalSessions} session{data.totalSessions !== 1 ? "s" : ""}</strong>
+          <p>Total training sessions completed across all modules.</p>
+        </article>
+        <article className="progress-metric-card sbe-momentum-card">
+          <span className="sbe-momentum-icon">★</span>
+          <strong className="progress-metric-value">{data.badgesEarned}/3 badge{data.badgesEarned !== 1 ? "s" : ""}</strong>
+          <p>Earned by mastering Bartending, Sales, and Leadership.</p>
         </article>
       </div>
 
