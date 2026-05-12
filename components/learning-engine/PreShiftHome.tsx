@@ -138,19 +138,6 @@ function computeStreak(): number {
   }
 }
 
-function getDifficultyLabel(level?: number | null): string {
-  if (level === 1) return "Foundation";
-  if (level === 3) return "Advanced";
-  return "Solid";
-}
-
-function getNextChallenge(mastery: number, completion: number): string {
-  if (completion === 0) return "start your first session";
-  if (mastery < 40) return "build your foundations";
-  if (mastery < 80) return "improve your technical skills";
-  return "push to mastery";
-}
-
 function formatLastTrained(iso: string | null): string | null {
   if (!iso) return null;
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -310,87 +297,6 @@ export default function PreShiftHome({
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* ── Modules ── */}
-      <div className="psh-modules">
-        <h2>Modules</h2>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
-          {[...data.allModules]
-            .sort((a, b) => {
-              const aMastered = (data.moduleProgress[a.id]?.mastery ?? 0) >= 80;
-              const bMastered = (data.moduleProgress[b.id]?.mastery ?? 0) >= 80;
-              if (aMastered === bMastered) return a.id - b.id;
-              return aMastered ? 1 : -1;
-            })
-            .slice(0, 3)
-            .map((mod) => {
-              const progress = data.moduleProgress[mod.id] ?? { completion: 0, mastery: 0, scenariosAttempted: 0, scenariosMastered: 0, avgElo: 1200 };
-              const mastered = progress.mastery >= 80;
-              const filledDots = Math.min(5, Math.ceil(progress.completion / 20));
-              return (
-                <button
-                  key={mod.id}
-                  type="button"
-                  onClick={() => setActiveNav("module")}
-                  style={{
-                    flex: "1 1 260px",
-                    minWidth: "220px",
-                    maxWidth: "340px",
-                    background: "#fff",
-                    border: `1.5px solid ${mastered ? "#2d6a4f" : "#e5e7eb"}`,
-                    borderRadius: "12px",
-                    padding: "20px",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "10px",
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    {mastered ? (
-                      <span style={{ background: "#d1fae5", color: "#065f46", fontSize: "0.68rem", fontWeight: 700, padding: "3px 10px", borderRadius: "999px", letterSpacing: "0.05em" }}>
-                        ✓ MASTERED
-                      </span>
-                    ) : (
-                      <span style={{ background: "#fef3c7", color: "#78350f", fontSize: "0.68rem", fontWeight: 700, padding: "3px 10px", borderRadius: "999px", letterSpacing: "0.05em" }}>
-                        ★ RECOMMENDED
-                      </span>
-                    )}
-                    <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#3b82f6" }}>
-                      {getDifficultyLabel(mod.difficulty_level)}
-                    </span>
-                  </div>
-                  <strong style={{ fontSize: "1rem", color: "#111827", lineHeight: 1.3, display: "block" }}>{mod.title}</strong>
-                  {mod.description && (
-                    <p style={{ margin: 0, fontSize: "0.8rem", color: "#6b7280", lineHeight: 1.5 }}>{mod.description}</p>
-                  )}
-                  <hr style={{ margin: "2px 0", border: "none", borderTop: "1px solid #f3f4f6" }} />
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: "0.78rem", color: "#6b7280" }}>Mastery</span>
-                    <strong style={{ fontSize: "0.78rem", color: "#111827" }}>{Math.round(progress.mastery)}%</strong>
-                  </div>
-                  <p style={{ margin: 0, fontSize: "0.75rem", color: "#6b7280", fontStyle: "italic" }}>
-                    {mastered ? "All scenarios mastered" : `Next challenge: ${getNextChallenge(progress.mastery, progress.completion)}`}
-                  </p>
-                  <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-                    {[0, 1, 2, 3, 4].map((i) => (
-                      <span
-                        key={i}
-                        style={{ width: "10px", height: "10px", borderRadius: "50%", background: i < filledDots ? "#1b4332" : "#e5e7eb", display: "inline-block", flexShrink: 0 }}
-                      />
-                    ))}
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                    <span style={{ background: "#f3f4f6", color: "#374151", fontSize: "0.8rem", fontWeight: 600, padding: "6px 14px", borderRadius: "6px" }}>
-                      Start →
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
         </div>
       </div>
 
