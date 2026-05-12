@@ -260,9 +260,9 @@ export default function PreShiftHome({
         </div>
       </div>
 
-      {/* ── Welcome + Recommendation ── */}
-      <div className="psh-hero">
-        <div className="psh-welcome">
+      {/* ── Welcome header row ── */}
+      <div className="psh-welcome">
+        <div>
           <span className="eyebrow">Pre-shift brief</span>
           <h1>Welcome back, {displayName}</h1>
           <p>
@@ -276,37 +276,40 @@ export default function PreShiftHome({
                     : "Keep pushing your weakest area."
                 }`}
           </p>
-          <button
-            className="btn btn-primary psh-warmup-btn"
-            onClick={() => setActiveNav("module")}
-            type="button"
-          >
-            <Zap size={15} />
-            Start Training
-          </button>
         </div>
-
-        <div
-          className="psh-action-card psh-action-card-hero"
-          onClick={() => setActiveNav(challenge.nav)}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => { if (e.key === "Enter") setActiveNav(challenge.nav); }}
+        <button
+          className="btn btn-primary psh-warmup-btn"
+          onClick={() => setActiveNav("module")}
+          type="button"
         >
+          <Zap size={15} />
+          Start Training
+        </button>
+      </div>
+
+      {/* ── Daily Challenge (full width) ── */}
+      <div
+        className="psh-action-card psh-action-card-hero psh-hero-card"
+        onClick={() => setActiveNav(challenge.nav)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === "Enter") setActiveNav(challenge.nav); }}
+      >
+        <div className="psh-hero-card-main">
           <div className="psh-action-header-row">
             <span className="psh-action-eyebrow">STRENGTHEN YOUR WEAKNESS</span>
             <span className="psh-daily-badge">DAILY CHALLENGE</span>
           </div>
           <strong className="psh-challenge-title">{challenge.title}</strong>
           <p className="psh-challenge-desc">{challenge.desc}</p>
-          <div className="psh-action-body">
-            <WeakestIcon size={18} style={{ flexShrink: 0, color: "var(--green)" }} />
-            <div>
-              <span style={{ fontSize: "0.82rem", fontWeight: 600 }}>{MODULE_META[weakest].label}</span>
-              <p style={{ margin: 0, fontSize: "0.78rem" }}>{weakestMastery >= 80 ? "Mastered" : weakestMastery > 0 ? `${weakestMastery}% mastered · keep going` : "Not started yet"}</p>
-            </div>
-          </div>
           <span className="psh-action-cta">Start Daily Challenge →</span>
+        </div>
+        <div className="psh-action-body">
+          <WeakestIcon size={18} style={{ flexShrink: 0, color: "var(--gold-warm, #d4a853)" }} />
+          <div>
+            <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#fff" }}>{MODULE_META[weakest].label}</span>
+            <p style={{ margin: 0, fontSize: "0.78rem" }}>{weakestMastery >= 80 ? "Mastered" : weakestMastery > 0 ? `${weakestMastery}% mastered · keep going` : "Not started yet"}</p>
+          </div>
         </div>
       </div>
 
