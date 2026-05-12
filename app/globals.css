@@ -3887,16 +3887,16 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 
 .progress-hero h1 {
   font-family: var(--font-heading);
-  font-size: clamp(2rem, 4vw, 2.8rem);
-  line-height: 1.02;
-  letter-spacing: -0.03em;
+  font-size: 1.4rem;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
   color: var(--green-deep);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .progress-hero p {
   color: var(--text-soft);
-  line-height: 1.72;
+  line-height: 1.55;
   max-width: 700px;
 }
 
@@ -3930,8 +3930,8 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 
 .progress-metric-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
 }
 
 .progress-metric-card,
@@ -3943,9 +3943,9 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 }
 
 .progress-metric-card {
-  padding: 22px;
+  padding: 14px 16px;
   display: grid;
-  gap: 10px;
+  gap: 6px;
 }
 
 .progress-metric-label {
@@ -3958,8 +3958,8 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 
 .progress-metric-value {
   font-family: var(--font-heading);
-  font-size: 2rem;
-  line-height: 1;
+  font-size: 1.3rem;
+  line-height: 1.1;
   color: var(--green-deep);
 }
 
@@ -4011,13 +4011,13 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 .progress-module-list,
 .progress-list {
   display: grid;
-  gap: 16px;
+  gap: 8px;
 }
 
 .progress-module-item {
   display: grid;
-  gap: 12px;
-  padding: 18px;
+  gap: 8px;
+  padding: 10px 14px;
   border-radius: var(--radius-lg);
   background: var(--bg-warm);
   border: 1px solid var(--line-light);
@@ -6679,9 +6679,10 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   }
 
   .sbe-momentum-icon {
-    font-size: 1.5rem;
-    margin-bottom: 4px;
+    font-size: 0.9rem;
+    margin-bottom: 2px;
     display: block;
+    color: var(--text-muted);
   }
 
   /* ── Coach Command List (ProgressOverview) ───────── */
@@ -6695,13 +6696,13 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 
   .sbe-command-list li {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
-    padding: 12px 16px;
-    background: white;
-    border: 1.5px solid #e0d8ca;
-    border-radius: 12px;
-    font-size: .95rem;
+    padding: 4px 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    font-size: 0.88rem;
     color: var(--text);
     font-weight: 500;
   }
@@ -8332,11 +8333,14 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 
   .progress-hero,
   .progress-layout,
-  .progress-metric-grid,
   .manager-grid,
   .manager-grid-two,
   .manager-module-grid {
     grid-template-columns: 1fr;
+  }
+
+  .progress-metric-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .progress-overview {
@@ -8417,6 +8421,10 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 @media (max-width: 600px) {
   .container {
     width: calc(100% - 32px);
+  }
+
+  .progress-metric-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .hero {

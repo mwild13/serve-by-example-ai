@@ -174,53 +174,6 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
         </div>
       </div>
 
-      <div style={{
-        background: "#f5f3ee",
-        borderRadius: 12,
-        padding: "18px 24px",
-        marginBottom: 24,
-        border: "1.5px solid #e5e1d8",
-      }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-          <strong style={{
-            fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif",
-            fontSize: "0.85rem",
-            fontWeight: 600,
-            color: "#0B2B1E",
-          }}>
-            Total Mastery
-          </strong>
-          <span style={{
-            fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif",
-            fontSize: "0.8rem",
-            color: "#6b6860",
-          }}>
-            {masteredCount}/{totalCount} modules mastered
-          </span>
-        </div>
-        <div style={{ background: "#e5e1d8", borderRadius: 6, height: 8, overflow: "hidden" }}>
-          <div style={{
-            background: "#0B2B1E",
-            height: "100%",
-            width: `${Math.round((masteredCount / totalCount) * 100)}%`,
-            borderRadius: 6,
-            transition: "width 0.4s ease",
-          }} />
-        </div>
-        <p style={{
-          margin: "8px 0 0",
-          fontSize: "0.75rem",
-          color: "#a39e95",
-          fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif",
-        }}>
-          {masteredCount === 0
-            ? "Complete and verify each module to track your mastery."
-            : masteredCount === totalCount
-            ? "All modules mastered — full mastery achieved."
-            : `${totalCount - masteredCount} module${totalCount - masteredCount !== 1 ? "s" : ""} remaining.`}
-        </p>
-      </div>
-
       <div className="progress-metric-grid">
         <article className="progress-metric-card sbe-momentum-card">
           <span className="sbe-momentum-icon">◈</span>
