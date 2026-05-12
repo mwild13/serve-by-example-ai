@@ -639,7 +639,14 @@ export default function DashboardShell({
                 >
                   ← All Modules
                 </button>
-                <ModuleVerify key={`module-${selectedModuleId}`} moduleId={selectedModuleId} userId={userId} onArena={() => handleNavClick("scenarios")} />
+                <ModuleVerify
+                  key={`module-${selectedModuleId}`}
+                  moduleId={selectedModuleId}
+                  userId={userId}
+                  onArena={() => handleNavClick("scenarios")}
+                  nextModuleId={selectedModuleId < 40 ? selectedModuleId + 1 : undefined}
+                  onComplete={() => setSelectedModuleId(selectedModuleId < 40 ? selectedModuleId + 1 : null)}
+                />
               </div>
             ) : (
               /* Module grid */

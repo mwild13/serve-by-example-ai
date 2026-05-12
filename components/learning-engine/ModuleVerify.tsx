@@ -47,14 +47,17 @@ type Props = {
   moduleId: number;
   userId: string;
   onArena?: () => void;
+  onComplete?: () => void;
+  nextModuleId?: number;
 };
 
-export default function ModuleVerify({ moduleId, userId, onArena }: Props) {
+export default function ModuleVerify({ moduleId, userId, onArena, onComplete, nextModuleId }: Props) {
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [moduleTitle, setModuleTitle] = useState<string>("");
   const [status, setStatus] = useState<Status>("loading");
   const [error, setError] = useState<string | null>(null);
   const [attemptKey, setAttemptKey] = useState(0);
+  const [finalScore, setFinalScore] = useState(0);
 
   useEffect(() => {
     const questions = VERIFY_QUESTIONS[moduleId] ?? [];
@@ -93,6 +96,7 @@ export default function ModuleVerify({ moduleId, userId, onArena }: Props) {
       return;
     }
 
+    setFinalScore(score);
     setStatus("saving");
     try {
       const supabase = createSupabaseBrowserClient();
@@ -163,25 +167,36 @@ export default function ModuleVerify({ moduleId, userId, onArena }: Props) {
   }
 
   if (status === "mastered") {
+    const nextTitle = nextModuleId ? (MODULE_TITLES[nextModuleId] ?? `Module ${nextModuleId}`) : null;
     return (
       <div className="stage-container">
-        <div style={{ padding: "48px 24px", textAlign: "center" }}>
-          <h2 style={{ marginBottom: 8 }}>{moduleTitle}</h2>
-          <p style={{ fontSize: 18, fontWeight: 700, color: "var(--brand-green)" }}>
-            ◆ Module Mastered
-          </p>
-          <p style={{ marginTop: 12, marginBottom: 24, color: "var(--text-soft)" }}>
-            You can now enter the Arena to put this knowledge into practice.
-          </p>
-          {onArena && (
-            <button
-              className="btn btn-primary"
-              onClick={onArena}
-              style={{ fontSize: "1rem", padding: "12px 28px" }}
-            >
-              Enter the Arena →
-            </button>
+        <div style={{ padding: "40px 24px", textAlign: "center" }}>
+          <span className="module-mastered-check">✓</span>
+          <h2 style={{ marginBottom: 4 }}>
+            {nextTitle ? "Module Mastered" : "All Modules Complete!"}
+          </h2>
+          <p style={{ color: "var(--text-soft)", marginBottom: 0, fontSize: "0.9rem" }}>{moduleTitle}</p>
+          <span className="module-mastered-score">{finalScore} / 5 correct</span>
+
+          {nextTitle && onComplete && (
+            <div className="module-mastered-next-card">
+              <span className="module-mastered-next-label">Next up</span>
+              <span className="module-mastered-next-title">{nextTitle}</span>
+              <button
+                className="btn btn-primary"
+                onClick={onComplete}
+                style={{ width: "100%", fontSize: "0.95rem", padding: "11px 20px" }}
+              >
+                Start Next Module →
+              </button>
+            </div>
           )}
+
+          <div className="module-mastered-links">
+            {onArena && (
+              <button onClick={onArena}>Enter the Arena</button>
+            )}
+          </div>
         </div>
       </div>
     );
