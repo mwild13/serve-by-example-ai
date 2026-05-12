@@ -4149,6 +4149,438 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   color: var(--text-muted);
 }
 
+/* ── Progress Hub (Unified Progress Hub refactor) ─────────────── */
+
+.progress-hub-header {
+  margin-bottom: 28px;
+}
+.progress-hub-header .eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 4px;
+}
+.progress-hub-header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 16px;
+}
+.progress-hub-skill-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.progress-hub-skill-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.progress-hub-skill-level {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--green);
+  line-height: 1;
+}
+.progress-hub-skill-track {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-alt);
+  border-radius: 99px;
+  overflow: hidden;
+  max-width: 200px;
+}
+.progress-hub-skill-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 99px;
+  transition: width 0.5s ease;
+}
+.progress-hub-skill-of {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* Band 1: hero grid */
+.progress-hub-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 36px;
+}
+@media (min-width: 900px) {
+  .progress-hub-hero-grid {
+    grid-template-columns: 65fr 35fr;
+    gap: 20px;
+  }
+}
+
+/* Stats grid: 2 rows × 3 cols */
+.progress-hub-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, auto);
+  gap: 12px;
+}
+.progress-hub-stat-card {
+  background: var(--bg-warm);
+  border: 1.5px solid var(--line-light);
+  border-radius: 12px;
+  padding: 16px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.progress-hub-stat-label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+}
+.progress-hub-stat-value {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: var(--green-deep);
+  line-height: 1.1;
+}
+.progress-hub-stat-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+.progress-hub-stat-mini-track {
+  height: 4px;
+  background: var(--bg-alt);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+.progress-hub-stat-mini-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 99px;
+}
+.progress-hub-badge-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+.progress-hub-badge-icon {
+  color: var(--gold);
+}
+.progress-hub-badge-icon--empty {
+  color: var(--bg-alt);
+}
+
+/* Recommended next session card */
+.progress-hub-recommended {
+  background: var(--green-deep);
+  border-radius: 14px;
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 180px;
+}
+.progress-hub-rec-eyebrow {
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: rgba(255,255,255,0.5);
+}
+.progress-hub-rec-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.35;
+  flex: 1;
+}
+.progress-hub-rec-sub {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.55);
+  margin: 0;
+}
+.progress-hub-rec-btn {
+  display: inline-block;
+  background: #a3e635;
+  color: var(--green-deep);
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+}
+.progress-hub-rec-btn:hover {
+  background: #bef264;
+}
+
+/* Band 2: Certification & Focus Hub */
+.progress-cert-hub {
+  margin-bottom: 40px;
+}
+.progress-cert-hub-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+.progress-cert-hub-sub {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 0 0 18px;
+}
+.progress-cert-hub-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+@media (min-width: 700px) {
+  .progress-cert-hub-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.progress-cert-card {
+  background: var(--bg-warm);
+  border: 1.5px solid var(--line-light);
+  border-radius: 14px;
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.progress-cert-card--done {
+  background: var(--green-deep);
+  border-color: var(--green-deep);
+}
+.progress-cert-card-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.progress-cert-card--done .progress-cert-card-title {
+  color: #fff;
+}
+.progress-cert-bar-track {
+  height: 5px;
+  background: var(--bg-alt);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress-cert-card--done .progress-cert-bar-track {
+  background: rgba(255,255,255,0.2);
+}
+.progress-cert-bar-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 99px;
+}
+.progress-cert-card--done .progress-cert-bar-fill {
+  background: #a3e635;
+}
+.progress-cert-progress-text {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin: -6px 0 0;
+}
+.progress-cert-card--done .progress-cert-progress-text {
+  color: rgba(255,255,255,0.55);
+}
+.progress-cert-weakness {
+  border-top: 1px solid var(--line-light);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.progress-cert-card--done .progress-cert-weakness {
+  border-top-color: rgba(255,255,255,0.15);
+}
+.progress-cert-weakness-label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+}
+.progress-cert-card--done .progress-cert-weakness-label {
+  color: rgba(255,255,255,0.5);
+}
+.progress-cert-module-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.35;
+}
+.progress-cert-card--done .progress-cert-module-name {
+  color: rgba(255,255,255,0.85);
+}
+.progress-cert-btn {
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+}
+.progress-cert-btn:hover {
+  background: var(--green-mid);
+}
+.progress-cert-done-badge {
+  font-size: 1.4rem;
+  color: #a3e635;
+  line-height: 1;
+}
+.progress-cert-done-text {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+}
+
+/* Band 3: Enhanced module mastery list */
+.progress-mastery-list-v2 {
+  margin-bottom: 40px;
+}
+.progress-mastery-list-v2-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+.progress-mastery-list-v2-sub {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 0 0 18px;
+}
+.progress-mastery-cat-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.progress-mastery-row-v2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-warm);
+  border: 1.5px solid var(--line-light);
+  border-radius: 10px;
+  margin-bottom: 7px;
+}
+.progress-mastery-icon {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+}
+.progress-mastery-row-title {
+  flex: 1;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.progress-mastery-row-chip {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: var(--bg-alt);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.progress-mastery-row-chip--mastered {
+  background: var(--green-light);
+  color: var(--green-deep);
+}
+.progress-mastery-action {
+  background: none;
+  border: 1.5px solid var(--line-light);
+  border-radius: 7px;
+  padding: 5px 11px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.progress-mastery-action:hover {
+  border-color: var(--green);
+  color: var(--green);
+}
+.progress-mastery-action--primary {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+.progress-mastery-action--primary:hover {
+  background: var(--green-mid);
+  border-color: var(--green-mid);
+  color: #fff;
+}
+
+/* Band 4: Performance Analytics */
+.progress-analytics {
+  margin-bottom: 40px;
+}
+.progress-analytics-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+.progress-analytics-sub {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 0 0 18px;
+}
+.progress-analytics-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 700px) {
+  .progress-analytics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.progress-chart-card {
+  background: var(--bg-warm);
+  border: 1.5px solid var(--line-light);
+  border-radius: 14px;
+  padding: 22px 20px;
+}
+.progress-chart-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 4px;
+}
+.progress-chart-sub {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  margin: 0 0 16px;
+}
+
+/* ── End Progress Hub ─────────────────────────────────────────── */
+
 .badge-stage {
   display: grid;
   gap: 14px;

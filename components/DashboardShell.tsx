@@ -700,7 +700,15 @@ export default function DashboardShell({
             <KnowledgeBase />
           </Suspense>
         ) : activeNav === "progress" ? (
-          <ProgressOverview displayName={displayName} plan={plan} />
+          <ProgressOverview
+            displayName={displayName}
+            plan={plan}
+            onSelectModule={(moduleId) => {
+              setSelectedModuleId(moduleId);
+              handleNavClick("module");
+            }}
+            onNavigate={(nav) => handleNavClick(nav as NavItem)}
+          />
         ) : activeNav === "settings" ? (
           <StaffSettingsPanel
             displayName={displayName}

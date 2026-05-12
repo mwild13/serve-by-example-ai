@@ -2,10 +2,26 @@
 
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
+import { Zap, GlassWater, Shield, Award } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+} from "recharts";
 
 type ProgressOverviewProps = {
   displayName: string;
   plan: string;
+  onSelectModule?: (moduleId: number) => void;
+  onNavigate?: (nav: string) => void;
 };
 
 type ModuleSummary = {
@@ -21,9 +37,16 @@ type TrainingData = {
   reviewDue: number;
   totalSessions: number;
   badgesEarned: number;
+  scores: { bartending: number; sales: number; management: number };
 };
 
-const EMPTY: TrainingData = { modules: [], reviewDue: 0, totalSessions: 0, badgesEarned: 0 };
+const EMPTY: TrainingData = {
+  modules: [],
+  reviewDue: 0,
+  totalSessions: 0,
+  badgesEarned: 0,
+  scores: { bartending: 0, sales: 0, management: 0 },
+};
 
 const CATEGORY_LABELS: Record<string, string> = {
   technical: "Technical",
@@ -37,40 +60,46 @@ const CATEGORY_CERT_LABELS: Record<string, string> = {
   compliance: "Compliance Ready",
 };
 
-const CATEGORY_COACH: Record<string, string[]> = {
-  technical: [
-    "Acknowledge guests within 3 seconds of them reaching the bar.",
-    "Name the spirit, the modifier, and the garnish when describing a cocktail.",
-    "Recover a missed order gracefully — acknowledge, apologise, deliver.",
-  ],
-  service: [
-    "Offer one premium alternative per order — even when not asked.",
-    "Lead with flavour language, not price, when recommending upgrades.",
-    "Close every recommendation with a confident 'Would you like to try that?'",
-  ],
-  compliance: [
-    "When reassigning tasks, name the person and the specific job out loud.",
-    "Give one piece of specific, observable feedback after every shift.",
-    "Pre-brief your team on the top 2 risks before a busy service starts.",
-  ],
+const CATEGORY_ICONS: Record<string, React.ElementType> = {
+  technical: Zap,
+  service: GlassWater,
+  compliance: Shield,
 };
 
-export default function ProgressOverview({ displayName, plan }: ProgressOverviewProps) {
+export default function ProgressOverview({
+  displayName,
+  plan,
+  onSelectModule,
+  onNavigate,
+}: ProgressOverviewProps) {
   const [data, setData] = useState<TrainingData>(EMPTY);
 
   useEffect(() => {
     async function load() {
       try {
         const supabase = createSupabaseBrowserClient();
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         const r = await fetch("/api/training/progress", {
-          headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+          headers: session?.access_token
+            ? { Authorization: `Bearer ${session.access_token}` }
+            : {},
         });
         const res = await r.json();
 
         if (res.allModules && res.moduleProgress) {
-          const modules: ModuleSummary[] = (res.allModules as { id: number; title: string; category: string }[]).map((m) => {
-            const p = res.moduleProgress[m.id] ?? { scenariosAttempted: 0, scenariosMastered: 0 };
+          const modules: ModuleSummary[] = (
+            res.allModules as {
+              id: number;
+              title: string;
+              category: string;
+            }[]
+          ).map((m) => {
+            const p = res.moduleProgress[m.id] ?? {
+              scenariosAttempted: 0,
+              scenariosMastered: 0,
+            };
             return {
               id: m.id,
               title: m.title,
@@ -83,14 +112,24 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
             (res.sessions?.bartending ?? 0) +
             (res.sessions?.sales ?? 0) +
             (res.sessions?.management ?? 0);
-          const badgesEarned = (["bartending", "sales", "management"] as const).reduce(
-            (n, mod) => n + ((res.mastery?.[mod] ?? 0) >= 80 ? 1 : 0), 0
+          const badgesEarned = (
+            ["bartending", "sales", "management"] as const
+          ).reduce(
+            (n, mod) => n + ((res.mastery?.[mod] ?? 0) >= 80 ? 1 : 0),
+            0,
           );
           setData({
             modules,
-            reviewDue: Array.isArray(res.reviewQueue) ? res.reviewQueue.length : 0,
+            reviewDue: Array.isArray(res.reviewQueue)
+              ? res.reviewQueue.length
+              : 0,
             totalSessions,
             badgesEarned,
+            scores: {
+              bartending: res.scores?.bartending ?? 0,
+              sales: res.scores?.sales ?? 0,
+              management: res.scores?.management ?? 0,
+            },
           });
         }
       } catch {
@@ -100,8 +139,21 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
     void load();
   }, []);
 
+  // ── Derived values ──────────────────────────────────────────
+
   const masteredCount = data.modules.filter((m) => m.mastered).length;
   const totalCount = data.modules.length || 20;
+  const skillLevel = Math.min(
+    10,
+    Math.max(1, Math.round((masteredCount / Math.max(totalCount, 1)) * 10)),
+  );
+  const highScore = Math.round(
+    Math.max(
+      data.scores.bartending,
+      data.scores.sales,
+      data.scores.management,
+    ),
+  );
 
   const categoryGroups: Record<string, ModuleSummary[]> = {
     technical: data.modules.filter((m) => m.category === "technical"),
@@ -109,13 +161,18 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
     compliance: data.modules.filter((m) => m.category === "compliance"),
   };
 
-  const categoryCerts = (["technical", "service", "compliance"] as const).map((cat) => ({
-    category: cat,
-    label: CATEGORY_CERT_LABELS[cat],
-    mastered: categoryGroups[cat].filter((m) => m.mastered).length,
-    total: categoryGroups[cat].length,
-    certified: categoryGroups[cat].length > 0 && categoryGroups[cat].every((m) => m.mastered),
-  }));
+  const categoryCerts = (["technical", "service", "compliance"] as const).map(
+    (cat) => ({
+      category: cat,
+      label: CATEGORY_CERT_LABELS[cat],
+      mastered: categoryGroups[cat].filter((m) => m.mastered).length,
+      total: categoryGroups[cat].length,
+      certified:
+        categoryGroups[cat].length > 0 &&
+        categoryGroups[cat].every((m) => m.mastered),
+      nextModule: categoryGroups[cat].find((m) => !m.mastered) ?? null,
+    }),
+  );
 
   const certifiedCategories = categoryCerts.filter((c) => c.certified).length;
 
@@ -123,215 +180,409 @@ export default function ProgressOverview({ displayName, plan }: ProgressOverview
     (weakest, cat) => {
       const wLen = categoryGroups[weakest].length;
       const cLen = categoryGroups[cat].length;
-      const wPct = wLen > 0 ? categoryGroups[weakest].filter((m) => m.mastered).length / wLen : 1;
-      const cPct = cLen > 0 ? categoryGroups[cat].filter((m) => m.mastered).length / cLen : 1;
+      const wPct =
+        wLen > 0
+          ? categoryGroups[weakest].filter((m) => m.mastered).length / wLen
+          : 1;
+      const cPct =
+        cLen > 0
+          ? categoryGroups[cat].filter((m) => m.mastered).length / cLen
+          : 1;
       return cPct < wPct ? cat : weakest;
     },
     "technical" as "technical" | "service" | "compliance",
   );
 
-  const COACH_COMMANDS = CATEGORY_COACH[weakestCategory];
+  const firstUnmastered = data.modules.find((m) => !m.mastered) ?? null;
 
-  const recommendedNext =
-    masteredCount === 0
-      ? "Start with Module 1: Pouring the Perfect Beer — it's the fastest way to build your foundation."
-      : masteredCount === totalCount
-      ? "All modules mastered. Run Arena sessions to stay sharp."
-      : `Focus on ${CATEGORY_LABELS[weakestCategory]} modules — ${categoryGroups[weakestCategory].filter((m) => m.mastered).length}/${categoryGroups[weakestCategory].length} mastered so far.`;
+  // Analytics chart data
+  const barChartData = [
+    { name: "Bartending", score: Math.round(data.scores.bartending) },
+    { name: "Sales", score: Math.round(data.scores.sales) },
+    { name: "Management", score: Math.round(data.scores.management) },
+  ];
 
-  const highlights: string[] = [];
-  if (masteredCount === 0) {
-    highlights.push("Complete your first module verify to start tracking wins here.");
-  } else {
-    highlights.push(`${masteredCount} module${masteredCount !== 1 ? "s" : ""} mastered — keep going.`);
-    for (const c of categoryCerts) {
-      if (c.certified) highlights.push(`${c.label} certification earned.`);
-      else if (c.mastered > 0) highlights.push(`${c.mastered}/${c.total} ${CATEGORY_LABELS[c.category]} modules done.`);
-    }
-  }
+  const technicalMastery =
+    categoryGroups.technical.length > 0
+      ? Math.round(
+          (categoryGroups.technical.filter((m) => m.mastered).length /
+            categoryGroups.technical.length) *
+            100,
+        )
+      : 0;
+  const serviceMastery =
+    categoryGroups.service.length > 0
+      ? Math.round(
+          (categoryGroups.service.filter((m) => m.mastered).length /
+            categoryGroups.service.length) *
+            100,
+        )
+      : 0;
+  const complianceMastery =
+    categoryGroups.compliance.length > 0
+      ? Math.round(
+          (categoryGroups.compliance.filter((m) => m.mastered).length /
+            categoryGroups.compliance.length) *
+            100,
+        )
+      : 0;
+
+  const radarData = [
+    { subject: "Technical", score: technicalMastery },
+    { subject: "Service", score: serviceMastery },
+    { subject: "Compliance", score: complianceMastery },
+    { subject: "Bartending", score: Math.round(data.scores.bartending) },
+    { subject: "Sales", score: Math.round(data.scores.sales) },
+  ];
 
   return (
     <div className="progress-overview">
-      <div className="progress-hero">
-        <div>
-          <span className="eyebrow">How I&rsquo;m improving</span>
-          <h1>{displayName}&rsquo;s training momentum</h1>
-          <p>
-            Real movement, not just numbers.
-            {plan === "free"
-              ? " Free access shows your baseline — upgrade to unlock deeper coaching."
-              : " Your paid plan prioritises the highest-impact scenarios first."}
-          </p>
-        </div>
-        <div className="progress-next-card">
-          <span className="progress-next-label">Recommended next session</span>
-          <strong>{recommendedNext}</strong>
-          <p>
-            {masteredCount === 0
-              ? "Complete a module verify to unlock personalised training recommendations."
-              : `${masteredCount} of ${totalCount} modules mastered. Keep going.`}
-          </p>
+      {/* ── Band 1: Hero & Performance Grid ─────────────────── */}
+      <div className="progress-hub-header">
+        <span className="eyebrow">How I&rsquo;m improving</span>
+        <h1>{displayName}&rsquo;s Progress Hub</h1>
+        <div className="progress-hub-skill-row">
+          <span className="progress-hub-skill-label">Skill Level</span>
+          <span className="progress-hub-skill-level">{skillLevel}</span>
+          <div className="progress-hub-skill-track">
+            <div
+              className="progress-hub-skill-fill"
+              style={{ width: `${skillLevel * 10}%` }}
+            />
+          </div>
+          <span className="progress-hub-skill-of">/10</span>
         </div>
       </div>
 
-      <div className="progress-metric-grid">
-        <article className="progress-metric-card sbe-momentum-card">
-          <span className="sbe-momentum-icon">◈</span>
-          <strong className="progress-metric-value">{masteredCount}/{totalCount} mastered</strong>
-          <p>Modules verified across all 3 training categories.</p>
-        </article>
-        <article className="progress-metric-card sbe-momentum-card">
-          <span className="sbe-momentum-icon">↑</span>
-          <strong className="progress-metric-value">{certifiedCategories}/3 categories</strong>
-          <p>Technical, Service, and Compliance certification status.</p>
-        </article>
-        <article className="progress-metric-card sbe-momentum-card">
-          <span className="sbe-momentum-icon">→</span>
-          <strong className="progress-metric-value">
-            {data.reviewDue > 0
-              ? `${data.reviewDue} review${data.reviewDue !== 1 ? "s" : ""} due`
-              : `${CATEGORY_LABELS[weakestCategory]} focus`}
-          </strong>
-          <p>
-            {data.reviewDue > 0
-              ? "Spaced repetition items ready for review."
-              : "Your weakest category — prioritise these modules."}
-          </p>
-        </article>
-        <article className="progress-metric-card sbe-momentum-card">
-          <span className="sbe-momentum-icon">◉</span>
-          <strong className="progress-metric-value">{data.totalSessions} session{data.totalSessions !== 1 ? "s" : ""}</strong>
-          <p>Total training sessions completed across all modules.</p>
-        </article>
-        <article className="progress-metric-card sbe-momentum-card">
-          <span className="sbe-momentum-icon">★</span>
-          <strong className="progress-metric-value">{data.badgesEarned}/3 badge{data.badgesEarned !== 1 ? "s" : ""}</strong>
-          <p>Earned by mastering Bartending, Sales, and Leadership.</p>
-        </article>
-      </div>
-
-      <div className="progress-layout">
-        <section className="progress-panel">
-          <div className="progress-panel-header">
-            <h2>Module mastery</h2>
-            <span>Pass each module verify to mark as mastered</span>
+      <div className="progress-hub-hero-grid">
+        {/* Left: 2×3 stats grid */}
+        <div className="progress-hub-stats-grid">
+          {/* 1. Modules Mastered */}
+          <div className="progress-hub-stat-card">
+            <span className="progress-hub-stat-label">Modules Mastered</span>
+            <span className="progress-hub-stat-value">
+              {masteredCount}/{totalCount}
+            </span>
+            <div className="progress-hub-stat-mini-track">
+              <div
+                className="progress-hub-stat-mini-fill"
+                style={{
+                  width: `${Math.round((masteredCount / Math.max(totalCount, 1)) * 100)}%`,
+                }}
+              />
+            </div>
+            <p className="progress-hub-stat-sub">verified across all categories</p>
           </div>
 
-          <div className="progress-module-list">
-            {(["technical", "service", "compliance"] as const).map((cat) => (
-              <div key={cat} style={{ marginBottom: 20 }}>
-                <div style={{
-                  fontSize: "0.73rem",
-                  fontWeight: 600,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
-                  color: "#6b6860",
-                  marginBottom: 8,
-                  fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif",
-                }}>
-                  {CATEGORY_LABELS[cat]}
-                </div>
-                {categoryGroups[cat].map((module) => (
-                  <div key={module.id} className="progress-module-item" style={{ marginBottom: 8 }}>
-                    <div className="progress-module-top">
-                      <strong style={{ fontSize: "0.85rem" }}>{module.title}</strong>
-                      <span className="progress-status-chip">
-                        {module.mastered ? "Mastered" : module.attempted ? "In progress" : "Not started"}
-                      </span>
-                    </div>
-                    <div className="progress-bar-track">
-                      <div
-                        className="progress-bar-fill"
-                        style={{ width: module.mastered ? "100%" : "0%", background: module.mastered ? "#0B2B1E" : undefined }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="progress-panel">
-          <div className="progress-panel-header">
-            <h2>Category Certifications</h2>
-            <span>Master all modules in a category to certify</span>
+          {/* 2. High Scenario Score */}
+          <div className="progress-hub-stat-card">
+            <span className="progress-hub-stat-label">High Scenario Score</span>
+            <span className="progress-hub-stat-value">{highScore}/100</span>
+            <p className="progress-hub-stat-sub">best single module average</p>
           </div>
 
-          <div style={{ marginBottom: 28 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(80px, 1fr))", gap: 10 }}>
-              {categoryCerts.map((cert) => (
-                <div
-                  key={cert.category}
-                  style={{
-                    background: cert.certified ? "#0B2B1E" : "#f5f3ee",
-                    borderRadius: 10,
-                    padding: "18px 12px",
-                    textAlign: "center",
-                    border: cert.certified ? "none" : "1.5px solid #e5e1d8",
-                  }}
+          {/* 3. Technical Focus */}
+          <div className="progress-hub-stat-card">
+            <span className="progress-hub-stat-label">Technical Focus</span>
+            <span
+              className="progress-hub-stat-value"
+              style={{ fontSize: "1.05rem" }}
+            >
+              {CATEGORY_LABELS[weakestCategory]}
+            </span>
+            <p className="progress-hub-stat-sub">
+              {categoryGroups[weakestCategory].filter((m) => m.mastered).length}/
+              {categoryGroups[weakestCategory].length} modules mastered
+            </p>
+          </div>
+
+          {/* 4. Sessions Completed */}
+          <div className="progress-hub-stat-card">
+            <span className="progress-hub-stat-label">Sessions Completed</span>
+            <span className="progress-hub-stat-value">{data.totalSessions}</span>
+            <p className="progress-hub-stat-sub">total training sessions</p>
+          </div>
+
+          {/* 5. Badge Collection */}
+          <div className="progress-hub-stat-card">
+            <span className="progress-hub-stat-label">Badge Collection</span>
+            <div className="progress-hub-badge-row">
+              {[0, 1, 2].map((i) => (
+                <Award
+                  key={i}
+                  size={22}
+                  className={
+                    i < data.badgesEarned
+                      ? "progress-hub-badge-icon"
+                      : "progress-hub-badge-icon--empty"
+                  }
+                />
+              ))}
+            </div>
+            <p className="progress-hub-stat-sub">{data.badgesEarned}/3 earned</p>
+          </div>
+
+          {/* 6. Categories Certified */}
+          <div className="progress-hub-stat-card">
+            <span className="progress-hub-stat-label">Categories Certified</span>
+            <span className="progress-hub-stat-value">
+              {certifiedCategories}/3
+            </span>
+            <p className="progress-hub-stat-sub">Technical, Service, Compliance</p>
+          </div>
+        </div>
+
+        {/* Right: Recommended next session */}
+        <div className="progress-hub-recommended">
+          <span className="progress-hub-rec-eyebrow">Recommended next session</span>
+          {firstUnmastered ? (
+            <>
+              <span className="progress-hub-rec-title">{firstUnmastered.title}</span>
+              <p className="progress-hub-rec-sub">
+                {plan === "free"
+                  ? "Free access active — upgrade to unlock deeper coaching."
+                  : `${masteredCount} of ${totalCount} modules mastered. Keep going.`}
+              </p>
+              {onSelectModule && (
+                <button
+                  className="progress-hub-rec-btn"
+                  onClick={() => onSelectModule(firstUnmastered.id)}
                 >
-                  <div style={{
-                    fontSize: 26,
-                    lineHeight: 1,
-                    marginBottom: 8,
-                    color: cert.certified ? "#a3e635" : "#c9c4bb",
-                    fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif",
-                  }}>
-                    {cert.certified ? "★" : "–"}
+                  Start Module &rarr;
+                </button>
+              )}
+            </>
+          ) : (
+            <>
+              <span className="progress-hub-rec-title">
+                All modules complete. Run Arena sessions to stay sharp.
+              </span>
+              {onNavigate && (
+                <button
+                  className="progress-hub-rec-btn"
+                  onClick={() => onNavigate("scenarios")}
+                >
+                  Enter the Arena &rarr;
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* ── Band 2: Certification & Focus Hub ───────────────── */}
+      <div className="progress-cert-hub">
+        <h2 className="progress-cert-hub-title">Certification &amp; Focus Hub</h2>
+        <p className="progress-cert-hub-sub">
+          Master all modules in a category to earn certification. Each card shows your next step.
+        </p>
+        <div className="progress-cert-hub-grid">
+          {categoryCerts.map((cert) => (
+            <div
+              key={cert.category}
+              className={`progress-cert-card${cert.certified ? " progress-cert-card--done" : ""}`}
+            >
+              {cert.certified ? (
+                <>
+                  <div>
+                    <div className="progress-cert-done-badge">★</div>
+                    <div className="progress-cert-card-title">{cert.label}</div>
                   </div>
-                  <strong style={{
-                    display: "block",
-                    fontSize: "0.76rem",
-                    fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif",
-                    fontWeight: 600,
-                    color: cert.certified ? "#fff" : "#5a5650",
-                    marginBottom: 4,
-                    lineHeight: 1.3,
-                  }}>
-                    {cert.label}
-                  </strong>
-                  <span style={{
-                    fontSize: "0.68rem",
-                    color: cert.certified ? "rgba(255,255,255,0.6)" : "#a39e95",
-                    fontFamily: "Geist, ui-sans-serif, system-ui, -apple-system, sans-serif",
-                  }}>
-                    {cert.certified ? "Certified" : `${cert.mastered}/${cert.total} mastered`}
+                  <div className="progress-cert-bar-track">
+                    <div
+                      className="progress-cert-bar-fill"
+                      style={{ width: "100%" }}
+                    />
+                  </div>
+                  <p className="progress-cert-progress-text">
+                    {cert.mastered}/{cert.total} mastered
+                  </p>
+                  <div className="progress-cert-weakness">
+                    <span className="progress-cert-done-text">
+                      Certified — all modules mastered.
+                    </span>
+                    {onNavigate && (
+                      <button
+                        className="progress-cert-btn"
+                        onClick={() => onNavigate("scenarios")}
+                      >
+                        Practice in Arena &rarr;
+                      </button>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="progress-cert-card-title">{cert.label}</div>
+                  <div className="progress-cert-bar-track">
+                    <div
+                      className="progress-cert-bar-fill"
+                      style={{
+                        width:
+                          cert.total > 0
+                            ? `${Math.round((cert.mastered / cert.total) * 100)}%`
+                            : "0%",
+                      }}
+                    />
+                  </div>
+                  <p className="progress-cert-progress-text">
+                    {cert.mastered}/{cert.total} mastered
+                  </p>
+                  {cert.nextModule && (
+                    <div className="progress-cert-weakness">
+                      <span className="progress-cert-weakness-label">
+                        Strengthen your weakness
+                      </span>
+                      <span className="progress-cert-module-name">
+                        {cert.nextModule.title}
+                      </span>
+                      {onSelectModule && (
+                        <button
+                          className="progress-cert-btn"
+                          onClick={() =>
+                            onSelectModule(cert.nextModule!.id)
+                          }
+                        >
+                          Strengthen Now &rarr;
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Band 3: Full Module Mastery List ─────────────────── */}
+      <div className="progress-mastery-list-v2">
+        <h2 className="progress-mastery-list-v2-title">Full Module Mastery List</h2>
+        <p className="progress-mastery-list-v2-sub">
+          Pass each module verify to mark as mastered. Every module links directly to training or the Arena.
+        </p>
+
+        {(["technical", "service", "compliance"] as const).map((cat) => {
+          const Icon = CATEGORY_ICONS[cat];
+          return (
+            <div key={cat} style={{ marginBottom: 20 }}>
+              <div className="progress-mastery-cat-label">
+                {CATEGORY_LABELS[cat]}
+              </div>
+              {categoryGroups[cat].map((module) => (
+                <div key={module.id} className="progress-mastery-row-v2">
+                  <span className="progress-mastery-icon">
+                    <Icon size={15} />
                   </span>
+                  <span className="progress-mastery-row-title">{module.title}</span>
+                  <span
+                    className={`progress-mastery-row-chip${module.mastered ? " progress-mastery-row-chip--mastered" : ""}`}
+                  >
+                    {module.mastered
+                      ? "Mastered"
+                      : module.attempted
+                      ? "In progress"
+                      : "Not started"}
+                  </span>
+                  {module.mastered ? (
+                    <button
+                      className="progress-mastery-action"
+                      onClick={() => onNavigate?.("scenarios")}
+                    >
+                      Practice in Arena
+                    </button>
+                  ) : module.attempted ? (
+                    <button
+                      className="progress-mastery-action progress-mastery-action--primary"
+                      onClick={() => onSelectModule?.(module.id)}
+                    >
+                      Continue
+                    </button>
+                  ) : (
+                    <button
+                      className="progress-mastery-action progress-mastery-action--primary"
+                      onClick={() => onSelectModule?.(module.id)}
+                    >
+                      Verify Now
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
-          </div>
-        </section>
+          );
+        })}
+      </div>
 
-        <section className="progress-panel progress-panel-stack">
-          <div className="progress-panel-block">
-            <div className="progress-panel-header">
-              <h2>Coach focus for your next shift</h2>
-              <span>Based on your weakest category: {CATEGORY_LABELS[weakestCategory]}</span>
-            </div>
-            <ul className="sbe-command-list">
-              {COACH_COMMANDS.map((cmd) => (
-                <li key={cmd}>
-                  <span className="sbe-command-arrow">→</span>
-                  {cmd}
-                </li>
-              ))}
-            </ul>
+      {/* ── Band 4: Performance Analytics ───────────────────── */}
+      <div className="progress-analytics">
+        <h2 className="progress-analytics-title">Performance Analytics</h2>
+        <p className="progress-analytics-sub">
+          Visual breakdown of your training scores and mastery dimensions.
+        </p>
+        <div className="progress-analytics-grid">
+          {/* Chart 1: Bar chart — scores by training area */}
+          <div className="progress-chart-card">
+            <div className="progress-chart-title">AI Scenario Score History</div>
+            <p className="progress-chart-sub">
+              Average scenario scores across your three training areas
+            </p>
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={barChartData} barSize={32}>
+                <XAxis
+                  dataKey="name"
+                  tick={{ fontSize: 11, fill: "#7a9185" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  domain={[0, 100]}
+                  tick={{ fontSize: 11, fill: "#7a9185" }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={28}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: "#fff",
+                    border: "1px solid #e5e1d8",
+                    borderRadius: 8,
+                    fontSize: 12,
+                  }}
+                  formatter={(v) => [`${v ?? 0}/100`, "Score"]}
+                />
+                <Bar dataKey="score" fill="#1f4e37" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
 
-          <div className="progress-panel-block">
-            <div className="progress-panel-header">
-              <h2>Progress highlights</h2>
-              <span>Based on your training so far</span>
-            </div>
-            <ul className="progress-list">
-              {highlights.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
+          {/* Chart 2: Radar — mastery dimensions */}
+          <div className="progress-chart-card">
+            <div className="progress-chart-title">Scenario Evaluation Dimensions</div>
+            <p className="progress-chart-sub">
+              Mastery and score spread across all training dimensions
+            </p>
+            <ResponsiveContainer width="100%" height={180}>
+              <RadarChart data={radarData}>
+                <PolarGrid stroke="#e5e1d8" />
+                <PolarAngleAxis
+                  dataKey="subject"
+                  tick={{ fontSize: 10, fill: "#7a9185" }}
+                />
+                <PolarRadiusAxis
+                  domain={[0, 100]}
+                  tick={{ fontSize: 9, fill: "#b5b0a8" }}
+                  axisLine={false}
+                />
+                <Radar
+                  dataKey="score"
+                  stroke="#1f4e37"
+                  fill="#1f4e37"
+                  fillOpacity={0.22}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
           </div>
-        </section>
+        </div>
       </div>
     </div>
   );
