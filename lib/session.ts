@@ -75,7 +75,7 @@ export type AccessInfo = {
   sponsorManagerId?: string;
 };
 
-const ALL_MODULES = Array.from({ length: 20 }, (_, i) => i + 1);
+const ALL_MODULES = Array.from({ length: 40 }, (_, i) => i + 1);
 
 const TIER_MODULES: Record<Tier, number[]> = {
   free: [],
