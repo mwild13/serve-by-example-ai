@@ -2574,13 +2574,6 @@ ul {
   width: 100%;
 }
 
-@media (min-width: 1024px) {
-  .dashboard-main {
-    max-width: 1400px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-}
 
 .dashboard-plan-card {
   margin-top: 28px;
