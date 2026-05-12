@@ -3086,6 +3086,34 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   margin: 0;
 }
 
+/* 2-column hero grid layout */
+.psh-hero-grid {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+  align-items: stretch;
+}
+.psh-brief-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.psh-brief-col .psh-welcome {
+  margin-bottom: 0;
+}
+.psh-coach-brief {
+  flex: 1;
+  margin-bottom: 0;
+}
+.psh-challenge-col {
+  display: flex;
+  flex-direction: column;
+}
+.psh-challenge-card {
+  flex: 1;
+}
+
 /* Full-width daily challenge hero card */
 .psh-hero-card {
   flex-direction: row !important;
@@ -3422,9 +3450,9 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .psh-welcome { flex-direction: column; gap: 12px; }
-  .psh-hero-card { flex-direction: column !important; padding: 20px !important; }
-  .psh-hero-card .psh-action-body { width: 100%; align-self: auto; }
-  .psh-grid { grid-template-columns: repeat(2, 1fr); }
+  .psh-hero-grid { grid-template-columns: 1fr; }
+  .psh-challenge-card { flex: none; }
+  .psh-coach-brief { flex: none; }
   .psh-module-row { grid-template-columns: 1fr; }
   .psh-mastery-bar { flex-direction: column; text-align: center; }
   .psh-mastery-left { justify-content: center; }

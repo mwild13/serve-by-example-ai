@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
-import { Zap, BarChart2, GlassWater, TrendingUp, Users, Flame, Bot } from "lucide-react";
+import { Zap, GlassWater, TrendingUp, Users, Flame } from "lucide-react";
 
 type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
 type ModuleKey = "bartending" | "sales" | "management";
@@ -102,13 +102,6 @@ const COACH_FOCUS: Record<ModuleKey, string[]> = {
   ],
 };
 
-const QUICK_ACTIONS: { Icon: React.ElementType; title: string; desc: string; time: string; difficulty: string; nav: NavItem }[] = [
-  { Icon: Zap, title: "Module Training", desc: "Jump into a module and verify your knowledge", time: "5m+", difficulty: "Training", nav: "module" },
-  { Icon: Bot, title: "AI Scenarios", desc: "Roleplay high-pressure situations with AI evaluation", time: "15m", difficulty: "Advanced", nav: "scenarios" },
-  { Icon: GlassWater, title: "Cocktail Specs", desc: "Check a recipe or review specs before the rush", time: "5m", difficulty: "Reference", nav: "cocktails" },
-  { Icon: BarChart2, title: "My Progress", desc: "View badges, scores, and training history", time: "—", difficulty: "Review", nav: "progress" },
-];
-
 function getSkillLevel(avgCompletion: number, avgMastery: number): number {
   const combined = avgCompletion * 0.6 + avgMastery * 0.4;
   return Math.min(10, Math.max(1, Math.ceil(combined / 10)));
@@ -118,8 +111,6 @@ function getWeakestModule(data: ProgressData): ModuleKey {
   const keys: ModuleKey[] = ["bartending", "sales", "management"];
   return keys.reduce((w, k) => ((data.mastery[k] ?? 0) < (data.mastery[w] ?? 0) ? k : w));
 }
-
-
 
 function computeStreak(): number {
   try {
@@ -260,93 +251,66 @@ export default function PreShiftHome({
         </div>
       </div>
 
-      {/* ── Welcome header row ── */}
-      <div className="psh-welcome">
-        <div>
-          <span className="eyebrow">Pre-shift brief</span>
-          <h1>Welcome back, {displayName}</h1>
-          <p>
-            {!loaded
-              ? "Preparing your training brief..."
-              : totalSessions === 0
-              ? "Start your first training session to build your service skills."
-              : `You've completed ${totalSessions} session${totalSessions !== 1 ? "s" : ""}. ${
-                  data.reviewDue > 0
-                    ? `${data.reviewDue} review${data.reviewDue !== 1 ? "s" : ""} due for spaced repetition.`
-                    : "Keep pushing your weakest area."
-                }`}
-          </p>
-        </div>
-        <button
-          className="btn btn-primary psh-warmup-btn"
-          onClick={() => setActiveNav("module")}
-          type="button"
-        >
-          <Zap size={15} />
-          Start Training
-        </button>
-      </div>
-
-      {/* ── Daily Challenge (full width) ── */}
-      <div
-        className="psh-action-card psh-action-card-hero psh-hero-card"
-        onClick={() => setActiveNav(challenge.nav)}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => { if (e.key === "Enter") setActiveNav(challenge.nav); }}
-      >
-        <div className="psh-hero-card-main">
-          <div className="psh-action-header-row">
-            <span className="psh-action-eyebrow">STRENGTHEN YOUR WEAKNESS</span>
-            <span className="psh-daily-badge">DAILY CHALLENGE</span>
-          </div>
-          <strong className="psh-challenge-title">{challenge.title}</strong>
-          <p className="psh-challenge-desc">{challenge.desc}</p>
-          <span className="psh-action-cta">Start Daily Challenge →</span>
-        </div>
-        <div className="psh-action-body">
-          <WeakestIcon size={18} style={{ flexShrink: 0, color: "var(--gold-warm, #d4a853)" }} />
-          <div>
-            <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#fff" }}>{MODULE_META[weakest].label}</span>
-            <p style={{ margin: 0, fontSize: "0.78rem" }}>{weakestMastery >= 80 ? "Mastered" : weakestMastery > 0 ? `${weakestMastery}% mastered · keep going` : "Not started yet"}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Quick Actions Grid ── */}
-      <div className="psh-grid">
-        {QUICK_ACTIONS.map(({ Icon, title, desc, time, difficulty, nav }) => (
-          <button
-            key={nav}
-            className="psh-tile"
-            onClick={() => setActiveNav(nav)}
-            type="button"
-          >
-            <span className="psh-tile-icon"><Icon size={18} /></span>
-            <strong>{title}</strong>
-            <p>{desc}</p>
-            <div className="psh-tile-meta">
-              <span className="psh-tile-badge">{time}</span>
-              <span className="psh-tile-badge">{difficulty}</span>
+      {/* ── Hero Grid: Pre-Shift Brief (left) + Daily Challenge (right) ── */}
+      <div className="psh-hero-grid">
+        <div className="psh-brief-col">
+          <div className="psh-welcome">
+            <div>
+              <span className="eyebrow">Pre-shift brief</span>
+              <h1>Welcome back, {displayName}</h1>
+              <p>
+                {!loaded
+                  ? "Preparing your training brief..."
+                  : totalSessions === 0
+                  ? "Start your first training session to build your service skills."
+                  : `You've completed ${totalSessions} session${totalSessions !== 1 ? "s" : ""}. ${
+                      data.reviewDue > 0
+                        ? `${data.reviewDue} review${data.reviewDue !== 1 ? "s" : ""} due for spaced repetition.`
+                        : "Keep pushing your weakest area."
+                    }`}
+              </p>
             </div>
-          </button>
-        ))}
-      </div>
-
-      {/* ── Coach Focus ── */}
-      <div className="psh-coach">
-        <div className="psh-coach-header">
-          <h2>Focus for today</h2>
-          <span>Based on your weakest area: {MODULE_META[weakest].short}</span>
+          </div>
+          <div className="psh-coach psh-coach-brief">
+            <div className="psh-coach-header">
+              <h2>Focus for today</h2>
+              <span>Based on your weakest area: {MODULE_META[weakest].short}</span>
+            </div>
+            <ul className="psh-coach-list">
+              {coachTips.map((tip) => (
+                <li key={tip}>
+                  <span className="psh-coach-arrow">→</span>
+                  {tip}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-        <ul className="psh-coach-list">
-          {coachTips.map((tip) => (
-            <li key={tip}>
-              <span className="psh-coach-arrow">→</span>
-              {tip}
-            </li>
-          ))}
-        </ul>
+
+        <div className="psh-challenge-col">
+          <div
+            className="psh-action-card psh-action-card-hero psh-challenge-card"
+            onClick={() => setActiveNav(challenge.nav)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === "Enter") setActiveNav(challenge.nav); }}
+          >
+            <div className="psh-action-header-row">
+              <span className="psh-action-eyebrow">STRENGTHEN YOUR WEAKNESS</span>
+              <span className="psh-daily-badge">DAILY CHALLENGE</span>
+            </div>
+            <strong className="psh-challenge-title">{challenge.title}</strong>
+            <p className="psh-challenge-desc">{challenge.desc}</p>
+            <span className="psh-action-cta">Start Daily Challenge →</span>
+            <div className="psh-action-body">
+              <WeakestIcon size={18} style={{ flexShrink: 0, color: "var(--gold-warm, #d4a853)" }} />
+              <div>
+                <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#fff" }}>{MODULE_META[weakest].label}</span>
+                <p style={{ margin: 0, fontSize: "0.78rem" }}>{weakestMastery >= 80 ? "Mastered" : weakestMastery > 0 ? `${weakestMastery}% mastered · keep going` : "Not started yet"}</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* ── Modules ── */}
