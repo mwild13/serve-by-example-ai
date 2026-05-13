@@ -151,7 +151,7 @@ export default function DemoPage() {
     setResult(null);
 
     try {
-      const res = await fetch("/api/evaluate", {
+      const res = await fetch("/api/demo/evaluate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ scenario: activeScenario.prompt, userResponse: response }),
