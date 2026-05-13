@@ -5,7 +5,7 @@ import Image from "next/image";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import {
   Flame, Play, Sparkles, X, Home,
-  BookOpen, GlassWater, BarChart2, Target, Cpu, Mic, Library,
+  BookOpen, GlassWater, Target, Cpu, Mic, Library, User,
 } from "lucide-react";
 
 type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
@@ -272,11 +272,11 @@ function AICoachSheet({ onClose }: { onClose: () => void }) {
 
 // ── Bottom nav (dark) ──────────────────────────────────────────
 const NAV_TABS = [
-  { id: "home",       label: "Home",    Icon: Home       },
-  { id: "module",     label: "Modules", Icon: BookOpen   },
-  { id: "scenarios",  label: "Arena",   Icon: Target     },
-  { id: "cocktails",  label: "Library", Icon: GlassWater },
-  { id: "progress",   label: "Me",      Icon: BarChart2  },
+  { id: "home",      label: "Home",      Icon: Home     },
+  { id: "module",    label: "Modules",   Icon: BookOpen },
+  { id: "stage4",    label: "Scenarios", Icon: Target   },
+  { id: "scenarios", label: "AI Arena",  Icon: Cpu      },
+  { id: "progress",  label: "Me",        Icon: User     },
 ] as const;
 
 function BottomNav({ onNavigate }: { onNavigate: (id: NavItem) => void }) {
@@ -371,6 +371,13 @@ export default function MobileDashboardV3({
   }, []);
 
   const totalSessions = data.sessions.bartending + data.sessions.sales + data.sessions.management;
+  const lastSessionText = (() => {
+    if (!data.lastAttemptAt) return null;
+    const days = Math.floor((Date.now() - new Date(data.lastAttemptAt).getTime()) / 86400000);
+    if (days === 0) return "Today";
+    if (days === 1) return "Yesterday";
+    return `${days}d ago`;
+  })();
 
   function navigate(id: NavItem) {
     if (id === "home") return; // already here
@@ -441,120 +448,106 @@ export default function MobileDashboardV3({
         WebkitOverflowScrolling: "touch",
       }}>
 
-        {/* Section: Welcome + Warm-Up CTA */}
+        {/* Resume Learning hero */}
         <div style={{ padding: "22px 18px 18px" }}>
           <div style={{
-            display: "inline-block",
-            fontFamily: MONO, fontSize: 9, fontWeight: 600,
-            letterSpacing: "0.1em", textTransform: "uppercase",
-            color: C.inkMute,
-            border: `1px solid ${C.cardEdge}`,
-            padding: "2px 7px", borderRadius: 2,
-            marginBottom: 12,
+            background: C.green, borderRadius: 6,
+            padding: "20px 18px",
+            display: "flex", flexDirection: "column", gap: 10,
           }}>
-            PRE-SHIFT BRIEF
+            <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", color: "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>
+              Resume Learning
+            </div>
+            <div style={{ fontSize: 21, fontWeight: 700, color: C.parchment, letterSpacing: "-0.02em", lineHeight: 1.1 }}>
+              {totalSessions === 0
+                ? `Welcome, ${displayName}`
+                : `${totalSessions} session${totalSessions !== 1 ? "s" : ""} completed`}
+            </div>
+            <div>
+              <div style={{ height: 3, background: "rgba(255,255,255,0.15)", borderRadius: 2, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${Math.min((totalSessions / 40) * 100, 100)}%`, background: C.amber, borderRadius: 2 }} />
+              </div>
+              <div style={{ marginTop: 5, fontSize: 11, color: "rgba(255,255,255,0.5)", fontFamily: MONO }}>
+                {lastSessionText ? `Last trained ${lastSessionText}` : "No sessions yet"}
+                {data.reviewDue > 0 && ` · ${data.reviewDue} review${data.reviewDue !== 1 ? "s" : ""} due`}
+              </div>
+            </div>
+            <button
+              onClick={() => setActiveNav("module")}
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                width: "100%", height: 44, marginTop: 2,
+                background: C.parchment, color: C.green,
+                border: "none", borderRadius: 3,
+                fontFamily: SANS, fontSize: 14, fontWeight: 700,
+                letterSpacing: "0.01em", cursor: "pointer",
+              }}
+            >
+              <Play size={13} />
+              Continue Training
+            </button>
           </div>
-          <h1 style={{
-            fontSize: 26, fontWeight: 700, lineHeight: 1.1,
-            letterSpacing: "-0.02em", margin: "0 0 6px",
-            color: C.ink,
-          }}>
-            Welcome back, {displayName}
-          </h1>
-          <p style={{ margin: "0 0 16px", color: C.inkMute, fontSize: 14, lineHeight: 1.45 }}>
-            {totalSessions === 0
-              ? "Start your first training session to build your service skills."
-              : `${totalSessions} session${totalSessions !== 1 ? "s" : ""} completed.${data.reviewDue > 0 ? ` ${data.reviewDue} review${data.reviewDue !== 1 ? "s" : ""} due.` : " Keep pushing your weakest area."}`}
-          </p>
-          <button
-            onClick={() => setActiveNav("rapid-fire")}
-            style={{
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-              width: "100%", height: 44,
-              background: C.green, color: C.parchment,
-              border: "none", borderRadius: 3,
-              fontFamily: SANS, fontSize: 14, fontWeight: 600,
-              letterSpacing: "0.01em", cursor: "pointer",
-            }}
-          >
-            <Play size={13} />
-            Start Pre-Shift Warm-Up
-          </button>
         </div>
 
-        {/* Hairline */}
-        <div style={{ height: 1, background: C.cardEdge, margin: "0 18px" }} />
-
-        {/* Section: Training cards */}
-        <div style={{ padding: "16px 18px 0" }}>
+        {/* Resources */}
+        <div style={{ padding: "4px 18px 28px" }}>
           <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: "0.12em", color: C.inkMute, textTransform: "uppercase", marginBottom: 12 }}>
-            TRAINING
+            Resources
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {([
-              { Icon: BookOpen, nav: "module"    as NavItem, title: "Modules",          body: "AI-powered mastery training across 40 hospitality topics." },
-              { Icon: Target,   nav: "stage4"    as NavItem, title: "Scenario Training", body: "Practice real service situations with instant AI scoring and coaching." },
-              { Icon: Cpu,      nav: "scenarios" as NavItem, title: "AI Scenarios",      body: "Advanced AI-driven simulations for high-pressure hospitality moments." },
-              { Icon: Library,  nav: "knowledge" as NavItem, title: "101 Knowledge",     body: "Your complete hospitality reference library." },
-            ] as { Icon: React.FC; nav: NavItem; title: string; body: string }[]).map(({ Icon, nav, title, body }) => (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
               <button
-                key={nav}
-                onClick={() => setActiveNav(nav)}
+                onClick={() => setActiveNav("cocktails")}
                 style={{
-                  background: C.green,
-                  border: "none",
-                  borderRadius: 4,
-                  padding: "18px 16px",
-                  textAlign: "left",
-                  cursor: "pointer",
-                  display: "flex", flexDirection: "column", gap: 0,
+                  background: C.card, border: `1px solid ${C.cardEdge}`,
+                  borderRadius: 4, padding: "16px 14px",
+                  textAlign: "left", cursor: "pointer",
+                  display: "flex", flexDirection: "column", gap: 6,
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                  <span style={{ color: "rgba(255,255,255,0.7)" }}><Icon /></span>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: C.parchment }}>{title}</div>
-                </div>
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.65)", lineHeight: 1.45 }}>{body}</div>
+                <span style={{ color: C.green }}><GlassWater size={18} /></span>
+                <div style={{ fontSize: 13, fontWeight: 700, color: C.ink, lineHeight: 1.2 }}>Cocktail Library</div>
+                <div style={{ fontSize: 11, color: C.inkMute, lineHeight: 1.4 }}>Quick spec lookups</div>
               </button>
-            ))}
+              <button
+                onClick={() => setActiveNav("knowledge")}
+                style={{
+                  background: C.card, border: `1px solid ${C.cardEdge}`,
+                  borderRadius: 4, padding: "16px 14px",
+                  textAlign: "left", cursor: "pointer",
+                  display: "flex", flexDirection: "column", gap: 6,
+                }}
+              >
+                <span style={{ color: C.green }}><Library size={18} /></span>
+                <div style={{ fontSize: 13, fontWeight: 700, color: C.ink, lineHeight: 1.2 }}>101 Knowledge</div>
+                <div style={{ fontSize: 11, color: C.inkMute, lineHeight: 1.4 }}>Hospitality theory</div>
+              </button>
+            </div>
+            <button
+              onClick={() => setCoach(true)}
+              style={{
+                width: "100%",
+                background: "radial-gradient(ellipse at 30% 40%, #4a86ff 0%, #1f64ff 65%)",
+                boxShadow: "0 0 28px rgba(31, 100, 255, 0.38), 0 4px 16px rgba(31, 100, 255, 0.22)",
+                border: "none", borderRadius: 6,
+                padding: "20px 20px",
+                textAlign: "left", cursor: "pointer",
+                display: "flex", flexDirection: "column", gap: 6,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 2 }}>
+                <div style={{ width: 32, height: 32, background: "rgba(255,255,255,0.18)", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Sparkles size={16} color="#fff" />
+                </div>
+                <div style={{ fontFamily: SANS, fontSize: 17, fontWeight: 700, color: "#fff", letterSpacing: "-0.01em" }}>
+                  AI Coach
+                </div>
+              </div>
+              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.75)", lineHeight: 1.45, fontWeight: 400 }}>
+                Get instant tactical support for your shift
+              </div>
+            </button>
           </div>
-        </div>
-
-        {/* AI Coach hero tile */}
-        <div style={{ padding: "12px 18px 28px" }}>
-          <button
-            onClick={() => setCoach(true)}
-            style={{
-              width: "100%",
-              background: "radial-gradient(ellipse at 30% 40%, #4a86ff 0%, #1f64ff 65%)",
-              boxShadow: "0 0 28px rgba(31, 100, 255, 0.38), 0 4px 16px rgba(31, 100, 255, 0.22)",
-              border: "none",
-              borderRadius: 6,
-              padding: "22px 20px",
-              textAlign: "left",
-              cursor: "pointer",
-              display: "flex",
-              flexDirection: "column",
-              gap: 6,
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 2 }}>
-              <div style={{
-                width: 32, height: 32,
-                background: "rgba(255,255,255,0.18)",
-                borderRadius: 16,
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}>
-                <Sparkles size={16} color="#fff" />
-              </div>
-              <div style={{ fontFamily: SANS, fontSize: 17, fontWeight: 700, color: "#fff", letterSpacing: "-0.01em" }}>
-                AI Coach
-              </div>
-            </div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.75)", lineHeight: 1.45, fontWeight: 400 }}>
-              Get instant tactical support for your shift
-            </div>
-          </button>
         </div>
       </div>
 
