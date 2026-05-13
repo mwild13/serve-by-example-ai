@@ -19,10 +19,12 @@ type QuizContent = {
   option_type?: string;
 };
 
+type AnswerEntry = { id: string; answer: string };
+
 type Props = {
   scenarios: Scenario[];
   moduleId: number;
-  onComplete: (score: number) => void;
+  onComplete: (score: number, answers: AnswerEntry[]) => void;
   initialScore?: number;
 };
 
@@ -45,6 +47,9 @@ export default function RapidFireQuiz({
   const [streakPop, setStreakPop] = useState(false);
   const [buttonFlash, setButtonFlash] = useState<string | null>(null);
   const questionStartRef = useRef(Date.now());
+  // Tracks the answer entries in the current consecutive-correct streak.
+  // Using a ref avoids stale-closure issues in nextQuestion's useCallback.
+  const streakAnswersRef = useRef<AnswerEntry[]>([]);
 
   // Pre-generate 3 shuffled rounds at mount so questions never repeat within a session.
   // Stage 1 needs at most ~30 questions (5 consecutive; realistic worst case ~20 with bad luck).
@@ -93,6 +98,10 @@ export default function RapidFireQuiz({
       if (correct) {
         const newStreak = consecutiveCorrect + 1;
         setConsecutiveCorrect(newStreak);
+        streakAnswersRef.current = [
+          ...streakAnswersRef.current,
+          { id: currentScenario.id, answer: userAnswer },
+        ].slice(-CONSECUTIVE_REQUIRED);
         if (elapsed <= SPEED_BONUS_MS) setSpeedBonus(true);
 
         if (newStreak >= 3 && (newStreak % 2 === 1 || newStreak >= CONSECUTIVE_REQUIRED)) {
@@ -105,6 +114,7 @@ export default function RapidFireQuiz({
         }
       } else {
         setConsecutiveCorrect(0);
+        streakAnswersRef.current = [];
       }
 
       setTimeout(() => setButtonFlash(null), 400);
@@ -114,7 +124,7 @@ export default function RapidFireQuiz({
 
   const nextQuestion = useCallback(() => {
     if (completed) {
-      onComplete(consecutiveCorrect);
+      onComplete(consecutiveCorrect, streakAnswersRef.current);
       return;
     }
     const len = questionPoolRef.current.length;

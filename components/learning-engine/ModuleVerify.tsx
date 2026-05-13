@@ -90,7 +90,7 @@ export default function ModuleVerify({ moduleId, userId, onArena, onComplete, ne
     setStatus("ready");
   }, [moduleId]);
 
-  async function handleQuizComplete(score: number) {
+  async function handleQuizComplete(score: number, answers: Array<{id: string; answer: string}>) {
     if (score < PASS_THRESHOLD) {
       setStatus("retry");
       return;
@@ -118,6 +118,7 @@ export default function ModuleVerify({ moduleId, userId, onArena, onComplete, ne
           userId,
           verifyPassed: true,
           consecutiveCorrect: score,
+          answers,
         }),
       });
 

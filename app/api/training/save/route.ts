@@ -3,6 +3,9 @@ import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { recordAttempt, syncMasteryToVenueStaff, markModuleMastered, moduleIdToString, SCENARIO_COUNTS, type ConfidenceLevel } from "@/lib/mastery";
 import { resolveAccess, validateSession } from "@/lib/session";
+import { VERIFY_QUESTIONS } from "@/lib/verify-questions";
+
+const VERIFY_PASS_THRESHOLD = 4; // must match ModuleVerify PASS_THRESHOLD
 
 // Legacy 3-module string names (backward compat)
 const LEGACY_MODULES = ["bartending", "sales", "management"] as const;
@@ -92,15 +95,30 @@ export async function POST(req: Request) {
       );
 
     // ── V3 Verify pass branch ─────────────────────────────────
-    // ModuleVerify posts { verifyPassed: true, consecutiveCorrect }.
-    // Skip the legacy stage tracking entirely and write the binary
-    // is_mastered flag, then sync the manager dashboard cache.
+    // ModuleVerify posts { verifyPassed: true, answers: [{id, answer}] }.
+    // Validate submitted answers server-side against the static question bank
+    // before writing is_mastered — never trust the client's score directly.
     if (verifyPassed && moduleId) {
-      const consecutiveCorrect = Math.max(0, Math.min(5, Number(body.consecutiveCorrect ?? 5)));
+      const questions = VERIFY_QUESTIONS[moduleId];
+      const rawAnswers: unknown[] = Array.isArray(body.answers) ? body.answers : [];
+
+      const validatedCount = !questions ? 0 : rawAnswers.reduce((count: number, entry: unknown) => {
+        if (!entry || typeof entry !== "object") return count;
+        const e = entry as Partial<{ id: string; answer: string }>;
+        if (typeof e.id !== "string" || typeof e.answer !== "string") return count;
+        const idx = parseInt(e.id.split("-").pop() ?? "", 10);
+        if (isNaN(idx) || idx < 0 || idx >= questions.length) return count;
+        return questions[idx].answer.toLowerCase() === e.answer.toLowerCase() ? count + 1 : count;
+      }, 0);
+
+      if (validatedCount < VERIFY_PASS_THRESHOLD) {
+        return NextResponse.json({ error: "Quiz not passed.", code: "QUIZ_NOT_PASSED" }, { status: 403 });
+      }
+
       const result = await markModuleMastered(admin, {
         userId: user.id,
         moduleId,
-        consecutiveCorrect,
+        consecutiveCorrect: validatedCount,
       });
       if (user.email) {
         await syncMasteryToVenueStaff(admin, user.id, user.email);

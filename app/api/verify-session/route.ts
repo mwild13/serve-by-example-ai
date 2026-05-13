@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { getUserFromRequest } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,11 @@ function getStripeClient() {
 }
 
 export async function GET(req: Request) {
+  const { user } = await getUserFromRequest(req);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
   const { searchParams } = new URL(req.url);
   const sessionId = searchParams.get("session_id");
 
@@ -24,6 +30,11 @@ export async function GET(req: Request) {
 
     if (session.payment_status !== "paid") {
       return NextResponse.json({ verified: false, error: "Payment not complete." }, { status: 402 });
+    }
+
+    const sessionEmail = session.customer_details?.email?.toLowerCase();
+    if (sessionEmail && user.email?.toLowerCase() !== sessionEmail) {
+      return NextResponse.json({ error: "Forbidden." }, { status: 403 });
     }
 
     return NextResponse.json({
