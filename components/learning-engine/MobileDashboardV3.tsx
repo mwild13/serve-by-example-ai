@@ -5,7 +5,7 @@ import Image from "next/image";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import {
   Flame, Play, ArrowRight, Sparkles, X, Home,
-  BookOpen, Zap, GlassWater, BarChart2, Target, Cpu, Mic,
+  BookOpen, Zap, GlassWater, BarChart2, Target, Cpu, Mic, Library,
 } from "lucide-react";
 
 type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
@@ -506,81 +506,6 @@ export default function MobileDashboardV3({
         {/* Hairline */}
         <div style={{ height: 1, background: C.cardEdge, margin: "0 18px" }} />
 
-        {/* Section: Strengthen Your Weakness */}
-        <div style={{ padding: "16px 18px" }}>
-          <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: "0.12em", color: C.inkMute, textTransform: "uppercase", marginBottom: 10 }}>
-            STRENGTHEN YOUR WEAKNESS
-          </div>
-          <div style={{
-            background: C.card,
-            border: `1px solid ${C.cardEdge}`,
-            borderRadius: 4,
-            padding: "14px 16px",
-          }}>
-            <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 3, color: C.ink }}>{weakestLabel}</div>
-            <div style={{ fontSize: 11, color: C.inkMute, fontFamily: MONO, marginBottom: 10, letterSpacing: "0.06em" }}>
-              {weakestMastery >= 80 ? "MASTERED" : weakestMastery > 0 ? `${weakestMastery}% MASTERED · IN PROGRESS` : "NOT STARTED YET"}
-            </div>
-            <div style={{ height: 4, background: C.parchmentDeep, borderRadius: 1, marginBottom: 12 }}>
-              <div style={{ height: "100%", width: `${Math.max(weakestMastery, 2)}%`, background: C.green, borderRadius: 1 }} />
-            </div>
-            <button
-              onClick={() => setActiveNav("module")}
-              style={{
-                background: "none", border: "none", padding: 0,
-                color: C.green, fontFamily: SANS, fontSize: 13, fontWeight: 600,
-                cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
-              }}
-            >
-              {getMasteryLabel(weakestMastery)}
-              <ArrowRight size={13} />
-            </button>
-          </div>
-        </div>
-
-        {/* Hairline */}
-        <div style={{ height: 1, background: C.cardEdge, margin: "0 18px" }} />
-
-        {/* Section: Quick Access 2×2 grid */}
-        <div style={{ padding: "16px 18px" }}>
-          <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: "0.12em", color: C.inkMute, textTransform: "uppercase", marginBottom: 12 }}>
-            QUICK ACCESS
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            {([
-              { label: "Modules",           sub: "AI-powered mastery training",   Icon: BookOpen, nav: "module"      as NavItem, locked: !isPremium },
-              { label: "Quick Drills",      sub: "60-sec recall quizzes",         Icon: Zap,      nav: "rapid-fire"  as NavItem, locked: !isPremium },
-              { label: "Scenario Training", sub: "AI-scored service situations",  Icon: Target,   nav: "stage4"      as NavItem, locked: !isPremium },
-              { label: "AI Scenarios",      sub: "Adaptive simulations",          Icon: Cpu,      nav: "scenarios"   as NavItem, locked: !isPremium },
-            ] as { label: string; sub: string; Icon: React.FC; nav: NavItem; locked: boolean }[]).map(({ label, sub, Icon, nav, locked }) => (
-              <button
-                key={nav}
-                onClick={() => setActiveNav(nav)}
-                style={{
-                  background: C.card,
-                  border: `1px solid ${C.cardEdge}`,
-                  borderRadius: 4,
-                  padding: "14px 12px",
-                  textAlign: "left",
-                  cursor: "pointer",
-                  display: "flex", flexDirection: "column", gap: 6,
-                  opacity: locked ? 0.55 : 1,
-                }}
-              >
-                <span style={{ color: C.green }}><Icon /></span>
-                <div style={{ fontSize: 13, fontWeight: 600, color: C.ink, lineHeight: 1.2 }}>
-                  {label}
-                  {locked && <span style={{ fontSize: 9, fontFamily: MONO, color: C.inkFaint, display: "block", marginTop: 1 }}>UPGRADE</span>}
-                </div>
-                <div style={{ fontSize: 11, color: C.inkMute, lineHeight: 1.35 }}>{sub}</div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Hairline */}
-        <div style={{ height: 1, background: C.cardEdge, margin: "0 18px" }} />
-
         {/* Section: Training cards */}
         <div style={{ padding: "16px 18px 0" }}>
           <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: "0.12em", color: C.inkMute, textTransform: "uppercase", marginBottom: 12 }}>
@@ -588,8 +513,10 @@ export default function MobileDashboardV3({
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {([
-              { Icon: Target, nav: "stage4"    as NavItem, title: "Scenario Training", body: "Practice real service situations with instant AI scoring and coaching." },
-              { Icon: Cpu,    nav: "scenarios"  as NavItem, title: "AI Scenarios",      body: "Advanced AI-driven simulations for high-pressure hospitality moments." },
+              { Icon: BookOpen, nav: "module"    as NavItem, title: "Modules",          body: "AI-powered mastery training across 40 hospitality topics." },
+              { Icon: Target,   nav: "stage4"    as NavItem, title: "Scenario Training", body: "Practice real service situations with instant AI scoring and coaching." },
+              { Icon: Cpu,      nav: "scenarios" as NavItem, title: "AI Scenarios",      body: "Advanced AI-driven simulations for high-pressure hospitality moments." },
+              { Icon: Library,  nav: "knowledge" as NavItem, title: "101 Knowledge",     body: "Your complete hospitality reference library." },
             ] as { Icon: React.FC; nav: NavItem; title: string; body: string }[]).map(({ Icon, nav, title, body }) => (
               <button
                 key={nav}

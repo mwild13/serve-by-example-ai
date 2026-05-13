@@ -11302,12 +11302,9 @@ body {
   margin: 0;
 }
 
-/* ── Quiz mobile overrides — everything fits inside the question card, no page scroll ── */
+/* ── Quiz mobile overrides ── */
 @media (max-width: 720px) {
   .quiz-container {
-    display: flex;
-    flex-direction: column;
-    min-height: calc(100dvh - 72px); /* 72px = bottom nav */
     padding: 10px 14px 14px;
   }
   .quiz-progress {
@@ -11319,14 +11316,11 @@ body {
   .quiz-streak-number {
     font-size: 1.4rem;
   }
-  /* Card fills remaining height; scrolls internally if explanation is very long */
   .quiz-question-card {
-    flex: 1;
     display: flex;
     flex-direction: column;
     padding: 14px;
     margin-bottom: 0;
-    overflow-y: auto;
   }
   .quiz-question-text {
     font-size: 1rem;
