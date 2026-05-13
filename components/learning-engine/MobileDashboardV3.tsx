@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import {
-  Flame, Play, ArrowRight, Sparkles, X, Home,
-  BookOpen, Zap, GlassWater, BarChart2, Target, Cpu, Mic, Library,
+  Flame, Play, Sparkles, X, Home,
+  BookOpen, GlassWater, BarChart2, Target, Cpu, Mic, Library,
 } from "lucide-react";
 
 type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
@@ -45,12 +45,6 @@ const EMPTY: ProgressData = {
   lastAttemptAt: null,
 };
 
-const MODULE_LABELS: Record<ModuleKey, string> = {
-  bartending: "Bartending Fundamentals",
-  sales: "Sales & Upselling",
-  management: "Shift Leadership",
-};
-
 // ── Design tokens — reference CSS vars from globals.css :root ──
 const C = {
   green:        "var(--ip-green)",
@@ -72,17 +66,6 @@ const MONO = 'ui-monospace, "SF Mono", Menlo, monospace';
 const SANS = '"Geist", ui-sans-serif, system-ui, -apple-system, sans-serif';
 
 // ── Helpers ────────────────────────────────────────────────────
-function getWeakest(data: ProgressData): ModuleKey {
-  const keys: ModuleKey[] = ["bartending", "sales", "management"];
-  return keys.reduce((w, k) => (data.modules[k] < data.modules[w] ? k : w));
-}
-
-function getMasteryLabel(mastery: number): string {
-  if (mastery >= 80) return "Keep it sharp";
-  if (mastery > 0) return "Continue training";
-  return "Start training";
-}
-
 function computeStreak(userId: string): number {
   try {
     const today = new Date().toISOString().slice(0, 10);
@@ -343,7 +326,7 @@ function BottomNav({ onNavigate }: { onNavigate: (id: NavItem) => void }) {
 export default function MobileDashboardV3({
   displayName,
   setActiveNav,
-  plan,
+  plan: _plan,
 }: {
   displayName: string;
   setActiveNav: (nav: NavItem) => void;
@@ -388,10 +371,6 @@ export default function MobileDashboardV3({
   }, []);
 
   const totalSessions = data.sessions.bartending + data.sessions.sales + data.sessions.management;
-  const weakest = getWeakest(data);
-  const weakestLabel = MODULE_LABELS[weakest];
-  const weakestMastery = Math.round(data.mastery[weakest] ?? 0);
-  const isPremium = plan !== "free";
 
   function navigate(id: NavItem) {
     if (id === "home") return; // already here
