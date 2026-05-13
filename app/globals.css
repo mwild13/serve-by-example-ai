@@ -126,7 +126,7 @@ ul {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .page-shell > main {
@@ -2512,7 +2512,7 @@ ul {
   width: 100%;
   min-height: 100dvh;
   background: var(--bg);
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .dashboard-sidebar {
