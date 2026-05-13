@@ -384,6 +384,12 @@ export default function MobileDashboardV3({
     setActiveNav(id);
   }
 
+  async function handleSignOut() {
+    const supabase = createSupabaseBrowserClient();
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  }
+
   return (
     <div style={{
       width: "100%", height: "100%",
@@ -549,6 +555,29 @@ export default function MobileDashboardV3({
             </button>
           </div>
         </div>
+      </div>
+
+      {/* ── Sign out pill ── */}
+      <div style={{ padding: "8px 18px 0", flexShrink: 0 }}>
+        <button
+          onClick={handleSignOut}
+          style={{
+            width: "100%",
+            background: "transparent",
+            border: "1px solid rgba(255,255,255,0.15)",
+            borderRadius: 100,
+            color: "rgba(255,255,255,0.35)",
+            fontFamily: MONO,
+            fontSize: 10,
+            fontWeight: 600,
+            letterSpacing: "0.1em",
+            padding: "9px 0",
+            cursor: "pointer",
+            textTransform: "uppercase",
+          }}
+        >
+          Sign out
+        </button>
       </div>
 
       {/* ── Bottom nav ── */}

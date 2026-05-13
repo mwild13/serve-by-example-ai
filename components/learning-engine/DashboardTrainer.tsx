@@ -689,12 +689,12 @@ export default function DashboardTrainer({
       {!activeModule && (
         <div className="sbe-command-bar">
           <div className="sbe-command-text">
-            <span className="sbe-command-eyebrow">Recommended for you</span>
-            <strong>Continue Bartending Training</strong>
-            <span className="sbe-command-meta">⏱ ~6 min &nbsp;&nbsp; ⭐ +1 streak &nbsp;&nbsp; Next: Guest acknowledgement</span>
+            <span className="sbe-command-eyebrow">Scenario Training</span>
+            <strong>Practice real hospitality situations</strong>
+            <span className="sbe-command-meta">AI-scored roleplay across Bartending, Service &amp; Management</span>
           </div>
           <button className="btn btn-primary sbe-command-btn" onClick={() => selectModule("bartending")}>
-            Continue training →
+            Start training →
           </button>
         </div>
       )}

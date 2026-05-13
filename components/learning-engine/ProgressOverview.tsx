@@ -237,6 +237,15 @@ export default function ProgressOverview({
 
   return (
     <div className="progress-overview">
+      {/* ── Page banner ──────────────────────────────────────── */}
+      <div className="sbe-command-bar sbe-command-bar-active" style={{ marginBottom: "1.75rem" }}>
+        <div className="sbe-command-text">
+          <span className="sbe-command-eyebrow">Me</span>
+          <strong>Your Training Progress</strong>
+          <span className="sbe-command-meta">Track mastery, scores and certifications across all 40 modules</span>
+        </div>
+      </div>
+
       {/* ── Band 1: Hero & Performance Grid ─────────────────── */}
       <div className="progress-hub-header">
         <span className="eyebrow">How I&rsquo;m improving</span>

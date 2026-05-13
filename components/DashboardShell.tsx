@@ -722,9 +722,6 @@ export default function DashboardShell({
           <ComingSoon label={NAV_ITEMS.find((n) => n.id === activeNav)?.label ?? activeNav} />
         )}
 
-        <div className="dashboard-mobile-footer-actions">
-          <SignOutButton />
-        </div>
       </section>
 
       {/* Persistent mobile bottom nav — sits at z-index 45, below V3 home overlay (50) */}
