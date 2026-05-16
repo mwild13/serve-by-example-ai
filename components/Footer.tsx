@@ -13,53 +13,46 @@ export default function Footer() {
             </span>
             <div className="footer-brand-name">Serve By Example</div>
           </div>
+          <p>AI-powered training for hospitality teams.</p>
         </div>
+
         <div className="footer-col">
           <h4>Product</h4>
           <ul>
-            <li>
-              <Link href="/platform">AI Platform</Link>
-            </li>
-            <li>
-              <Link href="/pricing">Pricing</Link>
-            </li>
-            <li>
-              <Link href="/demo">Demo</Link>
-            </li>
+            <li><Link href="/platform#arena">AI Arena</Link></li>
+            <li><Link href="/platform">Scenario Builder</Link></li>
+            <li><Link href="/platform#insights">Manager Portals</Link></li>
+            <li><Link href="/security">Security &amp; Safety</Link></li>
           </ul>
         </div>
+
+        <div className="footer-col">
+          <h4>Solutions</h4>
+          <ul>
+            <li><Link href="/solutions#pub-groups">Pub Groups</Link></li>
+            <li><Link href="/solutions#fine-dining">Fine Dining &amp; Bars</Link></li>
+            <li><Link href="/solutions#fine-dining">Hotels &amp; Resorts</Link></li>
+            <li><Link href="/solutions#franchises">Franchise Systems</Link></li>
+          </ul>
+        </div>
+
+        <div className="footer-col">
+          <h4>Resources</h4>
+          <ul>
+            <li><Link href="/case-studies">Case Studies</Link></li>
+            <li><Link href="/roi">ROI Calculator</Link></li>
+            <li><Link href="/contact">Help Center</Link></li>
+            <li><Link href="/contact">SOP Blog</Link></li>
+          </ul>
+        </div>
+
         <div className="footer-col">
           <h4>Company</h4>
           <ul>
-            <li>
-              <Link href="/about">About</Link>
-            </li>
-            <li>
-              <Link href="/how-it-works">How It Works</Link>
-            </li>
-            <li>
-              <Link href="/for-venues">For Venues</Link>
-            </li>
-            <li>
-              <Link href="/contact">Contact</Link>
-            </li>
-            <li>
-              <Link href="/login">Sign Up</Link>
-            </li>
-          </ul>
-        </div>
-        <div className="footer-col">
-          <h4>Legal</h4>
-          <ul>
-            <li>
-              <Link href="/privacy">Privacy</Link>
-            </li>
-            <li>
-              <Link href="/terms">Terms</Link>
-            </li>
-            <li>
-              <Link href="/cookies">Cookies</Link>
-            </li>
+            <li><Link href="/about">About</Link></li>
+            <li><Link href="/contact">Contact</Link></li>
+            <li><Link href="/contact">Careers</Link></li>
+            <li><Link href="/privacy">Privacy</Link></li>
           </ul>
         </div>
       </div>

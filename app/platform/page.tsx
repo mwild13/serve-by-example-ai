@@ -197,7 +197,7 @@ export default function PlatformPage() {
         </section>
 
         {/* ── Dashboard Preview ── */}
-        <section className="section">
+        <section id="insights" className="section">
           <div className="container">
             <div className="section-header center">
               <span className="eyebrow">Management console</span>
@@ -245,7 +245,7 @@ export default function PlatformPage() {
         </section>
 
         {/* ── Feature Grid ── */}
-        <section className="section section-alt">
+        <section id="arena" className="section section-alt">
           <div className="container">
             <div className="section-header center">
               <span className="eyebrow">What&rsquo;s inside</span>
