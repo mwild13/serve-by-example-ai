@@ -574,10 +574,6 @@ export default function DashboardShell({
           <span style={{ fontSize: "18px", fontWeight: 700, color: "#fff", whiteSpace: "nowrap" }}>Serve By Example</span>
         </div>
 
-        <div style={{ marginBottom: 12, color: "#fff", fontSize: "0.93rem", fontWeight: 500 }}>
-          Welcome back, {displayName}
-        </div>
-
         <div className="mockup-nav">
           {NAV_ITEMS.map((item) => (
             <div

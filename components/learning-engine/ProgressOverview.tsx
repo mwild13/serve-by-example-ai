@@ -174,8 +174,6 @@ export default function ProgressOverview({
     }),
   );
 
-  const certifiedCategories = categoryCerts.filter((c) => c.certified).length;
-
   const weakestCategory = (["technical", "service", "compliance"] as const).reduce(
     (weakest, cat) => {
       const wLen = categoryGroups[weakest].length;
@@ -290,19 +288,16 @@ export default function ProgressOverview({
             <p className="progress-hub-stat-sub">best single module average</p>
           </div>
 
-          {/* 3. Technical Focus */}
+          {/* 3. Focus Area */}
           <div className="progress-hub-stat-card">
-            <span className="progress-hub-stat-label">Technical Focus</span>
+            <span className="progress-hub-stat-label">Focus Area</span>
             <span
               className="progress-hub-stat-value"
               style={{ fontSize: "1.05rem" }}
             >
               {CATEGORY_LABELS[weakestCategory]}
             </span>
-            <p className="progress-hub-stat-sub">
-              {categoryGroups[weakestCategory].filter((m) => m.mastered).length}/
-              {categoryGroups[weakestCategory].length} modules mastered
-            </p>
+            <p className="progress-hub-stat-sub">weakest category · priority training</p>
           </div>
 
           {/* 4. Sessions Completed */}
@@ -331,13 +326,13 @@ export default function ProgressOverview({
             <p className="progress-hub-stat-sub">{data.badgesEarned}/3 earned</p>
           </div>
 
-          {/* 6. Categories Certified */}
+          {/* 6. Current Standing */}
           <div className="progress-hub-stat-card">
-            <span className="progress-hub-stat-label">Categories Certified</span>
+            <span className="progress-hub-stat-label">Current Standing</span>
             <span className="progress-hub-stat-value">
-              {certifiedCategories}/3
+              Level {skillLevel}
             </span>
-            <p className="progress-hub-stat-sub">Technical, Service, Compliance</p>
+            <p className="progress-hub-stat-sub">of 10 · {skillLevel <= 3 ? "Apprentice" : skillLevel <= 6 ? "Specialist" : skillLevel <= 9 ? "Expert" : "Master"}</p>
           </div>
         </div>
 

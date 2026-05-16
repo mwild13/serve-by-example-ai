@@ -192,8 +192,8 @@ export default function Home() {
                   <Link href="/demo" className="btn btn-primary btn-lg">
                     Try the Demo
                   </Link>
-                  <Link href="/how-it-works" className="btn btn-secondary btn-lg">
-                    How It Works
+                  <Link href="/how-it-works" className="hero-secondary-link">
+                    How it works →
                   </Link>
                 </div>
               </div>
