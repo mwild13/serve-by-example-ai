@@ -182,13 +182,13 @@ export default function Navbar({
             </div>
 
             <Link href="/pricing">Pricing</Link>
-            <Link href="/demo">Demo</Link>
+            <Link href="/demo" className="nav-demo-btn">Try the Demo</Link>
           </nav>
 
           <div className="nav-right">
             {authEmail ? (
               <Link href="/dashboard" className="nav-logged-in" title={authEmail}>
-                Logged in
+                Go to Dashboard →
               </Link>
             ) : showActions ? (
               <div className="nav-actions">
