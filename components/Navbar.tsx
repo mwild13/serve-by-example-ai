@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronDown } from "lucide-react";
@@ -59,6 +59,20 @@ export default function Navbar({
   const [mobileExpanded, setMobileExpanded] = useState<"platform" | "solutions" | null>(null);
   const [authEmail, setAuthEmail] = useState<string | null>(null);
   const headerRef = useRef<HTMLElement>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const openDropdown = useCallback((menu: "platform" | "solutions") => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    setOpenMenu(menu);
+  }, []);
+
+  const scheduleClose = useCallback(() => {
+    closeTimerRef.current = setTimeout(() => setOpenMenu(null), 150);
+  }, []);
+
+  const cancelClose = useCallback(() => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+  }, []);
 
   const close = () => {
     setMenuOpen(false);
@@ -83,7 +97,10 @@ export default function Navbar({
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    };
   }, []);
 
   return (
@@ -102,8 +119,8 @@ export default function Navbar({
             {/* Platform dropdown */}
             <div
               className="nav-item-wrapper"
-              onMouseEnter={() => setOpenMenu("platform")}
-              onMouseLeave={() => setOpenMenu(null)}
+              onMouseEnter={() => openDropdown("platform")}
+              onMouseLeave={scheduleClose}
             >
               <button
                 className={`nav-dropdown-trigger${openMenu === "platform" ? " active" : ""}`}
@@ -114,7 +131,7 @@ export default function Navbar({
                 <ChevronDown className="nav-chevron" size={14} strokeWidth={2.5} />
               </button>
               {openMenu === "platform" && (
-                <div className="mega-menu">
+                <div className="mega-menu" onMouseEnter={cancelClose} onMouseLeave={scheduleClose}>
                   {platformLinks.map((item) => (
                     <Link
                       key={item.title}
@@ -136,8 +153,8 @@ export default function Navbar({
             {/* Solutions dropdown */}
             <div
               className="nav-item-wrapper"
-              onMouseEnter={() => setOpenMenu("solutions")}
-              onMouseLeave={() => setOpenMenu(null)}
+              onMouseEnter={() => openDropdown("solutions")}
+              onMouseLeave={scheduleClose}
             >
               <button
                 className={`nav-dropdown-trigger${openMenu === "solutions" ? " active" : ""}`}
@@ -148,7 +165,7 @@ export default function Navbar({
                 <ChevronDown className="nav-chevron" size={14} strokeWidth={2.5} />
               </button>
               {openMenu === "solutions" && (
-                <div className="mega-menu">
+                <div className="mega-menu" onMouseEnter={cancelClose} onMouseLeave={scheduleClose}>
                   {solutionsLinks.map((item) => (
                     <Link
                       key={item.href}
