@@ -2094,9 +2094,29 @@ ul {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding: 14px 0;
   display: flex;
+  align-items: center;
   justify-content: space-between;
   font-size: 0.74rem;
   color: rgba(255, 255, 255, 0.35);
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.footer-legal-links {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.footer-legal-links a {
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.35);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.footer-legal-links a:hover {
+  color: rgba(255, 255, 255, 0.75);
 }
 
 /* ── Responsive ────────────────────────────────── */

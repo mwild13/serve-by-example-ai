@@ -31,8 +31,8 @@ export default function Footer() {
           <ul>
             <li><Link href="/solutions#pub-groups">Pub Groups</Link></li>
             <li><Link href="/solutions#fine-dining">Fine Dining &amp; Bars</Link></li>
-            <li><Link href="/solutions#fine-dining">Hotels &amp; Resorts</Link></li>
             <li><Link href="/solutions#franchises">Franchise Systems</Link></li>
+            <li><Link href="/for-venues">For Venues</Link></li>
           </ul>
         </div>
 
@@ -41,8 +41,8 @@ export default function Footer() {
           <ul>
             <li><Link href="/case-studies">Case Studies</Link></li>
             <li><Link href="/roi">ROI Calculator</Link></li>
-            <li><Link href="/contact">Help Center</Link></li>
-            <li><Link href="/contact">SOP Blog</Link></li>
+            <li><Link href="/how-it-works">How It Works</Link></li>
+            <li><Link href="/for-venues">For Venues</Link></li>
           </ul>
         </div>
 
@@ -59,6 +59,11 @@ export default function Footer() {
       <div className="container footer-bottom">
         <div>&copy; 2026 Serve By Example. All rights reserved.</div>
         <div>Built for bartenders, venue teams and future managers.</div>
+        <div className="footer-legal-links">
+          <Link href="/terms">Terms</Link>
+          <Link href="/cookies">Cookies</Link>
+          <Link href="/privacy">Privacy</Link>
+        </div>
         <LanguageSwitcher variant="footer" mobileOnly />
       </div>
     </footer>
