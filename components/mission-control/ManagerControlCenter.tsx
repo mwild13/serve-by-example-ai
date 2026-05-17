@@ -17,7 +17,6 @@ import {
   Sparkles,
   Settings2,
   CreditCard,
-  Plug,
   LogOut,
 } from "lucide-react";
 import type {
@@ -80,7 +79,6 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: "settings", label: "Settings", icon: Settings2 },
       { id: "billing", label: "Billing", icon: CreditCard },
-      { id: "integrations", label: "Integrations", icon: Plug },
       { id: "sign-out", label: "Sign out", icon: LogOut },
     ],
   },
@@ -106,7 +104,6 @@ const SECTION_META: Record<ManagerSection, { cluster: string; label: string }> =
   predictive: { cluster: "AI Coach", label: "Predictive Insights" },
   settings: { cluster: "Admin", label: "Settings" },
   billing: { cluster: "Admin", label: "Billing" },
-  integrations: { cluster: "Admin", label: "Integrations" },
   "sign-out": { cluster: "Admin", label: "Sign out" },
 };
 
@@ -3365,72 +3362,6 @@ export default function ManagerControlCenter({
                   <dd>Managed via Stripe — check your email for invoices</dd>
                 </div>
               </dl>
-            </article>
-          </section>
-        )}
-
-        {activeSection === "integrations" && (
-          <section className="ops-grid ops-grid-main">
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Integrations</h3>
-                <span className="ops-badge ops-badge-pending">Coming in V2 — Late 2026</span>
-              </div>
-              <p style={{ fontSize: "0.85rem", color: "var(--text-soft)", marginBottom: 20 }}>
-                Serve By Example V2 will connect directly with the tools your venue already uses.
-                All integrations listed below are planned for release in late 2026.
-              </p>
-
-              <div className="ops-integration-group">
-                <span className="ops-integration-group-label">POS &amp; Payments</span>
-                <div className="ops-module-grid">
-                  {[
-                    { name: "Lightspeed", desc: "Sync menu items and sales data" },
-                    { name: "Square", desc: "Payment terminals and reporting" },
-                    { name: "SwiftPOS", desc: "POS data and item libraries" },
-                    { name: "Ordermate", desc: "Order and table management" },
-                    { name: "Zeller", desc: "Payments and business finance" },
-                  ].map((i) => (
-                    <div key={i.name} className="ops-module-card ops-integration-card">
-                      <strong>{i.name}</strong>
-                      <span>{i.desc}</span>
-                      <span className="ops-badge ops-badge-pending">V2 — Late 2026</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="ops-integration-group" style={{ marginTop: 24 }}>
-                <span className="ops-integration-group-label">Order &amp; Table Management</span>
-                <div className="ops-module-grid">
-                  {[
-                    { name: "me&u", desc: "QR ordering and guest engagement" },
-                    { name: "Doshii", desc: "Integration middleware for hospitality apps" },
-                  ].map((i) => (
-                    <div key={i.name} className="ops-module-card ops-integration-card">
-                      <strong>{i.name}</strong>
-                      <span>{i.desc}</span>
-                      <span className="ops-badge ops-badge-pending">V2 — Late 2026</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="ops-integration-group" style={{ marginTop: 24 }}>
-                <span className="ops-integration-group-label">Workforce Management</span>
-                <div className="ops-module-grid">
-                  {[
-                    { name: "Tanda", desc: "Rostering, timesheets and onboarding" },
-                    { name: "Deputy", desc: "Scheduling, compliance and HR" },
-                  ].map((i) => (
-                    <div key={i.name} className="ops-module-card ops-integration-card">
-                      <strong>{i.name}</strong>
-                      <span>{i.desc}</span>
-                      <span className="ops-badge ops-badge-pending">V2 — Late 2026</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </article>
           </section>
         )}

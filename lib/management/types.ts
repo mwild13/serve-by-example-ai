@@ -16,7 +16,6 @@ export type ManagerSection =
   | "predictive"
   | "settings"
   | "billing"
-  | "integrations"
   | "sign-out";
 
 export type StaffRole =

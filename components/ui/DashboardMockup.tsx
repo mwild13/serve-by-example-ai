@@ -4,7 +4,7 @@ const NAV = [
   { section: "OPERATIONS", items: ["Inventory", "Menu Items", "Compliance"] },
   { section: "PERFORMANCE", items: ["Analytics", "Reports", "Leaderboards", "Notifications"] },
   { section: "AI COACH", items: ["Ask AI Coach", "Predictive Insights"] },
-  { section: "ADMIN", items: ["Settings", "Billing", "Integrations", "Sign out"] },
+  { section: "ADMIN", items: ["Settings", "Billing", "Sign out"] },
 ];
 
 const STATS = [

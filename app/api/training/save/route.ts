@@ -123,6 +123,33 @@ export async function POST(req: Request) {
       if (user.email) {
         await syncMasteryToVenueStaff(admin, user.id, user.email);
       }
+
+      // ── SBE Elite badge check (only on a fresh mastery, once per lifetime) ──
+      // Guard: only runs if this module was not already mastered and the user
+      // hasn't yet received their Elite badge, preventing infinite increments.
+      if (!result.alreadyMastered) {
+        const { data: profile } = await admin
+          .from("profiles")
+          .select("all_modules_completed")
+          .eq("id", user.id)
+          .single();
+
+        if (profile && !profile.all_modules_completed) {
+          const { count } = await admin
+            .from("mastery_rows")
+            .select("module_id", { count: "exact", head: true })
+            .eq("user_id", user.id)
+            .eq("is_mastered", true);
+
+          if ((count ?? 0) >= 20) {
+            await admin
+              .from("profiles")
+              .update({ sbe_elite_number: 1, all_modules_completed: true })
+              .eq("id", user.id);
+          }
+        }
+      }
+
       return NextResponse.json({
         success: true,
         v3: {
@@ -231,6 +258,28 @@ export async function POST(req: Request) {
           },
           { onConflict: "user_id,module" },
         );
+      }
+    }
+
+    // ── Consecutive-correct streak tracking (for Pro badge) ──────
+    // Pass threshold = 15/25. On pass: increment running streak and update
+    // best if higher. On fail: reset running streak to 0.
+    // Fires only when the attempt was not spam-guarded (genuine attempt).
+    if (!result.spamGuarded) {
+      const passed = overallScore >= 15;
+      const { data: profile } = await admin
+        .from("profiles")
+        .select("current_correct_streak, best_correct_streak")
+        .eq("id", user.id)
+        .single();
+
+      if (profile) {
+        const newCurrent = passed ? (profile.current_correct_streak ?? 0) + 1 : 0;
+        const newBest = Math.max(profile.best_correct_streak ?? 0, newCurrent);
+        await admin
+          .from("profiles")
+          .update({ current_correct_streak: newCurrent, best_correct_streak: newBest })
+          .eq("id", user.id);
       }
     }
 

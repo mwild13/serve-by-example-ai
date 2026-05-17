@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Security & Data Safety | Serve By Example",
   description:
-    "Serve By Example stores only what training requires — names, emails, and learning progress. Your staff data, recipes, and operational policies stay private.",
+    "Serve By Example stores only what training requires: names, emails, and learning progress. Your staff data, recipes, and operational policies stay private.",
 };
 
 const weStore = [
@@ -39,7 +39,7 @@ const aiPrinciples = [
   },
   {
     title: "Isolation between venues",
-    desc: "Each venue account is fully separated. Staff from one venue cannot view the data, training results, or settings of any other venue — even within the same group.",
+    desc: "Each venue account is fully separated. Staff from one venue cannot view the data, training results, or settings of any other venue, even within the same group.",
   },
 ];
 
@@ -56,7 +56,7 @@ export default function SecurityPage() {
             <h1>Your team&rsquo;s data stays yours.</h1>
             <p className="inner-hero-sub">
               Serve By Example is a training platform, not a data platform. We collect the minimum
-              required to run an effective AI training experience — nothing more.
+              required to run an effective AI training experience, nothing more.
             </p>
           </div>
         </section>
@@ -66,7 +66,7 @@ export default function SecurityPage() {
           <div className="container">
             <div className="section-header center">
               <span className="eyebrow">Data transparency</span>
-              <h2>Exactly what we collect — and what we never touch.</h2>
+              <h2>Exactly what we collect, and what we never touch.</h2>
             </div>
             <div className="security-data-grid">
               <div className="security-data-card security-data-card--store">
@@ -139,7 +139,7 @@ export default function SecurityPage() {
                 <p>
                   All billing is processed by Stripe, a PCI-DSS Level 1 certified payment processor.
                   Serve By Example never sees, stores, or has access to your card details. Stripe
-                  handles the entire payment flow — we receive only a confirmation token.
+                  handles the entire payment flow. We receive only a confirmation token.
                 </p>
                 <Link href="https://stripe.com/docs/security" className="btn btn-secondary" target="_blank" rel="noopener noreferrer">
                   Stripe&rsquo;s security documentation

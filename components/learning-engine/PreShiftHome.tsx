@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { Zap, GlassWater, TrendingUp, Users, Flame } from "lucide-react";
+import { computeBadges, countEarned, recentEarned, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
+import Link from "next/link";
 
 type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
 type ModuleKey = "bartending" | "sales" | "management";
@@ -329,6 +331,46 @@ export default function PreShiftHome({
           })}
         </div>
       </div>
+
+      {/* ── Badge Collection Row ── */}
+      {loaded && (() => {
+        const badgeModules: ModuleSummaryForBadges[] = data.allModules.map((m) => {
+          const prog = data.moduleProgress[m.id];
+          const mastery = prog?.mastery ?? 0;
+          return {
+            category: m.category as "technical" | "service" | "compliance",
+            mastered: mastery >= 80,
+            attempted: (prog?.scenariosAttempted ?? 0) > 0,
+          };
+        });
+        const badgeScores: CategoryScores = {
+          bartending: Math.round(data.mastery.bartending ?? 0),
+          sales: Math.round(data.mastery.sales ?? 0),
+          management: Math.round(data.mastery.management ?? 0),
+        };
+        const badges = computeBadges(badgeModules, badgeScores, streak, 0, 0);
+        const earned = countEarned(badges);
+        const recent = recentEarned(badges, 3);
+        return (
+          <Link href="/dashboard/badges" className="psh-badges-row">
+            <div className="psh-badges-row-left">
+              <span className="psh-badges-eyebrow">BADGE COLLECTION</span>
+              <span className="psh-badges-count">{earned} earned</span>
+              {recent.length > 0 && (
+                <div className="psh-badges-chips">
+                  {recent.map((b) => (
+                    <span key={b.id} className="psh-badge-chip">{b.label}</span>
+                  ))}
+                  {earned > 3 && (
+                    <span className="psh-badge-chip psh-badge-chip--more">+{earned - 3} more</span>
+                  )}
+                </div>
+              )}
+            </div>
+            <span className="psh-badges-cta">View all &rarr;</span>
+          </Link>
+        );
+      })()}
 
     </div>
   );

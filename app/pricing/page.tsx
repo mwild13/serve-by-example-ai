@@ -239,10 +239,9 @@ export default function PricingPage() {
                 { eta: "2 months", soon: true, title: "More Staff Modules", desc: "New training modules covering coffee service, food pairing, wine fundamentals and advanced guest interaction." },
                 { eta: "4 months", soon: true, title: "More Staff Modules", desc: "Expanded scenario sets for large-venue management, events service and high-volume bar operations." },
                 { eta: "6 months", soon: false, title: "More Staff Modules", desc: "Deep-dive certifications in spirits, cocktail history, advanced bar technique and cellar management." },
-                { eta: "Within 6 months", soon: true, title: "V2 — Major Feature Release", desc: "A significant platform update informed by founding member feedback, with new features across training, analytics and management." },
+                { eta: "Within 6 months", soon: true, title: "V2: Major Feature Release", desc: "A significant platform update informed by founding member feedback, with new features across training, analytics and management." },
                 { eta: "TBA", soon: false, title: "Further Design & Functionality", desc: "Continuous UI improvements, accessibility updates and performance enhancements across all pages and flows." },
-                { eta: "TBA", soon: false, title: "Management & POS Integrations", desc: "Connect Serve By Example with your existing POS and scheduling systems for a unified operations view." },
-                { eta: "TBA", soon: false, title: "App Store — iOS & Android", desc: "Native mobile apps so staff can train on the go, anytime, anywhere — fully synced with their progress." },
+                { eta: "TBA", soon: false, title: "App Store: iOS & Android", desc: "Native mobile apps so staff can train on the go, anytime, anywhere, fully synced with their progress." },
               ].map((item, i) => (
                 <div key={i} style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "12px", padding: "1.5rem" }}>
                   <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", color: item.soon ? "#16a34a" : "#9ca3af", textTransform: "uppercase", marginBottom: "0.5rem" }}>

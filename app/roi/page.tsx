@@ -41,7 +41,7 @@ export default function ROIPage() {
             <h1>Calculate your training return on investment.</h1>
             <p className="inner-hero-sub">
               Adjust the inputs below to see what better-trained staff means for your venue&rsquo;s
-              bottom line — then share the result with your team or stakeholders.
+              bottom line, then share the result with your team or stakeholders.
             </p>
           </div>
         </section>

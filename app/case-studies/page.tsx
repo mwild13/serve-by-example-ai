@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 const caseStudies = [
   {
     id: "pub-group",
-    eyebrow: "Multi-venue pub group — Australia",
-    headline: "From 6 months of onboarding to 6 weeks — across 12 venues.",
+    eyebrow: "Multi-venue pub group, Australia",
+    headline: "From 6 months of onboarding to 6 weeks, across 12 venues.",
     context:
       "A 12-location Australian pub group was struggling with inconsistent training quality across sites. Each venue manager ran their own induction process, resulting in wildly different service standards and high repeat-complaint rates on peak nights.",
     challenge:
@@ -30,14 +30,14 @@ const caseStudies = [
   },
   {
     id: "cocktail-bar",
-    eyebrow: "Cocktail bar — CBD location",
-    headline: "22% upsell revenue lift in 8 weeks — 4-person team.",
+    eyebrow: "Cocktail bar, CBD location",
+    headline: "22% upsell revenue lift in 8 weeks, 4-person team.",
     context:
       "A high-volume CBD cocktail bar with a tight 4-person team was leaving significant revenue on the table. Staff knew the drinks menu but weren't consistently recommending upgrades, premium spirits, or bottle service during busy service periods.",
     challenge:
       "The venue owner couldn't afford for any team member to take time off the floor for training sessions, and the team's varied shift patterns made group coaching impractical.",
     outcome:
-      "Each team member completed scenario-based upsell training on their own device between shifts. Within 8 weeks, the venue recorded a 22% increase in average transaction value. The owner attributed the change entirely to improved upsell confidence — no new staff, no menu changes.",
+      "Each team member completed scenario-based upsell training on their own device between shifts. Within 8 weeks, the venue recorded a 22% increase in average transaction value. The owner attributed the change entirely to improved upsell confidence. No new staff, no menu changes.",
     metrics: [
       { value: "+22%", label: "upsell revenue within 8 weeks" },
       { value: "+$8.40", label: "avg transaction value increase" },
@@ -48,10 +48,10 @@ const caseStudies = [
   },
   {
     id: "qsr-franchise",
-    eyebrow: "QSR franchise — national rollout",
+    eyebrow: "QSR franchise, national rollout",
     headline: "200 staff onboarded across 3 states in under 30 days.",
     context:
-      "A fast-growing QSR franchise needed to onboard 200 new staff members across 12 franchise locations in three states simultaneously. Their existing training relied on printed manuals, video links, and ad-hoc manager coaching — an approach that wasn't scaling.",
+      "A fast-growing QSR franchise needed to onboard 200 new staff members across 12 franchise locations in three states simultaneously. Their existing training relied on printed manuals, video links, and ad-hoc manager coaching, an approach that wasn't scaling.",
     challenge:
       "Franchise owners had varying levels of training capability. Some were strong operators; others were new to the brand and couldn't confidently run inductions themselves. The result was inconsistent customer experience at the counter.",
     outcome:

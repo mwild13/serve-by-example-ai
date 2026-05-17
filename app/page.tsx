@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
-import WaitlistSection from "@/components/ui/WaitlistSection";
 import ROICalculator from "@/components/ui/ROICalculator";
 import BrowserMockup from "@/components/ui/BrowserMockup";
 import DashboardMockup from "@/components/ui/DashboardMockup";
@@ -267,7 +266,7 @@ export default function Home() {
                     <span className="solution-feature-icon"><IcoPlay /></span>
                     <div>
                       <strong>Interactive Scenarios</strong>
-                      <span>Realistic situations staff face every shift — guided by AI</span>
+                      <span>Realistic situations staff face every shift, guided by AI</span>
                     </div>
                   </li>
                   <li>
@@ -391,7 +390,7 @@ export default function Home() {
                       cocktail. What do you recommend and why?
                     </div>
                     <div className="mockup-chat-msg user">
-                      I&rsquo;d suggest an Old Fashioned&nbsp;&mdash; it&rsquo;s
+                      I&rsquo;d suggest an Old Fashioned. It&rsquo;s
                       spirit-forward, smooth from the sugar and bitters, and
                       feels premium.
                     </div>
@@ -413,7 +412,7 @@ export default function Home() {
             <div className="section-header center">
               <span className="eyebrow">Powered by Mastery Engine</span>
               <h2>Intelligent learning that actually works</h2>
-              <p>Three proven mechanisms working in combination to build lasting capability — not just passing scores.</p>
+              <p>Three proven mechanisms working in combination to build lasting capability, not just passing scores.</p>
             </div>
 
             <div className="mastery-steps-flow">
@@ -423,7 +422,7 @@ export default function Home() {
                 </div>
                 <div className="mastery-step-num">Step 1</div>
                 <h3>Adaptive Skill-Level Matching</h3>
-                <p>The ELO rating system matches each staff member to scenarios at their current level. Pass harder challenges and your rating climbs. Struggle and the system adjusts — always finding the optimal training edge.</p>
+                <p>The ELO rating system matches each staff member to scenarios at their current level. Pass harder challenges and your rating climbs. Struggle and the system adjusts, always finding the optimal training edge.</p>
               </div>
 
               <div className="mastery-step-connector" aria-hidden="true">
@@ -438,7 +437,7 @@ export default function Home() {
                 </div>
                 <div className="mastery-step-num">Step 2</div>
                 <h3>Automated Knowledge Retention</h3>
-                <p>Spaced repetition resurfaces weak areas at the scientifically optimal intervals — 1, 4, 9, and 16 days. Staff don&rsquo;t cram. They retain. Knowledge decay is monitored and corrected automatically.</p>
+                <p>Spaced repetition resurfaces weak areas at the scientifically optimal intervals: 1, 4, 9, and 16 days. Staff don&rsquo;t cram. They retain. Knowledge decay is monitored and corrected automatically.</p>
               </div>
 
               <div className="mastery-step-connector" aria-hidden="true">
@@ -453,7 +452,7 @@ export default function Home() {
                 </div>
                 <div className="mastery-step-num">Step 3</div>
                 <h3>Real-Time Performance Evaluation</h3>
-                <p>AI scores every response across 5 dimensions: communication, hospitality, problem-solving, professionalism, and guest experience. Feedback is immediate — no waiting for a manager&rsquo;s opinion.</p>
+                <p>AI scores every response across 5 dimensions: communication, hospitality, problem-solving, professionalism, and guest experience. Feedback is immediate, with no waiting for a manager&rsquo;s opinion.</p>
               </div>
             </div>
           </div>
@@ -473,16 +472,16 @@ export default function Home() {
                 </div>
                 <h3>Spaced Repetition</h3>
                 <p>
-                  Decades of learning science prove that reviewing material at optimal intervals creates lasting memory. We resurface weak areas automatically &mdash; no cramming required.
+                  Decades of learning science prove that reviewing material at optimal intervals creates lasting memory. We resurface weak areas automatically, no cramming required.
                 </p>
               </div>
               <div className="why-sbe-card">
                 <div className="why-sbe-icon why-sbe-icon-svg">
                   <IcoTrophy size={22} />
                 </div>
-                <h3>ELO Rating System</h3>
+                <h3>Adaptive Difficulty Rating</h3>
                 <p>
-                  Just like chess, staff face scenarios matched to their skill level. Pass a hard scenario? Your rating jumps. Struggle with easy ones? We adjust to help you improve faster.
+                  Staff face scenarios precisely matched to their current skill level. Perform well and difficulty rises. Struggle and the system eases back, keeping you in the optimal zone for fast improvement.
                 </p>
               </div>
               <div className="why-sbe-card">
@@ -491,7 +490,7 @@ export default function Home() {
                 </div>
                 <h3>Immediate Feedback</h3>
                 <p>
-                  AI evaluates every response in real-time across 5 dimensions. Staff learn what works immediately &mdash; no waiting for a manager&rsquo;s opinion or guessing if they got it right.
+                  AI evaluates every response in real-time across 5 dimensions. Staff learn what works immediately, with no waiting for a manager&rsquo;s opinion or guessing if they got it right.
                 </p>
               </div>
               <div className="why-sbe-card">
@@ -500,7 +499,7 @@ export default function Home() {
                 </div>
                 <h3>Progressive Difficulty</h3>
                 <p>
-                  The 4-stage path starts simple and progresses to complex judgment calls. Each stage builds on the last &mdash; not a random quiz every time.
+                  The 3-stage path starts simple and progresses to complex judgment calls. Each stage builds on the last, not a random quiz every time.
                 </p>
               </div>
             </div>
@@ -513,14 +512,14 @@ export default function Home() {
             <div className="section-header center">
               <span className="eyebrow">Scalable Training Tiers</span>
               <h2>Built for every level of your team</h2>
-              <p>From individual staff to multi-site venue groups — one platform that grows with you.</p>
+              <p>From individual staff to multi-site venue groups, one platform that grows with you.</p>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.25rem", marginTop: "2rem" }}>
 
               <div style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                 <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9ca3af" }}>Try it free</div>
                 <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Free Demo</h3>
-                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Experience the AI training engine first-hand — no commitment required. See what your team would be working with before making a decision.</p>
+                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Experience the AI training engine first-hand, no commitment required. See what your team would be working with before making a decision.</p>
                 <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For individuals who want to explore the platform.</p>
                 <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
                   <Link href="/demo" className="btn btn-primary btn-block">Try the Demo</Link>
@@ -579,8 +578,8 @@ export default function Home() {
               {[
                 { eta: "2 months", soon: true, title: "More Staff Modules", desc: "New training modules covering coffee service, food pairing, wine fundamentals and advanced guest interaction." },
                 { eta: "4 months", soon: true, title: "More Staff Modules", desc: "Expanded scenario sets for large-venue management, events service and high-volume bar operations." },
-                { eta: "Within 6 months", soon: true, title: "V2 — Major Feature Release", desc: "A significant platform update informed by founding member feedback, with new features across training, analytics and management." },
-                { eta: "TBA", soon: false, title: "App Store — iOS & Android", desc: "Native mobile apps so staff can train on the go, anytime, anywhere — fully synced with their progress." },
+                { eta: "Within 6 months", soon: true, title: "V2: Major Feature Release", desc: "A significant platform update informed by founding member feedback, with new features across training, analytics and management." },
+                { eta: "TBA", soon: false, title: "App Store: iOS & Android", desc: "Native mobile apps so staff can train on the go, anytime, anywhere, fully synced with their progress." },
               ].map((item, i) => (
                 <div key={i} style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "12px", padding: "1.5rem" }}>
                   <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", color: item.soon ? "#16a34a" : "#9ca3af", textTransform: "uppercase", marginBottom: "0.5rem" }}>
@@ -601,7 +600,7 @@ export default function Home() {
               <span className="eyebrow">Built From Experience</span>
               <h2 style={{ marginBottom: "1rem" }}>Created by someone who&rsquo;s lived it.</h2>
               <p style={{ fontSize: "1.125rem", color: "#374151", lineHeight: 1.7, marginBottom: "2.5rem", maxWidth: "680px", margin: "0 auto 2.5rem" }}>
-                Serve By Example was created and is managed by a real hospitality professional with over 15 years of experience across Australian bars, pubs and venues. Not built in a boardroom &mdash; built behind the bar.
+                Serve By Example was created and is managed by a real hospitality professional with over 15 years of experience across Australian bars, pubs and venues. Not built in a boardroom, built behind the bar.
               </p>
               <div style={{ display: "flex", justifyContent: "center", gap: "3rem", flexWrap: "wrap", marginBottom: "2.5rem" }}>
                 <div style={{ textAlign: "center" }}>
@@ -628,30 +627,15 @@ export default function Home() {
                 textAlign: "left",
               }}>
                 <p style={{ margin: 0, fontSize: "1.05rem", fontStyle: "italic", color: "#1b4332", lineHeight: 1.65, fontWeight: 500 }}>
-                  &ldquo;I built the training tool I always wished I had &mdash; one that works for real venues, real staff, and the real pressure of a busy service.&rdquo;
+                  &ldquo;I built the training tool I always wished I had, one that works for real venues, real staff, and the real pressure of a busy service.&rdquo;
                 </p>
                 <footer style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: "#6b7280", fontStyle: "normal", fontWeight: 600 }}>
-                  Founder, Serve By Example &mdash; Australia
+                  Founder, Serve By Example, Australia
                 </footer>
               </blockquote>
             </div>
           </div>
         </section>
-
-        <WaitlistSection
-          eyebrow="Stay in the loop"
-          title="Get notified when we launch."
-          copy="No credit card required. We&apos;ll send you early access updates and launch-stage pricing &mdash; no spam."
-          inputPlaceholder="your@email.com"
-          buttonLabel="Notify me"
-          successTitle="You&apos;re on the list."
-          successCopy="We&apos;ll reach out with early access details and launch updates."
-          successSteps={[
-            "You'll receive launch updates and early access invites by email.",
-            "Founding members lock in launch pricing for life.",
-            "We'll walk you through onboarding personally when spots open.",
-          ]}
-        />
 
         {/* ── Final CTA ────────────────────────────── */}
         <section className="section section-cta">
