@@ -5,6 +5,7 @@
 
 import { createSupabaseAdminClient } from "./supabase-admin";
 import { resolveAccess } from "./session";
+import { SCENARIO_COUNTS } from "./mastery";
 
 export interface Module {
   id: number;
@@ -150,7 +151,7 @@ export async function getAvailableModules(
     console.log(`[getAvailableModules] Fetching mastery data for user`);
     const { data: masteryData, error: masteryError } = await admin
       .from("scenario_mastery")
-      .select("module_id, mastery_level, elo_rating")
+      .select("module_id, mastery_level, elo_rating, is_mastered")
       .eq("user_id", userId);
 
     if (masteryError) {
@@ -160,7 +161,7 @@ export async function getAvailableModules(
 
     const masteryByModule: Record<
       number,
-      { mastery_level: number; elo_rating: number }[]
+      { mastery_level: number; elo_rating: number; is_mastered: boolean }[]
     > = {};
     (masteryData || []).forEach((m) => {
       // Skip records without module_id (legacy data)
@@ -174,6 +175,7 @@ export async function getAvailableModules(
       masteryByModule[m.module_id].push({
         mastery_level: m.mastery_level,
         elo_rating: m.elo_rating,
+        is_mastered: m.is_mastered === true,
       });
     });
 
@@ -193,14 +195,18 @@ export async function getAvailableModules(
             )
           : categoryScores[module.category] || 1200;
 
-      // Calculate mastery percentage (% of scenarios at level 3)
+      // Calculate mastery percentage
+      // Verified modules (passed the verify quiz) are always 100%
+      const isVerified = moduleMasteryRecords.some((m) => m.is_mastered);
       const masteredScenarios = moduleMasteryRecords.filter(
         (m) => m.mastery_level === 3
       ).length;
-      const masteryPct =
-        moduleMasteryRecords.length > 0
-          ? Math.round((masteredScenarios / moduleMasteryRecords.length) * 100)
-          : 0;
+      const scenarioTotal = SCENARIO_COUNTS[`module_${moduleId}`] ?? 10;
+      const masteryPct = isVerified
+        ? 100
+        : masteredScenarios > 0
+        ? Math.round((masteredScenarios / scenarioTotal) * 100)
+        : 0;
 
       // Calculate completion percentage (% attempted)
       const completionPct =
