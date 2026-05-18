@@ -16,6 +16,10 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
   const { data: profile } = await supabase
     .from("profiles")
     .select("display_name, plan, management_unlocked, notif_reminders, notif_weekly_digest, notif_achievement_alerts")
@@ -62,6 +66,7 @@ export default async function DashboardPage() {
       notifWeeklyDigest={profile?.notif_weekly_digest ?? true}
       notifAchievementAlerts={profile?.notif_achievement_alerts ?? true}
       hasVenueMembership={hasVenueMembership}
+      initialToken={session?.access_token ?? ""}
     />
   );
 }

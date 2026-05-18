@@ -457,6 +457,7 @@ export default function DashboardShell({
   notifWeeklyDigest,
   notifAchievementAlerts,
   hasVenueMembership = false,
+  initialToken = "",
 }: {
   displayName: string;
   plan: string;
@@ -466,6 +467,7 @@ export default function DashboardShell({
   notifWeeklyDigest: boolean;
   notifAchievementAlerts: boolean;
   hasVenueMembership?: boolean;
+  initialToken?: string;
 }) {
   const [activeNav, setActiveNav] = useState<NavItem>("home");
   const [joinCodeFromUrl, setJoinCodeFromUrl] = useState<string | undefined>(undefined);
@@ -474,7 +476,7 @@ export default function DashboardShell({
   const [userId, setUserId] = useState<string>("");
   const [selectedModuleId, setSelectedModuleId] = useState<number | null>(null);
   const [showDiagnostic, setShowDiagnostic] = useState(false);
-  const [userToken, setUserToken] = useState<string>("");
+  const [userToken, setUserToken] = useState<string>(initialToken);
 
   // Initialize dark mode from localStorage
   useEffect(() => {
