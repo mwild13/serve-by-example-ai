@@ -61,19 +61,29 @@ function DetailSheet({
               <div style={{ fontSize: 19, fontWeight: 700, color: "#1a1714", letterSpacing: "-0.01em", marginBottom: 4 }}>
                 {cocktail.name}
               </div>
-              <span
-                style={{
-                  display: "inline-block",
-                  fontSize: 11, fontWeight: 600,
-                  background: catMeta.color + "22",
-                  color: catMeta.color,
-                  border: `1px solid ${catMeta.color}44`,
-                  padding: "2px 8px", borderRadius: 4,
-                  letterSpacing: "0.03em",
-                }}
-              >
-                {catMeta.label}
-              </span>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                <span
+                  style={{
+                    display: "inline-block",
+                    fontSize: 11, fontWeight: 600,
+                    background: catMeta.color + "22",
+                    color: catMeta.color,
+                    border: `1px solid ${catMeta.color}44`,
+                    padding: "2px 8px", borderRadius: 4,
+                    letterSpacing: "0.03em",
+                  }}
+                >
+                  {catMeta.label}
+                </span>
+                {cocktail.featured && (
+                  <span style={{ fontSize: 10, fontWeight: 700, color: "#7a5c00", background: "#fef9e7", border: "1px solid #f0d080", padding: "2px 7px", borderRadius: 4, letterSpacing: "0.04em", textTransform: "uppercase" as const }}>
+                    Most Common
+                  </span>
+                )}
+                {cocktail.origin && (
+                  <span style={{ fontSize: 10, color: "#6b6460" }}>{cocktail.origin}</span>
+                )}
+              </div>
             </div>
             <button
               onClick={onClose}
@@ -187,9 +197,19 @@ export default function CocktailLibrary() {
       const matchesSearch = c.name.toLowerCase().includes(q);
       return matchesCat && matchesSearch;
     });
-    if (purposeFilter === "practice") {
-      results = [...results].sort((a) => (practiceAdded.has(a.name) ? -1 : 1));
-    }
+
+    results = [...results].sort((a, b) => {
+      if (purposeFilter === "practice") {
+        const aBook = practiceAdded.has(a.name) ? 0 : 1;
+        const bBook = practiceAdded.has(b.name) ? 0 : 1;
+        if (aBook !== bBook) return aBook - bBook;
+      }
+      if (a.featured && b.featured) return a.featuredOrder - b.featuredOrder;
+      if (a.featured) return -1;
+      if (b.featured) return 1;
+      return a.name.localeCompare(b.name);
+    });
+
     return results;
   }, [activeCategory, search, purposeFilter, practiceAdded]);
 
@@ -234,7 +254,7 @@ export default function CocktailLibrary() {
         >
           All ({COCKTAILS.length})
         </div>
-        {CATEGORY_KEYS.map((key) => {
+        {CATEGORY_KEYS.filter((key) => COCKTAILS.some((c) => c.category === key)).map((key) => {
           const count = COCKTAILS.filter((c) => c.category === key).length;
           return (
             <div
@@ -276,9 +296,14 @@ export default function CocktailLibrary() {
                   </span>
                 </div>
                 <div className="cocktail-glass-hint">{cocktail.glass}</div>
-                {inPractice && (
-                  <div style={{ marginTop: 6, fontSize: 11, color: "#0B2B1E", fontWeight: 600 }}>Bookmarked</div>
-                )}
+                <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
+                  {cocktail.featured && (
+                    <div style={{ fontSize: 10, color: "#7a5c00", fontWeight: 700, background: "#fef9e7", border: "1px solid #f0d080", display: "inline-block", padding: "2px 7px", borderRadius: 4, letterSpacing: "0.04em", textTransform: "uppercase" }}>Most Common</div>
+                  )}
+                  {inPractice && (
+                    <div style={{ fontSize: 10, color: "#0B2B1E", fontWeight: 700, background: "#e8f5e9", border: "1px solid #a5d6a7", display: "inline-block", padding: "2px 7px", borderRadius: 4, letterSpacing: "0.04em", textTransform: "uppercase" }}>Bookmarked</div>
+                  )}
+                </div>
               </div>
             );
           })}
