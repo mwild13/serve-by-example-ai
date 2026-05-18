@@ -18,9 +18,9 @@ export type Cocktail = {
   glass: string;
   garnish: string;
   tip: string;
-  featured: boolean;
-  featuredOrder: number;
-  origin?: string;
+  featured: boolean;        // true = Top 15 Most Common
+  featuredOrder: number;    // 1-15 for sorting
+  origin?: string;          // for Australian Originals
 };
 
 export const CATEGORIES: Record<Category, { label: string; description: string; color: string }> = {
@@ -77,8 +77,11 @@ export const CATEGORIES: Record<Category, { label: string; description: string; 
 };
 
 export const COCKTAILS: Cocktail[] = [
-  // TOP 15 MOST COMMON
+  // ============================================
+  // MOST COMMON (TOP 15) - featured = true
+  // ============================================
 
+  // 1. Espresso Martini
   {
     name: "Espresso Martini",
     category: "duos-trios",
@@ -91,6 +94,7 @@ export const COCKTAILS: Cocktail[] = [
     featuredOrder: 1,
   },
 
+  // 2. Margarita
   {
     name: "Margarita",
     category: "sours",
@@ -103,6 +107,7 @@ export const COCKTAILS: Cocktail[] = [
     featuredOrder: 2,
   },
 
+  // 3. Mojito
   {
     name: "Mojito",
     category: "highballs",
@@ -115,6 +120,7 @@ export const COCKTAILS: Cocktail[] = [
     featuredOrder: 3,
   },
 
+  // 4. Old Fashioned
   {
     name: "Old Fashioned",
     category: "ancestral",
@@ -122,11 +128,12 @@ export const COCKTAILS: Cocktail[] = [
     method: "Stir ingredients with ice in mixing glass. Pour over one large ice cube in rocks glass.",
     glass: "Rocks glass",
     garnish: "Orange zest expressed over glass",
-    tip: "Never muddle fruit into an Old Fashioned. Zest is the only fruit allowed. Starward Whisky brings an Australian terroir to this timeless drink.",
+    tip: "Never muddle fruit into an Old Fashioned; that's a Wisconsin take. Zest is the only fruit allowed. Starward Whisky brings an Australian terroir to this timeless drink.",
     featured: true,
     featuredOrder: 4,
   },
 
+  // 5. Aperol Spritz
   {
     name: "Aperol Spritz",
     category: "sparkling",
@@ -139,6 +146,7 @@ export const COCKTAILS: Cocktail[] = [
     featuredOrder: 5,
   },
 
+  // 6. Gin & Tonic
   {
     name: "Gin & Tonic",
     category: "highballs",
@@ -151,6 +159,7 @@ export const COCKTAILS: Cocktail[] = [
     featuredOrder: 6,
   },
 
+  // 7. Whiskey Sour
   {
     name: "Whiskey Sour",
     category: "sours",
@@ -163,6 +172,7 @@ export const COCKTAILS: Cocktail[] = [
     featuredOrder: 7,
   },
 
+  // 8. Negroni
   {
     name: "Negroni",
     category: "spirit-forward",
@@ -175,6 +185,7 @@ export const COCKTAILS: Cocktail[] = [
     featuredOrder: 8,
   },
 
+  // 9. Pornstar Martini
   {
     name: "Pornstar Martini",
     category: "sours",
@@ -188,6 +199,7 @@ export const COCKTAILS: Cocktail[] = [
     origin: "UK (top 5 in Australia)",
   },
 
+  // 10. Classic Daiquiri
   {
     name: "Classic Daiquiri",
     category: "sours",
@@ -200,6 +212,7 @@ export const COCKTAILS: Cocktail[] = [
     featuredOrder: 10,
   },
 
+  // 11. Cosmopolitan
   {
     name: "Cosmopolitan",
     category: "sours",
@@ -212,6 +225,7 @@ export const COCKTAILS: Cocktail[] = [
     featuredOrder: 11,
   },
 
+  // 12. Long Island Iced Tea
   {
     name: "Long Island Iced Tea",
     category: "highballs",
@@ -224,6 +238,7 @@ export const COCKTAILS: Cocktail[] = [
     featuredOrder: 12,
   },
 
+  // 13. Moscow Mule
   {
     name: "Moscow Mule",
     category: "highballs",
@@ -236,6 +251,7 @@ export const COCKTAILS: Cocktail[] = [
     featuredOrder: 13,
   },
 
+  // 14. Lemon, Lime & Bitters
   {
     name: "Lemon, Lime & Bitters",
     category: "highballs",
@@ -249,6 +265,7 @@ export const COCKTAILS: Cocktail[] = [
     origin: "Australia (nationwide staple)",
   },
 
+  // 15. Paloma
   {
     name: "Paloma",
     category: "highballs",
@@ -261,7 +278,11 @@ export const COCKTAILS: Cocktail[] = [
     featuredOrder: 15,
   },
 
-  // REMAINING COCKTAILS
+  // ============================================
+  // REMAINING 23 COCKTAILS (featured = false)
+  // ============================================
+
+  // --- SOURS & DAIQUIRIS (4 more) ---
 
   {
     name: "Sidecar",
@@ -311,6 +332,8 @@ export const COCKTAILS: Cocktail[] = [
     featuredOrder: 0,
   },
 
+  // --- SPIRIT-FORWARD & STIRRED (4 more) ---
+
   {
     name: "Dry Martini",
     category: "spirit-forward",
@@ -359,6 +382,8 @@ export const COCKTAILS: Cocktail[] = [
     featuredOrder: 0,
   },
 
+  // --- HIGHBALLS & COLLINS (3 more) ---
+
   {
     name: "Tom Collins",
     category: "highballs",
@@ -394,6 +419,8 @@ export const COCKTAILS: Cocktail[] = [
     featured: false,
     featuredOrder: 0,
   },
+
+  // --- TIKI & TROPICAL (4) ---
 
   {
     name: "Mai Tai",
@@ -443,6 +470,8 @@ export const COCKTAILS: Cocktail[] = [
     featuredOrder: 0,
   },
 
+  // --- SPARKLING (2 more) ---
+
   {
     name: "Bellini",
     category: "sparkling",
@@ -462,10 +491,12 @@ export const COCKTAILS: Cocktail[] = [
     method: "Pour orange juice into flute. Gently add sparkling wine. Do not stir.",
     glass: "Flute",
     garnish: "Orange wheel (optional)",
-    tip: "The ratio can vary 1:1 or 2:1 sparkling to juice. Fresh-squeezed orange juice makes a dramatic difference. Never stir, you'll lose the bubbles.",
+    tip: "The ratio can vary 1:1 or 2:1 sparkling to juice. Fresh-squeezed orange juice makes a dramatic difference. Never stir, you'll lose bubbles.",
     featured: false,
     featuredOrder: 0,
   },
+
+  // --- AUSTRALIAN ORIGINALS (3 more, LLB already in Top 15) ---
 
   {
     name: "Japanese Slipper",
@@ -505,6 +536,8 @@ export const COCKTAILS: Cocktail[] = [
     featuredOrder: 0,
     origin: "Melbourne, Black Pearl (2010)",
   },
+
+  // --- WARM & COMFORT (3) ---
 
   {
     name: "Irish Coffee",
