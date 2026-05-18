@@ -21,6 +21,29 @@ development begins.
 
 ---
 
+## Supabase root-level SQL files (deleted May 2026)
+
+All 9 files were one-time setup scripts manually pasted into the Supabase SQL editor.
+They are fully applied to the production DB and no longer needed in the repo.
+Supabase CLI is not in use (no `config.toml`) so nothing was tracking them.
+`supabase/reset_progress.sql` was kept as a dev utility.
+
+| File | What it created / fixed |
+|---|---|
+| `training_schema.sql` | `user_training_progress`, `user_level_progress` tables |
+| `mastery_schema.sql` | `scenario_mastery`, `mastery_rows`; ELO + spaced repetition columns |
+| `management_schema.sql` | `venues`, `venue_staff`, `venue_inventory_items`, `training_programs` |
+| `tier_session_schema.sql` | `tier_sessions`, `venue_memberships`; multi-tier + session displacement |
+| `scaffolded_learning_schema.sql` | 4-level scaffolded learning + `modules`, `scenarios` tables (L2/L3 content later purged by `20260502_v3_purge_legacy_stages.sql`) |
+| `pending_invites_schema.sql` | `pending_invites` table for manager-generated invite links |
+| `schema_improvements.sql` | Missing indexes + email/auth debug helpers (`CREATE INDEX IF NOT EXISTS`) |
+| `supplemental_fixes.sql` | Trigger permission grants + orphaned record cleanup (run after `fix_user_deletion.sql`) |
+| `fix_user_deletion.sql` | Fixed "Database error deleting user" from Supabase Auth dashboard — missing cascade rules |
+
+To recreate any table from scratch, use `git log -- supabase/<filename>` to retrieve the original SQL.
+
+---
+
 ## Careers (deleted May 2026)
 
 **Planned scope:** A /careers page for job listings.
