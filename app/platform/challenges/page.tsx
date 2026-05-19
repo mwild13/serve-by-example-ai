@@ -618,99 +618,390 @@ export default function ChallengesMarketingPage() {
           </div>
         </section>
 
-        {/* Philosophy section */}
+        {/* Data section */}
         <section style={{ background: "var(--bg)", padding: "5rem 1.5rem" }}>
-          <div
-            style={{
-              maxWidth: "860px",
-              margin: "0 auto",
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-              gap: "3rem",
-              alignItems: "center",
-            }}
-          >
-            <div>
+          <div style={{ maxWidth: "1060px", margin: "0 auto" }}>
+
+            {/* Section header */}
+            <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
               <h2
                 style={{
                   fontFamily: "var(--font-fraunces)",
-                  fontSize: "clamp(1.8rem, 3.5vw, 2.25rem)",
+                  fontSize: "clamp(1.8rem, 4vw, 2.5rem)",
                   fontWeight: 700,
                   color: "var(--text)",
-                  marginBottom: "1.25rem",
+                  marginBottom: "1rem",
                   lineHeight: 1.2,
                 }}
               >
-                Micro-Burst Learning
+                The Data Behind The Shift
               </h2>
-              <p style={{ fontSize: "0.95rem", color: "var(--text-soft)", lineHeight: 1.75, marginBottom: "1.25rem" }}>
-                Every challenge fits inside the natural pauses of a hospitality shift — the wait before a brief, the commute in, the 5 minutes before doors open. No course modules. No login-logout sessions. Just one fast challenge and back to work.
-              </p>
-              <p style={{ fontSize: "0.95rem", color: "var(--text-soft)", lineHeight: 1.75 }}>
-                Formats requiring higher cognitive synthesis (Sequence Sort) take slightly longer but yield deeper workflow understanding. Formats relying on quick recognition (Match Pair, Spot the Error) are optimised for rapid reinforcement.
+              <p style={{ fontSize: "1rem", color: "var(--text-soft)", maxWidth: "600px", margin: "0 auto", lineHeight: 1.7 }}>
+                Why are we abandoning essay formats for interactive layouts? The analytics demonstrate significant improvements across all critical learning vectors for the 18–25 demographic.
               </p>
             </div>
+
+            {/* Row 1: Performance metrics + Radar chart */}
             <div
               style={{
-                background: "var(--surface)",
-                border: "1px solid var(--line)",
-                borderRadius: "var(--radius-lg)",
-                padding: "2rem",
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                gap: "1.5rem",
+                marginBottom: "1.5rem",
               }}
             >
-              <h3
+              {/* Performance Vector Analysis */}
+              <div
                 style={{
-                  fontSize: "0.75rem",
-                  fontWeight: 800,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.1em",
-                  color: "var(--text-muted)",
-                  marginBottom: "1.5rem",
+                  background: "var(--surface)",
+                  border: "1px solid var(--line)",
+                  borderRadius: "var(--radius-lg)",
+                  padding: "2rem",
                 }}
               >
-                Completion time by format
-              </h3>
-              {[
-                { label: "Sequence Sort", seconds: 35, pct: 88 },
-                { label: "Fill the Blank", seconds: 25, pct: 63 },
-                { label: "Spot the Error", seconds: 20, pct: 50 },
-                { label: "Match Pair", seconds: 15, pct: 38 },
-                { label: "Multiple Choice", seconds: 12, pct: 30 },
-              ].map((row) => (
-                <div key={row.label} style={{ marginBottom: "1.1rem" }}>
+                <h3
+                  style={{
+                    fontFamily: "var(--font-fraunces)",
+                    fontSize: "1.25rem",
+                    fontWeight: 700,
+                    color: "var(--text)",
+                    paddingBottom: "1rem",
+                    borderBottom: "1px solid var(--line-light)",
+                    marginBottom: "1.5rem",
+                  }}
+                >
+                  Performance Vector Analysis
+                </h3>
+
+                {[
+                  {
+                    label: "Completion Speed",
+                    badge: "+65% Faster",
+                    badgeColor: "var(--green-deep)",
+                    badgeBg: "var(--green-light)",
+                    desc: "Interactive tapping removes the friction of typing, drastically reducing time-to-completion per challenge.",
+                  },
+                  {
+                    label: "Knowledge Retention",
+                    badge: "+40% Higher",
+                    badgeColor: "var(--green-deep)",
+                    badgeBg: "var(--green-light)",
+                    desc: "Visual associations (like dragging items or matching pairs) create stronger memory anchors than plain text reading.",
+                  },
+                  {
+                    label: "Task Enjoyment",
+                    badge: "Significantly Up",
+                    badgeColor: "var(--gold)",
+                    badgeBg: "var(--gold-light)",
+                    desc: "By mimicking mechanics found in casual mobile games, the training process feels less like mandatory work.",
+                  },
+                ].map((metric, i) => (
+                  <div
+                    key={metric.label}
+                    style={{
+                      paddingBottom: i < 2 ? "1.25rem" : 0,
+                      marginBottom: i < 2 ? "1.25rem" : 0,
+                      borderBottom: i < 2 ? "1px solid var(--line-light)" : "none",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
+                      <span style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text)" }}>{metric.label}</span>
+                      <span
+                        style={{
+                          fontSize: "0.7rem",
+                          fontWeight: 800,
+                          padding: "3px 10px",
+                          borderRadius: "999px",
+                          background: metric.badgeBg,
+                          color: metric.badgeColor,
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {metric.badge}
+                      </span>
+                    </div>
+                    <p style={{ fontSize: "0.82rem", color: "var(--text-soft)", lineHeight: 1.6 }}>{metric.desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Radar chart */}
+              <div
+                style={{
+                  background: "var(--surface)",
+                  border: "1px solid var(--line)",
+                  borderRadius: "var(--radius-lg)",
+                  padding: "2rem",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <svg
+                  viewBox="0 0 300 260"
+                  style={{ width: "100%", flex: 1 }}
+                  aria-hidden="true"
+                >
+                  {/* Grid pentagons */}
+                  {[
+                    "150,116 168,129 161,150 139,150 132,129",
+                    "150,98 186,123 172,165 128,165 114,123",
+                    "150,79 204,118 183,181 117,181 97,118",
+                    "150,60 221,112 194,196 106,196 79,112",
+                  ].map((pts, i) => (
+                    <polygon
+                      key={i}
+                      points={pts}
+                      fill="none"
+                      stroke="#d4cfc4"
+                      strokeWidth="1"
+                    />
+                  ))}
+
+                  {/* Axis lines from center */}
+                  {[
+                    "150,135 150,60",
+                    "150,135 221,112",
+                    "150,135 194,196",
+                    "150,135 106,196",
+                    "150,135 79,112",
+                  ].map((pts, i) => (
+                    <line
+                      key={i}
+                      x1={pts.split(" ")[0].split(",")[0]}
+                      y1={pts.split(" ")[0].split(",")[1]}
+                      x2={pts.split(" ")[1].split(",")[0]}
+                      y2={pts.split(" ")[1].split(",")[1]}
+                      stroke="#d4cfc4"
+                      strokeWidth="1"
+                    />
+                  ))}
+
+                  {/* Legacy data polygon */}
+                  <polygon
+                    points="150,107 176,127 169,161 128,165 124,127"
+                    fill="rgba(169,129,42,0.12)"
+                    stroke="rgba(169,129,42,0.5)"
+                    strokeWidth="1.5"
+                  />
+
+                  {/* Interactive data polygon */}
+                  <polygon
+                    points="150,70 209,116 184,182 113,186 99,118"
+                    fill="rgba(31,78,55,0.12)"
+                    stroke="#1f4e37"
+                    strokeWidth="2"
+                  />
+
+                  {/* Axis dot markers — interactive */}
+                  {[
+                    [150, 70], [209, 116], [184, 182], [113, 186], [99, 118],
+                  ].map(([x, y], i) => (
+                    <circle key={i} cx={x} cy={y} r="3" fill="#1f4e37" />
+                  ))}
+
+                  {/* Axis dot markers — legacy */}
+                  {[
+                    [150, 107], [176, 127], [169, 161], [128, 165], [124, 127],
+                  ].map(([x, y], i) => (
+                    <circle key={i} cx={x} cy={y} r="2.5" fill="none" stroke="rgba(169,129,42,0.7)" strokeWidth="1.5" />
+                  ))}
+
+                  {/* Labels */}
+                  <text x="150" y="46" textAnchor="middle" fontSize="9" fill="#6b6459" fontWeight="700">Workflow</text>
+                  <text x="150" y="56" textAnchor="middle" fontSize="9" fill="#6b6459" fontWeight="700">Accuracy</text>
+
+                  <text x="234" y="108" textAnchor="start" fontSize="9" fill="#6b6459" fontWeight="700">Knowledge</text>
+                  <text x="234" y="118" textAnchor="start" fontSize="9" fill="#6b6459" fontWeight="700">Retention</text>
+
+                  <text x="200" y="212" textAnchor="middle" fontSize="9" fill="#6b6459" fontWeight="700">Task</text>
+                  <text x="200" y="222" textAnchor="middle" fontSize="9" fill="#6b6459" fontWeight="700">Engagement</text>
+
+                  <text x="100" y="212" textAnchor="middle" fontSize="9" fill="#6b6459" fontWeight="700">Completion</text>
+                  <text x="100" y="222" textAnchor="middle" fontSize="9" fill="#6b6459" fontWeight="700">Speed</text>
+
+                  <text x="66" y="108" textAnchor="end" fontSize="9" fill="#6b6459" fontWeight="700">User</text>
+                  <text x="66" y="118" textAnchor="end" fontSize="9" fill="#6b6459" fontWeight="700">Enjoyment</text>
+                </svg>
+
+                {/* Legend */}
+                <div style={{ display: "flex", justifyContent: "center", gap: "1.5rem", marginTop: "0.5rem" }}>
+                  {[
+                    { color: "rgba(169,129,42,0.5)", fill: "transparent", label: "Legacy Text Inputs" },
+                    { color: "#1f4e37", fill: "#1f4e37", label: "Interactive Formats" },
+                  ].map((item) => (
+                    <div key={item.label} style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                      <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+                        <circle cx="6" cy="6" r="5" fill={item.fill === "transparent" ? "none" : "rgba(31,78,55,0.12)"} stroke={item.color} strokeWidth="1.5" />
+                      </svg>
+                      <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "var(--text-muted)", letterSpacing: "0.04em" }}>
+                        {item.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <p style={{ textAlign: "center", fontSize: "0.65rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)", marginTop: "0.6rem" }}>
+                  Comparative Vector Output
+                </p>
+              </div>
+            </div>
+
+            {/* Row 2: Bar chart + Micro-Burst text */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                gap: "1.5rem",
+                alignItems: "start",
+              }}
+            >
+              {/* Vertical bar chart */}
+              <div
+                style={{
+                  background: "var(--surface)",
+                  border: "1px solid var(--line)",
+                  borderRadius: "var(--radius-lg)",
+                  padding: "2rem",
+                }}
+              >
+                <h3
+                  style={{
+                    fontSize: "0.75rem",
+                    fontWeight: 800,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.1em",
+                    color: "var(--text-muted)",
+                    marginBottom: "2rem",
+                  }}
+                >
+                  Time to Value (Seconds)
+                </h3>
+
+                <div style={{ display: "flex", gap: "0", position: "relative" }}>
+                  {/* Y-axis */}
                   <div
                     style={{
                       display: "flex",
+                      flexDirection: "column-reverse",
                       justifyContent: "space-between",
-                      marginBottom: "4px",
-                      fontSize: "0.82rem",
-                      fontWeight: 600,
-                      color: "var(--text)",
+                      height: "160px",
+                      paddingBottom: "24px",
+                      marginRight: "0.5rem",
                     }}
                   >
-                    <span>{row.label}</span>
-                    <span style={{ color: "var(--text-muted)" }}>{row.seconds}s</span>
+                    {[0, 10, 20, 30, 40].map((v) => (
+                      <span key={v} style={{ fontSize: "0.65rem", color: "var(--text-muted)", fontWeight: 600, lineHeight: 1 }}>
+                        {v}
+                      </span>
+                    ))}
                   </div>
+
+                  {/* Bars */}
                   <div
                     style={{
-                      height: "6px",
-                      background: "var(--bg-alt)",
-                      borderRadius: "999px",
-                      overflow: "hidden",
+                      flex: 1,
+                      display: "flex",
+                      alignItems: "flex-end",
+                      gap: "0.4rem",
+                      height: "160px",
+                      borderLeft: "1px solid var(--line-light)",
+                      borderBottom: "1px solid var(--line-light)",
+                      paddingLeft: "0.5rem",
                     }}
                   >
-                    <div
-                      style={{
-                        width: `${row.pct}%`,
-                        height: "100%",
-                        background: "linear-gradient(90deg, var(--green), var(--green-mid))",
-                        borderRadius: "999px",
-                      }}
-                    />
+                    {[
+                      { label: "Sequence Sort", seconds: 35, pct: 87.5, color: "#1f4e37" },
+                      { label: "Fill the Blank", seconds: 25, pct: 62.5, color: "#2d7a52" },
+                      { label: "Spot the Error", seconds: 20, pct: 50, color: "#a9812a" },
+                      { label: "Match the Pair", seconds: 15, pct: 37.5, color: "#c4a04a" },
+                      { label: "Multiple Choice", seconds: 12, pct: 30, color: "#9e9e8a" },
+                    ].map((bar) => (
+                      <div
+                        key={bar.label}
+                        style={{
+                          flex: 1,
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "flex-end",
+                          height: "100%",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "100%",
+                            height: `${bar.pct}%`,
+                            background: bar.color,
+                            borderRadius: "3px 3px 0 0",
+                          }}
+                        />
+                        <div
+                          style={{
+                            fontSize: "0.6rem",
+                            fontWeight: 600,
+                            color: "var(--text-soft)",
+                            textAlign: "center",
+                            marginTop: "0.4rem",
+                            lineHeight: 1.3,
+                            wordBreak: "break-word",
+                          }}
+                        >
+                          {bar.label.split(" ").map((w, i) => (
+                            <span key={i} style={{ display: "block" }}>{w}</span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))}
+              </div>
+
+              {/* Micro-Burst Learning text */}
+              <div style={{ paddingTop: "0.5rem" }}>
+                <h2
+                  style={{
+                    fontFamily: "var(--font-fraunces)",
+                    fontSize: "clamp(1.5rem, 3vw, 2rem)",
+                    fontWeight: 700,
+                    color: "var(--text)",
+                    marginBottom: "1rem",
+                    lineHeight: 1.2,
+                  }}
+                >
+                  Micro-Burst Learning
+                </h2>
+                <p style={{ fontSize: "0.95rem", color: "var(--text-soft)", lineHeight: 1.75, marginBottom: "1.5rem" }}>
+                  The core philosophy of the new engine is <strong>Micro-Burst Learning</strong>. By ensuring every challenge can be completed in under 45 seconds, we fit into the natural downtime of a hospitality shift — during a commute, waiting for a manager, or before a brief.
+                </p>
+
+                {/* Architectural Note callout */}
+                <div
+                  style={{
+                    borderLeft: "3px solid var(--gold)",
+                    paddingLeft: "1rem",
+                    background: "var(--gold-light)",
+                    borderRadius: "0 var(--radius-md) var(--radius-md) 0",
+                    padding: "1rem 1rem 1rem 1.1rem",
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: "0.72rem",
+                      fontWeight: 800,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.08em",
+                      color: "var(--gold)",
+                      marginBottom: "0.4rem",
+                    }}
+                  >
+                    Architectural Note
+                  </p>
+                  <p style={{ fontSize: "0.85rem", color: "var(--text)", lineHeight: 1.65 }}>
+                    Formats requiring higher cognitive synthesis (Drag Sequence) take slightly longer but yield deeper workflow comprehension. Formats relying on quick recognition (Match Pair, Spot Error) are designed for rapid knowledge reinforcement.
+                  </p>
+                </div>
+              </div>
             </div>
+
           </div>
         </section>
 
