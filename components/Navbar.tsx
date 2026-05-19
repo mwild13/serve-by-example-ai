@@ -19,6 +19,12 @@ const platformLinks = [
     desc: "Real-time roleplay simulation that tests staff under pressure before real service.",
   },
   {
+    href: "/platform/challenges",
+    title: "Interactive Challenges",
+    desc: "Tap-based mini-games that replace essay inputs — sequence sorts, recipe builds, and match pairs.",
+    badge: "New",
+  },
+  {
     href: "/platform",
     title: "Custom Scenario Builder",
     desc: "Upload your menus, house rules, and POS workflows into the AI model.",

@@ -20,6 +20,7 @@ export default function Footer() {
           <h4>Product</h4>
           <ul>
             <li><Link href="/platform#arena">AI Arena</Link></li>
+            <li><Link href="/platform/challenges">Interactive Challenges</Link></li>
             <li><Link href="/platform">Scenario Builder</Link></li>
             <li><Link href="/platform#insights">Manager Portals</Link></li>
             <li><Link href="/security">Security &amp; Safety</Link></li>

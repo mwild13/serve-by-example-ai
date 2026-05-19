@@ -9,6 +9,7 @@ import ArenaPage from "@/components/learning-engine/ArenaPage";
 import DiagnosticFlow from "@/components/learning-engine/DiagnosticFlow";
 import DynamicModuleNav from "@/components/learning-engine/DynamicModuleNav";
 import RapidFirePage from "@/components/learning-engine/RapidFirePage";
+import ChallengesPage from "@/components/learning-engine/ChallengesPage";
 import { CocktailGridSkeleton } from "@/components/ui/Skeletons";
 const CocktailLibrary = lazy(() => import("@/components/knowledge-base/CocktailLibrary"));
 const KnowledgeBase = lazy(() => import("@/components/knowledge-base/KnowledgeBase"));
@@ -18,13 +19,14 @@ import MobileDashboardV3 from "@/components/learning-engine/MobileDashboardV3";
 import SessionRefresher from "@/components/ui/SessionRefresher";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
-type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
+type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "challenges" | "cocktails" | "knowledge" | "progress" | "settings";
 
 const NAV_ITEMS: { id: NavItem; label: string }[] = [
   { id: "home", label: "Home" },
   { id: "module", label: "Modules" },
   { id: "stage4", label: "Scenario Training" },
   { id: "scenarios", label: "AI Scenarios" },
+  { id: "challenges", label: "Challenges" },
   { id: "cocktails", label: "Cocktail Library" },
   { id: "knowledge", label: "101 Knowledge Base" },
   { id: "progress", label: "How I'm improving" },
@@ -689,6 +691,8 @@ export default function DashboardShell({
           </>
         ) : activeNav === "scenarios" ? (
           <ArenaPage userId={userId} />
+        ) : activeNav === "challenges" ? (
+          <ChallengesPage />
         ) : activeNav === "cocktails" ? (
           <Suspense fallback={<CocktailGridSkeleton count={12} />}>
             <CocktailLibrary />
