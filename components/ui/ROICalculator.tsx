@@ -11,7 +11,7 @@ export default function ROICalculator() {
   const annualLift = weeklyLift * 52;
 
   return (
-    <section className="roi-section">
+    <section className="roi-section roi-section-band">
       <div className="container">
         <div className="roi-card">
           <div className="roi-header">

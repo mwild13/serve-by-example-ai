@@ -2,8 +2,9 @@ import Link from "next/link";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import ROICalculator from "@/components/ui/ROICalculator";
-import BrowserMockup from "@/components/ui/BrowserMockup";
 import DashboardMockup from "@/components/ui/DashboardMockup";
+import HeroSection from "@/components/HeroSection";
+import ProductTour from "@/components/ProductTour";
 
 // ── SVG Icons ─────────────────────────────────────────────────────────────────
 
@@ -176,55 +177,36 @@ export default function Home() {
       <main>
 
         {/* ── Hero ─────────────────────────────────── */}
-        <section className="hero">
+        <HeroSection />
+
+        {/* ── Founder Quote (promoted) ─────────────── */}
+        <section className="founder-quote-strip">
           <div className="container">
-            <div className="hero-split">
-              <div className="hero-left">
-                <span className="eyebrow">AI-Powered Hospitality Training</span>
-                <h1>
-                  From 6 months of onboarding to 6 weeks with AI
-                </h1>
-                <p className="hero-sub">
-                  Scenario-based training that turns staff into confident service pros. Bartenders master cocktail specs and upselling. Managers track team readiness in real-time. All powered by adaptive learning and AI coaching
-                </p>
-                <div className="hero-actions">
-                  <Link href="/demo" className="btn btn-primary btn-lg">
-                    Try the Demo
-                  </Link>
-                  <Link href="/how-it-works" className="hero-secondary-link">
-                    How it works →
-                  </Link>
-                </div>
-              </div>
-              <div className="hero-right">
-                <BrowserMockup />
-              </div>
-            </div>
+            <blockquote className="founder-quote-inline">
+              <svg className="founder-quote-mark" width="32" height="24" viewBox="0 0 32 24" fill="currentColor" aria-hidden="true">
+                <path d="M0 24V14.4C0 6.4 4.8 1.6 14.4 0l1.6 3.2C10.4 4.8 7.6 8 7.2 12H13.6V24H0ZM18.4 24V14.4C18.4 6.4 23.2 1.6 32 0l1.6 3.2C28 4.8 25.2 8 24.8 12H31.2V24H18.4Z"/>
+              </svg>
+              <p>I built the training tool I always wished I had &mdash; one that works for real venues, real staff, and the real pressure of a busy service.</p>
+              <footer>Founder, Serve By Example &mdash; 15+ years in Australian hospitality</footer>
+            </blockquote>
           </div>
         </section>
 
-        {/* ── ROI Calculator ───────────────────────── */}
-        <ROICalculator />
-
         {/* ── Trust Stats ──────────────────────────── */}
-        <section className="section trust-section">
+        <section className="section trust-section trust-section-green">
           <div className="container">
-            <div className="section-header center">
-              <span className="eyebrow">Trusted by Hospitality Teams</span>
-              <h2>Built for venues that care about consistent standards</h2>
-            </div>
             <div className="trust-stats">
-              <article className="stat-card">
-                <div className="stat-value">3×</div>
-                <div className="stat-label">Faster Onboarding<br/><span style={{fontSize: '0.7rem', fontWeight: 400}}>6 months → 6 weeks</span></div>
+              <article className="stat-card stat-card-green">
+                <div className="stat-value-green">3<span className="stat-value-unit">×</span></div>
+                <div className="stat-label-green">Faster Onboarding<br/><em className="stat-accent">6 months to 6 weeks</em></div>
               </article>
-              <article className="stat-card">
-                <div className="stat-value">65+</div>
-                <div className="stat-label">Cocktail &amp; Scenario<br/><span style={{fontSize: '0.7rem', fontWeight: 400}}>Training Content</span></div>
+              <article className="stat-card stat-card-green">
+                <div className="stat-value-green">65<span className="stat-value-unit">+</span></div>
+                <div className="stat-label-green">Cocktail &amp; Scenario<br/><em className="stat-accent">Training Modules</em></div>
               </article>
-              <article className="stat-card">
-                <div className="stat-value">19</div>
-                <div className="stat-label">Languages Supported<br/><span style={{fontSize: '0.7rem', fontWeight: 400}}>Global Training Ready</span></div>
+              <article className="stat-card stat-card-green">
+                <div className="stat-value-green">19</div>
+                <div className="stat-label-green">Languages Supported<br/><em className="stat-accent">Global Training Ready</em></div>
               </article>
             </div>
           </div>
@@ -305,7 +287,7 @@ export default function Home() {
         </section>
 
         {/* ── Product Preview (Dashboard Mockup) ──── */}
-        <section className="section product-preview">
+        <section className="section product-preview section-warm">
           <div className="container">
             <p className="mockup-caption">Your team&rsquo;s personalised training dashboard.</p>
             <div className="mockup-wrapper">
@@ -407,7 +389,7 @@ export default function Home() {
         </section>
 
         {/* ── Mastery Engine — 3-Step Process ─────── */}
-        <section className="section section-alt">
+        <section className="section section-band-green">
           <div className="container">
             <div className="section-header center">
               <span className="eyebrow">Powered by Mastery Engine</span>
@@ -506,8 +488,13 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ── ROI Calculator ───────────────────────── */}
+        <div id="roi-calculator">
+          <ROICalculator />
+        </div>
+
         {/* ── Scalable Training Tiers ──────────────── */}
-        <section className="section section-alt">
+        <section className="section">
           <div className="container">
             <div className="section-header center">
               <span className="eyebrow">Scalable Training Tiers</span>
@@ -566,32 +553,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── Roadmap ──────────────────────────────── */}
-        <section className="section">
-          <div className="container">
-            <div className="section-header center">
-              <span className="eyebrow">Roadmap</span>
-              <h2>Future Updates.</h2>
-              <p>We&rsquo;re actively building and improving the platform. V2 updates are planned within 6 months.</p>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.25rem", marginTop: "2rem" }}>
-              {[
-                { eta: "2 months", soon: true, title: "More Staff Modules", desc: "New training modules covering coffee service, food pairing, wine fundamentals and advanced guest interaction." },
-                { eta: "4 months", soon: true, title: "More Staff Modules", desc: "Expanded scenario sets for large-venue management, events service and high-volume bar operations." },
-                { eta: "Within 6 months", soon: true, title: "V2: Major Feature Release", desc: "A significant platform update informed by founding member feedback, with new features across training, analytics and management." },
-                { eta: "TBA", soon: false, title: "App Store: iOS & Android", desc: "Native mobile apps so staff can train on the go, anytime, anywhere, fully synced with their progress." },
-              ].map((item, i) => (
-                <div key={i} style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "12px", padding: "1.5rem" }}>
-                  <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", color: item.soon ? "#16a34a" : "#9ca3af", textTransform: "uppercase", marginBottom: "0.5rem" }}>
-                    {item.eta}
-                  </div>
-                  <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.9375rem", fontWeight: 700, color: "#111827" }}>{item.title}</h3>
-                  <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.55 }}>{item.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        {/* ── Product Tour ─────────────────────────── */}
+        <ProductTour />
 
         {/* ── Founder Story ────────────────────────── */}
         <section className="section section-alt">
