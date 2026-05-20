@@ -12928,8 +12928,19 @@ body {
 
 .stat-accent {
   font-style: italic;
-  color: rgba(255, 255, 255, 0.65);
+  color: var(--gold-warm);
   font-weight: 600;
+}
+
+/* ── Gold highlight for key phrases in green panels ── */
+.step-highlight {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--gold-warm);
+}
+
+.section-band-green .step-highlight {
+  color: var(--gold-warm);
 }
 
 /* ── Sticky mobile CTA bar ───────────────────── */
@@ -13582,4 +13593,273 @@ body {
   color: var(--green-mid);
   flex-shrink: 0;
   margin-top: 2px;
+}
+
+/* ── Update 10A: ROI bar chart + email capture ── */
+.roi-chart {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.roi-chart-heading {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0 0 18px;
+}
+
+.roi-chart-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.roi-chart-row {
+  display: grid;
+  grid-template-columns: 52px 1fr 100px;
+  align-items: center;
+  gap: 12px;
+}
+
+.roi-chart-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.65);
+  white-space: nowrap;
+}
+
+.roi-chart-track {
+  height: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.roi-chart-fill {
+  height: 100%;
+  background: var(--gold-warm);
+  border-radius: 999px;
+  transition: width 0.4s var(--ease-out);
+  min-width: 6px;
+}
+
+.roi-chart-value {
+  font-family: 'SFMono-Regular', 'JetBrains Mono', 'Fira Mono', monospace;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--gold-warm);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.roi-email-cta {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.roi-email-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 10px;
+}
+
+.roi-email-row {
+  display: flex;
+  gap: 8px;
+}
+
+.roi-email-input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 0.875rem;
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.roi-email-input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.roi-email-input:focus {
+  border-color: var(--gold-warm);
+}
+
+.roi-email-btn {
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--gold-warm);
+  color: var(--green-deep);
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, opacity 0.15s;
+  font-family: var(--font-body);
+}
+
+.roi-email-btn:hover:not(:disabled) {
+  background: #d4a832;
+}
+
+.roi-email-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.roi-email-thanks {
+  font-size: 0.875rem;
+  color: var(--gold-warm);
+  font-weight: 600;
+  margin: 0;
+}
+
+@media (max-width: 480px) {
+  .roi-chart-row {
+    grid-template-columns: 48px 1fr 80px;
+    gap: 8px;
+  }
+  .roi-email-row { flex-direction: column; }
+  .roi-email-btn { width: 100%; }
+}
+
+/* ── Update 14: Quantified-benefit grid ─────── */
+.benefit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  margin-top: 48px;
+}
+
+.benefit-card {
+  background: var(--surface-raised);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: box-shadow 0.2s var(--ease-out), border-color 0.2s;
+}
+
+.benefit-card:hover {
+  border-color: var(--green-light);
+  box-shadow: var(--shadow-md);
+}
+
+.benefit-metric {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  font-weight: 800;
+  color: var(--green);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  font-optical-sizing: auto;
+}
+
+.benefit-metric-unit {
+  font-size: 0.5em;
+  font-weight: 700;
+  vertical-align: super;
+  line-height: 0;
+  color: var(--green-mid);
+}
+
+.benefit-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.benefit-desc {
+  font-size: 0.855rem;
+  color: var(--text-soft);
+  line-height: 1.65;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .benefit-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .benefit-card { padding: 20px 16px 18px; }
+}
+
+@media (max-width: 400px) {
+  .benefit-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Update 12: outcomes navigator ──────────── */
+.outcomes-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin: 0 auto 52px;
+  flex-wrap: wrap;
+}
+
+.outcomes-nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  background: var(--surface-raised);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-pill);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--green-deep);
+  letter-spacing: -0.01em;
+}
+
+.outcomes-nav-icon {
+  color: var(--green-mid);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.outcomes-nav-sep {
+  width: 32px;
+  height: 1.5px;
+  background: var(--line);
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .outcomes-nav-sep { display: none; }
+  .outcomes-nav { gap: 10px; }
+}
+
+/* ── Update 8: Fraunces variable axes ────────── */
+h1, h2, h3 {
+  font-optical-sizing: auto;
+}
+
+/* Hero subhead: Fraunces 300 italic for editorial warmth */
+.hero-sub {
+  font-family: var(--font-heading);
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(1rem, 2.2vw, 1.15rem);
+  line-height: 1.6;
+  color: var(--text-soft);
 }

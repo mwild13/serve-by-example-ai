@@ -105,15 +105,6 @@ function IcoZap({ size = 28 }: { size?: number }) {
   );
 }
 
-function IcoLayers({ size = 28 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="12 2 2 7 12 12 22 7 12 2"/>
-      <polyline points="2 17 12 22 22 17"/>
-      <polyline points="2 12 12 17 22 12"/>
-    </svg>
-  );
-}
 
 function IcoGrid({ size = 14 }: { size?: number }) {
   return (
@@ -212,71 +203,84 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── The Complete Hospitality Solution ────── */}
+        {/* ── One platform. Two outcomes. ───────────── */}
         <section className="section section-ecosystem">
           <div className="container">
             <div className="section-header center">
-              <h2>The Complete Hospitality Solution</h2>
-              <p>One platform. Two powerful tools working together to lift your team and your venue.</p>
+              <span className="eyebrow">One Platform</span>
+              <h2>One platform. Two outcomes.</h2>
+              <p>Train confident staff. Run a tighter venue. Both from a single dashboard.</p>
+            </div>
+
+            <div className="outcomes-nav">
+              <div className="outcomes-nav-pill">
+                <span className="outcomes-nav-icon"><IcoUsers size={18} /></span>
+                Train confident staff
+              </div>
+              <div className="outcomes-nav-sep" aria-hidden="true" />
+              <div className="outcomes-nav-pill">
+                <span className="outcomes-nav-icon"><IcoBuilding size={18} /></span>
+                Run a tighter venue
+              </div>
             </div>
 
             <div className="solution-grid">
 
-              {/* Management Console Column */}
+              {/* Manager outcome */}
               <div className="solution-col">
                 <div className="solution-col-header">
                   <span className="solution-col-icon"><IcoBuilding size={20} /></span>
                   <div>
-                    <h3>Management Console</h3>
-                    <p>Venue Performance Mission Control: Track team performance and compliance in real-time</p>
+                    <h3>Run a tighter venue</h3>
+                    <p>Real-time visibility across your whole team — compliance, progress, and performance — without chasing anyone.</p>
                   </div>
                 </div>
                 <DashboardMockup />
               </div>
 
-              {/* Staff Column */}
+              {/* Staff outcome */}
               <div className="solution-col">
                 <div className="solution-col-header">
                   <span className="solution-col-icon"><IcoUsers size={20} /></span>
                   <div>
-                    <h3>For Your Staff</h3>
-                    <p>Professional Development, On Demand: AI-powered training that scales with your venue</p>
+                    <h3>Train confident staff</h3>
+                    <p>Floor-ready in six weeks, not six months — guided by AI scenarios and immediate scored feedback.</p>
                   </div>
                 </div>
                 <ul className="solution-features">
                   <li>
                     <span className="solution-feature-icon"><IcoPlay /></span>
                     <div>
-                      <strong>Interactive Scenarios</strong>
-                      <span>Realistic situations staff face every shift, guided by AI</span>
+                      <strong>65+ AI Scenarios</strong>
+                      <span>Realistic situations staff face every shift, evaluated and scored live</span>
                     </div>
                   </li>
                   <li>
                     <span className="solution-feature-icon"><IcoBot /></span>
                     <div>
-                      <strong>AI Coaching</strong>
-                      <span>Instant personalised feedback on every response, available 24/7</span>
+                      <strong>24/7 AI Coach</strong>
+                      <span>Instant personalised feedback on every response — no manager required</span>
                     </div>
                   </li>
                   <li>
                     <span className="solution-feature-icon"><IcoBarChart /></span>
                     <div>
-                      <strong>Visible Progress</strong>
-                      <span>ELO ratings, skill levels, and mastery badges track real growth</span>
+                      <strong>ELO Skill Ratings</strong>
+                      <span>Adaptive difficulty that always finds each staff member&rsquo;s optimal training edge</span>
                     </div>
                   </li>
                   <li>
                     <span className="solution-feature-icon"><IcoBook /></span>
                     <div>
-                      <strong>Knowledge Hub</strong>
-                      <span>65 cocktail specs + 26 reference articles on demand</span>
+                      <strong>Knowledge On Demand</strong>
+                      <span>65 cocktail specs and 26 reference articles, searchable on any device</span>
                     </div>
                   </li>
                   <li>
                     <span className="solution-feature-icon"><IcoRefresh /></span>
                     <div>
-                      <strong>Smart Review</strong>
-                      <span>Spaced repetition resurfaces weak areas automatically</span>
+                      <strong>Spaced Repetition</strong>
+                      <span>Weak areas resurface at 1, 4, 9, 16-day intervals — not when it&rsquo;s too late</span>
                     </div>
                   </li>
                 </ul>
@@ -404,7 +408,7 @@ export default function Home() {
                 </div>
                 <div className="mastery-step-num">Step 1</div>
                 <h3>Adaptive Skill-Level Matching</h3>
-                <p>The ELO rating system matches each staff member to scenarios at their current level. Pass harder challenges and your rating climbs. Struggle and the system adjusts, always finding the optimal training edge.</p>
+                <p>The ELO rating system matches each staff member to scenarios at their current level. Pass harder challenges and your rating climbs. Struggle and the system adjusts, always finding the <em className="step-highlight">optimal training edge</em>.</p>
               </div>
 
               <div className="mastery-step-connector" aria-hidden="true">
@@ -419,7 +423,7 @@ export default function Home() {
                 </div>
                 <div className="mastery-step-num">Step 2</div>
                 <h3>Automated Knowledge Retention</h3>
-                <p>Spaced repetition resurfaces weak areas at the scientifically optimal intervals: 1, 4, 9, and 16 days. Staff don&rsquo;t cram. They retain. Knowledge decay is monitored and corrected automatically.</p>
+                <p>Spaced repetition resurfaces weak areas at the scientifically optimal intervals: <em className="step-highlight">1, 4, 9, and 16 days</em>. Staff don&rsquo;t cram. They retain. Knowledge decay is monitored and corrected automatically.</p>
               </div>
 
               <div className="mastery-step-connector" aria-hidden="true">
@@ -434,64 +438,69 @@ export default function Home() {
                 </div>
                 <div className="mastery-step-num">Step 3</div>
                 <h3>Real-Time Performance Evaluation</h3>
-                <p>AI scores every response across 5 dimensions: communication, hospitality, problem-solving, professionalism, and guest experience. Feedback is immediate, with no waiting for a manager&rsquo;s opinion.</p>
+                <p>AI scores every response across <em className="step-highlight">5 dimensions</em>: communication, hospitality, problem-solving, professionalism, and guest experience. Feedback is immediate, with no waiting for a manager&rsquo;s opinion.</p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ── Why SBE Works ──────────────────────────── */}
+        {/* ── Quantified Benefits ─────────────────────── */}
         <section className="section section-warm">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">The Science Behind It</span>
+              <span className="eyebrow">The Numbers Behind It</span>
               <h2>Why SBE produces results others can&rsquo;t</h2>
             </div>
-            <div className="why-sbe-grid">
-              <div className="why-sbe-card">
-                <div className="why-sbe-icon why-sbe-icon-svg">
-                  <IcoRefresh size={22} />
+            <div className="benefit-grid">
+              <div className="benefit-card">
+                <div className="benefit-metric">
+                  1, 4, 9, 16
+                  <span className="benefit-metric-unit">days</span>
                 </div>
-                <h3>Spaced Repetition</h3>
-                <p>
-                  Decades of learning science prove that reviewing material at optimal intervals creates lasting memory. We resurface weak areas automatically, no cramming required.
-                </p>
+                <h3 className="benefit-title">Spaced Repetition Intervals</h3>
+                <p className="benefit-desc">Scientifically optimal review timing resurfaces weak areas before knowledge decays. No cramming, no guessing.</p>
               </div>
-              <div className="why-sbe-card">
-                <div className="why-sbe-icon why-sbe-icon-svg">
-                  <IcoTrophy size={22} />
+              <div className="benefit-card">
+                <div className="benefit-metric">
+                  5<span className="benefit-metric-unit">×</span>
                 </div>
-                <h3>Adaptive Difficulty Rating</h3>
-                <p>
-                  Staff face scenarios precisely matched to their current skill level. Perform well and difficulty rises. Struggle and the system eases back, keeping you in the optimal zone for fast improvement.
-                </p>
+                <h3 className="benefit-title">Dimensions Evaluated Per Response</h3>
+                <p className="benefit-desc">Communication, hospitality, problem-solving, professionalism, and guest experience — scored live by AI on every answer.</p>
               </div>
-              <div className="why-sbe-card">
-                <div className="why-sbe-icon why-sbe-icon-svg">
-                  <IcoZap size={22} />
+              <div className="benefit-card">
+                <div className="benefit-metric">
+                  3<span className="benefit-metric-unit">×</span>
                 </div>
-                <h3>Immediate Feedback</h3>
-                <p>
-                  AI evaluates every response in real-time across 5 dimensions. Staff learn what works immediately, with no waiting for a manager&rsquo;s opinion or guessing if they got it right.
-                </p>
+                <h3 className="benefit-title">Faster Than Traditional Onboarding</h3>
+                <p className="benefit-desc">New staff floor-ready in six weeks, not six months. Structured AI-guided modules replace inconsistent on-the-job guessing.</p>
               </div>
-              <div className="why-sbe-card">
-                <div className="why-sbe-icon why-sbe-icon-svg">
-                  <IcoLayers size={22} />
+              <div className="benefit-card">
+                <div className="benefit-metric">
+                  65<span className="benefit-metric-unit">+</span>
                 </div>
-                <h3>Progressive Difficulty</h3>
-                <p>
-                  The 3-stage path starts simple and progresses to complex judgment calls. Each stage builds on the last, not a random quiz every time.
-                </p>
+                <h3 className="benefit-title">AI Scenarios and Modules</h3>
+                <p className="benefit-desc">Realistic situations — from an awkward upsell to a guest complaint under pressure — every shift, guided and scored.</p>
+              </div>
+              <div className="benefit-card">
+                <div className="benefit-metric">
+                  24<span className="benefit-metric-unit">/7</span>
+                </div>
+                <h3 className="benefit-title">AI Coach Always Available</h3>
+                <p className="benefit-desc">Instant personalised feedback on every response. No manager required. No waiting until next week&rsquo;s check-in.</p>
+              </div>
+              <div className="benefit-card">
+                <div className="benefit-metric">
+                  19
+                </div>
+                <h3 className="benefit-title">Languages Supported</h3>
+                <p className="benefit-desc">Train your full team in their first language. AI-translated scenarios and feedback for genuinely global venue groups.</p>
               </div>
             </div>
           </div>
         </section>
 
         {/* ── ROI Calculator ───────────────────────── */}
-        <div id="roi-calculator">
-          <ROICalculator />
-        </div>
+        <ROICalculator />
 
         {/* ── Scalable Training Tiers ──────────────── */}
         <section className="section">
