@@ -205,7 +205,10 @@ function LoginPageContent() {
               Payment successful. Create your account or sign in below to access your plan.
             </div>
           )}
-          <h1>{isSignUp ? "Create your account." : "Jump back in."}</h1>
+          <h1>{isSignUp ? "Get started with a new account." : "Enter your info to sign in."}</h1>
+          <p className="login-sub">
+            {isSignUp ? "Or sign in to your existing account." : "Or get started with a new account."}
+          </p>
 
           <div className="auth-toggle" role="tablist" aria-label="Authentication mode">
             <button

@@ -3658,6 +3658,13 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   color: var(--green-deep);
 }
 
+.login-sub {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
 .auth-toggle {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
