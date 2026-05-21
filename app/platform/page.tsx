@@ -1,6 +1,7 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SectionSubNav from "@/components/SectionSubNav";
 
 const features = [
   {
@@ -101,8 +102,15 @@ export default function PlatformPage() {
       <Navbar />
 
       <main>
+        <div className="section-subnav-sentinel" aria-hidden="true" />
+        <SectionSubNav items={[
+          { id: "overview", label: "Overview" },
+          { id: "insights", label: "Analytics" },
+          { id: "arena", label: "AI Arena" },
+          { id: "mobile", label: "Mobile" },
+        ]} />
         {/* ── Hero ── */}
-        <section className="inner-hero">
+        <section id="overview" className="inner-hero">
           <div className="container">
             <span className="eyebrow">Platform tour</span>
             <h1>
@@ -287,7 +295,7 @@ export default function PlatformPage() {
         </section>
 
         {/* ── Mobile-first ── */}
-        <section className="section section-alt">
+        <section id="mobile" className="section section-alt">
           <div className="container platform-mobile-section">
             <div className="platform-mobile-text">
               <span className="eyebrow">Mobile-first training</span>
