@@ -17,6 +17,7 @@ import ProgressOverview from "@/components/learning-engine/ProgressOverview";
 import PreShiftHome from "@/components/learning-engine/PreShiftHome";
 import MobileDashboardV3 from "@/components/learning-engine/MobileDashboardV3";
 import SessionRefresher from "@/components/ui/SessionRefresher";
+import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
 type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "challenges" | "cocktails" | "knowledge" | "progress" | "settings";
@@ -333,19 +334,10 @@ function StaffSettingsPanel({
         </div>
       </div>
 
-      <div className="card sbe-trust-card">
-        <h3>Account activity</h3>
-        <p>You&apos;re always in control of your account and training data.</p>
-        <div className="sbe-trust-list">
-          <div className="sbe-trust-row">
-            <span className="sbe-trust-label">Last login</span>
-            <span className="sbe-trust-value">Current session</span>
-          </div>
-          <div className="sbe-trust-row">
-            <span className="sbe-trust-label">Training data usage</span>
-            <span className="sbe-trust-value">Your responses are used only to generate your personal feedback scores. They are never shared with other staff or venues.</span>
-          </div>
-        </div>
+      <div className="card">
+        <h3>Language</h3>
+        <p>Choose the language for your training content. Scenarios and AI feedback will be delivered in the language you select.</p>
+        <LanguageSwitcher variant="drawer" />
       </div>
 
       <div className="card">

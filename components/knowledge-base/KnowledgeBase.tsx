@@ -37,35 +37,49 @@ export default function KnowledgeBase() {
     });
   }, [activeCategory, activeSubCategory, search]);
 
-  // Group by category for sectioned list display
+  // Group by category key for sectioned list display
   const grouped = useMemo(() => {
-    const groups: Record<string, typeof filtered> = {};
+    const groups: Partial<Record<KBCategory, typeof filtered>> = {};
     for (const entry of filtered) {
-      const cat = KB_CATEGORIES[entry.category].label;
-      if (!groups[cat]) groups[cat] = [];
-      groups[cat].push(entry);
+      if (!groups[entry.category]) groups[entry.category] = [];
+      groups[entry.category]!.push(entry);
     }
     return groups;
   }, [filtered]);
 
   return (
     <div className="kb-container">
-      <h1 className="kb-title">101 Knowledge Base</h1>
-      <p className="kb-subtitle">
-        {activeCategory === "all"
-          ? `${KB_ENTRIES.length} reference articles across ${CATEGORY_KEYS.length} categories.`
-          : KB_CATEGORIES[activeCategory].description}
-      </p>
+      {/* Header band */}
+      <div className="kb-header">
+        <div className="kb-header-text">
+          <span className="kb-header-eyebrow">Knowledge Base</span>
+          <strong className="kb-header-title">101 Knowledge Base</strong>
+          <span className="kb-header-sub">
+            {activeCategory === "all"
+              ? `${KB_ENTRIES.length} reference articles across ${CATEGORY_KEYS.length} categories.`
+              : KB_CATEGORIES[activeCategory].description}
+          </span>
+        </div>
+        <div className="kb-header-stat" aria-hidden="true">
+          <span className="kb-header-stat-num">{filtered.length}</span>
+          <span className="kb-header-stat-label">{filtered.length === KB_ENTRIES.length ? "articles" : "results"}</span>
+        </div>
+      </div>
 
       {/* Search */}
       <div className="kb-search-row">
-        <input
-          className="kb-search"
-          type="text"
-          placeholder="Search knowledge base..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <div className="kb-search-wrap">
+          <svg className="kb-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input
+            className="kb-search"
+            type="text"
+            placeholder="Search knowledge base..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
         {search && (
           <button
             className="btn btn-secondary kb-clear-btn"
@@ -134,18 +148,28 @@ export default function KnowledgeBase() {
       {/* Grouped list view */}
       {filtered.length > 0 ? (
         <div className="kb-list-container">
-          {Object.entries(grouped).map(([catLabel, entries]) => (
-            <div key={catLabel} className="kb-list-section">
-              <h3 className="kb-list-section-title">{catLabel}</h3>
-              <div className="kb-list">
-                {entries.map((entry) => {
-                  const catMeta = KB_CATEGORIES[entry.category];
-                  return (
+          {(Object.entries(grouped) as [KBCategory, typeof filtered][]).map(([catKey, entries]) => {
+            const catMeta = KB_CATEGORIES[catKey];
+            return (
+              <div key={catKey} className="kb-list-section">
+                <h3
+                  className="kb-list-section-title"
+                  style={{ borderLeftColor: catMeta.color }}
+                >
+                  {catMeta.label}
+                </h3>
+                <div className="kb-list">
+                  {entries.map((entry) => (
                     <button
                       key={`${entry.category}-${entry.subCategory}-${entry.title}`}
                       className="kb-list-item"
                       onClick={() => setSlideEntry(entry)}
                     >
+                      <span
+                        className="kb-list-item-accent"
+                        style={{ background: catMeta.color }}
+                        aria-hidden="true"
+                      />
                       <div className="kb-list-item-info">
                         <strong className="kb-list-item-title">{entry.title}</strong>
                         <span className="kb-list-item-tagline">
@@ -159,11 +183,11 @@ export default function KnowledgeBase() {
                         {entry.subCategory}
                       </span>
                     </button>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="kb-empty">
@@ -177,36 +201,34 @@ export default function KnowledgeBase() {
           <div className="kb-slide-backdrop" onClick={() => setSlideEntry(null)} />
           <div className="kb-slide-panel">
             <div className="kb-slide-header">
-              <button className="kb-slide-close" onClick={() => setSlideEntry(null)}>
+              <div className="kb-slide-header-left">
+                <span className="kb-slide-header-eyebrow">
+                  {KB_CATEGORIES[slideEntry.category].label}
+                </span>
+                <span className="kb-slide-header-sub">{slideEntry.subCategory}</span>
+              </div>
+              <button className="kb-slide-close" onClick={() => setSlideEntry(null)} aria-label="Close article">
                 &times;
               </button>
-              <span
-                className="kb-list-item-tag"
-                style={{
-                  background: KB_CATEGORIES[slideEntry.category].color + "18",
-                  color: KB_CATEGORIES[slideEntry.category].color,
-                  borderColor: KB_CATEGORIES[slideEntry.category].color + "44",
-                }}
-              >
-                {KB_CATEGORIES[slideEntry.category].label} / {slideEntry.subCategory}
-              </span>
             </div>
-            <h2 className="kb-slide-title">{slideEntry.title}</h2>
-            <div className="kb-slide-content">
-              <p>{slideEntry.content}</p>
-            </div>
-            <div className="kb-slide-facts">
-              <h4>Key Facts</h4>
-              <ul>
-                {slideEntry.keyFacts.map((fact, i) => (
-                  <li key={i}><span className="kb-fact-check">&#10003;</span> {fact}</li>
+            <div className="kb-slide-body">
+              <h2 className="kb-slide-title">{slideEntry.title}</h2>
+              <div className="kb-slide-content">
+                <p>{slideEntry.content}</p>
+              </div>
+              <div className="kb-slide-facts">
+                <h4>Key Facts</h4>
+                <ul>
+                  {slideEntry.keyFacts.map((fact, i) => (
+                    <li key={i}><span className="kb-fact-check">&#10003;</span> {fact}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="kb-slide-tags">
+                {slideEntry.tags.map((tag) => (
+                  <span key={tag} className="kb-tag">{tag}</span>
                 ))}
-              </ul>
-            </div>
-            <div className="kb-slide-tags">
-              {slideEntry.tags.map((tag) => (
-                <span key={tag} className="kb-tag">{tag}</span>
-              ))}
+              </div>
             </div>
           </div>
         </>
