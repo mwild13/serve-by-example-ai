@@ -205,18 +205,7 @@ function LoginPageContent() {
               Payment successful. Create your account or sign in below to access your plan.
             </div>
           )}
-          <h1>{isSignUp ? "Create your Serve By Example AI account" : "Staff login: jump back in"}</h1>
-          <p className="login-copy">
-            {isSignUp
-              ? "Create an account to unlock training modules, AI coaching, progress streaks, and leaderboard-ready momentum."
-              : "Sign in to continue your hospitality training, keep your streak alive, and pick up exactly where you left off."}
-          </p>
-
-          <div className="login-perks" aria-label="Training perks">
-            <span>Keep streaks</span>
-            <span>Level up</span>
-            <span>Earn progress</span>
-          </div>
+          <h1>{isSignUp ? "Create your account." : "Jump back in."}</h1>
 
           <div className="auth-toggle" role="tablist" aria-label="Authentication mode">
             <button

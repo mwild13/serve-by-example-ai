@@ -3658,38 +3658,11 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   color: var(--green-deep);
 }
 
-.login-copy {
-  margin-top: 14px;
-  color: var(--text-soft);
-  line-height: 1.72;
-  overflow-wrap: anywhere;
-}
-
-.login-perks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.login-perks span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid var(--line-light);
-  background: #fff;
-  color: var(--green-deep);
-  border-radius: 999px;
-  padding: 7px 12px;
-  font-size: 0.86rem;
-  font-weight: 700;
-}
-
 .auth-toggle {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  margin: 28px 0 24px;
+  margin: 16px 0 20px;
 }
 
 .auth-toggle-button {
