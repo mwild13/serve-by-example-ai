@@ -14763,7 +14763,6 @@ h1, h2, h3 {
   height: auto;
   border-radius: var(--radius-xl);
   display: block;
-  mix-blend-mode: multiply;
 }
 
 /* ── Book a Call Modal ─────────────────────────────────── */
