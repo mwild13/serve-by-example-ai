@@ -4,12 +4,6 @@ import { useState, useRef } from 'react';
 import Image from 'next/image';
 import StickyDemoCTA from '@/components/StickyDemoCTA';
 
-type Audience = 'venue' | 'staff';
-
-const COPY: Record<Audience, string> = {
-  venue: 'Scenario-based AI training that gets new staff floor-ready in six weeks, not six months.',
-  staff: 'Build the skills that make you the best person on the floor — trained by AI, proven by results.',
-};
 
 type FormData = {
   firstName: string;
@@ -56,7 +50,6 @@ function validateForm(data: FormData): FormErrors {
 }
 
 export default function HeroSection() {
-  const [audience, setAudience] = useState<Audience>('venue');
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState<FormData>(INITIAL_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -102,25 +95,12 @@ export default function HeroSection() {
       <section className="hero" ref={heroRef}>
         <div className="container">
 
-          <div className="audience-toggle" role="group" aria-label="Select audience" style={{ margin: '0 auto 32px' }}>
-            <button
-              className={`audience-pill${audience === 'venue' ? ' audience-pill-active' : ''}`}
-              onClick={() => setAudience('venue')}
-            >
-              For Venue Owner
-            </button>
-            <button
-              className={`audience-pill${audience === 'staff' ? ' audience-pill-active' : ''}`}
-              onClick={() => setAudience('staff')}
-            >
-              For Hospitality Staff
-            </button>
-          </div>
-
           <h1>Training Software Built for Hospitality Teams</h1>
           <p className="hero-tagline">From 6 months of onboarding to 6 weeks with AI</p>
 
-          <p className="hero-sub" style={{ marginTop: 20 }}>{COPY[audience]}</p>
+          <p className="hero-sub" style={{ marginTop: 20 }}>
+            Scenario-based AI training that gets new staff floor-ready in six weeks, not six months.
+          </p>
 
           <div className="hero-cta-tiles">
             <button className="hero-cta-tile hero-cta-tile-primary" onClick={openModal}>
