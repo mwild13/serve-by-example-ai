@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import StickyDemoCTA from '@/components/StickyDemoCTA';
 
@@ -125,13 +124,11 @@ export default function HeroSection() {
           </div>
 
           <div className="hero-showcase">
-            <Image
+            <img
               src="/257shots_so.png"
               alt="Serve By Example staff training dashboard"
               width={1400}
               height={875}
-              priority
-              unoptimized
               className="hero-showcase-img"
             />
           </div>
