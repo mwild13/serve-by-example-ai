@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import StickyDemoCTA from '@/components/StickyDemoCTA';
 
 
@@ -54,6 +55,8 @@ export default function HeroSection() {
   const [form, setForm] = useState<FormData>(INITIAL_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [apiError, setApiError] = useState('');
   const heroRef = useRef<HTMLElement>(null);
 
   function handleField(key: keyof FormData, value: string) {
@@ -61,14 +64,31 @@ export default function HeroSection() {
     if (errors[key]) setErrors(e => ({ ...e, [key]: undefined }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const errs = validateForm(form);
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
       return;
     }
-    setSubmitted(true);
+    setSubmitting(true);
+    setApiError('');
+    try {
+      const res = await fetch('/api/book-call', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Could not submit. Please email info@serve-by-example.com.');
+      }
+      setSubmitted(true);
+    } catch (err) {
+      setApiError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function openModal() {
@@ -76,18 +96,11 @@ export default function HeroSection() {
     setForm(INITIAL_FORM);
     setErrors({});
     setSubmitted(false);
+    setApiError('');
   }
 
   function closeModal() {
     setShowModal(false);
-  }
-
-  function scrollToProductTour() {
-    const el = document.getElementById('product-tour');
-    if (el) {
-      const top = el.getBoundingClientRect().top + window.scrollY - 80;
-      window.scrollTo({ top, behavior: 'smooth' });
-    }
   }
 
   return (
@@ -106,9 +119,9 @@ export default function HeroSection() {
             <button className="hero-cta-tile hero-cta-tile-primary" onClick={openModal}>
               Book a call
             </button>
-            <button className="hero-cta-tile hero-cta-tile-secondary" onClick={scrollToProductTour}>
+            <Link href="/how-it-works" className="hero-cta-tile hero-cta-tile-secondary">
               How it works
-            </button>
+            </Link>
           </div>
 
           <div className="hero-showcase">
@@ -154,7 +167,8 @@ export default function HeroSection() {
                   We&rsquo;ll map out your current staff onboarding layout, look at your venue count, and determine if interactive AI roleplay can realistically drop your training timeline from six months down to six weeks.
                 </p>
                 <blockquote className="book-modal-blockquote">
-                  <strong>Zero fluff. No aggressive sales pitch.</strong> There is absolutely no point walking you through a software console unless it mathematically protects your venue&rsquo;s service margins, fixes consistency issues, and gets your new hires floor-ready before their first real shift.
+                  <strong>Zero fluff. No aggressive sales pitch.</strong>
+                  <p>There is absolutely no point walking you through a software console unless it mathematically protects your venue&rsquo;s service margins, fixes consistency issues, and gets your new hires floor-ready before their first real shift.</p>
                 </blockquote>
               </div>
 
@@ -311,8 +325,9 @@ export default function HeroSection() {
                       {errors.intent && <span className="book-form-error">{errors.intent}</span>}
                     </div>
 
-                    <button type="submit" className="btn btn-primary btn-block">
-                      Book Initial Call
+                    {apiError && <div className="book-form-error" style={{ marginBottom: 8 }}>{apiError}</div>}
+                    <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
+                      {submitting ? 'Sending...' : 'Book Initial Call'}
                     </button>
                   </form>
                 )}

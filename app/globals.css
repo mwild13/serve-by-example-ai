@@ -11991,6 +11991,19 @@ body {
     gap: 40px;
   }
 
+  .solution-col {
+    overflow: hidden;
+  }
+
+  .solution-col-header > div {
+    min-width: 0;
+  }
+
+  .solution-features li > div {
+    min-width: 0;
+    flex: 1;
+  }
+
   .mastery-steps-flow {
     grid-template-columns: 1fr;
     gap: 12px;
@@ -12855,7 +12868,7 @@ body {
 
 /* ── Founder quote strip (promoted, below hero) ── */
 .founder-quote-strip {
-  padding: 36px 0 44px;
+  padding: 6px 0 36px;
   background: var(--bg);
   border-bottom: 1px solid var(--line-light);
 }
@@ -14721,6 +14734,7 @@ h1, h2, h3 {
   transition: background 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out), transform 0.18s var(--ease-out), border-color 0.18s var(--ease-out), color 0.18s var(--ease-out);
   white-space: nowrap;
   border: none;
+  text-decoration: none;
 }
 
 .hero-cta-tile-primary {
@@ -14900,8 +14914,8 @@ h1, h2, h3 {
 .book-modal-blockquote p {
   font-size: 0.86rem;
   line-height: 1.75;
-  color: rgba(255, 255, 255, 0.65);
-  margin: 0;
+  color: rgba(255, 255, 255, 0.92);
+  margin: 8px 0 0;
 }
 
 .book-modal-right {

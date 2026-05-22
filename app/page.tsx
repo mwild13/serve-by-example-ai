@@ -175,9 +175,6 @@ export default function Home() {
         <section className="founder-quote-strip">
           <div className="container">
             <blockquote className="founder-quote-inline">
-              <svg className="founder-quote-mark" width="32" height="24" viewBox="0 0 32 24" fill="currentColor" aria-hidden="true">
-                <path d="M0 24V14.4C0 6.4 4.8 1.6 14.4 0l1.6 3.2C10.4 4.8 7.6 8 7.2 12H13.6V24H0ZM18.4 24V14.4C18.4 6.4 23.2 1.6 32 0l1.6 3.2C28 4.8 25.2 8 24.8 12H31.2V24H18.4Z"/>
-              </svg>
               <p>I built the training tool I always wished I had &mdash; one that works for real venues, real staff, and the real pressure of a busy service.</p>
               <footer>Founder, Serve By Example &mdash; 15+ years in Australian hospitality</footer>
             </blockquote>

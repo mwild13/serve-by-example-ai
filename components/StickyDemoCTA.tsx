@@ -31,7 +31,7 @@ export default function StickyDemoCTA({ heroRef }: { heroRef: React.RefObject<HT
   return (
     <div ref={barRef} className="sticky-demo-bar" aria-hidden="true">
       <Link href="/demo" className="btn btn-primary sticky-demo-btn">
-        Try the Demo &nbsp;&middot;&nbsp; No credit card
+        Try the Demo
       </Link>
     </div>
   );
