@@ -564,7 +564,9 @@ export default function Home() {
         </section>
 
         {/* ── Product Tour ─────────────────────────── */}
-        <ProductTour />
+        <div id="product-tour">
+          <ProductTour />
+        </div>
 
         {/* ── Menu Drill Generator ─────────────────── */}
         <MenuDrillGenerator />

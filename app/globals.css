@@ -14684,3 +14684,324 @@ h1, h2, h3 {
 .kb-list {
   gap: 6px;
 }
+
+/* ── Hero Redesign ──────────────────────────────────────── */
+
+.hero-tagline {
+  font-size: clamp(1.05rem, 2.2vw, 1.25rem);
+  font-weight: 500;
+  color: var(--text-muted);
+  margin: 10px auto 0;
+  max-width: 560px;
+  line-height: 1.5;
+}
+
+.hero-cta-tiles {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 40px;
+}
+
+.hero-cta-tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 34px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out), transform 0.18s var(--ease-out), border-color 0.18s var(--ease-out), color 0.18s var(--ease-out);
+  white-space: nowrap;
+  border: none;
+}
+
+.hero-cta-tile-primary {
+  background: var(--green);
+  color: #fff;
+  box-shadow: 0 4px 18px rgba(31, 78, 55, 0.28);
+}
+
+.hero-cta-tile-primary:hover {
+  background: var(--green-deep);
+  box-shadow: 0 6px 28px rgba(31, 78, 55, 0.38);
+  transform: translateY(-2px);
+}
+
+.hero-cta-tile-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border: 1.5px solid var(--line);
+  box-shadow: var(--shadow-sm);
+}
+
+.hero-cta-tile-secondary:hover {
+  border-color: var(--green-mid);
+  color: var(--green);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.hero-showcase {
+  margin-top: 56px;
+  max-width: 1080px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-showcase-img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 24px 80px rgba(27, 61, 47, 0.18), 0 4px 16px rgba(0,0,0,0.08);
+  display: block;
+}
+
+/* ── Book a Call Modal ─────────────────────────────────── */
+
+.book-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 25, 18, 0.72);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 20px 60px;
+  overflow-y: auto;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.book-modal {
+  position: relative;
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  max-width: 980px;
+  width: 100%;
+  box-shadow: 0 32px 100px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  margin: auto;
+}
+
+.book-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.8);
+  font-size: 1.3rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  line-height: 1;
+  transition: background 0.15s, color 0.15s;
+}
+
+.book-modal-close:hover {
+  background: rgba(255,255,255,0.22);
+  color: #fff;
+}
+
+.book-modal-inner {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+}
+
+.book-modal-left {
+  background: var(--green-deep);
+  padding: 56px 36px;
+  display: flex;
+  flex-direction: column;
+}
+
+.book-modal-left-heading {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 24px;
+  line-height: 1.1;
+}
+
+.book-modal-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  counter-reset: none;
+}
+
+.book-modal-steps li {
+  font-size: 0.93rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.82);
+  padding-left: 0;
+}
+
+.book-modal-steps li strong {
+  color: var(--gold-warm);
+  font-weight: 700;
+}
+
+.book-modal-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.14);
+  margin-bottom: 32px;
+}
+
+.book-modal-brief-heading {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 12px;
+}
+
+.book-modal-brief-body {
+  font-size: 0.88rem;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0 0 24px;
+}
+
+.book-modal-blockquote {
+  border-left: 3px solid var(--gold-warm);
+  padding: 0 0 0 16px;
+  margin: 0;
+}
+
+.book-modal-blockquote strong {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--gold-warm);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+}
+
+.book-modal-blockquote p {
+  font-size: 0.86rem;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0;
+}
+
+.book-modal-right {
+  padding: 52px 44px;
+  background: var(--surface);
+  overflow-y: auto;
+}
+
+/* Form inside modal */
+
+.book-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.book-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.book-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.book-form-error {
+  font-size: 0.78rem;
+  color: #c0392b;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.input-error {
+  border-color: #c0392b !important;
+  box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.1) !important;
+}
+
+.book-form-textarea {
+  resize: vertical;
+  min-height: 84px;
+}
+
+.book-form-expand {
+  animation: book-field-appear 0.2s var(--ease-out);
+}
+
+@keyframes book-field-appear {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.book-modal-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 20px;
+  gap: 16px;
+}
+
+.book-modal-success h3 {
+  font-family: var(--font-heading);
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--green-deep);
+  margin: 0;
+}
+
+.book-modal-success p {
+  color: var(--text-soft);
+  font-size: 1rem;
+  margin: 0;
+  max-width: 340px;
+}
+
+/* Responsive */
+
+@media (max-width: 760px) {
+  .book-modal-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .book-modal-left {
+    padding: 40px 28px;
+  }
+
+  .book-modal-right {
+    padding: 36px 28px;
+  }
+
+  .book-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-cta-tiles {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-cta-tile {
+    width: 100%;
+    max-width: 320px;
+  }
+}
