@@ -131,6 +131,7 @@ export default function HeroSection() {
               width={1400}
               height={875}
               priority
+              unoptimized
               className="hero-showcase-img"
             />
           </div>
