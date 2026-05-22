@@ -95,7 +95,7 @@ export default function HeroSection() {
       <section className="hero" ref={heroRef}>
         <div className="container">
 
-          <h1>Training Software Built for Hospitality Teams</h1>
+          <h1>Training Software Built for Hospitality</h1>
           <p className="hero-tagline">From 6 months of onboarding to 6 weeks with AI</p>
 
           <p className="hero-sub" style={{ marginTop: 20 }}>
