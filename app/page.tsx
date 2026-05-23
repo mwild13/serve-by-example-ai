@@ -5,7 +5,6 @@ import ROICalculator from "@/components/ui/ROICalculator";
 import DashboardMockup from "@/components/ui/DashboardMockup";
 import HeroSection from "@/components/HeroSection";
 import ProductTour from "@/components/ProductTour";
-import MenuDrillGenerator from "@/components/MenuDrillGenerator";
 
 // ── SVG Icons ─────────────────────────────────────────────────────────────────
 
@@ -565,8 +564,6 @@ export default function Home() {
           <ProductTour />
         </div>
 
-        {/* ── Menu Drill Generator ─────────────────── */}
-        <MenuDrillGenerator />
 
         {/* ── Founder Story ────────────────────────── */}
         <section className="section section-alt">

@@ -84,7 +84,7 @@ export default function MenuDrillGenerator() {
     <section className="section drill-gen-section">
       <div className="container">
         <div className="section-header center">
-          <span className="eyebrow">Custom AI Training</span>
+          <span className="eyebrow">Scenario Builder</span>
           <h2>Drop your menu. Get instant drill scenarios.</h2>
           <p className="drill-gen-sub">
             Paste your cocktail or drinks list and get 3 custom AI practice drills built around your
