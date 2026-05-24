@@ -39,19 +39,34 @@ const platformLinks = [
 
 const solutionsLinks = [
   {
-    href: "/solutions#pub-groups",
+    href: "/for-venues",
+    title: "For Venues — Overview",
+    desc: "How Serve By Example fits into your venue operations end to end.",
+  },
+  {
+    href: "/solutions/pub-groups",
     title: "Multi-Venue Pub Groups",
     desc: "Standardise brand guidelines and scale training across multi-site teams.",
   },
   {
-    href: "/solutions#fine-dining",
+    href: "/solutions/fine-dining",
     title: "Fine Dining & Cocktail Bars",
     desc: "Complex recipe specs, cellar logic, and premium service recovery.",
   },
   {
-    href: "/solutions#franchises",
-    title: "Franchises & QSRs",
+    href: "/solutions/hotel-fb",
+    title: "Hotel F&B",
+    desc: "Consistent service standards across restaurant, bar, and room service teams.",
+  },
+  {
+    href: "/solutions/franchise-systems",
+    title: "Franchise Systems",
     desc: "Speed of service, upselling workflows, and high-turnover cost reduction.",
+  },
+  {
+    href: "/solutions/multi-venue",
+    title: "Multi-Venue Groups",
+    desc: "Centralised analytics and training management across all your sites.",
   },
 ];
 

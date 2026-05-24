@@ -89,6 +89,7 @@ export async function middleware(request: NextRequest) {
             );
         const conflictUrl = request.nextUrl.clone();
         conflictUrl.pathname = "/session-conflict";
+        conflictUrl.searchParams.set("returnTo", path);
         return NextResponse.redirect(conflictUrl);
       }
     }

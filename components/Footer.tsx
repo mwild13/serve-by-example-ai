@@ -20,9 +20,9 @@ export default function Footer() {
         <div className="footer-col">
           <h4>Platform</h4>
           <ul>
-            <li><Link href="/platform#arena">AI Arena</Link></li>
+            <li><Link href="/platform">Platform Tour</Link></li>
             <li><Link href="/platform/challenges">Interactive Challenges</Link></li>
-            <li><Link href="/platform">Scenario Builder</Link></li>
+            <li><Link href="/platform#scenario-builder">Scenario Builder</Link></li>
             <li><Link href="/platform#insights">Mission Control</Link></li>
             <li><Link href="/security">Security &amp; Safety</Link></li>
           </ul>
@@ -31,6 +31,7 @@ export default function Footer() {
         <div className="footer-col">
           <h4>For Venues</h4>
           <ul>
+            <li><Link href="/for-venues">For Venues — Overview</Link></li>
             <li><Link href="/solutions/pub-groups">Pub Groups</Link></li>
             <li><Link href="/solutions/fine-dining">Fine Dining &amp; Bars</Link></li>
             <li><Link href="/solutions/hotel-fb">Hotel F&amp;B</Link></li>

@@ -169,19 +169,8 @@ export default function Home() {
               <p>Train confident staff. Run a tighter venue. Both from a single dashboard.</p>
             </div>
 
-            <div className="outcomes-nav">
-              <div className="outcomes-nav-pill">
-                <span className="outcomes-nav-icon"><IcoUsers size={18} /></span>
-                Train confident staff
-              </div>
-              <div className="outcomes-nav-sep" aria-hidden="true" />
-              <div className="outcomes-nav-pill">
-                <span className="outcomes-nav-icon"><IcoBuilding size={18} /></span>
-                Run a tighter venue
-              </div>
-            </div>
 
-            <div className="solution-grid">
+<div className="solution-grid">
 
               {/* Manager outcome */}
               <div className="solution-col">
@@ -297,15 +286,7 @@ export default function Home() {
               <h2>Why SBE produces results others can&rsquo;t</h2>
             </div>
             <div className="benefit-grid">
-              <div className="benefit-card">
-                <div className="benefit-metric">
-                  1, 4, 9, 16
-                  <span className="benefit-metric-unit">days</span>
-                </div>
-                <h3 className="benefit-title">Spaced Repetition Intervals</h3>
-                <p className="benefit-desc">Scientifically optimal review timing resurfaces weak areas before knowledge decays. No cramming, no guessing.</p>
-              </div>
-              <div className="benefit-card">
+<div className="benefit-card">
                 <div className="benefit-metric">
                   5<span className="benefit-metric-unit">×</span>
                 </div>

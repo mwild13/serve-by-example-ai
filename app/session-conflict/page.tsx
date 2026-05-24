@@ -1,13 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
+const SAFE_RETURN_PATHS = ["/dashboard", "/management/dashboard"];
+
 export default function SessionConflictPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const rawReturn = searchParams.get("returnTo") ?? "/dashboard";
+  const returnTo = SAFE_RETURN_PATHS.includes(rawReturn) ? rawReturn : "/dashboard";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -29,7 +34,7 @@ export default function SessionConflictPage() {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
       if (res.ok) {
-        router.push("/dashboard");
+        router.push(returnTo);
         router.refresh();
       } else {
         setError("Could not resume session. Please sign in again.");
