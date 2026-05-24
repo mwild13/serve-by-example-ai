@@ -128,47 +128,26 @@ export async function resolveAccess(
     };
   }
 
-  // 2. Check if the user is sponsored via venue_memberships
+  // 2. Check if the user is sponsored via venue_memberships.
+  // An active membership is sufficient — no need to re-check the manager's plan.
+  // This matches the dashboard page logic which grants access on membership alone.
   if (userEmail) {
     const { data: membership } = await admin
       .from("venue_memberships")
-      .select("manager_id, status")
+      .select("manager_id")
       .ilike("staff_email", userEmail)
-      .eq("status", "active")
+      .in("status", ["active", "invited"])
       .limit(1)
       .maybeSingle();
 
     if (membership) {
-      // Get the manager's tier and role to determine what access the staff gets
-      const { data: managerProfile } = await admin
-        .from("profiles")
-        .select("plan, platform_role")
-        .eq("id", membership.manager_id)
-        .single();
-
-      const managerRawTier = managerProfile?.plan ?? "free";
-      const managerTier = tierMap[managerRawTier] ?? "free";
-      const managerRole = (managerProfile?.platform_role ?? "staff") as string;
-
-      // Grant access if manager has a venue plan OR a venue/admin platform role
-      const managerHasVenueAccess =
-        managerTier === "venue_single" ||
-        managerTier === "venue_multi" ||
-        managerRole === "venue_manager" ||
-        managerRole === "multi_venue_manager" ||
-        managerRole === "admin";
-
-      if (managerHasVenueAccess) {
-        // Sponsored staff get bartending + sales only (modules 1 & 2).
-        // Management training (3) and console (4) are manager-only.
-        return {
-          tier: "venue_single",
-          allowedModules: ALL_MODULES,
-          maxSeats: 0,
-          isSponsored: true,
-          sponsorManagerId: membership.manager_id as string,
-        };
-      }
+      return {
+        tier: "venue_single",
+        allowedModules: ALL_MODULES,
+        maxSeats: 0,
+        isSponsored: true,
+        sponsorManagerId: membership.manager_id as string,
+      };
     }
   }
 
