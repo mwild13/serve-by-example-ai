@@ -38,7 +38,7 @@ const TEAM_SUMMARY = [
 
 export default function DashboardMockup() {
   return (
-    <div style={{
+    <div className="dashboard-mockup-outer" style={{
       borderRadius: "14px",
       overflow: "hidden",
       boxShadow: "0 8px 40px rgba(0,0,0,0.14)",

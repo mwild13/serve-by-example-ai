@@ -3,9 +3,6 @@
 import { useState, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import StickyDemoCTA from '@/components/StickyDemoCTA';
-
-
 type FormData = {
   firstName: string;
   lastName: string;
@@ -117,7 +114,7 @@ export default function HeroSection() {
 
           <div className="hero-cta-tiles">
             <button className="hero-cta-tile hero-cta-tile-primary" onClick={openModal}>
-              Book a call
+              Book a free 15-min call
             </button>
             <Link href="/how-it-works" className="hero-cta-tile hero-cta-tile-secondary">
               How it works
@@ -137,8 +134,6 @@ export default function HeroSection() {
 
         </div>
       </section>
-
-      <StickyDemoCTA heroRef={heroRef} />
 
       {showModal && (
         <div

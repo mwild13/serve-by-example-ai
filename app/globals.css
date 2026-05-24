@@ -12967,40 +12967,6 @@ body {
   color: var(--gold-warm);
 }
 
-/* ── Sticky mobile CTA bar ───────────────────── */
-.sticky-demo-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 200;
-  padding: 12px 20px;
-  background: var(--green-deep);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  justify-content: center;
-  transform: translateY(100%);
-  transition: transform 0.3s var(--ease-out);
-}
-
-.sticky-demo-bar.is-visible {
-  transform: translateY(0);
-}
-
-.sticky-demo-btn {
-  width: 100%;
-  max-width: 400px;
-  justify-content: center;
-  font-size: 0.95rem;
-  padding: 14px 24px;
-}
-
-@media (min-width: 768px) {
-  .sticky-demo-bar {
-    display: none !important;
-  }
-}
-
 /* ── Audience toggle ─────────────────────────── */
 .audience-toggle {
   display: flex;
@@ -13469,156 +13435,6 @@ body {
   font-family: 'SFMono-Regular', 'JetBrains Mono', 'Fira Mono', monospace;
 }
 
-/* ── Product Tour (replaces Roadmap) ─────────── */
-.product-tour-section {
-  background: var(--bg-alt);
-}
-
-.product-tour-tabs {
-  display: flex;
-  gap: 0;
-  border-bottom: 2px solid var(--line-light);
-  margin-bottom: 40px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-
-.product-tour-tabs::-webkit-scrollbar {
-  display: none;
-}
-
-.product-tour-tab {
-  padding: 12px 24px;
-  border: none;
-  background: transparent;
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-soft);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  transition: color 0.15s, border-color 0.15s;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.product-tour-tab:hover {
-  color: var(--green);
-}
-
-.product-tour-tab-active {
-  color: var(--green);
-  border-bottom-color: var(--green);
-}
-
-.product-tour-panel {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 36px;
-}
-
-@media (min-width: 800px) {
-  .product-tour-panel {
-    grid-template-columns: 3fr 2fr;
-    align-items: start;
-    gap: 48px;
-  }
-}
-
-.product-tour-preview {
-  background: var(--surface-raised);
-  border: 1px solid var(--line-light);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
-  min-height: 280px;
-}
-
-.product-tour-mockup-chrome {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 11px 16px;
-  background: var(--green-deep);
-}
-
-.product-tour-mockup-chrome span {
-  display: block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  flex-shrink: 0;
-}
-
-.product-tour-mockup-title {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.7);
-  margin-left: 8px;
-  letter-spacing: 0.02em;
-}
-
-.product-tour-mockup-body {
-  padding: 24px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.product-tour-mockup-row {
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  color: var(--text-soft);
-  padding: 10px 14px;
-  background: var(--bg-alt);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--line-light);
-  font-variant-numeric: tabular-nums;
-}
-
-.product-tour-callouts h3 {
-  font-family: var(--font-heading);
-  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
-  font-weight: 700;
-  color: var(--green-deep);
-  margin-bottom: 10px;
-  line-height: 1.25;
-}
-
-.product-tour-callouts p {
-  color: var(--text-soft);
-  font-size: 0.9rem;
-  line-height: 1.7;
-  margin-bottom: 24px;
-}
-
-.product-tour-callout-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.product-tour-callout-list li {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  font-size: 0.875rem;
-  color: var(--text-soft);
-  line-height: 1.55;
-}
-
-.product-tour-callout-list li svg {
-  color: var(--green-mid);
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
 /* ── Update 10A: ROI bar chart + email capture ── */
 .roi-chart {
   margin-top: 28px;
@@ -13871,6 +13687,133 @@ body {
 @media (max-width: 600px) {
   .outcomes-nav-sep { display: none; }
   .outcomes-nav { gap: 10px; }
+}
+
+/* ── FAQ Section ─────────────────────────────── */
+.faq-list {
+  max-width: 720px;
+  margin: 48px auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--line-light);
+}
+
+.faq-item:first-child {
+  border-top: 1px solid var(--line-light);
+}
+
+.faq-question {
+  list-style: none;
+  cursor: pointer;
+  padding: 20px 0;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  user-select: none;
+}
+
+.faq-question::-webkit-details-marker {
+  display: none;
+}
+
+.faq-question::after {
+  content: "+";
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--green);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.faq-item[open] .faq-question::after {
+  transform: rotate(45deg);
+}
+
+.faq-answer {
+  margin: 0;
+  padding: 0 0 20px;
+  font-size: 0.9rem;
+  color: var(--text-soft);
+  line-height: 1.75;
+  max-width: 640px;
+}
+
+/* ── DashboardMockup mobile scale ────────────── */
+@media (max-width: 900px) {
+  .dashboard-mockup-outer {
+    transform: scale(0.72);
+    transform-origin: top left;
+    margin-bottom: -28%;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-mockup-outer {
+    transform: scale(0.46);
+    transform-origin: top left;
+    margin-bottom: -57%;
+  }
+}
+
+/* ── Mobile layout pass ──────────────────────── */
+@media (max-width: 600px) {
+  /* Reduce section vertical padding on small screens */
+  .section {
+    padding: 48px 0;
+  }
+
+  .section-tight {
+    padding: 28px 0;
+  }
+
+  /* Hide mastery connector arrows on very small screens — they add no value */
+  .mastery-step-connector {
+    display: none;
+  }
+
+  /* Mastery steps stack as single column without connectors */
+  .mastery-steps-flow {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .mastery-step-item {
+    padding: 24px 20px;
+  }
+
+  /* Trust stats reduce gap */
+  .trust-stats {
+    gap: 12px;
+  }
+
+  /* Stat cards tighten up */
+  .stat-card-green {
+    padding: 20px 16px;
+  }
+
+  /* ROI section padding */
+  .roi-card {
+    padding: 28px 20px;
+  }
+
+  /* FAQ answer text slightly smaller */
+  .faq-question {
+    font-size: 0.925rem;
+    padding: 16px 0;
+  }
+
+  .faq-answer {
+    font-size: 0.875rem;
+  }
 }
 
 /* ── Update 8: Fraunces variable axes ────────── */

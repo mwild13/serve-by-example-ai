@@ -29,9 +29,23 @@ export default function ROICalculator() {
     e.preventDefault();
     if (!email.trim()) return;
     setSending(true);
-    await new Promise((r) => setTimeout(r, 600));
-    setSending(false);
-    setEmailSent(true);
+    try {
+      const res = await fetch("/api/roi/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), staffCount, avgTransaction, yr1, yr3, yr5 }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(data.error ?? "Could not send email. Please try again.");
+        return;
+      }
+      setEmailSent(true);
+    } catch {
+      alert("Connection error. Please check your internet and try again.");
+    } finally {
+      setSending(false);
+    }
   }
 
   return (

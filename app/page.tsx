@@ -4,8 +4,6 @@ import Navbar from "@/components/Navbar";
 import ROICalculator from "@/components/ui/ROICalculator";
 import DashboardMockup from "@/components/ui/DashboardMockup";
 import HeroSection from "@/components/HeroSection";
-import ProductTour from "@/components/ProductTour";
-
 // ── SVG Icons ─────────────────────────────────────────────────────────────────
 
 function IcoUsers({ size = 22 }: { size?: number }) {
@@ -196,6 +194,66 @@ export default function Home() {
                 <div className="stat-value-green">19</div>
                 <div className="stat-label-green">Languages Supported<br/><em className="stat-accent">Global Training Ready</em></div>
               </article>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Scalable Training Tiers ──────────────── */}
+        <section className="section">
+          <div className="container">
+            <div className="section-header center">
+              <span className="eyebrow">Scalable Training Tiers</span>
+              <h2>Built for every level of your team</h2>
+              <p>From individual staff to multi-site venue groups, one platform that grows with you.</p>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.25rem", marginTop: "2rem" }}>
+
+              <div style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9ca3af" }}>Try it free</div>
+                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Free Demo</h3>
+                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Experience the AI training engine first-hand, no commitment required. See what your team would be working with before making a decision.</p>
+                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For individuals who want to explore the platform.</p>
+                <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
+                  <Link href="/demo" className="btn btn-primary btn-block">Try the Demo</Link>
+                </div>
+              </div>
+
+              <div style={{ background: "white", border: "2px solid #0B2B1E", borderRadius: "16px", padding: "1.75rem", paddingTop: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem", position: "relative", overflow: "visible" }}>
+                <div style={{ position: "absolute", top: "-13px", left: "50%", transform: "translateX(-50%)", background: "#0B2B1E", color: "white", fontSize: "0.65rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", borderRadius: "999px", padding: "4px 14px", whiteSpace: "nowrap" }}>Most Popular</div>
+                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#16a34a" }}>Individual</div>
+                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Pro</h3>
+                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Full access to all training modules, unlimited AI coaching and progress analytics. Build career-ready skills at your own pace.</p>
+                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For bartenders and hospitality staff investing in their craft.</p>
+                <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
+                  <Link href="/pricing" className="btn btn-primary btn-block">See Pro Pricing</Link>
+                </div>
+              </div>
+
+              <div style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9ca3af" }}>Single location</div>
+                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Single Venue</h3>
+                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>The full manager console, unlimited staff logins, compliance tracking and hands-on onboarding for one venue. Get your team trained in week one.</p>
+                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For venues ready to professionalise their training.</p>
+                <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
+                  <Link href="/for-venues#venue-enquiry" className="btn btn-secondary btn-block">Request Venue Access</Link>
+                </div>
+              </div>
+
+              <div style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9ca3af" }}>Multi-location</div>
+                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Multi-Venue</h3>
+                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Unified dashboards across up to 5 venues, cross-venue analytics, leaderboards and a dedicated account process tailored to your group&rsquo;s needs.</p>
+                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For venue groups and multi-site operators.</p>
+                <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
+                  <Link href="/for-venues#venue-enquiry" className="btn btn-secondary btn-block">Scale Your Team</Link>
+                </div>
+              </div>
+
+            </div>
+            <div style={{ textAlign: "center", marginTop: "1.75rem" }}>
+              <Link href="/pricing" style={{ fontSize: "0.875rem", color: "#6b7280", textDecoration: "underline", textUnderlineOffset: "3px" }}>
+                View full pricing and plan details
+              </Link>
             </div>
           </div>
         </section>
@@ -499,71 +557,48 @@ export default function Home() {
         {/* ── ROI Calculator ───────────────────────── */}
         <ROICalculator />
 
-        {/* ── Scalable Training Tiers ──────────────── */}
+        {/* ── FAQ ──────────────────────────────────── */}
         <section className="section">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">Scalable Training Tiers</span>
-              <h2>Built for every level of your team</h2>
-              <p>From individual staff to multi-site venue groups, one platform that grows with you.</p>
+              <span className="eyebrow">Common Questions</span>
+              <h2>Everything you need to know before starting.</h2>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.25rem", marginTop: "2rem" }}>
-
-              <div style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9ca3af" }}>Try it free</div>
-                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Free Demo</h3>
-                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Experience the AI training engine first-hand, no commitment required. See what your team would be working with before making a decision.</p>
-                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For individuals who want to explore the platform.</p>
-                <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
-                  <Link href="/demo" className="btn btn-primary btn-block">Try the Demo</Link>
-                </div>
-              </div>
-
-              <div style={{ background: "white", border: "2px solid #0B2B1E", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem", position: "relative" }}>
-                <div style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: "#0B2B1E", color: "white", fontSize: "0.65rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", borderRadius: "999px", padding: "4px 14px" }}>Most Popular</div>
-                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#16a34a" }}>Individual</div>
-                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Pro</h3>
-                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Full access to all training modules, unlimited AI coaching and progress analytics. Build career-ready skills at your own pace.</p>
-                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For bartenders and hospitality staff investing in their craft.</p>
-                <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
-                  <Link href="/pricing" className="btn btn-primary btn-block">See Pro Pricing</Link>
-                </div>
-              </div>
-
-              <div style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9ca3af" }}>Single location</div>
-                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Single Venue</h3>
-                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>The full manager console, unlimited staff logins, compliance tracking and hands-on onboarding for one venue. Get your team trained in week one.</p>
-                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For venues ready to professionalise their training.</p>
-                <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
-                  <Link href="/for-venues#venue-enquiry" className="btn btn-secondary btn-block">Request Venue Access</Link>
-                </div>
-              </div>
-
-              <div style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9ca3af" }}>Multi-location</div>
-                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Multi-Venue</h3>
-                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Unified dashboards across up to 5 venues, cross-venue analytics, leaderboards and a dedicated account process tailored to your group&rsquo;s needs.</p>
-                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For venue groups and multi-site operators.</p>
-                <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
-                  <Link href="/for-venues#venue-enquiry" className="btn btn-secondary btn-block">Scale Your Team</Link>
-                </div>
-              </div>
-
-            </div>
-            <div style={{ textAlign: "center", marginTop: "1.75rem" }}>
-              <Link href="/pricing" style={{ fontSize: "0.875rem", color: "#6b7280", textDecoration: "underline", textUnderlineOffset: "3px" }}>
-                View full pricing and plan details
-              </Link>
+            <div className="faq-list">
+              {[
+                {
+                  q: "How long does setup take?",
+                  a: "Most venues are fully set up within a day. We provide starter templates, onboarding support, and pre-built training modules — no content creation required from your side.",
+                },
+                {
+                  q: "Is it mobile-friendly?",
+                  a: "Yes. The entire platform is built mobile-first. Staff can complete training between shifts, on the way to work, or at the bar. Platforms built this way see 90%+ completion rates.",
+                },
+                {
+                  q: "What happens if a staff member leaves?",
+                  a: "Their account is deactivated and their seat is freed up for a new hire. Their training history stays on record for compliance and reporting purposes.",
+                },
+                {
+                  q: "Do you offer compliance or RSA certificates?",
+                  a: "Our modules cover responsible service content and service standards. Formal RSA certification requires an accredited provider — we integrate training around compliance knowledge, not replace licensed certification.",
+                },
+                {
+                  q: "Can I try it before committing?",
+                  a: "Yes. The free demo gives you access to the AI scenario engine and a sample of the training content — no credit card required. Venue plans include a walkthrough call before any commitment.",
+                },
+                {
+                  q: "How is this different from a generic LMS?",
+                  a: "Generic LMS platforms are built for corporate compliance training — long videos, passive quizzes, and no real skill measurement. Serve By Example is built for hospitality: AI roleplay, live scoring, ELO skill ratings, and a manager console designed around shift-by-shift operations.",
+                },
+              ].map(({ q, a }) => (
+                <details key={q} className="faq-item">
+                  <summary className="faq-question">{q}</summary>
+                  <p className="faq-answer">{a}</p>
+                </details>
+              ))}
             </div>
           </div>
         </section>
-
-        {/* ── Product Tour ─────────────────────────── */}
-        <div id="product-tour">
-          <ProductTour />
-        </div>
-
 
         {/* ── Founder Story ────────────────────────── */}
         <section className="section section-alt">
