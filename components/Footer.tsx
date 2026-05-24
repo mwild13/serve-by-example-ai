@@ -43,11 +43,10 @@ export default function Footer() {
         <div className="footer-col">
           <h4>Resources</h4>
           <ul>
-            <li><Link href="/resources">Free Training Guides</Link></li>
-            <li><Link href="/case-studies">Case Studies</Link></li>
+            <li><Link href="/resources">Free Training Checklist</Link></li>
             <li><Link href="/roi">ROI Calculator</Link></li>
             <li><Link href="/how-it-works">How It Works</Link></li>
-            <li><Link href="/demo/complaint-master">Complaint Master</Link></li>
+            <li><Link href="/roadmap">Roadmap</Link></li>
           </ul>
         </div>
 
@@ -57,8 +56,6 @@ export default function Footer() {
             <li><Link href="/about">About</Link></li>
             <li><Link href="/contact">Contact</Link></li>
             <li><Link href="/pricing">Pricing</Link></li>
-            <li><Link href="/privacy">Privacy</Link></li>
-            <li><Link href="/terms">Terms</Link></li>
           </ul>
         </div>
       </div>

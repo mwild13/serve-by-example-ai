@@ -25,14 +25,8 @@ const platformLinks = [
     badge: "New",
   },
   {
-    href: "/platform",
-    title: "Custom Scenario Builder",
-    desc: "Upload your menus, house rules, and POS workflows into the AI model.",
-    badge: "Coming soon",
-  },
-  {
     href: "/platform#insights",
-    title: "Manager Insights",
+    title: "Mission Control",
     desc: "Live dashboards, audit-ready metrics, and squad-level performance analysis.",
   },
 ];
@@ -203,6 +197,7 @@ export default function Navbar({
             </div>
 
             <Link href="/pricing">Pricing</Link>
+            <Link href="/about">About</Link>
             <Link href="/demo" className="nav-demo-btn">Try the Demo</Link>
           </nav>
 
@@ -304,12 +299,6 @@ export default function Navbar({
             </Link>
             <Link href="/demo" className="nav-drawer-link" onClick={close}>
               Demo
-            </Link>
-            <Link href="/about" className="nav-drawer-link" onClick={close}>
-              About
-            </Link>
-            <Link href="/contact" className="nav-drawer-link" onClick={close}>
-              Contact
             </Link>
 
             {showActions && (

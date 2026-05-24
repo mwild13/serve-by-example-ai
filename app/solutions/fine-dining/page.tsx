@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import ROICalculator from "@/components/ui/ROICalculator";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -72,7 +71,7 @@ export default function FineDiningPage() {
               precise knowledge that earns loyalty.
             </p>
             <div className="inner-hero-actions">
-              <Link href="/demo" className="btn btn-primary btn-lg">Try the Demo</Link>
+              <Link href="/for-venues#venue-enquiry" className="btn btn-primary btn-lg">Request Venue Access</Link>
               <Link href="/pricing" className="btn btn-secondary btn-lg">View Pricing</Link>
             </div>
           </div>
@@ -102,7 +101,7 @@ export default function FineDiningPage() {
         <section className="section section-alt">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">What you get</span>
+              <span className="eyebrow">Premium training tools</span>
               <h2>Training as precise as your menu</h2>
             </div>
             <div className="sol-feature-grid">
@@ -117,32 +116,6 @@ export default function FineDiningPage() {
           </div>
         </section>
 
-        {/* ── Case study ── */}
-        <section className="section">
-          <div className="container">
-            <div className="sol-case-study">
-              <blockquote className="sol-case-quote">
-                &ldquo;Our bartenders can now describe every cocktail on our menu with confidence. The
-                AI scored them harder than I would have — and that&rsquo;s exactly what lifted the
-                quality.&rdquo;
-              </blockquote>
-              <cite className="sol-case-cite">Head Bartender, cocktail bar, Sydney CBD</cite>
-              <div className="sol-case-stats">
-                <div>
-                  <strong>22%</strong>
-                  <span>increase in average transaction value after 8 weeks</span>
-                </div>
-                <div>
-                  <strong>100%</strong>
-                  <span>of staff completed product knowledge modules in the first fortnight</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <ROICalculator />
-
         {/* ── CTA ── */}
         <section className="section section-cta">
           <div className="container" style={{ textAlign: "center" }}>
@@ -152,7 +125,7 @@ export default function FineDiningPage() {
               Try a live bartending or upsell scenario now — no sign-up required.
             </p>
             <div className="hero-actions" style={{ justifyContent: "center" }}>
-              <Link href="/demo" className="btn btn-primary btn-lg">Try a Scenario</Link>
+              <Link href="/demo" className="btn btn-primary btn-lg">Try the Demo</Link>
               <Link href="/contact" className="btn btn-secondary btn-lg">Talk to Us</Link>
             </div>
           </div>

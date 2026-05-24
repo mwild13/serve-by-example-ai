@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import ROICalculator from "@/components/ui/ROICalculator";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -77,7 +76,7 @@ export default function HotelFBPage() {
               shift to the late-night bar.
             </p>
             <div className="inner-hero-actions">
-              <Link href="/demo" className="btn btn-primary btn-lg">Try the Demo</Link>
+              <Link href="/for-venues#venue-enquiry" className="btn btn-primary btn-lg">Request Venue Access</Link>
               <Link href="/pricing" className="btn btn-secondary btn-lg">View Pricing</Link>
             </div>
           </div>
@@ -88,8 +87,8 @@ export default function HotelFBPage() {
           <div className="container">
             <div className="stats-grid">
               <div className="stat-card stat-card-green">
-                <div className="stat-value stat-value-green">3&times;</div>
-                <div className="stat-label stat-label-green">faster onboarding for new F&amp;B team members</div>
+                <div className="stat-value stat-value-green">40%</div>
+                <div className="stat-label stat-label-green">reduction in onboarding time for seasonal intake</div>
               </div>
               <div className="stat-card stat-card-green">
                 <div className="stat-value stat-value-green">19</div>
@@ -107,7 +106,7 @@ export default function HotelFBPage() {
         <section className="section section-alt">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">What you get</span>
+              <span className="eyebrow">Hotel F&amp;B features</span>
               <h2>Purpose-built for hotel F&amp;B complexity</h2>
             </div>
             <div className="sol-feature-grid">
@@ -122,32 +121,6 @@ export default function HotelFBPage() {
           </div>
         </section>
 
-        {/* ── Case study ── */}
-        <section className="section">
-          <div className="container">
-            <div className="sol-case-study">
-              <blockquote className="sol-case-quote">
-                &ldquo;We have three different F&amp;B outlets with completely different service
-                styles. Serve By Example handles all three from one dashboard. Our F&amp;B manager
-                finally has visibility across the whole team.&rdquo;
-              </blockquote>
-              <cite className="sol-case-cite">F&amp;B Director, boutique hotel group, Queensland</cite>
-              <div className="sol-case-stats">
-                <div>
-                  <strong>3 outlets</strong>
-                  <span>trained consistently from a single platform</span>
-                </div>
-                <div>
-                  <strong>40%</strong>
-                  <span>reduction in onboarding time for seasonal staff intake</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <ROICalculator />
-
         {/* ── CTA ── */}
         <section className="section section-cta">
           <div className="container" style={{ textAlign: "center" }}>
@@ -157,7 +130,7 @@ export default function HotelFBPage() {
               Book a walkthrough or try the demo yourself — no commitment required.
             </p>
             <div className="hero-actions" style={{ justifyContent: "center" }}>
-              <Link href="/demo" className="btn btn-primary btn-lg">Try the Free Demo</Link>
+              <Link href="/demo" className="btn btn-primary btn-lg">Try the Demo</Link>
               <Link href="/contact" className="btn btn-secondary btn-lg">Talk to Us</Link>
             </div>
           </div>

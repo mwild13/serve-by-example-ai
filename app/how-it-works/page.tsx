@@ -81,8 +81,8 @@ export default function HowItWorksPage() {
               teams train faster and perform better on shift.
             </p>
             <div className="inner-hero-actions">
-              <Link href="/demo" className="btn btn-primary btn-lg">
-                Try the Demo
+              <Link href="/platform" className="btn btn-primary btn-lg">
+                See the Platform
               </Link>
               <Link href="/pricing" className="btn btn-secondary btn-lg">
                 View Pricing
@@ -238,7 +238,7 @@ export default function HowItWorksPage() {
 
               {/* Management Console */}
               <div>
-                <p style={{ color: "#d1fae5", fontWeight: 700, fontSize: "0.8125rem", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "1rem" }}>Management Console</p>
+                <p style={{ color: "#d1fae5", fontWeight: 700, fontSize: "0.8125rem", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "1rem" }}>Mission Control</p>
                 <DashboardMockup />
               </div>
 

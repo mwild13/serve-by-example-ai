@@ -348,6 +348,21 @@ export default function DemoPage() {
                       <a href="/pricing" className="btn btn-outline btn-lg">See pricing</a>
                     </div>
                   </div>
+
+                  <div style={{ marginTop: "2rem", padding: "1.5rem", background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "var(--radius-md)" }}>
+                    <p style={{ margin: "0 0 1rem", fontWeight: 700, fontSize: "0.875rem", color: "var(--text)", textAlign: "center" }}>Which solution fits your venue?</p>
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
+                      <a href="/solutions/pub-groups" style={{ fontSize: "0.8rem", color: "var(--green)", textDecoration: "underline", textUnderlineOffset: "3px" }}>Pub Groups</a>
+                      <span style={{ color: "var(--text-muted)" }}>·</span>
+                      <a href="/solutions/fine-dining" style={{ fontSize: "0.8rem", color: "var(--green)", textDecoration: "underline", textUnderlineOffset: "3px" }}>Fine Dining &amp; Bars</a>
+                      <span style={{ color: "var(--text-muted)" }}>·</span>
+                      <a href="/solutions/hotel-fb" style={{ fontSize: "0.8rem", color: "var(--green)", textDecoration: "underline", textUnderlineOffset: "3px" }}>Hotel F&amp;B</a>
+                      <span style={{ color: "var(--text-muted)" }}>·</span>
+                      <a href="/solutions/franchise-systems" style={{ fontSize: "0.8rem", color: "var(--green)", textDecoration: "underline", textUnderlineOffset: "3px" }}>Franchise Systems</a>
+                      <span style={{ color: "var(--text-muted)" }}>·</span>
+                      <a href="/solutions/multi-venue" style={{ fontSize: "0.8rem", color: "var(--green)", textDecoration: "underline", textUnderlineOffset: "3px" }}>Multi-Venue Groups</a>
+                    </div>
+                  </div>
                 </>
               );
             })()}

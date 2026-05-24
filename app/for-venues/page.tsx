@@ -57,11 +57,11 @@ export default function ForVenuesPage() {
               hospitality training.
             </p>
             <div className="inner-hero-actions">
-              <Link href="/pricing" className="btn btn-primary btn-lg">
-                View Venue Pricing
-              </Link>
-              <Link href="#venue-enquiry" className="btn btn-secondary btn-lg">
+              <Link href="#venue-enquiry" className="btn btn-primary btn-lg">
                 Request Venue Access
+              </Link>
+              <Link href="/pricing" className="btn btn-secondary btn-lg">
+                View Pricing
               </Link>
             </div>
           </div>
@@ -172,10 +172,10 @@ export default function ForVenuesPage() {
           buttonLabel="Request venue access"
           successTitle="Venue enquiry received."
           successCopy="You are on the venue rollout list. We will contact you with launch timing, access options and next steps for team onboarding."
-          successPrimaryHref="/pricing"
-          successPrimaryLabel="Review venue pricing"
-          successSecondaryHref="/demo"
-          successSecondaryLabel="Try the demo"
+          successPrimaryHref="/how-it-works"
+          successPrimaryLabel="See how it works"
+          successSecondaryHref="/pricing"
+          successSecondaryLabel="View pricing"
           successSteps={[
             "We group venue demand by rollout timing and onboarding capacity.",
             "You receive early-access updates and any pricing changes before public release.",

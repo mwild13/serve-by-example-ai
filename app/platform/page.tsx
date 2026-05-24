@@ -127,68 +127,9 @@ export default function PlatformPage() {
               <Link href="/demo" className="btn btn-primary btn-lg">
                 Try the Demo
               </Link>
-              <Link href="/management/login" className="btn btn-secondary btn-lg">
-                Manager Login
+              <Link href="/for-venues" className="btn btn-secondary btn-lg">
+                For Venues
               </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Pricing Section ── */}
-        <section className="section section-alt">
-          <div className="container">
-            <div className="section-header center">
-              <span className="eyebrow">Pricing</span>
-              <h2>Simple, transparent pricing for every team size</h2>
-            </div>
-            <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "1fr", gap: 24, maxWidth: 700, margin: "0 auto" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div className="price-card featured">
-                  <div className="price-tier">Free Demo</div>
-                  <div className="price-amount">Free</div>
-                  <ul>
-                    <li>Try all core features</li>
-                    <li>Scenario-based training</li>
-                    <li>Basic progress tracking</li>
-                  </ul>
-                  <Link href="/demo" className="btn btn-primary btn-block">Start Free</Link>
-                </div>
-                <div className="price-card">
-                  <div className="price-tier">Pro</div>
-                  <div className="price-amount">$19/mo</div>
-                  <ul>
-                    <li>Full access for individuals</li>
-                    <li>Progress analytics</li>
-                    <li>AI Coach Q&A</li>
-                    <li>Earn badges</li>
-                  </ul>
-                  <Link href="/pricing" className="btn btn-secondary btn-block">Join Pro</Link>
-                </div>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div className="price-card">
-                  <div className="price-tier">Single Venue</div>
-                  <div className="price-amount">$49/mo</div>
-                  <ul>
-                    <li>All Pro features for your team</li>
-                    <li>Staff analytics dashboard</li>
-                    <li>Manager controls</li>
-                    <li>Email support</li>
-                  </ul>
-                  <Link href="/pricing" className="btn btn-secondary btn-block">Join Now</Link>
-                </div>
-                <div className="price-card">
-                  <div className="price-tier">Multi Venue</div>
-                  <div className="price-amount">$149/mo</div>
-                  <ul>
-                    <li>All Single Venue features</li>
-                    <li>Multi-site management</li>
-                    <li>Group analytics</li>
-                    <li>Dedicated onboarding</li>
-                  </ul>
-                  <Link href="/pricing" className="btn btn-secondary btn-block">Join Now</Link>
-                </div>
-              </div>
             </div>
           </div>
         </section>
@@ -283,8 +224,8 @@ export default function PlatformPage() {
         <section className="section">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">Built for every level</span>
-              <h2>One platform, three layers of value.</h2>
+              <span className="eyebrow">Three tools in one platform</span>
+              <h2>What each layer actually does.</h2>
             </div>
             <div className="card-grid card-grid-3">
               {productBlocks.map((block) => (
@@ -320,7 +261,7 @@ export default function PlatformPage() {
                 <li>Managers get push alerts for team milestones</li>
               </ul>
               <div style={{ marginTop: 24 }}>
-                <Link href="/demo" className="btn btn-primary">Try it on your phone →</Link>
+                <Link href="/pricing" className="btn btn-secondary">View Pricing →</Link>
               </div>
             </div>
             <div className="platform-mobile-visual">
@@ -347,7 +288,7 @@ export default function PlatformPage() {
             </div>
             <div className="cta-actions">
               <Link href="/demo" className="btn btn-gold btn-lg">
-                Start Free Demo
+                Try the Demo
               </Link>
               <Link href="/for-venues" className="btn btn-outline-light btn-lg">
                 For Venues

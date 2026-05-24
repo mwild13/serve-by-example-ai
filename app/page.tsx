@@ -68,16 +68,6 @@ export default function Home() {
         {/* ── Hero ─────────────────────────────────── */}
         <HeroSection />
 
-        {/* ── Founder Quote (promoted) ─────────────── */}
-        <section className="founder-quote-strip">
-          <div className="container">
-            <blockquote className="founder-quote-inline">
-              <p>I built the training tool I always wished I had &mdash; one that works for real venues, real staff, and the real pressure of a busy service.</p>
-              <footer>Founder, Serve By Example &mdash; 15+ years in Australian hospitality</footer>
-            </blockquote>
-          </div>
-        </section>
-
         {/* ── Trust Stats ──────────────────────────── */}
         <section className="section trust-section trust-section-green">
           <div className="container">
@@ -106,23 +96,13 @@ export default function Home() {
               <h2>Built for every level of your team</h2>
               <p>From individual staff to multi-site venue groups, one platform that grows with you.</p>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.25rem", marginTop: "2rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.25rem", marginTop: "2rem", maxWidth: 800, margin: "2rem auto 0" }}>
 
-              <div style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9ca3af" }}>Try it free</div>
-                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Free Demo</h3>
-                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Experience the AI training engine first-hand, no commitment required. See what your team would be working with before making a decision.</p>
-                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For individuals who want to explore the platform.</p>
-                <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
-                  <Link href="/demo" className="btn btn-primary btn-block">Try the Demo</Link>
-                </div>
-              </div>
-
-              <div style={{ background: "white", border: "2px solid #0B2B1E", borderRadius: "16px", padding: "1.75rem", paddingTop: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem", position: "relative", overflow: "visible" }}>
+              <div style={{ background: "white", border: "2px solid #0B2B1E", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem", position: "relative", overflow: "visible" }}>
                 <div style={{ position: "absolute", top: "-13px", left: "50%", transform: "translateX(-50%)", background: "#0B2B1E", color: "white", fontSize: "0.65rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", borderRadius: "999px", padding: "4px 14px", whiteSpace: "nowrap" }}>Most Popular</div>
                 <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#16a34a" }}>Individual</div>
                 <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Pro</h3>
-                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Full access to all training modules, unlimited AI coaching and progress analytics. Build career-ready skills at your own pace.</p>
+                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Full access to all 40 training modules, unlimited AI coaching and progress analytics. Build career-ready skills at your own pace.</p>
                 <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For bartenders and hospitality staff investing in their craft.</p>
                 <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
                   <Link href="/pricing" className="btn btn-primary btn-block">See Pro Pricing</Link>
@@ -130,22 +110,12 @@ export default function Home() {
               </div>
 
               <div style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9ca3af" }}>Single location</div>
-                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Single Venue</h3>
-                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>The full manager console, unlimited staff logins, compliance tracking and hands-on onboarding for one venue. Get your team trained in week one.</p>
-                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For venues ready to professionalise their training.</p>
+                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9ca3af" }}>Venues &amp; Groups</div>
+                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Scale Your Team</h3>
+                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>The full manager console, team analytics, compliance tracking and hands-on onboarding — for single venues up to multi-site groups. From 1 location to 5, all managed from one place.</p>
+                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For venue operators ready to professionalise their training.</p>
                 <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
                   <Link href="/for-venues#venue-enquiry" className="btn btn-secondary btn-block">Request Venue Access</Link>
-                </div>
-              </div>
-
-              <div style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9ca3af" }}>Multi-location</div>
-                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Multi-Venue</h3>
-                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Unified dashboards across up to 5 venues, cross-venue analytics, leaderboards and a dedicated account process tailored to your group&rsquo;s needs.</p>
-                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For venue groups and multi-site operators.</p>
-                <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
-                  <Link href="/for-venues#venue-enquiry" className="btn btn-secondary btn-block">Scale Your Team</Link>
                 </div>
               </div>
 
@@ -163,8 +133,8 @@ export default function Home() {
           <div className="container">
             <div className="section-header center">
               <span className="eyebrow">One Platform</span>
-              <h2>One platform. Two outcomes.</h2>
-              <p>Train confident staff. Run a tighter venue. Both from a single dashboard.</p>
+              <h2>Built for two different roles.</h2>
+              <p>Staff train and improve. Managers see everything. One platform, no duplication of effort.</p>
             </div>
 
 
@@ -286,44 +256,37 @@ export default function Home() {
         <section className="section section-warm">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">The Numbers Behind It</span>
-              <h2>Why SBE produces results others can&rsquo;t</h2>
+              <span className="eyebrow">What makes it different</span>
+              <h2>Training that actually measures performance.</h2>
             </div>
             <div className="benefit-grid">
-<div className="benefit-card">
+              <div className="benefit-card">
                 <div className="benefit-metric">
                   5<span className="benefit-metric-unit">×</span>
                 </div>
-                <h3 className="benefit-title">Dimensions Evaluated Per Response</h3>
-                <p className="benefit-desc">Communication, hospitality, problem-solving, professionalism, and guest experience — scored live by AI on every answer.</p>
-              </div>
-              <div className="benefit-card">
-                <div className="benefit-metric">
-                  3<span className="benefit-metric-unit">×</span>
-                </div>
-                <h3 className="benefit-title">Faster Than Traditional Onboarding</h3>
-                <p className="benefit-desc">New staff floor-ready in six weeks, not six months. Structured AI-guided modules replace inconsistent on-the-job guessing.</p>
-              </div>
-              <div className="benefit-card">
-                <div className="benefit-metric">
-                  65<span className="benefit-metric-unit">+</span>
-                </div>
-                <h3 className="benefit-title">AI Scenarios and Modules</h3>
-                <p className="benefit-desc">Realistic situations — from an awkward upsell to a guest complaint under pressure — every shift, guided and scored.</p>
+                <h3 className="benefit-title">Dimensions Scored Per Response</h3>
+                <p className="benefit-desc">Communication, hospitality, problem-solving, professionalism, and guest experience — scored live by AI on every answer. Not just a pass/fail.</p>
               </div>
               <div className="benefit-card">
                 <div className="benefit-metric">
                   24<span className="benefit-metric-unit">/7</span>
                 </div>
-                <h3 className="benefit-title">AI Coach Always Available</h3>
-                <p className="benefit-desc">Instant personalised feedback on every response. No manager required. No waiting until next week&rsquo;s check-in.</p>
+                <h3 className="benefit-title">AI Coach, Always On</h3>
+                <p className="benefit-desc">Instant personalised feedback on every scenario response. No manager required. No waiting until next week&rsquo;s check-in.</p>
+              </div>
+              <div className="benefit-card">
+                <div className="benefit-metric">
+                  0
+                </div>
+                <h3 className="benefit-title">Hours of Manager Admin</h3>
+                <p className="benefit-desc">Progress, compliance, and performance sync automatically to the manager console. No chasing staff for updates. No spreadsheets.</p>
               </div>
               <div className="benefit-card">
                 <div className="benefit-metric">
                   19
                 </div>
                 <h3 className="benefit-title">Languages Supported</h3>
-                <p className="benefit-desc">Train your full team in their first language. AI-translated scenarios and feedback for genuinely global venue groups.</p>
+                <p className="benefit-desc">Train your full team in their first language. AI-translated scenarios and feedback for diverse venue teams across Australia.</p>
               </div>
             </div>
           </div>

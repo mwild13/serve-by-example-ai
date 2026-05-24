@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import ROICalculator from "@/components/ui/ROICalculator";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -74,7 +73,7 @@ export default function FranchiseSystemsPage() {
               conversationally, adaptively, and on the device they already have in their pocket.
             </p>
             <div className="inner-hero-actions">
-              <Link href="/demo" className="btn btn-primary btn-lg">Try the Demo</Link>
+              <Link href="/for-venues#venue-enquiry" className="btn btn-primary btn-lg">Request Venue Access</Link>
               <Link href="/pricing" className="btn btn-secondary btn-lg">View Pricing</Link>
             </div>
           </div>
@@ -104,7 +103,7 @@ export default function FranchiseSystemsPage() {
         <section className="section section-alt">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">What you get</span>
+              <span className="eyebrow">Franchise-ready tools</span>
               <h2>Training infrastructure your franchisees will actually use</h2>
             </div>
             <div className="sol-feature-grid">
@@ -119,32 +118,6 @@ export default function FranchiseSystemsPage() {
           </div>
         </section>
 
-        {/* ── Case study ── */}
-        <section className="section">
-          <div className="container">
-            <div className="sol-case-study">
-              <blockquote className="sol-case-quote">
-                &ldquo;Before Serve By Example, every franchisee trained differently. Now they all
-                train the same way and I can see exactly which locations are compliant without
-                visiting them.&rdquo;
-              </blockquote>
-              <cite className="sol-case-cite">Franchise Development Manager, QSR group, New South Wales</cite>
-              <div className="sol-case-stats">
-                <div>
-                  <strong>12 locations</strong>
-                  <span>onboarded to the platform within the first month</span>
-                </div>
-                <div>
-                  <strong>100%</strong>
-                  <span>compliance visibility without any site visits</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <ROICalculator />
-
         {/* ── CTA ── */}
         <section className="section section-cta">
           <div className="container" style={{ textAlign: "center" }}>
@@ -154,7 +127,7 @@ export default function FranchiseSystemsPage() {
               Try the demo or talk to us about a network rollout.
             </p>
             <div className="hero-actions" style={{ justifyContent: "center" }}>
-              <Link href="/demo" className="btn btn-primary btn-lg">Try the Free Demo</Link>
+              <Link href="/demo" className="btn btn-primary btn-lg">Try the Demo</Link>
               <Link href="/contact" className="btn btn-secondary btn-lg">Talk to Us</Link>
             </div>
           </div>

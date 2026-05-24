@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import ROICalculator from "@/components/ui/ROICalculator";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -71,7 +70,7 @@ export default function PubGroupsPage() {
               quality training experience — regardless of location, manager, or roster.
             </p>
             <div className="inner-hero-actions">
-              <Link href="/demo" className="btn btn-primary btn-lg">Try the Demo</Link>
+              <Link href="/for-venues#venue-enquiry" className="btn btn-primary btn-lg">Request Venue Access</Link>
               <Link href="/pricing" className="btn btn-secondary btn-lg">View Pricing</Link>
             </div>
           </div>
@@ -101,7 +100,7 @@ export default function PubGroupsPage() {
         <section className="section section-alt">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">What you get</span>
+              <span className="eyebrow">Multi-site management</span>
               <h2>Built for the complexity of a pub group</h2>
             </div>
             <div className="sol-feature-grid">
@@ -116,33 +115,6 @@ export default function PubGroupsPage() {
           </div>
         </section>
 
-        {/* ── Case study quote ── */}
-        <section className="section">
-          <div className="container">
-            <div className="sol-case-study">
-              <blockquote className="sol-case-quote">
-                &ldquo;We used to rely on one senior staff member at each venue to train everyone else.
-                If they left, the training quality walked out with them. Serve By Example broke that
-                dependency completely.&rdquo;
-              </blockquote>
-              <cite className="sol-case-cite">Operations Manager, 4-venue pub group, Victoria</cite>
-              <div className="sol-case-stats">
-                <div>
-                  <strong>200+</strong>
-                  <span>staff onboarded across 4 venues in under 60 days</span>
-                </div>
-                <div>
-                  <strong>3&times;</strong>
-                  <span>faster onboarding vs. their previous approach</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── ROI Calculator ── */}
-        <ROICalculator />
-
         {/* ── CTA ── */}
         <section className="section section-cta">
           <div className="container" style={{ textAlign: "center" }}>
@@ -152,7 +124,7 @@ export default function PubGroupsPage() {
               Start with a free demo. No commitment, no credit card.
             </p>
             <div className="hero-actions" style={{ justifyContent: "center" }}>
-              <Link href="/demo" className="btn btn-primary btn-lg">Try the Free Demo</Link>
+              <Link href="/demo" className="btn btn-primary btn-lg">Try the Demo</Link>
               <Link href="/contact" className="btn btn-secondary btn-lg">Talk to Us</Link>
             </div>
           </div>

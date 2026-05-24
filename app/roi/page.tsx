@@ -86,7 +86,7 @@ export default function ROIPage() {
             </p>
             <div className="hero-actions" style={{ justifyContent: "center" }}>
               <Link href="/demo" className="btn btn-primary btn-lg">
-                See a Demo for Your Venue
+                Try the Demo
               </Link>
               <Link href="/pricing" className="btn btn-secondary btn-lg">
                 View Pricing

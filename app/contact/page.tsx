@@ -177,13 +177,12 @@ export default function ContactPage() {
                 <p>We reply to all enquiries within one business day.</p>
               </div>
               <div className="card contact-info-card">
-                <h3>Not sure yet?</h3>
+                <h3>Venue enquiry?</h3>
                 <p>
-                  Try our free AI demo — no account needed. Get a feel for how the platform
-                  works before reaching out.
+                  Looking to onboard your whole team? Use the venue access form on our For Venues page for a direct conversation about rollout.
                 </p>
-                <a href="/demo" className="btn btn-secondary btn-block" style={{ marginTop: "12px" }}>
-                  Try the demo
+                <a href="/for-venues#venue-enquiry" className="btn btn-secondary btn-block" style={{ marginTop: "12px" }}>
+                  Request Venue Access
                 </a>
               </div>
             </div>

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import ROICalculator from "@/components/ui/ROICalculator";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -77,7 +76,7 @@ export default function MultiVenuePage() {
               every site — with the analytics to act before problems compound.
             </p>
             <div className="inner-hero-actions">
-              <Link href="/demo" className="btn btn-primary btn-lg">Try the Demo</Link>
+              <Link href="/for-venues#venue-enquiry" className="btn btn-primary btn-lg">Request Venue Access</Link>
               <Link href="/pricing" className="btn btn-secondary btn-lg">View Pricing</Link>
             </div>
           </div>
@@ -107,7 +106,7 @@ export default function MultiVenuePage() {
         <section className="section section-alt">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">What you get</span>
+              <span className="eyebrow">Group operations</span>
               <h2>The operator&rsquo;s view across your entire group</h2>
             </div>
             <div className="sol-feature-grid">
@@ -122,32 +121,6 @@ export default function MultiVenuePage() {
           </div>
         </section>
 
-        {/* ── Case study ── */}
-        <section className="section">
-          <div className="container">
-            <div className="sol-case-study">
-              <blockquote className="sol-case-quote">
-                &ldquo;I can finally compare venue performance without asking each manager to send me
-                a spreadsheet. The group health score view has changed how I prioritise my time
-                completely.&rdquo;
-              </blockquote>
-              <cite className="sol-case-cite">Group Operations Manager, 3-venue hospitality group, Melbourne</cite>
-              <div className="sol-case-stats">
-                <div>
-                  <strong>3 venues</strong>
-                  <span>monitored and managed from one console weekly</span>
-                </div>
-                <div>
-                  <strong>60%</strong>
-                  <span>less time spent on training oversight per week</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <ROICalculator />
-
         {/* ── CTA ── */}
         <section className="section section-cta">
           <div className="container" style={{ textAlign: "center" }}>
@@ -157,7 +130,7 @@ export default function MultiVenuePage() {
               Talk to us about a multi-venue setup or try the platform yourself.
             </p>
             <div className="hero-actions" style={{ justifyContent: "center" }}>
-              <Link href="/demo" className="btn btn-primary btn-lg">Try the Free Demo</Link>
+              <Link href="/demo" className="btn btn-primary btn-lg">Try the Demo</Link>
               <Link href="/contact" className="btn btn-secondary btn-lg">Talk to Us</Link>
             </div>
           </div>
