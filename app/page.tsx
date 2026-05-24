@@ -27,14 +27,11 @@ function IcoBuilding({ size = 22 }: { size?: number }) {
   );
 }
 
-function IcoTrophy({ size = 28 }: { size?: number }) {
+function IcoBook({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="8 21 12 17 16 21"/>
-      <line x1="12" y1="17" x2="12" y2="11"/>
-      <path d="M7 4H4a2 2 0 0 0-2 2v2a4 4 0 0 0 4 4h.5"/>
-      <path d="M17 4h3a2 2 0 0 1 2 2v2a4 4 0 0 1-4 4h-.5"/>
-      <rect x="7" y="2" width="10" height="10" rx="1"/>
+      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
     </svg>
   );
 }
@@ -48,15 +45,16 @@ function IcoZap({ size = 28 }: { size?: number }) {
 }
 
 
-function IcoCalendar({ size = 28 }: { size?: number }) {
+function IcoLayers({ size = 22 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-      <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-      <line x1="3" y1="10" x2="21" y2="10"/>
+      <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+      <polyline points="2 17 12 22 22 17"/>
+      <polyline points="2 12 12 17 22 12"/>
     </svg>
   );
 }
+
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
@@ -215,7 +213,13 @@ export default function Home() {
         {/* ── Product Preview (Modules View) ──── */}
         <section className="section product-preview section-warm">
           <div className="container">
-            <p className="mockup-caption">Your team&rsquo;s personalised training dashboard.</p>
+            <div className="solution-col-header" style={{ marginBottom: "1.75rem" }}>
+              <span className="solution-col-icon"><IcoLayers size={20} /></span>
+              <div>
+                <h3>The full training library</h3>
+                <p>All 40 modules across Bartending, Sales, and Management — filter by role, track progress, and certify by topic.</p>
+              </div>
+            </div>
             <Image
               src="/24 May Jpg's/Modules View.png"
               alt="Staff training modules view — full course library"
@@ -226,38 +230,23 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── Mastery Engine — 3-Step Process ─────── */}
+        {/* ── How It Works — 3-Step Process ─────── */}
         <section className="section section-band-green">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">Powered by Mastery Engine</span>
-              <h2>Intelligent learning that actually works</h2>
-              <p>Three proven mechanisms working in combination to build lasting capability, not just passing scores.</p>
+              <span className="eyebrow">How It Works</span>
+              <h2>Know it. Apply it. Managers see it.</h2>
+              <p>Three stages that take staff from day one to floor-confident — every step tracked and visible without chasing anyone.</p>
             </div>
 
             <div className="mastery-steps-flow">
               <div className="mastery-step-item">
                 <div className="mastery-step-icon-wrap">
-                  <IcoTrophy size={28} />
+                  <IcoBook size={28} />
                 </div>
                 <div className="mastery-step-num">Step 1</div>
-                <h3>Adaptive Skill-Level Matching</h3>
-                <p>The ELO rating system matches each staff member to scenarios at their current level. Pass harder challenges and your rating climbs. Struggle and the system adjusts, always finding the <em className="step-highlight">optimal training edge</em>.</p>
-              </div>
-
-              <div className="mastery-step-connector" aria-hidden="true">
-                <svg width="40" height="16" viewBox="0 0 40 16" fill="none">
-                  <path d="M0 8h32M26 2l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-
-              <div className="mastery-step-item">
-                <div className="mastery-step-icon-wrap">
-                  <IcoCalendar size={28} />
-                </div>
-                <div className="mastery-step-num">Step 2</div>
-                <h3>Automated Knowledge Retention</h3>
-                <p>Spaced repetition resurfaces weak areas at the scientifically optimal intervals: <em className="step-highlight">1, 4, 9, and 16 days</em>. Staff don&rsquo;t cram. They retain. Knowledge decay is monitored and corrected automatically.</p>
+                <h3>Know Your Product Cold.</h3>
+                <p>Structured modules, tap-based mini-games, and rapid-fire quizzes — staff build real knowledge through active recall, not passive reading. Short enough to complete before a shift, structured enough to build <em className="step-highlight">real capability</em> over weeks.</p>
               </div>
 
               <div className="mastery-step-connector" aria-hidden="true">
@@ -270,9 +259,24 @@ export default function Home() {
                 <div className="mastery-step-icon-wrap">
                   <IcoZap size={28} />
                 </div>
+                <div className="mastery-step-num">Step 2</div>
+                <h3>Apply It Under Real Pressure.</h3>
+                <p>AI roleplay puts staff in live service situations — awkward guests, difficult upsells, and service recovery moments. Every session scored across <em className="step-highlight">5 service dimensions</em>. Instant feedback. No manager required.</p>
+              </div>
+
+              <div className="mastery-step-connector" aria-hidden="true">
+                <svg width="40" height="16" viewBox="0 0 40 16" fill="none">
+                  <path d="M0 8h32M26 2l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+
+              <div className="mastery-step-item">
+                <div className="mastery-step-icon-wrap">
+                  <IcoBuilding size={28} />
+                </div>
                 <div className="mastery-step-num">Step 3</div>
-                <h3>Real-Time Performance Evaluation</h3>
-                <p>AI scores every response across <em className="step-highlight">5 dimensions</em>: communication, hospitality, problem-solving, professionalism, and guest experience. Feedback is immediate, with no waiting for a manager&rsquo;s opinion.</p>
+                <h3>Managers See Everything, in Real Time.</h3>
+                <p>Every module completion, quiz score, and scenario session syncs to Manager Mission Control automatically. No chasing staff for updates. <em className="step-highlight">No guessing</em> who&rsquo;s been trained and who hasn&rsquo;t.</p>
               </div>
             </div>
           </div>
