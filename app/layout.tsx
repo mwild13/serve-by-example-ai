@@ -18,13 +18,16 @@ const manrope = Manrope({
   variable: "--font-manrope",
 });
 
-const siteUrl = "https://www.serve-by-example.com";
+const siteUrl = "https://servebyexample.co";
+
+const ogTitle       = "Training Software Built for Hospitality";
+const ogDescription = "Scenario-based AI training that gets new staff floor-ready in six weeks, not six months.";
+const ogImage       = "/logo.png"; // resolves to https://servebyexample.co/logo.png via metadataBase
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Serve By Example AI — Hospitality Training Platform",
-  description:
-    "AI-powered bartending, hospitality and management training that helps venue teams learn faster, build confidence and perform better.",
+  title: "Serve By Example — Hospitality Training Platform",
+  description: ogDescription,
   alternates: {
     canonical: "/",
   },
@@ -41,21 +44,26 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: "Serve By Example AI — Hospitality Training Platform",
-    description:
-      "AI-powered bartending, hospitality and management training that helps venue teams learn faster, build confidence and perform better.",
+    title: ogTitle,
+    description: ogDescription,
     url: siteUrl,
-    siteName: "Serve By Example AI",
+    siteName: "Serve By Example",
     locale: "en_AU",
     type: "website",
-    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "Serve By Example AI — Hospitality Training Platform" }],
+    images: [
+      {
+        url: ogImage,
+        width: 1200,
+        height: 630,
+        alt: ogTitle,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Serve By Example AI — Hospitality Training Platform",
-    description:
-      "AI-powered bartending, hospitality and management training that helps venue teams learn faster, build confidence and perform better.",
-    images: ["/og-image.svg"],
+    title: ogTitle,
+    description: ogDescription,
+    images: [ogImage],
   },
   robots: {
     index: true,
