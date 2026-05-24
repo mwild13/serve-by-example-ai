@@ -226,7 +226,7 @@ export default function Home() {
                   alt="Mobile training view — hospitality staff learning on phone"
                   width={700}
                   height={1000}
-                  style={{ width: "100%", height: "auto", display: "block" }}
+                  style={{ width: "auto", maxWidth: "300px", height: "auto", display: "block", margin: "0 auto" }}
                 />
               </div>
 
