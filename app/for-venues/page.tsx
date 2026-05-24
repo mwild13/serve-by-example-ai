@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import WaitlistSection from "@/components/ui/WaitlistSection";
 import DashboardMockup from "@/components/ui/DashboardMockup";
 
 const whyItMatters = [
@@ -162,29 +161,8 @@ export default function ForVenuesPage() {
           </div>
         </section>
 
-        <WaitlistSection
-          id="venue-enquiry"
-          eyebrow="Venue access"
-          title="Request early access for your venue team."
-          copy="Join the venue rollout list for onboarding updates, early-access windows and pricing suited to bars, pubs and hospitality groups."
-          inputLabel="Venue contact email"
-          inputPlaceholder="ops@yourvenue.com"
-          buttonLabel="Request venue access"
-          successTitle="Venue enquiry received."
-          successCopy="You are on the venue rollout list. We will contact you with launch timing, access options and next steps for team onboarding."
-          successPrimaryHref="/how-it-works"
-          successPrimaryLabel="See how it works"
-          successSecondaryHref="/pricing"
-          successSecondaryLabel="View pricing"
-          successSteps={[
-            "We group venue demand by rollout timing and onboarding capacity.",
-            "You receive early-access updates and any pricing changes before public release.",
-            "When spots open, you get a direct next step for bringing your team on platform.",
-          ]}
-        />
-
         {/* ── CTA ── */}
-        <section className="section section-cta">
+        <section id="venue-enquiry" className="section section-cta">
           <div className="container cta-box">
             <div>
               <h3>Train your team with more consistency.</h3>

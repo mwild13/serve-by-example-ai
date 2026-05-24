@@ -36,19 +36,23 @@ export default function ResourcesPage() {
 
         {/* ── Download section ── */}
         <section className="section section-alt">
-          <div className="container" style={{ maxWidth: 920 }}>
+          <div className="container" style={{ maxWidth: 960 }}>
             <div style={{
-              background: "var(--surface)",
-              border: "1.5px solid var(--line)",
-              borderRadius: "var(--radius-lg)",
-              padding: "2.5rem",
               display: "grid",
               gridTemplateColumns: "1fr auto",
-              gap: "2.5rem",
+              gap: "3rem",
               alignItems: "center",
             }}>
-              {/* Left: text + download */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+              {/* Left: card with text + download */}
+              <div style={{
+                background: "var(--surface)",
+                border: "1.5px solid var(--line)",
+                borderRadius: "var(--radius-lg)",
+                padding: "2.5rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: "1.25rem",
+              }}>
                 <div style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -84,15 +88,15 @@ export default function ResourcesPage() {
                 </p>
               </div>
 
-              {/* Right: checklist preview image */}
+              {/* Right: checklist preview image — outside the card */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/downloads/training-checklist-preview.png"
                 alt="Training Checklist preview"
                 style={{
-                  width: 220,
+                  width: 260,
                   borderRadius: "var(--radius-md)",
-                  boxShadow: "var(--shadow-lg)",
+                  boxShadow: "var(--shadow-xl)",
                   display: "block",
                 }}
               />
