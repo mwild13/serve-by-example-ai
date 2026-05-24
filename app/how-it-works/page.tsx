@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DashboardMockup from "@/components/ui/DashboardMockup";
@@ -244,96 +245,13 @@ export default function HowItWorksPage() {
               {/* Staff Mobile Console */}
               <div>
                 <p style={{ color: "#d1fae5", fontWeight: 700, fontSize: "0.8125rem", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "1rem" }}>Staff Mobile Console</p>
-                <div style={{ maxWidth: "300px", margin: "0 auto", borderRadius: "32px", overflow: "hidden", border: "6px solid #1a3322", boxShadow: "0 24px 64px rgba(0,0,0,0.7)", background: "#F0EBE0" }}>
-
-                  {/* Header bar */}
-                  <div style={{ background: "#0B2B1E", padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                      <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "white", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B2B1E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M8 22h8M7 2h10l-2 8H9z"/><line x1="12" y1="10" x2="12" y2="22"/>
-                        </svg>
-                      </div>
-                      <span style={{ color: "white", fontSize: "0.58rem", fontWeight: 900, letterSpacing: "0.18em" }}>SERVE BY EXAMPLE</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="#f97316" stroke="none"><path d="M12 2C8 8 4 10 4 15a8 8 0 0 0 16 0c0-5-4-7-8-13z"/></svg>
-                      <span style={{ color: "white", fontSize: "0.75rem", fontWeight: 800 }}>4D</span>
-                    </div>
-                  </div>
-
-                  {/* Scrollable content */}
-                  <div style={{ background: "#F0EBE0", padding: "16px 14px 0" }}>
-
-                    {/* PRE-SHIFT BRIEF label */}
-                    <p style={{ margin: "0 0 9px", fontSize: "0.58rem", fontWeight: 800, letterSpacing: "0.13em", color: "#9c8e7e", textTransform: "uppercase" }}>Pre-Shift Brief</p>
-
-                    {/* Pre-shift card */}
-                    <div style={{ background: "white", borderRadius: "14px", padding: "16px", marginBottom: "12px" }}>
-                      <div style={{ display: "inline-block", border: "1.5px solid #d6cdc0", borderRadius: "5px", padding: "2px 8px", marginBottom: "10px" }}>
-                        <span style={{ fontSize: "0.55rem", fontWeight: 800, letterSpacing: "0.1em", color: "#5a4f44", textTransform: "uppercase" }}>Pre-Shift Brief</span>
-                      </div>
-                      <h3 style={{ margin: "0 0 6px", fontSize: "1.05rem", fontWeight: 900, color: "#111827", lineHeight: 1.2 }}>Welcome back, Alex</h3>
-                      <p style={{ margin: "0 0 14px", fontSize: "0.775rem", color: "#6b6056", lineHeight: 1.55 }}>You&rsquo;re on a 4-day streak. Today&rsquo;s brief takes under 3 minutes.</p>
-                      <div style={{ background: "#0B2B1E", borderRadius: "10px", padding: "11px 16px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
-                        <span style={{ color: "white", fontSize: "0.8rem", fontWeight: 700 }}>Start Pre-Shift Warm-Up</span>
-                      </div>
-                    </div>
-
-                    {/* STRENGTHEN YOUR WEAKNESS label */}
-                    <p style={{ margin: "0 0 9px", fontSize: "0.58rem", fontWeight: 800, letterSpacing: "0.13em", color: "#9c8e7e", textTransform: "uppercase" }}>Strengthen Your Weakness</p>
-
-                    {/* Course card */}
-                    <div style={{ background: "white", borderRadius: "14px", padding: "16px", marginBottom: "12px" }}>
-                      <h4 style={{ margin: "0 0 5px", fontSize: "0.9rem", fontWeight: 800, color: "#111827" }}>Bartending Fundamentals</h4>
-                      <p style={{ margin: "0 0 9px", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.07em", color: "#9c8e7e", textTransform: "uppercase" }}>62% Complete &middot; Next: Stage 3 Scenario</p>
-                      <div style={{ background: "#e5ded4", borderRadius: "4px", height: "5px", marginBottom: "12px" }}>
-                        <div style={{ background: "#0B2B1E", width: "62%", height: "100%", borderRadius: "4px" }} />
-                      </div>
-                      <p style={{ margin: 0, fontSize: "0.825rem", fontWeight: 700, color: "#0B2B1E" }}>Start Stage 3 Scenario &rarr;</p>
-                    </div>
-
-                    {/* QUICK ACCESS label */}
-                    <p style={{ margin: "0 0 9px", fontSize: "0.58rem", fontWeight: 800, letterSpacing: "0.13em", color: "#9c8e7e", textTransform: "uppercase" }}>Quick Access</p>
-
-                    {/* Quick access tiles */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", paddingBottom: "14px" }}>
-                      <div style={{ background: "white", borderRadius: "14px", padding: "14px" }}>
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block", marginBottom: "8px" }}>
-                          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-                        </svg>
-                        <p style={{ margin: "0 0 3px", fontSize: "0.85rem", fontWeight: 800, color: "#111827" }}>Modules</p>
-                        <p style={{ margin: 0, fontSize: "0.7rem", color: "#9c8e7e" }}>Stage-based learning</p>
-                      </div>
-                      <div style={{ background: "white", borderRadius: "14px", padding: "14px" }}>
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block", marginBottom: "8px" }}>
-                          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                        </svg>
-                        <p style={{ margin: "0 0 3px", fontSize: "0.85rem", fontWeight: 800, color: "#111827" }}>Quick Drills</p>
-                        <p style={{ margin: 0, fontSize: "0.7rem", color: "#9c8e7e" }}>60-sec recall quizzes</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bottom nav */}
-                  <div style={{ background: "white", borderTop: "1px solid #e8e0d5", padding: "10px 6px 6px", display: "flex", justifyContent: "space-around", alignItems: "flex-start" }}>
-                    {[
-                      { label: "HOME", active: true, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg> },
-                      { label: "MODULES", active: false, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> },
-                      { label: "DRILLS", active: false, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> },
-                      { label: "LIBRARY", active: false, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 22h8M7 2h10l-2 8H9z"/><line x1="12" y1="10" x2="12" y2="22"/></svg> },
-                      { label: "ME", active: false, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> },
-                    ].map(({ label, active, icon }) => (
-                      <div key={label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "3px", flex: 1 }}>
-                        {active && <div style={{ width: "20px", height: "2.5px", background: "#c9a84c", borderRadius: "2px", marginBottom: "2px" }} />}
-                        <div style={{ color: active ? "#0B2B1E" : "#9c8e7e" }}>{icon}</div>
-                        <span style={{ fontSize: "0.45rem", fontWeight: 800, letterSpacing: "0.08em", color: active ? "#0B2B1E" : "#9c8e7e", textTransform: "uppercase" }}>{label}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                </div>
+                <Image
+                  src="/24 May Jpg's/Mobile View2.png"
+                  alt="Serve By Example staff mobile console — pre-shift brief and training dashboard"
+                  width={390}
+                  height={780}
+                  style={{ width: "100%", maxWidth: "320px", height: "auto", display: "block", margin: "0 auto" }}
+                />
               </div>
 
             </div>
