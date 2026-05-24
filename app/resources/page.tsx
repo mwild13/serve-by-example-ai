@@ -36,11 +36,11 @@ export default function ResourcesPage() {
 
         {/* ── Download section ── */}
         <section className="section section-alt">
-          <div className="container" style={{ maxWidth: 960 }}>
+          <div className="container" style={{ maxWidth: 1080 }}>
             <div style={{
               display: "grid",
-              gridTemplateColumns: "1fr auto",
-              gap: "3rem",
+              gridTemplateColumns: "5fr 6fr",
+              gap: "2.5rem",
               alignItems: "center",
             }}>
               {/* Left: card with text + download */}
@@ -48,10 +48,11 @@ export default function ResourcesPage() {
                 background: "var(--surface)",
                 border: "1.5px solid var(--line)",
                 borderRadius: "var(--radius-lg)",
-                padding: "2.5rem",
+                padding: "2.75rem",
                 display: "flex",
                 flexDirection: "column",
-                gap: "1.25rem",
+                gap: "1.35rem",
+                alignSelf: "stretch",
               }}>
                 <div style={{
                   display: "inline-flex",
@@ -66,10 +67,10 @@ export default function ResourcesPage() {
                   <DownloadIcon />
                   PDF &middot; Free Download
                 </div>
-                <h2 style={{ margin: 0, fontSize: "1.35rem", fontWeight: 700, color: "var(--text)", lineHeight: 1.3 }}>
+                <h2 style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700, color: "var(--text)", lineHeight: 1.3 }}>
                   Hospitality Staff Training Checklist
                 </h2>
-                <p style={{ margin: 0, fontSize: "1rem", color: "var(--text-soft)", lineHeight: 1.7 }}>
+                <p style={{ margin: 0, fontSize: "1.05rem", color: "var(--text-soft)", lineHeight: 1.75 }}>
                   A practical onboarding checklist built specifically for Australian bars, restaurants, and venue teams.
                   Covers first-week milestones, service basics, product knowledge, compliance, and shift readiness.
                   Use it with new starters or as a team reset — no software required.
@@ -78,24 +79,24 @@ export default function ResourcesPage() {
                   href="/downloads/SBE-Training-Checklist.pdf"
                   download="SBE-Training-Checklist.pdf"
                   className="btn btn-primary"
-                  style={{ alignSelf: "flex-start", display: "flex", alignItems: "center", gap: 8 }}
+                  style={{ alignSelf: "flex-start", display: "flex", alignItems: "center", gap: 8, fontSize: "1rem", padding: "0.85rem 1.75rem" }}
                 >
                   <DownloadIcon />
                   Download free checklist
                 </a>
-                <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-muted)" }}>
                   No email required. No account needed.
                 </p>
               </div>
 
-              {/* Right: checklist preview image — outside the card */}
+              {/* Right: checklist preview image — slightly larger than the card */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/downloads/training-checklist-preview.png"
                 alt="Training Checklist preview"
                 style={{
-                  width: 260,
-                  borderRadius: "var(--radius-md)",
+                  width: "100%",
+                  borderRadius: "var(--radius-lg)",
                   boxShadow: "var(--shadow-xl)",
                   display: "block",
                 }}
