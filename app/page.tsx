@@ -55,6 +55,15 @@ function IcoLayers({ size = 22 }: { size?: number }) {
   );
 }
 
+function IcoPhone({ size = 22 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="5" y="2" width="14" height="20" rx="2"/>
+      <circle cx="12" cy="18" r="0.5" fill="currentColor"/>
+    </svg>
+  );
+}
+
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
@@ -180,23 +189,48 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── Product Preview (Modules View) ──── */}
-        <section className="section product-preview section-warm">
+        {/* ── Product Preview (Modules + Mobile) ─── */}
+        <section className="section section-warm">
           <div className="container">
-            <div className="solution-col-header" style={{ marginBottom: "1.75rem" }}>
-              <span className="solution-col-icon"><IcoLayers size={20} /></span>
-              <div>
-                <h3>The full training library</h3>
-                <p>All 40 modules across Bartending, Sales, and Management — filter by role, track progress, and certify by topic.</p>
+            <div className="solution-grid">
+
+              {/* Full training library */}
+              <div className="solution-col">
+                <div className="solution-col-header">
+                  <span className="solution-col-icon"><IcoLayers size={20} /></span>
+                  <div>
+                    <h3>The full training library</h3>
+                    <p>All 40 modules across Bartending, Sales, and Management — filter by role, track progress, and certify by topic.</p>
+                  </div>
+                </div>
+                <Image
+                  src="/24 May Jpg's/Modules View.png"
+                  alt="Staff training modules view — full course library"
+                  width={1400}
+                  height={875}
+                  style={{ width: "100%", height: "auto", display: "block" }}
+                />
               </div>
+
+              {/* Mobile — train anywhere */}
+              <div className="solution-col">
+                <div className="solution-col-header">
+                  <span className="solution-col-icon"><IcoPhone size={20} /></span>
+                  <div>
+                    <h3>Train anywhere, on any shift</h3>
+                    <p>The full platform on mobile — staff complete scenarios, quizzes, and modules between shifts without needing a desk or desktop.</p>
+                  </div>
+                </div>
+                <Image
+                  src="/24 May Jpg's/Mobile View3.png"
+                  alt="Mobile training view — hospitality staff learning on phone"
+                  width={700}
+                  height={1000}
+                  style={{ width: "100%", height: "auto", display: "block" }}
+                />
+              </div>
+
             </div>
-            <Image
-              src="/24 May Jpg's/Modules View.png"
-              alt="Staff training modules view — full course library"
-              width={1400}
-              height={875}
-              style={{ width: "100%", height: "auto", display: "block" }}
-            />
           </div>
         </section>
 
