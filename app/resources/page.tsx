@@ -36,49 +36,66 @@ export default function ResourcesPage() {
 
         {/* ── Download section ── */}
         <section className="section section-alt">
-          <div className="container" style={{ maxWidth: 640 }}>
+          <div className="container" style={{ maxWidth: 920 }}>
             <div style={{
               background: "var(--surface)",
               border: "1.5px solid var(--line)",
               borderRadius: "var(--radius-lg)",
               padding: "2.5rem",
-              display: "flex",
-              flexDirection: "column",
-              gap: "1.25rem",
+              display: "grid",
+              gridTemplateColumns: "1fr auto",
+              gap: "2.5rem",
+              alignItems: "center",
             }}>
-              <div style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                fontSize: "0.75rem",
-                fontWeight: 800,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                color: "var(--green-mid)",
-              }}>
-                <DownloadIcon />
-                PDF &middot; Free Download
+              {/* Left: text + download */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                <div style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  fontSize: "0.75rem",
+                  fontWeight: 800,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "var(--green-mid)",
+                }}>
+                  <DownloadIcon />
+                  PDF &middot; Free Download
+                </div>
+                <h2 style={{ margin: 0, fontSize: "1.35rem", fontWeight: 700, color: "var(--text)", lineHeight: 1.3 }}>
+                  Hospitality Staff Training Checklist
+                </h2>
+                <p style={{ margin: 0, fontSize: "1rem", color: "var(--text-soft)", lineHeight: 1.7 }}>
+                  A practical onboarding checklist built specifically for Australian bars, restaurants, and venue teams.
+                  Covers first-week milestones, service basics, product knowledge, compliance, and shift readiness.
+                  Use it with new starters or as a team reset — no software required.
+                </p>
+                <a
+                  href="/downloads/SBE-Training-Checklist.pdf"
+                  download="SBE-Training-Checklist.pdf"
+                  className="btn btn-primary"
+                  style={{ alignSelf: "flex-start", display: "flex", alignItems: "center", gap: 8 }}
+                >
+                  <DownloadIcon />
+                  Download free checklist
+                </a>
+                <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                  No email required. No account needed.
+                </p>
               </div>
-              <h2 style={{ margin: 0, fontSize: "1.35rem", fontWeight: 700, color: "var(--text)", lineHeight: 1.3 }}>
-                Hospitality Staff Training Checklist
-              </h2>
-              <p style={{ margin: 0, fontSize: "1rem", color: "var(--text-soft)", lineHeight: 1.7 }}>
-                A practical onboarding checklist built specifically for Australian bars, restaurants, and venue teams.
-                Covers first-week milestones, service basics, product knowledge, compliance, and shift readiness.
-                Use it with new starters or as a team reset — no software required.
-              </p>
-              <a
-                href="/24 May Jpg's/Training Checklist.pdf"
-                download="SBE-Training-Checklist.pdf"
-                className="btn btn-primary"
-                style={{ alignSelf: "flex-start", display: "flex", alignItems: "center", gap: 8 }}
-              >
-                <DownloadIcon />
-                Download free checklist
-              </a>
-              <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                No email required. No account needed.
-              </p>
+
+              {/* Right: checklist preview image */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/downloads/training-checklist-preview.png"
+                alt="Training Checklist preview"
+                style={{
+                  width: 220,
+                  borderRadius: "var(--radius-md)",
+                  boxShadow: "var(--shadow-lg)",
+                  display: "block",
+                }}
+              />
             </div>
           </div>
         </section>
