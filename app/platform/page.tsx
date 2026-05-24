@@ -325,7 +325,7 @@ export default function PlatformPage() {
             </div>
             <div className="platform-mobile-visual">
               <Image
-                src="/24 May Jpg's/Mobile View.png"
+                src="/24 May Jpg's/Mobile View2.png"
                 alt="Serve By Example staff training app on mobile — pre-shift brief screen"
                 width={390}
                 height={780}
