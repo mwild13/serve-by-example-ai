@@ -37,14 +37,9 @@ export default function ResourcesPage() {
         {/* ── Download section ── */}
         <section className="section section-alt">
           <div className="container" style={{ maxWidth: 1080 }}>
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "5fr 6fr",
-              gap: "2.5rem",
-              alignItems: "center",
-            }}>
+            <div className="resource-download-grid">
               {/* Left: card with text + download */}
-              <div style={{
+              <div className="resource-download-card" style={{
                 background: "var(--surface)",
                 border: "1.5px solid var(--line)",
                 borderRadius: "var(--radius-lg)",
@@ -94,6 +89,7 @@ export default function ResourcesPage() {
               <img
                 src="/downloads/training-checklist-preview.png"
                 alt="Training Checklist preview"
+                className="resource-download-img"
                 style={{
                   width: "100%",
                   borderRadius: "var(--radius-lg)",

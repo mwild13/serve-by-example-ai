@@ -4250,12 +4250,18 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   }
 }
 
-/* Stats grid: 2 rows × 3 cols */
+/* Stats grid: 2 rows × 3 cols, collapses to 2-col on mobile */
 .progress-hub-stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(2, auto);
   gap: 12px;
+}
+@media (max-width: 640px) {
+  .progress-hub-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
 }
 .progress-hub-stat-card {
   background: var(--bg-warm);
@@ -8674,6 +8680,13 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   .waitlist-card {
     grid-template-columns: 1fr;
     padding: 30px 24px;
+  }
+
+  /* Management console — unlock scroll on mobile */
+  .management-app-root {
+    height: auto;
+    min-height: 100dvh;
+    overflow-y: auto;
   }
 
   .ops-shell {
@@ -14981,5 +14994,29 @@ h1, h2, h3 {
 
   .hero-showcase {
     margin-top: 24px;
+  }
+}
+
+/* ── Resources page — download section grid ── */
+.resource-download-grid {
+  display: grid;
+  grid-template-columns: 5fr 6fr;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+@media (max-width: 760px) {
+  .resource-download-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .resource-download-card {
+    order: 1;
+  }
+
+  .resource-download-img {
+    order: 2;
+    width: 100% !important;
   }
 }
