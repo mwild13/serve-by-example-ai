@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SectionSubNav from "@/components/SectionSubNav";
@@ -323,23 +324,13 @@ export default function PlatformPage() {
               </div>
             </div>
             <div className="platform-mobile-visual">
-              <div className="platform-phone-mockup">
-                <div className="platform-phone-screen">
-                  <div className="platform-phone-top">
-                    <span>Serve By Example</span>
-                    <span>✦ AI Coach</span>
-                  </div>
-                  <div className="platform-phone-scenario">
-                    <p className="platform-phone-label">Today&rsquo;s scenario</p>
-                    <strong>Upsell challenge</strong>
-                    <p>A customer orders a house vodka. Guide them toward a premium option.</p>
-                  </div>
-                  <div className="platform-phone-badges">
-                    <span className="ops-badge ops-badge-earned">Training Complete</span>
-                    <span className="ops-badge ops-badge-earned">Sales Champion</span>
-                  </div>
-                </div>
-              </div>
+              <Image
+                src="/24 May Jpg's/Mobile View.png"
+                alt="Serve By Example staff training app on mobile — pre-shift brief screen"
+                width={390}
+                height={780}
+                style={{ width: "100%", maxWidth: "320px", height: "auto", display: "block" }}
+              />
             </div>
           </div>
         </section>

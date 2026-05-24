@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(awk 'NR>=6655 && NR<=6690 {print NR\": \"$0}' /Users/mitchellwildman/Desktop/serve-by-example-ai-main/app/globals.css)",
+      "Bash(awk 'NR>=6500 && NR<=6510 {print NR\": \"$0}' /Users/mitchellwildman/Desktop/serve-by-example-ai-main/app/globals.css)",
+      "Bash(awk -F: '$2 < 6700 && $2 > 6680')",
+      "Bash(awk 'NR>=6300 && NR<=6310 {print NR\": \"$0}' /Users/mitchellwildman/Desktop/serve-by-example-ai-main/app/globals.css)",
+      "Bash(awk -F: 'NR>1{if\\($2+0>6650 && $2+0<6690\\) print}')",
+      "Bash(awk 'NR>=6200 && NR<=6220 {print NR\": \"$0}' /Users/mitchellwildman/Desktop/serve-by-example-ai-main/app/globals.css)",
+      "Bash(awk -F: '$2+0 < 6680 && $2+0 > 6400')",
+      "Bash(awk -F: 'int\\($1\\) < 6680 && int\\($1\\) > 6400')",
+      "Bash(awk -F: 'int\\($1\\) > 6000 && int\\($1\\) < 7000')",
+      "Bash(awk 'NR>=6140 && NR<=6160 {print NR\": \"$0}' /Users/mitchellwildman/Desktop/serve-by-example-ai-main/app/globals.css)",
+      "Bash(awk 'NR>=6160 && NR<=6180 {print NR\": \"$0}' /Users/mitchellwildman/Desktop/serve-by-example-ai-main/app/globals.css)",
+      "Bash(awk 'NR>=6580 && NR<=6600 {print NR\": \"$0}' /Users/mitchellwildman/Desktop/serve-by-example-ai-main/app/globals.css)",
+      "Bash(awk 'NR>=6420 && NR<=6440 {print NR\": \"$0}' /Users/mitchellwildman/Desktop/serve-by-example-ai-main/app/globals.css)",
+      "Bash(awk 'NR>1{prev=$0} /^[0-9]+:@media/ && int\\(substr\\($0,1,index\\($0,\":\"\\)-1\\)\\) < 6680 && int\\(substr\\($0,1,index\\($0,\":\"\\)-1\\)\\) > 6000 {print}')",
+      "Bash(awk 'NR>=6228 && NR<=6245 {print NR\": \"$0}' /Users/mitchellwildman/Desktop/serve-by-example-ai-main/app/globals.css)",
+      "Bash(awk 'NR>=8200 && NR<=8215 {print NR\": \"$0}' /Users/mitchellwildman/Desktop/serve-by-example-ai-main/app/globals.css)",
+      "Bash(awk -F: 'int\\($1\\) < 8340 && int\\($1\\) > 8000')",
+      "Bash(awk -F: 'int\\($1\\) > 8400 && int\\($1\\) < 8500')",
+      "Bash(git commit -m ' *)",
+      "Read(//Users/mickellwildman/Desktop/serve-by-example-ai-main/app/api/training/save/**)",
+      "Read(//Users/meshellwildman/Desktop/serve-by-example-ai-main/components/**)",
+      "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")",
+      "Bash(npm install *)",
+      "Read(//Users/javascriptmitchellwildman/Desktop/serve-by-example-ai-main/app/**)",
+      "Read(//Users/mickellwildman/Desktop/serve-by-example-ai-main/app/api/management/join-venue/**)",
+      "Read(//Users/mississippwildman/Desktop/serve-by-example-ai-main/supabase/**)",
+      "Bash(grep -E \"page\\\\.tsx$|^d\")",
+      "Bash(npx next *)",
+      "Bash(xargs ls -la)",
+      "WebFetch(domain:dev.serve-by-example-ai.pages.dev)",
+      "Bash(git checkout *)",
+      "Bash(git merge *)",
+      "Read(//Users/mythchellwildman/Desktop/serve-by-example-ai-main/app/**)",
+      "Bash(cat >> *)"
+    ],
+    "additionalDirectories": [
+      "/Users/mitchellwildman/Desktop/serve-by-example-ai-main/app"
+    ]
+  }
+}

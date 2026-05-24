@@ -196,8 +196,8 @@ INSERT INTO scenarios (module_id, scenario_index, scenario_type, prompt, content
   jsonb_build_object('question', 'A wet floor sign must be placed over spills immediately.', 'answer', 'true', 'explanation', 'Slips are the number one venue injury. The hazard must be visibly marked the second it occurs.', 'option_type', 'truefalse'),
   2, ARRAY['safety', 'whs']),
 
-(6, 205, 'quiz', 'Warm water alone is enough to sanitize food prep areas.',
-  jsonb_build_object('question', 'Warm water alone is enough to sanitize food prep areas.', 'answer', 'false', 'explanation', 'Warm water removes visible dirt, but food-grade chemical sanitizer is legally required to kill bacteria.', 'option_type', 'truefalse'),
+(6, 205, 'quiz', 'Warm water alone is enough to sanitise food prep areas.',
+  jsonb_build_object('question', 'Warm water alone is enough to sanitise food prep areas.', 'answer', 'false', 'explanation', 'Warm water removes visible dirt, but food-grade chemical sanitiser is legally required to kill bacteria.', 'option_type', 'truefalse'),
   2, ARRAY['cleaning', 'compliance']),
 
 (6, 206, 'quiz', 'Beer drip trays should be flushed with hot water nightly.',
@@ -341,12 +341,12 @@ INSERT INTO scenarios (module_id, scenario_index, scenario_type, prompt, content
   2, ARRAY['service', 'upsell']),
 
 -- ===== MODULE 11: Handling Guest Complaints =====
-(11, 200, 'quiz', 'You should instantly apologize and validate the guest''s frustration.',
-  jsonb_build_object('question', 'You should instantly apologize and validate the guest''s frustration.', 'answer', 'true', 'explanation', 'An immediate, empathetic apology diffuses anger. They need to know you are on their side to fix the problem.', 'option_type', 'truefalse'),
+(11, 200, 'quiz', 'You should instantly apologise and validate the guest''s frustration.',
+  jsonb_build_object('question', 'You should instantly apologise and validate the guest''s frustration.', 'answer', 'true', 'explanation', 'An immediate, empathetic apology diffuses anger. They need to know you are on their side to fix the problem.', 'option_type', 'truefalse'),
   2, ARRAY['complaints', 'service']),
 
 (11, 201, 'quiz', 'Blaming the kitchen calms the guest down much faster.',
-  jsonb_build_object('question', 'Blaming the kitchen calms the guest down much faster.', 'answer', 'false', 'explanation', 'Throwing chefs under the bus makes the venue look disorganized and unprofessional. Take ownership as a team.', 'option_type', 'truefalse'),
+  jsonb_build_object('question', 'Blaming the kitchen calms the guest down much faster.', 'answer', 'false', 'explanation', 'Throwing chefs under the bus makes the venue look disorganised and unprofessional. Take ownership as a team.', 'option_type', 'truefalse'),
   2, ARRAY['complaints', 'professionalism']),
 
 (11, 202, 'quiz', 'Offering a free drink is a good initial service recovery step.',
@@ -507,7 +507,7 @@ INSERT INTO scenarios (module_id, scenario_index, scenario_type, prompt, content
 
 -- ===== MODULE 16: Food Safety & Hygiene =====
 (16, 200, 'quiz', 'A coeliac allergy requires entirely separate preparation equipment.',
-  jsonb_build_object('question', 'A coeliac allergy requires entirely separate preparation equipment.', 'answer', 'true', 'explanation', 'Even a microscopic crumb of gluten on a shared cutting board can hospitalize a guest with true coeliac disease.', 'option_type', 'truefalse'),
+  jsonb_build_object('question', 'A coeliac allergy requires entirely separate preparation equipment.', 'answer', 'true', 'explanation', 'Even a microscopic crumb of gluten on a shared cutting board can hospitalise a guest with true coeliac disease.', 'option_type', 'truefalse'),
   2, ARRAY['food-safety', 'allergens']),
 
 (16, 201, 'quiz', 'Chicken can be safely stored on the top fridge shelf.',
@@ -560,7 +560,7 @@ INSERT INTO scenarios (module_id, scenario_index, scenario_type, prompt, content
   2, ARRAY['conflict', 'professionalism']),
 
 (17, 205, 'quiz', 'Addressing the bad behavior rather than the person diffuses tension.',
-  jsonb_build_object('question', 'Addressing the bad behavior rather than the person diffuses tension.', 'answer', 'true', 'explanation', 'Targeting the action, not the ego, de-personalizes the conflict and reduces the patron''s need to fight back.', 'option_type', 'truefalse'),
+  jsonb_build_object('question', 'Addressing the bad behavior rather than the person diffuses tension.', 'answer', 'true', 'explanation', 'Targeting the action, not the ego, de-personalises the conflict and reduces the patron''s need to fight back.', 'option_type', 'truefalse'),
   2, ARRAY['conflict', 'de-escalation']),
 
 (17, 206, 'quiz', 'You must notify security or a manager if threats are made.',
@@ -643,7 +643,7 @@ INSERT INTO scenarios (module_id, scenario_index, scenario_type, prompt, content
   2, ARRAY['inventory', 'waste']),
 
 (20, 201, 'quiz', 'Giving free drinks to friends is totally fine in Australian pubs.',
-  jsonb_build_object('question', 'Giving free drinks to friends is totally fine in Australian pubs.', 'answer', 'false', 'explanation', 'Unauthorized comps are legally considered theft. All free drinks must be approved and logged in the POS by a manager.', 'option_type', 'truefalse'),
+  jsonb_build_object('question', 'Giving free drinks to friends is totally fine in Australian pubs.', 'answer', 'false', 'explanation', 'Unauthorised comps are legally considered theft. All free drinks must be approved and logged in the POS by a manager.', 'option_type', 'truefalse'),
   2, ARRAY['inventory', 'compliance']),
 
 (20, 202, 'quiz', 'Recording a dropped bottle in the wastage log is mandatory.',

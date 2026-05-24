@@ -32,7 +32,7 @@ VALUES
 
   -- SERVICE SKILLS (8-14)
   (8, 'The Art of the Greeting', 'First impression, warmth, tone of voice, body language, speed of greeting, personalization, anticipating needs.', 'service', 'hospitality', 1, NULL, NOW(), NOW()),
-  (9, 'Managing Table Dynamics', 'Reading table mood, handling different personalities, managing conflicts, keeping table energized, group dining, hosting.', 'service', 'hospitality', 3, NULL, NOW(), NOW()),
+  (9, 'Managing Table Dynamics', 'Reading table mood, handling different personalities, managing conflicts, keeping table energised, group dining, hosting.', 'service', 'hospitality', 3, NULL, NOW(), NOW()),
   (10, 'Anticipatory Service', 'Predicting guest needs, proactive service, refills, timing of checks, reading gestures, surprise moments, upselling naturally.', 'service', 'hospitality', 2, NULL, NOW(), NOW()),
   (11, 'Handling Guest Complaints', 'Listening without defensiveness, empathy, problem-solving, compensation authority, service recovery, turning negative to positive.', 'service', 'hospitality', 3, NULL, NOW(), NOW()),
   (12, 'Up-selling & Suggestive Sales', 'Reading guest interests, natural recommendations, suggestive selling without pressure, premium options, knowledge-based pitches, increasing check average.', 'service', 'sales', 2, NULL, NOW(), NOW()),

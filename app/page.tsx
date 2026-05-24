@@ -1,8 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import ROICalculator from "@/components/ui/ROICalculator";
-import DashboardMockup from "@/components/ui/DashboardMockup";
 import HeroSection from "@/components/HeroSection";
 // ── SVG Icons ─────────────────────────────────────────────────────────────────
 
@@ -27,62 +27,6 @@ function IcoBuilding({ size = 22 }: { size?: number }) {
   );
 }
 
-function IcoClipboard({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-      <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
-    </svg>
-  );
-}
-
-function IcoBarChart({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
-    </svg>
-  );
-}
-
-function IcoPlay({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10"/>
-      <polygon points="10,8 16,12 10,16"/>
-    </svg>
-  );
-}
-
-function IcoBot({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="11" width="18" height="10" rx="2"/>
-      <circle cx="12" cy="5" r="2"/>
-      <path d="M12 7v4"/>
-      <line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/>
-    </svg>
-  );
-}
-
-function IcoBook({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-    </svg>
-  );
-}
-
-function IcoRefresh({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="23 4 23 10 17 10"/>
-      <polyline points="1 20 1 14 7 14"/>
-      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-    </svg>
-  );
-}
-
 function IcoTrophy({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -103,48 +47,6 @@ function IcoZap({ size = 28 }: { size?: number }) {
   );
 }
 
-
-function IcoGrid({ size = 14 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-      <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
-    </svg>
-  );
-}
-
-function IcoGlass({ size = 14 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M8 22h8M7 2h10l-2 8H9z"/><line x1="12" y1="10" x2="12" y2="22"/>
-    </svg>
-  );
-}
-
-function IcoChat({ size = 14 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-    </svg>
-  );
-}
-
-function IcoLineChart({ size = 14 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-    </svg>
-  );
-}
-
-function IcoGear({ size = 14 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="3"/>
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-    </svg>
-  );
-}
 
 function IcoCalendar({ size = 28 }: { size?: number }) {
   return (
@@ -290,7 +192,13 @@ export default function Home() {
                     <p>Real-time visibility across your whole team — compliance, progress, and performance — without chasing anyone.</p>
                   </div>
                 </div>
-                <DashboardMockup />
+                <Image
+                  src="/24 May Jpg's/Management Console View.png"
+                  alt="Serve By Example management console — venue performance mission control"
+                  width={1200}
+                  height={750}
+                  style={{ width: "100%", height: "auto", display: "block" }}
+                />
               </div>
 
               {/* Staff outcome */}
@@ -302,148 +210,30 @@ export default function Home() {
                     <p>Floor-ready in six weeks, not six months — guided by AI scenarios and immediate scored feedback.</p>
                   </div>
                 </div>
-                <ul className="solution-features">
-                  <li>
-                    <span className="solution-feature-icon"><IcoPlay /></span>
-                    <div>
-                      <strong>65+ AI Scenarios</strong>
-                      <span>Realistic situations staff face every shift, evaluated and scored live</span>
-                    </div>
-                  </li>
-                  <li>
-                    <span className="solution-feature-icon"><IcoBot /></span>
-                    <div>
-                      <strong>24/7 AI Coach</strong>
-                      <span>Instant personalised feedback on every response — no manager required</span>
-                    </div>
-                  </li>
-                  <li>
-                    <span className="solution-feature-icon"><IcoBarChart /></span>
-                    <div>
-                      <strong>ELO Skill Ratings</strong>
-                      <span>Adaptive difficulty that always finds each staff member&rsquo;s optimal training edge</span>
-                    </div>
-                  </li>
-                  <li>
-                    <span className="solution-feature-icon"><IcoBook /></span>
-                    <div>
-                      <strong>Knowledge On Demand</strong>
-                      <span>65 cocktail specs and 26 reference articles, searchable on any device</span>
-                    </div>
-                  </li>
-                  <li>
-                    <span className="solution-feature-icon"><IcoRefresh /></span>
-                    <div>
-                      <strong>Spaced Repetition</strong>
-                      <span>Weak areas resurface at 1, 4, 9, 16-day intervals — not when it&rsquo;s too late</span>
-                    </div>
-                  </li>
-                </ul>
+                <Image
+                  src="/24 May Jpg's/Staff Certifications.png"
+                  alt="Staff certification and module mastery progress view"
+                  width={1200}
+                  height={630}
+                  style={{ width: "100%", height: "auto", display: "block" }}
+                />
               </div>
 
             </div>
           </div>
         </section>
 
-        {/* ── Product Preview (Dashboard Mockup) ──── */}
+        {/* ── Product Preview (Modules View) ──── */}
         <section className="section product-preview section-warm">
           <div className="container">
             <p className="mockup-caption">Your team&rsquo;s personalised training dashboard.</p>
-            <div className="mockup-wrapper">
-              <div className="app-mockup">
-                <div className="mockup-sidebar">
-                  <div className="mockup-logo">
-                    <div className="mockup-logo-dot">SBE</div>
-                    Serve By Example
-                  </div>
-                  <div className="mockup-nav-item active">
-                    <span className="mockup-nav-icon"><IcoGrid /></span> Dashboard
-                  </div>
-                  <div className="mockup-nav-item">
-                    <span className="mockup-nav-icon"><IcoGlass /></span> Bartending
-                  </div>
-                  <div className="mockup-nav-item">
-                    <span className="mockup-nav-icon"><IcoChat /></span> Sales
-                  </div>
-                  <div className="mockup-nav-item">
-                    <span className="mockup-nav-icon"><IcoClipboard size={14} /></span> Management
-                  </div>
-                  <div className="mockup-nav-item">
-                    <span className="mockup-nav-icon"><IcoLineChart /></span> Progress
-                  </div>
-                  <div className="mockup-nav-item">
-                    <span className="mockup-nav-icon"><IcoGear /></span> Settings
-                  </div>
-                </div>
-                <div className="mockup-main">
-                  <div className="mockup-header">
-                    <h4>Welcome back, Alex</h4>
-                    <div className="mockup-header-meta">
-                      <span>2 modules in progress</span>
-                      <div className="mockup-avatar" />
-                    </div>
-                  </div>
-                  <div className="mockup-cards">
-                    <div className="mockup-card">
-                      <div className="mockup-card-top">
-                        <div className="mockup-card-icon"><IcoGlass size={16} /></div>
-                        <span className="mockup-card-status in-progress">
-                          In Progress
-                        </span>
-                      </div>
-                      <div className="mockup-card-title">
-                        Cocktail Fundamentals
-                      </div>
-                      <div className="mockup-progress">
-                        <div
-                          className="mockup-bar high"
-                          style={{ width: "72%" }}
-                        />
-                      </div>
-                      <div className="mockup-card-meta">72% complete</div>
-                    </div>
-                    <div className="mockup-card">
-                      <div className="mockup-card-top">
-                        <div className="mockup-card-icon"><IcoChat size={16} /></div>
-                        <span className="mockup-card-status in-progress">
-                          In Progress
-                        </span>
-                      </div>
-                      <div className="mockup-card-title">
-                        Upselling Mastery
-                      </div>
-                      <div className="mockup-progress">
-                        <div
-                          className="mockup-bar mid"
-                          style={{ width: "45%" }}
-                        />
-                      </div>
-                      <div className="mockup-card-meta">45% complete</div>
-                    </div>
-                  </div>
-                  <div className="mockup-chat">
-                    <div className="mockup-chat-header">
-                      <div className="mockup-chat-dot" />
-                      AI Training Coach
-                    </div>
-                    <div className="mockup-chat-msg ai">
-                      A customer asks for a &ldquo;strong but smooth&rdquo;
-                      cocktail. What do you recommend and why?
-                    </div>
-                    <div className="mockup-chat-msg user">
-                      I&rsquo;d suggest an Old Fashioned. It&rsquo;s
-                      spirit-forward, smooth from the sugar and bitters, and
-                      feels premium.
-                    </div>
-                    <div className="mockup-chat-msg ai">
-                      Great choice! You&rsquo;ve identified the key attributes.
-                      Let&rsquo;s explore how you&rsquo;d upsell the whisky
-                      selection&hellip;
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <Image
+              src="/24 May Jpg's/Modules View.png"
+              alt="Staff training modules view — full course library"
+              width={1400}
+              height={875}
+              style={{ width: "100%", height: "auto", display: "block" }}
+            />
           </div>
         </section>
 

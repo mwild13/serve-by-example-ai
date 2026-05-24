@@ -71,7 +71,7 @@ const DIAGNOSTIC_ANSWER_KEY: Record<string, string[] | string> = {
   "q4": "Assess their intoxication level and refuse service if impaired; offer water/food instead",
 
   // Q5: Complaint handling (Service)
-  "q5": "Apologize, ask what's wrong, offer to remake it or suggest an alternative",
+  "q5": "Apologise, ask what's wrong, offer to remake it or suggest an alternative",
 
   // Q6: Food safety - dropped item (Technical)
   "q6": "Discard it immediately and use a fresh one",

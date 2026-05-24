@@ -427,7 +427,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
   ],
   11: [
     {
-      prompt: "You should instantly apologize and validate the guest's frustration.",
+      prompt: "You should instantly apologise and validate the guest's frustration.",
       answer: "true",
       explanation: "An immediate, empathetic apology diffuses anger. They need to know you are on their side to fix the problem.",
     },
