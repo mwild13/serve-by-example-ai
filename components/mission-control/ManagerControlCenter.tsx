@@ -1805,7 +1805,7 @@ export default function ManagerControlCenter({
                     </table>
                   </div>
                 ) : (
-                  <EmptyState copy="No staff saved yet. Use Add staff to create the first roster entry for this venue." />
+                  <EmptyState copy="No staff added yet. Hit + Add staff to build your first roster entry." />
                 )}
               </article>
             </section>
@@ -2040,7 +2040,7 @@ export default function ManagerControlCenter({
                   <span>{selectedVenue?.name}</span>
                 </div>
                 {venueStaff.length === 0 ? (
-                  <EmptyState copy="Add staff to see team performance breakdowns." />
+                  <EmptyState copy="Add staff to unlock team performance data." />
                 ) : (
                   <>
                     <div className="ops-module-grid" style={{ marginBottom: "1.5rem" }}>
@@ -2242,8 +2242,7 @@ export default function ManagerControlCenter({
                 <div className="ops-coming-soon-badge">Next update</div>
                 <h2 className="ops-coming-soon-title">Training — Programs</h2>
                 <p className="ops-coming-soon-body">
-                  The full Programs builder — day plans, role targets, completion heatmaps, and assign-to-role actions — is coming in the next update.
-                  Your existing program data is safe and will be available here once the feature ships.
+                  Full Programs builder — day plans, role targets, completion heatmaps, and assign-to-role workflows — ships in the next update. Your program data is safe and will appear here automatically.
                 </p>
                 <button type="button" className="btn btn-secondary" onClick={() => handleSectionChange("overview")}>
                   Return to Mission Control
@@ -2260,8 +2259,7 @@ export default function ManagerControlCenter({
                 <div className="ops-coming-soon-badge">Next update</div>
                 <h2 className="ops-coming-soon-title">Training — Scenarios</h2>
                 <p className="ops-coming-soon-body">
-                  Automated scenario builder — upsell challenges, service recovery, menu knowledge quizzes, and cocktail build tests — is coming in the next update.
-                  Scenario performance data continues to be tracked and will appear here when the feature ships.
+                  Automated Scenario builder — upsell challenges, service recovery, menu knowledge quizzes, and cocktail build tests — ships in the next update. Scenario performance is tracked in the background and will appear here automatically.
                 </p>
                 <button type="button" className="btn btn-secondary" onClick={() => handleSectionChange("overview")}>
                   Return to Mission Control
@@ -2278,8 +2276,7 @@ export default function ManagerControlCenter({
                 <div className="ops-coming-soon-badge">Next update</div>
                 <h2 className="ops-coming-soon-title">Operations — Inventory</h2>
                 <p className="ops-coming-soon-body">
-                  Full inventory management — category tracking, par levels, low-stock alerts, and knowledge coverage indicators linking your stock to training scenarios — is coming in the next update.
-                  Any inventory data you have saved is safe and will appear here when the feature ships.
+                  Full Inventory management — category tracking, par levels, low-stock alerts, and training scenario coverage — ships in the next update. Any inventory data you&apos;ve saved is safe and will appear here automatically.
                 </p>
                 <button type="button" className="btn btn-secondary" onClick={() => handleSectionChange("overview")}>
                   Return to Mission Control
@@ -2414,7 +2411,7 @@ export default function ManagerControlCenter({
 
               <article className="ops-card ops-revenue-model">
                 <div className="ops-card-head">
-                  <h3>Revenue impact modeling</h3>
+                  <h3>Revenue impact estimator</h3>
                   <span>Upsell improvement estimator</span>
                 </div>
                 <label className="label">
@@ -2490,7 +2487,7 @@ export default function ManagerControlCenter({
               <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem", flexWrap: "wrap", gap: 12 }}>
                   <div>
-                    <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "var(--mcc-ink-900)" }}>Report center</h3>
+                    <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "var(--mcc-ink-900)" }}>Performance reports</h3>
                     <div style={{ fontSize: "0.8rem", color: "var(--mcc-ink-500)", marginTop: 3 }}>{selectedVenue?.name}</div>
                   </div>
                   {venueStaff.length > 0 && (
@@ -2521,7 +2518,7 @@ export default function ManagerControlCenter({
                 </div>
 
                 {venueStaff.length === 0 ? (
-                  <EmptyState copy="Add staff to generate reports." />
+                  <EmptyState copy="Add staff to start generating performance reports." />
                 ) : (
                   <>
                     {/* Training summary table */}
@@ -2694,7 +2691,7 @@ export default function ManagerControlCenter({
                           const isFirst = pos === 0;
                           return (
                             <div key={m.id} style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                              <div style={{ fontSize: isFirst ? "2rem" : "1.5rem", lineHeight: 1 }}>{isFirst ? "🥇" : pos === 1 ? "🥈" : "🥉"}</div>
+                              {/* rank label rendered below */}
                               <div style={{ fontWeight: 700, fontSize: isFirst ? "1rem" : "0.9rem", color: "var(--mcc-ink-900)" }}>{m.name}</div>
                               <div style={{ fontSize: "0.78rem", color: "var(--mcc-ink-500)" }}>{m.role}</div>
                               <div style={{
@@ -2838,7 +2835,7 @@ export default function ManagerControlCenter({
                   })}
                 </div>
                 {visible.length === 0 ? (
-                  <EmptyState copy="No notifications in this category right now." />
+                  <EmptyState copy="All clear — no alerts in this category." />
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                     {visible.map((notif) => {
@@ -2874,8 +2871,7 @@ export default function ManagerControlCenter({
                 <span>{selectedVenue?.name ?? "Your venue"}</span>
               </div>
               <p style={{ color: "var(--text-soft)", fontSize: ".95rem", marginBottom: 16 }}>
-                Your AI Coach has live access to your venue&rsquo;s staff, training programs, and inventory.
-                Ask anything about your team&rsquo;s performance.
+                Your AI Coach has live access to your team, training data, and venue performance. Ask anything.
               </p>
               <div className="ops-ai-coach-suggestions">
                 {[
@@ -2989,7 +2985,7 @@ export default function ManagerControlCenter({
                   <span>{selectedVenue?.name ?? "All venues"}</span>
                 </div>
                 <p style={{ color: "var(--text-soft)", fontSize: ".95rem", marginBottom: 20 }}>
-                  Rule-based analysis of your venue&rsquo;s staff data. Staff predicted to struggle in key areas are flagged below with recommended actions.
+                  Identify training risks before they show up on the floor. Staff predicted to underperform in key areas are flagged below with recommended actions.
                 </p>
 
                 {hasMasteryData && (
@@ -3034,8 +3030,8 @@ export default function ManagerControlCenter({
                     <div style={{ marginBottom: 8 }}>
                       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4 }}><polyline points="20 6 9 17 4 12"/></svg>
                     </div>
-                    <strong>No skill gap flags detected.</strong>
-                    <p style={{ marginTop: 4, fontSize: ".9rem" }}>All staff scores are above thresholds. Keep an eye on this as new staff join.</p>
+                    <strong>No skill gaps detected.</strong>
+                    <p style={{ marginTop: 4, fontSize: ".9rem" }}>All staff are tracking above performance thresholds — keep monitoring as new staff join.</p>
                   </div>
                 ) : (
                   <>
@@ -3258,7 +3254,7 @@ export default function ManagerControlCenter({
                 <h3>Email invites</h3>
               </div>
               <p className="ops-settings-hint">
-                Staff invite emails require custom SMTP to be configured in your Supabase project. Use the test below to check whether email delivery is working. If it&rsquo;s not, invite links are always generated so you can share them directly.
+                Test whether invite emails are delivering to your staff. If they&apos;re not, use the invite link method when adding staff — links always generate regardless of email setup.
               </p>
               <div style={{ marginTop: 16 }}>
                 <button
@@ -3359,7 +3355,7 @@ export default function ManagerControlCenter({
                 </div>
                 <div>
                   <dt>Next invoice</dt>
-                  <dd>Managed via Stripe — check your email for invoices</dd>
+                  <dd>Managed via Stripe</dd>
                 </div>
               </dl>
             </article>
@@ -3372,7 +3368,7 @@ export default function ManagerControlCenter({
               <div className="ops-card-head">
                 <h3>Sign out</h3>
               </div>
-              <p style={{ marginBottom: 16, color: "var(--text-soft)" }}>You are signed in as a venue manager. Sign out to return to the login screen.</p>
+              <p style={{ marginBottom: 16, color: "var(--text-soft)" }}>Signed in as venue manager. Sign out to close your session.</p>
               <SignOutButton />
             </article>
           </section>

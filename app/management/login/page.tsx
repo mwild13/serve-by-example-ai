@@ -51,14 +51,12 @@ export default function ManagementLoginPage() {
       <main className="login-shell">
         <div className="login-card">
           <div className="eyebrow">Manager portal</div>
-          <h1>Venue Operations Login</h1>
+          <h1>Manager Mission Control</h1>
           <p className="login-copy">
-            Sign in to access staff performance, training allocation, venue inventory
-            intelligence and management analytics.
+            Sign in to access your team&apos;s training data, performance analytics, and venue management tools.
           </p>
           <p className="login-copy" style={{ marginTop: 8 }}>
-            After login, you&apos;ll see each venue&apos;s numeric Management Training code to share with
-            staff.
+            After signing in, access your venue&apos;s staff join code from Settings to onboard your team.
           </p>
 
           <form className="form-grid" onSubmit={handleSubmit}>
