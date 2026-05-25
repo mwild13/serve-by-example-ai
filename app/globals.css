@@ -11563,6 +11563,10 @@ body {
 }
 
 /* ── Solution section ──────────────────────────── */
+.solution-col img {
+  clip-path: inset(0 2px 2px 0);
+}
+
 .solution-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -250,7 +250,7 @@ export default function HowItWorksPage() {
                   alt="Serve By Example staff mobile console — pre-shift brief and training dashboard"
                   width={390}
                   height={780}
-                  style={{ width: "100%", maxWidth: "320px", height: "auto", display: "block", margin: "0 auto" }}
+                  style={{ width: "100%", maxWidth: "320px", height: "auto", display: "block", margin: "0 auto", clipPath: "inset(0 2px 2px 0)" }}
                 />
               </div>
 
