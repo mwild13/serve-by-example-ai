@@ -21,7 +21,7 @@ const manrope = Manrope({
 const siteUrl = "https://servebyexample.co";
 
 const ogTitle       = "Hospitality Training Software Built for Individuals and Teams";
-const ogDescription = "Scenario-based hospitality training that gets new staff floor-ready in six weeks, not six months. Built for bars, restaurants, and hotel groups.";
+const ogDescription = "Deploy interactive, scenario-based simulators that get new hires floor-ready in six weeks. Standardise venue guidelines, master cocktail specs, and track team readiness in real-time.";
 const ogImage       = "/og-image.png"; // static 1200×630 PNG — pre-generated, served from public/
 
 export const metadata: Metadata = {

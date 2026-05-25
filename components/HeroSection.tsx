@@ -106,10 +106,10 @@ export default function HeroSection() {
         <div className="container">
 
           <h1>Training Software Built for Hospitality</h1>
-          <p className="hero-tagline">From 6 months of onboarding to 6 weeks with scenario training</p>
+          <p className="hero-tagline">From 6 months of onboarding to 6 weeks.</p>
 
           <p className="hero-sub" style={{ marginTop: 20 }}>
-            Scenario-based training that gets new staff floor-ready in six weeks, not six months.
+            Deploy interactive, scenario-based simulators that get new hires floor-ready without pulling senior managers away from service. Standardise venue guidelines, master cocktail specs, and track team readiness in real-time.
           </p>
 
           <div className="hero-cta-tiles">
