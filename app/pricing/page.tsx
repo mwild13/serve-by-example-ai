@@ -99,7 +99,7 @@ export default function PricingPage() {
                 </div>
                 <ul className="feature-list">
                   <li>Limited demo access</li>
-                  <li>Sample AI prompts</li>
+                  <li>Sample coaching prompts</li>
                   <li>1 bartender module preview</li>
                 </ul>
                 <Link href="/demo" className="btn btn-secondary">
@@ -236,7 +236,7 @@ export default function PricingPage() {
             <div className="faq-list">
               <details className="faq-item">
                 <summary>Is there a trial available?</summary>
-                <p>Yes. The <strong>Free Demo</strong> provides access to three AI scenario evaluations — no credit card required. Experience the platform&apos;s tactical feedback before upgrading to a paid tier.</p>
+                <p>Yes. The <strong>Free Demo</strong> provides access to three scored scenario evaluations — no credit card required. Experience the platform&apos;s tactical feedback before upgrading to a paid tier.</p>
               </details>
               <details className="faq-item">
                 <summary>How is billing structured?</summary>

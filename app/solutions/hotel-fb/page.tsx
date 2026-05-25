@@ -4,9 +4,9 @@ import Footer from "@/components/Footer";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "AI Training for Hotel F&B Teams | Serve By Example",
+  title: "Interactive Training for Hotel F&B Teams | Serve By Example",
   description:
-    "From all-day dining to rooftop bars, equip every hotel F&B outlet with consistent, scalable AI training. Serve By Example works across multiple outlets, service styles, and staff levels.",
+    "From all-day dining to rooftop bars, equip every hotel F&B outlet with consistent, scalable interactive training. Serve By Example works across multiple outlets, service styles, and staff levels.",
 };
 
 const features = [
@@ -96,7 +96,7 @@ export default function HotelFBPage() {
               </div>
               <div className="stat-card stat-card-green">
                 <div className="stat-value stat-value-green">24/7</div>
-                <div className="stat-label stat-label-green">AI coach available across all shifts</div>
+                <div className="stat-label stat-label-green">Live coaching available across all shifts</div>
               </div>
             </div>
           </div>

@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "ROI Calculator | Serve By Example",
   description:
-    "Calculate the revenue impact of AI-powered training for your hospitality team. See what better training is worth to your venue.",
+    "Calculate the revenue impact of scenario-based training for your hospitality team. See what better training is worth to your venue.",
 };
 
 const supportingStats = [
@@ -24,7 +24,7 @@ const supportingStats = [
   {
     value: "+15%",
     label: "avg upsell lift",
-    desc: "Staff trained on AI scenario practice consistently outperform on upsell metrics within 8 weeks.",
+    desc: "Staff trained on scenario-based practice consistently outperform on upsell metrics within 8 weeks.",
   },
 ];
 
@@ -60,7 +60,7 @@ export default function ROIPage() {
               <span className="eyebrow">The numbers behind the calculator</span>
               <h2>Where the gains come from.</h2>
               <p>
-                These benchmarks are drawn from venues using AI-assisted training versus traditional
+                These benchmarks are drawn from venues using interactive training versus traditional
                 induction methods.
               </p>
             </div>

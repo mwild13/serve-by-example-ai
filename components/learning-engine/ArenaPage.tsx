@@ -178,7 +178,7 @@ export default function ArenaPage({ userId: _userId }: Props) {
             <span className="sbe-command-eyebrow">AI Scenarios</span>
             <strong>Choose a scenario to assess</strong>
             <span className="sbe-command-meta">
-              Read the scenario, write your full response, receive an AI score out of 100
+              Read the scenario, write your full response, receive a score out of 100
             </span>
           </div>
         </div>
@@ -450,7 +450,7 @@ export default function ArenaPage({ userId: _userId }: Props) {
             id="arena-response"
             value={response}
             onChange={(e) => setResponse(e.target.value)}
-            placeholder="Write exactly what you would say and do in this situation. Be specific — the AI evaluates based on Australian hospitality standards."
+            placeholder="Write exactly what you would say and do in this situation. Be specific — the system evaluates based on Australian hospitality standards."
             disabled={submitting}
             rows={8}
             style={{

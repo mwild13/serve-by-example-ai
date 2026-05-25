@@ -639,7 +639,7 @@ export default function ManagerControlCenter({
     {
       title: "Inventory intelligence",
       detail: venueInventory.length
-        ? `AI is training on ${venueInventory.reduce((sum, category) => sum + category.products.length, 0)} products.`
+        ? `The training engine has access to ${venueInventory.reduce((sum, category) => sum + category.products.length, 0)} products.`
         : "No inventory saved yet. Add categories to improve scenario realism.",
       actionLabel: "Manage inventory",
       section: "inventory",
@@ -2260,7 +2260,7 @@ export default function ManagerControlCenter({
                 <div className="ops-coming-soon-badge">Next update</div>
                 <h2 className="ops-coming-soon-title">Training — Scenarios</h2>
                 <p className="ops-coming-soon-body">
-                  AI-powered scenario builder — upsell challenges, service recovery, menu knowledge quizzes, and cocktail build tests — is coming in the next update.
+                  Automated scenario builder — upsell challenges, service recovery, menu knowledge quizzes, and cocktail build tests — is coming in the next update.
                   Scenario performance data continues to be tracked and will appear here when the feature ships.
                 </p>
                 <button type="button" className="btn btn-secondary" onClick={() => handleSectionChange("overview")}>
@@ -2874,7 +2874,7 @@ export default function ManagerControlCenter({
                 <span>{selectedVenue?.name ?? "Your venue"}</span>
               </div>
               <p style={{ color: "var(--text-soft)", fontSize: ".95rem", marginBottom: 16 }}>
-                Your AI coach has live access to your venue&rsquo;s staff, training programs, and inventory.
+                Your AI Coach has live access to your venue&rsquo;s staff, training programs, and inventory.
                 Ask anything about your team&rsquo;s performance.
               </p>
               <div className="ops-ai-coach-suggestions">
@@ -2898,7 +2898,7 @@ export default function ManagerControlCenter({
                 {aiCoachMessages.length === 0 && (
                   <div className="ops-ai-coach-empty">
                     <span>✦</span>
-                    <p>Your AI coach is ready. Ask a question about your team, training progress, or venue performance.</p>
+                    <p>Your AI Coach is ready. Ask a question about your team, training progress, or venue performance.</p>
                   </div>
                 )}
                 {aiCoachMessages.map((msg, index) => (
@@ -2941,7 +2941,7 @@ export default function ManagerControlCenter({
                 <li>What&rsquo;s my venue health score this week?</li>
                 <li>Show me staff who need coaching on service.</li>
                 <li>How many training programs are active?</li>
-                <li>What inventory categories are connected for AI realism?</li>
+                <li>What inventory categories are connected for realistic scenarios?</li>
               </ul>
             </article>
           </section>

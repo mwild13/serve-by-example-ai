@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "AI Training for Multi-Venue Groups | Serve By Example",
+  title: "Interactive Training for Multi-Venue Groups | Serve By Example",
   description:
     "Centralised staff training and analytics for multi-venue hospitality groups. Compare venue health, spot skill gaps across sites, and manage up to 125 staff from one console.",
 };

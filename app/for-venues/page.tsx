@@ -26,7 +26,7 @@ const whyItMatters = [
   },
   {
     title: "Training only works if staff actually do it",
-    text: "Passive training gets ignored. AI-powered scenario practice is short, relevant and engaging — designed to fit between shifts, not replace them.",
+    text: "Passive training gets ignored. Scenario-based practice is short, relevant and engaging — designed to fit between shifts, not replace them.",
   },
 ];
 
@@ -52,7 +52,7 @@ export default function ForVenuesPage() {
             </h1>
             <p className="inner-hero-sub">
               Serve By Example helps teams onboard faster, train more
-              consistently and improve service standards with AI-powered
+              consistently and improve service standards with interactive
               hospitality training.
             </p>
             <div className="inner-hero-actions">

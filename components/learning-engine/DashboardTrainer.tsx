@@ -691,7 +691,7 @@ export default function DashboardTrainer({
           <div className="sbe-command-text">
             <span className="sbe-command-eyebrow">Scenario Training</span>
             <strong>Practice real hospitality situations</strong>
-            <span className="sbe-command-meta">AI-scored roleplay across Bartending, Service &amp; Management</span>
+            <span className="sbe-command-meta">Scored roleplay across Bartending, Service &amp; Management</span>
           </div>
           <button className="btn btn-primary sbe-command-btn" onClick={() => selectModule("bartending")}>
             Start training →

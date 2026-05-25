@@ -13,7 +13,7 @@ export default function Footer() {
             </span>
             <div className="footer-brand-name">Serve By Example</div>
           </div>
-          <p>AI-powered training for hospitality teams.</p>
+          <p>Scenario-based training for hospitality teams.</p>
           <LanguageSwitcher variant="footer" mobileOnly />
         </div>
 

@@ -4,9 +4,9 @@ import Footer from "@/components/Footer";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "AI Training for Franchise Systems | Serve By Example",
+  title: "Interactive Training for Franchise Systems | Serve By Example",
   description:
-    "Replace inconsistent franchisee training with a scalable, AI-powered platform that enforces brand standards across every location without head-office oversight.",
+    "Replace inconsistent franchisee training with a scalable training platform that enforces brand standards across every location without head-office oversight.",
 };
 
 const features = [
@@ -39,7 +39,7 @@ const features = [
       </svg>
     ),
     title: "High-turnover onboarding without the overhead",
-    desc: "Hospitality turnover is real. Self-serve AI onboarding means new starters train themselves through structured modules without pulling management time.",
+    desc: "Hospitality turnover is real. Self-serve digital onboarding means new starters train themselves through structured modules without pulling management time.",
   },
   {
     icon: (
@@ -69,7 +69,7 @@ export default function FranchiseSystemsPage() {
             <h1>High volume. High turnover. High standards, maintained.</h1>
             <p className="inner-hero-sub">
               Franchise training at scale is a logistics problem. Printed manuals get ignored. Video
-              modules go unwatched. AI training engages staff the way a great manager would:
+              modules go unwatched. Scenario-based training engages staff the way a great manager would:
               conversationally, adaptively, and on the device they already have in their pocket.
             </p>
             <div className="inner-hero-actions">

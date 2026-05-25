@@ -4,9 +4,9 @@ import Footer from "@/components/Footer";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "AI Training for Fine Dining & Cocktail Bars | Serve By Example",
+  title: "Interactive Training for Fine Dining & Cocktail Bars | Serve By Example",
   description:
-    "Train your team on the precise product knowledge and elevated service standards that premium venues demand. Cocktail specs, wine pairings, guest recovery — all AI-coached.",
+    "Train your team on the precise product knowledge and elevated service standards that premium venues demand. Cocktail specs, wine pairings, guest recovery — all scenario-coached.",
 };
 
 const features = [
@@ -18,7 +18,7 @@ const features = [
       </svg>
     ),
     title: "Cocktail and wine knowledge drilled daily",
-    desc: "Staff practise recipes, spirit profiles, and provenance stories through AI scenario repetition until they can describe them fluently under pressure.",
+    desc: "Staff practise recipes, spirit profiles, and provenance stories through scenario repetition until they can describe them fluently under pressure.",
   },
   {
     icon: (

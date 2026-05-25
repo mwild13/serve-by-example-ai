@@ -199,7 +199,7 @@ function AuthCard() {
           <h1>{isSignUp ? "Create your account" : "Sign in to continue"}</h1>
           <p className="login-copy">
             {isSignUp
-              ? "Unlock training modules, AI coaching, and progress tracking."
+              ? "Unlock training modules, scenario coaching, and progress tracking."
               : "Pick up where you left off."}
           </p>
 

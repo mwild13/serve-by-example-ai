@@ -177,9 +177,9 @@ export default function DemoPage() {
         <section className="inner-hero">
           <div className="container">
             <div className="eyebrow">Interactive demo</div>
-            <h1>Try a real AI hospitality scenario</h1>
+            <h1>Try a real hospitality scenario</h1>
             <p className="inner-hero-sub">
-              Pick a module, respond like you are on shift, then see how the AI evaluates your answer.
+              Pick a module, respond like you are on shift, then see how the system evaluates your answer.
             </p>
           </div>
         </section>
@@ -341,7 +341,7 @@ export default function DemoPage() {
                     <h2 className="demo-cta-heading">Like what you see?</h2>
                     <p className="demo-cta-copy">
                       This is just a taste. A full account gives you unlimited scenarios, a personalised
-                      AI coach, progress tracking, and leaderboard rankings — all built for hospitality.
+                      AI Coach, progress tracking, and leaderboard rankings — all built for hospitality.
                     </p>
                     <div className="demo-cta-actions">
                       <a href="/login" className="btn btn-primary btn-lg">Create free account</a>

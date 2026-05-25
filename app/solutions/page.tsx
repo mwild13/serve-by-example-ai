@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Solutions by Venue Type | Serve By Example",
   description:
-    "AI training built for every hospitality format: pub groups, fine dining, cocktail bars, franchises, and QSRs.",
+    "Interactive training built for every hospitality format: pub groups, fine dining, cocktail bars, franchises, and QSRs.",
 };
 
 const segments = [
@@ -42,9 +42,9 @@ const segments = [
     id: "franchises",
     eyebrow: "Franchises & QSRs",
     headline: "High volume. High turnover. High standards, maintained.",
-    body: "Franchise training at scale is a logistics problem. Printed manuals get ignored. Video modules go unwatched. AI training engages staff the way a great manager would: conversationally, adaptively, and on the device they already have in their pocket.",
+    body: "Franchise training at scale is a logistics problem. Printed manuals get ignored. Video modules go unwatched. Scenario-based training engages staff the way a great manager would: conversationally, adaptively, and on the device they already have in their pocket.",
     points: [
-      "Replace printed training manuals with an always-current AI training platform",
+      "Replace printed training manuals with an always-current training platform",
       "Train new starters on speed of service, order accuracy, and upsell prompts from day one",
       "Reduce the cost of high-turnover onboarding with a scalable, self-serve training system",
       "Ensure brand compliance across every franchisee location without head-office oversight",

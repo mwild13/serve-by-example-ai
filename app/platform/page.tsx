@@ -7,10 +7,10 @@ import MenuDrillGenerator from "@/components/MenuDrillGenerator";
 
 const features = [
   {
-    icon: "AI",
-    title: "AI Scenario Training",
+    icon: "◉",
+    title: "Scenario Training",
     description:
-      "Staff practice real hospitality situations through guided AI roleplay — upselling, de-escalation, cocktail knowledge, service recovery.",
+      "Staff practice real hospitality situations through guided scenario roleplay — upselling, de-escalation, cocktail knowledge, service recovery.",
   },
   {
     icon: "→",
@@ -28,7 +28,7 @@ const features = [
     icon: "✦",
     title: "AI Coach (Ask Anything)",
     description:
-      "A venue AI coach answers management questions in plain language. Ask who needs training this week and get an instant answer.",
+      "The AI Coach answers management questions in plain language. Ask who needs training this week and get an instant answer.",
   },
   {
     icon: "◆",
@@ -65,7 +65,7 @@ const productBlocks = [
     points: [
       "Short, mobile-first learning modules",
       "Realistic scenario-based practice",
-      "Instant AI feedback on every response",
+      "Instant scored feedback on every response",
       "Earn badges and track your own progress",
     ],
   },
@@ -74,7 +74,7 @@ const productBlocks = [
     heading: "For managers",
     points: [
       "Full staff roster with skill analytics",
-      "Ask the AI coach about your team instantly",
+      "Ask the AI Coach about your team instantly",
       "Assign targeted training by role or gap",
       "Multi-venue health score comparison",
     ],
@@ -95,7 +95,7 @@ const stats = [
   { value: "90%", label: "Mobile completion rate" },
   { value: "3×", label: "Faster onboarding vs traditional" },
   { value: "+15%", label: "Avg upsell improvement" },
-  { value: "2026", label: "Built for the AI training era" },
+  { value: "2026", label: "Built for modern hospitality training" },
 ];
 
 export default function PlatformPage() {
@@ -117,11 +117,11 @@ export default function PlatformPage() {
           <div className="container">
             <span className="eyebrow">Platform tour</span>
             <h1>
-              AI-powered hospitality training that actually moves the needle.
+              Interactive hospitality training that actually moves the needle.
             </h1>
             <p className="inner-hero-sub">
               Serve By Example gives your team scenario-based practice, live performance tracking, and
-              an AI coach that knows your venue — all from a single management console.
+              an AI Coach that knows your venue — all from a single management console.
             </p>
             <div className="inner-hero-actions">
               <Link href="/demo" className="btn btn-primary btn-lg">
@@ -280,7 +280,7 @@ export default function PlatformPage() {
         <section className="section section-cta">
           <div className="container cta-box">
             <div>
-              <h3>The market is moving to AI-powered training. You&rsquo;re already there.</h3>
+              <h3>The market is shifting to interactive, scenario-based training. You&rsquo;re already there.</h3>
               <p>
                 Major hospitality platforms are just now beginning to build what Serve By Example already has.
                 Your window of competitive advantage is now — while the incumbents are still in the planning phase.

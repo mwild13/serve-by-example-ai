@@ -20,8 +20,8 @@ interface TabContent {
 
 const TAB_CONTENT: Record<Tab, TabContent> = {
   staff: {
-    headline: 'Train at your own pace, guided by AI',
-    desc: 'Staff see their personalised module queue, ELO skill rating, and an AI coach ready for any scenario practice.',
+    headline: 'Train at your own pace, guided by scenario training',
+    desc: 'Staff see their personalised module queue, ELO skill rating, and an AI Coach ready for any scenario practice.',
     callouts: [
       'ELO skill rating updates after every session',
       'AI Coach available 24 hours a day, 7 days a week',

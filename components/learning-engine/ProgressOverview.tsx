@@ -526,7 +526,7 @@ export default function ProgressOverview({
         <div className="progress-analytics-grid">
           {/* Chart 1: Bar chart — scores by training area */}
           <div className="progress-chart-card">
-            <div className="progress-chart-title">AI Scenario Score History</div>
+            <div className="progress-chart-title">Scenario Score History</div>
             <p className="progress-chart-sub">
               Average scenario scores across your three training areas
             </p>

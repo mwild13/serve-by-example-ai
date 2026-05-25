@@ -32,7 +32,7 @@ export default function AboutPage() {
             <div className="about-block">
               <h2>Our approach</h2>
               <p>
-                Scenario-based AI training that fits around shifts. Staff practice real
+                Scenario-based training that fits around shifts. Staff practice real
                 situations — difficult guests, upsell moments, service recovery — and get
                 instant, specific feedback. No dedicated trainer required.
               </p>

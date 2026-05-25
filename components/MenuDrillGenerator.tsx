@@ -87,7 +87,7 @@ export default function MenuDrillGenerator() {
           <span className="eyebrow">Scenario Builder</span>
           <h2>Drop your menu. Get instant drill scenarios.</h2>
           <p className="drill-gen-sub">
-            Paste your cocktail or drinks list and get 3 custom AI practice drills built around your
+            Paste your cocktail or drinks list and get 3 custom practice drills built around your
             actual menu — ready to use with your team in seconds.
           </p>
         </div>

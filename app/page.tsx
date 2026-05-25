@@ -111,7 +111,7 @@ export default function Home() {
                 <div style={{ position: "absolute", top: "-13px", left: "50%", transform: "translateX(-50%)", background: "#0B2B1E", color: "white", fontSize: "0.65rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", borderRadius: "999px", padding: "4px 14px", whiteSpace: "nowrap" }}>Most Popular</div>
                 <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#16a34a" }}>Individual</div>
                 <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Pro</h3>
-                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Full access to all 40 training modules, unlimited AI coaching and progress analytics. Build career-ready skills at your own pace.</p>
+                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Full access to all 40 training modules, unlimited coaching and progress analytics. Build career-ready skills at your own pace.</p>
                 <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For bartenders and hospitality staff investing in their craft.</p>
                 <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
                   <Link href="/pricing" className="btn btn-primary btn-block">See Pro Pricing</Link>
@@ -173,7 +173,7 @@ export default function Home() {
                   <span className="solution-col-icon"><IcoUsers size={20} /></span>
                   <div>
                     <h3>Train confident staff</h3>
-                    <p>Floor-ready in six weeks, not six months — guided by AI scenarios and immediate scored feedback.</p>
+                    <p>Floor-ready in six weeks, not six months — guided by scenario training and immediate scored feedback.</p>
                   </div>
                 </div>
                 <Image
@@ -265,7 +265,7 @@ export default function Home() {
                 </div>
                 <div className="mastery-step-num">Step 2</div>
                 <h3>Apply It Under Real Pressure.</h3>
-                <p>AI roleplay puts staff in live service situations — awkward guests, difficult upsells, and service recovery moments. Every session scored across <em className="step-highlight">5 service dimensions</em>. Instant feedback. No manager required.</p>
+                <p>Scenario roleplay puts staff in live service situations — awkward guests, difficult upsells, and service recovery moments. Every session scored across <em className="step-highlight">5 service dimensions</em>. Instant feedback. No manager required.</p>
               </div>
 
               <div className="mastery-step-connector" aria-hidden="true">
@@ -299,7 +299,7 @@ export default function Home() {
                   5<span className="benefit-metric-unit">×</span>
                 </div>
                 <h3 className="benefit-title">Dimensions Scored Per Response</h3>
-                <p className="benefit-desc">Communication, hospitality, problem-solving, professionalism, and guest experience — scored live by AI on every answer. Not just a pass/fail.</p>
+                <p className="benefit-desc">Communication, hospitality, problem-solving, professionalism, and guest experience — scored automatically on every answer. Not just a pass/fail.</p>
               </div>
               <div className="benefit-card">
                 <div className="benefit-metric">
@@ -320,7 +320,7 @@ export default function Home() {
                   19
                 </div>
                 <h3 className="benefit-title">Languages Supported</h3>
-                <p className="benefit-desc">Train your full team in their first language. AI-translated scenarios and feedback for diverse venue teams across Australia.</p>
+                <p className="benefit-desc">Train your full team in their first language. Automatically translated scenarios and feedback for diverse venue teams across Australia.</p>
               </div>
             </div>
           </div>
@@ -356,11 +356,11 @@ export default function Home() {
                 },
                 {
                   q: "Can I try it before committing?",
-                  a: "Yes. The free demo gives you access to the AI scenario engine and a sample of the training content — no credit card required. Venue plans include a walkthrough call before any commitment.",
+                  a: "Yes. The free demo gives you access to the scenario engine and a sample of the training content — no credit card required. Venue plans include a walkthrough call before any commitment.",
                 },
                 {
                   q: "How is this different from a generic LMS?",
-                  a: "Generic LMS platforms are built for corporate compliance training — long videos, passive quizzes, and no real skill measurement. Serve By Example is built for hospitality: AI roleplay, live scoring, ELO skill ratings, and a manager console designed around shift-by-shift operations.",
+                  a: "Generic LMS platforms are built for corporate compliance training — long videos, passive quizzes, and no real skill measurement. Serve By Example is built for hospitality: scenario roleplay, live scoring, and skill ratings designed around shift-by-shift operations.",
                 },
               ].map(({ q, a }) => (
                 <details key={q} className="faq-item">

@@ -77,7 +77,7 @@ export default function HeroPlayableSandbox() {
           {/* Header */}
           <div className="phone-chat-header">
             <div className="phone-chat-header-dot" aria-hidden="true" />
-            <span className="phone-chat-header-title">SBE AI Training</span>
+            <span className="phone-chat-header-title">SBE Hospitality Training</span>
             <svg className="phone-chat-header-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M1.5 8.5a13 13 0 0 1 21 0M5 12a10 10 0 0 1 14 0M8.5 15.5a6 6 0 0 1 7 0M12 19h.01"/>
             </svg>

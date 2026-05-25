@@ -106,10 +106,10 @@ export default function HeroSection() {
         <div className="container">
 
           <h1>Training Software Built for Hospitality</h1>
-          <p className="hero-tagline">From 6 months of onboarding to 6 weeks with AI</p>
+          <p className="hero-tagline">From 6 months of onboarding to 6 weeks with scenario training</p>
 
           <p className="hero-sub" style={{ marginTop: 20 }}>
-            Scenario-based AI training that gets new staff floor-ready in six weeks, not six months.
+            Scenario-based training that gets new staff floor-ready in six weeks, not six months.
           </p>
 
           <div className="hero-cta-tiles">
@@ -159,7 +159,7 @@ export default function HeroSection() {
                 <div className="book-modal-divider" />
                 <h4 className="book-modal-brief-heading">15-Min Operational Briefing</h4>
                 <p className="book-modal-brief-body">
-                  We&rsquo;ll map out your current staff onboarding layout, look at your venue count, and determine if interactive AI roleplay can realistically drop your training timeline from six months down to six weeks.
+                  We&rsquo;ll map out your current staff onboarding layout, look at your venue count, and determine if interactive scenario roleplay can realistically drop your training timeline from six months down to six weeks.
                 </p>
                 <blockquote className="book-modal-blockquote">
                   <strong>Zero fluff. No aggressive sales pitch.</strong>

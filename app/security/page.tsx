@@ -31,7 +31,7 @@ const aiPrinciples = [
   },
   {
     title: "Your recipes stay yours",
-    desc: "Your menu specs, house rules, and internal policies are stored in your venue's isolated account. They are never sent to any AI model or third-party service.",
+    desc: "Your menu specs, house rules, and internal policies are stored in your venue's isolated account. They are never shared with external services or model providers.",
   },
   {
     title: "No model training on your data",
@@ -56,7 +56,7 @@ export default function SecurityPage() {
             <h1>Your team&rsquo;s data stays yours.</h1>
             <p className="inner-hero-sub">
               Serve By Example is a training platform, not a data platform. We collect the minimum
-              required to run an effective AI training experience, nothing more.
+              required to run an effective training experience, nothing more.
             </p>
           </div>
         </section>
@@ -109,8 +109,8 @@ export default function SecurityPage() {
         <section className="section">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">AI transparency</span>
-              <h2>How AI handles your data.</h2>
+              <span className="eyebrow">Platform transparency</span>
+              <h2>How the platform handles your data.</h2>
               <p>
                 We use OpenAI&rsquo;s API for scenario evaluation. Here is exactly how it interacts
                 with your content.

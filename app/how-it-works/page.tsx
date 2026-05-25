@@ -21,11 +21,11 @@ const steps = [
     number: "03",
     title: "Practice real scenarios",
     description:
-      "Staff respond to realistic hospitality situations using AI-powered simulations designed to build confidence under pressure.",
+      "Staff respond to realistic hospitality situations using scenario-based simulations designed to build confidence under pressure.",
   },
   {
     number: "04",
-    title: "Get instant AI feedback",
+    title: "Get instant scored feedback",
     description:
       "Every response is scored against service criteria like communication, professionalism, problem-solving and guest experience.",
   },
@@ -56,7 +56,7 @@ const pillars = [
   },
   {
     title: "Scenario Simulations",
-    text: "The core AI feature where staff practice realistic service situations and receive coaching.",
+    text: "The core training feature where staff practice realistic service situations and receive coaching.",
   },
   {
     title: "Performance Tracking",
@@ -76,8 +76,8 @@ export default function HowItWorksPage() {
             <span className="eyebrow">How It Works</span>
             <h1>From onboarding to real-world confidence.</h1>
             <p className="inner-hero-sub">
-              Serve By Example combines short learning modules, AI-powered
-              scenario practice and performance tracking to help hospitality
+              Serve By Example combines short learning modules, scenario-based
+              practice and performance tracking to help hospitality
               teams train faster and perform better on shift.
             </p>
             <div className="inner-hero-actions">
@@ -165,7 +165,7 @@ export default function HowItWorksPage() {
               <span className="eyebrow">Example Scenario</span>
               <h2>See the product in one glance.</h2>
               <p style={{ maxWidth: "560px", margin: "0 auto" }}>
-                Every response is scored instantly. Over time, the AI tracks your weak areas and resurfaces them — so improvement isn&rsquo;t left to chance.
+                Every response is scored instantly. Over time, the platform tracks your weak areas and resurfaces them — so improvement isn&rsquo;t left to chance.
               </p>
             </div>
             <div className="card-grid card-grid-3">
@@ -184,7 +184,7 @@ export default function HowItWorksPage() {
                 </p>
               </article>
               <article className="info-card">
-                <span className="info-card-label">AI feedback</span>
+                <span className="info-card-label">Scored feedback</span>
                 <p>
                   Score: 22/25. Clear acknowledgement, friendly tone and good
                   guest awareness. A strong service response.
@@ -201,7 +201,7 @@ export default function HowItWorksPage() {
               padding: "2rem 2.5rem",
             }}>
               <h3 style={{ margin: "0 0 1.25rem", fontSize: "1.1rem", fontWeight: 700, color: "#1b4332" }}>
-                How AI improves your score over time
+                How the system improves your score over time
               </h3>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.25rem" }}>
                 {[

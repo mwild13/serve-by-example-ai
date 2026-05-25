@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "AI Training for Pub Groups | Serve By Example",
+  title: "Interactive Training for Pub Groups | Serve By Example",
   description:
     "Standardise training across every site in your pub group. Consistent service, faster onboarding, and real visibility into staff readiness — from a single console.",
 };
