@@ -14734,6 +14734,7 @@ h1, h2, h3 {
   width: 100%;
   height: auto;
   display: block;
+  clip-path: inset(0 2px 2px 0);
 }
 
 /* ── Book a Call Modal ─────────────────────────────────── */
