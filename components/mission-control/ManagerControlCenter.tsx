@@ -138,6 +138,27 @@ function getActionSection(actionId: QuickActionId | null): ManagerSection | null
 }
 
 // ─────────────────────────────────────────────
+// Circular compliance ring (Roles section)
+// ─────────────────────────────────────────────
+function ComplianceRing({ compliant, total }: { compliant: number; total: number }) {
+  if (!total) return <span style={{ color: "var(--mcc-ink-400)", fontSize: "0.85rem" }}>—</span>;
+  const pct = compliant / total;
+  const r = 13, cx = 16, cy = 16;
+  const circ = 2 * Math.PI * r;
+  const dash = pct * circ;
+  const color = compliant === total ? "#16a34a" : compliant > 0 ? "#f59e0b" : "#dc2626";
+  return (
+    <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+      <svg width="32" height="32" style={{ transform: "rotate(-90deg)", flexShrink: 0 }}>
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#e5e7eb" strokeWidth="3" />
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke={color} strokeWidth="3" strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" />
+      </svg>
+      <span style={{ fontWeight: 700, color, fontSize: "0.82rem" }}>{compliant}/{total}</span>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
 // Option A Overview — shared helper components
 // ─────────────────────────────────────────────
 
@@ -1816,7 +1837,17 @@ export default function ManagerControlCenter({
                 <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
                   <div className="ops-card-head">
                     <h3>{selectedStaff.name} — coaching profile</h3>
-                    <span>{selectedStaff.role} · Last active {selectedStaff.lastActive}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{ fontSize: "0.82rem", color: "var(--mcc-ink-500)" }}>{selectedStaff.role} · Last active {selectedStaff.lastActive}</span>
+                      <button
+                        type="button"
+                        className="btn btn-primary"
+                        style={{ fontSize: "0.78rem", padding: "6px 14px" }}
+                        onClick={() => openAction("assign-training")}
+                      >
+                        + Assign training
+                      </button>
+                    </div>
                   </div>
                   <div className="ops-profile-metrics">
                     <OpsKpiCard label="Completion" value={`${parseFloat(selectedStaff.progress.toFixed(2))}%`} />
@@ -1978,9 +2009,24 @@ export default function ManagerControlCenter({
                       </tr>
                     </thead>
                     <tbody>
-                      {memberships.map((m) => (
+                      {memberships.map((m) => {
+                        const steps = [
+                          { label: "Invited", done: true },
+                          { label: "Registered", done: m.status === "active" || m.status === "connected" },
+                          { label: "Training active", done: m.status === "active" },
+                        ];
+                        return (
                         <tr key={m.id}>
-                          <td>{m.staff_email}</td>
+                          <td>{m.staff_email}<br />
+                            <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 4 }}>
+                              {steps.map((step, si) => (
+                                <span key={step.label} style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                                  <span style={{ fontSize: "0.65rem", fontWeight: 600, padding: "1px 6px", borderRadius: 999, background: step.done ? "#dcfce7" : "#f3f4f6", color: step.done ? "#15803d" : "#9ca3af" }}>{step.label}</span>
+                                  {si < steps.length - 1 && <span style={{ color: "#e5e7eb", fontSize: "0.65rem" }}>→</span>}
+                                </span>
+                              ))}
+                            </div>
+                          </td>
                           <td><span className={`ops-badge ops-badge-${m.status}`}>{m.status}</span></td>
                           <td>{new Date(m.created_at).toLocaleDateString()}</td>
                           <td>
@@ -1996,7 +2042,8 @@ export default function ManagerControlCenter({
                             )}
                           </td>
                         </tr>
-                      ))}
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -2064,6 +2111,15 @@ export default function ManagerControlCenter({
                               <b style={{ color: team.attention.length > 0 ? "#b45309" : "#15803d" }}>{team.attention.length}</b>
                             </div>
                           </div>
+                          {team.members.length === 0 && (
+                            <button
+                              type="button"
+                              onClick={() => { handleSectionChange("staff"); openAction("add-staff"); }}
+                              style={{ marginTop: 8, padding: "7px 12px", borderRadius: 8, border: "1.5px dashed var(--mcc-border)", background: "transparent", color: "var(--mcc-forest-700)", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer", width: "100%", textAlign: "center" }}
+                            >
+                              + Assign staff to team
+                            </button>
+                          )}
                           {team.top && (
                             <div style={{ fontSize: "0.78rem", borderTop: "1px solid var(--mcc-border)", paddingTop: 6, marginTop: 2 }}>
                               <span style={{ color: "var(--mcc-ink-500)" }}>Top: </span>
@@ -2072,8 +2128,17 @@ export default function ManagerControlCenter({
                             </div>
                           )}
                           {team.weakest && team.members.length > 0 && (
-                            <div style={{ fontSize: "0.78rem", color: "#b45309" }}>
-                              Training gap: {team.weakest}
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
+                              <span style={{ fontSize: "0.72rem", fontWeight: 700, background: "#fff7ed", color: "#b45309", border: "1px solid #fed7aa", borderRadius: 999, padding: "2px 8px" }}>
+                                Gap: {team.weakest}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleSectionChange("scenarios")}
+                                style={{ fontSize: "0.72rem", color: "var(--mcc-forest-700)", background: "none", border: "none", cursor: "pointer", padding: 0, fontWeight: 600 }}
+                              >
+                                Resolve →
+                              </button>
                             </div>
                           )}
                         </div>
@@ -2088,8 +2153,8 @@ export default function ManagerControlCenter({
                             <div style={{ flex: 1, height: 10, background: "var(--mcc-surface-2)", borderRadius: 999, overflow: "hidden" }}>
                               <div style={{ height: "100%", width: `${team.members.length ? (team.avgScore / maxScore) * 100 : 0}%`, background: "#1E5A3C", borderRadius: 999, transition: "width 0.4s ease" }} />
                             </div>
-                            <span style={{ width: 36, fontSize: "0.82rem", fontWeight: 700, color: "var(--mcc-ink-900)", textAlign: "right" }}>
-                              {team.members.length ? `${team.avgScore}%` : "—"}
+                            <span style={{ width: 60, fontSize: "0.78rem", fontWeight: 600, color: team.members.length ? "var(--mcc-ink-900)" : "var(--mcc-ink-400)", textAlign: "right" }}>
+                              {team.members.length ? `${team.avgScore}%` : "No data"}
                             </span>
                           </div>
                         ))}
@@ -2146,7 +2211,17 @@ export default function ManagerControlCenter({
               <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
                 <div className="ops-card-head">
                   <h3>Role training matrix</h3>
-                  <span>{selectedVenue?.name}</span>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <span style={{ fontSize: "0.8rem", color: "var(--mcc-ink-500)" }}>{selectedVenue?.name}</span>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      style={{ fontSize: "0.78rem", padding: "6px 12px" }}
+                      onClick={() => { handleSectionChange("training"); openAction("assign-training"); }}
+                    >
+                      Bulk assign
+                    </button>
+                  </div>
                 </div>
                 <div style={{ overflowX: "auto" }}>
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
@@ -2184,10 +2259,7 @@ export default function ManagerControlCenter({
                               {row.avgProgress !== null ? `${row.avgProgress}%` : "—"}
                             </td>
                             <td style={{ textAlign: "center", padding: "10px 12px", borderBottom: "1px solid var(--mcc-border)" }}>
-                              {row.members.length > 0
-                                ? <span style={{ fontWeight: 600, color: row.compliant === row.members.length ? "#15803d" : "#b45309" }}>{row.compliant}/{row.members.length}</span>
-                                : <span style={{ color: "var(--mcc-ink-400)" }}>—</span>
-                              }
+                              <ComplianceRing compliant={row.compliant} total={row.members.length} />
                             </td>
                           </tr>
                         );
@@ -2332,14 +2404,26 @@ export default function ManagerControlCenter({
                     <span>All venues</span>
                   </div>
                   <div className="ops-module-grid">
-                    {snapshot.venues.map((venue) => (
-                      <div key={venue.id} className={`ops-module-card${selectedVenueId === venue.id ? " active" : ""}`}>
-                        <strong>{venue.name}</strong>
-                        <span>Completion: {venue.completionRate}%</span>
-                        <span>Scenario: {venue.avgScenarioScore}%</span>
-                        <span>Upsell: {venue.upsellRate}%</span>
-                      </div>
-                    ))}
+                    {snapshot.venues.map((venue) => {
+                      const isLow = venue.completionRate < 30;
+                      const isActive = selectedVenueId === venue.id;
+                      return (
+                        <div
+                          key={venue.id}
+                          className={`ops-module-card${isActive ? " active" : ""}`}
+                          style={isLow && !isActive ? { borderColor: "#fca5a5", background: "#fef2f2" } : {}}
+                          onClick={() => setSelectedVenueId(venue.id)}
+                        >
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                            <strong>{venue.name}</strong>
+                            {isLow && <span style={{ fontSize: "0.68rem", fontWeight: 700, background: "#fca5a5", color: "#7f1d1d", borderRadius: 999, padding: "1px 6px" }}>Low</span>}
+                          </div>
+                          <span style={{ color: venue.completionRate < 30 ? "#dc2626" : "inherit" }}>Completion: {venue.completionRate}%</span>
+                          <span>Scenario: {venue.avgScenarioScore}%</span>
+                          <span>Upsell: {venue.upsellRate}%</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </article>
               )}
@@ -2382,7 +2466,7 @@ export default function ManagerControlCenter({
                   <h3>Bar team vs floor team</h3>
                   <span>{selectedVenue?.name}</span>
                 </div>
-                {venueStaff.length > 0 ? (() => {
+                {venueStaff.filter((m) => m.role === "Bartender" || m.role === "Floor").length > 0 ? (() => {
                   const barTeam = venueStaff.filter((m) => m.role === "Bartender");
                   const floorTeam = venueStaff.filter((m) => m.role === "Floor");
                   const avg = (arr: typeof venueStaff, key: keyof typeof venueStaff[0]) =>
@@ -2406,7 +2490,15 @@ export default function ManagerControlCenter({
                       ))}
                     </div>
                   );
-                })() : <EmptyState copy="Add bar and floor staff to unlock team comparison analytics." />}
+                })() : (
+                  <div style={{ padding: "28px 20px", textAlign: "center" }}>
+                    <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--mcc-ink-700)", marginBottom: 6 }}>No bar or floor staff yet</div>
+                    <p style={{ fontSize: "0.8rem", color: "var(--mcc-ink-500)", margin: "0 0 14px" }}>Assign staff with Bartender or Floor roles to unlock side-by-side team comparison.</p>
+                    <button type="button" className="btn btn-secondary" style={{ fontSize: "0.8rem" }} onClick={() => { handleSectionChange("staff"); openAction("add-staff"); }}>
+                      + Add staff
+                    </button>
+                  </div>
+                )}
               </article>
 
               <article className="ops-card ops-revenue-model">
@@ -2414,17 +2506,24 @@ export default function ManagerControlCenter({
                   <h3>Revenue impact estimator</h3>
                   <span>Upsell improvement estimator</span>
                 </div>
-                <label className="label">
-                  Avg transaction value ($)
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+                    <span style={{ fontSize: "0.82rem", color: "var(--mcc-ink-600)", fontWeight: 600 }}>Avg transaction value</span>
+                    <strong style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--mcc-ink-900)" }}>${revenueTransactionValue}</strong>
+                  </div>
                   <input
-                    className="input"
-                    type="number"
-                    min={1}
-                    max={500}
+                    type="range"
+                    min={5}
+                    max={300}
+                    step={5}
                     value={revenueTransactionValue}
                     onChange={(e) => setRevenueTransactionValue(Number(e.target.value))}
+                    style={{ width: "100%", accentColor: "#1E5A3C", cursor: "pointer" }}
                   />
-                </label>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.7rem", color: "var(--mcc-ink-400)", marginTop: 2 }}>
+                    <span>$5</span><span>$300</span>
+                  </div>
+                </div>
                 <div className="ops-revenue-rows">
                   {[5, 10, 15, 20].map((improvement) => {
                     const weeklyTransactions = Math.max(venueStaff.length, 3) * 40 * 3;
@@ -2464,16 +2563,18 @@ export default function ManagerControlCenter({
             (reqModules[s.role] ?? []).every((m) => hasModule(s, m))
           );
           const sortedByProgress = [...venueStaff].sort((a, b) => b.progress - a.progress);
-          const topPerformers = sortedByProgress.slice(0, 3);
+          const topPerformers = sortedByProgress.filter((s) => s.progress > 0).slice(0, 3);
           const needsHelp = venueStaff.filter((s) => s.status !== "on-track").slice(0, 5);
 
-          const statusBadge = (status: string) => {
+          const statusBadge = (status: string, progress?: number) => {
+            const effective = (status === "on-track" && progress === 0) ? "not-started" : status;
             const map: Record<string, { bg: string; color: string; label: string }> = {
-              "on-track": { bg: "#f0fdf4", color: "#15803d", label: "On track" },
-              attention:  { bg: "#fff7ed", color: "#c2410c", label: "Attention" },
-              inactive:   { bg: "#fff1f2", color: "#b91c1c", label: "Inactive" },
+              "on-track":    { bg: "#f0fdf4", color: "#15803d", label: "On track" },
+              "attention":   { bg: "#fff7ed", color: "#c2410c", label: "Attention" },
+              "inactive":    { bg: "#fff1f2", color: "#b91c1c", label: "Inactive" },
+              "not-started": { bg: "#f3f4f6", color: "#6b7280", label: "Not started" },
             };
-            const s = map[status] ?? map["inactive"];
+            const s = map[effective] ?? map["inactive"];
             return (
               <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: "0.72rem", fontWeight: 700, background: s.bg, color: s.color }}>
                 {s.label}
@@ -2551,7 +2652,7 @@ export default function ManagerControlCenter({
                                 <td style={{ padding: "8px 10px", textAlign: "center", fontWeight: 600, color: "var(--mcc-ink-700)" }}>{s.serviceScore}%</td>
                                 <td style={{ padding: "8px 10px", textAlign: "center", fontWeight: 600, color: "var(--mcc-ink-700)" }}>{s.salesScore}%</td>
                                 <td style={{ padding: "8px 10px", textAlign: "center", fontWeight: 600, color: "var(--mcc-ink-700)" }}>{s.productScore}%</td>
-                                <td style={{ padding: "8px 10px" }}>{statusBadge(s.status)}</td>
+                                <td style={{ padding: "8px 10px" }}>{statusBadge(s.status, s.progress)}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -2586,7 +2687,12 @@ export default function ManagerControlCenter({
                           Needs attention {needsHelp.length > 0 ? `(${needsHelp.length})` : ""}
                         </div>
                         {needsHelp.length === 0 ? (
-                          <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--mcc-ink-500)" }}>All staff are on track.</p>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#dcfce7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                            <p style={{ margin: 0, fontSize: "0.875rem", color: "#15803d", fontWeight: 600 }}>All staff are on track — great work.</p>
+                          </div>
                         ) : (
                           needsHelp.map((s, i) => (
                             <div key={s.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: i < needsHelp.length - 1 ? "1px solid #fed7aa" : "none" }}>
@@ -2617,7 +2723,7 @@ export default function ManagerControlCenter({
                               <span style={{ fontSize: "0.8rem", color: "var(--mcc-ink-600)", fontWeight: 600 }}>{skill.label}</span>
                               <span style={{ fontSize: "0.8rem", fontWeight: 800, color: skill.color }}>{skill.value > 0 ? `${skill.value}%` : "—"}</span>
                             </div>
-                            <div style={{ height: 7, background: "#e5e7eb", borderRadius: 999, overflow: "hidden" }}>
+                            <div style={{ height: 10, background: "#e5e7eb", borderRadius: 999, overflow: "hidden" }}>
                               <div style={{ height: "100%", width: `${skill.value}%`, background: skill.color, borderRadius: 999, transition: "width 0.3s ease" }} />
                             </div>
                           </div>
@@ -2708,21 +2814,46 @@ export default function ManagerControlCenter({
                         })}
                       </div>
                     )}
-                    <ul className="ops-ranked-list">
-                      {ranked.slice(0, 8).map((member, idx) => (
-                        <li key={member.id} style={{ paddingLeft: 4 }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                            <span style={{ width: 22, fontSize: "0.78rem", fontWeight: 700, color: idx < 3 ? podiumColors[idx] : "var(--mcc-ink-400)", textAlign: "center" }}>
-                              {idx + 1}
-                            </span>
-                            <div>
-                              <strong>{member.name}</strong>
-                              <span>{member.role}</span>
+                    {/* Season banner */}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem", padding: "10px 14px", background: "var(--mcc-surface-2)", borderRadius: 8, border: "1px solid var(--mcc-border)" }}>
+                      <div>
+                        <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--mcc-ink-500)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                          {new Date().toLocaleString("default", { month: "long" })} Champions · {selectedVenue?.name}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: "0.75rem", color: "var(--mcc-ink-400)" }}>{ranked.length} ranked</span>
+                    </div>
+                    <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+                      {ranked.slice(0, 8).map((member, idx) => {
+                        const medalColors = ["#F59E0B", "#94A3B8", "#CD7F32"];
+                        const isTop3 = idx < 3;
+                        return (
+                          <li key={member.id} style={{
+                            display: "flex", alignItems: "center", justifyContent: "space-between",
+                            padding: "12px 14px", borderRadius: 10,
+                            background: isTop3 ? `${podiumColors[idx]}08` : "var(--mcc-surface-2)",
+                            border: `1.5px solid ${isTop3 ? podiumColors[idx] + "40" : "var(--mcc-border)"}`,
+                            transition: "box-shadow 0.15s",
+                          }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                              <div style={{
+                                width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                                background: isTop3 ? medalColors[idx] : "var(--mcc-surface-2)",
+                                border: isTop3 ? "none" : "1.5px solid var(--mcc-border)",
+                              }}>
+                                <span style={{ fontSize: "0.75rem", fontWeight: 800, color: isTop3 ? "white" : "var(--mcc-ink-400)" }}>{idx + 1}</span>
+                              </div>
+                              <div>
+                                <div style={{ fontWeight: 700, fontSize: "0.875rem", color: "var(--mcc-ink-900)" }}>{member.name}</div>
+                                <div style={{ fontSize: "0.72rem", color: "var(--mcc-ink-500)" }}>{member.role}</div>
+                              </div>
                             </div>
-                          </div>
-                          <b>{getValue(member)}</b>
-                        </li>
-                      ))}
+                            <div style={{ textAlign: "right" }}>
+                              <div style={{ fontWeight: 800, fontSize: "0.95rem", color: isTop3 ? podiumColors[idx] : "var(--mcc-ink-700)" }}>{getValue(member)}</div>
+                            </div>
+                          </li>
+                        );
+                      })}
                     </ul>
                   </>
                 )}
@@ -2835,24 +2966,50 @@ export default function ManagerControlCenter({
                   })}
                 </div>
                 {visible.length === 0 ? (
-                  <EmptyState copy="All clear — no alerts in this category." />
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "16px", background: "#f0fdf4", borderRadius: 10, border: "1.5px solid #86efac" }}>
+                    <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#dcfce7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: "0.875rem", color: "#15803d" }}>All clear in this category.</div>
+                      <div style={{ fontSize: "0.8rem", color: "#16a34a" }}>No active alerts to action right now.</div>
+                    </div>
+                  </div>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                     {visible.map((notif) => {
                       const style = urgencyStyle[notif.urgency];
+                      const ctaMap: Record<string, { label: string; section: ManagerSection }> = {
+                        "training":     { label: "Review staff", section: "staff" },
+                        "performance":  { label: "Open scenarios", section: "scenarios" },
+                        "inventory":    { label: "Manage inventory", section: "inventory" },
+                      };
+                      const inlineCta = notif.urgency !== "info" ? ctaMap[notif.category] : null;
                       return (
-                        <div key={notif.id} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "12px 16px", borderRadius: 10, background: style.bg, border: `1.5px solid ${style.border}` }}>
+                        <div key={notif.id} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "12px 16px", borderRadius: 10, background: style.bg, border: `1.5px solid ${style.border}`, borderLeft: `4px solid ${style.dot}` }}>
                           <span style={{ marginTop: 3, flexShrink: 0, width: 10, height: 10, borderRadius: "50%", background: style.dot, display: "inline-block" }} />
                           <div style={{ flex: 1 }}>
                             <div style={{ fontWeight: 700, fontSize: "0.88rem", color: "var(--mcc-ink-900)", marginBottom: 2 }}>{notif.title}</div>
                             <div style={{ fontSize: "0.82rem", color: "var(--mcc-ink-600)", lineHeight: 1.45 }}>{notif.body}</div>
+                            {inlineCta && (
+                              <button
+                                type="button"
+                                onClick={() => handleSectionChange(inlineCta.section)}
+                                style={{ marginTop: 8, padding: "5px 12px", borderRadius: 6, background: "var(--mcc-forest-600)", color: "white", border: "none", fontSize: "0.78rem", fontWeight: 700, cursor: "pointer" }}
+                              >
+                                {inlineCta.label} →
+                              </button>
+                            )}
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => setDismissedNotifs((prev) => new Set([...prev, notif.id]))}
-                            style={{ flexShrink: 0, background: "none", border: "none", cursor: "pointer", color: "var(--mcc-ink-400)", fontSize: "1rem", lineHeight: 1, padding: "2px 4px" }}
-                            aria-label="Dismiss"
-                          >×</button>
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0 }}>
+                            <span style={{ fontSize: "0.72rem", color: "var(--mcc-ink-400)" }}>Now</span>
+                            <button
+                              type="button"
+                              onClick={() => setDismissedNotifs((prev) => new Set([...prev, notif.id]))}
+                              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--mcc-ink-400)", fontSize: "0.75rem", fontWeight: 600, padding: "2px 6px", borderRadius: 4, lineHeight: 1 }}
+                              aria-label="Dismiss"
+                            >Archive</button>
+                          </div>
                         </div>
                       );
                     })}
@@ -2893,8 +3050,25 @@ export default function ManagerControlCenter({
               <div className="ops-ai-coach-messages">
                 {aiCoachMessages.length === 0 && (
                   <div className="ops-ai-coach-empty">
-                    <span>✦</span>
-                    <p>Your AI Coach is ready. Ask a question about your team, training progress, or venue performance.</p>
+                    <div style={{ width: "100%", marginBottom: 16 }}>
+                      <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--mcc-ink-500)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, textAlign: "center" }}>
+                        Your venue at a glance — {selectedVenue?.name}
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}>
+                        {[
+                          { label: "Staff", value: venueStaff.length > 0 ? String(venueStaff.length) : "—", sub: "active members" },
+                          { label: "Avg score", value: metrics.avgScenarioScore > 0 ? `${metrics.avgScenarioScore}%` : "—", sub: "scenario average" },
+                          { label: "Training", value: metrics.avgCompletion > 0 ? `${metrics.avgCompletion}%` : "—", sub: "completion rate" },
+                          { label: "Attention", value: String(needsAttention.length), sub: needsAttention.length === 1 ? "needs follow-up" : "need follow-up" },
+                        ].map((stat) => (
+                          <div key={stat.label} style={{ background: "var(--mcc-surface-2)", borderRadius: 8, padding: "10px 14px" }}>
+                            <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--mcc-ink-900)" }}>{stat.value}</div>
+                            <div style={{ fontSize: "0.72rem", color: "var(--mcc-ink-500)", marginTop: 1 }}>{stat.label} · {stat.sub}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <p style={{ fontSize: "0.875rem", color: "var(--mcc-ink-500)", textAlign: "center", margin: 0 }}>Ask anything about your team, training progress, or venue performance.</p>
                   </div>
                 )}
                 {aiCoachMessages.map((msg, index) => (
@@ -2925,19 +3099,47 @@ export default function ManagerControlCenter({
                   {aiCoachLoading ? "…" : "Ask"}
                 </button>
               </form>
+              <p style={{ fontSize: "0.72rem", color: "var(--mcc-ink-400)", marginTop: 8, textAlign: "center" }}>
+                Do not share sensitive staff salary or financial details with AI Coach.
+              </p>
             </article>
 
             <article className="ops-card">
               <div className="ops-card-head">
                 <h3>Suggested questions</h3>
+                <span>Click to ask</span>
               </div>
-              <ul className="ops-plain-list">
-                <li>Who hasn&rsquo;t completed their alcohol training?</li>
-                <li>Which staff have the lowest sales scores?</li>
-                <li>What&rsquo;s my venue health score this week?</li>
-                <li>Show me staff who need coaching on service.</li>
-                <li>How many training programs are active?</li>
-                <li>What inventory categories are connected for realistic scenarios?</li>
+              <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 6 }}>
+                {[
+                  "Who hasn't completed their alcohol training?",
+                  "Which staff have the lowest sales scores?",
+                  "What's my venue health score this week?",
+                  "Show me staff who need coaching on service.",
+                  "How many training programs are active?",
+                  "What inventory categories are connected for realistic scenarios?",
+                ].map((q) => (
+                  <li key={q}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAiCoachInput(q);
+                        setAiCoachMessages((prev) => [...prev, { role: "user", content: q }]);
+                        setAiCoachInput("");
+                        setAiCoachLoading(true);
+                        apiFetch("/api/management/coach", { method: "POST", body: JSON.stringify({ question: q, venueId: selectedVenueId }) })
+                          .then((r) => r.json())
+                          .then((data) => {
+                            setAiCoachMessages((prev) => [...prev, { role: "coach", content: data.answer ?? data.error ?? "Unable to respond." }]);
+                          })
+                          .catch(() => setAiCoachMessages((prev) => [...prev, { role: "coach", content: "Unable to reach AI coach." }]))
+                          .finally(() => setAiCoachLoading(false));
+                      }}
+                      style={{ width: "100%", textAlign: "left", padding: "9px 12px", borderRadius: 8, border: "1.5px solid var(--mcc-border)", background: "var(--mcc-surface-2)", color: "var(--mcc-ink-700)", fontSize: "0.82rem", cursor: "pointer", lineHeight: 1.4, transition: "background 0.15s" }}
+                    >
+                      {q}
+                    </button>
+                  </li>
+                ))}
               </ul>
             </article>
           </section>
@@ -2964,7 +3166,6 @@ export default function ManagerControlCenter({
             return flags;
           });
           const highRisk = predictions.filter((p) => p.risk === "high");
-          const medRisk = predictions.filter((p) => p.risk === "medium");
           const gapTotals: Record<string, number> = {};
           predictions.forEach((p) => { gapTotals[p.gap] = (gapTotals[p.gap] ?? 0) + 1; });
           const topGaps = Object.entries(gapTotals).sort((a, b) => b[1] - a[1]).slice(0, 3);
@@ -3035,52 +3236,60 @@ export default function ManagerControlCenter({
                   </div>
                 ) : (
                   <>
-                    {highRisk.length > 0 && (
-                      <div style={{ marginBottom: 24 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-                          <span style={{ background: "#fca5a5", color: "#7f1d1d", borderRadius: 6, padding: "2px 10px", fontWeight: 700, fontSize: ".8rem" }}>HIGH PRIORITY</span>
-                          <span style={{ color: "var(--text-soft)", fontSize: ".85rem" }}>{highRisk.length} prediction{highRisk.length !== 1 ? "s" : ""}</span>
-                        </div>
-                        <ul style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                          {highRisk.map((p) => (
-                            <li key={p.id} style={{ background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 10, padding: "14px 16px" }}>
-                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8 }}>
-                                <div>
-                                  <strong style={{ fontSize: ".95rem" }}>{p.staffName}</strong>
-                                  <span style={{ marginLeft: 8, background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 6, padding: "1px 8px", fontSize: ".75rem", color: "var(--text-soft)" }}>{p.role}</span>
-                                  <span style={{ marginLeft: 6, color: "#dc2626", fontWeight: 600, fontSize: ".85rem" }}>{p.gap}</span>
+                    {(() => {
+                      // Group all predictions by staffName for cleaner employee cards
+                      const staffNames = [...new Set(predictions.map((p) => p.staffName))];
+                      return (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                          {staffNames.map((name) => {
+                            const staffFlags = predictions.filter((p) => p.staffName === name);
+                            const staffMember = venueStaff.find((s) => s.name === name);
+                            const hasHigh = staffFlags.some((p) => p.risk === "high");
+                            return (
+                              <div key={name} style={{
+                                border: `1.5px solid ${hasHigh ? "#fca5a5" : "#fcd34d"}`,
+                                borderLeft: `4px solid ${hasHigh ? "#dc2626" : "#f59e0b"}`,
+                                borderRadius: 10,
+                                overflow: "hidden",
+                                background: hasHigh ? "#fef2f2" : "#fffbeb",
+                              }}>
+                                {/* Staff header */}
+                                <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderBottom: `1px solid ${hasHigh ? "#fca5a5" : "#fcd34d"}` }}>
+                                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: hasHigh ? "#fca5a5" : "#fde68a", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "0.875rem", color: hasHigh ? "#7f1d1d" : "#78350f", flexShrink: 0 }}>
+                                    {name[0].toUpperCase()}
+                                  </div>
+                                  <div>
+                                    <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "var(--mcc-ink-900)" }}>{name}</div>
+                                    <div style={{ fontSize: "0.72rem", color: "var(--mcc-ink-500)" }}>{staffMember?.role ?? "Staff"} · {staffFlags.length} flag{staffFlags.length !== 1 ? "s" : ""}</div>
+                                  </div>
+                                  <span style={{ marginLeft: "auto", padding: "2px 10px", borderRadius: 999, fontSize: "0.72rem", fontWeight: 700, background: hasHigh ? "#fca5a5" : "#fef3c7", color: hasHigh ? "#7f1d1d" : "#78350f" }}>
+                                    {hasHigh ? "High priority" : "Watch"}
+                                  </span>
+                                </div>
+                                {/* Individual flags */}
+                                <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+                                  {staffFlags.map((p, fi) => (
+                                    <div key={p.id} style={{ padding: "10px 16px", borderBottom: fi < staffFlags.length - 1 ? `1px dashed ${hasHigh ? "#fca5a5" : "#fde68a"}` : "none" }}>
+                                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
+                                        <span style={{ fontWeight: 700, fontSize: "0.8rem", color: p.risk === "high" ? "#dc2626" : "#92400e" }}>{p.gap}</span>
+                                      </div>
+                                      <div style={{ fontSize: "0.8rem", color: "var(--text-soft)", marginBottom: 6 }}>{p.reason}</div>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleSectionChange("staff")}
+                                        style={{ padding: "5px 12px", borderRadius: 6, background: "#1E5A3C", color: "white", border: "none", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer" }}
+                                      >
+                                        {p.action}
+                                      </button>
+                                    </div>
+                                  ))}
                                 </div>
                               </div>
-                              <p style={{ margin: "6px 0 4px", color: "var(--text-soft)", fontSize: ".85rem" }}>{p.reason}</p>
-                              <p style={{ margin: 0, fontSize: ".85rem", color: "#1e40af", fontWeight: 500 }}>→ {p.action}</p>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {medRisk.length > 0 && (
-                      <div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-                          <span style={{ background: "#fef3c7", color: "#78350f", borderRadius: 6, padding: "2px 10px", fontWeight: 700, fontSize: ".8rem" }}>WATCH</span>
-                          <span style={{ color: "var(--text-soft)", fontSize: ".85rem" }}>{medRisk.length} prediction{medRisk.length !== 1 ? "s" : ""}</span>
+                            );
+                          })}
                         </div>
-                        <ul style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                          {medRisk.map((p) => (
-                            <li key={p.id} style={{ background: "#fffbeb", border: "1px solid #fcd34d", borderRadius: 10, padding: "14px 16px" }}>
-                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8 }}>
-                                <div>
-                                  <strong style={{ fontSize: ".95rem" }}>{p.staffName}</strong>
-                                  <span style={{ marginLeft: 8, background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 6, padding: "1px 8px", fontSize: ".75rem", color: "var(--text-soft)" }}>{p.role}</span>
-                                  <span style={{ marginLeft: 6, color: "#92400e", fontWeight: 600, fontSize: ".85rem" }}>{p.gap}</span>
-                                </div>
-                              </div>
-                              <p style={{ margin: "6px 0 4px", color: "var(--text-soft)", fontSize: ".85rem" }}>{p.reason}</p>
-                              <p style={{ margin: 0, fontSize: ".85rem", color: "#1e40af", fontWeight: 500 }}>→ {p.action}</p>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
+                      );
+                    })()}
                     {topGaps.length > 0 && (
                       <div style={{ marginTop: 28, padding: "16px", background: "var(--surface)", borderRadius: 10, border: "1px solid var(--line)" }}>
                         <strong style={{ fontSize: ".9rem", display: "block", marginBottom: 10 }}>Systemic gap analysis</strong>
@@ -3102,6 +3311,43 @@ export default function ManagerControlCenter({
 
         {activeSection === "settings" && (
           <section className="ops-grid ops-grid-main">
+            {/* ── Setup progress tracker ── */}
+            {(() => {
+              const steps = [
+                { label: "Add a venue", done: snapshot.venues.length > 0 },
+                { label: "Staff join code ready", done: !!selectedVenue?.venueCode },
+                { label: "Invite staff members", done: venueStaff.length > 0 },
+                { label: "Connect inventory", done: venueInventory.length > 0 },
+              ];
+              const completedCount = steps.filter((s) => s.done).length;
+              const allDone = completedCount === steps.length;
+              return (
+                <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+                  <div className="ops-card-head">
+                    <h3>Setup checklist</h3>
+                    <span style={{ color: allDone ? "#15803d" : "var(--mcc-ink-500)" }}>{completedCount}/{steps.length} complete</span>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
+                    {steps.map((step) => (
+                      <div key={step.label} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 8, background: step.done ? "#f0fdf4" : "var(--mcc-surface-2)", border: `1.5px solid ${step.done ? "#86efac" : "var(--mcc-border)"}` }}>
+                        <div style={{ width: 22, height: 22, borderRadius: "50%", background: step.done ? "#16a34a" : "var(--mcc-border)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          {step.done
+                            ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            : <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><circle cx="12" cy="12" r="2" fill="white"/></svg>
+                          }
+                        </div>
+                        <span style={{ fontSize: "0.82rem", fontWeight: 600, color: step.done ? "#15803d" : "var(--mcc-ink-600)" }}>{step.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {allDone && (
+                    <div style={{ marginTop: 12, padding: "10px 14px", background: "#dcfce7", borderRadius: 8, fontSize: "0.82rem", color: "#15803d", fontWeight: 600 }}>
+                      Venue setup complete — your team is ready to train.
+                    </div>
+                  )}
+                </article>
+              );
+            })()}
             <article className="ops-card">
               <div className="ops-card-head">
                 <h3>Venue setup</h3>
