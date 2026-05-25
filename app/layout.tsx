@@ -22,7 +22,7 @@ const siteUrl = "https://servebyexample.co";
 
 const ogTitle       = "Training Software Built for Hospitality";
 const ogDescription = "Scenario-based AI training that gets new staff floor-ready in six weeks, not six months.";
-const ogImage       = "/api/og"; // dynamic 1200×630 ImageResponse — edge-rendered, 24h CDN cache
+const ogImage       = "/og-image.png"; // static 1200×630 PNG — pre-generated, served from public/
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
