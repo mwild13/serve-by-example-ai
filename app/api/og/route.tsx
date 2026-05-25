@@ -1,9 +1,7 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
-
-// Cache the OG image for 24 hours at the CDN layer
-export const revalidate = 86400;
+// No runtime = "edge" — OpenNext Cloudflare compiles all routes to Workers.
+// ImageResponse / Satori runs fine in the Workers WASM context.
 
 async function loadManrope(): Promise<ArrayBuffer | null> {
   try {
