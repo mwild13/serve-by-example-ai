@@ -70,7 +70,7 @@ export default function PubGroupsPage() {
               quality training experience — regardless of location, manager, or roster.
             </p>
             <div className="inner-hero-actions">
-              <Link href="/for-venues#venue-enquiry" className="btn btn-primary btn-lg">Request Venue Access</Link>
+              <Link href="/contact" className="btn btn-primary btn-lg">Request Venue Access</Link>
               <Link href="/pricing" className="btn btn-secondary btn-lg">View Pricing</Link>
             </div>
           </div>

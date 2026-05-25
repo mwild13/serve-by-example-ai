@@ -99,7 +99,7 @@ export default function ManagementLoginPage() {
                 <Link href="/login">Forgot your password?</Link>
               </p>
               <p className="auth-help">
-                Need manager access? <Link href="/for-venues#venue-enquiry">Request venue onboarding</Link>.
+                Need manager access? <Link href="/contact">Request venue onboarding</Link>.
               </p>
             </div>
           </form>

@@ -217,7 +217,7 @@ export default function PricingPage() {
                 </div>
               </div>
               <div className="founding-cta">
-                <Link href="/for-venues#venue-enquiry" className="btn btn-gold btn-lg">
+                <Link href="/contact" className="btn btn-gold btn-lg">
                   Secure Founding Member Rate
                 </Link>
                 <p className="founding-cta-note">Strictly limited spots. Month-to-month. Cancel anytime.</p>

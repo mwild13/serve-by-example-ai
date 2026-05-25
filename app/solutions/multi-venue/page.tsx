@@ -76,7 +76,7 @@ export default function MultiVenuePage() {
               every site — with the analytics to act before problems compound.
             </p>
             <div className="inner-hero-actions">
-              <Link href="/for-venues#venue-enquiry" className="btn btn-primary btn-lg">Request Venue Access</Link>
+              <Link href="/contact" className="btn btn-primary btn-lg">Request Venue Access</Link>
               <Link href="/pricing" className="btn btn-secondary btn-lg">View Pricing</Link>
             </div>
           </div>

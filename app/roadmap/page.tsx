@@ -114,7 +114,7 @@ export default function RoadmapPage() {
               If you join now, your operation shapes the platform.
             </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-              <Link href="/for-venues#venue-enquiry" className="btn btn-primary btn-lg">
+              <Link href="/contact" className="btn btn-primary btn-lg">
                 Request Venue Access
               </Link>
               <Link href="/pricing" className="btn btn-secondary btn-lg">

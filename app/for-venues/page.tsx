@@ -56,7 +56,7 @@ export default function ForVenuesPage() {
               hospitality training.
             </p>
             <div className="inner-hero-actions">
-              <Link href="#venue-enquiry" className="btn btn-primary btn-lg">
+              <Link href="/contact" className="btn btn-primary btn-lg">
                 Request Venue Access
               </Link>
               <Link href="/pricing" className="btn btn-secondary btn-lg">
@@ -173,7 +173,7 @@ export default function ForVenuesPage() {
               </p>
             </div>
             <div className="cta-actions">
-              <Link href="#venue-enquiry" className="btn btn-gold btn-lg">
+              <Link href="/contact" className="btn btn-gold btn-lg">
                 Request Venue Access
               </Link>
               <Link

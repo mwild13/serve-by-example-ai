@@ -73,7 +73,7 @@ export default function FranchiseSystemsPage() {
               conversationally, adaptively, and on the device they already have in their pocket.
             </p>
             <div className="inner-hero-actions">
-              <Link href="/for-venues#venue-enquiry" className="btn btn-primary btn-lg">Request Venue Access</Link>
+              <Link href="/contact" className="btn btn-primary btn-lg">Request Venue Access</Link>
               <Link href="/pricing" className="btn btn-secondary btn-lg">View Pricing</Link>
             </div>
           </div>

@@ -124,7 +124,7 @@ export default function Home() {
                 <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>The full manager console, team analytics, compliance tracking and hands-on onboarding — for single venues up to multi-site groups. From 1 location to 5, all managed from one place.</p>
                 <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For venue operators ready to professionalise their training.</p>
                 <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
-                  <Link href="/for-venues#venue-enquiry" className="btn btn-secondary btn-block">Request Venue Access</Link>
+                  <Link href="/contact" className="btn btn-secondary btn-block">Request Venue Access</Link>
                 </div>
               </div>
 

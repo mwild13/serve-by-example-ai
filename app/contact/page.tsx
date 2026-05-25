@@ -181,7 +181,7 @@ export default function ContactPage() {
                 <p>
                   Looking to onboard your whole team? Use the venue access form on our For Venues page for a direct conversation about rollout.
                 </p>
-                <a href="/for-venues#venue-enquiry" className="btn btn-secondary btn-block" style={{ marginTop: "12px" }}>
+                <a href="/contact" className="btn btn-secondary btn-block" style={{ marginTop: "12px" }}>
                   Request Venue Access
                 </a>
               </div>
