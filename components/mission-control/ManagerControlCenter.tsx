@@ -2501,21 +2501,21 @@ export default function ManagerControlCenter({
                         <div
                           key={venue.id}
                           className={`ops-module-card${isActive ? " active" : ""}`}
-                          style={isLow && !isActive ? { borderColor: "#fca5a5", background: "#fef2f2" } : {}}
+                          style={{}}
                           onClick={() => setSelectedVenueId(venue.id)}
                         >
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                             <strong>{venue.name}</strong>
-                            {isLow && <span style={{ fontSize: "0.68rem", fontWeight: 700, background: "#fca5a5", color: "#7f1d1d", borderRadius: 999, padding: "1px 6px" }}>Low</span>}
+                            {isLow && <span style={{ fontSize: "0.68rem", fontWeight: 700, background: "var(--bg-alt)", color: "var(--text-soft)", border: "1px solid var(--line)", borderRadius: 999, padding: "1px 6px" }}>Low</span>}
                           </div>
-                          <span style={{ color: venue.completionRate < 30 ? "#dc2626" : "inherit" }}>Completion: {venue.completionRate}%</span>
+                          <span style={{ color: "inherit" }}>Completion: {venue.completionRate}%</span>
                           <span>Scenario: {venue.avgScenarioScore}%</span>
                           <span>Upsell: {venue.upsellRate}%</span>
                           {isLow && (
                             <button
                               type="button"
                               onClick={(e) => { e.stopPropagation(); setSelectedVenueId(venue.id); handleSectionChange("staff"); }}
-                              style={{ marginTop: 8, padding: "4px 10px", borderRadius: 6, border: "1.5px solid #dc2626", background: "transparent", color: "#dc2626", fontSize: "0.72rem", fontWeight: 700, cursor: "pointer" }}
+                              style={{ marginTop: 8, padding: "4px 10px", borderRadius: 6, border: "1.5px solid var(--line)", background: "transparent", color: "var(--text-soft)", fontSize: "0.72rem", fontWeight: 700, cursor: "pointer" }}
                             >
                               Review staff →
                             </button>
@@ -2549,7 +2549,7 @@ export default function ManagerControlCenter({
                         <span>{row.label}</span>
                         <span>{row.current > 0 ? `${row.current}${suffix}` : "—"}</span>
                         <span>{row.prev > 0 ? `${row.prev}${suffix}` : "—"}</span>
-                        <span style={{ fontWeight: 700, color: delta > 0 ? "#16a34a" : delta < 0 ? "#dc2626" : "var(--mcc-ink-400)" }}>
+                        <span style={{ fontWeight: 700, color: delta > 0 ? "#16a34a" : delta < 0 ? "var(--text-soft)" : "var(--mcc-ink-400)" }}>
                           {delta > 0 ? `↑ ${delta}${suffix}` : delta < 0 ? `↓ ${Math.abs(delta)}${suffix}` : "—"}
                         </span>
                       </div>
