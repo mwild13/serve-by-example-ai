@@ -1764,6 +1764,7 @@ export default function ManagerControlCenter({
                           <th>Name</th>
                           <th>Contact</th>
                           <th>Role</th>
+                          <th>Progress</th>
                           <th>Status</th>
                           <th>Connection</th>
                           <th>Module mastery</th>
@@ -1775,6 +1776,10 @@ export default function ManagerControlCenter({
                         {venueStaff.map((member) => {
                           const initials = member.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
                           const email = member.email ?? `${member.name.split(" ")[0].toLowerCase()}@sbe.io`;
+                          const isReady = member.progress >= 70;
+                          const statusLabel = member.status === "on-track" && member.progress === 0 ? "Not started" : member.status === "on-track" ? "On track" : member.status === "attention" ? "Needs attention" : "Inactive";
+                          const statusStyle = member.status === "on-track" && member.progress === 0 ? { background: "#f3f4f6", color: "#6b7280" } : member.status === "on-track" ? { background: "#dcfce7", color: "#16a34a" } : member.status === "attention" ? { background: "#fff7ed", color: "#c2410c" } : { background: "#fff1f2", color: "#b91c1c" };
+                          const barColor = member.progress >= 70 ? "#16a34a" : member.progress >= 40 ? "#f59e0b" : "#dc2626";
                           return (
                             <tr
                               key={member.id}
@@ -1784,12 +1789,25 @@ export default function ManagerControlCenter({
                               <td>
                                 <div className="ops-staff-avatar">{initials}</div>
                               </td>
-                              <td><strong>{member.name}</strong></td>
+                              <td>
+                                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                  <strong>{member.name}</strong>
+                                  {isReady && <span style={{ padding: "1px 7px", borderRadius: 999, fontSize: "0.65rem", fontWeight: 700, background: "#dcfce7", color: "#15803d", flexShrink: 0 }}>Ready</span>}
+                                </div>
+                              </td>
                               <td><span className="ops-staff-email">{email}</span></td>
                               <td>{member.role}</td>
+                              <td style={{ minWidth: 90 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                  <div style={{ flex: 1, height: 5, background: "#e5e7eb", borderRadius: 999 }}>
+                                    <div style={{ height: "100%", width: `${member.progress}%`, background: barColor, borderRadius: 999, transition: "width 0.3s" }} />
+                                  </div>
+                                  <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--mcc-ink-700)", width: 30, textAlign: "right" }}>{Math.round(member.progress)}%</span>
+                                </div>
+                              </td>
                               <td>
-                                <span className={`ops-badge ops-badge-${member.status === "on-track" ? "active" : member.status === "attention" ? "pending" : "removed"}`}>
-                                  {member.status === "on-track" ? "On track" : member.status === "attention" ? "Needs attention" : "Inactive"}
+                                <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: "0.72rem", fontWeight: 700, ...statusStyle }}>
+                                  {statusLabel}
                                 </span>
                               </td>
                               <td>
@@ -1938,9 +1956,11 @@ export default function ManagerControlCenter({
                                       </div>
                                     </td>
                                     <td>
-                                      <span className={`ops-badge ops-badge-${m.status === "on-track" ? "active" : m.status === "attention" ? "pending" : "removed"}`}>
-                                        {m.status === "on-track" ? "On track" : m.status === "attention" ? "Attention" : "Inactive"}
-                                      </span>
+                                      {(() => {
+                                        const lbl = m.status === "on-track" && m.progress === 0 ? "Not started" : m.status === "on-track" ? "On track" : m.status === "attention" ? "Attention" : "Inactive";
+                                        const sty = m.status === "on-track" && m.progress === 0 ? { background: "#f3f4f6", color: "#6b7280" } : m.status === "on-track" ? { background: "#dcfce7", color: "#16a34a" } : m.status === "attention" ? { background: "#fff7ed", color: "#c2410c" } : { background: "#fff1f2", color: "#b91c1c" };
+                                        return <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: "0.72rem", fontWeight: 700, ...sty }}>{lbl}</span>;
+                                      })()}
                                     </td>
                                   </tr>
                                 );
@@ -2223,6 +2243,27 @@ export default function ManagerControlCenter({
                     </button>
                   </div>
                 </div>
+                {/* Role readiness summary */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 8, marginBottom: 16 }}>
+                  {roleStats.map((row) => {
+                    const readiness = row.avgProgress ?? 0;
+                    const color = readiness >= 70 ? "#16a34a" : readiness >= 40 ? "#f59e0b" : "#dc2626";
+                    const bg = readiness >= 70 ? "#f0fdf4" : readiness >= 40 ? "#fff7ed" : "#fef2f2";
+                    const border = readiness >= 70 ? "#86efac" : readiness >= 40 ? "#fed7aa" : "#fca5a5";
+                    return (
+                      <div key={row.role} style={{ padding: "10px 12px", borderRadius: 8, background: bg, border: `1.5px solid ${border}` }}>
+                        <div style={{ fontSize: "0.72rem", fontWeight: 600, color: "var(--mcc-ink-600)", marginBottom: 4 }}>{row.role}</div>
+                        <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+                          <span style={{ fontSize: "1.3rem", fontWeight: 800, color }}>{row.avgProgress ?? "—"}{row.avgProgress != null ? "%" : ""}</span>
+                          <span style={{ fontSize: "0.7rem", color: "var(--mcc-ink-400)" }}>readiness</span>
+                        </div>
+                        <div style={{ marginTop: 6, height: 4, background: "#e5e7eb", borderRadius: 999 }}>
+                          <div style={{ height: "100%", width: `${readiness}%`, background: color, borderRadius: 999, transition: "width 0.3s" }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
                 <div style={{ overflowX: "auto" }}>
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
                     <thead>
@@ -2271,29 +2312,32 @@ export default function ManagerControlCenter({
               <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
                 <div className="ops-card-head">
                   <h3>Permission matrix</h3>
-                  <span>Dashboard access by role</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span>Dashboard access by role</span>
+                    <span style={{ fontSize: "0.72rem", padding: "2px 8px", borderRadius: 999, background: "#fef9c3", color: "#92400e", fontWeight: 700, border: "1px solid #fde68a" }}>Manager column = elevated access</span>
+                  </div>
                 </div>
                 <div style={{ overflowX: "auto" }}>
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
                     <thead>
                       <tr style={{ borderBottom: "2px solid var(--mcc-border)" }}>
                         <th style={{ textAlign: "left", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Capability</th>
-                        <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Manager</th>
+                        <th style={{ textAlign: "center", padding: "8px 12px", color: "#92400e", fontWeight: 700, background: "#fef9c3", borderRadius: "8px 8px 0 0" }}>Manager</th>
                         <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Supervisor</th>
                         <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Staff</th>
                       </tr>
                     </thead>
                     <tbody>
                       {PERMISSIONS.map((perm) => {
-                        const dot = (has: boolean) => (
-                          <td style={{ textAlign: "center", padding: "9px 12px", borderBottom: "1px solid var(--mcc-border)" }}>
+                        const dot = (has: boolean, isManager?: boolean) => (
+                          <td style={{ textAlign: "center", padding: "9px 12px", borderBottom: "1px solid var(--mcc-border)", background: isManager ? "#fefce8" : "transparent" }}>
                             <span style={{ display: "inline-block", width: 12, height: 12, borderRadius: "50%", background: has ? "#1E5A3C" : "#e5e7eb" }} />
                           </td>
                         );
                         return (
                           <tr key={perm.label}>
                             <td style={{ padding: "9px 12px", borderBottom: "1px solid var(--mcc-border)", color: "var(--mcc-ink-700)" }}>{perm.label}</td>
-                            {dot(perm.manager)}
+                            {dot(perm.manager, true)}
                             {dot(perm.supervisor)}
                             {dot(perm.staff)}
                           </tr>
@@ -2421,6 +2465,15 @@ export default function ManagerControlCenter({
                           <span style={{ color: venue.completionRate < 30 ? "#dc2626" : "inherit" }}>Completion: {venue.completionRate}%</span>
                           <span>Scenario: {venue.avgScenarioScore}%</span>
                           <span>Upsell: {venue.upsellRate}%</span>
+                          {isLow && (
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setSelectedVenueId(venue.id); handleSectionChange("staff"); }}
+                              style={{ marginTop: 8, padding: "4px 10px", borderRadius: 6, border: "1.5px solid #dc2626", background: "transparent", color: "#dc2626", fontSize: "0.72rem", fontWeight: 700, cursor: "pointer" }}
+                            >
+                              Review staff →
+                            </button>
+                          )}
                         </div>
                       );
                     })}
@@ -2450,8 +2503,8 @@ export default function ManagerControlCenter({
                         <span>{row.label}</span>
                         <span>{row.current > 0 ? `${row.current}${suffix}` : "—"}</span>
                         <span>{row.prev > 0 ? `${row.prev}${suffix}` : "—"}</span>
-                        <span className={delta > 0 ? "ops-delta-up" : delta < 0 ? "ops-delta-down" : "ops-delta-steady"}>
-                          {delta > 0 ? `↑ ${delta}${suffix}` : delta < 0 ? `↓ ${Math.abs(delta)}${suffix}` : "~"}
+                        <span style={{ fontWeight: 700, color: delta > 0 ? "#16a34a" : delta < 0 ? "#dc2626" : "var(--mcc-ink-400)" }}>
+                          {delta > 0 ? `↑ ${delta}${suffix}` : delta < 0 ? `↓ ${Math.abs(delta)}${suffix}` : "—"}
                         </span>
                       </div>
                     );
@@ -2536,9 +2589,13 @@ export default function ManagerControlCenter({
                     );
                   })}
                 </div>
-                <p className="ops-revenue-note">
-                  Based on {Math.max(venueStaff.length, 3)} staff × 40 transactions/shift × 3 shifts/week × ${revenueTransactionValue} avg order value.
-                </p>
+                <div style={{ marginTop: 14, padding: "10px 14px", borderRadius: 8, border: "1px solid var(--mcc-border)", background: "var(--mcc-surface-2)" }}>
+                  <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--mcc-ink-500)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>How this is calculated</div>
+                  <div style={{ fontSize: "0.78rem", color: "var(--mcc-ink-600)", lineHeight: 1.5 }}>
+                    {Math.max(venueStaff.length, 3)} staff × 40 transactions/shift × 3 shifts/week × ${revenueTransactionValue} avg order value × upsell improvement %
+                  </div>
+                  <div style={{ fontSize: "0.72rem", color: "var(--mcc-ink-400)", marginTop: 4 }}>Training-driven upsell improvement is a conservative estimate based on Serve By Example scenario coaching outcomes.</div>
+                </div>
               </article>
             </section>
           </>
@@ -2611,7 +2668,7 @@ export default function ManagerControlCenter({
                     { label: "Avg score", value: venueStaff.length ? `${metrics.avgScenarioScore}%` : "—" },
                     { label: "Compliant", value: venueStaff.length ? `${fullyCompliant.length}/${venueStaff.length}` : "—" },
                   ].map((kpi) => (
-                    <div key={kpi.label} style={{ padding: "14px 16px", background: "var(--mcc-surface-2)", borderRadius: 10 }}>
+                    <div key={kpi.label} style={{ padding: "14px 16px", background: "var(--surface-raised)", borderRadius: 10, border: "1px solid var(--mcc-border)", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
                       <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "var(--mcc-ink-900)" }}>{kpi.value}</div>
                       <div style={{ fontSize: "0.75rem", color: "var(--mcc-ink-500)", marginTop: 2 }}>{kpi.label}</div>
                     </div>
@@ -2644,7 +2701,7 @@ export default function ManagerControlCenter({
                                 <td style={{ padding: "8px 10px", minWidth: 90 }}>
                                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                                     <div style={{ flex: 1, height: 5, background: "var(--mcc-surface-2)", borderRadius: 999 }}>
-                                      <div style={{ height: "100%", width: `${s.progress}%`, background: s.progress >= 70 ? "#16a34a" : s.progress >= 40 ? "#f59e0b" : "#dc2626", borderRadius: 999 }} />
+                                      <div style={{ height: "100%", width: `${s.progress}%`, background: s.progress >= 70 ? "linear-gradient(90deg, #15803d, #22c55e)" : s.progress >= 40 ? "linear-gradient(90deg, #d97706, #fbbf24)" : "linear-gradient(90deg, #dc2626, #f87171)", borderRadius: 999, transition: "width 0.3s ease" }} />
                                     </div>
                                     <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--mcc-ink-700)", width: 32, textAlign: "right" }}>{Math.round(s.progress)}%</span>
                                   </div>
@@ -2758,6 +2815,10 @@ export default function ManagerControlCenter({
             if (leaderboardTab === "score") return `${Math.round((s.serviceScore + s.salesScore + s.productScore) / 3)}%`;
             return `${parseFloat(s.progress.toFixed(1))}%`;
           };
+          const getPoints = (s: typeof venueStaff[0]) => {
+            const raw = Math.round(s.progress * 1.2 + (s.serviceScore + s.salesScore + s.productScore) / 3 * 0.8);
+            return `${raw} pts`;
+          };
           const podiumColors = ["#F59E0B", "#94A3B8", "#CD7F32"];
           const podiumLabels = ["1st", "2nd", "3rd"];
           return (
@@ -2828,13 +2889,19 @@ export default function ManagerControlCenter({
                         const medalColors = ["#F59E0B", "#94A3B8", "#CD7F32"];
                         const isTop3 = idx < 3;
                         return (
-                          <li key={member.id} style={{
-                            display: "flex", alignItems: "center", justifyContent: "space-between",
-                            padding: "12px 14px", borderRadius: 10,
-                            background: isTop3 ? `${podiumColors[idx]}08` : "var(--mcc-surface-2)",
-                            border: `1.5px solid ${isTop3 ? podiumColors[idx] + "40" : "var(--mcc-border)"}`,
-                            transition: "box-shadow 0.15s",
-                          }}>
+                          <li
+                            key={member.id}
+                            onClick={() => { setSelectedStaffId(member.id); handleSectionChange("staff"); }}
+                            style={{
+                              display: "flex", alignItems: "center", justifyContent: "space-between",
+                              padding: "12px 14px", borderRadius: 10, cursor: "pointer",
+                              background: isTop3 ? `${podiumColors[idx]}08` : "var(--mcc-surface-2)",
+                              border: `1.5px solid ${isTop3 ? podiumColors[idx] + "40" : "var(--mcc-border)"}`,
+                              transition: "box-shadow 0.15s, transform 0.1s",
+                            }}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLLIElement).style.boxShadow = "0 2px 8px rgba(0,0,0,0.10)"; (e.currentTarget as HTMLLIElement).style.transform = "translateY(-1px)"; }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLLIElement).style.boxShadow = "none"; (e.currentTarget as HTMLLIElement).style.transform = "none"; }}
+                          >
                             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                               <div style={{
                                 width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
@@ -2850,6 +2917,7 @@ export default function ManagerControlCenter({
                             </div>
                             <div style={{ textAlign: "right" }}>
                               <div style={{ fontWeight: 800, fontSize: "0.95rem", color: isTop3 ? podiumColors[idx] : "var(--mcc-ink-700)" }}>{getValue(member)}</div>
+                              <div style={{ fontSize: "0.72rem", color: "var(--mcc-ink-400)" }}>{getPoints(member)}</div>
                             </div>
                           </li>
                         );
@@ -2978,7 +3046,7 @@ export default function ManagerControlCenter({
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                     {visible.map((notif) => {
-                      const style = urgencyStyle[notif.urgency];
+                      const style = notif.id === "inventory-ok" ? { bg: "#f0fdf4", border: "#86efac", dot: "#16a34a", label: "Connected" } : urgencyStyle[notif.urgency];
                       const ctaMap: Record<string, { label: string; section: ManagerSection }> = {
                         "training":     { label: "Review staff", section: "staff" },
                         "performance":  { label: "Open scenarios", section: "scenarios" },
@@ -3087,17 +3155,39 @@ export default function ManagerControlCenter({
                   </div>
                 )}
               </div>
-              <form className="ops-ai-coach-form" onSubmit={handleAiCoachSubmit}>
-                <input
+              <form className="ops-ai-coach-form" onSubmit={handleAiCoachSubmit} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <textarea
                   className="input"
                   value={aiCoachInput}
                   onChange={(e) => setAiCoachInput(e.target.value)}
                   placeholder="Ask about your staff, training, or venue performance…"
                   disabled={aiCoachLoading}
+                  rows={3}
+                  style={{ resize: "vertical", minHeight: 72, fontFamily: "inherit", fontSize: "0.9rem", lineHeight: 1.5 }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      if (aiCoachInput.trim() && !aiCoachLoading) {
+                        (e.currentTarget.form as HTMLFormElement)?.requestSubmit();
+                      }
+                    }
+                  }}
                 />
-                <button type="submit" className="btn btn-primary" disabled={aiCoachLoading || !aiCoachInput.trim()}>
-                  {aiCoachLoading ? "…" : "Ask"}
-                </button>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: "0.72rem", color: "var(--mcc-ink-400)" }}>Press Enter to send · Shift+Enter for new line</span>
+                  <button
+                    type="submit"
+                    disabled={aiCoachLoading || !aiCoachInput.trim()}
+                    style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 20px", borderRadius: 8, border: "none", background: aiCoachLoading || !aiCoachInput.trim() ? "#e5e7eb" : "#1E5A3C", color: aiCoachLoading || !aiCoachInput.trim() ? "#9ca3af" : "white", fontWeight: 700, fontSize: "0.85rem", cursor: aiCoachLoading || !aiCoachInput.trim() ? "not-allowed" : "pointer", transition: "background 0.15s" }}
+                  >
+                    {aiCoachLoading ? "Thinking…" : (
+                      <>
+                        Send
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                      </>
+                    )}
+                  </button>
+                </div>
               </form>
               <p style={{ fontSize: "0.72rem", color: "var(--mcc-ink-400)", marginTop: 8, textAlign: "center" }}>
                 Do not share sensitive staff salary or financial details with AI Coach.
