@@ -361,6 +361,12 @@ export default function ManagerControlCenter({
   const [leaderboardTab, setLeaderboardTab] = useState<"progress" | "score" | "active">("progress");
   const [notifFilter, setNotifFilter] = useState<"all" | "training" | "performance" | "inventory">("all");
   const [dismissedNotifs, setDismissedNotifs] = useState<Set<string>>(new Set());
+  const [showArchivedNotifs, setShowArchivedNotifs] = useState(false);
+  const [staffRoleFilter, setStaffRoleFilter] = useState<string>("all");
+  const [reportSearch, setReportSearch] = useState("");
+  const [aiCoachFeedback, setAiCoachFeedback] = useState<Record<number, "up" | "down">>({});
+  const [expandedSuggestions, setExpandedSuggestions] = useState(false);
+  const [venueDeleteConfirm, setVenueDeleteConfirm] = useState<{ venueId: string; venueName: string } | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -1753,12 +1759,23 @@ export default function ManagerControlCenter({
               <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
                 <div className="ops-card-head">
                   <h3>Staff directory</h3>
-                  <span>{venueStaff.length} {venueStaff.length === 1 ? "person" : "people"} · {selectedVenue?.name}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <select
+                      value={staffRoleFilter}
+                      onChange={(e) => setStaffRoleFilter(e.target.value)}
+                      style={{ padding: "5px 10px", borderRadius: 8, border: "1.5px solid var(--mcc-border)", background: "var(--mcc-bg)", color: "var(--mcc-ink-700)", fontSize: "0.82rem", cursor: "pointer" }}
+                      aria-label="Filter by role"
+                    >
+                      <option value="all">All roles</option>
+                      {STAFF_ROLE_OPTIONS.map((r) => <option key={r} value={r}>{r}</option>)}
+                    </select>
+                    <span style={{ fontSize: "0.82rem", color: "var(--mcc-ink-500)" }}>{venueStaff.filter(m => staffRoleFilter === "all" || m.role === staffRoleFilter).length} {venueStaff.filter(m => staffRoleFilter === "all" || m.role === staffRoleFilter).length === 1 ? "person" : "people"} · {selectedVenue?.name}</span>
+                  </div>
                 </div>
                 {venueStaff.length ? (
                   <div className="ops-table-wrap">
                     <table className="ops-table ops-staff-table">
-                      <thead>
+                      <thead style={{ position: "sticky", top: 0, zIndex: 1, background: "var(--surface-raised)" }}>
                         <tr>
                           <th style={{ width: 40 }}></th>
                           <th>Name</th>
@@ -1773,7 +1790,7 @@ export default function ManagerControlCenter({
                         </tr>
                       </thead>
                       <tbody>
-                        {venueStaff.map((member) => {
+                        {venueStaff.filter((m) => staffRoleFilter === "all" || m.role === staffRoleFilter).map((member) => {
                           const initials = member.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
                           const email = member.email ?? `${member.name.split(" ")[0].toLowerCase()}@sbe.io`;
                           const isReady = member.progress >= 70;
@@ -2104,7 +2121,25 @@ export default function ManagerControlCenter({
               <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
                 <div className="ops-card-head">
                   <h3>Team performance</h3>
-                  <span>{selectedVenue?.name}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontSize: "0.82rem", color: "var(--mcc-ink-500)" }}>{selectedVenue?.name}</span>
+                    {venueStaff.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const rows = [["Team", "Members", "Avg Progress", "Avg Score", "Needs Attention"], ...teams.map((t) => [t.label, String(t.members.length), `${t.avgProgress}%`, `${t.avgScore}%`, String(t.attention.length)])];
+                          const csv = rows.map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
+                          const blob = new Blob([csv], { type: "text/csv" });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement("a"); a.href = url; a.download = `team-report-${selectedVenue?.name ?? "venue"}.csv`; a.click(); URL.revokeObjectURL(url);
+                        }}
+                        style={{ padding: "5px 12px", borderRadius: 8, border: "1.5px solid var(--mcc-border)", background: "var(--mcc-bg)", color: "var(--mcc-ink-700)", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Export team report
+                      </button>
+                    )}
+                  </div>
                 </div>
                 {venueStaff.length === 0 ? (
                   <EmptyState copy="Add staff to unlock team performance data." />
@@ -2167,13 +2202,24 @@ export default function ManagerControlCenter({
                     <div style={{ borderTop: "1px solid var(--mcc-border)", paddingTop: "1rem" }}>
                       <p style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--mcc-ink-500)", marginBottom: 10 }}>Team comparison — avg scenario score</p>
                       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        {/* 80% target label */}
+                        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
+                          <span style={{ width: 96, flexShrink: 0 }} />
+                          <div style={{ flex: 1, position: "relative", height: 10 }}>
+                            <div style={{ position: "absolute", left: `${(80 / maxScore) * 100}%`, top: -14, fontSize: "0.65rem", color: "#1E5A3C", fontWeight: 700, transform: "translateX(-50%)", whiteSpace: "nowrap" }}>80% target</div>
+                            <div style={{ position: "absolute", left: `${(80 / maxScore) * 100}%`, top: 0, width: 2, height: "100%", background: "#1E5A3C", opacity: 0.4 }} />
+                          </div>
+                          <span style={{ width: 60 }} />
+                        </div>
                         {teams.map((team) => (
                           <div key={team.label} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                             <span style={{ width: 96, fontSize: "0.82rem", color: "var(--mcc-ink-700)", flexShrink: 0 }}>{team.label}</span>
-                            <div style={{ flex: 1, height: 10, background: "var(--mcc-surface-2)", borderRadius: 999, overflow: "hidden" }}>
-                              <div style={{ height: "100%", width: `${team.members.length ? (team.avgScore / maxScore) * 100 : 0}%`, background: "#1E5A3C", borderRadius: 999, transition: "width 0.4s ease" }} />
+                            <div style={{ flex: 1, height: 10, background: "var(--mcc-surface-2)", borderRadius: 999, overflow: "visible", position: "relative" }}>
+                              <div style={{ height: "100%", width: `${team.members.length ? (team.avgScore / maxScore) * 100 : 0}%`, background: team.avgScore >= 80 ? "#16a34a" : team.avgScore >= 50 ? "#1E5A3C" : "#f59e0b", borderRadius: 999, transition: "width 0.4s ease" }} />
+                              {/* 80% marker */}
+                              <div style={{ position: "absolute", left: `${(80 / maxScore) * 100}%`, top: -2, width: 2, height: 14, background: "#1E5A3C", opacity: 0.35, borderRadius: 1 }} />
                             </div>
-                            <span style={{ width: 60, fontSize: "0.78rem", fontWeight: 600, color: team.members.length ? "var(--mcc-ink-900)" : "var(--mcc-ink-400)", textAlign: "right" }}>
+                            <span style={{ width: 60, fontSize: "0.78rem", fontWeight: 600, color: team.members.length ? (team.avgScore >= 80 ? "#16a34a" : "var(--mcc-ink-900)") : "var(--mcc-ink-400)", textAlign: "right" }}>
                               {team.members.length ? `${team.avgScore}%` : "No data"}
                             </span>
                           </div>
@@ -2681,8 +2727,18 @@ export default function ManagerControlCenter({
                   <>
                     {/* Training summary table */}
                     <div style={{ marginBottom: "1.5rem" }}>
-                      <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--mcc-ink-500)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.75rem" }}>
-                        Weekly training summary
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+                        <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--mcc-ink-500)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                          Weekly training summary
+                        </div>
+                        <input
+                          type="search"
+                          value={reportSearch}
+                          onChange={(e) => setReportSearch(e.target.value)}
+                          placeholder="Filter by name or role…"
+                          style={{ padding: "5px 10px", borderRadius: 8, border: "1.5px solid var(--mcc-border)", background: "var(--mcc-bg)", color: "var(--mcc-ink-700)", fontSize: "0.8rem", width: 200 }}
+                          aria-label="Filter staff"
+                        />
                       </div>
                       <div style={{ overflowX: "auto" }}>
                         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
@@ -2694,7 +2750,7 @@ export default function ManagerControlCenter({
                             </tr>
                           </thead>
                           <tbody>
-                            {sortedByProgress.map((s) => (
+                            {sortedByProgress.filter((s) => !reportSearch.trim() || s.name.toLowerCase().includes(reportSearch.toLowerCase()) || s.role.toLowerCase().includes(reportSearch.toLowerCase())).map((s) => (
                               <tr key={s.id} style={{ borderBottom: "1px solid var(--mcc-border)" }}>
                                 <td style={{ padding: "8px 10px", fontWeight: 600, color: "var(--mcc-ink-900)", whiteSpace: "nowrap" }}>{s.name}</td>
                                 <td style={{ padding: "8px 10px", color: "var(--mcc-ink-600)", whiteSpace: "nowrap" }}>{s.role}</td>
@@ -3003,7 +3059,27 @@ export default function ManagerControlCenter({
               <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
                 <div className="ops-card-head">
                   <h3>Notifications</h3>
-                  <span>{selectedVenue?.name}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontSize: "0.82rem", color: "var(--mcc-ink-500)" }}>{selectedVenue?.name}</span>
+                    {dismissedNotifs.size > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowArchivedNotifs((v) => !v)}
+                        style={{ padding: "4px 10px", borderRadius: 6, border: "1.5px solid var(--mcc-border)", background: showArchivedNotifs ? "var(--mcc-ink-100, #f3f4f6)" : "transparent", color: "var(--mcc-ink-600)", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer" }}
+                      >
+                        {showArchivedNotifs ? "Hide archived" : `Show archived (${dismissedNotifs.size})`}
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleSectionChange("settings")}
+                      style={{ padding: "4px 8px", borderRadius: 6, border: "1.5px solid var(--mcc-border)", background: "transparent", color: "var(--mcc-ink-500)", fontSize: "0.75rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
+                      aria-label="Notification settings"
+                    >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                      Settings
+                    </button>
+                  </div>
                 </div>
                 <div style={{ display: "flex", gap: 8, marginBottom: "1.25rem", flexWrap: "wrap" }}>
                   {filterTabs.map((t) => {
@@ -3083,6 +3159,27 @@ export default function ManagerControlCenter({
                     })}
                   </div>
                 )}
+                {showArchivedNotifs && dismissedNotifs.size > 0 && (
+                  <div style={{ marginTop: 16 }}>
+                    <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--mcc-ink-400)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>Archived</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8, opacity: 0.55 }}>
+                      {allNotifs.filter((n) => dismissedNotifs.has(n.id)).map((notif) => (
+                        <div key={notif.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 8, background: "var(--mcc-surface-2)", border: "1px solid var(--mcc-border)" }}>
+                          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#d1d5db", flexShrink: 0, display: "inline-block" }} />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 600, fontSize: "0.82rem", color: "var(--mcc-ink-600)" }}>{notif.title}</div>
+                            <div style={{ fontSize: "0.78rem", color: "var(--mcc-ink-400)" }}>{notif.body}</div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setDismissedNotifs((prev) => { const next = new Set(prev); next.delete(notif.id); return next; })}
+                            style={{ background: "none", border: "1px solid var(--mcc-border)", borderRadius: 4, cursor: "pointer", color: "var(--mcc-ink-400)", fontSize: "0.72rem", padding: "2px 7px" }}
+                          >Restore</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </article>
             </section>
           );
@@ -3095,9 +3192,14 @@ export default function ManagerControlCenter({
                 <h3>Ask AI Coach</h3>
                 <span>{selectedVenue?.name ?? "Your venue"}</span>
               </div>
-              <p style={{ color: "var(--text-soft)", fontSize: ".95rem", marginBottom: 16 }}>
-                Your AI Coach has live access to your team, training data, and venue performance. Ask anything.
-              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, padding: "10px 14px", borderRadius: 8, background: "var(--mcc-surface-2)", border: "1px solid var(--mcc-border)", marginBottom: 16, fontSize: "0.82rem", color: "var(--mcc-ink-600)" }}>
+                {["Live access to your team training data and scores", "Ask about any staff member, team, or skill area", "Responses are specific to your venue and roster"].map((item) => (
+                  <div key={item} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#1E5A3C", flexShrink: 0, display: "inline-block" }} />
+                    {item}
+                  </div>
+                ))}
+              </div>
               <div className="ops-ai-coach-suggestions">
                 {[
                   "Who hasn't completed their training?",
@@ -3140,18 +3242,39 @@ export default function ManagerControlCenter({
                   </div>
                 )}
                 {aiCoachMessages.map((msg, index) => (
-                  <div
-                    key={index}
-                    className={`ops-ai-message ops-ai-message-${msg.role}`}
-                  >
-                    <span className="ops-ai-message-label">{msg.role === "user" ? "You" : "✦ AI Coach"}</span>
+                  <div key={index} className={`ops-ai-message ops-ai-message-${msg.role}`}>
+                    <span className="ops-ai-message-label">{msg.role === "user" ? "You" : "AI Coach"}</span>
                     <p style={{ whiteSpace: "pre-wrap" }}>{msg.content}</p>
+                    {msg.role === "coach" && (
+                      <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+                        {(["up", "down"] as const).map((dir) => (
+                          <button
+                            key={dir}
+                            type="button"
+                            onClick={() => setAiCoachFeedback((prev) => ({ ...prev, [index]: dir }))}
+                            style={{ padding: "3px 8px", borderRadius: 6, border: `1.5px solid ${aiCoachFeedback[index] === dir ? (dir === "up" ? "#86efac" : "#fca5a5") : "var(--mcc-border)"}`, background: aiCoachFeedback[index] === dir ? (dir === "up" ? "#f0fdf4" : "#fef2f2") : "transparent", cursor: "pointer", fontSize: "0.82rem", color: aiCoachFeedback[index] === dir ? (dir === "up" ? "#16a34a" : "#dc2626") : "var(--mcc-ink-400)", transition: "all 0.15s" }}
+                            aria-label={dir === "up" ? "Helpful" : "Not helpful"}
+                          >
+                            {dir === "up" ? (
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill={aiCoachFeedback[index] === "up" ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+                            ) : (
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill={aiCoachFeedback[index] === "down" ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
                 {aiCoachLoading && (
                   <div className="ops-ai-message ops-ai-message-coach">
-                    <span className="ops-ai-message-label">✦ AI Coach</span>
-                    <p className="ops-ai-thinking">Analysing your venue data…</p>
+                    <span className="ops-ai-message-label">AI Coach</span>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 4 }}>
+                      {[90, 75, 55].map((w) => (
+                        <div key={w} style={{ height: 10, width: `${w}%`, borderRadius: 999, background: "var(--mcc-surface-2)", animation: "pulse 1.5s ease-in-out infinite" }} />
+                      ))}
+                    </div>
+                    <style>{`@keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: 0.4 } }`}</style>
                   </div>
                 )}
               </div>
@@ -3195,42 +3318,51 @@ export default function ManagerControlCenter({
             </article>
 
             <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Suggested questions</h3>
-                <span>Click to ask</span>
-              </div>
-              <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 6 }}>
-                {[
-                  "Who hasn't completed their alcohol training?",
-                  "Which staff have the lowest sales scores?",
-                  "What's my venue health score this week?",
-                  "Show me staff who need coaching on service.",
-                  "How many training programs are active?",
-                  "What inventory categories are connected for realistic scenarios?",
-                ].map((q) => (
-                  <li key={q}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAiCoachInput(q);
-                        setAiCoachMessages((prev) => [...prev, { role: "user", content: q }]);
-                        setAiCoachInput("");
-                        setAiCoachLoading(true);
-                        apiFetch("/api/management/coach", { method: "POST", body: JSON.stringify({ question: q, venueId: selectedVenueId }) })
-                          .then((r) => r.json())
-                          .then((data) => {
-                            setAiCoachMessages((prev) => [...prev, { role: "coach", content: data.answer ?? data.error ?? "Unable to respond." }]);
-                          })
-                          .catch(() => setAiCoachMessages((prev) => [...prev, { role: "coach", content: "Unable to reach AI coach." }]))
-                          .finally(() => setAiCoachLoading(false));
-                      }}
-                      style={{ width: "100%", textAlign: "left", padding: "9px 12px", borderRadius: 8, border: "1.5px solid var(--mcc-border)", background: "var(--mcc-surface-2)", color: "var(--mcc-ink-700)", fontSize: "0.82rem", cursor: "pointer", lineHeight: 1.4, transition: "background 0.15s" }}
-                    >
-                      {q}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              <button
+                type="button"
+                onClick={() => setExpandedSuggestions((v) => !v)}
+                style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", background: "none", border: "none", cursor: "pointer", padding: 0, marginBottom: expandedSuggestions ? 12 : 0 }}
+              >
+                <div className="ops-card-head" style={{ margin: 0, flex: 1, pointerEvents: "none" }}>
+                  <h3 style={{ margin: 0 }}>Suggested questions</h3>
+                  <span style={{ fontSize: "0.75rem", color: "var(--mcc-ink-400)" }}>{expandedSuggestions ? "Collapse" : "Expand · Click to ask"}</span>
+                </div>
+                <span style={{ fontSize: "0.85rem", color: "var(--mcc-ink-400)", marginRight: 4 }}>{expandedSuggestions ? "▲" : "▼"}</span>
+              </button>
+              {expandedSuggestions && (
+                <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 6 }}>
+                  {[
+                    "Who hasn't completed their alcohol training?",
+                    "Which staff have the lowest sales scores?",
+                    "What's my venue health score this week?",
+                    "Show me staff who need coaching on service.",
+                    "How many training programs are active?",
+                    "What inventory categories are connected for realistic scenarios?",
+                  ].map((q) => (
+                    <li key={q}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAiCoachInput(q);
+                          setAiCoachMessages((prev) => [...prev, { role: "user", content: q }]);
+                          setAiCoachInput("");
+                          setAiCoachLoading(true);
+                          apiFetch("/api/management/coach", { method: "POST", body: JSON.stringify({ question: q, venueId: selectedVenueId }) })
+                            .then((r) => r.json())
+                            .then((data) => {
+                              setAiCoachMessages((prev) => [...prev, { role: "coach", content: data.answer ?? data.error ?? "Unable to respond." }]);
+                            })
+                            .catch(() => setAiCoachMessages((prev) => [...prev, { role: "coach", content: "Unable to reach AI coach." }]))
+                            .finally(() => setAiCoachLoading(false));
+                        }}
+                        style={{ width: "100%", textAlign: "left", padding: "9px 12px", borderRadius: 8, border: "1.5px solid var(--mcc-border)", background: "var(--mcc-surface-2)", color: "var(--mcc-ink-700)", fontSize: "0.82rem", cursor: "pointer", lineHeight: 1.4, transition: "background 0.15s" }}
+                      >
+                        {q}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </article>
           </section>
         )}
@@ -3273,7 +3405,25 @@ export default function ManagerControlCenter({
               <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
                 <div className="ops-card-head">
                   <h3>Predictive Skill Gaps</h3>
-                  <span>{selectedVenue?.name ?? "All venues"}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontSize: "0.82rem", color: "var(--mcc-ink-500)" }}>{selectedVenue?.name ?? "All venues"}</span>
+                    {predictions.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const rows = [["Staff", "Role", "Gap", "Risk", "Reason", "Action"], ...predictions.map((p) => [p.staffName, p.role, p.gap, p.risk, p.reason, p.action])];
+                          const csv = rows.map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
+                          const blob = new Blob([csv], { type: "text/csv" });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement("a"); a.href = url; a.download = `training-plan-${selectedVenue?.name ?? "venue"}.csv`; a.click(); URL.revokeObjectURL(url);
+                        }}
+                        style={{ padding: "5px 12px", borderRadius: 8, border: "1.5px solid var(--mcc-border)", background: "var(--mcc-bg)", color: "var(--mcc-ink-700)", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Export training plan
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <p style={{ color: "var(--text-soft)", fontSize: ".95rem", marginBottom: 20 }}>
                   Identify training risks before they show up on the floor. Staff predicted to underperform in key areas are flagged below with recommended actions.
@@ -3501,7 +3651,7 @@ export default function ManagerControlCenter({
                               <button
                                 type="button"
                                 className="btn btn-secondary"
-                                onClick={() => handleDeleteVenue(venue.id, venue.name)}
+                                onClick={() => setVenueDeleteConfirm({ venueId: venue.id, venueName: venue.name })}
                                 disabled={isSaving}
                               >
                                 Delete
@@ -3582,6 +3732,16 @@ export default function ManagerControlCenter({
                 <p style={{ marginTop: "0.75rem", fontSize: "0.8rem", color: "var(--ops-text-soft, #9ca3af)" }}>
                   Once a staff member joins, their training progress will appear in real time in your staff directory.
                 </p>
+                <div style={{ marginTop: 16, padding: "12px 14px", borderRadius: 8, background: "var(--mcc-surface-2)", border: "1px solid var(--mcc-border)" }}>
+                  <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--mcc-ink-500)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>What your staff will see</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.8rem", color: "var(--mcc-ink-600)" }}>
+                    <span style={{ padding: "3px 10px", borderRadius: 6, background: "#f0fdf4", border: "1px solid #86efac", fontWeight: 600, color: "#15803d" }}>Settings</span>
+                    <span style={{ color: "var(--mcc-ink-400)" }}>→</span>
+                    <span style={{ padding: "3px 10px", borderRadius: 6, background: "#f0fdf4", border: "1px solid #86efac", fontWeight: 600, color: "#15803d" }}>Join Venue</span>
+                    <span style={{ color: "var(--mcc-ink-400)" }}>→ Enter code</span>
+                    <span style={{ fontFamily: "ui-monospace, monospace", fontWeight: 800, color: "#0B2B1E", background: "#e6f4ee", padding: "2px 8px", borderRadius: 4 }}>{selectedVenue?.venueCode}</span>
+                  </div>
+                </div>
               </article>
             )}
 
@@ -3796,7 +3956,34 @@ export default function ManagerControlCenter({
         </article>
       </aside>
 
-      {/* ── Delete confirmation modal ── */}
+      {/* ── Venue delete confirmation modal ── */}
+      {venueDeleteConfirm && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.45)" }} onClick={() => setVenueDeleteConfirm(null)}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: "white", borderRadius: 12, padding: "28px 32px", maxWidth: 420, width: "calc(100% - 48px)", boxShadow: "0 8px 32px rgba(0,0,0,0.2)" }}>
+            <h3 style={{ margin: "0 0 8px", fontSize: "1rem", fontWeight: 700, color: "#111827" }}>Delete venue?</h3>
+            <p style={{ margin: "0 0 8px", fontSize: "0.9rem", color: "#6b7280", lineHeight: 1.55 }}>
+              You are about to permanently delete <strong>{venueDeleteConfirm.venueName}</strong>.
+            </p>
+            <div style={{ padding: "10px 14px", borderRadius: 8, background: "#fef2f2", border: "1px solid #fca5a5", marginBottom: 20 }}>
+              <p style={{ margin: 0, fontSize: "0.82rem", color: "#b91c1c", fontWeight: 600 }}>This will remove all staff assignments and training data linked to this venue. This cannot be undone.</p>
+            </div>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <button type="button" onClick={() => setVenueDeleteConfirm(null)} style={{ padding: "9px 20px", borderRadius: 8, border: "1.5px solid #e5e7eb", background: "white", fontWeight: 600, fontSize: "0.875rem", cursor: "pointer", color: "#374151" }}>
+                No, keep it
+              </button>
+              <button
+                type="button"
+                onClick={() => { handleDeleteVenue(venueDeleteConfirm.venueId, venueDeleteConfirm.venueName); setVenueDeleteConfirm(null); }}
+                style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: "#dc2626", color: "white", fontWeight: 700, fontSize: "0.875rem", cursor: "pointer" }}
+              >
+                Yes, delete venue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Delete staff confirmation modal ── */}
       {deleteConfirm && (
         <div style={{
           position: "fixed", inset: 0, zIndex: 9999,
