@@ -246,10 +246,11 @@ export default function HowItWorksPage() {
               <div>
                 <p style={{ color: "#d1fae5", fontWeight: 700, fontSize: "0.8125rem", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "1rem" }}>Staff Mobile Console</p>
                 <Image
-                  src="/24 May Jpg's/Mobile View2.png"
+                  src="/shots/Mobile View2.png"
                   alt="Serve By Example staff mobile console — pre-shift brief and training dashboard"
                   width={390}
                   height={780}
+                  sizes="(max-width: 768px) 80vw, 320px"
                   style={{ width: "100%", maxWidth: "320px", height: "auto", display: "block", margin: "0 auto", clipPath: "inset(0 2px 2px 0)" }}
                 />
               </div>

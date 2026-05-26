@@ -159,10 +159,11 @@ export default function Home() {
                   </div>
                 </div>
                 <Image
-                  src="/24 May Jpg's/Management Console View.png"
+                  src="/shots/Management Console View.png"
                   alt="Serve By Example management console — venue performance mission control"
                   width={1200}
                   height={750}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
               </div>
@@ -177,10 +178,11 @@ export default function Home() {
                   </div>
                 </div>
                 <Image
-                  src="/24 May Jpg's/Staff Certifications.png"
+                  src="/shots/Staff Certifications.png"
                   alt="Staff certification and module mastery progress view"
                   width={1200}
                   height={630}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
               </div>
@@ -204,10 +206,11 @@ export default function Home() {
                   </div>
                 </div>
                 <Image
-                  src="/24 May Jpg's/Modules View.png"
+                  src="/shots/Modules View.png"
                   alt="Staff training modules view — full course library"
                   width={1400}
                   height={875}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
               </div>
@@ -222,10 +225,11 @@ export default function Home() {
                   </div>
                 </div>
                 <Image
-                  src="/24 May Jpg's/Mobile View3.png"
+                  src="/shots/Mobile View3.png"
                   alt="Mobile training view — hospitality staff learning on phone"
                   width={700}
                   height={1000}
+                  sizes="(max-width: 768px) 80vw, 300px"
                   style={{ width: "auto", maxWidth: "300px", height: "auto", display: "block", margin: "0 auto" }}
                 />
               </div>

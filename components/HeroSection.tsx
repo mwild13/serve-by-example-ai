@@ -123,11 +123,12 @@ export default function HeroSection() {
 
           <div className="hero-showcase">
             <Image
-              src="/24 May Jpg's/257shots_so.png"
+              src="/shots/257shots_so.png"
               alt="Serve By Example staff training dashboard"
               width={1400}
               height={875}
               priority
+              sizes="(max-width: 768px) calc(100vw - 48px), (max-width: 1280px) 90vw, 1080px"
               className="hero-showcase-img"
             />
           </div>
