@@ -34,6 +34,73 @@ const DEFAULT_ENABLED_MODULES = [
 const FALLBACK_SCENARIOS: ScenarioCategory[] = buildSeedManagementSnapshot().scenarioCategories;
 const FALLBACK_REPORTS = buildSeedManagementSnapshot().reportSummaries;
 
+function buildScenarioCategories(staff: StaffMember[]): ScenarioCategory[] {
+  const active = staff.filter((m) => m.serviceScore > 0 || m.salesScore > 0 || m.productScore > 0);
+  if (!active.length) return FALLBACK_SCENARIOS;
+
+  const serviceStaff = active.filter((m) => m.serviceScore > 0);
+  const salesStaff = active.filter((m) => m.salesScore > 0);
+  const productStaff = active.filter((m) => m.productScore > 0);
+
+  const avg = (arr: StaffMember[], key: keyof StaffMember) =>
+    arr.length ? Math.round(arr.reduce((s, m) => s + (m[key] as number), 0) / arr.length) : 0;
+
+  const worstBy = (arr: StaffMember[], key: keyof StaffMember) =>
+    arr.length ? [...arr].sort((a, b) => (a[key] as number) - (b[key] as number))[0] : null;
+
+  const worstService = worstBy(serviceStaff, "serviceScore");
+  const worstSales = worstBy(salesStaff, "salesScore");
+  const worstProduct = worstBy(productStaff, "productScore");
+
+  return [
+    {
+      name: "Customer Service",
+      attempts: serviceStaff.length,
+      avgScore: avg(serviceStaff, "serviceScore"),
+      failed: worstService && (worstService.serviceScore as number) < 60
+        ? `${worstService.name} – service recovery`
+        : "No flags",
+    },
+    {
+      name: "Sales",
+      attempts: salesStaff.length,
+      avgScore: avg(salesStaff, "salesScore"),
+      failed: worstSales && (worstSales.salesScore as number) < 60
+        ? `${worstSales.name} – upsell confidence`
+        : "No flags",
+    },
+    {
+      name: "Product Knowledge",
+      attempts: productStaff.length,
+      avgScore: avg(productStaff, "productScore"),
+      failed: worstProduct && (worstProduct.productScore as number) < 60
+        ? `${worstProduct.name} – menu retention`
+        : "No flags",
+    },
+  ];
+}
+
+function buildReportSummaries(staff: StaffMember[]): Array<{ title: string; summary: string }> {
+  if (!staff.length) return FALLBACK_REPORTS;
+
+  const onTrack = staff.filter((m) => m.status === "on-track").length;
+  const attention = staff.length - onTrack;
+  const avgCompletion = Math.round(staff.reduce((s, m) => s + m.progress, 0) / staff.length);
+  const avgSales = Math.round(staff.reduce((s, m) => s + m.salesScore, 0) / staff.length);
+  const top = [...staff].sort((a, b) => b.progress - a.progress)[0];
+
+  return [
+    {
+      title: "Weekly manager summary",
+      summary: `${onTrack} of ${staff.length} staff on track. Avg training completion: ${avgCompletion}%.${attention > 0 ? ` ${attention} staff need attention.` : ""}${top?.progress > 0 ? ` Top performer: ${top.name} (${top.progress}%).` : ""}`,
+    },
+    {
+      title: "Venue performance snapshot",
+      summary: `Training at ${avgCompletion}%. Upsell performance at ${avgSales}%.${attention > 0 ? ` ${attention} staff flagged for review.` : " All staff tracking well."}`,
+    },
+  ];
+}
+
 function isMissingRelation(error: PostgrestError | null) {
   return error?.code === "42P01";
 }
@@ -453,8 +520,8 @@ export async function getManagementSnapshot(
     trainingPrograms,
     inventory,
     menuKnowledge: inventory.length ? buildMenuKnowledge(inventory) : fallbackSnapshot.menuKnowledge,
-    scenarioCategories: FALLBACK_SCENARIOS,
-    reportSummaries: FALLBACK_REPORTS,
+    scenarioCategories: buildScenarioCategories(staff),
+    reportSummaries: buildReportSummaries(staff),
     enabledModules: DEFAULT_ENABLED_MODULES,
   };
 }

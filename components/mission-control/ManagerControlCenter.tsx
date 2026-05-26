@@ -231,15 +231,11 @@ function MgrRevenueChart({ trainingValue }: { trainingValue: number }) {
     const prog = i / (days.length - 1);
     return Math.max(0, Math.min(95, Math.round(trainingValue * (0.3 + prog * 0.7))));
   });
-  const revBase = [42, 48, 51, 49, 62, 78, 71, 45, 50, 53, 56, 65, 82, 76];
-  const scale = trainingValue > 0 ? (trainingValue / 50 + 0.5) : 1;
-  const rev = revBase.map(v => Math.min(95, Math.round(v * scale)));
   const w = 720, h = 220, pad = 36;
   const max = 100;
-  const stepX = (w - pad * 2) / (rev.length - 1);
+  const stepX = (w - pad * 2) / (days.length - 1);
   const yScale = (v: number) => h - pad - (v / max) * (h - pad * 2);
   const makePath = (arr: number[]) => arr.map((v, i) => `${i ? "L" : "M"}${pad + i * stepX},${yScale(v)}`).join(" ");
-  const area = `${makePath(rev)} L${pad + (rev.length - 1) * stepX},${h - pad} L${pad},${h - pad} Z`;
   if (trainingValue === 0) {
     return (
       <div style={{ padding: "40px 20px", textAlign: "center", color: "var(--mcc-ink-500)", fontSize: 13 }}>
@@ -256,11 +252,8 @@ function MgrRevenueChart({ trainingValue }: { trainingValue: number }) {
         {days.map((d, i) => (
           <text key={i} x={pad + i * stepX} y={h - 10} fontSize="9" fill="#8A938D" textAnchor="middle">{d}</text>
         ))}
-        <path d={area} fill="#1E5A3C" opacity="0.10" />
-        <path d={makePath(rev)} fill="none" stroke="#14492F" strokeWidth="2" strokeLinecap="round" />
-        {rev.map((v, i) => <circle key={i} cx={pad + i * stepX} cy={yScale(v)} r="2.5" fill="#14492F" />)}
-        <path d={makePath(trn)} fill="none" stroke="#B98220" strokeWidth="1.6" strokeDasharray="4 3" />
-        {trn.map((v, i) => <circle key={i} cx={pad + i * stepX} cy={yScale(v)} r="1.8" fill="#B98220" />)}
+        <path d={makePath(trn)} fill="none" stroke="#B98220" strokeWidth="2" strokeLinecap="round" />
+        {trn.map((v, i) => <circle key={i} cx={pad + i * stepX} cy={yScale(v)} r="2.5" fill="#B98220" />)}
       </svg>
     </div>
   );
@@ -311,8 +304,6 @@ export default function ManagerControlCenter({
   const [copiedVenueId, setCopiedVenueId] = useState<string | null>(null);
   const [renameVenueName, setRenameVenueName] = useState(initialSnapshot.venues[0]?.name ?? "");
   const [renameSaving, setRenameSaving] = useState(false);
-  const [testEmailStatus, setTestEmailStatus] = useState<"idle" | "loading" | "ok" | "fail">("idle");
-  const [testEmailResult, setTestEmailResult] = useState<{ message: string; smtpConfigured?: boolean; testLink?: string } | null>(null);
   const [openRosterSections, setOpenRosterSections] = useState<Set<string>>(new Set(["Bar Team"]));
 
   // ── Staff membership invite state ──
@@ -493,9 +484,12 @@ export default function ManagerControlCenter({
 
   const metrics = useMemo(() => {
     const totalStaff = venueStaff.length;
-    const activeThisWeek = venueStaff.filter(
-      (member) => member.lastActive !== "7 days ago" && member.lastActive !== "Not started",
-    ).length;
+    const activeThisWeek = venueStaff.filter((member) => {
+      if (member.lastActive === "Not started") return false;
+      const match = member.lastActive.match(/^(\d+) days? ago$/);
+      if (match) return parseInt(match[1], 10) < 7;
+      return true; // "Today" or "Yesterday"
+    }).length;
 
     if (!totalStaff) {
       return {
@@ -1528,9 +1522,8 @@ export default function ManagerControlCenter({
               <section className="mcc-primary-row">
                 <div className="mcc-card">
                   <div className="mcc-card-h">
-                    <h2>Revenue &amp; training, 14 days</h2>
+                    <h2>Training progression, 14 days</h2>
                     <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
-                      <span className="mcc-pill">$ Revenue</span>
                       <span className="mcc-pill">Training</span>
                       <span className="mcc-card-meta">{selectedVenue?.name}</span>
                     </div>
@@ -3744,53 +3737,6 @@ export default function ManagerControlCenter({
                 </div>
               </article>
             )}
-
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Email invites</h3>
-              </div>
-              <p className="ops-settings-hint">
-                Test whether invite emails are delivering to your staff. If they&apos;re not, use the invite link method when adding staff — links always generate regardless of email setup.
-              </p>
-              <div style={{ marginTop: 16 }}>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  disabled={testEmailStatus === "loading"}
-                  onClick={async () => {
-                    setTestEmailStatus("loading");
-                    setTestEmailResult(null);
-                    try {
-                      const res = await apiFetch("/api/management/test-invite-email", { method: "POST" });
-                      const data = await res.json() as { success?: boolean; smtpConfigured?: boolean; message?: string; testLink?: string; error?: string };
-                      setTestEmailStatus(data.success ? "ok" : "fail");
-                      setTestEmailResult({
-                        message: data.message ?? data.error ?? "Unknown result.",
-                        smtpConfigured: data.smtpConfigured,
-                        testLink: data.testLink,
-                      });
-                    } catch {
-                      setTestEmailStatus("fail");
-                      setTestEmailResult({ message: "Network error. Could not run test." });
-                    }
-                  }}
-                >
-                  {testEmailStatus === "loading" ? "Sending test…" : "Send test invite email"}
-                </button>
-              </div>
-              {testEmailResult && (
-                <div className={`ops-invite-link-panel${testEmailStatus === "ok" ? " ops-invite-link-panel--sent" : " ops-invite-link-panel--manual"}`} style={{ marginTop: 14 }}>
-                  <div className="ops-invite-link-header">
-                    {testEmailStatus === "ok" ? "Sent:" : "Failed:"} {testEmailResult.message}
-                  </div>
-                  {testEmailResult.smtpConfigured === false && (
-                    <p className="ops-invite-link-hint">
-                      To fix: go to <strong>Supabase Dashboard → Authentication → Emails</strong> and add custom SMTP credentials (e.g. SendGrid, Resend, Postmark). Until then, use the invite link method when adding staff.
-                    </p>
-                  )}
-                </div>
-              )}
-            </article>
 
             <article className="ops-card">
               <div className="ops-card-head">
