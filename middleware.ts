@@ -2,8 +2,48 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseMiddlewareClient } from "@/lib/supabase-server";
 import { shouldApplyGeoBlock } from "@/lib/geo-config";
 
+function buildCSP(nonce: string): string {
+  return [
+    // Deny everything not explicitly listed
+    "default-src 'none'",
+    // Scripts: only self + nonce-tagged scripts + scripts loaded by those (strict-dynamic) + Stripe
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://js.stripe.com`,
+    // Styles: unsafe-inline kept — Next.js injects critical CSS inline at render time
+    "style-src 'self' 'unsafe-inline'",
+    // Images: self + data URIs + blob (canvas) + any https (for /_next/image CDN)
+    "img-src 'self' data: blob: https:",
+    // Fonts: self-hosted via next/font — no external CDN needed
+    "font-src 'self'",
+    // Fetch/XHR/WebSocket: own API routes + Supabase + Stripe
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com",
+    // Iframes: Stripe payment elements only
+    "frame-src https://js.stripe.com https://*.stripe.com",
+    // Prevent this site being embedded in any iframe (clickjacking)
+    "frame-ancestors 'none'",
+    // Prevent base tag injection attacks
+    "base-uri 'self'",
+    // Prevent form submissions to external URLs
+    "form-action 'self'",
+    // Web app manifest
+    "manifest-src 'self'",
+  ].join("; ");
+}
+
 export async function middleware(request: NextRequest) {
-  const response = NextResponse.next({ request });
+  // Generate a unique nonce per request — replaces unsafe-inline in script-src
+  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+  const csp = buildCSP(nonce);
+
+  // Forward nonce to the layout via request headers so Next.js can apply it
+  // to its own generated hydration <script> tags
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-nonce", nonce);
+
+  const response = NextResponse.next({
+    request: { headers: requestHeaders },
+  });
+  response.headers.set("Content-Security-Policy", csp);
+
   const path = request.nextUrl.pathname;
 
   // ── Geo-blocking check (before auth) ────────
@@ -82,11 +122,11 @@ export async function middleware(request: NextRequest) {
       const storedSessionId = profile?.current_session_id;
 
       // If there's a stored session and it doesn't match, redirect to conflict page
-          // Log session conflicts for security monitoring
-          if (storedSessionId && storedSessionId !== browserSessionId) {
-            console.warn(
-              `Session conflict: user=${user?.id}, stored_session=${storedSessionId?.substring(0, 8)}..., browser_session=${browserSessionId?.substring(0, 8)}...`
-            );
+      // Log session conflicts for security monitoring
+      if (storedSessionId && storedSessionId !== browserSessionId) {
+        console.warn(
+          `Session conflict: user=${user?.id}, stored_session=${storedSessionId?.substring(0, 8)}..., browser_session=${browserSessionId?.substring(0, 8)}...`
+        );
         const conflictUrl = request.nextUrl.clone();
         conflictUrl.pathname = "/session-conflict";
         conflictUrl.searchParams.set("returnTo", path);

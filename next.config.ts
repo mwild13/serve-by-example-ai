@@ -2,6 +2,9 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });
 
+// CSP is set per-request by middleware.ts (nonce-based) — not here.
+// These headers apply to all routes via next.config, covering anything
+// middleware doesn't touch (e.g. static assets served by Next.js directly).
 const securityHeaders = [
   // Prevent browsers guessing content types — stops MIME-sniffing attacks
   {
@@ -22,25 +25,6 @@ const securityHeaders = [
   {
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=()",
-  },
-  // Content Security Policy
-  // - unsafe-inline required for Next.js hydration scripts and injected styles
-  // - Stripe needs js.stripe.com for script + frames
-  // - Supabase needs *.supabase.co for auth and DB calls
-  {
-    key: "Content-Security-Policy",
-    value: [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https:",
-      "font-src 'self'",
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com",
-      "frame-src https://js.stripe.com https://*.stripe.com",
-      "frame-ancestors 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-    ].join("; "),
   },
 ];
 
