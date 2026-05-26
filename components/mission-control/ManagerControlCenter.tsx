@@ -3441,18 +3441,18 @@ export default function ManagerControlCenter({
                       <strong style={{ fontSize: "1.8rem", color: "#2563eb" }}>{masteryStats.inProgress}</strong>
                       <small>actively training</small>
                     </div>
-                    <div className="ops-kpi-card" style={{ background: masteryStats.atRisk > 0 ? "#fef2f2" : "var(--surface)", borderColor: masteryStats.atRisk > 0 ? "#fca5a5" : "var(--line)" }}>
+                    <div className="ops-kpi-card" style={{ background: "var(--surface)", borderColor: "var(--line)" }}>
                       <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>At Risk (Decay)</span>
-                      <strong style={{ fontSize: "1.8rem", color: masteryStats.atRisk > 0 ? "#dc2626" : "var(--green)" }}>{masteryStats.atRisk}</strong>
+                      <strong style={{ fontSize: "1.8rem", color: "var(--text)" }}>{masteryStats.atRisk}</strong>
                       <small>overdue reviews</small>
                     </div>
                   </div>
                 )}
 
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 24 }}>
-                  <div className="ops-kpi-card" style={{ background: predictions.length > 0 ? "#fef2f2" : "var(--surface)", borderColor: predictions.length > 0 ? "#fca5a5" : "var(--line)" }}>
+                  <div className="ops-kpi-card" style={{ background: "var(--surface)", borderColor: "var(--line)" }}>
                     <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>Total flags</span>
-                    <strong style={{ fontSize: "1.8rem", color: predictions.length > 0 ? "#dc2626" : "var(--green)" }}>{predictions.length}</strong>
+                    <strong style={{ fontSize: "1.8rem", color: "var(--text)" }}>{predictions.length}</strong>
                     <small>{predictions.length === 0 ? "All staff on track" : `${highRisk.length} high priority`}</small>
                   </div>
                   <div className="ops-kpi-card">
@@ -3487,31 +3487,31 @@ export default function ManagerControlCenter({
                             const hasHigh = staffFlags.some((p) => p.risk === "high");
                             return (
                               <div key={name} style={{
-                                border: `1.5px solid ${hasHigh ? "#fca5a5" : "#fcd34d"}`,
-                                borderLeft: `4px solid ${hasHigh ? "#dc2626" : "#f59e0b"}`,
+                                border: "1.5px solid var(--line)",
+                                borderLeft: "4px solid var(--line)",
                                 borderRadius: 10,
                                 overflow: "hidden",
-                                background: hasHigh ? "#fef2f2" : "#fffbeb",
+                                background: "var(--surface)",
                               }}>
                                 {/* Staff header */}
-                                <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderBottom: `1px solid ${hasHigh ? "#fca5a5" : "#fcd34d"}` }}>
-                                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: hasHigh ? "#fca5a5" : "#fde68a", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "0.875rem", color: hasHigh ? "#7f1d1d" : "#78350f", flexShrink: 0 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderBottom: "1px solid var(--line-light)" }}>
+                                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: "var(--green-light)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "0.875rem", color: "var(--green-deep)", flexShrink: 0 }}>
                                     {name[0].toUpperCase()}
                                   </div>
                                   <div>
                                     <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "var(--mcc-ink-900)" }}>{name}</div>
                                     <div style={{ fontSize: "0.72rem", color: "var(--mcc-ink-500)" }}>{staffMember?.role ?? "Staff"} · {staffFlags.length} flag{staffFlags.length !== 1 ? "s" : ""}</div>
                                   </div>
-                                  <span style={{ marginLeft: "auto", padding: "2px 10px", borderRadius: 999, fontSize: "0.72rem", fontWeight: 700, background: hasHigh ? "#fca5a5" : "#fef3c7", color: hasHigh ? "#7f1d1d" : "#78350f" }}>
+                                  <span style={{ marginLeft: "auto", padding: "2px 10px", borderRadius: 999, fontSize: "0.72rem", fontWeight: 700, background: "var(--bg-alt)", color: "var(--text-soft)", border: "1px solid var(--line)" }}>
                                     {hasHigh ? "High priority" : "Watch"}
                                   </span>
                                 </div>
                                 {/* Individual flags */}
                                 <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
                                   {staffFlags.map((p, fi) => (
-                                    <div key={p.id} style={{ padding: "10px 16px", borderBottom: fi < staffFlags.length - 1 ? `1px dashed ${hasHigh ? "#fca5a5" : "#fde68a"}` : "none" }}>
+                                    <div key={p.id} style={{ padding: "10px 16px", borderBottom: fi < staffFlags.length - 1 ? "1px solid var(--line-light)" : "none" }}>
                                       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
-                                        <span style={{ fontWeight: 700, fontSize: "0.8rem", color: p.risk === "high" ? "#dc2626" : "#92400e" }}>{p.gap}</span>
+                                        <span style={{ fontWeight: 700, fontSize: "0.8rem", color: "var(--text)" }}>{p.gap}</span>
                                       </div>
                                       <div style={{ fontSize: "0.8rem", color: "var(--text-soft)", marginBottom: 6 }}>{p.reason}</div>
                                       <button
@@ -3536,7 +3536,7 @@ export default function ManagerControlCenter({
                         {topGaps.map(([gap, count]) => (
                           <div key={gap} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px solid var(--line)" }}>
                             <span style={{ fontSize: ".9rem" }}>{gap}</span>
-                            <span style={{ fontWeight: 700, color: count >= 3 ? "#dc2626" : "var(--text)" }}>{count} staff affected</span>
+                            <span style={{ fontWeight: 700, color: "var(--text)" }}>{count} staff affected</span>
                           </div>
                         ))}
                         <p style={{ marginTop: 10, fontSize: ".82rem", color: "var(--text-soft)" }}>Patterns across multiple staff suggest a systemic gap — consider creating venue-wide training content for these areas.</p>
