@@ -2293,9 +2293,9 @@ export default function ManagerControlCenter({
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 8, marginBottom: 16 }}>
                   {roleStats.map((row) => {
                     const readiness = row.avgProgress ?? 0;
-                    const color = readiness >= 70 ? "#16a34a" : readiness >= 40 ? "#f59e0b" : "#dc2626";
-                    const bg = readiness >= 70 ? "#f0fdf4" : readiness >= 40 ? "#fff7ed" : "#fef2f2";
-                    const border = readiness >= 70 ? "#86efac" : readiness >= 40 ? "#fed7aa" : "#fca5a5";
+                    const color = readiness >= 70 ? "#16a34a" : readiness >= 40 ? "#f59e0b" : "var(--text)";
+                    const bg = readiness >= 70 ? "#f0fdf4" : readiness >= 40 ? "#fff7ed" : "var(--surface)";
+                    const border = readiness >= 70 ? "#86efac" : readiness >= 40 ? "#fed7aa" : "var(--line)";
                     return (
                       <div key={row.role} style={{ padding: "10px 12px", borderRadius: 8, background: bg, border: `1.5px solid ${border}` }}>
                         <div style={{ fontSize: "0.72rem", fontWeight: 600, color: "var(--mcc-ink-600)", marginBottom: 4 }}>{row.role}</div>
