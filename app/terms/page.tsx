@@ -116,8 +116,9 @@ export default function TermsPage() {
               <h2>7. AI-Generated Content and Physical Safety Disclaimer</h2>
               <p>
                 <strong>Educational Purpose Only</strong> — AI output is provided for educational
-                and training purposes only. It does not constitute professional business, legal, or
-                OHS/WHS advice.
+                and training purposes only. It does not constitute professional business, legal,
+                financial, HR, or OHS/WHS advice. Users are responsible for verifying AI-generated
+                outputs before acting on them in any professional or operational context.
               </p>
               <p>
                 <strong>No Replacement for Physical Supervision</strong> — The Service is a

@@ -41,6 +41,10 @@ const aiPrinciples = [
     title: "Isolation between venues",
     desc: "Each venue account is fully separated. Staff from one venue cannot view the data, training results, or settings of any other venue, even within the same group.",
   },
+  {
+    title: "AI outputs are for training only",
+    desc: "AI-generated feedback, coaching responses, and scenario evaluations are educational tools only. They do not constitute professional business, legal, financial, HR, or OHS/WHS advice. Users are responsible for verifying outputs before acting on them in any operational context.",
+  },
 ];
 
 export default function SecurityPage() {
