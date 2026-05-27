@@ -12973,6 +12973,66 @@ body {
   font-weight: 600;
 }
 
+/* ── Solution page metrics strip (slim horizontal inline row) ── */
+.trust-section-green.metrics-strip {
+  padding-top: 36px;
+  padding-bottom: 36px;
+}
+
+.metrics-strip-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 0;
+}
+
+.metrics-strip-item {
+  flex: 1;
+  text-align: center;
+  padding: 8px 28px;
+  position: relative;
+}
+
+.metrics-strip-item:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 44px;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.metrics-strip-value {
+  font-family: var(--font-heading);
+  font-size: clamp(1.9rem, 3.5vw, 2.6rem);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.05;
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.metrics-strip-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.metrics-strip-disclaimer {
+  text-align: center;
+  margin-top: 18px;
+  color: rgba(255, 255, 255, 0.38);
+  font-size: 0.72rem;
+  letter-spacing: 0.01em;
+  line-height: 1.5;
+}
+
 /* ── Gold highlight for key phrases in green panels ── */
 .step-highlight {
   font-style: normal;
@@ -13815,6 +13875,21 @@ body {
   /* Stat cards tighten up */
   .stat-card-green {
     padding: 20px 16px;
+  }
+
+  /* Metrics strip: stack vertically on mobile */
+  .metrics-strip-row {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .metrics-strip-item {
+    width: 100%;
+    padding: 8px 20px;
+  }
+
+  .metrics-strip-item:not(:last-child)::after {
+    display: none;
   }
 
   /* ROI section padding */

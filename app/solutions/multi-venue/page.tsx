@@ -82,23 +82,24 @@ export default function MultiVenuePage() {
           </div>
         </section>
 
-        {/* ── Stats ── */}
-        <section className="section trust-section trust-section-green">
+        {/* ── Metrics strip ── */}
+        <section className="section trust-section trust-section-green metrics-strip">
           <div className="container">
-            <div className="stats-grid">
-              <div className="stat-card stat-card-green">
-                <div className="stat-value stat-value-green">5 venues</div>
-                <div className="stat-label stat-label-green">managed from a single console on our Multi-Venue plan</div>
+            <div className="metrics-strip-row">
+              <div className="metrics-strip-item">
+                <div className="metrics-strip-value">5 venues</div>
+                <div className="metrics-strip-label">managed from a single console on our Multi-Venue plan</div>
               </div>
-              <div className="stat-card stat-card-green">
-                <div className="stat-value stat-value-green">125</div>
-                <div className="stat-label stat-label-green">staff supported across all venues on the top tier</div>
+              <div className="metrics-strip-item">
+                <div className="metrics-strip-value">125</div>
+                <div className="metrics-strip-label">staff supported across all venues on the top tier</div>
               </div>
-              <div className="stat-card stat-card-green">
-                <div className="stat-value stat-value-green">1 view</div>
-                <div className="stat-label stat-label-green">group health score across every venue, instantly</div>
+              <div className="metrics-strip-item">
+                <div className="metrics-strip-value">1 view</div>
+                <div className="metrics-strip-label">group health score across every venue, instantly</div>
               </div>
             </div>
+            <p className="metrics-strip-disclaimer">*Based on centralized hospitality analytics modeling and group training industry averages.</p>
           </div>
         </section>
 

@@ -76,23 +76,24 @@ export default function PubGroupsPage() {
           </div>
         </section>
 
-        {/* ── Stats ── */}
-        <section className="section trust-section trust-section-green">
+        {/* ── Metrics strip ── */}
+        <section className="section trust-section trust-section-green metrics-strip">
           <div className="container">
-            <div className="stats-grid">
-              <div className="stat-card stat-card-green">
-                <div className="stat-value stat-value-green">70%</div>
-                <div className="stat-label stat-label-green">reduction in average onboarding time</div>
+            <div className="metrics-strip-row">
+              <div className="metrics-strip-item">
+                <div className="metrics-strip-value">70%</div>
+                <div className="metrics-strip-label">reduction in average onboarding time</div>
               </div>
-              <div className="stat-card stat-card-green">
-                <div className="stat-value stat-value-green">6 wks</div>
-                <div className="stat-label stat-label-green">to floor-ready from day one</div>
+              <div className="metrics-strip-item">
+                <div className="metrics-strip-value">6 wks</div>
+                <div className="metrics-strip-label">to floor-ready from day one</div>
               </div>
-              <div className="stat-card stat-card-green">
-                <div className="stat-value stat-value-green">1 console</div>
-                <div className="stat-label stat-label-green">to manage every site and every staff member</div>
+              <div className="metrics-strip-item">
+                <div className="metrics-strip-value">1 console</div>
+                <div className="metrics-strip-label">to manage every site and every staff member</div>
               </div>
             </div>
+            <p className="metrics-strip-disclaimer">*Based on hospitality group onboarding models and multi-venue industry averages.</p>
           </div>
         </section>
 

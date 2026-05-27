@@ -79,23 +79,24 @@ export default function FranchiseSystemsPage() {
           </div>
         </section>
 
-        {/* ── Stats ── */}
-        <section className="section trust-section trust-section-green">
+        {/* ── Metrics strip ── */}
+        <section className="section trust-section trust-section-green metrics-strip">
           <div className="container">
-            <div className="stats-grid">
-              <div className="stat-card stat-card-green">
-                <div className="stat-value stat-value-green">200+</div>
-                <div className="stat-label stat-label-green">staff onboarded across 12 locations in under 30 days</div>
+            <div className="metrics-strip-row">
+              <div className="metrics-strip-item">
+                <div className="metrics-strip-value">200+</div>
+                <div className="metrics-strip-label">staff onboarded across 12 locations in under 30 days</div>
               </div>
-              <div className="stat-card stat-card-green">
-                <div className="stat-value stat-value-green">0</div>
-                <div className="stat-label stat-label-green">head-office visits required to enforce training compliance</div>
+              <div className="metrics-strip-item">
+                <div className="metrics-strip-value">0</div>
+                <div className="metrics-strip-label">head-office visits required to enforce training compliance</div>
               </div>
-              <div className="stat-card stat-card-green">
-                <div className="stat-value stat-value-green">90%</div>
-                <div className="stat-label stat-label-green">of training completed on mobile — no desktop required</div>
+              <div className="metrics-strip-item">
+                <div className="metrics-strip-value">90%</div>
+                <div className="metrics-strip-label">of training completed on mobile, no desktop required</div>
               </div>
             </div>
+            <p className="metrics-strip-disclaimer">*Based on franchise system labor modeling and high-turnover onboarding optimization data.</p>
           </div>
         </section>
 

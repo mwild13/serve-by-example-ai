@@ -82,23 +82,24 @@ export default function HotelFBPage() {
           </div>
         </section>
 
-        {/* ── Stats ── */}
-        <section className="section trust-section trust-section-green">
+        {/* ── Metrics strip ── */}
+        <section className="section trust-section trust-section-green metrics-strip">
           <div className="container">
-            <div className="stats-grid">
-              <div className="stat-card stat-card-green">
-                <div className="stat-value stat-value-green">40%</div>
-                <div className="stat-label stat-label-green">reduction in onboarding time for seasonal intake</div>
+            <div className="metrics-strip-row">
+              <div className="metrics-strip-item">
+                <div className="metrics-strip-value">40%</div>
+                <div className="metrics-strip-label">reduction in onboarding time for seasonal intake</div>
               </div>
-              <div className="stat-card stat-card-green">
-                <div className="stat-value stat-value-green">19</div>
-                <div className="stat-label stat-label-green">languages supported for diverse hotel teams</div>
+              <div className="metrics-strip-item">
+                <div className="metrics-strip-value">19</div>
+                <div className="metrics-strip-label">languages supported for diverse hotel teams</div>
               </div>
-              <div className="stat-card stat-card-green">
-                <div className="stat-value stat-value-green">24/7</div>
-                <div className="stat-label stat-label-green">Live coaching available across all shifts</div>
+              <div className="metrics-strip-item">
+                <div className="metrics-strip-value">24/7</div>
+                <div className="metrics-strip-label">live coaching available across all shifts</div>
               </div>
             </div>
+            <p className="metrics-strip-disclaimer">*Based on international hotel F&amp;B operating models and compliance training averages.</p>
           </div>
         </section>
 

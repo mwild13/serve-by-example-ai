@@ -77,23 +77,24 @@ export default function FineDiningPage() {
           </div>
         </section>
 
-        {/* ── Stats ── */}
-        <section className="section trust-section trust-section-green">
+        {/* ── Metrics strip ── */}
+        <section className="section trust-section trust-section-green metrics-strip">
           <div className="container">
-            <div className="stats-grid">
-              <div className="stat-card stat-card-green">
-                <div className="stat-value stat-value-green">22%</div>
-                <div className="stat-label stat-label-green">average upsell revenue lift within 8 weeks</div>
+            <div className="metrics-strip-row">
+              <div className="metrics-strip-item">
+                <div className="metrics-strip-value">22%</div>
+                <div className="metrics-strip-label">average upsell revenue lift within 8 weeks</div>
               </div>
-              <div className="stat-card stat-card-green">
-                <div className="stat-value stat-value-green">65+</div>
-                <div className="stat-label stat-label-green">bartending and service scenarios to practise</div>
+              <div className="metrics-strip-item">
+                <div className="metrics-strip-value">65+</div>
+                <div className="metrics-strip-label">bartending and service scenarios to practise</div>
               </div>
-              <div className="stat-card stat-card-green">
-                <div className="stat-value stat-value-green">5 dims</div>
-                <div className="stat-label stat-label-green">every response evaluated across 5 service dimensions</div>
+              <div className="metrics-strip-item">
+                <div className="metrics-strip-value">5 dims</div>
+                <div className="metrics-strip-label">every response evaluated across 5 service dimensions</div>
               </div>
             </div>
+            <p className="metrics-strip-disclaimer">*Based on premium venue recipe specification audits and cocktail sales velocity averages.</p>
           </div>
         </section>
 
