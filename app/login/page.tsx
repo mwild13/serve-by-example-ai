@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
 type AuthMode = "sign-in" | "sign-up" | "forgot-password";
+type Portal = "staff" | "management";
 
 const CheckIcon = () => (
   <svg
@@ -53,22 +54,36 @@ const BrandMark = () => (
   </div>
 );
 
-const LoginTypeSwitcher = () => (
+const LoginTypeSwitcher = ({
+  portal,
+  onSwitch,
+}: {
+  portal: Portal;
+  onSwitch: (p: Portal) => void;
+}) => (
   <div className="login-type-switcher">
-    <span className="login-type-tab login-type-tab--active">
+    <button
+      type="button"
+      className={`login-type-tab ${portal === "staff" ? "login-type-tab--active" : ""}`}
+      onClick={() => onSwitch("staff")}
+    >
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
         <circle cx="12" cy="7" r="4"/>
       </svg>
       Staff Login
-    </span>
-    <Link href="/management/login" className="login-type-tab">
+    </button>
+    <button
+      type="button"
+      className={`login-type-tab ${portal === "management" ? "login-type-tab--active" : ""}`}
+      onClick={() => onSwitch("management")}
+    >
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <rect x="2" y="7" width="20" height="14" rx="2"/>
         <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
       </svg>
       Management Login
-    </Link>
+    </button>
   </div>
 );
 
@@ -111,6 +126,8 @@ function LoginPageContent() {
   const searchParams = useSearchParams();
   const checkoutSuccess = searchParams.get("checkout") === "success";
   const oauthError = searchParams.get("error") === "oauth-error";
+
+  const [portal, setPortal] = useState<Portal>("staff");
   const [mode, setMode] = useState<AuthMode>(checkoutSuccess ? "sign-up" : "sign-in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -123,6 +140,19 @@ function LoginPageContent() {
 
   const isSignUp = mode === "sign-up";
   const isForgotPassword = mode === "forgot-password";
+
+  function switchPortal(nextPortal: Portal) {
+    setPortal(nextPortal);
+    setMode("sign-in");
+    setError("");
+    setSuccess("");
+  }
+
+  function switchMode(nextMode: AuthMode) {
+    setMode(nextMode);
+    setError("");
+    setSuccess("");
+  }
 
   async function handleGoogleSignIn() {
     setGoogleLoading(true);
@@ -160,7 +190,29 @@ function LoginPageContent() {
     }
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleManagementSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setLoading(true);
+    setError("");
+    setSuccess("");
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInError) throw signInError;
+      router.push("/management/dashboard");
+      router.refresh();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Unable to sign in to the management portal right now."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleStaffSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
     setError("");
@@ -256,19 +308,14 @@ function LoginPageContent() {
     }
   }
 
-  function switchMode(nextMode: AuthMode) {
-    setMode(nextMode);
-    setError("");
-    setSuccess("");
-  }
-
+  // ── Forgot password (shared between portals) ──
   if (isForgotPassword) {
     return (
       <div className="login-split">
         <div className="login-split-left">
           <div className="login-card">
             <BrandMark />
-            <LoginTypeSwitcher />
+            <LoginTypeSwitcher portal={portal} onSwitch={switchPortal} />
             <div className="eyebrow">Account recovery</div>
             <h1>Reset your password</h1>
             <p className="login-sub">
@@ -312,13 +359,84 @@ function LoginPageContent() {
     );
   }
 
+  // ── Management portal ──
+  if (portal === "management") {
+    return (
+      <div className="login-split">
+        <div className="login-split-left">
+          <div className="login-card">
+            <BrandMark />
+            <LoginTypeSwitcher portal={portal} onSwitch={switchPortal} />
+            <div className="eyebrow">Manager portal</div>
+            <h1>Manager Mission Control</h1>
+            <p className="login-sub">
+              Sign in to access your team&apos;s training data, performance analytics, and venue management tools.
+            </p>
+            <form className="form-grid" onSubmit={handleManagementSubmit} style={{ marginTop: 24 }}>
+              <label className="label" htmlFor="mgmt-email">
+                Email address
+                <input
+                  id="mgmt-email"
+                  className="input"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="manager@yourvenue.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </label>
+              <label className="label" htmlFor="mgmt-password">
+                Password
+                <input
+                  id="mgmt-password"
+                  className="input"
+                  type="password"
+                  autoComplete="current-password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </label>
+              <div className="auth-forgot">
+                <button
+                  type="button"
+                  className="auth-link-btn"
+                  onClick={() => switchMode("forgot-password")}
+                >
+                  Forgot your password?
+                </button>
+              </div>
+              {error ? <div className="auth-status auth-status-error">{error}</div> : null}
+              {success ? <div className="auth-status auth-status-success">{success}</div> : null}
+              <div className="auth-actions">
+                <button className="btn btn-primary btn-block" type="submit" disabled={loading}>
+                  {loading ? "Signing in..." : "Enter Manager Portal"}
+                </button>
+                <p className="auth-help">
+                  Need manager access?{" "}
+                  <Link href="/contact" className="auth-link-btn">
+                    Request venue onboarding
+                  </Link>
+                  .
+                </p>
+              </div>
+            </form>
+          </div>
+        </div>
+        <RightPanel />
+      </div>
+    );
+  }
+
+  // ── Staff portal (sign-in / sign-up) ──
   return (
     <div className="login-split">
-      {/* ── Left: form panel ── */}
       <div className="login-split-left">
         <div className="login-card">
           <BrandMark />
-          <LoginTypeSwitcher />
+          <LoginTypeSwitcher portal={portal} onSwitch={switchPortal} />
 
           {checkoutSuccess && (
             <div className="auth-status auth-status-success" style={{ marginBottom: 16 }}>
@@ -365,7 +483,7 @@ function LoginPageContent() {
 
           <div className="login-divider">or continue with email</div>
 
-          <form className="form-grid" onSubmit={handleSubmit}>
+          <form className="form-grid" onSubmit={handleStaffSubmit}>
             <label className="label" htmlFor="email">
               Email address
               <input
@@ -426,7 +544,6 @@ function LoginPageContent() {
         </div>
       </div>
 
-      {/* ── Right: visual panel ── */}
       <RightPanel />
     </div>
   );
