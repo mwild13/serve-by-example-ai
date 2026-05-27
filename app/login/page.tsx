@@ -166,6 +166,22 @@ function LoginPageContent() {
     }
   }
 
+  async function handleManagementGoogleSignIn() {
+    setGoogleLoading(true);
+    setError("");
+    const supabase = createSupabaseBrowserClient();
+    const { error: oauthErr } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?next=/management/dashboard`,
+      },
+    });
+    if (oauthErr) {
+      setError(oauthErr.message);
+      setGoogleLoading(false);
+    }
+  }
+
   async function handleManagementSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
@@ -314,12 +330,20 @@ function LoginPageContent() {
           ) : portal === "management" ? (
             /* ── Management portal ── */
             <>
-              <div className="eyebrow">Manager portal</div>
-              <h1>Manager Mission Control</h1>
-              <p className="login-sub">
-                Sign in to access your team&apos;s training data, performance analytics, and venue management tools.
-              </p>
-              <form className="form-grid" onSubmit={handleManagementSubmit} style={{ marginTop: 24 }}>
+              <h1>Welcome back.</h1>
+              <p className="login-sub">Sign in to your management console.</p>
+              <button
+                className="login-google-btn"
+                type="button"
+                onClick={handleManagementGoogleSignIn}
+                disabled={googleLoading || loading}
+                style={{ marginTop: 20 }}
+              >
+                <GoogleIcon />
+                {googleLoading ? "Redirecting..." : "Continue with Google"}
+              </button>
+              <div className="login-divider">or continue with email</div>
+              <form className="form-grid" onSubmit={handleManagementSubmit}>
                 <label className="label" htmlFor="mgmt-email">
                   Email address
                   <input

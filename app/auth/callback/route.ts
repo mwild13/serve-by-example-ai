@@ -28,7 +28,10 @@ export async function GET(request: NextRequest) {
         });
       }
 
-      return NextResponse.redirect(`${origin}/dashboard`);
+      // Support ?next= for portal-specific redirects (e.g. management Google sign-in)
+      const next = searchParams.get("next") ?? "/dashboard";
+      const safePath = next.startsWith("/") ? next : "/dashboard";
+      return NextResponse.redirect(`${origin}${safePath}`);
     }
   }
 
