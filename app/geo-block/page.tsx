@@ -1,47 +1,72 @@
-import Link from 'next/link';
+import Image from "next/image";
+import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Australia Only — For Now | Serve By Example",
+  description:
+    "Serve By Example is currently available to hospitality venues and staff in Australia. Expanding to additional regions soon.",
+  robots: { index: false, follow: false },
+};
 
 export default function GeoBlockPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 px-4">
-      <div className="max-w-md text-center">
-        {/* Logo placeholder */}
-        <div className="mb-8 flex justify-center">
-          <div className="w-16 h-16 bg-emerald-500 rounded-lg flex items-center justify-center">
-            <span className="text-white text-2xl font-bold">SBE</span>
-          </div>
+    <div className="geo-block-shell">
+      <div className="geo-block-card">
+
+        {/* Logo */}
+        <div className="geo-block-logo">
+          <Image
+            src="/logo.png"
+            alt="Serve By Example"
+            width={56}
+            height={56}
+            priority
+          />
+          <span className="geo-block-brand-name">Serve By Example</span>
         </div>
 
+        {/* Globe icon */}
+        <div className="geo-block-icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M2 12h20"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+        </div>
+
+        {/* Eyebrow */}
+        <span className="geo-block-eyebrow">Availability</span>
+
         {/* Heading */}
-        <h1 className="text-3xl font-bold text-white mb-4">
-          Expanding to Australia First
+        <h1 className="geo-block-heading">
+          Australia Only —{" "}
+          <span>For Now.</span>
         </h1>
 
-        {/* Message */}
-        <p className="text-slate-300 text-lg mb-8 leading-relaxed">
-          Serve By Example is currently available to hospitality professionals in Australia. We&apos;re building our platform with the Australian market first and will announce availability in other regions soon.
+        <div className="geo-block-divider" />
+
+        {/* Body */}
+        <p className="geo-block-body">
+          Serve By Example is built for the Australian hospitality industry —
+          WHS compliance, RSA certification, and the licensing environment
+          that venues here operate under.
         </p>
 
-        {/* Optional CTA */}
-        <p className="text-slate-400 text-sm mb-8">
-          Thank you for your interest. We look forward to serving the hospitality community globally.
+        <p className="geo-block-note">
+          We&rsquo;re working to expand into additional regions and will
+          announce availability as we grow. Thank you for your interest.
         </p>
 
         {/* Footer links */}
-        <div className="flex gap-4 justify-center text-sm">
-          <Link
-            href="/privacy"
-            className="text-emerald-400 hover:text-emerald-300 transition-colors"
-          >
-            Privacy Policy
-          </Link>
-          <span className="text-slate-500">•</span>
-          <Link
-            href="/terms"
-            className="text-emerald-400 hover:text-emerald-300 transition-colors"
-          >
-            Terms
-          </Link>
+        <div className="geo-block-footer">
+          <Link href="/privacy">Privacy Policy</Link>
+          <span className="geo-block-footer-dot" aria-hidden="true">&#9679;</span>
+          <Link href="/terms">Terms of Service</Link>
+          <span className="geo-block-footer-dot" aria-hidden="true">&#9679;</span>
+          <Link href="/contact">Contact</Link>
         </div>
+
       </div>
     </div>
   );

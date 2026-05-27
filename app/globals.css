@@ -15324,3 +15324,150 @@ h1, h2, h3 {
     width: 100% !important;
   }
 }
+
+/* ── Geo-block page ──────────────────────────────────── */
+.geo-block-shell {
+  min-height: 100svh;
+  background: var(--green-deep);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle radial glow behind the card */
+.geo-block-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(196, 154, 47, 0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.geo-block-card {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  text-align: center;
+  z-index: 1;
+}
+
+/* Logo */
+.geo-block-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 48px;
+}
+
+.geo-block-logo img {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+}
+
+.geo-block-brand-name {
+  font-family: var(--font-fraunces);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-warm);
+}
+
+/* Globe icon wrapper */
+.geo-block-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 32px;
+  border-radius: 50%;
+  background: rgba(196, 154, 47, 0.1);
+  border: 1.5px solid rgba(196, 154, 47, 0.25);
+  color: var(--gold-warm);
+}
+
+/* Divider */
+.geo-block-divider {
+  width: 40px;
+  height: 2px;
+  background: var(--gold-warm);
+  opacity: 0.35;
+  margin: 28px auto;
+  border-radius: 2px;
+}
+
+/* Eyebrow */
+.geo-block-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-warm);
+  margin-bottom: 16px;
+  display: block;
+}
+
+/* Heading */
+.geo-block-heading {
+  font-family: var(--font-fraunces);
+  font-size: clamp(2.2rem, 6vw, 3.2rem);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 20px;
+}
+
+.geo-block-heading span {
+  color: var(--gold-warm);
+}
+
+/* Body text */
+.geo-block-body {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.65);
+  max-width: 440px;
+  margin: 0 auto 12px;
+}
+
+.geo-block-note {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.38);
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+/* Footer links */
+.geo-block-footer {
+  margin-top: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.82rem;
+}
+
+.geo-block-footer a {
+  color: rgba(255, 255, 255, 0.4);
+  text-decoration: none;
+  transition: color 0.18s;
+}
+
+.geo-block-footer a:hover {
+  color: var(--gold-warm);
+}
+
+.geo-block-footer-dot {
+  color: rgba(255, 255, 255, 0.18);
+  font-size: 0.6rem;
+}
+/* ─────────────────────────────────────────────────────── */
