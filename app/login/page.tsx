@@ -48,13 +48,27 @@ const GoogleIcon = () => (
 
 const BrandMark = () => (
   <div className="login-brand">
-    <div className="login-brand-mark">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
-        <path d="M8 12l3 3 5-5"/>
-      </svg>
-    </div>
+    <Image src="/logo.png" alt="Serve By Example" width={36} height={36} className="login-brand-mark" />
     <span className="login-brand-name">Serve By Example</span>
+  </div>
+);
+
+const LoginTypeSwitcher = () => (
+  <div className="login-type-switcher">
+    <span className="login-type-tab login-type-tab--active">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      Staff Login
+    </span>
+    <Link href="/management/login" className="login-type-tab">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <rect x="2" y="7" width="20" height="14" rx="2"/>
+        <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+      </svg>
+      Management Login
+    </Link>
   </div>
 );
 
@@ -254,6 +268,7 @@ function LoginPageContent() {
         <div className="login-split-left">
           <div className="login-card">
             <BrandMark />
+            <LoginTypeSwitcher />
             <div className="eyebrow">Account recovery</div>
             <h1>Reset your password</h1>
             <p className="login-sub">
@@ -303,6 +318,7 @@ function LoginPageContent() {
       <div className="login-split-left">
         <div className="login-card">
           <BrandMark />
+          <LoginTypeSwitcher />
 
           {checkoutSuccess && (
             <div className="auth-status auth-status-success" style={{ marginBottom: 16 }}>
@@ -407,25 +423,6 @@ function LoginPageContent() {
             </div>
           </form>
 
-          <div
-            style={{
-              marginTop: 36,
-              paddingTop: 24,
-              borderTop: "1px solid var(--line-light)",
-              textAlign: "center",
-            }}
-          >
-            <p style={{ marginBottom: 10, color: "var(--text-soft)", fontSize: "0.88rem" }}>
-              Are you a venue manager?
-            </p>
-            <Link
-              href="/management/login"
-              className="btn btn-secondary"
-              style={{ fontSize: "0.88rem", padding: "9px 20px" }}
-            >
-              Management Login
-            </Link>
-          </div>
         </div>
       </div>
 

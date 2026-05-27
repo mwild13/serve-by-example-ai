@@ -3712,12 +3712,18 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   width: 500px;
   min-width: 500px;
-  padding: 52px 44px;
+  padding: 40px 44px;
   overflow-y: auto;
   background: var(--bg);
+}
+
+/* vertically center the card when there's room, push to top when it overflows */
+.login-split-left > .login-card {
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 /* Strip card box in split context — form IS the panel */
@@ -3799,13 +3805,10 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 }
 
 .login-brand-mark {
-  width: 34px;
-  height: 34px;
-  background: var(--green);
+  width: 36px;
+  height: 36px;
   border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
 }
 
 .login-brand-name {
@@ -3814,6 +3817,46 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   font-weight: 700;
   color: var(--green-deep);
   letter-spacing: -0.01em;
+}
+
+/* Staff / Management tab switcher */
+.login-type-switcher {
+  display: flex;
+  border-bottom: 1.5px solid var(--line-light);
+  margin-bottom: 28px;
+  gap: 0;
+}
+
+.login-type-tab {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 0;
+  margin-right: 28px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1.5px;
+  transition: color 0.15s;
+  cursor: pointer;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.login-type-tab:hover {
+  color: var(--green);
+}
+
+.login-type-tab--active {
+  color: var(--green-deep);
+  border-bottom-color: var(--gold-warm);
 }
 
 /* Google OAuth button */
