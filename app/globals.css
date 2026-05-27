@@ -3845,9 +3845,20 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   border-top: none;
   border-left: none;
   border-right: none;
+  outline: none;
   font: inherit;
   font-size: 0.88rem;
   font-weight: 600;
+}
+
+.login-type-tab:focus {
+  outline: none;
+}
+
+.login-type-tab:focus-visible {
+  outline: 2px solid var(--gold-warm);
+  outline-offset: 2px;
+  border-radius: 3px;
 }
 
 .login-type-tab:hover {
