@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseMiddlewareClient } from "@/lib/supabase-server";
 import { shouldApplyGeoBlock } from "@/lib/geo-config";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 function buildCSP(nonce: string): string {
   return [
@@ -47,15 +48,24 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   // ── Geo-blocking check (before auth) ────────
-  // Cloudflare sets cf-ipcountry; falls back to undefined for local dev (treated as allowed)
-  const country = request.headers.get("cf-ipcountry") ?? undefined;
+  // Use Cloudflare's native request.cf.country (authoritative, not a header that can be cached).
+  // Falls back to cf-ipcountry header, then undefined (treated as allowed) for local dev.
+  let country: string | undefined;
+  try {
+    const cfCtx = getCloudflareContext() as { cf?: { country?: string } };
+    country = cfCtx?.cf?.country ?? request.headers.get("cf-ipcountry") ?? undefined;
+  } catch {
+    // getCloudflareContext throws outside Cloudflare runtime (local dev) — fall back to header
+    country = request.headers.get("cf-ipcountry") ?? undefined;
+  }
+
   if (shouldApplyGeoBlock(path, country)) {
     const geoBlockUrl = request.nextUrl.clone();
     geoBlockUrl.pathname = "/restricted";
     const geoRedirect = NextResponse.redirect(geoBlockUrl);
-    // Prevent Cloudflare from caching this redirect — if cached, AU users
-    // would receive the redirect that was generated for a non-AU request.
-    geoRedirect.headers.set("Cache-Control", "no-store, no-cache");
+    // Prevent any edge or browser caching of this redirect
+    geoRedirect.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+    geoRedirect.headers.set("Vary", "CF-IPCountry");
     return geoRedirect;
   }
 
