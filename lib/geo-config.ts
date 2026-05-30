@@ -30,6 +30,12 @@ export function isCountryAllowed(country?: string): boolean {
 export function shouldApplyGeoBlock(pathname: string, country?: string): boolean {
   if (isCountryAllowed(country)) return false;
 
-  // Only block routes that require AU access (auth + app routes)
-  return GEO_CONFIG.restrictedRoutes.some((route) => pathname.startsWith(route));
+  // Allow public routes to pass through
+  if (GEO_CONFIG.publicRoutes.includes(pathname)) return false;
+
+  // Allow marketing routes to pass through
+  if (GEO_CONFIG.marketingRoutes.includes(pathname)) return false;
+
+  // Block everything else for non-AU visitors
+  return true;
 }

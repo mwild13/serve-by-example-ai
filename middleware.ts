@@ -52,7 +52,11 @@ export async function middleware(request: NextRequest) {
   if (shouldApplyGeoBlock(path, country)) {
     const geoBlockUrl = request.nextUrl.clone();
     geoBlockUrl.pathname = "/restricted";
-    return NextResponse.redirect(geoBlockUrl);
+    const geoRedirect = NextResponse.redirect(geoBlockUrl);
+    // Prevent Cloudflare from caching this redirect — if cached, AU users
+    // would receive the redirect that was generated for a non-AU request.
+    geoRedirect.headers.set("Cache-Control", "no-store, no-cache");
+    return geoRedirect;
   }
 
   let user = null;
