@@ -43,6 +43,7 @@ type TrainingData = {
     sessions: { bartending: number; sales: number; management: number };
     scores: { bartending: number; sales: number; management: number };
   };
+  arenaProgress: Record<number, { attempts: number; bestScore: number; passed: boolean }>;
   challengesCompleted: number[];
 };
 
@@ -57,6 +58,7 @@ const EMPTY: TrainingData = {
     sessions: { bartending: 0, sales: 0, management: 0 },
     scores: { bartending: 0, sales: 0, management: 0 },
   },
+  arenaProgress: {},
   challengesCompleted: [],
 };
 
@@ -86,10 +88,19 @@ export default function ProgressOverview({
 }: ProgressOverviewProps) {
   const [data, setData] = useState<TrainingData>(EMPTY);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [expandedArenaCats, setExpandedArenaCats] = useState<Set<string>>(new Set());
   const [expandedScenarioAreas, setExpandedScenarioAreas] = useState<Set<string>>(new Set());
 
   function toggleCategory(key: string) {
     setExpandedCategories((prev) => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+  }
+
+  function toggleArenaCategory(key: string) {
+    setExpandedArenaCats((prev) => {
       const next = new Set(prev);
       next.has(key) ? next.delete(key) : next.add(key);
       return next;
@@ -179,6 +190,7 @@ export default function ProgressOverview({
                 management: res.scores?.management ?? 0,
               },
             },
+            arenaProgress: (res.arenaProgress as TrainingData["arenaProgress"]) ?? {},
             challengesCompleted,
           });
         }
@@ -536,6 +548,57 @@ export default function ProgressOverview({
                   <div className="progress-accordion-stat-row">
                     <span>Average score</span><strong>{score > 0 ? `${score}/25` : "No data yet"}</strong>
                   </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ── Band 4: AI Scenario ─────────────────────────────────── */}
+      <div className="progress-mastery-list-v2">
+        <h2 className="progress-mastery-list-v2-title">AI Scenario</h2>
+        <p className="progress-mastery-list-v2-sub">
+          Live assessment results across all 20 scenarios. Pass threshold: 75/100.
+        </p>
+        {(["technical", "service", "compliance"] as const).map((cat) => {
+          const Icon = CATEGORY_ICONS[cat];
+          const modulesInCat = data.modules.filter((m) => m.category === cat && m.id <= 20);
+          const passedInCat = modulesInCat.filter((m) => data.arenaProgress[m.id]?.passed).length;
+          const isOpen = expandedArenaCats.has(cat);
+          return (
+            <div key={cat} style={{ marginBottom: 8 }}>
+              <button
+                className="progress-accordion-header"
+                onClick={() => toggleArenaCategory(cat)}
+                aria-expanded={isOpen}
+              >
+                <span className="progress-accordion-icon"><Icon size={13} /></span>
+                <span className="progress-accordion-label">{CATEGORY_CERT_LABELS[cat]}</span>
+                <span className="progress-accordion-meta">{passedInCat}/{modulesInCat.length} passed</span>
+                {isOpen ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+              </button>
+              {isOpen && (
+                <div className="progress-accordion-body">
+                  {modulesInCat.map((module) => {
+                    const arena = data.arenaProgress[module.id];
+                    return (
+                      <div key={module.id} className="progress-mastery-row-v2" style={{ paddingLeft: 12 }}>
+                        <span className="progress-mastery-row-title">{module.title}</span>
+                        <span className={`progress-mastery-row-chip${arena?.passed ? " progress-mastery-row-chip--mastered" : ""}`}>
+                          {arena?.passed ? "Passed" : arena?.attempts ? `Attempted (${arena.bestScore}/100)` : "Not started"}
+                        </span>
+                        {!arena?.passed && (
+                          <button
+                            className="progress-mastery-action progress-mastery-action--primary"
+                            onClick={() => onNavigate?.("scenarios")}
+                          >
+                            {arena?.attempts ? "Retry" : "Start"}
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
