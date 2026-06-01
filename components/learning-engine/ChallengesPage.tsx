@@ -113,7 +113,7 @@ const SEQUENCE_CORRECT = ["guinness-start", "margarita", "wine", "guinness-top"]
 const SEQUENCE_EXPLANATION =
   "Guinness requires a two-stage pour with roughly 90 seconds to settle — always start it first. Build other drinks while it settles, then top it up last.";
 
-function SequenceSort() {
+function SequenceSort({ onComplete }: { onComplete?: () => void }) {
   const [items, setItems] = useState(SEQUENCE_ITEMS);
   const [checked, setChecked] = useState(false);
   const [correct, setCorrect] = useState(false);
@@ -130,6 +130,7 @@ function SequenceSort() {
     const match = items.map((i) => i.id).join(",") === SEQUENCE_CORRECT.join(",");
     setCorrect(match);
     setChecked(true);
+    if (match) onComplete?.();
   };
 
   const reset = () => {
@@ -139,7 +140,7 @@ function SequenceSort() {
   };
 
   return (
-    <ChallengeCard formatLabel="Format 1" title="Sequence Sort">
+    <ChallengeCard formatLabel="Question 1" title="Sequence Sort">
       <p style={{ fontSize: "0.95rem", fontWeight: 600, color: "var(--text)", lineHeight: 1.5 }}>
         A Guinness, a Margarita, and a Pinot Grigio arrive simultaneously. What order do you build them?
       </p>
@@ -260,7 +261,7 @@ const FILL_WORD_BANK = ["25ml", "60ml", "30ml", "15ml", "highball", "chilled cou
 const FILL_EXPLANATION =
   "The Classic Daiquiri spec is 60ml White Rum / 25ml Fresh Lime Juice / 15ml Sugar Syrup, served in a chilled coupe. Always use fresh lime — bottled juice alters the acidity balance.";
 
-function FillBlank() {
+function FillBlank({ onComplete }: { onComplete?: () => void }) {
   const [selected, setSelected] = useState<Record<number, string>>({});
   const [activeSlot, setActiveSlot] = useState<number | null>(0);
   const [checked, setChecked] = useState(false);
@@ -281,6 +282,7 @@ function FillBlank() {
     const match = FILL_CORRECT.every((ans, i) => selected[i] === ans);
     setCorrect(match);
     setChecked(true);
+    if (match) onComplete?.();
   };
 
   const reset = () => {
@@ -291,7 +293,7 @@ function FillBlank() {
   };
 
   return (
-    <ChallengeCard formatLabel="Format 2" title="Fill the Blank">
+    <ChallengeCard formatLabel="Question 2" title="Fill the Blank">
       <p style={{ fontSize: "0.95rem", fontWeight: 600, color: "var(--text)" }}>
         Reconstruct the Classic Daiquiri recipe:
       </p>
@@ -438,7 +440,7 @@ const MATCH_CORRECT: Record<string, string> = {
   mojito: "highball",
 };
 
-function MatchPair() {
+function MatchPair({ onComplete }: { onComplete?: () => void }) {
   const [selectedLeft, setSelectedLeft] = useState<string | null>(null);
   const [matched, setMatched] = useState<Record<string, string>>({});
   const [wrong, setWrong] = useState<string | null>(null);
@@ -457,7 +459,7 @@ function MatchPair() {
       setMatched(nextMatched);
       setSelectedLeft(null);
       setWrong(null);
-      if (Object.keys(nextMatched).length === MATCH_LEFT.length) setDone(true);
+      if (Object.keys(nextMatched).length === MATCH_LEFT.length) { setDone(true); onComplete?.(); }
     } else {
       setWrong(selectedLeft);
       setSelectedLeft(null);
@@ -510,7 +512,7 @@ function MatchPair() {
   };
 
   return (
-    <ChallengeCard formatLabel="Format 3" title="Match Pair">
+    <ChallengeCard formatLabel="Question 3" title="Match Pair">
       <p style={{ fontSize: "0.95rem", fontWeight: 600, color: "var(--text)" }}>
         Match each cocktail to its correct glassware. Tap a cocktail, then tap its glass.
       </p>
@@ -567,7 +569,7 @@ const SPOT_ITEMS = [
 const SPOT_EXPLANATION =
   "The error is \"Bottled Lime Juice\". A Classic Daiquiri always uses fresh lime juice. Bottled juice contains preservatives and citric acid that flatten the flavour and alter the acidity balance.";
 
-function SpotError() {
+function SpotError({ onComplete }: { onComplete?: () => void }) {
   const [tapped, setTapped] = useState<string | null>(null);
   const [checked, setChecked] = useState(false);
 
@@ -575,6 +577,8 @@ function SpotError() {
     if (checked) return;
     setTapped(id);
     setChecked(true);
+    const item = SPOT_ITEMS.find((i) => i.id === id);
+    if (item && !item.correct) onComplete?.();
   };
 
   const reset = () => {
@@ -583,7 +587,7 @@ function SpotError() {
   };
 
   return (
-    <ChallengeCard formatLabel="Format 4" title="Spot the Error">
+    <ChallengeCard formatLabel="Question 4" title="Spot the Error">
       <p style={{ fontSize: "0.95rem", fontWeight: 600, color: "var(--text)" }}>
         One ingredient on this Classic Daiquiri recipe card is wrong. Tap it to identify the mistake.
       </p>
@@ -712,7 +716,7 @@ const MC_OPTIONS = [
 const MC_EXPLANATION =
   "Always own the problem immediately and replace the glass. Deflecting to another team member or wiping a soiled glass both undermine guest trust. A quick apology and immediate replacement is the professional standard.";
 
-function MultipleChoice() {
+function MultipleChoice({ onComplete }: { onComplete?: () => void }) {
   const [selected, setSelected] = useState<string | null>(null);
   const [checked, setChecked] = useState(false);
 
@@ -720,6 +724,7 @@ function MultipleChoice() {
     if (checked) return;
     setSelected(id);
     setChecked(true);
+    if (MC_OPTIONS.find((o) => o.correct)?.id === id) onComplete?.();
   };
 
   const reset = () => {
@@ -730,7 +735,7 @@ function MultipleChoice() {
   const correctId = MC_OPTIONS.find((o) => o.correct)?.id;
 
   return (
-    <ChallengeCard formatLabel="Format 5" title="Multiple Choice">
+    <ChallengeCard formatLabel="Question 5" title="Multiple Choice">
       {/* Guest scenario bubble */}
       <div
         style={{
@@ -862,6 +867,29 @@ function MultipleChoice() {
 // ── Page shell ────────────────────────────────────────────────────────────────
 
 export default function ChallengesPage() {
+  const [completedChallenges, setCompletedChallenges] = useState<Set<number>>(() => {
+    try {
+      const stored = localStorage.getItem("sbe_challenges_completed");
+      return stored ? new Set(JSON.parse(stored) as number[]) : new Set<number>();
+    } catch {
+      return new Set<number>();
+    }
+  });
+
+  function markComplete(index: number) {
+    setCompletedChallenges((prev) => {
+      if (prev.has(index)) return prev;
+      const next = new Set(prev);
+      next.add(index);
+      try {
+        localStorage.setItem("sbe_challenges_completed", JSON.stringify([...next]));
+      } catch { /* ignore */ }
+      return next;
+    });
+  }
+
+  const allComplete = completedChallenges.size >= 5;
+
   return (
     <div style={{ width: "100%", paddingBottom: "3rem" }}>
       {/* Header */}
@@ -873,7 +901,7 @@ export default function ChallengesPage() {
           <span className="sbe-command-eyebrow">Experimental</span>
           <strong>Interactive Challenges</strong>
           <span className="sbe-command-meta">
-            5 formats · tap-based · no typing required
+            5 questions · tap-based · no typing required
           </span>
         </div>
       </div>
@@ -890,13 +918,32 @@ export default function ChallengesPage() {
         Bite-sized training built for a busy shift. Tap, drag, and match your way through real hospitality scenarios — no blank text boxes, no exam pressure.
       </p>
 
+      {allComplete && (
+        <div
+          style={{
+            background: "var(--green-light)",
+            border: "1.5px solid var(--green)",
+            borderRadius: "var(--radius-md)",
+            padding: "1rem 1.25rem",
+            marginBottom: "1.75rem",
+          }}
+        >
+          <p style={{ fontWeight: 800, color: "var(--green)", fontSize: "0.95rem", margin: 0 }}>
+            All 5 questions complete — well done!
+          </p>
+          <p style={{ fontSize: "0.82rem", color: "var(--text-soft)", margin: "4px 0 0" }}>
+            Ready to go deeper? Try the AI Arena for live scenario assessments.
+          </p>
+        </div>
+      )}
+
       {/* Challenge cards */}
       <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-        <SequenceSort />
-        <FillBlank />
-        <MatchPair />
-        <SpotError />
-        <MultipleChoice />
+        <SequenceSort onComplete={() => markComplete(0)} />
+        <FillBlank onComplete={() => markComplete(1)} />
+        <MatchPair onComplete={() => markComplete(2)} />
+        <SpotError onComplete={() => markComplete(3)} />
+        <MultipleChoice onComplete={() => markComplete(4)} />
       </div>
     </div>
   );

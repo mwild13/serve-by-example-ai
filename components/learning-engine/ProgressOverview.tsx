@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
-import { Zap, GlassWater, Shield, Award } from "lucide-react";
+import { Zap, GlassWater, Shield, Award, ChevronDown, ChevronRight } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -38,6 +38,13 @@ type TrainingData = {
   totalSessions: number;
   badgesEarned: number;
   scores: { bartending: number; sales: number; management: number };
+  skillLevel: number;
+  scenarioStats: {
+    sessions: { bartending: number; sales: number; management: number };
+    scores: { bartending: number; sales: number; management: number };
+  };
+  arenaProgress: Record<number, { attempts: number; bestScore: number; passed: boolean }>;
+  challengesCompleted: number[];
 };
 
 const EMPTY: TrainingData = {
@@ -46,6 +53,13 @@ const EMPTY: TrainingData = {
   totalSessions: 0,
   badgesEarned: 0,
   scores: { bartending: 0, sales: 0, management: 0 },
+  skillLevel: 1,
+  scenarioStats: {
+    sessions: { bartending: 0, sales: 0, management: 0 },
+    scores: { bartending: 0, sales: 0, management: 0 },
+  },
+  arenaProgress: {},
+  challengesCompleted: [],
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -73,6 +87,33 @@ export default function ProgressOverview({
   onNavigate,
 }: ProgressOverviewProps) {
   const [data, setData] = useState<TrainingData>(EMPTY);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [expandedArenaCats, setExpandedArenaCats] = useState<Set<string>>(new Set());
+  const [expandedScenarioAreas, setExpandedScenarioAreas] = useState<Set<string>>(new Set());
+
+  function toggleCategory(key: string) {
+    setExpandedCategories((prev) => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+  }
+
+  function toggleArenaCategory(key: string) {
+    setExpandedArenaCats((prev) => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+  }
+
+  function toggleScenarioArea(key: string) {
+    setExpandedScenarioAreas((prev) => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+  }
 
   useEffect(() => {
     async function load() {
@@ -118,6 +159,12 @@ export default function ProgressOverview({
             (n, mod) => n + ((res.mastery?.[mod] ?? 0) >= 80 ? 1 : 0),
             0,
           );
+          let challengesCompleted: number[] = [];
+          try {
+            const stored = localStorage.getItem("sbe_challenges_completed");
+            if (stored) challengesCompleted = JSON.parse(stored) as number[];
+          } catch { /* ignore */ }
+
           setData({
             modules,
             reviewDue: Array.isArray(res.reviewQueue)
@@ -130,6 +177,21 @@ export default function ProgressOverview({
               sales: res.scores?.sales ?? 0,
               management: res.scores?.management ?? 0,
             },
+            skillLevel: typeof res.skillLevel === "number" ? res.skillLevel : 1,
+            scenarioStats: {
+              sessions: {
+                bartending: res.sessions?.bartending ?? 0,
+                sales: res.sessions?.sales ?? 0,
+                management: res.sessions?.management ?? 0,
+              },
+              scores: {
+                bartending: res.scores?.bartending ?? 0,
+                sales: res.scores?.sales ?? 0,
+                management: res.scores?.management ?? 0,
+              },
+            },
+            arenaProgress: (res.arenaProgress as TrainingData["arenaProgress"]) ?? {},
+            challengesCompleted,
           });
         }
       } catch {
@@ -143,10 +205,7 @@ export default function ProgressOverview({
 
   const masteredCount = data.modules.filter((m) => m.mastered).length;
   const totalCount = data.modules.length || 20;
-  const skillLevel = Math.min(
-    10,
-    Math.max(1, Math.round((masteredCount / Math.max(totalCount, 1)) * 10)),
-  );
+  const skillLevel = data.skillLevel;
   const highScore = Math.round(
     Math.max(
       data.scores.bartending,
@@ -459,7 +518,137 @@ export default function ProgressOverview({
         </div>
       </div>
 
-      {/* ── Band 3: Full Module Mastery List ─────────────────── */}
+      {/* ── Band 3: Scenario Training ────────────────────────── */}
+      <div className="progress-mastery-list-v2">
+        <h2 className="progress-mastery-list-v2-title">Scenario Training</h2>
+        <p className="progress-mastery-list-v2-sub">
+          Your written scenario practice history across all three training areas.
+        </p>
+        {(["bartending", "sales", "management"] as const).map((area) => {
+          const areaLabel: Record<string, string> = { bartending: "Bartending", sales: "Sales", management: "Leadership" };
+          const isOpen = expandedScenarioAreas.has(area);
+          const sessions = data.scenarioStats.sessions[area];
+          const score = Math.round(data.scenarioStats.scores[area]);
+          return (
+            <div key={area} style={{ marginBottom: 8 }}>
+              <button
+                className="progress-accordion-header"
+                onClick={() => toggleScenarioArea(area)}
+                aria-expanded={isOpen}
+              >
+                <span className="progress-accordion-label">{areaLabel[area]}</span>
+                <span className="progress-accordion-meta">{sessions} session{sessions !== 1 ? "s" : ""}</span>
+                {isOpen ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+              </button>
+              {isOpen && (
+                <div className="progress-accordion-body">
+                  <div className="progress-accordion-stat-row">
+                    <span>Sessions completed</span><strong>{sessions}</strong>
+                  </div>
+                  <div className="progress-accordion-stat-row">
+                    <span>Average score</span><strong>{score > 0 ? `${score}/25` : "No data yet"}</strong>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ── Band 4: AI Arena ─────────────────────────────────── */}
+      <div className="progress-mastery-list-v2">
+        <h2 className="progress-mastery-list-v2-title">AI Arena</h2>
+        <p className="progress-mastery-list-v2-sub">
+          Live assessment results across all 20 scenarios. Pass threshold: 75/100.
+        </p>
+        {(["technical", "service", "compliance"] as const).map((cat) => {
+          const Icon = CATEGORY_ICONS[cat];
+          const modulesInCat = data.modules.filter((m) => m.category === cat);
+          const passedInCat = modulesInCat.filter((m) => data.arenaProgress[m.id]?.passed).length;
+          const isOpen = expandedArenaCats.has(cat);
+          return (
+            <div key={cat} style={{ marginBottom: 8 }}>
+              <button
+                className="progress-accordion-header"
+                onClick={() => toggleArenaCategory(cat)}
+                aria-expanded={isOpen}
+              >
+                <span className="progress-accordion-icon"><Icon size={13} /></span>
+                <span className="progress-accordion-label">{CATEGORY_CERT_LABELS[cat]}</span>
+                <span className="progress-accordion-meta">{passedInCat}/{modulesInCat.length} passed</span>
+                {isOpen ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+              </button>
+              {isOpen && (
+                <div className="progress-accordion-body">
+                  {modulesInCat.map((module) => {
+                    const arena = data.arenaProgress[module.id];
+                    return (
+                      <div key={module.id} className="progress-mastery-row-v2" style={{ paddingLeft: 12 }}>
+                        <span className="progress-mastery-row-title">{module.title}</span>
+                        <span className={`progress-mastery-row-chip${arena?.passed ? " progress-mastery-row-chip--mastered" : ""}`}>
+                          {arena?.passed ? "Passed" : arena?.attempts ? `Attempted (${arena.bestScore}/100)` : "Not started"}
+                        </span>
+                        {!arena?.passed && (
+                          <button
+                            className="progress-mastery-action progress-mastery-action--primary"
+                            onClick={() => onNavigate?.("scenarios")}
+                          >
+                            {arena?.attempts ? "Retry" : "Start"}
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ── Band 5: Challenges ───────────────────────────────── */}
+      <div className="progress-mastery-list-v2">
+        <h2 className="progress-mastery-list-v2-title">Challenges</h2>
+        <p className="progress-mastery-list-v2-sub">
+          5 interactive question types. Completion is tracked on this device.
+        </p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
+          {[
+            "Sequence Sort",
+            "Fill the Blank",
+            "Match Pair",
+            "Spot the Error",
+            "Multiple Choice",
+          ].map((label, i) => {
+            const done = data.challengesCompleted.includes(i);
+            return (
+              <span
+                key={i}
+                className={`progress-mastery-row-chip${done ? " progress-mastery-row-chip--mastered" : ""}`}
+                style={{ fontSize: "0.8rem", padding: "5px 12px" }}
+              >
+                {label}
+              </span>
+            );
+          })}
+        </div>
+        {data.challengesCompleted.length < 5 && (
+          <button
+            className="progress-mastery-action progress-mastery-action--primary"
+            style={{ marginTop: 14 }}
+            onClick={() => onNavigate?.("challenges")}
+          >
+            Go to Challenges
+          </button>
+        )}
+        {data.challengesCompleted.length === 5 && (
+          <p style={{ marginTop: 12, fontSize: "0.85rem", color: "var(--green)", fontWeight: 700 }}>
+            All 5 questions complete.
+          </p>
+        )}
+      </div>
+
+      {/* ── Band 6: Full Module Mastery List ─────────────────── */}
       <div className="progress-mastery-list-v2">
         <h2 className="progress-mastery-list-v2-title">Full Module Mastery List</h2>
         <p className="progress-mastery-list-v2-sub">
@@ -468,50 +657,45 @@ export default function ProgressOverview({
 
         {(["technical", "service", "compliance"] as const).map((cat) => {
           const Icon = CATEGORY_ICONS[cat];
+          const isOpen = expandedCategories.has(cat);
+          const masteredInCat = categoryGroups[cat].filter((m) => m.mastered).length;
           return (
-            <div key={cat} style={{ marginBottom: 20 }}>
-              <div className="progress-mastery-cat-label">
-                {CATEGORY_LABELS[cat]}
-              </div>
-              {categoryGroups[cat].map((module) => (
-                <div key={module.id} className="progress-mastery-row-v2">
-                  <span className="progress-mastery-icon">
-                    <Icon size={15} />
-                  </span>
-                  <span className="progress-mastery-row-title">{module.title}</span>
-                  <span
-                    className={`progress-mastery-row-chip${module.mastered ? " progress-mastery-row-chip--mastered" : ""}`}
-                  >
-                    {module.mastered
-                      ? "Mastered"
-                      : module.attempted
-                      ? "In progress"
-                      : "Not started"}
-                  </span>
-                  {module.mastered ? (
-                    <button
-                      className="progress-mastery-action"
-                      onClick={() => onNavigate?.("scenarios")}
-                    >
-                      Practice in Arena
-                    </button>
-                  ) : module.attempted ? (
-                    <button
-                      className="progress-mastery-action progress-mastery-action--primary"
-                      onClick={() => onSelectModule?.(module.id)}
-                    >
-                      Continue
-                    </button>
-                  ) : (
-                    <button
-                      className="progress-mastery-action progress-mastery-action--primary"
-                      onClick={() => onSelectModule?.(module.id)}
-                    >
-                      Verify Now
-                    </button>
-                  )}
+            <div key={cat} style={{ marginBottom: 8 }}>
+              <button
+                className="progress-accordion-header"
+                onClick={() => toggleCategory(cat)}
+                aria-expanded={isOpen}
+              >
+                <span className="progress-accordion-icon"><Icon size={13} /></span>
+                <span className="progress-accordion-label">{CATEGORY_LABELS[cat]}</span>
+                <span className="progress-accordion-meta">{masteredInCat}/{categoryGroups[cat].length} mastered</span>
+                {isOpen ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+              </button>
+              {isOpen && (
+                <div className="progress-accordion-body">
+                  {categoryGroups[cat].map((module) => (
+                    <div key={module.id} className="progress-mastery-row-v2">
+                      <span className="progress-mastery-row-title">{module.title}</span>
+                      <span className={`progress-mastery-row-chip${module.mastered ? " progress-mastery-row-chip--mastered" : ""}`}>
+                        {module.mastered ? "Mastered" : module.attempted ? "In progress" : "Not started"}
+                      </span>
+                      {module.mastered ? (
+                        <button className="progress-mastery-action" onClick={() => onNavigate?.("scenarios")}>
+                          Practice in Arena
+                        </button>
+                      ) : module.attempted ? (
+                        <button className="progress-mastery-action progress-mastery-action--primary" onClick={() => onSelectModule?.(module.id)}>
+                          Continue
+                        </button>
+                      ) : (
+                        <button className="progress-mastery-action progress-mastery-action--primary" onClick={() => onSelectModule?.(module.id)}>
+                          Verify Now
+                        </button>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           );
         })}

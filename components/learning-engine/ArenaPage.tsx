@@ -304,33 +304,57 @@ export default function ArenaPage({ userId: _userId }: Props) {
             background: "white",
             border: "1.5px solid #e5e7eb",
             borderRadius: "14px",
-            padding: "2rem",
+            overflow: "hidden",
             maxWidth: 560,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 24 }}>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "4rem", fontWeight: 900, color: scoreColor, lineHeight: 1 }}>
-                {result.score}
+          {/* Pass/fail banner */}
+          <div
+            style={{
+              background: result.passed ? "var(--green-light)" : "var(--gold-light)",
+              borderBottom: `2px solid ${result.passed ? "var(--green)" : "var(--gold-warm)"}`,
+              padding: "1rem 1.5rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 16,
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  fontSize: "1.2rem",
+                  fontWeight: 900,
+                  color: result.passed ? "var(--green-deep)" : "var(--gold)",
+                  fontFamily: "var(--font-fraunces)",
+                }}
+              >
+                {result.passed ? "Passed" : "Not yet — keep practising"}
               </div>
-              <div style={{ fontSize: "0.75rem", color: "#6b7280", marginTop: 2, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                out of 100
+              <div style={{ fontSize: "0.78rem", color: "var(--text-soft)", marginTop: 2 }}>
+                {result.passed
+                  ? "Score saved. This scenario is marked complete."
+                  : "Score recorded. Retry when you're ready for full credit."}
               </div>
             </div>
             <div
               style={{
-                padding: "6px 16px",
-                borderRadius: "999px",
-                background: result.passed ? "#d1fae5" : "#fee2e2",
-                color: result.passed ? "#065f46" : "#7f1d1d",
-                fontWeight: 800,
-                fontSize: "0.85rem",
-                letterSpacing: "0.04em",
+                fontSize: "2.8rem",
+                fontWeight: 900,
+                color: scoreColor,
+                lineHeight: 1,
+                flexShrink: 0,
+                textAlign: "center",
               }}
             >
-              {result.passed ? "Passed" : "Not Yet"}
+              {result.score}
+              <div style={{ fontSize: "0.65rem", color: "var(--text-muted)", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                / 100
+              </div>
             </div>
           </div>
+
+          <div style={{ padding: "1.5rem" }}>
 
           <div style={{ marginBottom: 20 }}>
             <strong
@@ -363,6 +387,7 @@ export default function ArenaPage({ userId: _userId }: Props) {
               {result.room_for_improvement}
             </p>
           </div>
+          </div>{/* end padding wrapper */}
         </div>
       </div>
     );

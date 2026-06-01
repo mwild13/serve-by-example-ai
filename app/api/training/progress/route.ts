@@ -71,6 +71,36 @@ export async function GET(req: Request) {
       }
     }
 
+    // ── Canonical skill level (mastered modules / total × 10) ──
+    const masteredModuleCount = allModules
+      ? allModules.filter((mod) => (moduleProgress[mod.id]?.scenariosMastered ?? 0) >= 1).length
+      : 0;
+    const totalModuleCount = allModules?.length ?? 20;
+    const skillLevel = Math.min(
+      10,
+      Math.max(1, Math.round((masteredModuleCount / Math.max(totalModuleCount, 1)) * 10)),
+    );
+
+    // ── Arena progress (one row per module, scenario_index = 40) ──
+    const { data: arenaRows } = await admin
+      .from("scenario_mastery")
+      .select("module_id, best_score, total_attempts, mastery_level")
+      .eq("user_id", user.id)
+      .eq("scenario_index", 40)
+      .not("module_id", "is", null);
+
+    const arenaProgress: Record<number, { attempts: number; bestScore: number; passed: boolean }> = {};
+    if (arenaRows) {
+      for (const row of arenaRows) {
+        if (row.module_id == null) continue;
+        arenaProgress[row.module_id] = {
+          attempts: (row.total_attempts as number) ?? 0,
+          bestScore: (row.best_score as number) ?? 0,
+          passed: ((row.mastery_level as number) ?? 0) >= 3,
+        };
+      }
+    }
+
     // ── Level progress (Stages 1-3, legacy table) ──
     const { data: levelRows } = await admin
       .from("user_level_progress")
@@ -195,9 +225,12 @@ export async function GET(req: Request) {
         sales: masteryByModule["sales"].scenariosAttempted,
         management: masteryByModule["management"].scenariosAttempted,
       },
+      // Canonical skill level (same formula for all views)
+      skillLevel,
       // New: per-module progress for all 20 modules
       moduleProgress,
       allModules: allModules ?? [],
+      arenaProgress,
       scenarioCounts: SCENARIO_COUNTS,
       levelProgress,
       reviewQueue,

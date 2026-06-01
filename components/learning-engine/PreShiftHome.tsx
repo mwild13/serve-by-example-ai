@@ -45,6 +45,7 @@ type ProgressData = {
   lastAttemptAt: string | null;
   allModules: DbModule[];
   moduleProgress: Record<number, DbModuleProgress>;
+  skillLevel: number;
 };
 
 const EMPTY: ProgressData = {
@@ -61,6 +62,7 @@ const EMPTY: ProgressData = {
   lastAttemptAt: null,
   allModules: [],
   moduleProgress: {},
+  skillLevel: 1,
 };
 
 type DailyChallenge = { title: string; desc: string; nav: NavItem };
@@ -103,11 +105,6 @@ const COACH_FOCUS: Record<ModuleKey, string[]> = {
     "Pre-brief your team on the top 2 risks before a busy service starts.",
   ],
 };
-
-function getSkillLevel(avgCompletion: number, avgMastery: number): number {
-  const combined = avgCompletion * 0.6 + avgMastery * 0.4;
-  return Math.min(10, Math.max(1, Math.ceil(combined / 10)));
-}
 
 function getWeakestModule(data: ProgressData): ModuleKey {
   const keys: ModuleKey[] = ["bartending", "sales", "management"];
@@ -193,6 +190,7 @@ export default function PreShiftHome({
             lastAttemptAt: res.lastAttemptAt ?? null,
             allModules: Array.isArray(res.allModules) ? res.allModules : [],
             moduleProgress: res.moduleProgress ?? {},
+            skillLevel: typeof res.skillLevel === "number" ? res.skillLevel : 1,
           });
         }
       } catch {
@@ -205,9 +203,7 @@ export default function PreShiftHome({
   }, []);
 
   const totalSessions = data.sessions.bartending + data.sessions.sales + data.sessions.management;
-  const avgCompletion = (data.modules.bartending + data.modules.sales + data.modules.management) / 3;
-  const avgMastery = (data.mastery.bartending + data.mastery.sales + data.mastery.management) / 3;
-  const skillLevel = getSkillLevel(avgCompletion, avgMastery);
+  const skillLevel = data.skillLevel;
   const weakest = getWeakestModule(data);
   const weakestMastery = Math.min(100, Math.round(data.mastery[weakest] ?? 0));
   const coachTips = COACH_FOCUS[weakest];
