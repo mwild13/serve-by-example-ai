@@ -4839,6 +4839,116 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   font-weight: 700;
 }
 
+/* ── Arena Cards ──────────────────────────────────────────────────────────── */
+.arena-card {
+  background: var(--surface-raised);
+  border: 1.5px solid var(--line-light);
+  border-radius: var(--radius-md);
+  padding: 1.1rem 1.25rem 1rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.arena-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--green-mid);
+}
+.arena-card--passed {
+  border-color: var(--green-mid);
+  background: #f7fbf8;
+}
+.arena-card--attempted {
+  border-color: var(--gold);
+  background: #fdfaf4;
+}
+.arena-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 20px;
+}
+.arena-card-category {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.arena-card-badge {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 2px 9px;
+  flex-shrink: 0;
+}
+.arena-card-badge--passed {
+  background: var(--green-light);
+  color: var(--green-deep);
+}
+.arena-card-badge--attempted {
+  background: var(--gold-light);
+  color: var(--gold);
+}
+.arena-card-title {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.3;
+  margin: 2px 0 4px;
+}
+.arena-card-score-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 2px 0;
+}
+.arena-card-score-bar {
+  flex: 1;
+  height: 5px;
+  background: var(--line-light);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.arena-card-score-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+.arena-card-score-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.arena-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+  gap: 8px;
+}
+.arena-card-status {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.arena-card-cta {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--green-mid);
+  white-space: nowrap;
+}
+.arena-card-cta--muted {
+  color: var(--text-muted);
+}
+
 /* Band 4: Performance Analytics */
 .progress-analytics {
   margin-bottom: 40px;

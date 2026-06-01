@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
 type AssessmentResult = {
@@ -9,6 +9,8 @@ type AssessmentResult = {
   room_for_improvement: string;
   passed: boolean;
 };
+
+type ArenaProgressEntry = { attempts: number; bestScore: number; passed: boolean };
 
 type Props = { userId: string };
 
@@ -111,6 +113,22 @@ export default function ArenaPage({ userId: _userId }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AssessmentResult | null>(null);
+  const [arenaProgress, setArenaProgress] = useState<Record<number, ArenaProgressEntry>>({});
+
+  useEffect(() => {
+    async function loadProgress() {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        const r = await fetch("/api/training/progress", {
+          headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+        });
+        const d = await r.json() as Record<string, unknown>;
+        if (d.arenaProgress) setArenaProgress(d.arenaProgress as Record<number, ArenaProgressEntry>);
+      } catch { /* non-critical */ }
+    }
+    void loadProgress();
+  }, []);
 
   async function authHeaders(): Promise<Record<string, string>> {
     const supabase = createSupabaseBrowserClient();
@@ -149,7 +167,16 @@ export default function ArenaPage({ userId: _userId }: Props) {
       });
       const data = await res.json() as Record<string, unknown>;
       if (!res.ok) throw new Error((data.error as string | undefined) ?? `Request failed (${res.status})`);
-      setResult(data.assessment as AssessmentResult);
+      const assessment = data.assessment as AssessmentResult;
+      setArenaProgress(prev => ({
+        ...prev,
+        [selectedId]: {
+          attempts: (prev[selectedId]?.attempts ?? 0) + 1,
+          bestScore: Math.max(prev[selectedId]?.bestScore ?? 0, assessment.score),
+          passed: prev[selectedId]?.passed || assessment.passed,
+        },
+      }));
+      setResult(assessment);
       setPhase("result");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Evaluation failed. Please try again.");
@@ -166,6 +193,19 @@ export default function ArenaPage({ userId: _userId }: Props) {
     setError(null);
   }
 
+  function getNextIncomplete(): number | null {
+    const start = selectedId ?? 0;
+    for (let i = start + 1; i <= 20; i++) {
+      if (!arenaProgress[i]?.passed) return i;
+    }
+    for (let i = 1; i <= start; i++) {
+      if (!arenaProgress[i]?.passed) return i;
+    }
+    return null;
+  }
+
+  const passedCount = Object.values(arenaProgress).filter((p) => p.passed).length;
+
   // ── Module selection ────────────────────────────────────────────────────────
   if (phase === "select") {
     return (
@@ -178,7 +218,7 @@ export default function ArenaPage({ userId: _userId }: Props) {
             <span className="sbe-command-eyebrow">AI Scenarios</span>
             <strong>Choose a scenario to assess</strong>
             <span className="sbe-command-meta">
-              Read the scenario, write your full response, receive a score out of 100
+              {passedCount > 0 ? `${passedCount} of 20 complete · ` : ""}Read the scenario, write your full response, receive a score out of 100
             </span>
           </div>
         </div>
@@ -195,68 +235,45 @@ export default function ArenaPage({ userId: _userId }: Props) {
           {Object.entries(MODULE_META).map(([idStr, meta]) => {
             const id = Number(idStr);
             const accent = CATEGORY_ACCENT[meta.category];
+            const prog = arenaProgress[id];
             return (
               <div
                 key={id}
+                className={`arena-card${prog?.passed ? " arena-card--passed" : (prog?.attempts ?? 0) > 0 ? " arena-card--attempted" : ""}`}
                 onClick={() => selectModule(id)}
-                style={{
-                  background: "white",
-                  border: "1.5px solid #e5e7eb",
-                  borderRadius: "14px",
-                  padding: "1.25rem 1.4rem",
-                  cursor: "pointer",
-                  transition: "all 0.18s ease",
-                  boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = accent;
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                  e.currentTarget.style.boxShadow = "0 4px 16px rgba(45,106,79,0.1)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "#e5e7eb";
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.05)";
-                }}
               >
-                <span
-                  style={{
-                    fontSize: "0.65rem",
-                    fontWeight: 800,
-                    letterSpacing: "0.08em",
-                    color: accent,
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {meta.category}
-                </span>
-                <strong
-                  style={{
-                    display: "block",
-                    fontSize: "1rem",
-                    fontWeight: 800,
-                    color: "#1b4332",
-                    marginTop: 6,
-                    marginBottom: 12,
-                    lineHeight: 1.3,
-                  }}
-                >
-                  {meta.title}
-                </strong>
-                <span
-                  style={{
-                    display: "inline-block",
-                    fontSize: "0.7rem",
-                    fontWeight: 800,
-                    color: "#92400e",
-                    background: "#fef3c7",
-                    borderRadius: "999px",
-                    padding: "3px 12px",
-                    letterSpacing: "0.05em",
-                  }}
-                >
-                  Start Assessment
-                </span>
+                <div className="arena-card-top">
+                  <span className="arena-card-category" style={{ color: accent }}>{meta.category}</span>
+                  {prog?.passed && <span className="arena-card-badge arena-card-badge--passed">Passed</span>}
+                  {!prog?.passed && (prog?.attempts ?? 0) > 0 && <span className="arena-card-badge arena-card-badge--attempted">Attempted</span>}
+                </div>
+                <strong className="arena-card-title">{meta.title}</strong>
+                {prog && (
+                  <div className="arena-card-score-row">
+                    <div className="arena-card-score-bar">
+                      <div
+                        className="arena-card-score-fill"
+                        style={{
+                          width: `${prog.bestScore}%`,
+                          background: prog.passed ? "var(--green)" : "var(--gold-warm)",
+                        }}
+                      />
+                    </div>
+                    <span className="arena-card-score-label">Best: {prog.bestScore}/100</span>
+                  </div>
+                )}
+                <div className="arena-card-footer">
+                  <span className="arena-card-status">
+                    {prog?.passed
+                      ? "Complete"
+                      : (prog?.attempts ?? 0) > 0
+                      ? `${prog!.attempts} attempt${prog!.attempts !== 1 ? "s" : ""}`
+                      : "Not started"}
+                  </span>
+                  <span className={`arena-card-cta${prog?.passed ? " arena-card-cta--muted" : ""}`}>
+                    {prog?.passed ? "Retake →" : (prog?.attempts ?? 0) > 0 ? "Retry →" : "Start →"}
+                  </span>
+                </div>
               </div>
             );
           })}
@@ -389,6 +406,51 @@ export default function ArenaPage({ userId: _userId }: Props) {
           </div>
           </div>{/* end padding wrapper */}
         </div>
+
+        {/* Next scenario / all-complete tile */}
+        {passedCount >= 20 ? (
+          <div style={{ marginTop: "1rem", maxWidth: 560, background: "var(--green-light)", border: "1.5px solid var(--green)", borderRadius: "12px", padding: "1rem 1.5rem" }}>
+            <strong style={{ fontSize: "1rem", fontWeight: 800, color: "var(--green-deep)", fontFamily: "var(--font-fraunces)" }}>
+              All 20 scenarios complete
+            </strong>
+            <p style={{ margin: "4px 0 0", fontSize: "0.82rem", color: "var(--text-soft)" }}>
+              Outstanding. You have passed every AI assessment.
+            </p>
+          </div>
+        ) : (() => {
+          const nextId = getNextIncomplete();
+          if (!nextId) return null;
+          const nextMeta = MODULE_META[nextId];
+          const nextAccent = CATEGORY_ACCENT[nextMeta.category];
+          const nextProg = arenaProgress[nextId];
+          return (
+            <div style={{ marginTop: "1rem", maxWidth: 560 }}>
+              <div style={{ fontSize: "0.65rem", fontWeight: 800, letterSpacing: "0.08em", color: "var(--text-muted)", textTransform: "uppercase", marginBottom: 8 }}>
+                Up next
+              </div>
+              <div
+                className={`arena-card${nextProg?.passed ? " arena-card--passed" : (nextProg?.attempts ?? 0) > 0 ? " arena-card--attempted" : ""}`}
+                onClick={() => selectModule(nextId)}
+                style={{ cursor: "pointer" }}
+              >
+                <div className="arena-card-top">
+                  <span className="arena-card-category" style={{ color: nextAccent }}>{nextMeta.category}</span>
+                  {nextProg?.passed && <span className="arena-card-badge arena-card-badge--passed">Passed</span>}
+                  {!nextProg?.passed && (nextProg?.attempts ?? 0) > 0 && <span className="arena-card-badge arena-card-badge--attempted">Attempted</span>}
+                </div>
+                <strong className="arena-card-title">{nextMeta.title}</strong>
+                <div className="arena-card-footer">
+                  <span className="arena-card-status">
+                    {nextProg?.passed ? "Complete" : (nextProg?.attempts ?? 0) > 0 ? "Previously attempted" : "Not started"}
+                  </span>
+                  <span className="arena-card-cta">
+                    {nextProg?.passed ? "Retake →" : (nextProg?.attempts ?? 0) > 0 ? "Retry →" : "Start →"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </div>
     );
   }
