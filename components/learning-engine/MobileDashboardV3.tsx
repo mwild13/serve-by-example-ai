@@ -275,7 +275,7 @@ const NAV_TABS = [
   { id: "home",      label: "Home",      Icon: Home     },
   { id: "module",    label: "Modules",   Icon: BookOpen },
   { id: "stage4",    label: "Scenarios", Icon: Target   },
-  { id: "scenarios", label: "AI Arena",  Icon: Cpu      },
+  { id: "scenarios", label: "AI Scenario",  Icon: Cpu      },
   { id: "progress",  label: "Me",        Icon: User     },
 ] as const;
 

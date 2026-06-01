@@ -932,7 +932,7 @@ export default function ChallengesPage() {
             All 5 questions complete — well done!
           </p>
           <p style={{ fontSize: "0.82rem", color: "var(--text-soft)", margin: "4px 0 0" }}>
-            Ready to go deeper? Try the AI Arena for live scenario assessments.
+            Ready to go deeper? Try AI Scenarios for live scenario assessments.
           </p>
         </div>
       )}

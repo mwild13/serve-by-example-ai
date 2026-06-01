@@ -215,7 +215,7 @@ export default function ModuleVerify({ moduleId, userId, onArena, onComplete, ne
 
           <div className="module-mastered-links">
             {onArena && (
-              <button onClick={onArena}>Enter the Arena</button>
+              <button onClick={onArena}>Enter AI Scenarios</button>
             )}
           </div>
         </div>
