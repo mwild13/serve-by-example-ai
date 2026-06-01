@@ -2042,17 +2042,6 @@ ul {
   gap: 10px;
 }
 
-.footer-brand-icon-bg {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
-}
-
 .footer-brand-name {
   color: #fff;
   font-family: var(--font-heading);

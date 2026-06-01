@@ -8,9 +8,7 @@ export default function Footer() {
       <div className="container footer-inner">
         <div className="footer-brand">
           <div className="footer-brand-mark">
-            <span className="footer-brand-icon-bg">
-              <Image src="/logo.png" alt="Serve By Example" width={28} height={28} />
-            </span>
+            <Image src="/logo.png" alt="Serve By Example" width={40} height={40} />
             <div className="footer-brand-name">Serve By Example</div>
           </div>
           <p>Scenario-based training for hospitality teams.</p>
