@@ -6,7 +6,14 @@ import DashboardShell from "@/components/DashboardShell";
 // Prevent static generation — this page requires auth at runtime
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ checkout?: string }>;
+}) {
+  const params = await searchParams;
+  const checkoutSuccess = params.checkout === "success";
+
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -60,6 +67,7 @@ export default async function DashboardPage() {
     <DashboardShell
       displayName={displayName}
       plan={plan}
+      checkoutSuccess={checkoutSuccess}
       userEmail={user.email ?? ""}
       managementUnlockedInitial={managementUnlocked}
       notifReminders={profile?.notif_reminders ?? true}

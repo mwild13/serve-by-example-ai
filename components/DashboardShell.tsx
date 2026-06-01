@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState, useEffect, Suspense, lazy } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import SignOutButton from "@/components/ui/SignOutButton";
 import DashboardTrainer from "@/components/learning-engine/DashboardTrainer";
@@ -452,6 +453,7 @@ export default function DashboardShell({
   notifAchievementAlerts,
   hasVenueMembership = false,
   initialToken = "",
+  checkoutSuccess = false,
 }: {
   displayName: string;
   plan: string;
@@ -462,10 +464,13 @@ export default function DashboardShell({
   notifAchievementAlerts: boolean;
   hasVenueMembership?: boolean;
   initialToken?: string;
+  checkoutSuccess?: boolean;
 }) {
+  const router = useRouter();
   const [activeNav, setActiveNav] = useState<NavItem>("home");
   const [joinCodeFromUrl, setJoinCodeFromUrl] = useState<string | undefined>(undefined);
   const [managementUnlocked] = useState(managementUnlockedInitial);
+  const [showPaymentBanner, setShowPaymentBanner] = useState(checkoutSuccess);
   // Phase 4: Dynamic module system
   const [userId, setUserId] = useState<string>("");
   const [selectedModuleId, setSelectedModuleId] = useState<number | null>(null);
@@ -493,8 +498,16 @@ export default function DashboardShell({
         url.searchParams.delete("join");
         window.history.replaceState({}, "", url.toString());
       }
+      if (params.get("checkout") === "success") {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("checkout");
+        window.history.replaceState({}, "", url.toString());
+        // Re-render server component after webhook has had time to update the DB
+        const t = setTimeout(() => router.refresh(), 3000);
+        return () => clearTimeout(t);
+      }
     } catch {}
-  }, []);
+  }, [router]);
 
   // Phase 4: Check diagnostic completion status and get user token
   useEffect(() => {
@@ -595,6 +608,30 @@ export default function DashboardShell({
       </aside>
 
       <section className="dashboard-main">
+        {showPaymentBanner && (
+          <div style={{
+            background: "var(--green-light)",
+            border: "1px solid var(--green)",
+            color: "var(--text)",
+            padding: "12px 20px",
+            borderRadius: "var(--radius-sm)",
+            marginBottom: 16,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            fontFamily: "var(--font-manrope)",
+            fontSize: 14,
+            fontWeight: 500,
+          }}>
+            <span>Payment successful — your Pro plan is now active.</span>
+            <button
+              onClick={() => setShowPaymentBanner(false)}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text)", fontSize: 20, lineHeight: 1, padding: "0 0 0 12px" }}
+              aria-label="Dismiss"
+            >×</button>
+          </div>
+        )}
+
         {/* Phase 4: Show diagnostic modal if not completed */}
         {showDiagnostic && userToken && (
           <DiagnosticFlow
