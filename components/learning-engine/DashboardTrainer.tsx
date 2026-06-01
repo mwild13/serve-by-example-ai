@@ -581,14 +581,14 @@ export default function DashboardTrainer({
     const prev = result?.overallScore ?? null;
     setLastScore(prev);
 
-    // Prioritize spaced repetition: find next due scenario in this module
-    const dueInModule = reviewQueue.filter(
-      (r) => r.module === activeModule && r.scenarioIndex !== scenarioIndex,
+    const scenarioCount = SCENARIOS[activeModule].length;
+    // Only use spaced repetition for scenarios ahead of current position — never go backward
+    const dueAhead = reviewQueue.filter(
+      (r) => r.module === activeModule && r.scenarioIndex > scenarioIndex && r.scenarioIndex < scenarioCount,
     );
     let next: number;
-    const scenarioCount = SCENARIOS[activeModule].length;
-    if (dueInModule.length > 0 && dueInModule[0].scenarioIndex < scenarioCount) {
-      next = dueInModule[0].scenarioIndex;
+    if (dueAhead.length > 0) {
+      next = dueAhead[0].scenarioIndex;
     } else {
       next = (scenarioIndex + 1) % scenarioCount;
     }
