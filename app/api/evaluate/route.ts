@@ -132,8 +132,9 @@ Rules:
     return Response.json(parsed);
   } catch (error) {
     console.error("API error:", error);
+    const detail = error instanceof Error ? `${error.constructor.name}: ${error.message}` : String(error);
     return Response.json(
-      { error: "Something went wrong while evaluating the response.", code: "INTERNAL_ERROR" },
+      { error: "Something went wrong while evaluating the response.", code: "INTERNAL_ERROR", detail },
       { status: 500 }
     );
   }
