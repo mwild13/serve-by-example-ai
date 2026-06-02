@@ -38,6 +38,8 @@ type TrainingData = {
   reviewDue: number;
   totalSessions: number;
   badgesEarned: number;
+  totalBadgeCount: number;
+  bestModuleMastery: number;
   scores: { bartending: number; sales: number; management: number };
   skillLevel: number;
   scenarioStats: {
@@ -53,6 +55,8 @@ const EMPTY: TrainingData = {
   reviewDue: 0,
   totalSessions: 0,
   badgesEarned: 0,
+  totalBadgeCount: 14,
+  bestModuleMastery: 0,
   scores: { bartending: 0, sales: 0, management: 0 },
   skillLevel: 1,
   scenarioStats: {
@@ -401,7 +405,13 @@ export default function ProgressOverview({
           (res.bestCorrectStreak as number) ?? 0,
           (res.sbeEliteNumber as number) ?? 0,
         );
-        const badgesEarned = countEarned(allBadgesComputed);
+        const nonStreakBadges = allBadgesComputed.filter((b) => b.category !== "streak");
+        const badgesEarned = countEarned(nonStreakBadges);
+        const totalBadgeCount = nonStreakBadges.length;
+        const bestModuleMastery = Math.max(
+          0,
+          ...allMods.map((m) => (res.moduleProgress as Record<number, { mastery?: number }>)?.[m.id]?.mastery ?? 0),
+        );
         let challengesCompleted: number[] = [];
         try {
           const stored = localStorage.getItem("sbe_challenges_completed");
@@ -413,6 +423,8 @@ export default function ProgressOverview({
           reviewDue: Array.isArray(res.reviewQueue) ? res.reviewQueue.length : 0,
           totalSessions,
           badgesEarned,
+          totalBadgeCount,
+          bestModuleMastery,
           scores: {
             bartending: res.scores?.bartending ?? 0,
             sales: res.scores?.sales ?? 0,
@@ -449,7 +461,6 @@ export default function ProgressOverview({
   const masteredCount = data.modules.filter((m) => m.mastered).length;
   const totalCount = data.modules.length || 20;
   const skillLevel = data.skillLevel;
-  const highScore = Math.round(Math.max(data.scores.bartending, data.scores.sales, data.scores.management));
 
   const categoryGroups: Record<string, ModuleSummary[]> = {
     technical: data.modules.filter((m) => m.category === "technical"),
@@ -608,9 +619,9 @@ export default function ProgressOverview({
               <p className="progress-hub-stat-sub">verified across all categories</p>
             </div>
             <div className="progress-hub-stat-card">
-              <span className="progress-hub-stat-label">High Scenario Score</span>
-              <span className="progress-hub-stat-value">{highScore}/100</span>
-              <p className="progress-hub-stat-sub">best single module average</p>
+              <span className="progress-hub-stat-label">Best Module Mastery</span>
+              <span className="progress-hub-stat-value">{data.bestModuleMastery}%</span>
+              <p className="progress-hub-stat-sub">highest single module score</p>
             </div>
             <div className="progress-hub-stat-card">
               <span className="progress-hub-stat-label">Focus Area</span>
@@ -629,7 +640,7 @@ export default function ProgressOverview({
                   <Award key={i} size={22} className={i < data.badgesEarned ? "progress-hub-badge-icon" : "progress-hub-badge-icon--empty"} />
                 ))}
               </div>
-              <p className="progress-hub-stat-sub">{data.badgesEarned}/3 earned</p>
+              <p className="progress-hub-stat-sub">{data.badgesEarned}/{data.totalBadgeCount} earned</p>
             </div>
             <div className="progress-hub-stat-card">
               <span className="progress-hub-stat-label">Current Standing</span>

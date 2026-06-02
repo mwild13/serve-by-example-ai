@@ -46,6 +46,8 @@ type ProgressData = {
   allModules: DbModule[];
   moduleProgress: Record<number, DbModuleProgress>;
   skillLevel: number;
+  bestCorrectStreak: number;
+  sbeEliteNumber: number;
 };
 
 const EMPTY: ProgressData = {
@@ -63,6 +65,8 @@ const EMPTY: ProgressData = {
   allModules: [],
   moduleProgress: {},
   skillLevel: 1,
+  bestCorrectStreak: 0,
+  sbeEliteNumber: 0,
 };
 
 type DailyChallenge = { title: string; desc: string; nav: NavItem };
@@ -228,6 +232,8 @@ export default function PreShiftHome({
             allModules: Array.isArray(res.allModules) ? res.allModules : [],
             moduleProgress: res.moduleProgress ?? {},
             skillLevel: typeof res.skillLevel === "number" ? res.skillLevel : 1,
+            bestCorrectStreak: typeof res.bestCorrectStreak === "number" ? res.bestCorrectStreak : 0,
+            sbeEliteNumber: typeof res.sbeEliteNumber === "number" ? res.sbeEliteNumber : 0,
           });
         }
       } catch {
@@ -283,7 +289,7 @@ export default function PreShiftHome({
     sales: categoryMastery.sales,
     management: categoryMastery.management,
   };
-  const allBadges = computeBadges(badgeModules, badgeScores, streak, 0, 0);
+  const allBadges = computeBadges(badgeModules, badgeScores, streak, data.bestCorrectStreak, data.sbeEliteNumber);
   const badgeEarned = countEarned(allBadges);
   const recentBadges = recentEarned(allBadges, 3);
 
