@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import confetti from "canvas-confetti";
 
 // ── Shared card shell ─────────────────────────────────────────────────────────
 
@@ -8,13 +9,19 @@ function ChallengeCard({
   formatLabel,
   title,
   children,
+  isCorrect,
+  isIncorrect,
 }: {
   formatLabel: string;
   title: string;
   children: React.ReactNode;
+  isCorrect?: boolean;
+  isIncorrect?: boolean;
 }) {
+  const cls = isCorrect ? "answer-card is-correct" : isIncorrect ? "answer-card is-incorrect" : "answer-card";
   return (
     <div
+      className={cls}
       style={{
         background: "var(--surface)",
         border: "1px solid var(--line)",
@@ -61,6 +68,21 @@ function ChallengeCard({
   );
 }
 
+// Inline checkmark SVG with animated draw-in
+function CheckmarkSVG() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        className="check-path"
+        d="M4 12l6 6L20 6"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function FeedbackBanner({ correct, explanation }: { correct: boolean; explanation: string }) {
   return (
     <div
@@ -70,23 +92,32 @@ function FeedbackBanner({ correct, explanation }: { correct: boolean; explanatio
         border: `1px solid ${correct ? "var(--green-mid)" : "var(--gold)"}`,
         background: correct ? "var(--green-light)" : "var(--gold-light)",
         color: correct ? "var(--green-deep)" : "var(--text)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.4rem",
       }}
     >
-      <p style={{ fontWeight: 800, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.4rem" }}>
-        {correct ? "Correct" : "Not quite"}
+      <p style={{ fontWeight: 800, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.06em", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+        {correct ? <CheckmarkSVG /> : (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/>
+            <path d="M12 8v4M12 16h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+        )}
+        {correct ? "Correct" : "Not quite — try again"}
       </p>
       <p style={{ fontSize: "0.85rem", lineHeight: 1.6 }}>{explanation}</p>
     </div>
   );
 }
 
-function ResetButton({ onReset }: { onReset: () => void }) {
+function ResetButton({ onReset, label = "Try Again" }: { onReset: () => void; label?: string }) {
   return (
     <button
       onClick={onReset}
       style={{
         width: "100%",
-        padding: "0.65rem",
+        padding: "0.75rem",
         borderRadius: "var(--radius-sm)",
         border: "1px solid var(--line)",
         background: "var(--bg-alt)",
@@ -94,10 +125,195 @@ function ResetButton({ onReset }: { onReset: () => void }) {
         fontSize: "0.8rem",
         fontWeight: 700,
         cursor: "pointer",
+        minHeight: "48px",
       }}
     >
-      Try Again
+      {label}
     </button>
+  );
+}
+
+// ── 5-dot stepper ─────────────────────────────────────────────────────────────
+
+const STEP_LABELS = ["Sequence Sort", "Fill the Blank", "Match Pair", "Spot the Error", "Multiple Choice"];
+
+function Stepper({ currentStep, phase }: { currentStep: number; phase: "quiz" | "summary" }) {
+  const allDone = phase === "summary";
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "0.75rem",
+        padding: "1rem 1.5rem",
+        background: "var(--surface)",
+        borderBottom: "1px solid var(--line-light)",
+        marginBottom: "1.5rem",
+      }}
+    >
+      {STEP_LABELS.map((label, i) => {
+        const completed = allDone || i < currentStep;
+        const current = !allDone && i === currentStep;
+        return (
+          <div
+            key={i}
+            style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", flex: 1 }}
+          >
+            <div
+              className={`challenge-step-dot${current ? " is-current" : ""}`}
+              style={{
+                width: "28px",
+                height: "28px",
+                borderRadius: "50%",
+                border: `2px solid ${completed ? "var(--green)" : current ? "var(--gold)" : "var(--line)"}`,
+                background: completed ? "var(--green)" : current ? "var(--gold-light)" : "var(--bg)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transform: current ? "scale(1.1)" : "scale(1)",
+                transition: "transform 150ms ease",
+              }}
+              aria-label={`Step ${i + 1}: ${label}${completed ? " — complete" : current ? " — current" : ""}`}
+            >
+              {completed ? (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M4 12l6 6L20 6" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              ) : (
+                <span style={{ fontSize: "0.7rem", fontWeight: 800, color: current ? "var(--gold)" : "var(--text-muted)" }}>
+                  {i + 1}
+                </span>
+              )}
+            </div>
+            <span style={{ fontSize: "0.6rem", fontWeight: 700, color: completed ? "var(--green)" : current ? "var(--text-soft)" : "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center", lineHeight: 1.2 }}>
+              {label}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Completion summary ────────────────────────────────────────────────────────
+
+function CompletionSummary({
+  score,
+  hadError,
+  onRetry,
+  onReview,
+}: {
+  score: number;
+  hadError: Set<number>;
+  onRetry: () => void;
+  onReview: () => void;
+}) {
+  const hasFired = useRef(false);
+
+  useEffect(() => {
+    if (hasFired.current) return;
+    hasFired.current = true;
+    if (score === 0) return;
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReduced) return;
+    const count = window.innerWidth < 768 ? 50 : 150;
+    void confetti({ particleCount: count, spread: 70, origin: { y: 0.6 }, disableForReducedMotion: true });
+  }, [score]);
+
+  return (
+    <div
+      style={{
+        background: "var(--surface)",
+        border: "1.5px solid var(--green)",
+        borderRadius: "var(--radius-lg)",
+        padding: "2rem 1.75rem",
+        display: "flex",
+        flexDirection: "column",
+        gap: "1.5rem",
+      }}
+    >
+      <div style={{ textAlign: "center" }}>
+        <div style={{ width: "52px", height: "52px", borderRadius: "50%", background: "var(--green)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1rem" }}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 12l6 6L20 6" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+        <h2 style={{ fontFamily: "var(--font-fraunces)", fontSize: "1.75rem", fontWeight: 700, color: "var(--green)", margin: "0 0 0.25rem" }}>
+          {score} of 5 correct
+        </h2>
+        <p style={{ fontSize: "0.875rem", color: "var(--text-soft)", margin: 0 }}>
+          {score === 5 ? "Perfect run — all 5 on the first try." : score >= 3 ? "Good effort. Review the ones you missed." : "Keep practising — these questions are always replayable."}
+        </p>
+      </div>
+
+      {/* Per-step result rows */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        {STEP_LABELS.map((label, i) => {
+          const firstTry = !hadError.has(i);
+          return (
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                padding: "0.65rem 0.9rem",
+                borderRadius: "var(--radius-sm)",
+                background: firstTry ? "var(--green-light)" : "var(--bg-alt)",
+                border: `1px solid ${firstTry ? "var(--green)" : "var(--line)"}`,
+              }}
+            >
+              {firstTry ? (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M4 12l6 6L20 6" stroke="var(--green)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" stroke="var(--gold)" strokeWidth="2"/>
+                  <path d="M12 8v4" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              )}
+              <span style={{ fontSize: "0.85rem", fontWeight: 600, color: firstTry ? "var(--green-deep)" : "var(--text-soft)", flex: 1 }}>
+                {label}
+              </span>
+              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: firstTry ? "var(--green)" : "var(--text-muted)" }}>
+                {firstTry ? "First try" : "Needed retry"}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+        <button
+          onClick={onReview}
+          style={{
+            width: "100%", padding: "0.85rem",
+            borderRadius: "var(--radius-sm)",
+            background: "var(--bg-alt)",
+            color: "var(--text-soft)",
+            fontSize: "0.875rem", fontWeight: 700,
+            border: "1px solid var(--line)", cursor: "pointer", minHeight: "48px",
+          }}
+        >
+          Review all answers
+        </button>
+        <button
+          onClick={onRetry}
+          style={{
+            width: "100%", padding: "0.85rem",
+            borderRadius: "var(--radius-sm)",
+            background: "transparent",
+            color: "var(--text-muted)",
+            fontSize: "0.85rem", fontWeight: 600,
+            border: "1px solid var(--line)", cursor: "pointer", minHeight: "48px",
+          }}
+        >
+          Try again from the start
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -113,7 +329,7 @@ const SEQUENCE_CORRECT = ["guinness-start", "margarita", "wine", "guinness-top"]
 const SEQUENCE_EXPLANATION =
   "Guinness requires a two-stage pour with roughly 90 seconds to settle — always start it first. Build other drinks while it settles, then top it up last.";
 
-function SequenceSort({ onComplete }: { onComplete?: () => void }) {
+function SequenceSort({ onComplete, onIncorrect }: { onComplete?: () => void; onIncorrect?: () => void }) {
   const [items, setItems] = useState(SEQUENCE_ITEMS);
   const [checked, setChecked] = useState(false);
   const [correct, setCorrect] = useState(false);
@@ -131,6 +347,7 @@ function SequenceSort({ onComplete }: { onComplete?: () => void }) {
     setCorrect(match);
     setChecked(true);
     if (match) onComplete?.();
+    else onIncorrect?.();
   };
 
   const reset = () => {
@@ -140,7 +357,7 @@ function SequenceSort({ onComplete }: { onComplete?: () => void }) {
   };
 
   return (
-    <ChallengeCard formatLabel="Question 1" title="Sequence Sort">
+    <ChallengeCard formatLabel="Question 1" title="Sequence Sort" isCorrect={checked && correct} isIncorrect={checked && !correct}>
       <p style={{ fontSize: "0.95rem", fontWeight: 600, color: "var(--text)", lineHeight: 1.5 }}>
         A Guinness, a Margarita, and a Pinot Grigio arrive simultaneously. What order do you build them?
       </p>
@@ -157,6 +374,7 @@ function SequenceSort({ onComplete }: { onComplete?: () => void }) {
               background: "var(--surface-raised)",
               border: "1px solid var(--line)",
               borderRadius: "var(--radius-md)",
+              minHeight: "48px",
             }}
           >
             <div
@@ -185,12 +403,10 @@ function SequenceSort({ onComplete }: { onComplete?: () => void }) {
                   onClick={() => move(i, -1)}
                   disabled={i === 0}
                   style={{
-                    background: "none",
-                    border: "none",
+                    background: "none", border: "none",
                     cursor: i === 0 ? "default" : "pointer",
                     opacity: i === 0 ? 0.25 : 1,
-                    color: "var(--text-muted)",
-                    padding: "2px 4px",
+                    color: "var(--text-muted)", padding: "4px 6px", minHeight: "24px",
                   }}
                   aria-label="Move up"
                 >
@@ -200,12 +416,10 @@ function SequenceSort({ onComplete }: { onComplete?: () => void }) {
                   onClick={() => move(i, 1)}
                   disabled={i === items.length - 1}
                   style={{
-                    background: "none",
-                    border: "none",
+                    background: "none", border: "none",
                     cursor: i === items.length - 1 ? "default" : "pointer",
                     opacity: i === items.length - 1 ? 0.25 : 1,
-                    color: "var(--text-muted)",
-                    padding: "2px 4px",
+                    color: "var(--text-muted)", padding: "4px 6px", minHeight: "24px",
                   }}
                   aria-label="Move down"
                 >
@@ -218,37 +432,33 @@ function SequenceSort({ onComplete }: { onComplete?: () => void }) {
       </div>
 
       {checked ? (
-        <>
-          <FeedbackBanner correct={correct} explanation={SEQUENCE_EXPLANATION} />
-          <ResetButton onReset={reset} />
-        </>
+        <FeedbackBanner correct={correct} explanation={SEQUENCE_EXPLANATION} />
       ) : (
         <button
           onClick={check}
           style={{
-            padding: "0.7rem 1.5rem",
+            padding: "0.75rem 1.5rem",
             borderRadius: "var(--radius-sm)",
             background: "var(--green)",
             color: "white",
-            fontSize: "0.85rem",
+            fontSize: "0.875rem",
             fontWeight: 700,
             border: "none",
             cursor: "pointer",
             alignSelf: "flex-end",
+            minHeight: "48px",
           }}
         >
           Verify Order
         </button>
       )}
+      {checked && !correct && <ResetButton onReset={reset} />}
     </ChallengeCard>
   );
 }
 
 // ── Format 2: Fill the Blank ─────────────────────────────────────────────────
 
-// Sentence parts with blank slots interleaved
-// Parts: ["A Classic Daiquiri uses ", " White Rum, ", " fresh lime juice, and ", " sugar syrup — shaken and served in a ", "."]
-// Blanks at indices 0–3 map to correctAnswers
 const FILL_PARTS = [
   "A Classic Daiquiri uses ",
   " White Rum, ",
@@ -261,7 +471,7 @@ const FILL_WORD_BANK = ["25ml", "60ml", "30ml", "15ml", "highball", "chilled cou
 const FILL_EXPLANATION =
   "The Classic Daiquiri spec is 60ml White Rum / 25ml Fresh Lime Juice / 15ml Sugar Syrup, served in a chilled coupe. Always use fresh lime — bottled juice alters the acidity balance.";
 
-function FillBlank({ onComplete }: { onComplete?: () => void }) {
+function FillBlank({ onComplete, onIncorrect }: { onComplete?: () => void; onIncorrect?: () => void }) {
   const [selected, setSelected] = useState<Record<number, string>>({});
   const [activeSlot, setActiveSlot] = useState<number | null>(0);
   const [checked, setChecked] = useState(false);
@@ -271,7 +481,6 @@ function FillBlank({ onComplete }: { onComplete?: () => void }) {
     if (activeSlot === null || checked) return;
     const next = { ...selected, [activeSlot]: word };
     setSelected(next);
-    // Advance to next empty slot
     const nextEmpty = FILL_CORRECT.findIndex((_, i) => i > activeSlot && !next[i]);
     setActiveSlot(nextEmpty === -1 ? null : nextEmpty);
   };
@@ -283,6 +492,7 @@ function FillBlank({ onComplete }: { onComplete?: () => void }) {
     setCorrect(match);
     setChecked(true);
     if (match) onComplete?.();
+    else onIncorrect?.();
   };
 
   const reset = () => {
@@ -293,12 +503,11 @@ function FillBlank({ onComplete }: { onComplete?: () => void }) {
   };
 
   return (
-    <ChallengeCard formatLabel="Question 2" title="Fill the Blank">
+    <ChallengeCard formatLabel="Question 2" title="Fill the Blank" isCorrect={checked && correct} isIncorrect={checked && !correct}>
       <p style={{ fontSize: "0.95rem", fontWeight: 600, color: "var(--text)" }}>
         Reconstruct the Classic Daiquiri recipe:
       </p>
 
-      {/* Sentence with blank slots */}
       <div
         style={{
           background: "var(--bg)",
@@ -323,21 +532,11 @@ function FillBlank({ onComplete }: { onComplete?: () => void }) {
                   padding: "2px 10px",
                   margin: "0 2px",
                   borderRadius: "var(--radius-sm)",
-                  border: `2px solid ${
-                    activeSlot === i && !checked
-                      ? "var(--green)"
-                      : selected[i]
-                      ? "var(--line)"
-                      : "var(--line)"
-                  }`,
+                  border: `2px solid ${activeSlot === i && !checked ? "var(--green)" : "var(--line)"}`,
                   borderStyle: selected[i] ? "solid" : "dashed",
                   background: selected[i]
-                    ? activeSlot === i && !checked
-                      ? "var(--green-light)"
-                      : "var(--surface-raised)"
-                    : activeSlot === i && !checked
-                    ? "var(--green-light)"
-                    : "transparent",
+                    ? activeSlot === i && !checked ? "var(--green-light)" : "var(--surface-raised)"
+                    : activeSlot === i && !checked ? "var(--green-light)" : "transparent",
                   color: selected[i] ? "var(--text)" : "var(--text-muted)",
                   fontSize: "0.85rem",
                   fontWeight: 700,
@@ -352,7 +551,6 @@ function FillBlank({ onComplete }: { onComplete?: () => void }) {
         ))}
       </div>
 
-      {/* Word bank */}
       <div
         style={{
           background: "var(--surface-raised)",
@@ -384,6 +582,7 @@ function FillBlank({ onComplete }: { onComplete?: () => void }) {
                   opacity: used ? 0.5 : 1,
                   textDecoration: used ? "line-through" : "none",
                   transition: "all 0.15s",
+                  minHeight: "44px",
                 }}
               >
                 {word}
@@ -394,30 +593,29 @@ function FillBlank({ onComplete }: { onComplete?: () => void }) {
       </div>
 
       {checked ? (
-        <>
-          <FeedbackBanner correct={correct} explanation={FILL_EXPLANATION} />
-          <ResetButton onReset={reset} />
-        </>
+        <FeedbackBanner correct={correct} explanation={FILL_EXPLANATION} />
       ) : (
         <button
           onClick={check}
           disabled={!allFilled}
           style={{
-            padding: "0.7rem 1.5rem",
+            padding: "0.75rem 1.5rem",
             borderRadius: "var(--radius-sm)",
             background: allFilled ? "var(--green)" : "var(--line)",
             color: allFilled ? "white" : "var(--text-muted)",
-            fontSize: "0.85rem",
+            fontSize: "0.875rem",
             fontWeight: 700,
             border: "none",
             cursor: allFilled ? "pointer" : "not-allowed",
             alignSelf: "flex-end",
+            minHeight: "48px",
             transition: "all 0.2s",
           }}
         >
           Check Recipe
         </button>
       )}
+      {checked && !correct && <ResetButton onReset={reset} />}
     </ChallengeCard>
   );
 }
@@ -440,7 +638,7 @@ const MATCH_CORRECT: Record<string, string> = {
   mojito: "highball",
 };
 
-function MatchPair({ onComplete }: { onComplete?: () => void }) {
+function MatchPair({ onComplete, onIncorrect }: { onComplete?: () => void; onIncorrect?: () => void }) {
   const [selectedLeft, setSelectedLeft] = useState<string | null>(null);
   const [matched, setMatched] = useState<Record<string, string>>({});
   const [wrong, setWrong] = useState<string | null>(null);
@@ -459,19 +657,16 @@ function MatchPair({ onComplete }: { onComplete?: () => void }) {
       setMatched(nextMatched);
       setSelectedLeft(null);
       setWrong(null);
-      if (Object.keys(nextMatched).length === MATCH_LEFT.length) { setDone(true); onComplete?.(); }
+      if (Object.keys(nextMatched).length === MATCH_LEFT.length) {
+        setDone(true);
+        onComplete?.();
+      }
     } else {
       setWrong(selectedLeft);
       setSelectedLeft(null);
       setTimeout(() => setWrong(null), 800);
+      onIncorrect?.();
     }
-  };
-
-  const reset = () => {
-    setSelectedLeft(null);
-    setMatched({});
-    setWrong(null);
-    setDone(false);
   };
 
   const leftItemStyle = (id: string): React.CSSProperties => {
@@ -490,12 +685,13 @@ function MatchPair({ onComplete }: { onComplete?: () => void }) {
       textAlign: "center",
       transition: "all 0.15s",
       opacity: isMatched ? 0.8 : 1,
+      minHeight: "48px",
     };
   };
 
   const rightItemStyle = (id: string): React.CSSProperties => {
     const isMatched = Object.values(matched).includes(id);
-    const isTarget = selectedLeft && MATCH_CORRECT[selectedLeft] === id;
+    const isTarget = !!(selectedLeft && MATCH_CORRECT[selectedLeft] === id);
     return {
       padding: "0.8rem 1rem",
       borderRadius: "var(--radius-md)",
@@ -508,11 +704,12 @@ function MatchPair({ onComplete }: { onComplete?: () => void }) {
       textAlign: "center",
       transition: "all 0.15s",
       opacity: isMatched ? 0.8 : 1,
+      minHeight: "48px",
     };
   };
 
   return (
-    <ChallengeCard formatLabel="Question 3" title="Match Pair">
+    <ChallengeCard formatLabel="Question 3" title="Match Pair" isCorrect={done}>
       <p style={{ fontSize: "0.95rem", fontWeight: 600, color: "var(--text)" }}>
         Match each cocktail to its correct glassware. Tap a cocktail, then tap its glass.
       </p>
@@ -540,13 +737,10 @@ function MatchPair({ onComplete }: { onComplete?: () => void }) {
       </div>
 
       {done ? (
-        <>
-          <FeedbackBanner
-            correct={true}
-            explanation="Margarita — coupe (or salt-rimmed rocks). Old Fashioned — rocks glass, always. Mojito — highball, to allow the mint and ice to breathe."
-          />
-          <ResetButton onReset={reset} />
-        </>
+        <FeedbackBanner
+          correct={true}
+          explanation="Margarita — coupe (or salt-rimmed rocks). Old Fashioned — rocks glass, always. Mojito — highball, to allow the mint and ice to breathe."
+        />
       ) : (
         <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", textAlign: "center" }}>
           {selectedLeft
@@ -569,30 +763,34 @@ const SPOT_ITEMS = [
 const SPOT_EXPLANATION =
   "The error is \"Bottled Lime Juice\". A Classic Daiquiri always uses fresh lime juice. Bottled juice contains preservatives and citric acid that flatten the flavour and alter the acidity balance.";
 
-function SpotError({ onComplete }: { onComplete?: () => void }) {
+function SpotError({ onComplete, onIncorrect }: { onComplete?: () => void; onIncorrect?: () => void }) {
   const [tapped, setTapped] = useState<string | null>(null);
   const [checked, setChecked] = useState(false);
+  const [answeredCorrect, setAnsweredCorrect] = useState(false);
 
   const tap = (id: string) => {
     if (checked) return;
+    const item = SPOT_ITEMS.find((i) => i.id === id);
+    const isCorrectTap = item && !item.correct;
     setTapped(id);
     setChecked(true);
-    const item = SPOT_ITEMS.find((i) => i.id === id);
-    if (item && !item.correct) onComplete?.();
+    setAnsweredCorrect(!!isCorrectTap);
+    if (isCorrectTap) onComplete?.();
+    else onIncorrect?.();
   };
 
   const reset = () => {
     setTapped(null);
     setChecked(false);
+    setAnsweredCorrect(false);
   };
 
   return (
-    <ChallengeCard formatLabel="Question 4" title="Spot the Error">
+    <ChallengeCard formatLabel="Question 4" title="Spot the Error" isCorrect={checked && answeredCorrect} isIncorrect={checked && !answeredCorrect}>
       <p style={{ fontSize: "0.95rem", fontWeight: 600, color: "var(--text)" }}>
         One ingredient on this Classic Daiquiri recipe card is wrong. Tap it to identify the mistake.
       </p>
 
-      {/* Recipe card */}
       <div
         style={{
           background: "var(--surface-raised)",
@@ -656,19 +854,17 @@ function SpotError({ onComplete }: { onComplete?: () => void }) {
                   display: "flex",
                   alignItems: "center",
                   gap: "0.6rem",
-                  padding: "0.55rem 0.75rem",
+                  padding: "0.65rem 0.75rem",
                   borderRadius: "var(--radius-sm)",
                   border: `1px solid ${
-                    showResult && isError
-                      ? "var(--gold)"
-                      : showResult && !isError
-                      ? "var(--red-text)"
-                      : "transparent"
+                    showResult && isError ? "var(--gold)"
+                    : showResult && !isError ? "var(--red-text, #b91c1c)"
+                    : "transparent"
                   }`,
                   background: showResult && isError
                     ? "var(--gold-light)"
                     : showResult && !isError
-                    ? "var(--red-soft)"
+                    ? "var(--red-soft, #fee2e2)"
                     : "transparent",
                   color: "var(--text)",
                   fontSize: "0.88rem",
@@ -677,6 +873,7 @@ function SpotError({ onComplete }: { onComplete?: () => void }) {
                   textAlign: "left",
                   transition: "all 0.15s",
                   width: "100%",
+                  minHeight: "44px",
                 }}
               >
                 <span
@@ -696,11 +893,12 @@ function SpotError({ onComplete }: { onComplete?: () => void }) {
       </div>
 
       {checked && (
-        <>
-          <FeedbackBanner correct={!!(tapped && SPOT_ITEMS.find((i) => i.id === tapped)?.correct === false)} explanation={SPOT_EXPLANATION} />
-          <ResetButton onReset={reset} />
-        </>
+        <FeedbackBanner
+          correct={answeredCorrect}
+          explanation={SPOT_EXPLANATION}
+        />
       )}
+      {checked && !answeredCorrect && <ResetButton onReset={reset} />}
     </ChallengeCard>
   );
 }
@@ -716,15 +914,18 @@ const MC_OPTIONS = [
 const MC_EXPLANATION =
   "Always own the problem immediately and replace the glass. Deflecting to another team member or wiping a soiled glass both undermine guest trust. A quick apology and immediate replacement is the professional standard.";
 
-function MultipleChoice({ onComplete }: { onComplete?: () => void }) {
+function MultipleChoice({ onComplete, onIncorrect }: { onComplete?: () => void; onIncorrect?: () => void }) {
   const [selected, setSelected] = useState<string | null>(null);
   const [checked, setChecked] = useState(false);
+
+  const correctId = MC_OPTIONS.find((o) => o.correct)?.id;
 
   const choose = (id: string) => {
     if (checked) return;
     setSelected(id);
     setChecked(true);
-    if (MC_OPTIONS.find((o) => o.correct)?.id === id) onComplete?.();
+    if (correctId === id) onComplete?.();
+    else onIncorrect?.();
   };
 
   const reset = () => {
@@ -732,11 +933,10 @@ function MultipleChoice({ onComplete }: { onComplete?: () => void }) {
     setChecked(false);
   };
 
-  const correctId = MC_OPTIONS.find((o) => o.correct)?.id;
+  const answeredCorrect = checked && selected === correctId;
 
   return (
-    <ChallengeCard formatLabel="Question 5" title="Multiple Choice">
-      {/* Guest scenario bubble */}
+    <ChallengeCard formatLabel="Question 5" title="Multiple Choice" isCorrect={answeredCorrect} isIncorrect={checked && !answeredCorrect}>
       <div
         style={{
           background: "var(--surface-raised)",
@@ -798,9 +998,7 @@ function MultipleChoice({ onComplete }: { onComplete?: () => void }) {
                 gap: "0.85rem",
                 padding: "0.9rem 1.1rem",
                 borderRadius: "var(--radius-md)",
-                border: `1.5px solid ${
-                  showCorrect ? "var(--green)" : showWrong ? "var(--gold)" : "var(--line)"
-                }`,
+                border: `1.5px solid ${showCorrect ? "var(--green)" : showWrong ? "var(--gold)" : "var(--line)"}`,
                 background: showCorrect ? "var(--green-light)" : showWrong ? "var(--gold-light)" : "var(--surface-raised)",
                 color: showCorrect ? "var(--green-deep)" : "var(--text)",
                 fontSize: "0.9rem",
@@ -809,6 +1007,7 @@ function MultipleChoice({ onComplete }: { onComplete?: () => void }) {
                 cursor: checked ? "default" : "pointer",
                 transition: "all 0.15s",
                 position: "relative",
+                minHeight: "48px",
               }}
             >
               <div
@@ -855,11 +1054,9 @@ function MultipleChoice({ onComplete }: { onComplete?: () => void }) {
       </div>
 
       {checked && (
-        <>
-          <FeedbackBanner correct={selected === correctId} explanation={MC_EXPLANATION} />
-          <ResetButton onReset={reset} />
-        </>
+        <FeedbackBanner correct={answeredCorrect} explanation={MC_EXPLANATION} />
       )}
+      {checked && !answeredCorrect && <ResetButton onReset={reset} />}
     </ChallengeCard>
   );
 }
@@ -867,35 +1064,55 @@ function MultipleChoice({ onComplete }: { onComplete?: () => void }) {
 // ── Page shell ────────────────────────────────────────────────────────────────
 
 export default function ChallengesPage() {
-  const [completedChallenges, setCompletedChallenges] = useState<Set<number>>(() => {
-    try {
-      const stored = localStorage.getItem("sbe_challenges_completed");
-      return stored ? new Set(JSON.parse(stored) as number[]) : new Set<number>();
-    } catch {
-      return new Set<number>();
-    }
-  });
+  const [phase, setPhase] = useState<"quiz" | "summary">("quiz");
+  const [currentStep, setCurrentStep] = useState(0);
+  const [hadError, setHadError] = useState<Set<number>>(new Set());
+  const [reviewMode, setReviewMode] = useState(false);
 
   function markComplete(index: number) {
-    setCompletedChallenges((prev) => {
-      if (prev.has(index)) return prev;
+    // Persist to localStorage so ProgressOverview can read completion state
+    try {
+      const stored = localStorage.getItem("sbe_challenges_completed");
+      const existing: number[] = stored ? (JSON.parse(stored) as number[]) : [];
+      if (!existing.includes(index)) {
+        localStorage.setItem("sbe_challenges_completed", JSON.stringify([...existing, index]));
+      }
+    } catch { /* ignore */ }
+    // Advance wizard
+    if (index === 4) {
+      setPhase("summary");
+    } else {
+      setCurrentStep(index + 1);
+    }
+  }
+
+  function markIncorrect(index: number) {
+    setHadError((prev) => {
       const next = new Set(prev);
       next.add(index);
-      try {
-        localStorage.setItem("sbe_challenges_completed", JSON.stringify([...next]));
-      } catch { /* ignore */ }
       return next;
     });
   }
 
-  const allComplete = completedChallenges.size >= 5;
+  function reset() {
+    setPhase("quiz");
+    setCurrentStep(0);
+    setHadError(new Set());
+    setReviewMode(false);
+    // Clear localStorage so ProgressOverview reflects the restart
+    try {
+      localStorage.removeItem("sbe_challenges_completed");
+    } catch { /* ignore */ }
+  }
+
+  const score = 5 - hadError.size;
 
   return (
     <div style={{ width: "100%", paddingBottom: "3rem" }}>
       {/* Header */}
       <div
         className="sbe-command-bar sbe-command-bar-active"
-        style={{ color: "white", marginBottom: "1.75rem" }}
+        style={{ color: "white", marginBottom: "1.25rem" }}
       >
         <div className="sbe-command-text">
           <span className="sbe-command-eyebrow">Experimental</span>
@@ -906,45 +1123,66 @@ export default function ChallengesPage() {
         </div>
       </div>
 
-      <p
-        style={{
-          fontSize: "0.9rem",
-          color: "var(--text-soft)",
-          lineHeight: 1.65,
-          marginBottom: "2rem",
-          maxWidth: "640px",
-        }}
-      >
-        Bite-sized training built for a busy shift. Tap, drag, and match your way through real hospitality scenarios — no blank text boxes, no exam pressure.
-      </p>
+      {/* 5-dot stepper */}
+      <Stepper currentStep={currentStep} phase={phase} />
 
-      {allComplete && (
-        <div
-          style={{
-            background: "var(--green-light)",
-            border: "1.5px solid var(--green)",
-            borderRadius: "var(--radius-md)",
-            padding: "1rem 1.25rem",
-            marginBottom: "1.75rem",
-          }}
-        >
-          <p style={{ fontWeight: 800, color: "var(--green)", fontSize: "0.95rem", margin: 0 }}>
-            All 5 questions complete — well done!
-          </p>
-          <p style={{ fontSize: "0.82rem", color: "var(--text-soft)", margin: "4px 0 0" }}>
-            Ready to go deeper? Try AI Scenarios for live scenario assessments.
-          </p>
+      {phase === "quiz" && (
+        <div>
+          {currentStep === 0 && (
+            <SequenceSort
+              onComplete={() => markComplete(0)}
+              onIncorrect={() => markIncorrect(0)}
+            />
+          )}
+          {currentStep === 1 && (
+            <FillBlank
+              onComplete={() => markComplete(1)}
+              onIncorrect={() => markIncorrect(1)}
+            />
+          )}
+          {currentStep === 2 && (
+            <MatchPair
+              onComplete={() => markComplete(2)}
+              onIncorrect={() => markIncorrect(2)}
+            />
+          )}
+          {currentStep === 3 && (
+            <SpotError
+              onComplete={() => markComplete(3)}
+              onIncorrect={() => markIncorrect(3)}
+            />
+          )}
+          {currentStep === 4 && (
+            <MultipleChoice
+              onComplete={() => markComplete(4)}
+              onIncorrect={() => markIncorrect(4)}
+            />
+          )}
         </div>
       )}
 
-      {/* Challenge cards */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-        <SequenceSort onComplete={() => markComplete(0)} />
-        <FillBlank onComplete={() => markComplete(1)} />
-        <MatchPair onComplete={() => markComplete(2)} />
-        <SpotError onComplete={() => markComplete(3)} />
-        <MultipleChoice onComplete={() => markComplete(4)} />
-      </div>
+      {phase === "summary" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+          <CompletionSummary
+            score={score}
+            hadError={hadError}
+            onRetry={reset}
+            onReview={() => setReviewMode(true)}
+          />
+          {reviewMode && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              <p style={{ fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)" }}>
+                Review all answers
+              </p>
+              <SequenceSort onComplete={() => {}} />
+              <FillBlank onComplete={() => {}} />
+              <MatchPair onComplete={() => {}} />
+              <SpotError onComplete={() => {}} />
+              <MultipleChoice onComplete={() => {}} />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

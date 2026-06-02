@@ -15618,3 +15618,56 @@ h1, h2, h3 {
   font-size: 0.6rem;
 }
 /* ─────────────────────────────────────────────────────── */
+
+/* ── Challenges wizard micro-interactions ──────────────── */
+@keyframes correct-pulse {
+  0%   { background: var(--surface); }
+  40%  { background: var(--green-light); }
+  100% { background: var(--surface); }
+}
+@keyframes nudge {
+  0%,100% { transform: translateX(0); }
+  25%      { transform: translateX(-5px); }
+  75%      { transform: translateX(5px); }
+}
+
+.answer-card.is-correct {
+  animation: correct-pulse 600ms ease-out;
+  border: 2px solid var(--green) !important;
+}
+.answer-card.is-incorrect {
+  animation: nudge 300ms ease;
+  border: 2px solid var(--gold) !important;
+}
+
+.check-path {
+  stroke: var(--green);
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  transition: stroke-dashoffset 400ms ease 100ms;
+}
+.answer-card.is-correct .check-path {
+  stroke-dashoffset: 0;
+}
+
+.challenge-step-dot {
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+.challenge-step-dot.is-current {
+  box-shadow: 0 0 0 3px var(--gold-light);
+}
+
+/* Progress Hub tab cross-fade */
+.progress-tab-panel {
+  animation: anim-fadein 200ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .answer-card.is-correct,
+  .answer-card.is-incorrect,
+  .challenge-step-dot,
+  .progress-tab-panel {
+    animation: none !important;
+    transition: none !important;
+  }
+}
