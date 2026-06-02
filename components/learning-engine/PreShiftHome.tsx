@@ -171,10 +171,14 @@ export default function PreShiftHome({
   displayName,
   setActiveNav,
   managementUnlocked = false,
+  onNavigateToCategory,
+  isPremium,
 }: {
   displayName: string;
   setActiveNav: (nav: NavItem) => void;
   managementUnlocked?: boolean;
+  onNavigateToCategory?: (category: string) => void;
+  isPremium?: boolean;
 }) {
   const [data, setData] = useState<ProgressData>(EMPTY);
   const [streak, setStreak] = useState(0);
@@ -239,6 +243,18 @@ export default function PreShiftHome({
     management: getCategoryMastery(data.allModules, data.moduleProgress, "compliance"),
   };
 
+  const CATEGORY_NAV_KEY: Record<ModuleKey, "technical" | "service" | "compliance"> = {
+    bartending: "technical",
+    sales: "service",
+    management: "compliance",
+  };
+
+  const CATEGORY_MODULE_TOTALS: Record<ModuleKey, number> = {
+    bartending: data.allModules.filter((m) => m.category === "technical").length || 14,
+    sales: data.allModules.filter((m) => m.category === "service").length || 14,
+    management: data.allModules.filter((m) => m.category === "compliance").length || 12,
+  };
+
   const totalSessions = data.sessions.bartending + data.sessions.sales + data.sessions.management;
   const skillLevel = data.skillLevel;
   const weakest = getWeakestModule(categoryMastery);
@@ -247,6 +263,39 @@ export default function PreShiftHome({
   const lastTrainedLabel = formatLastTrained(data.lastAttemptAt);
   const WeakestIcon = MODULE_META[weakest].Icon;
   const challenge = getDailyChallenge();
+  const isNewUser = totalSessions === 0;
+
+  // Hoist badge computation so it's available in Quick Nav and Achievements
+  const badgeModules: ModuleSummaryForBadges[] = loaded
+    ? data.allModules.map((m) => {
+        const prog = data.moduleProgress[m.id];
+        return {
+          category: m.category as "technical" | "service" | "compliance",
+          mastered: (prog?.mastery ?? 0) >= 80,
+          attempted: (prog?.scenariosAttempted ?? 0) > 0,
+        };
+      })
+    : [];
+  const badgeScores: CategoryScores = {
+    bartending: categoryMastery.bartending,
+    sales: categoryMastery.sales,
+    management: categoryMastery.management,
+  };
+  const allBadges = computeBadges(badgeModules, badgeScores, streak, 0, 0);
+  const badgeEarned = countEarned(allBadges);
+  const recentBadges = recentEarned(allBadges, 3);
+
+  // Progress Snapshot stats
+  const modulesComplete = data.allModules.filter(
+    (m) => (data.moduleProgress[m.id]?.mastery ?? 0) >= 80
+  ).length;
+  const totalModules = data.allModules.length || 1;
+  const avgScore = loaded
+    ? Math.round(
+        data.allModules.reduce((sum, m) => sum + (data.moduleProgress[m.id]?.mastery ?? 0), 0) / totalModules
+      )
+    : 0;
+  const isProgressZeroState = loaded && avgScore === 0 && modulesComplete === 0;
 
   return (
     <div className="psh">
@@ -286,36 +335,88 @@ export default function PreShiftHome({
       </div>
 
       {/* ── Quick Nav ── */}
-      <div className="psh-quick-nav">
-        <button className="psh-quick-nav-item" type="button" onClick={() => setActiveNav("stage4")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-          </svg>
-          <span className="psh-quick-nav-label">Scenarios</span>
-          <span className="psh-quick-nav-sub">Practice written scenarios</span>
-        </button>
-        <button className="psh-quick-nav-item" type="button" onClick={() => setActiveNav("scenarios")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          </svg>
-          <span className="psh-quick-nav-label">AI Arena</span>
-          <span className="psh-quick-nav-sub">Live roleplay with AI</span>
-        </button>
-        <button className="psh-quick-nav-item" type="button" onClick={() => setActiveNav("challenges")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-          </svg>
-          <span className="psh-quick-nav-label">Challenges</span>
-          <span className="psh-quick-nav-sub">Interactive mini-games</span>
-        </button>
-        <Link href="/dashboard/badges" className="psh-quick-nav-item">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
-          </svg>
-          <span className="psh-quick-nav-label">Badges</span>
-          <span className="psh-quick-nav-sub">Your achievements</span>
-        </Link>
-      </div>
+      {(() => {
+        const quickNavTiles: Array<{
+          id: string;
+          label: string;
+          subtitle: string;
+          icon: React.ReactNode;
+          action?: () => void;
+          href?: string;
+          isPremiumGated: boolean;
+        }> = [
+          {
+            id: "stage4", label: "Scenarios",
+            subtitle: totalSessions > 0 ? `${totalSessions} sessions done` : "Practice written scenarios",
+            icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>,
+            action: () => setActiveNav("stage4"), isPremiumGated: true,
+          },
+          {
+            id: "scenarios", label: "AI Arena",
+            subtitle: "Live roleplay with AI",
+            icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
+            action: () => setActiveNav("scenarios"), isPremiumGated: true,
+          },
+          {
+            id: "challenges", label: "Challenges",
+            subtitle: "Interactive mini-games",
+            icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+            action: () => setActiveNav("challenges"), isPremiumGated: false,
+          },
+          {
+            id: "badges", label: "Badges",
+            subtitle: badgeEarned > 0 ? `${badgeEarned} earned` : "Your achievements",
+            icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>,
+            href: "/dashboard/badges", isPremiumGated: false,
+          },
+          {
+            id: "cocktails", label: "Cocktail Library",
+            subtitle: "38 recipes",
+            icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10 3l2 6M12 9h6l-6 11M12 9H6l6 11"/></svg>,
+            action: () => setActiveNav("cocktails"), isPremiumGated: true,
+          },
+          {
+            id: "knowledge", label: "Knowledge Base",
+            subtitle: "101 quick-reference cards",
+            icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>,
+            action: () => setActiveNav("knowledge"), isPremiumGated: true,
+          },
+        ];
+        return (
+          <div className="psh-quick-nav">
+            {quickNavTiles.map((tile) => {
+              const isLocked = tile.isPremiumGated && isPremium === false;
+              const isStartHere = isNewUser && tile.id === "stage4";
+              const content = (
+                <>
+                  {tile.icon}
+                  <span className="psh-quick-nav-label">{tile.label}</span>
+                  <span className="psh-quick-nav-sub">{tile.subtitle}</span>
+                  {isStartHere && (
+                    <span style={{ fontSize: "0.68rem", color: "var(--gold)", fontWeight: 700, marginTop: 2 }}>
+                      Start here
+                    </span>
+                  )}
+                  {isLocked && (
+                    <div style={{ position: "absolute", top: 8, right: 8, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 4, background: "var(--gold-dim)" }}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                      </svg>
+                    </div>
+                  )}
+                </>
+              );
+              const cls = `psh-quick-nav-item${isStartHere ? " psh-quick-nav-item--start-here" : ""}`;
+              const style: React.CSSProperties = { opacity: isLocked ? 0.65 : 1, position: "relative" };
+              return tile.href ? (
+                <Link key={tile.id} href={tile.href} className={cls} style={style}>{content}</Link>
+              ) : (
+                <button key={tile.id} type="button" className={cls} onClick={tile.action} style={style}>{content}</button>
+              );
+            })}
+          </div>
+        );
+      })()}
 
       {/* ── A2: Hero Grid: Pre-Shift Brief (left) + Daily Challenge (right) ── */}
       <div
@@ -328,17 +429,28 @@ export default function PreShiftHome({
             <div>
               <span className="eyebrow">Pre-shift brief</span>
               <h1>Welcome back, {displayName}</h1>
-              <p>
-                {!loaded
-                  ? "Preparing your training brief..."
-                  : totalSessions === 0
-                  ? "Start your first training session to build your service skills."
-                  : `You've completed ${totalSessions} session${totalSessions !== 1 ? "s" : ""}. ${
-                      data.reviewDue > 0
-                        ? `${data.reviewDue} review${data.reviewDue !== 1 ? "s" : ""} due for spaced repetition.`
-                        : "Keep pushing your weakest area."
-                    }`}
-              </p>
+              {!loaded ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
+                  {[80, 65, 72].map((width, i) => (
+                    <div key={i} style={{
+                      height: 16, width: `${width}%`, borderRadius: 8,
+                      background: "var(--line-light)",
+                      animation: "skeletonPulse 1.4s ease-in-out infinite",
+                      animationDelay: `${i * 150}ms`,
+                    }} />
+                  ))}
+                </div>
+              ) : (
+                <p>
+                  {totalSessions === 0
+                    ? "Start your first training session to build your service skills."
+                    : `You've completed ${totalSessions} session${totalSessions !== 1 ? "s" : ""}. ${
+                        data.reviewDue > 0
+                          ? `${data.reviewDue} review${data.reviewDue !== 1 ? "s" : ""} due for spaced repetition.`
+                          : "Keep pushing your weakest area."
+                      }`}
+                </p>
+              )}
             </div>
           </div>
           <div className="psh-coach psh-coach-brief">
@@ -347,8 +459,14 @@ export default function PreShiftHome({
               <span>Based on your weakest area: {MODULE_META[weakest].short}</span>
             </div>
             <ul className="psh-coach-list">
-              {coachTips.map((tip) => (
-                <li key={tip}>
+              {coachTips.map((tip, i) => (
+                <li key={tip} style={{
+                  borderLeft: i === 0 ? "3px solid var(--gold)" : "3px solid transparent",
+                  paddingLeft: 10,
+                  color: i === 0 ? "var(--text)" : "var(--text-soft)",
+                  fontSize: i === 0 ? "0.92rem" : "0.87rem",
+                  fontWeight: i === 0 ? 500 : 400,
+                }}>
                   <span className="psh-coach-arrow">→</span>
                   {tip}
                 </li>
@@ -378,6 +496,9 @@ export default function PreShiftHome({
             >
               Start Daily Challenge
             </button>
+            <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)", textAlign: "center", marginTop: 6, marginBottom: 0 }}>
+              Takes you to: {challenge.nav === "rapid-fire" ? "Rapid Fire Quiz" : "AI Scenarios"}
+            </p>
             <div className="psh-action-body">
               <WeakestIcon size={18} style={{ flexShrink: 0, color: "var(--gold-warm)" }} />
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -402,67 +523,132 @@ export default function PreShiftHome({
       >
         <h2>Training Progress</h2>
         <div className="psh-module-row">
-          {(["bartending", "sales", "management"] as ModuleKey[])
-            .filter((m) => managementUnlocked || m !== "management")
-            .map((mod, index) => {
-              const mastery = categoryMastery[mod];
-              const { short, Icon } = MODULE_META[mod];
-              return (
-                <div
-                  key={mod}
-                  className="psh-module-card"
-                  data-index={index}
-                  onClick={() => setActiveNav("module")}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === "Enter") setActiveNav("module"); }}
-                >
-                  <span className="psh-module-icon">
-                    <Icon size={28} style={{ color: "var(--green-mid)" }} />
-                  </span>
-                  <strong>{short}</strong>
-                  <div className="psh-module-progress-bar">
-                    <div
-                      className="psh-module-progress-fill"
-                      style={{ width: loaded ? `${Math.max(4, mastery)}%` : "4px" }}
-                    />
-                  </div>
-                  <p className="psh-module-next" style={{ fontSize: "0.78rem", color: "var(--text-muted)", margin: "2px 0 0" }}>
-                    {mastery >= 80 ? "Mastered" : mastery > 0 ? `${mastery}% mastered` : "Not started yet"}
-                  </p>
-                  <button
-                    className="psh-module-cta-pill"
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); setActiveNav("module"); }}
-                  >
-                    {mastery >= 80 ? "Review" : mastery > 0 ? "Continue" : "Start training"}
-                  </button>
+          {(["bartending", "sales", "management"] as ModuleKey[]).map((mod, index) => {
+            const mastery = categoryMastery[mod];
+            const { short, Icon } = MODULE_META[mod];
+            const total = CATEGORY_MODULE_TOTALS[mod];
+            const completed = data.allModules.filter(
+              (m) => m.category === CATEGORY_NAV_KEY[mod] && (data.moduleProgress[m.id]?.mastery ?? 0) >= 80
+            ).length;
+            const isLocked = mod === "management" && !managementUnlocked;
+            const navigate = () => {
+              if (onNavigateToCategory) onNavigateToCategory(CATEGORY_NAV_KEY[mod]);
+              else setActiveNav("module");
+            };
+            return (
+              <div
+                key={mod}
+                className="psh-module-card"
+                data-index={index}
+                onClick={navigate}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === "Enter") navigate(); }}
+                style={{ position: "relative" }}
+              >
+                <span className="psh-module-icon">
+                  <Icon size={28} style={{ color: "var(--green-mid)" }} />
+                </span>
+                <strong>{short}</strong>
+                <div className="psh-module-progress-bar">
+                  <div
+                    className="psh-module-progress-fill"
+                    style={{ width: loaded ? `${Math.max(4, mastery)}%` : "4px" }}
+                  />
                 </div>
-              );
-            })}
+                <p className="psh-module-next" style={{ fontSize: "0.78rem", color: "var(--text-muted)", margin: "2px 0 0" }}>
+                  {completed === 0
+                    ? `0 of ${total} modules started`
+                    : completed === total
+                    ? `All ${total} modules mastered`
+                    : `${completed} of ${total} modules complete`}
+                </p>
+                <button
+                  className="psh-module-cta-pill"
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); navigate(); }}
+                >
+                  {mastery >= 80 ? "Review" : mastery > 0 ? "Continue" : "Start training"}
+                </button>
+                {isLocked && (
+                  <div style={{
+                    position: "absolute", inset: 0, display: "flex", flexDirection: "column",
+                    alignItems: "center", justifyContent: "center",
+                    background: "rgba(245,242,233,0.88)", borderRadius: "var(--radius-lg)", gap: 8,
+                  }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <rect x="3" y="11" width="18" height="11" rx="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", textAlign: "center", margin: 0, padding: "0 12px" }}>
+                      Available with venue access
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* ── A4: Your Achievements (Badge Collection) ── */}
-      {loaded && (() => {
-        const badgeModules: ModuleSummaryForBadges[] = data.allModules.map((m) => {
-          const prog = data.moduleProgress[m.id];
-          const mastery = prog?.mastery ?? 0;
-          return {
-            category: m.category as "technical" | "service" | "compliance",
-            mastered: mastery >= 80,
-            attempted: (prog?.scenariosAttempted ?? 0) > 0,
-          };
-        });
-        const badgeScores: CategoryScores = {
-          bartending: categoryMastery.bartending,
-          sales: categoryMastery.sales,
-          management: categoryMastery.management,
-        };
-        const badges = computeBadges(badgeModules, badgeScores, streak, 0, 0);
-        const earned = countEarned(badges);
-        const recent = recentEarned(badges, 3);
-        return (
+      {/* ── S5: Progress Snapshot Strip ── */}
+      {loaded && (
+        <div style={{ background: "var(--surface)", border: "1px solid var(--line-light)", borderRadius: "var(--radius-lg)", padding: "16px 20px", marginTop: 16 }}>
+          {isProgressZeroState ? (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+              <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", margin: 0 }}>
+                Complete your first module to see your stats here.
+              </p>
+              <button onClick={() => setActiveNav("module")} style={{ padding: "7px 16px", borderRadius: "var(--radius-pill)", border: "1px solid var(--green)", background: "transparent", color: "var(--green)", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
+                Start Module 1 →
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr auto", gap: 16, alignItems: "center" }}>
+              <div>
+                <p style={{ fontSize: "0.68rem", color: "var(--text-muted)", fontWeight: 700, letterSpacing: "0.09em", textTransform: "uppercase", margin: "0 0 2px" }}>Avg Mastery</p>
+                <p style={{ fontFamily: "var(--font-heading)", fontSize: "1.6rem", fontWeight: 700, color: "var(--text)", margin: 0 }}>
+                  {avgScore > 0 ? `${avgScore}%` : "—"}
+                </p>
+              </div>
+              <div>
+                <p style={{ fontSize: "0.68rem", color: "var(--text-muted)", fontWeight: 700, letterSpacing: "0.09em", textTransform: "uppercase", margin: "0 0 2px" }}>Modules Done</p>
+                <p style={{ fontFamily: "var(--font-heading)", fontSize: "1.6rem", fontWeight: 700, color: "var(--text)", margin: 0 }}>
+                  {modulesComplete}<span style={{ fontSize: "1rem", color: "var(--text-muted)" }}>/{data.allModules.length}</span>
+                </p>
+              </div>
+              <div>
+                <p style={{ fontSize: "0.68rem", color: "var(--text-muted)", fontWeight: 700, letterSpacing: "0.09em", textTransform: "uppercase", margin: "0 0 2px" }}>Day Streak</p>
+                <p style={{ fontFamily: "var(--font-heading)", fontSize: "1.6rem", fontWeight: 700, color: "var(--text)", margin: 0 }}>{streak}</p>
+              </div>
+              <button onClick={() => setActiveNav("progress")} style={{ padding: "8px 16px", borderRadius: "var(--radius-pill)", border: "1px solid var(--green)", background: "transparent", color: "var(--green)", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>
+                Full progress →
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── A4: Your Achievements ── */}
+      <div style={{ marginTop: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <h2 style={{ fontFamily: "var(--font-heading)", fontSize: "1rem", fontWeight: 600, color: "var(--text)", margin: 0 }}>
+            Your Achievements
+          </h2>
+          <Link href="/dashboard/badges" style={{ fontSize: "0.82rem", color: "var(--gold)", fontWeight: 600, textDecoration: "none" }}>
+            View all →
+          </Link>
+        </div>
+        {loaded && badgeEarned === 0 ? (
+          <div style={{ background: "var(--green-light)", border: "1px solid var(--line)", borderRadius: "var(--radius-lg)", padding: "20px 24px", textAlign: "center" }}>
+            <p style={{ fontSize: "0.9rem", color: "var(--text-soft)", margin: "0 0 12px" }}>
+              Complete your first module to earn your first badge
+            </p>
+            <button onClick={() => setActiveNav("module")} style={{ padding: "8px 20px", borderRadius: "var(--radius-pill)", border: "1px solid var(--green)", background: "transparent", color: "var(--green)", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer" }}>
+              Start earning →
+            </button>
+          </div>
+        ) : (
           <Link
             href="/dashboard/badges"
             className="psh-badges-row"
@@ -470,26 +656,25 @@ export default function PreShiftHome({
             ref={(el) => { animRefs.current[3] = el as HTMLElement | null; }}
           >
             <div className="psh-badges-row-left">
-              <span className="psh-badges-eyebrow">YOUR ACHIEVEMENTS</span>
-              <span className="psh-badges-count">{earned} earned</span>
-              {recent.length > 0 && (
+              <span className="psh-badges-count">{badgeEarned} earned</span>
+              {recentBadges.length > 0 && (
                 <div className="psh-badges-chips">
-                  {recent.map((b) => (
+                  {recentBadges.map((b) => (
                     <span key={b.id} className="psh-badge-chip psh-badge-chip--earned">
                       {AWARD_ICON}
                       {b.label}
                     </span>
                   ))}
-                  {earned > 3 && (
-                    <span className="psh-badge-chip psh-badge-chip--more">+{earned - 3} more</span>
+                  {badgeEarned > 3 && (
+                    <span className="psh-badge-chip psh-badge-chip--more">+{badgeEarned - 3} more</span>
                   )}
                 </div>
               )}
             </div>
             <span className="psh-badges-cta">View all &rarr;</span>
           </Link>
-        );
-      })()}
+        )}
+      </div>
 
     </div>
   );

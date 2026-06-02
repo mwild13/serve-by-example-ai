@@ -3111,9 +3111,13 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 /* Quick Nav shortcuts grid */
 .psh-quick-nav {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   margin-bottom: 24px;
+}
+.psh-quick-nav-item--start-here {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold-dim);
 }
 .psh-quick-nav-item {
   display: flex;
@@ -3528,7 +3532,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   height: 100%;
   background: var(--green);
   border-radius: 3px;
-  transition: width 600ms var(--ease-out);
+  transition: width 600ms var(--ease-out) 300ms;
 }
 .psh-module-cta-pill {
   display: inline-block;
@@ -13335,6 +13339,21 @@ body {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  @keyframes skeletonPulse { to { opacity: 0.7; } }
+}
+
+.sbe-card-interactive {
+  transition: transform 180ms var(--ease-out), box-shadow 180ms var(--ease-out);
+  cursor: pointer;
+}
+.sbe-card-interactive:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+@media (hover: none) { .sbe-card-interactive:hover { transform: none; } }
 
 /* ── A5: Page entrance stagger animation ──────── */
 [data-animate] {

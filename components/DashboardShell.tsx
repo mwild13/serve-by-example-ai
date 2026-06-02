@@ -474,6 +474,7 @@ export default function DashboardShell({
   // Phase 4: Dynamic module system
   const [userId, setUserId] = useState<string>("");
   const [selectedModuleId, setSelectedModuleId] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showDiagnostic, setShowDiagnostic] = useState(false);
   const [userToken, setUserToken] = useState<string>(initialToken);
 
@@ -564,12 +565,18 @@ export default function DashboardShell({
   const isPremium = isAdmin || plan !== "free" || hasVenueMembership;
 
   function handleNavClick(id: NavItem) {
+    if (id !== "module") setSelectedCategory(null);
     if (!isPremium && PREMIUM_NAV_ITEMS.includes(id)) {
       window.location.href = "/pricing";
       return;
     }
     setActiveNav(id);
   }
+
+  const handleNavigateToCategory = (category: string) => {
+    setSelectedCategory(category);
+    setActiveNav("module");
+  };
 
   return (
     <main className="dashboard-shell">
@@ -683,6 +690,7 @@ export default function DashboardShell({
                 userToken={userToken}
                 onModuleSelect={(moduleId) => setSelectedModuleId(moduleId)}
                 selectedModuleId={selectedModuleId || undefined}
+                initialCategory={selectedCategory as "technical" | "service" | "compliance" | undefined || undefined}
               />
             )}
           </div>
@@ -713,6 +721,8 @@ export default function DashboardShell({
                 displayName={displayName}
                 setActiveNav={handleNavClick}
                 managementUnlocked={managementUnlocked}
+                onNavigateToCategory={handleNavigateToCategory}
+                isPremium={isPremium}
               />
             </div>
           </>
