@@ -9670,7 +9670,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   }
 
   .dashboard-shell {
-    grid-template-columns: 260px 1fr 260px;
+    grid-template-columns: 260px 1fr;
   }
 
   .dashboard-main {
@@ -9692,7 +9692,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   }
 
   .dashboard-shell {
-    grid-template-columns: 280px 1fr 280px;
+    grid-template-columns: 280px 1fr;
   }
 
   .ops-shell {
