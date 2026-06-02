@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
-import { Zap, GlassWater, TrendingUp, Users, Flame } from "lucide-react";
+import { GlassWater, TrendingUp, Users, Flame } from "lucide-react";
 import { computeBadges, countEarned, recentEarned, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
 import Link from "next/link";
 
@@ -149,6 +149,13 @@ function formatLastTrained(iso: string | null): string | null {
   return `${Math.floor(d / 7)} week${Math.floor(d / 7) !== 1 ? "s" : ""} ago`;
 }
 
+const AWARD_ICON = (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="12" cy="8" r="6"/>
+    <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+  </svg>
+);
+
 export default function PreShiftHome({
   displayName,
   setActiveNav,
@@ -161,9 +168,22 @@ export default function PreShiftHome({
   const [data, setData] = useState<ProgressData>(EMPTY);
   const [streak, setStreak] = useState(0);
   const [loaded, setLoaded] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
+  // A1: trigger segment bar animation on mount
   useEffect(() => {
+    setMounted(true);
     setStreak(computeStreak());
+  }, []);
+
+  // A5: stagger entrance animation
+  const animRefs = useRef<(HTMLElement | null)[]>([]);
+  useEffect(() => {
+    const delays = [0, 100, 220, 360];
+    animRefs.current.forEach((el, i) => {
+      if (!el) return;
+      setTimeout(() => el.classList.add("visible"), delays[i]);
+    });
   }, []);
 
   useEffect(() => {
@@ -213,15 +233,29 @@ export default function PreShiftHome({
 
   return (
     <div className="psh">
-      {/* ── Mastery Header ── */}
-      <div className="psh-mastery-bar">
+
+      {/* ── A1: Mastery Header ── */}
+      <div
+        className="psh-mastery-bar"
+        data-animate
+        ref={(el) => { animRefs.current[0] = el; }}
+      >
         <div className="psh-mastery-left">
           <span className="psh-mastery-label">SKILL LEVEL</span>
           <span className="psh-mastery-level">{skillLevel}</span>
-          <div className="psh-mastery-track">
-            <div className="psh-mastery-fill" style={{ width: `${skillLevel * 10}%` }} />
+
+          {/* 10-segment stepping-stones bar */}
+          <div className="psh-segment-bar">
+            {Array.from({ length: 10 }, (_, i) => (
+              <div
+                key={i}
+                className={`psh-segment${mounted && i < skillLevel ? (i === skillLevel - 1 ? " psh-segment--current" : " psh-segment--filled") : ""}`}
+                style={{ transitionDelay: mounted ? `${i * 60}ms` : "0ms" }}
+              />
+            ))}
           </div>
           <span className="psh-mastery-of">/10</span>
+
           {streak > 0 && (
             <div className="psh-streak-pill">
               <Flame size={13} />
@@ -229,15 +263,17 @@ export default function PreShiftHome({
             </div>
           )}
         </div>
-        <div className="psh-mastery-right">
-          {lastTrainedLabel && (
-            <span className="psh-last-trained">Last trained: {lastTrainedLabel}</span>
-          )}
-        </div>
+        {lastTrainedLabel && (
+          <span className="psh-last-trained">Last trained: {lastTrainedLabel}</span>
+        )}
       </div>
 
-      {/* ── Hero Grid: Pre-Shift Brief (left) + Daily Challenge (right) ── */}
-      <div className="psh-hero-grid">
+      {/* ── A2: Hero Grid: Pre-Shift Brief (left) + Daily Challenge (right) ── */}
+      <div
+        className="psh-hero-grid"
+        data-animate
+        ref={(el) => { animRefs.current[1] = el; }}
+      >
         <div className="psh-brief-col">
           <div className="psh-welcome">
             <div>
@@ -286,49 +322,79 @@ export default function PreShiftHome({
             </div>
             <strong className="psh-challenge-title">{challenge.title}</strong>
             <p className="psh-challenge-desc">{challenge.desc}</p>
-            <span className="psh-action-cta">Start Daily Challenge →</span>
+            <button
+              className="psh-action-cta"
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setActiveNav(challenge.nav); }}
+            >
+              Start Daily Challenge
+            </button>
             <div className="psh-action-body">
-              <WeakestIcon size={18} style={{ flexShrink: 0, color: "var(--gold-warm, #d4a853)" }} />
-              <div>
+              <WeakestIcon size={18} style={{ flexShrink: 0, color: "var(--gold-warm)" }} />
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#fff" }}>{MODULE_META[weakest].label}</span>
-                <p style={{ margin: 0, fontSize: "0.78rem" }}>{weakestMastery >= 80 ? "Mastered" : weakestMastery > 0 ? `${weakestMastery}% mastered · keep going` : "Not started yet"}</p>
+                <p style={{ margin: 0, fontSize: "0.78rem", color: "rgba(255,255,255,0.7)" }}>
+                  {weakestMastery >= 80 ? "Mastered" : weakestMastery > 0 ? `${weakestMastery}% mastered · keep going` : "Not started yet"}
+                </p>
               </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                <path d="M9 18l6-6-6-6"/>
+              </svg>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Training Progress ── */}
-      <div className="psh-modules">
+      {/* ── A3: Training Progress ── */}
+      <div
+        className="psh-modules"
+        data-animate
+        ref={(el) => { animRefs.current[2] = el; }}
+      >
         <h2>Training Progress</h2>
         <div className="psh-module-row">
-          {(["bartending", "sales", "management"] as ModuleKey[]).filter((m) => managementUnlocked || m !== "management").map((mod) => {
-            const mastery = Math.round(data.mastery[mod] ?? 0);
-            const { short } = MODULE_META[mod];
-            return (
-              <button
-                key={mod}
-                className="psh-module-card"
-                type="button"
-                onClick={() => setActiveNav("module")}
-              >
-                <span className="psh-module-icon"><Zap size={18} style={{ color: "var(--green-mid)" }} /></span>
-                <strong>{short}</strong>
-                <div style={{ display: "flex", gap: 4, margin: "4px 0" }}>
-                  {[0, 1, 2, 3, 4].map((i) => (
-                    <span key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: i < Math.ceil(mastery / 20) ? "var(--green)" : "#e5e7eb", display: "inline-block" }} />
-                  ))}
+          {(["bartending", "sales", "management"] as ModuleKey[])
+            .filter((m) => managementUnlocked || m !== "management")
+            .map((mod, index) => {
+              const mastery = Math.round(data.mastery[mod] ?? 0);
+              const { short, Icon } = MODULE_META[mod];
+              return (
+                <div
+                  key={mod}
+                  className="psh-module-card"
+                  data-index={index}
+                  onClick={() => setActiveNav("module")}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === "Enter") setActiveNav("module"); }}
+                >
+                  <span className="psh-module-icon">
+                    <Icon size={28} style={{ color: "var(--green-mid)" }} />
+                  </span>
+                  <strong>{short}</strong>
+                  <div className="psh-module-progress-bar">
+                    <div
+                      className="psh-module-progress-fill"
+                      style={{ width: loaded ? `${Math.max(4, mastery)}%` : "4px" }}
+                    />
+                  </div>
+                  <p className="psh-module-next" style={{ fontSize: "0.78rem", color: "var(--text-muted)", margin: "2px 0 0" }}>
+                    {mastery >= 80 ? "Mastered" : mastery > 0 ? `${mastery}% mastered` : "Not started yet"}
+                  </p>
+                  <button
+                    className="psh-module-cta-pill"
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); setActiveNav("module"); }}
+                  >
+                    {mastery >= 80 ? "Review" : mastery > 0 ? "Continue" : "Start training"}
+                  </button>
                 </div>
-                <p className="psh-module-next">
-                  {mastery >= 80 ? "Mastered" : mastery > 0 ? `${mastery}% mastered` : "Start training"}
-                </p>
-              </button>
-            );
-          })}
+              );
+            })}
         </div>
       </div>
 
-      {/* ── Badge Collection Row ── */}
+      {/* ── A4: Your Achievements (Badge Collection) ── */}
       {loaded && (() => {
         const badgeModules: ModuleSummaryForBadges[] = data.allModules.map((m) => {
           const prog = data.moduleProgress[m.id];
@@ -348,14 +414,22 @@ export default function PreShiftHome({
         const earned = countEarned(badges);
         const recent = recentEarned(badges, 3);
         return (
-          <Link href="/dashboard/badges" className="psh-badges-row">
+          <Link
+            href="/dashboard/badges"
+            className="psh-badges-row"
+            data-animate
+            ref={(el) => { animRefs.current[3] = el as HTMLElement | null; }}
+          >
             <div className="psh-badges-row-left">
-              <span className="psh-badges-eyebrow">BADGE COLLECTION</span>
+              <span className="psh-badges-eyebrow">YOUR ACHIEVEMENTS</span>
               <span className="psh-badges-count">{earned} earned</span>
               {recent.length > 0 && (
                 <div className="psh-badges-chips">
                   {recent.map((b) => (
-                    <span key={b.id} className="psh-badge-chip">{b.label}</span>
+                    <span key={b.id} className="psh-badge-chip psh-badge-chip--earned">
+                      {AWARD_ICON}
+                      {b.label}
+                    </span>
                   ))}
                   {earned > 3 && (
                     <span className="psh-badge-chip psh-badge-chip--more">+{earned - 3} more</span>

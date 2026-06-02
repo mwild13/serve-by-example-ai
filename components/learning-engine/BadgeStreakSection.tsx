@@ -58,15 +58,17 @@ export default function BadgeStreakSection({ modules, scores, bestStreak, sbeEli
 
   if (streak === null) {
     return (
-      <div className="badge-section">
-        <div className="badge-section-header">
-          <h2>Streak Badges</h2>
-          <p>Training consistency rewards</p>
-        </div>
-        <div className="badge-grid">
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="badge-card badge-card--skeleton" aria-hidden="true" />
-          ))}
+      <div className="badge-streak-zone">
+        <div className="badge-section">
+          <div className="badge-section-header">
+            <h2>Streak Badges</h2>
+            <p>Training consistency rewards</p>
+          </div>
+          <div className="badge-grid">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="badge-card badge-card--skeleton" aria-hidden="true" />
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -76,15 +78,17 @@ export default function BadgeStreakSection({ modules, scores, bestStreak, sbeEli
   const streakBadges = allBadges.filter((b) => b.category === "streak");
 
   return (
-    <div className="badge-section">
-      <div className="badge-section-header">
-        <h2>Streak Badges</h2>
-        <p>Training consistency rewards</p>
-      </div>
-      <div className="badge-grid">
-        {streakBadges.map((badge) => (
-          <BadgeCard key={badge.id} badge={badge} />
-        ))}
+    <div className="badge-streak-zone">
+      <div className="badge-section">
+        <div className="badge-section-header">
+          <h2>Streak Badges</h2>
+          <p>Training consistency rewards</p>
+        </div>
+        <div className="badge-grid">
+          {streakBadges.map((badge) => (
+            <BadgeCard key={badge.id} badge={badge} />
+          ))}
+        </div>
       </div>
     </div>
   );

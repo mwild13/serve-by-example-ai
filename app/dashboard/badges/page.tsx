@@ -6,6 +6,7 @@ import { SCENARIO_COUNTS } from "@/lib/mastery";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BadgeStreakSection from "@/components/learning-engine/BadgeStreakSection";
+import { BadgeProgressRing } from "@/components/learning-engine/BadgeProgressRing";
 import {
   computeBadges,
   countEarned,
@@ -16,33 +17,52 @@ import {
 
 export const dynamic = "force-dynamic";
 
-function BadgeCard({ badge }: { badge: Badge }) {
+// B3: 3-state badge card
+function BadgeCard({ badge, isSpecial = false }: { badge: Badge; isSpecial?: boolean }) {
+  const inProgress = !badge.earned && badge.progress && badge.progress.current > 0;
+  const stateClass = badge.earned
+    ? "badge-card--earned"
+    : inProgress
+    ? "badge-card--progress"
+    : "badge-card--locked";
+  const specialClass = isSpecial && !badge.earned ? " badge-card--special" : "";
+
+  const barWidth = badge.progress
+    ? `${Math.max(4, Math.min(100, Math.round((badge.progress.current / badge.progress.required) * 100)))}%`
+    : "4px";
+
   return (
-    <div className={`badge-card ${badge.earned ? "badge-card--earned" : "badge-card--locked"}`}>
+    <div className={`badge-card ${stateClass}${specialClass}`}>
       <div className="badge-card-icon">
         {badge.earned ? (
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
           </svg>
         ) : (
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
         )}
       </div>
+
+      {/* B5: "What it takes" label for special locked badges */}
+      {isSpecial && !badge.earned && (
+        <span className="badge-what-it-takes">What it takes:</span>
+      )}
+
       <div className="badge-card-label">{badge.label}</div>
       <div className="badge-card-desc">{badge.description}</div>
-      {!badge.earned && badge.progress && (
+
+      {!badge.earned && (
         <div className="badge-card-progress">
           <div className="badge-progress-bar">
-            <div
-              className="badge-progress-fill"
-              style={{ width: `${Math.min(100, Math.round((badge.progress.current / badge.progress.required) * 100))}%` }}
-            />
+            <div className="badge-progress-fill" style={{ width: barWidth }} />
           </div>
-          <span className="badge-progress-label">
-            {badge.progress.current} / {badge.progress.required} {badge.progress.unit}
-          </span>
+          {badge.progress && (
+            <span className="badge-progress-label">
+              {badge.progress.current} / {badge.progress.required} {badge.progress.unit}
+            </span>
+          )}
         </div>
       )}
       {badge.earned && <div className="badge-card-earned-tick">Earned</div>}
@@ -50,26 +70,74 @@ function BadgeCard({ badge }: { badge: Badge }) {
   );
 }
 
+// B2 + B6: Section with earned chip, gold accent, and empty nudge state
 function BadgeSection({
   title,
   subtitle,
   badges,
+  isSpecial = false,
 }: {
   title: string;
   subtitle: string;
   badges: Badge[];
+  isSpecial?: boolean;
 }) {
+  const earned = badges.filter((b) => b.earned).length;
+  const hasEarned = earned > 0;
+
   return (
     <div className="badge-section">
-      <div className="badge-section-header">
-        <h2>{title}</h2>
-        <p>{subtitle}</p>
+      {/* B2: Section header with earned-count chip */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+        <div style={{
+          flex: 1,
+          borderLeft: hasEarned ? "3px solid var(--gold)" : "none",
+          paddingLeft: hasEarned ? 12 : 0,
+        }}>
+          <h2 style={{
+            fontSize: "1.1rem", fontWeight: 700, margin: "0 0 4px",
+            color: "var(--text)", opacity: hasEarned ? 1 : 0.7,
+          }}>
+            {title}
+          </h2>
+          <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", margin: 0 }}>{subtitle}</p>
+        </div>
+        <span style={{
+          fontSize: "0.72rem",
+          fontWeight: 700,
+          padding: "3px 10px",
+          borderRadius: "var(--radius-pill)",
+          background: hasEarned ? "var(--gold-dim)" : "var(--bg-alt)",
+          color: hasEarned ? "var(--gold)" : "var(--text-muted)",
+          border: `1px solid ${hasEarned ? "var(--gold)" : "var(--line)"}`,
+          flexShrink: 0,
+          whiteSpace: "nowrap" as const,
+        }}>
+          {earned} / {badges.length} earned
+        </span>
       </div>
-      <div className="badge-grid">
-        {badges.map((badge) => (
-          <BadgeCard key={badge.id} badge={badge} />
-        ))}
-      </div>
+
+      {/* B6: Empty state for zero-earned sections — show nudge card */}
+      {!hasEarned ? (
+        <div className="badge-nudge-card">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+          </svg>
+          <p className="badge-nudge-card-title">Start earning {title} badges</p>
+          <p className="badge-nudge-card-desc">
+            Complete your first {title.toLowerCase()} module to begin unlocking achievements.
+          </p>
+          <Link href="/dashboard">
+            <button className="badge-nudge-btn" type="button">Go to Modules</button>
+          </Link>
+        </div>
+      ) : (
+        <div className="badge-grid">
+          {badges.map((badge) => (
+            <BadgeCard key={badge.id} badge={badge} isSpecial={isSpecial} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -100,7 +168,6 @@ export default async function BadgesPage() {
   const bestStreak = profile?.best_correct_streak ?? 0;
   const sbeElite = profile?.sbe_elite_number ?? 0;
 
-  // Aggregate mastery data per module_id
   const byModuleId: Record<number, { mastered: number; attempted: number }> = {};
   for (const row of masteryRows ?? []) {
     if (row.module_id == null) continue;
@@ -139,10 +206,10 @@ export default async function BadgesPage() {
     management: avgMastery("compliance"),
   };
 
-  // Compute all non-streak badges server-side (streak=0 placeholder; streaks rendered client-side)
   const serverBadges = computeBadges(modules, scores, 0, bestStreak, sbeElite);
   const nonStreakBadges = serverBadges.filter((b) => b.category !== "streak");
   const earnedCount = countEarned(nonStreakBadges);
+  const totalBadgeCount = nonStreakBadges.length;
 
   const technical  = nonStreakBadges.filter((b) => b.category === "technical");
   const service    = nonStreakBadges.filter((b) => b.category === "service");
@@ -156,14 +223,32 @@ export default async function BadgesPage() {
       <main>
         <div className="badge-page">
           <div className="container">
-            <div className="badge-page-header">
+
+            {/* B1: Achievement hero strip with SVG progress ring */}
+            <div className="badge-hero-strip">
               <div>
+                <h1 style={{
+                  fontFamily: "var(--font-heading)",
+                  fontSize: "2rem",
+                  color: "#fff",
+                  margin: "0 0 6px",
+                  lineHeight: 1.15,
+                }}>
+                  Your Badges
+                </h1>
+                <p style={{
+                  color: "var(--gold-light)",
+                  fontSize: "0.9rem",
+                  opacity: 0.85,
+                  margin: 0,
+                }}>
+                  {earnedCount} of {totalBadgeCount} earned — keep going
+                </p>
                 <Link href="/dashboard" className="badge-back-link">
-                  &larr; Back to dashboard
+                  ← Back to dashboard
                 </Link>
-                <h1>Your Badges</h1>
               </div>
-              <span className="badge-earned-chip">{earnedCount} earned</span>
+              <BadgeProgressRing earned={earnedCount} total={totalBadgeCount} />
             </div>
 
             <BadgeSection
@@ -182,7 +267,7 @@ export default async function BadgesPage() {
               badges={compliance}
             />
 
-            {/* Streak section is client-rendered to avoid localStorage hydration flash */}
+            {/* B4: Streak section — dark treatment handled by BadgeStreakSection wrapper */}
             <BadgeStreakSection
               modules={modules}
               scores={scores}
@@ -190,11 +275,14 @@ export default async function BadgesPage() {
               sbeElite={sbeElite}
             />
 
+            {/* B5: Special badges — dashed aspirational treatment */}
             <BadgeSection
               title="Special"
               subtitle="Platform-wide achievements"
               badges={special}
+              isSpecial
             />
+
           </div>
         </div>
       </main>

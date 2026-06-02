@@ -3011,12 +3011,14 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 16px 20px;
+  padding: 0 32px;
+  min-height: 72px;
   background: var(--green-deep);
   color: #fff;
   border: 2px solid var(--green);
   border-radius: 10px;
   margin-bottom: 24px;
+  position: relative;
 }
 .psh-mastery-left {
   display: flex;
@@ -3032,23 +3034,31 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 }
 .psh-mastery-level {
   font-family: var(--font-heading);
-  font-size: 1.8rem;
-  font-weight: 800;
+  font-size: 2.6rem;
+  font-weight: 700;
   line-height: 1;
-  color: var(--gold);
+  color: var(--gold-warm);
+  letter-spacing: -0.03em;
 }
-.psh-mastery-track {
+.psh-segment-bar {
+  display: flex;
+  gap: 4px;
+  align-items: center;
   width: 120px;
-  height: 8px;
-  background: rgba(255,255,255,0.15);
-  border-radius: 4px;
-  overflow: hidden;
 }
-.psh-mastery-fill {
-  height: 100%;
+.psh-segment {
+  height: 8px;
+  flex: 1;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.12);
+  transition: background 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+}
+.psh-segment--filled {
   background: var(--gold);
-  border-radius: 4px;
-  transition: width 0.6s ease;
+}
+.psh-segment--current {
+  background: var(--gold);
+  box-shadow: 0 0 0 2px var(--gold-light);
 }
 .psh-mastery-of {
   font-size: 0.8rem;
@@ -3059,20 +3069,21 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   align-items: center;
   gap: 4px;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.04em;
-  color: var(--gold);
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
+  color: var(--gold-warm);
+  background: var(--gold-dim);
+  border: 1px solid var(--gold);
   border-radius: 999px;
   padding: 3px 9px;
   white-space: nowrap;
 }
 .psh-last-trained {
+  position: absolute;
+  right: 24px;
   font-size: 0.68rem;
   opacity: 0.55;
   white-space: nowrap;
-  align-self: center;
 }
 .psh-mastery-right {
   display: flex;
@@ -3137,6 +3148,8 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 .psh-coach-brief {
   flex: 1;
   margin-bottom: 0;
+  border-left: 3px solid var(--gold);
+  padding-left: 16px;
 }
 .psh-challenge-col {
   display: flex;
@@ -3217,13 +3230,13 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 }
 .psh-daily-badge {
   font-size: 0.6rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  background: var(--gold-warm, #d4a853);
-  color: #0B2B1E;
-  padding: 3px 9px;
-  border-radius: 999px;
+  background: var(--gold);
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
   flex-shrink: 0;
 }
 .psh-challenge-title {
@@ -3278,13 +3291,25 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   margin: 0;
 }
 .psh-action-cta {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--green);
+  display: block;
+  width: 100%;
+  background: var(--gold);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  padding: 12px 20px;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out), transform 0.2s var(--ease-out);
   margin-top: auto;
+  box-sizing: border-box;
 }
-.psh-action-card-hero .psh-action-cta {
-  color: var(--gold-warm, #d4a853);
+.psh-action-cta:hover {
+  background: var(--gold-warm);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 /* Quick actions grid */
@@ -3406,15 +3431,18 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 }
 .psh-module-card {
   background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 16px;
+  border: 1px solid var(--line-light);
+  border-radius: var(--radius-lg);
+  padding: 20px 20px 16px;
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.2s;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out), border-color 0.18s var(--ease-out);
 }
 .psh-module-card:hover {
-  border-color: var(--green-mid);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--green);
 }
 .psh-module-icon {
   display: flex;
@@ -3445,8 +3473,40 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 .psh-module-card strong {
   display: block;
   font-size: 0.9rem;
+  font-weight: 600;
   color: var(--green-deep);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
+}
+.psh-module-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--line-light);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+.psh-module-progress-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 3px;
+  transition: width 600ms var(--ease-out);
+}
+.psh-module-cta-pill {
+  display: inline-block;
+  margin-top: 8px;
+  border: 1px solid var(--green);
+  color: var(--green);
+  border-radius: var(--radius-pill);
+  padding: 6px 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.18s var(--ease-out), color 0.18s var(--ease-out);
+}
+.psh-module-cta-pill:hover {
+  background: var(--green);
+  color: #fff;
 }
 .psh-module-stages {
   display: flex;
@@ -13084,19 +13144,7 @@ body {
   gap: 6px;
   transition: box-shadow 0.15s;
 }
-.badge-card--earned {
-  border-color: var(--green);
-  background: var(--green-light);
-}
-.badge-card--earned .badge-card-icon {
-  color: var(--green);
-}
-.badge-card--locked {
-  opacity: 0.6;
-}
-.badge-card--locked .badge-card-icon {
-  color: var(--text-muted);
-}
+/* badge-card--earned, --locked, --progress defined in B3 section below */
 .badge-card--skeleton {
   min-height: 140px;
   background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
@@ -13197,16 +13245,33 @@ body {
   flex-wrap: wrap;
 }
 .psh-badge-chip {
-  background: var(--green-light);
-  color: var(--green);
-  font-size: 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--gold-dim);
+  border: 1px solid var(--gold);
+  color: var(--text);
+  font-size: 0.78rem;
   font-weight: 600;
-  border-radius: 999px;
-  padding: 2px 10px;
+  border-radius: var(--radius-md);
+  padding: 6px 12px;
   white-space: nowrap;
+  transition: box-shadow 0.15s var(--ease-out), transform 0.15s var(--ease-out);
+}
+.psh-badge-chip:hover {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+.psh-badge-chip--earned {
+  animation: badge-chip-shimmer 1.2s ease 0.5s 1 forwards;
+}
+@keyframes badge-chip-shimmer {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 .psh-badge-chip--more {
   background: var(--bg-alt);
+  border-color: var(--line);
   color: var(--text-muted);
 }
 .psh-badges-cta {
@@ -13229,6 +13294,251 @@ body {
   .badge-grid {
     grid-template-columns: 1fr 1fr;
   }
+}
+
+/* ── A5: Page entrance stagger animation ──────── */
+[data-animate] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 400ms var(--ease-out), transform 400ms var(--ease-out);
+}
+[data-animate].visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-animate] { opacity: 1; transform: none; transition: none; }
+  [data-animate].visible { opacity: 1; transform: none; }
+  .psh-segment { transition: none !important; }
+  .psh-module-progress-fill { transition: none !important; }
+  .psh-module-card { animation: none !important; }
+  .psh-action-cta { transition: none !important; }
+}
+
+/* ── B1: Badges page hero strip ───────────────── */
+.badge-hero-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px 32px;
+  background: var(--green-deep);
+  border-radius: var(--radius-xl);
+  margin-bottom: 40px;
+}
+.badge-back-link {
+  display: inline-block;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+  margin-top: 12px;
+  transition: color 0.15s;
+}
+.badge-back-link:hover { color: #fff; }
+
+/* ── B3: Badge card 3-state system ───────────── */
+.badge-card--earned {
+  background: var(--surface);
+  border: 2px solid var(--gold);
+  box-shadow: 0 0 0 4px var(--gold-dim), var(--shadow-sm);
+}
+.badge-card--earned .badge-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--gold-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+.badge-card-earned-tick {
+  display: inline-block;
+  background: var(--green);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: var(--radius-pill);
+  padding: 3px 10px;
+  margin-top: 6px;
+}
+.badge-card--progress {
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  box-shadow: var(--shadow-sm);
+}
+.badge-card--progress .badge-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--green-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--green-mid);
+  margin-bottom: 4px;
+}
+.badge-card--locked {
+  background: var(--bg-alt);
+  border: 1px solid var(--line-light);
+  opacity: 0.7;
+}
+.badge-card--locked .badge-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+/* ── B4: Streak section dark treatment ─────────── */
+.badge-streak-zone {
+  background: var(--green-deep);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  margin: 8px 0 48px;
+}
+.badge-streak-zone .badge-section {
+  margin-bottom: 0;
+}
+.badge-streak-zone .badge-section-header h2,
+.badge-streak-zone .badge-card-label {
+  color: #fff;
+}
+.badge-streak-zone .badge-section-header p,
+.badge-streak-zone .badge-card-desc {
+  color: rgba(255,255,255,0.7);
+}
+.badge-streak-zone .badge-card {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.1);
+}
+.badge-streak-zone .badge-card--earned {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px rgba(169,129,42,0.2), var(--shadow-sm);
+}
+.badge-streak-zone .badge-progress-bar {
+  background: rgba(255,255,255,0.1);
+}
+.badge-streak-zone .badge-progress-fill {
+  background: var(--gold-warm);
+}
+.badge-streak-zone .badge-progress-label {
+  color: rgba(255,255,255,0.5);
+}
+.badge-streak-zone .badge-card-earned-tick {
+  background: var(--gold);
+  color: #fff;
+}
+
+/* ── B5: Special badge aspirational treatment ──── */
+.badge-card--special {
+  border: 1px dashed var(--gold);
+  background: var(--gold-dim);
+  opacity: 1;
+}
+.badge-card--special .badge-card-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--gold-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  transition: box-shadow 300ms var(--ease-out);
+  margin-bottom: 4px;
+}
+.badge-card--special .badge-card-icon:hover {
+  box-shadow: 0 0 0 8px var(--gold-dim);
+}
+.badge-what-it-takes {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 2px;
+}
+
+/* ── B6: Empty state nudge card ───────────────── */
+.badge-nudge-card {
+  background: var(--green-light);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--text);
+}
+.badge-nudge-card-title {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--green-deep);
+  margin: 0;
+}
+.badge-nudge-card-desc {
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  margin: 0;
+  max-width: 340px;
+}
+.badge-nudge-btn {
+  background: var(--green);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 9px 20px;
+  cursor: pointer;
+  transition: background 0.18s var(--ease-out);
+}
+.badge-nudge-btn:hover { background: var(--green-mid); }
+.badge-show-all-link {
+  display: block;
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.badge-show-all-link:hover { color: var(--text-soft); }
+
+/* ── C1: .sbe-card hover system ───────────────── */
+.sbe-card {
+  transition: transform 180ms var(--ease-out), box-shadow 180ms var(--ease-out);
+}
+.sbe-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+@media (hover: none) {
+  .sbe-card:hover { transform: none; box-shadow: var(--shadow-sm); }
+}
+
+/* ── C3: Section label utility ────────────────── */
+.section-label {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 /* ═══════════════════════════════════════════════
