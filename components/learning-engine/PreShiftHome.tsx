@@ -6,7 +6,7 @@ import { GlassWater, TrendingUp, Users, Flame } from "lucide-react";
 import { computeBadges, countEarned, recentEarned, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
 import Link from "next/link";
 
-type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
+type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "challenges" | "cocktails" | "knowledge" | "progress" | "settings";
 type ModuleKey = "bartending" | "sales" | "management";
 
 type LevelProgress = {
@@ -106,9 +106,20 @@ const COACH_FOCUS: Record<ModuleKey, string[]> = {
   ],
 };
 
-function getWeakestModule(data: ProgressData): ModuleKey {
+function getCategoryMastery(
+  allModules: DbModule[],
+  moduleProgress: Record<number, DbModuleProgress>,
+  category: string,
+): number {
+  const mods = allModules.filter((m) => m.category === category);
+  if (mods.length === 0) return 0;
+  const avg = mods.reduce((sum, m) => sum + (moduleProgress[m.id]?.mastery ?? 0), 0) / mods.length;
+  return Math.round(avg);
+}
+
+function getWeakestModule(mastery: Record<ModuleKey, number>): ModuleKey {
   const keys: ModuleKey[] = ["bartending", "sales", "management"];
-  return keys.reduce((w, k) => ((data.mastery[k] ?? 0) < (data.mastery[w] ?? 0) ? k : w));
+  return keys.reduce((w, k) => (mastery[k] < mastery[w] ? k : w));
 }
 
 function computeStreak(): number {
@@ -222,10 +233,16 @@ export default function PreShiftHome({
     void load();
   }, []);
 
+  const categoryMastery: Record<ModuleKey, number> = {
+    bartending: getCategoryMastery(data.allModules, data.moduleProgress, "technical"),
+    sales: getCategoryMastery(data.allModules, data.moduleProgress, "service"),
+    management: getCategoryMastery(data.allModules, data.moduleProgress, "compliance"),
+  };
+
   const totalSessions = data.sessions.bartending + data.sessions.sales + data.sessions.management;
   const skillLevel = data.skillLevel;
-  const weakest = getWeakestModule(data);
-  const weakestMastery = Math.min(100, Math.round(data.mastery[weakest] ?? 0));
+  const weakest = getWeakestModule(categoryMastery);
+  const weakestMastery = Math.min(100, categoryMastery[weakest]);
   const coachTips = COACH_FOCUS[weakest];
   const lastTrainedLabel = formatLastTrained(data.lastAttemptAt);
   const WeakestIcon = MODULE_META[weakest].Icon;
@@ -266,6 +283,38 @@ export default function PreShiftHome({
         {lastTrainedLabel && (
           <span className="psh-last-trained">Last trained: {lastTrainedLabel}</span>
         )}
+      </div>
+
+      {/* ── Quick Nav ── */}
+      <div className="psh-quick-nav">
+        <button className="psh-quick-nav-item" type="button" onClick={() => setActiveNav("stage4")}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+          </svg>
+          <span className="psh-quick-nav-label">Scenarios</span>
+          <span className="psh-quick-nav-sub">Practice written scenarios</span>
+        </button>
+        <button className="psh-quick-nav-item" type="button" onClick={() => setActiveNav("scenarios")}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span className="psh-quick-nav-label">AI Arena</span>
+          <span className="psh-quick-nav-sub">Live roleplay with AI</span>
+        </button>
+        <button className="psh-quick-nav-item" type="button" onClick={() => setActiveNav("challenges")}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          <span className="psh-quick-nav-label">Challenges</span>
+          <span className="psh-quick-nav-sub">Interactive mini-games</span>
+        </button>
+        <Link href="/dashboard/badges" className="psh-quick-nav-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+          </svg>
+          <span className="psh-quick-nav-label">Badges</span>
+          <span className="psh-quick-nav-sub">Your achievements</span>
+        </Link>
       </div>
 
       {/* ── A2: Hero Grid: Pre-Shift Brief (left) + Daily Challenge (right) ── */}
@@ -356,7 +405,7 @@ export default function PreShiftHome({
           {(["bartending", "sales", "management"] as ModuleKey[])
             .filter((m) => managementUnlocked || m !== "management")
             .map((mod, index) => {
-              const mastery = Math.round(data.mastery[mod] ?? 0);
+              const mastery = categoryMastery[mod];
               const { short, Icon } = MODULE_META[mod];
               return (
                 <div
@@ -406,9 +455,9 @@ export default function PreShiftHome({
           };
         });
         const badgeScores: CategoryScores = {
-          bartending: Math.round(data.mastery.bartending ?? 0),
-          sales: Math.round(data.mastery.sales ?? 0),
-          management: Math.round(data.mastery.management ?? 0),
+          bartending: categoryMastery.bartending,
+          sales: categoryMastery.sales,
+          management: categoryMastery.management,
         };
         const badges = computeBadges(badgeModules, badgeScores, streak, 0, 0);
         const earned = countEarned(badges);
