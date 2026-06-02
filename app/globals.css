@@ -2540,7 +2540,7 @@ ul {
 .dashboard-shell {
   display: grid;
   grid-template-columns: 240px 1fr;
-  width: 100%;
+  width: 100vw;
   min-height: 100dvh;
   background: var(--bg);
   overflow-x: clip;
