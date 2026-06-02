@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
+import { computeBadges, countEarned, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
 import { Zap, GlassWater, Shield, Award, ChevronDown, ChevronRight } from "lucide-react";
 import {
   BarChart,
@@ -364,7 +365,7 @@ export default function ProgressOverview({
             id: m.id,
             title: m.title,
             category: m.category as "technical" | "service" | "compliance",
-            mastered: (p.scenariosMastered ?? 0) >= 1,
+            mastered: (p.mastery ?? 0) >= 80,
             attempted: (p.scenariosAttempted ?? 0) > 0,
           };
         });
@@ -372,10 +373,35 @@ export default function ProgressOverview({
           (res.sessions?.bartending ?? 0) +
           (res.sessions?.sales ?? 0) +
           (res.sessions?.management ?? 0);
-        const badgesEarned = (["bartending", "sales", "management"] as const).reduce(
-          (n, mod) => n + ((res.mastery?.[mod] ?? 0) >= 80 ? 1 : 0),
+        const allMods = res.allModules as { id: number; category: string }[] ?? [];
+        const badgeModules: ModuleSummaryForBadges[] = allMods.map((m) => {
+          const p = (res.moduleProgress as Record<number, { mastery?: number; scenariosAttempted?: number }>)?.[m.id] ?? {};
+          return {
+            category: m.category as "technical" | "service" | "compliance",
+            mastered: (p.mastery ?? 0) >= 80,
+            attempted: (p.scenariosAttempted ?? 0) > 0,
+          };
+        });
+        const catAvg = (cat: string) => {
+          const mods = allMods.filter((m) => m.category === cat);
+          if (mods.length === 0) return 0;
+          return Math.round(
+            mods.reduce((sum, m) => sum + ((res.moduleProgress as Record<number, { mastery?: number }>)?.[m.id]?.mastery ?? 0), 0) / mods.length
+          );
+        };
+        const badgeCategoryScores: CategoryScores = {
+          bartending: catAvg("technical"),
+          sales: catAvg("service"),
+          management: catAvg("compliance"),
+        };
+        const allBadgesComputed = computeBadges(
+          badgeModules,
+          badgeCategoryScores,
           0,
+          (res.bestCorrectStreak as number) ?? 0,
+          (res.sbeEliteNumber as number) ?? 0,
         );
+        const badgesEarned = countEarned(allBadgesComputed);
         let challengesCompleted: number[] = [];
         try {
           const stored = localStorage.getItem("sbe_challenges_completed");

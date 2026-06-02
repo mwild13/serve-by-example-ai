@@ -173,12 +173,14 @@ export default function PreShiftHome({
   managementUnlocked = false,
   onNavigateToCategory,
   isPremium,
+  onBadgesNav,
 }: {
   displayName: string;
   setActiveNav: (nav: NavItem) => void;
   managementUnlocked?: boolean;
   onNavigateToCategory?: (category: string) => void;
   isPremium?: boolean;
+  onBadgesNav?: () => void;
 }) {
   const [data, setData] = useState<ProgressData>(EMPTY);
   const [streak, setStreak] = useState(0);
@@ -367,7 +369,7 @@ export default function PreShiftHome({
             id: "badges", label: "Badges",
             subtitle: badgeEarned > 0 ? `${badgeEarned} earned` : "Your achievements",
             icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>,
-            href: "/dashboard/badges", isPremiumGated: false,
+            action: () => onBadgesNav?.(), isPremiumGated: false,
           },
           {
             id: "cocktails", label: "Cocktail Library",
@@ -530,6 +532,9 @@ export default function PreShiftHome({
             const completed = data.allModules.filter(
               (m) => m.category === CATEGORY_NAV_KEY[mod] && (data.moduleProgress[m.id]?.mastery ?? 0) >= 80
             ).length;
+            const started = data.allModules.filter(
+              (m) => m.category === CATEGORY_NAV_KEY[mod] && (data.moduleProgress[m.id]?.scenariosAttempted ?? 0) > 0
+            ).length;
             const isLocked = mod === "management" && !managementUnlocked;
             const navigate = () => {
               if (onNavigateToCategory) onNavigateToCategory(CATEGORY_NAV_KEY[mod]);
@@ -557,11 +562,13 @@ export default function PreShiftHome({
                   />
                 </div>
                 <p className="psh-module-next" style={{ fontSize: "0.78rem", color: "var(--text-muted)", margin: "2px 0 0" }}>
-                  {completed === 0
+                  {started === 0
                     ? `0 of ${total} modules started`
                     : completed === total
                     ? `All ${total} modules mastered`
-                    : `${completed} of ${total} modules complete`}
+                    : completed > 0
+                    ? `${completed} of ${total} mastered · ${started} started`
+                    : `${started} of ${total} in progress`}
                 </p>
                 <button
                   className="psh-module-cta-pill"
@@ -635,9 +642,9 @@ export default function PreShiftHome({
           <h2 style={{ fontFamily: "var(--font-heading)", fontSize: "1rem", fontWeight: 600, color: "var(--text)", margin: 0 }}>
             Your Achievements
           </h2>
-          <Link href="/dashboard/badges" style={{ fontSize: "0.82rem", color: "var(--gold)", fontWeight: 600, textDecoration: "none" }}>
+          <button onClick={() => onBadgesNav?.()} style={{ fontSize: "0.82rem", color: "var(--gold)", fontWeight: 600, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
             View all →
-          </Link>
+          </button>
         </div>
         {loaded && badgeEarned === 0 ? (
           <div style={{ background: "var(--green-light)", border: "1px solid var(--line)", borderRadius: "var(--radius-lg)", padding: "20px 24px", textAlign: "center" }}>
@@ -649,8 +656,11 @@ export default function PreShiftHome({
             </button>
           </div>
         ) : (
-          <Link
-            href="/dashboard/badges"
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => onBadgesNav?.()}
+            onKeyDown={(e) => { if (e.key === "Enter") onBadgesNav?.(); }}
             className="psh-badges-row"
             data-animate
             ref={(el) => { animRefs.current[3] = el as HTMLElement | null; }}
@@ -672,7 +682,7 @@ export default function PreShiftHome({
               )}
             </div>
             <span className="psh-badges-cta">View all &rarr;</span>
-          </Link>
+          </div>
         )}
       </div>
 

@@ -73,7 +73,7 @@ export async function GET(req: Request) {
 
     // ── Canonical skill level (mastered modules / total × 10) ──
     const masteredModuleCount = allModules
-      ? allModules.filter((mod) => (moduleProgress[mod.id]?.scenariosMastered ?? 0) >= 1).length
+      ? allModules.filter((mod) => (moduleProgress[mod.id]?.mastery ?? 0) >= 80).length
       : 0;
     const totalModuleCount = allModules?.length ?? 20;
     const skillLevel = Math.min(
@@ -100,6 +100,15 @@ export async function GET(req: Request) {
         };
       }
     }
+
+    // ── Profile fields for badge computation ──
+    const { data: profileRow } = await admin
+      .from("profiles")
+      .select("best_correct_streak, sbe_elite_number")
+      .eq("id", user.id)
+      .maybeSingle();
+    const bestCorrectStreak = (profileRow?.best_correct_streak as number) ?? 0;
+    const sbeEliteNumber = (profileRow?.sbe_elite_number as number) ?? 0;
 
     // ── Level progress (Stages 1-3, legacy table) ──
     const { data: levelRows } = await admin
@@ -236,6 +245,8 @@ export async function GET(req: Request) {
       reviewQueue,
       lastAttemptAt,
       scenarioDetails,
+      bestCorrectStreak,
+      sbeEliteNumber,
       staffRole,
       autoUnlockManagement,
       access: {

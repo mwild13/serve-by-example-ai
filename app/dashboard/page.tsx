@@ -9,10 +9,11 @@ export const dynamic = "force-dynamic";
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ checkout?: string }>;
+  searchParams: Promise<{ checkout?: string; nav?: string }>;
 }) {
   const params = await searchParams;
   const checkoutSuccess = params.checkout === "success";
+  const initialNav = params.nav;
 
   const supabase = await createSupabaseServerClient();
   const {
@@ -75,6 +76,7 @@ export default async function DashboardPage({
       notifAchievementAlerts={profile?.notif_achievement_alerts ?? true}
       hasVenueMembership={hasVenueMembership}
       initialToken={session?.access_token ?? ""}
+      initialNav={initialNav}
     />
   );
 }

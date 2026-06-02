@@ -14,6 +14,7 @@ import ChallengesPage from "@/components/learning-engine/ChallengesPage";
 import { CocktailGridSkeleton } from "@/components/ui/Skeletons";
 const CocktailLibrary = lazy(() => import("@/components/knowledge-base/CocktailLibrary"));
 const KnowledgeBase = lazy(() => import("@/components/knowledge-base/KnowledgeBase"));
+const BadgesView = lazy(() => import("@/components/learning-engine/BadgesView"));
 import ProgressOverview from "@/components/learning-engine/ProgressOverview";
 import PreShiftHome from "@/components/learning-engine/PreShiftHome";
 import MobileDashboardV3 from "@/components/learning-engine/MobileDashboardV3";
@@ -21,7 +22,7 @@ import SessionRefresher from "@/components/ui/SessionRefresher";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
-type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "challenges" | "cocktails" | "knowledge" | "progress" | "settings";
+type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "challenges" | "cocktails" | "knowledge" | "progress" | "badges" | "settings";
 
 const NAV_ITEMS: { id: NavItem; label: string }[] = [
   { id: "home", label: "Home" },
@@ -32,6 +33,7 @@ const NAV_ITEMS: { id: NavItem; label: string }[] = [
   { id: "cocktails", label: "Cocktail Library" },
   { id: "knowledge", label: "101 Knowledge Base" },
   { id: "progress", label: "How I'm improving" },
+  { id: "badges", label: "Badges" },
   { id: "settings", label: "Settings" },
 ];
 
@@ -454,6 +456,7 @@ export default function DashboardShell({
   hasVenueMembership = false,
   initialToken = "",
   checkoutSuccess = false,
+  initialNav,
 }: {
   displayName: string;
   plan: string;
@@ -465,9 +468,13 @@ export default function DashboardShell({
   hasVenueMembership?: boolean;
   initialToken?: string;
   checkoutSuccess?: boolean;
+  initialNav?: string;
 }) {
   const router = useRouter();
-  const [activeNav, setActiveNav] = useState<NavItem>("home");
+  const NAV_IDS = new Set<NavItem>(["home","module","rapid-fire","stage4","scenarios","challenges","cocktails","knowledge","progress","badges","settings"]);
+  const [activeNav, setActiveNav] = useState<NavItem>(
+    NAV_IDS.has(initialNav as NavItem) ? (initialNav as NavItem) : "home"
+  );
   const [joinCodeFromUrl, setJoinCodeFromUrl] = useState<string | undefined>(undefined);
   const [managementUnlocked] = useState(managementUnlockedInitial);
   const [showPaymentBanner, setShowPaymentBanner] = useState(checkoutSuccess);
@@ -723,6 +730,7 @@ export default function DashboardShell({
                 managementUnlocked={managementUnlocked}
                 onNavigateToCategory={handleNavigateToCategory}
                 isPremium={isPremium}
+                onBadgesNav={() => handleNavClick("badges")}
               />
             </div>
           </>
@@ -748,6 +756,10 @@ export default function DashboardShell({
             }}
             onNavigate={(nav) => handleNavClick(nav as NavItem)}
           />
+        ) : activeNav === "badges" ? (
+          <Suspense fallback={<div style={{ padding: "2rem", textAlign: "center", color: "var(--text-muted)" }}>Loading…</div>}>
+            <BadgesView onBack={() => handleNavClick("home")} />
+          </Suspense>
         ) : activeNav === "settings" ? (
           <StaffSettingsPanel
             displayName={displayName}
