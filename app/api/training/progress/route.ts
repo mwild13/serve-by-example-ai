@@ -34,7 +34,7 @@ export async function GET(req: Request) {
     // Get all scenario_mastery records for this user that have module_id set
     const { data: masteryRows } = await admin
       .from("scenario_mastery")
-      .select("module_id, mastery_level, elo_rating, total_attempts, total_score_points, last_attempt_at")
+      .select("module_id, mastery_level, elo_rating, total_attempts, total_score_points, last_attempt_at, is_mastered")
       .eq("user_id", user.id)
       .not("module_id", "is", null);
 
@@ -60,13 +60,15 @@ export async function GET(req: Request) {
         const mastered = rows.filter((r) => r.mastery_level >= 3).length;
         const totalElo = rows.reduce((sum, r) => sum + (r.elo_rating ?? 1200), 0);
         const scenarioTotal = SCENARIO_COUNTS[`module_${mod.id}`] ?? 10;
+        // ModuleVerify writes a single row with is_mastered=true — treat as 100% if present
+        const hasVerified = rows.some((r) => (r as { is_mastered?: boolean | null }).is_mastered === true);
 
         moduleProgress[mod.id] = {
           scenariosAttempted: attempted,
           scenariosMastered: mastered,
           avgElo: attempted > 0 ? Math.round(totalElo / attempted) : 1200,
-          completion: attempted > 0 ? Math.round((attempted / scenarioTotal) * 100) : 0,
-          mastery: attempted > 0 ? Math.round((mastered / scenarioTotal) * 100) : 0,
+          completion: hasVerified ? 100 : (attempted > 0 ? Math.round((attempted / scenarioTotal) * 100) : 0),
+          mastery: hasVerified ? 100 : (attempted > 0 ? Math.round((mastered / scenarioTotal) * 100) : 0),
         };
       }
     }
