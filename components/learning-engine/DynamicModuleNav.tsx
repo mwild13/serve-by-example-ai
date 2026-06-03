@@ -18,7 +18,6 @@ export default function DynamicModuleNav({
   selectedModuleId,
   initialCategory,
 }: DynamicModuleNavProps) {
-  const [modules, setModules] = useState<Module[]>([]);
   const [filteredModules, setFilteredModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -58,8 +57,6 @@ export default function DynamicModuleNav({
           platform_version: data.platform_version,
           user_role: data.user_role,
         });
-        setModules(data.modules);
-
         if (selectedCategory === "all") {
           setFilteredModules(data.modules);
         } else {
