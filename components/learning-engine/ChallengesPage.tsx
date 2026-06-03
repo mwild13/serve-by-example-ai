@@ -1115,8 +1115,8 @@ export default function ChallengesPage() {
         style={{ color: "white", marginBottom: "1.25rem" }}
       >
         <div className="sbe-command-text">
-          <span className="sbe-command-eyebrow">Experimental</span>
-          <strong>Interactive Challenges</strong>
+          <span className="sbe-command-eyebrow">Interactive Challenges</span>
+          <strong>Test your knowledge</strong>
           <span className="sbe-command-meta">
             5 questions · tap-based · no typing required
           </span>

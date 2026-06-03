@@ -224,7 +224,7 @@ export default function CocktailLibrary() {
       <h1 className="dash-welcome">Cocktail Library</h1>
       <p className="dash-copy">
         {activeCategory === "all"
-          ? `${COCKTAILS.length} cocktails across 10 classic styles. Tap any card to view the full recipe.`
+          ? `${COCKTAILS.length} cocktails across 10 classic styles. Select any card to view the full recipe.`
           : CATEGORIES[activeCategory].description}
       </p>
 

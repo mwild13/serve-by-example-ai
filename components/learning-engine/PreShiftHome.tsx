@@ -372,10 +372,10 @@ export default function PreShiftHome({
             action: () => setActiveNav("challenges"), isPremiumGated: false,
           },
           {
-            id: "badges", label: "Badges",
-            subtitle: badgeEarned > 0 ? `${badgeEarned} earned` : "Your achievements",
-            icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>,
-            action: () => onBadgesNav?.(), isPremiumGated: false,
+            id: "module", label: "Modules",
+            subtitle: "40 modules to master",
+            icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>,
+            action: () => setActiveNav("module"), isPremiumGated: true,
           },
           {
             id: "cocktails", label: "Cocktail Library",
@@ -644,13 +644,10 @@ export default function PreShiftHome({
 
       {/* ── A4: Your Achievements ── */}
       <div style={{ marginTop: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <div style={{ marginBottom: 12 }}>
           <h2 style={{ fontFamily: "var(--font-heading)", fontSize: "1rem", fontWeight: 600, color: "var(--text)", margin: 0 }}>
             Your Achievements
           </h2>
-          <button onClick={() => onBadgesNav?.()} style={{ fontSize: "0.82rem", color: "var(--gold)", fontWeight: 600, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-            View all →
-          </button>
         </div>
         {loaded && badgeEarned === 0 ? (
           <div style={{ background: "var(--green-light)", border: "1px solid var(--line)", borderRadius: "var(--radius-lg)", padding: "20px 24px", textAlign: "center" }}>

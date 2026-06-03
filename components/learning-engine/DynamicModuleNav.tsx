@@ -80,10 +80,10 @@ export default function DynamicModuleNav({
   }, [selectedCategory, sortBy, userToken]);
 
   const getEloDisplay = (elo: number) => {
-    if (elo < 1100) return { color: "#dc2626", label: "Needs Work" };
-    if (elo < 1200) return { color: "#d97706", label: "Building" };
-    if (elo < 1300) return { color: "#2563eb", label: "Solid" };
-    return { color: "#16a34a", label: "Strong" };
+    if (elo < 1100) return { color: "#dc2626", label: "Needs Work", tooltip: "ELO below 1100 — needs more practice on this module" };
+    if (elo < 1200) return { color: "#d97706", label: "Building", tooltip: "ELO 1100–1199 — building skills on this module" };
+    if (elo < 1300) return { color: "#2563eb", label: "Solid", tooltip: "ELO 1200–1299 — solid performance on this module" };
+    return { color: "#16a34a", label: "Strong", tooltip: "ELO 1300+ — strong mastery on this module" };
   };
 
   if (error) {
@@ -103,7 +103,7 @@ export default function DynamicModuleNav({
           <span className="sbe-command-eyebrow">Training Library</span>
           <strong>Modules</strong>
           <span className="sbe-command-meta">
-            {loading ? "Loading your modules…" : `${modules.length} module${modules.length !== 1 ? "s" : ""} · personalised to your skill level`}
+            {loading ? "Loading your modules…" : selectedCategory === "all" ? `${filteredModules.length} modules across Technical, Service & Compliance` : `${filteredModules.length} ${selectedCategory} module${filteredModules.length !== 1 ? "s" : ""}`}
           </span>
         </div>
         {/* Category filter pills */}
@@ -184,7 +184,7 @@ export default function DynamicModuleNav({
                       ★ Recommended
                     </span>
                   ) : <span />}
-                  <span style={{ fontSize: "0.7rem", fontWeight: 700, color: eloDisplay.color, background: "#f9fafb", borderRadius: "6px", padding: "3px 8px" }}>
+                  <span title={eloDisplay.tooltip} style={{ fontSize: "0.7rem", fontWeight: 700, color: eloDisplay.color, background: "#f9fafb", borderRadius: "6px", padding: "3px 8px", cursor: "help" }}>
                     {eloDisplay.label}
                   </span>
                 </div>
@@ -219,13 +219,17 @@ export default function DynamicModuleNav({
 
                 {/* Footer */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div style={{ display: "flex", gap: "3px" }}>
+                  <div
+                    title={`Difficulty: ${module.difficulty_level} / 5`}
+                    aria-label={`Difficulty level ${module.difficulty_level} out of 5`}
+                    style={{ display: "flex", gap: "3px" }}
+                  >
                     {[...Array(5)].map((_, i) => (
                       <div key={i} style={{ width: "7px", height: "7px", borderRadius: "50%", background: i < module.difficulty_level ? "#2d6a4f" : "#e5e7eb" }} />
                     ))}
                   </div>
                   <span style={{ fontSize: "0.78rem", fontWeight: 700, padding: "4px 12px", borderRadius: "6px", transition: "all 0.15s", background: isSelected ? "#d1fae5" : "#f3f4f6", color: isSelected ? "#1b4332" : "#6b7280" }}>
-                    {isSelected ? "Selected ✓" : "Start →"}
+                    {isSelected ? "Selected ✓" : module.mastery_pct >= 100 ? "Review →" : module.mastery_pct > 0 ? "Continue →" : "Start →"}
                   </span>
                 </div>
               </div>

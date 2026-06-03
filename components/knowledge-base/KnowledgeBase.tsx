@@ -56,7 +56,7 @@ export default function KnowledgeBase() {
           <strong className="kb-header-title">101 Knowledge Base</strong>
           <span className="kb-header-sub">
             {activeCategory === "all"
-              ? `${KB_ENTRIES.length} reference articles across ${CATEGORY_KEYS.length} categories.`
+              ? `${KB_ENTRIES.length} quick-reference cards across ${CATEGORY_KEYS.length} categories — the 101 Series.`
               : KB_CATEGORIES[activeCategory].description}
           </span>
         </div>

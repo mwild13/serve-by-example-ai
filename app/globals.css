@@ -6925,13 +6925,25 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 }
 
 .sign-out-btn {
-  margin-top: 16px;
+  display: block;
+  margin-top: 8px;
   width: 100%;
-  justify-content: center;
-  font-size: 0.84rem;
-  padding: 10px 16px;
+  text-align: center;
+  font-size: 0.8rem;
+  padding: 8px 12px;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  font-family: var(--font-manrope);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s;
+}
+.sign-out-btn:hover {
   color: var(--text-soft);
-  border-color: rgba(255,255,255,0.12);
 }
 
 /* ── Dashboard trainer ─────────────────────────── */
@@ -7284,6 +7296,12 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   }
 
   /* ── Keyboard shortcut hint bar ──────────────────── */
+  @media (pointer: coarse) {
+    .sbe-help-hint {
+      display: none;
+    }
+  }
+
   .sbe-help-hint {
     display: flex;
     align-items: center;
