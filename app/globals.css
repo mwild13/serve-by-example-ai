@@ -67,6 +67,26 @@
   padding: 0;
 }
 
+/* ── Skip navigation ────────────────────────── */
+.skip-nav {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 9999;
+  padding: 12px 20px;
+  background: var(--green);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: top 0.15s ease;
+}
+
+.skip-nav:focus {
+  top: 16px;
+}
+
 html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
@@ -129,6 +149,7 @@ ul {
   display: flex;
   flex-direction: column;
   overflow-x: clip;
+  overflow-y: clip;
 }
 
 .page-shell > main {
@@ -9868,12 +9889,13 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   background: #e0d8ca;
   border-radius: 3px;
   outline: none;
+  touch-action: none;
 }
 .roi-range::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 22px;
-  height: 22px;
+  width: 44px;
+  height: 44px;
   background: #1B3D2F;
   border-radius: 50%;
   cursor: pointer;
@@ -9881,8 +9903,8 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   box-shadow: 0 2px 6px rgba(27, 61, 47, 0.18);
 }
 .roi-range::-moz-range-thumb {
-  width: 22px;
-  height: 22px;
+  width: 44px;
+  height: 44px;
   background: #1B3D2F;
   border-radius: 50%;
   cursor: pointer;
@@ -13713,6 +13735,11 @@ body {
   font-style: italic;
   color: var(--gold-warm);
   font-weight: 600;
+}
+
+/* On dark green background the gold-warm token fails WCAG AA — use a lighter gold */
+.trust-section-green .stat-accent {
+  color: #e8c96a;
 }
 
 /* ── Solution page metrics strip (slim horizontal inline row) ── */

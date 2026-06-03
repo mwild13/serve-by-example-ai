@@ -72,7 +72,7 @@ export default function Home() {
     <div className="page-shell">
       <Navbar showActions={false} showTextLogin showNavbarLanguageOnMobile={false} />
 
-      <main>
+      <main id="main-content">
 
         {/* ── Hero ─────────────────────────────────── */}
         <HeroSection />
@@ -101,20 +101,28 @@ export default function Home() {
         <section className="section">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">Scalable Training Tiers</span>
-              <h2>Built for every level of your team</h2>
+              <span className="eyebrow">Pricing</span>
+              <h2>Plans &amp; Pricing</h2>
               <p>From individual staff to multi-site venue groups, one platform that grows with you.</p>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.25rem", marginTop: "2rem", maxWidth: 800, margin: "2rem auto 0" }}>
 
               <div style={{ background: "white", border: "2px solid #0B2B1E", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem", position: "relative", overflow: "visible" }}>
-                <div style={{ position: "absolute", top: "-13px", left: "50%", transform: "translateX(-50%)", background: "#0B2B1E", color: "white", fontSize: "0.65rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", borderRadius: "999px", padding: "4px 14px", whiteSpace: "nowrap" }}>Most Popular</div>
+                <div style={{ position: "absolute", top: "-13px", left: "50%", transform: "translateX(-50%)", background: "#0B2B1E", color: "white", fontSize: "0.65rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", borderRadius: "999px", padding: "4px 14px", whiteSpace: "nowrap" }}>
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ marginRight: "5px", verticalAlign: "middle" }}><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  Most Popular
+                </div>
                 <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#16a34a" }}>Individual</div>
                 <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Pro</h3>
+                <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
+                  <span style={{ fontSize: "1.75rem", fontWeight: 900, color: "#0B2B1E", lineHeight: 1 }}>$19</span>
+                  <span style={{ fontSize: "0.85rem", color: "#6b7280", fontWeight: 500 }}>/month</span>
+                </div>
                 <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Full access to all 40 training modules, unlimited coaching and progress analytics. Build career-ready skills at your own pace.</p>
                 <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For bartenders and hospitality staff investing in their craft.</p>
-                <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
-                  <Link href="/pricing" className="btn btn-primary btn-block">See Pro Pricing</Link>
+                <div style={{ marginTop: "auto", paddingTop: "1rem", display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
+                  <Link href="/pricing" className="btn btn-primary btn-block">Join Pro</Link>
+                  <Link href="/demo" style={{ fontSize: "0.8rem", color: "var(--text-soft)", textDecoration: "underline", textUnderlineOffset: "3px" }}>or try the demo free</Link>
                 </div>
               </div>
 
@@ -123,8 +131,10 @@ export default function Home() {
                 <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Scale Your Team</h3>
                 <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>The full manager console, team analytics, compliance tracking and hands-on onboarding — for single venues up to multi-site groups. From 1 location to 5, all managed from one place.</p>
                 <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For venue operators ready to professionalise their training.</p>
-                <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
-                  <Link href="/contact" className="btn btn-secondary btn-block">Request Venue Access</Link>
+                <div style={{ marginTop: "auto", paddingTop: "1rem", display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
+                  <Link href="/contact" className="btn btn-secondary btn-block">Talk to Sales</Link>
+                  <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>We respond within 1 business day.</span>
+                  <Link href="/demo" style={{ fontSize: "0.8rem", color: "var(--text-soft)", textDecoration: "underline", textUnderlineOffset: "3px" }}>or try the demo free</Link>
                 </div>
               </div>
 
@@ -239,7 +249,7 @@ export default function Home() {
         </section>
 
         {/* ── How It Works — 3-Step Process ─────── */}
-        <section className="section section-band-green">
+        <section id="how-it-works" className="section section-band-green">
           <div className="container">
             <div className="section-header center">
               <span className="eyebrow">How It Works</span>
@@ -412,8 +422,8 @@ export default function Home() {
                   <div style={{ fontSize: "0.875rem", color: "#6b7280", marginTop: "6px", fontWeight: 500 }}>Staff Trained &amp; Managed</div>
                 </div>
                 <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "#1b4332", lineHeight: 1 }}>1</div>
-                  <div style={{ fontSize: "0.875rem", color: "#6b7280", marginTop: "6px", fontWeight: 500 }}>Platform Built From Real Experience</div>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "#1b4332", lineHeight: 1 }}>40+</div>
+                  <div style={{ fontSize: "0.875rem", color: "#6b7280", marginTop: "6px", fontWeight: 500 }}>Modules Built for Hospitality</div>
                 </div>
               </div>
               <blockquote style={{
@@ -441,7 +451,7 @@ export default function Home() {
         <section className="section section-cta">
           <div className="container cta-box">
             <div>
-              <h3>Ready to train your team faster?</h3>
+              <h2>Ready to train your team faster?</h2>
               <p className="cta-proof">No credit card required.</p>
             </div>
             <div className="cta-actions cta-actions-single">

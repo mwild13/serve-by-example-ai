@@ -88,6 +88,7 @@ export default async function RootLayout({
   return (
     <html lang="en-US" className={`${fraunces.variable} ${manrope.variable}`}>
       <body>
+        <a href="#main-content" className="skip-nav">Skip to main content</a>
         {children}
         <ErrorLogger />
         <LanguageRuntimeTranslator />

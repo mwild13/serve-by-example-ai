@@ -47,7 +47,7 @@ export default function ContactPage() {
   return (
     <div className="page-shell">
       <Navbar />
-      <main>
+      <main id="main-content">
         <section className="inner-hero">
           <div className="container">
             <div className="eyebrow">Get in touch</div>
@@ -177,12 +177,12 @@ export default function ContactPage() {
                 <p>We reply to all enquiries within one business day.</p>
               </div>
               <div className="card contact-info-card">
-                <h3>Venue enquiry?</h3>
+                <h3>For venues &amp; groups</h3>
                 <p>
-                  Looking to onboard your whole team? Use the venue access form on our For Venues page for a direct conversation about rollout.
+                  Looking to onboard your whole team? Visit our For Venues page to explore multi-staff plans and venue rollout options.
                 </p>
-                <a href="/contact" className="btn btn-secondary btn-block" style={{ marginTop: "12px" }}>
-                  Request Venue Access
+                <a href="/for-venues" className="btn btn-secondary btn-block" style={{ marginTop: "12px" }}>
+                  See Venue Plans
                 </a>
               </div>
             </div>

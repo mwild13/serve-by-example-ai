@@ -116,7 +116,9 @@ export default function HeroSection() {
             <button className="hero-cta-tile hero-cta-tile-primary" onClick={openModal}>
               Book a free 15-min call
             </button>
-            <Link href="/how-it-works" className="hero-cta-tile hero-cta-tile-secondary">
+          </div>
+          <div style={{ marginTop: "16px", textAlign: "center" }}>
+            <Link href="/#how-it-works" style={{ fontSize: "0.9rem", color: "var(--text-soft)", textDecoration: "underline", textUnderlineOffset: "3px" }}>
               How it works
             </Link>
           </div>

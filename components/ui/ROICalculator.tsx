@@ -74,6 +74,10 @@ export default function ROICalculator() {
                 value={staffCount}
                 onChange={(e) => setStaffCount(Number(e.target.value))}
                 className="roi-range"
+                aria-label="Number of staff"
+                aria-valuenow={staffCount}
+                aria-valuemin={1}
+                aria-valuemax={50}
               />
               <div className="roi-range-labels">
                 <span>1</span>
@@ -95,6 +99,10 @@ export default function ROICalculator() {
                 value={avgTransaction}
                 onChange={(e) => setAvgTransaction(Number(e.target.value))}
                 className="roi-range"
+                aria-label="Average transaction value"
+                aria-valuenow={avgTransaction}
+                aria-valuemin={10}
+                aria-valuemax={200}
               />
               <div className="roi-range-labels">
                 <span>$10</span>
@@ -159,7 +167,7 @@ export default function ROICalculator() {
                     className="roi-email-btn"
                     disabled={sending}
                   >
-                    {sending ? "Sending…" : "Send"}
+                    {sending ? "Sending…" : "Email me this projection"}
                   </button>
                 </div>
               </form>

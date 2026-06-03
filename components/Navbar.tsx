@@ -126,7 +126,6 @@ export default function Navbar({
             <Image src="/logo.png" alt="Serve By Example" width={40} height={40} className="brand-mark-img" />
             <div className="brand-copy">
               <span className="brand-title">Serve By Example</span>
-              <span className="brand-subtitle">Hospitality Training Platform</span>
             </div>
           </Link>
 
@@ -140,13 +139,15 @@ export default function Navbar({
               <button
                 className={`nav-dropdown-trigger${openMenu === "platform" ? " active" : ""}`}
                 aria-expanded={openMenu === "platform"}
+                aria-haspopup="true"
+                aria-controls="nav-platform-dropdown"
                 onClick={() => setOpenMenu(openMenu === "platform" ? null : "platform")}
               >
                 Platform
                 <ChevronDown className="nav-chevron" size={14} strokeWidth={2.5} />
               </button>
               {openMenu === "platform" && (
-                <div className="mega-menu" onMouseEnter={cancelClose} onMouseLeave={scheduleClose}>
+                <div id="nav-platform-dropdown" className="mega-menu" onMouseEnter={cancelClose} onMouseLeave={scheduleClose}>
                   {platformLinks.map((item) => (
                     <Link
                       key={item.title}
@@ -174,13 +175,15 @@ export default function Navbar({
               <button
                 className={`nav-dropdown-trigger${openMenu === "solutions" ? " active" : ""}`}
                 aria-expanded={openMenu === "solutions"}
+                aria-haspopup="true"
+                aria-controls="nav-solutions-dropdown"
                 onClick={() => setOpenMenu(openMenu === "solutions" ? null : "solutions")}
               >
                 Solutions
                 <ChevronDown className="nav-chevron" size={14} strokeWidth={2.5} />
               </button>
               {openMenu === "solutions" && (
-                <div className="mega-menu" onMouseEnter={cancelClose} onMouseLeave={scheduleClose}>
+                <div id="nav-solutions-dropdown" className="mega-menu" onMouseEnter={cancelClose} onMouseLeave={scheduleClose}>
                   {solutionsLinks.map((item) => (
                     <Link
                       key={item.href}
