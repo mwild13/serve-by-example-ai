@@ -540,6 +540,7 @@ export default function MobileDashboardV3({
   const [data, setData] = useState<ProgressData>(EMPTY);
   const [streak, setStreak] = useState(0);
   const [coach, setCoach] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -573,6 +574,8 @@ export default function MobileDashboardV3({
         }
       } catch {
         // non-critical — component remains in EMPTY state
+      } finally {
+        setLoaded(true);
       }
     }
     void load();
@@ -583,22 +586,14 @@ export default function MobileDashboardV3({
   const firstName = displayName.split(" ")[0] || displayName;
   const initial = (firstName[0] ?? "?").toUpperCase();
   const masteredModules = data.allModules.filter(
-    (m) => (data.moduleProgress[m.id]?.mastery ?? 0) >= 80,
+    (m) => (data.moduleProgress[m.id]?.scenariosMastered ?? 0) >= 1,
   ).length;
+  const totalModules = data.allModules.length;
   const skillLevel = Math.min(
     10,
-    Math.max(1, Math.round((masteredModules / Math.max(data.allModules.length || 20, 1)) * 10)),
+    Math.max(1, Math.round((masteredModules / Math.max(totalModules, 1)) * 10)),
   );
   const levelTitle = LEVEL_TITLES[skillLevel] ?? "Barback";
-
-  const moduleKeys = Object.keys(data.moduleProgress).map(Number);
-  const avgMastery =
-    moduleKeys.length > 0
-      ? Math.round(
-          moduleKeys.reduce((sum, id) => sum + (data.moduleProgress[id]?.mastery ?? 0), 0) /
-            moduleKeys.length,
-        )
-      : 0;
 
   const nextModule = getNextModule(data.allModules, data.moduleProgress);
   const focusModules = getWeeklyFocus(data.allModules, data.moduleProgress);
@@ -612,14 +607,14 @@ export default function MobileDashboardV3({
     data.allModules.length > 0 &&
     !data.allModules.some((m) => {
       const p = data.moduleProgress[m.id];
-      return !p || p.mastery < 80;
+      return !p || (p.scenariosMastered ?? 0) < 1;
     });
 
   // Badges
   const moduleSummaries: ModuleSummaryForBadges[] = data.allModules.map((m) => ({
     category: m.category as "technical" | "service" | "compliance",
-    mastered: (data.moduleProgress[m.id]?.mastery ?? 0) >= 80,
-    attempted: (data.moduleProgress[m.id]?.completion ?? 0) > 0,
+    mastered: (data.moduleProgress[m.id]?.scenariosMastered ?? 0) >= 1,
+    attempted: (data.moduleProgress[m.id]?.scenariosAttempted ?? 0) > 0,
   }));
   const badges = computeBadges(
     moduleSummaries,
@@ -681,9 +676,9 @@ export default function MobileDashboardV3({
           {/* Stats row */}
           <div style={{ display: "flex" }}>
             {([
-              [String(totalSessions), "Sessions"],
-              [`${avgMastery}%`, "Mastery"],
-              [levelTitle, "Your level"],
+              [loaded ? String(totalSessions) : "--", "Sessions"],
+              [loaded ? `${masteredModules}/${Math.max(totalModules, 1)}` : "--", "Modules"],
+              [loaded ? levelTitle : "...", "Your level"],
             ] as [string, string][]).map(([val, lbl], i) => (
               <div key={lbl} style={{ flex: 1, paddingLeft: i ? 16 : 0, borderLeft: i ? "1px solid rgba(245,242,233,0.16)" : "none" }}>
                 <div style={{ fontSize: i === 2 ? 14 : 24, fontWeight: 700, letterSpacing: i === 2 ? 0 : -0.5, lineHeight: 1.15 }}>{val}</div>

@@ -104,36 +104,33 @@ const COACH_FOCUS: Record<ModuleKey, string[]> = {
   ],
 };
 
-function getSkillLevel(avgCompletion: number, avgMastery: number): number {
-  const combined = avgCompletion * 0.6 + avgMastery * 0.4;
-  return Math.min(10, Math.max(1, Math.ceil(combined / 10)));
-}
-
 function getWeakestModule(data: ProgressData): ModuleKey {
   const keys: ModuleKey[] = ["bartending", "sales", "management"];
   return keys.reduce((w, k) => ((data.mastery[k] ?? 0) < (data.mastery[w] ?? 0) ? k : w));
 }
 
-function computeStreak(): number {
+function computeStreak(userId: string): number {
   try {
     const today = new Date().toISOString().slice(0, 10);
-    const lastDate = localStorage.getItem("sbe-streak-last");
-    const streakCount = parseInt(localStorage.getItem("sbe-streak-count") ?? "0", 10);
+    const lastKey = `sbe-streak-last-${userId}`;
+    const countKey = `sbe-streak-count-${userId}`;
+    const lastDate = localStorage.getItem(lastKey);
+    const streakCount = parseInt(localStorage.getItem(countKey) ?? "0", 10);
     if (!lastDate) {
-      localStorage.setItem("sbe-streak-last", today);
-      localStorage.setItem("sbe-streak-count", "1");
+      localStorage.setItem(lastKey, today);
+      localStorage.setItem(countKey, "1");
       return 1;
     }
     if (lastDate === today) return streakCount || 1;
     const daysDiff = Math.round((new Date(today).getTime() - new Date(lastDate).getTime()) / 86400000);
     if (daysDiff === 1) {
       const next = streakCount + 1;
-      localStorage.setItem("sbe-streak-last", today);
-      localStorage.setItem("sbe-streak-count", String(next));
+      localStorage.setItem(lastKey, today);
+      localStorage.setItem(countKey, String(next));
       return next;
     }
-    localStorage.setItem("sbe-streak-last", today);
-    localStorage.setItem("sbe-streak-count", "1");
+    localStorage.setItem(lastKey, today);
+    localStorage.setItem(countKey, "1");
     return 1;
   } catch {
     return 0;
@@ -166,14 +163,11 @@ export default function PreShiftHome({
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    setStreak(computeStreak());
-  }, []);
-
-  useEffect(() => {
     async function load() {
       try {
         const supabase = createSupabaseBrowserClient();
         const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user?.id) setStreak(computeStreak(session.user.id));
         const r = await fetch("/api/training/progress", {
           headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
         });
@@ -205,9 +199,13 @@ export default function PreShiftHome({
   }, []);
 
   const totalSessions = data.sessions.bartending + data.sessions.sales + data.sessions.management;
-  const avgCompletion = (data.modules.bartending + data.modules.sales + data.modules.management) / 3;
-  const avgMastery = (data.mastery.bartending + data.mastery.sales + data.mastery.management) / 3;
-  const skillLevel = getSkillLevel(avgCompletion, avgMastery);
+  const masteredModuleCount = data.allModules.filter(
+    (m) => (data.moduleProgress[m.id]?.scenariosMastered ?? 0) >= 1,
+  ).length;
+  const skillLevel = Math.min(
+    10,
+    Math.max(1, Math.round((masteredModuleCount / Math.max(data.allModules.length, 1)) * 10)),
+  );
   const weakest = getWeakestModule(data);
   const weakestMastery = Math.min(100, Math.round(data.mastery[weakest] ?? 0));
   const coachTips = COACH_FOCUS[weakest];
@@ -336,10 +334,9 @@ export default function PreShiftHome({
       {loaded && (() => {
         const badgeModules: ModuleSummaryForBadges[] = data.allModules.map((m) => {
           const prog = data.moduleProgress[m.id];
-          const mastery = prog?.mastery ?? 0;
           return {
             category: m.category as "technical" | "service" | "compliance",
-            mastered: mastery >= 80,
+            mastered: (prog?.scenariosMastered ?? 0) >= 1,
             attempted: (prog?.scenariosAttempted ?? 0) > 0,
           };
         });
