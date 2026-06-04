@@ -12594,25 +12594,19 @@ body {
   /* Hide top sidebar — replaced by bottom nav */
   .dashboard-sidebar { display: none !important; }
 
-  /* Room for glassmorphic pill (bottom: 24px, height: 64px + breathing room) */
-  .dashboard-main { padding-bottom: 108px !important; }
+  /* Room for fixed bottom nav */
+  .dashboard-main { padding-bottom: 72px !important; }
 
   .mobile-bottom-nav {
     display: flex;
     position: fixed;
-    bottom: 24px;
-    left: 16px;
-    right: 16px;
-    height: 64px;
+    bottom: 0; left: 0; right: 0;
     z-index: 45;
-    background: rgba(15, 45, 29, 0.88);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(196, 154, 47, 0.2);
-    border-radius: 32px;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    box-shadow: 0 12px 32px rgba(15, 45, 29, 0.30);
-    align-items: stretch;
+    background: var(--ip-green-deep);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    justify-content: space-around;
+    padding: 8px 8px 0;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
   }
 }
 
