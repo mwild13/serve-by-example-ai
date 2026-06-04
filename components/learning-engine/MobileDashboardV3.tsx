@@ -45,7 +45,6 @@ type ProgressData = {
   lastAttemptAt: string | null;
   allModules: DbModule[];
   moduleProgress: Record<number, DbModuleProgress>;
-  skillLevel: number;
   scenarioCounts: Record<string, number>;
   bestCorrectStreak: number;
   sbeEliteNumber: number;
@@ -67,7 +66,6 @@ const EMPTY: ProgressData = {
   lastAttemptAt: null,
   allModules: [],
   moduleProgress: {},
-  skillLevel: 1,
   scenarioCounts: {},
   bestCorrectStreak: 0,
   sbeEliteNumber: 0,
@@ -77,7 +75,7 @@ const EMPTY: ProgressData = {
 const LEVEL_TITLES: Record<number, string> = {
   1: "Barback", 2: "Glass Runner", 3: "Prep Bartender", 4: "Bartender",
   5: "Senior Bartender", 6: "Shift Lead", 7: "Bar Supervisor",
-  8: "Asst Manager", 9: "Head Bartender", 10: "Mixologist",
+  8: "Head Bartender", 9: "Assistant Manager", 10: "Mixologist",
 };
 
 // ── Helpers ────────────────────────────────────────────────────
@@ -147,7 +145,9 @@ function getWeeklyFocus(
   const unstarted = allModules
     .filter((m) => !moduleProgress[m.id] || moduleProgress[m.id].completion === 0)
     .sort((a, b) => a.id - b.id);
-  return [...inProgress, ...unstarted].slice(0, 4);
+  const combined = [...inProgress, ...unstarted];
+  if (combined.length > 0) return combined.slice(0, 4);
+  return [...allModules].sort((a, b) => a.id - b.id).slice(0, 4);
 }
 
 function moduleMinutes(difficulty: string | number): string {
@@ -566,7 +566,6 @@ export default function MobileDashboardV3({
             lastAttemptAt: res.lastAttemptAt ?? null,
             allModules: Array.isArray(res.allModules) ? res.allModules : [],
             moduleProgress: res.moduleProgress ?? {},
-            skillLevel: typeof res.skillLevel === "number" ? res.skillLevel : 1,
             scenarioCounts: res.scenarioCounts ?? {},
             bestCorrectStreak: res.bestCorrectStreak ?? 0,
             sbeEliteNumber: res.sbeEliteNumber ?? 0,
@@ -583,7 +582,14 @@ export default function MobileDashboardV3({
   const totalSessions = data.sessions.bartending + data.sessions.sales + data.sessions.management;
   const firstName = displayName.split(" ")[0] || displayName;
   const initial = (firstName[0] ?? "?").toUpperCase();
-  const levelTitle = LEVEL_TITLES[data.skillLevel] ?? "Barback";
+  const masteredModules = data.allModules.filter(
+    (m) => (data.moduleProgress[m.id]?.mastery ?? 0) >= 80,
+  ).length;
+  const skillLevel = Math.min(
+    10,
+    Math.max(1, Math.round((masteredModules / Math.max(data.allModules.length || 20, 1)) * 10)),
+  );
+  const levelTitle = LEVEL_TITLES[skillLevel] ?? "Barback";
 
   const moduleKeys = Object.keys(data.moduleProgress).map(Number);
   const avgMastery =
@@ -704,9 +710,11 @@ export default function MobileDashboardV3({
               <div style={{ padding: "16px 20px 20px" }}>
                 <div style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 19, fontWeight: 600, color: "var(--text)" }}>{nextModule.title}</div>
                 <div style={{ fontSize: 12.5, color: "var(--text-muted)", fontWeight: 600, margin: "4px 0 14px" }}>
-                  {nextMastered} of {nextTotal} scenarios mastered
+                  {isLoopMode
+                    ? `${masteredModules} of ${data.allModules.length} modules mastered`
+                    : `${nextMastered} of ${nextTotal} scenarios mastered`}
                 </div>
-                <GlowBar pct={nextPct} height={8} />
+                <GlowBar pct={isLoopMode ? 100 : nextPct} height={8} />
               </div>
             </button>
           ) : (
