@@ -8,6 +8,7 @@ type Props = {
   scores: CategoryScores;
   bestStreak: number;
   sbeElite: number;
+  userId: string;
 };
 
 function BadgeCard({ badge }: { badge: Badge }) {
@@ -44,17 +45,17 @@ function BadgeCard({ badge }: { badge: Badge }) {
   );
 }
 
-export default function BadgeStreakSection({ modules, scores, bestStreak, sbeElite }: Props) {
+export default function BadgeStreakSection({ modules, scores, bestStreak, sbeElite, userId }: Props) {
   const [streak, setStreak] = useState<number | null>(null);
 
   useEffect(() => {
     try {
-      const count = parseInt(localStorage.getItem("sbe-streak-count") ?? "0", 10);
+      const count = parseInt(localStorage.getItem(`sbe-streak-count-${userId}`) ?? "0", 10);
       setStreak(isNaN(count) ? 0 : count);
     } catch {
       setStreak(0);
     }
-  }, []);
+  }, [userId]);
 
   if (streak === null) {
     return (

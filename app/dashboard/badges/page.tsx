@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { SCENARIO_COUNTS } from "@/lib/mastery";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BadgeStreakSection from "@/components/learning-engine/BadgeStreakSection";
@@ -112,11 +111,9 @@ export default async function BadgesPage() {
 
   const modules: ModuleSummaryForBadges[] = (allModules ?? []).map((m) => {
     const stats = byModuleId[m.id] ?? { mastered: 0, attempted: 0 };
-    const scenarioTotal = SCENARIO_COUNTS[`module_${m.id}`] ?? 10;
-    const masteryPct = scenarioTotal > 0 ? Math.round((stats.mastered / scenarioTotal) * 100) : 0;
     return {
       category: m.category as "technical" | "service" | "compliance",
-      mastered: masteryPct >= 80,
+      mastered: stats.mastered >= 1,
       attempted: stats.attempted > 0,
     };
   });
@@ -124,13 +121,8 @@ export default async function BadgesPage() {
   function avgMastery(cat: string) {
     const mods = (allModules ?? []).filter((m) => m.category === cat);
     if (mods.length === 0) return 0;
-    return Math.round(
-      mods.reduce((sum, m) => {
-        const stats = byModuleId[m.id] ?? { mastered: 0, attempted: 0 };
-        const total = SCENARIO_COUNTS[`module_${m.id}`] ?? 10;
-        return sum + (total > 0 ? (stats.mastered / total) * 100 : 0);
-      }, 0) / mods.length
-    );
+    const masteredCount = mods.filter((m) => (byModuleId[m.id]?.mastered ?? 0) >= 1).length;
+    return Math.round((masteredCount / mods.length) * 100);
   }
 
   const scores: CategoryScores = {
@@ -188,6 +180,7 @@ export default async function BadgesPage() {
               scores={scores}
               bestStreak={bestStreak}
               sbeElite={sbeElite}
+              userId={user.id}
             />
 
             <BadgeSection
