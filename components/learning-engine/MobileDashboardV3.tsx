@@ -532,10 +532,12 @@ export default function MobileDashboardV3({
   displayName,
   setActiveNav,
   plan: _plan,
+  onSelectModule,
 }: {
   displayName: string;
   setActiveNav: (nav: NavItem) => void;
   plan: string;
+  onSelectModule?: (moduleId: number) => void;
 }) {
   const [data, setData] = useState<ProgressData>(EMPTY);
   const [streak, setStreak] = useState(0);
@@ -669,7 +671,7 @@ export default function MobileDashboardV3({
           </div>
 
           {/* Greeting */}
-          <div style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 25, fontWeight: 600, letterSpacing: -0.2, marginBottom: 18 }}>
+          <div suppressHydrationWarning style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 25, fontWeight: 600, letterSpacing: -0.2, marginBottom: 18 }}>
             {timeGreeting()}, {firstName}
           </div>
 
@@ -693,7 +695,7 @@ export default function MobileDashboardV3({
           {nextModule ? (
             <button
               className="sbe-tap"
-              onClick={() => setActiveNav("module")}
+              onClick={() => { if (onSelectModule && nextModule) onSelectModule(nextModule.id); else setActiveNav("module"); }}
               style={{ width: "100%", background: "var(--surface)", borderRadius: "var(--radius-xl)", boxShadow: "0 8px 32px rgba(15,45,29,0.10)", overflow: "hidden", border: "1px solid var(--line-light)", textAlign: "left", cursor: "pointer" }}
             >
               <div style={{ height: 116, background: "var(--green-deep)", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -734,7 +736,7 @@ export default function MobileDashboardV3({
                 <button
                   key={m.id}
                   className="sbe-tap"
-                  onClick={() => setActiveNav("module")}
+                  onClick={() => { if (onSelectModule) onSelectModule(m.id); else setActiveNav("module"); }}
                   style={{ background: "var(--surface)", borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid var(--line-light)", boxShadow: "0 4px 20px rgba(15,45,29,0.05)", textAlign: "left", cursor: "pointer" }}
                 >
                   <div style={{ height: 66, background: categoryTint(m.category, i), display: "flex", alignItems: "center", justifyContent: "center", color: categoryIconColor(m.category, i) }}>
@@ -763,7 +765,7 @@ export default function MobileDashboardV3({
                 <button
                   key={b.id}
                   className="sbe-tap"
-                  onClick={() => setActiveNav("badges")}
+                  onClick={() => { window.location.href = "/dashboard/badges"; }}
                   style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 7, flexShrink: 0, width: 64, background: "none", border: "none", cursor: "pointer", padding: 0 }}
                   aria-label={b.label}
                 >
