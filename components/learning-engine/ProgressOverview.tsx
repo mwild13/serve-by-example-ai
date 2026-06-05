@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
-import { Zap, GlassWater, Shield, Award } from "lucide-react";
+import { Zap, GlassWater, Shield } from "lucide-react";
+import { computeBadges, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
 import {
   BarChart,
   Bar,
@@ -36,16 +37,18 @@ type TrainingData = {
   modules: ModuleSummary[];
   reviewDue: number;
   totalSessions: number;
-  badgesEarned: number;
+  bestArenaScore: number;
   scores: { bartending: number; sales: number; management: number };
+  mastery: { bartending: number; sales: number; management: number };
 };
 
 const EMPTY: TrainingData = {
   modules: [],
   reviewDue: 0,
   totalSessions: 0,
-  badgesEarned: 0,
+  bestArenaScore: 0,
   scores: { bartending: 0, sales: 0, management: 0 },
+  mastery: { bartending: 0, sales: 0, management: 0 },
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -73,6 +76,7 @@ export default function ProgressOverview({
   onNavigate,
 }: ProgressOverviewProps) {
   const [data, setData] = useState<TrainingData>(EMPTY);
+  const [selectedCategory, setSelectedCategory] = useState<"all" | "technical" | "service" | "compliance">("all");
 
   useEffect(() => {
     async function load() {
@@ -112,23 +116,22 @@ export default function ProgressOverview({
             (res.sessions?.bartending ?? 0) +
             (res.sessions?.sales ?? 0) +
             (res.sessions?.management ?? 0);
-          const badgesEarned = (
-            ["bartending", "sales", "management"] as const
-          ).reduce(
-            (n, mod) => n + ((res.mastery?.[mod] ?? 0) >= 80 ? 1 : 0),
-            0,
-          );
           setData({
             modules,
             reviewDue: Array.isArray(res.reviewQueue)
               ? res.reviewQueue.length
               : 0,
             totalSessions,
-            badgesEarned,
+            bestArenaScore: (res.bestArenaScore as number | undefined) ?? 0,
             scores: {
               bartending: res.scores?.bartending ?? 0,
               sales: res.scores?.sales ?? 0,
               management: res.scores?.management ?? 0,
+            },
+            mastery: {
+              bartending: res.mastery?.bartending ?? 0,
+              sales: res.mastery?.sales ?? 0,
+              management: res.mastery?.management ?? 0,
             },
           });
         }
@@ -225,6 +228,20 @@ export default function ProgressOverview({
         )
       : 0;
 
+  const moduleSummariesForBadges: ModuleSummaryForBadges[] = data.modules.map((m) => ({
+    category: m.category,
+    mastered: m.mastered,
+    attempted: m.attempted,
+  }));
+  const categoryScoresForBadges: CategoryScores = {
+    bartending: data.mastery.bartending,
+    sales: data.mastery.sales,
+    management: data.mastery.management,
+  };
+  const allBadges = computeBadges(moduleSummariesForBadges, categoryScoresForBadges, 0, 0, 0);
+  const earnedBadgeCount = allBadges.filter((b) => b.earned).length;
+  const totalBadgeCount = allBadges.length;
+
   const radarData = [
     { subject: "Technical", score: technicalMastery },
     { subject: "Service", score: serviceMastery },
@@ -281,14 +298,38 @@ export default function ProgressOverview({
             <p className="progress-hub-stat-sub">verified across all categories</p>
           </div>
 
-          {/* 2. High Scenario Score */}
+          {/* 2. Badge Collection */}
+          <div className="progress-hub-stat-card">
+            <span className="progress-hub-stat-label">Badge Collection</span>
+            <span className="progress-hub-stat-value" style={{ fontSize: "1.6rem" }}>
+              {earnedBadgeCount}/{totalBadgeCount}
+            </span>
+            <div className="progress-hub-stat-mini-track">
+              <div
+                className="progress-hub-stat-mini-fill"
+                style={{
+                  width: totalBadgeCount > 0 ? `${Math.round((earnedBadgeCount / totalBadgeCount) * 100)}%` : "0%",
+                }}
+              />
+            </div>
+            <p className="progress-hub-stat-sub">badges earned across all tiers</p>
+          </div>
+
+          {/* 3. High Scenario Score */}
           <div className="progress-hub-stat-card">
             <span className="progress-hub-stat-label">High Scenario Score</span>
             <span className="progress-hub-stat-value">{highScore}/100</span>
-            <p className="progress-hub-stat-sub">best single module average</p>
+            <p className="progress-hub-stat-sub">best training module average</p>
           </div>
 
-          {/* 3. Focus Area */}
+          {/* 4. Highest Live Scenario */}
+          <div className="progress-hub-stat-card">
+            <span className="progress-hub-stat-label">Highest Live Scenario</span>
+            <span className="progress-hub-stat-value">{data.bestArenaScore > 0 ? `${data.bestArenaScore}/100` : "—"}</span>
+            <p className="progress-hub-stat-sub">best score in Live Scenarios</p>
+          </div>
+
+          {/* 5. Focus Area */}
           <div className="progress-hub-stat-card">
             <span className="progress-hub-stat-label">Focus Area</span>
             <span
@@ -300,39 +341,11 @@ export default function ProgressOverview({
             <p className="progress-hub-stat-sub">weakest category · priority training</p>
           </div>
 
-          {/* 4. Sessions Completed */}
+          {/* 6. Sessions Completed */}
           <div className="progress-hub-stat-card">
             <span className="progress-hub-stat-label">Sessions Completed</span>
             <span className="progress-hub-stat-value">{data.totalSessions}</span>
             <p className="progress-hub-stat-sub">total training sessions</p>
-          </div>
-
-          {/* 5. Badge Collection */}
-          <div className="progress-hub-stat-card">
-            <span className="progress-hub-stat-label">Badge Collection</span>
-            <div className="progress-hub-badge-row">
-              {[0, 1, 2].map((i) => (
-                <Award
-                  key={i}
-                  size={22}
-                  className={
-                    i < data.badgesEarned
-                      ? "progress-hub-badge-icon"
-                      : "progress-hub-badge-icon--empty"
-                  }
-                />
-              ))}
-            </div>
-            <p className="progress-hub-stat-sub">{data.badgesEarned}/3 earned</p>
-          </div>
-
-          {/* 6. Current Standing */}
-          <div className="progress-hub-stat-card">
-            <span className="progress-hub-stat-label">Current Standing</span>
-            <span className="progress-hub-stat-value">
-              Level {skillLevel}
-            </span>
-            <p className="progress-hub-stat-sub">of 10 · {skillLevel <= 3 ? "Apprentice" : skillLevel <= 6 ? "Specialist" : skillLevel <= 9 ? "Expert" : "Master"}</p>
           </div>
         </div>
 
@@ -461,12 +474,46 @@ export default function ProgressOverview({
 
       {/* ── Band 3: Full Module Mastery List ─────────────────── */}
       <div className="progress-mastery-list-v2">
-        <h2 className="progress-mastery-list-v2-title">Full Module Mastery List</h2>
-        <p className="progress-mastery-list-v2-sub">
-          Pass each module verify to mark as mastered. Every module links directly to training or the Arena.
-        </p>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: 4 }}>
+          <div>
+            <h2 className="progress-mastery-list-v2-title" style={{ marginBottom: 4 }}>Full Module Mastery List</h2>
+            <p className="progress-mastery-list-v2-sub" style={{ marginBottom: 0 }}>
+              Pass each module verify to mark as mastered. Every module links directly to training or the Arena.
+            </p>
+          </div>
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value as typeof selectedCategory)}
+            style={{
+              appearance: "none",
+              WebkitAppearance: "none",
+              background: "var(--surface)",
+              border: "1.5px solid var(--line)",
+              borderRadius: "var(--radius-sm)",
+              padding: "8px 36px 8px 14px",
+              fontSize: "0.82rem",
+              fontWeight: 600,
+              color: "var(--text)",
+              fontFamily: "inherit",
+              cursor: "pointer",
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a9185' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right 12px center",
+              flexShrink: 0,
+            }}
+            aria-label="Filter by category"
+          >
+            <option value="all">All categories</option>
+            <option value="technical">Technical</option>
+            <option value="service">Service</option>
+            <option value="compliance">Compliance</option>
+          </select>
+        </div>
 
-        {(["technical", "service", "compliance"] as const).map((cat) => {
+        {(selectedCategory === "all"
+          ? (["technical", "service", "compliance"] as const)
+          : ([selectedCategory] as const)
+        ).map((cat) => {
           const Icon = CATEGORY_ICONS[cat];
           return (
             <div key={cat} style={{ marginBottom: 20 }}>

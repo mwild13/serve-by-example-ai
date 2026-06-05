@@ -158,6 +158,16 @@ export async function GET(req: Request) {
       }
     }
 
+    // ── Best Live Scenario score (arena, scenario_index=40) ──
+    const { data: arenaBestRows } = await admin
+      .from("scenario_mastery")
+      .select("best_score")
+      .eq("user_id", user.id)
+      .eq("scenario_index", 40)
+      .order("best_score", { ascending: false })
+      .limit(1);
+    const bestArenaScore: number = (arenaBestRows?.[0]?.best_score as number | null) ?? 0;
+
     return NextResponse.json({
       // Legacy 3-module fields (backward compat)
       modules: {
@@ -205,6 +215,7 @@ export async function GET(req: Request) {
       scenarioDetails,
       staffRole,
       autoUnlockManagement,
+      bestArenaScore,
       access: {
         tier: access.tier,
         allowedModules: access.allowedModules,

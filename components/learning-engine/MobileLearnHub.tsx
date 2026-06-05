@@ -72,7 +72,6 @@ type Section = {
   tint: string;
   iconColor: string;
   locked: boolean;
-  badge?: string;
 };
 
 export default function MobileLearnHub({
@@ -91,7 +90,6 @@ export default function MobileLearnHub({
       tint: "var(--green-light)",
       iconColor: "var(--green)",
       locked: !isPremium,
-      badge: "40 modules",
     },
     {
       id: "stage4",
@@ -101,7 +99,6 @@ export default function MobileLearnHub({
       tint: "var(--gold-light)",
       iconColor: "var(--gold)",
       locked: !isPremium,
-      badge: "Pro",
     },
     {
       id: "scenarios",
@@ -111,7 +108,6 @@ export default function MobileLearnHub({
       tint: "var(--green-light)",
       iconColor: "var(--green)",
       locked: !isPremium,
-      badge: "Pro",
     },
     {
       id: "challenges",
@@ -121,7 +117,6 @@ export default function MobileLearnHub({
       tint: "var(--gold-light)",
       iconColor: "var(--gold)",
       locked: false,
-      badge: "Free",
     },
   ];
 
@@ -172,18 +167,8 @@ export default function MobileLearnHub({
 
             {/* Text */}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+              <div style={{ marginBottom: 3 }}>
                 <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text)" }}>{s.title}</span>
-                {s.badge && (
-                  <span style={{
-                    fontSize: 9.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8,
-                    color: s.locked ? "var(--text-muted)" : "var(--green)",
-                    background: s.locked ? "var(--bg-alt)" : "var(--green-light)",
-                    padding: "2px 7px", borderRadius: 99,
-                  }}>
-                    {s.badge}
-                  </span>
-                )}
               </div>
               <div style={{ fontSize: 12.5, color: "var(--text-muted)", lineHeight: 1.4 }}>{s.desc}</div>
             </div>

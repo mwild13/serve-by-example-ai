@@ -395,6 +395,7 @@ export default function DashboardShell({
   initialToken?: string;
 }) {
   const [activeNav, setActiveNav] = useState<NavItem>("home");
+  const [trainerKey, setTrainerKey] = useState(0);
   const [joinCodeFromUrl, setJoinCodeFromUrl] = useState<string | undefined>(undefined);
   const [managementUnlocked] = useState(managementUnlockedInitial);
   // Phase 4: Dynamic module system
@@ -486,6 +487,7 @@ export default function DashboardShell({
       window.location.href = "/pricing";
       return;
     }
+    if (id === "stage4") setTrainerKey((k) => k + 1);
     setActiveNav(id);
   }
 
@@ -588,7 +590,7 @@ export default function DashboardShell({
           </div>
         ) : activeNav === "stage4" ? (
           <DashboardTrainer
-            key="stage4"
+            key={`stage4-${trainerKey}`}
             displayName={displayName}
             userEmail={userEmail}
             managementUnlocked={managementUnlocked}
