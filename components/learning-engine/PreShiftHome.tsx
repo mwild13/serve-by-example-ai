@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
-import { Zap, GlassWater, TrendingUp, Users, Flame } from "lucide-react";
+import { Zap, Flame } from "lucide-react";
 import { computeBadges, countEarned, recentEarned, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
 import { getDailyFocus } from "@/lib/daily-focus";
 import Link from "next/link";
+import { KB_ENTRIES, KB_CATEGORIES } from "@/lib/knowledge-base";
+import { COCKTAILS } from "@/lib/cocktails";
 
 type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
 type ModuleKey = "bartending" | "sales" | "management";
@@ -65,7 +67,6 @@ const EMPTY: ProgressData = {
 };
 
 type ModuleCategory = "all" | "technical" | "service" | "compliance";
-type DailyChallenge = { title: string; desc: string; nav: NavItem; ctaLabel: string };
 
 const MODULE_CATEGORY: Record<ModuleKey, Exclude<ModuleCategory, "all">> = {
   bartending: "technical",
@@ -73,62 +74,12 @@ const MODULE_CATEGORY: Record<ModuleKey, Exclude<ModuleCategory, "all">> = {
   management: "compliance",
 };
 
-const CHALLENGES_BY_MODULE: Record<ModuleKey, DailyChallenge[]> = {
-  bartending: [
-    { title: "Garnish knowledge drill", desc: "Name the correct garnish for 10 classic cocktails from memory, then practise describing why each one matters.", nav: "module", ctaLabel: "Go to Training Modules →" },
-    { title: "Classic cocktail variants", desc: "Walk through the Martini, Negroni, Old Fashioned, and Daiquiri — their base ratios and what makes each distinctive.", nav: "module", ctaLabel: "Go to Training Modules →" },
-    { title: "Non-alcoholic alternatives", desc: "Describe two mocktail options you could offer a non-drinking guest and the flavour profile of each.", nav: "module", ctaLabel: "Go to Training Modules →" },
-    { title: "Beer style identification", desc: "Distinguish between a lager, pale ale, IPA, and stout — and how you'd describe each to a guest in under 10 words.", nav: "module", ctaLabel: "Go to Training Modules →" },
-    { title: "Premium spirit descriptions", desc: "Pick your top-selling premium spirit and describe it with three words: region, flavour note, and finish.", nav: "module", ctaLabel: "Go to Training Modules →" },
-    { title: "Speed pouring under pressure", desc: "Practise your pour sequence: ice, spirit, modifier, garnish — in that order, every time, without hesitation.", nav: "module", ctaLabel: "Go to Training Modules →" },
-    { title: "Menu pairing drill", desc: "Match three current menu items to a drink recommendation and describe the pairing in one sentence each.", nav: "module", ctaLabel: "Go to Training Modules →" },
-    { title: "Glassware standards", desc: "Identify the correct glass for a Martini, a G&T, a Spritz, and a straight spirit — and why it matters.", nav: "module", ctaLabel: "Go to Training Modules →" },
-    { title: "Wine service sequence", desc: "Walk through the full wine service: presenting the bottle, pouring the taste, and serving the table in the right order.", nav: "module", ctaLabel: "Go to Training Modules →" },
-    { title: "Seasonal specials briefing", desc: "Describe tonight's special or seasonal offer as if explaining it to a guest — flavour first, price last.", nav: "module", ctaLabel: "Go to Training Modules →" },
-  ],
-  sales: [
-    { title: "Upsell without pressure", desc: "Practise guiding a guest from the house wine to a premium option using flavour language, not price.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
-    { title: "Lead with flavour, not price", desc: "A guest asks 'what's the difference?' — practise answering with sensory description before you mention cost.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
-    { title: "Close the recommendation", desc: "Practise ending every recommendation with a confident, specific question: 'Would you like to try that tonight?'", nav: "stage4", ctaLabel: "Start Scenario Training →" },
-    { title: "Handle a price objection", desc: "A guest hesitates at the price — walk through three ways to acknowledge and reframe without backing down.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
-    { title: "Read the table first", desc: "Before making a recommendation, identify two cues from the guests that should shape what you suggest and why.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
-    { title: "Upsell the experience", desc: "Practise recommending something that enhances the moment — not just the product — for a couple celebrating an occasion.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
-    { title: "The two-option rule", desc: "Offer two specific alternatives, not a general 'we have lots of options' — practise narrowing it down for the guest.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
-    { title: "Premium spirits pitch", desc: "A guest orders a standard spirit. Practise a one-sentence premium upgrade that leads with taste, not cost.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
-    { title: "Build rapport before recommending", desc: "Ask one genuine question before suggesting anything — practise the moment of connection that makes the recommendation land.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
-    { title: "Recovery upsell", desc: "After resolving a complaint, a guest has warmed up — practise the recovery upsell that turns the moment into a loyalty win.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
-  ],
-  management: [
-    { title: "Pre-shift risk brief", desc: "Identify the two highest-risk service moments tonight and walk through how you'd brief the team before the doors open.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
-    { title: "Delegation with clarity", desc: "Practise assigning a task with all three elements: the person's name, the specific job, and the expected outcome.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
-    { title: "Post-shift feedback", desc: "Practise giving one piece of specific, observable feedback to a staff member after a challenging service.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
-    { title: "Short-staff coverage plan", desc: "You're one team member down — walk through how you'd redistribute coverage without telling guests anything is different.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
-    { title: "Floor walk and standards check", desc: "During a floor walk, you notice two service standards slipping — practise addressing them without disrupting service.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
-    { title: "Coaching a missed upsell", desc: "A team member consistently skips upselling — practise the one-on-one coaching conversation that changes the behaviour.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
-    { title: "Running the debrief", desc: "Walk through a 5-minute post-shift debrief: one thing that worked, one thing that didn't, one action for tomorrow.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
-    { title: "Setting the cover target", desc: "Communicate tonight's cover or revenue goal to the team in a way that motivates without creating pressure.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
-    { title: "Managing team conflict", desc: "Two staff members had friction during service — practise the private conversation that addresses it the same shift.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
-    { title: "Leading the opening briefing", desc: "Practise a full opening briefing: roles, risks, targets, and one genuine motivational note — under 3 minutes.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
-  ],
+const MODULE_META: Record<ModuleKey, { label: string; short: string }> = {
+  bartending: { label: "Bartending Fundamentals", short: "Bartending" },
+  sales: { label: "Sales & Upselling", short: "Sales" },
+  management: { label: "Shift Leadership", short: "Leadership" },
 };
 
-function getDailyChallenge(weakest: ModuleKey): DailyChallenge {
-  const pool = CHALLENGES_BY_MODULE[weakest];
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
-  return pool[dayOfYear % pool.length];
-}
-
-const MODULE_META: Record<ModuleKey, { label: string; short: string; Icon: React.ElementType }> = {
-  bartending: { label: "Bartending Fundamentals", short: "Bartending", Icon: GlassWater },
-  sales: { label: "Sales & Upselling", short: "Sales", Icon: TrendingUp },
-  management: { label: "Shift Leadership", short: "Leadership", Icon: Users },
-};
-
-
-function getWeakestModule(data: ProgressData): ModuleKey {
-  const keys: ModuleKey[] = ["bartending", "sales", "management"];
-  return keys.reduce((w, k) => ((data.mastery[k] ?? 0) < (data.mastery[w] ?? 0) ? k : w));
-}
 
 function computeStreak(userId: string): number {
   try {
@@ -182,6 +133,14 @@ export default function PreShiftHome({
   const [data, setData] = useState<ProgressData>(EMPTY);
   const [streak, setStreak] = useState(0);
   const [loaded, setLoaded] = useState(false);
+  const [kbIndex, setKbIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setKbIndex((i) => (i + 1) % KB_ENTRIES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -227,15 +186,16 @@ export default function PreShiftHome({
     10,
     Math.max(1, Math.round((masteredModuleCount / Math.max(data.allModules.length, 1)) * 10)),
   );
-  const weakest = getWeakestModule(data);
-  const weakestMastery = Math.min(100, Math.round(data.mastery[weakest] ?? 0));
-  const nextTargetModule = data.allModules
-    .filter((m) => m.category === MODULE_CATEGORY[weakest])
-    .find((m) => (data.moduleProgress[m.id]?.scenariosMastered ?? 0) === 0);
   const dailyFocus = getDailyFocus(managementUnlocked);
   const lastTrainedLabel = formatLastTrained(data.lastAttemptAt);
-  const WeakestIcon = MODULE_META[weakest].Icon;
-  const challenge = getDailyChallenge(weakest);
+
+  const kbEntry = KB_ENTRIES[kbIndex];
+  const kbCatColor = KB_CATEGORIES[kbEntry.category].color;
+  const kbCatLabel = KB_CATEGORIES[kbEntry.category].label;
+
+  const dayIdx = Math.floor(Date.now() / 86400000);
+  const dailyCocktail1 = COCKTAILS[(dayIdx * 2) % COCKTAILS.length];
+  const dailyCocktail2 = COCKTAILS[(dayIdx * 2 + 1) % COCKTAILS.length];
 
   return (
     <div className="psh">
@@ -298,43 +258,112 @@ export default function PreShiftHome({
           </div>
         </div>
 
-        <div className="psh-challenge-col">
-          <div
-            className="psh-action-card psh-action-card-hero psh-challenge-card"
-            onClick={() => setActiveNav(challenge.nav)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => { if (e.key === "Enter") setActiveNav(challenge.nav); }}
-          >
-            <div className="psh-action-header-row">
-              <span className="psh-action-eyebrow">STRENGTHEN YOUR WEAKNESS</span>
-              <span className="psh-daily-badge">DAILY CHALLENGE</span>
-            </div>
-            <strong className="psh-challenge-title">{challenge.title}</strong>
-            <p className="psh-challenge-desc">{challenge.desc}</p>
-            <span className="psh-action-cta">{challenge.ctaLabel}</span>
-            <div className="psh-action-body">
-              <WeakestIcon size={18} style={{ flexShrink: 0, color: "var(--gold-warm, #d4a853)" }} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#fff" }}>
-                  {nextTargetModule ? `Next up: ${nextTargetModule.title}` : MODULE_META[weakest].label}
+        <div className="psh-challenge-col" style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
+
+          {/* ── 101 Knowledge Carousel ── */}
+          <div style={{
+            background: "var(--green)",
+            borderRadius: "var(--radius-lg)",
+            padding: "1.25rem 1.5rem",
+            color: "#fff",
+            flex: "0 0 auto",
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.625rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <span style={{
+                  fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.1em",
+                  textTransform: "uppercase", color: "rgba(255,255,255,0.65)",
+                }}>
+                  101 KNOWLEDGE
                 </span>
-                <div style={{ marginTop: 6 }}>
-                  <div style={{ height: 4, borderRadius: 99, background: "rgba(255,255,255,0.15)", overflow: "hidden" }}>
-                    <div style={{
-                      height: "100%", borderRadius: 99,
-                      background: weakestMastery >= 80 ? "var(--green)" : "var(--gold-warm, #d4a853)",
-                      width: `${Math.max(weakestMastery, 2)}%`,
-                      transition: "width 0.4s ease",
-                    }} />
-                  </div>
-                  <p style={{ margin: "4px 0 0", fontSize: "0.75rem", color: "rgba(255,255,255,0.65)" }}>
-                    {weakestMastery >= 80 ? "Mastered" : weakestMastery > 0 ? `${weakestMastery}% mastered` : "Not started yet"}
-                  </p>
-                </div>
+                <span style={{
+                  fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.06em",
+                  textTransform: "uppercase",
+                  background: kbCatColor + "33",
+                  color: kbCatColor,
+                  border: `1px solid ${kbCatColor}55`,
+                  padding: "1px 7px", borderRadius: 99,
+                }}>
+                  {kbCatLabel}
+                </span>
               </div>
+              <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.45)", fontVariantNumeric: "tabular-nums" }}>
+                {kbIndex + 1} / {KB_ENTRIES.length}
+              </span>
+            </div>
+
+            <strong style={{
+              display: "block",
+              fontSize: "0.975rem", fontWeight: 800, lineHeight: 1.3,
+              marginBottom: "0.5rem", letterSpacing: "-0.01em",
+            }}>
+              {kbEntry.title}
+            </strong>
+
+            <p style={{
+              fontSize: "0.78rem", lineHeight: 1.55,
+              color: "rgba(255,255,255,0.8)", margin: 0,
+            }}>
+              {kbEntry.keyFacts[0]}
+            </p>
+
+            <div style={{ marginTop: "0.875rem", height: 3, borderRadius: 99, background: "rgba(255,255,255,0.15)", overflow: "hidden" }}>
+              <div style={{
+                height: "100%", borderRadius: 99,
+                background: "var(--gold-warm)",
+                width: `${((kbIndex + 1) / KB_ENTRIES.length) * 100}%`,
+                transition: "width 0.4s ease",
+              }} />
             </div>
           </div>
+
+          {/* ── Daily Cocktail Highlights ── */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", flex: 1 }}>
+            {[dailyCocktail1, dailyCocktail2].map((cocktail) => (
+              <div
+                key={cocktail.name}
+                style={{
+                  background: "var(--surface)",
+                  borderRadius: "var(--radius-md)",
+                  padding: "1rem 1.1rem",
+                  border: "1.5px solid var(--line)",
+                  display: "flex", flexDirection: "column",
+                }}
+              >
+                <span style={{
+                  fontSize: "0.58rem", fontWeight: 800, letterSpacing: "0.1em",
+                  textTransform: "uppercase", color: "var(--text-muted)",
+                  marginBottom: "0.375rem", display: "block",
+                }}>
+                  TODAY&rsquo;S COCKTAIL
+                </span>
+                <strong style={{
+                  fontSize: "0.9rem", fontWeight: 800,
+                  color: "var(--text)", lineHeight: 1.25,
+                  marginBottom: "0.25rem", letterSpacing: "-0.01em",
+                }}>
+                  {cocktail.name}
+                </strong>
+                <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginBottom: "0.5rem" }}>
+                  {cocktail.glass}
+                </span>
+                <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 3, flex: 1 }}>
+                  {cocktail.ingredients.slice(0, 3).map((ing) => (
+                    <li key={ing} style={{ fontSize: "0.7rem", color: "var(--text-soft)", display: "flex", gap: 5, alignItems: "flex-start", lineHeight: 1.4 }}>
+                      <span style={{ color: "var(--gold)", flexShrink: 0, marginTop: 1 }}>·</span>
+                      {ing}
+                    </li>
+                  ))}
+                  {cocktail.ingredients.length > 3 && (
+                    <li style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontStyle: "italic", paddingLeft: 13 }}>
+                      +{cocktail.ingredients.length - 3} more
+                    </li>
+                  )}
+                </ul>
+              </div>
+            ))}
+          </div>
+
         </div>
       </div>
 
