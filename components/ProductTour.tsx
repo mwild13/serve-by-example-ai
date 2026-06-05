@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 
-type Tab = 'staff' | 'manager' | 'arena';
+type Tab = 'staff' | 'manager' | 'liveScenarios';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'staff', label: 'Staff View' },
   { id: 'manager', label: 'Manager View' },
-  { id: 'arena', label: 'AI Arena' },
+  { id: 'liveScenarios', label: 'Live Scenarios' },
 ];
 
 interface TabContent {
@@ -41,15 +41,15 @@ const TAB_CONTENT: Record<Tab, TabContent> = {
     mockupTitle: 'Mission Control',
     mockupRows: ['Team readiness: 78%', '3 staff due for review', '2 compliance flags'],
   },
-  arena: {
+  liveScenarios: {
     headline: 'Competitive training that staff actually want to do',
-    desc: 'The AI Arena pits staff against graded scenarios. Rankings update live. The best performers rise.',
+    desc: 'Live Scenarios pit staff against graded challenges. Rankings update live. The best performers rise.',
     callouts: [
       'Weekly ranked scenario challenges',
       'Live leaderboard updates in real time',
       'Adaptive difficulty keeps competition fair',
     ],
-    mockupTitle: 'AI Arena',
+    mockupTitle: 'Live Scenarios',
     mockupRows: ['#1 Jordan — 24/25', '#2 Alex — 22/25', '#3 Sam — 19/25'],
   },
 };

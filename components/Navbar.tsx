@@ -15,7 +15,7 @@ type NavbarProps = {
 const platformLinks = [
   {
     href: "/platform#arena",
-    title: "AI Interactive Arena",
+    title: "Live Scenarios",
     desc: "Real-time roleplay simulation that tests staff under pressure before real service.",
   },
   {

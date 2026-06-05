@@ -27,7 +27,7 @@ const NAV_ITEMS: { id: NavItem; label: string }[] = [
   { id: "home", label: "Home" },
   { id: "module", label: "Modules" },
   { id: "stage4", label: "Scenario Training" },
-  { id: "scenarios", label: "AI Scenarios" },
+  { id: "scenarios", label: "Live Scenarios" },
   { id: "challenges", label: "Challenges" },
   { id: "cocktails", label: "Cocktail Library" },
   { id: "knowledge", label: "101 Knowledge Base" },
@@ -37,21 +37,13 @@ const NAV_ITEMS: { id: NavItem; label: string }[] = [
 
 function StaffSettingsPanel({
   displayName,
-  userEmail,
-  notifReminders,
-  notifWeeklyDigest,
-  notifAchievementAlerts,
   initialJoinCode,
 }: {
   displayName: string;
-  userEmail: string;
-  notifReminders: boolean;
-  notifWeeklyDigest: boolean;
-  notifAchievementAlerts: boolean;
   initialJoinCode?: string;
 }) {
   const [profileName, setProfileName] = useState(displayName);
-  const [email, setEmail] = useState(userEmail);
+  const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [profileMessage, setProfileMessage] = useState("");
   const [profileError, setProfileError] = useState("");
@@ -63,13 +55,6 @@ function StaffSettingsPanel({
   const [venueCode, setVenueCode] = useState(initialJoinCode ?? "");
   const [joinVenueStatus, setJoinVenueStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [joinVenueMessage, setJoinVenueMessage] = useState("");
-
-  const [enableReminders, setEnableReminders] = useState(notifReminders);
-  const [enableWeeklyDigest, setEnableWeeklyDigest] = useState(notifWeeklyDigest);
-  const [enableAchievementAlerts, setEnableAchievementAlerts] = useState(notifAchievementAlerts);
-  const [isSavingNotifications, setIsSavingNotifications] = useState(false);
-  const [notifMessage, setNotifMessage] = useState("");
-  const [notifError, setNotifError] = useState("");
 
   async function handleDisplayNameUpdate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -108,56 +93,12 @@ function StaffSettingsPanel({
     }
   }
 
-  async function handleEmailUpdate(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setIsSavingSecurity(true);
-    setSecurityError("");
-    setSecurityMessage("");
-
-    try {
-      const supabase = createSupabaseBrowserClient();
-      const { error } = await supabase.auth.updateUser({ email: email.trim() });
-
-      if (error) {
-        throw error;
-      }
-
-      setSecurityMessage("Email update requested. Check your inbox to confirm the new address.");
-    } catch (updateError) {
-      setSecurityError(updateError instanceof Error ? updateError.message : "Unable to update email.");
-    } finally {
-      setIsSavingSecurity(false);
-    }
-  }
-
-  async function handleNotificationsSave(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setIsSavingNotifications(true);
-    setNotifMessage("");
-    setNotifError("");
-    try {
-      const supabase = createSupabaseBrowserClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not signed in.");
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          notif_reminders: enableReminders,
-          notif_weekly_digest: enableWeeklyDigest,
-          notif_achievement_alerts: enableAchievementAlerts,
-        })
-        .eq("id", user.id);
-      if (error) throw error;
-      setNotifMessage("Notification preferences saved.");
-    } catch (err) {
-      setNotifError(err instanceof Error ? err.message : "Could not save preferences.");
-    } finally {
-      setIsSavingNotifications(false);
-    }
-  }
-
   async function handlePasswordUpdate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!currentPassword.trim()) {
+      setSecurityError("Please enter your current password.");
+      return;
+    }
     setIsSavingSecurity(true);
     setSecurityError("");
     setSecurityMessage("");
@@ -170,6 +111,7 @@ function StaffSettingsPanel({
         throw error;
       }
 
+      setCurrentPassword("");
       setPassword("");
       setSecurityMessage("Password updated successfully.");
     } catch (updateError) {
@@ -217,10 +159,11 @@ function StaffSettingsPanel({
 
   return (
     <>
-      <div className="sbe-command-bar sbe-command-bar-active" style={{ marginBottom: 0 }}>
-        <div>
+      <div className="sbe-command-bar sbe-command-bar-active" style={{ marginBottom: "1.75rem" }}>
+        <div className="sbe-command-text">
           <span className="sbe-command-eyebrow">Me</span>
           <strong>Account &amp; Settings</strong>
+          <span className="sbe-command-meta">Manage your profile, security, and preferences</span>
         </div>
       </div>
       <div className="staff-settings-wrap">
@@ -248,75 +191,41 @@ function StaffSettingsPanel({
         {profileMessage ? <div className="auth-status auth-status-success">{profileMessage}</div> : null}
       </div>
 
-      <div className="grid-2">
-        <div className="card">
-          <h3>Account security</h3>
-          <p>Update your login email or reset your password anytime.</p>
-          <form className="staff-settings-form" onSubmit={handleEmailUpdate}>
-            <label className="label" htmlFor="staff-email">
-              Login email
-              <input
-                id="staff-email"
-                className="input"
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                required
-              />
-            </label>
-            <button type="submit" className="btn btn-secondary" disabled={isSavingSecurity}>
-              {isSavingSecurity ? "Saving..." : "Update email"}
-            </button>
-          </form>
-
-          <form className="staff-settings-form" onSubmit={handlePasswordUpdate}>
-            <label className="label" htmlFor="staff-password">
-              New password
-              <input
-                id="staff-password"
-                className="input"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                minLength={6}
-                placeholder="At least 6 characters"
-                required
-              />
-            </label>
-            <button type="submit" className="btn btn-primary" disabled={isSavingSecurity}>
-              {isSavingSecurity ? "Saving..." : "Update password"}
-            </button>
-          </form>
-
-          {securityError ? <div className="auth-status auth-status-error">{securityError}</div> : null}
-          {securityMessage ? <div className="auth-status auth-status-success">{securityMessage}</div> : null}
-        </div>
-
-        <div className="card">
-          <h3>Training notifications</h3>
-          <p>Control reminder style and achievement updates.</p>
-          <form className="staff-settings-form" onSubmit={handleNotificationsSave}>
-            <div className="staff-toggle-list">
-              <label>
-                <input type="checkbox" checked={enableReminders} onChange={(event) => setEnableReminders(event.target.checked)} />
-                <span>Daily training reminders</span>
-              </label>
-              <label>
-                <input type="checkbox" checked={enableWeeklyDigest} onChange={(event) => setEnableWeeklyDigest(event.target.checked)} />
-                <span>Weekly progress digest</span>
-              </label>
-              <label>
-                <input type="checkbox" checked={enableAchievementAlerts} onChange={(event) => setEnableAchievementAlerts(event.target.checked)} />
-                <span>Badge and streak alerts</span>
-              </label>
-            </div>
-            {notifError ? <div className="auth-status auth-status-error">{notifError}</div> : null}
-            {notifMessage ? <div className="auth-status auth-status-success">{notifMessage}</div> : null}
-            <button type="submit" className="btn btn-secondary" disabled={isSavingNotifications}>
-              {isSavingNotifications ? "Saving..." : "Save preferences"}
-            </button>
-          </form>
-        </div>
+      <div className="card">
+        <h3>Account security</h3>
+        <p>Update your password anytime. Enter your current password to confirm the change.</p>
+        <form className="staff-settings-form" onSubmit={handlePasswordUpdate}>
+          <label className="label" htmlFor="staff-current-password">
+            Current password
+            <input
+              id="staff-current-password"
+              className="input"
+              type="password"
+              value={currentPassword}
+              onChange={(event) => setCurrentPassword(event.target.value)}
+              placeholder="Current password"
+              required
+            />
+          </label>
+          <label className="label" htmlFor="staff-password">
+            New password
+            <input
+              id="staff-password"
+              className="input"
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              minLength={6}
+              placeholder="New password (min. 6 characters)"
+              required
+            />
+          </label>
+          <button type="submit" className="btn btn-primary" disabled={isSavingSecurity}>
+            {isSavingSecurity ? "Saving..." : "Update password"}
+          </button>
+        </form>
+        {securityError ? <div className="auth-status auth-status-error">{securityError}</div> : null}
+        {securityMessage ? <div className="auth-status auth-status-success">{securityMessage}</div> : null}
       </div>
 
       <div className="card">
@@ -475,9 +384,6 @@ export default function DashboardShell({
   plan,
   userEmail,
   managementUnlockedInitial,
-  notifReminders,
-  notifWeeklyDigest,
-  notifAchievementAlerts,
   hasVenueMembership = false,
   initialToken = "",
 }: {
@@ -485,9 +391,6 @@ export default function DashboardShell({
   plan: string;
   userEmail: string;
   managementUnlockedInitial: boolean;
-  notifReminders: boolean;
-  notifWeeklyDigest: boolean;
-  notifAchievementAlerts: boolean;
   hasVenueMembership?: boolean;
   initialToken?: string;
 }) {
@@ -739,10 +642,6 @@ export default function DashboardShell({
         ) : activeNav === "settings" ? (
           <StaffSettingsPanel
             displayName={displayName}
-            userEmail={userEmail}
-            notifReminders={notifReminders}
-            notifWeeklyDigest={notifWeeklyDigest}
-            notifAchievementAlerts={notifAchievementAlerts}
             initialJoinCode={joinCodeFromUrl}
           />
         ) : (

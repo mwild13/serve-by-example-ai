@@ -105,7 +105,7 @@ export default function MobileLearnHub({
     },
     {
       id: "scenarios",
-      title: "AI Arena",
+      title: "Live Scenarios",
       desc: "Live roleplay evaluation powered by AI",
       icon: <IcCpu s={26} />,
       tint: "var(--green-light)",
@@ -206,7 +206,7 @@ export default function MobileLearnHub({
             Unlock full training access
           </div>
           <div style={{ fontSize: 12, color: "var(--text-soft)", lineHeight: 1.5 }}>
-            Upgrade to Pro to access all 40 modules, scenario training, and the AI Arena.
+            Upgrade to Pro to access all 40 modules, scenario training, and Live Scenarios.
           </div>
           <a
             href="/pricing"

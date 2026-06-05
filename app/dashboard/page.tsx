@@ -22,7 +22,7 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, plan, management_unlocked, notif_reminders, notif_weekly_digest, notif_achievement_alerts")
+    .select("display_name, plan, management_unlocked")
     .eq("id", user.id)
     .single();
 
@@ -62,9 +62,6 @@ export default async function DashboardPage() {
       plan={plan}
       userEmail={user.email ?? ""}
       managementUnlockedInitial={managementUnlocked}
-      notifReminders={profile?.notif_reminders ?? true}
-      notifWeeklyDigest={profile?.notif_weekly_digest ?? true}
-      notifAchievementAlerts={profile?.notif_achievement_alerts ?? true}
       hasVenueMembership={hasVenueMembership}
       initialToken={session?.access_token ?? ""}
     />

@@ -175,7 +175,7 @@ export default function ArenaPage({ userId: _userId }: Props) {
           style={{ color: "white", marginBottom: "1.75rem" }}
         >
           <div className="sbe-command-text">
-            <span className="sbe-command-eyebrow">AI Scenarios</span>
+            <span className="sbe-command-eyebrow">Live Scenarios</span>
             <strong>Choose a scenario to assess</strong>
             <span className="sbe-command-meta">
               Read the scenario, write your full response, receive a score out of 100
@@ -277,7 +277,7 @@ export default function ArenaPage({ userId: _userId }: Props) {
           style={{ color: "white", marginBottom: "1.75rem" }}
         >
           <div className="sbe-command-text">
-            <span className="sbe-command-eyebrow">AI Scenarios</span>
+            <span className="sbe-command-eyebrow">Live Scenarios</span>
             <strong>Assessment Complete</strong>
             <span className="sbe-command-meta">{meta?.title ?? "Scenario"}</span>
           </div>
@@ -380,7 +380,7 @@ export default function ArenaPage({ userId: _userId }: Props) {
         style={{ color: "white", marginBottom: "1.75rem" }}
       >
         <div className="sbe-command-text">
-          <span className="sbe-command-eyebrow">AI Scenarios</span>
+          <span className="sbe-command-eyebrow">Live Scenarios</span>
           <strong>{meta?.title ?? "Scenario"}</strong>
           <span className="sbe-command-meta">Read the scenario, then write your full response below</span>
         </div>

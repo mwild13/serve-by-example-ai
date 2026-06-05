@@ -108,7 +108,7 @@ export default function PlatformPage() {
         <SectionSubNav items={[
           { id: "overview", label: "Overview" },
           { id: "insights", label: "Analytics" },
-          { id: "arena", label: "AI Arena" },
+          { id: "arena", label: "Live Scenarios" },
           { id: "scenario-builder", label: "Scenario Builder" },
           { id: "mobile", label: "Mobile" },
         ]} />
