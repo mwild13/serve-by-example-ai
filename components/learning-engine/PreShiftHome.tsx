@@ -75,16 +75,16 @@ const MODULE_CATEGORY: Record<ModuleKey, Exclude<ModuleCategory, "all">> = {
 
 const CHALLENGES_BY_MODULE: Record<ModuleKey, DailyChallenge[]> = {
   bartending: [
-    { title: "Garnish knowledge drill", desc: "Name the correct garnish for 10 classic cocktails from memory, then practise describing why each one matters.", nav: "rapid-fire", ctaLabel: "Open in Rapid Fire →" },
-    { title: "Classic cocktail variants", desc: "Walk through the Martini, Negroni, Old Fashioned, and Daiquiri — their base ratios and what makes each distinctive.", nav: "rapid-fire", ctaLabel: "Open in Rapid Fire →" },
-    { title: "Non-alcoholic alternatives", desc: "Describe two mocktail options you could offer a non-drinking guest and the flavour profile of each.", nav: "rapid-fire", ctaLabel: "Open in Rapid Fire →" },
-    { title: "Beer style identification", desc: "Distinguish between a lager, pale ale, IPA, and stout — and how you'd describe each to a guest in under 10 words.", nav: "rapid-fire", ctaLabel: "Open in Rapid Fire →" },
-    { title: "Premium spirit descriptions", desc: "Pick your top-selling premium spirit and describe it with three words: region, flavour note, and finish.", nav: "rapid-fire", ctaLabel: "Open in Rapid Fire →" },
-    { title: "Speed pouring under pressure", desc: "Practise your pour sequence: ice, spirit, modifier, garnish — in that order, every time, without hesitation.", nav: "rapid-fire", ctaLabel: "Open in Rapid Fire →" },
-    { title: "Menu pairing drill", desc: "Match three current menu items to a drink recommendation and describe the pairing in one sentence each.", nav: "rapid-fire", ctaLabel: "Open in Rapid Fire →" },
-    { title: "Glassware standards", desc: "Identify the correct glass for a Martini, a G&T, a Spritz, and a straight spirit — and why it matters.", nav: "rapid-fire", ctaLabel: "Open in Rapid Fire →" },
-    { title: "Wine service sequence", desc: "Walk through the full wine service: presenting the bottle, pouring the taste, and serving the table in the right order.", nav: "rapid-fire", ctaLabel: "Open in Rapid Fire →" },
-    { title: "Seasonal specials briefing", desc: "Describe tonight's special or seasonal offer as if explaining it to a guest — flavour first, price last.", nav: "rapid-fire", ctaLabel: "Open in Rapid Fire →" },
+    { title: "Garnish knowledge drill", desc: "Name the correct garnish for 10 classic cocktails from memory, then practise describing why each one matters.", nav: "module", ctaLabel: "Go to Training Modules →" },
+    { title: "Classic cocktail variants", desc: "Walk through the Martini, Negroni, Old Fashioned, and Daiquiri — their base ratios and what makes each distinctive.", nav: "module", ctaLabel: "Go to Training Modules →" },
+    { title: "Non-alcoholic alternatives", desc: "Describe two mocktail options you could offer a non-drinking guest and the flavour profile of each.", nav: "module", ctaLabel: "Go to Training Modules →" },
+    { title: "Beer style identification", desc: "Distinguish between a lager, pale ale, IPA, and stout — and how you'd describe each to a guest in under 10 words.", nav: "module", ctaLabel: "Go to Training Modules →" },
+    { title: "Premium spirit descriptions", desc: "Pick your top-selling premium spirit and describe it with three words: region, flavour note, and finish.", nav: "module", ctaLabel: "Go to Training Modules →" },
+    { title: "Speed pouring under pressure", desc: "Practise your pour sequence: ice, spirit, modifier, garnish — in that order, every time, without hesitation.", nav: "module", ctaLabel: "Go to Training Modules →" },
+    { title: "Menu pairing drill", desc: "Match three current menu items to a drink recommendation and describe the pairing in one sentence each.", nav: "module", ctaLabel: "Go to Training Modules →" },
+    { title: "Glassware standards", desc: "Identify the correct glass for a Martini, a G&T, a Spritz, and a straight spirit — and why it matters.", nav: "module", ctaLabel: "Go to Training Modules →" },
+    { title: "Wine service sequence", desc: "Walk through the full wine service: presenting the bottle, pouring the taste, and serving the table in the right order.", nav: "module", ctaLabel: "Go to Training Modules →" },
+    { title: "Seasonal specials briefing", desc: "Describe tonight's special or seasonal offer as if explaining it to a guest — flavour first, price last.", nav: "module", ctaLabel: "Go to Training Modules →" },
   ],
   sales: [
     { title: "Upsell without pressure", desc: "Practise guiding a guest from the house wine to a premium option using flavour language, not price.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
@@ -229,6 +229,9 @@ export default function PreShiftHome({
   );
   const weakest = getWeakestModule(data);
   const weakestMastery = Math.min(100, Math.round(data.mastery[weakest] ?? 0));
+  const nextTargetModule = data.allModules
+    .filter((m) => m.category === MODULE_CATEGORY[weakest])
+    .find((m) => (data.moduleProgress[m.id]?.scenariosMastered ?? 0) === 0);
   const dailyFocus = getDailyFocus(managementUnlocked);
   const lastTrainedLabel = formatLastTrained(data.lastAttemptAt);
   const WeakestIcon = MODULE_META[weakest].Icon;
@@ -312,9 +315,23 @@ export default function PreShiftHome({
             <span className="psh-action-cta">{challenge.ctaLabel}</span>
             <div className="psh-action-body">
               <WeakestIcon size={18} style={{ flexShrink: 0, color: "var(--gold-warm, #d4a853)" }} />
-              <div>
-                <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#fff" }}>{MODULE_META[weakest].label}</span>
-                <p style={{ margin: 0, fontSize: "0.78rem" }}>{weakestMastery >= 80 ? "Mastered" : weakestMastery > 0 ? `${weakestMastery}% mastered · keep going` : "Not started yet"}</p>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#fff" }}>
+                  {nextTargetModule ? `Next up: ${nextTargetModule.title}` : MODULE_META[weakest].label}
+                </span>
+                <div style={{ marginTop: 6 }}>
+                  <div style={{ height: 4, borderRadius: 99, background: "rgba(255,255,255,0.15)", overflow: "hidden" }}>
+                    <div style={{
+                      height: "100%", borderRadius: 99,
+                      background: weakestMastery >= 80 ? "var(--green)" : "var(--gold-warm, #d4a853)",
+                      width: `${Math.max(weakestMastery, 2)}%`,
+                      transition: "width 0.4s ease",
+                    }} />
+                  </div>
+                  <p style={{ margin: "4px 0 0", fontSize: "0.75rem", color: "rgba(255,255,255,0.65)" }}>
+                    {weakestMastery >= 80 ? "Mastered" : weakestMastery > 0 ? `${weakestMastery}% mastered` : "Not started yet"}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -350,35 +367,6 @@ export default function PreShiftHome({
           })}
         </div>
       </div>
-
-      {/* ── Spaced Repetition Review Strip ── */}
-      {loaded && data.reviewDue > 0 && (
-        <button
-          className="psh-review-strip"
-          onClick={() => setActiveNav("module")}
-          style={{
-            display: "flex", alignItems: "center", gap: 12,
-            width: "100%", textAlign: "left", cursor: "pointer",
-            background: "var(--gold-light)", border: "1px solid var(--line)",
-            borderRadius: "var(--radius-md)", padding: "12px 16px",
-            marginTop: 0,
-          }}
-        >
-          <span style={{
-            fontFamily: "var(--font-fraunces, Georgia, serif)",
-            fontSize: "1.35rem", fontWeight: 700, color: "var(--gold)",
-            minWidth: 28, lineHeight: 1,
-          }}>
-            {data.reviewDue}
-          </span>
-          <span style={{ flex: 1, fontSize: "0.83rem", color: "var(--text-soft)", lineHeight: 1.4 }}>
-            {data.reviewDue === 1 ? "scenario" : "scenarios"} due for spaced repetition — keep your retention strong
-          </span>
-          <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--text-muted)", whiteSpace: "nowrap", flexShrink: 0 }}>
-            Go to Modules →
-          </span>
-        </button>
-      )}
 
       {/* ── Badge Collection Row ── */}
       {loaded && (() => {
