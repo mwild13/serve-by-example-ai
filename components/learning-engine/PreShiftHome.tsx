@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { Zap, GlassWater, TrendingUp, Users, Flame } from "lucide-react";
 import { computeBadges, countEarned, recentEarned, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
+import { getDailyFocus } from "@/lib/daily-focus";
 import Link from "next/link";
 
 type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
@@ -86,23 +87,6 @@ const MODULE_META: Record<ModuleKey, { label: string; short: string; Icon: React
   management: { label: "Shift Leadership", short: "Leadership", Icon: Users },
 };
 
-const COACH_FOCUS: Record<ModuleKey, string[]> = {
-  bartending: [
-    "Acknowledge guests within 3 seconds of them reaching the bar.",
-    "Name the spirit, the modifier, and the garnish when describing a cocktail.",
-    "Recover a missed order gracefully — acknowledge, apologise, deliver.",
-  ],
-  sales: [
-    "Offer one premium alternative per order — even when not asked.",
-    "Lead with flavour language, not price, when recommending upgrades.",
-    "Close every recommendation with a confident 'Would you like to try that?'",
-  ],
-  management: [
-    "When reassigning tasks, name the person and the specific job out loud.",
-    "Give one piece of specific, observable feedback after every shift.",
-    "Pre-brief your team on the top 2 risks before a busy service starts.",
-  ],
-};
 
 function getWeakestModule(data: ProgressData): ModuleKey {
   const keys: ModuleKey[] = ["bartending", "sales", "management"];
@@ -208,7 +192,7 @@ export default function PreShiftHome({
   );
   const weakest = getWeakestModule(data);
   const weakestMastery = Math.min(100, Math.round(data.mastery[weakest] ?? 0));
-  const coachTips = COACH_FOCUS[weakest];
+  const dailyFocus = getDailyFocus(managementUnlocked);
   const lastTrainedLabel = formatLastTrained(data.lastAttemptAt);
   const WeakestIcon = MODULE_META[weakest].Icon;
   const challenge = getDailyChallenge();
@@ -261,10 +245,10 @@ export default function PreShiftHome({
           <div className="psh-coach psh-coach-brief">
             <div className="psh-coach-header">
               <h2>Focus for today</h2>
-              <span>Based on your weakest area: {MODULE_META[weakest].short}</span>
+              <span>Day {dailyFocus.dayIndex} of 30 — {dailyFocus.theme}</span>
             </div>
             <ul className="psh-coach-list">
-              {coachTips.map((tip) => (
+              {dailyFocus.tips.map((tip: string) => (
                 <li key={tip}>
                   <span className="psh-coach-arrow">→</span>
                   {tip}
