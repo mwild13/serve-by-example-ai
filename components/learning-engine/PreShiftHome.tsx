@@ -138,7 +138,7 @@ export default function PreShiftHome({
   useEffect(() => {
     const timer = setInterval(() => {
       setKbIndex((i) => (i + 1) % KB_ENTRIES.length);
-    }, 5000);
+    }, 20000);
     return () => clearInterval(timer);
   }, []);
 
@@ -300,12 +300,14 @@ export default function PreShiftHome({
               {kbEntry.title}
             </strong>
 
-            <p style={{
-              fontSize: "0.78rem", lineHeight: 1.55,
-              color: "rgba(255,255,255,0.8)", margin: 0,
-            }}>
-              {kbEntry.keyFacts[0]}
-            </p>
+            <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 4 }}>
+              {kbEntry.keyFacts.slice(0, 3).map((fact) => (
+                <li key={fact} style={{ fontSize: "0.78rem", lineHeight: 1.5, color: "rgba(255,255,255,0.82)", display: "flex", gap: 6, alignItems: "flex-start" }}>
+                  <span style={{ color: "var(--gold-warm)", flexShrink: 0, marginTop: 1, fontWeight: 700 }}>—</span>
+                  {fact}
+                </li>
+              ))}
+            </ul>
 
             <div style={{ marginTop: "0.875rem", height: 3, borderRadius: 99, background: "rgba(255,255,255,0.15)", overflow: "hidden" }}>
               <div style={{
@@ -348,15 +350,15 @@ export default function PreShiftHome({
                   {cocktail.glass}
                 </span>
                 <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 3, flex: 1 }}>
-                  {cocktail.ingredients.slice(0, 3).map((ing) => (
+                  {cocktail.ingredients.slice(0, 5).map((ing) => (
                     <li key={ing} style={{ fontSize: "0.7rem", color: "var(--text-soft)", display: "flex", gap: 5, alignItems: "flex-start", lineHeight: 1.4 }}>
                       <span style={{ color: "var(--gold)", flexShrink: 0, marginTop: 1 }}>·</span>
                       {ing}
                     </li>
                   ))}
-                  {cocktail.ingredients.length > 3 && (
+                  {cocktail.ingredients.length > 5 && (
                     <li style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontStyle: "italic", paddingLeft: 13 }}>
-                      +{cocktail.ingredients.length - 3} more
+                      +{cocktail.ingredients.length - 5} more
                     </li>
                   )}
                 </ul>

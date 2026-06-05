@@ -3119,7 +3119,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 /* 2-column hero grid layout */
 .psh-hero-grid {
   display: grid;
-  grid-template-columns: 1.7fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
   margin-bottom: 24px;
   align-items: stretch;
