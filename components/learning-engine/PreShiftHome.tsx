@@ -64,21 +64,58 @@ const EMPTY: ProgressData = {
   moduleProgress: {},
 };
 
-type DailyChallenge = { title: string; desc: string; nav: NavItem };
+type ModuleCategory = "all" | "technical" | "service" | "compliance";
+type DailyChallenge = { title: string; desc: string; nav: NavItem; ctaLabel: string };
 
-const DAILY_CHALLENGES: DailyChallenge[] = [
-  { title: "Perfect the Martini", desc: "Describe the classic variants and how to read a guest's preference.", nav: "rapid-fire" },
-  { title: "Upsell without pressure", desc: "Practise guiding a guest from the house wine to a premium option.", nav: "rapid-fire" },
-  { title: "Survive a rush", desc: "Handle three simultaneous orders while keeping guests happy.", nav: "scenarios" },
-  { title: "Difficult guest recovery", desc: "Turn a frustrated guest into a loyal advocate in under 2 minutes.", nav: "scenarios" },
-  { title: "Menu knowledge drill", desc: "Describe today's specials confidently and pair them with drinks.", nav: "rapid-fire" },
-  { title: "Management mindset", desc: "Walk through how to brief a new hire on service standards.", nav: "rapid-fire" },
-  { title: "Sales target scenario", desc: "Your venue needs to hit a cover target — walk through your plan.", nav: "rapid-fire" },
-];
+const MODULE_CATEGORY: Record<ModuleKey, Exclude<ModuleCategory, "all">> = {
+  bartending: "technical",
+  sales: "service",
+  management: "compliance",
+};
 
-function getDailyChallenge(): DailyChallenge {
+const CHALLENGES_BY_MODULE: Record<ModuleKey, DailyChallenge[]> = {
+  bartending: [
+    { title: "Garnish knowledge drill", desc: "Name the correct garnish for 10 classic cocktails from memory, then practise describing why each one matters.", nav: "rapid-fire", ctaLabel: "Open in Rapid Fire →" },
+    { title: "Classic cocktail variants", desc: "Walk through the Martini, Negroni, Old Fashioned, and Daiquiri — their base ratios and what makes each distinctive.", nav: "rapid-fire", ctaLabel: "Open in Rapid Fire →" },
+    { title: "Non-alcoholic alternatives", desc: "Describe two mocktail options you could offer a non-drinking guest and the flavour profile of each.", nav: "rapid-fire", ctaLabel: "Open in Rapid Fire →" },
+    { title: "Beer style identification", desc: "Distinguish between a lager, pale ale, IPA, and stout — and how you'd describe each to a guest in under 10 words.", nav: "rapid-fire", ctaLabel: "Open in Rapid Fire →" },
+    { title: "Premium spirit descriptions", desc: "Pick your top-selling premium spirit and describe it with three words: region, flavour note, and finish.", nav: "rapid-fire", ctaLabel: "Open in Rapid Fire →" },
+    { title: "Speed pouring under pressure", desc: "Practise your pour sequence: ice, spirit, modifier, garnish — in that order, every time, without hesitation.", nav: "rapid-fire", ctaLabel: "Open in Rapid Fire →" },
+    { title: "Menu pairing drill", desc: "Match three current menu items to a drink recommendation and describe the pairing in one sentence each.", nav: "rapid-fire", ctaLabel: "Open in Rapid Fire →" },
+    { title: "Glassware standards", desc: "Identify the correct glass for a Martini, a G&T, a Spritz, and a straight spirit — and why it matters.", nav: "rapid-fire", ctaLabel: "Open in Rapid Fire →" },
+    { title: "Wine service sequence", desc: "Walk through the full wine service: presenting the bottle, pouring the taste, and serving the table in the right order.", nav: "rapid-fire", ctaLabel: "Open in Rapid Fire →" },
+    { title: "Seasonal specials briefing", desc: "Describe tonight's special or seasonal offer as if explaining it to a guest — flavour first, price last.", nav: "rapid-fire", ctaLabel: "Open in Rapid Fire →" },
+  ],
+  sales: [
+    { title: "Upsell without pressure", desc: "Practise guiding a guest from the house wine to a premium option using flavour language, not price.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
+    { title: "Lead with flavour, not price", desc: "A guest asks 'what's the difference?' — practise answering with sensory description before you mention cost.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
+    { title: "Close the recommendation", desc: "Practise ending every recommendation with a confident, specific question: 'Would you like to try that tonight?'", nav: "stage4", ctaLabel: "Start Scenario Training →" },
+    { title: "Handle a price objection", desc: "A guest hesitates at the price — walk through three ways to acknowledge and reframe without backing down.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
+    { title: "Read the table first", desc: "Before making a recommendation, identify two cues from the guests that should shape what you suggest and why.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
+    { title: "Upsell the experience", desc: "Practise recommending something that enhances the moment — not just the product — for a couple celebrating an occasion.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
+    { title: "The two-option rule", desc: "Offer two specific alternatives, not a general 'we have lots of options' — practise narrowing it down for the guest.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
+    { title: "Premium spirits pitch", desc: "A guest orders a standard spirit. Practise a one-sentence premium upgrade that leads with taste, not cost.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
+    { title: "Build rapport before recommending", desc: "Ask one genuine question before suggesting anything — practise the moment of connection that makes the recommendation land.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
+    { title: "Recovery upsell", desc: "After resolving a complaint, a guest has warmed up — practise the recovery upsell that turns the moment into a loyalty win.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
+  ],
+  management: [
+    { title: "Pre-shift risk brief", desc: "Identify the two highest-risk service moments tonight and walk through how you'd brief the team before the doors open.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
+    { title: "Delegation with clarity", desc: "Practise assigning a task with all three elements: the person's name, the specific job, and the expected outcome.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
+    { title: "Post-shift feedback", desc: "Practise giving one piece of specific, observable feedback to a staff member after a challenging service.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
+    { title: "Short-staff coverage plan", desc: "You're one team member down — walk through how you'd redistribute coverage without telling guests anything is different.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
+    { title: "Floor walk and standards check", desc: "During a floor walk, you notice two service standards slipping — practise addressing them without disrupting service.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
+    { title: "Coaching a missed upsell", desc: "A team member consistently skips upselling — practise the one-on-one coaching conversation that changes the behaviour.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
+    { title: "Running the debrief", desc: "Walk through a 5-minute post-shift debrief: one thing that worked, one thing that didn't, one action for tomorrow.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
+    { title: "Setting the cover target", desc: "Communicate tonight's cover or revenue goal to the team in a way that motivates without creating pressure.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
+    { title: "Managing team conflict", desc: "Two staff members had friction during service — practise the private conversation that addresses it the same shift.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
+    { title: "Leading the opening briefing", desc: "Practise a full opening briefing: roles, risks, targets, and one genuine motivational note — under 3 minutes.", nav: "stage4", ctaLabel: "Start Scenario Training →" },
+  ],
+};
+
+function getDailyChallenge(weakest: ModuleKey): DailyChallenge {
+  const pool = CHALLENGES_BY_MODULE[weakest];
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
-  return DAILY_CHALLENGES[dayOfYear % DAILY_CHALLENGES.length];
+  return pool[dayOfYear % pool.length];
 }
 
 const MODULE_META: Record<ModuleKey, { label: string; short: string; Icon: React.ElementType }> = {
@@ -139,7 +176,7 @@ export default function PreShiftHome({
   managementUnlocked = false,
 }: {
   displayName: string;
-  setActiveNav: (nav: NavItem) => void;
+  setActiveNav: (nav: NavItem, moduleCategory?: ModuleCategory) => void;
   managementUnlocked?: boolean;
 }) {
   const [data, setData] = useState<ProgressData>(EMPTY);
@@ -195,7 +232,7 @@ export default function PreShiftHome({
   const dailyFocus = getDailyFocus(managementUnlocked);
   const lastTrainedLabel = formatLastTrained(data.lastAttemptAt);
   const WeakestIcon = MODULE_META[weakest].Icon;
-  const challenge = getDailyChallenge();
+  const challenge = getDailyChallenge(weakest);
 
   return (
     <div className="psh">
@@ -272,7 +309,7 @@ export default function PreShiftHome({
             </div>
             <strong className="psh-challenge-title">{challenge.title}</strong>
             <p className="psh-challenge-desc">{challenge.desc}</p>
-            <span className="psh-action-cta">Start Daily Challenge →</span>
+            <span className="psh-action-cta">{challenge.ctaLabel}</span>
             <div className="psh-action-body">
               <WeakestIcon size={18} style={{ flexShrink: 0, color: "var(--gold-warm, #d4a853)" }} />
               <div>
@@ -296,7 +333,7 @@ export default function PreShiftHome({
                 key={mod}
                 className="psh-module-card"
                 type="button"
-                onClick={() => setActiveNav("module")}
+                onClick={() => setActiveNav("module", MODULE_CATEGORY[mod])}
               >
                 <span className="psh-module-icon"><Zap size={18} style={{ color: "var(--green-mid)" }} /></span>
                 <strong>{short}</strong>
@@ -313,6 +350,35 @@ export default function PreShiftHome({
           })}
         </div>
       </div>
+
+      {/* ── Spaced Repetition Review Strip ── */}
+      {loaded && data.reviewDue > 0 && (
+        <button
+          className="psh-review-strip"
+          onClick={() => setActiveNav("module")}
+          style={{
+            display: "flex", alignItems: "center", gap: 12,
+            width: "100%", textAlign: "left", cursor: "pointer",
+            background: "var(--gold-light)", border: "1px solid var(--line)",
+            borderRadius: "var(--radius-md)", padding: "12px 16px",
+            marginTop: 0,
+          }}
+        >
+          <span style={{
+            fontFamily: "var(--font-fraunces, Georgia, serif)",
+            fontSize: "1.35rem", fontWeight: 700, color: "var(--gold)",
+            minWidth: 28, lineHeight: 1,
+          }}>
+            {data.reviewDue}
+          </span>
+          <span style={{ flex: 1, fontSize: "0.83rem", color: "var(--text-soft)", lineHeight: 1.4 }}>
+            {data.reviewDue === 1 ? "scenario" : "scenarios"} due for spaced repetition — keep your retention strong
+          </span>
+          <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--text-muted)", whiteSpace: "nowrap", flexShrink: 0 }}>
+            Go to Modules →
+          </span>
+        </button>
+      )}
 
       {/* ── Badge Collection Row ── */}
       {loaded && (() => {

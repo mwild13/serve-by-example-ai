@@ -396,6 +396,7 @@ export default function DashboardShell({
 }) {
   const [activeNav, setActiveNav] = useState<NavItem>("home");
   const [trainerKey, setTrainerKey] = useState(0);
+  const [pendingModuleCategory, setPendingModuleCategory] = useState<"all" | "technical" | "service" | "compliance">("all");
   const [joinCodeFromUrl, setJoinCodeFromUrl] = useState<string | undefined>(undefined);
   const [managementUnlocked] = useState(managementUnlockedInitial);
   // Phase 4: Dynamic module system
@@ -482,12 +483,13 @@ export default function DashboardShell({
   const isAdmin = ADMIN_EMAILS.includes(userEmail.toLowerCase());
   const isPremium = isAdmin || plan !== "free" || hasVenueMembership;
 
-  function handleNavClick(id: NavItem) {
+  function handleNavClick(id: NavItem, moduleCategory?: "all" | "technical" | "service" | "compliance") {
     if (!isPremium && PREMIUM_NAV_ITEMS.includes(id)) {
       window.location.href = "/pricing";
       return;
     }
     if (id === "stage4") setTrainerKey((k) => k + 1);
+    if (id === "module") setPendingModuleCategory(moduleCategory ?? "all");
     setActiveNav(id);
   }
 
@@ -581,6 +583,7 @@ export default function DashboardShell({
                 userToken={userToken}
                 onModuleSelect={(moduleId) => setSelectedModuleId(moduleId)}
                 selectedModuleId={selectedModuleId || undefined}
+                initialCategory={pendingModuleCategory}
               />
             )}
           </div>

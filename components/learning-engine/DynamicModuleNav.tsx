@@ -9,12 +9,14 @@ interface DynamicModuleNavProps {
   userToken: string;
   onModuleSelect: (moduleId: number) => void;
   selectedModuleId?: number;
+  initialCategory?: "all" | "technical" | "service" | "compliance";
 }
 
 export default function DynamicModuleNav({
   userToken,
   onModuleSelect,
   selectedModuleId,
+  initialCategory,
 }: DynamicModuleNavProps) {
   const [modules, setModules] = useState<Module[]>([]);
   const [filteredModules, setFilteredModules] = useState<Module[]>([]);
@@ -22,7 +24,11 @@ export default function DynamicModuleNav({
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<
     "all" | "technical" | "service" | "compliance"
-  >("all");
+  >(initialCategory ?? "all");
+
+  useEffect(() => {
+    if (initialCategory) setSelectedCategory(initialCategory);
+  }, [initialCategory]);
   const [sortBy] = useState<"recommended" | "title">(
     "recommended"
   );
