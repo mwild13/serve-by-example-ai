@@ -3,7 +3,7 @@
 import { FormEvent, useState, useEffect, Suspense, lazy } from "react";
 import Image from "next/image";
 import SignOutButton from "@/components/ui/SignOutButton";
-import DashboardTrainer from "@/components/learning-engine/DashboardTrainer";
+import DashboardTrainer, { type TrainerProgressPreload } from "@/components/learning-engine/DashboardTrainer";
 import ModuleVerify from "@/components/learning-engine/ModuleVerify";
 import ArenaPage from "@/components/learning-engine/ArenaPage";
 import DiagnosticFlow from "@/components/learning-engine/DiagnosticFlow";
@@ -395,8 +395,8 @@ export default function DashboardShell({
   initialToken?: string;
 }) {
   const [activeNav, setActiveNav] = useState<NavItem>("home");
-  const [trainerKey, setTrainerKey] = useState(0);
   const [pendingModuleCategory, setPendingModuleCategory] = useState<"all" | "technical" | "service" | "compliance">("all");
+  const [prefetchedProgress, setPrefetchedProgress] = useState<TrainerProgressPreload | null>(null);
   const [joinCodeFromUrl, setJoinCodeFromUrl] = useState<string | undefined>(undefined);
   const [managementUnlocked] = useState(managementUnlockedInitial);
   // Phase 4: Dynamic module system
@@ -439,6 +439,14 @@ export default function DashboardShell({
         if (session?.access_token) {
           setUserToken(session.access_token);
           setUserId(session.user.id);
+
+          // Prefetch trainer progress so Scenario Training opens instantly
+          fetch("/api/training/progress", {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          })
+            .then((r) => r.ok ? r.json() : null)
+            .then((data: TrainerProgressPreload | null) => { if (data) setPrefetchedProgress(data); })
+            .catch(() => {});
 
           // Check if user has completed diagnostic
           const { data: profile, error: profileError } = await supabase
@@ -488,7 +496,6 @@ export default function DashboardShell({
       window.location.href = "/pricing";
       return;
     }
-    if (id === "stage4") setTrainerKey((k) => k + 1);
     if (id === "module") setPendingModuleCategory(moduleCategory ?? "all");
     setActiveNav(id);
   }
@@ -593,10 +600,11 @@ export default function DashboardShell({
           </div>
         ) : activeNav === "stage4" ? (
           <DashboardTrainer
-            key={`stage4-${trainerKey}`}
+            key="stage4"
             displayName={displayName}
-            userEmail={userEmail}
             managementUnlocked={managementUnlocked}
+            userToken={userToken}
+            initialProgress={prefetchedProgress ?? undefined}
           />
         ) : activeNav === "home" ? (
           <>

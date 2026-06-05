@@ -6,6 +6,15 @@ import RecommenderCard from "@/components/learning-engine/RecommenderCard";
 
 type Module = "bartending" | "sales" | "management";
 
+type ReviewItem = { module: string; scenarioIndex: number; masteryLevel: number; consecutiveFails: number };
+
+export type TrainerProgressPreload = {
+  modules?: Partial<Record<Module, number>>;
+  mastery?: Partial<Record<Module, number>>;
+  reviewQueue?: ReviewItem[];
+  autoUnlockManagement?: boolean;
+};
+
 type PillOption = {
   text: string;
   intent: string;
@@ -439,11 +448,13 @@ const SCORE_DIMENSIONS = [
 export default function DashboardTrainer({
   displayName,
   managementUnlocked = false,
+  userToken,
+  initialProgress,
 }: {
   displayName: string;
   managementUnlocked?: boolean;
-  /** Passed by DashboardShell; reserved for future server-side data fetching. */
-  userEmail?: string;
+  userToken?: string;
+  initialProgress?: TrainerProgressPreload;
 }) {
   const [activeModule, setActiveModule] = useState<Module | null>(null);
   const [scenarioIndex, setScenarioIndex] = useState(0);
@@ -464,20 +475,19 @@ export default function DashboardTrainer({
   } | null>(null);
 
   // Mastery-based progress (completion = unique scenarios passed / total)
-  const [moduleProgress, setModuleProgress] = useState<Record<Module, number>>({
-    bartending: 0, sales: 0, management: 0,
-  });
+  const [moduleProgress, setModuleProgress] = useState<Record<Module, number>>(
+    (initialProgress?.modules as Record<Module, number>) ?? { bartending: 0, sales: 0, management: 0 }
+  );
   // Mastery % (scenarios at level 3 / total)
-  const [moduleMastery, setModuleMastery] = useState<Record<Module, number>>({
-    bartending: 0, sales: 0, management: 0,
-  });
+  const [moduleMastery, setModuleMastery] = useState<Record<Module, number>>(
+    (initialProgress?.mastery as Record<Module, number>) ?? { bartending: 0, sales: 0, management: 0 }
+  );
   // Spaced repetition review queue
-  type ReviewItem = { module: string; scenarioIndex: number; masteryLevel: number; consecutiveFails: number };
-  const [reviewQueue, setReviewQueue] = useState<ReviewItem[]>([]);
+  const [reviewQueue, setReviewQueue] = useState<ReviewItem[]>(initialProgress?.reviewQueue ?? []);
   // Per-scenario mastery levels for the active module
   const [scenarioMastery, setScenarioMastery] = useState<Record<number, number>>({});
 
-  const [mgmtUnlocked, setMgmtUnlocked] = useState(managementUnlocked);
+  const [mgmtUnlocked, setMgmtUnlocked] = useState(managementUnlocked || !!initialProgress?.autoUnlockManagement);
 
   const currentScenario = activeModule ? SCENARIOS[activeModule][scenarioIndex] : null;
   const currentInsight = activeModule ? SCENARIO_INSIGHTS[activeModule][scenarioIndex] : null;
@@ -502,16 +512,19 @@ export default function DashboardTrainer({
     if (managementUnlocked) setMgmtUnlocked(true);
   }, [managementUnlocked]);
 
-  // Load mastery-based progress from the API
+  // Load mastery-based progress — skipped when parent prefetched initial data
   useEffect(() => {
+    if (initialProgress) return;
     async function fetchProgress() {
       try {
-        const supabase = createSupabaseBrowserClient();
-        const { data: { session } } = await supabase.auth.getSession();
+        let token = userToken;
+        if (!token) {
+          const supabase = createSupabaseBrowserClient();
+          const { data: { session } } = await supabase.auth.getSession();
+          token = session?.access_token;
+        }
         const res = await fetch("/api/training/progress", {
-          headers: session?.access_token
-            ? { Authorization: `Bearer ${session.access_token}` }
-            : {},
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         if (!res.ok) return;
         const data = await res.json();
@@ -524,6 +537,7 @@ export default function DashboardTrainer({
       }
     }
     void fetchProgress();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Load per-scenario mastery when active module changes
@@ -531,12 +545,14 @@ export default function DashboardTrainer({
     if (!activeModule) return;
     async function fetchScenarioDetails() {
       try {
-        const supabase = createSupabaseBrowserClient();
-        const { data: { session } } = await supabase.auth.getSession();
+        let token = userToken;
+        if (!token) {
+          const supabase = createSupabaseBrowserClient();
+          const { data: { session } } = await supabase.auth.getSession();
+          token = session?.access_token;
+        }
         const res = await fetch(`/api/training/progress?detail=${activeModule}`, {
-          headers: session?.access_token
-            ? { Authorization: `Bearer ${session.access_token}` }
-            : {},
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         if (!res.ok) return;
         const data = await res.json();
