@@ -448,9 +448,7 @@ export default function DashboardTrainer({
   const [activeModule, setActiveModule] = useState<Module | null>(null);
   const [scenarioIndex, setScenarioIndex] = useState(0);
   const [response, setResponse] = useState("");
-  const [bubble1, setBubble1] = useState("");
-  const [bubble2, setBubble2] = useState("");
-  const [bubble3, setBubble3] = useState("");
+  const [bubbleText, setBubbleText] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<EvalResult | null>(null);
   const [lastScore, setLastScore] = useState<number | null>(null);
@@ -567,9 +565,7 @@ export default function DashboardTrainer({
     setActiveModule(mod);
     setScenarioIndex(validIndex);
     setResponse("");
-    setBubble1("");
-    setBubble2("");
-    setBubble3("");
+    setBubbleText("");
     setResult(null);
     setLastScore(null);
     setError("");
@@ -602,14 +598,12 @@ export default function DashboardTrainer({
 
   // Combine bubbles into the full response
   function combineBubbles() {
-    return [bubble1, bubble2, bubble3].filter(Boolean).join("\n\n");
+    return bubbleText;
   }
 
   function applyPill(text: string) {
     setResponse(text);
-    setBubble1("");
-    setBubble2("");
-    setBubble3("");
+    setBubbleText("");
     setResult(null);
     setError("");
   }
@@ -832,49 +826,18 @@ export default function DashboardTrainer({
               <div className="trainer-input-row">
                 {/* Speech bubble inputs */}
                 {!response && (
-                  <div className="s4-bubbles">
-                    <div className="s4-bubble">
-                      <label className="s4-bubble-label">The Hook — Greeting</label>
-                      <textarea
-                        className="s4-bubble-input"
-                        placeholder="Hey there! Welcome in..."
-                        value={bubble1}
-                        onChange={(e) => setBubble1(e.target.value)}
-                        onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") handleSubmit(); }}
-                        rows={2}
-                      />
-                      <span className={`s4-word-count${bubble1.split(/\s+/).filter(Boolean).length >= 15 ? " s4-word-count-met" : ""}`}>
-                        {bubble1.split(/\s+/).filter(Boolean).length} words · aim for 15+
-                      </span>
-                    </div>
-                    <div className="s4-bubble">
-                      <label className="s4-bubble-label">The Meat — Product Knowledge</label>
-                      <textarea
-                        className="s4-bubble-input"
-                        placeholder="So this one's a classic — it's got..."
-                        value={bubble2}
-                        onChange={(e) => setBubble2(e.target.value)}
-                        onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") handleSubmit(); }}
-                        rows={3}
-                      />
-                      <span className={`s4-word-count${bubble2.split(/\s+/).filter(Boolean).length >= 15 ? " s4-word-count-met" : ""}`}>
-                        {bubble2.split(/\s+/).filter(Boolean).length} words · aim for 15+
-                      </span>
-                    </div>
-                    <div className="s4-bubble">
-                      <label className="s4-bubble-label">The Close — Upsell &amp; Wrap</label>
-                      <textarea
-                        className="s4-bubble-input"
-                        placeholder="Would you like to try that? I can also..."
-                        value={bubble3}
-                        onChange={(e) => setBubble3(e.target.value)}
-                        onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") handleSubmit(); }}
-                        rows={2}
-                      />
-                      <span className={`s4-word-count${bubble3.split(/\s+/).filter(Boolean).length >= 15 ? " s4-word-count-met" : ""}`}>
-                        {bubble3.split(/\s+/).filter(Boolean).length} words · aim for 15+
-                      </span>
-                    </div>
+                  <div className="s4-bubble">
+                    <textarea
+                      className="s4-bubble-input"
+                      placeholder="Hey there! Welcome in... Product Knowledge... Upsell &amp; Close"
+                      value={bubbleText}
+                      onChange={(e) => setBubbleText(e.target.value)}
+                      onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") handleSubmit(); }}
+                      rows={6}
+                    />
+                    <span className={`s4-word-count${bubbleText.split(/\s+/).filter(Boolean).length >= 30 ? " s4-word-count-met" : ""}`}>
+                      {bubbleText.split(/\s+/).filter(Boolean).length} words · aim for 30+
+                    </span>
                   </div>
                 )}
 
@@ -909,7 +872,7 @@ export default function DashboardTrainer({
                   <button
                     className="btn btn-primary"
                     onClick={handleSubmit}
-                    disabled={loading || (!response.trim() && !bubble1.trim() && !bubble2.trim() && !bubble3.trim())}
+                    disabled={loading || (!response.trim() && !bubbleText.trim())}
                   >
                     {loading ? "Evaluating…" : "Check my response"}
                   </button>
