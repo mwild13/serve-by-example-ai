@@ -9116,12 +9116,13 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   }
 
   .language-switcher-mobile-only .language-switcher-control {
-    width: 100%;
+    width: auto;
     justify-content: center;
   }
 
   .language-switcher-mobile-only .language-select {
     width: min(320px, 100%);
+    max-width: none;
   }
 
   .inner-hero-actions {
@@ -13144,6 +13145,33 @@ body {
   font-weight: 600;
   color: var(--text-muted);
   letter-spacing: 0.01em;
+}
+
+.founder-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 2.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.founder-text {
+  flex: 1;
+  min-width: 240px;
+  text-align: left;
+}
+
+@media (max-width: 640px) {
+  .founder-row {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .founder-text {
+    min-width: 0;
+    width: 100%;
+    text-align: center;
+  }
 }
 
 /* ── Trust stats — deep green chapter panel ──── */
