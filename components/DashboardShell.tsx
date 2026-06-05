@@ -216,7 +216,14 @@ function StaffSettingsPanel({
   }
 
   return (
-    <div className="staff-settings-wrap">
+    <>
+      <div className="sbe-command-bar sbe-command-bar-active" style={{ marginBottom: 0 }}>
+        <div>
+          <span className="sbe-command-eyebrow">Me</span>
+          <strong>Account &amp; Settings</strong>
+        </div>
+      </div>
+      <div className="staff-settings-wrap">
       <div className="card">
         <h3>Display name</h3>
         <p>Update the name shown across your training dashboard.</p>
@@ -372,6 +379,7 @@ function StaffSettingsPanel({
         )}
       </div>
     </div>
+    </>
   );
 }
 
@@ -743,8 +751,8 @@ export default function DashboardShell({
 
       </section>
 
-      {/* Persistent mobile bottom nav — sits at z-index 45, below V3 home overlay (50) */}
-      <MobileBottomNavBar activeNav={activeNav} onNavigate={handleNavClick} />
+      {/* Persistent mobile bottom nav — hidden on Home tab where MobileDashboardV3 renders its own nav */}
+      {activeNav !== "home" && <MobileBottomNavBar activeNav={activeNav} onNavigate={handleNavClick} />}
     </main>
   );
 }

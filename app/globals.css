@@ -7012,6 +7012,10 @@ html[data-staff-high-contrast="1"] .dashboard-main {
     color: var(--text);
   }
 
+  @media (max-width: 600px) {
+    .sbe-help-hint { display: none; }
+  }
+
   .sbe-help-btn {
     display: inline-flex;
     align-items: center;

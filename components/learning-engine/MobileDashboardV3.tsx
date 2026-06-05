@@ -683,7 +683,9 @@ export default function MobileDashboardV3({
               [loaded ? levelTitle : "...", "Your level"],
             ] as [string, string][]).map(([val, lbl], i) => (
               <div key={lbl} style={{ flex: 1, paddingLeft: i ? 16 : 0, borderLeft: i ? "1px solid rgba(245,242,233,0.16)" : "none" }}>
-                <div style={{ fontSize: i === 2 ? 14 : 24, fontWeight: 700, letterSpacing: i === 2 ? 0 : -0.5, lineHeight: 1.15 }}>{val}</div>
+                <div style={{ fontSize: i === 2 ? 14 : 24, fontWeight: 700, letterSpacing: i === 2 ? 0 : -0.5, lineHeight: 1.15 }}>
+                  {loaded ? val : <div className="skeleton-line" style={{ width: i === 2 ? 52 : 36, height: i === 2 ? 14 : 20, marginBottom: 0, opacity: 0.35 }} />}
+                </div>
                 <div style={{ fontSize: 9.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, color: "rgba(245,242,233,0.55)", marginTop: 4 }}>{lbl}</div>
               </div>
             ))}
@@ -760,7 +762,8 @@ export default function MobileDashboardV3({
             <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.4, color: "var(--text-muted)", marginBottom: 12, marginLeft: 2 }}>
               Achievements
             </div>
-            <div style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 4 }}>
+            <div style={{ maskImage: "linear-gradient(to right, black 82%, transparent 100%)", WebkitMaskImage: "linear-gradient(to right, black 82%, transparent 100%)" }}>
+              <div style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 4, paddingRight: 32 }}>
               {badges.slice(0, 8).map((b) => (
                 <button
                   key={b.id}
@@ -784,6 +787,7 @@ export default function MobileDashboardV3({
                   </span>
                 </button>
               ))}
+              </div>
             </div>
           </div>
         )}
