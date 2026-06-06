@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
-import { GlassWater, TrendingUp, Users, Flame } from "lucide-react";
+import { GlassWater, TrendingUp, Users, Flame, Trophy, BookOpen, Share2, Target, Check } from "lucide-react";
 import { computeBadges, countEarned, recentEarned, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
 import { KB_ENTRIES, KB_CATEGORIES } from "@/lib/knowledge-base";
 import { COCKTAILS } from "@/lib/cocktails";
@@ -145,11 +145,232 @@ const AWARD_ICON = (
   </svg>
 );
 
+function HorizontalProgressionTrack({
+  allModules,
+  moduleProgress,
+  loaded,
+}: {
+  allModules: DbModule[];
+  moduleProgress: Record<number, DbModuleProgress>;
+  loaded: boolean;
+}) {
+  const totalModules = allModules.length || 40;
+  const completedModules = loaded
+    ? allModules.filter((m) => (moduleProgress[m.id]?.scenariosMastered ?? 0) >= 1).length
+    : 0;
+  const totalScenarios = totalModules;
+  const completedScenarios = loaded
+    ? allModules.filter((m) => (moduleProgress[m.id]?.scenariosAttempted ?? 0) >= 3).length
+    : 0;
+
+  const totalChallenges = 5;
+  const completedChallenges = 5;
+  const totalLive = 20;
+  const completedLive = 0;
+
+  type TrackStatus = "completed" | "active" | "upcoming";
+  function getStatus(done: number, total: number): TrackStatus {
+    if (done >= total && total > 0) return "completed";
+    if (done > 0) return "active";
+    return "upcoming";
+  }
+
+  const tracks = [
+    {
+      id: "challenges",
+      label: "Challenges",
+      subtext: `${completedChallenges} of ${totalChallenges}`,
+      Icon: Trophy,
+      status: getStatus(completedChallenges, totalChallenges),
+    },
+    {
+      id: "modules",
+      label: "Modules",
+      subtext: loaded ? `${completedModules} of ${totalModules}` : "— of —",
+      Icon: BookOpen,
+      status: getStatus(completedModules, totalModules),
+    },
+    {
+      id: "scenarios",
+      label: "Scenarios",
+      subtext: loaded ? `${completedScenarios} of ${totalScenarios}` : "— of —",
+      Icon: Share2,
+      status: getStatus(completedScenarios, totalScenarios),
+    },
+    {
+      id: "live-scenarios",
+      label: "Live Scenarios",
+      subtext: `${completedLive} of ${totalLive}`,
+      Icon: Target,
+      status: getStatus(completedLive, totalLive),
+    },
+  ];
+
+  const tracksCompleted = tracks.filter((t) => t.status === "completed").length;
+
+  return (
+    <div style={{ padding: "0 0 4px" }}>
+      <div
+        style={{
+          background: "var(--surface)",
+          border: "1px solid var(--line-light)",
+          borderRadius: "var(--radius-lg)",
+          padding: "40px 24px 20px",
+          position: "relative",
+          display: "flex",
+          flexDirection: "column",
+          gap: 24,
+          boxShadow: "var(--shadow-sm)",
+        }}
+      >
+        <div
+          style={{
+            position: "relative",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%",
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "6%",
+              right: "6%",
+              height: 4,
+              background: `linear-gradient(to right, var(--green) 0%, var(--green) ${Math.max(0, ((tracksCompleted - 1) / (tracks.length - 1)) * 100)}%, var(--gold) ${Math.max(0, ((tracksCompleted - 1) / (tracks.length - 1)) * 100)}%, var(--gold) 100%)`,
+              transform: "translateY(-50%)",
+              zIndex: 1,
+              borderRadius: 2,
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              right: "-10px",
+              width: 40,
+              borderTop: "4px dotted var(--line)",
+              transform: "translateY(-50%)",
+              zIndex: 1,
+              opacity: 0.5,
+            }}
+          />
+
+          {tracks.map((track) => {
+            const { Icon, label, subtext, status } = track;
+            const isCompleted = status === "completed";
+            const isActive = status === "active";
+            const borderColor = isCompleted
+              ? "var(--green)"
+              : isActive
+              ? "var(--gold)"
+              : "var(--gold-warm)";
+            const bgColor = isCompleted ? "var(--bg)" : "var(--surface)";
+            const iconColor = isCompleted ? "var(--green)" : "var(--text)";
+
+            return (
+              <div
+                key={track.id}
+                style={{
+                  position: "relative",
+                  zIndex: 2,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  flex: 1,
+                }}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    top: -32,
+                    fontSize: "0.8rem",
+                    fontWeight: 600,
+                    color: "var(--text)",
+                    whiteSpace: "nowrap",
+                    fontFamily: "var(--font-manrope, system-ui, sans-serif)",
+                  }}
+                >
+                  {label}
+                </div>
+                <div
+                  style={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: "50%",
+                    background: bgColor,
+                    border: `4px solid ${borderColor}`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    position: "relative",
+                    boxShadow: isActive ? "0 0 12px rgba(169, 129, 42, 0.25)" : "none",
+                  }}
+                >
+                  <Icon size={22} color={iconColor} strokeWidth={2} />
+                  {isCompleted && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: -2,
+                        right: -2,
+                        width: 18,
+                        height: 18,
+                        borderRadius: "50%",
+                        background: "var(--green)",
+                        border: "1px solid var(--bg)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Check size={11} color="var(--bg)" strokeWidth={3} />
+                    </div>
+                  )}
+                </div>
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: -28,
+                    fontSize: "0.78rem",
+                    color: "var(--text-muted)",
+                    fontWeight: 500,
+                    whiteSpace: "nowrap",
+                    fontFamily: "var(--font-manrope, system-ui, sans-serif)",
+                  }}
+                >
+                  {subtext}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div
+          style={{
+            marginTop: 16,
+            textAlign: "center",
+            fontSize: "0.73rem",
+            fontWeight: 500,
+            color: "var(--text-muted)",
+            fontFamily: "var(--font-manrope, system-ui, sans-serif)",
+            letterSpacing: "0.02em",
+          }}
+        >
+          Overall Progress: Completed {tracksCompleted} of 4 Tracks.
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function PreShiftHome({
   displayName,
   setActiveNav,
-  managementUnlocked = false,
-  onNavigateToCategory,
+  managementUnlocked: _managementUnlocked = false,
+  onNavigateToCategory: _onNavigateToCategory,
   onBadgesNav,
   progressData,
   onSyncProgress,
@@ -264,18 +485,6 @@ export default function PreShiftHome({
     bartending: getCategoryMastery(data.allModules, data.moduleProgress, "technical"),
     sales: getCategoryMastery(data.allModules, data.moduleProgress, "service"),
     management: getCategoryMastery(data.allModules, data.moduleProgress, "compliance"),
-  };
-
-  const CATEGORY_NAV_KEY: Record<ModuleKey, "technical" | "service" | "compliance"> = {
-    bartending: "technical",
-    sales: "service",
-    management: "compliance",
-  };
-
-  const CATEGORY_MODULE_TOTALS: Record<ModuleKey, number> = {
-    bartending: data.allModules.filter((m) => m.category === "technical").length || 14,
-    sales: data.allModules.filter((m) => m.category === "service").length || 14,
-    management: data.allModules.filter((m) => m.category === "compliance").length || 12,
   };
 
   const totalSessions = data.sessions.bartending + data.sessions.sales + data.sessions.management;
@@ -503,73 +712,11 @@ export default function PreShiftHome({
         ref={(el) => { animRefs.current[2] = el; }}
       >
         <h2>Training Progress</h2>
-        <div className="psh-module-row">
-          {(["bartending", "sales", "management"] as ModuleKey[]).map((mod, index) => {
-            const { short, Icon } = MODULE_META[mod];
-            const total = CATEGORY_MODULE_TOTALS[mod];
-            const legacyMastery    = data.mastery[mod]  ?? 0;
-            const legacyCompletion = data.modules[mod]  ?? 0;
-            const isLocked = mod === "management" && !managementUnlocked;
-            const navigate = () => {
-              if (onNavigateToCategory) onNavigateToCategory(CATEGORY_NAV_KEY[mod]);
-              else setActiveNav("module");
-            };
-            return (
-              <div
-                key={mod}
-                className="psh-module-card"
-                data-index={index}
-                onClick={navigate}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => { if (e.key === "Enter") navigate(); }}
-                style={{ position: "relative" }}
-              >
-                <span className="psh-module-icon">
-                  <Icon size={28} style={{ color: "var(--green-mid)" }} />
-                </span>
-                <strong>{short}</strong>
-                <div className="psh-module-progress-bar">
-                  <div
-                    className="psh-module-progress-fill"
-                    style={{ width: loaded ? `${Math.max(4, legacyMastery)}%` : "4px" }}
-                  />
-                </div>
-                <p className="psh-module-next" style={{ fontSize: "0.78rem", color: "var(--text-muted)", margin: "2px 0 0" }}>
-                  {legacyMastery >= 80
-                    ? `All ${total} modules mastered`
-                    : legacyMastery > 0
-                    ? `${legacyMastery}% mastered`
-                    : legacyCompletion > 0
-                    ? `${legacyCompletion}% complete`
-                    : `0 of ${total} modules started`}
-                </p>
-                <button
-                  className="psh-module-cta-pill"
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); navigate(); }}
-                >
-                  {legacyMastery >= 80 ? "Review" : legacyMastery > 0 ? "Continue" : "Start training"}
-                </button>
-                {isLocked && (
-                  <div style={{
-                    position: "absolute", inset: 0, display: "flex", flexDirection: "column",
-                    alignItems: "center", justifyContent: "center",
-                    background: "rgba(245,242,233,0.88)", borderRadius: "var(--radius-lg)", gap: 8,
-                  }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <rect x="3" y="11" width="18" height="11" rx="2"/>
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                    </svg>
-                    <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", textAlign: "center", margin: 0, padding: "0 12px" }}>
-                      Available with venue access
-                    </p>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        <HorizontalProgressionTrack
+          allModules={data.allModules}
+          moduleProgress={data.moduleProgress}
+          loaded={loaded}
+        />
       </div>
 
       {/* ── S5: Progress Snapshot Strip ── */}
