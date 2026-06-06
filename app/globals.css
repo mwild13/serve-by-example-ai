@@ -13175,6 +13175,15 @@ body {
 .badge-page {
   padding: 48px 0 80px;
 }
+@media (max-width: 720px) {
+  .badge-page {
+    padding: 8px 0 0;
+  }
+  .badge-page .container {
+    width: 100%;
+    padding: 0;
+  }
+}
 .badge-page-header {
   display: flex;
   align-items: flex-end;

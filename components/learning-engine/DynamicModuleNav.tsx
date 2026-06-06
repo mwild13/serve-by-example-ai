@@ -9,24 +9,18 @@ interface DynamicModuleNavProps {
   userToken: string;
   onModuleSelect: (moduleId: number) => void;
   selectedModuleId?: number;
-  initialCategory?: "technical" | "service" | "compliance";
+  initialCategory?: "technical" | "service" | "compliance"; // retained for call-site compatibility
 }
 
 export default function DynamicModuleNav({
   userToken,
   onModuleSelect,
   selectedModuleId,
-  initialCategory,
 }: DynamicModuleNavProps) {
   const [filteredModules, setFilteredModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<
-    "all" | "technical" | "service" | "compliance"
-  >(initialCategory ?? "all");
-  const [sortBy] = useState<"recommended" | "title">(
-    "recommended"
-  );
+  const [sortBy] = useState<"recommended" | "title">("recommended");
 
   useEffect(() => {
     const fetchModules = async () => {
@@ -35,9 +29,7 @@ export default function DynamicModuleNav({
         setError(null);
 
         const response = await fetch(
-          `/api/training/modules?sort=${sortBy}${
-            selectedCategory !== "all" ? `&category=${selectedCategory}` : ""
-          }`,
+          `/api/training/modules?sort=${sortBy}`,
           {
             method: "GET",
             headers: {
@@ -57,13 +49,7 @@ export default function DynamicModuleNav({
           platform_version: data.platform_version,
           user_role: data.user_role,
         });
-        if (selectedCategory === "all") {
-          setFilteredModules(data.modules);
-        } else {
-          setFilteredModules(
-            data.modules.filter((m) => m.category === selectedCategory)
-          );
-        }
+        setFilteredModules(data.modules);
       } catch (err) {
         const message = err instanceof Error ? err.message : "Unknown error";
         setError(message);
@@ -74,7 +60,7 @@ export default function DynamicModuleNav({
     };
 
     fetchModules();
-  }, [selectedCategory, sortBy, userToken]);
+  }, [sortBy, userToken]);
 
   const getEloDisplay = (elo: number) => {
     if (elo < 1100) return { color: "#dc2626", label: "Needs Work", tooltip: "ELO below 1100 — needs more practice on this module" };
@@ -100,34 +86,9 @@ export default function DynamicModuleNav({
           <span className="sbe-command-eyebrow">Training Library</span>
           <strong>Modules</strong>
           <span className="sbe-command-meta">
-            {loading ? "Loading your modules…" : selectedCategory === "all" ? `${filteredModules.length} modules across Technical, Service & Compliance` : `${filteredModules.length} ${selectedCategory} module${filteredModules.length !== 1 ? "s" : ""}`}
+            {loading ? "Loading your modules…" : `${filteredModules.length} modules across Technical, Service & Compliance`}
           </span>
         </div>
-        {/* Category filter pills */}
-        {!loading && (
-          <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", justifyContent: "flex-end" }}>
-            {(["all", "technical", "service", "compliance"] as const).map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                style={{
-                  padding: "5px 14px",
-                  borderRadius: "999px",
-                  fontSize: "0.75rem",
-                  fontWeight: 700,
-                  border: "1.5px solid rgba(255,255,255,0.4)",
-                  cursor: "pointer",
-                  background: selectedCategory === cat ? "rgba(255,255,255,0.25)" : "transparent",
-                  color: "white",
-                  letterSpacing: "0.03em",
-                  transition: "all 0.15s",
-                }}
-              >
-                {cat.charAt(0).toUpperCase() + cat.slice(1)}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Loading */}

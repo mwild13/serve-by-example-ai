@@ -218,14 +218,6 @@ function IcClock({ s = 28 }: { s?: number }) {
   );
 }
 
-function IcTrophy({ s = 22 }: { s?: number }) {
-  return (
-    <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="1.8" aria-hidden="true">
-      <path d="M8 4h8v4a4 4 0 0 1-8 0V4Z" />
-      <path d="M8 5H5v1.5A3 3 0 0 0 8 9.5M16 5h3v1.5a3 3 0 0 1-3 3M12 12v3.5M9 20h6M10 17.5h4" />
-    </svg>
-  );
-}
 
 function IcStar({ s = 22 }: { s?: number }) {
   return (
@@ -306,7 +298,7 @@ function badgeIcon(b: Badge) {
   if (b.category === "service") return <IcTarget s={26} />;
   if (b.category === "compliance") return <IcLayers s={26} />;
   if (b.id === "sbe-elite") return <IcStar s={26} />;
-  if (b.id === "pro") return <IcTrophy s={26} />;
+  if (b.id === "pro") return <IcMedal s={26} />;
   return <IcMedal s={26} />;
 }
 
@@ -481,8 +473,8 @@ function FloatingMobileNav({ setActiveNav }: { setActiveNav: (nav: NavItem) => v
   const tabs: { id: NavItem; label: string; icon: React.ReactNode; active: boolean }[] = [
     { id: "home",         label: "Home",     icon: <IcHome s={22} />,   active: true },
     { id: "mobile-learn", label: "Learn",    icon: <IcBook s={22} />,   active: false },
-    { id: "progress",     label: "Progress", icon: <IcTrophy s={22} />, active: false },
-    { id: "settings",     label: "Me",       icon: <IcUser s={22} />,   active: false },
+    { id: "challenges",   label: "Challenges", icon: <IcStar s={22} />,  active: false },
+    { id: "progress",     label: "Me",         icon: <IcUser s={22} />,  active: false },
   ];
   return (
     <nav
@@ -711,9 +703,7 @@ export default function MobileDashboardV3({
               <div style={{ padding: "16px 20px 20px" }}>
                 <div style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 19, fontWeight: 600, color: "var(--text)" }}>{nextModule.title}</div>
                 <div style={{ fontSize: 12.5, color: "var(--text-muted)", fontWeight: 600, margin: "4px 0 14px" }}>
-                  {isLoopMode
-                    ? `${masteredModules} of ${data.allModules.length} modules mastered`
-                    : `${nextMastered} of ${nextTotal} scenarios mastered`}
+                  {`${masteredModules} of 40 modules mastered`}
                 </div>
                 <GlowBar pct={isLoopMode ? 100 : nextPct} height={8} />
               </div>

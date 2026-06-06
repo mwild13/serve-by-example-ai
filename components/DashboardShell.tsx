@@ -711,9 +711,7 @@ export default function DashboardShell({
             managementUnlocked={managementUnlocked}
           />
         ) : activeNav === "mobile-learn" ? (
-          <div className="mobile-v3-only">
-            <MobileLearnHub setActiveNav={handleNavClick} isPremium={isPremium} />
-          </div>
+          <MobileLearnHub setActiveNav={handleNavClick} isPremium={isPremium} />
         ) : activeNav === "home" ? (
           <>
             <div className="mobile-v3-only">

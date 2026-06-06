@@ -703,9 +703,6 @@ export default function DashboardTrainer({
             <strong>Practice real hospitality situations</strong>
             <span className="sbe-command-meta">Scored roleplay across Bartending, Service &amp; Management</span>
           </div>
-          <button className="btn btn-primary sbe-command-btn" onClick={() => selectModule("bartending")}>
-            Start training →
-          </button>
         </div>
       )}
 
