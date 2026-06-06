@@ -362,6 +362,20 @@ function HorizontalProgressionTrack({
   );
 }
 
+function computeTrackerCounts(res: Record<string, unknown>) {
+  const allMods = Array.isArray(res.allModules)
+    ? (res.allModules as { id: number }[])
+    : [];
+  const mp = (res.moduleProgress ?? {}) as Record<string, { mastery?: number; scenariosAttempted?: number }>;
+  const ap = (res.arenaProgress ?? {}) as Record<string, { attempts?: number }>;
+  return {
+    modules: allMods.filter((m) => (mp[String(m.id)]?.mastery ?? 0) >= 80).length,
+    scenarios: allMods.filter((m) => (mp[String(m.id)]?.scenariosAttempted ?? 0) > 0).length,
+    live: allMods.filter((m) => (ap[String(m.id)]?.attempts ?? 0) > 0).length,
+    total: allMods.length || 40,
+  };
+}
+
 export default function PreShiftHome({
   displayName,
   setActiveNav,
@@ -381,6 +395,7 @@ export default function PreShiftHome({
   onSyncProgress?: () => void;
 }) {
   const [data, setData] = useState<ProgressData>(EMPTY);
+  const [trackerCounts, setTrackerCounts] = useState({ modules: 0, scenarios: 0, live: 0, total: 40 });
   const [streak, setStreak] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -420,6 +435,7 @@ export default function PreShiftHome({
         });
         const res = await r.json();
         if (res.modules) {
+          setTrackerCounts(computeTrackerCounts(res as Record<string, unknown>));
           setData({
             modules: res.modules,
             mastery: res.mastery ?? EMPTY.mastery,
@@ -455,6 +471,7 @@ export default function PreShiftHome({
     if (!progressData) return;
     const res = progressData;
     if (res.modules) {
+      setTrackerCounts(computeTrackerCounts(res));
       const lp = res.levelProgress as Record<string, LevelProgress> | undefined;
       setData({
         modules: res.modules as Record<ModuleKey, number>,
@@ -522,13 +539,6 @@ export default function PreShiftHome({
     (m) => (data.moduleProgress[m.id]?.mastery ?? 0) >= 80
   ).length;
   const totalModules = data.allModules.length || 1;
-  const totalModulesCount = data.allModules.length || 40;
-  const scenariosComplete = data.allModules.filter(
-    (m) => (data.moduleProgress[m.id]?.scenariosAttempted ?? 0) > 0
-  ).length;
-  const liveComplete = data.allModules.filter(
-    (m) => (data.arenaProgress[m.id]?.attempts ?? 0) > 0
-  ).length;
   const avgScore = loaded
     ? Math.round(
         data.allModules.reduce((sum, m) => sum + (data.moduleProgress[m.id]?.mastery ?? 0), 0) / totalModules
@@ -718,10 +728,10 @@ export default function PreShiftHome({
       >
         <h2>Training Progress</h2>
         <HorizontalProgressionTrack
-          completedModules={modulesComplete}
-          completedScenarios={scenariosComplete}
-          totalModules={totalModulesCount}
-          completedLive={liveComplete}
+          completedModules={trackerCounts.modules}
+          completedScenarios={trackerCounts.scenarios}
+          totalModules={trackerCounts.total}
+          completedLive={trackerCounts.live}
         />
       </div>
 
