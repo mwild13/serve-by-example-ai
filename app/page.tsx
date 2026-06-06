@@ -237,10 +237,10 @@ export default function Home() {
                 <Image
                   src="/shots/Mobile View3.png"
                   alt="Mobile training view — hospitality staff learning on phone"
-                  width={700}
-                  height={1000}
+                  width={390}
+                  height={780}
                   sizes="(max-width: 768px) 80vw, 300px"
-                  style={{ width: "auto", maxWidth: "300px", height: "auto", display: "block", margin: "0 auto" }}
+                  style={{ width: "100%", maxWidth: "300px", height: "auto", display: "block", margin: "0 auto" }}
                 />
               </div>
 
