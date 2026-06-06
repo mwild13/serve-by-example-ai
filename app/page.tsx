@@ -249,10 +249,10 @@ export default function Home() {
         </section>
 
         {/* ── How It Works — 3-Step Process ─────── */}
-        <section id="how-it-works" className="section section-band-green">
+        <section id="mastery-path" className="section section-band-green">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">How It Works</span>
+              <span className="eyebrow">The Mastery Path</span>
               <h2>Know it. Apply it. Managers see it.</h2>
               <p>Three stages that take staff from day one to floor-confident — every step tracked and visible without chasing anyone.</p>
             </div>

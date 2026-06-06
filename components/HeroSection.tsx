@@ -118,7 +118,7 @@ export default function HeroSection() {
             </button>
           </div>
           <div style={{ marginTop: "16px", textAlign: "center" }}>
-            <Link href="/#how-it-works" style={{ fontSize: "0.9rem", color: "var(--text-soft)", textDecoration: "underline", textUnderlineOffset: "3px" }}>
+            <Link href="/how-it-works" style={{ fontSize: "0.9rem", color: "var(--text-soft)", textDecoration: "underline", textUnderlineOffset: "3px" }}>
               How it works
             </Link>
           </div>
