@@ -151,13 +151,23 @@ function HorizontalProgressionTrack({
   allModules,
   moduleProgress,
   arenaProgress,
+  legacyMastery,
 }: {
   allModules: DbModule[];
   moduleProgress: Record<number, DbModuleProgress>;
   arenaProgress: Record<number, { attempts: number; bestScore: number; passed: boolean }>;
+  legacyMastery: { bartending: number; sales: number; management: number };
 }) {
+  function catMastery(category: string): number {
+    if (category === "technical") return legacyMastery.bartending;
+    if (category === "service") return legacyMastery.sales;
+    return legacyMastery.management;
+  }
+
   const totalModules = allModules.length || 40;
-  const completedModules = allModules.filter((m) => (moduleProgress[m.id]?.mastery ?? 0) >= 80).length;
+  const completedModules = allModules.filter((m) =>
+    (moduleProgress[m.id]?.mastery ?? 0) >= 80 || catMastery(m.category) >= 80
+  ).length;
   const totalScenarios = totalModules;
   const completedScenarios = allModules.filter((m) => arenaProgress[m.id]?.passed === true).length;
 
@@ -716,6 +726,7 @@ export default function PreShiftHome({
           allModules={data.allModules}
           moduleProgress={data.moduleProgress}
           arenaProgress={data.arenaProgress}
+          legacyMastery={data.mastery}
         />
       </div>
 
