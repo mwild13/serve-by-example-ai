@@ -6945,6 +6945,12 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 .sign-out-btn:hover {
   color: var(--text-soft);
 }
+.mobile-signout-wrap .sign-out-btn {
+  width: auto;
+  text-align: left;
+  margin-top: 0;
+  padding-left: 0;
+}
 
 /* ── Dashboard trainer ─────────────────────────── */
 .dash-card-active {

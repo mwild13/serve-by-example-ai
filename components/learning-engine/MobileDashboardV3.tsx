@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
+import SignOutButton from "@/components/ui/SignOutButton";
 import { computeBadges, type Badge, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
 
 // ── Types ─────────────────────────────────────────────────────
@@ -783,6 +784,10 @@ export default function MobileDashboardV3({
             </div>
           </div>
         )}
+
+        <div className="mobile-signout-wrap" style={{ padding: "18px 16px 0" }}>
+          <SignOutButton />
+        </div>
 
         <div style={{ height: 8 }} />
       </div>
