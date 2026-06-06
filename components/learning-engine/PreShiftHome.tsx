@@ -151,17 +151,18 @@ function HorizontalProgressionTrack({
   completedModules,
   completedScenarios,
   totalModules,
+  completedLive,
 }: {
   completedModules: number;
   completedScenarios: number;
   totalModules: number;
+  completedLive: number;
 }) {
   const totalScenarios = totalModules;
 
   const totalChallenges = 5;
   const completedChallenges = 5;
   const totalLive = 20;
-  const completedLive = 0;
 
   type TrackStatus = "completed" | "active" | "upcoming";
   function getStatus(done: number, total: number): TrackStatus {
@@ -523,9 +524,10 @@ export default function PreShiftHome({
   const totalModules = data.allModules.length || 1;
   const totalModulesCount = data.allModules.length || 40;
   const scenariosComplete = data.allModules.filter(
-    (m) =>
-      (data.moduleProgress[m.id]?.scenariosAttempted ?? 0) > 0 ||
-      data.arenaProgress[m.id]?.attempts > 0
+    (m) => (data.moduleProgress[m.id]?.scenariosAttempted ?? 0) > 0
+  ).length;
+  const liveComplete = data.allModules.filter(
+    (m) => (data.arenaProgress[m.id]?.attempts ?? 0) > 0
   ).length;
   const avgScore = loaded
     ? Math.round(
@@ -719,6 +721,7 @@ export default function PreShiftHome({
           completedModules={modulesComplete}
           completedScenarios={scenariosComplete}
           totalModules={totalModulesCount}
+          completedLive={liveComplete}
         />
       </div>
 
