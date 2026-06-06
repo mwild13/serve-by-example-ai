@@ -268,10 +268,10 @@ export default function PlatformPage() {
               <Image
                 src="/shots/Mobile View.png"
                 alt="Serve By Example staff training app on mobile — pre-shift brief screen"
-                width={390}
-                height={780}
+                width={347}
+                height={707}
                 sizes="(max-width: 768px) 80vw, 320px"
-                style={{ width: "100%", maxWidth: "320px", height: "auto", display: "block" }}
+                style={{ width: "100%", maxWidth: "320px", height: "auto", display: "block", margin: "0 auto" }}
               />
             </div>
           </div>
