@@ -732,12 +732,16 @@ export default function PreShiftHome({
         ref={(el) => { animRefs.current[2] = el; }}
       >
         <h2>Training Progress</h2>
-        <HorizontalProgressionTrack
-          completedModules={modulesComplete}
-          completedScenarios={trackerScenarios}
-          totalModules={trackerTotal}
-          completedLive={trackerLive}
-        />
+        {loaded ? (
+          <HorizontalProgressionTrack
+            completedModules={modulesComplete}
+            completedScenarios={trackerScenarios}
+            totalModules={trackerTotal}
+            completedLive={trackerLive}
+          />
+        ) : (
+          <div style={{ height: 120, borderRadius: "var(--radius-lg)", background: "var(--surface)", border: "1px solid var(--line-light)", animation: "skeletonPulse 1.4s ease-in-out infinite" }} />
+        )}
       </div>
 
       {/* ── S5: Progress Snapshot Strip ── */}
