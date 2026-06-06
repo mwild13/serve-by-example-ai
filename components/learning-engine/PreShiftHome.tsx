@@ -151,21 +151,15 @@ function HorizontalProgressionTrack({
   allModules,
   moduleProgress,
   arenaProgress,
-  loaded,
 }: {
   allModules: DbModule[];
   moduleProgress: Record<number, DbModuleProgress>;
   arenaProgress: Record<number, { attempts: number; bestScore: number; passed: boolean }>;
-  loaded: boolean;
 }) {
   const totalModules = allModules.length || 40;
-  const completedModules = loaded
-    ? allModules.filter((m) => (moduleProgress[m.id]?.mastery ?? 0) >= 80).length
-    : 0;
+  const completedModules = allModules.filter((m) => (moduleProgress[m.id]?.mastery ?? 0) >= 80).length;
   const totalScenarios = totalModules;
-  const completedScenarios = loaded
-    ? allModules.filter((m) => arenaProgress[m.id]?.passed === true).length
-    : 0;
+  const completedScenarios = allModules.filter((m) => arenaProgress[m.id]?.passed === true).length;
 
   const totalChallenges = 5;
   const completedChallenges = 5;
@@ -190,14 +184,14 @@ function HorizontalProgressionTrack({
     {
       id: "modules",
       label: "Modules",
-      subtext: loaded ? `${completedModules} of ${totalModules}` : "— of —",
+      subtext: `${completedModules} of ${totalModules}`,
       Icon: BookOpen,
       status: getStatus(completedModules, totalModules),
     },
     {
       id: "scenarios",
       label: "Scenarios",
-      subtext: loaded ? `${completedScenarios} of ${totalScenarios}` : "— of —",
+      subtext: `${completedScenarios} of ${totalScenarios}`,
       Icon: Share2,
       status: getStatus(completedScenarios, totalScenarios),
     },
@@ -722,7 +716,6 @@ export default function PreShiftHome({
           allModules={data.allModules}
           moduleProgress={data.moduleProgress}
           arenaProgress={data.arenaProgress}
-          loaded={loaded}
         />
       </div>
 
