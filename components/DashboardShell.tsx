@@ -18,11 +18,12 @@ const BadgesView = lazy(() => import("@/components/learning-engine/BadgesView"))
 import ProgressOverview from "@/components/learning-engine/ProgressOverview";
 import PreShiftHome from "@/components/learning-engine/PreShiftHome";
 import MobileDashboardV3 from "@/components/learning-engine/MobileDashboardV3";
+import MobileLearnHub from "@/components/learning-engine/MobileLearnHub";
 import SessionRefresher from "@/components/ui/SessionRefresher";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
-type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "challenges" | "cocktails" | "knowledge" | "progress" | "badges" | "settings";
+type NavItem = "home" | "mobile-learn" | "module" | "rapid-fire" | "stage4" | "scenarios" | "challenges" | "cocktails" | "knowledge" | "progress" | "badges" | "settings";
 
 const NAV_ITEMS: { id: NavItem; label: string }[] = [
   { id: "home", label: "Home" },
@@ -398,17 +399,15 @@ function MobileBottomNavBar({
   onNavigate: (id: NavItem) => void;
 }) {
   const tabs = [
-    { id: "home" as NavItem,      label: "Home",      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1v-9z"/></svg> },
-    { id: "module" as NavItem,    label: "Modules",   icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2V5z"/><path d="M4 19h15"/></svg> },
-    { id: "stage4" as NavItem,    label: "Scenarios", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> },
-    { id: "scenarios" as NavItem, label: "AI Scenarios",  icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/></svg> },
-    { id: "progress" as NavItem,  label: "Me",        icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> },
+    { id: "home" as NavItem,         label: "Home",    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1v-9z"/></svg> },
+    { id: "mobile-learn" as NavItem, label: "Learn",   icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2V5z"/><path d="M4 19h15"/></svg> },
+    { id: "challenges" as NavItem,   label: "Challenges", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 17l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9L12 3.5Z"/></svg> },
+    { id: "progress" as NavItem,     label: "Me",      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> },
   ];
   // Map activeNav to which tab is highlighted
   const activeTab =
-    activeNav === "module" || activeNav === "rapid-fire" ? "module" :
-    activeNav === "stage4" ? "stage4" :
-    activeNav === "scenarios" ? "scenarios" :
+    activeNav === "mobile-learn" || activeNav === "module" || activeNav === "rapid-fire" || activeNav === "stage4" || activeNav === "scenarios" ? "mobile-learn" :
+    activeNav === "challenges" ? "challenges" :
     activeNav === "progress" || activeNav === "settings" ? "progress" :
     "home";
 
@@ -471,7 +470,7 @@ export default function DashboardShell({
   initialNav?: string;
 }) {
   const router = useRouter();
-  const NAV_IDS = new Set<NavItem>(["home","module","rapid-fire","stage4","scenarios","challenges","cocktails","knowledge","progress","badges","settings"]);
+  const NAV_IDS = new Set<NavItem>(["home","mobile-learn","module","rapid-fire","stage4","scenarios","challenges","cocktails","knowledge","progress","badges","settings"]);
   const [activeNav, setActiveNav] = useState<NavItem>(
     NAV_IDS.has(initialNav as NavItem) ? (initialNav as NavItem) : "home"
   );
@@ -711,6 +710,10 @@ export default function DashboardShell({
             displayName={displayName}
             managementUnlocked={managementUnlocked}
           />
+        ) : activeNav === "mobile-learn" ? (
+          <div className="mobile-v3-only">
+            <MobileLearnHub setActiveNav={handleNavClick} isPremium={isPremium} />
+          </div>
         ) : activeNav === "home" ? (
           <>
             <div className="mobile-v3-only">
