@@ -722,6 +722,10 @@ export default function DashboardShell({
                 displayName={displayName}
                 setActiveNav={handleNavClick}
                 plan={hasVenueMembership && plan === "free" ? "venue_member" : plan}
+                onSelectModule={(moduleId) => {
+                  setSelectedModuleId(moduleId);
+                  handleNavClick("module");
+                }}
               />
             </div>
             <div className="desktop-psh-only">

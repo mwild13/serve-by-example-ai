@@ -3,22 +3,36 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
-import {
-  Flame, Play, Sparkles, X, Home,
-  BookOpen, GlassWater, Target, Cpu, Mic, Library, User,
-} from "lucide-react";
+import { computeBadges, type Badge, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
 
-type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "cocktails" | "knowledge" | "progress" | "settings";
+// ── Types ─────────────────────────────────────────────────────
+type NavItem =
+  | "home" | "mobile-learn" | "module" | "rapid-fire" | "stage4"
+  | "scenarios" | "challenges" | "cocktails" | "knowledge"
+  | "progress" | "badges" | "settings";
+
 type ModuleKey = "bartending" | "sales" | "management";
 
 type LevelProgress = {
-  level1_completed: boolean;
-  level2_completed: boolean;
-  level3_completed: boolean;
-  level4_unlocked: boolean;
-  level1_score: number;
-  level2_score: number;
-  level3_score: number;
+  level1_completed: boolean; level2_completed: boolean;
+  level3_completed: boolean; level4_unlocked: boolean;
+  level1_score: number; level2_score: number; level3_score: number;
+};
+
+type DbModule = {
+  id: number;
+  title: string;
+  category: string;
+  description: string;
+  difficulty_level: string | number;
+};
+
+type DbModuleProgress = {
+  scenariosAttempted: number;
+  scenariosMastered: number;
+  avgElo: number;
+  completion: number;
+  mastery: number;
 };
 
 type ProgressData = {
@@ -29,6 +43,17 @@ type ProgressData = {
   reviewDue: number;
   levelProgress: Record<ModuleKey, LevelProgress>;
   lastAttemptAt: string | null;
+  allModules: DbModule[];
+  moduleProgress: Record<number, DbModuleProgress>;
+  scenarioCounts: Record<string, number>;
+  bestCorrectStreak: number;
+  sbeEliteNumber: number;
+};
+
+const EMPTY_LP: LevelProgress = {
+  level1_completed: false, level2_completed: false,
+  level3_completed: false, level4_unlocked: false,
+  level1_score: 0, level2_score: 0, level3_score: 0,
 };
 
 const EMPTY: ProgressData = {
@@ -37,33 +62,21 @@ const EMPTY: ProgressData = {
   scores: { bartending: 0, sales: 0, management: 0 },
   sessions: { bartending: 0, sales: 0, management: 0 },
   reviewDue: 0,
-  levelProgress: {
-    bartending: { level1_completed: false, level2_completed: false, level3_completed: false, level4_unlocked: false, level1_score: 0, level2_score: 0, level3_score: 0 },
-    sales: { level1_completed: false, level2_completed: false, level3_completed: false, level4_unlocked: false, level1_score: 0, level2_score: 0, level3_score: 0 },
-    management: { level1_completed: false, level2_completed: false, level3_completed: false, level4_unlocked: false, level1_score: 0, level2_score: 0, level3_score: 0 },
-  },
+  levelProgress: { bartending: EMPTY_LP, sales: EMPTY_LP, management: EMPTY_LP },
   lastAttemptAt: null,
+  allModules: [],
+  moduleProgress: {},
+  scenarioCounts: {},
+  bestCorrectStreak: 0,
+  sbeEliteNumber: 0,
 };
 
-// ── Design tokens — reference CSS vars from globals.css :root ──
-const C = {
-  green:        "var(--ip-green)",
-  greenDeep:    "var(--ip-green-deep)",
-  greenMute:    "var(--ip-green-soft)",
-  greenTint:    "var(--ip-green-tint)",
-  parchment:    "var(--ip-parchment)",
-  parchmentDeep:"var(--ip-parchment-deep)",
-  card:         "var(--ip-card)",
-  cardEdge:     "var(--ip-card-edge)",
-  ink:          "var(--ip-ink)",
-  inkSoft:      "var(--ip-ink-soft)",
-  inkMute:      "var(--ip-ink-mute)",
-  inkFaint:     "var(--ip-ink-faint)",
-  amber:        "var(--ip-amber)",
+// ── Level titles ───────────────────────────────────────────────
+const LEVEL_TITLES: Record<number, string> = {
+  1: "Barback", 2: "Glass Runner", 3: "Prep Bartender", 4: "Bartender",
+  5: "Senior Bartender", 6: "Shift Lead", 7: "Bar Supervisor",
+  8: "Head Bartender", 9: "Assistant Manager", 10: "Mixologist",
 };
-
-const MONO = 'ui-monospace, "SF Mono", Menlo, monospace';
-const SANS = '"Geist", ui-sans-serif, system-ui, -apple-system, sans-serif';
 
 // ── Helpers ────────────────────────────────────────────────────
 function computeStreak(userId: string): number {
@@ -79,7 +92,9 @@ function computeStreak(userId: string): number {
       return 1;
     }
     if (lastDate === today) return streakCount || 1;
-    const daysDiff = Math.round((new Date(today).getTime() - new Date(lastDate).getTime()) / 86400000);
+    const daysDiff = Math.round(
+      (new Date(today).getTime() - new Date(lastDate).getTime()) / 86400000,
+    );
     if (daysDiff === 1) {
       const next = streakCount + 1;
       localStorage.setItem(lastKey, today);
@@ -94,7 +109,232 @@ function computeStreak(userId: string): number {
   }
 }
 
-// ── AI Coach bottom sheet ──────────────────────────────────────
+function timeGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return "Good morning";
+  if (h < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+function getNextModule(
+  allModules: DbModule[],
+  moduleProgress: Record<number, DbModuleProgress>,
+): DbModule | null {
+  if (!allModules.length) return null;
+  const inProgress = allModules
+    .filter((m) => { const p = moduleProgress[m.id]; return p && p.completion > 0 && p.mastery < 80; })
+    .sort((a, b) => (moduleProgress[b.id]?.completion ?? 0) - (moduleProgress[a.id]?.completion ?? 0));
+  if (inProgress.length > 0) return inProgress[0];
+  const unstarted = allModules
+    .filter((m) => !moduleProgress[m.id] || moduleProgress[m.id].completion === 0)
+    .sort((a, b) => a.id - b.id);
+  if (unstarted.length > 0) return unstarted[0];
+  return [...allModules].sort(
+    (a, b) => (moduleProgress[a.id]?.mastery ?? 0) - (moduleProgress[b.id]?.mastery ?? 0),
+  )[0] ?? null;
+}
+
+function getWeeklyFocus(
+  allModules: DbModule[],
+  moduleProgress: Record<number, DbModuleProgress>,
+): DbModule[] {
+  if (!allModules.length) return [];
+  const inProgress = allModules
+    .filter((m) => { const p = moduleProgress[m.id]; return p && p.completion > 0 && p.mastery < 80; })
+    .sort((a, b) => (moduleProgress[b.id]?.completion ?? 0) - (moduleProgress[a.id]?.completion ?? 0));
+  const unstarted = allModules
+    .filter((m) => !moduleProgress[m.id] || moduleProgress[m.id].completion === 0)
+    .sort((a, b) => a.id - b.id);
+  const combined = [...inProgress, ...unstarted];
+  if (combined.length > 0) return combined.slice(0, 4);
+  return [...allModules].sort((a, b) => a.id - b.id).slice(0, 4);
+}
+
+function moduleMinutes(difficulty: string | number): string {
+  const d = typeof difficulty === "string" ? parseInt(difficulty, 10) : difficulty;
+  const map: Record<number, string> = { 1: "2 min", 2: "3 min", 3: "4 min", 4: "5 min", 5: "7 min" };
+  return map[d] ?? "3 min";
+}
+
+// ── Inline SVG icons (no external dependencies) ───────────────
+const ICON_STROKE = { fill: "none", stroke: "currentColor", strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+
+function IcFlame({ s = 17 }: { s?: number }) {
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="2" aria-hidden="true">
+      <path d="M12 3c.5 3-2 4-2 7a2 2 0 0 0 4 0c0-.8-.3-1.4-.3-1.4 2 1 3.3 3 3.3 5.4a5 5 0 1 1-10 0C7 11 11 9.5 12 3Z" />
+    </svg>
+  );
+}
+
+function IcChat({ s = 26 }: { s?: number }) {
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="2" aria-hidden="true">
+      <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v6A2.5 2.5 0 0 1 17.5 15H9l-4 3.5V15H6.5" />
+    </svg>
+  );
+}
+
+function IcArrow({ s = 18 }: { s?: number }) {
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="2" aria-hidden="true">
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+function IcX({ s = 20 }: { s?: number }) {
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="2" aria-hidden="true">
+      <path d="M18 6 6 18M6 6l12 12" />
+    </svg>
+  );
+}
+
+function IcGlass({ s = 28 }: { s?: number }) {
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="1.8" aria-hidden="true">
+      <path d="M6 4h12l-5 7v6M6 4l6 7M18 4l-6 7M9 20h6" />
+    </svg>
+  );
+}
+
+function IcTarget({ s = 28 }: { s?: number }) {
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="1.8" aria-hidden="true">
+      <circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="4" />
+      <circle cx="12" cy="12" r="0.8" fill="currentColor" stroke="currentColor" />
+    </svg>
+  );
+}
+
+function IcLayers({ s = 28 }: { s?: number }) {
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="1.8" aria-hidden="true">
+      <path d="m12 3 8 4.5-8 4.5-8-4.5L12 3Z" />
+      <path d="m4 12 8 4.5 8-4.5M4 16.5 12 21l8-4.5" />
+    </svg>
+  );
+}
+
+function IcClock({ s = 28 }: { s?: number }) {
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="1.8" aria-hidden="true">
+      <circle cx="12" cy="12" r="8" /><path d="M12 7.5V12l3 2" />
+    </svg>
+  );
+}
+
+function IcTrophy({ s = 22 }: { s?: number }) {
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="1.8" aria-hidden="true">
+      <path d="M8 4h8v4a4 4 0 0 1-8 0V4Z" />
+      <path d="M8 5H5v1.5A3 3 0 0 0 8 9.5M16 5h3v1.5a3 3 0 0 1-3 3M12 12v3.5M9 20h6M10 17.5h4" />
+    </svg>
+  );
+}
+
+function IcStar({ s = 22 }: { s?: number }) {
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="1.8" aria-hidden="true">
+      <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 17l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9L12 3.5Z" />
+    </svg>
+  );
+}
+
+function IcMedal({ s = 22 }: { s?: number }) {
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="1.8" aria-hidden="true">
+      <circle cx="12" cy="14" r="5" /><path d="M9 9 6.5 3M15 9 17.5 3" />
+    </svg>
+  );
+}
+
+function IcHome({ s = 22 }: { s?: number }) {
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="1.9" aria-hidden="true">
+      <path d="M3 10.2 12 3l9 7.2" /><path d="M5 9.5V20h14V9.5" /><path d="M9.5 20v-5.5h5V20" />
+    </svg>
+  );
+}
+
+function IcBook({ s = 22 }: { s?: number }) {
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="1.9" aria-hidden="true">
+      <path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15.5H6.5A1.5 1.5 0 0 0 5 20V4.5Z" />
+      <path d="M5 18.5A1.5 1.5 0 0 1 6.5 17H19" />
+    </svg>
+  );
+}
+
+function IcUser({ s = 22 }: { s?: number }) {
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="1.9" aria-hidden="true">
+      <circle cx="12" cy="8" r="3.6" /><path d="M5 20c0-3.6 3.1-5.5 7-5.5s7 1.9 7 5.5" />
+    </svg>
+  );
+}
+
+function categoryIcon(category: string, size = 28) {
+  if (category === "technical") return <IcGlass s={size} />;
+  if (category === "service") return <IcTarget s={size} />;
+  if (category === "compliance") return <IcLayers s={size} />;
+  return <IcClock s={size} />;
+}
+
+function categoryTint(category: string, idx: number) {
+  if (category === "technical") return "var(--gold-light)";
+  if (category === "service") return "var(--green-light)";
+  if (category === "compliance") return "var(--green-light)";
+  const fallback = ["var(--gold-light)", "var(--green-light)", "var(--green-light)", "var(--gold-light)"];
+  return fallback[idx % 4];
+}
+
+function categoryIconColor(category: string, idx: number) {
+  if (category === "technical") return "var(--gold)";
+  if (category === "service") return "var(--green)";
+  if (category === "compliance") return "var(--green)";
+  const fallback = ["var(--gold)", "var(--green)", "var(--green)", "var(--gold)"];
+  return fallback[idx % 4];
+}
+
+function badgeIcon(b: Badge) {
+  if (b.id.startsWith("streak")) return <IcFlame s={26} />;
+  if (b.category === "technical") return <IcGlass s={26} />;
+  if (b.category === "service") return <IcTarget s={26} />;
+  if (b.category === "compliance") return <IcLayers s={26} />;
+  if (b.id === "sbe-elite") return <IcStar s={26} />;
+  if (b.id === "pro") return <IcTrophy s={26} />;
+  return <IcMedal s={26} />;
+}
+
+// ── Glowing progress bar ───────────────────────────────────────
+function GlowBar({ pct, height = 8 }: { pct: number; height?: number }) {
+  const [w, setW] = useState(0);
+  useEffect(() => {
+    const t = setTimeout(() => setW(pct), 350);
+    return () => clearTimeout(t);
+  }, [pct]);
+  return (
+    <div style={{ width: "100%", height, borderRadius: 99, overflow: "hidden", background: "rgba(31,78,55,0.10)" }}>
+      <div style={{
+        height: "100%", width: `${w}%`, borderRadius: 99,
+        background: "linear-gradient(90deg, var(--gold-warm), var(--gold))",
+        boxShadow: "0 0 10px rgba(196,154,47,0.55), inset 0 1px 0 rgba(255,255,255,0.35)",
+        transition: "width 1.1s cubic-bezier(.22,.9,.3,1)",
+        position: "relative", overflow: "hidden",
+      }}>
+        <div style={{
+          position: "absolute", inset: 0,
+          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent)",
+          animation: "sbe-shimmer 2.6s ease-in-out infinite",
+        }} />
+      </div>
+    </div>
+  );
+}
+
+// ── AI Coach sheet ─────────────────────────────────────────────
 type ChatMessage = { role: "user" | "assistant"; text: string };
 
 const PRESET_QUESTIONS = [
@@ -111,9 +351,7 @@ function AICoachSheet({ onClose }: { onClose: () => void }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, isLoading]);
 
   async function askCoach(question: string) {
@@ -148,121 +386,87 @@ function AICoachSheet({ onClose }: { onClose: () => void }) {
   const hasConversation = messages.length > 0 || isLoading;
 
   return (
-    <div
-      style={{ position: "absolute", inset: 0, zIndex: 80 }}
-      onClick={onClose}
-    >
-      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)" }} />
+    <div style={{ position: "absolute", inset: 0, zIndex: 1000 }} onClick={onClose}>
+      <div style={{ position: "absolute", inset: 0, background: "rgba(15,45,29,0.4)", backdropFilter: "blur(2px)" }} />
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
           position: "absolute", left: 0, right: 0, bottom: 0,
-          background: C.parchment,
-          color: C.ink,
+          background: "var(--surface)", color: "var(--text)",
           padding: "14px 18px 0",
-          borderRadius: "12px 12px 0 0",
-          maxHeight: "78%",
+          borderRadius: "24px 24px 0 0", maxHeight: "78%",
           display: "flex", flexDirection: "column",
           paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)",
+          boxShadow: "0 -12px 40px rgba(15,45,29,0.2)",
+          animation: "sbe-slide-up .32s cubic-bezier(.22,.9,.3,1)",
         }}
       >
-        {/* drag handle */}
-        <div style={{ width: 36, height: 4, background: C.cardEdge, borderRadius: 2, margin: "0 auto 14px" }} />
-
-        {/* header */}
+        <div style={{ width: 40, height: 4, background: "var(--line)", borderRadius: 2, margin: "0 auto 16px" }} />
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ width: 28, height: 28, background: C.green, color: C.parchment, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 14 }}>
-              <Sparkles size={14} />
+            <div style={{ width: 40, height: 40, borderRadius: "50%", background: "linear-gradient(145deg, var(--gold-warm), var(--gold))", color: "var(--green-deep)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <IcChat s={21} />
             </div>
-            <div style={{ fontWeight: 700, fontSize: 15 }}>AI Coach</div>
+            <div>
+              <div style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 18, fontWeight: 600 }}>AI Coach</div>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600 }}>Ask anything · instant answers</div>
+            </div>
           </div>
-          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: C.inkMute, padding: 4 }}>
-            <X size={20} />
+          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", padding: 4, minHeight: 44, minWidth: 44, display: "flex", alignItems: "center", justifyContent: "center" }} aria-label="Close">
+            <IcX s={20} />
           </button>
         </div>
 
-        {/* conversation or preset prompts */}
         {hasConversation ? (
-          <div
-            ref={scrollRef}
-            style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10, marginBottom: 12 }}
-          >
+          <div ref={scrollRef} style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10, marginBottom: 12 }}>
             {messages.map((msg, i) => (
-              <div
-                key={i}
-                style={{
-                  alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
-                  maxWidth: "85%",
-                  background: msg.role === "user" ? C.green : C.card,
-                  color: msg.role === "user" ? C.parchment : C.ink,
-                  border: msg.role === "assistant" ? `1px solid ${C.cardEdge}` : "none",
-                  borderRadius: 8,
-                  padding: "10px 13px",
-                  fontSize: 13,
-                  lineHeight: 1.5,
-                  fontFamily: SANS,
-                  whiteSpace: "pre-wrap",
-                }}
-              >
-                {msg.text}
-              </div>
+              <div key={i} style={{
+                alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
+                maxWidth: "85%",
+                background: msg.role === "user" ? "var(--green)" : "var(--bg-alt)",
+                color: msg.role === "user" ? "var(--bg)" : "var(--text)",
+                border: msg.role === "assistant" ? "1px solid var(--line-light)" : "none",
+                borderRadius: 12, padding: "10px 13px", fontSize: 13, lineHeight: 1.5,
+                whiteSpace: "pre-wrap",
+              }}>{msg.text}</div>
             ))}
             {isLoading && (
-              <div style={{
-                alignSelf: "flex-start", background: C.card, border: `1px solid ${C.cardEdge}`,
-                borderRadius: 8, padding: "10px 13px", fontSize: 13, color: C.inkMute, fontFamily: SANS,
-              }}>
+              <div style={{ alignSelf: "flex-start", background: "var(--bg-alt)", border: "1px solid var(--line-light)", borderRadius: 12, padding: "10px 13px", fontSize: 13, color: "var(--text-muted)" }}>
                 Thinking…
               </div>
             )}
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
-            {PRESET_QUESTIONS.map((q) => (
-              <button
-                key={q}
-                onClick={() => askCoach(q)}
-                style={{
-                  textAlign: "left",
-                  background: C.card,
-                  border: `1px solid ${C.cardEdge}`,
-                  padding: "12px 14px",
-                  fontFamily: SANS,
-                  fontSize: 13,
-                  cursor: "pointer",
-                  borderRadius: 4,
-                  display: "flex", alignItems: "center", gap: 10,
-                  color: C.ink,
-                }}
-              >
-                <span style={{ color: C.green }}><Sparkles size={13} /></span>
-                <span>{q}</span>
-              </button>
-            ))}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ background: "var(--bg-alt)", borderRadius: "var(--radius-md)", padding: "13px 15px", fontSize: 13.5, color: "var(--text-soft)", lineHeight: 1.5, marginBottom: 14 }}>
+              What can I help with before service? Tap a prompt or type your own.
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {PRESET_QUESTIONS.map((q) => (
+                <button key={q} onClick={() => askCoach(q)} style={{ fontSize: 12.5, fontWeight: 600, color: "var(--green)", background: "var(--green-light)", padding: "8px 13px", borderRadius: 99, border: "none", cursor: "pointer", minHeight: 0 }}>
+                  {q}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
-        {/* error */}
-        {error && (
-          <div style={{ fontSize: 12, color: "#c0392b", marginBottom: 10, fontFamily: SANS }}>{error}</div>
-        )}
+        {error && <div style={{ fontSize: 12, color: "#c0392b", marginBottom: 10 }}>{error}</div>}
 
-        {/* input */}
-        <form onSubmit={handleSubmit} style={{ display: "flex", gap: 8, alignItems: "center", background: C.card, border: `1px solid ${C.cardEdge}`, padding: "10px 14px", borderRadius: 4 }}>
+        <form onSubmit={handleSubmit} style={{ display: "flex", gap: 9, alignItems: "center", border: "1.5px solid var(--line)", borderRadius: 99, padding: "6px 6px 6px 16px" }}>
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask anything…"
-            style={{ flex: 1, border: "none", background: "transparent", outline: "none", fontFamily: SANS, fontSize: 14, color: C.ink }}
+            placeholder="Ask the coach…"
+            style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontSize: 14, color: "var(--text)", fontFamily: "inherit" }}
           />
           <button
             type="submit"
             disabled={isLoading || !input.trim()}
-            style={{ background: "none", border: "none", cursor: input.trim() ? "pointer" : "default", padding: 0, color: input.trim() ? C.green : C.inkMute, display: "flex" }}
             aria-label="Send"
+            style={{ width: 38, height: 38, minWidth: 38, borderRadius: "50%", border: "none", background: input.trim() ? "var(--green)" : "var(--line-light)", color: input.trim() ? "var(--bg)" : "var(--text-muted)", display: "flex", alignItems: "center", justifyContent: "center", cursor: input.trim() ? "pointer" : "default" }}
           >
-            <Mic size={17} />
+            <IcArrow s={18} />
           </button>
         </form>
       </div>
@@ -270,55 +474,56 @@ function AICoachSheet({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ── Bottom nav (dark) ──────────────────────────────────────────
-const NAV_TABS = [
-  { id: "home",      label: "Home",      Icon: Home     },
-  { id: "module",    label: "Modules",   Icon: BookOpen },
-  { id: "stage4",    label: "Scenarios", Icon: Target   },
-  { id: "scenarios", label: "AI Scenario",  Icon: Cpu      },
-  { id: "progress",  label: "Me",        Icon: User     },
-] as const;
-
-function BottomNav({ onNavigate }: { onNavigate: (id: NavItem) => void }) {
+// ── Floating nav pill ──────────────────────────────────────────
+function FloatingMobileNav({ setActiveNav }: { setActiveNav: (nav: NavItem) => void }) {
+  const tabs: { id: NavItem; label: string; icon: React.ReactNode; active: boolean }[] = [
+    { id: "home",         label: "Home",     icon: <IcHome s={22} />,   active: true },
+    { id: "mobile-learn", label: "Learn",    icon: <IcBook s={22} />,   active: false },
+    { id: "progress",     label: "Progress", icon: <IcTrophy s={22} />, active: false },
+    { id: "settings",     label: "Me",       icon: <IcUser s={22} />,   active: false },
+  ];
   return (
-    <div style={{
-      borderTop: "1px solid rgba(255,255,255,0.1)",
-      background: C.greenDeep,
-      display: "flex", justifyContent: "space-around",
-      padding: "8px 8px 0",
-      paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 8px)",
-      flexShrink: 0,
-    }}>
-      {NAV_TABS.map(({ id, label, Icon }) => {
-        const isHome = id === "home";
-        return (
-          <button
-            key={id}
-            onClick={() => onNavigate(id as NavItem)}
-            style={{
-              background: "none", border: "none", cursor: "pointer",
-              display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-              padding: "6px 4px 8px",
-              color: isHome ? C.parchment : "rgba(255,255,255,0.45)",
-              flex: 1, position: "relative",
-            }}
-          >
-            {isHome && (
-              <div style={{
-                position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
-                width: 18, height: 2, background: C.amber,
-              }} />
-            )}
-            <Icon />
-            <div style={{
-              fontFamily: MONO,
-              fontSize: 9, fontWeight: 600, letterSpacing: "0.1em",
-              textTransform: "uppercase",
-            }}>{label}</div>
-          </button>
-        );
-      })}
-    </div>
+    <nav
+      role="tablist"
+      aria-label="Main navigation"
+      style={{
+        position: "absolute", bottom: 24, left: 16, right: 16, height: 64,
+        background: "rgba(15, 45, 29, 0.88)",
+        backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
+        border: "1px solid rgba(196, 154, 47, 0.2)", borderRadius: 32,
+        zIndex: 999, display: "flex", alignItems: "stretch",
+        boxShadow: "0 12px 32px rgba(15,45,29,0.30)",
+      }}
+    >
+      {tabs.map(({ id, label, icon, active }) => (
+        <button
+          key={id}
+          role="tab"
+          aria-selected={active}
+          aria-label={label}
+          onClick={() => !active && setActiveNav(id)}
+          style={{
+            flex: 1, minHeight: 44, minWidth: 44, border: "none", background: "transparent",
+            cursor: active ? "default" : "pointer",
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+            gap: 3, padding: 0, position: "relative",
+            color: active ? "var(--gold-warm)" : "rgba(245,242,233,0.55)",
+            fontFamily: "var(--font-manrope, system-ui, sans-serif)",
+            transition: "color .2s ease",
+          }}
+        >
+          {icon}
+          <span style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: 0.2 }}>{label}</span>
+          {active && (
+            <span style={{
+              width: 4, height: 4, borderRadius: "50%", background: "var(--gold-warm)",
+              position: "absolute", bottom: 7,
+              boxShadow: "0 0 8px rgba(196,154,47,0.8)",
+            }} />
+          )}
+        </button>
+      ))}
+    </nav>
   );
 }
 
@@ -327,23 +532,24 @@ export default function MobileDashboardV3({
   displayName,
   setActiveNav,
   plan: _plan,
+  onSelectModule,
 }: {
   displayName: string;
   setActiveNav: (nav: NavItem) => void;
   plan: string;
+  onSelectModule?: (moduleId: number) => void;
 }) {
   const [data, setData] = useState<ProgressData>(EMPTY);
   const [streak, setStreak] = useState(0);
   const [coach, setCoach] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     async function load() {
       try {
         const supabase = createSupabaseBrowserClient();
         const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user?.id) {
-          setStreak(computeStreak(session.user.id));
-        }
+        if (session?.user?.id) setStreak(computeStreak(session.user.id));
         const r = await fetch("/api/training/progress", {
           headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
         });
@@ -356,227 +562,258 @@ export default function MobileDashboardV3({
             sessions: res.sessions ?? EMPTY.sessions,
             reviewDue: Array.isArray(res.reviewQueue) ? res.reviewQueue.length : 0,
             levelProgress: {
-              bartending: res.levelProgress?.bartending ?? EMPTY.levelProgress.bartending,
-              sales: res.levelProgress?.sales ?? EMPTY.levelProgress.sales,
-              management: res.levelProgress?.management ?? EMPTY.levelProgress.management,
+              bartending: res.levelProgress?.bartending ?? EMPTY_LP,
+              sales: res.levelProgress?.sales ?? EMPTY_LP,
+              management: res.levelProgress?.management ?? EMPTY_LP,
             },
             lastAttemptAt: res.lastAttemptAt ?? null,
+            allModules: Array.isArray(res.allModules) ? res.allModules : [],
+            moduleProgress: res.moduleProgress ?? {},
+            scenarioCounts: res.scenarioCounts ?? {},
+            bestCorrectStreak: res.bestCorrectStreak ?? 0,
+            sbeEliteNumber: res.sbeEliteNumber ?? 0,
           });
         }
       } catch {
-        // non-critical
+        // non-critical — component remains in EMPTY state
+      } finally {
+        setLoaded(true);
       }
     }
     void load();
   }, []);
 
+  // Derived values
   const totalSessions = data.sessions.bartending + data.sessions.sales + data.sessions.management;
-  const lastSessionText = (() => {
-    if (!data.lastAttemptAt) return null;
-    const days = Math.floor((Date.now() - new Date(data.lastAttemptAt).getTime()) / 86400000);
-    if (days === 0) return "Today";
-    if (days === 1) return "Yesterday";
-    return `${days}d ago`;
-  })();
+  const firstName = displayName.split(" ")[0] || displayName;
+  const initial = (firstName[0] ?? "?").toUpperCase();
+  const masteredModules = data.allModules.filter(
+    (m) => (data.moduleProgress[m.id]?.scenariosMastered ?? 0) >= 1,
+  ).length;
+  const totalModules = data.allModules.length;
+  const skillLevel = Math.min(
+    10,
+    Math.max(1, Math.round((masteredModules / Math.max(totalModules, 1)) * 10)),
+  );
+  const levelTitle = LEVEL_TITLES[skillLevel] ?? "Barback";
 
-  function navigate(id: NavItem) {
-    if (id === "home") return; // already here
-    setActiveNav(id);
-  }
+  const nextModule = getNextModule(data.allModules, data.moduleProgress);
+  const focusModules = getWeeklyFocus(data.allModules, data.moduleProgress);
 
-  async function handleSignOut() {
-    const supabase = createSupabaseBrowserClient();
-    await supabase.auth.signOut();
-    window.location.href = "/";
-  }
+  const nextProg = nextModule ? (data.moduleProgress[nextModule.id] ?? null) : null;
+  const nextTotal = nextModule ? (data.scenarioCounts[`module_${nextModule.id}`] ?? 10) : 10;
+  const nextMastered = nextProg?.scenariosMastered ?? 0;
+  const nextPct = nextTotal > 0 ? Math.round((nextMastered / nextTotal) * 100) : 0;
+  const isLoopMode =
+    nextModule != null &&
+    data.allModules.length > 0 &&
+    !data.allModules.some((m) => {
+      const p = data.moduleProgress[m.id];
+      return !p || (p.scenariosMastered ?? 0) < 1;
+    });
+
+  // Badges
+  const moduleSummaries: ModuleSummaryForBadges[] = data.allModules.map((m) => ({
+    category: m.category as "technical" | "service" | "compliance",
+    mastered: (data.moduleProgress[m.id]?.scenariosMastered ?? 0) >= 1,
+    attempted: (data.moduleProgress[m.id]?.scenariosAttempted ?? 0) > 0,
+  }));
+  const badges = computeBadges(
+    moduleSummaries,
+    data.mastery as CategoryScores,
+    streak,
+    data.bestCorrectStreak,
+    data.sbeEliteNumber,
+  );
 
   return (
     <div style={{
       width: "100%", height: "100%",
-      background: C.green,
-      color: C.parchment,
+      background: "var(--bg)", color: "var(--text)",
       display: "flex", flexDirection: "column",
-      fontFamily: SANS,
-      fontSize: 15,
-      overflow: "hidden",
-      position: "relative",
+      fontFamily: "var(--font-manrope, system-ui, sans-serif)",
+      overflow: "hidden", position: "relative",
     }}>
-      {/* ── Top mini bar ── */}
-      <div style={{
-        padding: "14px 18px 0",
-        display: "flex", justifyContent: "space-between", alignItems: "center",
-        flexShrink: 0,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, opacity: 0.9 }}>
-          <Image src="/logo.png" alt="SBE" width={28} height={28} style={{ borderRadius: 6, display: "block", flexShrink: 0 }} />
-          <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: "0.16em" }}>
-            SERVE BY EXAMPLE
-          </span>
+      <style>{`
+        @keyframes sbe-shimmer { 0%{transform:translateX(-100%)} 60%,100%{transform:translateX(220%)} }
+        @keyframes sbe-slide-up { from{transform:translateY(110%)} to{transform:translateY(0)} }
+        .sbe-tap { transition: transform .12s ease; cursor: pointer; }
+        .sbe-tap:active { transform: scale(0.975); }
+      `}</style>
+
+      {/* ── Scrollable body ── */}
+      <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", paddingBottom: 118, WebkitOverflowScrolling: "touch" }}>
+
+        {/* Hero header */}
+        <div style={{
+          background: "linear-gradient(160deg, var(--green) 0%, var(--green-deep) 100%)",
+          borderRadius: "0 0 32px 32px", padding: "52px 22px 26px",
+          color: "var(--bg)", boxShadow: "0 12px 32px rgba(15,45,29,0.22)",
+        }}>
+          {/* Mini-bar */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <Image src="/logo.png" alt="SBE" width={28} height={28} style={{ borderRadius: 6 }} />
+              <span style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 20, fontWeight: 600, letterSpacing: 0.3, lineHeight: 1 }}>
+                Serve<span style={{ color: "var(--gold-warm)" }}>·</span>SBE
+              </span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              {streak > 0 && (
+                <div style={{ height: 34, display: "flex", alignItems: "center", gap: 5, padding: "0 11px 0 8px", borderRadius: 99, border: "1.5px solid var(--gold-warm)", background: "rgba(196,154,47,0.16)", color: "var(--gold-warm)", fontWeight: 800, fontSize: 14 }}>
+                  <IcFlame s={17} />{streak}
+                </div>
+              )}
+              <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(145deg, var(--green-mid), var(--green))", border: "2px solid var(--gold-warm)", color: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
+                {initial}
+              </div>
+            </div>
+          </div>
+
+          {/* Greeting */}
+          <div suppressHydrationWarning style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 25, fontWeight: 600, letterSpacing: -0.2, marginBottom: 18 }}>
+            {timeGreeting()}, {firstName}
+          </div>
+
+          {/* Stats row */}
+          <div style={{ display: "flex" }}>
+            {([
+              [loaded ? String(totalSessions) : "--", "Sessions"],
+              [loaded ? `${masteredModules}/${Math.max(totalModules, 1)}` : "--", "Modules"],
+              [loaded ? levelTitle : "...", "Your level"],
+            ] as [string, string][]).map(([val, lbl], i) => (
+              <div key={lbl} style={{ flex: 1, paddingLeft: i ? 16 : 0, borderLeft: i ? "1px solid rgba(245,242,233,0.16)" : "none" }}>
+                <div style={{ fontSize: i === 2 ? 14 : 24, fontWeight: 700, letterSpacing: i === 2 ? 0 : -0.5, lineHeight: 1.15 }}>
+                  {loaded ? val : <div className="skeleton-line" style={{ width: i === 2 ? 52 : 36, height: i === 2 ? 14 : 20, marginBottom: 0, opacity: 0.35 }} />}
+                </div>
+                <div style={{ fontSize: 9.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, color: "rgba(245,242,233,0.55)", marginTop: 4 }}>{lbl}</div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.12em", opacity: 0.7 }}>
-          {displayName.toUpperCase()}
+
+        {/* Continue Learning */}
+        <div style={{ padding: "20px 16px 0" }}>
+          {nextModule ? (
+            <button
+              className="sbe-tap"
+              onClick={() => { if (onSelectModule && nextModule) onSelectModule(nextModule.id); else setActiveNav("module"); }}
+              style={{ width: "100%", background: "var(--surface)", borderRadius: "var(--radius-xl)", boxShadow: "0 8px 32px rgba(15,45,29,0.10)", overflow: "hidden", border: "1px solid var(--line-light)", textAlign: "left", cursor: "pointer" }}
+            >
+              <div style={{ height: 116, background: "var(--green-deep)", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ opacity: 0.16, color: "var(--bg)" }}>{categoryIcon(nextModule.category, 88)}</div>
+                <span style={{ position: "absolute", top: 14, left: 20, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.4, color: "var(--gold-warm)" }}>
+                  {isLoopMode ? "Review mode" : "Continue learning"}
+                </span>
+              </div>
+              <div style={{ padding: "16px 20px 20px" }}>
+                <div style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 19, fontWeight: 600, color: "var(--text)" }}>{nextModule.title}</div>
+                <div style={{ fontSize: 12.5, color: "var(--text-muted)", fontWeight: 600, margin: "4px 0 14px" }}>
+                  {isLoopMode
+                    ? `${masteredModules} of ${data.allModules.length} modules mastered`
+                    : `${nextMastered} of ${nextTotal} scenarios mastered`}
+                </div>
+                <GlowBar pct={isLoopMode ? 100 : nextPct} height={8} />
+              </div>
+            </button>
+          ) : (
+            <div style={{ background: "var(--surface)", borderRadius: "var(--radius-xl)", overflow: "hidden", border: "1px solid var(--line-light)", opacity: 0.5 }}>
+              <div style={{ height: 116, background: "var(--bg-alt)" }} />
+              <div style={{ padding: "16px 20px 20px" }}>
+                <div style={{ height: 18, background: "var(--bg-alt)", borderRadius: 6, width: "55%", marginBottom: 8 }} />
+                <div style={{ height: 8, background: "var(--bg-alt)", borderRadius: 99 }} />
+              </div>
+            </div>
+          )}
         </div>
-        {streak > 0 && (
-          <div style={{ display: "flex", alignItems: "center", gap: 4, color: C.amber }}>
-            <Flame size={13} />
-            <span style={{ fontFamily: MONO, fontSize: 11, fontWeight: 700 }}>{streak}D</span>
+
+        {/* This Week's Focus */}
+        {focusModules.length > 0 && (
+          <div style={{ padding: "22px 16px 0" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.4, color: "var(--text-muted)", marginBottom: 12, marginLeft: 2 }}>
+              This Week&apos;s Focus
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              {focusModules.map((m, i) => (
+                <button
+                  key={m.id}
+                  className="sbe-tap"
+                  onClick={() => { if (onSelectModule) onSelectModule(m.id); else setActiveNav("module"); }}
+                  style={{ background: "var(--surface)", borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid var(--line-light)", boxShadow: "0 4px 20px rgba(15,45,29,0.05)", textAlign: "left", cursor: "pointer" }}
+                >
+                  <div style={{ height: 66, background: categoryTint(m.category, i), display: "flex", alignItems: "center", justifyContent: "center", color: categoryIconColor(m.category, i) }}>
+                    {categoryIcon(m.category, 28)}
+                  </div>
+                  <div style={{ padding: "12px 13px 14px" }}>
+                    <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--text)", lineHeight: 1.25, marginBottom: 8, minHeight: 34 }}>{m.title}</div>
+                    <span style={{ fontSize: 10.5, fontWeight: 700, color: "var(--green)", background: "var(--green-light)", padding: "4px 9px", borderRadius: 99 }}>
+                      {moduleMinutes(m.difficulty_level)}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         )}
-      </div>
 
-      {/* ── PRE-SHIFT BRIEF label ── */}
-      <div style={{ padding: "20px 18px 12px", flexShrink: 0 }}>
-        <div style={{
-          fontFamily: MONO, fontSize: 10, letterSpacing: "0.16em",
-          color: "rgba(255,255,255,0.5)", marginBottom: 0,
-        }}>
-          PRE-SHIFT BRIEF
-        </div>
-      </div>
-
-      {/* ── Parchment card — scrollable content ── */}
-      <div style={{
-        margin: "0 14px",
-        flex: 1,
-        background: C.parchment,
-        color: C.ink,
-        borderRadius: "6px 6px 0 0",
-        overflowY: "auto",
-        overflowX: "hidden",
-        boxShadow: "0 -2px 0 rgba(0,0,0,0.04), 0 12px 32px rgba(0,0,0,0.18)",
-        WebkitOverflowScrolling: "touch",
-      }}>
-
-        {/* Resume Learning hero */}
-        <div style={{ padding: "22px 18px 18px" }}>
-          <div style={{
-            background: C.green, borderRadius: 6,
-            padding: "20px 18px",
-            display: "flex", flexDirection: "column", gap: 10,
-          }}>
-            <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", color: "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>
-              Resume Learning
+        {/* Achievements */}
+        {badges.length > 0 && (
+          <div style={{ padding: "22px 16px 0" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.4, color: "var(--text-muted)", marginBottom: 12, marginLeft: 2 }}>
+              Achievements
             </div>
-            <div style={{ fontSize: 21, fontWeight: 700, color: C.parchment, letterSpacing: "-0.02em", lineHeight: 1.1 }}>
-              {totalSessions === 0
-                ? `Welcome, ${displayName}`
-                : `${totalSessions} session${totalSessions !== 1 ? "s" : ""} completed`}
-            </div>
-            <div>
-              <div style={{ height: 3, background: "rgba(255,255,255,0.15)", borderRadius: 2, overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${Math.min((totalSessions / 40) * 100, 100)}%`, background: C.amber, borderRadius: 2 }} />
-              </div>
-              <div style={{ marginTop: 5, fontSize: 11, color: "rgba(255,255,255,0.5)", fontFamily: MONO }}>
-                {lastSessionText ? `Last trained ${lastSessionText}` : "No sessions yet"}
-                {data.reviewDue > 0 && ` · ${data.reviewDue} review${data.reviewDue !== 1 ? "s" : ""} due`}
+            <div style={{ maskImage: "linear-gradient(to right, black 82%, transparent 100%)", WebkitMaskImage: "linear-gradient(to right, black 82%, transparent 100%)" }}>
+              <div style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 4, paddingRight: 32 }}>
+              {badges.slice(0, 8).map((b) => (
+                <button
+                  key={b.id}
+                  className="sbe-tap"
+                  onClick={() => { window.location.href = "/dashboard/badges"; }}
+                  style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 7, flexShrink: 0, width: 64, background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                  aria-label={b.label}
+                >
+                  <div style={{
+                    width: 58, height: 58, borderRadius: "50%",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    border: `2px solid ${b.earned ? "var(--gold-warm)" : "var(--line)"}`,
+                    background: b.earned ? "var(--gold-light)" : "var(--bg-alt)",
+                    color: b.earned ? "var(--gold)" : "var(--text-muted)",
+                    boxShadow: b.earned ? "0 4px 14px rgba(196,154,47,0.25)" : "none",
+                  }}>
+                    {badgeIcon(b)}
+                  </div>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: b.earned ? "var(--text-soft)" : "var(--text-muted)", textAlign: "center", lineHeight: 1.2 }}>
+                    {b.label}
+                  </span>
+                </button>
+              ))}
               </div>
             </div>
-            <button
-              onClick={() => setActiveNav("module")}
-              style={{
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                width: "100%", height: 44, marginTop: 2,
-                background: C.parchment, color: C.green,
-                border: "none", borderRadius: 3,
-                fontFamily: SANS, fontSize: 14, fontWeight: 700,
-                letterSpacing: "0.01em", cursor: "pointer",
-              }}
-            >
-              <Play size={13} />
-              Continue Training
-            </button>
           </div>
-        </div>
+        )}
 
-        {/* Resources */}
-        <div style={{ padding: "4px 18px 28px" }}>
-          <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, letterSpacing: "0.12em", color: C.inkMute, textTransform: "uppercase", marginBottom: 12 }}>
-            Resources
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              <button
-                onClick={() => setActiveNav("cocktails")}
-                style={{
-                  background: C.card, border: `1px solid ${C.cardEdge}`,
-                  borderRadius: 4, padding: "16px 14px",
-                  textAlign: "left", cursor: "pointer",
-                  display: "flex", flexDirection: "column", gap: 6,
-                }}
-              >
-                <span style={{ color: C.green }}><GlassWater size={18} /></span>
-                <div style={{ fontSize: 13, fontWeight: 700, color: C.ink, lineHeight: 1.2 }}>Cocktail Library</div>
-                <div style={{ fontSize: 11, color: C.inkMute, lineHeight: 1.4 }}>Quick spec lookups</div>
-              </button>
-              <button
-                onClick={() => setActiveNav("knowledge")}
-                style={{
-                  background: C.card, border: `1px solid ${C.cardEdge}`,
-                  borderRadius: 4, padding: "16px 14px",
-                  textAlign: "left", cursor: "pointer",
-                  display: "flex", flexDirection: "column", gap: 6,
-                }}
-              >
-                <span style={{ color: C.green }}><Library size={18} /></span>
-                <div style={{ fontSize: 13, fontWeight: 700, color: C.ink, lineHeight: 1.2 }}>101 Knowledge</div>
-                <div style={{ fontSize: 11, color: C.inkMute, lineHeight: 1.4 }}>Hospitality theory</div>
-              </button>
-            </div>
-            <button
-              onClick={() => setCoach(true)}
-              style={{
-                width: "100%",
-                background: "radial-gradient(ellipse at 30% 40%, #4a86ff 0%, #1f64ff 65%)",
-                boxShadow: "0 0 28px rgba(31, 100, 255, 0.38), 0 4px 16px rgba(31, 100, 255, 0.22)",
-                border: "none", borderRadius: 6,
-                padding: "20px 20px",
-                textAlign: "left", cursor: "pointer",
-                display: "flex", flexDirection: "column", gap: 6,
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 2 }}>
-                <div style={{ width: 32, height: 32, background: "rgba(255,255,255,0.18)", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Sparkles size={16} color="#fff" />
-                </div>
-                <div style={{ fontFamily: SANS, fontSize: 17, fontWeight: 700, color: "#fff", letterSpacing: "-0.01em" }}>
-                  AI Coach
-                </div>
-              </div>
-              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.75)", lineHeight: 1.45, fontWeight: 400 }}>
-                Get instant tactical support for your shift
-              </div>
-            </button>
-          </div>
-        </div>
+        <div style={{ height: 8 }} />
       </div>
 
-      {/* ── Sign out pill ── */}
-      <div style={{ padding: "8px 18px 0", flexShrink: 0 }}>
-        <button
-          onClick={handleSignOut}
-          style={{
-            width: "100%",
-            background: "transparent",
-            border: "1px solid rgba(255,255,255,0.15)",
-            borderRadius: 100,
-            color: "rgba(255,255,255,0.35)",
-            fontFamily: MONO,
-            fontSize: 10,
-            fontWeight: 600,
-            letterSpacing: "0.1em",
-            padding: "9px 0",
-            cursor: "pointer",
-            textTransform: "uppercase",
-          }}
-        >
-          Sign out
-        </button>
-      </div>
+      {/* AI Coach FAB */}
+      <button
+        onClick={() => setCoach(true)}
+        aria-label="Open AI Coach"
+        style={{
+          position: "absolute", right: 20, bottom: 96,
+          width: 56, height: 56, borderRadius: "50%", zIndex: 998,
+          border: "none", background: "var(--gold-warm)", color: "#ffffff",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 4px 16px rgba(169,129,42,0.4)", cursor: "pointer",
+        }}
+      >
+        <IcChat s={26} />
+      </button>
 
-      {/* ── Bottom nav ── */}
-      <BottomNav onNavigate={navigate} />
+      {/* Floating nav pill */}
+      <FloatingMobileNav setActiveNav={setActiveNav} />
 
-      {/* ── AI Coach sheet overlay ── */}
+      {/* AI Coach sheet overlay */}
       {coach && <AICoachSheet onClose={() => setCoach(false)} />}
     </div>
   );
