@@ -254,7 +254,6 @@ export default function ModuleVerify({ moduleId, userId, onArena, onComplete, ne
     <div className="stage-container">
       <div className="stage-header">
         <h2 style={{ marginBottom: 8 }}>{moduleTitle}</h2>
-        <h1 className="stage-title">Verify</h1>
         <p className="stage-subtitle">
           Get {PASS_THRESHOLD} of 5 consecutive correct to master this module.
         </p>

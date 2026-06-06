@@ -680,7 +680,7 @@ export default function DashboardShell({
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "6px",
-                    marginBottom: "20px",
+                    marginBottom: "10px",
                     padding: "8px 16px",
                     background: "transparent",
                     border: "2px solid #e5e7eb",
