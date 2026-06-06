@@ -148,28 +148,15 @@ const AWARD_ICON = (
 );
 
 function HorizontalProgressionTrack({
-  allModules,
-  moduleProgress,
-  arenaProgress,
-  legacyMastery,
+  completedModules,
+  completedScenarios,
+  totalModules,
 }: {
-  allModules: DbModule[];
-  moduleProgress: Record<number, DbModuleProgress>;
-  arenaProgress: Record<number, { attempts: number; bestScore: number; passed: boolean }>;
-  legacyMastery: { bartending: number; sales: number; management: number };
+  completedModules: number;
+  completedScenarios: number;
+  totalModules: number;
 }) {
-  function catMastery(category: string): number {
-    if (category === "technical") return legacyMastery.bartending;
-    if (category === "service") return legacyMastery.sales;
-    return legacyMastery.management;
-  }
-
-  const totalModules = allModules.length || 40;
-  const completedModules = allModules.filter((m) =>
-    (moduleProgress[m.id]?.mastery ?? 0) >= 80 || catMastery(m.category) >= 80
-  ).length;
   const totalScenarios = totalModules;
-  const completedScenarios = allModules.filter((m) => arenaProgress[m.id]?.passed === true).length;
 
   const totalChallenges = 5;
   const completedChallenges = 5;
@@ -534,6 +521,12 @@ export default function PreShiftHome({
     (m) => (data.moduleProgress[m.id]?.mastery ?? 0) >= 80
   ).length;
   const totalModules = data.allModules.length || 1;
+  const totalModulesCount = data.allModules.length || 40;
+  const scenariosComplete = data.allModules.filter(
+    (m) =>
+      (data.moduleProgress[m.id]?.scenariosAttempted ?? 0) > 0 ||
+      data.arenaProgress[m.id]?.attempts > 0
+  ).length;
   const avgScore = loaded
     ? Math.round(
         data.allModules.reduce((sum, m) => sum + (data.moduleProgress[m.id]?.mastery ?? 0), 0) / totalModules
@@ -723,10 +716,9 @@ export default function PreShiftHome({
       >
         <h2>Training Progress</h2>
         <HorizontalProgressionTrack
-          allModules={data.allModules}
-          moduleProgress={data.moduleProgress}
-          arenaProgress={data.arenaProgress}
-          legacyMastery={data.mastery}
+          completedModules={modulesComplete}
+          completedScenarios={scenariosComplete}
+          totalModules={totalModulesCount}
         />
       </div>
 
