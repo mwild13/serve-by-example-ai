@@ -167,13 +167,6 @@ function IcFlame({ s = 17 }: { s?: number }) {
   );
 }
 
-function IcChat({ s = 26 }: { s?: number }) {
-  return (
-    <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="2" aria-hidden="true">
-      <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v6A2.5 2.5 0 0 1 17.5 15H9l-4 3.5V15H6.5" />
-    </svg>
-  );
-}
 
 function IcArrow({ s = 18 }: { s?: number }) {
   return (
@@ -271,6 +264,15 @@ function IcUser({ s = 22 }: { s?: number }) {
   return (
     <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="1.9" aria-hidden="true">
       <circle cx="12" cy="8" r="3.6" /><path d="M5 20c0-3.6 3.1-5.5 7-5.5s7 1.9 7 5.5" />
+    </svg>
+  );
+}
+
+function IcSparkle({ s = 26 }: { s?: number }) {
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2L13.6 10.4 22 12 13.6 13.6 12 22 10.4 13.6 2 12 10.4 10.4Z" />
+      <path d="M19.5 3L20.3 5.7 23 6.5 20.3 7.3 19.5 10 18.7 7.3 16 6.5 18.7 5.7Z" opacity="0.65" />
     </svg>
   );
 }
@@ -405,7 +407,7 @@ function AICoachSheet({ onClose }: { onClose: () => void }) {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 40, height: 40, borderRadius: "50%", background: "linear-gradient(145deg, var(--gold-warm), var(--gold))", color: "var(--green-deep)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <IcChat s={21} />
+              <IcSparkle s={21} />
             </div>
             <div>
               <div style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 18, fontWeight: 600 }}>AI Coach</div>
@@ -647,11 +649,11 @@ export default function MobileDashboardV3({
         {/* Hero header */}
         <div style={{
           background: "linear-gradient(160deg, var(--green) 0%, var(--green-deep) 100%)",
-          borderRadius: "0 0 32px 32px", padding: "52px 22px 26px",
+          borderRadius: "0 0 32px 32px", padding: "36px 22px 18px",
           color: "var(--bg)", boxShadow: "0 12px 32px rgba(15,45,29,0.22)",
         }}>
           {/* Mini-bar */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Image src="/logo.png" alt="SBE" width={28} height={28} style={{ borderRadius: 6 }} />
               <span style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 20, fontWeight: 600, letterSpacing: 0.3, lineHeight: 1 }}>
@@ -671,7 +673,7 @@ export default function MobileDashboardV3({
           </div>
 
           {/* Greeting */}
-          <div suppressHydrationWarning style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 25, fontWeight: 600, letterSpacing: -0.2, marginBottom: 18 }}>
+          <div suppressHydrationWarning style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 25, fontWeight: 600, letterSpacing: -0.2, marginBottom: 12 }}>
             {timeGreeting()}, {firstName}
           </div>
 
@@ -682,9 +684,9 @@ export default function MobileDashboardV3({
               [loaded ? `${masteredModules}/${Math.max(totalModules, 1)}` : "--", "Modules"],
               [loaded ? levelTitle : "...", "Your level"],
             ] as [string, string][]).map(([val, lbl], i) => (
-              <div key={lbl} style={{ flex: 1, paddingLeft: i ? 16 : 0, borderLeft: i ? "1px solid rgba(245,242,233,0.16)" : "none" }}>
-                <div style={{ fontSize: i === 2 ? 14 : 24, fontWeight: 700, letterSpacing: i === 2 ? 0 : -0.5, lineHeight: 1.15 }}>
-                  {loaded ? val : <div className="skeleton-line" style={{ width: i === 2 ? 52 : 36, height: i === 2 ? 14 : 20, marginBottom: 0, opacity: 0.35 }} />}
+              <div key={lbl} style={{ flex: 1, minWidth: 0, paddingLeft: i ? 16 : 0, borderLeft: i ? "1px solid rgba(245,242,233,0.16)" : "none" }}>
+                <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.5, lineHeight: 1.15, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {loaded ? val : <div className="skeleton-line" style={{ width: 36, height: 20, marginBottom: 0, opacity: 0.35 }} />}
                 </div>
                 <div style={{ fontSize: 9.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, color: "rgba(245,242,233,0.55)", marginTop: 4 }}>{lbl}</div>
               </div>
@@ -693,15 +695,15 @@ export default function MobileDashboardV3({
         </div>
 
         {/* Continue Learning */}
-        <div style={{ padding: "20px 16px 0" }}>
+        <div style={{ padding: "12px 16px 0" }}>
           {nextModule ? (
             <button
               className="sbe-tap"
               onClick={() => { if (onSelectModule && nextModule) onSelectModule(nextModule.id); else setActiveNav("module"); }}
               style={{ width: "100%", background: "var(--surface)", borderRadius: "var(--radius-xl)", boxShadow: "0 8px 32px rgba(15,45,29,0.10)", overflow: "hidden", border: "1px solid var(--line-light)", textAlign: "left", cursor: "pointer" }}
             >
-              <div style={{ height: 116, background: "var(--green-deep)", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <div style={{ opacity: 0.16, color: "var(--bg)" }}>{categoryIcon(nextModule.category, 88)}</div>
+              <div style={{ height: 76, background: "var(--green-deep)", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ opacity: 0.16, color: "var(--bg)" }}>{categoryIcon(nextModule.category, 58)}</div>
                 <span style={{ position: "absolute", top: 14, left: 20, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.4, color: "var(--gold-warm)" }}>
                   {isLoopMode ? "Review mode" : "Continue learning"}
                 </span>
@@ -718,7 +720,7 @@ export default function MobileDashboardV3({
             </button>
           ) : (
             <div style={{ background: "var(--surface)", borderRadius: "var(--radius-xl)", overflow: "hidden", border: "1px solid var(--line-light)", opacity: 0.5 }}>
-              <div style={{ height: 116, background: "var(--bg-alt)" }} />
+              <div style={{ height: 76, background: "var(--bg-alt)" }} />
               <div style={{ padding: "16px 20px 20px" }}>
                 <div style={{ height: 18, background: "var(--bg-alt)", borderRadius: 6, width: "55%", marginBottom: 8 }} />
                 <div style={{ height: 8, background: "var(--bg-alt)", borderRadius: 99 }} />
@@ -729,8 +731,8 @@ export default function MobileDashboardV3({
 
         {/* This Week's Focus */}
         {focusModules.length > 0 && (
-          <div style={{ padding: "22px 16px 0" }}>
-            <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.4, color: "var(--text-muted)", marginBottom: 12, marginLeft: 2 }}>
+          <div style={{ padding: "14px 16px 0" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.4, color: "var(--text-muted)", marginBottom: 10, marginLeft: 2 }}>
               This Week&apos;s Focus
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -741,7 +743,7 @@ export default function MobileDashboardV3({
                   onClick={() => { if (onSelectModule) onSelectModule(m.id); else setActiveNav("module"); }}
                   style={{ background: "var(--surface)", borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid var(--line-light)", boxShadow: "0 4px 20px rgba(15,45,29,0.05)", textAlign: "left", cursor: "pointer" }}
                 >
-                  <div style={{ height: 66, background: categoryTint(m.category, i), display: "flex", alignItems: "center", justifyContent: "center", color: categoryIconColor(m.category, i) }}>
+                  <div style={{ height: 52, background: categoryTint(m.category, i), display: "flex", alignItems: "center", justifyContent: "center", color: categoryIconColor(m.category, i) }}>
                     {categoryIcon(m.category, 28)}
                   </div>
                   <div style={{ padding: "12px 13px 14px" }}>
@@ -758,8 +760,8 @@ export default function MobileDashboardV3({
 
         {/* Achievements */}
         {badges.length > 0 && (
-          <div style={{ padding: "22px 16px 0" }}>
-            <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.4, color: "var(--text-muted)", marginBottom: 12, marginLeft: 2 }}>
+          <div style={{ padding: "14px 16px 0" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.4, color: "var(--text-muted)", marginBottom: 10, marginLeft: 2 }}>
               Achievements
             </div>
             <div style={{ maskImage: "linear-gradient(to right, black 82%, transparent 100%)", WebkitMaskImage: "linear-gradient(to right, black 82%, transparent 100%)" }}>
@@ -807,7 +809,7 @@ export default function MobileDashboardV3({
           boxShadow: "0 4px 16px rgba(169,129,42,0.4)", cursor: "pointer",
         }}
       >
-        <IcChat s={26} />
+        <IcSparkle s={26} />
       </button>
 
       {/* Floating nav pill */}
