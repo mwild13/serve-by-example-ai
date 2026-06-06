@@ -50,6 +50,10 @@ type ProgressData = {
   skillLevel: number;
   bestCorrectStreak: number;
   sbeEliteNumber: number;
+  masteredModuleCount: number;
+  totalModuleCount: number;
+  scenariosStartedCount: number;
+  arenaModuleCount: number;
 };
 
 const EMPTY: ProgressData = {
@@ -70,6 +74,10 @@ const EMPTY: ProgressData = {
   skillLevel: 1,
   bestCorrectStreak: 0,
   sbeEliteNumber: 0,
+  masteredModuleCount: 0,
+  totalModuleCount: 40,
+  scenariosStartedCount: 0,
+  arenaModuleCount: 0,
 };
 
 
@@ -439,6 +447,10 @@ export default function PreShiftHome({
             skillLevel: typeof res.skillLevel === "number" ? res.skillLevel : 1,
             bestCorrectStreak: typeof res.bestCorrectStreak === "number" ? res.bestCorrectStreak : 0,
             sbeEliteNumber: typeof res.sbeEliteNumber === "number" ? res.sbeEliteNumber : 0,
+            masteredModuleCount: typeof res.masteredModuleCount === "number" ? res.masteredModuleCount : 0,
+            totalModuleCount: typeof res.totalModuleCount === "number" ? res.totalModuleCount : 40,
+            scenariosStartedCount: typeof res.scenariosStartedCount === "number" ? res.scenariosStartedCount : 0,
+            arenaModuleCount: typeof res.arenaModuleCount === "number" ? res.arenaModuleCount : 0,
           });
         }
       } catch {
@@ -475,6 +487,10 @@ export default function PreShiftHome({
         skillLevel: typeof res.skillLevel === "number" ? res.skillLevel : 1,
         bestCorrectStreak: typeof res.bestCorrectStreak === "number" ? res.bestCorrectStreak : 0,
         sbeEliteNumber: typeof res.sbeEliteNumber === "number" ? res.sbeEliteNumber : 0,
+        masteredModuleCount: typeof res.masteredModuleCount === "number" ? res.masteredModuleCount : 0,
+        totalModuleCount: typeof res.totalModuleCount === "number" ? res.totalModuleCount : 40,
+        scenariosStartedCount: typeof res.scenariosStartedCount === "number" ? res.scenariosStartedCount : 0,
+        arenaModuleCount: typeof res.arenaModuleCount === "number" ? res.arenaModuleCount : 0,
       });
       setLoaded(true);
     }
@@ -518,17 +534,11 @@ export default function PreShiftHome({
   const badgeEarned = countEarned(allBadges);
   const recentBadges = recentEarned(allBadges, 3);
 
-  // Progress Snapshot stats
-  const modulesComplete = data.allModules.filter(
-    (m) => (data.moduleProgress[m.id]?.mastery ?? 0) >= 80
-  ).length;
-  const trackerScenarios = data.allModules.filter(
-    (m) => (data.moduleProgress[m.id]?.scenariosAttempted ?? 0) > 0
-  ).length;
-  const trackerLive = data.allModules.filter(
-    (m) => (data.arenaProgress[m.id]?.attempts ?? 0) > 0
-  ).length;
-  const trackerTotal = data.allModules.length || 40;
+  // Progress Snapshot stats — use server-computed counts directly
+  const modulesComplete = data.masteredModuleCount;
+  const trackerScenarios = data.scenariosStartedCount;
+  const trackerLive = data.arenaModuleCount;
+  const trackerTotal = data.totalModuleCount || 40;
   const totalModules = data.allModules.length || 1;
   const avgScore = loaded
     ? Math.round(

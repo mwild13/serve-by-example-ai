@@ -123,6 +123,9 @@ export async function GET(req: Request) {
       ? allModules.filter((mod) => (moduleProgress[mod.id]?.mastery ?? 0) >= 80).length
       : 0;
     const totalModuleCount = allModules?.length ?? 20;
+    const scenariosStartedCount = allModules
+      ? allModules.filter((mod) => (moduleProgress[mod.id]?.scenariosAttempted ?? 0) > 0).length
+      : 0;
     const skillLevel = Math.min(
       10,
       Math.max(1, Math.round((masteredModuleCount / Math.max(totalModuleCount, 1)) * 10)),
@@ -242,6 +245,11 @@ export async function GET(req: Request) {
       },
       // Canonical skill level (same formula for all views)
       skillLevel,
+      // Server-computed tracker counts (avoids client-side key-lookup issues)
+      masteredModuleCount,
+      totalModuleCount,
+      scenariosStartedCount,
+      arenaModuleCount: Object.keys(arenaProgress).length,
       // New: per-module progress for all 20 modules
       moduleProgress,
       allModules: allModules ?? [],
