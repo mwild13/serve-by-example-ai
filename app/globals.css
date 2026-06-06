@@ -3196,7 +3196,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 /* 2-column hero grid layout */
 .psh-hero-grid {
   display: grid;
-  grid-template-columns: 1.7fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
   margin-bottom: 24px;
   align-items: stretch;
@@ -7322,6 +7322,10 @@ html[data-staff-high-contrast="1"] .dashboard-main {
     color: var(--text);
   }
 
+  @media (max-width: 600px) {
+    .sbe-help-hint { display: none; }
+  }
+
   .sbe-help-btn {
     display: inline-flex;
     align-items: center;
@@ -9422,12 +9426,13 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   }
 
   .language-switcher-mobile-only .language-switcher-control {
-    width: 100%;
+    width: auto;
     justify-content: center;
   }
 
   .language-switcher-mobile-only .language-select {
     width: min(320px, 100%);
+    max-width: none;
   }
 
   .inner-hero-actions {
@@ -12594,19 +12599,25 @@ body {
   /* Hide top sidebar — replaced by bottom nav */
   .dashboard-sidebar { display: none !important; }
 
-  /* Room for fixed bottom nav */
-  .dashboard-main { padding-bottom: 72px !important; }
+  /* Room for glassmorphic pill (bottom: 24px, height: 64px + breathing room) */
+  .dashboard-main { padding-bottom: 108px !important; }
 
   .mobile-bottom-nav {
     display: flex;
     position: fixed;
-    bottom: 0; left: 0; right: 0;
+    bottom: 24px;
+    left: 16px;
+    right: 16px;
+    height: 64px;
     z-index: 45;
-    background: var(--ip-green-deep);
-    border-top: 1px solid rgba(255,255,255,0.1);
-    justify-content: space-around;
-    padding: 8px 8px 0;
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+    background: rgba(15, 45, 29, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(196, 154, 47, 0.2);
+    border-radius: 32px;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-shadow: 0 12px 32px rgba(15, 45, 29, 0.30);
+    align-items: stretch;
   }
 }
 
@@ -13703,6 +13714,33 @@ body {
   font-weight: 600;
   color: var(--text-muted);
   letter-spacing: 0.01em;
+}
+
+.founder-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 2.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.founder-text {
+  flex: 1;
+  min-width: 240px;
+  text-align: left;
+}
+
+@media (max-width: 640px) {
+  .founder-row {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .founder-text {
+    min-width: 0;
+    width: 100%;
+    text-align: center;
+  }
 }
 
 /* ── Trust stats — deep green chapter panel ──── */

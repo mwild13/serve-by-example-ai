@@ -136,15 +136,17 @@ export function computeBadges(
     ...(bestStreak >= 25 ? {} : { progress: { current: bestStreak, required: 25, unit: "correct in a row" } }),
   });
 
-  // Special: SBE Elite (full platform completion)
-  const eliteEarned = sbeElite >= 1;
+  // Special: SBE Elite (mastered 80%+ of all modules — computed from data, not DB counter)
+  const masteredTotal = modules.filter((m) => m.mastered).length;
+  const requiredForElite = Math.max(1, Math.ceil(modules.length * 0.8));
+  const eliteEarned = modules.length > 0 && masteredTotal >= requiredForElite;
   badges.push({
     id: "sbe-elite",
-    label: eliteEarned ? `SBE Elite #${sbeElite}` : "SBE Elite",
-    description: "Achieved 80%+ mastery across all 20 training modules. The complete platform.",
+    label: eliteEarned && sbeElite >= 1 ? `SBE Elite #${sbeElite}` : "SBE Elite",
+    description: "Mastered 80% or more of all training modules across the platform.",
     category: "special",
     earned: eliteEarned,
-    ...(!eliteEarned ? { progress: { current: modules.filter((m) => m.mastered).length, required: 20, unit: "modules mastered" } } : {}),
+    ...(!eliteEarned ? { progress: { current: masteredTotal, required: requiredForElite, unit: "modules mastered" } } : {}),
   });
 
   return badges;

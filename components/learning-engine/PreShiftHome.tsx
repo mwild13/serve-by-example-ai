@@ -5,6 +5,8 @@ import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { GlassWater, TrendingUp, Users, Flame } from "lucide-react";
 import { computeBadges, countEarned, recentEarned, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
 import Link from "next/link";
+import { KB_ENTRIES, KB_CATEGORIES } from "@/lib/knowledge-base";
+import { COCKTAILS } from "@/lib/cocktails";
 
 type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "challenges" | "cocktails" | "knowledge" | "progress" | "settings";
 type ModuleKey = "bartending" | "sales" | "management";
@@ -69,22 +71,6 @@ const EMPTY: ProgressData = {
   sbeEliteNumber: 0,
 };
 
-type DailyChallenge = { title: string; desc: string; nav: NavItem };
-
-const DAILY_CHALLENGES: DailyChallenge[] = [
-  { title: "Perfect the Martini", desc: "Describe the classic variants and how to read a guest's preference.", nav: "rapid-fire" },
-  { title: "Upsell without pressure", desc: "Practise guiding a guest from the house wine to a premium option.", nav: "rapid-fire" },
-  { title: "Survive a rush", desc: "Handle three simultaneous orders while keeping guests happy.", nav: "scenarios" },
-  { title: "Difficult guest recovery", desc: "Turn a frustrated guest into a loyal advocate in under 2 minutes.", nav: "scenarios" },
-  { title: "Menu knowledge drill", desc: "Describe today's specials confidently and pair them with drinks.", nav: "rapid-fire" },
-  { title: "Management mindset", desc: "Walk through how to brief a new hire on service standards.", nav: "rapid-fire" },
-  { title: "Sales target scenario", desc: "Your venue needs to hit a cover target — walk through your plan.", nav: "rapid-fire" },
-];
-
-function getDailyChallenge(): DailyChallenge {
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
-  return DAILY_CHALLENGES[dayOfYear % DAILY_CHALLENGES.length];
-}
 
 const MODULE_META: Record<ModuleKey, { label: string; short: string; Icon: React.ElementType }> = {
   bartending: { label: "Bartending Fundamentals", short: "Bartending", Icon: GlassWater },
@@ -190,11 +176,19 @@ export default function PreShiftHome({
   const [streak, setStreak] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [kbIndex, setKbIndex] = useState(0);
 
   // A1: trigger segment bar animation on mount
   useEffect(() => {
     setMounted(true);
     setStreak(computeStreak());
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setKbIndex((i) => (i + 1) % KB_ENTRIES.length);
+    }, 20000);
+    return () => clearInterval(timer);
   }, []);
 
   // A5: stagger entrance animation
@@ -266,12 +260,16 @@ export default function PreShiftHome({
   const totalSessions = data.sessions.bartending + data.sessions.sales + data.sessions.management;
   const skillLevel = data.skillLevel;
   const weakest = getWeakestModule(categoryMastery);
-  const weakestMastery = Math.min(100, categoryMastery[weakest]);
   const coachTips = COACH_FOCUS[weakest];
   const lastTrainedLabel = formatLastTrained(data.lastAttemptAt);
-  const WeakestIcon = MODULE_META[weakest].Icon;
-  const challenge = getDailyChallenge();
   const isNewUser = totalSessions === 0;
+
+  const kbEntry = KB_ENTRIES[kbIndex];
+  const kbCatColor = KB_CATEGORIES[kbEntry.category].color;
+  const kbCatLabel = KB_CATEGORIES[kbEntry.category].label;
+  const dayIdx = Math.floor(Date.now() / 86400000);
+  const dailyCocktail1 = COCKTAILS[(dayIdx * 2) % COCKTAILS.length];
+  const dailyCocktail2 = COCKTAILS[(dayIdx * 2 + 1) % COCKTAILS.length];
 
   // Hoist badge computation so it's available in Quick Nav and Achievements
   const badgeModules: ModuleSummaryForBadges[] = loaded
@@ -483,43 +481,69 @@ export default function PreShiftHome({
           </div>
         </div>
 
-        <div className="psh-challenge-col">
-          <div
-            className="psh-action-card psh-action-card-hero psh-challenge-card"
-            onClick={() => setActiveNav(challenge.nav)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => { if (e.key === "Enter") setActiveNav(challenge.nav); }}
-          >
-            <div className="psh-action-header-row">
-              <span className="psh-action-eyebrow">STRENGTHEN YOUR WEAKNESS</span>
-              <span className="psh-daily-badge">DAILY CHALLENGE</span>
-            </div>
-            <strong className="psh-challenge-title">{challenge.title}</strong>
-            <p className="psh-challenge-desc">{challenge.desc}</p>
-            <button
-              className="psh-action-cta"
-              type="button"
-              onClick={(e) => { e.stopPropagation(); setActiveNav(challenge.nav); }}
-            >
-              Start Daily Challenge
-            </button>
-            <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)", textAlign: "center", marginTop: 6, marginBottom: 0 }}>
-              Takes you to: {challenge.nav === "rapid-fire" ? "Rapid Fire Quiz" : "AI Scenarios"}
-            </p>
-            <div className="psh-action-body">
-              <WeakestIcon size={18} style={{ flexShrink: 0, color: "var(--gold-warm)" }} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#fff" }}>{MODULE_META[weakest].label}</span>
-                <p style={{ margin: 0, fontSize: "0.78rem", color: "rgba(255,255,255,0.7)" }}>
-                  {weakestMastery >= 80 ? "Mastered" : weakestMastery > 0 ? `${weakestMastery}% mastered · keep going` : "Not started yet"}
-                </p>
+        <div className="psh-challenge-col" style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
+
+          {/* ── 101 Knowledge Carousel ── */}
+          <div style={{ background: "var(--green)", borderRadius: "var(--radius-lg)", padding: "1.25rem 1.5rem", color: "#fff", flex: "0 0 auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.625rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <span style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.65)" }}>
+                  101 KNOWLEDGE
+                </span>
+                <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", background: kbCatColor + "33", color: kbCatColor, border: `1px solid ${kbCatColor}55`, padding: "1px 7px", borderRadius: 99 }}>
+                  {kbCatLabel}
+                </span>
               </div>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                <path d="M9 18l6-6-6-6"/>
-              </svg>
+              <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.45)", fontVariantNumeric: "tabular-nums" }}>
+                {kbIndex + 1} / {KB_ENTRIES.length}
+              </span>
+            </div>
+            <strong style={{ display: "block", fontSize: "0.975rem", fontWeight: 800, lineHeight: 1.3, marginBottom: "0.5rem", letterSpacing: "-0.01em" }}>
+              {kbEntry.title}
+            </strong>
+            <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 4 }}>
+              {kbEntry.keyFacts.slice(0, 3).map((fact) => (
+                <li key={fact} style={{ fontSize: "0.78rem", lineHeight: 1.5, color: "rgba(255,255,255,0.82)", display: "flex", gap: 6, alignItems: "flex-start" }}>
+                  <span style={{ color: "var(--gold-warm)", flexShrink: 0, marginTop: 1, fontWeight: 700 }}>—</span>
+                  {fact}
+                </li>
+              ))}
+            </ul>
+            <div style={{ marginTop: "0.875rem", height: 3, borderRadius: 99, background: "rgba(255,255,255,0.15)", overflow: "hidden" }}>
+              <div style={{ height: "100%", borderRadius: 99, background: "var(--gold-warm)", width: `${((kbIndex + 1) / KB_ENTRIES.length) * 100}%`, transition: "width 0.4s ease" }} />
             </div>
           </div>
+
+          {/* ── Daily Cocktail Highlights ── */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", flex: 1 }}>
+            {[dailyCocktail1, dailyCocktail2].map((cocktail) => (
+              <div key={cocktail.name} style={{ background: "var(--surface)", borderRadius: "var(--radius-md)", padding: "1rem 1.1rem", border: "1.5px solid var(--line)", display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: "0.58rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "0.375rem", display: "block" }}>
+                  TODAY&rsquo;S COCKTAIL
+                </span>
+                <strong style={{ fontSize: "0.9rem", fontWeight: 800, color: "var(--text)", lineHeight: 1.25, marginBottom: "0.25rem", letterSpacing: "-0.01em" }}>
+                  {cocktail.name}
+                </strong>
+                <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginBottom: "0.5rem" }}>
+                  {cocktail.glass}
+                </span>
+                <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 3, flex: 1 }}>
+                  {cocktail.ingredients.slice(0, 5).map((ing) => (
+                    <li key={ing} style={{ fontSize: "0.7rem", color: "var(--text-soft)", display: "flex", gap: 5, alignItems: "flex-start", lineHeight: 1.4 }}>
+                      <span style={{ color: "var(--gold)", flexShrink: 0, marginTop: 1 }}>·</span>
+                      {ing}
+                    </li>
+                  ))}
+                  {cocktail.ingredients.length > 5 && (
+                    <li style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontStyle: "italic", paddingLeft: 13 }}>
+                      +{cocktail.ingredients.length - 5} more
+                    </li>
+                  )}
+                </ul>
+              </div>
+            ))}
+          </div>
+
         </div>
       </div>
 

@@ -709,7 +709,6 @@ export default function DashboardShell({
           <DashboardTrainer
             key="stage4"
             displayName={displayName}
-            userEmail={userEmail}
             managementUnlocked={managementUnlocked}
           />
         ) : activeNav === "home" ? (

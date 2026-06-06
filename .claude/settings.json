@@ -34,7 +34,15 @@
       "Bash(git checkout *)",
       "Bash(git merge *)",
       "Read(//Users/mythchellwildman/Desktop/serve-by-example-ai-main/app/**)",
-      "Bash(cat >> *)"
+      "Bash(cat >> *)",
+      "Bash(git cherry-pick *)",
+      "Bash(git fetch *)",
+      "Bash(git rebase *)",
+      "Bash(grep -E \"\\\\.\\(ts|tsx|js\\)$\")",
+      "Read(//Users/mysqlu/Desktop/serve-by-example-ai-main/lib/**)",
+      "Bash(grep \"category\" /Users/michaellwildman/Desktop/serve-by-example-ai-main/supabase/migrations/20260421_1_create_modules.sql | head -40)",
+      "Read(//Users/michaellwildman/Desktop/serve-by-example-ai-main/supabase/migrations/**)",
+      "Bash(grep -r \"computeBadges\\\\|countEarned\\\\|recentEarned\" /Users/mitchellwildman/Desktop/serve-by-example-ai-main --include=\"*.tsx\" --include=\"*.ts\" ! -path \"*/node_modules/*\" ! -path \"*/.next/*\" ! -path \"*/.claude/worktrees/*\")"
     ],
     "additionalDirectories": [
       "/Users/mitchellwildman/Desktop/serve-by-example-ai-main/app"

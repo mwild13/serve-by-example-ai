@@ -329,13 +329,6 @@ export default function Home() {
                 <h3 className="benefit-title">Hours of Manager Admin</h3>
                 <p className="benefit-desc">Progress, compliance, and performance sync automatically to the manager console. No chasing staff for updates. No spreadsheets.</p>
               </div>
-              <div className="benefit-card">
-                <div className="benefit-metric">
-                  19
-                </div>
-                <h3 className="benefit-title">Languages Supported</h3>
-                <p className="benefit-desc">Train your full team in their first language. Automatically translated scenarios and feedback for diverse venue teams across Australia.</p>
-              </div>
             </div>
           </div>
         </section>
@@ -391,7 +384,7 @@ export default function Home() {
           <div className="container">
             <div style={{ maxWidth: "880px", margin: "0 auto" }}>
               {/* Photo + text row */}
-              <div style={{ display: "flex", alignItems: "flex-start", gap: "2.5rem", marginBottom: "2rem", flexWrap: "wrap" }}>
+              <div className="founder-row">
                 {/* Left: circular photo + name */}
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
                   <Image
@@ -404,7 +397,7 @@ export default function Home() {
                   <span style={{ marginTop: "0.625rem", fontSize: "0.875rem", fontWeight: 700, color: "var(--text-soft)", textAlign: "center" }}>Mitch</span>
                 </div>
                 {/* Right: eyebrow + heading + text */}
-                <div style={{ flex: 1, minWidth: "240px", textAlign: "left" }}>
+                <div className="founder-text">
                   <span className="eyebrow">Built From Experience</span>
                   <h2 style={{ marginBottom: "1rem" }}>Created by someone who&rsquo;s lived it.</h2>
                   <p style={{ fontSize: "1.125rem", color: "#374151", lineHeight: 1.7, margin: 0 }}>

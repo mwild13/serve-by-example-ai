@@ -322,7 +322,7 @@ export default function ComplaintMasterPage() {
 
                 <p className="cm-complete-body">
                   {avgScore >= 20
-                    ? "That&rsquo;s a strong result. You handle guest complaints with composure and care. On the Serve By Example platform, you&rsquo;d be competing near the top of the AI Arena leaderboard."
+                    ? "That&rsquo;s a strong result. You handle guest complaints with composure and care. On the Serve By Example platform, you&rsquo;d be competing near the top of the Live Scenarios leaderboard."
                     : avgScore >= 14
                     ? "Solid foundation. A bit more practice on structure and specificity will get your scores into the excellent range — and that&rsquo;s exactly what our full platform is built to deliver."
                     : "Complaint handling is one of the hardest skills in hospitality. The good news: it&rsquo;s entirely trainable. Our full platform has structured coaching paths that build these skills rapidly."}
