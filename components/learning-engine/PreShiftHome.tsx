@@ -192,9 +192,8 @@ export default function PreShiftHome({
     });
   }, []);
 
-  // Effect A: self-managed fetch — only when parent is NOT providing data
+  // Effect A: always fetch on mount; Effect B overrides with parent data when it arrives
   useEffect(() => {
-    if (onSyncProgress) return;
     async function load() {
       try {
         const supabase = createSupabaseBrowserClient();
