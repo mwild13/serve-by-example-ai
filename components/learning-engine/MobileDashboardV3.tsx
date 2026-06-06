@@ -707,11 +707,11 @@ export default function MobileDashboardV3({
           {/* Stats row */}
           <div style={{ display: "flex" }}>
             {([
-              [loaded ? String(totalSessions) : "--", "Sessions"],
-              [loaded ? `${masteredModules}/${Math.max(totalModules, 1)}` : "--", "Modules"],
-              [loaded ? levelTitle : "...", "Your level"],
-            ] as [string, string][]).map(([val, lbl], i) => (
-              <div key={lbl} style={{ flex: 1, minWidth: 0, paddingLeft: i ? 16 : 0, borderLeft: i ? "1px solid rgba(245,242,233,0.16)" : "none" }}>
+              [loaded ? String(totalSessions) : "--", "Sessions", 0.7],
+              [loaded ? `${masteredModules}/${Math.max(totalModules, 1)}` : "--", "Modules", 0.7],
+              [loaded ? levelTitle : "...", "Your level", 1.6],
+            ] as [string, string, number][]).map(([val, lbl, flexVal], i) => (
+              <div key={lbl} style={{ flex: flexVal, minWidth: 0, paddingLeft: i ? 10 : 0, borderLeft: i ? "1px solid rgba(245,242,233,0.16)" : "none" }}>
                 <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.5, lineHeight: 1.15, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {loaded ? val : <div className="skeleton-line" style={{ width: 36, height: 20, marginBottom: 0, opacity: 0.35 }} />}
                 </div>
