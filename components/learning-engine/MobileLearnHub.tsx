@@ -121,22 +121,24 @@ export default function MobileLearnHub({
   ];
 
   return (
-    <div style={{
-      padding: "24px 16px 24px",
-      fontFamily: "var(--font-manrope, system-ui, sans-serif)",
-      color: "var(--text)",
-    }}>
-      <h1 style={{
-        fontFamily: "var(--font-fraunces, Georgia, serif)",
-        fontSize: 26, fontWeight: 600, margin: "0 0 6px",
-        color: "var(--text)",
-      }}>
-        Training Hub
-      </h1>
-      <p style={{ fontSize: 13, color: "var(--text-muted)", margin: "0 0 24px" }}>
-        Choose your training format
-      </p>
+    <div style={{ fontFamily: "var(--font-manrope, system-ui, sans-serif)", color: "var(--text)" }}>
+      {/* Green header — matches other page headers */}
+      <div style={{ background: "var(--green)", padding: "20px 16px 16px" }}>
+        <span style={{
+          fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.1em",
+          textTransform: "uppercase", color: "rgba(255,255,255,0.6)", display: "block",
+        }}>
+          Training
+        </span>
+        <h1 style={{
+          fontFamily: "var(--font-fraunces, Georgia, serif)",
+          fontSize: 22, fontWeight: 600, color: "#fff", margin: "2px 0 0",
+        }}>
+          Training Hub
+        </h1>
+      </div>
 
+      <div style={{ padding: "20px 16px 24px" }}>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {sections.map((s) => (
           <button
@@ -206,6 +208,7 @@ export default function MobileLearnHub({
           </a>
         </div>
       )}
+      </div>
     </div>
   );
 }

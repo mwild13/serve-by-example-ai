@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { GlassWater, TrendingUp, Users, Flame } from "lucide-react";
 import { computeBadges, countEarned, recentEarned, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
-import Link from "next/link";
 import { KB_ENTRIES, KB_CATEGORIES } from "@/lib/knowledge-base";
 import { COCKTAILS } from "@/lib/cocktails";
 
@@ -138,17 +137,6 @@ function computeStreak(): number {
   }
 }
 
-function formatLastTrained(iso: string | null): string | null {
-  if (!iso) return null;
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const h = Math.floor(diffMs / 3600000);
-  const d = Math.floor(diffMs / 86400000);
-  if (h < 1) return "less than an hour ago";
-  if (h < 24) return `${h} hour${h !== 1 ? "s" : ""} ago`;
-  if (d === 1) return "yesterday";
-  if (d < 7) return `${d} days ago`;
-  return `${Math.floor(d / 7)} week${Math.floor(d / 7) !== 1 ? "s" : ""} ago`;
-}
 
 const AWARD_ICON = (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -162,8 +150,9 @@ export default function PreShiftHome({
   setActiveNav,
   managementUnlocked = false,
   onNavigateToCategory,
-  isPremium,
   onBadgesNav,
+  progressData,
+  onSyncProgress,
 }: {
   displayName: string;
   setActiveNav: (nav: NavItem) => void;
@@ -171,6 +160,8 @@ export default function PreShiftHome({
   onNavigateToCategory?: (category: string) => void;
   isPremium?: boolean;
   onBadgesNav?: () => void;
+  progressData?: Record<string, unknown> | null;
+  onSyncProgress?: () => void;
 }) {
   const [data, setData] = useState<ProgressData>(EMPTY);
   const [streak, setStreak] = useState(0);
@@ -201,7 +192,9 @@ export default function PreShiftHome({
     });
   }, []);
 
+  // Effect A: self-managed fetch — only when parent is NOT providing data
   useEffect(() => {
+    if (onSyncProgress) return;
     async function load() {
       try {
         const supabase = createSupabaseBrowserClient();
@@ -237,7 +230,36 @@ export default function PreShiftHome({
       }
     }
     void load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Effect B: map parent data when it arrives or changes (covers sync button press)
+  useEffect(() => {
+    if (!progressData) return;
+    const res = progressData;
+    if (res.modules) {
+      const lp = res.levelProgress as Record<string, LevelProgress> | undefined;
+      setData({
+        modules: res.modules as Record<ModuleKey, number>,
+        mastery: (res.mastery as Record<ModuleKey, number>) ?? EMPTY.mastery,
+        scores: (res.scores as Record<ModuleKey, number>) ?? EMPTY.scores,
+        sessions: (res.sessions as Record<ModuleKey, number>) ?? EMPTY.sessions,
+        reviewDue: Array.isArray(res.reviewQueue) ? (res.reviewQueue as unknown[]).length : 0,
+        levelProgress: {
+          bartending: lp?.bartending ?? EMPTY.levelProgress.bartending,
+          sales: lp?.sales ?? EMPTY.levelProgress.sales,
+          management: lp?.management ?? EMPTY.levelProgress.management,
+        },
+        lastAttemptAt: (res.lastAttemptAt as string | null) ?? null,
+        allModules: Array.isArray(res.allModules) ? res.allModules as DbModule[] : [],
+        moduleProgress: (res.moduleProgress as Record<number, DbModuleProgress>) ?? {},
+        skillLevel: typeof res.skillLevel === "number" ? res.skillLevel : 1,
+        bestCorrectStreak: typeof res.bestCorrectStreak === "number" ? res.bestCorrectStreak : 0,
+        sbeEliteNumber: typeof res.sbeEliteNumber === "number" ? res.sbeEliteNumber : 0,
+      });
+      setLoaded(true);
+    }
+  }, [progressData]);
 
   const categoryMastery: Record<ModuleKey, number> = {
     bartending: getCategoryMastery(data.allModules, data.moduleProgress, "technical"),
@@ -261,8 +283,6 @@ export default function PreShiftHome({
   const skillLevel = data.skillLevel;
   const weakest = getWeakestModule(categoryMastery);
   const coachTips = COACH_FOCUS[weakest];
-  const lastTrainedLabel = formatLastTrained(data.lastAttemptAt);
-  const isNewUser = totalSessions === 0;
 
   const kbEntry = KB_ENTRIES[kbIndex];
   const kbCatColor = KB_CATEGORIES[kbEntry.category].color;
@@ -335,94 +355,24 @@ export default function PreShiftHome({
             </div>
           )}
         </div>
-        {lastTrainedLabel && (
-          <span className="psh-last-trained">Last trained: {lastTrainedLabel}</span>
+        {onSyncProgress && (
+          <button
+            onClick={onSyncProgress}
+            style={{
+              background: "none", border: "none", cursor: "pointer", padding: "4px 0",
+              display: "flex", alignItems: "center", gap: 5,
+              color: "var(--text-muted)", fontSize: "0.75rem", fontWeight: 600,
+              fontFamily: "var(--font-manrope, system-ui, sans-serif)",
+            }}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+            Sync
+          </button>
         )}
       </div>
-
-      {/* ── Quick Nav ── */}
-      {(() => {
-        const quickNavTiles: Array<{
-          id: string;
-          label: string;
-          subtitle: string;
-          icon: React.ReactNode;
-          action?: () => void;
-          href?: string;
-          isPremiumGated: boolean;
-        }> = [
-          {
-            id: "stage4", label: "Scenarios",
-            subtitle: totalSessions > 0 ? `${totalSessions} sessions done` : "Practice written scenarios",
-            icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>,
-            action: () => setActiveNav("stage4"), isPremiumGated: true,
-          },
-          {
-            id: "scenarios", label: "AI Arena",
-            subtitle: "Live roleplay with AI",
-            icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
-            action: () => setActiveNav("scenarios"), isPremiumGated: true,
-          },
-          {
-            id: "challenges", label: "Challenges",
-            subtitle: "Interactive mini-games",
-            icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
-            action: () => setActiveNav("challenges"), isPremiumGated: false,
-          },
-          {
-            id: "module", label: "Modules",
-            subtitle: "40 modules to master",
-            icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>,
-            action: () => setActiveNav("module"), isPremiumGated: true,
-          },
-          {
-            id: "cocktails", label: "Cocktail Library",
-            subtitle: "38 recipes",
-            icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10 3l2 6M12 9h6l-6 11M12 9H6l6 11"/></svg>,
-            action: () => setActiveNav("cocktails"), isPremiumGated: true,
-          },
-          {
-            id: "knowledge", label: "Knowledge Base",
-            subtitle: "101 quick-reference cards",
-            icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green-mid)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>,
-            action: () => setActiveNav("knowledge"), isPremiumGated: true,
-          },
-        ];
-        return (
-          <div className="psh-quick-nav">
-            {quickNavTiles.map((tile) => {
-              const isLocked = tile.isPremiumGated && isPremium === false;
-              const isStartHere = isNewUser && tile.id === "stage4";
-              const content = (
-                <>
-                  {tile.icon}
-                  <span className="psh-quick-nav-label">{tile.label}</span>
-                  <span className="psh-quick-nav-sub">{tile.subtitle}</span>
-                  {isStartHere && (
-                    <span style={{ fontSize: "0.68rem", color: "var(--gold)", fontWeight: 700, marginTop: 2 }}>
-                      Start here
-                    </span>
-                  )}
-                  {isLocked && (
-                    <div style={{ position: "absolute", top: 8, right: 8, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 4, background: "var(--gold-dim)" }}>
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                      </svg>
-                    </div>
-                  )}
-                </>
-              );
-              const cls = `psh-quick-nav-item${isStartHere ? " psh-quick-nav-item--start-here" : ""}`;
-              const style: React.CSSProperties = { opacity: isLocked ? 0.65 : 1, position: "relative" };
-              return tile.href ? (
-                <Link key={tile.id} href={tile.href} className={cls} style={style}>{content}</Link>
-              ) : (
-                <button key={tile.id} type="button" className={cls} onClick={tile.action} style={style}>{content}</button>
-              );
-            })}
-          </div>
-        );
-      })()}
 
       {/* ── A2: Hero Grid: Pre-Shift Brief (left) + Daily Challenge (right) ── */}
       <div
@@ -484,7 +434,7 @@ export default function PreShiftHome({
         <div className="psh-challenge-col" style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
 
           {/* ── 101 Knowledge Carousel ── */}
-          <div style={{ background: "var(--green)", borderRadius: "var(--radius-lg)", padding: "1.25rem 1.5rem", color: "#fff", flex: "0 0 auto" }}>
+          <div key={kbIndex} style={{ background: "var(--green)", borderRadius: "var(--radius-lg)", padding: "1.25rem 1.5rem", color: "#fff", flex: "0 0 auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.625rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <span style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.65)" }}>
@@ -556,15 +506,10 @@ export default function PreShiftHome({
         <h2>Training Progress</h2>
         <div className="psh-module-row">
           {(["bartending", "sales", "management"] as ModuleKey[]).map((mod, index) => {
-            const mastery = categoryMastery[mod];
             const { short, Icon } = MODULE_META[mod];
             const total = CATEGORY_MODULE_TOTALS[mod];
-            const completed = data.allModules.filter(
-              (m) => m.category === CATEGORY_NAV_KEY[mod] && (data.moduleProgress[m.id]?.mastery ?? 0) >= 80
-            ).length;
-            const started = data.allModules.filter(
-              (m) => m.category === CATEGORY_NAV_KEY[mod] && (data.moduleProgress[m.id]?.scenariosAttempted ?? 0) > 0
-            ).length;
+            const legacyMastery    = data.mastery[mod]  ?? 0;
+            const legacyCompletion = data.modules[mod]  ?? 0;
             const isLocked = mod === "management" && !managementUnlocked;
             const navigate = () => {
               if (onNavigateToCategory) onNavigateToCategory(CATEGORY_NAV_KEY[mod]);
@@ -588,24 +533,24 @@ export default function PreShiftHome({
                 <div className="psh-module-progress-bar">
                   <div
                     className="psh-module-progress-fill"
-                    style={{ width: loaded ? `${Math.max(4, mastery)}%` : "4px" }}
+                    style={{ width: loaded ? `${Math.max(4, legacyMastery)}%` : "4px" }}
                   />
                 </div>
                 <p className="psh-module-next" style={{ fontSize: "0.78rem", color: "var(--text-muted)", margin: "2px 0 0" }}>
-                  {started === 0
-                    ? `0 of ${total} modules started`
-                    : completed === total
+                  {legacyMastery >= 80
                     ? `All ${total} modules mastered`
-                    : completed > 0
-                    ? `${completed} of ${total} mastered · ${started} started`
-                    : `${started} of ${total} in progress`}
+                    : legacyMastery > 0
+                    ? `${legacyMastery}% mastered`
+                    : legacyCompletion > 0
+                    ? `${legacyCompletion}% complete`
+                    : `0 of ${total} modules started`}
                 </p>
                 <button
                   className="psh-module-cta-pill"
                   type="button"
                   onClick={(e) => { e.stopPropagation(); navigate(); }}
                 >
-                  {mastery >= 80 ? "Review" : mastery > 0 ? "Continue" : "Start training"}
+                  {legacyMastery >= 80 ? "Review" : legacyMastery > 0 ? "Continue" : "Start training"}
                 </button>
                 {isLocked && (
                   <div style={{

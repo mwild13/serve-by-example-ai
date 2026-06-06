@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState, useEffect, Suspense, lazy } from "react";
+import { FormEvent, useState, useEffect, useCallback, Suspense, lazy } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import SignOutButton from "@/components/ui/SignOutButton";
@@ -421,8 +421,8 @@ function MobileBottomNavBar({
             onClick={() => onNavigate(id)}
             style={{
               background: "none", border: "none", cursor: "pointer",
-              display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-              padding: "6px 4px 8px", color: on ? "var(--ip-parchment)" : "rgba(255,255,255,0.45)",
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
+              padding: 0, color: on ? "var(--ip-parchment)" : "rgba(255,255,255,0.45)",
               flex: 1, position: "relative",
               fontFamily: 'ui-monospace, "SF Mono", Menlo, monospace',
             }}
@@ -554,6 +554,20 @@ export default function DashboardShell({
 
     checkDiagnostic();
   }, [plan]);
+
+  // Centralized progress data — fetched once on mount, refreshed on sync button press
+  const [progressData, setProgressData] = useState<Record<string, unknown> | null>(null);
+  const fetchProgress = useCallback(async () => {
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      const r = await fetch("/api/training/progress", {
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+      });
+      setProgressData(await r.json() as Record<string, unknown>);
+    } catch { /* non-critical */ }
+  }, []);
+  useEffect(() => { void fetchProgress(); }, [fetchProgress]);
 
   const PREMIUM_NAV_ITEMS: NavItem[] = ["module", "stage4", "scenarios", "cocktails", "knowledge"];
   const FALLBACK_ADMIN_EMAILS = [
@@ -724,6 +738,8 @@ export default function DashboardShell({
                   setSelectedModuleId(moduleId);
                   handleNavClick("module");
                 }}
+                progressData={progressData}
+                onSyncProgress={fetchProgress}
               />
             </div>
             <div className="desktop-psh-only">
@@ -735,6 +751,8 @@ export default function DashboardShell({
                 onNavigateToCategory={handleNavigateToCategory}
                 isPremium={isPremium}
                 onBadgesNav={() => handleNavClick("badges")}
+                progressData={progressData}
+                onSyncProgress={fetchProgress}
               />
             </div>
           </>

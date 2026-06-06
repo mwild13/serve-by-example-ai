@@ -528,18 +528,24 @@ export default function MobileDashboardV3({
   setActiveNav,
   plan: _plan,
   onSelectModule,
+  progressData,
+  onSyncProgress,
 }: {
   displayName: string;
   setActiveNav: (nav: NavItem) => void;
   plan: string;
   onSelectModule?: (moduleId: number) => void;
+  progressData?: Record<string, unknown> | null;
+  onSyncProgress?: () => void;
 }) {
   const [data, setData] = useState<ProgressData>(EMPTY);
   const [streak, setStreak] = useState(0);
   const [coach, setCoach] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
+  // Effect A: self-managed fetch — only when parent is NOT providing data
   useEffect(() => {
+    if (onSyncProgress) return;
     async function load() {
       try {
         const supabase = createSupabaseBrowserClient();
@@ -576,7 +582,36 @@ export default function MobileDashboardV3({
       }
     }
     void load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Effect B: map parent data when it arrives or changes (covers sync button press)
+  useEffect(() => {
+    if (!progressData) return;
+    const res = progressData;
+    if (res.modules) {
+      const lp = res.levelProgress as Record<string, LevelProgress> | undefined;
+      setData({
+        modules: res.modules as ProgressData["modules"],
+        mastery: (res.mastery as ProgressData["mastery"]) ?? EMPTY.mastery,
+        scores: (res.scores as ProgressData["scores"]) ?? EMPTY.scores,
+        sessions: (res.sessions as ProgressData["sessions"]) ?? EMPTY.sessions,
+        reviewDue: Array.isArray(res.reviewQueue) ? (res.reviewQueue as unknown[]).length : 0,
+        levelProgress: {
+          bartending: (lp?.bartending as LevelProgress) ?? EMPTY_LP,
+          sales: (lp?.sales as LevelProgress) ?? EMPTY_LP,
+          management: (lp?.management as LevelProgress) ?? EMPTY_LP,
+        },
+        lastAttemptAt: (res.lastAttemptAt as string | null) ?? null,
+        allModules: Array.isArray(res.allModules) ? res.allModules as ProgressData["allModules"] : [],
+        moduleProgress: (res.moduleProgress as ProgressData["moduleProgress"]) ?? {},
+        scenarioCounts: (res.scenarioCounts as ProgressData["scenarioCounts"]) ?? {},
+        bestCorrectStreak: typeof res.bestCorrectStreak === "number" ? res.bestCorrectStreak : 0,
+        sbeEliteNumber: typeof res.sbeEliteNumber === "number" ? res.sbeEliteNumber : 0,
+      });
+      setLoaded(true);
+    }
+  }, [progressData]);
 
   // Derived values
   const totalSessions = data.sessions.bartending + data.sessions.sales + data.sessions.management;
@@ -785,8 +820,25 @@ export default function MobileDashboardV3({
           </div>
         )}
 
-        <div className="mobile-signout-wrap" style={{ padding: "18px 16px 0" }}>
+        <div className="mobile-signout-wrap" style={{ padding: "18px 16px 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <SignOutButton />
+          {onSyncProgress && (
+            <button
+              onClick={onSyncProgress}
+              style={{
+                background: "none", border: "none", cursor: "pointer", padding: 0,
+                display: "flex", alignItems: "center", gap: 5,
+                color: "var(--text-muted)", fontSize: "0.8rem", fontWeight: 600,
+                fontFamily: "var(--font-manrope, system-ui, sans-serif)",
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+              </svg>
+              Sync progress
+            </button>
+          )}
         </div>
 
         <div style={{ height: 8 }} />
