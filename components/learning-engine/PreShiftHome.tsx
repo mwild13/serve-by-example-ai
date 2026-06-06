@@ -46,6 +46,7 @@ type ProgressData = {
   lastAttemptAt: string | null;
   allModules: DbModule[];
   moduleProgress: Record<number, DbModuleProgress>;
+  arenaProgress: Record<number, { attempts: number; bestScore: number; passed: boolean }>;
   skillLevel: number;
   bestCorrectStreak: number;
   sbeEliteNumber: number;
@@ -65,6 +66,7 @@ const EMPTY: ProgressData = {
   lastAttemptAt: null,
   allModules: [],
   moduleProgress: {},
+  arenaProgress: {},
   skillLevel: 1,
   bestCorrectStreak: 0,
   sbeEliteNumber: 0,
@@ -148,19 +150,21 @@ const AWARD_ICON = (
 function HorizontalProgressionTrack({
   allModules,
   moduleProgress,
+  arenaProgress,
   loaded,
 }: {
   allModules: DbModule[];
   moduleProgress: Record<number, DbModuleProgress>;
+  arenaProgress: Record<number, { attempts: number; bestScore: number; passed: boolean }>;
   loaded: boolean;
 }) {
   const totalModules = allModules.length || 40;
   const completedModules = loaded
-    ? allModules.filter((m) => (moduleProgress[m.id]?.scenariosMastered ?? 0) >= 1).length
+    ? allModules.filter((m) => (moduleProgress[m.id]?.mastery ?? 0) >= 80).length
     : 0;
   const totalScenarios = totalModules;
   const completedScenarios = loaded
-    ? allModules.filter((m) => (moduleProgress[m.id]?.scenariosAttempted ?? 0) >= 3).length
+    ? allModules.filter((m) => arenaProgress[m.id]?.passed === true).length
     : 0;
 
   const totalChallenges = 5;
@@ -438,6 +442,7 @@ export default function PreShiftHome({
             lastAttemptAt: res.lastAttemptAt ?? null,
             allModules: Array.isArray(res.allModules) ? res.allModules : [],
             moduleProgress: res.moduleProgress ?? {},
+            arenaProgress: (res.arenaProgress as Record<number, { attempts: number; bestScore: number; passed: boolean }>) ?? {},
             skillLevel: typeof res.skillLevel === "number" ? res.skillLevel : 1,
             bestCorrectStreak: typeof res.bestCorrectStreak === "number" ? res.bestCorrectStreak : 0,
             sbeEliteNumber: typeof res.sbeEliteNumber === "number" ? res.sbeEliteNumber : 0,
@@ -473,6 +478,7 @@ export default function PreShiftHome({
         lastAttemptAt: (res.lastAttemptAt as string | null) ?? null,
         allModules: Array.isArray(res.allModules) ? res.allModules as DbModule[] : [],
         moduleProgress: (res.moduleProgress as Record<number, DbModuleProgress>) ?? {},
+        arenaProgress: (res.arenaProgress as Record<number, { attempts: number; bestScore: number; passed: boolean }>) ?? {},
         skillLevel: typeof res.skillLevel === "number" ? res.skillLevel : 1,
         bestCorrectStreak: typeof res.bestCorrectStreak === "number" ? res.bestCorrectStreak : 0,
         sbeEliteNumber: typeof res.sbeEliteNumber === "number" ? res.sbeEliteNumber : 0,
@@ -715,6 +721,7 @@ export default function PreShiftHome({
         <HorizontalProgressionTrack
           allModules={data.allModules}
           moduleProgress={data.moduleProgress}
+          arenaProgress={data.arenaProgress}
           loaded={loaded}
         />
       </div>
