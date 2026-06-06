@@ -534,11 +534,15 @@ export default function PreShiftHome({
   const badgeEarned = countEarned(allBadges);
   const recentBadges = recentEarned(allBadges, 3);
 
-  // Progress Snapshot stats — use server-computed counts directly
-  const modulesComplete = data.masteredModuleCount;
-  const trackerScenarios = data.scenariosStartedCount;
-  const trackerLive = data.arenaModuleCount;
-  const trackerTotal = data.totalModuleCount || 40;
+  // Read tracker counts directly from progressData prop — bypasses state race between Effect A and Effect B
+  const _m = progressData?.masteredModuleCount;
+  const _t = progressData?.totalModuleCount;
+  const _s = progressData?.scenariosStartedCount;
+  const _a = progressData?.arenaModuleCount;
+  const modulesComplete = typeof _m === "number" ? _m : data.masteredModuleCount;
+  const trackerScenarios = typeof _s === "number" ? _s : data.scenariosStartedCount;
+  const trackerLive = typeof _a === "number" ? _a : data.arenaModuleCount;
+  const trackerTotal = (typeof _t === "number" ? _t : data.totalModuleCount) || 40;
   const totalModules = data.allModules.length || 1;
   const avgScore = loaded
     ? Math.round(
