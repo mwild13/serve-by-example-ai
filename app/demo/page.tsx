@@ -122,7 +122,7 @@ export default function DemoPage() {
   const [result, setResult] = useState<EvaluationResult | null>(null);
   const [error, setError] = useState("");
 
-  // Derived — never reset back to default because activeModuleId is the single source of truth
+  // Derived – never reset back to default because activeModuleId is the single source of truth
   const activeScenario = DEMO_SCENARIOS.find((s) => s.id === activeModuleId)!;
 
   function selectModule(id: ModuleId) {
@@ -211,7 +211,7 @@ export default function DemoPage() {
                 </div>
 
                 <div className="trainer-pills">
-                  <span className="trainer-hint">Choose an approach — or write your own response below</span>
+                  <span className="trainer-hint">Choose an approach, or write your own response below</span>
                   <div className="chat-actions sbe-intent-pills">
                     {activeScenario.pills.map((pill) => (
                       <button
@@ -261,7 +261,7 @@ export default function DemoPage() {
               </div>
             )}
 
-            {/* AI Result — same style as the real training */}
+            {/* AI Result – same style as the real training */}
             {result && (() => {
               const weakest = [...SCORE_DIMENSIONS].sort(
                 (a, b) => (result[a.key] as number) - (result[b.key] as number),
@@ -305,11 +305,11 @@ export default function DemoPage() {
                       <summary>See full feedback</summary>
                       <div className="trainer-feedback">
                         <div className="trainer-feedback-block trainer-feedback-good">
-                          <strong>✔ {strongest.label} — strength</strong>
+                          <strong>✔ {strongest.label} – strength</strong>
                           <p>{result.strengths}</p>
                         </div>
                         <div className="trainer-feedback-block trainer-feedback-improve">
-                          <strong>✖ {weakest.label} — missed opportunity</strong>
+                          <strong>✖ {weakest.label} – missed opportunity</strong>
                           <p>{result.improvement}</p>
                         </div>
                         <div className="trainer-feedback-block trainer-feedback-example">
@@ -341,7 +341,7 @@ export default function DemoPage() {
                     <h2 className="demo-cta-heading">Like what you see?</h2>
                     <p className="demo-cta-copy">
                       This is just a taste. A full account gives you unlimited scenarios, a personalised
-                      AI Coach, progress tracking, and leaderboard rankings — all built for hospitality.
+                      AI Coach, progress tracking, and leaderboard rankings, all built for hospitality.
                     </p>
                     <div className="demo-cta-actions">
                       <a href="/login" className="btn btn-primary btn-lg">Create free account</a>

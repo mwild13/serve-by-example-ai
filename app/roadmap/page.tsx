@@ -14,7 +14,7 @@ const roadmapItems = [
     eta: "2 months",
     status: "soon",
     title: "Expanded Staff Modules",
-    desc: "New training modules covering coffee service, food pairing, wine fundamentals and advanced guest interaction — built around Australian hospitality standards.",
+    desc: "New training modules covering coffee service, food pairing, wine fundamentals and advanced guest interaction, built around Australian hospitality standards.",
   },
   {
     eta: "4 months",
@@ -38,19 +38,19 @@ const roadmapItems = [
     eta: "TBA",
     status: "planned",
     title: "Custom Scenario Builder",
-    desc: "Upload your venue's menus, house rules, and POS workflows directly into the AI model. Generate training scenarios built around your specific operation — not a generic template.",
+    desc: "Upload your venue's menus, house rules, and POS workflows directly into the AI model. Generate training scenarios built around your specific operation, not a generic template.",
   },
   {
     eta: "TBA",
     status: "planned",
     title: "iOS & Android Native Apps",
-    desc: "Native mobile apps so staff can train on the go, anytime, anywhere — fully synced with their progress, badges, and manager-assigned tasks.",
+    desc: "Native mobile apps so staff can train on the go, anytime, anywhere, fully synced with their progress, badges, and manager-assigned tasks.",
   },
   {
     eta: "TBA",
     status: "planned",
     title: "Further Design & Functionality",
-    desc: "Continuous UI improvements, accessibility updates and performance enhancements across all pages and flows — informed by real venue feedback.",
+    desc: "Continuous UI improvements, accessibility updates and performance enhancements across all pages and flows, informed by real venue feedback.",
   },
 ];
 
@@ -67,7 +67,7 @@ export default function RoadmapPage() {
             <h1>What we&rsquo;re building next.</h1>
             <p className="inner-hero-sub">
               Serve By Example is actively built and improved based on venue operator feedback.
-              Here&rsquo;s what&rsquo;s coming — and when founding members can expect it.
+              Here&rsquo;s what&rsquo;s coming, and when founding members can expect it.
             </p>
           </div>
         </section>

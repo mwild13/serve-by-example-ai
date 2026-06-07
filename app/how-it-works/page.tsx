@@ -165,7 +165,7 @@ export default function HowItWorksPage() {
               <span className="eyebrow">Example Scenario</span>
               <h2>See the product in one glance.</h2>
               <p style={{ maxWidth: "560px", margin: "0 auto" }}>
-                Every response is scored instantly. Over time, the platform tracks your weak areas and resurfaces them — so improvement isn&rsquo;t left to chance.
+                Every response is scored instantly. Over time, the platform tracks your weak areas and resurfaces them, so improvement isn&rsquo;t left to chance.
               </p>
             </div>
             <div className="card-grid card-grid-3">
@@ -206,9 +206,9 @@ export default function HowItWorksPage() {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.25rem" }}>
                 {[
                   { n: "01", title: "Score every response", desc: "Rated across 5 dimensions: communication, hospitality, problem-solving, professionalism and guest experience." },
-                  { n: "02", title: "Identify weak areas", desc: "The system flags dimensions where your score drops consistently — not just one-off mistakes." },
-                  { n: "03", title: "Resurface weak areas automatically", desc: "Spaced repetition brings back scenarios in those areas at the right intervals — 1, 4, 9 and 16 days." },
-                  { n: "04", title: "Adjust difficulty to your level", desc: "The ELO rating system matches you to harder scenarios as you improve — always training at your current edge." },
+                  { n: "02", title: "Identify weak areas", desc: "The system flags dimensions where your score drops consistently, not just one-off mistakes." },
+                  { n: "03", title: "Resurface weak areas automatically", desc: "Spaced repetition brings back scenarios in those areas at the right intervals: 1, 4, 9 and 16 days." },
+                  { n: "04", title: "Adjust difficulty to your level", desc: "The ELO rating system matches you to harder scenarios as you improve, always training at your current edge." },
                 ].map(({ n, title, desc }) => (
                   <div key={n} style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
                     <span style={{ flexShrink: 0, width: "32px", height: "32px", borderRadius: "8px", background: "#2d6a4f", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 800 }}>{n}</span>
@@ -231,7 +231,7 @@ export default function HowItWorksPage() {
               <span className="eyebrow" style={{ color: "#86efac" }}>Consoles</span>
               <h2 style={{ color: "white", marginBottom: "0.5rem" }}>See the platform in one glance.</h2>
               <p style={{ color: "#9ca3af", maxWidth: "560px", margin: "0 auto" }}>
-                Two powerful tools working together — one for managers, one for staff.
+                Two powerful tools working together: one for managers, one for staff.
               </p>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2.5rem", marginTop: "2.5rem", alignItems: "start" }}>
@@ -247,7 +247,7 @@ export default function HowItWorksPage() {
                 <p style={{ color: "#d1fae5", fontWeight: 700, fontSize: "0.8125rem", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "1rem" }}>Staff Mobile Console</p>
                 <Image
                   src="/shots/Mobile View2.png"
-                  alt="Serve By Example staff mobile console — pre-shift brief and training dashboard"
+                  alt="Serve By Example staff mobile console – pre-shift brief and training dashboard"
                   width={390}
                   height={780}
                   sizes="(max-width: 768px) 80vw, 320px"

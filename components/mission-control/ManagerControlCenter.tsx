@@ -136,7 +136,7 @@ function getActionSection(actionId: QuickActionId | null): ManagerSection | null
 // Circular compliance ring (Roles section)
 // ─────────────────────────────────────────────
 function ComplianceRing({ compliant, total }: { compliant: number; total: number }) {
-  if (!total) return <span style={{ color: "var(--mcc-ink-400)", fontSize: "0.85rem" }}>—</span>;
+  if (!total) return <span style={{ color: "var(--mcc-ink-400)", fontSize: "0.85rem" }}>–</span>;
   const pct = compliant / total;
   const r = 13, cx = 16, cy = 16;
   const circ = 2 * Math.PI * r;
@@ -154,7 +154,7 @@ function ComplianceRing({ compliant, total }: { compliant: number; total: number
 }
 
 // ─────────────────────────────────────────────
-// Option A Overview — shared helper components
+// Option A Overview – shared helper components
 // ─────────────────────────────────────────────
 
 function mgrMockSpark(finalValue: number, len = 10): number[] {
@@ -195,9 +195,9 @@ function MgrHealthCard({ score, service, product, sales }: {
   return (
     <div className="mcc-health-card">
       <div className="mcc-health-lbl">Venue Health Score</div>
-      <div className="mcc-health-score">{score > 0 ? score : "—"}<em>/100</em></div>
+      <div className="mcc-health-score">{score > 0 ? score : "–"}<em>/100</em></div>
       <div className="mcc-health-breakdown">
-        Service <b>{service > 0 ? service : "—"}</b> · Product <b>{product > 0 ? product : "—"}</b> · Sales <b>{sales > 0 ? sales : "—"}</b>
+        Service <b>{service > 0 ? service : "–"}</b> · Product <b>{product > 0 ? product : "–"}</b> · Sales <b>{sales > 0 ? sales : "–"}</b>
       </div>
     </div>
   );
@@ -552,7 +552,7 @@ export default function ManagerControlCenter({
   const needsAttention = venueStaff.filter((member) => member.status !== "on-track");
   const inactiveCount = venueStaff.filter((member) => member.status === "inactive").length;
 
-  // ── Manager Insights — auto-generated action tips ──
+  // ── Manager Insights – auto-generated action tips ──
   const managerInsights = useMemo(() => {
     const tips: { id: string; icon: string; text: string; priority: "high" | "medium" | "low" }[] = [];
 
@@ -606,7 +606,7 @@ export default function ManagerControlCenter({
       tips.push({
         id: "all-good",
         icon: "◆",
-        text: "All staff are on track. Great momentum — keep the training rhythm going.",
+        text: "All staff are on track. Great momentum, keep the training rhythm going.",
         priority: "low",
       });
     }
@@ -1223,14 +1223,14 @@ export default function ManagerControlCenter({
             {requestSuccess ? <div className="auth-status auth-status-success">{requestSuccess}</div> : null}
             {requestError ? <div className="auth-status auth-status-error">{requestError}</div> : null}
 
-            {/* Invite link panel — shown after add-staff when an invite link was generated */}
+            {/* Invite link panel – shown after add-staff when an invite link was generated */}
             {pendingInviteLink && (
               <div className={`ops-invite-link-panel${pendingInviteLink.emailSent ? " ops-invite-link-panel--sent" : " ops-invite-link-panel--manual"}`}>
                 <div className="ops-invite-link-header">
                   {pendingInviteLink.emailSent ? (
                     <><strong>Invite email sent</strong> to {pendingInviteLink.email}</>
                   ) : (
-                    <><strong>Email not delivered</strong> — SMTP not configured in Supabase.</>
+                    <><strong>Email not delivered</strong> – SMTP not configured in Supabase.</>
                   )}
                 </div>
                 {!pendingInviteLink.emailSent && (
@@ -1689,13 +1689,13 @@ export default function ManagerControlCenter({
                   </div>
                   <div style={{ padding: "16px 20px" }}>
                     <div style={{ fontSize: 36, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: "var(--mcc-ink-900)" }}>
-                      {metrics.avgCompletion > 0 ? `${Math.min(100, Math.round(metrics.avgCompletion * 0.9 + 10))}%` : "—"}
+                      {metrics.avgCompletion > 0 ? `${Math.min(100, Math.round(metrics.avgCompletion * 0.9 + 10))}%` : "–"}
                     </div>
                     <div style={{ fontSize: 11, color: "var(--mcc-ink-500)", marginBottom: 14 }}>Service standards assessment</div>
                     {([
-                      ["RSA certified",     `${venueStaff.length} / ${venueStaff.length || "—"}`, metrics.avgCompletion > 50 ? "good" : "warn"],
-                      ["Food safety",       `${venueStaff.length} / ${venueStaff.length || "—"}`, "good"],
-                      ["Service protocols", `${venueStaff.filter(s => s.status === "on-track").length} / ${venueStaff.length || "—"}`, needsAttention.length > 0 ? "warn" : "good"],
+                      ["RSA certified",     `${venueStaff.length} / ${venueStaff.length || "–"}`, metrics.avgCompletion > 50 ? "good" : "warn"],
+                      ["Food safety",       `${venueStaff.length} / ${venueStaff.length || "–"}`, "good"],
+                      ["Service protocols", `${venueStaff.filter(s => s.status === "on-track").length} / ${venueStaff.length || "–"}`, needsAttention.length > 0 ? "warn" : "good"],
                       ["Sign-off pending",  `${needsAttention.length} staff`, needsAttention.length > 0 ? "warn" : "good"],
                     ] as [string, string, string][]).map(([k, v, tone], i) => (
                       <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: i < 3 ? "1px dashed var(--mcc-rule-2)" : "none", fontSize: 12 }}>
@@ -1715,7 +1715,7 @@ export default function ManagerControlCenter({
                   <div style={{ padding: "16px 20px" }}>
                     <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
                       <div style={{ fontSize: 36, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}>
-                        {metrics.venueHealthScore > 0 ? metrics.venueHealthScore : "—"}
+                        {metrics.venueHealthScore > 0 ? metrics.venueHealthScore : "–"}
                       </div>
                       {metrics.venueHealthScore > 0 && <span style={{ fontSize: 16, color: "var(--mcc-ink-500)" }}>/100</span>}
                     </div>
@@ -1728,7 +1728,7 @@ export default function ManagerControlCenter({
                       <div key={k} style={{ marginBottom: 10 }}>
                         <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--mcc-ink-700)", marginBottom: 4 }}>
                           <span>{k}</span>
-                          <span style={{ fontVariantNumeric: "tabular-nums" }}>{v > 0 ? `${v}%` : "—"}</span>
+                          <span style={{ fontVariantNumeric: "tabular-nums" }}>{v > 0 ? `${v}%` : "–"}</span>
                         </div>
                         <div className="mcc-bar">
                           <div className="mcc-bar-fill" style={{ width: `${v}%`, background: c }} />
@@ -2099,11 +2099,11 @@ export default function ManagerControlCenter({
                           <div style={{ fontSize: "0.82rem", color: "var(--mcc-ink-500)", display: "flex", flexDirection: "column", gap: 4 }}>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                               <span>Training completion</span>
-                              <b style={{ color: "var(--mcc-ink-900)" }}>{team.avgProgress > 0 ? `${team.avgProgress}%` : "—"}</b>
+                              <b style={{ color: "var(--mcc-ink-900)" }}>{team.avgProgress > 0 ? `${team.avgProgress}%` : "–"}</b>
                             </div>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                               <span>Avg scenario score</span>
-                              <b style={{ color: "var(--mcc-ink-900)" }}>{team.avgScore > 0 ? `${team.avgScore}%` : "—"}</b>
+                              <b style={{ color: "var(--mcc-ink-900)" }}>{team.avgScore > 0 ? `${team.avgScore}%` : "–"}</b>
                             </div>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                               <span>Needs attention</span>
@@ -2144,7 +2144,7 @@ export default function ManagerControlCenter({
                       ))}
                     </div>
                     <div style={{ borderTop: "1px solid var(--mcc-border)", paddingTop: "1rem" }}>
-                      <p style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--mcc-ink-500)", marginBottom: 10 }}>Team comparison — avg scenario score</p>
+                      <p style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--mcc-ink-500)", marginBottom: 10 }}>Team comparison – avg scenario score</p>
                       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                         {/* 80% target label */}
                         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
@@ -2191,7 +2191,7 @@ export default function ManagerControlCenter({
         })()}
 
         {activeSection === "roles" && (() => {
-          // Required modules per role (static config — editable in V2)
+          // Required modules per role (static config – editable in V2)
           const MODULE_REQS: Record<StaffRole, { label: string; required: boolean }[]> = {
             "Bartender":  [{ label: "Bartending", required: true }, { label: "Sales", required: true }, { label: "Management", required: false }],
             "Floor":      [{ label: "Bartending", required: false }, { label: "Sales", required: true }, { label: "Management", required: false }],
@@ -2244,7 +2244,7 @@ export default function ManagerControlCenter({
                       <div key={row.role} style={{ padding: "10px 12px", borderRadius: 8, background: bg, border: `1.5px solid ${border}` }}>
                         <div style={{ fontSize: "0.72rem", fontWeight: 600, color: "var(--mcc-ink-600)", marginBottom: 4 }}>{row.role}</div>
                         <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-                          <span style={{ fontSize: "1.3rem", fontWeight: 800, color }}>{row.avgProgress ?? "—"}{row.avgProgress != null ? "%" : ""}</span>
+                          <span style={{ fontSize: "1.3rem", fontWeight: 800, color }}>{row.avgProgress ?? "–"}{row.avgProgress != null ? "%" : ""}</span>
                           <span style={{ fontSize: "0.7rem", color: "var(--mcc-ink-400)" }}>readiness</span>
                         </div>
                         <div style={{ marginTop: 6, height: 4, background: "#e5e7eb", borderRadius: 999 }}>
@@ -2287,7 +2287,7 @@ export default function ManagerControlCenter({
                             <td style={{ textAlign: "center", padding: "10px 12px", borderBottom: "1px solid var(--mcc-border)", color: "var(--mcc-ink-700)" }}>{row.members.length}</td>
                             {mods.map(cell)}
                             <td style={{ textAlign: "center", padding: "10px 12px", borderBottom: "1px solid var(--mcc-border)", fontWeight: 700, color: "var(--mcc-ink-900)" }}>
-                              {row.avgProgress !== null ? `${row.avgProgress}%` : "—"}
+                              {row.avgProgress !== null ? `${row.avgProgress}%` : "–"}
                             </td>
                             <td style={{ textAlign: "center", padding: "10px 12px", borderBottom: "1px solid var(--mcc-border)" }}>
                               <ComplianceRing compliant={row.compliant} total={row.members.length} />
@@ -2445,10 +2445,10 @@ export default function ManagerControlCenter({
                     return (
                       <div key={row.label} className="ops-compare-row">
                         <span>{row.label}</span>
-                        <span>{row.current > 0 ? `${row.current}${suffix}` : "—"}</span>
-                        <span>{row.prev > 0 ? `${row.prev}${suffix}` : "—"}</span>
+                        <span>{row.current > 0 ? `${row.current}${suffix}` : "–"}</span>
+                        <span>{row.prev > 0 ? `${row.prev}${suffix}` : "–"}</span>
                         <span style={{ fontWeight: 700, color: delta > 0 ? "#16a34a" : delta < 0 ? "var(--text-soft)" : "var(--mcc-ink-400)" }}>
-                          {delta > 0 ? `↑ ${delta}${suffix}` : delta < 0 ? `↓ ${Math.abs(delta)}${suffix}` : "—"}
+                          {delta > 0 ? `↑ ${delta}${suffix}` : delta < 0 ? `↓ ${Math.abs(delta)}${suffix}` : "–"}
                         </span>
                       </div>
                     );
@@ -2481,8 +2481,8 @@ export default function ManagerControlCenter({
                       ].map((row) => (
                         <div key={row.label} className="ops-compare-row">
                           <span>{row.label}</span>
-                          <span>{row.barVal > 0 ? `${row.barVal}%` : "—"}</span>
-                          <span>{row.floorVal > 0 ? `${row.floorVal}%` : "—"}</span>
+                          <span>{row.barVal > 0 ? `${row.barVal}%` : "–"}</span>
+                          <span>{row.floorVal > 0 ? `${row.floorVal}%` : "–"}</span>
                         </div>
                       ))}
                     </div>
@@ -2609,9 +2609,9 @@ export default function ManagerControlCenter({
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.75rem", marginBottom: "1.5rem" }}>
                   {[
                     { label: "Total staff", value: venueStaff.length },
-                    { label: "Avg training", value: venueStaff.length ? `${metrics.avgCompletion}%` : "—" },
-                    { label: "Avg score", value: venueStaff.length ? `${metrics.avgScenarioScore}%` : "—" },
-                    { label: "Compliant", value: venueStaff.length ? `${fullyCompliant.length}/${venueStaff.length}` : "—" },
+                    { label: "Avg training", value: venueStaff.length ? `${metrics.avgCompletion}%` : "–" },
+                    { label: "Avg score", value: venueStaff.length ? `${metrics.avgScenarioScore}%` : "–" },
+                    { label: "Compliant", value: venueStaff.length ? `${fullyCompliant.length}/${venueStaff.length}` : "–" },
                   ].map((kpi) => (
                     <div key={kpi.label} style={{ padding: "14px 16px", background: "var(--surface-raised)", borderRadius: 10, border: "1px solid var(--mcc-border)", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
                       <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "var(--mcc-ink-900)" }}>{kpi.value}</div>
@@ -2703,7 +2703,7 @@ export default function ManagerControlCenter({
                             <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#dcfce7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                             </div>
-                            <p style={{ margin: 0, fontSize: "0.875rem", color: "#15803d", fontWeight: 600 }}>All staff are on track — great work.</p>
+                            <p style={{ margin: 0, fontSize: "0.875rem", color: "#15803d", fontWeight: 600 }}>All staff are on track. Great work.</p>
                           </div>
                         ) : (
                           needsHelp.map((s, i) => (
@@ -2733,7 +2733,7 @@ export default function ManagerControlCenter({
                           <div key={skill.label}>
                             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
                               <span style={{ fontSize: "0.8rem", color: "var(--mcc-ink-600)", fontWeight: 600 }}>{skill.label}</span>
-                              <span style={{ fontSize: "0.8rem", fontWeight: 800, color: skill.color }}>{skill.value > 0 ? `${skill.value}%` : "—"}</span>
+                              <span style={{ fontSize: "0.8rem", fontWeight: 800, color: skill.color }}>{skill.value > 0 ? `${skill.value}%` : "–"}</span>
                             </div>
                             <div style={{ height: 10, background: "#e5e7eb", borderRadius: 999, overflow: "hidden" }}>
                               <div style={{ height: "100%", width: `${skill.value}%`, background: skill.color, borderRadius: 999, transition: "width 0.3s ease" }} />
@@ -2900,14 +2900,14 @@ export default function ManagerControlCenter({
               category: "training" as const,
               urgency: "warning" as const,
               title: "Training overdue",
-              body: `${s.name} needs attention — currently at ${parseFloat(s.progress.toFixed(0))}% completion.`,
+              body: `${s.name} needs attention, currently at ${parseFloat(s.progress.toFixed(0))}% completion.`,
             }))),
             ...(venueStaff.filter((s) => s.salesScore > 0 && s.salesScore < 50).map((s) => ({
               id: `lowsales-${s.id}`,
               category: "performance" as const,
               urgency: "warning" as const,
               title: "Low upsell score",
-              body: `${s.name} has a sales score of ${s.salesScore}% — consider targeted upsell training.`,
+              body: `${s.name} has a sales score of ${s.salesScore}%. Consider targeted upsell training.`,
             }))),
             ...(metrics.salesSkill > 0 ? [{
               id: "upsell-avg",
@@ -3115,13 +3115,13 @@ export default function ManagerControlCenter({
                   <div className="ops-ai-coach-empty">
                     <div style={{ width: "100%", marginBottom: 16 }}>
                       <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--mcc-ink-500)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, textAlign: "center" }}>
-                        Your venue at a glance — {selectedVenue?.name}
+                        Your venue at a glance – {selectedVenue?.name}
                       </div>
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}>
                         {[
-                          { label: "Staff", value: venueStaff.length > 0 ? String(venueStaff.length) : "—", sub: "active members" },
-                          { label: "Avg score", value: metrics.avgScenarioScore > 0 ? `${metrics.avgScenarioScore}%` : "—", sub: "scenario average" },
-                          { label: "Training", value: metrics.avgCompletion > 0 ? `${metrics.avgCompletion}%` : "—", sub: "completion rate" },
+                          { label: "Staff", value: venueStaff.length > 0 ? String(venueStaff.length) : "–", sub: "active members" },
+                          { label: "Avg score", value: metrics.avgScenarioScore > 0 ? `${metrics.avgScenarioScore}%` : "–", sub: "scenario average" },
+                          { label: "Training", value: metrics.avgCompletion > 0 ? `${metrics.avgCompletion}%` : "–", sub: "completion rate" },
                           { label: "Attention", value: String(needsAttention.length), sub: needsAttention.length === 1 ? "needs follow-up" : "need follow-up" },
                         ].map((stat) => (
                           <div key={stat.label} style={{ background: "var(--mcc-surface-2)", borderRadius: 8, padding: "10px 14px" }}>
@@ -3218,18 +3218,18 @@ export default function ManagerControlCenter({
           const predictions: PredictionFlag[] = venueStaff.flatMap((member) => {
             const flags: PredictionFlag[] = [];
             if (member.salesScore < 70)
-              flags.push({ id: `${member.id}-sales`, staffName: member.name, role: member.role, gap: "Upselling & Sales", risk: "high", reason: `Sales score ${member.salesScore}% — below 70% threshold`, action: "Assign 'Sales Conversations' training module" });
+              flags.push({ id: `${member.id}-sales`, staffName: member.name, role: member.role, gap: "Upselling & Sales", risk: "high", reason: `Sales score ${member.salesScore}% – below 70% threshold`, action: "Assign 'Sales Conversations' training module" });
             if (member.serviceScore < 65)
-              flags.push({ id: `${member.id}-service`, staffName: member.name, role: member.role, gap: "Service Quality", risk: "medium", reason: `Service score ${member.serviceScore}% — needs attention`, action: "Assign 'Guest Experience Foundations' scenario" });
+              flags.push({ id: `${member.id}-service`, staffName: member.name, role: member.role, gap: "Service Quality", risk: "medium", reason: `Service score ${member.serviceScore}% – needs attention`, action: "Assign 'Guest Experience Foundations' scenario" });
             if (member.productScore < 60)
-              flags.push({ id: `${member.id}-product`, staffName: member.name, role: member.role, gap: "Product Knowledge", risk: "medium", reason: `Product score ${member.productScore}% — knowledge gaps likely`, action: "Review menu knowledge module assignment" });
+              flags.push({ id: `${member.id}-product`, staffName: member.name, role: member.role, gap: "Product Knowledge", risk: "medium", reason: `Product score ${member.productScore}% – knowledge gaps likely`, action: "Review menu knowledge module assignment" });
             if (member.progress < 40 && member.status !== "inactive")
-              flags.push({ id: `${member.id}-progress`, staffName: member.name, role: member.role, gap: "Training Completion", risk: "high", reason: `Only ${member.progress}% complete — falling behind`, action: "Schedule a check-in and re-assign priority modules" });
+              flags.push({ id: `${member.id}-progress`, staffName: member.name, role: member.role, gap: "Training Completion", risk: "high", reason: `Only ${member.progress}% complete – falling behind`, action: "Schedule a check-in and re-assign priority modules" });
             // Mastery engine flags
             if (member.knowledgeDecayRisk)
-              flags.push({ id: `${member.id}-decay`, staffName: member.name, role: member.role, gap: "Knowledge Decay", risk: "high", reason: "Spaced-repetition items overdue — skills fading", action: "Prompt staff to complete review queue" });
+              flags.push({ id: `${member.id}-decay`, staffName: member.name, role: member.role, gap: "Knowledge Decay", risk: "high", reason: "Spaced-repetition items overdue – skills fading", action: "Prompt staff to complete review queue" });
             if (member.highConfidenceIncorrectRatio != null && member.highConfidenceIncorrectRatio > 0.3)
-              flags.push({ id: `${member.id}-confidence`, staffName: member.name, role: member.role, gap: "Confidence Mismatch", risk: "medium", reason: `${Math.round(member.highConfidenceIncorrectRatio * 100)}% of high-confidence attempts are incorrect`, action: "Coach on self-assessment accuracy — over-confidence risk" });
+              flags.push({ id: `${member.id}-confidence`, staffName: member.name, role: member.role, gap: "Confidence Mismatch", risk: "medium", reason: `${Math.round(member.highConfidenceIncorrectRatio * 100)}% of high-confidence attempts are incorrect`, action: "Coach on self-assessment accuracy – over-confidence risk" });
             return flags;
           });
           const highRisk = predictions.filter((p) => p.risk === "high");
@@ -3317,7 +3317,7 @@ export default function ManagerControlCenter({
                       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4 }}><polyline points="20 6 9 17 4 12"/></svg>
                     </div>
                     <strong>No skill gaps detected.</strong>
-                    <p style={{ marginTop: 4, fontSize: ".9rem" }}>All staff are tracking above performance thresholds — keep monitoring as new staff join.</p>
+                    <p style={{ marginTop: 4, fontSize: ".9rem" }}>All staff are tracking above performance thresholds. Keep monitoring as new staff join.</p>
                   </div>
                 ) : (
                   <>
@@ -3392,7 +3392,7 @@ export default function ManagerControlCenter({
                             <span style={{ fontWeight: 700, color: "var(--text)" }}>{count} staff affected</span>
                           </div>
                         ))}
-                        <p style={{ marginTop: 10, fontSize: ".82rem", color: "var(--text-soft)" }}>Patterns across multiple staff suggest a systemic gap — consider creating venue-wide training content for these areas.</p>
+                        <p style={{ marginTop: 10, fontSize: ".82rem", color: "var(--text-soft)" }}>Patterns across multiple staff suggest a systemic gap. Consider creating venue-wide training content for these areas.</p>
                       </div>
                     )}
                   </>
@@ -3440,7 +3440,7 @@ export default function ManagerControlCenter({
                   </div>
                   {allDone && (
                     <div style={{ marginTop: 12, padding: "10px 14px", background: "#dcfce7", borderRadius: 8, fontSize: "0.82rem", color: "#15803d", fontWeight: 600 }}>
-                      Venue setup complete — your team is ready to train.
+                      Venue setup complete. Your team is ready to train.
                     </div>
                   )}
                 </article>

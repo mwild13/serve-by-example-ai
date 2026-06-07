@@ -28,7 +28,7 @@ const TAB_CONTENT: Record<Tab, TabContent> = {
       '65+ bartending and service scenarios',
     ],
     mockupTitle: 'Dashboard',
-    mockupRows: ['Bartending — 72% complete', 'Sales — 45% complete', 'ELO Rating: 1,240'],
+    mockupRows: ['Bartending – 72% complete', 'Sales – 45% complete', 'ELO Rating: 1,240'],
   },
   manager: {
     headline: 'Real-time visibility across your whole team',
@@ -50,7 +50,7 @@ const TAB_CONTENT: Record<Tab, TabContent> = {
       'Adaptive difficulty keeps competition fair',
     ],
     mockupTitle: 'Live Scenarios',
-    mockupRows: ['#1 Jordan — 24/25', '#2 Alex — 22/25', '#3 Sam — 19/25'],
+    mockupRows: ['#1 Jordan – 24/25', '#2 Alex – 22/25', '#3 Sam – 19/25'],
   },
 };
 

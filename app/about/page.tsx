@@ -13,7 +13,7 @@ export default function AboutPage() {
             <h1>Built by people who know hospitality</h1>
             <p className="hero-sub">
               Serve By Example started from a simple frustration: great hospitality training
-              was out of reach for most venues — too expensive, too generic, too slow. We
+              was out of reach for most venues: too expensive, too generic, too slow. We
               built the platform we wished existed.
             </p>
           </div>
@@ -24,7 +24,7 @@ export default function AboutPage() {
             <div className="about-block">
               <h2>The problem</h2>
               <p>
-                Most venue staff learn on the job — which means inconsistent guest
+                Most venue staff learn on the job, which means inconsistent guest
                 experiences, slow onboarding, and managers constantly plugging gaps. Written
                 manuals gather dust. One-off training days are forgotten within weeks.
               </p>
@@ -33,7 +33,7 @@ export default function AboutPage() {
               <h2>Our approach</h2>
               <p>
                 Scenario-based training that fits around shifts. Staff practice real
-                situations — difficult guests, upsell moments, service recovery — and get
+                situations (difficult guests, upsell moments, service recovery) and get
                 instant, specific feedback. No dedicated trainer required.
               </p>
             </div>
@@ -48,7 +48,7 @@ export default function AboutPage() {
             <div className="about-block">
               <h2>Where we&apos;re headed</h2>
               <p>
-                We&apos;re building the complete staff development platform for hospitality —
+                We&apos;re building the complete staff development platform for hospitality,
                 from first-shift onboarding through to team management and progression
                 tracking.
               </p>
@@ -61,7 +61,7 @@ export default function AboutPage() {
             <div className="about-cta">
               <h2>Ready to see it in action?</h2>
               <p>
-                Try the free demo — no account needed. See exactly how it feels for your
+                Try the free demo. No account needed. See exactly how it feels for your
                 staff.
               </p>
               <div className="hero-actions">

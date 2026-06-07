@@ -238,7 +238,7 @@ function mapStaff(row: Record<string, unknown>): StaffMember {
     status: asString(row.status, "on-track") as StaffStatus,
     strengths: asStringArray(row.strengths),
     improvements: asStringArray(row.improvements),
-    // Mastery engine fields (graceful — undefined if columns don't exist yet)
+    // Mastery engine fields (graceful – undefined if columns don't exist yet)
     masteryStatus: typeof row.mastery_status === "string" ? row.mastery_status : undefined,
     eloRating: typeof row.elo_rating === "number" ? row.elo_rating : undefined,
     knowledgeDecayRisk: typeof row.knowledge_decay_risk === "boolean" ? row.knowledge_decay_risk : undefined,
@@ -319,7 +319,7 @@ async function getOwnedVenues(supabase: ManagementSupabaseClient, userId: string
 }
 
 async function getNextVenueCode(supabase: ManagementSupabaseClient) {
-  // Just validate the column exists — don't query max value.
+  // Just validate the column exists – don't query max value.
   // Sequential "max+1" always collides because RLS means each new manager sees
   // only their own (empty) venues table and always gets the same floor code.
   const { error } = await supabase
@@ -452,7 +452,7 @@ export async function getManagementSnapshot(
       const refetch = await getOwnedVenues(supabase, userId);
       venueRows = refetch.data ?? [];
     } catch {
-      // Non-critical — fall through to seed data
+      // Non-critical – fall through to seed data
     }
   }
   if (!venueRows.length) {

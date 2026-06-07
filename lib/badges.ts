@@ -114,7 +114,7 @@ export function computeBadges(
     });
   }
 
-  // Streak badges (streak from localStorage — may be null on server; treat null as 0)
+  // Streak badges (streak from localStorage – may be null on server; treat null as 0)
   for (const def of STREAK_DEFS) {
     badges.push({
       id: def.id,
@@ -136,7 +136,7 @@ export function computeBadges(
     ...(bestStreak >= 25 ? {} : { progress: { current: bestStreak, required: 25, unit: "correct in a row" } }),
   });
 
-  // Special: SBE Elite (mastered 80%+ of all modules — computed from data, not DB counter)
+  // Special: SBE Elite (mastered 80%+ of all modules – computed from data, not DB counter)
   const masteredTotal = modules.filter((m) => m.mastered).length;
   const requiredForElite = Math.max(1, Math.ceil(modules.length * 0.8));
   const eliteEarned = modules.length > 0 && masteredTotal >= requiredForElite;

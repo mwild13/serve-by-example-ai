@@ -6,20 +6,20 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Interactive Challenges | Serve By Example",
   description:
-    "Tap-based hospitality training mini-games. Sequence sorts, recipe builds, match pairs, and scenario responses — no typing, no exam pressure.",
+    "Tap-based hospitality training mini-games. Sequence sorts, recipe builds, match pairs, and scenario responses. No typing, no exam pressure.",
 };
 
 const formats = [
   {
     number: "01",
     title: "Sequence Sort",
-    desc: "Arrange multi-step tasks in the correct order. A Guinness round, a wine and cocktail pour — staff learn operational workflow without memorising a checklist.",
+    desc: "Arrange multi-step tasks in the correct order. A Guinness round, a wine and cocktail pour. Staff learn operational workflow without memorising a checklist.",
     tag: "Workflow",
   },
   {
     number: "02",
     title: "Fill the Blank",
-    desc: "Reconstruct a cocktail recipe or service procedure from a word bank. Tap a blank, pick the right term. No typing — just fast, tactile recall.",
+    desc: "Reconstruct a cocktail recipe or service procedure from a word bank. Tap a blank, pick the right term. No typing, just fast, tactile recall.",
     tag: "Recipe Knowledge",
   },
   {
@@ -37,7 +37,7 @@ const formats = [
   {
     number: "05",
     title: "Multiple Choice Scenario",
-    desc: "A guest interaction plays out. Three response options appear. Staff choose the best one under time pressure — building instinct before they ever face the situation for real.",
+    desc: "A guest interaction plays out. Three response options appear. Staff choose the best one under time pressure, building instinct before they ever face the situation for real.",
     tag: "Service",
   },
 ];
@@ -101,7 +101,7 @@ export default function ChallengesMarketingPage() {
                 margin: "0 auto 2.5rem",
               }}
             >
-              Interactive Challenges replaces the blank text box with five tap-based mini-game formats. Built for the 18–25 cohort who learn faster through doing than reading — and designed to fit in a 45-second break between orders.
+              Interactive Challenges replaces the blank text box with five tap-based mini-game formats. Built for the 18–25 cohort who learn faster through doing than reading, designed to fit in a 45-second break between orders.
             </p>
             <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
               <Link
@@ -168,7 +168,7 @@ export default function ChallengesMarketingPage() {
                 What staff actually see
               </h2>
               <p style={{ fontSize: "0.95rem", color: "var(--text-soft)", maxWidth: "520px", margin: "0 auto", lineHeight: 1.7 }}>
-                Tap-based. No keyboard. Every format renders instantly on any screen — from the staff break room to the bar.
+                Tap-based. No keyboard. Every format renders instantly on any screen, from the staff break room to the bar.
               </p>
             </div>
 
@@ -342,8 +342,8 @@ export default function ChallengesMarketingPage() {
 
                   {[
                     { text: "\"I'll let the bar team know.\"", state: "wrong" },
-                    { text: "\"I'm so sorry — let me replace that immediately.\"", state: "correct" },
-                    { text: "\"That must have been there before — I'll wipe it.\"", state: "neutral" },
+                    { text: "\"I'm so sorry, let me replace that immediately.\"", state: "correct" },
+                    { text: "\"That must have been there before. I'll wipe it.\"", state: "neutral" },
                   ].map((opt, i) => (
                     <div
                       key={i}
@@ -479,7 +479,7 @@ export default function ChallengesMarketingPage() {
                     }}
                   >
                     <p style={{ fontSize: "0.7rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--green-deep)", marginBottom: "0.25rem" }}>2 of 3 matched</p>
-                    <p style={{ fontSize: "0.75rem", color: "var(--green-deep)", lineHeight: 1.5 }}>Mojito selected — now tap its glass.</p>
+                    <p style={{ fontSize: "0.75rem", color: "var(--green-deep)", lineHeight: 1.5 }}>Mojito selected. Now tap its glass.</p>
                   </div>
                 </div>
               </div>
@@ -792,14 +792,14 @@ export default function ChallengesMarketingPage() {
                     strokeWidth="2"
                   />
 
-                  {/* Axis dot markers — interactive */}
+                  {/* Axis dot markers – interactive */}
                   {[
                     [150, 70], [209, 116], [184, 182], [113, 186], [99, 118],
                   ].map(([x, y], i) => (
                     <circle key={i} cx={x} cy={y} r="3" fill="#1f4e37" />
                   ))}
 
-                  {/* Axis dot markers — legacy */}
+                  {/* Axis dot markers – legacy */}
                   {[
                     [150, 107], [176, 127], [169, 161], [128, 165], [124, 127],
                   ].map(([x, y], i) => (
@@ -970,7 +970,7 @@ export default function ChallengesMarketingPage() {
                   Micro-Burst Learning
                 </h2>
                 <p style={{ fontSize: "0.95rem", color: "var(--text-soft)", lineHeight: 1.75, marginBottom: "1.5rem" }}>
-                  The core philosophy of the new engine is <strong>Micro-Burst Learning</strong>. By ensuring every challenge can be completed in under 45 seconds, we fit into the natural downtime of a hospitality shift — during a commute, waiting for a manager, or before a brief.
+                  The core philosophy of the new engine is <strong>Micro-Burst Learning</strong>. By ensuring every challenge can be completed in under 45 seconds, we fit into the natural downtime of a hospitality shift: during a commute, waiting for a manager, or before a brief.
                 </p>
 
                 {/* Architectural Note callout */}
@@ -1026,7 +1026,7 @@ export default function ChallengesMarketingPage() {
               Available now inside the dashboard
             </h2>
             <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.7, marginBottom: "2rem" }}>
-              Interactive Challenges is live for all staff accounts. Log in and find it under Challenges in the sidebar — no setup required.
+              Interactive Challenges is live for all staff accounts. Log in and find it under Challenges in the sidebar. No setup required.
             </p>
             <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
               <Link

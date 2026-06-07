@@ -32,7 +32,7 @@ export default function PricingPage() {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        // Unlikely — fall back to error message below the button instead of alert
+        // Unlikely – fall back to error message below the button instead of alert
         setLoading(null);
         setCheckoutError(data.error || "Unable to start checkout. Please try again.");
       }
@@ -236,7 +236,7 @@ export default function PricingPage() {
             <div className="faq-list">
               <details className="faq-item">
                 <summary>Is there a trial available?</summary>
-                <p>Yes. The <strong>Free Demo</strong> provides access to three scored scenario evaluations — no credit card required. Experience the platform&apos;s tactical feedback before upgrading to a paid tier.</p>
+                <p>Yes. The <strong>Free Demo</strong> provides access to three scored scenario evaluations. No credit card required. Experience the platform&apos;s tactical feedback before upgrading to a paid tier.</p>
               </details>
               <details className="faq-item">
                 <summary>How is billing structured?</summary>

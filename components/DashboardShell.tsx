@@ -324,7 +324,7 @@ function StaffSettingsPanel({
 
       <div className="card">
         <h3>Display theme</h3>
-        <p>Switch to an industrial dark theme for the learning console — easier on the eyes in dimly lit bars.</p>
+        <p>Switch to an industrial dark theme for the learning console, easier on the eyes in dimly lit bars.</p>
         <div className="staff-toggle-list">
           <label>
             <input
@@ -563,7 +563,7 @@ export default function DashboardShell({
     checkDiagnostic();
   }, [plan]);
 
-  // Centralized progress data — fetched once on mount, refreshed on sync button press
+  // Centralized progress data – fetched once on mount, refreshed on sync button press
   const [progressData, setProgressData] = useState<Record<string, unknown> | null>(null);
   const fetchProgress = useCallback(async () => {
     try {
@@ -656,7 +656,7 @@ export default function DashboardShell({
             fontSize: 14,
             fontWeight: 500,
           }}>
-            <span>Payment successful — your Pro plan is now active.</span>
+            <span>Payment successful. Your Pro plan is now active.</span>
             <button
               onClick={() => setShowPaymentBanner(false)}
               style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text)", fontSize: 20, lineHeight: 1, padding: "0 0 0 12px" }}
@@ -680,7 +680,7 @@ export default function DashboardShell({
         {activeNav === "module" ? (
           <div key="module">
             {selectedModuleId ? (
-              /* Training view — replaces module grid */
+              /* Training view – replaces module grid */
               <div>
                 <button
                   onClick={() => setSelectedModuleId(null)}
@@ -805,7 +805,7 @@ export default function DashboardShell({
 
       </section>
 
-      {/* Persistent mobile bottom nav — sits at z-index 45, below V3 home overlay (50) */}
+      {/* Persistent mobile bottom nav – sits at z-index 45, below V3 home overlay (50) */}
       <MobileBottomNavBar activeNav={activeNav} onNavigate={handleNavClick} />
     </main>
   );

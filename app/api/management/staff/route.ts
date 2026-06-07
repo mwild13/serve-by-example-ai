@@ -129,7 +129,7 @@ export async function POST(req: Request) {
           const msg = linkError.message ?? "";
           console.error("[staff/invite] generateLink failed:", msg, "| redirectTo:", redirectTo);
           if (msg.toLowerCase().includes("already registered") || msg.toLowerCase().includes("already been registered")) {
-            inviteMessage = `${name} added. Note: ${email} already has a Serve by Example account — they can log in directly.`;
+            inviteMessage = `${name} added. Note: ${email} already has a Serve by Example account. They can log in directly.`;
           } else {
             inviteMessage = `Staff member added. Could not generate invite link: ${msg}`;
           }

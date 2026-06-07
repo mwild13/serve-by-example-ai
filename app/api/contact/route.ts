@@ -3,7 +3,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { name, email, venueName, venueType, message, website } = body;
 
-    // Honeypot — bots fill this invisible field
+    // Honeypot – bots fill this invisible field
     if (website) {
       return Response.json({ ok: true });
     }
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
         sender: { name: fromName, email: fromEmail },
         to: [{ email: toEmail }],
         replyTo: { email: email.trim(), name: name.trim() },
-        subject: `Contact enquiry from ${name.trim()}${venueName?.trim() ? ` — ${venueName.trim()}` : ""}`,
+        subject: `Contact enquiry from ${name.trim()}${venueName?.trim() ? ` – ${venueName.trim()}` : ""}`,
         htmlContent,
       }),
     });

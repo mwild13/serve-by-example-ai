@@ -10,7 +10,7 @@ type Drill = {
 
 type State = "idle" | "generating" | "results" | "error";
 
-const PLACEHOLDER = `e.g.\nNegroni — Campari, sweet vermouth, gin, orange peel\nOld Fashioned — bourbon, sugar, Angostura bitters, orange\nAperol Spritz — Aperol, prosecco, soda\nHouse Pale Ale — hoppy, tropical notes, 4.8%`;
+const PLACEHOLDER = `e.g.\nNegroni – Campari, sweet vermouth, gin, orange peel\nOld Fashioned – bourbon, sugar, Angostura bitters, orange\nAperol Spritz – Aperol, prosecco, soda\nHouse Pale Ale – hoppy, tropical notes, 4.8%`;
 
 export default function MenuDrillGenerator() {
   const [menuText, setMenuText] = useState("");
@@ -30,7 +30,7 @@ export default function MenuDrillGenerator() {
       };
       reader.readAsText(file);
     } else if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
-      setErrorMsg("PDF text extraction isn't available yet — paste your menu text below instead.");
+      setErrorMsg("PDF text extraction isn't available yet. Paste your menu text below instead.");
     } else {
       setErrorMsg("Please drop a .txt file or paste your menu text below.");
     }
@@ -88,7 +88,7 @@ export default function MenuDrillGenerator() {
           <h2>Drop your menu. Get instant drill scenarios.</h2>
           <p className="drill-gen-sub">
             Paste your cocktail or drinks list and get 3 custom practice drills built around your
-            actual menu — ready to use with your team in seconds.
+            actual menu, ready to use with your team in seconds.
           </p>
         </div>
 

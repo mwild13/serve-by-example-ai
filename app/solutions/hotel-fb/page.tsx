@@ -72,7 +72,7 @@ export default function HotelFBPage() {
             <p className="inner-hero-sub">
               Hotel F&amp;B is complex: multiple outlets, rotating staff, elevated guest
               expectations, and non-negotiable compliance requirements. Serve By Example gives your
-              entire F&amp;B operation a single, consistent training platform — from the breakfast
+              entire F&amp;B operation a single, consistent training platform, from the breakfast
               shift to the late-night bar.
             </p>
             <div className="inner-hero-actions">
@@ -128,7 +128,7 @@ export default function HotelFBPage() {
             <span className="eyebrow">Get started</span>
             <h2>Ready to standardise your hotel F&amp;B training?</h2>
             <p style={{ maxWidth: 520, margin: "0 auto 32px", color: "var(--text-soft)" }}>
-              Book a walkthrough or try the demo yourself — no commitment required.
+              Book a walkthrough or try the demo yourself. No commitment required.
             </p>
             <div className="hero-actions" style={{ justifyContent: "center" }}>
               <Link href="/demo" className="btn btn-primary btn-lg">Try the Demo</Link>

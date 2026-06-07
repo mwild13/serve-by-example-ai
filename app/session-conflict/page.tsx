@@ -71,7 +71,7 @@ export default function SessionConflictPage() {
               Your plan allows one active session at a time.
             </p>
             <p style={{ color: "var(--text-soft)", marginBottom: 32, fontSize: "0.9rem" }}>
-              You can resume on this device — the other session will be signed out automatically.
+              You can resume on this device. The other session will be signed out automatically.
             </p>
             {error && <p style={{ color: "#dc2626", marginBottom: 16 }}>{error}</p>}
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>

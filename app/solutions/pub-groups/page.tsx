@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Interactive Training for Pub Groups | Serve By Example",
   description:
-    "Standardise training across every site in your pub group. Consistent service, faster onboarding, and real visibility into staff readiness — from a single console.",
+    "Standardise training across every site in your pub group. Consistent service, faster onboarding, and real visibility into staff readiness, from a single console.",
 };
 
 const features = [
@@ -67,7 +67,7 @@ export default function PubGroupsPage() {
             <p className="inner-hero-sub">
               Inconsistent training is the silent killer of multi-site pub brands. One venue nails
               upselling; three others improvise. Serve By Example gives every staff member the same
-              quality training experience — regardless of location, manager, or roster.
+              quality training experience, regardless of location, manager, or roster.
             </p>
             <div className="inner-hero-actions">
               <Link href="/contact" className="btn btn-primary btn-lg">Request Venue Access</Link>

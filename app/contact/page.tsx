@@ -53,8 +53,8 @@ export default function ContactPage() {
             <div className="eyebrow">Get in touch</div>
             <h1>Talk to us</h1>
             <p className="hero-sub">
-              Questions, partnership enquiries, or just want to see if we&apos;re a fit —
-              we&apos;d love to hear from you.
+              Questions, partnership enquiries, or just want to see if we&apos;re a fit.
+              We&apos;d love to hear from you.
             </p>
           </div>
         </section>

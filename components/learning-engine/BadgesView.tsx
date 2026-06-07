@@ -253,7 +253,7 @@ export default function BadgesView({ onBack }: BadgesViewProps) {
               opacity: 0.85,
               margin: 0,
             }}>
-              {earnedCount} of {totalBadgeCount} earned — keep going
+              {earnedCount} of {totalBadgeCount} earned – keep going
             </p>
             {onBack && (
               <button

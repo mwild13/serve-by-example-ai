@@ -40,13 +40,13 @@ export async function POST(req: Request) {
           ${row("Email", `<a href="mailto:${email.trim()}">${email.trim()}</a>`)}
           ${row("Phone", phone.trim())}
           ${row("Company", company.trim())}
-          ${row("Team size", teamSize || "—")}
-          ${row("Uses training?", usesTraining === "yes" ? `Yes${platformName?.trim() ? ` — ${platformName.trim()}` : ""}` : usesTraining === "no" ? "No" : "—")}
-          ${row("Decision maker?", decisionMaker || "—")}
+          ${row("Team size", teamSize || "–")}
+          ${row("Uses training?", usesTraining === "yes" ? `Yes${platformName?.trim() ? ` – ${platformName.trim()}` : ""}` : usesTraining === "no" ? "No" : "–")}
+          ${row("Decision maker?", decisionMaker || "–")}
         </table>
         <div style="margin-top:24px;padding:20px;background:#f9fafb;border-radius:8px;border-left:4px solid #0B2B1E">
           <p style="margin:0;font-weight:600;margin-bottom:8px">What made them book a call</p>
-          <p style="margin:0;line-height:1.65;white-space:pre-wrap">${intent?.trim() || "—"}</p>
+          <p style="margin:0;line-height:1.65;white-space:pre-wrap">${intent?.trim() || "–"}</p>
         </div>
         <p style="margin-top:24px;font-size:13px;color:#9ca3af">Reply directly to this email to respond to ${firstName.trim()}.</p>
       </div>
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
         sender: { name: fromName, email: fromEmail },
         to: [{ email: toEmail }],
         replyTo: { email: email.trim(), name: `${firstName.trim()} ${lastName.trim()}` },
-        subject: `Book-a-call request from ${firstName.trim()} ${lastName.trim()} — ${company.trim()}`,
+        subject: `Book-a-call request from ${firstName.trim()} ${lastName.trim()} – ${company.trim()}`,
         htmlContent,
       }),
     });

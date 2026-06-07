@@ -28,7 +28,7 @@ export default function CoachingDrawer({ staff, onClose, onAssignTraining }: Coa
         className="ops-coaching-drawer"
         role="dialog"
         aria-modal="true"
-        aria-label={`${staff.name} — coaching profile`}
+        aria-label={`${staff.name} – coaching profile`}
       >
         <div className="ops-coaching-drawer-head">
           <div>

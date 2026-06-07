@@ -115,7 +115,7 @@ export function MasteryMicroGrid({
         const id    = i + 1;
         const meta  = MODULE_META[id]!;
         const state = pipState(id);
-        const label = `${meta.title} — ${state === "mastered" ? "Mastered" : state === "in-progress" ? "In Progress" : "Locked"}`;
+        const label = `${meta.title} – ${state === "mastered" ? "Mastered" : state === "in-progress" ? "In Progress" : "Locked"}`;
         return (
           <div
             key={id}

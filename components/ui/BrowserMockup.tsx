@@ -24,7 +24,7 @@ export default function BrowserMockup() {
           <div className="anim-response-area">
             <div className="anim-response-text">
               <span className="anim-typed">
-                I&rsquo;d suggest an Old Fashioned — it&rsquo;s spirit-forward,
+                I&rsquo;d suggest an Old Fashioned. It&rsquo;s spirit-forward,
                 smooth from the sugar and bitters, and feels premium&hellip;
               </span>
               <span className="anim-cursor" />

@@ -29,7 +29,7 @@ export default function Footer() {
         <div className="footer-col">
           <h4>For Venues</h4>
           <ul>
-            <li><Link href="/for-venues">For Venues — Overview</Link></li>
+            <li><Link href="/for-venues">For Venues – Overview</Link></li>
             <li><Link href="/solutions/pub-groups">Pub Groups</Link></li>
             <li><Link href="/solutions/fine-dining">Fine Dining &amp; Bars</Link></li>
             <li><Link href="/solutions/hotel-fb">Hotel F&amp;B</Link></li>

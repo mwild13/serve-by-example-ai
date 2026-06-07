@@ -48,7 +48,7 @@ const features = [
       </svg>
     ),
     title: "Head-office visibility without micromanagement",
-    desc: "Franchise support managers see training completion, compliance status, and readiness scores across all locations — without visiting every site.",
+    desc: "Franchise support managers see training completion, compliance status, and readiness scores across all locations, without visiting every site.",
   },
 ];
 

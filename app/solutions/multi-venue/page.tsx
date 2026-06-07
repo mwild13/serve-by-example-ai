@@ -42,7 +42,7 @@ const features = [
       </svg>
     ),
     title: "Skill gap analysis across the group",
-    desc: "The platform identifies patterns across venues — if multiple sites have weak upsell scores, you know to run group-wide coaching before it affects revenue.",
+    desc: "The platform identifies patterns across venues. If multiple sites have weak upsell scores, you know to run group-wide coaching before it affects revenue.",
   },
   {
     icon: (
@@ -73,7 +73,7 @@ export default function MultiVenuePage() {
             <p className="inner-hero-sub">
               Running multiple venues means managing complexity at scale. Serve By Example gives
               group operators a single platform to train, track, and compare staff performance across
-              every site — with the analytics to act before problems compound.
+              every site, with the analytics to act before problems compound.
             </p>
             <div className="inner-hero-actions">
               <Link href="/contact" className="btn btn-primary btn-lg">Request Venue Access</Link>

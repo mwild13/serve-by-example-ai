@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Australia Only — For Now | Serve By Example",
+  title: "Australia Only – For Now | Serve By Example",
   description:
     "Serve By Example is currently available to hospitality venues and staff in Australia. Expanding to additional regions soon.",
   robots: { index: false, follow: false },
@@ -40,7 +40,7 @@ export default function GeoBlockPage() {
 
         {/* Heading */}
         <h1 className="geo-block-heading">
-          Australia Only —{" "}
+          Australia Only –{" "}
           <span>For Now.</span>
         </h1>
 
@@ -48,7 +48,7 @@ export default function GeoBlockPage() {
 
         {/* Body */}
         <p className="geo-block-body">
-          Serve By Example is built for the Australian hospitality industry —
+          Serve By Example is built for the Australian hospitality industry:
           WHS compliance, RSA certification, and the licensing environment
           that venues here operate under.
         </p>

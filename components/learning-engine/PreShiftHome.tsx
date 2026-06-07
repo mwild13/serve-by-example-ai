@@ -91,10 +91,10 @@ const COACH_FOCUS: Record<ModuleKey, string[]> = {
   bartending: [
     "Acknowledge guests within 3 seconds of them reaching the bar.",
     "Name the spirit, the modifier, and the garnish when describing a cocktail.",
-    "Recover a missed order gracefully — acknowledge, apologise, deliver.",
+    "Recover a missed order gracefully: acknowledge, apologise, deliver.",
   ],
   sales: [
-    "Offer one premium alternative per order — even when not asked.",
+    "Offer one premium alternative per order, even when not asked.",
     "Lead with flavour language, not price, when recommending upgrades.",
     "Close every recommendation with a confident 'Would you like to try that?'",
   ],
@@ -534,7 +534,7 @@ export default function PreShiftHome({
   const badgeEarned = countEarned(allBadges);
   const recentBadges = recentEarned(allBadges, 3);
 
-  // Read tracker counts directly from progressData prop — bypasses state race between Effect A and Effect B
+  // Read tracker counts directly from progressData prop – bypasses state race between Effect A and Effect B
   const _m = progressData?.masteredModuleCount;
   const _t = progressData?.totalModuleCount;
   const _s = progressData?.scenariosStartedCount;
@@ -682,7 +682,7 @@ export default function PreShiftHome({
             <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 4 }}>
               {kbEntry.keyFacts.slice(0, 3).map((fact) => (
                 <li key={fact} style={{ fontSize: "0.78rem", lineHeight: 1.5, color: "rgba(255,255,255,0.82)", display: "flex", gap: 6, alignItems: "flex-start" }}>
-                  <span style={{ color: "var(--gold-warm)", flexShrink: 0, marginTop: 1, fontWeight: 700 }}>—</span>
+                  <span style={{ color: "var(--gold-warm)", flexShrink: 0, marginTop: 1, fontWeight: 700 }}>–</span>
                   {fact}
                 </li>
               ))}
@@ -761,7 +761,7 @@ export default function PreShiftHome({
               <div>
                 <p style={{ fontSize: "0.68rem", color: "var(--text-muted)", fontWeight: 700, letterSpacing: "0.09em", textTransform: "uppercase", margin: "0 0 2px" }}>Avg Mastery</p>
                 <p style={{ fontFamily: "var(--font-heading)", fontSize: "1.6rem", fontWeight: 700, color: "var(--text)", margin: 0 }}>
-                  {avgScore > 0 ? `${avgScore}%` : "—"}
+                  {avgScore > 0 ? `${avgScore}%` : "–"}
                 </p>
               </div>
               <div>

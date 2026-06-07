@@ -103,7 +103,7 @@ export default function Home() {
             <div className="section-header center">
               <span className="eyebrow">The Platform</span>
               <h2>Three tools. One training system.</h2>
-              <p>Everything your venue needs to train confidently — built for real hospitality operations.</p>
+              <p>Everything your venue needs to train confidently, built for real hospitality operations.</p>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1.5rem", marginTop: "2.5rem" }}>
 
@@ -120,7 +120,7 @@ export default function Home() {
                   <IcoBook size={22} />
                 </div>
                 <h3 style={{ margin: "0 0 0.5rem", fontSize: "1rem", fontWeight: 700, color: "var(--text)" }}>Cocktail &amp; Spec Library</h3>
-                <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--text-soft)", lineHeight: 1.65 }}>40+ build guides, garnish specs, and flavour profiles — searchable by staff on any device, any shift.</p>
+                <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--text-soft)", lineHeight: 1.65 }}>40+ build guides, garnish specs, and flavour profiles, searchable by staff on any device, any shift.</p>
               </div>
 
               <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "var(--radius-lg)", padding: "2rem" }}>
@@ -153,12 +153,12 @@ export default function Home() {
                   <span className="solution-col-icon"><IcoBuilding size={20} /></span>
                   <div>
                     <h3>Run a tighter venue</h3>
-                    <p>Real-time visibility across your whole team — compliance, progress, and performance — without chasing anyone.</p>
+                    <p>Real-time visibility across your whole team (compliance, progress, and performance) without chasing anyone.</p>
                   </div>
                 </div>
                 <Image
                   src="/shots/Management Console View.png"
-                  alt="Serve By Example management console — venue performance mission control"
+                  alt="Serve By Example management console – venue performance mission control"
                   width={1200}
                   height={750}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
@@ -172,7 +172,7 @@ export default function Home() {
                   <span className="solution-col-icon"><IcoUsers size={20} /></span>
                   <div>
                     <h3>Train confident staff</h3>
-                    <p>Floor-ready in six weeks, not six months — guided by scenario training and immediate scored feedback.</p>
+                    <p>Floor-ready in six weeks, not six months, guided by scenario training and immediate scored feedback.</p>
                   </div>
                 </div>
                 <Image
@@ -200,12 +200,12 @@ export default function Home() {
                   <span className="solution-col-icon"><IcoLayers size={20} /></span>
                   <div>
                     <h3>The full training library</h3>
-                    <p>All 40 modules across Bartending, Sales, and Management — filter by role, track progress, and certify by topic.</p>
+                    <p>All 40 modules across Bartending, Sales, and Management. Filter by role, track progress, and certify by topic.</p>
                   </div>
                 </div>
                 <Image
                   src="/shots/Modules View.png"
-                  alt="Staff training modules view — full course library"
+                  alt="Staff training modules view – full course library"
                   width={1400}
                   height={875}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
@@ -213,18 +213,18 @@ export default function Home() {
                 />
               </div>
 
-              {/* Mobile — train anywhere */}
+              {/* Mobile – train anywhere */}
               <div className="solution-col">
                 <div className="solution-col-header">
                   <span className="solution-col-icon"><IcoPhone size={20} /></span>
                   <div>
                     <h3>Train anywhere, on any shift</h3>
-                    <p>The full platform on mobile — staff complete scenarios, quizzes, and modules between shifts without needing a desk or desktop.</p>
+                    <p>The full platform on mobile. Staff complete scenarios, quizzes, and modules between shifts without needing a desk or desktop.</p>
                   </div>
                 </div>
                 <Image
                   src="/shots/Mobile View3.png"
-                  alt="Mobile training view — hospitality staff learning on phone"
+                  alt="Mobile training view – hospitality staff learning on phone"
                   width={390}
                   height={780}
                   sizes="(max-width: 768px) 80vw, 300px"
@@ -236,13 +236,13 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── How It Works — 3-Step Process ─────── */}
+        {/* ── How It Works – 3-Step Process ─────── */}
         <section id="mastery-path" className="section section-band-green">
           <div className="container">
             <div className="section-header center">
               <span className="eyebrow">The Mastery Path</span>
               <h2>Know it. Apply it. Managers see it.</h2>
-              <p>Three stages that take staff from day one to floor-confident — every step tracked and visible without chasing anyone.</p>
+              <p>Three stages that take staff from day one to floor-confident, every step tracked and visible without chasing anyone.</p>
             </div>
 
             <div className="mastery-steps-flow">
@@ -252,7 +252,7 @@ export default function Home() {
                 </div>
                 <div className="mastery-step-num">Step 1</div>
                 <h3>Know Your Product Cold.</h3>
-                <p>Structured modules, tap-based mini-games, and rapid-fire quizzes — staff build real knowledge through active recall, not passive reading. Short enough to complete before a shift, structured enough to build <em className="step-highlight">real capability</em> over weeks.</p>
+                <p>Structured modules, tap-based mini-games, and rapid-fire quizzes. Staff build real knowledge through active recall, not passive reading. Short enough to complete before a shift, structured enough to build <em className="step-highlight">real capability</em> over weeks.</p>
               </div>
 
               <div className="mastery-step-connector" aria-hidden="true">
@@ -267,7 +267,7 @@ export default function Home() {
                 </div>
                 <div className="mastery-step-num">Step 2</div>
                 <h3>Apply It Under Real Pressure.</h3>
-                <p>Scenario roleplay puts staff in live service situations — awkward guests, difficult upsells, and service recovery moments. Every session scored across <em className="step-highlight">5 service dimensions</em>. Instant feedback. No manager required.</p>
+                <p>Scenario roleplay puts staff in live service situations: awkward guests, difficult upsells, and service recovery moments. Every session scored across <em className="step-highlight">5 service dimensions</em>. Instant feedback. No manager required.</p>
               </div>
 
               <div className="mastery-step-connector" aria-hidden="true">
@@ -301,7 +301,7 @@ export default function Home() {
                   5<span className="benefit-metric-unit">×</span>
                 </div>
                 <h3 className="benefit-title">Dimensions Scored Per Response</h3>
-                <p className="benefit-desc">Communication, hospitality, problem-solving, professionalism, and guest experience — scored automatically on every answer. Not just a pass/fail.</p>
+                <p className="benefit-desc">Communication, hospitality, problem-solving, professionalism, and guest experience, scored automatically on every answer. Not just a pass/fail.</p>
               </div>
               <div className="benefit-card">
                 <div className="benefit-metric">
@@ -353,7 +353,7 @@ export default function Home() {
               <div style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                 <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9ca3af" }}>Venues &amp; Groups</div>
                 <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Scale Your Team</h3>
-                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>The full manager console, team analytics, compliance tracking and hands-on onboarding — for single venues up to multi-site groups. From 1 location to 5, all managed from one place.</p>
+                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>The full manager console, team analytics, compliance tracking and hands-on onboarding, for single venues up to multi-site groups. From 1 location to 5, all managed from one place.</p>
                 <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For venue operators ready to professionalise their training.</p>
                 <div style={{ marginTop: "auto", paddingTop: "1rem", display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
                   <Link href="/contact" className="btn btn-secondary btn-block">Talk to Sales</Link>
@@ -398,7 +398,7 @@ export default function Home() {
               {[
                 {
                   q: "How long does setup take?",
-                  a: "Most venues are fully set up within a day. We provide starter templates, onboarding support, and pre-built training modules — no content creation required from your side.",
+                  a: "Most venues are fully set up within a day. We provide starter templates, onboarding support, and pre-built training modules. No content creation required from your side.",
                 },
                 {
                   q: "Is it mobile-friendly?",
@@ -410,15 +410,15 @@ export default function Home() {
                 },
                 {
                   q: "Do you offer compliance or RSA certificates?",
-                  a: "Our modules cover responsible service content and service standards. Formal RSA certification requires an accredited provider — we integrate training around compliance knowledge, not replace licensed certification.",
+                  a: "Our modules cover responsible service content and service standards. Formal RSA certification requires an accredited provider. We integrate training around compliance knowledge, not replace licensed certification.",
                 },
                 {
                   q: "Can I try it before committing?",
-                  a: "Yes. The free demo gives you access to the scenario engine and a sample of the training content — no credit card required. Venue plans include a walkthrough call before any commitment.",
+                  a: "Yes. The free demo gives you access to the scenario engine and a sample of the training content. No credit card required. Venue plans include a walkthrough call before any commitment.",
                 },
                 {
                   q: "How is this different from a generic LMS?",
-                  a: "Generic LMS platforms are built for corporate compliance training — long videos, passive quizzes, and no real skill measurement. Serve By Example is built for hospitality: scenario roleplay, live scoring, and skill ratings designed around shift-by-shift operations.",
+                  a: "Generic LMS platforms are built for corporate compliance training: long videos, passive quizzes, and no real skill measurement. Serve By Example is built for hospitality: scenario roleplay, live scoring, and skill ratings designed around shift-by-shift operations.",
                 },
               ].map(({ q, a }) => (
                 <details key={q} className="faq-item">

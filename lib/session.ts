@@ -1,5 +1,5 @@
 /**
- * session.ts — Session displacement & tier access helpers.
+ * session.ts – Session displacement & tier access helpers.
  *
  * "One Device per Purchase": generates a session UUID on login,
  * stores it in the profiles table, and provides a helper to
@@ -54,7 +54,7 @@ export async function validateSession(
 
   const stored = data.current_session_id as string | null;
 
-  // No session stamped yet — allow through (first login)
+  // No session stamped yet – allow through (first login)
   if (!stored) return { valid: true };
 
   return {
@@ -129,7 +129,7 @@ export async function resolveAccess(
   }
 
   // 2. Check if the user is sponsored via venue_memberships.
-  // An active membership is sufficient — no need to re-check the manager's plan.
+  // An active membership is sufficient – no need to re-check the manager's plan.
   // This matches the dashboard page logic which grants access on membership alone.
   if (userEmail) {
     const { data: membership } = await admin

@@ -655,7 +655,7 @@ export default function ProgressOverview({
                 <span className="progress-hub-rec-title">{firstUnmastered.title}</span>
                 <p className="progress-hub-rec-sub">
                   {plan === "free"
-                    ? "Free access active — upgrade to unlock deeper coaching."
+                    ? "Free access active. Upgrade to unlock deeper coaching."
                     : `${masteredCount} of ${totalCount} modules mastered. Keep going.`}
                 </p>
                 {onSelectModule && (
@@ -760,7 +760,7 @@ export default function ProgressOverview({
                     </div>
                     <p className="progress-cert-progress-text">{cert.mastered}/{cert.total} mastered</p>
                     <div className="progress-cert-weakness">
-                      <span className="progress-cert-done-text">Certified — all modules mastered.</span>
+                      <span className="progress-cert-done-text">Certified – all modules mastered.</span>
                       {onNavigate && (
                         <button className="progress-cert-btn" onClick={() => onNavigate("scenarios")}>
                           Practice in AI Scenarios &rarr;
@@ -814,7 +814,7 @@ export default function ProgressOverview({
               }}
             >
               <p style={{ color: "var(--text-muted)", fontWeight: 600, marginBottom: "0.75rem" }}>
-                0 / 40 — Begin your first module
+                0 / 40 – Begin your first module
               </p>
               {onNavigate && (
                 <button
@@ -910,7 +910,7 @@ export default function ProgressOverview({
                     {sessions === 0 ? (
                       <div style={{ padding: "1rem", textAlign: "center" }}>
                         <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", margin: "0 0 0.75rem" }}>
-                          Not yet started — try your first {areaLabel[area]} scenario.
+                          Not yet started. Try your first {areaLabel[area]} scenario.
                         </p>
                         {onNavigate && (
                           <button
@@ -956,7 +956,7 @@ export default function ProgressOverview({
               }}
             >
               <p style={{ color: "var(--text-muted)", fontWeight: 600, marginBottom: "0.75rem" }}>
-                {totalArenaPasses}/10 passed — try your first AI Scenario
+                {totalArenaPasses}/10 passed – try your first AI Scenario
               </p>
               {onNavigate && (
                 <button

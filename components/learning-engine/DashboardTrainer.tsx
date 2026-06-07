@@ -512,7 +512,7 @@ export default function DashboardTrainer({
     if (managementUnlocked) setMgmtUnlocked(true);
   }, [managementUnlocked]);
 
-  // Load mastery-based progress — skipped when parent prefetched initial data
+  // Load mastery-based progress – skipped when parent prefetched initial data
   useEffect(() => {
     if (initialProgress) return;
     async function fetchProgress() {
@@ -594,7 +594,7 @@ export default function DashboardTrainer({
     setLastScore(prev);
 
     const scenarioCount = SCENARIOS[activeModule].length;
-    // Only use spaced repetition for scenarios ahead of current position — never go backward
+    // Only use spaced repetition for scenarios ahead of current position – never go backward
     const dueAhead = reviewQueue.filter(
       (r) => r.module === activeModule && r.scenarioIndex > scenarioIndex && r.scenarioIndex < scenarioCount,
     );
@@ -695,7 +695,7 @@ export default function DashboardTrainer({
 
   return (
     <>
-      {/* Command bar — always visible, drives one action */}
+      {/* Command bar – always visible, drives one action */}
       {!activeModule && (
         <div className="sbe-command-bar">
           <div className="sbe-command-text">
@@ -741,7 +741,7 @@ export default function DashboardTrainer({
       {!activeModule && (
         <>
           <h1 className="dash-welcome">Welcome back, {displayName}.</h1>
-          <p className="dash-copy">Choose a module to pick up where you left off — or follow the recommendation above.</p>
+          <p className="dash-copy">Choose a module to pick up where you left off, or follow the recommendation above.</p>
         </>
       )}
 
@@ -814,7 +814,7 @@ export default function DashboardTrainer({
           {!result && (
             <>
               <div className="trainer-pills">
-                <span className="trainer-hint">Choose an approach — or write your own response below</span>
+                <span className="trainer-hint">Choose an approach, or write your own response below</span>
                 <div className="chat-actions sbe-intent-pills">
                   {currentScenario.pills.map((pill) => (
                     <button
@@ -893,7 +893,7 @@ export default function DashboardTrainer({
 
           {error && <div className="trainer-error">{error}</div>}
 
-          {/* AI Result — visceral, focused feedback */}
+          {/* AI Result – visceral, focused feedback */}
           {result && (() => {
             const delta = lastScore !== null ? result.overallScore - lastScore : null;
             const weakest = [...SCORE_DIMENSIONS].sort((a, b) => (result[a.key] as number) - (result[b.key] as number))[0];
@@ -944,11 +944,11 @@ export default function DashboardTrainer({
                   <summary>See full feedback</summary>
                   <div className="trainer-feedback">
                     <div className="trainer-feedback-block trainer-feedback-good">
-                      <strong>✔ {strongest.label} — strength</strong>
+                      <strong>✔ {strongest.label} – strength</strong>
                       <p>{result.strengths}</p>
                     </div>
                     <div className="trainer-feedback-block trainer-feedback-improve">
-                      <strong>✖ {weakest.label} — missed opportunity</strong>
+                      <strong>✖ {weakest.label} – missed opportunity</strong>
                       <p>{result.improvement}</p>
                     </div>
                     <div className="trainer-feedback-block trainer-feedback-example">
@@ -970,7 +970,7 @@ export default function DashboardTrainer({
                       <span>Confidence: {masteryFeedback.confidenceAccuracy}</span>
                     </div>
                     {masteryFeedback.spamGuarded && (
-                      <p className="sbe-spam-notice">⏳ This attempt was recorded but won&apos;t advance mastery — retry after 60 min for credit.</p>
+                      <p className="sbe-spam-notice">⏳ This attempt was recorded but won&apos;t advance mastery. Retry after 60 min for credit.</p>
                     )}
                   </div>
                 )}
@@ -1003,7 +1003,7 @@ export default function DashboardTrainer({
         </div>
       )}
 
-      {/* Default state — no module selected */}
+      {/* Default state – no module selected */}
       {!activeModule && (
         <div className="chat-box">
           <div className="chat-prompt">

@@ -10,7 +10,7 @@ const features = [
     icon: "◉",
     title: "Scenario Training",
     description:
-      "Staff practice real hospitality situations through guided scenario roleplay — upselling, de-escalation, cocktail knowledge, service recovery.",
+      "Staff practice real hospitality situations through guided scenario roleplay: upselling, de-escalation, cocktail knowledge, service recovery.",
   },
   {
     icon: "→",
@@ -121,7 +121,7 @@ export default function PlatformPage() {
             </h1>
             <p className="inner-hero-sub">
               Serve By Example gives your team scenario-based practice, live performance tracking, and
-              an AI Coach that knows your venue — all from a single management console.
+              an AI Coach that knows your venue, all from a single management console.
             </p>
             <div className="inner-hero-actions">
               <Link href="/demo" className="btn btn-primary btn-lg">
@@ -154,7 +154,7 @@ export default function PlatformPage() {
             <div className="section-header center">
               <span className="eyebrow">Management console</span>
               <h2>Your venue&rsquo;s mission control.</h2>
-              <p>A live dashboard that shows staff performance, training completion, upsell trends, and venue health — all in one view.</p>
+              <p>A live dashboard that shows staff performance, training completion, upsell trends, and venue health, all in one view.</p>
             </div>
             <div className="platform-dashboard-mockup">
               <div className="platform-dash-sidebar">
@@ -188,7 +188,7 @@ export default function PlatformPage() {
                   </div>
                   <div className="platform-dash-ai-response">
                     <span className="platform-dash-ai-label">✦ AI Coach</span>
-                    <p>Sarah (Bartender) and James (Floor) haven&rsquo;t completed their sales training module. Their upsell scores are below the venue average — I&rsquo;d recommend assigning &ldquo;Sales Conversations&rdquo; this week.</p>
+                    <p>Sarah (Bartender) and James (Floor) haven&rsquo;t completed their sales training module. Their upsell scores are below the venue average. I&rsquo;d recommend assigning &ldquo;Sales Conversations&rdquo; this week.</p>
                   </div>
                 </div>
               </div>
@@ -267,7 +267,7 @@ export default function PlatformPage() {
             <div className="platform-mobile-visual">
               <Image
                 src="/shots/Mobile View.png"
-                alt="Serve By Example staff training app on mobile — pre-shift brief screen"
+                alt="Serve By Example staff training app on mobile – pre-shift brief screen"
                 width={347}
                 height={707}
                 sizes="(max-width: 768px) 80vw, 320px"
@@ -284,7 +284,7 @@ export default function PlatformPage() {
               <h3>The market is shifting to interactive, scenario-based training. You&rsquo;re already there.</h3>
               <p>
                 Major hospitality platforms are just now beginning to build what Serve By Example already has.
-                Your window of competitive advantage is now — while the incumbents are still in the planning phase.
+                Your window of competitive advantage is now, while the incumbents are still in the planning phase.
               </p>
             </div>
             <div className="cta-actions">

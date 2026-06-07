@@ -229,7 +229,7 @@ export default function ModuleVerify({ moduleId, userId, onArena, onComplete, ne
         <div style={{ padding: "48px 24px", textAlign: "center" }}>
           <h2 style={{ marginBottom: 8 }}>{moduleTitle}</h2>
           <p style={{ marginBottom: 16 }}>
-            Not quite — let&apos;s run the verification quiz again.
+            Not quite. Let&apos;s run the verification quiz again.
           </p>
           <button className="btn btn-primary" onClick={handleRetry}>
             Retry verification

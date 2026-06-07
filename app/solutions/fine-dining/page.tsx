@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Interactive Training for Fine Dining & Cocktail Bars | Serve By Example",
   description:
-    "Train your team on the precise product knowledge and elevated service standards that premium venues demand. Cocktail specs, wine pairings, guest recovery — all scenario-coached.",
+    "Train your team on the precise product knowledge and elevated service standards that premium venues demand. Cocktail specs, wine pairings, guest recovery, all scenario-coached.",
 };
 
 const features = [
@@ -45,7 +45,7 @@ const features = [
       </svg>
     ),
     title: "High-pressure simulation before Friday night",
-    desc: "Staff rehearse service timing, course pacing, and multi-table management in scenario practice — before the stakes are real.",
+    desc: "Staff rehearse service timing, course pacing, and multi-table management in scenario practice, before the stakes are real.",
   },
 ];
 
@@ -67,7 +67,7 @@ export default function FineDiningPage() {
             <p className="inner-hero-sub">
               Premium venues live and die by the detail. A staff member who can&rsquo;t describe a
               cocktail&rsquo;s ingredients or explain a dish&rsquo;s provenance isn&rsquo;t just
-              uninformed — they damage the experience. Serve By Example trains your team on the
+              uninformed. They damage the experience. Serve By Example trains your team on the
               precise knowledge that earns loyalty.
             </p>
             <div className="inner-hero-actions">
@@ -123,7 +123,7 @@ export default function FineDiningPage() {
             <span className="eyebrow">Get started</span>
             <h2>Ready to elevate your service standards?</h2>
             <p style={{ maxWidth: 520, margin: "0 auto 32px", color: "var(--text-soft)" }}>
-              Try a live bartending or upsell scenario now — no sign-up required.
+              Try a live bartending or upsell scenario now. No sign-up required.
             </p>
             <div className="hero-actions" style={{ justifyContent: "center" }}>
               <Link href="/demo" className="btn btn-primary btn-lg">Try the Demo</Link>

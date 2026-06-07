@@ -1,5 +1,5 @@
 /**
- * mastery.ts — Mastery Engine service layer
+ * mastery.ts – Mastery Engine service layer
  *
  * Handles: mastery level progression, spaced repetition scheduling,
  * Elo rating updates, confidence-accuracy tracking, bridge logic,
@@ -37,7 +37,7 @@ export const V3_MODULE_CATEGORIES: Record<number, "technical" | "service" | "com
 const MASTERY_THRESHOLD = 3; // consecutive correct for mastery
 const SPAM_GUARD_MINUTES = 60; // min gap between mastery-advancing attempts on same scenario
 const ELO_K = 32; // Elo sensitivity factor
-const PASS_SCORE = 15; // out of 25 — threshold for "correct"
+const PASS_SCORE = 15; // out of 25 – threshold for "correct"
 
 export type ConfidenceLevel = "low" | "medium" | "high";
 
@@ -62,9 +62,9 @@ export type MasteryRow = {
 };
 
 export type MasteryProgress = {
-  /** Completion % — distinct scenarios at mastery_level >= 1 / total */
+  /** Completion % – distinct scenarios at mastery_level >= 1 / total */
   completion: number;
-  /** Mastery % — distinct scenarios at mastery_level == 3 / total */
+  /** Mastery % – distinct scenarios at mastery_level == 3 / total */
   mastery: number;
   /** Total unique scenarios attempted */
   scenariosAttempted: number;
@@ -169,7 +169,7 @@ export async function recordAttempt(
 ): Promise<RecordAttemptResult> {
   const { userId, scenarioIndex, overallScore, confidence } = input;
 
-  // Resolve module string — if moduleId is provided, derive from it
+  // Resolve module string – if moduleId is provided, derive from it
   const moduleName = input.moduleId
     ? moduleIdToString(input.moduleId)
     : input.module;

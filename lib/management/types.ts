@@ -39,14 +39,14 @@ export type StaffMember = {
   status: StaffStatus;
   strengths: string[];
   improvements: string[];
-  // Mastery engine fields (optional — absent until mastery_schema.sql is run)
+  // Mastery engine fields (optional – absent until mastery_schema.sql is run)
   masteryStatus?: string;
   eloRating?: number;
   knowledgeDecayRisk?: boolean;
   highConfidenceIncorrectRatio?: number;
   scenariosMastered?: number;
   scenariosAttempted?: number;
-  // Connection linkage — set when staff member has signed in and linked their account
+  // Connection linkage – set when staff member has signed in and linked their account
   staffUserId?: string | null;
 };
 

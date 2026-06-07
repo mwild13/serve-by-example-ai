@@ -3,7 +3,7 @@ import ManagerControlCenter from "@/components/mission-control/ManagerControlCen
 import { getManagementSnapshot } from "@/lib/management/service";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 
-// Prevent static generation — this page requires auth at runtime
+// Prevent static generation – this page requires auth at runtime
 export const dynamic = "force-dynamic";
 
 const FALLBACK_ADMIN_EMAILS = [

@@ -80,7 +80,7 @@ const RightPanel = () => (
     <div className="login-visual-img-wrap">
       <Image
         src="/images/login-value-prop.png"
-        alt="Serve By Example — hospitality staff training network"
+        alt="Serve By Example – hospitality staff training network"
         width={520}
         height={420}
         priority

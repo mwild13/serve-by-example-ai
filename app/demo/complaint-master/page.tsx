@@ -39,7 +39,7 @@ const SCENARIOS: Scenario[] = [
     situation:
       "A guest has been waiting at the bar for nearly 10 minutes on a moderately busy Friday evening. They are now flagging you down with clear frustration.",
     guestLine:
-      '"Excuse me — I\'ve been standing here for ages. Does anyone actually work at this bar?"',
+      '"Excuse me, I\'ve been standing here for ages. Does anyone actually work at this bar?"',
   },
   {
     id: "noisy-neighbours",
@@ -144,7 +144,7 @@ export default function ComplaintMasterPage() {
             <h1>Complaint Master</h1>
             <p className="inner-hero-sub">
               Practice turning unhappy guests into loyal ones. Three real hospitality complaint
-              scenarios, scored instantly — in Australian English, the way it happens on the
+              scenarios, scored instantly, in Australian English, the way it happens on the
               floor.
             </p>
           </div>
@@ -178,7 +178,7 @@ export default function ComplaintMasterPage() {
                 </div>
                 <p className="cm-intro-body">
                   Each scenario puts you in a real service moment. Write your response as you would
-                  say it on the floor — the system evaluates you across five dimensions: communication,
+                  say it on the floor. The system evaluates you across five dimensions: communication,
                   hospitality behaviour, problem solving, professionalism, and guest experience.
                 </p>
                 <p className="cm-intro-note">No sign-up required. Free, forever.</p>
@@ -218,7 +218,7 @@ export default function ComplaintMasterPage() {
                 <textarea
                   id="cm-response"
                   className="cm-response-input"
-                  placeholder="Write your response as you'd say it — don't overthink it, just respond naturally..."
+                  placeholder="Write your response as you'd say it. Don't overthink it, just respond naturally..."
                   value={response}
                   onChange={(e) => setResponse(e.target.value)}
                   rows={6}
@@ -324,7 +324,7 @@ export default function ComplaintMasterPage() {
                   {avgScore >= 20
                     ? "That&rsquo;s a strong result. You handle guest complaints with composure and care. On the Serve By Example platform, you&rsquo;d be competing near the top of the Live Scenarios leaderboard."
                     : avgScore >= 14
-                    ? "Solid foundation. A bit more practice on structure and specificity will get your scores into the excellent range — and that&rsquo;s exactly what our full platform is built to deliver."
+                    ? "Solid foundation. A bit more practice on structure and specificity will get your scores into the excellent range, and that&rsquo;s exactly what our full platform is built to deliver."
                     : "Complaint handling is one of the hardest skills in hospitality. The good news: it&rsquo;s entirely trainable. Our full platform has structured coaching paths that build these skills rapidly."}
                 </p>
 
@@ -340,7 +340,7 @@ export default function ComplaintMasterPage() {
                 <div className="cm-complete-email">
                   {emailSent ? (
                     <p className="cm-email-thanks">
-                      Thanks — we&rsquo;ll send your score summary shortly.
+                      Thanks. We&rsquo;ll send your score summary shortly.
                     </p>
                   ) : (
                     <form className="cm-email-form" onSubmit={handleEmailSubmit}>

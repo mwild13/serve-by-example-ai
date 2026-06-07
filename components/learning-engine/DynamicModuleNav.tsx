@@ -63,10 +63,10 @@ export default function DynamicModuleNav({
   }, [sortBy, userToken]);
 
   const getEloDisplay = (elo: number) => {
-    if (elo < 1100) return { color: "#dc2626", label: "Needs Work", tooltip: "ELO below 1100 — needs more practice on this module" };
-    if (elo < 1200) return { color: "#d97706", label: "Building", tooltip: "ELO 1100–1199 — building skills on this module" };
-    if (elo < 1300) return { color: "#2563eb", label: "Solid", tooltip: "ELO 1200–1299 — solid performance on this module" };
-    return { color: "#16a34a", label: "Strong", tooltip: "ELO 1300+ — strong mastery on this module" };
+    if (elo < 1100) return { color: "#dc2626", label: "Needs Work", tooltip: "ELO below 1100, needs more practice on this module" };
+    if (elo < 1200) return { color: "#d97706", label: "Building", tooltip: "ELO 1100–1199, building skills on this module" };
+    if (elo < 1300) return { color: "#2563eb", label: "Solid", tooltip: "ELO 1200–1299, solid performance on this module" };
+    return { color: "#16a34a", label: "Strong", tooltip: "ELO 1300+, strong mastery on this module" };
   };
 
   if (error) {

@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     }
 
     const mailtoBody = encodeURIComponent(
-      `Hi there,\n\nThanks for checking out our ROI calculator! I'd love to show you how Serve By Example could deliver that revenue lift for your venue.\n\nHappy to jump on a quick 15-min call — does any time this week work?\n\nCheers,`
+      `Hi there,\n\nThanks for checking out our ROI calculator! I'd love to show you how Serve By Example could deliver that revenue lift for your venue.\n\nHappy to jump on a quick 15-min call. Does any time this week work?\n\nCheers,`
     );
     const mailtoSubject = encodeURIComponent("Your Serve By Example ROI Projection");
 
@@ -103,7 +103,7 @@ export async function POST(req: Request) {
       <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:600px;margin:0 auto;background:#f5f2e9">
 
         <div style="background:#1f4e37;padding:24px 28px;border-radius:16px 16px 0 0">
-          <p style="margin:0;color:#e8c96a;font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase">Serve By Example — Lead Alert</p>
+          <p style="margin:0;color:#e8c96a;font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase">Serve By Example – Lead Alert</p>
           <h1 style="margin:8px 0 0;color:#ffffff;font-size:1.25rem;font-weight:800">New ROI Lead</h1>
         </div>
 
@@ -158,7 +158,7 @@ export async function POST(req: Request) {
         body: JSON.stringify({
           sender: { name: fromName, email: fromEmail },
           to: [{ email: email.trim() }],
-          subject: `Your $${fmt(yr1)} revenue projection — Serve By Example`,
+          subject: `Your $${fmt(yr1)} revenue projection – Serve By Example`,
           htmlContent: projectionHtml,
         }),
       }),
@@ -168,7 +168,7 @@ export async function POST(req: Request) {
         body: JSON.stringify({
           sender: { name: fromName, email: fromEmail },
           to: [{ email: toEmail }],
-          subject: `New ROI lead: ${email.trim()} — $${fmt(yr1)} annual lift`,
+          subject: `New ROI lead: ${email.trim()} – $${fmt(yr1)} annual lift`,
           htmlContent: notificationHtml,
         }),
       }),

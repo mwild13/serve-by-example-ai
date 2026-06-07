@@ -104,7 +104,7 @@ function FeedbackBanner({ correct, explanation }: { correct: boolean; explanatio
             <path d="M12 8v4M12 16h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
           </svg>
         )}
-        {correct ? "Correct" : "Not quite — try again"}
+        {correct ? "Correct" : "Not quite, try again"}
       </p>
       <p style={{ fontSize: "0.85rem", lineHeight: 1.6 }}>{explanation}</p>
     </div>
@@ -174,7 +174,7 @@ function Stepper({ currentStep, phase }: { currentStep: number; phase: "lobby" |
                 transform: current ? "scale(1.1)" : "scale(1)",
                 transition: "transform 150ms ease",
               }}
-              aria-label={`Step ${i + 1}: ${label}${completed ? " — complete" : current ? " — current" : ""}`}
+              aria-label={`Step ${i + 1}: ${label}${completed ? " – complete" : current ? " – current" : ""}`}
             >
               {completed ? (
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -243,7 +243,7 @@ function CompletionSummary({
           {score} of 5 correct
         </h2>
         <p style={{ fontSize: "0.875rem", color: "var(--text-soft)", margin: 0 }}>
-          {score === 5 ? "Perfect run — all 5 on the first try." : score >= 3 ? "Good effort. Review the ones you missed." : "Keep practising — these questions are always replayable."}
+          {score === 5 ? "Perfect run. All 5 on the first try." : score >= 3 ? "Good effort. Review the ones you missed." : "Keep practising. These questions are always replayable."}
         </p>
       </div>
 
@@ -327,7 +327,7 @@ const SEQUENCE_ITEMS = [
 ];
 const SEQUENCE_CORRECT = ["guinness-start", "margarita", "wine", "guinness-top"];
 const SEQUENCE_EXPLANATION =
-  "Guinness requires a two-stage pour with roughly 90 seconds to settle — always start it first. Build other drinks while it settles, then top it up last.";
+  "Guinness requires a two-stage pour with roughly 90 seconds to settle, always start it first. Build other drinks while it settles, then top it up last.";
 
 function SequenceSort({ onComplete, onIncorrect }: { onComplete?: () => void; onIncorrect?: () => void }) {
   const [items, setItems] = useState(SEQUENCE_ITEMS);
@@ -463,13 +463,13 @@ const FILL_PARTS = [
   "A Classic Daiquiri uses ",
   " White Rum, ",
   " fresh lime juice, and ",
-  " sugar syrup — shaken and served in a ",
+  " sugar syrup, shaken and served in a ",
   ".",
 ];
 const FILL_CORRECT = ["60ml", "25ml", "15ml", "chilled coupe"];
 const FILL_WORD_BANK = ["25ml", "60ml", "30ml", "15ml", "highball", "chilled coupe", "rocks glass", "20ml"];
 const FILL_EXPLANATION =
-  "The Classic Daiquiri spec is 60ml White Rum / 25ml Fresh Lime Juice / 15ml Sugar Syrup, served in a chilled coupe. Always use fresh lime — bottled juice alters the acidity balance.";
+  "The Classic Daiquiri spec is 60ml White Rum / 25ml Fresh Lime Juice / 15ml Sugar Syrup, served in a chilled coupe. Always use fresh lime. Bottled juice alters the acidity balance.";
 
 function FillBlank({ onComplete, onIncorrect }: { onComplete?: () => void; onIncorrect?: () => void }) {
   const [selected, setSelected] = useState<Record<number, string>>({});
@@ -739,12 +739,12 @@ function MatchPair({ onComplete, onIncorrect }: { onComplete?: () => void; onInc
       {done ? (
         <FeedbackBanner
           correct={true}
-          explanation="Margarita — coupe (or salt-rimmed rocks). Old Fashioned — rocks glass, always. Mojito — highball, to allow the mint and ice to breathe."
+          explanation="Margarita – coupe (or salt-rimmed rocks). Old Fashioned – rocks glass, always. Mojito – highball, to allow the mint and ice to breathe."
         />
       ) : (
         <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", textAlign: "center" }}>
           {selectedLeft
-            ? `${MATCH_LEFT.find((l) => l.id === selectedLeft)?.label} selected — now tap a glass`
+            ? `${MATCH_LEFT.find((l) => l.id === selectedLeft)?.label} selected, now tap a glass`
             : `${Object.keys(matched).length} of ${MATCH_LEFT.length} matched`}
         </p>
       )}
@@ -908,8 +908,8 @@ function SpotError({ onComplete, onIncorrect }: { onComplete?: () => void; onInc
 const MC_SCENARIO = "A guest flags you down and points out their wine glass has a lipstick mark on the rim. What do you do?";
 const MC_OPTIONS = [
   { id: "a", text: "\"I'll let the bar team know.\"", correct: false },
-  { id: "b", text: "\"I'm so sorry — let me replace that immediately.\"", correct: true },
-  { id: "c", text: "\"That must have been there before — I'll just wipe it.\"", correct: false },
+  { id: "b", text: "\"I'm so sorry, let me replace that immediately.\"", correct: true },
+  { id: "c", text: "\"That must have been there before. I'll just wipe it.\"", correct: false },
 ];
 const MC_EXPLANATION =
   "Always own the problem immediately and replace the glass. Deflecting to another team member or wiping a soiled glass both undermine guest trust. A quick apology and immediate replacement is the professional standard.";
@@ -1136,15 +1136,15 @@ export default function ChallengesPage() {
             gap: "1.5rem",
           }}>
             <p style={{ fontSize: "0.95rem", color: "var(--text-soft)", lineHeight: 1.65, margin: 0 }}>
-              Five interactive formats. Tap-based — no typing required. Each round tests a different skill area.
+              Five interactive formats. Tap-based, no typing required. Each round tests a different skill area.
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
               {[
-                "Sequence Sort — arrange steps in the right order",
-                "Fill the Blank — complete the key phrase",
-                "Match Pair — link terms to their definitions",
-                "Spot the Error — identify what went wrong",
-                "Multiple Choice — pick the correct answer",
+                "Sequence Sort – arrange steps in the right order",
+                "Fill the Blank – complete the key phrase",
+                "Match Pair – link terms to their definitions",
+                "Spot the Error – identify what went wrong",
+                "Multiple Choice – pick the correct answer",
               ].map((item, i) => (
                 <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}>
                   <span style={{

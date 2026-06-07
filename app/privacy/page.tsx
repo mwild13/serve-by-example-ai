@@ -33,20 +33,20 @@ export default function PrivacyPage() {
               <h2>1. What We Collect</h2>
               <ul>
                 <li>
-                  <strong>Account Info</strong> — Name, email address, and venue affiliation.
+                  <strong>Account Info</strong>:Name, email address, and venue affiliation.
                 </li>
                 <li>
-                  <strong>Profile Data</strong> — Plan type, display name, and preferences.
+                  <strong>Profile Data</strong>:Plan type, display name, and preferences.
                 </li>
                 <li>
-                  <strong>Training Data</strong> — Responses entered during AI scenario evaluations
+                  <strong>Training Data</strong>:Responses entered during AI scenario evaluations
                   and performance metrics.
                 </li>
                 <li>
-                  <strong>Communication Data</strong> — Messages sent to us via email or forms.
+                  <strong>Communication Data</strong>:Messages sent to us via email or forms.
                 </li>
                 <li>
-                  <strong>Automated Data</strong> — Usage patterns, device identifiers, IP
+                  <strong>Automated Data</strong>:Usage patterns, device identifiers, IP
                   addresses, and server logs.
                 </li>
               </ul>
@@ -74,17 +74,17 @@ export default function PrivacyPage() {
               </p>
               <ul>
                 <li>
-                  <strong>Supabase</strong> — Authentication and database storage.
+                  <strong>Supabase</strong>:Authentication and database storage.
                 </li>
                 <li>
-                  <strong>Cloudflare</strong> — Hosting and security.
+                  <strong>Cloudflare</strong>:Hosting and security.
                 </li>
                 <li>
-                  <strong>OpenAI</strong> — Used for AI scenario evaluation (OpenAI does not use
+                  <strong>OpenAI</strong>:Used for AI scenario evaluation (OpenAI does not use
                   data submitted via the API to train their foundational models).
                 </li>
                 <li>
-                  <strong>Legal Requirements</strong> — Disclosure as required by Australian law.
+                  <strong>Legal Requirements</strong>:Disclosure as required by Australian law.
                 </li>
               </ul>
 
@@ -100,14 +100,14 @@ export default function PrivacyPage() {
               <p>Under the APPs, you have the right to:</p>
               <ul>
                 <li>
-                  <strong>Access/Correction</strong> — Request a copy of or correction to the
+                  <strong>Access/Correction</strong>:Request a copy of or correction to the
                   personal data we hold about you.
                 </li>
                 <li>
-                  <strong>Deletion</strong> — Request that we delete your personal data.
+                  <strong>Deletion</strong>:Request that we delete your personal data.
                 </li>
                 <li>
-                  <strong>Complaints</strong> — Contact us at{" "}
+                  <strong>Complaints</strong>:Contact us at{" "}
                   <a href="mailto:info@servebyexample.co">info@servebyexample.co</a>. If
                   unsatisfied, you may lodge a complaint with the Office of the Australian
                   Information Commissioner (OAIC).

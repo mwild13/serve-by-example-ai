@@ -112,7 +112,7 @@ export default function MobileLearnHub({
     {
       id: "challenges",
       title: "Challenges",
-      desc: "Interactive tap-based mini-games — always free",
+      desc: "Interactive tap-based mini-games, always free",
       icon: <IcStar s={26} />,
       tint: "var(--gold-light)",
       iconColor: "var(--gold)",

@@ -21,7 +21,7 @@ const platformLinks = [
   {
     href: "/platform/challenges",
     title: "Interactive Challenges",
-    desc: "Tap-based mini-games that replace essay inputs — sequence sorts, recipe builds, and match pairs.",
+    desc: "Tap-based mini-games that replace essay inputs: sequence sorts, recipe builds, and match pairs.",
     badge: "New",
   },
   {
@@ -34,7 +34,7 @@ const platformLinks = [
 const solutionsLinks = [
   {
     href: "/for-venues",
-    title: "For Venues — Overview",
+    title: "For Venues – Overview",
     desc: "How Serve By Example fits into your venue operations end to end.",
   },
   {

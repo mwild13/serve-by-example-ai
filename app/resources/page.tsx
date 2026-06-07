@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Free Training Checklist | Serve By Example",
   description:
-    "Free onboarding guide specifically for Australian hospitality venues. Download, use, and keep it — no strings attached.",
+    "Free onboarding guide specifically for Australian hospitality venues. Download, use, and keep it. No strings attached.",
 };
 
 function DownloadIcon() {
@@ -29,7 +29,7 @@ export default function ResourcesPage() {
             <span className="eyebrow">Free Resource</span>
             <h1>Free onboarding guide for Australian hospitality venues.</h1>
             <p className="inner-hero-sub">
-              Download, use, and keep it — no strings attached.
+              Download, use, and keep it. No strings attached.
             </p>
           </div>
         </section>
@@ -68,7 +68,7 @@ export default function ResourcesPage() {
                 <p style={{ margin: 0, fontSize: "1.05rem", color: "var(--text-soft)", lineHeight: 1.75 }}>
                   A practical onboarding checklist built specifically for Australian bars, restaurants, and venue teams.
                   Covers first-week milestones, service basics, product knowledge, compliance, and shift readiness.
-                  Use it with new starters or as a team reset — no software required.
+                  Use it with new starters or as a team reset. No software required.
                 </p>
                 <a
                   href="/downloads/SBE-Training-Checklist.pdf"
@@ -84,7 +84,7 @@ export default function ResourcesPage() {
                 </p>
               </div>
 
-              {/* Right: checklist preview image — slightly larger than the card */}
+              {/* Right: checklist preview image – slightly larger than the card */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/downloads/training-checklist-preview.png"
@@ -108,7 +108,7 @@ export default function ResourcesPage() {
             <h2>Want the full training platform?</h2>
             <p style={{ color: "var(--text-soft)", lineHeight: 1.7, marginBottom: "2rem" }}>
               The checklist gives you a starting point. Serve By Example gives your team AI-scored
-              scenario practice, progress tracking, and a manager console — all in one place.
+              scenario practice, progress tracking, and a manager console, all in one place.
             </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
               <a href="/demo" className="btn btn-primary btn-lg">Try the Demo</a>

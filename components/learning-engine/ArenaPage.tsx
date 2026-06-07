@@ -96,14 +96,14 @@ const ARENA_SEED_SCENARIOS: Record<number, { situation: string; context: string;
         context: "Other guests are visibly uncomfortable. You have approached to settle them down.",
         task: "Explain your approach to de-escalate without confrontation and protect the comfort of surrounding guests." },
   18: { situation: "The fire alarm starts ringing during a busy Friday night service.",
-        context: "Patrons are confused — some are trying to finish their drinks, others are heading back for their bags.",
+        context: "Patrons are confused, some are trying to finish their drinks, others are heading back for their bags.",
         task: "Explain how you take command of the room calmly and direct all guests to the exit without creating panic." },
   19: { situation: "You have just completed the final till count at 2 AM and you are $100 short.",
         context: "Your lift home is waiting outside and the alarm needs to be set.",
         task: "Explain the correct protocol you follow before leaving, and why skipping it is not an option." },
   20: { situation: "You notice a co-worker is consistently over-pouring spirits and forgetting to ring up staff drinks for their mates.",
         context: "This has been happening repeatedly and is hitting the venue's gross profit.",
-        task: "Explain how you address this — whether directly with the co-worker or by escalating to management — and why." },
+        task: "Explain how you address this (whether directly with the co-worker or by escalating to management) and why." },
 };
 
 export default function ArenaPage({ userId: _userId }: Props) {
@@ -346,7 +346,7 @@ export default function ArenaPage({ userId: _userId }: Props) {
                   fontFamily: "var(--font-fraunces)",
                 }}
               >
-                {result.passed ? "Passed" : "Not yet — keep practising"}
+                {result.passed ? "Passed" : "Not yet – keep practising"}
               </div>
               <div style={{ fontSize: "0.78rem", color: "var(--text-soft)", marginTop: 2 }}>
                 {result.passed
@@ -497,7 +497,7 @@ export default function ArenaPage({ userId: _userId }: Props) {
                 marginBottom: 10,
               }}
             >
-              {meta?.category} — Scenario
+              {meta?.category} – Scenario
             </div>
             <p style={{ fontWeight: 700, color: "#1b4332", fontSize: "0.95rem", lineHeight: 1.55, marginBottom: 10 }}>
               {seed.situation}
@@ -537,7 +537,7 @@ export default function ArenaPage({ userId: _userId }: Props) {
             id="arena-response"
             value={response}
             onChange={(e) => setResponse(e.target.value)}
-            placeholder="Write exactly what you would say and do in this situation. Be specific — the system evaluates based on Australian hospitality standards."
+            placeholder="Write exactly what you would say and do in this situation. Be specific. The system evaluates based on Australian hospitality standards."
             disabled={submitting}
             rows={8}
             style={{

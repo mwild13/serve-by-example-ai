@@ -10,7 +10,7 @@ const whyItMatters = [
   },
   {
     title: "Turnover starts with poor onboarding",
-    text: "New staff who feel underprepared leave faster. A structured, scenario-based start builds confidence — and confident staff stay.",
+    text: "New staff who feel underprepared leave faster. A structured, scenario-based start builds confidence. Confident staff stay.",
   },
   {
     title: "Manager time is your most expensive resource",
@@ -26,7 +26,7 @@ const whyItMatters = [
   },
   {
     title: "Training only works if staff actually do it",
-    text: "Passive training gets ignored. Scenario-based practice is short, relevant and engaging — designed to fit between shifts, not replace them.",
+    text: "Passive training gets ignored. Scenario-based practice is short, relevant and engaging, designed to fit between shifts, not replace them.",
   },
 ];
 

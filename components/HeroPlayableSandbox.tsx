@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 
 const SCENARIO =
-  'A guest sits at the bar and asks: "I want something smooth but with a bit of a kick — what would you recommend?" Walk me through how you\'d respond.';
+  'A guest sits at the bar and asks: "I want something smooth but with a bit of a kick, what would you recommend?" Walk me through how you\'d respond.';
 
 type Phase = 'idle' | 'loading' | 'result';
 

@@ -178,7 +178,7 @@ export default function HeroSection() {
                 {submitted ? (
                   <div className="book-modal-success">
                     <h3>We&rsquo;ll be in touch shortly.</h3>
-                    <p>Thanks for booking — we&rsquo;ll reach out within one business day to lock in your call.</p>
+                    <p>Thanks for booking. We&rsquo;ll reach out within one business day to lock in your call.</p>
                   </div>
                 ) : (
                   <form className="book-form" onSubmit={handleSubmit} noValidate>

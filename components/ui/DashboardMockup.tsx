@@ -17,8 +17,8 @@ const STATS = [
 ];
 
 const INSIGHTS = [
-  { icon: "↑", text: "Training completion up 18% this week. 14 of 18 staff active — strongest engagement week on record.", color: "#16a34a", bg: "#f0fdf4", border: "#86efac" },
-  { icon: "→", text: "Upsell performance at 38%. 3 staff above 50% — recommend them as team sales mentors this shift.", color: "#1d4ed8", bg: "#eff6ff", border: "#93c5fd" },
+  { icon: "↑", text: "Training completion up 18% this week. 14 of 18 staff active, strongest engagement week on record.", color: "#16a34a", bg: "#f0fdf4", border: "#86efac" },
+  { icon: "→", text: "Upsell performance at 38%. 3 staff above 50%. Recommend them as team sales mentors this shift.", color: "#1d4ed8", bg: "#eff6ff", border: "#93c5fd" },
   { icon: "●", text: "Alex completed all 4 bartending stages with a 91% avg score. Ready for floor leadership.", color: "#7c3aed", bg: "#faf5ff", border: "#c4b5fd" },
 ];
 
