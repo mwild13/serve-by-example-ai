@@ -20,8 +20,8 @@ export async function POST(req: Request) {
     }
 
     const brevoApiKey = process.env.BREVO_API_KEY;
-    const toEmail = process.env.CONTACT_TO_EMAIL ?? "info@serve-by-example.com";
-    const fromEmail = process.env.BREVO_FROM_EMAIL ?? "info@serve-by-example.com";
+    const toEmail = process.env.CONTACT_TO_EMAIL ?? "info@servebyexample.co";
+    const fromEmail = process.env.BREVO_FROM_EMAIL ?? "info@servebyexample.co";
     const fromName = process.env.BREVO_FROM_NAME ?? "Serve By Example";
 
     if (!brevoApiKey) {

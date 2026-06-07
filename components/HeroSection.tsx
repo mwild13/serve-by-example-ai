@@ -78,7 +78,7 @@ export default function HeroSection() {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || 'Could not submit. Please email info@serve-by-example.com.');
+        throw new Error(data.error || 'Could not submit. Please email info@servebyexample.co.');
       }
       setSubmitted(true);
     } catch (err) {

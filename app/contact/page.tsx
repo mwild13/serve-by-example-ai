@@ -171,8 +171,8 @@ export default function ContactPage() {
             <div className="contact-info">
               <div className="card contact-info-card">
                 <h3>Direct email</h3>
-                <a href="mailto:info@serve-by-example.com" className="contact-email-link">
-                  info@serve-by-example.com
+                <a href="mailto:info@servebyexample.co" className="contact-email-link">
+                  info@servebyexample.co
                 </a>
                 <p>We reply to all enquiries within one business day.</p>
               </div>

@@ -184,7 +184,7 @@ export default function CookiesPage() {
                 <strong>Serve By Example</strong>
                 <br />
                 Email:{" "}
-                <a href="mailto:info@serve-by-example.com">info@serve-by-example.com</a>
+                <a href="mailto:info@servebyexample.co">info@servebyexample.co</a>
               </p>
             </div>
           </div>

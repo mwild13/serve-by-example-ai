@@ -21,14 +21,14 @@ export async function POST(req: Request) {
     }
 
     const brevoApiKey = process.env.BREVO_API_KEY;
-    const toEmail = process.env.CONTACT_TO_EMAIL ?? "info@serve-by-example.com";
-    const fromEmail = process.env.BREVO_FROM_EMAIL ?? "info@serve-by-example.com";
+    const toEmail = process.env.CONTACT_TO_EMAIL ?? "info@servebyexample.co";
+    const fromEmail = process.env.BREVO_FROM_EMAIL ?? "info@servebyexample.co";
     const fromName = process.env.BREVO_FROM_NAME ?? "Serve By Example";
 
     if (!brevoApiKey) {
       console.error("Contact API: BREVO_API_KEY not set");
       return Response.json(
-        { error: "Contact form is not configured. Please email us directly at info@serve-by-example.com." },
+        { error: "Contact form is not configured. Please email us directly at info@servebyexample.co." },
         { status: 500 },
       );
     }
@@ -71,7 +71,7 @@ export async function POST(req: Request) {
       const errText = await brevoRes.text();
       console.error("Contact API: Brevo send failed:", brevoRes.status, errText);
       return Response.json(
-        { error: "Could not send your message. Please email us directly at info@serve-by-example.com." },
+        { error: "Could not send your message. Please email us directly at info@servebyexample.co." },
         { status: 500 },
       );
     }
@@ -80,7 +80,7 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error("Contact API error:", err);
     return Response.json(
-      { error: "Could not send your message. Please email us directly at info@serve-by-example.com." },
+      { error: "Could not send your message. Please email us directly at info@servebyexample.co." },
       { status: 500 },
     );
   }

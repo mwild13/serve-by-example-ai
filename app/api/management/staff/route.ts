@@ -144,7 +144,7 @@ export async function POST(req: Request) {
 
           if (brevoApiKey && inviteLink) {
             try {
-              const fromEmail = process.env.BREVO_FROM_EMAIL ?? "info@serve-by-example.com";
+              const fromEmail = process.env.BREVO_FROM_EMAIL ?? "info@servebyexample.co";
               const fromName = process.env.BREVO_FROM_NAME ?? "Serve By Example";
               const emailRes = await fetch("https://api.brevo.com/v3/smtp/email", {
                 method: "POST",

@@ -108,7 +108,7 @@ export default function PrivacyPage() {
                 </li>
                 <li>
                   <strong>Complaints</strong> — Contact us at{" "}
-                  <a href="mailto:info@serve-by-example.com">info@serve-by-example.com</a>. If
+                  <a href="mailto:info@servebyexample.co">info@servebyexample.co</a>. If
                   unsatisfied, you may lodge a complaint with the Office of the Australian
                   Information Commissioner (OAIC).
                 </li>
@@ -127,7 +127,7 @@ export default function PrivacyPage() {
                 <strong>Serve By Example</strong>
                 <br />
                 Email:{" "}
-                <a href="mailto:info@serve-by-example.com">info@serve-by-example.com</a>
+                <a href="mailto:info@servebyexample.co">info@servebyexample.co</a>
               </p>
             </div>
           </div>
