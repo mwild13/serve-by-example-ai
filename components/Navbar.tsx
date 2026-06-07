@@ -201,7 +201,7 @@ export default function Navbar({
 
             <Link href="/pricing">Pricing</Link>
             <Link href="/about">About</Link>
-            <Link href="/demo" className="nav-demo-btn">Try the Demo</Link>
+            <Link href="/demo" className="nav-demo-btn">Explore the Demo</Link>
           </nav>
 
           <div className="nav-right">

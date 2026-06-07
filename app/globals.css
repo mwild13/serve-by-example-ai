@@ -10122,8 +10122,8 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 .roi-range::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 44px;
-  height: 44px;
+  width: 18px;
+  height: 18px;
   background: #1B3D2F;
   border-radius: 50%;
   cursor: pointer;
@@ -10131,8 +10131,8 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   box-shadow: 0 2px 6px rgba(27, 61, 47, 0.18);
 }
 .roi-range::-moz-range-thumb {
-  width: 44px;
-  height: 44px;
+  width: 18px;
+  height: 18px;
   background: #1B3D2F;
   border-radius: 50%;
   cursor: pointer;
@@ -14522,7 +14522,7 @@ body {
 }
 
 .section-band-green .mastery-step-item p {
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .section-band-green .mastery-step-num {
@@ -14635,9 +14635,9 @@ body {
   flex: 1;
   padding: 10px 14px;
   border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--green-deep);
   font-size: 0.875rem;
   font-family: var(--font-body);
   outline: none;
@@ -14653,7 +14653,7 @@ body {
 }
 
 .roi-email-btn {
-  padding: 10px 20px;
+  padding: 13px 28px;
   border-radius: var(--radius-md);
   border: none;
   background: var(--gold-warm);
@@ -14664,6 +14664,7 @@ body {
   white-space: nowrap;
   transition: background 0.15s, opacity 0.15s;
   font-family: var(--font-body);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .roi-email-btn:hover:not(:disabled) {
@@ -14952,11 +14953,10 @@ h1, h2, h3 {
   font-optical-sizing: auto;
 }
 
-/* Hero subhead: Fraunces 300 italic for editorial warmth */
+/* Hero subhead: Fraunces 300 for editorial warmth */
 .hero-sub {
   font-family: var(--font-heading);
   font-weight: 300;
-  font-style: italic;
   font-size: clamp(1rem, 2.2vw, 1.15rem);
   line-height: 1.6;
   color: var(--text-soft);

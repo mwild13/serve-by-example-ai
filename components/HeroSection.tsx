@@ -113,7 +113,10 @@ export default function HeroSection() {
           </p>
 
           <div className="hero-cta-tiles">
-            <button className="hero-cta-tile hero-cta-tile-primary" onClick={openModal}>
+            <Link href="/demo" className="hero-cta-tile hero-cta-tile-primary">
+              Explore the Demo
+            </Link>
+            <button className="hero-cta-tile hero-cta-tile-secondary" onClick={openModal}>
               Book a free 15-min call
             </button>
           </div>
