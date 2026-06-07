@@ -2871,6 +2871,7 @@ ul {
 .staff-toggle-list input[type="checkbox"] {
   width: 18px;
   height: 18px;
+  accent-color: var(--green);
 }
 
 html[data-staff-large-text="1"] .dashboard-main {
@@ -3026,6 +3027,14 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 
 /* ── Pre-Shift Home ─────────────────────────── */
 .psh { padding: 0 4px; }
+
+.psh-section-tag {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+}
 
 .psh-mastery-bar {
   display: flex;
@@ -4686,8 +4695,8 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 }
 .progress-hub-rec-btn {
   display: inline-block;
-  background: #a3e635;
-  color: var(--green-deep);
+  background: var(--green);
+  color: #fff;
   font-size: 0.85rem;
   font-weight: 700;
   border: none;
@@ -4698,7 +4707,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   width: 100%;
 }
 .progress-hub-rec-btn:hover {
-  background: #bef264;
+  background: var(--green-mid);
 }
 
 /* Band 2: Certification & Focus Hub */
@@ -4969,12 +4978,12 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 /* ── Arena Cards ──────────────────────────────────────────────────────────── */
 .arena-card {
   background: var(--surface-raised);
-  border: 1.5px solid var(--line-light);
+  border: 1px solid var(--line);
   border-radius: var(--radius-md);
   padding: 1.1rem 1.25rem 1rem;
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -7854,7 +7863,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 
 .cocktail-card {
   background: white;
-  border: 1.5px solid #e7decb;
+  border: 1px solid var(--line);
   border-radius: 16px;
   padding: 16px 18px;
   cursor: pointer;

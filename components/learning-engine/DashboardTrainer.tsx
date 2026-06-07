@@ -722,9 +722,7 @@ export default function DashboardTrainer({
         </div>
       )}
 
-      {/* Help shortcut hint */}
       <div className="sbe-help-hint">
-        Press <kbd>?</kbd> for shortcuts
         <button className="sbe-help-btn" onClick={() => setShowHelp(true)} aria-label="Show keyboard shortcuts">?</button>
       </div>
 

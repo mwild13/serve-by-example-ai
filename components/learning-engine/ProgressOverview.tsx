@@ -525,7 +525,7 @@ export default function ProgressOverview({
           <div className="sbe-command-text">
             <span className="sbe-command-eyebrow">Me</span>
             <strong>Your Training Progress</strong>
-            <span className="sbe-command-meta">Loading your progress...</span>
+            <span className="sbe-command-meta">Track mastery, scores and certifications across all 40 modules</span>
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
@@ -602,7 +602,6 @@ export default function ProgressOverview({
       <div className="progress-tab-panel" style={{ display: "flex", flexDirection: "column", gap: "1.75rem" }}>
         {/* Skill meter */}
         <div className="progress-hub-header">
-          <span className="eyebrow">How I&rsquo;m improving</span>
           <h1>{displayName}&rsquo;s Progress Hub</h1>
           <SkillMeter skillLevel={skillLevel} />
         </div>

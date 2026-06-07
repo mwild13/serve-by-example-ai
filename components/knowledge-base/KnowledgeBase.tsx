@@ -60,10 +60,6 @@ export default function KnowledgeBase() {
               : KB_CATEGORIES[activeCategory].description}
           </span>
         </div>
-        <div className="kb-header-stat" aria-hidden="true">
-          <span className="kb-header-stat-num">{filtered.length}</span>
-          <span className="kb-header-stat-label">{filtered.length === KB_ENTRIES.length ? "articles" : "results"}</span>
-        </div>
       </div>
 
       {/* Search */}

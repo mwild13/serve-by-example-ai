@@ -81,6 +81,7 @@ export default function BadgeStreakSection({ modules, scores, bestStreak, sbeEli
     <div className="badge-streak-zone">
       <div className="badge-section">
         <div className="badge-section-header">
+          <span style={{ fontSize: "0.65rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--gold)", display: "block", marginBottom: "4px" }}>Achievements</span>
           <h2>Streak Badges</h2>
           <p>Training consistency rewards</p>
         </div>

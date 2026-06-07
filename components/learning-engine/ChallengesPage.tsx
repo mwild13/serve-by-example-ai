@@ -137,7 +137,7 @@ function ResetButton({ onReset, label = "Try Again" }: { onReset: () => void; la
 
 const STEP_LABELS = ["Sequence Sort", "Fill the Blank", "Match Pair", "Spot the Error", "Multiple Choice"];
 
-function Stepper({ currentStep, phase }: { currentStep: number; phase: "quiz" | "summary" }) {
+function Stepper({ currentStep, phase }: { currentStep: number; phase: "lobby" | "quiz" | "summary" }) {
   const allDone = phase === "summary";
   return (
     <div
@@ -1064,7 +1064,7 @@ function MultipleChoice({ onComplete, onIncorrect }: { onComplete?: () => void; 
 // ── Page shell ────────────────────────────────────────────────────────────────
 
 export default function ChallengesPage() {
-  const [phase, setPhase] = useState<"quiz" | "summary">("quiz");
+  const [phase, setPhase] = useState<"lobby" | "quiz" | "summary">("lobby");
   const [currentStep, setCurrentStep] = useState(0);
   const [hadError, setHadError] = useState<Set<number>>(new Set());
   const [reviewMode, setReviewMode] = useState(false);
@@ -1123,8 +1123,67 @@ export default function ChallengesPage() {
         </div>
       </div>
 
+      {/* Lobby landing state */}
+      {phase === "lobby" && (
+        <div style={{ padding: "0.25rem 0 2rem" }}>
+          <div style={{
+            background: "var(--surface)",
+            border: "1px solid var(--line)",
+            borderRadius: "var(--radius-lg)",
+            padding: "2.5rem 2rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1.5rem",
+          }}>
+            <p style={{ fontSize: "0.95rem", color: "var(--text-soft)", lineHeight: 1.65, margin: 0 }}>
+              Five interactive formats. Tap-based — no typing required. Each round tests a different skill area.
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+              {[
+                "Sequence Sort — arrange steps in the right order",
+                "Fill the Blank — complete the key phrase",
+                "Match Pair — link terms to their definitions",
+                "Spot the Error — identify what went wrong",
+                "Multiple Choice — pick the correct answer",
+              ].map((item, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}>
+                  <span style={{
+                    width: "22px", height: "22px", borderRadius: "50%",
+                    background: "var(--green-light)", color: "var(--green)",
+                    fontSize: "0.72rem", fontWeight: 800,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    flexShrink: 0, marginTop: "2px",
+                  }}>
+                    {i + 1}
+                  </span>
+                  <span style={{ fontSize: "0.88rem", color: "var(--text)", lineHeight: 1.5 }}>{item}</span>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => setPhase("quiz")}
+              style={{
+                alignSelf: "flex-start",
+                background: "var(--green)",
+                color: "#fff",
+                border: "none",
+                borderRadius: "999px",
+                padding: "0.8rem 2rem",
+                fontSize: "0.95rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                fontFamily: "var(--font-body)",
+                letterSpacing: "0.01em",
+              }}
+            >
+              Start Challenges
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 5-dot stepper */}
-      <Stepper currentStep={currentStep} phase={phase} />
+      {phase !== "lobby" && <Stepper currentStep={currentStep} phase={phase} />}
 
       {phase === "quiz" && (
         <div>

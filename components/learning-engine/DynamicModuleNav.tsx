@@ -86,7 +86,7 @@ export default function DynamicModuleNav({
           <span className="sbe-command-eyebrow">Training Library</span>
           <strong>Modules</strong>
           <span className="sbe-command-meta">
-            {loading ? "Loading your modules…" : `${filteredModules.length} modules across Technical, Service & Compliance`}
+            {filteredModules.length > 0 ? `${filteredModules.length} modules across Technical, Service & Compliance` : "Browse and master all 40 training modules"}
           </span>
         </div>
       </div>
@@ -113,12 +113,12 @@ export default function DynamicModuleNav({
                 onClick={() => onModuleSelect(module.id)}
                 style={{
                   background: "white",
-                  border: `1.5px solid ${isSelected ? "#2d6a4f" : "#e5e7eb"}`,
+                  border: isSelected ? "1.5px solid #2d6a4f" : "1px solid var(--line)",
                   borderRadius: "14px",
                   padding: "1.4rem 1.5rem",
                   cursor: "pointer",
                   transition: "all 0.18s ease",
-                  boxShadow: isSelected ? "0 0 0 3px rgba(45,106,79,0.15)" : "0 1px 4px rgba(0,0,0,0.05)",
+                  boxShadow: isSelected ? "0 0 0 3px rgba(45,106,79,0.15)" : "none",
                 }}
                 onMouseEnter={(e) => {
                   if (!isSelected) {
@@ -129,8 +129,8 @@ export default function DynamicModuleNav({
                 }}
                 onMouseLeave={(e) => {
                   if (!isSelected) {
-                    e.currentTarget.style.borderColor = "#e5e7eb";
-                    e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.05)";
+                    e.currentTarget.style.borderColor = "var(--line)";
+                    e.currentTarget.style.boxShadow = "none";
                     e.currentTarget.style.transform = "translateY(0)";
                   }
                 }}
@@ -186,7 +186,7 @@ export default function DynamicModuleNav({
                       <div key={i} style={{ width: "7px", height: "7px", borderRadius: "50%", background: i < module.difficulty_level ? "#2d6a4f" : "#e5e7eb" }} />
                     ))}
                   </div>
-                  <span style={{ fontSize: "0.78rem", fontWeight: 700, padding: "4px 12px", borderRadius: "6px", transition: "all 0.15s", background: isSelected ? "#d1fae5" : "#f3f4f6", color: isSelected ? "#1b4332" : "#6b7280" }}>
+                  <span className="btn-secondary" style={{ fontSize: "0.78rem", padding: "4px 12px" }}>
                     {isSelected ? "Selected ✓" : module.mastery_pct >= 100 ? "Review →" : module.mastery_pct > 0 ? "Continue →" : "Start →"}
                   </span>
                 </div>

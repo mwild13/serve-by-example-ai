@@ -212,7 +212,7 @@ export default function ArenaPage({ userId: _userId }: Props) {
       <div>
         <div
           className="sbe-command-bar sbe-command-bar-active"
-          style={{ color: "white", marginBottom: "1.75rem" }}
+          style={{ color: "white", marginBottom: "0.5rem" }}
         >
           <div className="sbe-command-text">
             <span className="sbe-command-eyebrow">Live Scenarios</span>
@@ -291,7 +291,7 @@ export default function ArenaPage({ userId: _userId }: Props) {
       <div>
         <div
           className="sbe-command-bar sbe-command-bar-active"
-          style={{ color: "white", marginBottom: "1.75rem" }}
+          style={{ color: "white", marginBottom: "0.5rem" }}
         >
           <div className="sbe-command-text">
             <span className="sbe-command-eyebrow">Live Scenarios</span>

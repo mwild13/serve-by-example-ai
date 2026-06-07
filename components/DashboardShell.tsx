@@ -219,7 +219,14 @@ function StaffSettingsPanel({
   }
 
   return (
-    <div className="staff-settings-wrap">
+    <>
+      <div className="sbe-command-bar sbe-command-bar-active" style={{ color: "white", marginBottom: "1.75rem" }}>
+        <div className="sbe-command-text">
+          <span className="sbe-command-eyebrow">Account</span>
+          <strong>Settings</strong>
+        </div>
+      </div>
+      <div className="staff-settings-wrap">
       <div className="card">
         <h3>Display name</h3>
         <p>Update the name shown across your training dashboard.</p>
@@ -375,6 +382,7 @@ function StaffSettingsPanel({
         )}
       </div>
     </div>
+    </>
   );
 }
 

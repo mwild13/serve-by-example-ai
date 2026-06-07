@@ -221,12 +221,13 @@ export default function CocktailLibrary() {
 
   return (
     <div>
-      <h1 className="dash-welcome">Cocktail Library</h1>
-      <p className="dash-copy">
-        {activeCategory === "all"
-          ? `${COCKTAILS.length} cocktails across 10 classic styles. Select any card to view the full recipe.`
-          : CATEGORIES[activeCategory].description}
-      </p>
+      <div className="sbe-command-bar sbe-command-bar-active" style={{ color: "white", marginBottom: "1.75rem" }}>
+        <div className="sbe-command-text">
+          <span className="sbe-command-eyebrow">Beverage Guide</span>
+          <strong>Cocktail Library</strong>
+          <span className="sbe-command-meta">38 classic cocktails across 10 styles</span>
+        </div>
+      </div>
 
       <div className="cocktail-search-row">
         <input
