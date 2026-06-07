@@ -14,9 +14,7 @@ export type ManagerSection =
   | "notifications"
   | "aicoach"
   | "predictive"
-  | "settings"
-  | "billing"
-  | "sign-out";
+  | "settings";
 
 export type StaffRole =
   | "Bartender"

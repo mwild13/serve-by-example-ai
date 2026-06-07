@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import SignOutButton from "@/components/ui/SignOutButton";
 import SessionRefresher from "@/components/ui/SessionRefresher";
@@ -16,8 +16,6 @@ import {
   MessageCircle,
   Sparkles,
   Settings2,
-  CreditCard,
-  LogOut,
 } from "lucide-react";
 import type {
   ManagementSnapshot,
@@ -30,11 +28,12 @@ import type {
 import type { QuickActionId, NavGroup, SearchResult } from "./manager-types";
 import {
   EmptyState,
-  OpsKpiCard,
   formatPercent,
-  StaffBadges,
   MasteryMicroGrid,
 } from "./manager-ui";
+import { WorkspaceHeader } from "./WorkspaceHeader";
+
+const CoachingDrawer = lazy(() => import("./CoachingDrawer"));
 
 type SnapshotResponse = ManagementSnapshot & {
   inviteMessage?: string;
@@ -78,8 +77,6 @@ const NAV_GROUPS: NavGroup[] = [
     collapsible: true,
     items: [
       { id: "settings", label: "Settings", icon: Settings2 },
-      { id: "billing", label: "Billing", icon: CreditCard },
-      { id: "sign-out", label: "Sign out", icon: LogOut },
     ],
   },
 ];
@@ -103,8 +100,6 @@ const SECTION_META: Record<ManagerSection, { cluster: string; label: string }> =
   aicoach: { cluster: "AI Coach", label: "Ask AI Coach" },
   predictive: { cluster: "AI Coach", label: "Predictive Insights" },
   settings: { cluster: "Admin", label: "Settings" },
-  billing: { cluster: "Admin", label: "Billing" },
-  "sign-out": { cluster: "Admin", label: "Sign out" },
 };
 
 const QUICK_ACTIONS: Array<{
@@ -274,6 +269,7 @@ export default function ManagerControlCenter({
   const [activeSection, setActiveSection] = useState<ManagerSection>("overview");
   const [selectedVenueId, setSelectedVenueId] = useState(initialSnapshot.venues[0]?.id ?? "");
   const [selectedStaffId, setSelectedStaffId] = useState("");
+  const [coachingDrawerOpen, setCoachingDrawerOpen] = useState(false);
   const [activeAction, setActiveAction] = useState<QuickActionId | null>(null);
   const [staffForm, setStaffForm] = useState<NewStaffPayload>({
     name: "",
@@ -356,7 +352,7 @@ export default function ManagerControlCenter({
   const [staffRoleFilter, setStaffRoleFilter] = useState<string>("all");
   const [reportSearch, setReportSearch] = useState("");
   const [aiCoachFeedback, setAiCoachFeedback] = useState<Record<number, "up" | "down">>({});
-  const [expandedSuggestions, setExpandedSuggestions] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<"setup" | "billing">("setup");
   const [venueDeleteConfirm, setVenueDeleteConfirm] = useState<{ venueId: string; venueName: string } | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -409,6 +405,13 @@ export default function ManagerControlCenter({
     if (activeSection !== "settings") {
       setRequestSuccess("");
       setRequestError("");
+    }
+  }, [activeSection]);
+
+  // Guard: redirect any stale deprecated section values to overview
+  useEffect(() => {
+    if ((activeSection as string) === "billing" || (activeSection as string) === "sign-out") {
+      setActiveSection("overview");
     }
   }, [activeSection]);
 
@@ -1151,6 +1154,9 @@ export default function ManagerControlCenter({
             );
           })}
         </nav>
+        <div className="ops-sidebar-footer">
+          <SignOutButton />
+        </div>
       </aside>
 
       <section className="ops-workspace">
@@ -1558,13 +1564,6 @@ export default function ManagerControlCenter({
                 </div>
               </section>
 
-              {/* ── Training next update notice ── */}
-              <div className="mcc-training-notice">
-                <span className="mcc-training-notice-badge">Next update</span>
-                <span className="mcc-training-notice-text">
-                  <strong>Training (Programs)</strong> and <strong>Training (Scenarios)</strong> are locked and coming in the next update — your data is safe and will be visible here once released.
-                </span>
-              </div>
 
               {/* ── Secondary row: Staff snapshot + Operational alerts ── */}
               <section className="mcc-secondary-row">
@@ -1750,21 +1749,24 @@ export default function ManagerControlCenter({
             {/* ── Staff Directory ── */}
             <section className="ops-grid ops-grid-main">
               <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
-                <div className="ops-card-head">
-                  <h3>Staff directory</h3>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <select
-                      value={staffRoleFilter}
-                      onChange={(e) => setStaffRoleFilter(e.target.value)}
-                      style={{ padding: "5px 10px", borderRadius: 8, border: "1.5px solid var(--mcc-border)", background: "var(--mcc-bg)", color: "var(--mcc-ink-700)", fontSize: "0.82rem", cursor: "pointer" }}
-                      aria-label="Filter by role"
-                    >
-                      <option value="all">All roles</option>
-                      {STAFF_ROLE_OPTIONS.map((r) => <option key={r} value={r}>{r}</option>)}
-                    </select>
-                    <span style={{ fontSize: "0.82rem", color: "var(--mcc-ink-500)" }}>{venueStaff.filter(m => staffRoleFilter === "all" || m.role === staffRoleFilter).length} {venueStaff.filter(m => staffRoleFilter === "all" || m.role === staffRoleFilter).length === 1 ? "person" : "people"} · {selectedVenue?.name}</span>
-                  </div>
-                </div>
+                <WorkspaceHeader
+                  title="Staff directory"
+                  description="Click any row to open the coaching profile"
+                  actions={
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <select
+                        value={staffRoleFilter}
+                        onChange={(e) => setStaffRoleFilter(e.target.value)}
+                        style={{ padding: "5px 10px", borderRadius: 8, border: "1.5px solid var(--mcc-border)", background: "var(--mcc-bg)", color: "var(--mcc-ink-700)", fontSize: "0.82rem", cursor: "pointer" }}
+                        aria-label="Filter by role"
+                      >
+                        <option value="all">All roles</option>
+                        {STAFF_ROLE_OPTIONS.map((r) => <option key={r} value={r}>{r}</option>)}
+                      </select>
+                      <span style={{ fontSize: "0.82rem", color: "var(--mcc-ink-500)" }}>{venueStaff.filter(m => staffRoleFilter === "all" || m.role === staffRoleFilter).length} {venueStaff.filter(m => staffRoleFilter === "all" || m.role === staffRoleFilter).length === 1 ? "person" : "people"} · {selectedVenue?.name}</span>
+                    </div>
+                  }
+                />
                 {venueStaff.length ? (
                   <div className="ops-table-wrap">
                     <table className="ops-table ops-staff-table">
@@ -1794,7 +1796,7 @@ export default function ManagerControlCenter({
                             <tr
                               key={member.id}
                               className={selectedStaffId === member.id ? "active" : ""}
-                              onClick={() => setSelectedStaffId(member.id)}
+                              onClick={() => { setSelectedStaffId(member.id); setCoachingDrawerOpen(true); }}
                             >
                               <td>
                                 <div className="ops-staff-avatar">{initials}</div>
@@ -1858,57 +1860,6 @@ export default function ManagerControlCenter({
                 )}
               </article>
             </section>
-
-            {/* ── Staff profile detail panel ── */}
-            {selectedStaff && (
-              <section className="ops-grid ops-grid-main" style={{ marginTop: 12 }}>
-                <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
-                  <div className="ops-card-head">
-                    <h3>{selectedStaff.name} — coaching profile</h3>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ fontSize: "0.82rem", color: "var(--mcc-ink-500)" }}>{selectedStaff.role} · Last active {selectedStaff.lastActive}</span>
-                      <button
-                        type="button"
-                        className="btn btn-primary"
-                        style={{ fontSize: "0.78rem", padding: "6px 14px" }}
-                        onClick={() => openAction("assign-training")}
-                      >
-                        + Assign training
-                      </button>
-                    </div>
-                  </div>
-                  <div className="ops-profile-metrics">
-                    <OpsKpiCard label="Completion" value={`${parseFloat(selectedStaff.progress.toFixed(2))}%`} />
-                    <OpsKpiCard label="Service" value={`${parseFloat(selectedStaff.serviceScore.toFixed(2))}%`} />
-                    <OpsKpiCard label="Sales" value={`${parseFloat(selectedStaff.salesScore.toFixed(2))}%`} />
-                    <OpsKpiCard label="Product" value={`${parseFloat(selectedStaff.productScore.toFixed(2))}%`} />
-                  </div>
-                  <StaffBadges staff={selectedStaff} />
-                  <div className="ops-grid-two-col">
-                    <div>
-                      <strong className="ops-subhead">Strengths</strong>
-                      <ul className="ops-plain-list">
-                        {selectedStaff.strengths.length ? (
-                          selectedStaff.strengths.map((item) => <li key={item}>{item}</li>)
-                        ) : (
-                          <li>No strengths recorded yet</li>
-                        )}
-                      </ul>
-                    </div>
-                    <div>
-                      <strong className="ops-subhead">Needs improvement</strong>
-                      <ul className="ops-plain-list">
-                        {selectedStaff.improvements.length ? (
-                          selectedStaff.improvements.map((item) => <li key={item}>{item}</li>)
-                        ) : (
-                          <li>No coaching notes recorded yet</li>
-                        )}
-                      </ul>
-                    </div>
-                  </div>
-                </article>
-              </section>
-            )}
 
             {/* ── Roster Overview ── */}
             <section style={{ marginTop: 12 }}>
@@ -2392,87 +2343,40 @@ export default function ManagerControlCenter({
 
         {activeSection === "training" && (
           <section className="ops-grid ops-grid-main">
-            <article className="ops-card ops-coming-soon-card">
-              <div className="ops-coming-soon-inner">
-                <div className="ops-coming-soon-badge">Next update</div>
-                <h2 className="ops-coming-soon-title">Training — Programs</h2>
-                <p className="ops-coming-soon-body">
-                  Full Programs builder — day plans, role targets, completion heatmaps, and assign-to-role workflows — ships in the next update. Your program data is safe and will appear here automatically.
-                </p>
-                <button type="button" className="btn btn-secondary" onClick={() => handleSectionChange("overview")}>
-                  Return to Mission Control
-                </button>
-              </div>
+            <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+              <EmptyState copy="Programs builder coming soon. Saved data will appear here automatically." />
             </article>
           </section>
         )}
 
         {activeSection === "scenarios" && (
           <section className="ops-grid ops-grid-main">
-            <article className="ops-card ops-coming-soon-card">
-              <div className="ops-coming-soon-inner">
-                <div className="ops-coming-soon-badge">Next update</div>
-                <h2 className="ops-coming-soon-title">Training — Scenarios</h2>
-                <p className="ops-coming-soon-body">
-                  Automated Scenario builder — upsell challenges, service recovery, menu knowledge quizzes, and cocktail build tests — ships in the next update. Scenario performance is tracked in the background and will appear here automatically.
-                </p>
-                <button type="button" className="btn btn-secondary" onClick={() => handleSectionChange("overview")}>
-                  Return to Mission Control
-                </button>
-              </div>
+            <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+              <EmptyState copy="Scenario builder coming soon. Performance is tracked in the background." />
             </article>
           </section>
         )}
 
         {activeSection === "inventory" && (
           <section className="ops-grid ops-grid-main">
-            <article className="ops-card ops-coming-soon-card">
-              <div className="ops-coming-soon-inner">
-                <div className="ops-coming-soon-badge">Next update</div>
-                <h2 className="ops-coming-soon-title">Operations — Inventory</h2>
-                <p className="ops-coming-soon-body">
-                  Full Inventory management — category tracking, par levels, low-stock alerts, and training scenario coverage — ships in the next update. Any inventory data you&apos;ve saved is safe and will appear here automatically.
-                </p>
-                <button type="button" className="btn btn-secondary" onClick={() => handleSectionChange("overview")}>
-                  Return to Mission Control
-                </button>
-              </div>
+            <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+              <EmptyState copy="Full inventory management coming soon. Saved data will appear here automatically." />
             </article>
           </section>
         )}
 
         {activeSection === "menu" && (
           <section className="ops-grid ops-grid-main">
-            <article className="ops-card ops-coming-soon-card">
-              <div className="ops-coming-soon-inner">
-                <div className="ops-coming-soon-badge">Next update</div>
-                <h2 className="ops-coming-soon-title">Operations — Menu Items</h2>
-                <p className="ops-coming-soon-body">
-                  Menu engineering tools — Stars, Puzzles, Ploughs, and Dogs quadrant analysis, staff knowledge scores per menu item, and cocktail build tracking — are coming in the next update.
-                  Your menu data continues to power scenario training in the background.
-                </p>
-                <button type="button" className="btn btn-secondary" onClick={() => handleSectionChange("overview")}>
-                  Return to Mission Control
-                </button>
-              </div>
+            <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+              <EmptyState copy="Menu engineering tools coming soon." />
             </article>
           </section>
         )}
 
         {activeSection === "compliance" && (
           <section className="ops-grid ops-grid-main">
-            <article className="ops-card ops-coming-soon-card">
-              <div className="ops-coming-soon-inner">
-                <div className="ops-coming-soon-badge">Next update</div>
-                <h2 className="ops-coming-soon-title">Operations — Compliance</h2>
-                <p className="ops-coming-soon-body">
-                  Training compliance tracking, RSA and certification expiry alerts, and required acknowledgements per staff member are coming in the next update.
-                  Staff training progress is already being recorded and will populate the compliance dashboard automatically.
-                </p>
-                <button type="button" className="btn btn-secondary" onClick={() => handleSectionChange("overview")}>
-                  Return to Mission Control
-                </button>
-              </div>
+            <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+              <EmptyState copy="Compliance tracking coming soon." />
             </article>
           </section>
         )}
@@ -2521,10 +2425,11 @@ export default function ManagerControlCenter({
               )}
 
               <article className="ops-card">
-                <div className="ops-card-head">
-                  <h3>This week vs last week</h3>
-                  <span>{selectedVenue?.name}</span>
-                </div>
+                <WorkspaceHeader
+                  title="This week vs last week"
+                  description="Comparison to 7 days prior"
+                  meta={selectedVenue?.name}
+                />
                 <div className="ops-compare-grid">
                   <div className="ops-compare-row ops-compare-head">
                     <span>Metric</span><span>This week</span><span>Last week</span><span>Change</span>
@@ -2610,7 +2515,8 @@ export default function ManagerControlCenter({
                     step={5}
                     value={revenueTransactionValue}
                     onChange={(e) => setRevenueTransactionValue(Number(e.target.value))}
-                    style={{ width: "100%", accentColor: "#1E5A3C", cursor: "pointer" }}
+                    className="ops-revenue-slider"
+                    style={{ "--slider-pct": `${((revenueTransactionValue - 5) / 295) * 100}%` } as React.CSSProperties}
                   />
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.7rem", color: "var(--mcc-ink-400)", marginTop: 2 }}>
                     <span>$5</span><span>$300</span>
@@ -3181,24 +3087,18 @@ export default function ManagerControlCenter({
         {activeSection === "aicoach" && (
           <section className="ops-grid ops-grid-main">
             <article className="ops-card ops-ai-coach-card">
-              <div className="ops-card-head">
-                <h3>Ask AI Coach</h3>
-                <span>{selectedVenue?.name ?? "Your venue"}</span>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 4, padding: "10px 14px", borderRadius: 8, background: "var(--mcc-surface-2)", border: "1px solid var(--mcc-border)", marginBottom: 16, fontSize: "0.82rem", color: "var(--mcc-ink-600)" }}>
-                {["Live access to your team training data and scores", "Ask about any staff member, team, or skill area", "Responses are specific to your venue and roster"].map((item) => (
-                  <div key={item} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#1E5A3C", flexShrink: 0, display: "inline-block" }} />
-                    {item}
-                  </div>
-                ))}
-              </div>
+              <WorkspaceHeader
+                title="Ask AI Coach"
+                description="Live access to your team's training data and scores"
+                meta={selectedVenue?.name ?? "Your venue"}
+              />
               <div className="ops-ai-coach-suggestions">
                 {[
-                  "Who hasn't completed their training?",
-                  "Which staff need upselling practice?",
-                  "What's our average scenario score?",
-                  "Who are my top performers?",
+                  "Who needs the most attention this week?",
+                  "Which staff are falling behind on training?",
+                  "What are my top upselling risks?",
+                  "Who is close to full mastery?",
+                  "Summarise this venue's performance.",
                 ].map((suggestion) => (
                   <button
                     key={suggestion}
@@ -3305,57 +3205,9 @@ export default function ManagerControlCenter({
                   </button>
                 </div>
               </form>
-              <p style={{ fontSize: "0.72rem", color: "var(--mcc-ink-400)", marginTop: 8, textAlign: "center" }}>
+              <small style={{ fontSize: "0.72rem", color: "var(--mcc-ink-400)", marginTop: 8, textAlign: "center", display: "block" }}>
                 Do not share sensitive staff salary or financial details with AI Coach.
-              </p>
-            </article>
-
-            <article className="ops-card">
-              <button
-                type="button"
-                onClick={() => setExpandedSuggestions((v) => !v)}
-                style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", background: "none", border: "none", cursor: "pointer", padding: 0, marginBottom: expandedSuggestions ? 12 : 0 }}
-              >
-                <div className="ops-card-head" style={{ margin: 0, flex: 1, pointerEvents: "none" }}>
-                  <h3 style={{ margin: 0 }}>Suggested questions</h3>
-                  <span style={{ fontSize: "0.75rem", color: "var(--mcc-ink-400)" }}>{expandedSuggestions ? "Collapse" : "Expand · Click to ask"}</span>
-                </div>
-                <span style={{ fontSize: "0.85rem", color: "var(--mcc-ink-400)", marginRight: 4 }}>{expandedSuggestions ? "▲" : "▼"}</span>
-              </button>
-              {expandedSuggestions && (
-                <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 6 }}>
-                  {[
-                    "Who hasn't completed their alcohol training?",
-                    "Which staff have the lowest sales scores?",
-                    "What's my venue health score this week?",
-                    "Show me staff who need coaching on service.",
-                    "How many training programs are active?",
-                    "What inventory categories are connected for realistic scenarios?",
-                  ].map((q) => (
-                    <li key={q}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setAiCoachInput(q);
-                          setAiCoachMessages((prev) => [...prev, { role: "user", content: q }]);
-                          setAiCoachInput("");
-                          setAiCoachLoading(true);
-                          apiFetch("/api/management/coach", { method: "POST", body: JSON.stringify({ question: q, venueId: selectedVenueId }) })
-                            .then((r) => r.json())
-                            .then((data) => {
-                              setAiCoachMessages((prev) => [...prev, { role: "coach", content: data.answer ?? data.error ?? "Unable to respond." }]);
-                            })
-                            .catch(() => setAiCoachMessages((prev) => [...prev, { role: "coach", content: "Unable to reach AI coach." }]))
-                            .finally(() => setAiCoachLoading(false));
-                        }}
-                        style={{ width: "100%", textAlign: "left", padding: "9px 12px", borderRadius: 8, border: "1.5px solid var(--mcc-border)", background: "var(--mcc-surface-2)", color: "var(--mcc-ink-700)", fontSize: "0.82rem", cursor: "pointer", lineHeight: 1.4, transition: "background 0.15s" }}
-                      >
-                        {q}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              </small>
             </article>
           </section>
         )}
@@ -3396,47 +3248,47 @@ export default function ManagerControlCenter({
           return (
             <section className="ops-grid ops-grid-main">
               <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
-                <div className="ops-card-head">
-                  <h3>Predictive Skill Gaps</h3>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <span style={{ fontSize: "0.82rem", color: "var(--mcc-ink-500)" }}>{selectedVenue?.name ?? "All venues"}</span>
-                    {predictions.length > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const rows = [["Staff", "Role", "Gap", "Risk", "Reason", "Action"], ...predictions.map((p) => [p.staffName, p.role, p.gap, p.risk, p.reason, p.action])];
-                          const csv = rows.map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
-                          const blob = new Blob([csv], { type: "text/csv" });
-                          const url = URL.createObjectURL(blob);
-                          const a = document.createElement("a"); a.href = url; a.download = `training-plan-${selectedVenue?.name ?? "venue"}.csv`; a.click(); URL.revokeObjectURL(url);
-                        }}
-                        style={{ padding: "5px 12px", borderRadius: 8, border: "1.5px solid var(--mcc-border)", background: "var(--mcc-bg)", color: "var(--mcc-ink-700)", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}
-                      >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        Export training plan
-                      </button>
-                    )}
-                  </div>
-                </div>
-                <p style={{ color: "var(--text-soft)", fontSize: ".95rem", marginBottom: 20 }}>
-                  Identify training risks before they show up on the floor. Staff predicted to underperform in key areas are flagged below with recommended actions.
-                </p>
+                <WorkspaceHeader
+                  title="Predictive Skill Gaps"
+                  description="Identify training risks before they show up on the floor"
+                  actions={
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{ fontSize: "0.82rem", color: "var(--mcc-ink-500)" }}>{selectedVenue?.name ?? "All venues"}</span>
+                      {predictions.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const rows = [["Staff", "Role", "Gap", "Risk", "Reason", "Action"], ...predictions.map((p) => [p.staffName, p.role, p.gap, p.risk, p.reason, p.action])];
+                            const csv = rows.map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
+                            const blob = new Blob([csv], { type: "text/csv" });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement("a"); a.href = url; a.download = `training-plan-${selectedVenue?.name ?? "venue"}.csv`; a.click(); URL.revokeObjectURL(url);
+                          }}
+                          style={{ padding: "5px 12px", borderRadius: 8, border: "1.5px solid var(--mcc-border)", background: "var(--mcc-bg)", color: "var(--mcc-ink-700)", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                          Export training plan
+                        </button>
+                      )}
+                    </div>
+                  }
+                />
 
                 {hasMasteryData && (
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 16 }}>
-                    <div className="ops-kpi-card" style={{ background: "#f0fdf4", borderColor: "#86efac" }}>
+                    <div className="ops-kpi-card" style={{ background: "var(--surface)", borderLeft: "4px solid var(--green)" }}>
                       <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>Mastered</span>
-                      <strong style={{ fontSize: "1.8rem", color: "#16a34a" }}>{masteryStats.mastered}</strong>
+                      <strong style={{ fontSize: "1.8rem", color: "var(--green)" }}>{masteryStats.mastered}</strong>
                       <small>staff at mastery level</small>
                     </div>
-                    <div className="ops-kpi-card" style={{ background: "#eff6ff", borderColor: "#93c5fd" }}>
+                    <div className="ops-kpi-card" style={{ background: "var(--surface)", borderLeft: "4px solid var(--gold-warm)" }}>
                       <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>In Progress</span>
-                      <strong style={{ fontSize: "1.8rem", color: "#2563eb" }}>{masteryStats.inProgress}</strong>
+                      <strong style={{ fontSize: "1.8rem", color: "var(--gold-warm)" }}>{masteryStats.inProgress}</strong>
                       <small>actively training</small>
                     </div>
-                    <div className="ops-kpi-card" style={{ background: "var(--surface)", borderColor: "var(--line)" }}>
+                    <div className="ops-kpi-card" style={{ background: "var(--surface)", borderLeft: "4px solid #b91c1c" }}>
                       <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>At Risk (Decay)</span>
-                      <strong style={{ fontSize: "1.8rem", color: "var(--text)" }}>{masteryStats.atRisk}</strong>
+                      <strong style={{ fontSize: "1.8rem", color: "#b91c1c" }}>{masteryStats.atRisk}</strong>
                       <small>overdue reviews</small>
                     </div>
                   </div>
@@ -3492,12 +3344,20 @@ export default function ManagerControlCenter({
                                     {name[0].toUpperCase()}
                                   </div>
                                   <div>
-                                    <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "var(--mcc-ink-900)" }}>{name}</div>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                      <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "var(--mcc-ink-900)" }}>{name}</div>
+                                      {hasHigh ? (
+                                        <span style={{ padding: "2px 8px", borderRadius: "var(--radius-sm)", fontSize: "0.68rem", fontWeight: 700, background: "#fef2f2", color: "#b91c1c", border: "1px solid #fca5a5", flexShrink: 0 }}>
+                                          High priority
+                                        </span>
+                                      ) : (
+                                        <span style={{ padding: "2px 8px", borderRadius: "var(--radius-sm)", fontSize: "0.68rem", fontWeight: 700, background: "var(--bg-alt)", color: "var(--text-soft)", border: "1px solid var(--line)", flexShrink: 0 }}>
+                                          Watch
+                                        </span>
+                                      )}
+                                    </div>
                                     <div style={{ fontSize: "0.72rem", color: "var(--mcc-ink-500)" }}>{staffMember?.role ?? "Staff"} · {staffFlags.length} flag{staffFlags.length !== 1 ? "s" : ""}</div>
                                   </div>
-                                  <span style={{ marginLeft: "auto", padding: "2px 10px", borderRadius: 999, fontSize: "0.72rem", fontWeight: 700, background: "var(--bg-alt)", color: "var(--text-soft)", border: "1px solid var(--line)" }}>
-                                    {hasHigh ? "High priority" : "Watch"}
-                                  </span>
                                 </div>
                                 {/* Individual flags */}
                                 <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
@@ -3544,6 +3404,11 @@ export default function ManagerControlCenter({
 
         {activeSection === "settings" && (
           <section className="ops-grid ops-grid-main">
+            <div className="mcc-tab-bar" style={{ gridColumn: "1 / -1", marginBottom: 4 }}>
+              <button type="button" className={`mcc-tab${settingsTab === "setup" ? " mcc-tab-active" : ""}`} onClick={() => setSettingsTab("setup")}>Venue setup</button>
+              <button type="button" className={`mcc-tab${settingsTab === "billing" ? " mcc-tab-active" : ""}`} onClick={() => setSettingsTab("billing")}>Billing</button>
+            </div>
+            {settingsTab === "setup" && (<>
             {/* ── Setup progress tracker ── */}
             {(() => {
               const steps = [
@@ -3773,46 +3638,32 @@ export default function ManagerControlCenter({
                 </p>
               )}
             </article>
-          </section>
-        )}
-
-        {activeSection === "billing" && (
-          <section className="ops-grid ops-grid-main">
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Billing overview</h3>
-              </div>
-              <dl className="ops-settings-list">
-                <div>
-                  <dt>Current plan</dt>
-                  <dd>
-                    {plan === "multi-venue" ? "Multi-Venue Plan" :
-                      plan === "single-venue" ? "Single Venue Plan" :
-                      plan === "pro" ? "Pro Plan" : "Starter Plan"}
-                  </dd>
+            </>)}
+            {settingsTab === "billing" && (
+              <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+                <div className="ops-card-head">
+                  <h3>Billing overview</h3>
                 </div>
-                <div>
-                  <dt>Seats used</dt>
-                  <dd>{venueStaff.length} active staff seats</dd>
-                </div>
-                <div>
-                  <dt>Next invoice</dt>
-                  <dd>Managed via Stripe</dd>
-                </div>
-              </dl>
-            </article>
-          </section>
-        )}
-
-        {activeSection === "sign-out" && (
-          <section className="ops-grid ops-grid-main">
-            <article className="ops-card">
-              <div className="ops-card-head">
-                <h3>Sign out</h3>
-              </div>
-              <p style={{ marginBottom: 16, color: "var(--text-soft)" }}>Signed in as venue manager. Sign out to close your session.</p>
-              <SignOutButton />
-            </article>
+                <dl className="ops-settings-list">
+                  <div>
+                    <dt>Current plan</dt>
+                    <dd>
+                      {plan === "multi-venue" ? "Multi-Venue Plan" :
+                        plan === "single-venue" ? "Single Venue Plan" :
+                        plan === "pro" ? "Pro Plan" : "Starter Plan"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Seats used</dt>
+                    <dd>{venueStaff.length} active staff seats</dd>
+                  </div>
+                  <div>
+                    <dt>Next invoice</dt>
+                    <dd>Managed via Stripe</dd>
+                  </div>
+                </dl>
+              </article>
+            )}
           </section>
         )}
       </section>
@@ -3868,6 +3719,14 @@ export default function ManagerControlCenter({
               <span className="ops-shift-label">Evening Service · All</span>
             </li>
           </ul>
+          <button
+            type="button"
+            className="ops-btn-tertiary"
+            style={{ marginTop: 12, fontSize: "0.82rem" }}
+            onClick={() => handleSectionChange("settings")}
+          >
+            Manage shifts
+          </button>
         </article>
 
         {/* Quick Actions */}
@@ -3892,15 +3751,31 @@ export default function ManagerControlCenter({
               </button>
             </li>
           </ul>
-          <div className="ops-shortcut-bar" style={{ marginTop: 16 }}>
-            <span>Shortcuts:</span>
-            <kbd>S</kbd><span>search</span>
-            <kbd>A</kbd><span>add staff</span>
-            <kbd>T</kbd><span>create program</span>
-            <kbd>I</kbd><span>add inventory</span>
+          <div className="ops-quick-shortcuts">
+            {[
+              { key: "S", label: "Search" },
+              { key: "A", label: "Add staff" },
+              { key: "T", label: "Create program" },
+              { key: "I", label: "Add inventory" },
+            ].map(({ key, label }) => (
+              <span key={key} className="ops-shortcut-chip" data-tooltip={label}>
+                {key}
+              </span>
+            ))}
           </div>
         </article>
       </aside>
+
+      {/* ── Coaching drawer ── */}
+      {coachingDrawerOpen && selectedStaff && (
+        <Suspense fallback={null}>
+          <CoachingDrawer
+            staff={selectedStaff}
+            onClose={() => setCoachingDrawerOpen(false)}
+            onAssignTraining={() => { setCoachingDrawerOpen(false); openAction("assign-training"); }}
+          />
+        </Suspense>
+      )}
 
       {/* ── Venue delete confirmation modal ── */}
       {venueDeleteConfirm && (

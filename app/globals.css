@@ -5659,6 +5659,43 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   background: #F8F9F5;
 }
 
+/* Management console — rectangular button paradigm (scoped, does not affect marketing site) */
+.ops-shell .btn {
+  border-radius: var(--radius-sm);
+}
+
+.ops-shell .btn-primary {
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+}
+
+.ops-shell .btn-secondary {
+  background: transparent;
+  color: var(--green);
+  border: 1.5px solid var(--green);
+  border-radius: var(--radius-sm);
+}
+
+.ops-btn-tertiary {
+  background: none;
+  border: none;
+  color: var(--green);
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.ops-btn-tertiary::after {
+  content: "→";
+}
+.ops-btn-tertiary:hover { color: var(--green-deep); }
+
 .ops-sidebar {
   width: 280px;
   flex-shrink: 0;
@@ -5768,6 +5805,35 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   display: grid;
   gap: 4px;
   align-content: start;
+}
+
+.ops-sidebar-footer {
+  margin-top: auto;
+  padding: 16px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+
+.ops-sidebar-footer .sign-out-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.75);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  text-align: left;
+  padding: 9px 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.15s, color 0.15s;
+  font-family: var(--font-manrope);
+}
+
+.ops-sidebar-footer .sign-out-btn:hover {
+  background: rgba(255,255,255,0.07);
+  color: #fff;
 }
 
 .ops-nav-group {
@@ -6399,6 +6465,14 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   font-size: 0.8rem;
 }
 
+.ops-section-desc {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  font-weight: 400;
+  font-family: var(--font-manrope);
+}
+
 /* ── Manager Insights panel ─── */
 .ops-insights-card {
   border-left: 3px solid var(--green-mid);
@@ -6690,6 +6764,59 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+}
+
+/* ── Coaching drawer ─────────────────────────────── */
+.ops-coaching-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 400px;
+  height: 100dvh;
+  z-index: 900;
+  background: var(--surface-raised);
+  border-left: 1px solid var(--line);
+  box-shadow: var(--shadow-xl);
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: slideInRight 0.22s ease;
+}
+
+.ops-coaching-drawer-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ops-coaching-drawer-head h3 {
+  font-family: var(--font-fraunces);
+  font-size: 1.1rem;
+  color: var(--green-deep);
+  margin: 0 0 2px;
+}
+
+.ops-coaching-drawer-head span {
+  font-size: 0.8rem;
+  color: var(--text-soft);
+}
+
+.ops-coaching-list {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
 }
 
 .ops-subhead {
@@ -8075,31 +8202,53 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 }
 
 /* ── Keyboard shortcut hint bar ─────────────────── */
-.ops-shortcut-bar {
+.ops-quick-shortcuts {
   display: flex;
-  align-items: center;
   gap: 6px;
-  font-size: 0.74rem;
-  color: var(--text-muted);
-  padding: 2px 0;
+  margin-top: 16px;
   flex-wrap: wrap;
 }
 
-.ops-shortcut-bar > span:first-child {
-  font-weight: 700;
-  margin-right: 4px;
-}
-
-.ops-shortcut-bar kbd {
-  display: inline-block;
-  padding: 1px 5px;
+.ops-shortcut-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
   border: 1px solid var(--line);
   border-radius: 4px;
   background: var(--surface);
   font-family: monospace;
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  color: var(--green-deep);
+  color: var(--text-muted);
+  cursor: default;
+  overflow: visible;
+}
+
+.ops-shortcut-chip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  background: var(--green-deep);
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+  font-family: var(--font-manrope);
+  font-weight: 600;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 9999;
+}
+
+.ops-shortcut-chip:hover::after {
+  opacity: 1;
 }
 
 /* ── Trend badges ───────────────────────────────── */
@@ -8858,6 +9007,50 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   gap: 14px;
 }
 
+.ops-revenue-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-alt);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  outline: none;
+}
+
+.ops-revenue-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--green);
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 1.5px var(--green), 0 2px 6px rgba(0,0,0,0.18);
+  cursor: pointer;
+}
+
+.ops-revenue-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--green);
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 1.5px var(--green);
+  cursor: pointer;
+}
+
+.ops-revenue-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(
+    to right,
+    var(--green) 0%,
+    var(--green) var(--slider-pct, 13%),
+    var(--bg-alt) var(--slider-pct, 13%)
+  );
+}
+
 .ops-revenue-rows {
   display: grid;
   gap: 8px;
@@ -9285,9 +9478,6 @@ html[data-staff-high-contrast="1"] .dashboard-main {
     text-align: left;
   }
 
-  .ops-shortcut-bar {
-    display: none;
-  }
 
   .ops-template-card {
     grid-template-columns: 1fr;
