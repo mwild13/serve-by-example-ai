@@ -722,10 +722,6 @@ export default function DashboardTrainer({
         </div>
       )}
 
-      <div className="sbe-help-hint">
-        <button className="sbe-help-btn" onClick={() => setShowHelp(true)} aria-label="Show keyboard shortcuts">?</button>
-      </div>
-
       {/* Help modal */}
       {showHelp && (
         <div className="sbe-help-overlay" onClick={() => setShowHelp(false)}>
