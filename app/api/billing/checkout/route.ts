@@ -66,8 +66,8 @@ export async function POST(req: Request) {
       // Logged-in users land on the dashboard; guests land on login with a flag
       // so they can create an account and get their plan linked via the webhook.
       success_url: user
-        ? `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?checkout=success`
-        : `${process.env.NEXT_PUBLIC_BASE_URL}/login?checkout=success`,
+        ? `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`
+        : `${process.env.NEXT_PUBLIC_BASE_URL}/login?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/pricing?checkout=cancel`,
     });
 
