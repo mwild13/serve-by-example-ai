@@ -86,12 +86,12 @@ export default function Home() {
                 <div className="stat-label-green">Faster Onboarding<br/><em className="stat-accent">6 months to 6 weeks</em></div>
               </article>
               <article className="stat-card stat-card-green">
-                <div className="stat-value-green">65<span className="stat-value-unit">+</span></div>
-                <div className="stat-label-green">Cocktail &amp; Scenario<br/><em className="stat-accent">Training Modules</em></div>
+                <div className="stat-value-green">100<span className="stat-value-unit">+</span></div>
+                <div className="stat-label-green">Learning Modules<br/><em className="stat-accent">&amp; Scenarios</em></div>
               </article>
               <article className="stat-card stat-card-green">
                 <div className="stat-value-green">19</div>
-                <div className="stat-label-green">Languages Supported<br/><em className="stat-accent">Global Training Ready</em></div>
+                <div className="stat-label-green">Languages Supported<br/><em className="stat-accent">Aus Training Ready</em></div>
               </article>
             </div>
           </div>
