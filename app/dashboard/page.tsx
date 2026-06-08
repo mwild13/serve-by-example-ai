@@ -75,7 +75,7 @@ export default async function DashboardPage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, plan, management_unlocked, notif_reminders, notif_weekly_digest, notif_achievement_alerts")
+    .select("display_name, plan, stripe_customer_id, management_unlocked, notif_reminders, notif_weekly_digest, notif_achievement_alerts")
     .eq("id", user.id)
     .single();
 
@@ -85,7 +85,33 @@ export default async function DashboardPage({
     (user.user_metadata?.name as string | undefined) ||
     user.email?.split("@")[0] ||
     "there";
-  const plan = profile?.plan ?? "free";
+
+  let plan = profile?.plan ?? "free";
+
+  // For paid users, verify the Stripe subscription is still active on every load.
+  // This self-heals when the cancellation webhook wasn't received.
+  if (plan !== "free" && profile?.stripe_customer_id && process.env.STRIPE_SECRET_KEY) {
+    try {
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+        apiVersion: "2026-02-25.clover",
+        httpClient: Stripe.createFetchHttpClient(),
+      });
+      const subscriptions = await stripe.subscriptions.list({
+        customer: profile.stripe_customer_id as string,
+        limit: 5,
+      });
+      const hasActive = subscriptions.data.some(
+        (s) => s.status === "active" || s.status === "trialing"
+      );
+      if (!hasActive) {
+        const admin = createSupabaseAdminClient();
+        await admin.from("profiles").update({ plan: "free", tier: "free" }).eq("id", user.id);
+        plan = "free";
+      }
+    } catch {
+      // Stripe unreachable — preserve current plan to avoid incorrectly revoking access
+    }
+  }
 
   // Check if user has an active venue membership (invited by a manager).
   // These users get full training access even on the free plan tier.

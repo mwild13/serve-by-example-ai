@@ -103,16 +103,26 @@ export async function POST(req: Request) {
 
   if (event.type === "customer.subscription.updated") {
     const subscription = event.data.object as Stripe.Subscription;
-    const priceId = subscription.items.data[0]?.price.id;
-    const plan = PRICE_TO_PLAN[priceId ?? ""];
     const customerId = subscription.customer as string;
 
-    if (plan && customerId) {
-      const tier = PLAN_TO_TIER[plan] ?? "free";
-      await supabase
-        .from("profiles")
-        .update({ plan, tier })
-        .eq("stripe_customer_id", customerId);
+    if (customerId) {
+      // Any non-active status revokes access immediately without waiting for deletion
+      if (["canceled", "past_due", "unpaid", "incomplete_expired"].includes(subscription.status)) {
+        await supabase
+          .from("profiles")
+          .update({ plan: "free", tier: "free" })
+          .eq("stripe_customer_id", customerId);
+      } else {
+        const priceId = subscription.items.data[0]?.price.id;
+        const plan = PRICE_TO_PLAN[priceId ?? ""];
+        if (plan) {
+          const tier = PLAN_TO_TIER[plan] ?? "free";
+          await supabase
+            .from("profiles")
+            .update({ plan, tier })
+            .eq("stripe_customer_id", customerId);
+        }
+      }
     }
   }
 
