@@ -214,7 +214,7 @@ export default function Home() {
               </div>
 
               {/* Mobile – train anywhere */}
-              <div className="solution-col">
+              <div className="solution-col" style={{ display: "flex", flexDirection: "column" }}>
                 <div className="solution-col-header">
                   <span className="solution-col-icon"><IcoPhone size={20} /></span>
                   <div>
@@ -222,14 +222,16 @@ export default function Home() {
                     <p>The full platform on mobile. Staff complete scenarios, quizzes, and modules between shifts without needing a desk or desktop.</p>
                   </div>
                 </div>
-                <Image
-                  src="/shots/Mobile View3.png"
-                  alt="Mobile training view – hospitality staff learning on phone"
-                  width={347}
-                  height={707}
-                  sizes="(max-width: 768px) 55vw, 200px"
-                  style={{ width: "100%", maxWidth: "200px", height: "auto", display: "block", margin: "0 auto" }}
-                />
+                <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Image
+                    src="/shots/Mobile View3.png"
+                    alt="Mobile training view – hospitality staff learning on phone"
+                    width={347}
+                    height={707}
+                    sizes="(max-width: 768px) 70vw, 280px"
+                    style={{ width: "100%", maxWidth: "280px", height: "auto", display: "block" }}
+                  />
+                </div>
               </div>
 
             </div>
