@@ -351,13 +351,16 @@ export default function Home() {
               </div>
 
               <div style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9ca3af" }}>Venues &amp; Groups</div>
-                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Scale Your Team</h3>
-                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>The full manager console, team analytics, compliance tracking and hands-on onboarding, for single venues up to multi-site groups. From 1 location to 5, all managed from one place.</p>
+                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9ca3af" }}>Single Venue</div>
+                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Venue</h3>
+                <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
+                  <span style={{ fontSize: "1.75rem", fontWeight: 900, color: "#0B2B1E", lineHeight: 1 }}>$49</span>
+                  <span style={{ fontSize: "0.85rem", color: "#6b7280", fontWeight: 500 }}>/month</span>
+                </div>
+                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Full manager console, team analytics, compliance tracking and staff rostering for a single venue. Up to 25 staff seats.</p>
                 <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For venue operators ready to professionalise their training.</p>
                 <div style={{ marginTop: "auto", paddingTop: "1rem", display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
-                  <Link href="/contact" className="btn btn-secondary btn-block">Talk to Sales</Link>
-                  <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>We respond within 1 business day.</span>
+                  <Link href="/pricing" className="btn btn-secondary btn-block">Get Started</Link>
                   <Link href="/demo" style={{ fontSize: "0.8rem", color: "var(--text-soft)", textDecoration: "underline", textUnderlineOffset: "3px" }}>or explore the demo free</Link>
                 </div>
               </div>
