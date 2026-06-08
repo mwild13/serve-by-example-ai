@@ -248,10 +248,10 @@ export default function HowItWorksPage() {
                 <Image
                   src="/shots/Mobile View2.png"
                   alt="Serve By Example staff mobile console – pre-shift brief and training dashboard"
-                  width={390}
-                  height={780}
-                  sizes="(max-width: 768px) 80vw, 320px"
-                  style={{ width: "100%", maxWidth: "320px", height: "auto", display: "block", margin: "0 auto", clipPath: "inset(0 2px 2px 0)" }}
+                  width={357}
+                  height={713}
+                  sizes="(max-width: 768px) 65vw, 240px"
+                  style={{ width: "100%", maxWidth: "240px", height: "auto", display: "block", margin: "0 auto", clipPath: "inset(0 2px 2px 0)" }}
                 />
               </div>
 
