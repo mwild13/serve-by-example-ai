@@ -6,18 +6,8 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Operator Resources | Serve By Example",
   description:
-    "Free operational downloads for Australian hospitality venues — including a practical training checklist and a venue-specific onboarding SOP template builder.",
+    "Free SOP templates for Australian hospitality venues — select your venue type and get a structured, copy-pasteable onboarding SOP in under 60 seconds.",
 };
-
-function DownloadIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-      <polyline points="7 10 12 15 17 10"/>
-      <line x1="12" y1="15" x2="12" y2="3"/>
-    </svg>
-  );
-}
 
 function BuildIcon() {
   return (
@@ -46,105 +36,50 @@ export default function ResourcesPage() {
           </div>
         </section>
 
-        {/* ── Resource Grid ── */}
+        {/* ── SOP Template Builder ── */}
         <section className="section section-alt">
-          <div className="container" style={{ maxWidth: 1080 }}>
+          <div className="container" style={{ maxWidth: 760 }}>
             <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(440px, 1fr))",
-              gap: "2rem",
-              alignItems: "stretch",
+              background: "var(--surface)",
+              border: "1.5px solid var(--line)",
+              borderRadius: "var(--radius-lg)",
+              padding: "3.25rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1.5rem",
             }}>
-
-              {/* Card 1: PDF Checklist */}
               <div style={{
-                background: "var(--surface)",
-                border: "1.5px solid var(--line)",
-                borderRadius: "var(--radius-lg)",
-                padding: "2.75rem",
-                display: "flex",
-                flexDirection: "column",
-                gap: "1.35rem",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: "0.75rem",
+                fontWeight: 800,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "var(--green-mid)",
               }}>
-                <div style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 8,
-                  fontSize: "0.75rem",
-                  fontWeight: 800,
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  color: "var(--green-mid)",
-                }}>
-                  <DownloadIcon />
-                  PDF &middot; Free Download
-                </div>
-                <h2 style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700, color: "var(--text)", lineHeight: 1.3, fontFamily: "var(--font-heading)" }}>
-                  Hospitality Staff Training Checklist
-                </h2>
-                <p style={{ margin: 0, fontSize: "1.05rem", color: "var(--text-soft)", lineHeight: 1.75 }}>
-                  A practical onboarding checklist built specifically for Australian bars, restaurants, and venue teams.
-                  Covers first-week milestones, service basics, product knowledge, compliance, and shift readiness.
-                  Use it with new starters or as a team reset. No software required.
-                </p>
-                <a
-                  href="/downloads/SBE-Training-Checklist.pdf"
-                  download="SBE-Training-Checklist.pdf"
-                  className="btn btn-primary"
-                  style={{ alignSelf: "flex-start", display: "flex", alignItems: "center", gap: 8, fontSize: "1rem", padding: "0.85rem 1.75rem" }}
-                >
-                  <DownloadIcon />
-                  Download free checklist
-                </a>
-                <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-muted)" }}>
-                  No email required. No account needed.
-                </p>
+                <BuildIcon />
+                Interactive Builder &middot; Free
               </div>
-
-              {/* Card 2: SOP Template Builder */}
-              <div style={{
-                background: "var(--surface)",
-                border: "1.5px solid var(--line)",
-                borderRadius: "var(--radius-lg)",
-                padding: "2.75rem",
-                display: "flex",
-                flexDirection: "column",
-                gap: "1.35rem",
-              }}>
-                <div style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 8,
-                  fontSize: "0.75rem",
-                  fontWeight: 800,
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  color: "var(--green-mid)",
-                }}>
-                  <BuildIcon />
-                  Interactive Builder &middot; Free
-                </div>
-                <h2 style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700, color: "var(--text)", lineHeight: 1.3, fontFamily: "var(--font-heading)" }}>
-                  Free Staff Onboarding SOP Templates
-                </h2>
-                <p style={{ margin: 0, fontSize: "1.05rem", color: "var(--text-soft)", lineHeight: 1.75 }}>
-                  Select your venue type, state, and biggest compliance pain point. We generate a structured,
-                  copy-pasteable SOP template matched to your operation in under 60 seconds.
-                  Covers RSA, allergens, opening/closing, and pre-start paperwork.
-                </p>
-                <Link
-                  href="/resources/sop-toolkit"
-                  className="btn btn-primary"
-                  style={{ alignSelf: "flex-start", display: "flex", alignItems: "center", gap: 8, fontSize: "1rem", padding: "0.85rem 1.75rem" }}
-                >
-                  <BuildIcon />
-                  Build my free SOP template
-                </Link>
-                <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-muted)" }}>
-                  Customised to your venue type and jurisdiction.
-                </p>
-              </div>
-
+              <h2 style={{ margin: 0, fontSize: "1.75rem", fontWeight: 700, color: "var(--text)", lineHeight: 1.25, fontFamily: "var(--font-heading)" }}>
+                Free Staff Onboarding SOP Templates
+              </h2>
+              <p style={{ margin: 0, fontSize: "1.1rem", color: "var(--text-soft)", lineHeight: 1.8 }}>
+                Select your venue type, state, and biggest compliance pain point. We generate a structured,
+                copy-pasteable SOP template matched to your operation in under 60 seconds.
+                Covers RSA, allergens, opening/closing, and pre-start paperwork.
+              </p>
+              <Link
+                href="/resources/sop-toolkit"
+                className="btn btn-primary"
+                style={{ alignSelf: "flex-start", display: "flex", alignItems: "center", gap: 8, fontSize: "1rem", padding: "0.9rem 2rem" }}
+              >
+                <BuildIcon />
+                Build my free SOP template
+              </Link>
+              <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                Customised to your venue type and jurisdiction.
+              </p>
             </div>
           </div>
         </section>
@@ -155,7 +90,7 @@ export default function ResourcesPage() {
             <span className="eyebrow">Take it further</span>
             <h2>Want the full training platform?</h2>
             <p style={{ color: "var(--text-soft)", lineHeight: 1.7, marginBottom: "2rem" }}>
-              The checklists give you a starting point. Serve By Example gives your team AI-scored
+              The SOP templates give you a starting point. Serve By Example gives your team AI-scored
               scenario practice, progress tracking, and a manager console, all in one place.
             </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
