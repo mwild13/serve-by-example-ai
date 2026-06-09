@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import SopGeneratorPreview from '@/components/toolkit/SopGeneratorPreview';
 
 export const metadata: Metadata = {
@@ -20,7 +21,7 @@ export default function ToolkitPage() {
       }}
     >
       <nav style={{ maxWidth: '850px', margin: '0 auto 3rem auto' }}>
-        <a
+        <Link
           href="/"
           style={{
             fontSize: '0.85rem',
@@ -29,7 +30,7 @@ export default function ToolkitPage() {
           }}
         >
           Serve By Example
-        </a>
+        </Link>
       </nav>
 
       <section
@@ -106,19 +107,19 @@ export default function ToolkitPage() {
           Current as at June 2026.
         </p>
         <p style={{ marginTop: '1rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-          <a
+          <Link
             href="/"
             style={{ color: 'var(--text-muted)', textDecoration: 'none' }}
           >
             servebyexample.co
-          </a>
+          </Link>
           {' · '}
-          <a
+          <Link
             href="/privacy"
             style={{ color: 'var(--text-muted)', textDecoration: 'none' }}
           >
             Privacy policy
-          </a>
+          </Link>
         </p>
       </footer>
     </main>

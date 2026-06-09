@@ -117,7 +117,7 @@ export default function SopGeneratorPreview() {
       } else {
         setEmailStatus('error');
       }
-    } catch (err) {
+    } catch (_err) {
       setEmailStatus('error');
     }
   };

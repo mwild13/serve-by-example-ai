@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
 const ROLE_HINTS: Record<string, { heading: string; body: string }> = {
@@ -156,12 +157,12 @@ export function SuccessContent() {
           color: 'var(--text-muted)',
         }}
       >
-        <a
+        <Link
           href="/"
           style={{ color: 'var(--text-muted)', textDecoration: 'none' }}
         >
           servebyexample.co
-        </a>
+        </Link>
       </p>
     </div>
   );
