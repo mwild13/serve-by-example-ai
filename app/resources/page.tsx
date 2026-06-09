@@ -1,11 +1,12 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Free Training Checklist | Serve By Example",
+  title: "Operator Resources | Serve By Example",
   description:
-    "Free onboarding guide specifically for Australian hospitality venues. Download, use, and keep it. No strings attached.",
+    "Free operational downloads for Australian hospitality venues — including a practical training checklist and a venue-specific onboarding SOP template builder.",
 };
 
 function DownloadIcon() {
@@ -18,6 +19,17 @@ function DownloadIcon() {
   );
 }
 
+function BuildIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+      <line x1="16" y1="13" x2="8" y2="13"/>
+      <line x1="16" y1="17" x2="8" y2="17"/>
+    </svg>
+  );
+}
+
 export default function ResourcesPage() {
   return (
     <div className="page-shell">
@@ -26,20 +38,26 @@ export default function ResourcesPage() {
         {/* ── Hero ── */}
         <section className="inner-hero">
           <div className="container">
-            <span className="eyebrow">Free Resource</span>
-            <h1>Free onboarding guide for Australian hospitality venues.</h1>
+            <span className="eyebrow">Free Resources</span>
+            <h1>Practical tools for Australian hospitality operators.</h1>
             <p className="inner-hero-sub">
-              Download, use, and keep it. No strings attached.
+              Download, use, and keep them. No strings attached.
             </p>
           </div>
         </section>
 
-        {/* ── Download section ── */}
+        {/* ── Resource Grid ── */}
         <section className="section section-alt">
           <div className="container" style={{ maxWidth: 1080 }}>
-            <div className="resource-download-grid">
-              {/* Left: card with text + download */}
-              <div className="resource-download-card" style={{
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(440px, 1fr))",
+              gap: "2rem",
+              alignItems: "stretch",
+            }}>
+
+              {/* Card 1: PDF Checklist */}
+              <div style={{
                 background: "var(--surface)",
                 border: "1.5px solid var(--line)",
                 borderRadius: "var(--radius-lg)",
@@ -47,7 +65,6 @@ export default function ResourcesPage() {
                 display: "flex",
                 flexDirection: "column",
                 gap: "1.35rem",
-                alignSelf: "stretch",
               }}>
                 <div style={{
                   display: "inline-flex",
@@ -62,7 +79,7 @@ export default function ResourcesPage() {
                   <DownloadIcon />
                   PDF &middot; Free Download
                 </div>
-                <h2 style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700, color: "var(--text)", lineHeight: 1.3 }}>
+                <h2 style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700, color: "var(--text)", lineHeight: 1.3, fontFamily: "var(--font-heading)" }}>
                   Hospitality Staff Training Checklist
                 </h2>
                 <p style={{ margin: 0, fontSize: "1.05rem", color: "var(--text-soft)", lineHeight: 1.75 }}>
@@ -84,19 +101,50 @@ export default function ResourcesPage() {
                 </p>
               </div>
 
-              {/* Right: checklist preview image – slightly larger than the card */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/downloads/training-checklist-preview.png"
-                alt="Training Checklist preview"
-                className="resource-download-img"
-                style={{
-                  width: "100%",
-                  borderRadius: "var(--radius-lg)",
-                  boxShadow: "var(--shadow-xl)",
-                  display: "block",
-                }}
-              />
+              {/* Card 2: SOP Template Builder */}
+              <div style={{
+                background: "var(--surface)",
+                border: "1.5px solid var(--line)",
+                borderRadius: "var(--radius-lg)",
+                padding: "2.75rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: "1.35rem",
+              }}>
+                <div style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  fontSize: "0.75rem",
+                  fontWeight: 800,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "var(--green-mid)",
+                }}>
+                  <BuildIcon />
+                  Interactive Builder &middot; Free
+                </div>
+                <h2 style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700, color: "var(--text)", lineHeight: 1.3, fontFamily: "var(--font-heading)" }}>
+                  Free Staff Onboarding SOP Templates
+                </h2>
+                <p style={{ margin: 0, fontSize: "1.05rem", color: "var(--text-soft)", lineHeight: 1.75 }}>
+                  Select your venue type, state, and biggest compliance pain point. We generate a structured,
+                  copy-pasteable SOP template matched to your operation in under 60 seconds.
+                  Covers RSA, allergens, opening/closing, and pre-start paperwork.
+                </p>
+                <Link
+                  href="/resources/sop-toolkit"
+                  className="btn btn-primary"
+                  style={{ alignSelf: "flex-start", display: "flex", alignItems: "center", gap: 8, fontSize: "1rem", padding: "0.85rem 1.75rem" }}
+                >
+                  <BuildIcon />
+                  Build my free SOP template
+                </Link>
+                <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                  Customised to your venue type and jurisdiction.
+                </p>
+              </div>
+
             </div>
           </div>
         </section>
@@ -107,7 +155,7 @@ export default function ResourcesPage() {
             <span className="eyebrow">Take it further</span>
             <h2>Want the full training platform?</h2>
             <p style={{ color: "var(--text-soft)", lineHeight: 1.7, marginBottom: "2rem" }}>
-              The checklist gives you a starting point. Serve By Example gives your team AI-scored
+              The checklists give you a starting point. Serve By Example gives your team AI-scored
               scenario practice, progress tracking, and a manager console, all in one place.
             </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>

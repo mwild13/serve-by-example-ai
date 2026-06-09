@@ -16,12 +16,7 @@ export async function GET(req: NextRequest) {
       );
   }
 
-  const notionUrl = process.env.NOTION_TOOLKIT_URL;
-
-  if (!notionUrl) {
-    console.error('[toolkit-open] NOTION_TOOLKIT_URL is not configured.');
-    return NextResponse.redirect(new URL('/', req.url), { status: 302 });
-  }
+  const notionUrl = process.env.NOTION_TOOLKIT_URL ?? 'https://servebyexample.co/toolkit';
 
   return NextResponse.redirect(notionUrl, { status: 302 });
 }

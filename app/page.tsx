@@ -393,15 +393,49 @@ export default function Home() {
         <ROICalculator />
 
         {/* ── Free Toolkit Teaser ──────────────────── */}
-        <section className="section section-alt">
-          <div className="container" style={{ maxWidth: '720px', textAlign: 'center' }}>
-            <span className="eyebrow">Free resource</span>
-            <h2 style={{ marginBottom: '1rem' }}>Not ready to sign up yet?</h2>
-            <p style={{ fontSize: '1.05rem', lineHeight: '1.65', color: 'var(--text-soft)', marginBottom: '2rem', maxWidth: '560px', margin: '0 auto 2rem auto' }}>
+        <section style={{ backgroundColor: 'var(--green)', padding: '5rem 1.5rem' }}>
+          <div style={{ maxWidth: '660px', margin: '0 auto', textAlign: 'center' }}>
+            <span style={{
+              display: 'inline-block',
+              fontFamily: 'var(--font-body)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              fontSize: '0.75rem',
+              color: 'rgba(255,255,255,0.55)',
+              fontWeight: '600',
+              marginBottom: '1.25rem',
+            }}>Free resource</span>
+            <h2 style={{
+              fontFamily: 'var(--font-heading)',
+              fontSize: 'clamp(1.85rem, 4vw, 2.6rem)',
+              lineHeight: '1.2',
+              color: '#fff',
+              marginBottom: '1.25rem',
+              letterSpacing: '-0.02em',
+            }}>Not ready to sign up yet?</h2>
+            <p style={{
+              fontSize: '1.1rem',
+              lineHeight: '1.7',
+              color: 'rgba(255,255,255,0.72)',
+              maxWidth: '520px',
+              margin: '0 auto 2.5rem auto',
+            }}>
               Get a free, venue-specific staff onboarding SOP template — customised to your venue type and biggest compliance pain point in under 60 seconds.
             </p>
-            <Link href="/toolkit" className="btn btn-secondary">
-              Build my free SOP template
+            <Link href="/toolkit" style={{
+              display: 'inline-block',
+              backgroundColor: 'var(--gold)',
+              color: '#fff',
+              fontFamily: 'var(--font-body)',
+              fontWeight: '600',
+              fontSize: '1rem',
+              padding: '0.9rem 2.25rem',
+              borderRadius: 'var(--radius-md)',
+              textDecoration: 'none',
+              letterSpacing: '0.01em',
+              transition: 'background-color 0.2s ease',
+            }}>
+              Build Your Custom SOP &rarr;
             </Link>
           </div>
         </section>
