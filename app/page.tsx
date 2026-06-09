@@ -392,6 +392,20 @@ export default function Home() {
         {/* ── ROI Calculator ───────────────────────── */}
         <ROICalculator />
 
+        {/* ── Free Toolkit Teaser ──────────────────── */}
+        <section className="section section-alt">
+          <div className="container" style={{ maxWidth: '720px', textAlign: 'center' }}>
+            <span className="eyebrow">Free resource</span>
+            <h2 style={{ marginBottom: '1rem' }}>Not ready to sign up yet?</h2>
+            <p style={{ fontSize: '1.05rem', lineHeight: '1.65', color: 'var(--text-soft)', marginBottom: '2rem', maxWidth: '560px', margin: '0 auto 2rem auto' }}>
+              Get a free, venue-specific staff onboarding SOP template — customised to your venue type and biggest compliance pain point in under 60 seconds.
+            </p>
+            <Link href="/toolkit" className="btn btn-secondary">
+              Build my free SOP template
+            </Link>
+          </div>
+        </section>
+
         {/* ── FAQ ──────────────────────────────────── */}
         <section className="section">
           <div className="container">
