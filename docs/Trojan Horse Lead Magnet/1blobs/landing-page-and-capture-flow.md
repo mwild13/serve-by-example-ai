@@ -1,0 +1,3 @@
+# Landing page and capture flow
+
+URL: servebyexample.co/toolkit. Copy locked. Dark brand match. Supabase table: toolkit_leads (role, UTM, consent, delivered flags). Delivery: success screen + Email 1 via Loops.so (toolkit_downloaded event). Notion open tracked via /api/toolkit-open redirect. Loops handles unsubscribe natively. Secondary entry point: homepage CTA block between pricing and FAQ. Validated green end-to-end.

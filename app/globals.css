@@ -16339,3 +16339,58 @@ h1, h2, h3 {
     transition: none !important;
   }
 }
+
+/* ─── SBE SOP Generator ─────────────────────────────────────────────────── */
+.sop-preview-container {
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 2rem;
+  font-family: var(--font-body);
+}
+
+.sop-pill-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.sop-pill {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  transition: all 0.2s ease-in-out;
+  text-align: left;
+}
+
+.sop-pill:hover {
+  border-color: var(--gold);
+  background-color: rgba(169, 129, 42, 0.05);
+}
+
+.sop-pill.active {
+  border-color: var(--green);
+  background-color: rgba(31, 78, 55, 0.08);
+  font-weight: 600;
+}
+
+.sop-blur-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70%;
+  background: linear-gradient(to bottom, transparent 0%, var(--surface) 60%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 3rem 1.5rem;
+  z-index: 10;
+}

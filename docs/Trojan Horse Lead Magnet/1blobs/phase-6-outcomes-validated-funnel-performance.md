@@ -1,0 +1,3 @@
+# Phase 6 outcomes — validated funnel performance
+
+**Warm SA (Batch 1):** 24 delivered, 45.8% click rate, 54.5% landing page opt-in, 25% end-to-end conversion, 12.5% reply rate. 6 Supabase opt-ins, 1 GOM referral.\n\n**Cold SA (Batch 2):** 52% open rate, 15.4% click-through. Credibility anchor (15-year experience line) validated as effective against the cold trust gap.\n\n**Email 4 Day 9:** Clean conversion signal from warm cohort. Nurture sequence confirmed converting resource downloads into active product intent.\n\n**Infrastructure locked:** Instantly.ai deployed for NSW/VIC volume. Spam Act compliance (physical address + unsubscribe line) integrated into all cold email footers. Hunter.io Starter active for enrichment.

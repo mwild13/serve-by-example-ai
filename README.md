@@ -1,47 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Serve By Example
 
-### Cloudflare Pages build
+AI-powered hospitality staff training platform — mobile-first, structured, and built for the floor.
 
-To deploy on Cloudflare Pages with Next.js, configure the project settings as follows:
+## What It Does
 
-1. **Build command:** `npm run build:cloudflare`
-2. **Output directory:** `.open-next`
-3. Add `www.serve-by-example.com` as a custom domain and ensure DNS points to Cloudflare.
+Staff work through a self-paced 3-stage mastery path (Learn → Verify → Perform) covering Bartending, Sales, and Management across 40 modules. Managers get Mission Control: real-time team analytics, compliance tracking, AI coaching, and multi-venue roster management. Everything runs on their phone.
 
-The build step runs OpenNext and then applies the required post-build steps so Pages serves static assets and the worker correctly.
+## Tech Stack
 
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 15 (App Router), deployed on Cloudflare Pages via OpenNext |
+| Database | Supabase — Postgres + Row Level Security + Auth |
+| AI | OpenAI GPT-4o-mini — scenario evaluation, coaching, translation |
+| Payments | Stripe — free / pro / venue_single / venue_multi tiers |
+| Language | TypeScript throughout — no `any` types |
 
-## Getting Started
-
-First, run the development server:
+## Local Development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # fill in credentials (see Cloudflare Pages env vars)
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Required Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY
+OPENAI_API_KEY
+STRIPE_SECRET_KEY
+STRIPE_WEBHOOK_SECRET
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+All secrets are managed in Cloudflare Pages environment variables. Never hardcode credentials.
 
-## Learn More
+## Branch Strategy
 
-To learn more about Next.js, take a look at the following resources:
+```
+dev    →  Cloudflare Pages preview  →  https://dev.serve-by-example-ai.pages.dev
+main   →  Production                →  https://servebyexample.co
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Fast-forward merges from `dev` into `main` only. Never commit directly to `main`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Key Directories
 
-## Deploy on Vercel
+| Directory | Purpose |
+|-----------|---------|
+| `app/` | Next.js App Router pages and API routes |
+| `components/learning-engine/` | All staff-facing training UI |
+| `components/mission-control/` | Manager Mission Control dashboard |
+| `components/knowledge-base/` | Cocktail Library and 101 Knowledge Base |
+| `lib/` | Mastery engine, session logic, tier access, AI helpers |
+| `supabase/` | SQL schema migration files |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Further Reading
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [CLAUDE.md](CLAUDE.md) — Full architecture, coding conventions, auth patterns, design system
+- [EXECUTIVE_SUMMARY.md](EXECUTIVE_SUMMARY.md) — Product overview for stakeholders and venue operators
+- [docs/MOBILE_VIEW.md](docs/MOBILE_VIEW.md) — Mobile UX architecture and component guide
+- [docs/HOMEPAGE.md](docs/HOMEPAGE.md) — Homepage section inventory, hero, modal, and conversion flows
+- [docs/v3-architecture.md](docs/v3-architecture.md) — V3 learning pipeline architecture

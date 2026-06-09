@@ -1,9 +1,8 @@
 # Serve By Example — V3 Architecture
 
-> **Status:** Pillar 1–4 complete. SQL migration pending DB execution.
-> Update this file as work proceeds. Every architectural decision lives here first, code second.
+> **Status:** V3 fully deployed. This document reflects the live architecture.
 
-**Last updated:** 2026-05-03
+**Last updated:** 2026-06-09
 
 ---
 
@@ -39,7 +38,7 @@ After a module is Mastered, the staff member can enter the **Arena** — an AI-e
 ### Aggregation for Manager Dashboard
 - `venue_staff.scenarios_mastered` = count of `scenario_mastery` rows with `is_mastered = true` for that user.
 - `venue_staff.scenarios_attempted` = count of all `scenario_mastery` rows for that user (i.e., modules ever attempted).
-- `venue_staff.progress` = `(scenarios_mastered / 20) * 100`, where 20 is the total module count.
+- `venue_staff.progress` = `(scenarios_mastered / 40) * 100`, where 40 is the total module count.
 - `service_score` / `sales_score` / `product_score` = average Arena performance per category (computed only from Arena attempts, not Verify quiz scores).
 
 ---
@@ -80,7 +79,7 @@ The Arena is a new endpoint: `POST /api/arena/evaluate`.
 ```
 
 ### Side Effects
-- Inserts a row in `arena_attempts` (new table, schema TBD in migration).
+- Inserts a row in `arena_attempts`.
 - Updates `venue_staff.{service_score|sales_score|product_score}` based on module category.
 - Does **not** modify `scenario_mastery` — Arena is post-mastery and never affects mastered state.
 
@@ -96,19 +95,20 @@ The Arena is a new endpoint: `POST /api/arena/evaluate`.
 - On pass → calls `POST /api/training/save` → flips `is_mastered = true` → triggers `syncMasteryToVenueStaff`.
 
 ### `ManagerControlCenter.tsx`
-- Replaces per-staff progress table columns with a **Mastery Micro-Grid**: 4 rows × 5 columns = 20 pips per staff member.
-- Each pip represents one module (id 1–20), color-coded:
+- Replaces per-staff progress table columns with a **Mastery Micro-Grid** showing per-module mastery state.
+- Each pip represents one module, color-coded:
   - Locked (gray) — module not yet unlocked by tier
   - In-Progress (amber) — attempted but not mastered
   - Mastered (green) — `is_mastered = true`
 - Hover state shows module title + status.
 
 ### `StaffBadges`
-- Replaces single "scenarios mastered" count with two category badges:
-  - **Technical** — modules 1–7 (Beer, Wine, Cocktails, Coffee, Glassware, Cleaning, Bar Back)
-  - **Service** — modules 8–14 (Greeting, Tables, Anticipation, Complaints, Upsell, VIP, Phone)
-  - **Compliance** — modules 15–20 (RSA, Food Safety, Conflict, Emergency, Open/Close, Inventory)
-- Badge thresholds: documented in `lib/badges.ts` (TBD).
+- Replaces single "scenarios mastered" count with category badges:
+  - **Bartending** — modules covering Beer, Wine, Cocktails, Coffee, Glassware, Bar Back operations
+  - **Sales** — modules covering Upselling, VIP Service, Complaints, Phone Reservations
+  - **Management** — modules covering RSA, Food Safety, Conflict, Emergency, Open/Close, Inventory
+- 40 modules total across all categories.
+- Badge thresholds: documented in `lib/badges.ts`.
 
 ---
 
@@ -117,8 +117,8 @@ The Arena is a new endpoint: `POST /api/arena/evaluate`.
 | Phase | Action | File | Status |
 | ----- | ------ | ---- | ------ |
 | 1 | Document V3 (this file) | `docs/v3-architecture.md` | Done |
-| 2 | SQL purge of legacy scenario_types + orphan cleanup | `supabase/migrations/20260502_v3_purge_legacy_stages.sql` | Written — awaiting DB execution |
-| 3 | Add `is_mastered` boolean to `scenario_mastery` | Same migration | Written — awaiting DB execution |
+| 2 | SQL purge of legacy scenario_types + orphan cleanup | `supabase/migrations/20260502_v3_purge_legacy_stages.sql` | Complete |
+| 3 | Add `is_mastered` boolean to `scenario_mastery` | Same migration | Complete |
 | 4 | Add `markModuleMastered` + V3 constants to mastery engine | `lib/mastery.ts` | Done |
 | 5 | Update `syncMasteryToVenueStaff` for binary 20-module aggregation | `lib/mastery.ts` | Done |
 | 6 | Add `verifyPassed` branch to training save API | `app/api/training/save/route.ts` | Done |
@@ -127,11 +127,11 @@ The Arena is a new endpoint: `POST /api/arena/evaluate`.
 | 9 | Swap `DashboardShell` caller to `ModuleVerify` | `components/DashboardShell.tsx` | Done |
 | 10 | Build Mastery Micro-Grid (4×5 pips) + category `StaffBadges` | `components/mission-control/manager-ui.tsx` | Done |
 | 11 | Wire micro-grid into staff overview + staff table | `components/mission-control/ManagerControlCenter.tsx` | Done |
-| 12 | Implement Arena endpoint + UI | `app/api/arena/evaluate/route.ts` + new components | Pending |
+| 12 | Implement Arena endpoint + UI | `app/api/arena/evaluate/route.ts` + new components | Complete |
 
-### Pending: `mastered_module_ids` column on `venue_staff`
+### `mastered_module_ids` column on `venue_staff`
 
-The micro-grid currently fills pips left-to-right by count (`scenariosMastered`, `scenariosAttempted`). For per-module accuracy (showing exactly which modules are mastered), a future migration should add:
+The micro-grid fills pips left-to-right by count (`scenariosMastered`, `scenariosAttempted`). For per-module accuracy (showing exactly which modules are mastered), a migration can add:
 
 ```sql
 ALTER TABLE public.venue_staff
