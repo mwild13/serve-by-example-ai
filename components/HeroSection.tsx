@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 type FormData = {
@@ -88,16 +88,27 @@ export default function HeroSection() {
     }
   }
 
+  useEffect(() => {
+    if (window.location.hash === '#book-call') {
+      openModal();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function openModal() {
     setShowModal(true);
     setForm(INITIAL_FORM);
     setErrors({});
     setSubmitted(false);
     setApiError('');
+    window.history.pushState(null, '', '#book-call');
   }
 
   function closeModal() {
     setShowModal(false);
+    if (window.location.hash === '#book-call') {
+      window.history.pushState(null, '', window.location.pathname);
+    }
   }
 
   return (
