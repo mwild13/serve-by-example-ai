@@ -5,7 +5,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { GlassWater, TrendingUp, Users, Flame, Trophy, BookOpen, Share2, Target, Check } from "lucide-react";
 import { computeBadges, countEarned, recentEarned, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
 import { KB_ENTRIES, KB_CATEGORIES } from "@/lib/knowledge-base";
-import { COCKTAILS } from "@/lib/cocktails";
+import { COCKTAILS, type Cocktail } from "@/lib/cocktails";
 
 type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "challenges" | "cocktails" | "knowledge" | "progress" | "settings";
 type ModuleKey = "bartending" | "sales" | "management";
@@ -371,6 +371,89 @@ function HorizontalProgressionTrack({
 }
 
 
+const CocktailCard = ({ cocktail }: { cocktail: Cocktail }) => {
+  const [open, setOpen] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const hasMore = cocktail.ingredients.length > 3;
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (cardRef.current && !cardRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  return (
+    <div
+      ref={cardRef}
+      style={{
+        position: "relative",
+        height: "160px",
+        overflow: "hidden",
+        background: "var(--surface)",
+        borderRadius: "var(--radius-md)",
+        padding: "1rem 1.1rem",
+        border: "1.5px solid var(--line)",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <span style={{ fontSize: "0.58rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "0.375rem", display: "block" }}>
+        TODAY&rsquo;S COCKTAIL
+      </span>
+      <strong style={{ fontSize: "0.9rem", fontWeight: 800, color: "var(--text)", lineHeight: 1.25, marginBottom: "0.25rem", letterSpacing: "-0.01em" }}>
+        {cocktail.name}
+      </strong>
+      <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginBottom: "0.5rem" }}>
+        {cocktail.glass}
+      </span>
+      <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 3 }}>
+        {cocktail.ingredients.slice(0, 3).map((ing) => (
+          <li key={ing} style={{ fontSize: "0.7rem", color: "var(--text-soft)", display: "flex", gap: 5, alignItems: "flex-start", lineHeight: 1.4 }}>
+            <span style={{ color: "var(--gold)", flexShrink: 0, marginTop: 1 }}>·</span>
+            {ing}
+          </li>
+        ))}
+      </ul>
+      {hasMore && !open && (
+        <button
+          onClick={() => setOpen(true)}
+          style={{ position: "absolute", bottom: "0.55rem", right: "0.75rem", background: "none", border: "none", cursor: "pointer", fontSize: "0.65rem", color: "var(--text-muted)", lineHeight: 1, padding: "2px 4px", fontFamily: "inherit" }}
+          aria-label="Show all ingredients"
+        >
+          +{cocktail.ingredients.length - 3} more
+        </button>
+      )}
+      {open && (
+        <div
+          style={{ position: "absolute", inset: 0, background: "var(--surface-raised)", borderRadius: "var(--radius-md)", border: "1px solid var(--line-light)", boxShadow: "var(--shadow-md)", padding: "0.875rem 1rem", overflowY: "auto", zIndex: 50, display: "flex", flexDirection: "column", gap: 4 }}
+        >
+          <span style={{ fontSize: "0.58rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "0.25rem", display: "block" }}>
+            {cocktail.name}
+          </span>
+          {cocktail.ingredients.map((ing) => (
+            <span key={ing} style={{ fontSize: "0.7rem", color: "var(--text-soft)", display: "flex", gap: 5, alignItems: "flex-start", lineHeight: 1.4 }}>
+              <span style={{ color: "var(--gold)", flexShrink: 0, marginTop: 1 }}>·</span>
+              {ing}
+            </span>
+          ))}
+          <button
+            onClick={() => setOpen(false)}
+            style={{ marginTop: "auto", alignSelf: "flex-end", background: "none", border: "none", cursor: "pointer", fontSize: "0.65rem", color: "var(--text-muted)", padding: "2px 4px", fontFamily: "inherit" }}
+            aria-label="Collapse ingredients"
+          >
+            &minus; less
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function PreShiftHome({
   displayName,
   setActiveNav,
@@ -693,32 +776,9 @@ export default function PreShiftHome({
           </div>
 
           {/* ── Daily Cocktail Highlights ── */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", flex: 1 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", flex: "0 0 auto" }}>
             {[dailyCocktail1, dailyCocktail2].map((cocktail) => (
-              <div key={cocktail.name} style={{ background: "var(--surface)", borderRadius: "var(--radius-md)", padding: "1rem 1.1rem", border: "1.5px solid var(--line)", display: "flex", flexDirection: "column" }}>
-                <span style={{ fontSize: "0.58rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "0.375rem", display: "block" }}>
-                  TODAY&rsquo;S COCKTAIL
-                </span>
-                <strong style={{ fontSize: "0.9rem", fontWeight: 800, color: "var(--text)", lineHeight: 1.25, marginBottom: "0.25rem", letterSpacing: "-0.01em" }}>
-                  {cocktail.name}
-                </strong>
-                <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginBottom: "0.5rem" }}>
-                  {cocktail.glass}
-                </span>
-                <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 3, flex: 1 }}>
-                  {cocktail.ingredients.slice(0, 5).map((ing) => (
-                    <li key={ing} style={{ fontSize: "0.7rem", color: "var(--text-soft)", display: "flex", gap: 5, alignItems: "flex-start", lineHeight: 1.4 }}>
-                      <span style={{ color: "var(--gold)", flexShrink: 0, marginTop: 1 }}>·</span>
-                      {ing}
-                    </li>
-                  ))}
-                  {cocktail.ingredients.length > 5 && (
-                    <li style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontStyle: "italic", paddingLeft: 13 }}>
-                      +{cocktail.ingredients.length - 5} more
-                    </li>
-                  )}
-                </ul>
-              </div>
+              <CocktailCard key={cocktail.name} cocktail={cocktail} />
             ))}
           </div>
 
