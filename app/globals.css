@@ -16408,3 +16408,225 @@ h1, h2, h3 {
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   SERVE BY EXAMPLE — SCOPED MARKETING PAGE THEME (PUBLIC PAGES ONLY)
+   ========================================================================== */
+
+.sbe-mkt-scope {
+  /* Marketing-Scoped Visual Palette (Desaturated Premium Editorial Tones) */
+  --mkt-forest-900: #0B291B; /* Primary background/text green */
+  --mkt-forest-800: #143524; /* Card nested containers */
+  --mkt-cream-100:  #FAF9F6; /* Soft analog parchment canvas */
+  --mkt-cream-200:  #F2EFE8; /* Secondary page containers */
+  --mkt-gold-500:   #D4AF37; /* Refined brand accent gold */
+  --mkt-gold-600:   #B8941F; /* Gold hover/active states */
+  --mkt-charcoal-900: #1A1A1A; /* Sharp body text */
+  --mkt-charcoal-400: #6B6B6B; /* Muted subtext & metrics labels */
+  --mkt-border-subtle: #E7E2D6;
+
+  /* 8px Soft Grid Spacing Mappings */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* Timing & Motion Settings */
+  --mkt-duration: 300ms;
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==========================================================================
+   TYPOGRAPHY & STRUCTURAL RHYTHM
+   ========================================================================== */
+
+/* Editorial Display Headings with Fluid Sizing */
+.sbe-mkt-scope .sbe-serif-title {
+  font-family: var(--font-heading, Georgia, serif) !important;
+  font-weight: 500;
+  color: var(--mkt-forest-900);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  font-size: clamp(1.75rem, 4.5vw, 2.25rem) !important; /* Mobile auto-clamping */
+  text-wrap: balance;
+}
+
+/* Highly Readable Sans-Serif Body Copy */
+.sbe-mkt-scope .sbe-sans-body {
+  font-family: var(--font-body, system-ui, sans-serif) !important;
+  line-height: 1.6;
+  color: var(--mkt-charcoal-900);
+}
+
+/* Premium Uppercase Eyebrows */
+.sbe-mkt-scope .sbe-eyebrow {
+  font-family: var(--font-body, system-ui, sans-serif) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important; /* Elegant tracking spacing */
+  color: var(--mkt-gold-500);
+  display: inline-block;
+  margin-bottom: var(--space-sm);
+}
+
+/* Tactile Spring-Ease Animations */
+.sbe-mkt-scope .sbe-interactive-hover {
+  transition:
+    transform    var(--mkt-duration) var(--ease-spring),
+    box-shadow   var(--mkt-duration) var(--ease-spring),
+    border-color var(--mkt-duration) var(--ease-spring);
+}
+
+.sbe-mkt-scope .sbe-interactive-hover:hover {
+  transform: translateY(-4px);
+  border-color: var(--mkt-gold-500);
+  box-shadow: 0 12px 24px -10px rgba(11, 41, 27, 0.12);
+}
+
+/* ==========================================================================
+   BENTO GRID 2.0 COMPONENTS
+   ========================================================================== */
+
+.sbe-mkt-scope .bento-grid {
+  display: grid;
+  gap: var(--space-lg);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.sbe-mkt-scope .bento-card {
+  border-radius: 16px;
+  border: 1px solid rgba(11, 41, 27, 0.1);
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: var(--mkt-cream-100);
+}
+
+.sbe-mkt-scope .bento-card-dark {
+  background-color: var(--mkt-forest-900);
+  color: var(--mkt-cream-100);
+  border-color: transparent;
+}
+
+/* Column spans on Desktop viewports (1024px+) */
+@media (min-width: 1024px) {
+  .sbe-mkt-scope .sbe-span-6  { grid-column: span 6; }
+  .sbe-mkt-scope .sbe-span-12 { grid-column: span 12; }
+}
+
+/* Responsive grid collapse (Mobile first) */
+@media (max-width: 1023px) {
+  .sbe-mkt-scope .bento-grid {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  .sbe-mkt-scope .sbe-span-6,
+  .sbe-mkt-scope .sbe-span-12 {
+    grid-column: span 1 !important;
+  }
+}
+
+/* ==========================================================================
+   WHY IT MATTERS 2×2 FEATURE GRID
+   ========================================================================== */
+
+.sbe-mkt-scope .why-grid-2x2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-2xl);
+  width: 100%;
+}
+
+.sbe-mkt-scope .why-grid-item {
+  border-bottom: 1px solid var(--mkt-border-subtle);
+  padding-bottom: var(--space-lg);
+}
+
+/* ==========================================================================
+   COMPETITOR MATRIX STYLING
+   ========================================================================== */
+
+.sbe-mkt-scope .compare-container {
+  overflow-x: auto;
+  width: 100%;
+  margin: var(--space-2xl) auto;
+  border-radius: 12px;
+  border: 1px solid var(--mkt-border-subtle);
+}
+
+.sbe-mkt-scope .compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+.sbe-mkt-scope .compare-th {
+  padding: var(--space-md);
+  font-weight: 600;
+  color: var(--mkt-forest-900);
+  border-bottom: 2px solid var(--mkt-forest-900);
+}
+
+.sbe-mkt-scope .compare-td {
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--mkt-border-subtle);
+}
+
+.sbe-mkt-scope .compare-highlight {
+  background-color: rgba(212, 175, 55, 0.05); /* 5% alpha brand gold */
+}
+
+/* ==========================================================================
+   CROSS-BROWSER VANILLA RANGE INPUT RESETS & TRACK FILL
+   ========================================================================== */
+
+.sbe-mkt-scope .sbe-slider-input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--mkt-border-subtle);
+  border-radius: 3px;
+  outline: none;
+  margin: var(--space-md) 0;
+}
+
+/* WebKit/Blink (Chrome, Safari, Edge, Opera) */
+.sbe-mkt-scope .sbe-slider-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--mkt-gold-500);
+  cursor: pointer;
+  transition: transform 150ms var(--ease-spring);
+  border: none;
+}
+
+.sbe-mkt-scope .sbe-slider-input::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* Mozilla (Firefox) */
+.sbe-mkt-scope .sbe-slider-input::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--mkt-gold-500);
+  cursor: pointer;
+  transition: transform 150ms var(--ease-spring);
+  border: none;
+}
+
+.sbe-mkt-scope .sbe-slider-input::-moz-range-thumb:hover {
+  transform: scale(1.2);
+}

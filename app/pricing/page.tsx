@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import SectionHeading from "@/components/ui/SectionHeading";
+import ROICalculator from "@/components/ui/ROICalculator";
+import CompareMatrix from "@/components/ui/CompareMatrix";
 
 export default function PricingPage() {
   const [loading, setLoading] = useState<string | null>(null);
@@ -182,6 +184,9 @@ export default function PricingPage() {
           </div>
         </section>
 
+        {/* ── ROI Calculator ── */}
+        <ROICalculator />
+
         {/* ── Investment Protection ── */}
         <section className="section founding-section">
           <div className="container">
@@ -223,6 +228,13 @@ export default function PricingPage() {
                 <p className="founding-cta-note">Strictly limited spots. Month-to-month. Cancel anytime.</p>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* ── Comparison Matrix ── */}
+        <section className="section">
+          <div className="container">
+            <CompareMatrix />
           </div>
         </section>
 

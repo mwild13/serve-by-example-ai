@@ -3,6 +3,7 @@ import Image from "next/image";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import ROICalculator from "@/components/ui/ROICalculator";
+import CompareMatrix from "@/components/ui/CompareMatrix";
 import HeroSection from "@/components/HeroSection";
 // ── SVG Icons ─────────────────────────────────────────────────────────────────
 
@@ -97,38 +98,66 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── Core Pillars ─────────────────────────── */}
-        <section className="section">
+        {/* ── Core Pillars — Bento Grid 2.0 ──────── */}
+        <section className="section sbe-mkt-scope">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">The Platform</span>
-              <h2>Three tools. One training system.</h2>
-              <p>Everything your venue needs to train confidently, built for real hospitality operations.</p>
+              <span className="sbe-eyebrow">Three Systems, One Hub</span>
+              <h2 className="sbe-serif-title">Built for High-Performance Venues</h2>
+              <p className="sbe-sans-body">Everything your venue needs to train staff confidently, built for real hospitality operations.</p>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1.5rem", marginTop: "2.5rem" }}>
 
-              <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "var(--radius-lg)", padding: "2rem" }}>
-                <div style={{ width: "44px", height: "44px", background: "var(--green-light)", borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--green)", marginBottom: "1.25rem" }}>
-                  <IcoZap size={22} />
+            <div className="bento-grid" style={{ marginTop: "2.5rem" }}>
+
+              {/* Dark col-6 — Frontline Staff */}
+              <div className="bento-card bento-card-dark sbe-span-6 sbe-interactive-hover">
+                <div>
+                  <div style={{ width: "44px", height: "44px", background: "rgba(212,175,55,0.18)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1.25rem", color: "var(--mkt-gold-500)" }}>
+                    <IcoZap size={22} />
+                  </div>
+                  <span className="sbe-eyebrow">For Frontline Staff</span>
+                  <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-cream-100)" }}>AI Scenario Simulators</h3>
+                  <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.65, color: "rgba(250,249,246,0.72)" }}>GPT-4o-mini scores every roleplay response across 5 service dimensions. Real pressure, real feedback — no manager required.</p>
                 </div>
-                <h3 style={{ margin: "0 0 0.5rem", fontSize: "1rem", fontWeight: 700, color: "var(--text)" }}>AI Scenario Simulators</h3>
-                <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--text-soft)", lineHeight: 1.65 }}>GPT-4o-mini scores every roleplay response across 5 service dimensions. Real pressure, no manager required.</p>
               </div>
 
-              <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "var(--radius-lg)", padding: "2rem" }}>
-                <div style={{ width: "44px", height: "44px", background: "var(--green-light)", borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--green)", marginBottom: "1.25rem" }}>
-                  <IcoBook size={22} />
+              {/* Light col-6 — General Managers */}
+              <div className="bento-card sbe-span-6 sbe-interactive-hover">
+                <div>
+                  <div style={{ width: "44px", height: "44px", background: "var(--green-light)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--green)", marginBottom: "1.25rem" }}>
+                    <IcoBuilding size={22} />
+                  </div>
+                  <span className="sbe-eyebrow">For General Managers</span>
+                  <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-forest-900)" }}>Manager Mission Control</h3>
+                  <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.65, color: "var(--mkt-charcoal-400)" }}>Every module completion, quiz score, and scenario session syncs to the manager console automatically. Full visibility, zero admin overhead.</p>
                 </div>
-                <h3 style={{ margin: "0 0 0.5rem", fontSize: "1rem", fontWeight: 700, color: "var(--text)" }}>Cocktail &amp; Spec Library</h3>
-                <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--text-soft)", lineHeight: 1.65 }}>40+ build guides, garnish specs, and flavour profiles, searchable by staff on any device, any shift.</p>
               </div>
 
-              <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "var(--radius-lg)", padding: "2rem" }}>
-                <div style={{ width: "44px", height: "44px", background: "var(--green-light)", borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--green)", marginBottom: "1.25rem" }}>
-                  <IcoBuilding size={22} />
+              {/* Wide col-12 — Multi-Site Venue Groups */}
+              <div className="bento-card sbe-span-12 sbe-interactive-hover">
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "2rem", alignItems: "flex-start" }}>
+                  <div style={{ flex: "1 1 260px" }}>
+                    <div style={{ width: "44px", height: "44px", background: "var(--green-light)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--green)", marginBottom: "1.25rem" }}>
+                      <IcoBook size={22} />
+                    </div>
+                    <span className="sbe-eyebrow">For Multi-Site Venue Groups</span>
+                    <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-forest-900)" }}>Cocktail &amp; Spec Library</h3>
+                    <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.65, color: "var(--mkt-charcoal-400)" }}>40+ build guides, garnish specs, and flavour profiles — searchable by staff on any device, any shift. Standardise service quality across every location.</p>
+                  </div>
+                  <ul style={{ flex: "1 1 260px", listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.625rem" }}>
+                    {[
+                      "Faster onboarding with venue-specific starter templates",
+                      "Stronger, more consistent service standards across sites",
+                      "Revenue impact from better upsell performance",
+                      "Scalable from a single bar to a full group rollout",
+                    ].map((item) => (
+                      <li key={item} style={{ display: "flex", alignItems: "flex-start", gap: "0.625rem", fontSize: "0.875rem", color: "var(--mkt-charcoal-900)", borderBottom: "1px solid var(--mkt-border-subtle)", paddingBottom: "0.625rem" }}>
+                        <span style={{ color: "var(--mkt-gold-500)", fontWeight: 700, flexShrink: 0, lineHeight: 1.65 }}>&#10003;</span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <h3 style={{ margin: "0 0 0.5rem", fontSize: "1rem", fontWeight: 700, color: "var(--text)" }}>Manager Mission Control</h3>
-                <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--text-soft)", lineHeight: 1.65 }}>Every module completion, quiz score, and scenario session syncs to the manager console automatically.</p>
               </div>
 
             </div>
@@ -541,6 +570,13 @@ export default function Home() {
                 </footer>
               </blockquote>
             </div>
+          </div>
+        </section>
+
+        {/* ── Comparison Matrix ────────────────────── */}
+        <section className="section section-alt">
+          <div className="container">
+            <CompareMatrix />
           </div>
         </section>
 
