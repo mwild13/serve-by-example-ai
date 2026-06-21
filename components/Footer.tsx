@@ -20,9 +20,7 @@ export default function Footer() {
           <ul>
             <li><Link href="/platform">Platform Tour</Link></li>
             <li><Link href="/platform/challenges">Interactive Challenges</Link></li>
-            <li><Link href="/platform#scenario-builder">Scenario Builder</Link></li>
             <li><Link href="/platform#insights">Mission Control</Link></li>
-            <li><Link href="/security">Security &amp; Safety</Link></li>
           </ul>
         </div>
 
@@ -52,6 +50,7 @@ export default function Footer() {
           <h4>Company</h4>
           <ul>
             <li><Link href="/about">About</Link></li>
+            <li><Link href="/security">Security &amp; Safety</Link></li>
             <li><Link href="/contact">Contact</Link></li>
             <li><Link href="/pricing">Pricing</Link></li>
           </ul>
