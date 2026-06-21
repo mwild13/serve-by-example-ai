@@ -3,7 +3,6 @@ import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SectionSubNav from "@/components/SectionSubNav";
-import MenuDrillGenerator from "@/components/MenuDrillGenerator";
 
 const features = [
   {
@@ -109,7 +108,6 @@ export default function PlatformPage() {
           { id: "overview", label: "Overview" },
           { id: "insights", label: "Analytics" },
           { id: "arena", label: "Live Scenarios" },
-          { id: "scenario-builder", label: "Scenario Builder" },
           { id: "mobile", label: "Mobile" },
         ]} />
         {/* ── Hero ── */}
@@ -214,11 +212,6 @@ export default function PlatformPage() {
             </div>
           </div>
         </section>
-
-        {/* ── Scenario Builder ── */}
-        <div id="scenario-builder">
-          <MenuDrillGenerator />
-        </div>
 
         {/* ── Three Layers ── */}
         <section className="section">

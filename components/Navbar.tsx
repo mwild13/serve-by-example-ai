@@ -31,6 +31,19 @@ const platformLinks = [
   },
 ];
 
+const companyLinks = [
+  {
+    href: "/about",
+    title: "About",
+    desc: "The story behind Serve By Example and what we're building.",
+  },
+  {
+    href: "/security",
+    title: "Security & Safety",
+    desc: "How we protect your team's data, privacy, and platform access.",
+  },
+];
+
 const solutionsLinks = [
   {
     href: "/for-venues",
@@ -70,13 +83,13 @@ export default function Navbar({
   showNavbarLanguageOnMobile: _showNavbarLanguageOnMobile = true,
 }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [openMenu, setOpenMenu] = useState<"platform" | "solutions" | null>(null);
-  const [mobileExpanded, setMobileExpanded] = useState<"platform" | "solutions" | null>(null);
+  const [openMenu, setOpenMenu] = useState<"platform" | "solutions" | "company" | null>(null);
+  const [mobileExpanded, setMobileExpanded] = useState<"platform" | "solutions" | "company" | null>(null);
   const [authEmail, setAuthEmail] = useState<string | null>(null);
   const headerRef = useRef<HTMLElement>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const openDropdown = useCallback((menu: "platform" | "solutions") => {
+  const openDropdown = useCallback((menu: "platform" | "solutions" | "company") => {
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
     setOpenMenu(menu);
   }, []);
@@ -200,7 +213,40 @@ export default function Navbar({
             </div>
 
             <Link href="/pricing">Pricing</Link>
-            <Link href="/about">About</Link>
+
+            {/* Company dropdown */}
+            <div
+              className="nav-item-wrapper"
+              onMouseEnter={() => openDropdown("company")}
+              onMouseLeave={scheduleClose}
+            >
+              <button
+                className={`nav-dropdown-trigger${openMenu === "company" ? " active" : ""}`}
+                aria-expanded={openMenu === "company"}
+                aria-haspopup="true"
+                aria-controls="nav-company-dropdown"
+                onClick={() => setOpenMenu(openMenu === "company" ? null : "company")}
+              >
+                Company
+                <ChevronDown className="nav-chevron" size={14} strokeWidth={2.5} />
+              </button>
+              {openMenu === "company" && (
+                <div id="nav-company-dropdown" className="mega-menu" onMouseEnter={cancelClose} onMouseLeave={scheduleClose}>
+                  {companyLinks.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="mega-menu-item"
+                      onClick={() => setOpenMenu(null)}
+                    >
+                      <div className="mega-menu-item-title">{item.title}</div>
+                      <div className="mega-menu-item-desc">{item.desc}</div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <Link href="/resources">Resources</Link>
             <Link href="/demo" className="nav-demo-btn">Explore the Demo</Link>
           </nav>
@@ -301,9 +347,29 @@ export default function Navbar({
             <Link href="/pricing" className="nav-drawer-link" onClick={close}>
               Pricing
             </Link>
-            <Link href="/about" className="nav-drawer-link" onClick={close}>
-              About
-            </Link>
+
+            {/* Company accordion */}
+            <button
+              className="nav-drawer-link nav-drawer-accordion"
+              onClick={() => setMobileExpanded(mobileExpanded === "company" ? null : "company")}
+            >
+              Company
+              <ChevronDown
+                className={`nav-chevron${mobileExpanded === "company" ? " rotated" : ""}`}
+                size={16}
+                strokeWidth={2.5}
+              />
+            </button>
+            {mobileExpanded === "company" && (
+              <div className="nav-drawer-sub">
+                {companyLinks.map((item) => (
+                  <Link key={item.href} href={item.href} className="nav-drawer-sub-link" onClick={close}>
+                    {item.title}
+                  </Link>
+                ))}
+              </div>
+            )}
+
             <Link href="/resources" className="nav-drawer-link" onClick={close}>
               Resources
             </Link>

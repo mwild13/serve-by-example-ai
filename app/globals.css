@@ -16394,3 +16394,17 @@ h1, h2, h3 {
   padding: 3rem 1.5rem;
   z-index: 10;
 }
+
+/* ── How It Works — Consoles grid ── */
+.hiw-consoles-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  margin-top: 2.5rem;
+  align-items: start;
+}
+@media (max-width: 768px) {
+  .hiw-consoles-grid {
+    grid-template-columns: 1fr;
+  }
+}
