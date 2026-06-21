@@ -215,7 +215,7 @@ export async function POST(req: Request) {
     if (!userRes.ok) {
       const errText = await userRes.text();
       console.error("ROI email: Brevo send failed:", userRes.status, errText);
-      return Response.json({ error: `Brevo error ${userRes.status}: ${errText}` }, { status: 500 });
+      return Response.json({ error: "Could not send email. Please try again." }, { status: 500 });
     }
 
     if (!notifyRes.ok) {
