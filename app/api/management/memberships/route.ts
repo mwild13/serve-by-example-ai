@@ -4,10 +4,13 @@ import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { countActiveSeats } from "@/lib/session";
 
 const TIER_MAX_SEATS: Record<string, number> = {
-  "single-venue": 25,
-  venue_single: 25,
-  "multi-venue": 125,
-  venue_multi: 125,
+  boutique: 15,
+  commercial: 35,
+  enterprise: 9999,
+  "single-venue": 25,   // legacy
+  venue_single: 25,     // legacy
+  "multi-venue": 125,   // legacy
+  venue_multi: 125,     // legacy
 };
 
 /**

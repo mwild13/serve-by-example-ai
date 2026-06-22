@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import ManagerControlCenter from "@/components/mission-control/ManagerControlCenter";
 import { getManagementSnapshot } from "@/lib/management/service";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
@@ -42,9 +43,11 @@ export default async function ManagementDashboardPage() {
   const tier = profile?.tier ?? "free";
   const platformRole = profile?.platform_role ?? "staff";
 
+  const B2B_TIERS = ["boutique", "commercial", "enterprise", "venue_single", "venue_multi", "single-venue", "multi-venue"];
+
   const isAdmin = ADMIN_EMAILS.includes(user.email ?? "");
-  const hasVenuePlan = plan === "single-venue" || plan === "multi-venue";
-  const hasVenueTier = tier === "venue_single" || tier === "venue_multi";
+  const hasVenuePlan = B2B_TIERS.includes(plan);
+  const hasVenueTier = B2B_TIERS.includes(tier);
   const hasManagerRole = platformRole === "venue_manager" || platformRole === "multi_venue_manager" || platformRole === "admin";
 
   if (!isAdmin && !hasVenuePlan && !hasVenueTier && !hasManagerRole) {
@@ -54,7 +57,9 @@ export default async function ManagementDashboardPage() {
 
   return (
     <div className="management-app-root">
-      <ManagerControlCenter initialSnapshot={snapshot} plan={plan} displayName={displayName} />
+      <Suspense fallback={null}>
+        <ManagerControlCenter initialSnapshot={snapshot} plan={plan} displayName={displayName} />
+      </Suspense>
     </div>
   );
 }

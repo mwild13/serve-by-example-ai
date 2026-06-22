@@ -65,7 +65,14 @@ export async function validateSession(
 
 // ── Tier access control ──────────────────────────────────────
 
-export type Tier = "free" | "pro" | "venue_single" | "venue_multi";
+export type Tier =
+  | "free"
+  | "pro"
+  | "boutique"
+  | "commercial"
+  | "enterprise"
+  | "venue_single"   // legacy — kept for backward compat
+  | "venue_multi";   // legacy — kept for backward compat
 
 export type AccessInfo = {
   tier: Tier;
@@ -80,6 +87,9 @@ const ALL_MODULES = Array.from({ length: 40 }, (_, i) => i + 1);
 const TIER_MODULES: Record<Tier, number[]> = {
   free: [],
   pro: ALL_MODULES,
+  boutique: ALL_MODULES,
+  commercial: ALL_MODULES,
+  enterprise: ALL_MODULES,
   venue_single: ALL_MODULES,
   venue_multi: ALL_MODULES,
 };
@@ -87,8 +97,11 @@ const TIER_MODULES: Record<Tier, number[]> = {
 const TIER_SEATS: Record<Tier, number> = {
   free: 0,
   pro: 0,
+  boutique: 15,
+  commercial: 35,
+  enterprise: 9999,
   venue_single: 25,
-  venue_multi: 125, // 5 venues * 25
+  venue_multi: 125,
 };
 
 /**
@@ -112,6 +125,9 @@ export async function resolveAccess(
   const tierMap: Record<string, Tier> = {
     free: "free",
     pro: "pro",
+    boutique: "boutique",
+    commercial: "commercial",
+    enterprise: "enterprise",
     "single-venue": "venue_single",
     "multi-venue": "venue_multi",
     venue_single: "venue_single",

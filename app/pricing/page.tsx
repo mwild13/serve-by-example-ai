@@ -24,6 +24,7 @@ export default function PricingPage() {
 
   async function handleCheckout(plan: string) {
     setLoading(plan);
+    setCheckoutError(null);
     try {
       const res = await fetch("/api/billing/checkout", {
         method: "POST",
@@ -34,7 +35,6 @@ export default function PricingPage() {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        // Unlikely – fall back to error message below the button instead of alert
         setLoading(null);
         setCheckoutError(data.error || "Unable to start checkout. Please try again.");
       }
@@ -43,6 +43,9 @@ export default function PricingPage() {
       setCheckoutError("Network error. Please try again.");
     }
   }
+
+  const isLoading = (monthly: string, yearly: string) =>
+    loading === monthly || loading === yearly;
 
   return (
     <div className="page-shell">
@@ -64,40 +67,90 @@ export default function PricingPage() {
         <section className="section" style={{ paddingTop: 24 }}>
           <div className="container">
             {checkoutError && (
-              <div className="auth-status auth-status-error" style={{ marginBottom: 16, maxWidth: 480, margin: "0 auto 16px" }}>
+              <div
+                className="auth-status auth-status-error"
+                style={{ marginBottom: 16, maxWidth: 480, margin: "0 auto 16px" }}
+              >
                 {checkoutError}
               </div>
             )}
 
             {/* Billing toggle */}
             <div style={{ display: "flex", justifyContent: "center", marginBottom: "2rem" }}>
-              <div style={{ display: "flex", background: "#f3f4f6", borderRadius: "10px", padding: "4px", gap: "2px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  background: "#f3f4f6",
+                  borderRadius: "10px",
+                  padding: "4px",
+                  gap: "2px",
+                }}
+              >
                 <button
                   onClick={() => setBilling("monthly")}
-                  style={{ padding: "8px 22px", borderRadius: "7px", border: "none", background: billing === "monthly" ? "white" : "transparent", fontWeight: 700, fontSize: "0.875rem", color: billing === "monthly" ? "#111827" : "#6b7280", cursor: "pointer", boxShadow: billing === "monthly" ? "0 1px 4px rgba(0,0,0,0.1)" : "none", transition: "all 0.15s" }}
+                  style={{
+                    padding: "8px 22px",
+                    borderRadius: "7px",
+                    border: "none",
+                    background: billing === "monthly" ? "white" : "transparent",
+                    fontWeight: 700,
+                    fontSize: "0.875rem",
+                    color: billing === "monthly" ? "#111827" : "#6b7280",
+                    cursor: "pointer",
+                    boxShadow: billing === "monthly" ? "0 1px 4px rgba(0,0,0,0.1)" : "none",
+                    transition: "all 0.15s",
+                  }}
                 >
                   Monthly
                 </button>
                 <button
                   onClick={() => setBilling("yearly")}
-                  style={{ padding: "8px 22px", borderRadius: "7px", border: "none", background: billing === "yearly" ? "white" : "transparent", fontWeight: 700, fontSize: "0.875rem", color: billing === "yearly" ? "#111827" : "#6b7280", cursor: "pointer", boxShadow: billing === "yearly" ? "0 1px 4px rgba(0,0,0,0.1)" : "none", transition: "all 0.15s", display: "flex", alignItems: "center", gap: "7px" }}
+                  style={{
+                    padding: "8px 22px",
+                    borderRadius: "7px",
+                    border: "none",
+                    background: billing === "yearly" ? "white" : "transparent",
+                    fontWeight: 700,
+                    fontSize: "0.875rem",
+                    color: billing === "yearly" ? "#111827" : "#6b7280",
+                    cursor: "pointer",
+                    boxShadow: billing === "yearly" ? "0 1px 4px rgba(0,0,0,0.1)" : "none",
+                    transition: "all 0.15s",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "7px",
+                  }}
                 >
                   Yearly
-                  <span style={{ fontSize: "0.68rem", fontWeight: 800, color: "#16a34a", background: "#d1fae5", borderRadius: "999px", padding: "2px 8px", letterSpacing: "0.03em" }}>
+                  <span
+                    style={{
+                      fontSize: "0.68rem",
+                      fontWeight: 800,
+                      color: "#16a34a",
+                      background: "#d1fae5",
+                      borderRadius: "999px",
+                      padding: "2px 8px",
+                      letterSpacing: "0.03em",
+                    }}
+                  >
                     2 months free
                   </span>
                 </button>
               </div>
             </div>
 
-            <div className="pricing-grid" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
+            <div
+              className="pricing-grid"
+              style={{ gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))" }}
+            >
+              {/* Free Demo */}
               <div className="price-card">
                 <h3>Free Demo</h3>
                 <div className="price">
                   $0 <small>/ try it</small>
                 </div>
                 <div className="price-note">
-                  Best for curious users wanting to preview the platform.
+                  Best for curious staff wanting to preview the platform.
                 </div>
                 <ul className="feature-list">
                   <li>Limited demo access</li>
@@ -109,76 +162,117 @@ export default function PricingPage() {
                 </Link>
               </div>
 
+              {/* Pro */}
               <div className="price-card featured">
                 <h3>Pro</h3>
                 <div className="price">
-                  AUD ${billing === "monthly" ? "19" : "190"} <small>/ {billing === "monthly" ? "month" : "year billed annually"}</small>
+                  AUD ${billing === "monthly" ? "19" : "190"}{" "}
+                  <small>/ {billing === "monthly" ? "month" : "year"}</small>
                 </div>
                 <div className="price-note">
                   Best for individual bartenders and hospitality staff.
                 </div>
                 <ul className="feature-list">
-                  <li>Full bartending training</li>
-                  <li>Sales and service prompts</li>
-                  <li>Management starter modules</li>
-                  <li>Progress tracking</li>
+                  <li>Full 40-module training library</li>
+                  <li>Bartending, Sales and Management tracks</li>
+                  <li>AI Arena scenario practice</li>
+                  <li>Progress tracking and badges</li>
                 </ul>
                 <button
                   className="btn btn-gold"
-                  onClick={() => handleCheckout(billing === "monthly" ? "pro" : "pro_yearly")}
-                  disabled={loading === "pro" || loading === "pro_yearly"}
+                  onClick={() =>
+                    handleCheckout(billing === "monthly" ? "pro" : "pro_yearly")
+                  }
+                  disabled={isLoading("pro", "pro_yearly")}
                 >
-                  {(loading === "pro" || loading === "pro_yearly") ? "Redirecting..." : "Join Pro"}
+                  {isLoading("pro", "pro_yearly") ? "Redirecting..." : "Join Pro"}
                 </button>
               </div>
 
+              {/* Boutique */}
               <div className="price-card">
-                <h3>Single Venue</h3>
+                <h3>Boutique</h3>
                 <div className="price">
-                  AUD ${billing === "monthly" ? "49" : "490"} <small>/ {billing === "monthly" ? "month" : "year billed annually"}</small>
+                  AUD ${billing === "monthly" ? "79" : "790"}{" "}
+                  <small>/ {billing === "monthly" ? "month" : "year"}</small>
                 </div>
                 <div className="price-note">
-                  Best for small venues with one location.
+                  Best for single-venue operators and small teams.
                 </div>
                 <ul className="feature-list">
-                  <li>One venue access</li>
-                  <li>Team member logins</li>
-                  <li>Management modules</li>
-                  <li>Basic progress dashboard</li>
+                  <li><strong>Up to 15 staff seats</strong></li>
+                  <li>Full training library for all staff</li>
+                  <li>Mission Control manager dashboard</li>
+                  <li>Staff invite and progress tracking</li>
                   <li>Venue onboarding framework</li>
                 </ul>
                 <button
                   className="btn btn-secondary"
-                  onClick={() => handleCheckout(billing === "monthly" ? "single_venue" : "single_venue_yearly")}
-                  disabled={loading === "single_venue" || loading === "single_venue_yearly"}
+                  onClick={() =>
+                    handleCheckout(
+                      billing === "monthly" ? "boutique" : "boutique_yearly",
+                    )
+                  }
+                  disabled={isLoading("boutique", "boutique_yearly")}
                 >
-                  {(loading === "single_venue" || loading === "single_venue_yearly") ? "Redirecting..." : "Join Now"}
+                  {isLoading("boutique", "boutique_yearly")
+                    ? "Redirecting..."
+                    : "Get Started"}
                 </button>
               </div>
 
+              {/* Commercial */}
               <div className="price-card">
-                <h3>Multi-Venue</h3>
+                <h3>Commercial</h3>
                 <div className="price">
-                  AUD ${billing === "monthly" ? "149" : "1,490"} <small>/ {billing === "monthly" ? "month" : "year billed annually"}</small>
+                  AUD ${billing === "monthly" ? "149" : "1,490"}{" "}
+                  <small>/ {billing === "monthly" ? "month" : "year"}</small>
                 </div>
                 <div className="price-note">
-                  Best for multi-location teams wanting unified management.
+                  Best for growing venues with larger teams and multiple locations.
                 </div>
                 <ul className="feature-list">
-                  <li><strong>Up to 5 venues</strong></li>
-                  <li>Multiple user logins</li>
-                  <li>Full management modules</li>
-                  <li>Cross-venue comparison reporting</li>
-                  <li>Advanced analytics &amp; leaderboards</li>
+                  <li><strong>Up to 35 staff seats</strong></li>
+                  <li>Full training library for all staff</li>
+                  <li>Advanced analytics and leaderboards</li>
+                  <li>Cross-team compliance tracking</li>
                   <li>Priority support</li>
                 </ul>
                 <button
                   className="btn btn-secondary"
-                  onClick={() => handleCheckout(billing === "monthly" ? "multi_venue" : "multi_venue_yearly")}
-                  disabled={loading === "multi_venue" || loading === "multi_venue_yearly"}
+                  onClick={() =>
+                    handleCheckout(
+                      billing === "monthly" ? "commercial" : "commercial_yearly",
+                    )
+                  }
+                  disabled={isLoading("commercial", "commercial_yearly")}
                 >
-                  {(loading === "multi_venue" || loading === "multi_venue_yearly") ? "Redirecting..." : "Join Now"}
+                  {isLoading("commercial", "commercial_yearly")
+                    ? "Redirecting..."
+                    : "Get Started"}
                 </button>
+              </div>
+
+              {/* Enterprise */}
+              <div className="price-card">
+                <h3>Enterprise</h3>
+                <div className="price">
+                  Custom <small>/ per arrangement</small>
+                </div>
+                <div className="price-note">
+                  Best for venue groups and large hospitality organisations.
+                </div>
+                <ul className="feature-list">
+                  <li><strong>Unlimited staff seats</strong></li>
+                  <li>Full training library for all staff</li>
+                  <li>Dedicated account management</li>
+                  <li>Custom module development</li>
+                  <li>SLA and compliance reporting</li>
+                  <li>White-label options available</li>
+                </ul>
+                <Link href="/contact" className="btn btn-secondary">
+                  Contact us
+                </Link>
               </div>
             </div>
           </div>
@@ -195,37 +289,93 @@ export default function PricingPage() {
                 <span className="eyebrow eyebrow-gold">Investment Protection</span>
                 <h2>Lock In Founding Member Rates &mdash; Before Prices Rise</h2>
                 <p>
-                  Serve By Example is opening to its first venues now. Join as a Founding Member and your rate is locked in for life &mdash; guaranteed, regardless of future pricing. This isn&apos;t a discount. It&apos;s rate protection.
+                  Serve By Example is opening to its first venues now. Join as a
+                  Founding Member and your rate is locked in for life &mdash;
+                  guaranteed, regardless of future pricing. This isn&apos;t a
+                  discount. It&apos;s rate protection.
                 </p>
               </div>
               <div className="founding-cards">
                 <div className="founding-card">
                   <div className="founding-card-icon">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <svg
+                      width="28"
+                      height="28"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
                   </div>
                   <h3>Locked Rates, Forever</h3>
-                  <p>Join at <strong>AUD $49/venue</strong> today &mdash; our future rate is <strong>AUD $79/venue</strong>. As long as you&apos;re subscribed, your founding rate is protected.</p>
+                  <p>
+                    Join at <strong>AUD $79/venue</strong> today &mdash; as our
+                    platform scales, rates will rise. Founding Members are
+                    grandfathered at their original rate for life.
+                  </p>
                 </div>
                 <div className="founding-card">
                   <div className="founding-card-icon">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></svg>
+                    <svg
+                      width="28"
+                      height="28"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="m11 17 2 2a1 1 0 1 0 3-3" />
+                      <path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4" />
+                      <path d="m21 3 1 11h-2" />
+                      <path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3" />
+                      <path d="M3 4h8" />
+                    </svg>
                   </div>
                   <h3>1-on-1 Onboarding</h3>
-                  <p>We personally walk your team through setup. Get your first 10 staff trained in week one &mdash; a direct conversation, not a video tutorial.</p>
+                  <p>
+                    We personally walk your team through setup. Get your first staff
+                    trained in week one &mdash; a direct conversation, not a video
+                    tutorial.
+                  </p>
                 </div>
                 <div className="founding-card">
                   <div className="founding-card-icon">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+                    <svg
+                      width="28"
+                      height="28"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+                    </svg>
                   </div>
                   <h3>Shape What We Build Next</h3>
-                  <p>Monthly calls with our product team. Founding members directly influence what modules, features, and tools get prioritised. Your operation shapes the roadmap.</p>
+                  <p>
+                    Monthly calls with our product team. Founding members directly
+                    influence what modules, features, and tools get prioritised. Your
+                    operation shapes the roadmap.
+                  </p>
                 </div>
               </div>
               <div className="founding-cta">
                 <Link href="/contact" className="btn btn-gold btn-lg">
                   Secure Founding Member Rate
                 </Link>
-                <p className="founding-cta-note">Strictly limited spots. Month-to-month. Cancel anytime.</p>
+                <p className="founding-cta-note">
+                  Strictly limited spots. Month-to-month. Cancel anytime.
+                </p>
               </div>
             </div>
           </div>
@@ -248,41 +398,97 @@ export default function PricingPage() {
             <div className="faq-list">
               <details className="faq-item">
                 <summary>Is there a trial available?</summary>
-                <p>Yes. The <strong>Free Demo</strong> provides access to three scored scenario evaluations. No credit card required. Experience the platform&apos;s tactical feedback before upgrading to a paid tier.</p>
+                <p>
+                  Yes. The <strong>Free Demo</strong> provides access to three scored
+                  scenario evaluations. No credit card required. Experience the
+                  platform&apos;s tactical feedback before upgrading to a paid tier.
+                </p>
               </details>
               <details className="faq-item">
                 <summary>How is billing structured?</summary>
-                <p>We operate on a transparent, monthly subscription model. There are no long-term contracts or lock-in periods; you may cancel at any time, with access continuing through the end of your billing cycle.</p>
+                <p>
+                  We operate on a transparent, monthly subscription model. There are
+                  no long-term contracts or lock-in periods; you may cancel at any
+                  time, with access continuing through the end of your billing cycle.
+                </p>
               </details>
               <details className="faq-item">
                 <summary>What is your refund policy?</summary>
-                <p>We offer a 14-day window on your initial payment should the platform not meet your operational standards. Beyond this period, we do not offer refunds, though you retain the flexibility to cancel at any time.</p>
+                <p>
+                  We offer a 14-day window on your initial payment should the platform
+                  not meet your operational standards. Beyond this period, we do not
+                  offer refunds, though you retain the flexibility to cancel at any
+                  time.
+                </p>
               </details>
               <details className="faq-item">
                 <summary>What occurs upon cancellation?</summary>
-                <p>Your access remains active until your current paid period concludes. Afterward, your account transitions to the <strong>Free Demo</strong> tier; your historical training data is securely archived, allowing you to reactivate your subscription whenever you are ready.</p>
+                <p>
+                  Your access remains active until your current paid period concludes.
+                  Afterward, your account transitions to the <strong>Free Demo</strong>{" "}
+                  tier; your historical training data is securely archived, allowing you
+                  to reactivate your subscription whenever you are ready.
+                </p>
               </details>
               <details className="faq-item">
                 <summary>What are the limits on staff access?</summary>
-                <p><strong>Single Venue</strong> plans provide unlimited staff logins for one location. <strong>Multi-Venue</strong> plans support teams across up to 5 venues. For larger venue groups, please use our venue enquiry form to discuss custom scaling.</p>
+                <p>
+                  <strong>Boutique</strong> plans provide up to 15 staff seats for one
+                  venue. <strong>Commercial</strong> plans support up to 35 staff
+                  across your team. <strong>Enterprise</strong> plans are custom-scoped
+                  and support unlimited staff across multiple venues. For very large
+                  venue groups, please use our contact form to discuss custom
+                  arrangements.
+                </p>
               </details>
               <details className="faq-item">
                 <summary>Is my training data secure and private?</summary>
-                <p>Absolutely. All scenario responses are utilised exclusively to calculate your personal performance metrics. Your data is strictly private and is never disclosed to third parties or other venues without your explicit consent. Refer to our <a href="/privacy">Privacy Policy</a> for technical specifications.</p>
+                <p>
+                  Absolutely. All scenario responses are utilised exclusively to
+                  calculate your personal performance metrics. Your data is strictly
+                  private and is never disclosed to third parties or other venues
+                  without your explicit consent. Refer to our{" "}
+                  <a href="/privacy">Privacy Policy</a> for technical specifications.
+                </p>
               </details>
               <details className="faq-item">
                 <summary>Do you provide enterprise-level solutions?</summary>
-                <p>While we are currently focused on individual and multi-venue setups, we are equipped to support larger organisations. Please submit your requirements via the venue enquiry form, and we will coordinate a custom arrangement.</p>
+                <p>
+                  Yes. Our <strong>Enterprise</strong> tier is designed for venue
+                  groups and large hospitality organisations. It includes unlimited
+                  seats, dedicated account management, custom module development, and
+                  white-label options. Please use our <a href="/contact">contact
+                  form</a> to discuss a custom arrangement.
+                </p>
               </details>
             </div>
             <div style={{ textAlign: "center", marginTop: "2.5rem" }}>
-              <p style={{ color: "var(--text-soft)", marginBottom: "1rem", fontSize: "0.95rem" }}>Still have questions?</p>
-              <a href="mailto:hello@serve-by-example.com" className="btn btn-secondary">Contact support</a>
+              <p
+                style={{
+                  color: "var(--text-soft)",
+                  marginBottom: "1rem",
+                  fontSize: "0.95rem",
+                }}
+              >
+                Still have questions?
+              </p>
+              <a href="mailto:hello@serve-by-example.com" className="btn btn-secondary">
+                Contact support
+              </a>
             </div>
             <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
               <p style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>
                 Curious about what we&rsquo;re building next?{" "}
-                <a href="/roadmap" style={{ color: "var(--green)", textDecoration: "underline", textUnderlineOffset: "3px" }}>View our product roadmap →</a>
+                <a
+                  href="/roadmap"
+                  style={{
+                    color: "var(--green)",
+                    textDecoration: "underline",
+                    textUnderlineOffset: "3px",
+                  }}
+                >
+                  View our product roadmap &rarr;
+                </a>
               </p>
             </div>
           </div>

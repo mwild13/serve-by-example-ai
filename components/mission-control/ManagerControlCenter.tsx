@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import SignOutButton from "@/components/ui/SignOutButton";
 import SessionRefresher from "@/components/ui/SessionRefresher";
@@ -265,8 +266,29 @@ export default function ManagerControlCenter({
 }) {
   const isMultiVenue = plan === "multi-venue" || plan === "venue_multi";
 
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Tab state is URL-driven so it survives refresh and post-Stripe redirects.
+  // Shim functions keep all existing call sites working without change.
+  const activeSection =
+    (searchParams.get("tab") as ManagerSection | null) ?? "overview";
+  function setActiveSection(section: ManagerSection) {
+    router.push(`?tab=${section}`, { scroll: false });
+  }
+
+  const settingsTab =
+    (searchParams.get("subtab") as "setup" | "billing" | null) ?? "setup";
+  function setSettingsTab(subtab: "setup" | "billing") {
+    router.replace(`?tab=settings&subtab=${subtab}`, { scroll: false });
+  }
+
+  // Checkout success: detect post-Stripe redirect and poll for webhook confirmation.
+  const checkoutSuccess = searchParams.get("checkout") === "success";
+  const [subProcessing, setSubProcessing] = useState(false);
+  const [subConfirmed, setSubConfirmed] = useState(false);
+
   const [snapshot, setSnapshot] = useState(initialSnapshot);
-  const [activeSection, setActiveSection] = useState<ManagerSection>("overview");
   const [selectedVenueId, setSelectedVenueId] = useState(initialSnapshot.venues[0]?.id ?? "");
   const [selectedStaffId, setSelectedStaffId] = useState("");
   const [coachingDrawerOpen, setCoachingDrawerOpen] = useState(false);
@@ -352,7 +374,7 @@ export default function ManagerControlCenter({
   const [staffRoleFilter, setStaffRoleFilter] = useState<string>("all");
   const [reportSearch, setReportSearch] = useState("");
   const [aiCoachFeedback, setAiCoachFeedback] = useState<Record<number, "up" | "down">>({});
-  const [settingsTab, setSettingsTab] = useState<"setup" | "billing">("setup");
+  // settingsTab is now derived from URL via setSettingsTab shim above
   const [venueDeleteConfirm, setVenueDeleteConfirm] = useState<{ venueId: string; venueName: string } | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -428,7 +450,42 @@ export default function ManagerControlCenter({
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []); // setters from useState are stable references
+  }, []); // router is a stable reference so the closure does not go stale
+
+  // Webhook race-condition guard: when Stripe redirects back with ?checkout=success,
+  // the subscription webhook may not have fired yet. Poll the profile for up to 6s
+  // to confirm the tier has updated before showing the billing success banner.
+  const B2B_TIERS_SET = new Set(["boutique", "commercial", "enterprise", "venue_single", "venue_multi"]);
+  useEffect(() => {
+    if (!checkoutSuccess) return;
+    if (plan && B2B_TIERS_SET.has(plan)) {
+      setSubConfirmed(true);
+      return;
+    }
+    setSubProcessing(true);
+    let attempts = 0;
+    const supabase = createSupabaseBrowserClient();
+    const pollId = setInterval(async () => {
+      attempts++;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { clearInterval(pollId); setSubProcessing(false); return; }
+      const { data } = await supabase
+        .from("profiles")
+        .select("tier")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (data?.tier && B2B_TIERS_SET.has(data.tier as string)) {
+        clearInterval(pollId);
+        setSubProcessing(false);
+        setSubConfirmed(true);
+      } else if (attempts >= 4) {
+        clearInterval(pollId);
+        setSubProcessing(false);
+      }
+    }, 1500);
+    return () => clearInterval(pollId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkoutSuccess]);
 
   const selectedStaff = venueStaff.find((member) => member.id === selectedStaffId) ?? venueStaff[0];
   const selectedProgram = venuePrograms.find((program) => program.id === assignmentForm.programId) ?? venuePrograms[0];
@@ -1197,6 +1254,52 @@ export default function ManagerControlCenter({
           ))}
         </nav>
 
+        {/* Checkout success / webhook processing banner */}
+        {checkoutSuccess && subProcessing && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "12px 16px",
+              background: "var(--gold-light)",
+              border: "1.5px solid var(--gold)",
+              borderRadius: "var(--radius-md)",
+              marginBottom: 12,
+              fontSize: "0.875rem",
+              color: "var(--text)",
+              fontWeight: 600,
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            Processing your subscription — this takes just a moment...
+          </div>
+        )}
+        {checkoutSuccess && subConfirmed && !subProcessing && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "12px 16px",
+              background: "#f0fdf4",
+              border: "1.5px solid #86efac",
+              borderRadius: "var(--radius-md)",
+              marginBottom: 12,
+              fontSize: "0.875rem",
+              color: "#15803d",
+              fontWeight: 600,
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            Subscription activated. Your team is ready to train.
+          </div>
+        )}
 
         {((activeAction && getActionSection(activeAction) === activeSection) ||
           (activeSection === "settings" && (requestError || requestSuccess))) && (
@@ -3648,9 +3751,12 @@ export default function ManagerControlCenter({
                   <div>
                     <dt>Current plan</dt>
                     <dd>
-                      {plan === "multi-venue" ? "Multi-Venue Plan" :
-                        plan === "single-venue" ? "Single Venue Plan" :
-                        plan === "pro" ? "Pro Plan" : "Starter Plan"}
+                      {plan === "enterprise" ? "Enterprise Plan" :
+                        plan === "commercial" ? "Commercial Plan" :
+                        plan === "boutique" ? "Boutique Plan" :
+                        plan === "multi-venue" || plan === "venue_multi" ? "Commercial Plan" :
+                        plan === "single-venue" || plan === "venue_single" ? "Boutique Plan" :
+                        plan === "pro" ? "Pro Plan" : "Free Plan"}
                     </dd>
                   </div>
                   <div>
