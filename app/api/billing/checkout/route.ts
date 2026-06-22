@@ -102,6 +102,7 @@ export async function POST(req: Request) {
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
       customer_email: customerEmail,
+      allow_promotion_codes: true,
       metadata: subscriptionMetadata,
       subscription_data: {
         metadata: subscriptionMetadata,
