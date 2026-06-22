@@ -14,11 +14,11 @@ type LanguageOption = {
 };
 
 const LANGUAGE_STORAGE_KEY = "sbe-language";
-const DEFAULT_LANGUAGE = "en-US";
+const DEFAULT_LANGUAGE = "en-AU";
 
 const LANGUAGE_OPTIONS: LanguageOption[] = [
-  { code: "en-US", label: "English - US" },
   { code: "en-AU", label: "English - AUS" },
+  { code: "en-US", label: "English - US" },
   { code: "ar", label: "Arabic" },
   { code: "fr", label: "French" },
   { code: "de", label: "German" },

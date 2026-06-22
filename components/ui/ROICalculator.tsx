@@ -180,7 +180,7 @@ export default function ROICalculator() {
                     Average check size
                   </label>
                   <strong style={{ fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "1rem", fontWeight: 700, color: "var(--mkt-gold-500)", background: "rgba(212,175,55,0.12)", padding: "0.15rem 0.6rem", borderRadius: "6px" }}>
-                    ${avgTicket}
+                    AUD ${avgTicket}
                   </strong>
                 </div>
                 <input
@@ -200,7 +200,7 @@ export default function ROICalculator() {
                   style={{ background: sliderBg(AT_DEFAULT_PCT) }}
                 />
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.35rem", fontSize: "0.72rem", color: "rgba(250,249,246,0.35)", fontFamily: "var(--font-body, system-ui, sans-serif)" }}>
-                  <span>$15</span><span>$150</span>
+                  <span>AUD $15</span><span>AUD $150</span>
                 </div>
               </div>
 
@@ -221,7 +221,7 @@ export default function ROICalculator() {
                 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "1rem" }}>
                     <span style={{ fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "0.82rem", color: "rgba(250,249,246,0.7)", lineHeight: 1.4 }}>{row.label}</span>
-                    <span style={{ fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "1rem", fontWeight: 700, color: "var(--mkt-cream-100)", whiteSpace: "nowrap" }}>${fmt(row.value)}</span>
+                    <span style={{ fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "1rem", fontWeight: 700, color: "var(--mkt-cream-100)", whiteSpace: "nowrap" }}>AUD ${fmt(row.value)}</span>
                   </div>
                   <p style={{ margin: "0.2rem 0 0", fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "0.7rem", color: "rgba(250,249,246,0.35)", lineHeight: 1.4 }}>{row.note}</p>
                 </div>
@@ -233,7 +233,7 @@ export default function ROICalculator() {
                   Total Annual Profit Lift
                 </p>
                 <p style={{ margin: 0, fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "clamp(1.6rem, 4vw, 2.1rem)", fontWeight: 600, color: "var(--mkt-gold-500)", lineHeight: 1 }}>
-                  ${fmt(totalSavings)}
+                  AUD ${fmt(totalSavings)}
                 </p>
               </div>
 

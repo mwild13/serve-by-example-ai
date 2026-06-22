@@ -3,6 +3,12 @@ import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DashboardMockup from "@/components/ui/DashboardMockup";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "How It Works | Serve By Example",
+  description: "See how Serve By Example's three-stage training loop takes hospitality staff from onboarding through to real-world confidence — with scenario practice, scoring, and performance tracking.",
+};
 
 const steps = [
   {
@@ -163,7 +169,7 @@ export default function HowItWorksPage() {
           <div className="container">
             <div className="section-header center">
               <span className="eyebrow">Example Scenario</span>
-              <h2>See the product in one glance.</h2>
+              <h2>How a scored scenario response works</h2>
               <p style={{ maxWidth: "560px", margin: "0 auto" }}>
                 Every response is scored instantly. Over time, the platform tracks your weak areas and resurfaces them, so improvement isn&rsquo;t left to chance.
               </p>
@@ -229,7 +235,7 @@ export default function HowItWorksPage() {
           <div className="container">
             <div className="section-header center">
               <span className="eyebrow" style={{ color: "#86efac" }}>Consoles</span>
-              <h2 style={{ color: "white", marginBottom: "0.5rem" }}>See the platform in one glance.</h2>
+              <h2 style={{ color: "white", marginBottom: "0.5rem" }}>The manager and staff consoles, side by side</h2>
               <p style={{ color: "#9ca3af", maxWidth: "560px", margin: "0 auto" }}>
                 Two powerful tools working together: one for managers, one for staff.
               </p>

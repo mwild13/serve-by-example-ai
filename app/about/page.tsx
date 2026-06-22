@@ -1,6 +1,12 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About Us | Serve By Example",
+  description: "Serve By Example was built by people who know hospitality. Learn about our mission to replace inconsistent on-floor training with scalable, structured digital learning.",
+};
 
 export default function AboutPage() {
   return (

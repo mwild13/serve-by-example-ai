@@ -92,9 +92,9 @@ const productBlocks = [
 
 const stats = [
   { value: "90%", label: "Mobile completion rate" },
-  { value: "3×", label: "Faster onboarding vs traditional" },
+  { value: "3×", label: "Faster onboarding vs. traditional training" },
   { value: "+15%", label: "Avg upsell improvement" },
-  { value: "2026", label: "Built for modern hospitality training" },
+  { value: "40+", label: "Training modules across bartending, sales and management" },
 ];
 
 export default function PlatformPage() {
