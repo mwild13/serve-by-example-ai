@@ -75,8 +75,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   viewportFit: "cover",
 };
 
@@ -86,7 +84,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en-US" className={`${fraunces.variable} ${manrope.variable}`}>
+    <html lang="en-AU" className={`${fraunces.variable} ${manrope.variable}`}>
       <body>
         <a href="#main-content" className="skip-nav">Skip to main content</a>
         {children}

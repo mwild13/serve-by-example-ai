@@ -128,7 +128,7 @@ export default function ContactPage() {
                 </div>
                 <div className="form-row">
                   <label className="label" htmlFor="contact-venue-type">
-                    Venue type
+                    Venue type <span style={{ fontWeight: 400, opacity: 0.6 }}>(optional)</span>
                   </label>
                   <select
                     id="contact-venue-type"

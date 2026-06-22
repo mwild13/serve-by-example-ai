@@ -16,7 +16,7 @@ export default function TermsPage() {
           <div className="container">
             <div className="eyebrow">Legal</div>
             <h1>Terms of Service</h1>
-            <p className="inner-hero-sub">Last updated: April 26, 2026</p>
+            <p className="inner-hero-sub">Last updated: 26 April 2026</p>
           </div>
         </section>
 
@@ -74,59 +74,59 @@ export default function TermsPage() {
               <h2>5. Subscription, Payments, and Refunds</h2>
               <ul>
                 <li>
-                  <strong>Billing</strong>:Paid subscriptions are billed in advance. By
+                  <strong>Billing</strong>: Paid subscriptions are billed in advance. By
                   subscribing, you authorise recurring charges on your chosen billing cycle.
                 </li>
                 <li>
-                  <strong>Australian Consumer Law (ACL)</strong>:Our services come with
+                  <strong>Australian Consumer Law (ACL)</strong>: Our services come with
                   guarantees that cannot be excluded under the ACL. For major failures, you are
                   entitled to cancel your contract and receive a refund for the unused portion.
                 </li>
                 <li>
-                  <strong>Cancellations</strong>:You may cancel at any time. You will retain
+                  <strong>Cancellations</strong>: You may cancel at any time. You will retain
                   access until the end of your current billing period.
                 </li>
                 <li>
-                  <strong>Refunds</strong>:Beyond your statutory rights under the ACL, we offer a
+                  <strong>Refunds</strong>: Beyond your statutory rights under the ACL, we offer a
                   14-day &ldquo;cooling-off&rdquo; period for your first subscription payment if you
                   are dissatisfied.
                 </li>
                 <li>
-                  <strong>Price Changes</strong>:We will provide at least 30 days&apos; advance
+                  <strong>Price Changes</strong>: We will provide at least 30 days&apos; advance
                   notice of any subscription fee changes.
                 </li>
               </ul>
 
               <h2>6. Intellectual Property and Data</h2>
               <p>
-                <strong>Our IP</strong>:All content, software, AI models, and training scenarios
+                <strong>Our IP</strong>: All content, software, AI models, and training scenarios
                 are the property of Serve By Example.
               </p>
               <p>
-                <strong>Your Content</strong>:You retain ownership of any content you submit. By
+                <strong>Your Content</strong>: You retain ownership of any content you submit. By
                 submitting content, you grant us a non-exclusive, royalty-free licence to process
                 and display that content solely to provide the Service to you.
               </p>
               <p>
-                <strong>Prohibition on Training</strong>:Serve By Example will not use your
+                <strong>Prohibition on Training</strong>: Serve By Example will not use your
                 proprietary input data or training responses to train third-party AI models without
                 your express written consent.
               </p>
 
               <h2>7. AI-Generated Content and Physical Safety Disclaimer</h2>
               <p>
-                <strong>Educational Purpose Only</strong>:AI output is provided for educational
+                <strong>Educational Purpose Only</strong>: AI output is provided for educational
                 and training purposes only. It does not constitute professional business, legal,
                 financial, HR, or OHS/WHS advice. Users are responsible for verifying AI-generated
                 outputs before acting on them in any professional or operational context.
               </p>
               <p>
-                <strong>No Replacement for Physical Supervision</strong>:The Service is a
+                <strong>No Replacement for Physical Supervision</strong>: The Service is a
                 supplement to, and not a replacement for, venue-specific safety inductions,
                 hands-on physical training, or on-site supervision.
               </p>
               <p>
-                <strong>Assumption of Risk</strong>:Hospitality work involves inherent physical
+                <strong>Assumption of Risk</strong>: Hospitality work involves inherent physical
                 hazards. Serve By Example is not responsible for any physical injury, property
                 damage, or legal consequences arising from the application of training scenarios in
                 a physical workspace. Users and their employers remain solely responsible for
@@ -137,11 +137,11 @@ export default function TermsPage() {
               <p>If you are a Venue Operator using this Service to train staff:</p>
               <ul>
                 <li>
-                  <strong>Responsibility</strong>:You acknowledge that you retain primary duty of
+                  <strong>Responsibility</strong>: You acknowledge that you retain primary duty of
                   care for your staff under applicable workplace safety laws.
                 </li>
                 <li>
-                  <strong>Indemnity</strong>:To the extent permitted by law, you agree to
+                  <strong>Indemnity</strong>: To the extent permitted by law, you agree to
                   indemnify and hold harmless Serve By Example from any claims, damages, or losses
                   resulting from your staff&apos;s actions, including injuries occurring on your
                   premises, provided such claims do not arise from our gross negligence.
@@ -164,24 +164,24 @@ export default function TermsPage() {
 
               <h2>10. Termination, Governing Law, and Changes</h2>
               <p>
-                <strong>Termination</strong>:We may suspend access for conduct that violates
+                <strong>Termination</strong>: We may suspend access for conduct that violates
                 these Terms.
               </p>
               <p>
-                <strong>Governing Law</strong>:These Terms are governed by the laws of New South
+                <strong>Governing Law</strong>: These Terms are governed by the laws of New South
                 Wales, Australia.
               </p>
               <p>
-                <strong>Severability</strong>:If any provision is found to be unenforceable, the
+                <strong>Severability</strong>: If any provision is found to be unenforceable, the
                 remaining provisions will remain in full force.
               </p>
               <p>
-                <strong>Changes</strong>:Continued use of the Service after the effective date of
+                <strong>Changes</strong>: Continued use of the Service after the effective date of
                 updated Terms constitutes your agreement.
               </p>
 
               <h2>Contact Us</h2>
-              <p>For terms inquiries, please contact:</p>
+              <p>For terms enquiries, please contact:</p>
               <p>
                 <strong>Serve By Example</strong>
                 <br />

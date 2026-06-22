@@ -48,12 +48,12 @@ export default function CookiesPage() {
               </p>
               <ul>
                 <li>
-                  <strong>Authentication session</strong>:Maintained by Supabase to keep you
+                  <strong>Authentication session</strong>: Maintained by Supabase to keep you
                   logged in while you use the platform. Session cookies, deleted when you sign out
                   or close your browser.
                 </li>
                 <li>
-                  <strong>CSRF protection</strong>:Prevents cross-site request forgery attacks.
+                  <strong>CSRF protection</strong>: Prevents cross-site request forgery attacks.
                   Session cookie.
                 </li>
               </ul>
@@ -86,7 +86,7 @@ export default function CookiesPage() {
               </p>
               <ul>
                 <li>
-                  <strong>Supabase</strong>:authentication and session management. See{" "}
+                  <strong>Supabase</strong>: authentication and session management. See{" "}
                   <a
                     href="https://supabase.com/privacy"
                     target="_blank"
@@ -97,7 +97,7 @@ export default function CookiesPage() {
                   .
                 </li>
                 <li>
-                  <strong>Cloudflare</strong>:security and performance. See{" "}
+                  <strong>Cloudflare</strong>: security and performance. See{" "}
                   <a
                     href="https://www.cloudflare.com/privacypolicy/"
                     target="_blank"
@@ -118,7 +118,7 @@ export default function CookiesPage() {
               </p>
               <ul>
                 <li>
-                  <strong>Browser settings</strong>:Most browsers allow you to view, delete, and
+                  <strong>Browser settings</strong>: Most browsers allow you to view, delete, and
                   block cookies. Visit your browser&apos;s help documentation for instructions:
                   <ul>
                     <li>
@@ -160,7 +160,7 @@ export default function CookiesPage() {
                   </ul>
                 </li>
                 <li>
-                  <strong>Opt-out tools</strong>:You can opt out of analytics tracking through
+                  <strong>Opt-out tools</strong>: You can opt out of analytics tracking through
                   your browser&apos;s &ldquo;Do Not Track&rdquo; setting where supported.
                 </li>
               </ul>
