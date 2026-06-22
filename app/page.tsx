@@ -3,6 +3,7 @@ import Image from "next/image";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import ROICalculator from "@/components/ui/ROICalculator";
+import CompareMatrix from "@/components/ui/CompareMatrix";
 import HeroSection from "@/components/HeroSection";
 // ── SVG Icons ─────────────────────────────────────────────────────────────────
 
@@ -70,7 +71,7 @@ function IcoPhone({ size = 22 }: { size?: number }) {
 export default function Home() {
   return (
     <div className="page-shell">
-      <Navbar showActions={false} showTextLogin showNavbarLanguageOnMobile={false} />
+      <Navbar showNavbarLanguageOnMobile={false} />
 
       <main id="main-content">
 
@@ -97,38 +98,66 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── Core Pillars ─────────────────────────── */}
-        <section className="section">
+        {/* ── Core Pillars — Bento Grid 2.0 ──────── */}
+        <section className="section sbe-mkt-scope">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">The Platform</span>
-              <h2>Three tools. One training system.</h2>
-              <p>Everything your venue needs to train confidently, built for real hospitality operations.</p>
+              <span className="sbe-eyebrow">Three Systems, One Hub</span>
+              <h2 className="sbe-serif-title">Built for High-Performance Venues</h2>
+              <p className="sbe-sans-body">Everything your venue needs to train staff confidently, built for real hospitality operations.</p>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1.5rem", marginTop: "2.5rem" }}>
 
-              <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "var(--radius-lg)", padding: "2rem" }}>
-                <div style={{ width: "44px", height: "44px", background: "var(--green-light)", borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--green)", marginBottom: "1.25rem" }}>
-                  <IcoZap size={22} />
+            <div className="bento-grid" style={{ marginTop: "2.5rem" }}>
+
+              {/* Dark col-6 — Frontline Staff */}
+              <div className="bento-card bento-card-dark sbe-span-6 sbe-interactive-hover">
+                <div>
+                  <div style={{ width: "44px", height: "44px", background: "rgba(212,175,55,0.18)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1.25rem", color: "var(--mkt-gold-500)" }}>
+                    <IcoZap size={22} />
+                  </div>
+                  <span className="sbe-eyebrow">For Frontline Staff</span>
+                  <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-cream-100)" }}>AI Scenario Simulators</h3>
+                  <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.65, color: "rgba(250,249,246,0.72)" }}>GPT-4o-mini scores every roleplay response across 5 service dimensions. Real pressure, real feedback — no manager required.</p>
                 </div>
-                <h3 style={{ margin: "0 0 0.5rem", fontSize: "1rem", fontWeight: 700, color: "var(--text)" }}>AI Scenario Simulators</h3>
-                <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--text-soft)", lineHeight: 1.65 }}>GPT-4o-mini scores every roleplay response across 5 service dimensions. Real pressure, no manager required.</p>
               </div>
 
-              <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "var(--radius-lg)", padding: "2rem" }}>
-                <div style={{ width: "44px", height: "44px", background: "var(--green-light)", borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--green)", marginBottom: "1.25rem" }}>
-                  <IcoBook size={22} />
+              {/* Light col-6 — General Managers */}
+              <div className="bento-card sbe-span-6 sbe-interactive-hover">
+                <div>
+                  <div style={{ width: "44px", height: "44px", background: "var(--green-light)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--green)", marginBottom: "1.25rem" }}>
+                    <IcoBuilding size={22} />
+                  </div>
+                  <span className="sbe-eyebrow">For General Managers</span>
+                  <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-forest-900)" }}>Manager Mission Control</h3>
+                  <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.65, color: "var(--mkt-charcoal-400)" }}>Every module completion, quiz score, and scenario session syncs to the manager console automatically. Full visibility, zero admin overhead.</p>
                 </div>
-                <h3 style={{ margin: "0 0 0.5rem", fontSize: "1rem", fontWeight: 700, color: "var(--text)" }}>Cocktail &amp; Spec Library</h3>
-                <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--text-soft)", lineHeight: 1.65 }}>40+ build guides, garnish specs, and flavour profiles, searchable by staff on any device, any shift.</p>
               </div>
 
-              <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "var(--radius-lg)", padding: "2rem" }}>
-                <div style={{ width: "44px", height: "44px", background: "var(--green-light)", borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--green)", marginBottom: "1.25rem" }}>
-                  <IcoBuilding size={22} />
+              {/* Wide col-12 — Multi-Site Venue Groups */}
+              <div className="bento-card sbe-span-12 sbe-interactive-hover">
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "2rem", alignItems: "flex-start" }}>
+                  <div style={{ flex: "1 1 260px" }}>
+                    <div style={{ width: "44px", height: "44px", background: "var(--green-light)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--green)", marginBottom: "1.25rem" }}>
+                      <IcoBook size={22} />
+                    </div>
+                    <span className="sbe-eyebrow">For Multi-Site Venue Groups</span>
+                    <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-forest-900)" }}>Cocktail &amp; Spec Library</h3>
+                    <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.65, color: "var(--mkt-charcoal-400)" }}>40+ build guides, garnish specs, and flavour profiles — searchable by staff on any device, any shift. Standardise service quality across every location.</p>
+                  </div>
+                  <ul style={{ flex: "1 1 260px", listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.625rem" }}>
+                    {[
+                      "Faster onboarding with venue-specific starter templates",
+                      "Stronger, more consistent service standards across sites",
+                      "Revenue impact from better upsell performance",
+                      "Scalable from a single bar to a full group rollout",
+                    ].map((item) => (
+                      <li key={item} style={{ display: "flex", alignItems: "flex-start", gap: "0.625rem", fontSize: "0.875rem", color: "var(--mkt-charcoal-900)", borderBottom: "1px solid var(--mkt-border-subtle)", paddingBottom: "0.625rem" }}>
+                        <span style={{ color: "var(--mkt-gold-500)", fontWeight: 700, flexShrink: 0, lineHeight: 1.65 }}>&#10003;</span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <h3 style={{ margin: "0 0 0.5rem", fontSize: "1rem", fontWeight: 700, color: "var(--text)" }}>Manager Mission Control</h3>
-                <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--text-soft)", lineHeight: 1.65 }}>Every module completion, quiz score, and scenario session syncs to the manager console automatically.</p>
               </div>
 
             </div>
@@ -323,7 +352,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── Scalable Training Tiers ──────────────── */}
+        {/* ── Pricing Teaser ───────────────────────── */}
         <section className="section">
           <div className="container">
             <div className="section-header center">
@@ -331,60 +360,23 @@ export default function Home() {
               <h2>Plans &amp; Pricing</h2>
               <p>From individual staff to multi-site venue groups, one platform that grows with you.</p>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1.25rem", maxWidth: 1100, margin: "2rem auto 0" }}>
-
-              <div style={{ background: "white", border: "2px solid #0B2B1E", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem", position: "relative", overflow: "visible", transform: "scale(1.03)", boxShadow: "0 10px 28px -5px rgba(31,78,55,0.18)", zIndex: 1 }}>
-                <div style={{ position: "absolute", top: "-13px", left: "50%", transform: "translateX(-50%)", background: "#0B2B1E", color: "white", fontSize: "0.65rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", borderRadius: "999px", padding: "4px 14px", whiteSpace: "nowrap" }}>
-                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ marginRight: "5px", verticalAlign: "middle" }}><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                  Most Popular
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", justifyContent: "center", maxWidth: 860, margin: "2rem auto 0" }}>
+              {[
+                { tier: "Individual", name: "Pro", desc: "Full access to all 40 modules, scenario training, and progress analytics. For staff investing in their craft." },
+                { tier: "Single Venue", name: "Boutique", desc: "Full manager console, team analytics, compliance tracking, and up to 15 staff seats for one venue." },
+                { tier: "Multi-Venue", name: "Commercial", desc: "Up to 35 staff across your team, multi-venue health scores, and group-wide performance analytics." },
+                { tier: "Enterprise", name: "Enterprise", desc: "Unlimited seats, dedicated account management, custom modules, and white-label options for venue groups." },
+              ].map((plan) => (
+                <div key={plan.name} style={{ flex: "1 1 180px", maxWidth: 220, background: "var(--surface)", border: "1.5px solid var(--line)", borderRadius: "14px", padding: "1.25rem 1.1rem", display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                  <div style={{ fontSize: "0.65rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--text-muted)" }}>{plan.tier}</div>
+                  <div style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text)" }}>{plan.name}</div>
+                  <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-soft)", lineHeight: 1.5 }}>{plan.desc}</p>
                 </div>
-                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#16a34a" }}>Individual</div>
-                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Pro</h3>
-                <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
-                  <span style={{ fontSize: "1.75rem", fontWeight: 900, color: "#0B2B1E", lineHeight: 1 }}>$19</span>
-                  <span style={{ fontSize: "0.85rem", color: "#6b7280", fontWeight: 500 }}>/month</span>
-                </div>
-                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Full access to all 40 training modules, unlimited coaching and progress analytics. Build career-ready skills at your own pace.</p>
-                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For bartenders and hospitality staff investing in their craft.</p>
-                <div style={{ marginTop: "auto", paddingTop: "1rem", display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
-                  <Link href="/pricing" className="btn btn-primary btn-block">Join Pro</Link>
-                  <Link href="/demo" style={{ fontSize: "0.8rem", color: "var(--text-soft)", textDecoration: "underline", textUnderlineOffset: "3px" }}>or explore the demo free</Link>
-                </div>
-              </div>
-
-              <div style={{ background: "white", border: "1.5px solid #e5e7eb", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9ca3af" }}>Single Venue</div>
-                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Venue</h3>
-                <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
-                  <span style={{ fontSize: "1.75rem", fontWeight: 900, color: "#0B2B1E", lineHeight: 1 }}>$49</span>
-                  <span style={{ fontSize: "0.85rem", color: "#6b7280", fontWeight: 500 }}>/month</span>
-                </div>
-                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Full manager console, team analytics, compliance tracking and staff rostering for a single venue. Up to 25 staff seats.</p>
-                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>For venue operators ready to professionalise their training.</p>
-                <div style={{ marginTop: "auto", paddingTop: "1rem", display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
-                  <Link href="/pricing" className="btn btn-secondary btn-block">Get Started</Link>
-                  <Link href="/demo" style={{ fontSize: "0.8rem", color: "var(--text-soft)", textDecoration: "underline", textUnderlineOffset: "3px" }}>or explore the demo free</Link>
-                </div>
-              </div>
-
-              <div style={{ background: "var(--bg-alt)", border: "1px solid var(--line)", borderRadius: "16px", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                <div style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--text-muted)" }}>Multi-Site &amp; Groups</div>
-                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#111827" }}>Enterprise</h3>
-                <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
-                  <span style={{ fontSize: "1.75rem", fontWeight: 900, color: "var(--green)", lineHeight: 1 }}>Custom</span>
-                </div>
-                <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.6 }}>Multi-site groups, enterprise accounts, and venues with 5+ locations. Custom seat caps, white-glove onboarding, and dedicated account management.</p>
-                <div style={{ marginTop: "auto", paddingTop: "1rem", display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
-                  <Link href="/contact" className="btn btn-secondary btn-block">Talk to our team</Link>
-                  <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Pricing on request.</span>
-                </div>
-              </div>
-
+              ))}
             </div>
-            <div style={{ textAlign: "center", marginTop: "1.75rem" }}>
-              <Link href="/pricing" style={{ fontSize: "0.875rem", color: "#6b7280", textDecoration: "underline", textUnderlineOffset: "3px" }}>
-                View full pricing and plan details
-              </Link>
+            <div style={{ textAlign: "center", marginTop: "1.75rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem" }}>
+              <Link href="/pricing" className="btn btn-primary">View full pricing</Link>
+              <Link href="/demo" style={{ fontSize: "0.8rem", color: "var(--text-soft)", textDecoration: "underline", textUnderlineOffset: "3px" }}>or explore the demo free</Link>
             </div>
           </div>
         </section>
@@ -541,6 +533,13 @@ export default function Home() {
                 </footer>
               </blockquote>
             </div>
+          </div>
+        </section>
+
+        {/* ── Comparison Matrix ────────────────────── */}
+        <section className="section section-alt">
+          <div className="container">
+            <CompareMatrix />
           </div>
         </section>
 

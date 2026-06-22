@@ -96,7 +96,7 @@ export default function FranchiseSystemsPage() {
                 <div className="metrics-strip-label">of training completed on mobile, no desktop required</div>
               </div>
             </div>
-            <p className="metrics-strip-disclaimer">*Based on franchise system labor modeling and high-turnover onboarding optimization data.</p>
+            <p className="metrics-strip-disclaimer">*Based on franchise system labour modelling and high-turnover onboarding optimisation data.</p>
           </div>
         </section>
 

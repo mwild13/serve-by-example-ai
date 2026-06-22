@@ -90,7 +90,7 @@ export default function ChallengesMarketingPage() {
                 marginBottom: "1.5rem",
               }}
             >
-              Training That Feels Like a Game
+              Training that feels like a game
             </h1>
             <p
               style={{

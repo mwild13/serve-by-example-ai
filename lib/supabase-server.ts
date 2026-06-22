@@ -34,6 +34,12 @@ export async function createSupabaseServerClient() {
         }
       },
     },
+    cookieOptions: {
+      domain: ".servebyexample.co",
+      path: "/",
+      sameSite: "lax" as const,
+      secure: true,
+    },
   });
 }
 
@@ -115,6 +121,12 @@ export function createSupabaseMiddlewareClient(
           response.cookies.set(name, value, options);
         });
       },
+    },
+    cookieOptions: {
+      domain: ".servebyexample.co",
+      path: "/",
+      sameSite: "lax" as const,
+      secure: true,
     },
   });
 }

@@ -3,6 +3,12 @@ import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DashboardMockup from "@/components/ui/DashboardMockup";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "How It Works | Serve By Example",
+  description: "See how Serve By Example's three-stage training loop takes hospitality staff from onboarding through to real-world confidence — with scenario practice, scoring, and performance tracking.",
+};
 
 const steps = [
   {
@@ -163,7 +169,7 @@ export default function HowItWorksPage() {
           <div className="container">
             <div className="section-header center">
               <span className="eyebrow">Example Scenario</span>
-              <h2>See the product in one glance.</h2>
+              <h2>How a scored scenario response works</h2>
               <p style={{ maxWidth: "560px", margin: "0 auto" }}>
                 Every response is scored instantly. Over time, the platform tracks your weak areas and resurfaces them, so improvement isn&rsquo;t left to chance.
               </p>
@@ -229,12 +235,12 @@ export default function HowItWorksPage() {
           <div className="container">
             <div className="section-header center">
               <span className="eyebrow" style={{ color: "#86efac" }}>Consoles</span>
-              <h2 style={{ color: "white", marginBottom: "0.5rem" }}>See the platform in one glance.</h2>
+              <h2 style={{ color: "white", marginBottom: "0.5rem" }}>The manager and staff consoles, side by side</h2>
               <p style={{ color: "#9ca3af", maxWidth: "560px", margin: "0 auto" }}>
                 Two powerful tools working together: one for managers, one for staff.
               </p>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2.5rem", marginTop: "2.5rem", alignItems: "start" }}>
+            <div className="hiw-consoles-grid">
 
               {/* Management Console */}
               <div>
@@ -250,8 +256,8 @@ export default function HowItWorksPage() {
                   alt="Serve By Example staff mobile console – pre-shift brief and training dashboard"
                   width={357}
                   height={713}
-                  sizes="(max-width: 768px) 65vw, 240px"
-                  style={{ width: "100%", maxWidth: "240px", height: "auto", display: "block", margin: "0 auto", clipPath: "inset(0 2px 2px 0)" }}
+                  sizes="(max-width: 768px) 55vw, 240px"
+                  style={{ width: "100%", maxWidth: "200px", height: "auto", display: "block", margin: "0 auto", clipPath: "inset(0 2px 2px 0)" }}
                 />
               </div>
 
@@ -269,12 +275,9 @@ export default function HowItWorksPage() {
                 consistency and better service.
               </p>
             </div>
-            <div className="cta-actions">
+            <div className="cta-actions-single">
               <Link href="/demo" className="btn btn-gold btn-lg">
                 Try the Demo
-              </Link>
-              <Link href="/for-venues" className="btn btn-outline-light btn-lg">
-                Explore For Venues
               </Link>
             </div>
           </div>

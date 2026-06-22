@@ -16,5 +16,12 @@ function getSupabaseEnv() {
 export function createSupabaseBrowserClient() {
   const { supabaseUrl, supabaseAnonKey } = getSupabaseEnv();
 
-  return createBrowserClient(supabaseUrl, supabaseAnonKey);
+  return createBrowserClient(supabaseUrl, supabaseAnonKey, {
+    cookieOptions: {
+      domain: ".servebyexample.co",
+      path: "/",
+      sameSite: "lax" as const,
+      secure: true,
+    },
+  });
 }

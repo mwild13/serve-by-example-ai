@@ -3,7 +3,6 @@ import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SectionSubNav from "@/components/SectionSubNav";
-import MenuDrillGenerator from "@/components/MenuDrillGenerator";
 
 const features = [
   {
@@ -93,9 +92,9 @@ const productBlocks = [
 
 const stats = [
   { value: "90%", label: "Mobile completion rate" },
-  { value: "3×", label: "Faster onboarding vs traditional" },
+  { value: "3×", label: "Faster onboarding vs. traditional training" },
   { value: "+15%", label: "Avg upsell improvement" },
-  { value: "2026", label: "Built for modern hospitality training" },
+  { value: "40+", label: "Training modules across bartending, sales and management" },
 ];
 
 export default function PlatformPage() {
@@ -109,7 +108,6 @@ export default function PlatformPage() {
           { id: "overview", label: "Overview" },
           { id: "insights", label: "Analytics" },
           { id: "arena", label: "Live Scenarios" },
-          { id: "scenario-builder", label: "Scenario Builder" },
           { id: "mobile", label: "Mobile" },
         ]} />
         {/* ── Hero ── */}
@@ -215,30 +213,70 @@ export default function PlatformPage() {
           </div>
         </section>
 
-        {/* ── Scenario Builder ── */}
-        <div id="scenario-builder">
-          <MenuDrillGenerator />
-        </div>
-
-        {/* ── Three Layers ── */}
-        <section className="section">
+        {/* ── Three Layers — Bento Grid 2.0 ── */}
+        <section className="section sbe-mkt-scope">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">Three tools in one platform</span>
-              <h2>What each layer actually does.</h2>
+              <span className="sbe-eyebrow">Three Systems, One Hub</span>
+              <h2 className="sbe-serif-title">What each layer actually does.</h2>
             </div>
-            <div className="card-grid card-grid-3">
-              {productBlocks.map((block) => (
-                <article key={block.heading} className="info-card">
-                  <span style={{ fontSize: "1.8rem", display: "block", marginBottom: 8 }}>{block.icon}</span>
-                  <h3>{block.heading}</h3>
-                  <ul className="check-list">
-                    {block.points.map((point) => (
-                      <li key={point}>{point}</li>
+
+            <div className="bento-grid" style={{ marginTop: "2.5rem" }}>
+
+              {/* Dark col-6 — For Staff */}
+              <div className="bento-card bento-card-dark sbe-span-6 sbe-interactive-hover">
+                <div>
+                  <span style={{ fontSize: "1.8rem", display: "block", marginBottom: "1rem", color: "var(--mkt-gold-500)" }}>&#9673;</span>
+                  <span className="sbe-eyebrow">For Frontline Staff</span>
+                  <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-cream-100)" }}>For staff</h3>
+                  <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                    {productBlocks[0].points.map((point) => (
+                      <li key={point} style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", fontSize: "0.875rem", color: "rgba(250,249,246,0.75)", lineHeight: 1.55 }}>
+                        <span style={{ color: "var(--mkt-gold-500)", flexShrink: 0, fontWeight: 700 }}>&#10003;</span>
+                        {point}
+                      </li>
                     ))}
                   </ul>
-                </article>
-              ))}
+                </div>
+              </div>
+
+              {/* Light col-6 — For Managers */}
+              <div className="bento-card sbe-span-6 sbe-interactive-hover">
+                <div>
+                  <span style={{ fontSize: "1.8rem", display: "block", marginBottom: "1rem", color: "var(--mkt-forest-900)" }}>&equiv;</span>
+                  <span className="sbe-eyebrow">For General Managers</span>
+                  <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-forest-900)" }}>For managers</h3>
+                  <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                    {productBlocks[1].points.map((point) => (
+                      <li key={point} style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", fontSize: "0.875rem", color: "var(--mkt-charcoal-400)", lineHeight: 1.55 }}>
+                        <span style={{ color: "var(--mkt-gold-500)", flexShrink: 0, fontWeight: 700 }}>&#10003;</span>
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Wide col-12 — For Multi-Site Venue Groups */}
+              <div className="bento-card sbe-span-12 sbe-interactive-hover">
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "2rem", alignItems: "flex-start" }}>
+                  <div style={{ flex: "1 1 220px" }}>
+                    <span style={{ fontSize: "1.8rem", display: "block", marginBottom: "1rem", color: "var(--mkt-forest-900)" }}>&#9670;</span>
+                    <span className="sbe-eyebrow">For Multi-Site Venue Groups</span>
+                    <h3 style={{ margin: "0 0 0.5rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-forest-900)" }}>For venues</h3>
+                    <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--mkt-charcoal-400)", lineHeight: 1.6 }}>Scalable training infrastructure for operators managing one location or an entire group.</p>
+                  </div>
+                  <ul style={{ flex: "2 1 320px", listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.625rem" }}>
+                    {productBlocks[2].points.map((point) => (
+                      <li key={point} style={{ display: "flex", alignItems: "flex-start", gap: "0.625rem", fontSize: "0.875rem", color: "var(--mkt-charcoal-900)", borderBottom: "1px solid var(--mkt-border-subtle)", paddingBottom: "0.625rem" }}>
+                        <span style={{ color: "var(--mkt-gold-500)", fontWeight: 700, flexShrink: 0, lineHeight: 1.65 }}>&#10003;</span>
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
             </div>
           </div>
         </section>

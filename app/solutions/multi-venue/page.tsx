@@ -99,7 +99,7 @@ export default function MultiVenuePage() {
                 <div className="metrics-strip-label">group health score across every venue, instantly</div>
               </div>
             </div>
-            <p className="metrics-strip-disclaimer">*Based on centralized hospitality analytics modeling and group training industry averages.</p>
+            <p className="metrics-strip-disclaimer">*Based on centralised hospitality analytics modelling and group training industry averages.</p>
           </div>
         </section>
 
