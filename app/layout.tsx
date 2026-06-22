@@ -26,8 +26,8 @@ const ogImage       = "/og-image.png"; // static 1200×630 PNG — pre-generated
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Serve By Example — Hospitality Training Platform",
-  description: ogDescription,
+  title: "Serve By Example | Train Hospitality Staff 3x Faster",
+  description: "Get your team shift-ready instantly with live-scored scenario roleplays and real-time skill ratings built for fast-paced hospitality.",
   alternates: {
     canonical: "/",
   },
