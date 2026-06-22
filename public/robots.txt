@@ -15,4 +15,4 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
-Sitemap: https://www.serve-by-example.com/sitemap.xml
+Sitemap: https://servebyexample.co/sitemap.xml
