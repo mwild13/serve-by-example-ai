@@ -91,6 +91,14 @@ export async function POST(req: Request) {
     if (event.type === "customer.subscription.deleted") {
       await handleSubscriptionDeleted(event.data.object as Stripe.Subscription, supabase);
     }
+
+    if (event.type === "invoice.paid") {
+      await handleInvoicePaid(event.data.object as Stripe.Invoice, supabase);
+    }
+
+    if (event.type === "invoice.payment_failed") {
+      await handleInvoicePaymentFailed(event.data.object as Stripe.Invoice, supabase);
+    }
   } catch (err) {
     // Remove the billing_events row so Stripe can safely retry
     await supabase.from("billing_events").delete().eq("stripe_event_id", event.id);
@@ -127,6 +135,7 @@ async function handleCheckoutComplete(
     plan: tier,
     tier,
     stripe_customer_id: stripeCustomerId,
+    subscription_active: true,
     ...(isFounder && { is_founders_user: true }),
   };
 
@@ -183,12 +192,24 @@ async function handleSubscriptionUpsert(
   const customerId = subscription.customer as string;
   if (!customerId) return;
 
-  const NON_ACTIVE_STATUSES = ["canceled", "past_due", "unpaid", "incomplete_expired"];
-  if (NON_ACTIVE_STATUSES.includes(subscription.status)) {
+  // past_due: keep access alive while Stripe retries payment automatically.
+  // Stripe fires customer.subscription.deleted if all retries are exhausted —
+  // that's when downgradeByCustomer runs. Do not downgrade here.
+  if (subscription.status === "past_due") {
+    await supabase
+      .from("profiles")
+      .update({ subscription_status: "past_due" })
+      .eq("stripe_customer_id", customerId);
+    return;
+  }
+
+  const HARD_REVOKE_STATUSES = ["canceled", "unpaid", "incomplete_expired"];
+  if (HARD_REVOKE_STATUSES.includes(subscription.status)) {
     await downgradeByCustomer(customerId, supabase);
     return;
   }
 
+  // active or trialing
   const priceId = subscription.items.data[0]?.price.id;
   // Prefer metadata (set by new checkout); fall back to price map for legacy products
   const tier =
@@ -200,9 +221,18 @@ async function handleSubscriptionUpsert(
     ? parseInt(subscription.metadata.seat_limit, 10)
     : (TIER_SEAT_LIMITS[tier] ?? 0);
 
+  const rawPeriodEnd = subscription.items.data[0]?.current_period_end;
+  const periodEnd = rawPeriodEnd ? new Date(rawPeriodEnd * 1000).toISOString() : null;
+
   await supabase
     .from("profiles")
-    .update({ plan: tier, tier })
+    .update({
+      plan: tier,
+      tier,
+      subscription_active: true,
+      subscription_status: subscription.status,
+      subscription_period_end: periodEnd,
+    })
     .eq("stripe_customer_id", customerId);
 
   if (B2B_TIERS.has(tier)) {
@@ -234,7 +264,12 @@ async function downgradeByCustomer(
 ) {
   await supabase
     .from("profiles")
-    .update({ plan: "free", tier: "free" })
+    .update({
+      plan: "free",
+      tier: "free",
+      subscription_active: false,
+      subscription_status: "canceled",
+    })
     .eq("stripe_customer_id", customerId);
 
   // B2B orgs: revoke access and zero out seats; row is kept for audit trail
@@ -245,6 +280,34 @@ async function downgradeByCustomer(
       seat_limit: 0,
       updated_at: new Date().toISOString(),
     })
+    .eq("stripe_customer_id", customerId);
+}
+
+async function handleInvoicePaid(
+  invoice: Stripe.Invoice,
+  supabase: ReturnType<typeof createSupabaseAdminClient>,
+) {
+  const customerId = invoice.customer as string;
+  if (!customerId) return;
+  // Re-confirm active status on successful renewal. The accompanying
+  // customer.subscription.updated event updates subscription_period_end.
+  await supabase
+    .from("profiles")
+    .update({ subscription_active: true, subscription_status: "active" })
+    .eq("stripe_customer_id", customerId);
+}
+
+async function handleInvoicePaymentFailed(
+  invoice: Stripe.Invoice,
+  supabase: ReturnType<typeof createSupabaseAdminClient>,
+) {
+  const customerId = invoice.customer as string;
+  if (!customerId) return;
+  // Record past_due without revoking access. Stripe retries automatically;
+  // customer.subscription.deleted fires only when all retries are exhausted.
+  await supabase
+    .from("profiles")
+    .update({ subscription_status: "past_due" })
     .eq("stripe_customer_id", customerId);
 }
 
