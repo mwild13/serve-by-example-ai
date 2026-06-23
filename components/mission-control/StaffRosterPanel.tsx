@@ -68,12 +68,18 @@ export default function StaffRosterPanel({
   async function loadMemberships() {
     try {
       const res = await apiFetch("/api/management/memberships");
-      if (!res.ok) return;
+      if (!res.ok) {
+        setMembershipsLoaded(true);
+        return;
+      }
       const data = await res.json();
       setMemberships(data.memberships ?? []);
       setMembershipSeats({ used: data.seatUsage?.used ?? 0, max: data.seatUsage?.max ?? 0 });
+    } catch (err) {
+      console.error("Failed to load memberships:", err);
+    } finally {
       setMembershipsLoaded(true);
-    } catch { /* silent */ }
+    }
   }
 
   useEffect(() => {
