@@ -86,16 +86,6 @@ export async function middleware(request: NextRequest) {
     // User will be redirected to login if needed
   }
 
-  // Expire stale host-only Supabase auth cookies set before the wildcard-domain
-  // migration. Without this, browsers send both the old host-only cookie and the
-  // new .servebyexample.co cookie, causing split-brain session reads on the server.
-  // Runs on every request once until the old cookies are gone (typically one visit).
-  for (const cookie of request.cookies.getAll()) {
-    if (cookie.name.startsWith("sb-") && cookie.name.includes("-auth-token")) {
-      response.cookies.set(cookie.name, "", { maxAge: 0, path: "/" });
-    }
-  }
-
   const isDashboard = path.startsWith("/dashboard");
   const isOnboarding = path.startsWith("/onboarding");
   const isManagementDashboard = path.startsWith("/management/dashboard");
