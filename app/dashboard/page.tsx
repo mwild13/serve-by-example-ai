@@ -76,7 +76,7 @@ export default async function DashboardPage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, plan, stripe_customer_id, management_unlocked, notif_reminders, notif_weekly_digest, notif_achievement_alerts, subscription_active, subscription_status, subscription_period_end")
+    .select("display_name, plan, stripe_customer_id, management_unlocked, notif_reminders, notif_weekly_digest, notif_achievement_alerts, subscription_active")
     .eq("id", user.id)
     .single();
 
@@ -89,57 +89,11 @@ export default async function DashboardPage({
 
   let plan = profile?.plan ?? "free";
 
-  // DB-first subscription gate — no live Stripe call on normal page loads.
-  // The webhook handler is the authoritative writer of subscription_active,
-  // subscription_status, and subscription_period_end.
-  // The emergency Stripe call fires only when subscription_period_end has elapsed,
-  // which indicates a missed renewal webhook.
-  if (plan !== "free" && profile) {
-    const subscriptionActive = profile.subscription_active ?? false;
-    const periodEnd = profile.subscription_period_end
-      ? new Date(profile.subscription_period_end as string)
-      : null;
-
-    if (!subscriptionActive) {
-      // Webhook already marked this subscription inactive — revoke without a Stripe call.
-      plan = "free";
-    } else if (periodEnd && periodEnd < new Date() && profile.stripe_customer_id && process.env.STRIPE_SECRET_KEY) {
-      // Period elapsed — possible missed renewal webhook. Narrow emergency Stripe call.
-      try {
-        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-          apiVersion: "2026-02-25.clover",
-          httpClient: Stripe.createFetchHttpClient(),
-        });
-        const subscriptions = await stripe.subscriptions.list({
-          customer: profile.stripe_customer_id as string,
-          limit: 5,
-        });
-        const activeSub = subscriptions.data.find(
-          (s) => s.status === "active" || s.status === "trialing"
-        );
-        const admin = createSupabaseAdminClient();
-        if (activeSub) {
-          await admin.from("profiles").update({
-            subscription_active: true,
-            subscription_status: activeSub.status,
-            subscription_period_end: activeSub.items.data[0]?.current_period_end
-              ? new Date(activeSub.items.data[0].current_period_end * 1000).toISOString()
-              : null,
-          }).eq("id", user.id);
-        } else {
-          await admin.from("profiles").update({
-            plan: "free",
-            tier: "free",
-            subscription_active: false,
-            subscription_status: "canceled",
-          }).eq("id", user.id);
-          plan = "free";
-        }
-      } catch {
-        // Stripe unreachable — preserve current plan to avoid incorrectly revoking access
-      }
-    }
-    // subscription_active === true and period hasn't elapsed — grant access, no Stripe call
+  // Subscription gate: only revoke when the webhook has explicitly written false.
+  // null means the cache columns haven't been written yet — trust the plan in that case.
+  // The webhook handler is the authoritative writer; no live Stripe call here.
+  if (plan !== "free" && profile?.subscription_active === false) {
+    plan = "free";
   }
 
   // Check if user has an active venue membership (invited by a manager).
