@@ -16690,3 +16690,16 @@ h1, h2, h3 {
   padding: 16px 20px;
   margin: 24px 0;
 }
+
+/* Dashboard mockup responsive mobile layout */
+@media (max-width: 768px) {
+  .dashboard-mockup-outer > div:first-child,
+  .dashboard-mockup-outer > div:last-child {
+    display: none !important;
+  }
+
+  .dashboard-mockup-outer > div:nth-child(2) {
+    flex: 1 !important;
+    width: 100% !important;
+  }
+}
