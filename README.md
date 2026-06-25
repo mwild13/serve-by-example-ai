@@ -52,11 +52,14 @@ Fast-forward merges from `dev` into `main` only. Never commit directly to `main`
 | Directory | Purpose |
 |-----------|---------|
 | `app/` | Next.js App Router pages and API routes |
-| `components/learning-engine/` | All staff-facing training UI |
-| `components/mission-control/` | Manager Mission Control dashboard |
-| `components/knowledge-base/` | Cocktail Library and 101 Knowledge Base |
-| `lib/` | Mastery engine, session logic, tier access, AI helpers |
-| `supabase/` | SQL schema migration files |
+| `components/learning-engine/` | All staff-facing training UI (40 modules, quizzes, AI Arena, Challenges) |
+| `components/mission-control/` | Manager Mission Control dashboard and extracted sub-panels |
+| `components/knowledge-base/` | Cocktail Library and 101 Knowledge Base (lazy-loaded) |
+| `components/toolkit/` | SOP generator preview and document components |
+| `components/ui/` | Shared UI primitives (skeletons, mockups, ROI calculator, session keepalive) |
+| `lib/` | Mastery engine, session logic, tier access, daily focus, AI helpers |
+| `lib/management/` | Venue and staff management service layer |
+| `supabase/migrations/` | SQL schema migration files (chronological) |
 
 ## Further Reading
 

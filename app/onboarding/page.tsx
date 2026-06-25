@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
@@ -34,6 +34,8 @@ const EXPERIENCE_LEVELS = [
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const stripeSessionId = searchParams.get("session_id");
   const [step, setStep] = useState<Step>(1);
   const [venueCode, setVenueCode] = useState("");
   const [venueCodeStatus, setVenueCodeStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -101,7 +103,11 @@ export default function OnboardingPage() {
         })
         .eq("id", user.id);
 
-      router.push("/dashboard");
+      router.push(
+        stripeSessionId
+          ? `/dashboard?checkout=success&session_id=${stripeSessionId}`
+          : "/dashboard"
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
       setSaving(false);

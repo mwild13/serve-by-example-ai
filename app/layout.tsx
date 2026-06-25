@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Manrope } from "next/font/google";
+// @ts-ignore
 import "./globals.css";
 import LanguageRuntimeTranslator from "@/components/LanguageRuntimeTranslator";
 import ErrorLogger from "@/components/ErrorLogger";
+import Script from 'next/script';
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -22,7 +24,7 @@ const siteUrl = "https://servebyexample.co";
 
 const ogTitle       = "Serve By Example — Staff Training for Bars, Restaurants & Hotels";
 const ogDescription = "Real-time team analytics, Scenario coaching, cocktail spec libraries, and compliance tracking — built for Australian venue operators.";
-const ogImage       = "/og-image.png"; // static 1200×630 PNG — pre-generated, served from public/
+const ogImage       = "/og-image.png"; 
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -86,6 +88,20 @@ export default async function RootLayout({
   return (
     <html lang="en-AU" className={`${fraunces.variable} ${manrope.variable}`}>
       <body>
+        {/* Google Analytics (gtag.js) */}
+        <Script 
+          src="https://www.googletagmanager.com/gtag/js?id=G-EF9YRFXKBG" 
+          strategy="afterInteractive" 
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-EF9YRFXKBG');
+          `}
+        </Script>
+
         <a href="#main-content" className="skip-nav">Skip to main content</a>
         {children}
         <ErrorLogger />

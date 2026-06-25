@@ -76,9 +76,17 @@ export default async function DashboardPage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, plan, stripe_customer_id, management_unlocked, notif_reminders, notif_weekly_digest, notif_achievement_alerts, subscription_active")
+    .select("display_name, plan, stripe_customer_id, management_unlocked, notif_reminders, notif_weekly_digest, notif_achievement_alerts, subscription_active, onboarding_completed")
     .eq("id", user.id)
     .single();
+
+  if (!profile?.onboarding_completed) {
+    redirect(
+      stripeSessionId
+        ? `/onboarding?checkout=success&session_id=${stripeSessionId}`
+        : "/onboarding"
+    );
+  }
 
   const displayName =
     profile?.display_name ||

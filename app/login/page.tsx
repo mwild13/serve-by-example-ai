@@ -104,6 +104,7 @@ function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const checkoutSuccess = searchParams.get("checkout") === "success";
+  const stripeSessionId = searchParams.get("session_id");
   const oauthError = searchParams.get("error") === "oauth-error";
 
   const [portal, setPortal] = useState<Portal>("staff");
@@ -137,9 +138,13 @@ function LoginPageContent() {
     setGoogleLoading(true);
     setError("");
     const supabase = createSupabaseBrowserClient();
+    const callbackParams = new URLSearchParams({ next: "/onboarding" });
+    if (stripeSessionId) callbackParams.set("session_id", stripeSessionId);
     const { error: oauthErr } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?${callbackParams.toString()}`,
+      },
     });
     if (oauthErr) {
       setError(oauthErr.message);
@@ -212,7 +217,13 @@ function LoginPageContent() {
         const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/dashboard` },
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
+              stripeSessionId
+                ? `/onboarding?checkout=success&session_id=${stripeSessionId}`
+                : "/onboarding"
+            )}`,
+          },
         });
 
         if (signUpError) {
@@ -248,7 +259,11 @@ function LoginPageContent() {
               headers: { "Authorization": `Bearer ${authSession.access_token}` },
             });
           }
-          router.push("/onboarding");
+          router.push(
+            stripeSessionId
+              ? `/onboarding?checkout=success&session_id=${stripeSessionId}`
+              : "/onboarding"
+          );
           router.refresh();
           return;
         }

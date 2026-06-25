@@ -6,6 +6,7 @@ import ROICalculator from "@/components/ui/ROICalculator";
 import CompareMatrix from "@/components/ui/CompareMatrix";
 import HeroSection from "@/components/HeroSection";
 import VenueMarquee from "@/components/VenueMarquee";
+
 // ── SVG Icons ─────────────────────────────────────────────────────────────────
 
 function IcoUsers({ size = 22 }: { size?: number }) {
@@ -46,7 +47,6 @@ function IcoZap({ size = 28 }: { size?: number }) {
   );
 }
 
-
 function IcoLayers({ size = 22 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -66,7 +66,6 @@ function IcoPhone({ size = 22 }: { size?: number }) {
   );
 }
 
-
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function Home() {
@@ -82,28 +81,51 @@ export default function Home() {
         <VenueMarquee />
 
         {/* ── Trust Stats ──────────────────────────── */}
-        <section className="section trust-section trust-section-green">
+        <section className="section trust-section" style={{ background: "transparent", padding: "1rem 0" }}>
           <div className="container">
-            <div className="arch-blueprint">
-              <div style={{ fontSize: "10px", opacity: 0.7, letterSpacing: "0.12em", marginBottom: "8px", textTransform: "uppercase" }}>
+            <div className="arch-blueprint" style={{ background: "white", padding: "2rem", borderRadius: "4px", border: "1px solid var(--line)" }}>
+              <div style={{ fontSize: "10px", color: "#6b7280", letterSpacing: "0.12em", marginBottom: "1.5rem", textTransform: "uppercase", fontWeight: 600 }}>
                 System Specifications
               </div>
               <div className="trust-stats">
-                <article className="stat-card stat-card-green">
-                  <div className="stat-value-green">3<span className="stat-value-unit">×</span></div>
-                  <div className="stat-label-green">Faster Onboarding<br/><em className="stat-accent">6 months to 6 weeks</em></div>
+                <article className="stat-card" style={{ display: "flex", flexDirection: "column", gap: "4px", textAlign: "left" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "#1b4332", lineHeight: 1 }}>
+                    3<span style={{ fontSize: "1.75rem", marginLeft: "2px", color: "var(--mkt-gold-500)" }}>×</span>
+                  </div>
+                  <div style={{ fontSize: "0.9rem", color: "#374151", fontWeight: 600, lineHeight: 1.35 }}>
+                    Faster Onboarding<br/>
+                    <em style={{ fontSize: "0.8rem", color: "#b79438", fontStyle: "normal", fontWeight: 500 }}>6 months to 6 weeks</em>
+                  </div>
                 </article>
-                <article className="stat-card stat-card-green">
-                  <div className="stat-value-green">100<span className="stat-value-unit">+</span></div>
-                  <div className="stat-label-green">Learning Modules<br/><em className="stat-accent">&amp; Scenarios</em></div>
+
+                <article className="stat-card" style={{ display: "flex", flexDirection: "column", gap: "4px", textAlign: "left" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "#1b4332", lineHeight: 1 }}>
+                    100<span style={{ fontSize: "1.75rem", marginLeft: "2px", color: "var(--mkt-gold-500)" }}>+</span>
+                  </div>
+                  <div style={{ fontSize: "0.9rem", color: "#374151", fontWeight: 600, lineHeight: 1.35 }}>
+                    Learning Modules<br/>
+                    <em style={{ fontSize: "0.8rem", color: "#b79438", fontStyle: "normal", fontWeight: 500 }}>&amp; Scenarios</em>
+                  </div>
                 </article>
-                <article className="stat-card stat-card-green">
-                  <div className="stat-value-green">19</div>
-                  <div className="stat-label-green">Languages Supported<br/><em className="stat-accent">Aus Training Ready</em></div>
+
+                <article className="stat-card" style={{ display: "flex", flexDirection: "column", gap: "4px", textAlign: "left" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "#1b4332", lineHeight: 1 }}>
+                    19
+                  </div>
+                  <div style={{ fontSize: "0.9rem", color: "#374151", fontWeight: 600, lineHeight: 1.35 }}>
+                    Languages Supported<br/>
+                    <em style={{ fontSize: "0.8rem", color: "#b79438", fontStyle: "normal", fontWeight: 500 }}>Aus Training Ready</em>
+                  </div>
                 </article>
-                <article className="stat-card stat-card-green">
-                  <div className="stat-value-green" style={{ fontSize: "0.95rem", lineHeight: 1.2 }}>GPT-4o-mini</div>
-                  <div className="stat-label-green">5-Dimension AI<br/><em className="stat-accent">Evaluation Engine</em></div>
+
+                <article className="stat-card" style={{ display: "flex", flexDirection: "column", gap: "4px", textAlign: "left" }}>
+                  <div style={{ fontSize: "2rem", fontWeight: 800, color: "#1b4332", lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: "2px" }}>
+                    GPT-4o-mini
+                  </div>
+                  <div style={{ fontSize: "0.9rem", color: "#374151", fontWeight: 600, lineHeight: 1.35 }}>
+                    5-Dimension AI<br/>
+                    <em style={{ fontSize: "0.8rem", color: "#b79438", fontStyle: "normal", fontWeight: 500 }}>Evaluation Engine</em>
+                  </div>
                 </article>
               </div>
             </div>
@@ -246,8 +268,7 @@ export default function Home() {
               <p>Staff train and improve. Managers see everything. One platform, no duplication of effort.</p>
             </div>
 
-
-<div className="solution-grid">
+            <div className="solution-grid">
 
               {/* Manager outcome */}
               <div className="solution-col">

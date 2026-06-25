@@ -14,11 +14,13 @@ Serve By Example replaces paper manuals and inconsistent on-floor training with 
 Bartenders, floor staff, and hospitality employees work through a self-paced mastery path covering 40 training modules across Bartending, Sales, and Management. Training happens on mobile, between shifts, in under 10 minutes a session.
 
 ### Managers
-Venue operators and team leaders get Mission Control — a real-time dashboard showing team mastery, compliance status, AI-generated coaching, and multi-venue roster management.
+Venue operators and team leaders get Mission Control — a real-time dashboard showing team mastery, compliance status, AI-generated coaching, multi-venue roster management, and training program configuration.
 
 ---
 
 ## The Learning Engine
+
+**Onboarding diagnostic** — New staff complete a short diagnostic on signup that assesses current knowledge and surfaces personalised module recommendations.
 
 **3-stage mastery path per module:**
 
@@ -49,9 +51,11 @@ Venue operators and team leaders get Mission Control — a real-time dashboard s
 | Team mastery grid | Per-staff mastery view across all 40 modules |
 | Compliance tracking | RSA and Food Safety module completion at a glance |
 | AI coaching | GPT-4o-mini-powered coaching messages for underperforming staff |
+| Training programs | Managers configure and assign structured training programs per venue |
 | Multi-venue management | Venue_multi tier supports up to 5 venues, 125 staff |
 | Venue code join | Staff self-join a venue via a 4-digit code; access is granted immediately |
 | Inventory linking | Venue-specific inventory and menu linked to module content |
+| Staff roster panel | Dedicated panel for roster management, invite dispatch, and membership control |
 
 ---
 
@@ -68,6 +72,8 @@ Staff invited to a venue via venue code receive sponsored access equivalent to P
 
 Interactive Challenges, the dashboard home, personal progress, and settings are available to all users on every tier at no cost.
 
+Stripe checkout supports promotion codes for discounts at the point of purchase.
+
 ---
 
 ## Current State (June 2026)
@@ -75,11 +81,14 @@ Interactive Challenges, the dashboard home, personal progress, and settings are 
 - Live at [servebyexample.co](https://servebyexample.co)
 - 40 training modules deployed across all tiers
 - Interactive Challenges (5 formats) launched May 2026
-- Mission Control live for venue managers with mastery grid and AI coaching
+- Mission Control live for venue managers with mastery grid, AI coaching, and training programs
+- Onboarding diagnostic live — new users receive personalised module recommendations on signup
 - 38-cocktail reference library available to all staff
 - 101 Knowledge Base (quick-reference hospitality knowledge) available to all staff
+- SOP Toolkit — free downloadable resource for venue operators; available at `/resources/sop-toolkit` and acts as a lead magnet into the platform
 - Language switching — multi-language support via translation API
-- Stripe billing integrated — monthly and annual pricing, instant access on checkout
+- Stripe billing integrated — monthly and annual pricing, promotion code support, instant access on checkout
+- Geo-blocking active for restricted regions
 
 ---
 
@@ -90,10 +99,11 @@ Production-grade and security-hardened:
 - **Next.js 15** (App Router) on **Cloudflare Pages** via OpenNext — global edge delivery
 - **Supabase** — Postgres with row-level security; every data access respects auth boundaries
 - **OpenAI GPT-4o-mini** — scenario evaluation, manager coaching, language translation
-- **Stripe** — subscription billing with webhook-confirmed access provisioning
+- **Stripe** — subscription billing with webhook-driven state machine confirming access provisioning
 - Server-side answer validation — quiz scores are validated on the server, not client-trusted
-- Rate limiting on all public API routes
-- Session displacement — only one active session per staff member
+- Rate limiting on all public-facing API routes
+- Session displacement — only one active session per staff member per purchase
+- Geo-blocking — access restricted by region where required
 
 ---
 

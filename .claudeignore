@@ -4,27 +4,25 @@ node_modules/
 .git/
 worktrees/
 
-# Lock files (Essential to ignore)
+# Lock files
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
-# Large Source Data (Use Supabase instead)
+# Large Source Data (pure data blobs — referenced via CLAUDE.md instead)
 lib/scaffolded-questions.ts
 lib/cocktails.ts
 lib/knowledge-base.ts
 
-# The Monolith (Optional: Ignore to save tokens, provide snippets manually)
-# app/manager/ManagerControlCenter.tsx
+# The Monolith (uncomment to save tokens; provide snippets manually when needed)
+# components/mission-control/ManagerControlCenter.tsx
 
-# Supabase
+# Supabase migrations (large SQL files; schema knowledge lives in CLAUDE.md)
 supabase/migrations/
 
-# Assets & Docs
+# Binary assets
 public/
 *.png
 *.jpg
 *.jpeg
 *.pdf
-*.md
-!docs/v3-architecture.md  # Keep the V3 anchor file visible!

@@ -28,10 +28,38 @@ export async function GET(request: NextRequest) {
         });
       }
 
-      // Support ?next= for portal-specific redirects (e.g. management Google sign-in)
       const next = searchParams.get("next") ?? "/dashboard";
       const safePath = next.startsWith("/") ? next : "/dashboard";
-      return NextResponse.redirect(`${origin}${safePath}`);
+
+      // session_id can arrive as a top-level callback param (Google OAuth path)
+      // or embedded inside the next param (email confirmation path).
+      const stripeSessionId = searchParams.get("session_id");
+      const nextQuery = safePath.includes("?") ? safePath.split("?")[1] : "";
+      const embeddedSessionId = new URLSearchParams(nextQuery).get("session_id");
+      const finalSessionId = stripeSessionId ?? embeddedSessionId;
+
+      // Management portal redirects bypass the onboarding check — managers
+      // don't go through the staff onboarding wizard.
+      const isMgmtFlow = safePath.startsWith("/management");
+
+      let redirectTo: string;
+      if (isMgmtFlow) {
+        redirectTo = safePath;
+      } else {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("onboarding_completed")
+          .eq("id", data.user.id)
+          .single();
+        redirectTo = profile?.onboarding_completed ? "/dashboard" : "/onboarding";
+      }
+
+      if (finalSessionId) {
+        const sep = redirectTo.includes("?") ? "&" : "?";
+        redirectTo += `${sep}checkout=success&session_id=${finalSessionId}`;
+      }
+
+      return NextResponse.redirect(`${origin}${redirectTo}`);
     }
   }
 

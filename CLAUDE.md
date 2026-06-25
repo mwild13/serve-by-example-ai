@@ -75,8 +75,16 @@ All styling uses CSS custom properties defined in `app/globals.css`. **Do not in
 app/                            Next.js App Router pages and API routes
 components/
   DashboardShell.tsx            Main authenticated staff UI (client component)
+  ErrorLogger.tsx               Client-side error boundary and logger
+  HeroSection.tsx               Homepage hero section
+  HeroPlayableSandbox.tsx       Interactive sandbox embedded in hero
+  LanguageRuntimeTranslator.tsx Runtime language translation wrapper
+  MenuDrillGenerator.tsx        Menu drill generation UI
   Navbar.tsx                    Marketing site nav with mega-menu dropdowns
   Footer.tsx                    5-column marketing footer
+  ProductTour.tsx               Interactive product tour component
+  SectionSubNav.tsx             Reusable section sub-navigation
+  StickyDemoCTA.tsx             Sticky demo call-to-action banner
   learning-engine/              All staff-facing training UI
     PreShiftHome.tsx            Dashboard home tab
     DynamicModuleNav.tsx        Module browser and stage routing
@@ -86,16 +94,38 @@ components/
     ArenaPage.tsx               AI Arena (GPT-4o-mini roleplay evaluation)
     ChallengesPage.tsx          Interactive mini-games (5 tap-based formats)
     DiagnosticFlow.tsx          Onboarding diagnostic
+    DashboardTrainer.tsx        In-dashboard training prompt component
     ProgressOverview.tsx        Staff progress view
     BadgeStreakSection.tsx       Achievement display
+    BadgeProgressRing.tsx       Badge progress ring animation
+    BadgesView.tsx              Full badges gallery view
     RecommenderCard.tsx         Module recommendation widget
     MobileDashboardV3.tsx       Mobile-specific dashboard layout
+    MobileLearnHub.tsx          Mobile learning hub wrapper
   mission-control/              Manager-facing tools
-    ManagerControlCenter.tsx    Main manager dashboard
+    ManagerControlCenter.tsx    Main manager dashboard (~3,965 lines)
+    StaffRosterPanel.tsx        Extracted staff roster panel component
+    CoachingDrawer.tsx          AI coaching slide-out drawer
+    WorkspaceHeader.tsx         Manager workspace top header
+    manager-ui.tsx              Shared manager UI primitives
   knowledge-base/
     CocktailLibrary.tsx         38-cocktail reference library (lazy-loaded)
     KnowledgeBase.tsx           101 Knowledge Base (lazy-loaded)
+  toolkit/
+    SopGeneratorPreview.tsx     SOP generator preview panel
+    SopPreviewDocument.tsx      SOP formatted document preview
   ui/                           Shared primitives
+    BrowserMockup.tsx           Browser chrome mockup for demos
+    CompareMatrix.tsx           Feature comparison matrix
+    DashboardMockup.tsx         Dashboard screenshot mockup
+    LanguageSwitcher.tsx        Language selection UI
+    ROICalculator.tsx           Interactive ROI calculator
+    SectionHeading.tsx          Reusable section heading component
+    SessionRefresher.tsx        Client-side session keepalive (polls every 5 min)
+    SignOutButton.tsx            Auth sign-out button
+    Skeletons.tsx               Loading skeleton components
+    WaitlistSection.tsx         Waitlist signup section
+
 lib/
   mastery.ts                    ELO scoring, streak tracking, spaced repetition, mastery flags
   session.ts                    Session displacement + tier access control
@@ -106,12 +136,18 @@ lib/
   badges.ts                     Badge definitions and award logic
   diagnostic-engine.ts          Onboarding diagnostic logic
   module-navigator.ts           Module progression helpers
+  daily-focus.ts                Daily focus/recommendation logic
   rate-limit.ts                 Rate limiting for public API routes
   geo-config.ts                 Geo-blocking configuration
+  supabase.ts                   Browser Supabase client factory
+  supabase-server.ts            Server Supabase client + getUserFromRequest helper
+  supabase-admin.ts             Admin Supabase client (bypasses RLS)
   management/
-    service.ts                  Venue and staff management service layer
+    service.ts                  Venue and staff management service layer (~896 lines)
     types.ts                    Manager-specific types
-supabase/                       SQL schema migration files
+    seed.ts                     Management data seed helpers
+
+supabase/migrations/            SQL schema migration files (chronological)
 ```
 
 ## Coding Conventions
@@ -181,17 +217,45 @@ To add a new learning view:
 
 ```
 app/api/
-  arena/evaluate/         GPT-4o-mini scenario evaluation
-  billing/                Stripe checkout, webhook, session link
-  coach/                  AI coaching messages
-  demo/evaluate/          Public demo evaluation (no auth)
-  evaluate/               General scenario evaluation
-  management/             Venue, staff, coach, inventory, membership routes
-  profile/update-name/    Profile name update
-  session/stamp/          Session displacement stamp
-  training/               save/, progress/, modules/, diagnostic/
-  translate/              Language translation
-  verify-session/         Stripe checkout session verification
+  arena/evaluate/               GPT-4o-mini scenario evaluation
+  billing/
+    checkout/                   Stripe checkout session creation
+    link-pending/               Link a pending purchase to a signed-in user
+    webhook/                    Stripe webhook handler (billing state machine)
+  book-call/                    Book a sales call lead capture
+  coach/                        AI coaching messages
+  contact/                      Contact form submission
+  demo/
+    evaluate/                   Public demo evaluation (no auth)
+    generate-drills/            Public menu drill generation (no auth)
+  evaluate/                     General scenario evaluation
+  geo/                          Geo-block check endpoint
+  management/
+    coach/                      AI coaching for managers
+    inventory/                  Venue inventory management
+    join-venue/                 Staff join a venue via code
+    memberships/                Venue membership CRUD
+    snapshot/                   Team performance snapshot
+    staff/                      Staff management (list, remove)
+    test-invite-email/          Test invite email dispatch
+    training-programs/          Training program management
+    venues/                     Venue CRUD
+  profile/update-name/          Profile name update
+  roi/
+    email/                      Send ROI report via email
+  session/stamp/                Session displacement stamp
+  toolkit-capture/              SOP toolkit lead capture
+  toolkit-open/                 SOP toolkit open tracking
+  training/
+    save/                       Save training progress
+    progress/                   Fetch training progress
+    modules/[moduleId]/         Module data
+    modules/[moduleId]/scenarios/ Module scenarios
+    diagnostic/start/           Start onboarding diagnostic
+    diagnostic/submit/          Submit diagnostic answer
+  translate/                    Language translation
+  unsubscribe/                  Email unsubscribe handler
+  verify-session/               Stripe checkout session verification
 ```
 
 ## Key File Locations
@@ -207,11 +271,29 @@ app/api/
 | Shared UI primitives | `components/ui/` |
 | Manager console | `components/mission-control/` |
 | Knowledge base | `components/knowledge-base/` |
+| SOP toolkit components | `components/toolkit/` |
 | Mastery engine | `lib/mastery.ts` |
 | Tier + session logic | `lib/session.ts` |
 | Verify question bank | `lib/verify-questions.ts` |
 | All training API routes | `app/api/training/` |
-| SQL migrations | `supabase/` |
+| SQL migrations | `supabase/migrations/` |
+
+## App Pages (Authenticated / Utility)
+
+| Route | Purpose |
+|-------|---------|
+| `/dashboard` | Staff learning dashboard |
+| `/dashboard/badges` | Full badge gallery |
+| `/management/dashboard` | Manager Mission Control |
+| `/management/login` | Manager-specific login |
+| `/login` | Auth login |
+| `/auth/callback` | Supabase OAuth callback |
+| `/onboarding` | New user onboarding flow |
+| `/payment-success` | Post-Stripe checkout confirmation |
+| `/session-conflict` | One-device enforcement conflict page |
+| `/reset-password` | Password reset |
+| `/geo-block` | Geo-restricted access page |
+| `/restricted` | General access-denied page |
 
 ## Marketing Pages
 
@@ -223,14 +305,27 @@ Public-facing marketing site lives in `app/` alongside the app routes:
 | `/platform` | Platform overview |
 | `/platform/challenges` | Interactive Challenges marketing page |
 | `/solutions` | Solutions by venue type |
+| `/solutions/fine-dining` | Fine dining vertical |
+| `/solutions/franchise-systems` | Franchise systems vertical |
+| `/solutions/hotel-fb` | Hotel F&B vertical |
+| `/solutions/multi-venue` | Multi-venue groups vertical |
+| `/solutions/pub-groups` | Pub groups vertical |
 | `/for-venues` | Venue operator landing |
 | `/pricing` | Pricing (Stripe checkout) |
 | `/demo` | Public AI demo |
+| `/demo/complaint-master` | Complaint handling demo |
 | `/how-it-works` | How It Works |
 | `/roi` | ROI Calculator |
-| `/case-studies` | Case Studies |
+| `/resources` | Resources hub |
+| `/resources/sop-toolkit` | Free SOP toolkit lead magnet |
+| `/toolkit` | SOP toolkit landing page |
+| `/toolkit/success` | Post-toolkit-download success page |
+| `/roadmap` | Public product roadmap |
 | `/security` | Security & Safety |
 | `/about` | About |
 | `/contact` | Contact |
+| `/privacy` | Privacy Policy |
+| `/terms` | Terms of Service |
+| `/cookies` | Cookie Policy |
 
 Shared marketing layout components: `components/Navbar.tsx` (mega-menu dropdowns) and `components/Footer.tsx` (5-column footer).
