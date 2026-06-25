@@ -81,53 +81,60 @@ export default function Home() {
         <VenueMarquee />
 
         {/* ── Trust Stats ──────────────────────────── */}
-        <section className="section trust-section" style={{ background: "transparent", padding: "1rem 0" }}>
+        <section className="section trust-section" style={{ background: "transparent", padding: "2rem 0" }}>
           <div className="container">
-            <div className="arch-blueprint" style={{ background: "white", padding: "2rem", borderRadius: "4px", border: "1px solid var(--line)" }}>
-              <div style={{ fontSize: "10px", color: "#6b7280", letterSpacing: "0.12em", marginBottom: "1.5rem", textTransform: "uppercase", fontWeight: 600 }}>
+            <div className="arch-blueprint" style={{ background: "white", padding: "2.5rem 2rem", borderRadius: "12px", border: "1px solid var(--mkt-border-subtle, #e5e7eb)", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+              <div style={{ fontSize: "11px", color: "#6b7280", letterSpacing: "0.15em", marginBottom: "2rem", textTransform: "uppercase", fontWeight: 700 }}>
                 System Specifications
               </div>
-              <div className="trust-stats">
-                <article className="stat-card" style={{ display: "flex", flexDirection: "column", gap: "4px", textAlign: "left" }}>
-                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "#1b4332", lineHeight: 1 }}>
-                    3<span style={{ fontSize: "1.75rem", marginLeft: "2px", color: "var(--mkt-gold-500)" }}>×</span>
+
+              {/* Responsive CSS Grid to force perfect card balance */}
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                gap: "1.5rem"
+              }}>
+                <article className="stat-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "8px", border: "1px solid #f3f4f6", background: "#fff" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "#1b4332", lineHeight: 1, marginBottom: "0.5rem" }}>
+                    3<span style={{ fontSize: "1.75rem", marginLeft: "2px", color: "var(--mkt-gold-500, #b79438)" }}>×</span>
                   </div>
-                  <div style={{ fontSize: "0.9rem", color: "#374151", fontWeight: 600, lineHeight: 1.35 }}>
+                  <div style={{ fontSize: "0.9rem", color: "#374151", fontWeight: 600, lineHeight: 1.4 }}>
                     Faster Onboarding<br/>
                     <em style={{ fontSize: "0.8rem", color: "#b79438", fontStyle: "normal", fontWeight: 500 }}>6 months to 6 weeks</em>
                   </div>
                 </article>
 
-                <article className="stat-card" style={{ display: "flex", flexDirection: "column", gap: "4px", textAlign: "left" }}>
-                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "#1b4332", lineHeight: 1 }}>
-                    100<span style={{ fontSize: "1.75rem", marginLeft: "2px", color: "var(--mkt-gold-500)" }}>+</span>
+                <article className="stat-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "8px", border: "1px solid #f3f4f6", background: "#fff" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "#1b4332", lineHeight: 1, marginBottom: "0.5rem" }}>
+                    100<span style={{ fontSize: "1.75rem", marginLeft: "2px", color: "var(--mkt-gold-500, #b79438)" }}>+</span>
                   </div>
-                  <div style={{ fontSize: "0.9rem", color: "#374151", fontWeight: 600, lineHeight: 1.35 }}>
+                  <div style={{ fontSize: "0.9rem", color: "#374151", fontWeight: 600, lineHeight: 1.4 }}>
                     Learning Modules<br/>
                     <em style={{ fontSize: "0.8rem", color: "#b79438", fontStyle: "normal", fontWeight: 500 }}>&amp; Scenarios</em>
                   </div>
                 </article>
 
-                <article className="stat-card" style={{ display: "flex", flexDirection: "column", gap: "4px", textAlign: "left" }}>
-                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "#1b4332", lineHeight: 1 }}>
+                <article className="stat-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "8px", border: "1px solid #f3f4f6", background: "#fff" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "#1b4332", lineHeight: 1, marginBottom: "0.5rem" }}>
                     19
                   </div>
-                  <div style={{ fontSize: "0.9rem", color: "#374151", fontWeight: 600, lineHeight: 1.35 }}>
+                  <div style={{ fontSize: "0.9rem", color: "#374151", fontWeight: 600, lineHeight: 1.4 }}>
                     Languages Supported<br/>
                     <em style={{ fontSize: "0.8rem", color: "#b79438", fontStyle: "normal", fontWeight: 500 }}>Aus Training Ready</em>
                   </div>
                 </article>
 
-                <article className="stat-card" style={{ display: "flex", flexDirection: "column", gap: "4px", textAlign: "left" }}>
-                  <div style={{ fontSize: "2rem", fontWeight: 800, color: "#1b4332", lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: "2px" }}>
+                <article className="stat-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "8px", border: "1px solid #f3f4f6", background: "#fff" }}>
+                  <div style={{ fontSize: "2.25rem", fontWeight: 800, color: "#1b4332", lineHeight: 1.1, letterSpacing: "-0.03em", marginBottom: "0.5rem" }}>
                     GPT-4o-mini
                   </div>
-                  <div style={{ fontSize: "0.9rem", color: "#374151", fontWeight: 600, lineHeight: 1.35 }}>
+                  <div style={{ fontSize: "0.9rem", color: "#374151", fontWeight: 600, lineHeight: 1.4 }}>
                     5-Dimension AI<br/>
                     <em style={{ fontSize: "0.8rem", color: "#b79438", fontStyle: "normal", fontWeight: 500 }}>Evaluation Engine</em>
                   </div>
                 </article>
               </div>
+
             </div>
           </div>
         </section>
@@ -144,7 +151,7 @@ export default function Home() {
             <div className="bento-grid" style={{ marginTop: "2.5rem" }}>
 
               {/* Dark col-6 — Frontline Staff */}
-              <div className="bento-card bento-card-dark sbe-span-6 sbe-interactive-hover">
+              <div className="bento-card bento-card-dark sbe-span-6 sbe-interactive-hover mkt-card-sharp">
                 <div>
                   <div style={{ width: "44px", height: "44px", background: "rgba(212,175,55,0.18)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1.25rem", color: "var(--mkt-gold-500)" }}>
                     <IcoZap size={22} />
@@ -156,7 +163,7 @@ export default function Home() {
               </div>
 
               {/* Light col-6 — General Managers */}
-              <div className="bento-card sbe-span-6 sbe-interactive-hover">
+              <div className="bento-card sbe-span-6 sbe-interactive-hover mkt-card-sharp">
                 <div>
                   <div style={{ width: "44px", height: "44px", background: "var(--green-light)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--green)", marginBottom: "1.25rem" }}>
                     <IcoBuilding size={22} />
@@ -168,7 +175,7 @@ export default function Home() {
               </div>
 
               {/* Wide col-12 — Multi-Site Venue Groups */}
-              <div className="bento-card sbe-span-12 sbe-interactive-hover">
+              <div className="bento-card sbe-span-12 sbe-interactive-hover mkt-card-sharp">
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "2rem", alignItems: "flex-start" }}>
                   <div style={{ flex: "1 1 260px" }}>
                     <div style={{ width: "44px", height: "44px", background: "var(--green-light)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--green)", marginBottom: "1.25rem" }}>
