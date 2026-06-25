@@ -116,18 +116,17 @@ export default function HeroSection() {
       <section className="hero" ref={heroRef}>
         <div className="container">
 
-          <h1>Training Software Built for Hospitality</h1>
-          <p className="hero-tagline">From 6 months of onboarding to 6 weeks.</p>
+          <h1>Training Software <br />Built for Hospitality</h1>
 
           <p className="hero-sub" style={{ marginTop: 20 }}>
-            Deploy interactive, scenario-based simulators that get new hires floor-ready without pulling senior managers away from service. Standardise venue guidelines, master cocktail specs, and track team readiness in real-time.
+            From 6 months of onboarding to 6 weeks. Deliver the exact operational standard your best shift manager enforces—without pulling them off the floor.
           </p>
 
           <div className="hero-cta-tiles">
-            <Link href="/demo" className="hero-cta-tile hero-cta-tile-primary">
+            <Link href="/demo" className="hero-cta-tile hero-cta-tile-primary mkt-sharp-btn">
               Explore the Demo
             </Link>
-            <button className="hero-cta-tile hero-cta-tile-secondary" onClick={openModal}>
+            <button className="hero-cta-tile hero-cta-tile-secondary mkt-sharp-btn" onClick={openModal}>
               Book a free 15-min call
             </button>
           </div>

@@ -936,12 +936,12 @@ ul {
 
 .hero h1 {
   font-family: var(--font-heading);
-  font-size: clamp(2.6rem, 6.5vw, 4.4rem);
-  font-weight: 800;
-  line-height: 1.0;
-  letter-spacing: -0.03em;
+  font-size: clamp(48px, 7.5vw, 84px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
   margin-bottom: 30px;
-  color: var(--green-deep);
+  color: var(--text);
 }
 
 .hero-sub {
@@ -16629,4 +16629,64 @@ h1, h2, h3 {
 
 .sbe-mkt-scope .sbe-slider-input::-moz-range-thumb:hover {
   transform: scale(1.2);
+}
+
+/* ── INDUSTRIAL PREMIUM: LIGHT CANVAS UTILITIES ──────────────────────────── */
+
+.mkt-sharp-btn {
+  border-radius: 2px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.mkt-card-sharp {
+  border-radius: 4px !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: none !important;
+}
+
+.navbar--scrolled {
+  background: rgba(245, 242, 233, 0.92) !important;
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line) !important;
+  box-shadow: 0 4px 30px rgba(23, 47, 34, 0.03) !important;
+}
+
+.venue-marquee {
+  width: 100%;
+  overflow: hidden;
+  background: var(--green-deep);
+  padding: 14px 0;
+  border-top: 1px solid var(--text);
+  border-bottom: 1px solid var(--text);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.venue-marquee-track {
+  display: flex;
+  white-space: nowrap;
+  animation: marquee-scroll 32s linear infinite;
+}
+
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.arch-blueprint {
+  border: 1px solid var(--text) !important;
+  padding: 24px 32px;
+  border-radius: 2px;
+  background: var(--surface) !important;
+}
+
+.zero-risk-block {
+  width: 100%;
+  background: var(--green-light);
+  border-left: 3px solid var(--green);
+  border-radius: 3px;
+  padding: 16px 20px;
+  margin: 24px 0;
 }

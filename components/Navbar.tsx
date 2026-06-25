@@ -131,6 +131,13 @@ export default function Navbar({
     };
   }, []);
 
+  useEffect(() => {
+    const header = document.querySelector('.navbar') as HTMLElement;
+    const onScroll = () => header?.classList.toggle('navbar--scrolled', window.scrollY > 50);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
     <>
       <header className="navbar" ref={headerRef}>

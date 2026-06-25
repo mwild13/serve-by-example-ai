@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import ROICalculator from "@/components/ui/ROICalculator";
 import CompareMatrix from "@/components/ui/CompareMatrix";
 import HeroSection from "@/components/HeroSection";
+import VenueMarquee from "@/components/VenueMarquee";
 // ── SVG Icons ─────────────────────────────────────────────────────────────────
 
 function IcoUsers({ size = 22 }: { size?: number }) {
@@ -78,22 +79,33 @@ export default function Home() {
         {/* ── Hero ─────────────────────────────────── */}
         <HeroSection />
 
+        <VenueMarquee />
+
         {/* ── Trust Stats ──────────────────────────── */}
         <section className="section trust-section trust-section-green">
           <div className="container">
-            <div className="trust-stats">
-              <article className="stat-card stat-card-green">
-                <div className="stat-value-green">3<span className="stat-value-unit">×</span></div>
-                <div className="stat-label-green">Faster Onboarding<br/><em className="stat-accent">6 months to 6 weeks</em></div>
-              </article>
-              <article className="stat-card stat-card-green">
-                <div className="stat-value-green">100<span className="stat-value-unit">+</span></div>
-                <div className="stat-label-green">Learning Modules<br/><em className="stat-accent">&amp; Scenarios</em></div>
-              </article>
-              <article className="stat-card stat-card-green">
-                <div className="stat-value-green">19</div>
-                <div className="stat-label-green">Languages Supported<br/><em className="stat-accent">Aus Training Ready</em></div>
-              </article>
+            <div className="arch-blueprint">
+              <div style={{ fontSize: "10px", opacity: 0.7, letterSpacing: "0.12em", marginBottom: "8px", textTransform: "uppercase" }}>
+                System Specifications
+              </div>
+              <div className="trust-stats">
+                <article className="stat-card stat-card-green">
+                  <div className="stat-value-green">3<span className="stat-value-unit">×</span></div>
+                  <div className="stat-label-green">Faster Onboarding<br/><em className="stat-accent">6 months to 6 weeks</em></div>
+                </article>
+                <article className="stat-card stat-card-green">
+                  <div className="stat-value-green">100<span className="stat-value-unit">+</span></div>
+                  <div className="stat-label-green">Learning Modules<br/><em className="stat-accent">&amp; Scenarios</em></div>
+                </article>
+                <article className="stat-card stat-card-green">
+                  <div className="stat-value-green">19</div>
+                  <div className="stat-label-green">Languages Supported<br/><em className="stat-accent">Aus Training Ready</em></div>
+                </article>
+                <article className="stat-card stat-card-green">
+                  <div className="stat-value-green" style={{ fontSize: "0.95rem", lineHeight: 1.2 }}>GPT-4o-mini</div>
+                  <div className="stat-label-green">5-Dimension AI<br/><em className="stat-accent">Evaluation Engine</em></div>
+                </article>
+              </div>
             </div>
           </div>
         </section>
@@ -164,6 +176,67 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ── Founder Story ────────────────────────── */}
+        <section className="section section-alt" style={{ border: "1px solid var(--line)" }}>
+          <div className="container">
+            <div style={{ maxWidth: "880px", margin: "0 auto" }}>
+              {/* Photo + text row */}
+              <div className="founder-row">
+                {/* Left: photo + name */}
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
+                  <Image
+                    src="/24 May Jpg's/Founder.png"
+                    alt="Mitch, Founder of Serve By Example"
+                    width={140}
+                    height={140}
+                    style={{ borderRadius: "4px", objectFit: "cover", width: "140px", height: "140px", display: "block" }}
+                  />
+                  <span style={{ marginTop: "0.625rem", fontSize: "0.875rem", fontWeight: 700, color: "var(--text-soft)", textAlign: "center" }}>Mitch</span>
+                </div>
+                {/* Right: eyebrow + heading + text */}
+                <div className="founder-text">
+                  <span className="eyebrow">Built From Experience</span>
+                  <h2 style={{ marginBottom: "1rem" }}>Built by a 15-year hospitality veteran.</h2>
+                  <p style={{ fontSize: "1.125rem", color: "#374151", lineHeight: 1.7, margin: 0 }}>
+                    Serve By Example was created and is managed by a real hospitality professional with over 15 years of experience across Australian bars, pubs and venues. Not built in a boardroom, built behind the bar.
+                  </p>
+                </div>
+              </div>
+              <div style={{ display: "flex", justifyContent: "center", gap: "3rem", flexWrap: "wrap", marginBottom: "2.5rem" }}>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "#1b4332", lineHeight: 1 }}>15+</div>
+                  <div style={{ fontSize: "0.875rem", color: "#6b7280", marginTop: "6px", fontWeight: 500 }}>Years in Australian Hospitality</div>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "#1b4332", lineHeight: 1 }}>100s</div>
+                  <div style={{ fontSize: "0.875rem", color: "#6b7280", marginTop: "6px", fontWeight: 500 }}>Staff Trained &amp; Managed</div>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "#1b4332", lineHeight: 1 }}>40+</div>
+                  <div style={{ fontSize: "0.875rem", color: "#6b7280", marginTop: "6px", fontWeight: 500 }}>Modules Built for Hospitality</div>
+                </div>
+              </div>
+              <blockquote style={{
+                margin: "0 auto",
+                maxWidth: "600px",
+                padding: "1.5rem 2rem",
+                background: "white",
+                border: "1.5px solid #d1fae5",
+                borderLeft: "4px solid #2d6a4f",
+                borderRadius: "12px",
+                textAlign: "left",
+              }}>
+                <p style={{ margin: 0, fontSize: "1.05rem", fontStyle: "italic", color: "#1b4332", lineHeight: 1.65, fontWeight: 500 }}>
+                  &ldquo;I built the training tool I always wished I had, one that works for real venues, real staff, and the real pressure of a busy service.&rdquo;
+                </p>
+                <footer style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: "#6b7280", fontStyle: "normal", fontWeight: 600 }}>
+                  Founder, Serve By Example, Australia
+                </footer>
+              </blockquote>
+            </div>
+          </div>
+        </section>
+
         {/* ── One platform. Two outcomes. ───────────── */}
         <section className="section section-ecosystem">
           <div className="container">
@@ -219,7 +292,7 @@ export default function Home() {
         </section>
 
         {/* ── Product Preview (Modules + Mobile) ─── */}
-        <section className="section section-warm">
+        <section id="feature-preview" className="section section-warm">
           <div className="container">
             <div className="solution-grid">
 
@@ -374,6 +447,10 @@ export default function Home() {
                 </div>
               ))}
             </div>
+            <div className="zero-risk-block" style={{ maxWidth: 860, margin: "1.75rem auto 0" }}>
+              <strong>Zero risk to your floor operations.</strong>
+              <p style={{ margin: "0.4rem 0 0" }}>If your team&rsquo;s training engagement doesn&rsquo;t noticeably increase in the first 14 days, you won&rsquo;t be charged.</p>
+            </div>
             <div style={{ textAlign: "center", marginTop: "1.75rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem" }}>
               <Link href="/pricing" className="btn btn-primary">View full pricing</Link>
               <Link href="/demo" style={{ fontSize: "0.8rem", color: "var(--text-soft)", textDecoration: "underline", textUnderlineOffset: "3px" }}>or explore the demo free</Link>
@@ -471,67 +548,6 @@ export default function Home() {
                   <p className="faq-answer">{a}</p>
                 </details>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── Founder Story ────────────────────────── */}
-        <section className="section section-alt">
-          <div className="container">
-            <div style={{ maxWidth: "880px", margin: "0 auto" }}>
-              {/* Photo + text row */}
-              <div className="founder-row">
-                {/* Left: circular photo + name */}
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-                  <Image
-                    src="/24 May Jpg's/Founder.png"
-                    alt="Mitch, Founder of Serve By Example"
-                    width={140}
-                    height={140}
-                    style={{ borderRadius: "50%", objectFit: "cover", width: "140px", height: "140px", display: "block" }}
-                  />
-                  <span style={{ marginTop: "0.625rem", fontSize: "0.875rem", fontWeight: 700, color: "var(--text-soft)", textAlign: "center" }}>Mitch</span>
-                </div>
-                {/* Right: eyebrow + heading + text */}
-                <div className="founder-text">
-                  <span className="eyebrow">Built From Experience</span>
-                  <h2 style={{ marginBottom: "1rem" }}>Created by someone who&rsquo;s lived it.</h2>
-                  <p style={{ fontSize: "1.125rem", color: "#374151", lineHeight: 1.7, margin: 0 }}>
-                    Serve By Example was created and is managed by a real hospitality professional with over 15 years of experience across Australian bars, pubs and venues. Not built in a boardroom, built behind the bar.
-                  </p>
-                </div>
-              </div>
-              <div style={{ display: "flex", justifyContent: "center", gap: "3rem", flexWrap: "wrap", marginBottom: "2.5rem" }}>
-                <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "#1b4332", lineHeight: 1 }}>15+</div>
-                  <div style={{ fontSize: "0.875rem", color: "#6b7280", marginTop: "6px", fontWeight: 500 }}>Years in Australian Hospitality</div>
-                </div>
-                <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "#1b4332", lineHeight: 1 }}>100s</div>
-                  <div style={{ fontSize: "0.875rem", color: "#6b7280", marginTop: "6px", fontWeight: 500 }}>Staff Trained &amp; Managed</div>
-                </div>
-                <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "#1b4332", lineHeight: 1 }}>40+</div>
-                  <div style={{ fontSize: "0.875rem", color: "#6b7280", marginTop: "6px", fontWeight: 500 }}>Modules Built for Hospitality</div>
-                </div>
-              </div>
-              <blockquote style={{
-                margin: "0 auto",
-                maxWidth: "600px",
-                padding: "1.5rem 2rem",
-                background: "white",
-                border: "1.5px solid #d1fae5",
-                borderLeft: "4px solid #2d6a4f",
-                borderRadius: "12px",
-                textAlign: "left",
-              }}>
-                <p style={{ margin: 0, fontSize: "1.05rem", fontStyle: "italic", color: "#1b4332", lineHeight: 1.65, fontWeight: 500 }}>
-                  &ldquo;I built the training tool I always wished I had, one that works for real venues, real staff, and the real pressure of a busy service.&rdquo;
-                </p>
-                <footer style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: "#6b7280", fontStyle: "normal", fontWeight: 600 }}>
-                  Founder, Serve By Example, Australia
-                </footer>
-              </blockquote>
             </div>
           </div>
         </section>
