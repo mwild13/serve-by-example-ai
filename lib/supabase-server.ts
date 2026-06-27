@@ -15,9 +15,27 @@ function getSupabaseEnv() {
   return { supabaseUrl, supabaseAnonKey };
 }
 
+function getCookieDomain(): string | undefined {
+  // On Cloudflare Pages preview (*.pages.dev), PSL cookie rules prevent setting
+  // cookies on arbitrary domains. Omit domain so browser uses exact host.
+  // On production (servebyexample.co), use wildcard for cross-subdomain sharing.
+  // On localhost, omit domain for local testing.
+  if (typeof window === "undefined" && process.env.NODE_ENV === "production") {
+    const host = process.env.VERCEL_URL || process.env.CF_PAGES_URL || "";
+    if (host.includes(".pages.dev") || host.includes("localhost")) {
+      return undefined;
+    }
+    // Production domain
+    return ".servebyexample.co";
+  }
+  // Client-side or non-production: omit domain
+  return undefined;
+}
+
 export async function createSupabaseServerClient() {
   const { supabaseUrl, supabaseAnonKey } = getSupabaseEnv();
   const cookieStore = await cookies();
+  const cookieDomain = getCookieDomain();
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
@@ -35,7 +53,7 @@ export async function createSupabaseServerClient() {
       },
     },
     cookieOptions: {
-      domain: ".servebyexample.co",
+      domain: cookieDomain,
       path: "/",
       sameSite: "lax" as const,
       secure: true,
@@ -110,6 +128,7 @@ export function createSupabaseMiddlewareClient(
   response: NextResponse,
 ) {
   const { supabaseUrl, supabaseAnonKey } = getSupabaseEnv();
+  const cookieDomain = getCookieDomain();
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
@@ -123,7 +142,7 @@ export function createSupabaseMiddlewareClient(
       },
     },
     cookieOptions: {
-      domain: ".servebyexample.co",
+      domain: cookieDomain,
       path: "/",
       sameSite: "lax" as const,
       secure: true,
