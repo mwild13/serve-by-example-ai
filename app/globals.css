@@ -13323,13 +13323,15 @@ body {
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
-  padding: 0 28px;
+  padding: 0 28px 20px 28px;
+  align-items: start;
 }
 
 @media (min-width: 1024px) {
   .mcc-overview-grid {
     grid-template-columns: 1fr 340px;
     gap: 24px;
+    padding: 0 28px 24px 28px;
   }
 }
 
@@ -13338,12 +13340,14 @@ body {
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
+  padding-bottom: 20px;
 }
 
 @media (min-width: 1024px) {
   .mcc-secondary-grid {
     grid-template-columns: 1fr 1fr;
     gap: 24px;
+    padding-bottom: 24px;
   }
 }
 
