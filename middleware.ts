@@ -15,8 +15,8 @@ function buildCSP(nonce: string): string {
     "img-src 'self' data: blob: https:",
     // Fonts: self-hosted via next/font — no external CDN needed
     "font-src 'self'",
-    // Fetch/XHR/WebSocket: own API routes + Supabase + Stripe
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com",
+    // Fetch/XHR/WebSocket: own API routes + Supabase + Stripe + Google Analytics
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://www.google-analytics.com https://www.google.com",
     // Iframes: Stripe payment elements only
     "frame-src https://js.stripe.com https://*.stripe.com",
     // Prevent this site being embedded in any iframe (clickjacking)

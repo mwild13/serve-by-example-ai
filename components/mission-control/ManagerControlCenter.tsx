@@ -33,6 +33,8 @@ import {
   MasteryMicroGrid,
 } from "./manager-ui";
 import { WorkspaceHeader } from "./WorkspaceHeader";
+import { ManagementTopbar } from "./ManagementTopbar";
+import { ActionDrawer } from "./ActionDrawer";
 
 const CoachingDrawer = lazy(() => import("./CoachingDrawer"));
 import StaffRosterPanel from "./StaffRosterPanel";
@@ -126,13 +128,6 @@ const STAFF_ROLE_OPTIONS: StaffRole[] = [
 const EMPTY_ACTION_MESSAGE =
   "Run supabase/management_schema.sql in Supabase, then reload this page to switch from seeded data to live manager data.";
 
-function getActionSection(actionId: QuickActionId | null): ManagerSection | null {
-  if (!actionId) {
-    return null;
-  }
-
-  return QUICK_ACTIONS.find((action) => action.id === actionId)?.section ?? null;
-}
 
 // ─────────────────────────────────────────────
 // Circular compliance ring (Roles section)
@@ -188,20 +183,6 @@ function MgrSparkline({ data, w = 88, h = 28, color = "#1E5A3C" }: {
       <path d={path} fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
       <circle cx={last[0]} cy={last[1]} r="2.5" fill={color} />
     </svg>
-  );
-}
-
-function MgrHealthCard({ score, service, product, sales }: {
-  score: number; service: number; product: number; sales: number;
-}) {
-  return (
-    <div className="mcc-health-card">
-      <div className="mcc-health-lbl">Venue Health Score</div>
-      <div className="mcc-health-score">{score > 0 ? score : "–"}<em>/100</em></div>
-      <div className="mcc-health-breakdown">
-        Service <b>{service > 0 ? service : "–"}</b> · Product <b>{product > 0 ? product : "–"}</b> · Sales <b>{sales > 0 ? sales : "–"}</b>
-      </div>
-    </div>
   );
 }
 
@@ -294,6 +275,7 @@ export default function ManagerControlCenter({
   const [selectedStaffId, setSelectedStaffId] = useState("");
   const [coachingDrawerOpen, setCoachingDrawerOpen] = useState(false);
   const [activeAction, setActiveAction] = useState<QuickActionId | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
   const [staffForm, setStaffForm] = useState<NewStaffPayload>({
     name: "",
     role: "New Staff",
@@ -424,6 +406,13 @@ export default function ManagerControlCenter({
       setActiveSection("overview");
     }
   }, [activeSection]);
+
+  // Reset dirty state when drawer opens/closes
+  useEffect(() => {
+    if (!activeAction) {
+      setIsDirty(false);
+    }
+  }, [activeAction]);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -771,11 +760,6 @@ export default function ManagerControlCenter({
 
   function handleSectionChange(nextSection: ManagerSection) {
     setActiveSection(nextSection);
-
-    const actionSection = getActionSection(activeAction);
-    if (actionSection && actionSection !== nextSection) {
-      setActiveAction(null);
-    }
   }
 
   function toggleGroup(label: string) {
@@ -858,6 +842,7 @@ export default function ManagerControlCenter({
       setRequestError("");
       setRequestSuccess(`${program.name} assigned to ${staffMember.name}.`);
       setActiveAction(null);
+      setIsDirty(false);
       return;
     }
 
@@ -908,6 +893,7 @@ export default function ManagerControlCenter({
         setRequestSuccess(requestConfig.success);
       }
       setActiveAction(null);
+      setIsDirty(false);
       setStaffForm({ name: "", role: "New Staff", email: "", sendInvite: false });
       // Note: pendingInviteLink intentionally left set so manager can copy it.
       setInventoryForm({ category: "", name: "" });
@@ -1114,42 +1100,18 @@ export default function ManagerControlCenter({
       </aside>
 
       <section className="ops-workspace">
-        <div className="ops-search-bar">
-          <input
-            ref={searchInputRef}
-            className="ops-search-input"
-            type="search"
-            placeholder="Search staff, scenarios, programs, inventory, reports…"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            aria-label="Global search"
-          />
-          {searchResults.length > 0 && (
-            <ul className="ops-search-results" role="listbox">
-              {searchResults.map((result) => (
-                <li
-                  key={result.id}
-                  className="ops-search-result-item"
-                  role="option"
-                  aria-selected={false}
-                  onClick={() => { handleSectionChange(result.section); setSearchQuery(""); }}
-                >
-                  <span className={`ops-search-cat-badge ops-cat-${result.category}`}>{result.category}</span>
-                  <span className="ops-search-result-label">{result.label}</span>
-                  {result.sublabel ? <span className="ops-search-result-sub">{result.sublabel}</span> : null}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <nav className="ops-breadcrumbs" aria-label="Breadcrumb">
-          {breadcrumbs.map((crumb, index) => (
-            <span key={`${crumb}-${index}`}>
-              {index > 0 ? <em>/</em> : null}
-              {crumb}
-            </span>
-          ))}
-        </nav>
+        <ManagementTopbar
+          breadcrumbs={breadcrumbs}
+          venueName={selectedVenueId ? snapshot.venues.find((v) => v.id === selectedVenueId)?.name ?? "Venue" : "Venue"}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchResults={searchResults}
+          onResultClick={(result) => {
+            handleSectionChange(result.section);
+            setSearchQuery("");
+          }}
+          onActionSelect={setActiveAction}
+        />
 
         {/* Checkout success / webhook processing banner */}
         {checkoutSuccess && subProcessing && (
@@ -1198,302 +1160,321 @@ export default function ManagerControlCenter({
           </div>
         )}
 
-        {((activeAction && getActionSection(activeAction) === activeSection) ||
-          (activeSection === "settings" && (requestError || requestSuccess))) && (
-          <section className="ops-card ops-action-panel">
-            <div className="ops-card-head">
-              <h3>
-                {activeAction === "add-staff"
-                  ? "Add staff member"
-                  : activeAction === "assign-training"
-                    ? "Assign training"
-                  : activeAction === "add-inventory"
-                    ? "Add inventory item"
-                    : activeAction === "create-program"
-                      ? "Create training program"
-                      : "Recent update"}
-              </h3>
-              {activeAction ? (
-                <button type="button" className="btn btn-secondary" onClick={() => setActiveAction(null)}>
-                  Close
-                </button>
-              ) : null}
-            </div>
+        <ActionDrawer
+          isOpen={!!activeAction}
+          onClose={() => setActiveAction(null)}
+          title={
+            activeAction === "add-staff"
+              ? "Add staff member"
+              : activeAction === "assign-training"
+                ? "Assign training"
+              : activeAction === "add-inventory"
+                ? "Add inventory item"
+              : activeAction === "create-program"
+                ? "Create training program"
+              : "Action"
+          }
+          isDirty={isDirty}
+        >
+          {requestSuccess ? <div className="auth-status auth-status-success">{requestSuccess}</div> : null}
+          {requestError ? <div className="auth-status auth-status-error">{requestError}</div> : null}
 
-            {requestSuccess ? <div className="auth-status auth-status-success">{requestSuccess}</div> : null}
-            {requestError ? <div className="auth-status auth-status-error">{requestError}</div> : null}
-
-            {/* Invite link panel – shown after add-staff when an invite link was generated */}
-            {pendingInviteLink && (
-              <div className={`ops-invite-link-panel${pendingInviteLink.emailSent ? " ops-invite-link-panel--sent" : " ops-invite-link-panel--manual"}`}>
-                <div className="ops-invite-link-header">
-                  {pendingInviteLink.emailSent ? (
-                    <><strong>Invite email sent</strong> to {pendingInviteLink.email}</>
-                  ) : (
-                    <><strong>Email not delivered</strong> – SMTP not configured in Supabase.</>
-                  )}
-                </div>
-                {!pendingInviteLink.emailSent && (
-                  <p className="ops-invite-link-hint">
-                    Share this one-time invite link directly with {pendingInviteLink.name}. It expires in 7 days. To enable automatic email delivery, configure SMTP in <strong>Supabase Dashboard → Authentication → Emails</strong>.
-                  </p>
+          {/* Invite link panel – shown after add-staff when an invite link was generated */}
+          {pendingInviteLink && (
+            <div className={`ops-invite-link-panel${pendingInviteLink.emailSent ? " ops-invite-link-panel--sent" : " ops-invite-link-panel--manual"}`}>
+              <div className="ops-invite-link-header">
+                {pendingInviteLink.emailSent ? (
+                  <><strong>Invite email sent</strong> to {pendingInviteLink.email}</>
+                ) : (
+                  <><strong>Email not delivered</strong> – SMTP not configured in Supabase.</>
                 )}
-                <div className="ops-invite-link-row">
-                  <input
-                    className="input ops-invite-link-input"
-                    readOnly
-                    value={pendingInviteLink.link}
-                    onFocus={(e) => e.target.select()}
-                  />
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={() => {
-                      navigator.clipboard.writeText(pendingInviteLink.link).then(() => {
-                        setInviteLinkCopied(true);
-                        setTimeout(() => setInviteLinkCopied(false), 2500);
-                      });
-                    }}
-                  >
-                    {inviteLinkCopied ? "Copied!" : "Copy link"}
-                  </button>
-                </div>
+              </div>
+              {!pendingInviteLink.emailSent && (
+                <p className="ops-invite-link-hint">
+                  Share this one-time invite link directly with {pendingInviteLink.name}. It expires in 7 days. To enable automatic email delivery, configure SMTP in <strong>Supabase Dashboard → Authentication → Emails</strong>.
+                </p>
+              )}
+              <div className="ops-invite-link-row">
+                <input
+                  className="input ops-invite-link-input"
+                  readOnly
+                  value={pendingInviteLink.link}
+                  onFocus={(e) => e.target.select()}
+                />
                 <button
                   type="button"
-                  className="ops-invite-link-dismiss"
-                  onClick={() => setPendingInviteLink(null)}
+                  className="btn btn-primary"
+                  onClick={() => {
+                    navigator.clipboard.writeText(pendingInviteLink.link).then(() => {
+                      setInviteLinkCopied(true);
+                      setTimeout(() => setInviteLinkCopied(false), 2500);
+                    });
+                  }}
                 >
-                  Dismiss
+                  {inviteLinkCopied ? "Copied!" : "Copy link"}
                 </button>
               </div>
-            )}
+              <button
+                type="button"
+                className="ops-invite-link-dismiss"
+                onClick={() => setPendingInviteLink(null)}
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
 
-            {activeAction === "assign-training" && (
-              <form className="ops-action-form" onSubmit={submitAction}>
-                <label className="label">
-                  Staff member
-                  <select
-                    className="input"
-                    value={assignmentForm.staffId}
-                    onChange={(event) =>
-                      setAssignmentForm((current) => ({ ...current, staffId: event.target.value }))
-                    }
-                    required
-                  >
-                    {venueStaff.map((member) => (
-                      <option key={member.id} value={member.id}>
-                        {member.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="label">
-                  Program
-                  <select
-                    className="input"
-                    value={assignmentForm.programId}
-                    onChange={(event) =>
-                      setAssignmentForm((current) => ({ ...current, programId: event.target.value }))
-                    }
-                    required
-                  >
-                    {venuePrograms.map((program) => (
-                      <option key={program.id} value={program.id}>
-                        {program.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <button className="btn btn-primary" type="submit">
-                  Assign now
-                </button>
-              </form>
-            )}
+          {activeAction === "assign-training" && (
+            <form className="ops-action-form" onSubmit={submitAction}>
+              <label className="label">
+                Staff member
+                <select
+                  className="input"
+                  value={assignmentForm.staffId}
+                  onChange={(event) => {
+                    setIsDirty(true);
+                    setAssignmentForm((current) => ({ ...current, staffId: event.target.value }));
+                  }}
+                  required
+                >
+                  {venueStaff.map((member) => (
+                    <option key={member.id} value={member.id}>
+                      {member.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="label">
+                Program
+                <select
+                  className="input"
+                  value={assignmentForm.programId}
+                  onChange={(event) => {
+                    setIsDirty(true);
+                    setAssignmentForm((current) => ({ ...current, programId: event.target.value }));
+                  }}
+                  required
+                >
+                  {venuePrograms.map((program) => (
+                    <option key={program.id} value={program.id}>
+                      {program.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button className="btn btn-primary" type="submit">
+                Assign now
+              </button>
+            </form>
+          )}
 
-            {activeAction === "add-staff" && (
-              <form className="ops-action-form" onSubmit={submitAction}>
-                <label className="label">
-                  Staff name
-                  <input
-                    className="input"
-                    value={staffForm.name}
-                    onChange={(event) => setStaffForm((current) => ({ ...current, name: event.target.value }))}
-                    placeholder="Sarah"
-                    required
-                  />
-                </label>
-                <label className="label">
-                  Role
-                  <select
-                    className="input"
-                    value={staffForm.role}
-                    onChange={(event) =>
-                      setStaffForm((current) => ({ ...current, role: event.target.value as StaffRole }))
-                    }
-                  >
-                    {STAFF_ROLE_OPTIONS.map((role) => (
-                      <option key={role} value={role}>
-                        {role}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="label">
-                  Staff email (optional)
-                  <input
-                    className="input"
-                    type="email"
-                    value={staffForm.email ?? ""}
-                    onChange={(event) =>
-                      setStaffForm((current) => ({ ...current, email: event.target.value }))
-                    }
-                    placeholder="staff@venue.com"
-                  />
-                </label>
-                <label className="ops-inline-checkbox ops-action-span-full">
-                  <input
-                    type="checkbox"
-                    checked={Boolean(staffForm.sendInvite)}
-                    onChange={(event) =>
-                      setStaffForm((current) => ({ ...current, sendInvite: event.target.checked }))
-                    }
-                  />
-                  Send a signup invite email to this staff member
-                </label>
-                <button className="btn btn-primary ops-action-span-full" type="submit" disabled={isSaving}>
-                  {isSaving ? "Saving..." : "Save staff member"}
-                </button>
-              </form>
-            )}
+          {activeAction === "add-staff" && (
+            <form className="ops-action-form" onSubmit={submitAction}>
+              <label className="label">
+                Staff name
+                <input
+                  className="input"
+                  value={staffForm.name}
+                  onChange={(event) => {
+                    setIsDirty(true);
+                    setStaffForm((current) => ({ ...current, name: event.target.value }));
+                  }}
+                  placeholder="Sarah"
+                  required
+                />
+              </label>
+              <label className="label">
+                Role
+                <select
+                  className="input"
+                  value={staffForm.role}
+                  onChange={(event) => {
+                    setIsDirty(true);
+                    setStaffForm((current) => ({ ...current, role: event.target.value as StaffRole }));
+                  }}
+                >
+                  {STAFF_ROLE_OPTIONS.map((role) => (
+                    <option key={role} value={role}>
+                      {role}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="label">
+                Staff email (optional)
+                <input
+                  className="input"
+                  type="email"
+                  value={staffForm.email ?? ""}
+                  onChange={(event) => {
+                    setIsDirty(true);
+                    setStaffForm((current) => ({ ...current, email: event.target.value }));
+                  }}
+                  placeholder="staff@venue.com"
+                />
+              </label>
+              <label className="ops-inline-checkbox ops-action-span-full">
+                <input
+                  type="checkbox"
+                  checked={Boolean(staffForm.sendInvite)}
+                  onChange={(event) => {
+                    setIsDirty(true);
+                    setStaffForm((current) => ({ ...current, sendInvite: event.target.checked }));
+                  }}
+                />
+                Send a signup invite email to this staff member
+              </label>
+              <button className="btn btn-primary ops-action-span-full" type="submit" disabled={isSaving}>
+                {isSaving ? "Saving..." : "Save staff member"}
+              </button>
+            </form>
+          )}
 
-            {activeAction === "add-inventory" && (
-              <form className="ops-action-form" onSubmit={submitAction}>
-                <label className="label">
-                  Category
-                  <input
-                    className="input"
-                    value={inventoryForm.category}
-                    onChange={(event) =>
-                      setInventoryForm((current) => ({ ...current, category: event.target.value }))
-                    }
-                    placeholder="Vodka"
-                    required
-                  />
-                </label>
-                <label className="label">
-                  Product name
-                  <input
-                    className="input"
-                    value={inventoryForm.name}
-                    onChange={(event) => setInventoryForm((current) => ({ ...current, name: event.target.value }))}
-                    placeholder="Grey Goose"
-                    required
-                  />
-                </label>
-                <button className="btn btn-primary" type="submit" disabled={isSaving}>
-                  {isSaving ? "Saving..." : "Save inventory item"}
-                </button>
-              </form>
-            )}
+          {activeAction === "add-inventory" && (
+            <form className="ops-action-form" onSubmit={submitAction}>
+              <label className="label">
+                Category
+                <input
+                  className="input"
+                  value={inventoryForm.category}
+                  onChange={(event) => {
+                    setIsDirty(true);
+                    setInventoryForm((current) => ({ ...current, category: event.target.value }));
+                  }}
+                  placeholder="Vodka"
+                  required
+                />
+              </label>
+              <label className="label">
+                Product name
+                <input
+                  className="input"
+                  value={inventoryForm.name}
+                  onChange={(event) => {
+                    setIsDirty(true);
+                    setInventoryForm((current) => ({ ...current, name: event.target.value }));
+                  }}
+                  placeholder="Grey Goose"
+                  required
+                />
+              </label>
+              <button className="btn btn-primary" type="submit" disabled={isSaving}>
+                {isSaving ? "Saving..." : "Save inventory item"}
+              </button>
+            </form>
+          )}
 
-            {activeAction === "create-program" && (
-              <form className="ops-action-form ops-action-form-wide" onSubmit={submitAction}>
-                <label className="label">
-                  Program name
+          {activeAction === "create-program" && (
+            <form className="ops-action-form ops-action-form-wide" onSubmit={submitAction}>
+              <label className="label">
+                Program name
+                <input
+                  className="input"
+                  value={programForm.name}
+                  onChange={(event) => {
+                    setIsDirty(true);
+                    setProgramForm((current) => ({ ...current, name: event.target.value }));
+                  }}
+                  placeholder="New Bartender Program"
+                  required
+                />
+              </label>
+              <label className="label">
+                Role target
+                <input
+                  className="input"
+                  value={programForm.roleTarget}
+                  onChange={(event) => {
+                    setIsDirty(true);
+                    setProgramForm((current) => ({ ...current, roleTarget: event.target.value }));
+                  }}
+                  placeholder="Bartenders"
+                  required
+                />
+              </label>
+              <label className="label ops-action-span-full">
+                Program description
+                <textarea
+                  className="input ops-textarea"
+                  value={programForm.description}
+                  onChange={(event) => {
+                    setIsDirty(true);
+                    setProgramForm((current) => ({ ...current, description: event.target.value }));
+                  }}
+                  placeholder="Structured onboarding for speed, consistency and premium recommendations."
+                  required
+                />
+              </label>
+              {programForm.dayPlan.map((step, index) => (
+                <label className="label" key={`step-${index + 1}`}>
+                  Day plan step {index + 1}
                   <input
                     className="input"
-                    value={programForm.name}
-                    onChange={(event) => setProgramForm((current) => ({ ...current, name: event.target.value }))}
-                    placeholder="New Bartender Program"
+                    value={step}
+                    onChange={(event) => {
+                      setIsDirty(true);
+                      setProgramForm((current) => ({
+                        ...current,
+                        dayPlan: current.dayPlan.map((item, itemIndex) =>
+                          itemIndex === index ? event.target.value : item,
+                        ),
+                      }));
+                    }}
+                    placeholder={`Day ${index + 1}: focus area`}
                     required
                   />
                 </label>
-                <label className="label">
-                  Role target
-                  <input
-                    className="input"
-                    value={programForm.roleTarget}
-                    onChange={(event) =>
-                      setProgramForm((current) => ({ ...current, roleTarget: event.target.value }))
-                    }
-                    placeholder="Bartenders"
-                    required
-                  />
-                </label>
-                <label className="label ops-action-span-full">
-                  Program description
-                  <textarea
-                    className="input ops-textarea"
-                    value={programForm.description}
-                    onChange={(event) =>
-                      setProgramForm((current) => ({ ...current, description: event.target.value }))
-                    }
-                    placeholder="Structured onboarding for speed, consistency and premium recommendations."
-                    required
-                  />
-                </label>
-                {programForm.dayPlan.map((step, index) => (
-                  <label className="label" key={`step-${index + 1}`}>
-                    Day plan step {index + 1}
-                    <input
-                      className="input"
-                      value={step}
-                      onChange={(event) =>
-                        setProgramForm((current) => ({
-                          ...current,
-                          dayPlan: current.dayPlan.map((item, itemIndex) =>
-                            itemIndex === index ? event.target.value : item,
-                          ),
-                        }))
-                      }
-                      placeholder={`Day ${index + 1}: focus area`}
-                      required
-                    />
-                  </label>
-                ))}
-                <button className="btn btn-primary ops-action-span-full" type="submit" disabled={isSaving}>
-                  {isSaving ? "Saving..." : "Save training program"}
-                </button>
-              </form>
-            )}
-          </section>
-        )}
+              ))}
+              <button className="btn btn-primary ops-action-span-full" type="submit" disabled={isSaving}>
+                {isSaving ? "Saving..." : "Save training program"}
+              </button>
+            </form>
+          )}
+        </ActionDrawer>
 
         {activeSection === "overview" && (
           <div className="mcc-overview-shell">
             {/* ── Main scrollable content ── */}
             <div className="mcc-overview-main">
 
-              {/* ── Hero ── */}
-              <section className="mcc-hero-section">
-                <div className="mcc-hero-inner">
-                  <div>
-                    <div className="mcc-hero-label">Mission Control · {selectedVenue?.name ?? "Your Venue"} · {todayDateStr}</div>
-                    <h1 className="mcc-hero-h1">Venue performance<br />mission control.</h1>
-                    <p className="mcc-hero-sub">
-                      Operational visibility for training, service quality, sales performance and venue consistency.
-                      {attentionCount > 0 && (
-                        <strong style={{ color: "var(--mcc-ink-900)" }}> {attentionCount} {attentionCount === 1 ? "thing needs" : "things need"} your attention today.</strong>
-                      )}
-                    </p>
-                    <div className="mcc-hero-actions">
-                      <button className="mcc-hero-btn mcc-hero-btn-primary" onClick={() => openAction("add-staff")}>+ Add staff</button>
-                      <button className="mcc-hero-btn" onClick={() => openAction("assign-training")}>+ Assign training</button>
-                      <button className="mcc-hero-btn" onClick={() => openAction("create-program")}>+ Create program</button>
-                      <button className="mcc-hero-btn mcc-hero-btn-ghost" onClick={() => openAction("add-inventory")}>+ Add inventory</button>
+              {/* ── Compact workspace header ── */}
+              <div style={{ padding: "20px 28px 0" }}>
+                <WorkspaceHeader
+                  title={selectedVenue?.name ?? "Your Venue"}
+                  description={`${todayDateStr} · ${attentionCount > 0 ? `${attentionCount} ${attentionCount === 1 ? "thing needs" : "things need"} attention` : "All systems operational"}`}
+                  actions={
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <button
+                        type="button"
+                        className="ops-quick-link-btn"
+                        onClick={() => handleSectionChange("staff")}
+                        style={{ fontSize: "0.88rem" }}
+                      >
+                        → View roster
+                      </button>
+                      <button
+                        type="button"
+                        className="ops-quick-link-btn"
+                        onClick={handleExportStaff}
+                        style={{ fontSize: "0.88rem" }}
+                      >
+                        → Export
+                      </button>
+                      <button
+                        type="button"
+                        className="ops-quick-link-btn"
+                        onClick={() => { handleSectionChange("training"); openAction("assign-training"); }}
+                        style={{ fontSize: "0.88rem" }}
+                      >
+                        → Bulk assign
+                      </button>
                     </div>
-                  </div>
-                  <MgrHealthCard
-                    score={metrics.venueHealthScore}
-                    service={metrics.serviceSkill}
-                    product={metrics.productSkill}
-                    sales={metrics.salesSkill}
-                  />
-                </div>
-              </section>
+                  }
+                />
+              </div>
 
               {/* ── KPI strip ── */}
-              <section className="mcc-kpi-strip">
+              <section className="mcc-kpi-strip" style={{ padding: "20px 28px 0" }}>
                 <MgrKpiCard
                   label="Sales impact"
                   value={formatPercent(metrics.salesSkill)}
@@ -1522,51 +1503,173 @@ export default function ManagerControlCenter({
                   data={mgrMockSpark(metrics.salesSkill)}
                   accent="var(--mcc-terra)"
                 />
+                <MgrKpiCard
+                  label="Staff health"
+                  value={`${venueStaff.filter((m) => m.status === "on-track").length} active`}
+                  sub={`${venueStaff.length} total · ${venueStaff.filter((m) => m.status === "attention").length} at risk · ${venueStaff.filter((m) => m.status === "inactive").length} inactive`}
+                  data={mgrMockSpark(0.75)}
+                  accent="var(--mcc-sage)"
+                />
               </section>
 
-              {/* ── Primary row: Revenue & training chart + Manager insights ── */}
-              <section className="mcc-primary-row">
-                <div className="mcc-card">
-                  <div className="mcc-card-h">
-                    <h2>Training progression, 14 days</h2>
-                    <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
-                      <span className="mcc-pill">Training</span>
-                      <span className="mcc-card-meta">{selectedVenue?.name}</span>
-                    </div>
-                  </div>
+              {/* ── 2-Column Bento Grid: Chart (left) + Right Panel (right) ── */}
+              <div className="mcc-overview-grid">
+                {/* Left Column (65%): Training Chart */}
+                <div className="mcc-overview-card" style={{ marginBottom: "0px" }}>
+                  <div className="mcc-overview-card-head">Training progression, 14 days</div>
                   <MgrRevenueChart trainingValue={metrics.avgCompletion} />
                 </div>
 
-                <div className="mcc-card">
-                  <div className="mcc-card-h">
-                    <h2>Manager insights</h2>
-                    <span className="mcc-card-meta">Auto-generated</span>
+                {/* Right Column (35%): Stacked Cards */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                  {/* AI Coach Insights */}
+                  <div className="mcc-overview-card">
+                    <div className="mcc-overview-card-head">Manager insights</div>
+                    <div style={{ padding: "14px 16px", fontSize: "13px", color: "var(--mcc-ink-700)", lineHeight: "1.5" }}>
+                      {snapshot?.notices && snapshot.notices.length > 0 ? (
+                        <ul style={{ margin: 0, paddingLeft: "16px" }}>
+                          {snapshot.notices.slice(0, 3).map((notice: string, i: number) => (
+                            <li key={i} style={{ marginBottom: "6px" }}>{notice}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <span style={{ color: "var(--mcc-ink-500)" }}>Check back after team activity for insights</span>
+                      )}
+                    </div>
                   </div>
-                  <div style={{ padding: "16px 20px", display: "flex", flexDirection: "column", gap: 8 }}>
-                    {managerInsights.slice(0, 3).map((insight) => (
-                      <div key={insight.id} className={`mcc-insight${insight.priority === "low" ? " good" : ""}`}>
-                        <div className="mcc-insight-title">→ {insight.text}</div>
-                        {insight.priority === "high" && (
-                          <button type="button" className="mcc-insight-cta" onClick={() => handleSectionChange("staff")}>Review staff →</button>
-                        )}
-                        {insight.priority === "medium" && (
-                          <button type="button" className="mcc-insight-cta" onClick={() => handleSectionChange("scenarios")}>Open scenarios →</button>
-                        )}
-                        {insight.priority === "low" && (
-                          <button type="button" className="mcc-insight-cta" onClick={() => handleSectionChange("training")}>Continue →</button>
-                        )}
+
+                  {/* Needs Attention */}
+                  <div className="mcc-overview-card">
+                    <div className="mcc-overview-card-head">Needs attention</div>
+                    <div style={{ padding: "12px 16px" }}>
+                      {needsAttention.length > 0 ? (
+                        <ul style={{ margin: 0, paddingLeft: "16px", fontSize: "13px" }}>
+                          {needsAttention.slice(0, 3).map((member) => (
+                            <li key={member.id} style={{ marginBottom: "6px", color: "var(--mcc-bad)" }}>
+                              {member.name} – {member.status === "attention" ? "Needs attention" : "Not started"}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <div style={{ fontSize: "13px", color: "var(--mcc-good)" }}>All staff on track</div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Upcoming Shifts */}
+                  <div className="mcc-overview-card">
+                    <div className="mcc-overview-card-head">Upcoming shifts</div>
+                    <div style={{ padding: "12px 16px", fontSize: "13px", color: "var(--mcc-ink-700)" }}>
+                      {venueStaff.length > 0 ? (
+                        <div>
+                          <div style={{ marginBottom: "8px" }}>Today: {venueStaff.filter(s => s.status === "on-track").length} on track</div>
+                          <div>Tomorrow: {Math.ceil(venueStaff.length * 0.7)} scheduled</div>
+                        </div>
+                      ) : (
+                        <span style={{ color: "var(--mcc-ink-500)" }}>No shifts scheduled</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Team Summary */}
+                  <div className="mcc-overview-card">
+                    <div className="mcc-overview-card-head">Team summary</div>
+                    <div style={{ padding: "12px 16px", fontSize: "13px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", color: "var(--mcc-ink-700)" }}>
+                        <span>Total staff</span>
+                        <strong>{venueStaff.length}</strong>
                       </div>
-                    ))}
-                    {managerInsights.length === 0 && (
-                      <p style={{ fontSize: 13, color: "var(--mcc-ink-500)" }}>Add staff to start generating insights.</p>
-                    )}
+                      <div style={{ display: "flex", justifyContent: "space-between", color: "var(--mcc-ink-700)" }}>
+                        <span>Avg completion</span>
+                        <strong>{formatPercent(metrics.avgCompletion)}</strong>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </section>
+              </div>
 
+              {/* ── Secondary Grid: Training Pillars + Compliance + Venue Health ── */}
+              <div className="mcc-secondary-grid" style={{ padding: "0 28px", paddingBottom: "20px" }}>
+                {/* Training pillars */}
+                <div className="mcc-overview-card">
+                  <div className="mcc-overview-card-head">Training completion by pillar</div>
+                  <div style={{ padding: "16px 20px" }}>
+                    {[
+                      { name: "Bartending",     val: Math.max(metrics.productSkill, metrics.avgCompletion), color: "var(--mcc-terra)" },
+                      { name: "Sales",          val: metrics.salesSkill, color: "var(--mcc-amber)" },
+                      { name: "Management",     val: venuePrograms.length ? Math.round(venuePrograms.reduce((s, p) => s + p.completion, 0) / venuePrograms.length) : 0, color: "var(--mcc-rose)" },
+                      { name: "Menu Knowledge", val: venueInventory.length ? Math.min(venueInventory.reduce((s, i) => s + i.products.length, 0) * 5, 100) : 0, color: "var(--mcc-sage)" },
+                      { name: "Service",        val: metrics.serviceSkill, color: "var(--mcc-forest-600)" },
+                      { name: "Scenarios",      val: Math.min(todaySnapshot.scenariosCompleted * 3, 100), color: "var(--mcc-info)" },
+                    ].map((p) => (
+                      <div key={p.name} className="mcc-pillar-row">
+                        <div className="mcc-pillar-name">{p.name}</div>
+                        <div className="mcc-bar">
+                          <div className="mcc-bar-fill" style={{ width: `${p.val}%`, background: p.color }} />
+                        </div>
+                        <div className="mcc-pillar-pct">{p.val}%</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-              {/* ── Secondary row: Staff snapshot + Operational alerts ── */}
-              <section className="mcc-secondary-row">
+                {/* Compliance + Venue Health stack */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                  {/* Compliance card */}
+                  <div className="mcc-overview-card">
+                    <div className="mcc-overview-card-head">Compliance</div>
+                    <div style={{ padding: "16px 20px" }}>
+                      <div style={{ fontSize: 36, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: "var(--mcc-ink-900)" }}>
+                        {metrics.avgCompletion > 0 ? `${Math.min(100, Math.round(metrics.avgCompletion * 0.9 + 10))}%` : "–"}
+                      </div>
+                      <div style={{ fontSize: 11, color: "var(--mcc-ink-500)", marginBottom: 14 }}>Service standards assessment</div>
+                      {([
+                        ["RSA certified",     `${venueStaff.length} / ${venueStaff.length || "–"}`, metrics.avgCompletion > 50 ? "good" : "warn"],
+                        ["Food safety",       `${venueStaff.length} / ${venueStaff.length || "–"}`, "good"],
+                        ["Service protocols", `${venueStaff.filter(s => s.status === "on-track").length} / ${venueStaff.length || "–"}`, needsAttention.length > 0 ? "warn" : "good"],
+                        ["Sign-off pending",  `${needsAttention.length} staff`, needsAttention.length > 0 ? "warn" : "good"],
+                      ] as [string, string, string][]).map(([k, v, tone], i) => (
+                        <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: i < 3 ? "1px dashed var(--mcc-rule-2)" : "none", fontSize: 12 }}>
+                          <span style={{ color: "var(--mcc-ink-700)" }}>{k}</span>
+                          <span className={`mcc-pill mcc-pill-${tone}`} style={{ fontSize: 10 }}>{v}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Venue health breakdown */}
+                  <div className="mcc-overview-card">
+                    <div className="mcc-overview-card-head">Venue health</div>
+                    <div style={{ padding: "16px 20px" }}>
+                      <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
+                        <div style={{ fontSize: 36, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}>
+                          {metrics.venueHealthScore > 0 ? metrics.venueHealthScore : "–"}
+                        </div>
+                        {metrics.venueHealthScore > 0 && <span style={{ fontSize: 16, color: "var(--mcc-ink-500)" }}>/100</span>}
+                      </div>
+                      <div style={{ fontSize: 11, color: "var(--mcc-ink-500)", marginBottom: 14 }}>Composite training &amp; performance index</div>
+                      {([
+                        ["Service", metrics.serviceSkill, "var(--mcc-sage)"],
+                        ["Sales",   metrics.salesSkill,   "var(--mcc-amber)"],
+                        ["Product", metrics.productSkill, "var(--mcc-terra)"],
+                      ] as [string, number, string][]).map(([k, v, c]) => (
+                        <div key={k} style={{ marginBottom: 10 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--mcc-ink-700)", marginBottom: 4 }}>
+                            <span>{k}</span>
+                            <span style={{ fontVariantNumeric: "tabular-nums" }}>{v > 0 ? `${v}%` : "–"}</span>
+                          </div>
+                          <div className="mcc-bar">
+                            <div className="mcc-bar-fill" style={{ width: `${v}%`, background: c }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Staff snapshot + Operational alerts + Upcoming shifts (responsive grid) ── */}
+              <section className="mcc-lower-grid">
                 {/* Staff snapshot */}
                 <div className="mcc-card">
                   <div className="mcc-card-h">
@@ -1649,93 +1752,39 @@ export default function ManagerControlCenter({
                     })}
                   </div>
                 </div>
-              </section>
 
-              {/* ── Tertiary row: Training pillars + Compliance + Venue health ── */}
-              <section className="mcc-tertiary-row">
-                {/* Training pillars */}
+                {/* Upcoming shifts */}
                 <div className="mcc-card">
                   <div className="mcc-card-h">
-                    <h2>Training completion by pillar</h2>
-                    <span className="mcc-card-meta">{selectedVenue?.name}</span>
+                    <h2>Upcoming shifts</h2>
+                    <span className="mcc-card-meta">Today</span>
                   </div>
-                  <div style={{ padding: "16px 20px" }}>
-                    {[
-                      { name: "Bartending",    val: Math.max(metrics.productSkill, metrics.avgCompletion), color: "var(--mcc-terra)" },
-                      { name: "Sales",         val: metrics.salesSkill, color: "var(--mcc-amber)" },
-                      { name: "Management",    val: venuePrograms.length ? Math.round(venuePrograms.reduce((s, p) => s + p.completion, 0) / venuePrograms.length) : 0, color: "var(--mcc-rose)" },
-                      { name: "Menu Knowledge",val: venueInventory.length ? Math.min(venueInventory.reduce((s, i) => s + i.products.length, 0) * 5, 100) : 0, color: "var(--mcc-sage)" },
-                      { name: "Service",       val: metrics.serviceSkill, color: "var(--mcc-forest-600)" },
-                      { name: "Scenarios",     val: Math.min(todaySnapshot.scenariosCompleted * 3, 100), color: "var(--mcc-info)" },
-                    ].map((p) => (
-                      <div key={p.name} className="mcc-pillar-row">
-                        <div className="mcc-pillar-name">{p.name}</div>
-                        <div className="mcc-bar">
-                          <div className="mcc-bar-fill" style={{ width: `${p.val}%`, background: p.color }} />
-                        </div>
-                        <div className="mcc-pillar-pct">{p.val}%</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Compliance card */}
-                <div className="mcc-card">
-                  <div className="mcc-card-h">
-                    <h2>Compliance</h2>
-                    <span className={`mcc-pill ${needsAttention.length === 0 ? "mcc-pill-good" : "mcc-pill-warn"}`}>
-                      {needsAttention.length === 0 ? "On track" : "Action needed"}
-                    </span>
-                  </div>
-                  <div style={{ padding: "16px 20px" }}>
-                    <div style={{ fontSize: 36, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: "var(--mcc-ink-900)" }}>
-                      {metrics.avgCompletion > 0 ? `${Math.min(100, Math.round(metrics.avgCompletion * 0.9 + 10))}%` : "–"}
-                    </div>
-                    <div style={{ fontSize: 11, color: "var(--mcc-ink-500)", marginBottom: 14 }}>Service standards assessment</div>
-                    {([
-                      ["RSA certified",     `${venueStaff.length} / ${venueStaff.length || "–"}`, metrics.avgCompletion > 50 ? "good" : "warn"],
-                      ["Food safety",       `${venueStaff.length} / ${venueStaff.length || "–"}`, "good"],
-                      ["Service protocols", `${venueStaff.filter(s => s.status === "on-track").length} / ${venueStaff.length || "–"}`, needsAttention.length > 0 ? "warn" : "good"],
-                      ["Sign-off pending",  `${needsAttention.length} staff`, needsAttention.length > 0 ? "warn" : "good"],
-                    ] as [string, string, string][]).map(([k, v, tone], i) => (
-                      <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: i < 3 ? "1px dashed var(--mcc-rule-2)" : "none", fontSize: 12 }}>
-                        <span style={{ color: "var(--mcc-ink-700)" }}>{k}</span>
-                        <span className={`mcc-pill mcc-pill-${tone}`} style={{ fontSize: 10 }}>{v}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Venue health breakdown */}
-                <div className="mcc-card">
-                  <div className="mcc-card-h">
-                    <h2>Venue health</h2>
-                    <span className="mcc-card-meta">Score</span>
-                  </div>
-                  <div style={{ padding: "16px 20px" }}>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
-                      <div style={{ fontSize: 36, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}>
-                        {metrics.venueHealthScore > 0 ? metrics.venueHealthScore : "–"}
-                      </div>
-                      {metrics.venueHealthScore > 0 && <span style={{ fontSize: 16, color: "var(--mcc-ink-500)" }}>/100</span>}
-                    </div>
-                    <div style={{ fontSize: 11, color: "var(--mcc-ink-500)", marginBottom: 14 }}>Composite training &amp; performance index</div>
-                    {([
-                      ["Service", metrics.serviceSkill, "var(--mcc-sage)"],
-                      ["Sales",   metrics.salesSkill,   "var(--mcc-amber)"],
-                      ["Product", metrics.productSkill, "var(--mcc-terra)"],
-                    ] as [string, number, string][]).map(([k, v, c]) => (
-                      <div key={k} style={{ marginBottom: 10 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--mcc-ink-700)", marginBottom: 4 }}>
-                          <span>{k}</span>
-                          <span style={{ fontVariantNumeric: "tabular-nums" }}>{v > 0 ? `${v}%` : "–"}</span>
-                        </div>
-                        <div className="mcc-bar">
-                          <div className="mcc-bar-fill" style={{ width: `${v}%`, background: c }} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <ul className="ops-shifts-list">
+                    <li className="ops-shift-row">
+                      <span className="ops-shift-time">08:00</span>
+                      <span className="ops-shift-label">Morning Prep · Kitchen</span>
+                    </li>
+                    <li className="ops-shift-row">
+                      <span className="ops-shift-time">11:00</span>
+                      <span className="ops-shift-label">Full Service · Floor</span>
+                    </li>
+                    <li className="ops-shift-row">
+                      <span className="ops-shift-time">12:00</span>
+                      <span className="ops-shift-label">Matinee Team · Bar</span>
+                    </li>
+                    <li className="ops-shift-row">
+                      <span className="ops-shift-time">17:00</span>
+                      <span className="ops-shift-label">Evening Service · All</span>
+                    </li>
+                  </ul>
+                  <button
+                    type="button"
+                    className="ops-btn-tertiary"
+                    style={{ marginTop: 12, fontSize: "0.82rem" }}
+                    onClick={() => handleSectionChange("settings")}
+                  >
+                    Manage shifts
+                  </button>
                 </div>
               </section>
 
@@ -3393,114 +3442,16 @@ export default function ManagerControlCenter({
         )}
       </section>
 
-      <aside className="ops-right-panel">
-        {/* Team Summary */}
-        <article className="ops-card">
-          <div className="ops-card-head">
-            <h3>Team summary</h3>
-            <span>Today</span>
-          </div>
-          <div className="ops-team-summary-grid">
-            <div className="ops-team-stat">
-              <span>Total staff</span>
-              <strong>{venueStaff.length}</strong>
-            </div>
-            <div className="ops-team-stat">
-              <span>Active today</span>
-              <strong>{venueStaff.filter((m) => m.lastActive === "Today").length}</strong>
-            </div>
-            <div className="ops-team-stat">
-              <span>Needs attention</span>
-              <strong>{venueStaff.filter((m) => m.status === "attention").length}</strong>
-            </div>
-            <div className="ops-team-stat">
-              <span>Inactive</span>
-              <strong>{venueStaff.filter((m) => m.status === "inactive").length}</strong>
-            </div>
-          </div>
-        </article>
-
-        {/* Upcoming Shifts */}
-        <article className="ops-card">
-          <div className="ops-card-head">
-            <h3>Upcoming shifts</h3>
-            <span>Today</span>
-          </div>
-          <ul className="ops-shifts-list">
-            <li className="ops-shift-row">
-              <span className="ops-shift-time">08:00</span>
-              <span className="ops-shift-label">Morning Prep · Kitchen</span>
-            </li>
-            <li className="ops-shift-row">
-              <span className="ops-shift-time">11:00</span>
-              <span className="ops-shift-label">Full Service · Floor</span>
-            </li>
-            <li className="ops-shift-row">
-              <span className="ops-shift-time">12:00</span>
-              <span className="ops-shift-label">Matinee Team · Bar</span>
-            </li>
-            <li className="ops-shift-row">
-              <span className="ops-shift-time">17:00</span>
-              <span className="ops-shift-label">Evening Service · All</span>
-            </li>
-          </ul>
-          <button
-            type="button"
-            className="ops-btn-tertiary"
-            style={{ marginTop: 12, fontSize: "0.82rem" }}
-            onClick={() => handleSectionChange("settings")}
-          >
-            Manage shifts
-          </button>
-        </article>
-
-        {/* Quick Actions */}
-        <article className="ops-card">
-          <div className="ops-card-head">
-            <h3>Quick actions</h3>
-          </div>
-          <ul className="ops-quick-links">
-            <li>
-              <button type="button" className="ops-quick-link-btn" onClick={() => handleSectionChange("staff")}>
-                → View full roster
-              </button>
-            </li>
-            <li>
-              <button type="button" className="ops-quick-link-btn" onClick={handleExportStaff}>
-                → Export staff list
-              </button>
-            </li>
-            <li>
-              <button type="button" className="ops-quick-link-btn" onClick={() => { handleSectionChange("training"); openAction("assign-training"); }}>
-                → Bulk assign training
-              </button>
-            </li>
-          </ul>
-          <div className="ops-quick-shortcuts">
-            {[
-              { key: "S", label: "Search" },
-              { key: "A", label: "Add staff" },
-              { key: "T", label: "Create program" },
-              { key: "I", label: "Add inventory" },
-            ].map(({ key, label }) => (
-              <span key={key} className="ops-shortcut-chip" data-tooltip={label}>
-                {key}
-              </span>
-            ))}
-          </div>
-        </article>
-      </aside>
 
       {/* ── Coaching drawer ── */}
-      {coachingDrawerOpen && selectedStaff && (
-        <Suspense fallback={null}>
-          <CoachingDrawer
-            staff={selectedStaff}
-            onClose={() => setCoachingDrawerOpen(false)}
-            onAssignTraining={() => { setCoachingDrawerOpen(false); openAction("assign-training"); }}
-          />
-        </Suspense>
-      )}
+      <Suspense fallback={null}>
+        <CoachingDrawer
+          isOpen={coachingDrawerOpen}
+          staff={selectedStaff}
+          onClose={() => setCoachingDrawerOpen(false)}
+          onAssignTraining={() => { setCoachingDrawerOpen(false); openAction("assign-training"); }}
+        />
+      </Suspense>
 
       {/* ── Venue delete confirmation modal ── */}
       {venueDeleteConfirm && (
