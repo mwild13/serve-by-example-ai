@@ -1477,180 +1477,89 @@ export default function ManagerControlCenter({
                 />
               </section>
 
-              {/* ── Main bento grid: Chart + Manager insights + Right column panels ── */}
-              <div className="mcc-overview-grid">
-                {/* Left column: Chart + Secondary grid */}
-                <div>
-                  {/* Training chart card */}
-                  <div className="mcc-overview-card" style={{ marginBottom: "16px" }}>
-                    <div className="mcc-overview-card-head">Training progression, 14 days</div>
-                    <MgrRevenueChart trainingValue={metrics.avgCompletion} />
+              {/* ── Main content: Chart + Secondary grid (full width) ── */}
+              <div className="mcc-overview-container" style={{ padding: "0 28px", display: "flex", flexDirection: "column", gap: "16px" }}>
+                {/* Training chart card */}
+                <div className="mcc-overview-card" style={{ marginBottom: "16px" }}>
+                  <div className="mcc-overview-card-head">Training progression, 14 days</div>
+                  <MgrRevenueChart trainingValue={metrics.avgCompletion} />
+                </div>
+
+                {/* Secondary grid: Training pillars + Compliance + Venue health */}
+                <div className="mcc-secondary-grid" style={{ paddingBottom: "20px" }}>
+                  {/* Training pillars */}
+                  <div className="mcc-overview-card">
+                    <div className="mcc-overview-card-head">Training completion by pillar</div>
+                    <div style={{ padding: "16px 20px" }}>
+                      {[
+                        { name: "Bartending",     val: Math.max(metrics.productSkill, metrics.avgCompletion), color: "var(--mcc-terra)" },
+                        { name: "Sales",          val: metrics.salesSkill, color: "var(--mcc-amber)" },
+                        { name: "Management",     val: venuePrograms.length ? Math.round(venuePrograms.reduce((s, p) => s + p.completion, 0) / venuePrograms.length) : 0, color: "var(--mcc-rose)" },
+                        { name: "Menu Knowledge", val: venueInventory.length ? Math.min(venueInventory.reduce((s, i) => s + i.products.length, 0) * 5, 100) : 0, color: "var(--mcc-sage)" },
+                        { name: "Service",        val: metrics.serviceSkill, color: "var(--mcc-forest-600)" },
+                        { name: "Scenarios",      val: Math.min(todaySnapshot.scenariosCompleted * 3, 100), color: "var(--mcc-info)" },
+                      ].map((p) => (
+                        <div key={p.name} className="mcc-pillar-row">
+                          <div className="mcc-pillar-name">{p.name}</div>
+                          <div className="mcc-bar">
+                            <div className="mcc-bar-fill" style={{ width: `${p.val}%`, background: p.color }} />
+                          </div>
+                          <div className="mcc-pillar-pct">{p.val}%</div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
-                  {/* Secondary grid: Training pillars + Compliance + Venue health */}
-                  <div className="mcc-secondary-grid" style={{ paddingBottom: "20px" }}>
-                    {/* Training pillars */}
+                  {/* Compliance + Venue Health stack */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                    {/* Compliance card */}
                     <div className="mcc-overview-card">
-                      <div className="mcc-overview-card-head">Training completion by pillar</div>
+                      <div className="mcc-overview-card-head">Compliance</div>
                       <div style={{ padding: "16px 20px" }}>
-                        {[
-                          { name: "Bartending",     val: Math.max(metrics.productSkill, metrics.avgCompletion), color: "var(--mcc-terra)" },
-                          { name: "Sales",          val: metrics.salesSkill, color: "var(--mcc-amber)" },
-                          { name: "Management",     val: venuePrograms.length ? Math.round(venuePrograms.reduce((s, p) => s + p.completion, 0) / venuePrograms.length) : 0, color: "var(--mcc-rose)" },
-                          { name: "Menu Knowledge", val: venueInventory.length ? Math.min(venueInventory.reduce((s, i) => s + i.products.length, 0) * 5, 100) : 0, color: "var(--mcc-sage)" },
-                          { name: "Service",        val: metrics.serviceSkill, color: "var(--mcc-forest-600)" },
-                          { name: "Scenarios",      val: Math.min(todaySnapshot.scenariosCompleted * 3, 100), color: "var(--mcc-info)" },
-                        ].map((p) => (
-                          <div key={p.name} className="mcc-pillar-row">
-                            <div className="mcc-pillar-name">{p.name}</div>
-                            <div className="mcc-bar">
-                              <div className="mcc-bar-fill" style={{ width: `${p.val}%`, background: p.color }} />
-                            </div>
-                            <div className="mcc-pillar-pct">{p.val}%</div>
+                        <div style={{ fontSize: 36, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: "var(--mcc-ink-900)" }}>
+                          {metrics.avgCompletion > 0 ? `${Math.min(100, Math.round(metrics.avgCompletion * 0.9 + 10))}%` : "–"}
+                        </div>
+                        <div style={{ fontSize: 11, color: "var(--mcc-ink-500)", marginBottom: 14 }}>Service standards assessment</div>
+                        {([
+                          ["RSA certified",     `${venueStaff.length} / ${venueStaff.length || "–"}`, metrics.avgCompletion > 50 ? "good" : "warn"],
+                          ["Food safety",       `${venueStaff.length} / ${venueStaff.length || "–"}`, "good"],
+                          ["Service protocols", `${venueStaff.filter(s => s.status === "on-track").length} / ${venueStaff.length || "–"}`, needsAttention.length > 0 ? "warn" : "good"],
+                          ["Sign-off pending",  `${needsAttention.length} staff`, needsAttention.length > 0 ? "warn" : "good"],
+                        ] as [string, string, string][]).map(([k, v, tone], i) => (
+                          <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: i < 3 ? "1px dashed var(--mcc-rule-2)" : "none", fontSize: 12 }}>
+                            <span style={{ color: "var(--mcc-ink-700)" }}>{k}</span>
+                            <span className={`mcc-pill mcc-pill-${tone}`} style={{ fontSize: 10 }}>{v}</span>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    {/* Compliance + Venue Health stack */}
-                    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                      {/* Compliance card */}
-                      <div className="mcc-overview-card">
-                        <div className="mcc-overview-card-head">Compliance</div>
-                        <div style={{ padding: "16px 20px" }}>
-                          <div style={{ fontSize: 36, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: "var(--mcc-ink-900)" }}>
-                            {metrics.avgCompletion > 0 ? `${Math.min(100, Math.round(metrics.avgCompletion * 0.9 + 10))}%` : "–"}
+                    {/* Venue health breakdown */}
+                    <div className="mcc-overview-card">
+                      <div className="mcc-overview-card-head">Venue health</div>
+                      <div style={{ padding: "16px 20px" }}>
+                        <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
+                          <div style={{ fontSize: 36, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}>
+                            {metrics.venueHealthScore > 0 ? metrics.venueHealthScore : "–"}
                           </div>
-                          <div style={{ fontSize: 11, color: "var(--mcc-ink-500)", marginBottom: 14 }}>Service standards assessment</div>
-                          {([
-                            ["RSA certified",     `${venueStaff.length} / ${venueStaff.length || "–"}`, metrics.avgCompletion > 50 ? "good" : "warn"],
-                            ["Food safety",       `${venueStaff.length} / ${venueStaff.length || "–"}`, "good"],
-                            ["Service protocols", `${venueStaff.filter(s => s.status === "on-track").length} / ${venueStaff.length || "–"}`, needsAttention.length > 0 ? "warn" : "good"],
-                            ["Sign-off pending",  `${needsAttention.length} staff`, needsAttention.length > 0 ? "warn" : "good"],
-                          ] as [string, string, string][]).map(([k, v, tone], i) => (
-                            <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: i < 3 ? "1px dashed var(--mcc-rule-2)" : "none", fontSize: 12 }}>
-                              <span style={{ color: "var(--mcc-ink-700)" }}>{k}</span>
-                              <span className={`mcc-pill mcc-pill-${tone}`} style={{ fontSize: 10 }}>{v}</span>
-                            </div>
-                          ))}
+                          {metrics.venueHealthScore > 0 && <span style={{ fontSize: 16, color: "var(--mcc-ink-500)" }}>/100</span>}
                         </div>
-                      </div>
-
-                      {/* Venue health breakdown */}
-                      <div className="mcc-overview-card">
-                        <div className="mcc-overview-card-head">Venue health</div>
-                        <div style={{ padding: "16px 20px" }}>
-                          <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
-                            <div style={{ fontSize: 36, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}>
-                              {metrics.venueHealthScore > 0 ? metrics.venueHealthScore : "–"}
+                        <div style={{ fontSize: 11, color: "var(--mcc-ink-500)", marginBottom: 14 }}>Composite training &amp; performance index</div>
+                        {([
+                          ["Service", metrics.serviceSkill, "var(--mcc-sage)"],
+                          ["Sales",   metrics.salesSkill,   "var(--mcc-amber)"],
+                          ["Product", metrics.productSkill, "var(--mcc-terra)"],
+                        ] as [string, number, string][]).map(([k, v, c]) => (
+                          <div key={k} style={{ marginBottom: 10 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--mcc-ink-700)", marginBottom: 4 }}>
+                              <span>{k}</span>
+                              <span style={{ fontVariantNumeric: "tabular-nums" }}>{v > 0 ? `${v}%` : "–"}</span>
                             </div>
-                            {metrics.venueHealthScore > 0 && <span style={{ fontSize: 16, color: "var(--mcc-ink-500)" }}>/100</span>}
+                            <div className="mcc-bar">
+                              <div className="mcc-bar-fill" style={{ width: `${v}%`, background: c }} />
+                            </div>
                           </div>
-                          <div style={{ fontSize: 11, color: "var(--mcc-ink-500)", marginBottom: 14 }}>Composite training &amp; performance index</div>
-                          {([
-                            ["Service", metrics.serviceSkill, "var(--mcc-sage)"],
-                            ["Sales",   metrics.salesSkill,   "var(--mcc-amber)"],
-                            ["Product", metrics.productSkill, "var(--mcc-terra)"],
-                          ] as [string, number, string][]).map(([k, v, c]) => (
-                            <div key={k} style={{ marginBottom: 10 }}>
-                              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--mcc-ink-700)", marginBottom: 4 }}>
-                                <span>{k}</span>
-                                <span style={{ fontVariantNumeric: "tabular-nums" }}>{v > 0 ? `${v}%` : "–"}</span>
-                              </div>
-                              <div className="mcc-bar">
-                                <div className="mcc-bar-fill" style={{ width: `${v}%`, background: c }} />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right column: Manager insights, Needs Attention, Upcoming Shifts, Team Summary */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                  {/* Manager insights / AI Coach Feed */}
-                  <div className="mcc-overview-card">
-                    <div className="mcc-overview-card-head">Manager insights</div>
-                    <div style={{ padding: "16px 20px", display: "flex", flexDirection: "column", gap: 8 }}>
-                      {managerInsights.slice(0, 3).map((insight) => (
-                        <div key={insight.id} className={`mcc-insight${insight.priority === "low" ? " good" : ""}`}>
-                          <div className="mcc-insight-title">→ {insight.text}</div>
-                          {insight.priority === "high" && (
-                            <button type="button" className="mcc-insight-cta" onClick={() => handleSectionChange("staff")}>Review staff →</button>
-                          )}
-                          {insight.priority === "medium" && (
-                            <button type="button" className="mcc-insight-cta" onClick={() => handleSectionChange("scenarios")}>Open scenarios →</button>
-                          )}
-                          {insight.priority === "low" && (
-                            <button type="button" className="mcc-insight-cta" onClick={() => handleSectionChange("training")}>Continue →</button>
-                          )}
-                        </div>
-                      ))}
-                      {managerInsights.length === 0 && (
-                        <p style={{ fontSize: 13, color: "var(--mcc-ink-500)" }}>Add staff to start generating insights.</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Needs Attention */}
-                  <div className="mcc-overview-card">
-                    <div className="mcc-overview-card-head">Needs attention</div>
-                    <div style={{ padding: "16px 20px" }}>
-                      {needsAttention.length > 0 ? (
-                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                          {needsAttention.slice(0, 4).map((member) => (
-                            <div key={member.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid var(--line-light)" }}>
-                              <div style={{ fontSize: "0.875rem", fontWeight: 500, color: "var(--text)" }}>{member.name}</div>
-                              <span className="mcc-pill mcc-pill-bad" style={{ fontSize: 10 }}>Attention</span>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>All staff on track</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Upcoming Shifts */}
-                  <div className="mcc-overview-card">
-                    <div className="mcc-overview-card-head">Upcoming shifts</div>
-                    <ul style={{ padding: "16px 20px", display: "flex", flexDirection: "column", gap: 8, listStyle: "none" }}>
-                      <li style={{ display: "flex", gap: 8, fontSize: "0.875rem" }}>
-                        <span style={{ color: "var(--text-muted)", fontWeight: 600, minWidth: 40 }}>08:00</span>
-                        <span style={{ color: "var(--text)" }}>Morning Prep · Kitchen</span>
-                      </li>
-                      <li style={{ display: "flex", gap: 8, fontSize: "0.875rem" }}>
-                        <span style={{ color: "var(--text-muted)", fontWeight: 600, minWidth: 40 }}>11:00</span>
-                        <span style={{ color: "var(--text)" }}>Full Service · Floor</span>
-                      </li>
-                      <li style={{ display: "flex", gap: 8, fontSize: "0.875rem" }}>
-                        <span style={{ color: "var(--text-muted)", fontWeight: 600, minWidth: 40 }}>17:00</span>
-                        <span style={{ color: "var(--text)" }}>Evening Service · All</span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  {/* Team Summary */}
-                  <div className="mcc-overview-card">
-                    <div className="mcc-overview-card-head">Team summary</div>
-                    <div style={{ padding: "16px 20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                      <div>
-                        <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Total staff</div>
-                        <div style={{ fontSize: "1.5rem", fontFamily: "var(--font-heading)", fontWeight: 600, color: "var(--green)", marginTop: 4 }}>{venueStaff.length}</div>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Active today</div>
-                        <div style={{ fontSize: "1.5rem", fontFamily: "var(--font-heading)", fontWeight: 600, color: "var(--green)", marginTop: 4 }}>{venueStaff.filter((m) => m.lastActive === "Today").length}</div>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Needs attention</div>
-                        <div style={{ fontSize: "1.5rem", fontFamily: "var(--font-heading)", fontWeight: 600, color: "var(--green)", marginTop: 4 }}>{venueStaff.filter((m) => m.status === "attention").length}</div>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Inactive</div>
-                        <div style={{ fontSize: "1.5rem", fontFamily: "var(--font-heading)", fontWeight: 600, color: "var(--green)", marginTop: 4 }}>{venueStaff.filter((m) => m.status === "inactive").length}</div>
+                        ))}
                       </div>
                     </div>
                   </div>
