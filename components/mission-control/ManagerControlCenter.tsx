@@ -1442,6 +1442,34 @@ export default function ManagerControlCenter({
                 <WorkspaceHeader
                   title={selectedVenue?.name ?? "Your Venue"}
                   description={`${todayDateStr} · ${attentionCount > 0 ? `${attentionCount} ${attentionCount === 1 ? "thing needs" : "things need"} attention` : "All systems operational"}`}
+                  actions={
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <button
+                        type="button"
+                        className="ops-quick-link-btn"
+                        onClick={() => handleSectionChange("staff")}
+                        style={{ fontSize: "0.88rem" }}
+                      >
+                        → View roster
+                      </button>
+                      <button
+                        type="button"
+                        className="ops-quick-link-btn"
+                        onClick={handleExportStaff}
+                        style={{ fontSize: "0.88rem" }}
+                      >
+                        → Export
+                      </button>
+                      <button
+                        type="button"
+                        className="ops-quick-link-btn"
+                        onClick={() => { handleSectionChange("training"); openAction("assign-training"); }}
+                        style={{ fontSize: "0.88rem" }}
+                      >
+                        → Bulk assign
+                      </button>
+                    </div>
+                  }
                 />
               </div>
 
@@ -1474,6 +1502,13 @@ export default function ManagerControlCenter({
                   sub="Last 7 days"
                   data={mgrMockSpark(metrics.salesSkill)}
                   accent="var(--mcc-terra)"
+                />
+                <MgrKpiCard
+                  label="Staff health"
+                  value={`${venueStaff.filter((m) => m.status === "on-track").length} active`}
+                  sub={`${venueStaff.length} total · ${venueStaff.filter((m) => m.status === "attention").length} at risk · ${venueStaff.filter((m) => m.status === "inactive").length} inactive`}
+                  data={mgrMockSpark(0.75)}
+                  accent="var(--mcc-sage)"
                 />
               </section>
 
@@ -1633,8 +1668,8 @@ export default function ManagerControlCenter({
                 </div>
               </div>
 
-              {/* ── Staff snapshot + Operational alerts (full width) ── */}
-              <section style={{ padding: "0 28px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+              {/* ── Staff snapshot + Operational alerts + Upcoming shifts (responsive grid) ── */}
+              <section className="mcc-lower-grid">
                 {/* Staff snapshot */}
                 <div className="mcc-card">
                   <div className="mcc-card-h">
@@ -1716,6 +1751,40 @@ export default function ManagerControlCenter({
                       );
                     })}
                   </div>
+                </div>
+
+                {/* Upcoming shifts */}
+                <div className="mcc-card">
+                  <div className="mcc-card-h">
+                    <h2>Upcoming shifts</h2>
+                    <span className="mcc-card-meta">Today</span>
+                  </div>
+                  <ul className="ops-shifts-list">
+                    <li className="ops-shift-row">
+                      <span className="ops-shift-time">08:00</span>
+                      <span className="ops-shift-label">Morning Prep · Kitchen</span>
+                    </li>
+                    <li className="ops-shift-row">
+                      <span className="ops-shift-time">11:00</span>
+                      <span className="ops-shift-label">Full Service · Floor</span>
+                    </li>
+                    <li className="ops-shift-row">
+                      <span className="ops-shift-time">12:00</span>
+                      <span className="ops-shift-label">Matinee Team · Bar</span>
+                    </li>
+                    <li className="ops-shift-row">
+                      <span className="ops-shift-time">17:00</span>
+                      <span className="ops-shift-label">Evening Service · All</span>
+                    </li>
+                  </ul>
+                  <button
+                    type="button"
+                    className="ops-btn-tertiary"
+                    style={{ marginTop: 12, fontSize: "0.82rem" }}
+                    onClick={() => handleSectionChange("settings")}
+                  >
+                    Manage shifts
+                  </button>
                 </div>
               </section>
 
@@ -3373,103 +3442,6 @@ export default function ManagerControlCenter({
         )}
       </section>
 
-      <aside className="ops-right-panel">
-        {/* Team Summary */}
-        <article className="ops-card">
-          <div className="ops-card-head">
-            <h3>Team summary</h3>
-            <span>Today</span>
-          </div>
-          <div className="ops-team-summary-grid">
-            <div className="ops-team-stat">
-              <span>Total staff</span>
-              <strong>{venueStaff.length}</strong>
-            </div>
-            <div className="ops-team-stat">
-              <span>Active today</span>
-              <strong>{venueStaff.filter((m) => m.lastActive === "Today").length}</strong>
-            </div>
-            <div className="ops-team-stat">
-              <span>Needs attention</span>
-              <strong>{venueStaff.filter((m) => m.status === "attention").length}</strong>
-            </div>
-            <div className="ops-team-stat">
-              <span>Inactive</span>
-              <strong>{venueStaff.filter((m) => m.status === "inactive").length}</strong>
-            </div>
-          </div>
-        </article>
-
-        {/* Upcoming Shifts */}
-        <article className="ops-card">
-          <div className="ops-card-head">
-            <h3>Upcoming shifts</h3>
-            <span>Today</span>
-          </div>
-          <ul className="ops-shifts-list">
-            <li className="ops-shift-row">
-              <span className="ops-shift-time">08:00</span>
-              <span className="ops-shift-label">Morning Prep · Kitchen</span>
-            </li>
-            <li className="ops-shift-row">
-              <span className="ops-shift-time">11:00</span>
-              <span className="ops-shift-label">Full Service · Floor</span>
-            </li>
-            <li className="ops-shift-row">
-              <span className="ops-shift-time">12:00</span>
-              <span className="ops-shift-label">Matinee Team · Bar</span>
-            </li>
-            <li className="ops-shift-row">
-              <span className="ops-shift-time">17:00</span>
-              <span className="ops-shift-label">Evening Service · All</span>
-            </li>
-          </ul>
-          <button
-            type="button"
-            className="ops-btn-tertiary"
-            style={{ marginTop: 12, fontSize: "0.82rem" }}
-            onClick={() => handleSectionChange("settings")}
-          >
-            Manage shifts
-          </button>
-        </article>
-
-        {/* Quick Actions */}
-        <article className="ops-card">
-          <div className="ops-card-head">
-            <h3>Quick actions</h3>
-          </div>
-          <ul className="ops-quick-links">
-            <li>
-              <button type="button" className="ops-quick-link-btn" onClick={() => handleSectionChange("staff")}>
-                → View full roster
-              </button>
-            </li>
-            <li>
-              <button type="button" className="ops-quick-link-btn" onClick={handleExportStaff}>
-                → Export staff list
-              </button>
-            </li>
-            <li>
-              <button type="button" className="ops-quick-link-btn" onClick={() => { handleSectionChange("training"); openAction("assign-training"); }}>
-                → Bulk assign training
-              </button>
-            </li>
-          </ul>
-          <div className="ops-quick-shortcuts">
-            {[
-              { key: "S", label: "Search" },
-              { key: "A", label: "Add staff" },
-              { key: "T", label: "Create program" },
-              { key: "I", label: "Add inventory" },
-            ].map(({ key, label }) => (
-              <span key={key} className="ops-shortcut-chip" data-tooltip={label}>
-                {key}
-              </span>
-            ))}
-          </div>
-        </article>
-      </aside>
 
       {/* ── Coaching drawer ── */}
       <Suspense fallback={null}>

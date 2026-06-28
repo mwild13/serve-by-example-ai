@@ -6094,6 +6094,20 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 .ops-team-stat strong {
   font-family: var(--font-heading);
   font-size: 1.6rem;
+}
+
+.mcc-lower-grid {
+  padding: 0 28px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 1400px) {
+  .mcc-lower-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
   color: var(--green-deep);
   line-height: 1;
 }
