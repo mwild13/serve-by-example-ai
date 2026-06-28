@@ -6108,9 +6108,6 @@ html[data-staff-high-contrast="1"] .dashboard-main {
     grid-template-columns: 1fr 1fr 1fr;
   }
 }
-  color: var(--green-deep);
-  line-height: 1;
-}
 
 .ops-shifts-list {
   list-style: none;
