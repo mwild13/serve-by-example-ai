@@ -1,22 +1,20 @@
 "use client";
 
-import { FormEvent, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { FormEvent, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import SignOutButton from "@/components/ui/SignOutButton";
 import SessionRefresher from "@/components/ui/SessionRefresher";
 import {
   LayoutDashboard,
-  User,
   Users,
+  Users2,
   ShieldCheck,
-  BarChart2,
   FileText,
+  BarChart3,
+  FileLineChart,
   Trophy,
-  Bell,
-  MessageCircle,
   Sparkles,
-  Settings2,
 } from "lucide-react";
 import type {
   ManagementSnapshot,
@@ -24,8 +22,11 @@ import type {
   NewInventoryPayload,
   NewStaffPayload,
   NewTrainingProgramPayload,
+  StaffMember,
   StaffRole,
 } from "@/lib/management/types";
+import { ComplianceHub } from "./compliance/ComplianceHub";
+import { rsaStatus, readinessPill as getReadinessPill } from "./compliance/helpers";
 import type { QuickActionId, NavGroup, SearchResult } from "./manager-types";
 import {
   EmptyState,
@@ -47,40 +48,28 @@ type SnapshotResponse = ManagementSnapshot & {
 
 const NAV_GROUPS: NavGroup[] = [
   {
-    label: "Workspace",
+    label: "Command",
+    collapsible: false,
     items: [{ id: "overview", label: "Overview", icon: LayoutDashboard }],
   },
   {
     label: "People",
     collapsible: true,
     items: [
-      { id: "staff", label: "Staff", icon: User },
-      { id: "teams", label: "Teams", icon: Users },
+      { id: "staff", label: "Staff", icon: Users },
+      { id: "teams", label: "Teams", icon: Users2 },
       { id: "roles", label: "Roles & Permissions", icon: ShieldCheck },
+      { id: "compliance", label: "Compliance", icon: FileText },
     ],
   },
   {
     label: "Performance",
     collapsible: true,
     items: [
-      { id: "analytics", label: "Analytics", icon: BarChart2 },
-      { id: "reports", label: "Reports", icon: FileText },
+      { id: "analytics", label: "Analytics", icon: BarChart3 },
+      { id: "reports", label: "Reports", icon: FileLineChart },
       { id: "leaderboards", label: "Leaderboards", icon: Trophy },
-      { id: "notifications", label: "Notifications", icon: Bell },
-    ],
-  },
-  {
-    label: "AI Coach",
-    items: [
-      { id: "aicoach", label: "Ask AI Coach", icon: MessageCircle },
-      { id: "predictive", label: "Predictive Insights", icon: Sparkles },
-    ],
-  },
-  {
-    label: "Admin",
-    collapsible: true,
-    items: [
-      { id: "settings", label: "Settings", icon: Settings2 },
+      { id: "aicoach", label: "Ask AI Coach", icon: Sparkles },
     ],
   },
 ];
@@ -186,11 +175,11 @@ function MgrSparkline({ data, w = 88, h = 28, color = "#1E5A3C" }: {
   );
 }
 
-function MgrKpiCard({ label, value, sub, data, accent }: {
-  label: string; value: string; sub: string; data: number[]; accent: string;
+function MgrKpiCard({ label, value, sub, data, accent, borderColor }: {
+  label: string; value: string; sub: string; data: number[]; accent: string; borderColor?: string;
 }) {
   return (
-    <div className="mcc-kpi-card">
+    <div className="mcc-kpi-card" style={borderColor ? { borderLeft: `4px solid ${borderColor}` } : undefined}>
       <div className="mcc-kpi-label">{label}</div>
       <div className="mcc-kpi-value-row">
         <div className="mcc-kpi-value">{value}</div>
@@ -510,6 +499,9 @@ export default function ManagerControlCenter({
     return trail;
   }, [activeSection, selectedProgram, selectedStaff]);
 
+  // Readiness pills and compliance status use imported helpers
+  const readinessPill = (member: StaffMember) => getReadinessPill(member.compliance, member.status);
+
   const metrics = useMemo(() => {
     const totalStaff = venueStaff.length;
     const activeThisWeek = venueStaff.filter((member) => {
@@ -534,6 +526,7 @@ export default function ManagerControlCenter({
             (selectedVenue?.upsellRate ?? 0)) /
             3,
         ),
+        rfScore: 0,
       };
     }
 
@@ -562,6 +555,18 @@ export default function ManagerControlCenter({
         (activeThisWeek / totalStaff) * 100 * 0.1,
     );
 
+    // ── Rf (Shift Readiness) Score ──
+    const WC = 0.50, WT = 0.30, WA = 0.20; // weights: Compliance, Training, Availability
+    const shiftStaff = venueStaff.slice(0, 8); // first 8 = "tonight's shift" approximation
+    const rfScore = shiftStaff.length === 0 ? 0 : Math.round(
+      (shiftStaff.reduce((sum, s) => {
+        const Ci = rsaStatus(s.compliance).level === 3 ? 0 : 1;
+        const Ti = s.progress / 100;
+        const Ai = s.compliance?.shiftConfirmed ? 1 : (s.status === 'on-track' ? 0.8 : 0.4);
+        return sum + (WC * Ci + WT * Ti + WA * Ai);
+      }, 0) / shiftStaff.length) * 100
+    );
+
     return {
       totalStaff,
       activeThisWeek,
@@ -571,11 +576,35 @@ export default function ManagerControlCenter({
       productSkill,
       salesSkill,
       venueHealthScore,
+      rfScore,
     };
   }, [selectedVenue, venueStaff]);
 
   const needsAttention = venueStaff.filter((member) => member.status !== "on-track");
   const inactiveCount = venueStaff.filter((member) => member.status === "inactive").length;
+
+  // ── AI Coaching Queue ──
+  const coachingQueue = venueStaff
+    .filter(s => s.status !== 'on-track' || rsaStatus(s.compliance).level >= 2)
+    .slice(0, 4)
+    .map(s => {
+      const rsaStat = rsaStatus(s.compliance);
+      let reason: string;
+      let moduleTag: string;
+
+      if (rsaStat.level >= 2) {
+        reason = `RSA expiring in ${rsaStat.label} — assign refresher`;
+        moduleTag = 'RSA Refresher';
+      } else if (s.salesScore < 50) {
+        reason = `Sales score ${s.salesScore}% — assign upsell module`;
+        moduleTag = 'Sales Training';
+      } else {
+        reason = `Training completion ${s.progress}% — push core modules`;
+        moduleTag = 'Core Training';
+      }
+
+      return { staff: s, reason, moduleTag };
+    });
 
   // ── Manager Insights – auto-generated action tips ──
   const managerInsights = useMemo(() => {
@@ -1237,11 +1266,14 @@ export default function ManagerControlCenter({
                   }}
                   required
                 >
-                  {venueStaff.map((member) => (
-                    <option key={member.id} value={member.id}>
-                      {member.name}
-                    </option>
-                  ))}
+                  {venueStaff.map((member) => {
+                    const isBlockedRsa = rsaStatus(member.compliance).level === 3;
+                    return (
+                      <option key={member.id} value={member.id} disabled={isBlockedRsa}>
+                        {member.name}{isBlockedRsa ? ' (Blocked: Expired RSA)' : ''}
+                      </option>
+                    );
+                  })}
                 </select>
               </label>
               <label className="label">
@@ -1444,6 +1476,18 @@ export default function ManagerControlCenter({
                   description={`${todayDateStr} · ${attentionCount > 0 ? `${attentionCount} ${attentionCount === 1 ? "thing needs" : "things need"} attention` : "All systems operational"}`}
                   actions={
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <div
+                        className="ops-health-chip"
+                        data-health={
+                          metrics.venueHealthScore >= 75
+                            ? "good"
+                            : metrics.venueHealthScore >= 50
+                            ? "warn"
+                            : "critical"
+                        }
+                      >
+                        Venue Health: {metrics.venueHealthScore}/100
+                      </div>
                       <button
                         type="button"
                         className="ops-quick-link-btn"
@@ -1473,43 +1517,107 @@ export default function ManagerControlCenter({
                 />
               </div>
 
+              {/* ── Level 2 Compliance Banner (7-day alert) ── */}
+              {venueStaff.some(s => rsaStatus(s.compliance).level >= 2) && (
+                <div style={{ padding: "12px 28px 0 28px" }}>
+                  <div style={{ background: '#fff1f2', border: '1px solid #fecdd3', color: '#b91c1c', borderRadius: 'var(--radius-md)', padding: '12px 16px', marginBottom: 16, fontWeight: 600, fontSize: '0.95rem' }}>
+                    Compliance alert: one or more staff have certifications expiring within 7 days. Review the Compliance tab immediately.
+                  </div>
+                </div>
+              )}
+
               {/* ── KPI strip ── */}
               <section className="mcc-kpi-strip" style={{ padding: "20px 28px 0" }}>
-                <MgrKpiCard
-                  label="Sales impact"
-                  value={formatPercent(metrics.salesSkill)}
-                  sub="Revenue impact level"
-                  data={mgrMockSpark(metrics.salesSkill)}
-                  accent="var(--mcc-forest-600)"
-                />
-                <MgrKpiCard
-                  label="Avg scenario score"
-                  value={formatPercent(metrics.avgScenarioScore)}
-                  sub="Service · sales · product"
-                  data={mgrMockSpark(metrics.avgScenarioScore)}
-                  accent="var(--mcc-sage)"
-                />
-                <MgrKpiCard
-                  label="Training completion"
-                  value={formatPercent(metrics.avgCompletion)}
-                  sub="Across all modules"
-                  data={mgrMockSpark(metrics.avgCompletion)}
-                  accent="var(--mcc-amber)"
-                />
-                <MgrKpiCard
-                  label="Upsell performance"
-                  value={formatPercent(metrics.salesSkill)}
-                  sub="Last 7 days"
-                  data={mgrMockSpark(metrics.salesSkill)}
-                  accent="var(--mcc-terra)"
-                />
-                <MgrKpiCard
-                  label="Staff health"
-                  value={`${venueStaff.filter((m) => m.status === "on-track").length} active`}
-                  sub={`${venueStaff.length} total · ${venueStaff.filter((m) => m.status === "attention").length} at risk · ${venueStaff.filter((m) => m.status === "inactive").length} inactive`}
-                  data={mgrMockSpark(0.75)}
-                  accent="var(--mcc-sage)"
-                />
+                {(() => {
+                  const getUrgencyBorder = (value: number) => {
+                    if (value < 30) return '#ef4444'; // red
+                    if (value < 70) return '#f59e0b'; // amber
+                    return '#22c55e'; // green
+                  };
+                  const onTrackCount = venueStaff.filter((m) => m.status === "on-track").length;
+                  const staffHealthRatio = venueStaff.length > 0 ? onTrackCount / venueStaff.length : 0;
+
+                  return (
+                    <>
+                      <MgrKpiCard
+                        label="Sales impact"
+                        value={formatPercent(metrics.salesSkill)}
+                        sub="Revenue impact level"
+                        data={mgrMockSpark(metrics.salesSkill)}
+                        accent="var(--mcc-forest-600)"
+                        borderColor={getUrgencyBorder(metrics.salesSkill)}
+                      />
+                      <MgrKpiCard
+                        label="Avg scenario score"
+                        value={formatPercent(metrics.avgScenarioScore)}
+                        sub="Service · sales · product"
+                        data={mgrMockSpark(metrics.avgScenarioScore)}
+                        accent="var(--mcc-sage)"
+                        borderColor={getUrgencyBorder(metrics.avgScenarioScore)}
+                      />
+                      <MgrKpiCard
+                        label="Training completion"
+                        value={formatPercent(metrics.avgCompletion)}
+                        sub="Across all modules"
+                        data={mgrMockSpark(metrics.avgCompletion)}
+                        accent="var(--mcc-amber)"
+                        borderColor={getUrgencyBorder(metrics.avgCompletion)}
+                      />
+                      <MgrKpiCard
+                        label="Upsell performance"
+                        value={formatPercent(metrics.salesSkill)}
+                        sub="Last 7 days"
+                        data={mgrMockSpark(metrics.salesSkill)}
+                        accent="var(--mcc-terra)"
+                        borderColor={getUrgencyBorder(metrics.salesSkill)}
+                      />
+                      <MgrKpiCard
+                        label="Staff health"
+                        value={`${onTrackCount} active`}
+                        sub={`${venueStaff.length} total · ${venueStaff.filter((m) => m.status === "attention").length} at risk · ${venueStaff.filter((m) => m.status === "inactive").length} inactive`}
+                        data={mgrMockSpark(0.75)}
+                        accent="var(--mcc-sage)"
+                        borderColor={getUrgencyBorder(Math.round(staffHealthRatio * 100))}
+                      />
+                    </>
+                  );
+                })()}
+              </section>
+
+              {/* ── 30-Day Revenue Impact Projection Banner ── */}
+              <section style={{ padding: "16px 28px" }}>
+                {(() => {
+                  const completionRate = metrics.avgCompletion;
+                  const targetCompletion = Math.min(100, completionRate + 20);
+                  const staffCount = venueStaff.length || 1;
+                  const avgCheckSize = 45;
+                  const weeklyBaselineCheck = staffCount * 5 * avgCheckSize * (completionRate / 100);
+                  const weeklyProjectedChecks = staffCount * 5 * avgCheckSize * (targetCompletion / 100);
+                  const weeklyIncrement = Math.round(weeklyProjectedChecks - weeklyBaselineCheck);
+
+                  return (
+                    <div style={{
+                      background: 'var(--gold-light)',
+                      border: '1px solid var(--gold)',
+                      borderRadius: 'var(--radius-lg)',
+                      padding: '16px 20px',
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '12px',
+                      fontSize: '0.9rem',
+                      lineHeight: '1.6',
+                      color: 'var(--text)',
+                    }}>
+                      <div style={{ fontSize: '1.3rem', flexShrink: 0 }}>📈</div>
+                      <div>
+                        <strong>30-Day Revenue Impact Projection</strong>
+                        <p style={{ margin: '6px 0 0 0', color: 'var(--text-soft)' }}>
+                          Increasing your team&apos;s scenario training completion to {targetCompletion.toFixed(0)}% is projected to drive an additional <strong style={{ color: 'var(--green)' }}>${weeklyIncrement.toLocaleString()}</strong> in weekly revenue through active-recall upselling modules.
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })()}
               </section>
 
               {/* ── 2-Column Bento Grid: Chart (left) + Right Panel (right) ── */}
@@ -1522,6 +1630,99 @@ export default function ManagerControlCenter({
 
                 {/* Right Column (35%): Stacked Cards */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                  {/* Shift Readiness Scorecard */}
+                  <div className="mcc-scorecard-card">
+                    <div className="mcc-scorecard-header">
+                      <span>Tonight&apos;s Shift Readiness</span>
+                      <span
+                        className="mcc-rf-badge"
+                        style={{
+                          background:
+                            metrics.rfScore >= 75
+                              ? 'var(--green-light)'
+                              : metrics.rfScore >= 50
+                              ? '#fff7ed'
+                              : '#fff1f2',
+                          color:
+                            metrics.rfScore >= 75
+                              ? 'var(--green)'
+                              : metrics.rfScore >= 50
+                              ? '#c2410c'
+                              : '#b91c1c',
+                        }}
+                      >
+                        {metrics.rfScore}%
+                      </span>
+                    </div>
+                    <table className="ops-staff-table mcc-scorecard-table">
+                      <thead>
+                        <tr>
+                          <th>Staff</th>
+                          <th>RSA</th>
+                          <th>Training</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {venueStaff.slice(0, 8).map((s) => {
+                          const rsaStat = rsaStatus(s.compliance);
+                          const isBlocked = rsaStat.level === 3;
+                          const pill = readinessPill(s);
+                          const isAlcoholRole = s.role === 'Bartender' || s.role === 'Floor';
+                          return (
+                            <tr key={s.id}>
+                              <td>
+                                <div className="ops-staff-avatar">{s.name[0]}</div>
+                                {s.name}
+                                {s.isJunior && isAlcoholRole && (
+                                  <span style={{ color: '#c2410c', fontSize: '0.65rem', display: 'block' }}>
+                                    Junior serving alcohol &mdash; verify adult rate (MA000119)
+                                  </span>
+                                )}
+                              </td>
+                              <td>
+                                <span style={{ color: rsaStat.level === 3 ? '#b91c1c' : 'var(--green)' }}>
+                                  {s.compliance?.rsaJurisdiction ?? '—'} RSA
+                                </span>
+                              </td>
+                              <td>{s.progress}%</td>
+                              <td>
+                                {isBlocked ? (
+                                  <span
+                                    style={{
+                                      background: '#fef2f2',
+                                      color: '#991b1b',
+                                      border: '1px solid #fee2e2',
+                                      padding: '2px 8px',
+                                      borderRadius: '999px',
+                                      fontSize: '0.7rem',
+                                      fontWeight: '700',
+                                    }}
+                                  >
+                                    ● ROSTER BLOCKED
+                                  </span>
+                                ) : (
+                                  <span
+                                    style={{
+                                      background: pill.bg,
+                                      color: pill.color,
+                                      padding: '2px 8px',
+                                      borderRadius: '999px',
+                                      fontSize: '0.7rem',
+                                      fontWeight: '700',
+                                    }}
+                                  >
+                                    {pill.dot} {pill.label}
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
                   {/* AI Coach Insights */}
                   <div className="mcc-overview-card">
                     <div className="mcc-overview-card-head">Manager insights</div>
@@ -1750,6 +1951,95 @@ export default function ManagerControlCenter({
                         </div>
                       );
                     })}
+                  </div>
+                </div>
+
+                {/* AI Coaching Queue */}
+                <div className="mcc-card">
+                  <div className="mcc-card-h">
+                    <h2>AI Coaching Queue</h2>
+                    <span className="mcc-card-meta">{coachingQueue.length} to coach</span>
+                  </div>
+                  <div style={{ padding: 4 }}>
+                    {coachingQueue.length > 0 ? (
+                      coachingQueue.map((item) => (
+                        <div
+                          key={item.staff.id}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: '12px',
+                            padding: '12px 16px',
+                            borderBottom: '1px solid var(--line-light)',
+                            fontSize: '13px',
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              width: '32px',
+                              height: '32px',
+                              borderRadius: '50%',
+                              background: item.staff.status === 'attention' ? '#fff7ed' : '#fff1f2',
+                              color: item.staff.status === 'attention' ? '#c2410c' : '#b91c1c',
+                              fontWeight: 600,
+                              flexShrink: 0,
+                            }}
+                          >
+                            {item.staff.name[0].toUpperCase()}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ color: 'var(--text)', fontWeight: 500, marginBottom: '2px' }}>
+                              {item.staff.name}
+                            </div>
+                            <div style={{ color: 'var(--text-soft)', fontSize: '12px' }}>
+                              {item.reason}
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                            <span
+                              style={{
+                                padding: '2px 8px',
+                                borderRadius: '4px',
+                                background: '#f0f9ff',
+                                color: '#0369a1',
+                                fontSize: '11px',
+                                fontWeight: 600,
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {item.moduleTag}
+                            </span>
+                            <button
+                              type="button"
+                              style={{
+                                padding: '4px 10px',
+                                borderRadius: '4px',
+                                background: 'var(--green)',
+                                color: '#fff',
+                                border: 'none',
+                                cursor: 'pointer',
+                                fontSize: '11px',
+                                fontWeight: 600,
+                                whiteSpace: 'nowrap',
+                              }}
+                              onClick={() => {
+                                // Future: POST /api/management/training-programs
+                                console.log(`Assign ${item.moduleTag} to ${item.staff.name}`);
+                              }}
+                            >
+                              Assign
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div style={{ padding: '24px 20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                        All staff are on track. Great work!
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -2144,13 +2434,7 @@ export default function ManagerControlCenter({
           </section>
         )}
 
-        {activeSection === "compliance" && (
-          <section className="ops-grid ops-grid-main">
-            <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
-              <EmptyState copy="Compliance tracking coming soon." />
-            </article>
-          </section>
-        )}
+        {activeSection === "compliance" && <ComplianceHub venueStaff={venueStaff} />}
 
         {activeSection === "analytics" && (
           <>

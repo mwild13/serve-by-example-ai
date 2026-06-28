@@ -3,7 +3,8 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { EmptyState, MasteryMicroGrid } from "./manager-ui";
 import { WorkspaceHeader } from "./WorkspaceHeader";
-import type { ManagementSnapshot, StaffRole } from "@/lib/management/types";
+import { rsaStatus } from "./compliance/helpers";
+import type { ManagementSnapshot, StaffRole, StaffMember } from "@/lib/management/types";
 
 type MembershipRow = {
   id: string;
@@ -32,6 +33,26 @@ const STAFF_ROLE_OPTIONS: StaffRole[] = [
   "Manager",
   "New Staff",
 ];
+
+function parseLastActiveDays(lastActive: string): number {
+  if (!lastActive) return 0;
+  const m = lastActive.match(/(\d+)\s*(day|week|month)/);
+  if (!m) return 0;
+  const n = parseInt(m[1], 10);
+  if (isNaN(n)) return 0;
+  if (m[2] === 'week') return n * 7;
+  if (m[2] === 'month') return n * 30;
+  return n;
+}
+
+function readinessPill(member: StaffMember): { label: string; dot: string; bg: string; color: string } {
+  const rsaStat = rsaStatus(member.compliance);
+  if (rsaStat.level === 3)
+    return { label: 'At Risk', dot: '○', bg: '#fff1f2', color: '#b91c1c' };
+  if (member.status === 'attention' || rsaStat.level === 2)
+    return { label: 'Caution', dot: '◐', bg: '#fff7ed', color: '#c2410c' };
+  return { label: 'Ready', dot: '●', bg: '#dcfce7', color: '#16a34a' };
+}
 
 export default function StaffRosterPanel({
   selectedVenueId,
@@ -201,8 +222,6 @@ export default function StaffRosterPanel({
                     const initials = member.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
                     const email = member.email ?? `${member.name.split(" ")[0].toLowerCase()}@sbe.io`;
                     const isReady = member.progress >= 70;
-                    const statusLabel = member.status === "on-track" && member.progress === 0 ? "Not started" : member.status === "on-track" ? "On track" : member.status === "attention" ? "Needs attention" : "Inactive";
-                    const statusStyle = member.status === "on-track" && member.progress === 0 ? { background: "#f3f4f6", color: "#6b7280" } : member.status === "on-track" ? { background: "#dcfce7", color: "#16a34a" } : member.status === "attention" ? { background: "#fff7ed", color: "#c2410c" } : { background: "#fff1f2", color: "#b91c1c" };
                     const barColor = member.progress >= 70 ? "#16a34a" : member.progress >= 40 ? "#f59e0b" : "#dc2626";
                     return (
                       <tr
@@ -219,7 +238,11 @@ export default function StaffRosterPanel({
                             {isReady && <span style={{ padding: "1px 7px", borderRadius: 999, fontSize: "0.65rem", fontWeight: 700, background: "#dcfce7", color: "#15803d", flexShrink: 0 }}>Ready</span>}
                           </div>
                         </td>
-                        <td><span className="ops-staff-email">{email}</span></td>
+                        <td><div className="ops-email-icon-cell" title={email}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/>
+                          </svg>
+                        </div></td>
                         <td>{member.role}</td>
                         <td style={{ minWidth: 90 }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -230,9 +253,14 @@ export default function StaffRosterPanel({
                           </div>
                         </td>
                         <td>
-                          <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: "0.72rem", fontWeight: 700, ...statusStyle }}>
-                            {statusLabel}
-                          </span>
+                          {(() => {
+                            const pill = readinessPill(member);
+                            return (
+                              <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: "0.72rem", fontWeight: 700, background: pill.bg, color: pill.color }}>
+                                {pill.dot} {pill.label}
+                              </span>
+                            );
+                          })()}
                         </td>
                         <td>
                           {member.staffUserId ? (
@@ -249,7 +277,15 @@ export default function StaffRosterPanel({
                             scenariosAttempted={member.scenariosAttempted}
                           />
                         </td>
-                        <td>{member.lastActive}</td>
+                        <td>
+                          {(() => {
+                            const days = member.lastActiveDays ?? parseLastActiveDays(member.lastActive);
+                            const lastActiveStyle = days > 30
+                              ? { color: '#b91c1c', fontWeight: 700 }
+                              : days > 14 ? { color: '#c2410c' } : {};
+                            return <span style={lastActiveStyle}>{member.lastActive}</span>;
+                          })()}
+                        </td>
                         <td>
                           <button
                             type="button"

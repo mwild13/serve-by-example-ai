@@ -25,6 +25,19 @@ export type StaffRole =
 
 export type StaffStatus = "on-track" | "attention" | "inactive";
 
+export type RSAState = 'valid' | 'warning_30d' | 'warning_7d' | 'expired';
+export type AustralianState = 'NSW' | 'VIC' | 'QLD' | 'WA' | 'SA' | 'TAS' | 'NT' | 'ACT';
+
+export interface StaffComplianceRecord {
+  staffId: string;
+  rsaState: RSAState;
+  rsaJurisdiction: AustralianState;
+  rsaExpiryDate: string | null;
+  fssExpiryDate: string | null;
+  fssOnSiteCopy: boolean;
+  shiftConfirmed: boolean;
+}
+
 export type StaffMember = {
   id: string;
   venueId: string;
@@ -48,6 +61,10 @@ export type StaffMember = {
   scenariosAttempted?: number;
   // Connection linkage – set when staff member has signed in and linked their account
   staffUserId?: string | null;
+  // Compliance & operational fields (optional – absent until compliance data is recorded)
+  compliance?: StaffComplianceRecord;
+  lastActiveDays?: number;
+  isJunior?: boolean;
 };
 
 export type Venue = {
