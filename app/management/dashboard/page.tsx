@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import Stripe from "stripe";
 import ManagerControlCenter from "@/components/mission-control/ManagerControlCenter";
-import { getManagementSnapshot } from "@/lib/management/service";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 

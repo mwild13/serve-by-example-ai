@@ -1,9 +1,8 @@
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { getManagementSnapshot } from "@/lib/management/service";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
 
 export async function GET(req: Request) {
-  const user = await getUserFromRequest(req);
+  const { user, supabase } = await getUserFromRequest(req);
   if (!user) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
@@ -12,7 +11,6 @@ export async function GET(req: Request) {
   }
 
   try {
-    const supabase = await createSupabaseServerClient();
     const snapshot = await getManagementSnapshot(supabase, user.id);
     return new Response(JSON.stringify(snapshot), {
       status: 200,
