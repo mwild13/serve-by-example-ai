@@ -15,6 +15,7 @@ import {
   FileLineChart,
   Trophy,
   Sparkles,
+  Settings,
 } from "lucide-react";
 import type {
   ManagementSnapshot,
@@ -70,6 +71,7 @@ const NAV_GROUPS: NavGroup[] = [
       { id: "reports", label: "Reports", icon: FileLineChart },
       { id: "leaderboards", label: "Leaderboards", icon: Trophy },
       { id: "aicoach", label: "Ask AI Coach", icon: Sparkles },
+      { id: "settings", label: "Settings", icon: Settings },
     ],
   },
 ];

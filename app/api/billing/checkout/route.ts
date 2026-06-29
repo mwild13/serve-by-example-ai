@@ -16,10 +16,10 @@ const PLAN_METADATA: Record<string, { tier: string; seat_limit: string }> = {
   commercial_yearly:    { tier: "commercial", seat_limit: "35" },
   enterprise:           { tier: "enterprise", seat_limit: "9999" },
   // Legacy plan keys — kept so existing bookmarked links and emails still resolve
-  single_venue:         { tier: "boutique",   seat_limit: "25" },
-  single_venue_yearly:  { tier: "boutique",   seat_limit: "25" },
-  multi_venue:          { tier: "commercial", seat_limit: "125" },
-  multi_venue_yearly:   { tier: "commercial", seat_limit: "125" },
+  single_venue:         { tier: "boutique",   seat_limit: "15" },
+  single_venue_yearly:  { tier: "boutique",   seat_limit: "15" },
+  multi_venue:          { tier: "commercial", seat_limit: "35" },
+  multi_venue_yearly:   { tier: "commercial", seat_limit: "35" },
 };
 
 function getStripeClient() {

@@ -100,8 +100,8 @@ const TIER_SEATS: Record<Tier, number> = {
   boutique: 15,
   commercial: 35,
   enterprise: 9999,
-  venue_single: 25,
-  venue_multi: 125,
+  venue_single: 15,
+  venue_multi: 35,
 };
 
 /**

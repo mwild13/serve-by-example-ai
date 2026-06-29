@@ -7,10 +7,10 @@ const TIER_MAX_SEATS: Record<string, number> = {
   boutique: 15,
   commercial: 35,
   enterprise: 9999,
-  "single-venue": 25,   // legacy
-  venue_single: 25,     // legacy
-  "multi-venue": 125,   // legacy
-  venue_multi: 125,     // legacy
+  "single-venue": 15,   // legacy
+  venue_single: 15,     // legacy
+  "multi-venue": 35,    // legacy
+  venue_multi: 35,      // legacy
 };
 
 /**
