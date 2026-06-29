@@ -2015,12 +2015,12 @@ export default function ManagerControlCenter({
                   <div className="mcc-overview-card-head">Training completion by pillar</div>
                   <div style={{ padding: "16px 20px" }}>
                     {[
-                      { name: "Bartending",     val: Math.max(metrics.productSkill, metrics.avgCompletion), color: "var(--mcc-terra)" },
+                      { name: "Bartending",     val: metrics.productSkill, color: "var(--mcc-terra)" },
                       { name: "Sales",          val: metrics.salesSkill, color: "var(--mcc-amber)" },
                       { name: "Management",     val: venuePrograms.length ? Math.round(venuePrograms.reduce((s, p) => s + p.completion, 0) / venuePrograms.length) : 0, color: "var(--mcc-rose)" },
-                      { name: "Menu Knowledge", val: venueInventory.length ? Math.min(venueInventory.reduce((s, i) => s + i.products.length, 0) * 5, 100) : 0, color: "var(--mcc-sage)" },
+                      { name: "Menu Knowledge", val: venueInventory.length ? Math.min(Math.round(venueInventory.reduce((s, i) => s + i.products.length, 0) / Math.max(venueInventory.length, 1) / 5 * 100), 100) : 0, color: "var(--mcc-sage)" },
                       { name: "Service",        val: metrics.serviceSkill, color: "var(--mcc-forest-600)" },
-                      { name: "Scenarios",      val: Math.min(todaySnapshot.scenariosCompleted * 3, 100), color: "var(--mcc-info)" },
+                      { name: "Scenarios",      val: Math.min(Math.ceil(todaySnapshot.scenariosCompleted / 10 * 100), 100), color: "var(--mcc-info)" },
                     ].map((p) => (
                       <div key={p.name} className="mcc-pillar-row">
                         <div className="mcc-pillar-name">{p.name}</div>
@@ -2038,20 +2038,25 @@ export default function ManagerControlCenter({
                   <div className="mcc-overview-card-head">Compliance</div>
                   <div style={{ padding: "16px 20px" }}>
                     <div style={{ fontSize: 36, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: "var(--mcc-ink-900)" }}>
-                      {metrics.avgCompletion > 0 ? `${Math.min(100, Math.round(metrics.avgCompletion * 0.9 + 10))}%` : "–"}
+                      {metrics.avgCompletion > 0 ? `${Math.min(100, metrics.avgCompletion)}%` : "–"}
                     </div>
                     <div style={{ fontSize: 11, color: "var(--mcc-ink-500)", marginBottom: 14 }}>Service standards assessment</div>
-                    {([
-                      ["RSA certified",     `${venueStaff.length} / ${venueStaff.length || "–"}`, metrics.avgCompletion > 50 ? "good" : "warn"],
-                      ["Food safety",       `${venueStaff.length} / ${venueStaff.length || "–"}`, "good"],
-                      ["Service protocols", `${venueStaff.filter(s => s.status === "on-track").length} / ${venueStaff.length || "–"}`, needsAttention.length > 0 ? "warn" : "good"],
-                      ["Sign-off pending",  `${needsAttention.length} staff`, needsAttention.length > 0 ? "warn" : "good"],
-                    ] as [string, string, string][]).map(([k, v, tone], i) => (
-                      <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: i < 3 ? "1px dashed var(--mcc-rule-2)" : "none", fontSize: 12 }}>
-                        <span style={{ color: "var(--mcc-ink-700)" }}>{k}</span>
-                        <span className={`mcc-pill mcc-pill-${tone}`} style={{ fontSize: 10 }}>{v}</span>
-                      </div>
-                    ))}
+                    {(() => {
+                      const rsaCertified = venueStaff.filter(s => rsaStatus(s.compliance).level <= 1).length;
+                      const foodSafety = venueStaff.filter(s => s.compliance?.fssExpiryDate && new Date(s.compliance.fssExpiryDate) > new Date()).length;
+                      const serviceReady = venueStaff.filter(s => s.status === "on-track").length;
+                      return ([
+                        ["RSA certified",     `${rsaCertified} / ${venueStaff.length || "–"}`, rsaCertified === venueStaff.length ? "good" : rsaCertified > 0 ? "warn" : "alert"],
+                        ["Food safety",       `${foodSafety} / ${venueStaff.length || "–"}`, foodSafety === venueStaff.length ? "good" : foodSafety > 0 ? "warn" : "alert"],
+                        ["Service protocols", `${serviceReady} / ${venueStaff.length || "–"}`, needsAttention.length > 0 ? "warn" : "good"],
+                        ["Sign-off pending",  `${needsAttention.length} staff`, needsAttention.length > 0 ? "warn" : "good"],
+                      ] as [string, string, string][]).map(([k, v, tone], i) => (
+                        <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: i < 3 ? "1px dashed var(--mcc-rule-2)" : "none", fontSize: 12 }}>
+                          <span style={{ color: "var(--mcc-ink-700)" }}>{k}</span>
+                          <span className={`mcc-pill mcc-pill-${tone}`} style={{ fontSize: 10 }}>{v}</span>
+                        </div>
+                      ));
+                    })()}
                   </div>
                 </div>
               </div>

@@ -94,7 +94,7 @@ const TIER_MODULES: Record<Tier, number[]> = {
   venue_multi: ALL_MODULES,
 };
 
-const TIER_SEATS: Record<Tier, number> = {
+export const TIER_SEATS: Record<Tier, number> = {
   free: 0,
   pro: 0,
   boutique: 15,

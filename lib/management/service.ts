@@ -1,5 +1,6 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import { buildSeedManagementSnapshot } from "@/lib/management/seed";
+import { TIER_SEATS } from "@/lib/session";
 import type {
   InventoryCategory,
   ManagementSnapshot,
@@ -218,7 +219,7 @@ function mapVenue(row: Record<string, unknown>, staff: StaffMember[]): Venue {
     avgScenarioScore,
     upsellRate,
     activeStaff: staff.length,
-    staffLimit: asNumber(row.staff_limit, 25),
+    staffLimit: asNumber(row.staff_limit, 15),
     managerPermissions: asString(row.manager_permissions, "2 managers, 1 supervisor admin"),
   };
 }
@@ -526,6 +527,29 @@ export async function getManagementSnapshot(
   };
 }
 
+async function getUserStaffLimit(supabase: ManagementSupabaseClient, userId: string): Promise<number> {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("plan")
+    .eq("id", userId)
+    .single();
+
+  const rawTier = profile?.plan ?? "free";
+  const tierMap: Record<string, keyof typeof TIER_SEATS> = {
+    free: "free",
+    pro: "pro",
+    boutique: "boutique",
+    commercial: "commercial",
+    enterprise: "enterprise",
+    "single-venue": "venue_single",
+    "multi-venue": "venue_multi",
+    venue_single: "venue_single",
+    venue_multi: "venue_multi",
+  };
+  const tier = tierMap[rawTier] ?? "free";
+  return TIER_SEATS[tier] ?? 15;
+}
+
 export async function ensureManagerVenue(supabase: ManagementSupabaseClient, userId: string) {
   const venueResult = await getOwnedVenues(supabase, userId);
 
@@ -538,6 +562,7 @@ export async function ensureManagerVenue(supabase: ManagementSupabaseClient, use
     return asString(existingVenue.id);
   }
 
+  const staffLimit = await getUserStaffLimit(supabase, userId);
   const hasVenueCode = await getNextVenueCode(supabase).then(() => true).catch((err: unknown) => {
     if (err instanceof Error && err.message.includes("venues.venue_code not found")) return false;
     throw err;
@@ -547,7 +572,7 @@ export async function ensureManagerVenue(supabase: ManagementSupabaseClient, use
     const insertPayload: Record<string, unknown> = {
       owner_user_id: userId,
       name: "Primary Venue",
-      staff_limit: 25,
+      staff_limit: staffLimit,
       manager_permissions: "2 managers, 1 supervisor admin",
     };
 
@@ -582,6 +607,7 @@ export async function createVenue(
   userId: string,
   payload: NewVenuePayload,
 ) {
+  const staffLimit = await getUserStaffLimit(supabase, userId);
   const hasVenueCode = await getNextVenueCode(supabase).then(() => true).catch((err: unknown) => {
     if (err instanceof Error && err.message.includes("venues.venue_code not found")) return false;
     throw err;
@@ -593,7 +619,7 @@ export async function createVenue(
     const insertPayload: Record<string, unknown> = {
       owner_user_id: userId,
       name: payload.name,
-      staff_limit: 25,
+      staff_limit: staffLimit,
       manager_permissions: "2 managers, 1 supervisor admin",
     };
 
