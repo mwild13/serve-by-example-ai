@@ -14,7 +14,10 @@ export async function GET(req: Request) {
     const snapshot = await getManagementSnapshot(supabase, user.id);
     return new Response(JSON.stringify(snapshot), {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "private, max-age=60, stale-while-revalidate=300",
+      },
     });
   } catch (error) {
     console.error("Failed to fetch management snapshot:", error);

@@ -341,9 +341,12 @@ export default function ManagerControlCenter({
   }, [sessionToken]);
 
   // Fetch snapshot on mount if not provided server-side
+  // useRef avoids refetch when sessionToken/apiFetch changes (Stale-While-Revalidate pattern)
+  const hasFetchedSnapshot = useRef(false);
   useEffect(() => {
-    if (initialSnapshot || !snapshotLoading) return;
+    if (initialSnapshot || hasFetchedSnapshot.current) return;
 
+    hasFetchedSnapshot.current = true;
     (async () => {
       try {
         const res = await apiFetch("/api/management/snapshot");
@@ -360,7 +363,7 @@ export default function ManagerControlCenter({
         setSnapshotLoading(false);
       }
     })();
-  }, [initialSnapshot, snapshotLoading, apiFetch, selectedVenueId]);
+  }, [initialSnapshot, apiFetch, selectedVenueId]);
 
   const [revenueTransactionValue, setRevenueTransactionValue] = useState(45);
   const [aiCoachInput, setAiCoachInput] = useState("");
