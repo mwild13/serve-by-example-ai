@@ -6782,6 +6782,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   font-weight: 700;
   display: inline-flex;
   align-items: center;
+  white-space: nowrap;
 }
 
 .ops-health-chip[data-health="good"] {

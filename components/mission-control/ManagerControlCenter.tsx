@@ -32,7 +32,6 @@ import type { QuickActionId, NavGroup, SearchResult } from "./manager-types";
 import {
   EmptyState,
   formatPercent,
-  MasteryMicroGrid,
 } from "./manager-ui";
 import { WorkspaceHeader } from "./WorkspaceHeader";
 import { ManagementTopbar } from "./ManagementTopbar";
@@ -103,8 +102,6 @@ const QUICK_ACTIONS: Array<{
   section: ManagerSection;
 }> = [
   { id: "add-staff", label: "Add staff", section: "staff" },
-  { id: "assign-training", label: "Assign training", section: "training" },
-  { id: "create-program", label: "Create program", section: "training" },
   { id: "add-inventory", label: "Add inventory", section: "inventory" },
 ];
 
@@ -1573,14 +1570,6 @@ export default function ManagerControlCenter({
                       >
                         → Export
                       </button>
-                      <button
-                        type="button"
-                        className="ops-quick-link-btn"
-                        onClick={() => { handleSectionChange("training"); openAction("assign-training"); }}
-                        style={{ fontSize: "0.88rem" }}
-                      >
-                        → Bulk assign
-                      </button>
                     </div>
                   }
                 />
@@ -1594,6 +1583,10 @@ export default function ManagerControlCenter({
                   </div>
                 </div>
               )}
+
+              {/* ══════════════════════════════════════════════════════════════════════ */}
+              {/* ZONE 1: THE PULSE — Instant baseline verification */}
+              {/* ══════════════════════════════════════════════════════════════════════ */}
 
               {/* ── KPI strip ── */}
               <section className="mcc-kpi-strip" style={{ padding: "20px 28px 0" }}>
@@ -1681,412 +1674,13 @@ export default function ManagerControlCenter({
                 })()}
               </section>
 
-              {/* ── Training Chart (Full Width) ── */}
-              <div className="mcc-overview-card" style={{ margin: "20px 28px 0" }}>
-                <div className="mcc-overview-card-head">Training progression, 14 days</div>
-                <MgrRevenueChart trainingValue={metrics.avgCompletion} />
-              </div>
+              {/* ══════════════════════════════════════════════════════════════════════ */}
+              {/* ZONE 2: THE SHIFT — Operational visibility (33/67 split) */}
+              {/* ══════════════════════════════════════════════════════════════════════ */}
 
-              {/* ── Tonight's Shift Readiness (Full Width, Scrollable) ── */}
-              <div className="mcc-scorecard-card" style={{ margin: "16px 28px 0", maxHeight: "500px", overflowY: "auto" }}>
-                <div className="mcc-scorecard-header">
-                  <span>Tonight&apos;s Shift Readiness</span>
-                  <span
-                    className="mcc-rf-badge"
-                    style={{
-                      background:
-                        metrics.rfScore >= 75
-                          ? 'var(--green-light)'
-                          : metrics.rfScore >= 50
-                          ? '#fff7ed'
-                          : '#fff1f2',
-                      color:
-                        metrics.rfScore >= 75
-                          ? 'var(--green)'
-                          : metrics.rfScore >= 50
-                          ? '#c2410c'
-                          : '#b91c1c',
-                    }}
-                  >
-                    {metrics.rfScore}%
-                  </span>
-                </div>
-                <table className="ops-staff-table mcc-scorecard-table">
-                  <thead>
-                    <tr>
-                      <th>Staff</th>
-                      <th>RSA</th>
-                      <th>Training</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {venueStaff.map((s) => {
-                      const rsaStat = rsaStatus(s.compliance);
-                      const isBlocked = rsaStat.level === 3;
-                      const pill = readinessPill(s);
-                      const isAlcoholRole = s.role === 'Bartender' || s.role === 'Floor';
-                      return (
-                        <tr key={s.id}>
-                          <td>
-                            <div className="ops-staff-avatar">{s.name[0]}</div>
-                            {s.name}
-                            {s.isJunior && isAlcoholRole && (
-                              <span style={{ color: '#c2410c', fontSize: '0.65rem', display: 'block' }}>
-                                Junior serving alcohol &mdash; verify adult rate (MA000119)
-                              </span>
-                            )}
-                          </td>
-                          <td>
-                            <span style={{ color: rsaStat.level === 3 ? '#b91c1c' : 'var(--green)' }}>
-                              {s.compliance?.rsaJurisdiction ?? '—'} RSA
-                            </span>
-                          </td>
-                          <td>{s.progress}%</td>
-                          <td>
-                            {isBlocked ? (
-                              <span
-                                style={{
-                                  background: '#fef2f2',
-                                  color: '#991b1b',
-                                  border: '1px solid #fee2e2',
-                                  padding: '2px 8px',
-                                  borderRadius: '999px',
-                                  fontSize: '0.7rem',
-                                  fontWeight: '700',
-                                }}
-                              >
-                                ● ROSTER BLOCKED
-                              </span>
-                            ) : (
-                              <span
-                                style={{
-                                  background: pill.bg,
-                                  color: pill.color,
-                                  padding: '2px 8px',
-                                  borderRadius: '999px',
-                                  fontSize: '0.7rem',
-                                  fontWeight: '700',
-                                }}
-                              >
-                                {pill.dot} {pill.label}
-                              </span>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "16px", padding: "16px 28px 0" }}>
 
-              {/* ── Re-positioned Sidebar Content Below Training Chart ── */}
-              <div className="mcc-overview-grid" style={{ margin: "20px 28px 0", gridTemplateColumns: "repeat(2, 1fr)" }}>
-                {/* AI Coach Insights */}
-                <div className="mcc-overview-card">
-                  <div className="mcc-overview-card-head">Manager insights</div>
-                  <div style={{ padding: "14px 16px", fontSize: "13px", color: "var(--mcc-ink-700)", lineHeight: "1.5" }}>
-                    {snapshot?.notices && snapshot.notices.length > 0 ? (
-                      <ul style={{ margin: 0, paddingLeft: "16px" }}>
-                        {snapshot.notices.slice(0, 3).map((notice: string, i: number) => (
-                          <li key={i} style={{ marginBottom: "6px" }}>{notice}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <span style={{ color: "var(--mcc-ink-500)" }}>Check back after team activity for insights</span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Needs Attention */}
-                <div className="mcc-overview-card">
-                  <div className="mcc-overview-card-head">Needs attention</div>
-                  <div style={{ padding: "12px 16px" }}>
-                    {needsAttention.length > 0 ? (
-                      <ul style={{ margin: 0, paddingLeft: "16px", fontSize: "13px" }}>
-                        {needsAttention.slice(0, 3).map((member) => (
-                          <li key={member.id} style={{ marginBottom: "6px", color: "var(--mcc-bad)" }}>
-                            {member.name} – {member.status === "attention" ? "Needs attention" : "Not started"}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <div style={{ fontSize: "13px", color: "var(--mcc-good)" }}>All staff on track</div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Team Summary */}
-                <div className="mcc-overview-card">
-                  <div className="mcc-overview-card-head">Team summary</div>
-                  <div style={{ padding: "12px 16px", fontSize: "13px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", color: "var(--mcc-ink-700)" }}>
-                      <span>Total staff</span>
-                      <strong>{venueStaff.length}</strong>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", color: "var(--mcc-ink-700)" }}>
-                      <span>Avg completion</span>
-                      <strong>{formatPercent(metrics.avgCompletion)}</strong>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* ── Secondary Grid: Training Pillars + Compliance + Venue Health ── */}
-              <div className="mcc-secondary-grid" style={{ padding: "0 28px", paddingBottom: "20px" }}>
-                {/* Training pillars */}
-                <div className="mcc-overview-card">
-                  <div className="mcc-overview-card-head">Training completion by pillar</div>
-                  <div style={{ padding: "16px 20px" }}>
-                    {[
-                      { name: "Bartending",     val: Math.max(metrics.productSkill, metrics.avgCompletion), color: "var(--mcc-terra)" },
-                      { name: "Sales",          val: metrics.salesSkill, color: "var(--mcc-amber)" },
-                      { name: "Management",     val: venuePrograms.length ? Math.round(venuePrograms.reduce((s, p) => s + p.completion, 0) / venuePrograms.length) : 0, color: "var(--mcc-rose)" },
-                      { name: "Menu Knowledge", val: venueInventory.length ? Math.min(venueInventory.reduce((s, i) => s + i.products.length, 0) * 5, 100) : 0, color: "var(--mcc-sage)" },
-                      { name: "Service",        val: metrics.serviceSkill, color: "var(--mcc-forest-600)" },
-                      { name: "Scenarios",      val: Math.min(todaySnapshot.scenariosCompleted * 3, 100), color: "var(--mcc-info)" },
-                    ].map((p) => (
-                      <div key={p.name} className="mcc-pillar-row">
-                        <div className="mcc-pillar-name">{p.name}</div>
-                        <div className="mcc-bar">
-                          <div className="mcc-bar-fill" style={{ width: `${p.val}%`, background: p.color }} />
-                        </div>
-                        <div className="mcc-pillar-pct">{p.val}%</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Compliance + Venue Health stack */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                  {/* Compliance card */}
-                  <div className="mcc-overview-card">
-                    <div className="mcc-overview-card-head">Compliance</div>
-                    <div style={{ padding: "16px 20px" }}>
-                      <div style={{ fontSize: 36, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: "var(--mcc-ink-900)" }}>
-                        {metrics.avgCompletion > 0 ? `${Math.min(100, Math.round(metrics.avgCompletion * 0.9 + 10))}%` : "–"}
-                      </div>
-                      <div style={{ fontSize: 11, color: "var(--mcc-ink-500)", marginBottom: 14 }}>Service standards assessment</div>
-                      {([
-                        ["RSA certified",     `${venueStaff.length} / ${venueStaff.length || "–"}`, metrics.avgCompletion > 50 ? "good" : "warn"],
-                        ["Food safety",       `${venueStaff.length} / ${venueStaff.length || "–"}`, "good"],
-                        ["Service protocols", `${venueStaff.filter(s => s.status === "on-track").length} / ${venueStaff.length || "–"}`, needsAttention.length > 0 ? "warn" : "good"],
-                        ["Sign-off pending",  `${needsAttention.length} staff`, needsAttention.length > 0 ? "warn" : "good"],
-                      ] as [string, string, string][]).map(([k, v, tone], i) => (
-                        <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: i < 3 ? "1px dashed var(--mcc-rule-2)" : "none", fontSize: 12 }}>
-                          <span style={{ color: "var(--mcc-ink-700)" }}>{k}</span>
-                          <span className={`mcc-pill mcc-pill-${tone}`} style={{ fontSize: 10 }}>{v}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Venue health breakdown */}
-                  <div className="mcc-overview-card">
-                    <div className="mcc-overview-card-head">Venue health</div>
-                    <div style={{ padding: "16px 20px" }}>
-                      <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
-                        <div style={{ fontSize: 36, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}>
-                          {metrics.venueHealthScore > 0 ? metrics.venueHealthScore : "–"}
-                        </div>
-                        {metrics.venueHealthScore > 0 && <span style={{ fontSize: 16, color: "var(--mcc-ink-500)" }}>/100</span>}
-                      </div>
-                      <div style={{ fontSize: 11, color: "var(--mcc-ink-500)", marginBottom: 14 }}>Composite training &amp; performance index</div>
-                      {([
-                        ["Service", metrics.serviceSkill, "var(--mcc-sage)"],
-                        ["Sales",   metrics.salesSkill,   "var(--mcc-amber)"],
-                        ["Product", metrics.productSkill, "var(--mcc-terra)"],
-                      ] as [string, number, string][]).map(([k, v, c]) => (
-                        <div key={k} style={{ marginBottom: 10 }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--mcc-ink-700)", marginBottom: 4 }}>
-                            <span>{k}</span>
-                            <span style={{ fontVariantNumeric: "tabular-nums" }}>{v > 0 ? `${v}%` : "–"}</span>
-                          </div>
-                          <div className="mcc-bar">
-                            <div className="mcc-bar-fill" style={{ width: `${v}%`, background: c }} />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* ── Staff snapshot + Operational alerts + Upcoming shifts (responsive grid) ── */}
-              <section className="mcc-lower-grid">
-                {/* Staff snapshot */}
-                <div className="mcc-card" style={{ maxHeight: "500px", overflowY: "auto" }}>
-                  <div className="mcc-card-h">
-                    <h2>Staff snapshot</h2>
-                    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                      {needsAttention.length > 0 && (
-                        <span className="mcc-pill mcc-pill-warn">{needsAttention.length} need attention</span>
-                      )}
-                      <button
-                        type="button"
-                        style={{ fontSize: 11, color: "var(--mcc-forest-700)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
-                        onClick={() => handleSectionChange("staff")}
-                      >
-                        Open Staff →
-                      </button>
-                    </div>
-                  </div>
-                  {venueStaff.length > 0 ? (
-                    <div>
-                      {venueStaff.map((member) => {
-                        const isGood = member.status === "on-track";
-                        return (
-                          <div key={member.id} className="mcc-staff-row">
-                            <div className="mcc-avatar" style={{ background: isGood ? "var(--mcc-sage)" : "var(--mcc-rule)" }}>
-                              {member.name[0].toUpperCase()}
-                            </div>
-                            <div style={{ fontSize: 13, color: "var(--mcc-ink-900)", fontWeight: 500 }}>
-                              {member.name}
-                              <span style={{ color: "var(--mcc-ink-500)", fontWeight: 400, marginLeft: 8 }}>{member.role}</span>
-                            </div>
-                            <span className={`mcc-pill ${isGood ? "mcc-pill-good" : "mcc-pill-bad"}`}>
-                              {member.status === "on-track" ? "On track" : member.status === "attention" ? "Needs attention" : "Not started"}
-                            </span>
-                            <MasteryMicroGrid
-                              scenariosMastered={member.scenariosMastered}
-                              scenariosAttempted={member.scenariosAttempted}
-                            />
-                            <span style={{ fontSize: 12, color: "var(--mcc-ink-500)", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>
-                              {member.lastActive}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div style={{ padding: "24px 20px", fontSize: 13, color: "var(--mcc-ink-500)" }}>
-                      No staff added yet.{" "}
-                      <button type="button" style={{ color: "var(--mcc-forest-700)", background: "none", border: "none", cursor: "pointer", padding: 0, fontSize: 13, fontFamily: "inherit" }} onClick={() => openAction("add-staff")}>
-                        Add your first staff member →
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Operational alerts */}
-                <div className="mcc-card">
-                  <div className="mcc-card-h">
-                    <h2>Operational alerts</h2>
-                    <span className="mcc-card-meta">{operationalAlerts.length} active</span>
-                  </div>
-                  <div style={{ padding: 4 }}>
-                    {operationalAlerts.map((alert) => {
-                      const isTraining = alert.title === "Training risk";
-                      const isUpsell = alert.title === "Upsell performance";
-                      const isInventory = alert.title === "Inventory intelligence";
-                      const tone = isInventory ? "info" : (isTraining && needsAttention.length === 0) || (!isTraining && !isUpsell && inactiveCount === 0) ? "good" : "warn";
-                      const iconChar = isTraining ? "◆" : isUpsell ? "→" : isInventory ? "≡" : "◉";
-                      return (
-                        <div key={alert.title} className="mcc-alert-item">
-                          <div className={`mcc-alert-icon ${tone}`}>{iconChar}</div>
-                          <div>
-                            <div className="mcc-alert-title">{alert.title}</div>
-                            <div className="mcc-alert-desc">{alert.detail}</div>
-                          </div>
-                          <button type="button" className="mcc-alert-cta" onClick={() => handleSectionChange(alert.section)}>
-                            {alert.actionLabel} →
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* AI Coaching Queue */}
-                <div className="mcc-card">
-                  <div className="mcc-card-h">
-                    <h2>AI Coaching Queue</h2>
-                    <span className="mcc-card-meta">{coachingQueue.length} to coach</span>
-                  </div>
-                  <div style={{ padding: 4 }}>
-                    {coachingQueue.length > 0 ? (
-                      coachingQueue.map((item) => (
-                        <div
-                          key={item.staff.id}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'flex-start',
-                            gap: '12px',
-                            padding: '12px 16px',
-                            borderBottom: '1px solid var(--line-light)',
-                            fontSize: '13px',
-                          }}
-                        >
-                          <div
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              width: '32px',
-                              height: '32px',
-                              borderRadius: '50%',
-                              background: item.staff.status === 'attention' ? '#fff7ed' : '#fff1f2',
-                              color: item.staff.status === 'attention' ? '#c2410c' : '#b91c1c',
-                              fontWeight: 600,
-                              flexShrink: 0,
-                            }}
-                          >
-                            {item.staff.name[0].toUpperCase()}
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ color: 'var(--text)', fontWeight: 500, marginBottom: '2px' }}>
-                              {item.staff.name}
-                            </div>
-                            <div style={{ color: 'var(--text-soft)', fontSize: '12px' }}>
-                              {item.reason}
-                            </div>
-                          </div>
-                          <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                            <span
-                              style={{
-                                padding: '2px 8px',
-                                borderRadius: '4px',
-                                background: '#f0f9ff',
-                                color: '#0369a1',
-                                fontSize: '11px',
-                                fontWeight: 600,
-                                whiteSpace: 'nowrap',
-                              }}
-                            >
-                              {item.moduleTag}
-                            </span>
-                            <button
-                              type="button"
-                              style={{
-                                padding: '4px 10px',
-                                borderRadius: '4px',
-                                background: 'var(--green)',
-                                color: '#fff',
-                                border: 'none',
-                                cursor: 'pointer',
-                                fontSize: '11px',
-                                fontWeight: 600,
-                                whiteSpace: 'nowrap',
-                              }}
-                              onClick={() => {
-                                // Future: POST /api/management/training-programs
-                                console.log(`Assign ${item.moduleTag} to ${item.staff.name}`);
-                              }}
-                            >
-                              Assign
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div style={{ padding: '24px 20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
-                        All staff are on track. Great work!
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Upcoming shifts */}
+                {/* Left Column (33%): Upcoming shifts */}
                 <div className="mcc-card">
                   <div className="mcc-card-h">
                     <h2>Upcoming shifts</h2>
@@ -2119,7 +1713,321 @@ export default function ManagerControlCenter({
                     Manage shifts
                   </button>
                 </div>
-              </section>
+
+                {/* Right Column (67%): Tonight's Shift Readiness */}
+                <div className="mcc-scorecard-card" style={{ maxHeight: "500px", overflowY: "auto" }}>
+                  <div className="mcc-scorecard-header">
+                    <span>Tonight&apos;s Shift Readiness</span>
+                    <span
+                      className="mcc-rf-badge"
+                      style={{
+                        background:
+                          metrics.rfScore >= 75
+                            ? 'var(--green-light)'
+                            : metrics.rfScore >= 50
+                            ? '#fff7ed'
+                            : '#fff1f2',
+                        color:
+                          metrics.rfScore >= 75
+                            ? 'var(--green)'
+                            : metrics.rfScore >= 50
+                            ? '#c2410c'
+                            : '#b91c1c',
+                      }}
+                    >
+                      {metrics.rfScore}%
+                    </span>
+                  </div>
+                  <table className="ops-staff-table mcc-scorecard-table">
+                    <thead>
+                      <tr>
+                        <th>Staff</th>
+                        <th>RSA</th>
+                        <th>Training</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {venueStaff.map((s) => {
+                        const rsaStat = rsaStatus(s.compliance);
+                        const isBlocked = rsaStat.level === 3;
+                        const pill = readinessPill(s);
+                        const isAlcoholRole = s.role === 'Bartender' || s.role === 'Floor';
+                        return (
+                          <tr key={s.id}>
+                            <td>
+                              <div className="ops-staff-avatar">{s.name[0]}</div>
+                              {s.name}
+                              {s.isJunior && isAlcoholRole && (
+                                <span style={{ color: '#c2410c', fontSize: '0.65rem', display: 'block' }}>
+                                  Junior serving alcohol &mdash; verify adult rate (MA000119)
+                                </span>
+                              )}
+                            </td>
+                            <td>
+                              <span style={{ color: rsaStat.level === 3 ? '#b91c1c' : 'var(--green)' }}>
+                                {s.compliance?.rsaJurisdiction ?? '—'} RSA
+                              </span>
+                            </td>
+                            <td>{s.progress}%</td>
+                            <td>
+                              {isBlocked ? (
+                                <span
+                                  style={{
+                                    background: '#fef2f2',
+                                    color: '#991b1b',
+                                    border: '1px solid #fee2e2',
+                                    padding: '2px 8px',
+                                    borderRadius: '999px',
+                                    fontSize: '0.7rem',
+                                    fontWeight: '700',
+                                  }}
+                                >
+                                  ● ROSTER BLOCKED
+                                </span>
+                              ) : (
+                                <span
+                                  style={{
+                                    background: pill.bg,
+                                    color: pill.color,
+                                    padding: '2px 8px',
+                                    borderRadius: '999px',
+                                    fontSize: '0.7rem',
+                                    fontWeight: '700',
+                                  }}
+                                >
+                                  {pill.dot} {pill.label}
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* ══════════════════════════════════════════════════════════════════════ */}
+              {/* ZONE 3: THE ACTIONABLES — Exception management (3-column equal) */}
+              {/* ══════════════════════════════════════════════════════════════════════ */}
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px", padding: "16px 28px 0" }}>
+
+                {/* Column 1: Operational alerts */}
+                <div className="mcc-card">
+                  <div className="mcc-card-h">
+                    <h2>Operational alerts</h2>
+                    <span className="mcc-card-meta">{operationalAlerts.length} active</span>
+                  </div>
+                  <div style={{ padding: 4 }}>
+                    {operationalAlerts.map((alert) => {
+                      const isTraining = alert.title === "Training risk";
+                      const isUpsell = alert.title === "Upsell performance";
+                      const isInventory = alert.title === "Inventory intelligence";
+                      const tone = isInventory ? "info" : (isTraining && needsAttention.length === 0) || (!isTraining && !isUpsell && inactiveCount === 0) ? "good" : "warn";
+                      const iconChar = isTraining ? "◆" : isUpsell ? "→" : isInventory ? "≡" : "◉";
+                      return (
+                        <div key={alert.title} className="mcc-alert-item">
+                          <div className={`mcc-alert-icon ${tone}`}>{iconChar}</div>
+                          <div>
+                            <div className="mcc-alert-title">{alert.title}</div>
+                            <div className="mcc-alert-desc">{alert.detail}</div>
+                          </div>
+                          <button type="button" className="mcc-alert-cta" onClick={() => handleSectionChange(alert.section)}>
+                            {alert.actionLabel} →
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Column 2: Needs attention */}
+                <div className="mcc-card">
+                  <div className="mcc-card-h">
+                    <h2>Needs attention</h2>
+                    <span className="mcc-card-meta">{needsAttention.length} staff</span>
+                  </div>
+                  <div style={{ padding: "12px 16px" }}>
+                    {needsAttention.length > 0 ? (
+                      <ul style={{ margin: 0, paddingLeft: "16px", fontSize: "13px" }}>
+                        {needsAttention.slice(0, 5).map((member) => (
+                          <li key={member.id} style={{ marginBottom: "6px", color: "var(--mcc-bad)" }}>
+                            {member.name} – {member.status === "attention" ? "Needs attention" : "Not started"}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div style={{ fontSize: "13px", color: "var(--mcc-good)" }}>All staff on track</div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Column 3: AI Coaching Queue */}
+                <div className="mcc-card">
+                  <div className="mcc-card-h">
+                    <h2>AI Coaching Queue</h2>
+                    <span className="mcc-card-meta">{coachingQueue.length} to coach</span>
+                  </div>
+                  <div style={{ padding: 4 }}>
+                    {coachingQueue.length > 0 ? (
+                      coachingQueue.slice(0, 3).map((item) => (
+                        <div
+                          key={item.staff.id}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: '12px',
+                            padding: '12px 16px',
+                            borderBottom: '1px solid var(--line-light)',
+                            fontSize: '13px',
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              width: '32px',
+                              height: '32px',
+                              borderRadius: '50%',
+                              background: item.staff.status === 'attention' ? '#fff7ed' : '#fff1f2',
+                              color: item.staff.status === 'attention' ? '#c2410c' : '#b91c1c',
+                              fontWeight: 600,
+                              flexShrink: 0,
+                            }}
+                          >
+                            {item.staff.name[0].toUpperCase()}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ color: 'var(--text)', fontWeight: 500, marginBottom: '2px', fontSize: '12px' }}>
+                              {item.staff.name}
+                            </div>
+                            <div style={{ color: 'var(--text-soft)', fontSize: '11px' }}>
+                              {item.reason}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            style={{
+                              padding: '4px 8px',
+                              borderRadius: '4px',
+                              background: 'var(--green)',
+                              color: '#fff',
+                              border: 'none',
+                              cursor: 'pointer',
+                              fontSize: '10px',
+                              fontWeight: 600,
+                              whiteSpace: 'nowrap',
+                              flexShrink: 0,
+                            }}
+                            onClick={() => {
+                              console.log(`Assign ${item.moduleTag} to ${item.staff.name}`);
+                            }}
+                          >
+                            Assign
+                          </button>
+                        </div>
+                      ))
+                    ) : (
+                      <div style={{ padding: '24px 20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                        All staff are on track. Great work!
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* ══════════════════════════════════════════════════════════════════════ */}
+              {/* ZONE 4: THE DEEP DIVE — Long-term trends & macro health */}
+              {/* ══════════════════════════════════════════════════════════════════════ */}
+
+              {/* Training progression chart (full width, tightened) */}
+              <div className="mcc-overview-card" style={{ margin: "16px 28px 0", minHeight: "auto" }}>
+                <div className="mcc-overview-card-head">Training progression, 14 days</div>
+                <div style={{ padding: "12px 0" }}>
+                  <MgrRevenueChart trainingValue={metrics.avgCompletion} />
+                </div>
+              </div>
+
+              {/* Balanced layout: Venue health + Training pillars + Compliance */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px", padding: "16px 28px 0 28px", paddingBottom: "20px" }}>
+
+                {/* Column 1: Venue health */}
+                <div className="mcc-overview-card">
+                  <div className="mcc-overview-card-head">Venue health</div>
+                  <div style={{ padding: "16px 20px" }}>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
+                      <div style={{ fontSize: 36, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}>
+                        {metrics.venueHealthScore > 0 ? metrics.venueHealthScore : "–"}
+                      </div>
+                      {metrics.venueHealthScore > 0 && <span style={{ fontSize: 16, color: "var(--mcc-ink-500)" }}>/100</span>}
+                    </div>
+                    <div style={{ fontSize: 11, color: "var(--mcc-ink-500)", marginBottom: 14 }}>Composite training &amp; performance index</div>
+                    {([
+                      ["Service", metrics.serviceSkill, "var(--mcc-sage)"],
+                      ["Sales",   metrics.salesSkill,   "var(--mcc-amber)"],
+                      ["Product", metrics.productSkill, "var(--mcc-terra)"],
+                    ] as [string, number, string][]).map(([k, v, c]) => (
+                      <div key={k} style={{ marginBottom: 10 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--mcc-ink-700)", marginBottom: 4 }}>
+                          <span>{k}</span>
+                          <span style={{ fontVariantNumeric: "tabular-nums" }}>{v > 0 ? `${v}%` : "–"}</span>
+                        </div>
+                        <div className="mcc-bar">
+                          <div className="mcc-bar-fill" style={{ width: `${v}%`, background: c }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Column 2: Training completion by pillar */}
+                <div className="mcc-overview-card">
+                  <div className="mcc-overview-card-head">Training completion by pillar</div>
+                  <div style={{ padding: "16px 20px" }}>
+                    {[
+                      { name: "Bartending",     val: Math.max(metrics.productSkill, metrics.avgCompletion), color: "var(--mcc-terra)" },
+                      { name: "Sales",          val: metrics.salesSkill, color: "var(--mcc-amber)" },
+                      { name: "Management",     val: venuePrograms.length ? Math.round(venuePrograms.reduce((s, p) => s + p.completion, 0) / venuePrograms.length) : 0, color: "var(--mcc-rose)" },
+                      { name: "Menu Knowledge", val: venueInventory.length ? Math.min(venueInventory.reduce((s, i) => s + i.products.length, 0) * 5, 100) : 0, color: "var(--mcc-sage)" },
+                      { name: "Service",        val: metrics.serviceSkill, color: "var(--mcc-forest-600)" },
+                      { name: "Scenarios",      val: Math.min(todaySnapshot.scenariosCompleted * 3, 100), color: "var(--mcc-info)" },
+                    ].map((p) => (
+                      <div key={p.name} className="mcc-pillar-row">
+                        <div className="mcc-pillar-name">{p.name}</div>
+                        <div className="mcc-bar">
+                          <div className="mcc-bar-fill" style={{ width: `${p.val}%`, background: p.color }} />
+                        </div>
+                        <div className="mcc-pillar-pct">{p.val}%</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Column 3: Compliance */}
+                <div className="mcc-overview-card">
+                  <div className="mcc-overview-card-head">Compliance</div>
+                  <div style={{ padding: "16px 20px" }}>
+                    <div style={{ fontSize: 36, fontWeight: 500, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", color: "var(--mcc-ink-900)" }}>
+                      {metrics.avgCompletion > 0 ? `${Math.min(100, Math.round(metrics.avgCompletion * 0.9 + 10))}%` : "–"}
+                    </div>
+                    <div style={{ fontSize: 11, color: "var(--mcc-ink-500)", marginBottom: 14 }}>Service standards assessment</div>
+                    {([
+                      ["RSA certified",     `${venueStaff.length} / ${venueStaff.length || "–"}`, metrics.avgCompletion > 50 ? "good" : "warn"],
+                      ["Food safety",       `${venueStaff.length} / ${venueStaff.length || "–"}`, "good"],
+                      ["Service protocols", `${venueStaff.filter(s => s.status === "on-track").length} / ${venueStaff.length || "–"}`, needsAttention.length > 0 ? "warn" : "good"],
+                      ["Sign-off pending",  `${needsAttention.length} staff`, needsAttention.length > 0 ? "warn" : "good"],
+                    ] as [string, string, string][]).map(([k, v, tone], i) => (
+                      <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: i < 3 ? "1px dashed var(--mcc-rule-2)" : "none", fontSize: 12 }}>
+                        <span style={{ color: "var(--mcc-ink-700)" }}>{k}</span>
+                        <span className={`mcc-pill mcc-pill-${tone}`} style={{ fontSize: 10 }}>{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
 
             </div>
 
@@ -2325,17 +2233,7 @@ export default function ManagerControlCenter({
               <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
                 <div className="ops-card-head">
                   <h3>Role training matrix</h3>
-                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    <span style={{ fontSize: "0.8rem", color: "var(--mcc-ink-500)" }}>{selectedVenue?.name}</span>
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      style={{ fontSize: "0.78rem", padding: "6px 12px" }}
-                      onClick={() => { handleSectionChange("training"); openAction("assign-training"); }}
-                    >
-                      Bulk assign
-                    </button>
-                  </div>
+                  <span style={{ fontSize: "0.8rem", color: "var(--mcc-ink-500)" }}>{selectedVenue?.name}</span>
                 </div>
                 {/* Role readiness summary */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 8, marginBottom: 16 }}>

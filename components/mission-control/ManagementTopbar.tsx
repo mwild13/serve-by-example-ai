@@ -116,18 +116,6 @@ export function ManagementTopbar({
               </button>
               <button
                 className="ops-create-dropdown-item"
-                onClick={() => handleCreateActionClick("assign-training")}
-              >
-                Assign training
-              </button>
-              <button
-                className="ops-create-dropdown-item"
-                onClick={() => handleCreateActionClick("create-program")}
-              >
-                Create program
-              </button>
-              <button
-                className="ops-create-dropdown-item"
                 onClick={() => handleCreateActionClick("add-inventory")}
               >
                 Add inventory
