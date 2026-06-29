@@ -621,8 +621,35 @@ export default function ManagerControlCenter({
     };
   }, [selectedVenue, venueStaff]);
 
-  const needsAttention = venueStaff.filter((member) => member.status !== "on-track");
-  const inactiveCount = venueStaff.filter((member) => member.status === "inactive").length;
+  // Explicit attention tracking: captures onboarding stagnation, inactivity, and zero progress
+  const parseLastActiveDays = (lastActive: string): number | null => {
+    if (lastActive === "Not started") return null; // flag for onboarding stagnation
+    const match = lastActive.match(/^(\d+)\s+days?\s+ago$/);
+    if (match) return parseInt(match[1], 10);
+    if (lastActive === "Today") return 0;
+    if (lastActive === "Yesterday") return 1;
+    return null;
+  };
+
+  const needsAttention = venueStaff.filter((member) => {
+    // Onboarding Stagnation: never started training
+    if (member.lastActive === "Not started") return true;
+
+    // Inactivity/Absence: no activity for 14+ days
+    const daysInactive = parseLastActiveDays(member.lastActive);
+    if (daysInactive !== null && daysInactive >= 14) return true;
+
+    // Zero-Progress Alert: 0% completion on active staff
+    if (member.progress === 0 && member.lastActive !== "Not started") return true;
+
+    // Fallback to status-based flagging for other issues
+    return member.status !== "on-track";
+  });
+
+  const inactiveCount = venueStaff.filter((member) => {
+    const daysInactive = parseLastActiveDays(member.lastActive);
+    return daysInactive !== null && daysInactive >= 14;
+  }).length;
 
   // ── AI Coaching Queue ──
   const coachingQueue = venueStaff
@@ -3543,7 +3570,7 @@ export default function ManagerControlCenter({
               <dl className="ops-settings-list">
                 <div>
                   <dt>Staff limit</dt>
-                  <dd>{selectedVenue?.staffLimit ?? 25} seats</dd>
+                  <dd>{selectedVenue?.staffLimit ?? (isMultiVenue ? 35 : 15)} seats</dd>
                 </div>
                 <div>
                   <dt>Venue Limit</dt>
