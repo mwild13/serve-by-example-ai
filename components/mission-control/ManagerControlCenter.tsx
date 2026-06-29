@@ -228,12 +228,26 @@ function MgrRevenueChart({ trainingValue }: { trainingValue: number }) {
   );
 }
 
+const EMPTY_SNAPSHOT: ManagementSnapshot = {
+  source: "seed",
+  notices: [],
+  capabilities: { databaseConnected: false, staffCrud: false, inventoryCrud: false, trainingProgramsCrud: false },
+  venues: [],
+  staff: [],
+  trainingPrograms: [],
+  inventory: [],
+  menuKnowledge: [],
+  scenarioCategories: [],
+  reportSummaries: [],
+  enabledModules: [],
+};
+
 export default function ManagerControlCenter({
   initialSnapshot,
   plan,
   displayName,
 }: {
-  initialSnapshot: ManagementSnapshot;
+  initialSnapshot?: ManagementSnapshot;
   plan?: string;
   displayName?: string;
 }) {
@@ -261,8 +275,9 @@ export default function ManagerControlCenter({
   const [subProcessing, setSubProcessing] = useState(false);
   const [subConfirmed, setSubConfirmed] = useState(false);
 
-  const [snapshot, setSnapshot] = useState(initialSnapshot);
-  const [selectedVenueId, setSelectedVenueId] = useState(initialSnapshot.venues[0]?.id ?? "");
+  const [snapshot, setSnapshot] = useState(initialSnapshot ?? EMPTY_SNAPSHOT);
+  const [snapshotLoading, setSnapshotLoading] = useState(!initialSnapshot);
+  const [selectedVenueId, setSelectedVenueId] = useState(initialSnapshot?.venues[0]?.id ?? "");
   const [selectedStaffId, setSelectedStaffId] = useState("");
   const [coachingDrawerOpen, setCoachingDrawerOpen] = useState(false);
   const [activeAction, setActiveAction] = useState<QuickActionId | null>(null);
@@ -294,7 +309,7 @@ export default function ManagerControlCenter({
   const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [copiedVenueId, setCopiedVenueId] = useState<string | null>(null);
-  const [renameVenueName, setRenameVenueName] = useState(initialSnapshot.venues[0]?.name ?? "");
+  const [renameVenueName, setRenameVenueName] = useState(initialSnapshot?.venues[0]?.name ?? "");
   const [renameSaving, setRenameSaving] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
@@ -324,6 +339,28 @@ export default function ManagerControlCenter({
     }
     return fetch(url, { ...options, headers });
   }, [sessionToken]);
+
+  // Fetch snapshot on mount if not provided server-side
+  useEffect(() => {
+    if (initialSnapshot || !snapshotLoading) return;
+
+    (async () => {
+      try {
+        const res = await apiFetch("/api/management/snapshot");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json() as ManagementSnapshot;
+        setSnapshot(data);
+        if (data.venues.length > 0 && !selectedVenueId) {
+          setSelectedVenueId(data.venues[0].id);
+        }
+      } catch (err) {
+        console.error("Failed to fetch snapshot:", err);
+        setSnapshot(EMPTY_SNAPSHOT);
+      } finally {
+        setSnapshotLoading(false);
+      }
+    })();
+  }, [initialSnapshot, snapshotLoading, apiFetch, selectedVenueId]);
 
   const [revenueTransactionValue, setRevenueTransactionValue] = useState(45);
   const [aiCoachInput, setAiCoachInput] = useState("");
@@ -1031,6 +1068,31 @@ export default function ManagerControlCenter({
     } finally {
       setRenameSaving(false);
     }
+  }
+
+  // Show skeleton loaders while snapshot is loading
+  if (snapshotLoading) {
+    return (
+      <div className="ops-shell">
+        <SessionRefresher />
+        <aside className="ops-sidebar" style={{ opacity: 0.5, pointerEvents: "none" }}>
+          <div className="ops-sidebar-top">
+            <span className="ops-sidebar-brand">Management console</span>
+            <h3>Venue operations</h3>
+            <div style={{ background: "var(--line-light)", height: 40, borderRadius: 8, marginTop: 12 }} />
+            <div style={{ background: "var(--line-light)", height: 200, borderRadius: 8, marginTop: 12 }} />
+          </div>
+        </aside>
+        <section className="ops-workspace" style={{ opacity: 0.4, pointerEvents: "none" }}>
+          <div style={{ background: "var(--line-light)", height: 60, borderRadius: 8, marginBottom: 20 }} />
+          <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} style={{ background: "var(--line-light)", height: 200, borderRadius: 8 }} />
+            ))}
+          </div>
+        </section>
+      </div>
+    );
   }
 
   return (

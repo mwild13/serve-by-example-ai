@@ -68,7 +68,11 @@
       "Bash(bash /tmp/analyze.sh)",
       "Bash(bash /tmp/final_count.sh)",
       "Bash(grep -E \"\\\\.sql$\")",
-      "Bash(grep \"-- MODULE\\\\|'quiz'\" /Users/mitchellwildman/Desktop/serve-by-example-ai-main/supabase/migrations/20260421_2b_create_scenarios_part2.sql)"
+      "Bash(grep \"-- MODULE\\\\|'quiz'\" /Users/mitchellwildman/Desktop/serve-by-example-ai-main/supabase/migrations/20260421_2b_create_scenarios_part2.sql)",
+      "mcp__b40166de-dac2-4420-b28a-978160ea8b2e__execute_sql",
+      "mcp__b40166de-dac2-4420-b28a-978160ea8b2e__list_tables",
+      "mcp__b40166de-dac2-4420-b28a-978160ea8b2e__list_projects",
+      "mcp__b40166de-dac2-4420-b28a-978160ea8b2e__apply_migration"
     ]
   }
 }

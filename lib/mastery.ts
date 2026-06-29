@@ -538,6 +538,12 @@ export async function syncMasteryToVenueStaff(
     masteryStatus = "in-progress";
   }
 
+  // Completion percentage: scenarios attempted / (total modules * estimated scenarios per module)
+  const estimatedTotalScenarios = totalModules * 10; // ~10 scenarios per module on average
+  const completionPct = estimatedTotalScenarios > 0
+    ? Math.round((totalAttempted / estimatedTotalScenarios) * 100)
+    : 0;
+
   const updatePayload = {
     progress: overallProgress,
     elo_rating: avgElo,
@@ -546,6 +552,9 @@ export async function syncMasteryToVenueStaff(
     scenarios_attempted: totalAttempted,
     product_score: productScore,
     service_score: computedServiceScore,
+    module_completion_pct: completionPct,
+    module_mastery_pct: overallProgress,
+    avg_module_elo: avgElo,
     last_active_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };

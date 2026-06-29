@@ -101,12 +101,10 @@ export default async function ManagementDashboardPage({
     redirect("/pricing");
   }
 
-  const snapshot = await getManagementSnapshot(supabase, user.id);
-
   return (
     <div className="management-app-root">
       <Suspense fallback={null}>
-        <ManagerControlCenter initialSnapshot={snapshot} plan={plan} displayName={displayName} />
+        <ManagerControlCenter plan={plan} displayName={displayName} />
       </Suspense>
     </div>
   );
