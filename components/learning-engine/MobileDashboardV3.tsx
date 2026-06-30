@@ -168,7 +168,6 @@ function IcFlame({ s = 17 }: { s?: number }) {
   );
 }
 
-
 function IcArrow({ s = 18 }: { s?: number }) {
   return (
     <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="2" aria-hidden="true">
@@ -219,7 +218,6 @@ function IcClock({ s = 28 }: { s?: number }) {
   );
 }
 
-
 function IcStar({ s = 22 }: { s?: number }) {
   return (
     <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="1.8" aria-hidden="true">
@@ -232,31 +230,6 @@ function IcMedal({ s = 22 }: { s?: number }) {
   return (
     <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="1.8" aria-hidden="true">
       <circle cx="12" cy="14" r="5" /><path d="M9 9 6.5 3M15 9 17.5 3" />
-    </svg>
-  );
-}
-
-function IcHome({ s = 22 }: { s?: number }) {
-  return (
-    <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="1.9" aria-hidden="true">
-      <path d="M3 10.2 12 3l9 7.2" /><path d="M5 9.5V20h14V9.5" /><path d="M9.5 20v-5.5h5V20" />
-    </svg>
-  );
-}
-
-function IcBook({ s = 22 }: { s?: number }) {
-  return (
-    <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="1.9" aria-hidden="true">
-      <path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15.5H6.5A1.5 1.5 0 0 0 5 20V4.5Z" />
-      <path d="M5 18.5A1.5 1.5 0 0 1 6.5 17H19" />
-    </svg>
-  );
-}
-
-function IcUser({ s = 22 }: { s?: number }) {
-  return (
-    <svg width={s} height={s} viewBox="0 0 24 24" {...ICON_STROKE} strokeWidth="1.9" aria-hidden="true">
-      <circle cx="12" cy="8" r="3.6" /><path d="M5 20c0-3.6 3.1-5.5 7-5.5s7 1.9 7 5.5" />
     </svg>
   );
 }
@@ -740,7 +713,7 @@ export default function MobileDashboardV3({
           </div>
         )}
 
-        <div className="mobile-signout-wrap" style={{ padding: "18px 16px 0", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+        <div className="mobile-signout-wrap" style={{ padding: "18px 16px 0", display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", justifyContent: "space-between" }}>
           <SignOutButton />
           {onSyncProgress && (
             <button
