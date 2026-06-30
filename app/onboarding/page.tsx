@@ -94,7 +94,9 @@ export default function OnboardingPage() {
         .update({ onboarding_completed: true })
         .eq("id", user.id);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.warn("Database update failed, but proceeding with redirect:", updateError);
+      }
 
       // Wait for DB write to propagate across replicas before redirecting
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -102,8 +104,12 @@ export default function OnboardingPage() {
       router.refresh();
       window.location.href = "/dashboard";
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-      setIsSkipping(false);
+      console.error("Skip handler error (still redirecting):", err);
+      // Force redirect even if there's an error to prevent user from being stuck
+      try {
+        router.refresh();
+      } catch {}
+      window.location.href = "/dashboard";
     }
   }
 
