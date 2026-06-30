@@ -43,6 +43,7 @@ export default function OnboardingPage() {
   const [venueType, setVenueType] = useState("");
   const [experience, setExperience] = useState("");
   const [saving, setSaving] = useState(false);
+  const [isSkipping, setIsSkipping] = useState(false);
   const [error, setError] = useState("");
 
   async function handleConnectVenue() {
@@ -77,6 +78,29 @@ export default function OnboardingPage() {
     } catch (err) {
       setVenueCodeStatus("error");
       setVenueCodeMessage(err instanceof Error ? err.message : "Could not connect to venue.");
+    }
+  }
+
+  async function handleAbsoluteSkip() {
+    if (isSkipping) return;
+    setIsSkipping(true);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not signed in.");
+
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ onboarding_completed: true })
+        .eq("id", user.id);
+
+      if (updateError) throw updateError;
+
+      router.refresh();
+      window.location.href = "/dashboard";
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setIsSkipping(false);
     }
   }
 
@@ -172,6 +196,20 @@ export default function OnboardingPage() {
               >
                 {venueCodeStatus === "loading" ? "Connecting..." : venueCodeStatus === "success" ? "Connected" : "Connect to venue"}
               </button>
+              <button
+                className="btn btn-block"
+                type="button"
+                disabled={isSkipping}
+                onClick={handleAbsoluteSkip}
+                style={{
+                  marginTop: 12,
+                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                {isSkipping ? "Loading…" : "Skip for now, I'll add this later"}
+              </button>
               {venueCodeStatus === "success" && (
                 <button
                   className="btn btn-secondary btn-block"
@@ -255,10 +293,6 @@ export default function OnboardingPage() {
           </>
         )}
       </div>
-
-      <button className="onboarding-skip" onClick={() => save(true)} type="button" disabled={saving}>
-        Skip for now
-      </button>
     </div>
   );
 }
