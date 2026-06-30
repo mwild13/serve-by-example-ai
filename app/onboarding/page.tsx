@@ -90,7 +90,7 @@ export default function OnboardingPage() {
       } = await supabase.auth.getUser();
       if (!user) throw new Error("Not signed in.");
 
-      await supabase
+      const { error: updateError } = await supabase
         .from("profiles")
         .update({
           ...(skip
@@ -102,6 +102,11 @@ export default function OnboardingPage() {
           onboarding_completed: true,
         })
         .eq("id", user.id);
+
+      if (updateError) throw updateError;
+
+      // Wait a moment to ensure DB write propagates before redirecting
+      await new Promise(resolve => setTimeout(resolve, 300));
 
       router.push(
         stripeSessionId
