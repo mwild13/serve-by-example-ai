@@ -1070,7 +1070,7 @@ export default function ChallengesPage() {
   const [reviewMode, setReviewMode] = useState(false);
 
   function markComplete(index: number) {
-    // Persist to localStorage so ProgressOverview can read completion state
+    // Persist to localStorage as cache (for instant UI feedback)
     try {
       const stored = localStorage.getItem("sbe_challenges_completed");
       const existing: number[] = stored ? (JSON.parse(stored) as number[]) : [];
@@ -1078,6 +1078,14 @@ export default function ChallengesPage() {
         localStorage.setItem("sbe_challenges_completed", JSON.stringify([...existing, index]));
       }
     } catch { /* ignore */ }
+
+    // Sync to server via API (non-blocking; fires in background)
+    void fetch("/api/training/challenges/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ challengeIndex: index }),
+    }).catch((err) => console.error("[ChallengesPage] Failed to sync challenge:", err));
+
     // Advance wizard
     if (index === 4) {
       setPhase("summary");

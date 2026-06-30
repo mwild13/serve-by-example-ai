@@ -543,50 +543,24 @@ export default function MobileDashboardV3({
   const [coach, setCoach] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  // Effect A: always fetch on mount; Effect B overrides with parent data when it arrives
+  // Initialize streak on mount
   useEffect(() => {
-    async function load() {
-      try {
-        const supabase = createSupabaseBrowserClient();
-        const { data: { session } } = await supabase.auth.getSession();
+    try {
+      const supabase = createSupabaseBrowserClient();
+      supabase.auth.getSession().then(({ data: { session } }) => {
         if (session?.user?.id) setStreak(computeStreak(session.user.id));
-        const r = await fetch("/api/training/progress", {
-          headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
-        });
-        const res = await r.json();
-        if (res.modules) {
-          setData({
-            modules: res.modules,
-            mastery: res.mastery ?? EMPTY.mastery,
-            scores: res.scores ?? EMPTY.scores,
-            sessions: res.sessions ?? EMPTY.sessions,
-            reviewDue: Array.isArray(res.reviewQueue) ? res.reviewQueue.length : 0,
-            levelProgress: {
-              bartending: res.levelProgress?.bartending ?? EMPTY_LP,
-              sales: res.levelProgress?.sales ?? EMPTY_LP,
-              management: res.levelProgress?.management ?? EMPTY_LP,
-            },
-            lastAttemptAt: res.lastAttemptAt ?? null,
-            allModules: Array.isArray(res.allModules) ? res.allModules : [],
-            moduleProgress: res.moduleProgress ?? {},
-            scenarioCounts: res.scenarioCounts ?? {},
-            bestCorrectStreak: res.bestCorrectStreak ?? 0,
-            sbeEliteNumber: res.sbeEliteNumber ?? 0,
-          });
-        }
-      } catch {
-        // non-critical — component remains in EMPTY state
-      } finally {
-        setLoaded(true);
-      }
+      });
+    } catch {
+      // non-critical
     }
-    void load();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Effect B: map parent data when it arrives or changes (covers sync button press)
+  // Single effect: consume parent progressData prop (DashboardShell fetches once on mount, passes via prop)
   useEffect(() => {
-    if (!progressData) return;
+    if (!progressData) {
+      setLoaded(false);
+      return;
+    }
     const res = progressData;
     if (res.modules) {
       const lp = res.levelProgress as Record<string, LevelProgress> | undefined;

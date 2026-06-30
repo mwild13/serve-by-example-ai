@@ -3,6 +3,18 @@
 import { FormEvent, useState, useEffect, useCallback, Suspense, lazy } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+
+// Hydration-safe viewport detection hook (no CSS-based hiding to avoid blank screens on slow networks)
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 720);
+    const handleResize = () => setIsMobile(window.innerWidth <= 720);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  return isMobile;
+}
 import SignOutButton from "@/components/ui/SignOutButton";
 import DashboardTrainer from "@/components/learning-engine/DashboardTrainer";
 import ModuleVerify from "@/components/learning-engine/ModuleVerify";
@@ -478,6 +490,7 @@ export default function DashboardShell({
   initialNav?: string;
 }) {
   const router = useRouter();
+  const isMobile = useIsMobile();
   const NAV_IDS = new Set<NavItem>(["home","mobile-learn","module","rapid-fire","stage4","scenarios","challenges","cocktails","knowledge","progress","badges","settings"]);
   const [activeNav, setActiveNav] = useState<NavItem>(
     NAV_IDS.has(initialNav as NavItem) ? (initialNav as NavItem) : "home"
@@ -578,18 +591,9 @@ export default function DashboardShell({
   useEffect(() => { void fetchProgress(); }, [fetchProgress]);
 
   const PREMIUM_NAV_ITEMS: NavItem[] = ["module", "stage4", "scenarios", "cocktails", "knowledge"];
-  const FALLBACK_ADMIN_EMAILS = [
-    "wild07man@gmail.com",
-    "mitchellwildman1994@gmail.com",
-    "campbell.wildman@gmail.com",
-    "grahamwi@bigpond.com",
-    "wildmanemmet@gmail.com",
-    "hjallanson@gmail.com",
-    "hello@studio-ell.com.au",
-  ];
   const envAdminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
-  const ADMIN_EMAILS = envAdminEmails.length > 0 ? envAdminEmails : FALLBACK_ADMIN_EMAILS;
-  const isAdmin = ADMIN_EMAILS.includes(userEmail.toLowerCase());
+  const ADMIN_EMAILS = envAdminEmails;
+  const isAdmin = ADMIN_EMAILS.length > 0 && ADMIN_EMAILS.includes(userEmail.toLowerCase());
   const isPremium = isAdmin || plan !== "free" || hasVenueMembership;
 
   function handleNavClick(id: NavItem) {
@@ -735,35 +739,32 @@ export default function DashboardShell({
         ) : activeNav === "mobile-learn" ? (
           <MobileLearnHub setActiveNav={handleNavClick} isPremium={isPremium} />
         ) : activeNav === "home" ? (
-          <>
-            <div className="mobile-v3-only">
-              <MobileDashboardV3
-                key="home-mobile"
-                displayName={displayName}
-                setActiveNav={handleNavClick}
-                plan={hasVenueMembership && plan === "free" ? "venue_member" : plan}
-                onSelectModule={(moduleId) => {
-                  setSelectedModuleId(moduleId);
-                  handleNavClick("module");
-                }}
-                progressData={progressData}
-                onSyncProgress={fetchProgress}
-              />
-            </div>
-            <div className="desktop-psh-only">
-              <PreShiftHome
-                key="home"
-                displayName={displayName}
-                setActiveNav={handleNavClick}
-                managementUnlocked={managementUnlocked}
-                onNavigateToCategory={handleNavigateToCategory}
-                isPremium={isPremium}
-                onBadgesNav={() => handleNavClick("badges")}
-                progressData={progressData}
-                onSyncProgress={fetchProgress}
-              />
-            </div>
-          </>
+          isMobile ? (
+            <MobileDashboardV3
+              key="home-mobile"
+              displayName={displayName}
+              setActiveNav={handleNavClick}
+              plan={hasVenueMembership && plan === "free" ? "venue_member" : plan}
+              onSelectModule={(moduleId) => {
+                setSelectedModuleId(moduleId);
+                handleNavClick("module");
+              }}
+              progressData={progressData}
+              onSyncProgress={fetchProgress}
+            />
+          ) : (
+            <PreShiftHome
+              key="home"
+              displayName={displayName}
+              setActiveNav={handleNavClick}
+              managementUnlocked={managementUnlocked}
+              onNavigateToCategory={handleNavigateToCategory}
+              isPremium={isPremium}
+              onBadgesNav={() => handleNavClick("badges")}
+              progressData={progressData}
+              onSyncProgress={fetchProgress}
+            />
+          )
         ) : activeNav === "scenarios" ? (
           <ArenaPage userId={userId} />
         ) : activeNav === "challenges" ? (

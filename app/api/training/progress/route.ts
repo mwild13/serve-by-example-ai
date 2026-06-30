@@ -32,6 +32,7 @@ export async function GET(req: Request) {
       access,
       { data: staffRows },
       scenarioDetails,
+      { data: challengesCompletedRows },
     ] = await Promise.all([
       Promise.all(
         LEGACY_MODULES.map(async (mod) => {
@@ -79,6 +80,11 @@ export async function GET(req: Request) {
       detailModule && LEGACY_MODULES.includes(detailModule as typeof LEGACY_MODULES[number])
         ? getScenarioMasteryDetails(admin, user.id, detailModule)
         : Promise.resolve(null),
+      admin
+        .from("user_challenges")
+        .select("challenge_index, completed_at")
+        .eq("user_id", user.id)
+        .order("challenge_index", { ascending: true }),
     ]);
 
     const masteryByModule = Object.fromEntries(masteryResults);
@@ -172,6 +178,10 @@ export async function GET(req: Request) {
 
     const lastAttemptAt = recentAttemptRow?.last_attempt_at ?? null;
 
+    // ── Challenge completion count — from user_challenges table ──
+    const challengesCompleted = challengesCompletedRows?.length ?? 0;
+    const totalChallenges = 5;
+
     // ── Best Live Scenario score — derived from arenaRows (no extra query needed) ──
     const bestArenaScore: number = arenaRows
       ? Math.max(0, ...arenaRows.map((r) => (r.best_score as number | null) ?? 0))
@@ -264,6 +274,8 @@ export async function GET(req: Request) {
       staffRole,
       autoUnlockManagement,
       bestArenaScore,
+      challengesCompleted,
+      totalChallenges,
       access: {
         tier: access.tier,
         allowedModules: access.allowedModules,

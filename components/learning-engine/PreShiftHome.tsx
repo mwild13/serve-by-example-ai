@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { GlassWater, TrendingUp, Users, Flame, Trophy, BookOpen, Share2, Target, Check } from "lucide-react";
 import { computeBadges, countEarned, recentEarned, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
 import { KB_ENTRIES, KB_CATEGORIES } from "@/lib/knowledge-base";
@@ -54,6 +53,8 @@ type ProgressData = {
   totalModuleCount: number;
   scenariosStartedCount: number;
   arenaModuleCount: number;
+  challengesCompleted: number;
+  totalChallenges: number;
 };
 
 const EMPTY: ProgressData = {
@@ -78,6 +79,8 @@ const EMPTY: ProgressData = {
   totalModuleCount: 40,
   scenariosStartedCount: 0,
   arenaModuleCount: 0,
+  challengesCompleted: 0,
+  totalChallenges: 5,
 };
 
 
@@ -160,16 +163,17 @@ function HorizontalProgressionTrack({
   completedScenarios,
   totalModules,
   completedLive,
+  completedChallenges,
+  totalChallenges,
 }: {
   completedModules: number;
   completedScenarios: number;
   totalModules: number;
   completedLive: number;
+  completedChallenges: number;
+  totalChallenges: number;
 }) {
   const totalScenarios = totalModules;
-
-  const totalChallenges = 5;
-  const completedChallenges = 5;
   const totalLive = 20;
 
   type TrackStatus = "completed" | "active" | "upcoming";
@@ -501,54 +505,12 @@ export default function PreShiftHome({
     });
   }, []);
 
-  // Effect A: always fetch on mount; Effect B overrides with parent data when it arrives
+  // Single effect: consume parent progressData prop (DashboardShell fetches once on mount, passes via prop)
   useEffect(() => {
-    async function load() {
-      try {
-        const supabase = createSupabaseBrowserClient();
-        const { data: { session } } = await supabase.auth.getSession();
-        const r = await fetch("/api/training/progress", {
-          headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
-        });
-        const res = await r.json();
-        if (res.modules) {
-          setData({
-            modules: res.modules,
-            mastery: res.mastery ?? EMPTY.mastery,
-            scores: res.scores ?? EMPTY.scores,
-            sessions: res.sessions ?? EMPTY.sessions,
-            reviewDue: Array.isArray(res.reviewQueue) ? res.reviewQueue.length : 0,
-            levelProgress: {
-              bartending: res.levelProgress?.bartending ?? EMPTY.levelProgress.bartending,
-              sales: res.levelProgress?.sales ?? EMPTY.levelProgress.sales,
-              management: res.levelProgress?.management ?? EMPTY.levelProgress.management,
-            },
-            lastAttemptAt: res.lastAttemptAt ?? null,
-            allModules: Array.isArray(res.allModules) ? res.allModules : [],
-            moduleProgress: res.moduleProgress ?? {},
-            arenaProgress: (res.arenaProgress as Record<number, { attempts: number; bestScore: number; passed: boolean }>) ?? {},
-            skillLevel: typeof res.skillLevel === "number" ? res.skillLevel : 1,
-            bestCorrectStreak: typeof res.bestCorrectStreak === "number" ? res.bestCorrectStreak : 0,
-            sbeEliteNumber: typeof res.sbeEliteNumber === "number" ? res.sbeEliteNumber : 0,
-            masteredModuleCount: typeof res.masteredModuleCount === "number" ? res.masteredModuleCount : 0,
-            totalModuleCount: typeof res.totalModuleCount === "number" ? res.totalModuleCount : 40,
-            scenariosStartedCount: typeof res.scenariosStartedCount === "number" ? res.scenariosStartedCount : 0,
-            arenaModuleCount: typeof res.arenaModuleCount === "number" ? res.arenaModuleCount : 0,
-          });
-        }
-      } catch {
-        // non-critical
-      } finally {
-        setLoaded(true);
-      }
+    if (!progressData) {
+      setLoaded(false);
+      return;
     }
-    void load();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Effect B: map parent data when it arrives or changes (covers sync button press)
-  useEffect(() => {
-    if (!progressData) return;
     const res = progressData;
     if (res.modules) {
       const lp = res.levelProgress as Record<string, LevelProgress> | undefined;
@@ -574,6 +536,8 @@ export default function PreShiftHome({
         totalModuleCount: typeof res.totalModuleCount === "number" ? res.totalModuleCount : 40,
         scenariosStartedCount: typeof res.scenariosStartedCount === "number" ? res.scenariosStartedCount : 0,
         arenaModuleCount: typeof res.arenaModuleCount === "number" ? res.arenaModuleCount : 0,
+        challengesCompleted: typeof res.challengesCompleted === "number" ? res.challengesCompleted : 0,
+        totalChallenges: typeof res.totalChallenges === "number" ? res.totalChallenges : 5,
       });
       setLoaded(true);
     }
@@ -798,6 +762,8 @@ export default function PreShiftHome({
             completedScenarios={trackerScenarios}
             totalModules={trackerTotal}
             completedLive={trackerLive}
+            completedChallenges={data.challengesCompleted}
+            totalChallenges={data.totalChallenges}
           />
         ) : (
           <div style={{ height: 120, borderRadius: "var(--radius-lg)", background: "var(--surface)", border: "1px solid var(--line-light)", animation: "skeletonPulse 1.4s ease-in-out infinite" }} />
