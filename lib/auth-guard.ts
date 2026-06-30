@@ -21,6 +21,7 @@ export function clearAllAuthCookies() {
   } catch {}
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function forceAuthRecovery(supabase: any) {
   try {
     clearAllAuthCookies();
