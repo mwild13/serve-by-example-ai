@@ -433,7 +433,13 @@ function MobileBottomNavBar({
     "home";
 
   return (
-    <nav className="mobile-bottom-nav">
+    <nav
+      className="mobile-bottom-nav"
+      style={{
+        paddingBottom: "env(safe-area-inset-bottom)",
+        boxSizing: "border-box",
+      }}
+    >
       {tabs.map(({ id, label, icon }) => {
         const on = activeTab === id;
         return (
@@ -444,7 +450,7 @@ function MobileBottomNavBar({
               background: "none", border: "none", cursor: "pointer",
               display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
               padding: 0, color: on ? "var(--ip-parchment)" : "rgba(255,255,255,0.45)",
-              flex: 1, position: "relative",
+              flex: 1, position: "relative", flexShrink: 0,
               fontFamily: 'ui-monospace, "SF Mono", Menlo, monospace',
             }}
           >
@@ -860,7 +866,7 @@ export default function DashboardShell({
       </section>
 
       {/* Persistent mobile bottom nav – sits at z-index 45, below V3 home overlay (50) */}
-      <MobileBottomNavBar activeNav={activeNav} onNavigate={handleNavClick} />
+      {isMobile && <MobileBottomNavBar activeNav={activeNav} onNavigate={handleNavClick} />}
     </main>
   );
 }

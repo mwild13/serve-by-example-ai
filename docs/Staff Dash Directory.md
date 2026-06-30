@@ -1,0 +1,56 @@
+Staff Dashboard File Inventory
+File	Lines
+app/dashboard/page.tsx	143
+components/DashboardShell.tsx	812
+components/learning-engine/PreShiftHome.tsx	894
+components/learning-engine/DynamicModuleNav.tsx	208
+components/learning-engine/ModuleVerify.tsx	270
+components/learning-engine/RapidFirePage.tsx	307
+components/learning-engine/RapidFireQuiz.tsx	271
+components/learning-engine/ArenaPage.tsx	574
+components/learning-engine/ChallengesPage.tsx	1,247
+components/learning-engine/DiagnosticFlow.tsx	306
+components/learning-engine/DashboardTrainer.tsx	1,025
+components/learning-engine/ProgressOverview.tsx	1,045
+components/learning-engine/BadgesView.tsx	308
+components/learning-engine/MobileDashboardV3.tsx	868
+components/learning-engine/MobileLearnHub.tsx	214
+components/knowledge-base/CocktailLibrary.tsx	328
+components/knowledge-base/KnowledgeBase.tsx	234
+components/ui/SignOutButton.tsx	25
+components/ui/SessionRefresher.tsx	47
+components/ui/LanguageSwitcher.tsx	115
+components/ui/Skeletons.tsx	15
+lib/supabase.ts	42
+lib/supabase-server.ts	151
+lib/supabase-admin.ts	32
+TOTAL	9,481
+Staff Dashboard File Inventory
+File	Lines
+app/dashboard/page.tsx	143
+components/DashboardShell.tsx	812
+components/learning-engine/PreShiftHome.tsx	894
+components/learning-engine/DynamicModuleNav.tsx	208
+components/learning-engine/ModuleVerify.tsx	270
+components/learning-engine/RapidFirePage.tsx	307
+components/learning-engine/RapidFireQuiz.tsx	271
+components/learning-engine/ArenaPage.tsx	574
+components/learning-engine/ChallengesPage.tsx	1,247
+components/learning-engine/DiagnosticFlow.tsx	306
+components/learning-engine/DashboardTrainer.tsx	1,025
+components/learning-engine/ProgressOverview.tsx	1,045
+components/learning-engine/BadgesView.tsx	308
+components/learning-engine/MobileDashboardV3.tsx	868
+components/learning-engine/MobileLearnHub.tsx	214
+components/knowledge-base/CocktailLibrary.tsx	328
+components/knowledge-base/KnowledgeBase.tsx	234
+components/ui/SignOutButton.tsx	25
+components/ui/SessionRefresher.tsx	47
+components/ui/LanguageSwitcher.tsx	115
+components/ui/Skeletons.tsx	15
+lib/supabase.ts	42
+lib/supabase-server.ts	151
+lib/supabase-admin.ts	32
+TOTAL	9,481
+
+/compact

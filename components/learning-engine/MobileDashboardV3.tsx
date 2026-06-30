@@ -469,59 +469,6 @@ function AICoachSheet({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ── Floating nav pill ──────────────────────────────────────────
-function FloatingMobileNav({ setActiveNav }: { setActiveNav: (nav: NavItem) => void }) {
-  const tabs: { id: NavItem; label: string; icon: React.ReactNode; active: boolean }[] = [
-    { id: "home",         label: "Home",     icon: <IcHome s={22} />,   active: true },
-    { id: "mobile-learn", label: "Learn",    icon: <IcBook s={22} />,   active: false },
-    { id: "challenges",   label: "Challenges", icon: <IcStar s={22} />,  active: false },
-    { id: "progress",     label: "Me",         icon: <IcUser s={22} />,  active: false },
-  ];
-  return (
-    <nav
-      role="tablist"
-      aria-label="Main navigation"
-      style={{
-        position: "absolute", bottom: 24, left: 16, right: 16, height: 64,
-        background: "rgba(15, 45, 29, 0.88)",
-        backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
-        border: "1px solid rgba(196, 154, 47, 0.2)", borderRadius: 32,
-        zIndex: 999, display: "flex", alignItems: "stretch",
-        boxShadow: "0 12px 32px rgba(15,45,29,0.30)",
-      }}
-    >
-      {tabs.map(({ id, label, icon, active }) => (
-        <button
-          key={id}
-          role="tab"
-          aria-selected={active}
-          aria-label={label}
-          onClick={() => !active && setActiveNav(id)}
-          style={{
-            flex: 1, minHeight: 44, minWidth: 44, border: "none", background: "transparent",
-            cursor: active ? "default" : "pointer",
-            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-            gap: 3, padding: 0, position: "relative",
-            color: active ? "var(--gold-warm)" : "rgba(245,242,233,0.55)",
-            fontFamily: "var(--font-manrope, system-ui, sans-serif)",
-            transition: "color .2s ease",
-          }}
-        >
-          {icon}
-          <span style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: 0.2 }}>{label}</span>
-          {active && (
-            <span style={{
-              width: 4, height: 4, borderRadius: "50%", background: "var(--gold-warm)",
-              position: "absolute", bottom: 7,
-              boxShadow: "0 0 8px rgba(196,154,47,0.8)",
-            }} />
-          )}
-        </button>
-      ))}
-    </nav>
-  );
-}
-
 // ── Main component ─────────────────────────────────────────────
 export default function MobileDashboardV3({
   displayName,
@@ -645,7 +592,7 @@ export default function MobileDashboardV3({
       `}</style>
 
       {/* ── Scrollable body ── */}
-      <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", paddingBottom: 118, WebkitOverflowScrolling: "touch" }}>
+      <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", paddingBottom: 140, WebkitOverflowScrolling: "touch" }}>
 
         {/* Hero header */}
         <div style={{
@@ -793,7 +740,7 @@ export default function MobileDashboardV3({
           </div>
         )}
 
-        <div className="mobile-signout-wrap" style={{ padding: "18px 16px 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div className="mobile-signout-wrap" style={{ padding: "18px 16px 0", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
           <SignOutButton />
           {onSyncProgress && (
             <button
@@ -822,8 +769,8 @@ export default function MobileDashboardV3({
         onClick={() => setCoach(true)}
         aria-label="Open AI Coach"
         style={{
-          position: "absolute", right: 20, bottom: 96,
-          width: 56, height: 56, borderRadius: "50%", zIndex: 998,
+          position: "absolute", right: 20, bottom: "calc(80px + env(safe-area-inset-bottom))",
+          width: 56, height: 56, borderRadius: "50%", zIndex: 48,
           border: "none", background: "var(--gold-warm)", color: "#ffffff",
           display: "flex", alignItems: "center", justifyContent: "center",
           boxShadow: "0 4px 16px rgba(169,129,42,0.4)", cursor: "pointer",
@@ -831,9 +778,6 @@ export default function MobileDashboardV3({
       >
         <IcSparkle s={26} />
       </button>
-
-      {/* Floating nav pill */}
-      <FloatingMobileNav setActiveNav={setActiveNav} />
 
       {/* AI Coach sheet overlay */}
       {coach && <AICoachSheet onClose={() => setCoach(false)} />}
