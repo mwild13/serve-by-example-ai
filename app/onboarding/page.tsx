@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
@@ -44,6 +44,17 @@ export default function OnboardingPage() {
   const [experience, setExperience] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function checkAuth() {
+      const supabase = createSupabaseBrowserClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push("/login");
+      }
+    }
+    checkAuth();
+  }, [router]);
 
   async function handleConnectVenue() {
     const code = parseInt(venueCode.trim(), 10);
