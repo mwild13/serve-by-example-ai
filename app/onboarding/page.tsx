@@ -86,29 +86,36 @@ export default function OnboardingPage() {
     setIsSkipping(true);
     try {
       const supabase = createSupabaseBrowserClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not signed in.");
+
+      // Get fresh session from browser's auth state (more reliable than getUser)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) {
+        // If no session, middleware should have redirected to /login already,
+        // but fallback to login just in case
+        window.location.href = "/login";
+        return;
+      }
 
       const { error: updateError } = await supabase
         .from("profiles")
         .update({ onboarding_completed: true })
-        .eq("id", user.id);
+        .eq("id", session.user.id);
 
       if (updateError) {
-        console.warn("Database update failed, but proceeding with redirect:", updateError);
+        console.warn("Database update warning:", updateError);
+        // Don't fail on DB error — user may not have a profile row yet,
+        // but they're authenticated so proceed with redirect anyway
       }
 
       // Wait for DB write to propagate across replicas before redirecting
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      router.refresh();
+      // Use hard browser redirect for bulletproof navigation
       window.location.href = "/dashboard";
     } catch (err) {
-      console.error("Skip handler error (still redirecting):", err);
-      // Force redirect even if there's an error to prevent user from being stuck
-      try {
-        router.refresh();
-      } catch {}
+      console.error("Skip handler error:", err);
+      // User is authenticated (passed middleware), so send to dashboard
+      // even if something unexpected went wrong
       window.location.href = "/dashboard";
     }
   }
@@ -118,10 +125,15 @@ export default function OnboardingPage() {
     setError("");
     try {
       const supabase = createSupabaseBrowserClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not signed in.");
+
+      // Get fresh session from browser's auth state (more reliable than getUser)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) {
+        setError("Not authenticated. Please log in.");
+        setSaving(false);
+        window.location.href = "/login";
+        return;
+      }
 
       const { error: updateError } = await supabase
         .from("profiles")
@@ -134,7 +146,7 @@ export default function OnboardingPage() {
               }),
           onboarding_completed: true,
         })
-        .eq("id", user.id);
+        .eq("id", session.user.id);
 
       if (updateError) throw updateError;
 
