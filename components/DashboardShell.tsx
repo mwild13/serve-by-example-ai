@@ -3,6 +3,7 @@
 import { FormEvent, useState, useEffect, useCallback, Suspense, lazy } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useAuthSessionGuard } from "@/lib/use-auth-session-guard";
 
 // Hydration-safe viewport detection hook (no CSS-based hiding to avoid blank screens on slow networks)
 function useIsMobile() {
@@ -491,6 +492,11 @@ export default function DashboardShell({
 }) {
   const router = useRouter();
   const isMobile = useIsMobile();
+
+  // Auth safety guard: detect and recover from cookie/localStorage desync
+  const [authErrorMessage, setAuthErrorMessage] = useState("");
+  const authGuard = useAuthSessionGuard((msg) => setAuthErrorMessage(msg));
+
   const NAV_IDS = new Set<NavItem>(["home","mobile-learn","module","rapid-fire","stage4","scenarios","challenges","cocktails","knowledge","progress","badges","settings"]);
   const [activeNav, setActiveNav] = useState<NavItem>(
     NAV_IDS.has(initialNav as NavItem) ? (initialNav as NavItem) : "home"
@@ -610,9 +616,56 @@ export default function DashboardShell({
     setActiveNav("module");
   };
 
+  // If auth guard detected an error or is still initializing, show defensive UI
+  if (authGuard.hasError) {
+    return (
+      <main className="dashboard-shell" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", backgroundColor: "var(--bg)" }}>
+        <div style={{ textAlign: "center", padding: "40px", maxWidth: "400px" }}>
+          <h2 style={{ color: "var(--text)", marginBottom: "12px", fontSize: "18px", fontWeight: 600 }}>Session Recovery</h2>
+          <p style={{ color: "var(--text-soft)", marginBottom: "24px", fontSize: "14px", lineHeight: "1.6" }}>{authGuard.errorMessage || "Your session is being restored. Please wait..."}</p>
+          <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+            <button
+              onClick={() => window.location.href = "/login"}
+              style={{
+                padding: "10px 20px",
+                backgroundColor: "var(--green)",
+                color: "white",
+                border: "none",
+                borderRadius: "var(--radius-sm)",
+                cursor: "pointer",
+                fontSize: "14px",
+                fontWeight: 600,
+              }}
+            >
+              Back to Login
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="dashboard-shell">
       <SessionRefresher />
+
+      {authErrorMessage && (
+        <div style={{
+          position: "fixed",
+          top: "12px",
+          right: "12px",
+          zIndex: 9999,
+          background: "rgb(200, 60, 60)",
+          color: "white",
+          padding: "12px 16px",
+          borderRadius: "var(--radius-sm)",
+          fontSize: "14px",
+          maxWidth: "400px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+        }}>
+          {authErrorMessage}
+        </div>
+      )}
 
       <aside className="dashboard-sidebar">
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: 16 }}>
