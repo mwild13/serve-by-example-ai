@@ -40,12 +40,25 @@ export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
 
-  const response = NextResponse.next({
+  // This is our base response instance where Supabase writes its updated cookies
+  let response = NextResponse.next({
     request: { headers: requestHeaders },
   });
   response.headers.set("Content-Security-Policy", csp);
 
   const path = request.nextUrl.pathname;
+
+  // Helper function to safely redirect while transferring modified Supabase cookies
+  const syncRedirect = (url: URL) => {
+    const redirectResponse = NextResponse.redirect(url);
+    // Copy all cookies over from our mutated response object
+    response.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie.name, cookie.value);
+    });
+    // Preserve CSP headers on the redirect response
+    redirectResponse.headers.set("Content-Security-Policy", csp);
+    return redirectResponse;
+  };
 
   // ── Geo-blocking check (before auth) ────────
   // Use Cloudflare's native request.cf.country (authoritative, not a header that can be cached).
@@ -62,7 +75,7 @@ export async function middleware(request: NextRequest) {
   if (shouldApplyGeoBlock(path, country)) {
     const geoBlockUrl = request.nextUrl.clone();
     geoBlockUrl.pathname = "/restricted";
-    const geoRedirect = NextResponse.redirect(geoBlockUrl);
+    const geoRedirect = syncRedirect(geoBlockUrl);
     // Prevent any edge or browser caching of this redirect
     geoRedirect.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
     geoRedirect.headers.set("Vary", "CF-IPCountry");
@@ -99,26 +112,26 @@ export async function middleware(request: NextRequest) {
   if ((isDashboard || isOnboarding) && !user) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
-    return NextResponse.redirect(loginUrl);
+    return syncRedirect(loginUrl);
   }
 
   if (isManagementDashboard && !user) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/management/login";
-    return NextResponse.redirect(loginUrl);
+    return syncRedirect(loginUrl);
   }
 
   // If already signed in and visiting login, send straight to dashboard.
   if (path === "/login" && user) {
     const dashboardUrl = request.nextUrl.clone();
     dashboardUrl.pathname = "/dashboard";
-    return NextResponse.redirect(dashboardUrl);
+    return syncRedirect(dashboardUrl);
   }
 
   if (path === "/management/login" && user) {
     const dashboardUrl = request.nextUrl.clone();
     dashboardUrl.pathname = "/management/dashboard";
-    return NextResponse.redirect(dashboardUrl);
+    return syncRedirect(dashboardUrl);
   }
 
   // ── Session displacement check for protected routes ────────
@@ -144,7 +157,7 @@ export async function middleware(request: NextRequest) {
         const conflictUrl = request.nextUrl.clone();
         conflictUrl.pathname = "/session-conflict";
         conflictUrl.searchParams.set("returnTo", path);
-        return NextResponse.redirect(conflictUrl);
+        return syncRedirect(conflictUrl);
       }
     }
   }
