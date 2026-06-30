@@ -105,8 +105,9 @@ export default function OnboardingPage() {
 
       if (updateError) throw updateError;
 
-      // Wait a moment to ensure DB write propagates before redirecting
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Wait for DB write to propagate across replicas before redirecting
+      // Use longer delay (1s) to account for replication lag
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       router.push(
         stripeSessionId
@@ -166,19 +167,21 @@ export default function OnboardingPage() {
               <button
                 className="btn btn-primary btn-block"
                 type="button"
-                disabled={!venueCode.trim() || venueCodeStatus === "loading" || venueCodeStatus === "success"}
+                disabled={!venueCode.trim() || venueCodeStatus === "loading"}
                 onClick={handleConnectVenue}
               >
                 {venueCodeStatus === "loading" ? "Connecting..." : venueCodeStatus === "success" ? "Connected" : "Connect to venue"}
               </button>
+              {venueCodeStatus === "success" && (
+                <button
+                  className="btn btn-secondary btn-block"
+                  type="button"
+                  onClick={() => setStep(2)}
+                >
+                  Continue
+                </button>
+              )}
             </div>
-            <button
-              className="btn btn-secondary btn-block"
-              type="button"
-              onClick={() => setStep(2)}
-            >
-              {venueCodeStatus === "success" ? "Continue" : "Skip for now"}
-            </button>
           </>
         )}
 
