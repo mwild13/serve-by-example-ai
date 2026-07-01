@@ -16588,6 +16588,74 @@ h1, h2, h3 {
   background-color: rgba(212, 175, 55, 0.05); /* 5% alpha brand gold */
 }
 
+/* Premium SBE Column Styling */
+.sbe-mkt-scope .compare-sbe-header {
+  background: linear-gradient(180deg, rgba(31, 78, 55, 0.05) 0%, rgba(31, 78, 55, 0.02) 100%);
+  border-left: 2px solid var(--green);
+  border-right: 2px solid var(--green);
+  position: relative;
+}
+
+.sbe-mkt-scope .compare-sbe-cell {
+  background: rgba(31, 78, 55, 0.02);
+  border-left: 2px solid var(--green);
+  border-right: 2px solid var(--green);
+}
+
+.sbe-mkt-scope .compare-table tr:first-child .compare-sbe-header {
+  box-shadow: inset 0 2px 8px rgba(31, 78, 55, 0.08);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .sbe-mkt-scope .compare-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sbe-mkt-scope .compare-table {
+    min-width: 600px;
+  }
+
+  .sbe-mkt-scope .compare-th,
+  .sbe-mkt-scope .compare-td {
+    padding: var(--space-sm) var(--space-md);
+    font-size: 12px;
+  }
+
+  .sbe-mkt-scope .compare-sbe-header {
+    min-width: 140px;
+  }
+
+  .sbe-mkt-scope .compare-sbe-header span {
+    display: block;
+  }
+
+  .sbe-mkt-scope .compare-sbe-header span:first-child {
+    margin-bottom: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sbe-mkt-scope .compare-table {
+    min-width: 100%;
+    font-size: 11px;
+  }
+
+  .sbe-mkt-scope .compare-th,
+  .sbe-mkt-scope .compare-td {
+    padding: var(--space-sm) 6px;
+  }
+
+  .sbe-mkt-scope .compare-th {
+    border-bottom: 1px solid var(--mkt-border-subtle);
+  }
+
+  .sbe-mkt-scope .compare-sbe-header {
+    min-width: 120px;
+  }
+}
+
 /* ==========================================================================
    CROSS-BROWSER VANILLA RANGE INPUT RESETS & TRACK FILL
    ========================================================================== */
