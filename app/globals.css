@@ -905,7 +905,7 @@ ul {
 
 /* ── Hero ──────────────────────────────────────── */
 .hero {
-  padding: 56px 0 24px;
+  padding: 24px 0 12px;
   text-align: center;
   position: relative;
   overflow-x: clip;
@@ -936,17 +936,17 @@ ul {
 
 .hero h1 {
   font-family: var(--font-heading);
-  font-size: clamp(42px, 6.5vw, 72px);
+  font-size: clamp(26px, 4vw, 50px);
   font-weight: 700;
   line-height: 1.05;
   letter-spacing: -0.02em;
-  margin-bottom: 16px;
+  margin-bottom: 4px;
   color: var(--text);
 }
 
 .hero-sub {
-  font-size: 1.04rem;
-  line-height: 1.55;
+  font-size: 0.88rem;
+  line-height: 1.45;
   color: var(--text-soft);
   max-width: 760px;
   margin: 0 auto;
@@ -957,7 +957,7 @@ ul {
   gap: 18px;
   justify-content: center;
   flex-wrap: wrap;
-  margin-top: 22px;
+  margin-top: 10px;
   align-items: center;
 }
 
@@ -15803,10 +15803,10 @@ h1, h2, h3 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 15px 34px;
+  padding: 9px 22px;
   border-radius: var(--radius-md);
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 0.88rem;
   font-weight: 700;
   cursor: pointer;
   transition: background 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out), transform 0.18s var(--ease-out), border-color 0.18s var(--ease-out), color 0.18s var(--ease-out);
@@ -15842,7 +15842,7 @@ h1, h2, h3 {
 }
 
 .hero-showcase {
-  margin-top: 20px;
+  margin-top: 6px;
   max-width: 1080px;
   margin-left: auto;
   margin-right: auto;
@@ -16676,7 +16676,7 @@ h1, h2, h3 {
 
 @keyframes marquee-scroll {
   0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  100% { transform: translateX(-33.333%); }
 }
 
 .arch-blueprint {

@@ -119,7 +119,7 @@ export default function HeroSection() {
           <h1>Training Software <br />Built for Hospitality</h1>
 
           <p className="hero-sub" style={{ marginTop: 20 }}>
-            From 6 months of onboarding to 6 weeks. Deliver the exact operational standard your best shift manager enforces—without pulling them off the floor.
+            From 6 months of onboarding to 6 weeks. Deliver the exact operational standard your best shift manager enforces, without pulling them off the floor.
           </p>
 
           <div className="hero-cta-tiles">

@@ -40,6 +40,9 @@ export default function VenueMarquee() {
         <span style={{ display: "inline-flex", alignItems: "center", paddingRight: "32px" }}>
           {renderTrack("b")}
         </span>
+        <span style={{ display: "inline-flex", alignItems: "center", paddingRight: "32px" }}>
+          {renderTrack("c")}
+        </span>
       </div>
     </div>
   );
