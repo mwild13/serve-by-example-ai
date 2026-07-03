@@ -15,10 +15,10 @@ export function createSupabaseAdminClient() {
 
   if (!supabaseServiceRoleKey) {
     console.error(
-      "[supabase-admin] Missing SUPABASE_SERVICE_ROLE_KEY environment variable - this is required for API routes"
+      "[supabase-admin] Failed to initialize Supabase admin client."
     );
     throw new Error(
-      "Missing SUPABASE_SERVICE_ROLE_KEY. Set this in Cloudflare Pages (Settings > Environment Variables). Get it from Supabase: Project Settings > API > Service Role Secret.",
+      "Failed to initialize Supabase admin client. Set required environment variables in Cloudflare Pages.",
     );
   }
 

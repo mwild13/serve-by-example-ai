@@ -23,7 +23,7 @@ export const GEO_CONFIG = {
 };
 
 export function isCountryAllowed(country?: string): boolean {
-  if (!country || country === 'XX') return true; // local dev or Cloudflare unknown
+  if (!country || country === 'XX') return false; // strict default-deny for unknown/missing country codes
   return GEO_CONFIG.allowedCountries.includes(country.toUpperCase());
 }
 

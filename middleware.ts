@@ -152,7 +152,7 @@ export async function middleware(request: NextRequest) {
       // Log session conflicts for security monitoring
       if (storedSessionId && storedSessionId !== browserSessionId) {
         console.warn(
-          `Session conflict: user=${user?.id}, stored_session=${storedSessionId?.substring(0, 8)}..., browser_session=${browserSessionId?.substring(0, 8)}...`
+          `Session conflict detected for user ${user?.id}. Device may be compromised.`
         );
         const conflictUrl = request.nextUrl.clone();
         conflictUrl.pathname = "/session-conflict";

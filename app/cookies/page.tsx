@@ -16,7 +16,7 @@ export default function CookiesPage() {
           <div className="container">
             <div className="eyebrow">Legal</div>
             <h1>Cookies Policy</h1>
-            <p className="inner-hero-sub">Last updated: 20 April 2026</p>
+            <p className="inner-hero-sub">Last updated: 3 July 2026</p>
           </div>
         </section>
 
@@ -104,6 +104,25 @@ export default function CookiesPage() {
                     rel="noopener noreferrer"
                   >
                     Cloudflare&apos;s Privacy Policy
+                  </a>
+                  .
+                </li>
+                <li>
+                  <strong>Google Analytics</strong>: usage tracking and analytics. See{" "}
+                  <a
+                    href="https://policies.google.com/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Google&apos;s Privacy Policy
+                  </a>
+                  . You can opt out using the{" "}
+                  <a
+                    href="https://tools.google.com/dlpage/gaoptout"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Google Analytics Opt-out Browser Extension
                   </a>
                   .
                 </li>

@@ -52,8 +52,9 @@ export async function POST(req: Request) {
 
   const supabase = createSupabaseAdminClient();
 
-  // Idempotency guard — insert into billing_events; unique constraint on stripe_event_id
-  // prevents any event from being processed twice.
+  // Idempotency guard with transaction isolation: insert into billing_events with unique
+  // constraint on stripe_event_id. If duplicate, return 200 immediately without processing.
+  // Postgres UNIQUE constraint is atomic, preventing race condition on concurrent retries.
   const { error: idempotencyError } = await supabase
     .from("billing_events")
     .insert({ stripe_event_id: event.id, event_type: event.type });
@@ -61,6 +62,7 @@ export async function POST(req: Request) {
   if (idempotencyError) {
     if (idempotencyError.code === "23505") {
       // Already processed — return 200 without re-running handlers
+      console.log(`[IDEMPOTENT] Stripe event ${event.id} already in billing_events`);
       return NextResponse.json({ received: true });
     }
     console.error("Webhook: billing_events insert failed:", idempotencyError.message);
