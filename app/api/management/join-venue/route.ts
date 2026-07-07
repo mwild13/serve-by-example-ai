@@ -60,7 +60,7 @@ export async function POST(req: Request) {
       }
     }
 
-    const alreadyLinked = !!(existingRow && byUserId);
+    const alreadyLinked = !!existingRow;
 
     // Resolve display name once — used for both venue_staff insert and venue_memberships upsert
     const { data: profile } = await admin

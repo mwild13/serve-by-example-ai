@@ -117,7 +117,7 @@ export async function POST(req: Request) {
 
     const { data: existingRow } = await admin
       .from("scenario_mastery")
-      .select("best_score, total_attempts")
+      .select("best_score, total_attempts, total_score_points")
       .eq("user_id", user.id)
       .eq("module", moduleName)
       .eq("scenario_index", ARENA_SCENARIO_INDEX)
@@ -137,7 +137,7 @@ export async function POST(req: Request) {
         last_score: score,
         best_score: bestScore,
         total_attempts: totalAttempts,
-        total_score_points: score,
+        total_score_points: ((existingRow?.total_score_points as number | null) ?? 0) + score,
         consecutive_correct: passed ? 1 : 0,
         consecutive_fails: passed ? 0 : 1,
         last_attempt_at: now,
