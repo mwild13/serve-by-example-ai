@@ -1,9 +1,9 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import { EmptyState, MasteryMicroGrid } from "./manager-ui";
+import { EmptyState, MasteryMicroGrid } from "@/components/mission-control/manager-ui";
 import { WorkspaceHeader } from "@/app/management/dashboard/_components/WorkspaceHeader";
-import { rsaStatus } from "./compliance/helpers";
+import { rsaStatus } from "@/components/mission-control/compliance/helpers";
 import type { ManagementSnapshot, StaffRole, StaffMember } from "@/lib/management/types";
 
 type MembershipRow = {

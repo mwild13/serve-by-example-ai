@@ -38,7 +38,7 @@ import { ManagementTopbar } from "@/app/management/dashboard/_components/Managem
 import { ActionDrawer } from "@/app/management/dashboard/_components/ActionDrawer";
 
 const CoachingDrawer = lazy(() => import("@/app/management/dashboard/_components/CoachingDrawer"));
-import StaffRosterPanel from "./StaffRosterPanel";
+import StaffRosterPanel from "@/app/management/dashboard/_components/StaffRosterPanel";
 
 type SnapshotResponse = ManagementSnapshot & {
   inviteMessage?: string;
