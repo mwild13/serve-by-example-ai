@@ -11,7 +11,7 @@
 
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
-import ModuleVerify from "@/components/learning-engine/ModuleVerify";
+import ModuleVerify from "@/app/dashboard/_components/ModuleVerify";
 
 type ModuleListItem = {
   id: number;

@@ -2,7 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { EmptyState, MasteryMicroGrid } from "./manager-ui";
-import { WorkspaceHeader } from "./WorkspaceHeader";
+import { WorkspaceHeader } from "@/app/management/dashboard/_components/WorkspaceHeader";
 import { rsaStatus } from "./compliance/helpers";
 import type { ManagementSnapshot, StaffRole, StaffMember } from "@/lib/management/types";
 

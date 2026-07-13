@@ -18,20 +18,20 @@ function useIsMobile() {
 }
 import SignOutButton from "@/components/ui/SignOutButton";
 import DashboardTrainer from "@/components/learning-engine/DashboardTrainer";
-import ModuleVerify from "@/components/learning-engine/ModuleVerify";
-import ArenaPage from "@/components/learning-engine/ArenaPage";
-import DiagnosticFlow from "@/components/learning-engine/DiagnosticFlow";
+import ModuleVerify from "@/app/dashboard/_components/ModuleVerify";
+import ArenaPage from "@/app/dashboard/_components/ArenaPage";
+import DiagnosticFlow from "@/app/dashboard/_components/DiagnosticFlow";
 import DynamicModuleNav from "@/components/learning-engine/DynamicModuleNav";
 import RapidFirePage from "@/components/learning-engine/RapidFirePage";
 import ChallengesPage from "@/components/learning-engine/ChallengesPage";
 import { CocktailGridSkeleton } from "@/components/ui/Skeletons";
 const CocktailLibrary = lazy(() => import("@/app/dashboard/_components/knowledge-base/CocktailLibrary"));
 const KnowledgeBase = lazy(() => import("@/app/dashboard/_components/knowledge-base/KnowledgeBase"));
-const BadgesView = lazy(() => import("@/components/learning-engine/BadgesView"));
+const BadgesView = lazy(() => import("@/app/dashboard/_components/BadgesView"));
 import ProgressOverview from "@/components/learning-engine/ProgressOverview";
 import PreShiftHome from "@/components/learning-engine/PreShiftHome";
 import MobileDashboardV3 from "@/components/learning-engine/MobileDashboardV3";
-import MobileLearnHub from "@/components/learning-engine/MobileLearnHub";
+import MobileLearnHub from "@/app/dashboard/_components/MobileLearnHub";
 import SessionRefresher from "@/components/ui/SessionRefresher";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { createSupabaseBrowserClient } from "@/lib/supabase";

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
-import { OpsKpiCard, StaffBadges } from "./manager-ui";
+import { OpsKpiCard, StaffBadges } from "@/components/mission-control/manager-ui";
 import type { StaffMember } from "@/lib/management/types";
 
 interface CoachingDrawerProps {
