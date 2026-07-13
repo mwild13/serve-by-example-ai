@@ -17,7 +17,7 @@ function useIsMobile() {
   return isMobile;
 }
 import SignOutButton from "@/components/ui/SignOutButton";
-import DashboardTrainer from "@/components/learning-engine/DashboardTrainer";
+import DashboardTrainer from "@/app/dashboard/_components/DashboardTrainer";
 import ModuleVerify from "@/app/dashboard/_components/ModuleVerify";
 import ArenaPage from "@/app/dashboard/_components/ArenaPage";
 import DiagnosticFlow from "@/app/dashboard/_components/DiagnosticFlow";
