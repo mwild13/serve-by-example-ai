@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
-import RecommenderCard from "@/components/learning-engine/RecommenderCard";
+import RecommenderCard from "@/app/dashboard/_components/RecommenderCard";
 
 type Module = "bartending" | "sales" | "management";
 
