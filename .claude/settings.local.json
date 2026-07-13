@@ -72,7 +72,9 @@
       "mcp__b40166de-dac2-4420-b28a-978160ea8b2e__execute_sql",
       "mcp__b40166de-dac2-4420-b28a-978160ea8b2e__list_tables",
       "mcp__b40166de-dac2-4420-b28a-978160ea8b2e__list_projects",
-      "mcp__b40166de-dac2-4420-b28a-978160ea8b2e__apply_migration"
+      "mcp__b40166de-dac2-4420-b28a-978160ea8b2e__apply_migration",
+      "mcp__Claude_in_Chrome__browser_batch",
+      "mcp__Claude_in_Chrome__navigate"
     ]
   }
 }

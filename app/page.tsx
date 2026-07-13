@@ -158,7 +158,7 @@ export default function Home() {
                   </div>
                   <span className="sbe-eyebrow">For Frontline Staff</span>
                   <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-cream-100)" }}>AI Scenario Simulators</h3>
-                  <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.65, color: "rgba(250,249,246,0.72)" }}>GPT-4o-mini scores every roleplay response across 5 service dimensions. Real pressure, real feedback — no manager required.</p>
+                  <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.65, color: "rgba(250,249,246,0.72)" }}>GPT-4o-mini scores every roleplay response across 5 service dimensions. Real pressure, real feedback and no manager required.</p>
                 </div>
               </div>
 
@@ -183,7 +183,7 @@ export default function Home() {
                     </div>
                     <span className="sbe-eyebrow">For Multi-Site Venue Groups</span>
                     <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-forest-900)" }}>Cocktail &amp; Spec Library</h3>
-                    <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.65, color: "var(--mkt-charcoal-400)" }}>40+ build guides, garnish specs, and flavour profiles — searchable by staff on any device, any shift. Standardise service quality across every location.</p>
+                    <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.65, color: "var(--mkt-charcoal-400)" }}>40+ build guides, garnish specs, and flavour profiles. Searchable by staff on any device, any shift. Standardise service quality across every location.</p>
                   </div>
                   <ul style={{ flex: "1 1 260px", listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.625rem" }}>
                     {[
@@ -517,7 +517,7 @@ export default function Home() {
               maxWidth: '520px',
               margin: '0 auto 2.5rem auto',
             }}>
-              Get a free, venue-specific staff onboarding SOP template — customised to your venue type and biggest compliance pain point in under 60 seconds.
+              Get a free, venue-specific staff onboarding SOP template. Customised to your venue type and biggest compliance pain point in under 60 seconds.
             </p>
             <Link href="/toolkit" style={{
               display: 'inline-block',
