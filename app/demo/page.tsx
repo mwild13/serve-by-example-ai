@@ -2,35 +2,13 @@
 
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-
-type ModuleId = "bartending" | "sales" | "management";
-
-type PillOption = {
-  intent: string;
-  text: string;
-  positive: boolean;
-};
-
-type DemoScenario = {
-  id: ModuleId;
-  category: string;
-  title: string;
-  prompt: string;
-  pills: PillOption[];
-};
-
-type EvaluationResult = {
-  communication: number;
-  hospitalityBehaviour: number;
-  problemSolving: number;
-  professionalism: number;
-  guestExperience: number;
-  overallScore: number;
-  strengths: string;
-  improvement: string;
-  improvedResponse: string;
-};
+import ScenarioSimulatorPane, {
+  type ModuleId,
+  type DemoScenario,
+} from "./_components/ScenarioSimulatorPane";
+import LeadCapturePane from "./_components/LeadCapturePane";
+import DemoMinimalFooter from "./_components/DemoMinimalFooter";
+import type { EvalTab, EvaluationResult, ScoreDimension } from "./_components/EvaluationTabs";
 
 const DEMO_SCENARIOS: DemoScenario[] = [
   {
@@ -107,13 +85,13 @@ const DEMO_SCENARIOS: DemoScenario[] = [
   },
 ];
 
-const SCORE_DIMENSIONS = [
-  { key: "communication" as keyof EvaluationResult, label: "Communication" },
-  { key: "hospitalityBehaviour" as keyof EvaluationResult, label: "Hospitality" },
-  { key: "problemSolving" as keyof EvaluationResult, label: "Problem solving" },
-  { key: "professionalism" as keyof EvaluationResult, label: "Professionalism" },
-  { key: "guestExperience" as keyof EvaluationResult, label: "Guest experience" },
-] as const;
+const SCORE_DIMENSIONS: readonly ScoreDimension[] = [
+  { key: "communication", label: "Communication" },
+  { key: "hospitalityBehaviour", label: "Hospitality" },
+  { key: "problemSolving", label: "Problem solving" },
+  { key: "professionalism", label: "Professionalism" },
+  { key: "guestExperience", label: "Guest experience" },
+];
 
 export default function DemoPage() {
   const [activeModuleId, setActiveModuleId] = useState<ModuleId>("bartending");
@@ -121,8 +99,9 @@ export default function DemoPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<EvaluationResult | null>(null);
   const [error, setError] = useState("");
+  const [activeEvalTab, setActiveEvalTab] = useState<EvalTab>("metrics");
+  const [submitCount, setSubmitCount] = useState(0);
 
-  // Derived – never reset back to default because activeModuleId is the single source of truth
   const activeScenario = DEMO_SCENARIOS.find((s) => s.id === activeModuleId)!;
 
   function selectModule(id: ModuleId) {
@@ -130,6 +109,7 @@ export default function DemoPage() {
     setResponse("");
     setResult(null);
     setError("");
+    setActiveEvalTab("metrics");
   }
 
   function applyPill(text: string) {
@@ -144,6 +124,12 @@ export default function DemoPage() {
     selectModule(next.id);
   }
 
+  function handleRetry() {
+    setResult(null);
+    setResponse("");
+    setActiveEvalTab("metrics");
+  }
+
   async function handleSubmit() {
     if (!response.trim()) return;
     setLoading(true);
@@ -156,11 +142,12 @@ export default function DemoPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ scenario: activeScenario.prompt, userResponse: response }),
       });
-      const data = await res.json() as EvaluationResult & { error?: string };
+      const data = (await res.json()) as EvaluationResult & { error?: string };
       if (!res.ok) {
         setError(data.error ?? "Something went wrong.");
       } else {
         setResult(data);
+        setSubmitCount((c) => c + 1);
       }
     } catch {
       setError("Failed to connect to the evaluation service.");
@@ -174,7 +161,7 @@ export default function DemoPage() {
       <Navbar />
 
       <main>
-        <section className="inner-hero">
+        <section className="inner-hero demo-inner-hero">
           <div className="container">
             <div className="eyebrow">Interactive demo</div>
             <h1>Try a real hospitality scenario</h1>
@@ -184,194 +171,30 @@ export default function DemoPage() {
           </div>
         </section>
 
-        <section className="section" style={{ paddingTop: 0 }}>
-          <div className="container">
-
-            {/* Module picker */}
-            <div className="demo-scenario-picker" style={{ marginBottom: 32 }}>
-              {DEMO_SCENARIOS.map((scenario) => (
-                <button
-                  key={scenario.id}
-                  type="button"
-                  className={`demo-scenario-chip${activeModuleId === scenario.id ? " active" : ""}`}
-                  onClick={() => selectModule(scenario.id)}
-                >
-                  <span className="demo-scenario-chip-category">{scenario.category}</span>
-                  <span>{scenario.title}</span>
-                </button>
-              ))}
-            </div>
-
-            {/* Training-style scenario panel */}
-            {!result && (
-              <div className="trainer-panel" key={activeModuleId}>
-                <div className="trainer-scenario">
-                  <span className="trainer-label">{activeScenario.category} scenario</span>
-                  <p>{activeScenario.prompt}</p>
-                </div>
-
-                <div className="trainer-pills">
-                  <span className="trainer-hint">Choose an approach, or write your own response below</span>
-                  <div className="chat-actions sbe-intent-pills">
-                    {activeScenario.pills.map((pill) => (
-                      <button
-                        key={pill.intent}
-                        type="button"
-                        className={`sbe-intent-pill${response === pill.text ? " sbe-intent-pill-active" : ""}${!pill.positive ? " sbe-intent-pill-negative" : ""}`}
-                        onClick={() => applyPill(pill.text)}
-                      >
-                        <span className="sbe-intent-icon">{pill.positive ? "+" : "–"}</span>
-                        {pill.intent}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="trainer-input-row">
-                  <textarea
-                    className="trainer-textarea"
-                    placeholder="Write your full response here…"
-                    value={response}
-                    onChange={(e) => setResponse(e.target.value)}
-                    onKeyDown={(e) => {
-                      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") void handleSubmit();
-                    }}
-                    rows={4}
-                  />
-                  <div className="trainer-actions">
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => void handleSubmit()}
-                      disabled={loading || !response.trim()}
-                      type="button"
-                    >
-                      {loading ? "Evaluating…" : "Check my response"}
-                    </button>
-                    <button
-                      className="btn btn-secondary"
-                      onClick={handleSkip}
-                      type="button"
-                    >
-                      Skip →
-                    </button>
-                  </div>
-                </div>
-
-                {error && <div className="trainer-error">{error}</div>}
-              </div>
-            )}
-
-            {/* AI Result – same style as the real training */}
-            {result && (() => {
-              const weakest = [...SCORE_DIMENSIONS].sort(
-                (a, b) => (result[a.key] as number) - (result[b.key] as number),
-              )[0];
-              const strongest = [...SCORE_DIMENSIONS].sort(
-                (a, b) => (result[b.key] as number) - (result[a.key] as number),
-              )[0];
-              return (
-                <>
-                  <div className="trainer-result">
-                    <div className="sbe-score-hero">
-                      <div className="sbe-score-number">
-                        <span className="sbe-score-val">{result.overallScore}</span>
-                        <span className="sbe-score-denom">/25</span>
-                      </div>
-                      <span className="sbe-score-delta sbe-delta-first">Demo evaluation</span>
-                    </div>
-
-                    <div className="sbe-dimension-list">
-                      {SCORE_DIMENSIONS.map(({ key, label }) => {
-                        const val = result[key] as number;
-                        const icon = val >= 4 ? "✔" : val === 3 ? "⚠" : "✖";
-                        const cls =
-                          val >= 4 ? "sbe-dim-good" : val === 3 ? "sbe-dim-warn" : "sbe-dim-miss";
-                        return (
-                          <div key={key} className={`sbe-dimension-row ${cls}`}>
-                            <span className="sbe-dim-icon">{icon}</span>
-                            <span className="sbe-dim-label">{label}</span>
-                            <span className="sbe-dim-score">{val}/5</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    <div className="sbe-coach-tip">
-                      <strong>Coach focus for your next attempt</strong>
-                      <p>→ {result.improvement}</p>
-                    </div>
-
-                    <details className="sbe-full-feedback">
-                      <summary>See full feedback</summary>
-                      <div className="trainer-feedback">
-                        <div className="trainer-feedback-block trainer-feedback-good">
-                          <strong>✔ {strongest.label} – strength</strong>
-                          <p>{result.strengths}</p>
-                        </div>
-                        <div className="trainer-feedback-block trainer-feedback-improve">
-                          <strong>✖ {weakest.label} – missed opportunity</strong>
-                          <p>{result.improvement}</p>
-                        </div>
-                        <div className="trainer-feedback-block trainer-feedback-example">
-                          <strong>Stronger response</strong>
-                          <p>{result.improvedResponse}</p>
-                        </div>
-                      </div>
-                    </details>
-
-                    <div className="trainer-after">
-                      <button
-                        className="btn btn-secondary"
-                        onClick={handleSkip}
-                        type="button"
-                      >
-                        Try another module →
-                      </button>
-                      <button
-                        className="btn btn-secondary"
-                        onClick={() => { setResult(null); setResponse(""); }}
-                        type="button"
-                      >
-                        Try again
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="demo-cta-panel">
-                    <h2 className="demo-cta-heading">Like what you see?</h2>
-                    <p className="demo-cta-copy">
-                      This is just a taste. A full account gives you unlimited scenarios, a personalised
-                      AI Coach, progress tracking, and leaderboard rankings, all built for hospitality.
-                    </p>
-                    <div className="demo-cta-actions">
-                      <a href="/login" className="btn btn-primary btn-lg">Create free account</a>
-                      <a href="/pricing" className="btn btn-outline btn-lg">See pricing</a>
-                    </div>
-                  </div>
-
-                  <div style={{ marginTop: "2rem", padding: "1.5rem", background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "var(--radius-md)" }}>
-                    <p style={{ margin: "0 0 1rem", fontWeight: 700, fontSize: "0.875rem", color: "var(--text)", textAlign: "center" }}>Which solution fits your venue?</p>
-                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
-                      <a href="/solutions/pub-groups" style={{ fontSize: "0.8rem", color: "var(--green)", textDecoration: "underline", textUnderlineOffset: "3px" }}>Pub Groups</a>
-                      <span style={{ color: "var(--text-muted)" }}>·</span>
-                      <a href="/solutions/fine-dining" style={{ fontSize: "0.8rem", color: "var(--green)", textDecoration: "underline", textUnderlineOffset: "3px" }}>Fine Dining &amp; Bars</a>
-                      <span style={{ color: "var(--text-muted)" }}>·</span>
-                      <a href="/solutions/hotel-fb" style={{ fontSize: "0.8rem", color: "var(--green)", textDecoration: "underline", textUnderlineOffset: "3px" }}>Hotel F&amp;B</a>
-                      <span style={{ color: "var(--text-muted)" }}>·</span>
-                      <a href="/solutions/franchise-systems" style={{ fontSize: "0.8rem", color: "var(--green)", textDecoration: "underline", textUnderlineOffset: "3px" }}>Franchise Systems</a>
-                      <span style={{ color: "var(--text-muted)" }}>·</span>
-                      <a href="/solutions/multi-venue" style={{ fontSize: "0.8rem", color: "var(--green)", textDecoration: "underline", textUnderlineOffset: "3px" }}>Multi-Venue Groups</a>
-                    </div>
-                  </div>
-                </>
-              );
-            })()}
-
-          </div>
+        <section className="container demo-dual-pane">
+          <ScenarioSimulatorPane
+            scenarios={DEMO_SCENARIOS}
+            activeModuleId={activeModuleId}
+            activeScenario={activeScenario}
+            response={response}
+            loading={loading}
+            result={result}
+            error={error}
+            activeEvalTab={activeEvalTab}
+            dimensions={SCORE_DIMENSIONS}
+            onSelectModule={selectModule}
+            onApplyPill={applyPill}
+            onResponseChange={setResponse}
+            onSubmit={() => void handleSubmit()}
+            onSkip={handleSkip}
+            onRetry={handleRetry}
+            onTabChange={setActiveEvalTab}
+          />
+          <LeadCapturePane pulseKey={submitCount} hasResult={!!result} />
         </section>
       </main>
 
-      <Footer />
+      <DemoMinimalFooter />
     </div>
   );
 }
