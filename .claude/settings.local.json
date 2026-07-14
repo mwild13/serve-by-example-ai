@@ -72,7 +72,20 @@
       "mcp__b40166de-dac2-4420-b28a-978160ea8b2e__execute_sql",
       "mcp__b40166de-dac2-4420-b28a-978160ea8b2e__list_tables",
       "mcp__b40166de-dac2-4420-b28a-978160ea8b2e__list_projects",
-      "mcp__b40166de-dac2-4420-b28a-978160ea8b2e__apply_migration"
+      "mcp__b40166de-dac2-4420-b28a-978160ea8b2e__apply_migration",
+      "mcp__Claude_in_Chrome__browser_batch",
+      "mcp__Claude_in_Chrome__navigate",
+      "Bash(sed -i '' 's|from \"@/components/learning-engine/BadgeProgressRing\"|from \"@/app/dashboard/_components/BadgeProgressRing\"|g' components/learning-engine/BadgesView.tsx)",
+      "Bash(sed -i '' 's|from \"@/components/learning-engine/BadgeStreakSection\"|from \"@/app/dashboard/_components/BadgeStreakSection\"|g' components/learning-engine/BadgesView.tsx)",
+      "Bash(sed -i '' 's|from \"@/components/learning-engine/RecommenderCard\"|from \"@/app/dashboard/_components/RecommenderCard\"|g' components/learning-engine/DashboardTrainer.tsx)",
+      "Bash(sed -i '' 's|from '\\\\''./SopPreviewDocument'\\\\''|from '\\\\''@/app/toolkit/_components/SopPreviewDocument'\\\\''|g' components/toolkit/SopGeneratorPreview.tsx)",
+      "Bash(sed -i '' 's|import\\(\"@/components/knowledge-base/CocktailLibrary\"\\)|import\\(\"@/app/dashboard/_components/knowledge-base/CocktailLibrary\"\\)|g' components/DashboardShell.tsx)",
+      "Bash(git mv *)",
+      "Bash(sed -i '' 's|\"@/components/learning-engine/RapidFireQuiz\"|\"@/app/dashboard/_components/RapidFireQuiz\"|g' app/dashboard/_components/ModuleVerify.tsx)",
+      "Bash(sed -i '' \"s|from './manager-types'|from '@/components/mission-control/manager-types'|g\" app/management/dashboard/_components/ManagementTopbar.tsx)",
+      "Bash(sed -i '' 's|from \"\\\\./manager-types\"|from \"@/components/mission-control/manager-types\"|g' app/management/dashboard/_components/ManagementTopbar.tsx)",
+      "Bash(sed -i '' \"s|from './manager-ui'|from '@/components/mission-control/manager-ui'|g\" app/management/dashboard/_components/CoachingDrawer.tsx)",
+      "Bash(sed -i '' 's|from \"\\\\./manager-ui\"|from \"@/components/mission-control/manager-ui\"|g' app/management/dashboard/_components/CoachingDrawer.tsx)"
     ]
   }
 }

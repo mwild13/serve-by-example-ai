@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
-import { BadgeProgressRing } from "@/components/learning-engine/BadgeProgressRing";
-import BadgeStreakSection from "@/components/learning-engine/BadgeStreakSection";
+import { BadgeProgressRing } from "@/app/dashboard/_components/BadgeProgressRing";
+import BadgeStreakSection from "@/app/dashboard/_components/BadgeStreakSection";
 import {
   computeBadges,
   countEarned,

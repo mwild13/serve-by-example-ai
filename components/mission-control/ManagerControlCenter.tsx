@@ -33,12 +33,12 @@ import {
   EmptyState,
   formatPercent,
 } from "./manager-ui";
-import { WorkspaceHeader } from "./WorkspaceHeader";
-import { ManagementTopbar } from "./ManagementTopbar";
-import { ActionDrawer } from "./ActionDrawer";
+import { WorkspaceHeader } from "@/app/management/dashboard/_components/WorkspaceHeader";
+import { ManagementTopbar } from "@/app/management/dashboard/_components/ManagementTopbar";
+import { ActionDrawer } from "@/app/management/dashboard/_components/ActionDrawer";
 
-const CoachingDrawer = lazy(() => import("./CoachingDrawer"));
-import StaffRosterPanel from "./StaffRosterPanel";
+const CoachingDrawer = lazy(() => import("@/app/management/dashboard/_components/CoachingDrawer"));
+import StaffRosterPanel from "@/app/management/dashboard/_components/StaffRosterPanel";
 
 type SnapshotResponse = ManagementSnapshot & {
   inviteMessage?: string;

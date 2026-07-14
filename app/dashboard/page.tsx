@@ -2,7 +2,7 @@
 import Stripe from "stripe";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import DashboardShell from "@/components/DashboardShell";
+import DashboardShell from "@/app/dashboard/_components/DashboardShell";
 
 const PRICE_TO_PLAN: Record<string, string> = {
   [process.env.STRIPE_PRICE_PRO ?? ""]: "pro",

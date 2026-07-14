@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { ChevronDown, Search, Bell } from "lucide-react";
-import type { QuickActionId, SearchResult } from "./manager-types";
+import type { QuickActionId, SearchResult } from "@/components/mission-control/manager-types";
 
 interface ManagementTopbarProps {
   breadcrumbs: string[];

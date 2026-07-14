@@ -329,3 +329,21 @@ Public-facing marketing site lives in `app/` alongside the app routes:
 | `/cookies` | Cookie Policy |
 
 Shared marketing layout components: `components/Navbar.tsx` (mega-menu dropdowns) and `components/Footer.tsx` (5-column footer).
+
+## Terminology Reference
+
+### Database vs. Domain Language
+
+The database schema is logically correct — no renames needed. This table documents how user-facing terms map to database reality.
+
+| Domain Concept | Database Table | Database Column / Value | Notes |
+|----------------|----------------|-------------------------|-------|
+| Module | `modules` | `id` (1–40) | Training module identifier |
+| Scenario (generic) | `scenarios` | `*` | Any question/exercise in the scenarios table |
+| Quiz (L1) | `scenarios` | `scenario_type = 'quiz'` | Rapid-fire true/false; used in rapid-fire mode |
+| Descriptor (L2) | `scenarios` | `scenario_type = 'descriptor_l2'` | Pick 2 of 5; used in Stage 4 |
+| Descriptor (L3) | `scenarios` | `scenario_type = 'descriptor_l3'` | Pick 3 of 5; used in Stage 4 |
+| AI Scenario (Arena) | `scenarios` | `scenario_type = 'roleplay'` | AI-evaluated roleplay; internal code uses `'ai_roleplay'` for clarity |
+| Challenge | `user_challenges` | `*` | Tap-based mini-game; entirely separate from the scenarios table |
+
+**Code reference:** `lib/domain-types.ts` contains `DbScenarioType`, `DomainScenarioType`, `mapDbToUi()`, `mapUiToDb()`, and `DomainNavigation` type definitions.

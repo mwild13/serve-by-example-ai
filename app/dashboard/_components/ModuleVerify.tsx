@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import RapidFireQuiz from "@/components/learning-engine/RapidFireQuiz";
+import RapidFireQuiz from "@/app/dashboard/_components/RapidFireQuiz";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { VERIFY_QUESTIONS } from "@/lib/verify-questions";
 

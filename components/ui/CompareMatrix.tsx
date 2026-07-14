@@ -48,7 +48,7 @@ export default function CompareMatrix() {
           See how we compare
         </h2>
         <p className="sbe-sans-body" style={{ color: "var(--mkt-charcoal-400)", maxWidth: "520px", margin: "0 auto" }}>
-          Serve By Example is purpose-built for hospitality — not a generic corporate LMS retrofitted for the industry.
+          Serve By Example is purpose-built for hospitality. Not a generic corporate LMS retrofitted for the industry.
         </p>
       </div>
 
