@@ -1,5 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 
 function getSupabaseEnv() {
@@ -15,27 +15,37 @@ function getSupabaseEnv() {
   return { supabaseUrl, supabaseAnonKey };
 }
 
-function getCookieDomain(): string | undefined {
-  // On Cloudflare Pages preview (*.pages.dev), PSL cookie rules prevent setting
-  // cookies on arbitrary domains. Omit domain so browser uses exact host.
-  // On production (servebyexample.co), use wildcard for cross-subdomain sharing.
-  // On localhost, omit domain for local testing.
-  if (typeof window === "undefined" && process.env.NODE_ENV === "production") {
-    const host = process.env.VERCEL_URL || process.env.CF_PAGES_URL || "";
-    if (host.includes(".pages.dev") || host.includes("localhost")) {
-      return undefined;
-    }
-    // Production domain
-    return ".servebyexample.co";
+// Derive the cookie domain from the actual request host — the same signal
+// the browser client (lib/supabase.ts) uses via window.location.hostname.
+// IMPORTANT: do not gate this on process.env.NODE_ENV or Cloudflare
+// Pages-only env vars (CF_PAGES_URL / VERCEL_URL) — those are not reliably
+// set in the OpenNext/Workers runtime, which previously caused the server
+// to resolve a different (undefined/host-only) cookie domain than the
+// browser client's ".servebyexample.co", producing duplicate/mismatched
+// auth cookies and a silent client-side session loss (login redirect loop).
+function resolveCookieDomain(hostname: string | undefined): string | undefined {
+  if (!hostname) return undefined;
+  if (hostname.includes(".pages.dev") || hostname === "localhost" || hostname.startsWith("127.")) {
+    return undefined;
   }
-  // Client-side or non-production: omit domain
-  return undefined;
+  return ".servebyexample.co";
+}
+
+async function getCookieDomain(): Promise<string | undefined> {
+  try {
+    const headerStore = await headers();
+    const host = headerStore.get("x-forwarded-host") || headerStore.get("host") || "";
+    const hostname = host.split(":")[0];
+    return resolveCookieDomain(hostname);
+  } catch {
+    return undefined;
+  }
 }
 
 export async function createSupabaseServerClient() {
   const { supabaseUrl, supabaseAnonKey } = getSupabaseEnv();
   const cookieStore = await cookies();
-  const cookieDomain = getCookieDomain();
+  const cookieDomain = await getCookieDomain();
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
@@ -128,7 +138,10 @@ export function createSupabaseMiddlewareClient(
   response: NextResponse,
 ) {
   const { supabaseUrl, supabaseAnonKey } = getSupabaseEnv();
-  const cookieDomain = getCookieDomain();
+  // Middleware has the request directly — use its hostname rather than the
+  // headers() API, and resolve synchronously via the same shared logic used
+  // by the server client above so both stay in lockstep with the browser.
+  const cookieDomain = resolveCookieDomain(request.nextUrl.hostname);
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
