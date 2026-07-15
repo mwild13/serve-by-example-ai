@@ -285,7 +285,6 @@ app/api/
 | `/dashboard` | Staff learning dashboard |
 | `/dashboard/badges` | Full badge gallery |
 | `/management/dashboard` | Manager Mission Control |
-| `/management/login` | Manager-specific login |
 | `/login` | Auth login |
 | `/auth/callback` | Supabase OAuth callback |
 | `/onboarding` | New user onboarding flow |

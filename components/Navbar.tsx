@@ -265,9 +265,6 @@ export default function Navbar({
               </Link>
             ) : showActions ? (
               <div className="nav-actions">
-                <Link href="/management/login" className="btn btn-secondary">
-                  Manager Login
-                </Link>
                 <Link
                   href="/login"
                   className="btn"
@@ -386,9 +383,6 @@ export default function Navbar({
 
             {showActions && (
               <div className="nav-drawer-actions">
-                <Link href="/management/login" className="btn btn-secondary btn-block" onClick={close}>
-                  Manager Login
-                </Link>
                 <Link
                   href="/login"
                   className="btn btn-block"

@@ -40,7 +40,7 @@ export default async function ManagementDashboardPage({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/management/login");
+    redirect("/login");
   }
 
   // When landing from a successful B2B checkout, verify with Stripe and update the

@@ -117,7 +117,7 @@ export async function middleware(request: NextRequest) {
 
   if (isManagementDashboard && !user) {
     const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = "/management/login";
+    loginUrl.pathname = "/login";
     return syncRedirect(loginUrl);
   }
 
@@ -125,12 +125,6 @@ export async function middleware(request: NextRequest) {
   if (path === "/login" && user) {
     const dashboardUrl = request.nextUrl.clone();
     dashboardUrl.pathname = "/dashboard";
-    return syncRedirect(dashboardUrl);
-  }
-
-  if (path === "/management/login" && user) {
-    const dashboardUrl = request.nextUrl.clone();
-    dashboardUrl.pathname = "/management/dashboard";
     return syncRedirect(dashboardUrl);
   }
 
