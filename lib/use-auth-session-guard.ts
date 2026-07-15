@@ -30,19 +30,21 @@ export function useAuthSessionGuard(showError: (msg: string) => void): AuthGuard
       try {
         const supabase = createSupabaseBrowserClient();
 
-        // Check 1: Call getSession with timeout protection (2 second window)
+        // Use getUser() (server-side cookie validation) not getSession() (localStorage only).
+        // getSession() returns null when tokens are in HttpOnly cookies but not in memory,
+        // which causes a false "session expired" redirect loop for users with valid server sessions.
         const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error("Session fetch timeout")), 2000)
+          setTimeout(() => reject(new Error("Session fetch timeout")), 5000)
         );
 
-        const result = await Promise.race<Awaited<ReturnType<typeof supabase.auth.getSession>> | never>([
-          supabase.auth.getSession(),
+        const result = await Promise.race<Awaited<ReturnType<typeof supabase.auth.getUser>> | never>([
+          supabase.auth.getUser(),
           timeoutPromise,
         ]);
 
-        const { data: { session } } = result;
+        const { data: { user } } = result;
 
-        if (!session?.user?.id) {
+        if (!user?.id) {
           isValidationFinished = true;
           if (isComponentMounted) {
             const msg = "Session expired. Redirecting to login...";
