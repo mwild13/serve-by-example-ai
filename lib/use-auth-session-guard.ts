@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase";
-import { forceAuthRecovery } from "@/lib/auth-guard";
 
 interface AuthGuardState {
   isReady: boolean;
@@ -8,15 +6,13 @@ interface AuthGuardState {
   errorMessage: string;
 }
 
-export function useAuthSessionGuard(showError: (msg: string) => void): AuthGuardState {
+export function useAuthSessionGuard(_showError: (msg: string) => void): AuthGuardState {
   const [state, setState] = useState<AuthGuardState>({
     isReady: false,
     hasError: false,
     errorMessage: "",
   });
 
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const overallTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const sessionCheckRef = useRef(false);
 
   useEffect(() => {
@@ -24,76 +20,39 @@ export function useAuthSessionGuard(showError: (msg: string) => void): AuthGuard
     sessionCheckRef.current = true;
 
     let isComponentMounted = true;
-    let isValidationFinished = false;
 
     async function validateAuthSession() {
       try {
-        const supabase = createSupabaseBrowserClient();
+        // Ping an existing authenticated API route using browser cookies.
+        // The browser Supabase client cannot read HttpOnly cookies set by the server,
+        // so client-side getSession()/getUser() always returns null in this SSR setup,
+        // causing a redirect loop. A server-side fetch uses the HttpOnly cookies directly.
+        const resp = await fetch("/api/training/progress", { credentials: "include" });
 
-        // Use getUser() (server-side cookie validation) not getSession() (localStorage only).
-        // getSession() returns null when tokens are in HttpOnly cookies but not in memory,
-        // which causes a false "session expired" redirect loop for users with valid server sessions.
-        const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error("Session fetch timeout")), 5000)
-        );
+        if (!isComponentMounted) return;
 
-        const result = await Promise.race<Awaited<ReturnType<typeof supabase.auth.getUser>> | never>([
-          supabase.auth.getUser(),
-          timeoutPromise,
-        ]);
-
-        const { data: { user } } = result;
-
-        if (!user?.id) {
-          isValidationFinished = true;
-          if (isComponentMounted) {
-            const msg = "Session expired. Redirecting to login...";
-            setState({ isReady: true, hasError: true, errorMessage: msg });
-            showError(msg);
-          }
-          window.location.href = "/login?error=session_expired";
+        if (resp.status === 401) {
+          // Truly unauthenticated — server confirmed no valid session
+          window.location.href = "/login";
           return;
         }
 
-        // Session is valid
-        isValidationFinished = true;
+        // Any other response (200, 4xx, 5xx) means the server accepted the auth cookies
+        setState({ isReady: true, hasError: false, errorMessage: "" });
+      } catch {
+        // Network error — assume auth is fine (middleware already gated the page)
         if (isComponentMounted) {
           setState({ isReady: true, hasError: false, errorMessage: "" });
         }
-      } catch (error) {
-        isValidationFinished = true;
-        if (isComponentMounted) {
-          const msg = error instanceof Error ? error.message : "Auth initialization failed";
-          setState({ isReady: true, hasError: true, errorMessage: msg });
-          showError(msg);
-          // Force logout and redirect after 2 seconds
-          timeoutRef.current = setTimeout(() => {
-            const supabase = createSupabaseBrowserClient();
-            void forceAuthRecovery(supabase);
-          }, 2000);
-        }
       }
     }
-
-    // 5-second overall timeout for the entire auth check
-    overallTimeoutRef.current = setTimeout(() => {
-      if (isComponentMounted && !isValidationFinished) {
-        const msg = "Dashboard initialization timeout. Redirecting to login...";
-        setState({ isReady: true, hasError: true, errorMessage: msg });
-        showError(msg);
-        const supabase = createSupabaseBrowserClient();
-        void forceAuthRecovery(supabase);
-      }
-    }, 5000);
 
     void validateAuthSession();
 
     return () => {
       isComponentMounted = false;
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      if (overallTimeoutRef.current) clearTimeout(overallTimeoutRef.current);
     };
-  }, [showError]);
+  }, []);
 
   return state;
 }
