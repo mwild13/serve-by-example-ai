@@ -5319,10 +5319,10 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 }
 
 .ops-sidebar-brand {
-  font-size: 0.65rem;
-  letter-spacing: 0.14em;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255,255,255,0.45);
   font-weight: 700;
 }
 
@@ -5335,8 +5335,9 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 
 .ops-sidebar-top h3 {
   font-family: var(--font-heading);
-  font-size: 1.05rem;
-  margin: 4px 0 0 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 2px 0 0 0;
   color: #fff;
 }
 
@@ -5438,33 +5439,34 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 .ops-nav-group {
   display: grid;
   gap: 2px;
-  margin-bottom: 8px;
+  margin-bottom: 14px;
 }
 
 .ops-nav-group-label {
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
+  font-size: 0.68rem;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.45);
   font-weight: 700;
-  padding: 6px 10px 4px;
+  padding: 10px 12px 4px;
 }
 
 .ops-nav-item {
   border: none;
+  border-left: 3px solid transparent;
   background: transparent;
   color: rgba(255,255,255,0.6);
-  border-radius: 6px;
+  border-radius: 0 6px 6px 0;
   font: inherit;
-  font-size: 0.84rem;
+  font-size: 0.85rem;
   font-weight: 500;
   text-align: left;
-  padding: 8px 10px;
+  padding: 9px 12px 9px 9px;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.15s, color 0.15s, border-left-color 0.15s;
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
 }
 
 .ops-nav-item svg {
@@ -5475,11 +5477,12 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 
 .ops-nav-item:hover {
   background: rgba(255, 255, 255, 0.07);
-  color: rgba(255,255,255,0.85);
+  color: rgba(255,255,255,0.9);
 }
 
 .ops-nav-item.active {
-  background: rgba(255, 255, 255, 0.13);
+  background: rgba(255, 255, 255, 0.08);
+  border-left-color: var(--gold-warm);
   color: #fff;
   font-weight: 600;
 }
@@ -5648,9 +5651,9 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   min-width: 0;
   overflow-y: auto;
   background: #F8F9F5;
-  padding: 24px;
+  padding: 32px;
   display: grid;
-  gap: 14px;
+  gap: 20px;
   align-content: start;
 }
 
@@ -6127,10 +6130,10 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 }
 
 .ops-kpi-card {
-  background: var(--bg-warm);
+  background: var(--surface);
   border: 1px solid var(--line-light);
-  border-radius: var(--radius-md);
-  padding: 12px;
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
   display: grid;
   gap: 6px;
 }
@@ -6464,6 +6467,77 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   font-size: 11px;
   font-weight: 700;
   margin-right: 6px;
+}
+
+/* ── Shared management table standard ─────────────────── */
+.mgmt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.mgmt-table th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-soft);
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-alt);
+}
+
+.mgmt-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line-light);
+  color: var(--text);
+  vertical-align: middle;
+}
+
+.mgmt-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.mgmt-table tbody tr:hover {
+  background: rgba(31, 78, 55, 0.03);
+}
+
+/* ── Management status badge system ─────────────────────
+   Three operational states + blocked. Apply to <span> elements. */
+.mgmt-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.mgmt-badge-ready {
+  background: rgba(34, 197, 94, 0.1);
+  color: #15803d;
+}
+
+.mgmt-badge-caution {
+  background: rgba(245, 158, 11, 0.1);
+  color: #c2410c;
+}
+
+.mgmt-badge-risk {
+  background: rgba(239, 68, 68, 0.1);
+  color: #b91c1c;
+}
+
+.mgmt-badge-blocked {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fee2e2;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
 }
 
 .ops-profile-metrics {
@@ -7982,11 +8056,11 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   justify-content: space-between;
   gap: 16px;
   height: 56px;
-  padding: 0 20px;
-  background: var(--surface-raised);
+  padding: 0 28px;
+  background: var(--surface);
   border-bottom: 1px solid var(--line-light);
   box-shadow: var(--shadow-xs);
-  flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
 .ops-topbar-slot {
@@ -8051,12 +8125,12 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 
 .ops-topbar-search-input {
   width: 100%;
-  padding: 7px 14px 7px 36px;
+  padding: 7px 12px 7px 32px;
   border: 1px solid var(--line-light);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   font: inherit;
-  font-size: 0.875rem;
-  background: var(--surface);
+  font-size: 0.85rem;
+  background: var(--bg);
   color: var(--text);
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
@@ -8088,10 +8162,10 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   background: var(--green);
   color: #fff;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   font: inherit;
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: 0.82rem;
+  font-weight: 700;
   cursor: pointer;
   transition: background 0.25s var(--ease-out);
 }
@@ -8132,7 +8206,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 }
 
 .ops-create-dropdown-item:hover {
-  background: var(--bg-warm);
+  background: var(--bg-alt);
 }
 
 .ops-create-dropdown-item:focus {
@@ -8266,25 +8340,25 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   width: 100%;
   background: transparent;
   border: none;
-  padding: 6px 10px 4px;
+  padding: 10px 12px 4px;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.35);
-  font-size: 0.62rem;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
   font-family: inherit;
   transition: color 0.15s;
 }
 
 .ops-nav-group-toggle:hover {
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .ops-nav-chevron {
   font-style: normal;
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.56);
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.45);
 }
 
 /* ── Scenario builder templates ─────────────────── */
@@ -12940,18 +13014,19 @@ body {
 }
 
 .mcc-kpi-card {
-  background: var(--mcc-paper);
-  border: 1px solid var(--mcc-rule-2);
-  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--line-light);
+  border-radius: var(--radius-sm);
   padding: 16px 18px;
-  box-shadow: 0 1px 2px rgba(11,43,30,0.04);
+  box-shadow: var(--shadow-sm);
 }
 
 .mcc-kpi-label {
-  font-size: 10px;
-  letter-spacing: 0.14em;
+  font-size: 0.68rem;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: var(--mcc-ink-500);
+  color: var(--text-muted);
+  font-weight: 700;
 }
 
 .mcc-kpi-value-row {
@@ -12971,7 +13046,7 @@ body {
 }
 
 .mcc-kpi-meta { display: flex; justify-content: space-between; margin-top: 6px; }
-.mcc-kpi-sub { font-size: 11px; color: var(--mcc-ink-500); }
+.mcc-kpi-sub { font-size: 0.75rem; color: var(--text-muted); }
 
 /* ── Card ── */
 .mcc-card {

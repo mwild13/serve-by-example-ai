@@ -130,30 +130,16 @@ export function ComplianceHub({ venueStaff }: ComplianceHubProps) {
             No certifications recorded yet. Staff compliance data will appear here.
           </div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+          <table className="mgmt-table">
             <thead>
-              <tr style={{ borderBottom: '2px solid var(--line)' }}>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text)', fontWeight: 600 }}>
-                  Staff
-                </th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text)', fontWeight: 600 }}>
-                  Cert Type
-                </th>
-                <th style={{ textAlign: 'center', padding: '10px 12px', color: 'var(--text)', fontWeight: 600 }}>
-                  State
-                </th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text)', fontWeight: 600 }}>
-                  Expiry Date
-                </th>
-                <th style={{ textAlign: 'center', padding: '10px 12px', color: 'var(--text)', fontWeight: 600 }}>
-                  Days
-                </th>
-                <th style={{ textAlign: 'center', padding: '10px 12px', color: 'var(--text)', fontWeight: 600 }}>
-                  Status
-                </th>
-                <th style={{ textAlign: 'center', padding: '10px 12px', color: 'var(--text)', fontWeight: 600 }}>
-                  Actions
-                </th>
+              <tr>
+                <th>Staff</th>
+                <th>Cert Type</th>
+                <th style={{ textAlign: 'center' }}>State</th>
+                <th>Expiry Date</th>
+                <th style={{ textAlign: 'center' }}>Days</th>
+                <th style={{ textAlign: 'center' }}>Status</th>
+                <th style={{ textAlign: 'center' }}>Actions</th>
               </tr>
             </thead>
             <tbody>

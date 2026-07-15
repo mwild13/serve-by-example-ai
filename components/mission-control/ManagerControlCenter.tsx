@@ -174,11 +174,11 @@ function MgrSparkline({ data, w = 88, h = 28, color = "#1E5A3C" }: {
   );
 }
 
-function MgrKpiCard({ label, value, sub, data, accent, borderColor }: {
-  label: string; value: string; sub: string; data: number[]; accent: string; borderColor?: string;
+function MgrKpiCard({ label, value, sub, data, accent }: {
+  label: string; value: string; sub: string; data: number[]; accent: string;
 }) {
   return (
-    <div className="mcc-kpi-card" style={borderColor ? { borderLeft: `4px solid ${borderColor}` } : undefined}>
+    <div className="mcc-kpi-card">
       <div className="mcc-kpi-label">{label}</div>
       <div className="mcc-kpi-value-row">
         <div className="mcc-kpi-value">{value}</div>
@@ -1618,13 +1618,7 @@ export default function ManagerControlCenter({
               {/* ── KPI strip ── */}
               <section className="mcc-kpi-strip" style={{ padding: "20px 28px 0" }}>
                 {(() => {
-                  const getUrgencyBorder = (value: number) => {
-                    if (value < 30) return '#ef4444'; // red
-                    if (value < 70) return '#f59e0b'; // amber
-                    return '#22c55e'; // green
-                  };
                   const onTrackCount = venueStaff.filter((m) => m.status === "on-track").length;
-                  const staffHealthRatio = venueStaff.length > 0 ? onTrackCount / venueStaff.length : 0;
 
                   return (
                     <>
@@ -1634,7 +1628,6 @@ export default function ManagerControlCenter({
                         sub="Service · sales · product"
                         data={mgrMockSpark(metrics.avgScenarioScore)}
                         accent="var(--mcc-sage)"
-                        borderColor={getUrgencyBorder(metrics.avgScenarioScore)}
                       />
                       <MgrKpiCard
                         label="Training completion"
@@ -1642,7 +1635,6 @@ export default function ManagerControlCenter({
                         sub="Across all modules"
                         data={mgrMockSpark(metrics.avgCompletion)}
                         accent="var(--mcc-amber)"
-                        borderColor={getUrgencyBorder(metrics.avgCompletion)}
                       />
                       <MgrKpiCard
                         label="Upsell performance"
@@ -1650,7 +1642,6 @@ export default function ManagerControlCenter({
                         sub="Last 7 days"
                         data={mgrMockSpark(metrics.salesSkill)}
                         accent="var(--mcc-terra)"
-                        borderColor={getUrgencyBorder(metrics.salesSkill)}
                       />
                       <MgrKpiCard
                         label="Staff health"
@@ -1658,7 +1649,6 @@ export default function ManagerControlCenter({
                         sub={`${venueStaff.length} total · ${venueStaff.filter((m) => m.status === "attention").length} at risk · ${venueStaff.filter((m) => m.status === "inactive").length} inactive`}
                         data={mgrMockSpark(0.75)}
                         accent="var(--mcc-sage)"
-                        borderColor={getUrgencyBorder(Math.round(staffHealthRatio * 100))}
                       />
                     </>
                   );
@@ -1765,7 +1755,7 @@ export default function ManagerControlCenter({
                       {metrics.rfScore}%
                     </span>
                   </div>
-                  <table className="ops-staff-table mcc-scorecard-table">
+                  <table className="ops-staff-table mcc-scorecard-table mgmt-table">
                     <thead>
                       <tr>
                         <th>Staff</th>
@@ -2289,16 +2279,16 @@ export default function ManagerControlCenter({
                   })}
                 </div>
                 <div style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+                  <table className="mgmt-table">
                     <thead>
-                      <tr style={{ borderBottom: "2px solid var(--mcc-border)" }}>
-                        <th style={{ textAlign: "left", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Role</th>
-                        <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Staff</th>
-                        <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Bartending</th>
-                        <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Sales</th>
-                        <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Management</th>
-                        <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Avg progress</th>
-                        <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Compliant (&ge;80%)</th>
+                      <tr>
+                        <th>Role</th>
+                        <th style={{ textAlign: "center" }}>Staff</th>
+                        <th style={{ textAlign: "center" }}>Bartending</th>
+                        <th style={{ textAlign: "center" }}>Sales</th>
+                        <th style={{ textAlign: "center" }}>Management</th>
+                        <th style={{ textAlign: "center" }}>Avg progress</th>
+                        <th style={{ textAlign: "center" }}>Compliant (&ge;80%)</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -2342,13 +2332,13 @@ export default function ManagerControlCenter({
                   </div>
                 </div>
                 <div style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+                  <table className="mgmt-table">
                     <thead>
-                      <tr style={{ borderBottom: "2px solid var(--mcc-border)" }}>
-                        <th style={{ textAlign: "left", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Capability</th>
-                        <th style={{ textAlign: "center", padding: "8px 12px", color: "#92400e", fontWeight: 700, background: "#fef9c3", borderRadius: "8px 8px 0 0" }}>Manager</th>
-                        <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Supervisor</th>
-                        <th style={{ textAlign: "center", padding: "8px 12px", color: "var(--mcc-ink-500)", fontWeight: 600 }}>Staff</th>
+                      <tr>
+                        <th>Capability</th>
+                        <th style={{ textAlign: "center", color: "#92400e", background: "#fef9c3", borderRadius: "8px 8px 0 0" }}>Manager</th>
+                        <th style={{ textAlign: "center" }}>Supervisor</th>
+                        <th style={{ textAlign: "center" }}>Staff</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -2668,11 +2658,11 @@ export default function ManagerControlCenter({
                         />
                       </div>
                       <div style={{ overflowX: "auto" }}>
-                        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+                        <table className="mgmt-table">
                           <thead>
-                            <tr style={{ borderBottom: "2px solid var(--mcc-border)" }}>
+                            <tr>
                               {["Staff member", "Role", "Progress", "Service", "Sales", "Product", "Status"].map((h) => (
-                                <th key={h} style={{ padding: "6px 10px", textAlign: "left", fontWeight: 700, fontSize: "0.75rem", color: "var(--mcc-ink-500)", whiteSpace: "nowrap" }}>{h}</th>
+                                <th key={h} style={{ whiteSpace: "nowrap" }}>{h}</th>
                               ))}
                             </tr>
                           </thead>
