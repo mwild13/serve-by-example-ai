@@ -23,11 +23,11 @@ import type {
   NewInventoryPayload,
   NewStaffPayload,
   NewTrainingProgramPayload,
-  StaffMember,
   StaffRole,
 } from "@/lib/management/types";
 import { ComplianceHub } from "./compliance/ComplianceHub";
-import { rsaStatus, readinessPill as getReadinessPill } from "./compliance/helpers";
+import { rsaStatus } from "./compliance/helpers";
+import { StaffReadinessBoard } from "./StaffReadinessBoard";
 import type { QuickActionId, NavGroup, SearchResult } from "./manager-types";
 import {
   EmptyState,
@@ -539,9 +539,6 @@ export default function ManagerControlCenter({
 
     return trail;
   }, [activeSection, selectedProgram, selectedStaff]);
-
-  // Readiness pills and compliance status use imported helpers
-  const readinessPill = (member: StaffMember) => getReadinessPill(member.compliance, member.status, member.progress);
 
   const metrics = useMemo(() => {
     const totalStaff = venueStaff.length;
@@ -1605,7 +1602,7 @@ export default function ManagerControlCenter({
               {/* ── Level 2 Compliance Banner (7-day alert) ── */}
               {venueStaff.some(s => rsaStatus(s.compliance).level >= 2) && (
                 <div style={{ padding: "12px 28px 0 28px" }}>
-                  <div style={{ background: 'var(--status-error-bg)', border: '1px solid var(--status-error)', color: 'var(--status-error)', borderRadius: 'var(--radius-md)', padding: '12px 16px', marginBottom: 16, fontWeight: 600, fontSize: '1rem' }}>
+                  <div style={{ background: 'var(--status-error-bg)', border: '1px solid var(--status-error)', color: 'var(--status-error-text)', borderRadius: 'var(--radius-md)', padding: '12px 16px', marginBottom: 16, fontWeight: 600, fontSize: '1rem' }}>
                     Compliance alert: one or more staff have certifications expiring within 7 days. Review the Compliance tab immediately.
                   </div>
                 </div>
@@ -1734,7 +1731,7 @@ export default function ManagerControlCenter({
                   </button>
                 </div>
 
-                {/* Right Column (67%): Tonight's Shift Readiness */}
+                {/* Right Column (67%): Tonight's Shift Readiness — traffic-light board */}
                 <div className="mcc-scorecard-card" style={{ maxHeight: "500px", overflowY: "auto" }}>
                   <div className="mcc-scorecard-header">
                     <span>Tonight&apos;s Shift Readiness</span>
@@ -1743,88 +1740,22 @@ export default function ManagerControlCenter({
                       style={{
                         background:
                           metrics.rfScore >= 75
-                            ? 'var(--green-light)'
+                            ? 'var(--status-good-bg)'
                             : metrics.rfScore >= 50
-                            ? '#fff7ed'
-                            : '#fff1f2',
+                            ? 'var(--status-warn-bg)'
+                            : 'var(--status-error-bg)',
                         color:
                           metrics.rfScore >= 75
-                            ? 'var(--green)'
+                            ? 'var(--status-good-text)'
                             : metrics.rfScore >= 50
-                            ? '#c2410c'
-                            : '#b91c1c',
+                            ? 'var(--status-warn-text)'
+                            : 'var(--status-error-text)',
                       }}
                     >
                       {metrics.rfScore}%
                     </span>
                   </div>
-                  <table className="ops-staff-table mcc-scorecard-table mgmt-table">
-                    <thead>
-                      <tr>
-                        <th>Staff</th>
-                        <th>RSA</th>
-                        <th>Training</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {venueStaff.map((s) => {
-                        const rsaStat = rsaStatus(s.compliance);
-                        const isBlocked = rsaStat.level === 3;
-                        const pill = readinessPill(s);
-                        const isAlcoholRole = s.role === 'Bartender' || s.role === 'Floor';
-                        return (
-                          <tr key={s.id}>
-                            <td>
-                              <div className="ops-staff-avatar">{s.name[0]}</div>
-                              {s.name}
-                              {s.isJunior && isAlcoholRole && (
-                                <span style={{ color: '#c2410c', fontSize: '0.65rem', display: 'block' }}>
-                                  Junior serving alcohol &mdash; verify adult rate (MA000119)
-                                </span>
-                              )}
-                            </td>
-                            <td>
-                              <span style={{ color: rsaStat.level === 3 ? 'var(--status-error)' : 'var(--status-good)' }}>
-                                {s.compliance?.rsaJurisdiction ? `${s.compliance.rsaJurisdiction} RSA` : 'RSA not verified'}
-                              </span>
-                            </td>
-                            <td>{s.progress}%</td>
-                            <td>
-                              {isBlocked ? (
-                                <span
-                                  style={{
-                                    background: 'var(--status-error-bg)',
-                                    color: 'var(--status-error)',
-                                    border: '1px solid var(--status-error)',
-                                    padding: '3px 10px',
-                                    borderRadius: '999px',
-                                    fontSize: '0.78rem',
-                                    fontWeight: '700',
-                                  }}
-                                >
-                                  ● ROSTER BLOCKED
-                                </span>
-                              ) : (
-                                <span
-                                  style={{
-                                    background: pill.bg,
-                                    color: pill.color,
-                                    padding: '3px 10px',
-                                    borderRadius: '999px',
-                                    fontSize: '0.78rem',
-                                    fontWeight: '700',
-                                  }}
-                                >
-                                  {pill.dot} {pill.label}
-                                </span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                  <StaffReadinessBoard staff={venueStaff} />
                 </div>
               </div>
 

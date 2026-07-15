@@ -104,11 +104,13 @@ export function readinessPill(
 ): { label: string; dot: string; bg: string; color: string } {
   const rsa = rsaStatus(compliance);
 
+  // "color" is text-on-tint, so it uses the darkened -text tokens (AAA 7:1
+  // against the matching -bg tint) rather than the brand-accurate base hue.
   if (rsa.level === 3) {
-    return { label: 'At Risk', dot: '●', bg: 'var(--status-error-bg)', color: 'var(--status-error)' };
+    return { label: 'At Risk', dot: '●', bg: 'var(--status-error-bg)', color: 'var(--status-error-text)' };
   }
   if (rsa.level === 2 || status === 'attention' || trainingProgress < 25) {
-    return { label: 'Caution', dot: '●', bg: 'var(--status-warn-bg)', color: 'var(--status-warn)' };
+    return { label: 'Caution', dot: '●', bg: 'var(--status-warn-bg)', color: 'var(--status-warn-text)' };
   }
-  return { label: 'Ready', dot: '●', bg: 'var(--status-good-bg)', color: 'var(--status-good)' };
+  return { label: 'Ready', dot: '●', bg: 'var(--status-good-bg)', color: 'var(--status-good-text)' };
 }
