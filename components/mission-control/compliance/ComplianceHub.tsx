@@ -148,19 +148,15 @@ export function ComplianceHub({ venueStaff }: ComplianceHubProps) {
                 const statusColor =
                   row.status.level === 0
                     ? 'var(--text-muted)'
-                    : row.status.level === 1
+                    : row.status.level <= 2
                       ? '#c2410c'
-                      : row.status.level === 2
-                        ? '#c2410c'
-                        : '#b91c1c';
-                const statusBg =
+                      : '#b91c1c';
+                const badgeCls =
                   row.status.level === 0
-                    ? '#f3f4f6'
-                    : row.status.level === 1
-                      ? '#fff7ed'
-                      : row.status.level === 2
-                        ? '#fff7ed'
-                        : '#fff1f2';
+                    ? 'mgmt-badge mgmt-badge-ready'
+                    : row.status.level <= 2
+                      ? 'mgmt-badge mgmt-badge-caution'
+                      : 'mgmt-badge mgmt-badge-risk';
                 const expiryDate = normalizeExpiryDate(row.expiryDate);
                 return (
                   <React.Fragment key={idx}>
@@ -179,19 +175,7 @@ export function ComplianceHub({ venueStaff }: ComplianceHubProps) {
                         {days}d
                       </td>
                       <td style={{ textAlign: 'center', padding: '10px 12px' }}>
-                        <span
-                          style={{
-                            display: 'inline-block',
-                            padding: '2px 8px',
-                            borderRadius: 4,
-                            background: statusBg,
-                            color: statusColor,
-                            fontSize: '0.75rem',
-                            fontWeight: 600,
-                          }}
-                        >
-                          {row.status.label}
-                        </span>
+                        <span className={badgeCls}>{row.status.label}</span>
                         {row.certType === 'RSA' && 'nsw28Day' in row.status && row.status.nsw28Day && (
                           <div style={{ color: '#b91c1c', fontSize: '0.7rem', fontStyle: 'italic', marginTop: 4 }}>
                             NSW: Full SITHFAB021 required

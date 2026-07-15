@@ -3182,7 +3182,7 @@ export default function ManagerControlCenter({
                     <span className="ops-ai-message-label">AI Coach</span>
                     <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 4 }}>
                       {[90, 75, 55].map((w) => (
-                        <div key={w} style={{ height: 10, width: `${w}%`, borderRadius: 999, background: "var(--mcc-surface-2)", animation: "pulse 1.5s ease-in-out infinite" }} />
+                        <div key={w} style={{ height: 10, width: `${w}%`, borderRadius: 999, background: "var(--line)", animation: "pulse 1.5s ease-in-out infinite" }} />
                       ))}
                     </div>
                     <style>{`@keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: 0.4 } }`}</style>

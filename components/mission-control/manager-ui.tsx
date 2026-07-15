@@ -1,10 +1,31 @@
+'use client';
+
 // Shared UI primitives for the Manager Control Center.
 // Extracted to keep ManagerControlCenter.tsx focused on logic and layout.
 
+import { useState } from "react";
 import type { StaffMember } from "@/lib/management/types";
 
 export function EmptyState({ copy }: { copy: string }) {
-  return <p className="ops-empty-state">{copy}</p>;
+  const [notified, setNotified] = useState(false);
+  return (
+    <div className="ops-empty-state">
+      <p className="ops-empty-state-title">{copy}</p>
+      <p className="ops-empty-state-sub">This section will populate once your team has data.</p>
+      {notified ? (
+        <span className="ops-empty-state-success">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          You'll be notified when data is ready
+        </span>
+      ) : (
+        <button className="ops-empty-state-btn" onClick={() => setNotified(true)}>
+          Notify Me
+        </button>
+      )}
+    </div>
+  );
 }
 
 function TrendBadge({ dir, delta }: { dir: "up" | "down" | "steady"; delta: number }) {

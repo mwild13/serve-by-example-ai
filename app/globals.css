@@ -6228,13 +6228,59 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 }
 
 .ops-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 24px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--line-light);
+  text-align: center;
+}
+
+.ops-empty-state-title {
   margin: 0;
-  padding: 18px;
-  border-radius: 16px;
-  background: var(--bg-warm);
-  border: 1px solid var(--line-faint);
+  font-family: var(--font-fraunces);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ops-empty-state-sub {
+  margin: 0;
+  font-size: 0.85rem;
   color: var(--text-soft);
-  line-height: 1.65;
+  line-height: 1.6;
+}
+
+.ops-empty-state-btn {
+  margin-top: 4px;
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-soft);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.ops-empty-state-btn:hover {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.ops-empty-state-success {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--green-mid);
 }
 
 .ops-ranked-list li {
@@ -6499,8 +6545,21 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   border-bottom: none;
 }
 
+.mgmt-table tbody tr {
+  transition: background 0.2s;
+}
+
 .mgmt-table tbody tr:hover {
   background: rgba(31, 78, 55, 0.03);
+}
+
+.mgmt-table tbody tr td button {
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.mgmt-table tbody tr:hover td button {
+  opacity: 1;
 }
 
 /* ── Management status badge system ─────────────────────
@@ -8428,20 +8487,20 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 }
 
 .ops-ai-suggestion-chip {
-  background: var(--green-light);
-  color: var(--green-deep);
-  border: 1px solid var(--line-light);
+  background: var(--surface);
+  color: var(--text-soft);
+  border: 1px solid var(--line);
   border-radius: var(--radius-pill);
   padding: 5px 13px;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s, border-color 0.15s;
 }
 
 .ops-ai-suggestion-chip:hover {
-  background: var(--gold-light);
-  border-color: var(--gold);
+  background: var(--bg);
+  border-color: var(--text-muted);
 }
 
 .ops-ai-coach-messages {
@@ -8487,16 +8546,16 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 }
 
 .ops-ai-message-user {
-  background: var(--green-light);
+  background: var(--bg-alt);
   align-self: flex-end;
   max-width: 85%;
 }
 
 .ops-ai-message-coach {
-  background: var(--surface-raised);
-  border: 1px solid var(--line-light);
+  background: var(--surface);
   align-self: flex-start;
   max-width: 95%;
+  padding: 14px 16px;
 }
 
 .ops-ai-message-label {
