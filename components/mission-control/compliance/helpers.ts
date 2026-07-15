@@ -93,15 +93,22 @@ export function fssStatus(record: StaffComplianceRecord | undefined): {
 
 /**
  * Combined compliance status (used for Readiness Pills and Shift Scorecard).
- * RSA takes priority; if expired, staff cannot serve.
+ * RSA takes priority; if expired, staff cannot serve. Training completion is
+ * factored in so a staff member with 0% training doesn't read as fully "Ready"
+ * just because their RSA happens to be on file — see UX overhaul spec, Bottleneck #1.
  */
 export function readinessPill(
   compliance: StaffComplianceRecord | undefined,
-  status: 'on-track' | 'attention' | 'inactive'
+  status: 'on-track' | 'attention' | 'inactive',
+  trainingProgress: number = 100,
 ): { label: string; dot: string; bg: string; color: string } {
   const rsa = rsaStatus(compliance);
 
-  if (rsa.level === 3) return { label: 'At Risk', dot: '○', bg: '#fff1f2', color: '#b91c1c' };
-  if (rsa.level === 2 || status === 'attention') return { label: 'Caution', dot: '◐', bg: '#fff7ed', color: '#c2410c' };
-  return { label: 'Ready', dot: '●', bg: '#dcfce7', color: '#16a34a' };
+  if (rsa.level === 3) {
+    return { label: 'At Risk', dot: '●', bg: 'var(--status-error-bg)', color: 'var(--status-error)' };
+  }
+  if (rsa.level === 2 || status === 'attention' || trainingProgress < 25) {
+    return { label: 'Caution', dot: '●', bg: 'var(--status-warn-bg)', color: 'var(--status-warn)' };
+  }
+  return { label: 'Ready', dot: '●', bg: 'var(--status-good-bg)', color: 'var(--status-good)' };
 }

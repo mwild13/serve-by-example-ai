@@ -541,7 +541,7 @@ export default function ManagerControlCenter({
   }, [activeSection, selectedProgram, selectedStaff]);
 
   // Readiness pills and compliance status use imported helpers
-  const readinessPill = (member: StaffMember) => getReadinessPill(member.compliance, member.status);
+  const readinessPill = (member: StaffMember) => getReadinessPill(member.compliance, member.status, member.progress);
 
   const metrics = useMemo(() => {
     const totalStaff = venueStaff.length;
@@ -1605,7 +1605,7 @@ export default function ManagerControlCenter({
               {/* ── Level 2 Compliance Banner (7-day alert) ── */}
               {venueStaff.some(s => rsaStatus(s.compliance).level >= 2) && (
                 <div style={{ padding: "12px 28px 0 28px" }}>
-                  <div style={{ background: '#fff1f2', border: '1px solid #fecdd3', color: '#b91c1c', borderRadius: 'var(--radius-md)', padding: '12px 16px', marginBottom: 16, fontWeight: 600, fontSize: '0.95rem' }}>
+                  <div style={{ background: 'var(--status-error-bg)', border: '1px solid var(--status-error)', color: 'var(--status-error)', borderRadius: 'var(--radius-md)', padding: '12px 16px', marginBottom: 16, fontWeight: 600, fontSize: '1rem' }}>
                     Compliance alert: one or more staff have certifications expiring within 7 days. Review the Compliance tab immediately.
                   </div>
                 </div>
@@ -1679,7 +1679,10 @@ export default function ManagerControlCenter({
                       lineHeight: '1.6',
                       color: 'var(--text)',
                     }}>
-                      <div style={{ fontSize: '1.3rem', flexShrink: 0 }}>📈</div>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 2 }} aria-hidden="true">
+                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                        <polyline points="17 6 23 6 23 12" />
+                      </svg>
                       <div>
                         <strong>30-Day Revenue Impact Projection</strong>
                         <p style={{ margin: '6px 0 0 0', color: 'var(--text-soft)' }}>
@@ -1782,8 +1785,8 @@ export default function ManagerControlCenter({
                               )}
                             </td>
                             <td>
-                              <span style={{ color: rsaStat.level === 3 ? '#b91c1c' : 'var(--green)' }}>
-                                {s.compliance?.rsaJurisdiction ?? '—'} RSA
+                              <span style={{ color: rsaStat.level === 3 ? 'var(--status-error)' : 'var(--status-good)' }}>
+                                {s.compliance?.rsaJurisdiction ? `${s.compliance.rsaJurisdiction} RSA` : 'RSA not verified'}
                               </span>
                             </td>
                             <td>{s.progress}%</td>
@@ -1791,12 +1794,12 @@ export default function ManagerControlCenter({
                               {isBlocked ? (
                                 <span
                                   style={{
-                                    background: '#fef2f2',
-                                    color: '#991b1b',
-                                    border: '1px solid #fee2e2',
-                                    padding: '2px 8px',
+                                    background: 'var(--status-error-bg)',
+                                    color: 'var(--status-error)',
+                                    border: '1px solid var(--status-error)',
+                                    padding: '3px 10px',
                                     borderRadius: '999px',
-                                    fontSize: '0.7rem',
+                                    fontSize: '0.78rem',
                                     fontWeight: '700',
                                   }}
                                 >
@@ -1807,9 +1810,9 @@ export default function ManagerControlCenter({
                                   style={{
                                     background: pill.bg,
                                     color: pill.color,
-                                    padding: '2px 8px',
+                                    padding: '3px 10px',
                                     borderRadius: '999px',
-                                    fontSize: '0.7rem',
+                                    fontSize: '0.78rem',
                                     fontWeight: '700',
                                   }}
                                 >

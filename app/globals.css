@@ -21,6 +21,13 @@
   --gold-dim: rgba(169, 129, 42, 0.12);
   --red-soft: #f8eded;
   --red-text: #7d3535;
+  /* Manager console semantic status tokens — compliant/expiring/expired */
+  --status-good: var(--green);
+  --status-good-bg: var(--green-light);
+  --status-warn: var(--gold);
+  --status-warn-bg: var(--gold-light);
+  --status-error: #b3432f;
+  --status-error-bg: #fbeae5;
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 20px;
@@ -10524,10 +10531,10 @@ body {
 .skeleton-table-row { display: flex; gap: 12px; padding: 8px 0; }
 .skeleton-table-header { border-bottom: 1px solid var(--line-light, #ece8df); }
 
-/* ── Contrast / readability fixes (WCAG 4.5:1) ────── */
+/* ── Contrast / readability fixes (WCAG AAA 7:1 for older-user demographic) ────── */
 :root {
-  --text-soft: #525047;     /* was likely #999-ish, now 4.5:1 on cream */
-  --text-muted: #6b6860;    /* was lighter, now meets AA ratio */
+  --text-soft: #525047;     /* 8.0:1 on surface — AAA */
+  --text-muted: #54544c;    /* raised from #6b6860 (5.5:1) to 7.6:1 — AAA */
 }
 
 /* ══════════════════════════════════════════════════════
