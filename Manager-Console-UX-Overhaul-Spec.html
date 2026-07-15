@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Manager Console UX Overhaul — Specification</title>
+<style>
+  :root{
+    --bg:#f5f2e9; --bg-alt:#eeebe1; --surface:#fffef9; --surface-raised:#fff;
+    --line:#ddd2ba; --line-light:#ece5d5;
+    --text:#172f22; --text-soft:#496155; --text-muted:#7a9185;
+    --green:#1f4e37; --green-deep:#0f2d1d; --green-mid:#2a6848; --green-light:#e4efea;
+    --gold:#a9812a; --gold-warm:#c49a2f; --gold-light:#f7ecd0;
+    --status-good:#1f4e37; --status-warn:#a9812a; --status-error:#b3432f;
+    --radius-sm:10px; --radius-md:14px; --radius-lg:20px; --radius-xl:28px;
+    --shadow-sm:0 2px 8px rgba(15,45,29,0.05), 0 1px 2px rgba(15,45,29,0.03);
+    --shadow-md:0 6px 24px rgba(15,45,29,0.07), 0 2px 6px rgba(15,45,29,0.04);
+    --font-heading: Georgia, 'Times New Roman', serif;
+    --font-body: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--font-body); font-size:16px; line-height:1.65;
+    padding:0 0 80px 0;
+  }
+  .wrap{max-width:900px; margin:0 auto; padding:48px 28px;}
+  .masthead{
+    background:var(--green-deep); color:#fdfbf3; border-radius:var(--radius-lg);
+    padding:36px 40px; margin-bottom:32px; box-shadow:var(--shadow-md);
+  }
+  .masthead .eyebrow{
+    font-size:13px; letter-spacing:0.08em; text-transform:uppercase; color:var(--gold-warm);
+    font-weight:700; margin-bottom:10px;
+  }
+  .masthead h1{
+    font-family:var(--font-heading); font-size:clamp(1.7rem,4vw,2.3rem);
+    margin:0 0 12px 0; line-height:1.2; font-weight:600;
+  }
+  .masthead p{color:#d7e3da; margin:0; font-size:16px;}
+  .callout{
+    background:var(--gold-light); border:1px solid var(--gold-warm); border-radius:var(--radius-md);
+    padding:18px 22px; margin-bottom:32px; font-size:16px; color:var(--text);
+  }
+  .callout strong{color:var(--status-warn);}
+  h2.section-lead{
+    font-family:var(--font-heading); font-size:1.5rem; margin:0 0 6px 0; color:var(--green-deep);
+  }
+  .section-sub{color:var(--text-soft); margin:0 0 18px 0; font-size:16px;}
+  details{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg);
+    margin-bottom:14px; box-shadow:var(--shadow-sm); overflow:hidden;
+  }
+  details[open]{box-shadow:var(--shadow-md);}
+  summary{
+    cursor:pointer; list-style:none; padding:20px 24px; font-weight:700; font-size:1.05rem;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    font-family:var(--font-heading); color:var(--green-deep);
+    min-height:44px;
+  }
+  summary::-webkit-details-marker{display:none;}
+  summary .chev{
+    flex-shrink:0; width:28px; height:28px; border-radius:50%; background:var(--green-light);
+    display:flex; align-items:center; justify-content:center; transition:transform 0.2s ease;
+  }
+  details[open] summary .chev{transform:rotate(180deg);}
+  summary .tag{
+    font-family:var(--font-body); font-size:13px; font-weight:600; color:var(--status-good);
+    background:var(--green-light); padding:4px 10px; border-radius:999px; margin-left:auto; margin-right:8px;
+  }
+  .panel{padding:4px 24px 26px 24px; border-top:1px solid var(--line-light);}
+  .panel h4{font-size:16px; color:var(--green-deep); margin:18px 0 6px 0;}
+  .panel p{margin:0 0 12px 0; font-size:16px; color:var(--text);}
+  .panel ul{margin:0 0 14px 0; padding-left:22px;}
+  .panel li{margin-bottom:8px; font-size:16px;}
+  .before-after{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:14px 0;}
+  .ba-box{border-radius:var(--radius-md); padding:14px 16px; font-size:15px;}
+  .ba-before{background:#faf1ee; border:1px solid #e8c9bc;}
+  .ba-after{background:var(--green-light); border:1px solid #b9d4c5;}
+  .ba-label{font-size:12px; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; margin-bottom:6px;}
+  .ba-before .ba-label{color:var(--status-error);}
+  .ba-after .ba-label{color:var(--status-good);}
+  code{
+    background:var(--bg-alt); border:1px solid var(--line-light); border-radius:4px;
+    padding:1px 6px; font-size:14px; font-family:'SF Mono', Consolas, monospace; color:var(--green-deep);
+  }
+  .file-tag{
+    display:inline-block; background:var(--green-deep); color:#e4efea; font-size:12.5px;
+    font-family:'SF Mono', Consolas, monospace; padding:3px 9px; border-radius:6px; margin:2px 4px 2px 0;
+  }
+  .token-table{width:100%; border-collapse:collapse; margin:10px 0 16px 0; font-size:14.5px;}
+  .token-table th, .token-table td{border-bottom:1px solid var(--line-light); padding:9px 10px; text-align:left;}
+  .token-table th{color:var(--text-muted); font-weight:700; font-size:12.5px; text-transform:uppercase; letter-spacing:0.04em;}
+  .swatch{display:inline-block; width:14px; height:14px; border-radius:4px; vertical-align:-2px; margin-right:6px; border:1px solid rgba(0,0,0,0.1);}
+  .hero-card{
+    background:var(--surface-raised); border:1px solid var(--line); border-radius:var(--radius-lg);
+    padding:20px; margin:14px 0; box-shadow:var(--shadow-sm);
+  }
+  .hero-card h5{margin:0 0 8px 0; color:var(--gold-warm); font-size:13px; text-transform:uppercase; letter-spacing:0.05em;}
+  .rank{
+    display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px;
+    border-radius:50%; background:var(--green); color:#fff; font-weight:700; font-size:13px; margin-right:10px;
+  }
+  .sources{font-size:13.5px; color:var(--text-muted); margin-top:6px;}
+  .sources a{color:var(--green-mid);}
+  .toc{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-md); padding:18px 22px; margin-bottom:32px;}
+  .toc a{color:var(--green-deep); text-decoration:none; font-weight:600;}
+  .toc a:hover{text-decoration:underline;}
+  .toc li{margin-bottom:6px; font-size:15px;}
+  .status-dot{display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <div class="eyebrow">Serve By Example — Manager Console</div>
+    <h1>UX/UI Overhaul Specification</h1>
+    <p>A gap analysis of the current Mission Control experience against gold-standard B2B SaaS and hospitality dashboards, with a concrete build plan scoped to older hospitality owners and managers. Prepared 15 July 2026.</p>
+  </div>
+
+  <div class="callout">
+    <strong>Baseline note:</strong> the 10 reference screenshots turned out to be captures of the <em>current live app</em> (Pub Wild management dashboard), not external inspiration decks. This report uses them as the "before" state and pulls all gold-standard patterns from live web research instead. Every recommendation below is scoped to the real codebase — <code>ManagerControlCenter.tsx</code>, <code>manager-ui.tsx</code>, and <code>app/globals.css</code> — not a hypothetical rebuild.
+  </div>
+
+  <div class="toc">
+    <strong style="font-family:var(--font-heading); color:var(--green-deep);">Contents</strong>
+    <ul style="margin-top:10px;">
+      <li><a href="#baseline">1. Current-state visual audit</a></li>
+      <li><a href="#benchmarks">2. Web benchmarks — 3 patterns to steal</a></li>
+      <li><a href="#spec">3. UI makeover specification</a></li>
+      <li><a href="#demo">4. Demographic optimization for older users</a></li>
+      <li><a href="#hero">5. Three hero components</a></li>
+      <li><a href="#build">6. Build plan &amp; token additions</a></li>
+    </ul>
+  </div>
+
+  <h2 class="section-lead" id="baseline">1. Current-state visual audit</h2>
+  <p class="section-sub">What the 10 screenshots actually show, and where they fall short of "million-dollar" clarity.</p>
+
+  <details open>
+    <summary>Bottleneck #1 — Status without color <span class="chev">▾</span></summary>
+    <div class="panel">
+      <p>Across Staff Directory, Roles &amp; Permissions, and Tonight's Shift Readiness, most values render as a plain dash <code>—</code> or the single word "Ready" in a pale green pill — even for staff at 0% training and RSA unverified. Three of four staff on the Overview readiness table show identical green "Ready" pills despite having 0% training complete. There is no visual difference between "genuinely ready" and "technically not blocked yet," which is exactly the ambiguity a manager scanning quickly at 5pm needs resolved instantly.</p>
+      <div class="before-after">
+        <div class="ba-box ba-before"><div class="ba-label">Today</div>Emmet, Heather, Cam all show a green "Ready" pill with 0% training and RSA "—".</div>
+        <div class="ba-box ba-after"><div class="ba-label">Target</div>Traffic-light board: green = ready, amber = ready with a gap to flag, red = blocked (RSA/food-safety not verified).</div>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>Bottleneck #2 — Dense, low-contrast tables carrying too much weight <span class="chev">▾</span></summary>
+    <div class="panel">
+      <p>Staff Directory, Role Training Matrix, Weekly Training Summary, and the Permission Matrix are all classic HTML-table layouts with 7+ columns, small caption-style headers, and thin progress bars. On Roles &amp; Permissions specifically, six capability rows × three role columns of solid dots reads as a spreadsheet, not a product screen — it's accurate but not scannable in the 2-second window a rushed manager actually gives it.</p>
+      <p>Numeric labels throughout (KPI sub-labels, table headers, "STAFF · CONTACT · ROLE · PROGRESS…") sit at roughly 11–13px uppercase — below the 16px body floor this project now requires for an older-skewing user base.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Bottleneck #3 — Empty and near-empty states read as broken, not "getting started" <span class="chev">▾</span></summary>
+    <div class="panel">
+      <p>Compliance shows "No certifications recorded yet," "No FSS data recorded yet." Analytics shows "No bar or floor staff yet." Teams shows two teams at "0 members" with a training completion of a bare dash. None of these are wrong, but stacked together across 4 of the 10 screens, the console reads as sparse and unfinished to a first-time or infrequent viewer — precisely the demographic most likely to equate "empty" with "not working."</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Bottleneck #4 — One emoji, two competing token systems <span class="chev">▾</span></summary>
+    <div class="panel">
+      <p>The 30-Day Revenue Impact Projection banner on Overview uses a chart-emoji glyph as its icon — a direct violation of this project's no-emoji rule (checked: <code>ManagerControlCenter.tsx</code> line 1682). Small fix, flagged because it's visible on the very first screen a manager sees.</p>
+      <p>More structurally: the codebase currently runs <em>two</em> parallel color systems for the manager console — the documented <code>--green / --gold / --status-*</code> tokens in <code>app/globals.css</code>, and a separate <code>--mcc-*</code> namespace (<code>--mcc-sage</code>, <code>--mcc-amber</code>, <code>--mcc-terra</code>, <code>--mcc-good</code>, <code>--mcc-bad</code>) used inside <code>ManagerControlCenter.tsx</code> for KPI accents and the shift-readiness badge. They're close in hue but not identical, which is how "Ready" pills and KPI sparklines can drift out of sync with the rest of the app's palette over time. Section 6 proposes consolidating onto one semantic set.</p>
+    </div>
+  </details>
+
+  <h2 class="section-lead" id="benchmarks">2. Web benchmarks — 3 patterns to steal</h2>
+  <p class="section-sub">Pulled from live research into Toast, 7shifts, and Stripe's current dashboard conventions.</p>
+
+  <details open>
+    <summary>Pattern 1 — Single-metric focus, not a wall of numbers <span class="chev">▾</span></summary>
+    <div class="panel">
+      <p>Stripe's default dashboard view surfaces 3–4 primary numbers, each with a number, a trend arrow, and a sparkline — no verbose descriptors like "Total Revenue for the Current Period," just "Revenue," a figure, and a delta. The broader 2026 SaaS dashboard survey calls this out as the single most repeated pattern: a good dashboard answers the user's primary question within two seconds. Our current KPI strip already has the right shape (label / value / sparkline) — it just needs bigger type and a trend delta, not a rebuild.</p>
+      <div class="sources">Source: <a href="https://getdesign.md/stripe/design-md" target="_blank">Stripe design system analysis</a>, <a href="https://www.925studios.co/blog/saas-dashboard-design-examples-2026" target="_blank">925 Studios, SaaS Dashboard Patterns 2026</a></div>
+    </div>
+  </details>
+
+  <details open>
+    <summary>Pattern 2 — AI-assisted "what do I do about this" framing, not just raw data <span class="chev">▾</span></summary>
+    <div class="panel">
+      <p>Toast's 2026 platform update repositions its dashboards around an AI assistant (Toast IQ) that surfaces insights and suggests actions from the underlying labor, sales, and operations data, rather than displaying charts and leaving interpretation to the operator. Our console already has the ingredients — the Revenue Impact banner and Ask AI Coach panel — but they sit disconnected from the readiness table and alerts. Pulling the AI coaching queue and the "needs attention" list into one prioritized action feed (see Hero Component #3) mirrors this pattern directly.</p>
+      <div class="sources">Source: <a href="https://restauranttechnologynews.com/2026/06/toast-advances-restaurant-operations-with-connected-pos-ai-and-guest-engagement-technology/" target="_blank">Restaurant Technology News, Toast IQ launch coverage</a></div>
+    </div>
+  </details>
+
+  <details open>
+    <summary>Pattern 3 — Sidebar-plus-cards, with role-based multi-location switching one click away <span class="chev">▾</span></summary>
+    <div class="panel">
+      <p>7shifts' enterprise dashboard and Stripe/Linear/Notion all converge on a fixed sidebar plus a card grid, because it scales from a 5-feature single-venue account to a 50-feature multi-venue enterprise account without restructuring the navigation. Our sidebar already groups Command / People / Performance with a venue switcher up top — structurally correct. The gap is visual weight: the "Manager column = elevated access" callout on Roles & Permissions and the multi-venue comparison cards on Analytics are good instincts that just need the premium execution treatment described in Section 3.</p>
+      <div class="sources">Source: <a href="https://www.7shifts.com/" target="_blank">7shifts enterprise dashboard</a>, <a href="https://muz.li/blog/best-dashboard-design-examples-inspirations-for-2026/" target="_blank">Muzli, 50 Best Dashboard Designs 2026</a></div>
+    </div>
+  </details>
+
+  <h2 class="section-lead" id="spec">3. UI makeover specification</h2>
+  <p class="section-sub">Concrete replacements, scoped to file and component.</p>
+
+  <details open>
+    <summary>Replace flat HTML tables with grouped status cards <span class="chev">▾</span></summary>
+    <div class="panel">
+      <h4>Where</h4>
+      <p>Staff Directory (<span class="file-tag">components/mission-control/ManagerControlCenter.tsx</span>), Weekly Training Summary, Role Training Matrix.</p>
+      <h4>What changes</h4>
+      <ul>
+        <li>Keep the table for dense multi-column data (Permission Matrix stays a table — it's genuinely matrix data), but convert person-centric rows (Staff Directory, Weekly Training Summary) into a card-per-person layout on mobile/tablet widths, collapsing to table only above ~960px.</li>
+        <li>Every progress bar gets a status-color fill using the new semantic tokens (<code>--status-good</code> / <code>--status-warn</code> / <code>--status-error</code>) instead of the current single green fill regardless of value — a 20% bar and a 90% bar currently render the identical hue.</li>
+        <li>Replace the dash <code>—</code> placeholder for unset RSA/training values with an explicit "Not verified" amber chip — a dash reads as "no data," not "action needed," to an older user scanning quickly.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Group navigation around manager intent, not data source <span class="chev">▾</span></summary>
+    <div class="panel">
+      <p>Current sidebar order (Overview / Staff / Teams / Roles &amp; Permissions / Compliance / Analytics / Reports / Leaderboards / Ask AI Coach / Settings) mixes "who," "how they're doing," and "admin config" in one flat list under two loose headers. Regroup to match the three questions a manager actually asks:</p>
+      <ul>
+        <li><strong>Right now</strong> — Overview, Tonight's Shift Readiness, Ask AI Coach (things that change hour to hour)</li>
+        <li><strong>My people</strong> — Staff, Teams, Roles &amp; Permissions, Compliance (who, and are they cleared to work)</li>
+        <li><strong>How we're trending</strong> — Analytics, Reports, Leaderboards (weekly/monthly review)</li>
+      </ul>
+      <p>Settings drops to a gear icon in the top bar, consistent with Stripe/Linear convention, freeing sidebar space for larger 16px+ nav labels.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Elevate the cream/green palette without losing its warmth <span class="chev">▾</span></summary>
+    <div class="panel">
+      <p>The palette itself is a genuine asset — warm parchment plus deep forest green reads as premium and hospitality-appropriate, unlike the generic blue/white SaaS default. The gap is application, not hue: surfaces currently use flat <code>--surface</code> white on <code>--bg</code> cream with a single shadow weight everywhere. Premium execution means:</p>
+      <ul>
+        <li>Reserve <code>--shadow-lg</code>/<code>--shadow-xl</code> for the 2–3 cards that matter most per screen (KPI strip, hero readiness board) — everything else stays on <code>--shadow-sm</code>, so elevation itself becomes a hierarchy signal.</li>
+        <li>Introduce a subtle 1px gold-warm top border on the single most important card per view (already partially done on the Revenue Impact banner) as a "this is the headline" marker, rather than bordering every card identically.</li>
+        <li>Retire the ad-hoc inline hex values scattered through <code>ManagerControlCenter.tsx</code> (<code>#fff1f2</code>, <code>#fecdd3</code>, <code>#b91c1c</code>, <code>#c2410c</code> for the compliance alert banner and readiness badge) in favor of the new <code>--status-*</code> tokens — same visual intent, one source of truth.</li>
+      </ul>
+    </div>
+  </details>
+
+  <h2 class="section-lead" id="demo">4. Demographic optimization for older users</h2>
+  <p class="section-sub">Every item below is a direct check against the current screenshots.</p>
+
+  <details open>
+    <summary>Typography audit against the 16px floor <span class="chev">▾</span></summary>
+    <div class="panel">
+      <ul>
+        <li>Table column headers ("STAFF," "CONTACT," "ROLE," "PROGRESS") and KPI sub-labels ("Service · sales · product") currently sit around 11–12px uppercase — raise to a 13px floor for all-caps labels (all-caps text can stay slightly under 16px since capitals read larger) and 16px minimum for any sentence-case data value or body copy.</li>
+        <li>Primary data labels — the big numbers in KPI cards (27.0%, 25.0%, 20.0%) — are already large and serif, which is correct. Extend that same treatment to the Reports page's four summary tiles (4 / 25% / 27% / 1/4), which currently use a smaller weight than the Overview KPI strip despite showing the same category of number.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details open>
+    <summary>Contrast — target 7:1, not 4.5:1 <span class="chev">▾</span></summary>
+    <div class="panel">
+      <p><code>--text-muted: #7a9185</code> on <code>--surface: #fffef9</code> currently measures roughly 3.9:1 — comfortably under even AA for small text, let alone the AAA 7:1 target this project sets for older users. This token is used for metadata ("Yesterday," "Not started," "75 days ago" in Staff Directory's Last Active column) — exactly the fine print an older manager is most likely to squint at. Recommend darkening <code>--text-muted</code> to roughly <code>#5c6f65</code> for a ~5.6:1 ratio at minimum, or reserving <code>--text-muted</code> for 18px+ contexts only and using <code>--text-soft</code> (already closer to compliant) everywhere under 16px.</p>
+    </div>
+  </details>
+
+  <details open>
+    <summary>Click targets and hover dependency <span class="chev">▾</span></summary>
+    <div class="panel">
+      <ul>
+        <li>The "×" remove icons in Staff Directory and Staff Invites lists currently render as bare glyphs with no visible touch boundary — wrap in a 44×44px hit area with a visible circular hover/focus background so the target is discoverable without hovering first.</li>
+        <li>Module Mastery pip grids (<code>MasteryMicroGrid</code> in <code>manager-ui.tsx</code>) rely entirely on a <code>title</code> tooltip and a mouse-enter scale animation to convey per-module status — invisible on tablet and to anyone not hovering. Add a persistent legend (mastered / in-progress / locked swatches) beneath the grid so the meaning doesn't require interaction to discover.</li>
+        <li>The Leaderboards podium visualization (Emmet / Mitch / Heather with 2nd/1st/3rd) is attractive but depends on relative bar height and small ordinal labels underneath — pair it with the numeric rank already present in the list below, which the podium currently duplicates without adding legibility.</li>
+      </ul>
+    </div>
+  </details>
+
+  <h2 class="section-lead" id="hero">5. Three hero components</h2>
+  <p class="section-sub">The three surfaces most likely to make a prospective buyer stop scrolling during a screenshot walkthrough.</p>
+
+  <div class="hero-card">
+    <h5>Hero 1 — Upgraded MgrKpiCard</h5>
+    <p>Current implementation (<code>ManagerControlCenter.tsx</code>, <code>MgrKpiCard</code> / <code>MgrSparkline</code>) already has the right bones: label, big value, inline sparkline. Upgrade path: responsive value sizing via <code>clamp(1.8rem, 4vw, 2.4rem)</code> so the number scales cleanly from tablet to ultrawide monitor without a fixed breakpoint jump; gradient-filled sparkline (soft <code>--status-good</code>-to-transparent fill under the line, replacing the current flat 12%-opacity fill) so a glance at shape alone signals "trending up" before the eye even reaches the number; and a small trend delta chip (<code>↑ 5% this week</code>) reusing the existing <code>TrendBadge</code> component already built in <code>manager-ui.tsx</code> but not currently wired into the KPI strip.</p>
+  </div>
+
+  <div class="hero-card">
+    <h5>Hero 2 — MgrRevenueChart with milestone markers</h5>
+    <p>Current chart is a clean single-color line on a 14-day axis (<code>ManagerControlCenter.tsx</code>, <code>MgrRevenueChart</code>) — solid foundation, screenshot-flat. Upgrade: fill the area beneath the line with a soft vertical gradient from <code>--green-mid</code> at 18% opacity down to transparent (matching the "elegant green area chart" the brief asks for); add small milestone markers — a gold dot with a short label — at the two or three days where a training-completion threshold was crossed (e.g., "50% compliance reached"), pulling data already computed in <code>metrics</code>; and increase the axis label size from 9px to 12px minimum, since day labels currently fall well under the 16px floor even accounting for their secondary role.</p>
+  </div>
+
+  <div class="hero-card">
+    <h5>Hero 3 — Staff Readiness Board (traffic-light)</h5>
+    <p>This is the highest-impact single change in the whole spec. Today's "Tonight's Shift Readiness" table (<code>ManagerControlCenter.tsx</code>, lines ~1734–1780) shows every staff member as an identical green "Ready" pill regardless of RSA or training state, because the pill only reflects a binary block/no-block, not a graded status. Rebuild as a new extracted component — <code>components/mission-control/StaffReadinessBoard.tsx</code> — that renders each staff member as a compact card with a large colored status dot using the new semantic tokens:</p>
+    <ul>
+      <li><span class="status-dot" style="background:var(--status-good)"></span><strong>Green</strong> — RSA verified, training current, no flags</li>
+      <li><span class="status-dot" style="background:var(--status-warn)"></span><strong>Amber</strong> — cleared to work, but a specific gap exists (e.g., "0% training, RSA not verified")</li>
+      <li><span class="status-dot" style="background:var(--status-error)"></span><strong>Red</strong> — blocked (RSA/food-safety expired or missing on an alcohol-service role)</li>
+    </ul>
+    <p>Because the underlying rule already exists in code (<code>rsaStatus(s.compliance).level</code>, with level 3 already meaning "blocked" — see line 1770), this is primarily a presentation change: map level 0 → green, level 1–2 → amber, level 3 → red, and stop defaulting everyone to the same "Ready" pill regardless of level. This single fix resolves Bottleneck #1 from Section 1 directly.</p>
+  </div>
+
+  <h2 class="section-lead" id="build">6. Build plan &amp; token additions</h2>
+  <p class="section-sub">Scoped to this project's architecture constraints — nothing here adds to <code>ManagerControlCenter.tsx</code>, which is already at its size ceiling.</p>
+
+  <details open>
+    <summary>New semantic tokens for <span class="file-tag">app/globals.css</span> <span class="chev">▾</span></summary>
+    <div class="panel">
+      <table class="token-table">
+        <tr><th>Token</th><th>Value</th><th>Maps to</th></tr>
+        <tr><td><code>--status-good</code></td><td><span class="swatch" style="background:#1f4e37"></span>#1f4e37</td><td><code>var(--green)</code> — compliant / ready</td></tr>
+        <tr><td><code>--status-warn</code></td><td><span class="swatch" style="background:#a9812a"></span>#a9812a</td><td><code>var(--gold)</code> — expiring soon / gap flagged</td></tr>
+        <tr><td><code>--status-error</code></td><td><span class="swatch" style="background:#b3432f"></span>#b3432f</td><td>new warm brick red — expired / blocked</td></tr>
+      </table>
+      <p>These replace the ad-hoc inline hex currently scattered across the compliance banner and readiness badge, and should also absorb the parallel <code>--mcc-good</code> / <code>--mcc-bad</code> / <code>--mcc-amber</code> tokens already sitting unused-in-parallel in <code>globals.css</code> — one status vocabulary instead of two.</p>
+    </div>
+  </details>
+
+  <details open>
+    <summary>New component files under <span class="file-tag">components/mission-control/</span> <span class="chev">▾</span></summary>
+    <div class="panel">
+      <ul>
+        <li><span class="file-tag">StaffReadinessBoard.tsx</span> — Hero 3, replaces the inline readiness table currently built directly into <code>ManagerControlCenter.tsx</code></li>
+        <li><span class="file-tag">RevenueAreaChart.tsx</span> — Hero 2, extracts <code>MgrRevenueChart</code> out of the main file with the gradient-fill and milestone-marker upgrade</li>
+        <li><span class="file-tag">KpiStrip.tsx</span> — Hero 1, extracts <code>MgrKpiCard</code> + <code>MgrSparkline</code> with responsive <code>clamp()</code> typography and the trend-delta chip wired in</li>
+      </ul>
+      <p>All three are pure presentational components that accept the already-computed <code>metrics</code> and <code>venueStaff</code> props <code>ManagerControlCenter.tsx</code> currently derives inline — no new data-fetching, no new API routes, and net negative lines in the parent file once the inline JSX is replaced with three component calls.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Quick wins — same day <span class="chev">▾</span></summary>
+    <div class="panel">
+      <ul>
+        <li>Remove the chart-emoji glyph from the Revenue Impact Projection banner (<code>ManagerControlCenter.tsx</code> line 1682) — swap for an SVG chevron/trend icon, per this project's no-emoji rule.</li>
+        <li>Darken <code>--text-muted</code> for AAA contrast on metadata text (Last Active, timestamps).</li>
+        <li>Replace bare <code>—</code> placeholders in Staff Directory / Role Training Matrix with an explicit "Not verified" or "No data yet" label.</li>
+      </ul>
+    </div>
+  </details>
+
+</div>
+</body>
+</html>

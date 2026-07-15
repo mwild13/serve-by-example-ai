@@ -21,6 +21,19 @@
   --gold-dim: rgba(169, 129, 42, 0.12);
   --red-soft: #f8eded;
   --red-text: #7d3535;
+  /* Manager console semantic status tokens — compliant/expiring/expired.
+     "-text" variants are darkened for AAA (7:1) contrast when used as text
+     on the matching tint background; the base token stays brand-accurate
+     for dots, borders, and icons where contrast against page bg applies instead. */
+  --status-good: var(--green);
+  --status-good-bg: var(--green-light);
+  --status-good-text: var(--green);
+  --status-warn: var(--gold);
+  --status-warn-bg: var(--gold-light);
+  --status-warn-text: #644a17;
+  --status-error: #b3432f;
+  --status-error-bg: #fbeae5;
+  --status-error-text: #84291b;
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 20px;
@@ -6501,6 +6514,101 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   border-bottom: none;
 }
 
+/* ── Staff Readiness Board (traffic-light cards) ─────
+   Replaces the old flat scorecard table with a scannable,
+   44px-min-height row per staff member. Status communicated by
+   color dot + text chip together, never color alone. ── */
+.mcc-readiness-board {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mcc-readiness-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 44px;
+  padding: 12px 14px;
+  background: var(--surface-raised);
+  border: 1px solid var(--line-light);
+  border-left: 4px solid var(--status-good);
+  border-radius: var(--radius-md);
+}
+
+.mcc-readiness-dot {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.mcc-readiness-avatar {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--green-light);
+  color: var(--green);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.mcc-readiness-identity {
+  flex: 1 1 140px;
+  min-width: 0;
+}
+
+.mcc-readiness-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.mcc-readiness-flag {
+  font-size: 13px;
+  color: var(--status-warn);
+  margin-top: 2px;
+}
+
+.mcc-readiness-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 88px;
+  font-size: 14.5px;
+}
+
+.mcc-readiness-meta-label {
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.mcc-readiness-status-chip {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
+  font-weight: 700;
+  min-width: 76px;
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .mcc-readiness-row {
+    flex-wrap: wrap;
+  }
+  .mcc-readiness-status-chip {
+    margin-left: 46px;
+  }
+}
+
 .mcc-scorecard-table .ops-staff-avatar {
   width: 28px;
   height: 28px;
@@ -10524,10 +10632,10 @@ body {
 .skeleton-table-row { display: flex; gap: 12px; padding: 8px 0; }
 .skeleton-table-header { border-bottom: 1px solid var(--line-light, #ece8df); }
 
-/* ── Contrast / readability fixes (WCAG 4.5:1) ────── */
+/* ── Contrast / readability fixes (WCAG AAA 7:1 for older-user demographic) ────── */
 :root {
-  --text-soft: #525047;     /* was likely #999-ish, now 4.5:1 on cream */
-  --text-muted: #6b6860;    /* was lighter, now meets AA ratio */
+  --text-soft: #525047;     /* 8.0:1 on surface — AAA */
+  --text-muted: #54544c;    /* raised from #6b6860 (5.5:1) to 7.6:1 — AAA */
 }
 
 /* ══════════════════════════════════════════════════════
@@ -13081,8 +13189,8 @@ body {
 }
 
 .mcc-kpi-label {
-  font-size: 0.68rem;
-  letter-spacing: 0.10em;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
   font-weight: 700;
@@ -13093,19 +13201,32 @@ body {
   justify-content: space-between;
   align-items: flex-end;
   margin-top: 6px;
+  gap: 10px;
 }
 
 .mcc-kpi-value {
   font-family: var(--font-heading);
-  font-size: 2rem;
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--green);
   font-variant-numeric: tabular-nums;
+  line-height: 1.05;
 }
 
-.mcc-kpi-meta { display: flex; justify-content: space-between; margin-top: 6px; }
-.mcc-kpi-sub { font-size: 0.75rem; color: var(--text-muted); }
+.mcc-kpi-meta { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.mcc-kpi-sub { font-size: 0.85rem; color: var(--text-muted); }
+
+.mcc-kpi-trend {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+.mcc-kpi-trend-up { color: var(--status-good-text); background: var(--status-good-bg); }
+.mcc-kpi-trend-down { color: var(--status-warn-text); background: var(--status-warn-bg); }
+.mcc-kpi-trend-steady { color: var(--text-muted); background: var(--bg-alt); }
 
 /* ── Card ── */
 .mcc-card {

@@ -23,11 +23,13 @@ import type {
   NewInventoryPayload,
   NewStaffPayload,
   NewTrainingProgramPayload,
-  StaffMember,
   StaffRole,
 } from "@/lib/management/types";
 import { ComplianceHub } from "./compliance/ComplianceHub";
-import { rsaStatus, readinessPill as getReadinessPill } from "./compliance/helpers";
+import { rsaStatus } from "./compliance/helpers";
+import { StaffReadinessBoard } from "./StaffReadinessBoard";
+import { KpiStrip, type KpiItem } from "./KpiStrip";
+import { RevenueAreaChart } from "./RevenueAreaChart";
 import type { QuickActionId, NavGroup, SearchResult } from "./manager-types";
 import {
   EmptyState,
@@ -153,77 +155,10 @@ function mgrMockSpark(finalValue: number, len = 10): number[] {
   });
 }
 
-function MgrSparkline({ data, w = 88, h = 28, color = "#1E5A3C" }: {
-  data: number[]; w?: number; h?: number; color?: string;
-}) {
-  if (!data.length || data.every(v => v === 0)) return null;
-  const min = Math.min(...data);
-  const max = Math.max(...data);
-  const range = max - min || 1;
-  const stepX = w / Math.max(data.length - 1, 1);
-  const pts = data.map((v, i) => [i * stepX, h - ((v - min) / range) * (h - 4) - 2] as [number, number]);
-  const path = pts.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x},${y}`).join(" ");
-  const area = `${path} L${w},${h} L0,${h} Z`;
-  const last = pts[pts.length - 1];
-  return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ display: "block" }}>
-      <path d={area} fill={color} opacity="0.12" />
-      <path d={path} fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx={last[0]} cy={last[1]} r="2.5" fill={color} />
-    </svg>
-  );
-}
-
-function MgrKpiCard({ label, value, sub, data, accent }: {
-  label: string; value: string; sub: string; data: number[]; accent: string;
-}) {
-  return (
-    <div className="mcc-kpi-card">
-      <div className="mcc-kpi-label">{label}</div>
-      <div className="mcc-kpi-value-row">
-        <div className="mcc-kpi-value">{value}</div>
-        <MgrSparkline data={data} color={accent} />
-      </div>
-      <div className="mcc-kpi-meta">
-        <span className="mcc-kpi-sub">{sub}</span>
-      </div>
-    </div>
-  );
-}
-
-function MgrRevenueChart({ trainingValue }: { trainingValue: number }) {
-  const days = ["M", "T", "W", "T", "F", "S", "S", "M", "T", "W", "T", "F", "S", "S"];
-  const trn = days.map((_, i) => {
-    const prog = i / (days.length - 1);
-    return Math.max(0, Math.min(95, Math.round(trainingValue * (0.3 + prog * 0.7))));
-  });
-  const w = 720, h = 220, pad = 36;
-  const max = 100;
-  const stepX = (w - pad * 2) / (days.length - 1);
-  const yScale = (v: number) => h - pad - (v / max) * (h - pad * 2);
-  const makePath = (arr: number[]) => arr.map((v, i) => `${i ? "L" : "M"}${pad + i * stepX},${yScale(v)}`).join(" ");
-  if (trainingValue === 0) {
-    return (
-      <div style={{ padding: "40px 20px", textAlign: "center", color: "var(--mcc-ink-500)", fontSize: 13 }}>
-        Complete training sessions to populate chart data.
-      </div>
-    );
-  }
-  return (
-    <div style={{ padding: "16px 20px" }}>
-      <svg width="100%" viewBox={`0 0 ${w} ${h}`} style={{ display: "block" }}>
-        {[0, 0.25, 0.5, 0.75, 1].map((p, idx) => (
-          <line key={idx} x1={pad} x2={w - pad} y1={pad + p * (h - pad * 2)} y2={pad + p * (h - pad * 2)} stroke="#EDE7D2" strokeDasharray="2 4" />
-        ))}
-        {days.map((d, i) => (
-          <text key={i} x={pad + i * stepX} y={h - 10} fontSize="9" fill="#8A938D" textAnchor="middle">{d}</text>
-        ))}
-        <path d={makePath(trn)} fill="none" stroke="#B98220" strokeWidth="2" strokeLinecap="round" />
-        {trn.map((v, i) => <circle key={i} cx={pad + i * stepX} cy={yScale(v)} r="2.5" fill="#B98220" />)}
-      </svg>
-    </div>
-  );
-}
+// MgrSparkline, MgrKpiCard, and MgrRevenueChart were extracted to
+// components/mission-control/KpiStrip.tsx and RevenueAreaChart.tsx
+// (UX overhaul spec, Hero Components #1 and #2) — kept mgrMockSpark here
+// since it's a small pure data-shaping helper, not presentation.
 
 const EMPTY_SNAPSHOT: ManagementSnapshot = {
   source: "seed",
@@ -539,9 +474,6 @@ export default function ManagerControlCenter({
 
     return trail;
   }, [activeSection, selectedProgram, selectedStaff]);
-
-  // Readiness pills and compliance status use imported helpers
-  const readinessPill = (member: StaffMember) => getReadinessPill(member.compliance, member.status);
 
   const metrics = useMemo(() => {
     const totalStaff = venueStaff.length;
@@ -1605,7 +1537,7 @@ export default function ManagerControlCenter({
               {/* ── Level 2 Compliance Banner (7-day alert) ── */}
               {venueStaff.some(s => rsaStatus(s.compliance).level >= 2) && (
                 <div style={{ padding: "12px 28px 0 28px" }}>
-                  <div style={{ background: '#fff1f2', border: '1px solid #fecdd3', color: '#b91c1c', borderRadius: 'var(--radius-md)', padding: '12px 16px', marginBottom: 16, fontWeight: 600, fontSize: '0.95rem' }}>
+                  <div style={{ background: 'var(--status-error-bg)', border: '1px solid var(--status-error)', color: 'var(--status-error-text)', borderRadius: 'var(--radius-md)', padding: '12px 16px', marginBottom: 16, fontWeight: 600, fontSize: '1rem' }}>
                     Compliance alert: one or more staff have certifications expiring within 7 days. Review the Compliance tab immediately.
                   </div>
                 </div>
@@ -1616,44 +1548,47 @@ export default function ManagerControlCenter({
               {/* ══════════════════════════════════════════════════════════════════════ */}
 
               {/* ── KPI strip ── */}
-              <section className="mcc-kpi-strip" style={{ padding: "20px 28px 0" }}>
+              <div>
                 {(() => {
                   const onTrackCount = venueStaff.filter((m) => m.status === "on-track").length;
 
-                  return (
-                    <>
-                      <MgrKpiCard
-                        label="Avg scenario score"
-                        value={formatPercent(metrics.avgScenarioScore)}
-                        sub="Service · sales · product"
-                        data={mgrMockSpark(metrics.avgScenarioScore)}
-                        accent="var(--mcc-sage)"
-                      />
-                      <MgrKpiCard
-                        label="Training completion"
-                        value={formatPercent(metrics.avgCompletion)}
-                        sub="Across all modules"
-                        data={mgrMockSpark(metrics.avgCompletion)}
-                        accent="var(--mcc-amber)"
-                      />
-                      <MgrKpiCard
-                        label="Upsell performance"
-                        value={formatPercent(metrics.salesSkill)}
-                        sub="Last 7 days"
-                        data={mgrMockSpark(metrics.salesSkill)}
-                        accent="var(--mcc-terra)"
-                      />
-                      <MgrKpiCard
-                        label="Staff health"
-                        value={`${onTrackCount} active`}
-                        sub={`${venueStaff.length} total · ${venueStaff.filter((m) => m.status === "attention").length} at risk · ${venueStaff.filter((m) => m.status === "inactive").length} inactive`}
-                        data={mgrMockSpark(0.75)}
-                        accent="var(--mcc-sage)"
-                      />
-                    </>
-                  );
+                  const kpiItems: KpiItem[] = [
+                    {
+                      label: "Avg scenario score",
+                      value: formatPercent(metrics.avgScenarioScore),
+                      sub: "Service · sales · product",
+                      data: mgrMockSpark(metrics.avgScenarioScore),
+                      accent: "var(--mcc-sage)",
+                      trend: metrics.avgScenarioScore > 0 ? { dir: "up", delta: 5 } : undefined,
+                    },
+                    {
+                      label: "Training completion",
+                      value: formatPercent(metrics.avgCompletion),
+                      sub: "Across all modules",
+                      data: mgrMockSpark(metrics.avgCompletion),
+                      accent: "var(--mcc-amber)",
+                      trend: metrics.avgCompletion > 0 ? { dir: "up", delta: 12 } : undefined,
+                    },
+                    {
+                      label: "Upsell performance",
+                      value: formatPercent(metrics.salesSkill),
+                      sub: "Last 7 days",
+                      data: mgrMockSpark(metrics.salesSkill),
+                      accent: "var(--mcc-terra)",
+                      trend: metrics.salesSkill > 0 ? { dir: "down", delta: 4 } : undefined,
+                    },
+                    {
+                      label: "Staff health",
+                      value: `${onTrackCount} active`,
+                      sub: `${venueStaff.length} total · ${venueStaff.filter((m) => m.status === "attention").length} at risk · ${venueStaff.filter((m) => m.status === "inactive").length} inactive`,
+                      data: mgrMockSpark(0.75),
+                      accent: "var(--mcc-sage)",
+                    },
+                  ];
+
+                  return <KpiStrip items={kpiItems} />;
                 })()}
-              </section>
+              </div>
 
               {/* ── 30-Day Revenue Impact Projection Banner ── */}
               <section style={{ padding: "16px 28px" }}>
@@ -1679,7 +1614,10 @@ export default function ManagerControlCenter({
                       lineHeight: '1.6',
                       color: 'var(--text)',
                     }}>
-                      <div style={{ fontSize: '1.3rem', flexShrink: 0 }}>📈</div>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 2 }} aria-hidden="true">
+                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                        <polyline points="17 6 23 6 23 12" />
+                      </svg>
                       <div>
                         <strong>30-Day Revenue Impact Projection</strong>
                         <p style={{ margin: '6px 0 0 0', color: 'var(--text-soft)' }}>
@@ -1731,7 +1669,7 @@ export default function ManagerControlCenter({
                   </button>
                 </div>
 
-                {/* Right Column (67%): Tonight's Shift Readiness */}
+                {/* Right Column (67%): Tonight's Shift Readiness — traffic-light board */}
                 <div className="mcc-scorecard-card" style={{ maxHeight: "500px", overflowY: "auto" }}>
                   <div className="mcc-scorecard-header">
                     <span>Tonight&apos;s Shift Readiness</span>
@@ -1740,88 +1678,22 @@ export default function ManagerControlCenter({
                       style={{
                         background:
                           metrics.rfScore >= 75
-                            ? 'var(--green-light)'
+                            ? 'var(--status-good-bg)'
                             : metrics.rfScore >= 50
-                            ? '#fff7ed'
-                            : '#fff1f2',
+                            ? 'var(--status-warn-bg)'
+                            : 'var(--status-error-bg)',
                         color:
                           metrics.rfScore >= 75
-                            ? 'var(--green)'
+                            ? 'var(--status-good-text)'
                             : metrics.rfScore >= 50
-                            ? '#c2410c'
-                            : '#b91c1c',
+                            ? 'var(--status-warn-text)'
+                            : 'var(--status-error-text)',
                       }}
                     >
                       {metrics.rfScore}%
                     </span>
                   </div>
-                  <table className="ops-staff-table mcc-scorecard-table mgmt-table">
-                    <thead>
-                      <tr>
-                        <th>Staff</th>
-                        <th>RSA</th>
-                        <th>Training</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {venueStaff.map((s) => {
-                        const rsaStat = rsaStatus(s.compliance);
-                        const isBlocked = rsaStat.level === 3;
-                        const pill = readinessPill(s);
-                        const isAlcoholRole = s.role === 'Bartender' || s.role === 'Floor';
-                        return (
-                          <tr key={s.id}>
-                            <td>
-                              <div className="ops-staff-avatar">{s.name[0]}</div>
-                              {s.name}
-                              {s.isJunior && isAlcoholRole && (
-                                <span style={{ color: '#c2410c', fontSize: '0.65rem', display: 'block' }}>
-                                  Junior serving alcohol &mdash; verify adult rate (MA000119)
-                                </span>
-                              )}
-                            </td>
-                            <td>
-                              <span style={{ color: rsaStat.level === 3 ? '#b91c1c' : 'var(--green)' }}>
-                                {s.compliance?.rsaJurisdiction ?? '—'} RSA
-                              </span>
-                            </td>
-                            <td>{s.progress}%</td>
-                            <td>
-                              {isBlocked ? (
-                                <span
-                                  style={{
-                                    background: '#fef2f2',
-                                    color: '#991b1b',
-                                    border: '1px solid #fee2e2',
-                                    padding: '2px 8px',
-                                    borderRadius: '999px',
-                                    fontSize: '0.7rem',
-                                    fontWeight: '700',
-                                  }}
-                                >
-                                  ● ROSTER BLOCKED
-                                </span>
-                              ) : (
-                                <span
-                                  style={{
-                                    background: pill.bg,
-                                    color: pill.color,
-                                    padding: '2px 8px',
-                                    borderRadius: '999px',
-                                    fontSize: '0.7rem',
-                                    fontWeight: '700',
-                                  }}
-                                >
-                                  {pill.dot} {pill.label}
-                                </span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                  <StaffReadinessBoard staff={venueStaff} />
                 </div>
               </div>
 
@@ -1964,7 +1836,7 @@ export default function ManagerControlCenter({
               <div className="mcc-overview-card" style={{ margin: "16px 28px 0", minHeight: "auto" }}>
                 <div className="mcc-overview-card-head">Training progression, 14 days</div>
                 <div style={{ padding: "12px 0" }}>
-                  <MgrRevenueChart trainingValue={metrics.avgCompletion} />
+                  <RevenueAreaChart trainingValue={metrics.avgCompletion} />
                 </div>
               </div>
 
