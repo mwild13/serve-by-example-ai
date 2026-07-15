@@ -20,22 +20,15 @@ export default function SessionConflictPage() {
     setLoading(true);
     setError("");
     try {
-      const supabase = createSupabaseBrowserClient();
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (!session?.access_token) {
-        router.push("/login");
-        return;
-      }
-
-      // Stamp a new session on this device
-      const res = await fetch("/api/session/stamp", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      });
+      // Call stamp API directly — getUserFromRequest falls back to HttpOnly cookies,
+      // so this works even when the Supabase JS client has no in-memory session.
+      const res = await fetch("/api/session/stamp", { method: "POST" });
       if (res.ok) {
         router.push(returnTo);
         router.refresh();
+      } else if (res.status === 401) {
+        // Truly unauthenticated — send to login
+        router.push("/login");
       } else {
         setError("Could not resume session. Please sign in again.");
       }
