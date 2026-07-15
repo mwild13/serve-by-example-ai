@@ -13189,8 +13189,8 @@ body {
 }
 
 .mcc-kpi-label {
-  font-size: 0.68rem;
-  letter-spacing: 0.10em;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
   font-weight: 700;
@@ -13201,19 +13201,32 @@ body {
   justify-content: space-between;
   align-items: flex-end;
   margin-top: 6px;
+  gap: 10px;
 }
 
 .mcc-kpi-value {
   font-family: var(--font-heading);
-  font-size: 2rem;
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--green);
   font-variant-numeric: tabular-nums;
+  line-height: 1.05;
 }
 
-.mcc-kpi-meta { display: flex; justify-content: space-between; margin-top: 6px; }
-.mcc-kpi-sub { font-size: 0.75rem; color: var(--text-muted); }
+.mcc-kpi-meta { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.mcc-kpi-sub { font-size: 0.85rem; color: var(--text-muted); }
+
+.mcc-kpi-trend {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+.mcc-kpi-trend-up { color: var(--status-good-text); background: var(--status-good-bg); }
+.mcc-kpi-trend-down { color: var(--status-warn-text); background: var(--status-warn-bg); }
+.mcc-kpi-trend-steady { color: var(--text-muted); background: var(--bg-alt); }
 
 /* ── Card ── */
 .mcc-card {
