@@ -342,7 +342,7 @@ export default function Home() {
 
               <div className="mastery-step-item">
                 <div className="mastery-step-icon-wrap">
-                  <IcoZap size={28} />
+                  <IconZap size={28} />
                 </div>
                 <div className="mastery-step-num">Step 2</div>
                 <h3>Apply It Under Real Pressure.</h3>
