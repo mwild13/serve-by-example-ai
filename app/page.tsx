@@ -1,70 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
+import { lazy, Suspense } from "react";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
-import ROICalculator from "@/components/ui/ROICalculator";
-import CompareMatrix from "@/components/ui/CompareMatrix";
 import HeroSection from "@/components/HeroSection";
 import VenueMarquee from "@/components/VenueMarquee";
+import { IconUsers, IconBuilding, IconBook, IconZap, IconLayers, IconPhone } from "@/components/icons/MarketingIcons";
 
-// ── SVG Icons ─────────────────────────────────────────────────────────────────
-
-function IcoUsers({ size = 22 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-      <circle cx="9" cy="7" r="4"/>
-      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-    </svg>
-  );
-}
-
-function IcoBuilding({ size = 22 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="4" y="2" width="16" height="20" rx="2"/>
-      <path d="M9 22v-4h6v4"/>
-      <path d="M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/>
-    </svg>
-  );
-}
-
-function IcoBook({ size = 28 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-    </svg>
-  );
-}
-
-function IcoZap({ size = 28 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-    </svg>
-  );
-}
-
-function IcoLayers({ size = 22 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="12 2 2 7 12 12 22 7 12 2"/>
-      <polyline points="2 17 12 22 22 17"/>
-      <polyline points="2 12 12 17 22 12"/>
-    </svg>
-  );
-}
-
-function IcoPhone({ size = 22 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="5" y="2" width="14" height="20" rx="2"/>
-      <circle cx="12" cy="18" r="0.5" fill="currentColor"/>
-    </svg>
-  );
-}
+// Lazy-load heavy interactive components
+const ROICalculator = lazy(() => import("@/components/ui/ROICalculator"));
+const CompareMatrix = lazy(() => import("@/components/ui/CompareMatrix"));
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
@@ -154,7 +99,7 @@ export default function Home() {
               <div className="bento-card bento-card-dark sbe-span-6 sbe-interactive-hover mkt-card-sharp">
                 <div>
                   <div style={{ width: "44px", height: "44px", background: "rgba(212,175,55,0.18)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1.25rem", color: "var(--mkt-gold-500)" }}>
-                    <IcoZap size={22} />
+                    <IconZap size={22} />
                   </div>
                   <span className="sbe-eyebrow">For Frontline Staff</span>
                   <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-cream-100)" }}>AI Scenario Simulators</h3>
@@ -166,7 +111,7 @@ export default function Home() {
               <div className="bento-card sbe-span-6 sbe-interactive-hover mkt-card-sharp">
                 <div>
                   <div style={{ width: "44px", height: "44px", background: "var(--green-light)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--green)", marginBottom: "1.25rem" }}>
-                    <IcoBuilding size={22} />
+                    <IconBuilding size={22} />
                   </div>
                   <span className="sbe-eyebrow">For General Managers</span>
                   <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-forest-900)" }}>Manager Mission Control</h3>
@@ -179,7 +124,7 @@ export default function Home() {
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "2rem", alignItems: "flex-start" }}>
                   <div style={{ flex: "1 1 260px" }}>
                     <div style={{ width: "44px", height: "44px", background: "var(--green-light)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--green)", marginBottom: "1.25rem" }}>
-                      <IcoBook size={22} />
+                      <IconBook size={22} />
                     </div>
                     <span className="sbe-eyebrow">For Multi-Site Venue Groups</span>
                     <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-forest-900)" }}>Cocktail &amp; Spec Library</h3>
@@ -259,7 +204,7 @@ export default function Home() {
                   &ldquo;I built the training tool I always wished I had, one that works for real venues, real staff, and the real pressure of a busy service.&rdquo;
                 </p>
                 <footer style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: "#6b7280", fontStyle: "normal", fontWeight: 600 }}>
-                  Founder, Serve By Example, Australia
+                  Mitch, Serve By Example, Australia
                 </footer>
               </blockquote>
             </div>
@@ -280,7 +225,7 @@ export default function Home() {
               {/* Manager outcome */}
               <div className="solution-col">
                 <div className="solution-col-header">
-                  <span className="solution-col-icon"><IcoBuilding size={20} /></span>
+                  <span className="solution-col-icon"><IconBuilding size={20} /></span>
                   <div>
                     <h3>Run a tighter venue</h3>
                     <p>Real-time visibility across your whole team (compliance, progress, and performance) without chasing anyone.</p>
@@ -292,6 +237,7 @@ export default function Home() {
                   width={1200}
                   height={750}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
+                  priority={true}
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
               </div>
@@ -299,7 +245,7 @@ export default function Home() {
               {/* Staff outcome */}
               <div className="solution-col">
                 <div className="solution-col-header">
-                  <span className="solution-col-icon"><IcoUsers size={20} /></span>
+                  <span className="solution-col-icon"><IconUsers size={20} /></span>
                   <div>
                     <h3>Train confident staff</h3>
                     <p>Floor-ready in six weeks, not six months, guided by scenario training and immediate scored feedback.</p>
@@ -311,6 +257,7 @@ export default function Home() {
                   width={1200}
                   height={630}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
+                  priority={true}
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
               </div>
@@ -327,7 +274,7 @@ export default function Home() {
               {/* Full training library */}
               <div className="solution-col">
                 <div className="solution-col-header">
-                  <span className="solution-col-icon"><IcoLayers size={20} /></span>
+                  <span className="solution-col-icon"><IconLayers size={20} /></span>
                   <div>
                     <h3>The full training library</h3>
                     <p>All 40 modules across Bartending, Sales, and Management. Filter by role, track progress, and certify by topic.</p>
@@ -346,7 +293,7 @@ export default function Home() {
               {/* Mobile – train anywhere */}
               <div className="solution-col" style={{ display: "flex", flexDirection: "column" }}>
                 <div className="solution-col-header">
-                  <span className="solution-col-icon"><IcoPhone size={20} /></span>
+                  <span className="solution-col-icon"><IconPhone size={20} /></span>
                   <div>
                     <h3>Train anywhere, on any shift</h3>
                     <p>The full platform on mobile. Staff complete scenarios, quizzes, and modules between shifts without needing a desk or desktop.</p>
@@ -380,7 +327,7 @@ export default function Home() {
             <div className="mastery-steps-flow">
               <div className="mastery-step-item">
                 <div className="mastery-step-icon-wrap">
-                  <IcoBook size={28} />
+                  <IconBook size={28} />
                 </div>
                 <div className="mastery-step-num">Step 1</div>
                 <h3>Know Your Product Cold.</h3>
@@ -410,7 +357,7 @@ export default function Home() {
 
               <div className="mastery-step-item">
                 <div className="mastery-step-icon-wrap">
-                  <IcoBuilding size={28} />
+                  <IconBuilding size={28} />
                 </div>
                 <div className="mastery-step-num">Step 3</div>
                 <h3>Managers See Everything, in Real Time.</h3>
@@ -487,7 +434,9 @@ export default function Home() {
         </section>
 
         {/* ── ROI Calculator ───────────────────────── */}
-        <ROICalculator />
+        <Suspense fallback={<div style={{ height: "400px", background: "var(--bg-alt)" }} />}>
+          <ROICalculator />
+        </Suspense>
 
         {/* ── Free Toolkit Teaser ──────────────────── */}
         <section style={{ backgroundColor: 'var(--green)', padding: '5rem 1.5rem' }}>
@@ -583,7 +532,9 @@ export default function Home() {
         {/* ── Comparison Matrix ────────────────────── */}
         <section className="section section-alt">
           <div className="container">
-            <CompareMatrix />
+            <Suspense fallback={<div style={{ height: "500px", background: "var(--bg-alt)" }} />}>
+              <CompareMatrix />
+            </Suspense>
           </div>
         </section>
 

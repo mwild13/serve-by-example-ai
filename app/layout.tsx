@@ -7,14 +7,14 @@ import Script from 'next/script';
 
 const fraunces = Fraunces({
   subsets: ["latin"],
-  weight: ["400", "600", "700", "800"],
+  weight: ["400", "600"],
   display: "swap",
   variable: "--font-fraunces",
 });
 
 const manrope = Manrope({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "600"],
   display: "swap",
   variable: "--font-manrope",
 });
@@ -88,11 +88,11 @@ export default async function RootLayout({
     <html lang="en-AU" className={`${fraunces.variable} ${manrope.variable}`}>
       <body>
         {/* Google Analytics (gtag.js) */}
-        <Script 
-          src="https://www.googletagmanager.com/gtag/js?id=G-EF9YRFXKBG" 
-          strategy="afterInteractive" 
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-EF9YRFXKBG"
+          strategy="lazyOnload"
         />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="google-analytics" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
