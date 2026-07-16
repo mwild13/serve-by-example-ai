@@ -480,6 +480,7 @@ export default function DashboardShell({
   notifWeeklyDigest,
   notifAchievementAlerts,
   hasVenueMembership = false,
+  venueMembershipPaused = false,
   initialToken = "",
   checkoutSuccess = false,
   initialNav,
@@ -492,6 +493,7 @@ export default function DashboardShell({
   notifWeeklyDigest: boolean;
   notifAchievementAlerts: boolean;
   hasVenueMembership?: boolean;
+  venueMembershipPaused?: boolean;
   initialToken?: string;
   checkoutSuccess?: boolean;
   initialNav?: string;
@@ -725,6 +727,29 @@ export default function DashboardShell({
               style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text)", fontSize: 20, lineHeight: 1, padding: "0 0 0 12px" }}
               aria-label="Dismiss"
             >×</button>
+          </div>
+        )}
+
+        {venueMembershipPaused && (
+          <div style={{
+            background: "var(--gold-light)",
+            border: "1.5px solid var(--gold)",
+            borderRadius: "var(--radius-md)",
+            padding: "14px 20px",
+            marginBottom: 16,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold-warm)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <div>
+              <span style={{ fontWeight: 700, color: "var(--text)", fontSize: "0.9rem" }}>Training is paused. </span>
+              <span style={{ color: "var(--text-soft)", fontSize: "0.9rem" }}>Your venue&apos;s trial has ended. Contact your manager to restore access.</span>
+            </div>
           </div>
         )}
 

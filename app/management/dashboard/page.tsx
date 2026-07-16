@@ -75,7 +75,7 @@ export default async function ManagementDashboardPage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, plan, tier, platform_role, subscription_active, org_id")
+    .select("display_name, plan, tier, platform_role, subscription_active, org_id, trial_grace_modal_shown")
     .eq("id", user.id)
     .single();
 
@@ -102,6 +102,8 @@ export default async function ManagementDashboardPage({
   let trialTier: string | null = null;
   let trialEndsAt: string | null = null;
   let daysRemaining = 0;
+  let trialExpired = false;
+  let showExpiredModal = false;
 
   const orgId = (profile?.org_id ?? null) as string | null;
   if (orgId) {
@@ -117,10 +119,16 @@ export default async function ManagementDashboardPage({
       trialTier = org.trial_tier as string;
       trialEndsAt = org.trial_ends_at as string;
       daysRemaining = getDaysRemaining(org.trial_ends_at as string);
+    } else if (trialStatus === "expired" && org?.trial_tier && org?.trial_ends_at) {
+      trialTier = org.trial_tier as string;
+      trialEndsAt = org.trial_ends_at as string;
+      daysRemaining = 0;
+      trialExpired = true;
+      showExpiredModal = !(profile?.trial_grace_modal_shown ?? false);
     }
   }
 
-  const hasTrialAccess = !!trialTier;
+  const hasTrialAccess = !!trialTier && !trialExpired;
 
   if (!isAdmin && !hasVenueAccess && !hasManagerRole && !hasTrialAccess) {
     redirect("/pricing");
@@ -135,6 +143,8 @@ export default async function ManagementDashboardPage({
           trialTier={trialTier}
           trialEndsAt={trialEndsAt}
           daysRemaining={daysRemaining}
+          trialExpired={trialExpired}
+          showExpiredModal={showExpiredModal}
         />
       </Suspense>
     </div>

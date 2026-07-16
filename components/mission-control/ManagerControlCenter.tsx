@@ -43,6 +43,7 @@ const CoachingDrawer = lazy(() => import("@/app/management/dashboard/_components
 import StaffRosterPanel from "@/app/management/dashboard/_components/StaffRosterPanel";
 import { TrialStatusPill } from "./TrialStatusPill";
 import { TrialBillingSection } from "./TrialBillingSection";
+import { TrialExpiredModal } from "./TrialExpiredModal";
 
 type SnapshotResponse = ManagementSnapshot & {
   inviteMessage?: string;
@@ -183,6 +184,8 @@ export default function ManagerControlCenter({
   trialTier,
   trialEndsAt,
   daysRemaining,
+  trialExpired,
+  showExpiredModal,
 }: {
   initialSnapshot?: ManagementSnapshot;
   plan?: string;
@@ -190,6 +193,8 @@ export default function ManagerControlCenter({
   trialTier?: string | null;
   trialEndsAt?: string | null;
   daysRemaining?: number;
+  trialExpired?: boolean;
+  showExpiredModal?: boolean;
 }) {
   const isMultiVenue = plan === "multi-venue" || plan === "venue_multi";
 
@@ -1067,6 +1072,9 @@ export default function ManagerControlCenter({
   return (
     <div className="ops-shell">
       <SessionRefresher />
+      {showExpiredModal && trialTier && (
+        <TrialExpiredModal trialTier={trialTier} />
+      )}
       <aside className="ops-sidebar">
         <div className="ops-sidebar-top">
           <span className="ops-sidebar-brand">Management console</span>
@@ -1162,6 +1170,7 @@ export default function ManagerControlCenter({
               trialTier={trialTier}
               trialEndsAt={trialEndsAt}
               daysRemaining={daysRemaining}
+              isExpired={trialExpired}
             />
           )}
           <SignOutButton />

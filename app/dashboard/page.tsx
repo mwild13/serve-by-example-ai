@@ -2,6 +2,7 @@
 import Stripe from "stripe";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
+import { getTrialStatus } from "@/lib/trial";
 import DashboardShell from "@/app/dashboard/_components/DashboardShell";
 
 const PRICE_TO_PLAN: Record<string, string> = {
@@ -108,16 +109,39 @@ export default async function DashboardPage({
   // These users get full training access even on the free plan tier.
   // Use admin client to bypass RLS – the filter is scoped to this user's email.
   let hasVenueMembership = false;
+  let venueMembershipPaused = false;
   if (plan === "free" && user.email) {
     const admin = createSupabaseAdminClient();
     const { data: membership } = await admin
       .from("venue_memberships")
-      .select("id")
+      .select("id, manager_id")
       .eq("staff_email", user.email.toLowerCase())
       .in("status", ["invited", "active"])
       .limit(1)
       .maybeSingle();
     hasVenueMembership = !!membership;
+
+    // If sponsored, check whether the manager's org trial has expired.
+    // An expired trial means training is paused for all staff on that org.
+    if (membership?.manager_id) {
+      const { data: managerProfile } = await admin
+        .from("profiles")
+        .select("org_id")
+        .eq("id", membership.manager_id)
+        .single();
+
+      if (managerProfile?.org_id) {
+        const { data: managerOrg } = await admin
+          .from("organizations")
+          .select("trial_tier, trial_ends_at, trial_converted")
+          .eq("id", managerProfile.org_id)
+          .single();
+
+        if (getTrialStatus(managerOrg) === "expired") {
+          venueMembershipPaused = true;
+        }
+      }
+    }
   }
 
   // Sponsored venue staff (free plan + venue membership) must never see management content,
@@ -137,6 +161,7 @@ export default async function DashboardPage({
       notifWeeklyDigest={profile?.notif_weekly_digest ?? true}
       notifAchievementAlerts={profile?.notif_achievement_alerts ?? true}
       hasVenueMembership={hasVenueMembership}
+      venueMembershipPaused={venueMembershipPaused}
       initialToken={session?.access_token ?? ""}
       initialNav={initialNav}
     />
