@@ -254,6 +254,7 @@ export default function ManagerControlCenter({
   const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [copiedVenueId, setCopiedVenueId] = useState<string | null>(null);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [renameVenueName, setRenameVenueName] = useState(initialSnapshot?.venues[0]?.name ?? "");
   const [renameSaving, setRenameSaving] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
@@ -308,7 +309,7 @@ export default function ManagerControlCenter({
         setSnapshotLoading(false);
       }
     })();
-  }, [initialSnapshot, apiFetch, selectedVenueId]);
+  }, [initialSnapshot, apiFetch]);
 
   const [revenueTransactionValue, setRevenueTransactionValue] = useState(45);
   const [aiCoachInput, setAiCoachInput] = useState("");
@@ -872,6 +873,14 @@ export default function ManagerControlCenter({
       return;
     }
 
+    if (activeAction === "add-staff") {
+      const limit = selectedVenue.staffLimit ?? (isMultiVenue ? 35 : 15);
+      if (venueStaff.length >= limit) {
+        setRequestError(`You've reached the ${limit}-seat limit for ${selectedVenue.name}. Upgrade your plan to add more staff.`);
+        return;
+      }
+    }
+
     if (activeAction === "assign-training") {
       const staffMember = venueStaff.find((member) => member.id === assignmentForm.staffId);
       const program = venuePrograms.find((item) => item.id === assignmentForm.programId);
@@ -1222,12 +1231,12 @@ export default function ManagerControlCenter({
               alignItems: "center",
               gap: 10,
               padding: "12px 16px",
-              background: "#f0fdf4",
-              border: "1.5px solid #86efac",
+              background: "var(--green-light)",
+              border: "1.5px solid var(--green)",
               borderRadius: "var(--radius-md)",
               marginBottom: 12,
               fontSize: "0.875rem",
-              color: "#15803d",
+              color: "var(--green-deep)",
               fontWeight: 600,
             }}
           >
@@ -1285,7 +1294,8 @@ export default function ManagerControlCenter({
                   onClick={() => {
                     navigator.clipboard.writeText(pendingInviteLink.link).then(() => {
                       setInviteLinkCopied(true);
-                      setTimeout(() => setInviteLinkCopied(false), 2500);
+                      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+                      copyTimeoutRef.current = setTimeout(() => setInviteLinkCopied(false), 2500);
                     });
                   }}
                 >
@@ -1821,26 +1831,6 @@ export default function ManagerControlCenter({
                               {item.reason}
                             </div>
                           </div>
-                          <button
-                            type="button"
-                            style={{
-                              padding: '4px 8px',
-                              borderRadius: '4px',
-                              background: 'var(--green)',
-                              color: '#fff',
-                              border: 'none',
-                              cursor: 'pointer',
-                              fontSize: '10px',
-                              fontWeight: 600,
-                              whiteSpace: 'nowrap',
-                              flexShrink: 0,
-                            }}
-                            onClick={() => {
-                              console.log(`Assign ${item.moduleTag} to ${item.staff.name}`);
-                            }}
-                          >
-                            Assign
-                          </button>
                         </div>
                       ))
                     ) : (
@@ -3414,7 +3404,8 @@ export default function ManagerControlCenter({
                                     const url = `${window.location.origin}/dashboard?join=${venue.venueCode}`;
                                     navigator.clipboard.writeText(url);
                                     setCopiedVenueId(venue.id);
-                                    setTimeout(() => setCopiedVenueId(null), 2000);
+                                    if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+                                    copyTimeoutRef.current = setTimeout(() => setCopiedVenueId(null), 2000);
                                   }}
                                 >
                                   {copiedVenueId === venue.id ? "Copied!" : "Share link"}
@@ -3540,7 +3531,8 @@ export default function ManagerControlCenter({
                       const url = `${window.location.origin}/dashboard?join=${selectedVenue.venueCode}`;
                       navigator.clipboard.writeText(url);
                       setCopiedVenueId(`signup-${selectedVenue.id}`);
-                      setTimeout(() => setCopiedVenueId(null), 2000);
+                      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+                      copyTimeoutRef.current = setTimeout(() => setCopiedVenueId(null), 2000);
                     }}
                   >
                     {copiedVenueId === `signup-${selectedVenue.id}` ? "Copied!" : "Copy sign-up link"}

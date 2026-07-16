@@ -11,36 +11,32 @@ async function maybeMarkTrialActivated(
   admin: ReturnType<typeof createSupabaseAdminClient>,
   userEmail: string,
 ): Promise<void> {
+  // Join membership + manager profile in one query (2 round-trips instead of 3).
   const { data: membership } = await admin
     .from("venue_memberships")
-    .select("manager_id")
+    .select("manager_id, profiles!manager_id(org_id)")
     .eq("staff_email", userEmail.toLowerCase())
     .in("status", ["invited", "active"])
     .limit(1)
     .maybeSingle();
 
-  if (!membership?.manager_id) return;
-
-  const { data: managerProfile } = await admin
-    .from("profiles")
-    .select("org_id")
-    .eq("id", membership.manager_id)
-    .single();
-
-  if (!managerProfile?.org_id) return;
+  const profilesResult = membership?.profiles as { org_id: string | null }[] | { org_id: string | null } | null | undefined;
+  const orgId = Array.isArray(profilesResult) ? profilesResult[0]?.org_id : profilesResult?.org_id;
+  if (!orgId) return;
 
   const { data: org } = await admin
     .from("organizations")
     .select("trial_activated_at, trial_tier, trial_converted")
-    .eq("id", managerProfile.org_id)
+    .eq("id", orgId)
     .single();
 
-  if (org?.trial_tier && !org.trial_converted && !org.trial_activated_at) {
-    await admin
-      .from("organizations")
-      .update({ trial_activated_at: new Date().toISOString() })
-      .eq("id", managerProfile.org_id);
-  }
+  // Already activated or no trial — nothing to do.
+  if (!org?.trial_tier || org.trial_converted || org.trial_activated_at) return;
+
+  await admin
+    .from("organizations")
+    .update({ trial_activated_at: new Date().toISOString() })
+    .eq("id", orgId);
 }
 
 // Legacy 3-module string names (backward compat)
@@ -124,11 +120,6 @@ export async function POST(req: Request) {
         { status: 403 },
       );
     }
-
-      // Log access resolution for debugging
-      console.log(
-        `Training save: user=${user.id}, module=${moduleName}, moduleId=${moduleId}, tier=${access.tier}, allowed_modules=${access.allowedModules.join(",")}`
-      );
 
     // ── V3 Verify pass branch ─────────────────────────────────
     // ModuleVerify posts { verifyPassed: true, answers: [{id, answer}] }.

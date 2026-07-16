@@ -296,7 +296,7 @@ export function TrialBillingSection({
             Keep your team&apos;s training running
           </div>
           <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: 3 }}>
-            No credit card required to start — add your details now to avoid disruption.
+            Add your billing details now to keep your team's training running without interruption.
           </div>
         </div>
         <div style={{ display: "flex", gap: 10, alignItems: "center", flexShrink: 0 }}>
