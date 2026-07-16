@@ -42,6 +42,7 @@ import { ActionDrawer } from "@/app/management/dashboard/_components/ActionDrawe
 const CoachingDrawer = lazy(() => import("@/app/management/dashboard/_components/CoachingDrawer"));
 import StaffRosterPanel from "@/app/management/dashboard/_components/StaffRosterPanel";
 import { TrialStatusPill } from "./TrialStatusPill";
+import { TrialBillingSection } from "./TrialBillingSection";
 
 type SnapshotResponse = ManagementSnapshot & {
   inviteMessage?: string;
@@ -3545,30 +3546,42 @@ export default function ManagerControlCenter({
             </>)}
             {settingsTab === "billing" && (
               <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
-                <div className="ops-card-head">
-                  <h3>Billing overview</h3>
-                </div>
-                <dl className="ops-settings-list">
-                  <div>
-                    <dt>Current plan</dt>
-                    <dd>
-                      {plan === "enterprise" ? "Enterprise Plan" :
-                        plan === "commercial" ? "Commercial Plan" :
-                        plan === "boutique" ? "Boutique Plan" :
-                        plan === "multi-venue" || plan === "venue_multi" ? "Commercial Plan" :
-                        plan === "single-venue" || plan === "venue_single" ? "Boutique Plan" :
-                        plan === "pro" ? "Pro Plan" : "Free Plan"}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt>Seats used</dt>
-                    <dd>{venueStaff.length} active staff seats</dd>
-                  </div>
-                  <div>
-                    <dt>Next invoice</dt>
-                    <dd>Managed via Stripe</dd>
-                  </div>
-                </dl>
+                {trialTier && trialEndsAt && typeof daysRemaining === "number" ? (
+                  <TrialBillingSection
+                    trialTier={trialTier}
+                    trialEndsAt={trialEndsAt}
+                    daysRemaining={daysRemaining}
+                    staffCount={venueStaff.length}
+                    scenariosRun={snapshot.scenarioCategories.reduce((sum, s) => sum + s.attempts, 0)}
+                  />
+                ) : (
+                  <>
+                    <div className="ops-card-head">
+                      <h3>Billing overview</h3>
+                    </div>
+                    <dl className="ops-settings-list">
+                      <div>
+                        <dt>Current plan</dt>
+                        <dd>
+                          {plan === "enterprise" ? "Enterprise Plan" :
+                            plan === "commercial" ? "Commercial Plan" :
+                            plan === "boutique" ? "Boutique Plan" :
+                            plan === "multi-venue" || plan === "venue_multi" ? "Commercial Plan" :
+                            plan === "single-venue" || plan === "venue_single" ? "Boutique Plan" :
+                            plan === "pro" ? "Pro Plan" : "Free Plan"}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Seats used</dt>
+                        <dd>{venueStaff.length} active staff seats</dd>
+                      </div>
+                      <div>
+                        <dt>Next invoice</dt>
+                        <dd>Managed via Stripe</dd>
+                      </div>
+                    </dl>
+                  </>
+                )}
               </article>
             )}
           </section>
