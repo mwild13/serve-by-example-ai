@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 
-export const runtime = "edge";
-
 export async function POST(req: NextRequest) {
   const { user } = await getUserFromRequest(req);
   if (!user) {
