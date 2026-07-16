@@ -85,37 +85,18 @@ export default function OnboardingPage() {
     if (isSkipping) return;
     setIsSkipping(true);
     try {
-      const supabase = createSupabaseBrowserClient();
-
-      // Get fresh session from browser's auth state (more reliable than getUser)
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user?.id) {
-        // If no session, middleware should have redirected to /login already,
-        // but fallback to login just in case
-        window.location.href = "/login";
-        return;
+      const res = await fetch("/api/onboarding/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      if (!res.ok) {
+        const data = await res.json() as { error?: string };
+        console.error("Onboarding skip error:", data.error);
       }
-
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({ onboarding_completed: true })
-        .eq("id", session.user.id);
-
-      if (updateError) {
-        console.warn("Database update warning:", updateError);
-        // Don't fail on DB error — user may not have a profile row yet,
-        // but they're authenticated so proceed with redirect anyway
-      }
-
-      // Wait for DB write to propagate across replicas before redirecting
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Use hard browser redirect for bulletproof navigation
       window.location.href = "/dashboard";
     } catch (err) {
       console.error("Skip handler error:", err);
-      // User is authenticated (passed middleware), so send to dashboard
-      // even if something unexpected went wrong
       window.location.href = "/dashboard";
     }
   }
@@ -124,36 +105,19 @@ export default function OnboardingPage() {
     setSaving(true);
     setError("");
     try {
-      const supabase = createSupabaseBrowserClient();
-
-      // Get fresh session from browser's auth state (more reliable than getUser)
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user?.id) {
-        setError("Not authenticated. Please log in.");
-        setSaving(false);
-        window.location.href = "/login";
-        return;
-      }
-
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({
-          ...(skip
+      const res = await fetch("/api/onboarding/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          skip
             ? {}
-            : {
-                venue_type: venueType || null,
-                experience_level: experience || null,
-              }),
-          onboarding_completed: true,
-        })
-        .eq("id", session.user.id);
-
-      if (updateError) throw updateError;
-
-      // Wait for DB write to propagate across replicas before redirecting
-      // Use longer delay (1s) to account for replication lag
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
+            : { venueType: venueType || undefined, experienceLevel: experience || undefined }
+        ),
+      });
+      if (!res.ok) {
+        const data = await res.json() as { error?: string };
+        throw new Error(data.error ?? "Something went wrong.");
+      }
       router.push(
         stripeSessionId
           ? `/dashboard?checkout=success&session_id=${stripeSessionId}`
