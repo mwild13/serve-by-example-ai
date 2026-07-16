@@ -4,6 +4,7 @@ import Stripe from "stripe";
 import ManagerControlCenter from "@/components/mission-control/ManagerControlCenter";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
+import { getTrialStatus, getDaysRemaining } from "@/lib/trial";
 
 // Prevent static generation – this page requires auth at runtime
 export const dynamic = "force-dynamic";
@@ -74,7 +75,7 @@ export default async function ManagementDashboardPage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, plan, tier, platform_role, subscription_active")
+    .select("display_name, plan, tier, platform_role, subscription_active, org_id")
     .eq("id", user.id)
     .single();
 
@@ -96,14 +97,45 @@ export default async function ManagementDashboardPage({
   const subscriptionLapsed = profile?.subscription_active === false;
   const hasVenueAccess = (hasVenuePlan || hasVenueTier) && !subscriptionLapsed;
 
-  if (!isAdmin && !hasVenueAccess && !hasManagerRole) {
+  // Fetch org trial state — trial managers have platform_role set to venue_manager
+  // by the trial start endpoint, but we still fetch trial data to drive the sidebar pill.
+  let trialTier: string | null = null;
+  let trialEndsAt: string | null = null;
+  let daysRemaining = 0;
+
+  const orgId = (profile?.org_id ?? null) as string | null;
+  if (orgId) {
+    const adminForTrial = createSupabaseAdminClient();
+    const { data: org } = await adminForTrial
+      .from("organizations")
+      .select("trial_tier, trial_ends_at, trial_converted")
+      .eq("id", orgId)
+      .single();
+
+    const trialStatus = getTrialStatus(org);
+    if (trialStatus === "active" && org?.trial_tier && org?.trial_ends_at) {
+      trialTier = org.trial_tier as string;
+      trialEndsAt = org.trial_ends_at as string;
+      daysRemaining = getDaysRemaining(org.trial_ends_at as string);
+    }
+  }
+
+  const hasTrialAccess = !!trialTier;
+
+  if (!isAdmin && !hasVenueAccess && !hasManagerRole && !hasTrialAccess) {
     redirect("/pricing");
   }
 
   return (
     <div className="management-app-root">
       <Suspense fallback={null}>
-        <ManagerControlCenter plan={plan} displayName={displayName} />
+        <ManagerControlCenter
+          plan={plan}
+          displayName={displayName}
+          trialTier={trialTier}
+          trialEndsAt={trialEndsAt}
+          daysRemaining={daysRemaining}
+        />
       </Suspense>
     </div>
   );

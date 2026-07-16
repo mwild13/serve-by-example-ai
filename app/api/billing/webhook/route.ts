@@ -323,7 +323,7 @@ async function upsertOrganization(
     seatLimit: number;
   },
 ) {
-  // Check for existing org by stripe_customer_id first (returning subscriber)
+  // Check for existing org by stripe_customer_id first (returning subscriber / upgrade)
   const { data: existing } = await supabase
     .from("organizations")
     .select("id")
@@ -344,7 +344,31 @@ async function upsertOrganization(
     return;
   }
 
-  // New org — insert and link to profile
+  // Fall back to owner lookup — handles trial → paid conversion where the trial org
+  // was created without a Stripe customer ID. Attaches the Stripe customer ID and
+  // marks the trial as converted in a single update.
+  const { data: profileData } = await supabase
+    .from("profiles")
+    .select("org_id")
+    .eq("id", opts.ownerUserId)
+    .single();
+
+  if (profileData?.org_id) {
+    await supabase
+      .from("organizations")
+      .update({
+        stripe_customer_id: opts.stripeCustomerId,
+        subscription_tier: opts.tier,
+        seat_limit: opts.seatLimit,
+        trial_converted: true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", profileData.org_id);
+    // Profile link already correct — no update needed
+    return;
+  }
+
+  // No existing org — insert and link to profile
   const { data: newOrg } = await supabase
     .from("organizations")
     .insert({

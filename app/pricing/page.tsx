@@ -44,8 +44,36 @@ export default function PricingPage() {
     }
   }
 
+  async function handleTrialStart(tier: string) {
+    setLoading(`trial-${tier}`);
+    setCheckoutError(null);
+    try {
+      const res = await fetch("/api/billing/trial/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tier }),
+      });
+      if (res.status === 401) {
+        window.location.href = `/login?intent=trial&tier=${tier}`;
+        return;
+      }
+      const data = await res.json();
+      if (res.ok) {
+        window.location.href = "/management/dashboard";
+      } else {
+        setLoading(null);
+        setCheckoutError(data.error || "Unable to start trial. Please try again.");
+      }
+    } catch {
+      setLoading(null);
+      setCheckoutError("Network error. Please try again.");
+    }
+  }
+
   const isLoading = (monthly: string, yearly: string) =>
     loading === monthly || loading === yearly;
+
+  const isTrialLoading = (tier: string) => loading === `trial-${tier}`;
 
   return (
     <div className="page-shell">
@@ -207,18 +235,15 @@ export default function PricingPage() {
                   <li>Venue onboarding framework</li>
                 </ul>
                 <button
-                  className="btn btn-secondary"
-                  onClick={() =>
-                    handleCheckout(
-                      billing === "monthly" ? "boutique" : "boutique_yearly",
-                    )
-                  }
-                  disabled={isLoading("boutique", "boutique_yearly")}
+                  className="btn btn-primary"
+                  onClick={() => handleTrialStart("boutique")}
+                  disabled={isTrialLoading("boutique")}
                 >
-                  {isLoading("boutique", "boutique_yearly")
-                    ? "Redirecting..."
-                    : "Get Started"}
+                  {isTrialLoading("boutique") ? "Starting..." : "Start Free Trial"}
                 </button>
+                <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: 8, textAlign: "center" }}>
+                  14 days free — no credit card required
+                </p>
               </div>
 
               {/* Commercial */}
@@ -239,18 +264,15 @@ export default function PricingPage() {
                   <li>Priority support</li>
                 </ul>
                 <button
-                  className="btn btn-secondary"
-                  onClick={() =>
-                    handleCheckout(
-                      billing === "monthly" ? "commercial" : "commercial_yearly",
-                    )
-                  }
-                  disabled={isLoading("commercial", "commercial_yearly")}
+                  className="btn btn-primary"
+                  onClick={() => handleTrialStart("commercial")}
+                  disabled={isTrialLoading("commercial")}
                 >
-                  {isLoading("commercial", "commercial_yearly")
-                    ? "Redirecting..."
-                    : "Get Started"}
+                  {isTrialLoading("commercial") ? "Starting..." : "Start Free Trial"}
                 </button>
+                <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: 8, textAlign: "center" }}>
+                  14 days free — no credit card required
+                </p>
               </div>
 
               {/* Enterprise */}

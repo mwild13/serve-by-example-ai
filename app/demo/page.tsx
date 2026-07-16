@@ -164,9 +164,9 @@ export default function DemoPage() {
         <section className="inner-hero demo-inner-hero">
           <div className="container">
             <div className="eyebrow">Interactive demo</div>
-            <h1>Try a real hospitality scenario</h1>
+            <h1>Try a real hospo scenario</h1>
             <p className="inner-hero-sub">
-              Pick a module, respond like you are on shift, then see how the system evaluates your answer.
+              Pick a module, respond, have your answer evaluated.
             </p>
           </div>
         </section>

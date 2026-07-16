@@ -41,6 +41,7 @@ import { ActionDrawer } from "@/app/management/dashboard/_components/ActionDrawe
 
 const CoachingDrawer = lazy(() => import("@/app/management/dashboard/_components/CoachingDrawer"));
 import StaffRosterPanel from "@/app/management/dashboard/_components/StaffRosterPanel";
+import { TrialStatusPill } from "./TrialStatusPill";
 
 type SnapshotResponse = ManagementSnapshot & {
   inviteMessage?: string;
@@ -178,10 +179,16 @@ export default function ManagerControlCenter({
   initialSnapshot,
   plan,
   displayName,
+  trialTier,
+  trialEndsAt,
+  daysRemaining,
 }: {
   initialSnapshot?: ManagementSnapshot;
   plan?: string;
   displayName?: string;
+  trialTier?: string | null;
+  trialEndsAt?: string | null;
+  daysRemaining?: number;
 }) {
   const isMultiVenue = plan === "multi-venue" || plan === "venue_multi";
 
@@ -1149,6 +1156,13 @@ export default function ManagerControlCenter({
           })}
         </nav>
         <div className="ops-sidebar-footer">
+          {trialTier && trialEndsAt && typeof daysRemaining === "number" && (
+            <TrialStatusPill
+              trialTier={trialTier}
+              trialEndsAt={trialEndsAt}
+              daysRemaining={daysRemaining}
+            />
+          )}
           <SignOutButton />
         </div>
       </aside>

@@ -85,7 +85,10 @@
       "Bash(sed -i '' \"s|from './manager-types'|from '@/components/mission-control/manager-types'|g\" app/management/dashboard/_components/ManagementTopbar.tsx)",
       "Bash(sed -i '' 's|from \"\\\\./manager-types\"|from \"@/components/mission-control/manager-types\"|g' app/management/dashboard/_components/ManagementTopbar.tsx)",
       "Bash(sed -i '' \"s|from './manager-ui'|from '@/components/mission-control/manager-ui'|g\" app/management/dashboard/_components/CoachingDrawer.tsx)",
-      "Bash(sed -i '' 's|from \"\\\\./manager-ui\"|from \"@/components/mission-control/manager-ui\"|g' app/management/dashboard/_components/CoachingDrawer.tsx)"
+      "Bash(sed -i '' 's|from \"\\\\./manager-ui\"|from \"@/components/mission-control/manager-ui\"|g' app/management/dashboard/_components/CoachingDrawer.tsx)",
+      "mcp__claude-in-chrome__computer",
+      "mcp__claude-in-chrome__read_network_requests",
+      "mcp__claude-in-chrome__read_console_messages"
     ]
   }
 }
