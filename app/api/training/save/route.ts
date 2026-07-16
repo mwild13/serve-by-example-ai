@@ -7,6 +7,42 @@ import { VERIFY_QUESTIONS } from "@/lib/verify-questions";
 
 const VERIFY_PASS_THRESHOLD = 4; // must match ModuleVerify PASS_THRESHOLD
 
+async function maybeMarkTrialActivated(
+  admin: ReturnType<typeof createSupabaseAdminClient>,
+  userEmail: string,
+): Promise<void> {
+  const { data: membership } = await admin
+    .from("venue_memberships")
+    .select("manager_id")
+    .eq("staff_email", userEmail.toLowerCase())
+    .in("status", ["invited", "active"])
+    .limit(1)
+    .maybeSingle();
+
+  if (!membership?.manager_id) return;
+
+  const { data: managerProfile } = await admin
+    .from("profiles")
+    .select("org_id")
+    .eq("id", membership.manager_id)
+    .single();
+
+  if (!managerProfile?.org_id) return;
+
+  const { data: org } = await admin
+    .from("organizations")
+    .select("trial_activated_at, trial_tier, trial_converted")
+    .eq("id", managerProfile.org_id)
+    .single();
+
+  if (org?.trial_tier && !org.trial_converted && !org.trial_activated_at) {
+    await admin
+      .from("organizations")
+      .update({ trial_activated_at: new Date().toISOString() })
+      .eq("id", managerProfile.org_id);
+  }
+}
+
 // Legacy 3-module string names (backward compat)
 const LEGACY_MODULES = ["bartending", "sales", "management"] as const;
 type LegacyModule = (typeof LEGACY_MODULES)[number];
@@ -122,6 +158,7 @@ export async function POST(req: Request) {
       });
       if (user.email) {
         await syncMasteryToVenueStaff(admin, user.id, user.email);
+        await maybeMarkTrialActivated(admin, user.email);
       }
 
       // ── SBE Elite badge check (only on a fresh mastery, once per lifetime) ──
@@ -286,6 +323,7 @@ export async function POST(req: Request) {
     // ── Sync mastery data to venue_staff for management dashboard ──
     if (user.email) {
       await syncMasteryToVenueStaff(admin, user.id, user.email);
+      await maybeMarkTrialActivated(admin, user.email);
     }
 
     return NextResponse.json({
