@@ -3552,7 +3552,7 @@ export default function ManagerControlCenter({
                     trialEndsAt={trialEndsAt}
                     daysRemaining={daysRemaining}
                     staffCount={venueStaff.length}
-                    scenariosRun={snapshot.scenarioCategories.reduce((sum, s) => sum + s.attempts, 0)}
+                    scenariosRun={snapshot.staff.reduce((sum, m) => sum + (m.scenariosAttempted ?? 0), 0)}
                   />
                 ) : (
                   <>
