@@ -247,6 +247,16 @@ function mapStaff(row: Record<string, unknown>): StaffMember {
     scenariosMastered: typeof row.scenarios_mastered === "number" ? row.scenarios_mastered : undefined,
     scenariosAttempted: typeof row.scenarios_attempted === "number" ? row.scenarios_attempted : undefined,
     staffUserId: typeof row.staff_user_id === "string" ? row.staff_user_id : null,
+    compliance: (row.rsa_expiry_date !== undefined || row.fss_expiry_date !== undefined || row.shift_confirmed !== undefined) ? {
+      staffId: asString(row.id, ""),
+      rsaJurisdiction: (typeof row.rsa_jurisdiction === "string" ? row.rsa_jurisdiction : "") as import("./types").AustralianState,
+      rsaExpiryDate: typeof row.rsa_expiry_date === "string" ? row.rsa_expiry_date : null,
+      fssExpiryDate: typeof row.fss_expiry_date === "string" ? row.fss_expiry_date : null,
+      fssOnSiteCopy: row.fss_on_site_copy === true,
+      shiftConfirmed: row.shift_confirmed === true,
+    } : undefined,
+    isJunior: row.is_junior === true,
+    managerNotes: typeof row.manager_notes === "string" ? row.manager_notes : null,
   };
 }
 
@@ -351,7 +361,7 @@ async function getStaffRows(
 ): Promise<QueryResult<Record<string, unknown>[]>> {
   const latestStaffQuery = await supabase
     .from("venue_staff")
-    .select("id, venue_id, name, email, role, progress, service_score, sales_score, product_score, last_active_at, status, strengths, improvements, mastery_status, elo_rating, knowledge_decay_risk, high_confidence_incorrect_ratio, scenarios_mastered, scenarios_attempted, staff_user_id")
+    .select("id, venue_id, name, email, role, progress, service_score, sales_score, product_score, last_active_at, status, strengths, improvements, mastery_status, elo_rating, knowledge_decay_risk, high_confidence_incorrect_ratio, scenarios_mastered, scenarios_attempted, staff_user_id, rsa_expiry_date, rsa_jurisdiction, fss_expiry_date, fss_on_site_copy, is_junior, shift_confirmed, manager_notes")
     .in("venue_id", venueIds)
     .order("created_at", { ascending: true });
 
@@ -746,6 +756,42 @@ export async function renameVenue(
     .update({ name })
     .eq("id", venueId)
     .eq("owner_user_id", userId);
+
+  if (error) throw error;
+}
+
+export async function updateStaffMember(
+  supabase: ManagementSupabaseClient,
+  managerId: string,
+  staffId: string,
+  updates: {
+    name?: string;
+    role?: StaffRole;
+    rsaExpiryDate?: string | null;
+    rsaJurisdiction?: string;
+    fssExpiryDate?: string | null;
+    fssOnSiteCopy?: boolean;
+    isJunior?: boolean;
+    managerNotes?: string | null;
+  },
+) {
+  const payload: Record<string, unknown> = {};
+  if (updates.name !== undefined) payload.name = updates.name;
+  if (updates.role !== undefined) payload.role = updates.role;
+  if (updates.rsaExpiryDate !== undefined) payload.rsa_expiry_date = updates.rsaExpiryDate || null;
+  if (updates.rsaJurisdiction !== undefined) payload.rsa_jurisdiction = updates.rsaJurisdiction;
+  if (updates.fssExpiryDate !== undefined) payload.fss_expiry_date = updates.fssExpiryDate || null;
+  if (updates.fssOnSiteCopy !== undefined) payload.fss_on_site_copy = updates.fssOnSiteCopy;
+  if (updates.isJunior !== undefined) payload.is_junior = updates.isJunior;
+  if (updates.managerNotes !== undefined) payload.manager_notes = updates.managerNotes;
+
+  if (Object.keys(payload).length === 0) return;
+
+  const { error } = await supabase
+    .from("venue_staff")
+    .update(payload)
+    .eq("id", staffId)
+    .eq("manager_user_id", managerId);
 
   if (error) throw error;
 }

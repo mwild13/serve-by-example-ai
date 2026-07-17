@@ -210,8 +210,8 @@ export default function ManagerControlCenter({
   }
 
   const settingsTab =
-    (searchParams.get("subtab") as "setup" | "billing" | null) ?? "setup";
-  function setSettingsTab(subtab: "setup" | "billing") {
+    (searchParams.get("subtab") as "setup" | "billing" | "account" | null) ?? "setup";
+  function setSettingsTab(subtab: "setup" | "billing" | "account") {
     router.replace(`?tab=settings&subtab=${subtab}`, { scroll: false });
   }
 
@@ -311,7 +311,17 @@ export default function ManagerControlCenter({
     })();
   }, [initialSnapshot, apiFetch]);
 
-  const [revenueTransactionValue, setRevenueTransactionValue] = useState(45);
+  const [revenueTransactionValue, setRevenueTransactionValue] = useState(() => {
+    if (typeof window === 'undefined') return 45;
+    try {
+      const v = localStorage.getItem('sbe_revenue_slider');
+      return v ? Math.max(5, Math.min(300, Number(v))) : 45;
+    } catch { return 45; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem('sbe_revenue_slider', String(revenueTransactionValue)); } catch { /* storage unavailable */ }
+  }, [revenueTransactionValue]);
+
   const [aiCoachInput, setAiCoachInput] = useState("");
   const [aiCoachMessages, setAiCoachMessages] = useState<Array<{ role: "user" | "coach"; content: string }>>([]);
   const [aiCoachLoading, setAiCoachLoading] = useState(false);
@@ -320,9 +330,30 @@ export default function ManagerControlCenter({
   const [dismissedNotifs, setDismissedNotifs] = useState<Set<string>>(new Set());
   const [showArchivedNotifs, setShowArchivedNotifs] = useState(false);
   const [reportSearch, setReportSearch] = useState("");
+  const [reportSortKey, setReportSortKey] = useState<"name" | "role" | "progress" | "service" | "sales" | "product">("progress");
+  const [reportSortDir, setReportSortDir] = useState<"asc" | "desc">("desc");
   const [aiCoachFeedback, setAiCoachFeedback] = useState<Record<number, "up" | "down">>({});
   // settingsTab is now derived from URL via setSettingsTab shim above
   const [venueDeleteConfirm, setVenueDeleteConfirm] = useState<{ venueId: string; venueName: string } | null>(null);
+  const [accountDisplayName, setAccountDisplayName] = useState(displayName ?? "");
+  const [accountSaving, setAccountSaving] = useState(false);
+  const [accountSaved, setAccountSaved] = useState(false);
+
+  // A30 — Staff recognition
+  const [recogniseTarget, setRecogniseTarget] = useState<{ id: string; name: string } | null>(null);
+  const [recogniseMessage, setRecogniseMessage] = useState("");
+  const [recogniseSaving, setRecogniseSaving] = useState(false);
+  const [recogniseSent, setRecogniseSent] = useState(false);
+
+  // A31 — AI Coach history
+  const [aiCoachHistoryLoaded, setAiCoachHistoryLoaded] = useState(false);
+
+  // A27 — Report schedule
+  const [reportScheduleEnabled, setReportScheduleEnabled] = useState(false);
+  const [reportScheduleDay, setReportScheduleDay] = useState(1);
+  const [reportScheduleSaving, setReportScheduleSaving] = useState(false);
+  const [reportScheduleSaved, setReportScheduleSaved] = useState(false);
+
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -341,6 +372,22 @@ export default function ManagerControlCenter({
     const venue = snapshot.venues.find((v) => v.id === selectedVenueId) ?? snapshot.venues[0];
     if (venue) setRenameVenueName(venue.name);
   }, [selectedVenueId, snapshot.venues]);
+
+  // A31 — Load AI Coach history the first time the user opens the AI Coach section
+  useEffect(() => {
+    if (activeSection !== "aicoach" || aiCoachHistoryLoaded || aiCoachMessages.length > 0) return;
+    setAiCoachHistoryLoaded(true);
+    const qs = selectedVenueId ? `?venueId=${encodeURIComponent(selectedVenueId)}&limit=40` : "?limit=40";
+    apiFetch(`/api/management/coach/history${qs}`)
+      .then((r) => r.json())
+      .then((data: { messages?: Array<{ role: "user" | "coach"; content: string }> }) => {
+        if (Array.isArray(data.messages) && data.messages.length > 0) {
+          setAiCoachMessages(data.messages);
+        }
+      })
+      .catch(() => { /* non-blocking */ });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSection]);
 
   const selectedVenue = snapshot.venues.find((venue) => venue.id === selectedVenueId) ?? snapshot.venues[0];
   const venueStaff = useMemo(
@@ -833,11 +880,61 @@ export default function ManagerControlCenter({
         setAiCoachMessages((prev) => [...prev, { role: "coach", content: `Error: ${data.error}` }]);
       } else {
         setAiCoachMessages((prev) => [...prev, { role: "coach", content: data.answer }]);
+        // A31 — persist exchange to DB (fire and forget)
+        apiFetch("/api/management/coach/history", {
+          method: "POST",
+          body: JSON.stringify({
+            venueId: selectedVenueId,
+            messages: [
+              { role: "user", content: question },
+              { role: "coach", content: data.answer },
+            ],
+          }),
+        }).catch(() => { /* non-blocking */ });
       }
     } catch {
       setAiCoachMessages((prev) => [...prev, { role: "coach", content: "Unable to reach AI coach. Check your connection." }]);
     } finally {
       setAiCoachLoading(false);
+    }
+  }
+
+  // A30 — Send staff recognition
+  async function handleSendRecognition() {
+    if (!recogniseTarget || !recogniseMessage.trim() || recogniseSaving) return;
+    setRecogniseSaving(true);
+    try {
+      await apiFetch("/api/management/recognitions", {
+        method: "POST",
+        body: JSON.stringify({ staffId: recogniseTarget.id, message: recogniseMessage.trim() }),
+      });
+      setRecogniseSent(true);
+      setTimeout(() => {
+        setRecogniseTarget(null);
+        setRecogniseMessage("");
+        setRecogniseSent(false);
+      }, 2000);
+    } catch { /* silent */ } finally {
+      setRecogniseSaving(false);
+    }
+  }
+
+  // A27 — Save weekly report schedule
+  async function handleSaveReportSchedule() {
+    if (!selectedVenueId) return;
+    setReportScheduleSaving(true);
+    try {
+      await apiFetch("/api/management/venues", {
+        method: "PATCH",
+        body: JSON.stringify({
+          venueId: selectedVenueId,
+          reportSchedule: { enabled: reportScheduleEnabled, dayOfWeek: reportScheduleDay },
+        }),
+      });
+      setReportScheduleSaved(true);
+      setTimeout(() => setReportScheduleSaved(false), 3000);
+    } catch { /* silent */ } finally {
+      setReportScheduleSaving(false);
     }
   }
 
@@ -1544,6 +1641,7 @@ export default function ManagerControlCenter({
                             ? "warn"
                             : "critical"
                         }
+                        title={`Venue Health ${metrics.venueHealthScore}/100 — Service quality ${metrics.serviceSkill}% (40%) · Sales performance ${metrics.salesSkill}% (30%) · Product knowledge ${metrics.productSkill}% (30%)`}
                       >
                         Venue Health: {metrics.venueHealthScore}/100
                       </div>
@@ -1567,6 +1665,15 @@ export default function ManagerControlCenter({
                   }
                 />
               </div>
+
+              {/* ── Level 1 Compliance Banner (30-day warning) ── */}
+              {venueStaff.some(s => rsaStatus(s.compliance).level === 1) && (
+                <div style={{ padding: "12px 28px 0 28px" }}>
+                  <div style={{ background: 'var(--gold-light)', border: '1px solid var(--gold)', color: 'var(--text)', borderRadius: 'var(--radius-md)', padding: '12px 16px', fontSize: '0.9rem' }}>
+                    Compliance reminder: {venueStaff.filter(s => rsaStatus(s.compliance).level === 1).length} staff member{venueStaff.filter(s => rsaStatus(s.compliance).level === 1).length > 1 ? 's have' : ' has'} RSA certifications expiring within 30 days. Plan renewals early.
+                  </div>
+                </div>
+              )}
 
               {/* ── Level 2 Compliance Banner (7-day alert) ── */}
               {venueStaff.some(s => rsaStatus(s.compliance).level >= 2) && (
@@ -1593,15 +1700,13 @@ export default function ManagerControlCenter({
                       sub: "Service · sales · product",
                       data: mgrMockSpark(metrics.avgScenarioScore),
                       accent: "var(--mcc-sage)",
-                      trend: metrics.avgScenarioScore > 0 ? { dir: "up", delta: 5 } : undefined,
-                    },
+                      },
                     {
                       label: "Training completion",
                       value: formatPercent(metrics.avgCompletion),
                       sub: "Across all modules",
                       data: mgrMockSpark(metrics.avgCompletion),
                       accent: "var(--mcc-amber)",
-                      trend: metrics.avgCompletion > 0 ? { dir: "up", delta: 12 } : undefined,
                     },
                     {
                       label: "Upsell performance",
@@ -1609,7 +1714,6 @@ export default function ManagerControlCenter({
                       sub: "Last 7 days",
                       data: mgrMockSpark(metrics.salesSkill),
                       accent: "var(--mcc-terra)",
-                      trend: metrics.salesSkill > 0 ? { dir: "down", delta: 4 } : undefined,
                     },
                     {
                       label: "Staff health",
@@ -1630,7 +1734,7 @@ export default function ManagerControlCenter({
                   const completionRate = metrics.avgCompletion;
                   const targetCompletion = Math.min(100, completionRate + 20);
                   const staffCount = venueStaff.length || 1;
-                  const avgCheckSize = 45;
+                  const avgCheckSize = revenueTransactionValue;
                   const weeklyBaselineCheck = staffCount * 5 * avgCheckSize * (completionRate / 100);
                   const weeklyProjectedChecks = staffCount * 5 * avgCheckSize * (targetCompletion / 100);
                   const weeklyIncrement = Math.round(weeklyProjectedChecks - weeklyBaselineCheck);
@@ -2053,7 +2157,10 @@ export default function ManagerControlCenter({
                               </span>
                               <button
                                 type="button"
-                                onClick={() => handleSectionChange("scenarios")}
+                                onClick={() => {
+                                  setAiCoachInput(`What specific training should I assign to close the ${team.weakest} skill gap for my ${team.label} team?`);
+                                  handleSectionChange("aicoach");
+                                }}
                                 style={{ fontSize: "0.72rem", color: "var(--mcc-forest-700)", background: "none", border: "none", cursor: "pointer", padding: 0, fontWeight: 600 }}
                               >
                                 Resolve →
@@ -2217,6 +2324,14 @@ export default function ManagerControlCenter({
                     <span style={{ fontSize: "0.72rem", padding: "2px 8px", borderRadius: 999, background: "#fef9c3", color: "#92400e", fontWeight: 700, border: "1px solid #fde68a" }}>Manager column = elevated access</span>
                   </div>
                 </div>
+                <div style={{ display: "flex", gap: 16, marginBottom: 12, fontSize: "0.78rem", color: "var(--mcc-ink-500)" }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                    <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: "#1E5A3C" }} /> Permitted
+                  </span>
+                  <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                    <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: "#e5e7eb" }} /> No access
+                  </span>
+                </div>
                 <div style={{ overflowX: "auto" }}>
                   <table className="mgmt-table">
                     <thead>
@@ -2283,7 +2398,13 @@ export default function ManagerControlCenter({
           </section>
         )}
 
-        {activeSection === "compliance" && <ComplianceHub venueStaff={venueStaff} />}
+        {activeSection === "compliance" && (
+          <ComplianceHub
+            venueStaff={venueStaff}
+            sessionToken={sessionToken}
+            onSnapshotUpdate={(updated) => setSnapshot(updated)}
+          />
+        )}
 
         {activeSection === "analytics" && (
           <>
@@ -2336,28 +2457,33 @@ export default function ManagerControlCenter({
                 />
                 <div className="ops-compare-grid">
                   <div className="ops-compare-row ops-compare-head">
-                    <span>Metric</span><span>This week</span><span>Last week</span><span>Change</span>
+                    <span>Metric</span><span>Current</span><span>Active this week</span>
                   </div>
                   {[
-                    { label: "Training completion", current: metrics.avgCompletion, prev: Math.max(0, metrics.avgCompletion - 12) },
-                    { label: "Scenario score", current: metrics.avgScenarioScore, prev: Math.max(0, metrics.avgScenarioScore - 5) },
-                    { label: "Upsell rate", current: metrics.salesSkill, prev: Math.max(0, metrics.salesSkill + 4) },
-                    { label: "Active staff", current: metrics.activeThisWeek, prev: Math.max(0, metrics.activeThisWeek - 1), isCount: true },
+                    { label: "Training completion", current: metrics.avgCompletion, suffix: "%" },
+                    { label: "Scenario score", current: metrics.avgScenarioScore, suffix: "%" },
+                    { label: "Upsell rate", current: metrics.salesSkill, suffix: "%" },
+                    { label: "Active staff", current: metrics.activeThisWeek, suffix: "" },
                   ].map((row) => {
-                    const delta = row.current - row.prev;
-                    const suffix = row.isCount ? "" : "%";
+                    const activeCount = venueStaff.filter((s) => {
+                      if (!s.lastActive) return false;
+                      const str = s.lastActive.toLowerCase();
+                      return str.includes("today") || str.includes("yesterday") || (str.includes("day") && parseInt(str) <= 7);
+                    }).length;
                     return (
                       <div key={row.label} className="ops-compare-row">
                         <span>{row.label}</span>
-                        <span>{row.current > 0 ? `${row.current}${suffix}` : "–"}</span>
-                        <span>{row.prev > 0 ? `${row.prev}${suffix}` : "–"}</span>
-                        <span style={{ fontWeight: 700, color: delta > 0 ? "#16a34a" : delta < 0 ? "var(--text-soft)" : "var(--mcc-ink-400)" }}>
-                          {delta > 0 ? `↑ ${delta}${suffix}` : delta < 0 ? `↓ ${Math.abs(delta)}${suffix}` : "–"}
+                        <span>{row.current > 0 ? `${row.current}${row.suffix}` : "–"}</span>
+                        <span style={{ color: "var(--mcc-ink-500)" }}>
+                          {row.label === "Active staff" ? `${activeCount} trained in last 7d` : "—"}
                         </span>
                       </div>
                     );
                   })}
                 </div>
+                <p style={{ fontSize: "0.72rem", color: "var(--mcc-ink-400)", margin: "10px 0 0", fontStyle: "italic" }}>
+                  Week-on-week trend comparison will appear once historical tracking is live.
+                </p>
               </article>
             </section>
 
@@ -2468,8 +2594,18 @@ export default function ManagerControlCenter({
           const fullyCompliant = venueStaff.filter((s) =>
             (reqModules[s.role] ?? []).every((m) => hasModule(s, m))
           );
-          const sortedByProgress = [...venueStaff].sort((a, b) => b.progress - a.progress);
-          const topPerformers = sortedByProgress.filter((s) => s.progress > 0).slice(0, 3);
+          const sortedByProgress = [...venueStaff].sort((a, b) => {
+            const m = reportSortDir === "asc" ? 1 : -1;
+            switch (reportSortKey) {
+              case "name":    return m * a.name.localeCompare(b.name);
+              case "role":    return m * a.role.localeCompare(b.role);
+              case "service": return m * (a.serviceScore - b.serviceScore);
+              case "sales":   return m * (a.salesScore - b.salesScore);
+              case "product": return m * (a.productScore - b.productScore);
+              default:        return m * (a.progress - b.progress);
+            }
+          });
+          const topPerformers = [...venueStaff].sort((a, b) => b.progress - a.progress).filter((s) => s.progress > 0).slice(0, 3);
           const needsHelp = venueStaff.filter((s) => s.status !== "on-track").slice(0, 5);
 
           const statusBadge = (status: string, progress?: number) => {
@@ -2547,8 +2683,26 @@ export default function ManagerControlCenter({
                         <table className="mgmt-table">
                           <thead>
                             <tr>
-                              {["Staff member", "Role", "Progress", "Service", "Sales", "Product", "Status"].map((h) => (
-                                <th key={h} style={{ whiteSpace: "nowrap" }}>{h}</th>
+                              {([
+                                ["Staff member", "name"],
+                                ["Role", "role"],
+                                ["Progress", "progress"],
+                                ["Service", "service"],
+                                ["Sales", "sales"],
+                                ["Product", "product"],
+                                ["Cert", null],
+                                ["Status", null],
+                              ] as [string, typeof reportSortKey | null][]).map(([h, key]) => (
+                                <th
+                                  key={h}
+                                  style={{ whiteSpace: "nowrap", cursor: key ? "pointer" : "default", userSelect: "none" }}
+                                  onClick={key ? () => {
+                                    if (reportSortKey === key) setReportSortDir(d => d === "asc" ? "desc" : "asc");
+                                    else { setReportSortKey(key); setReportSortDir("desc"); }
+                                  } : undefined}
+                                >
+                                  {h}{key && reportSortKey === key ? (reportSortDir === "desc" ? " ↓" : " ↑") : ""}
+                                </th>
                               ))}
                             </tr>
                           </thead>
@@ -2568,6 +2722,19 @@ export default function ManagerControlCenter({
                                 <td style={{ padding: "8px 10px", textAlign: "center", fontWeight: 600, color: "var(--mcc-ink-700)" }}>{s.serviceScore}%</td>
                                 <td style={{ padding: "8px 10px", textAlign: "center", fontWeight: 600, color: "var(--mcc-ink-700)" }}>{s.salesScore}%</td>
                                 <td style={{ padding: "8px 10px", textAlign: "center", fontWeight: 600, color: "var(--mcc-ink-700)" }}>{s.productScore}%</td>
+                                <td style={{ padding: "8px 10px", textAlign: "center" }}>
+                                  {(() => {
+                                    const rsa = rsaStatus(s.compliance);
+                                    const color = rsa.level === 0 ? "#15803d" : rsa.level === 1 ? "#d97706" : "#dc2626";
+                                    const bg = rsa.level === 0 ? "#f0fdf4" : rsa.level === 1 ? "#fefce8" : "#fef2f2";
+                                    const label = rsa.level === 0 ? "OK" : rsa.level === 1 ? "30d" : rsa.level === 2 ? "7d" : "–";
+                                    return (
+                                      <span title={rsa.label} style={{ display: "inline-block", padding: "2px 7px", borderRadius: 999, fontSize: "0.7rem", fontWeight: 700, background: bg, color }}>
+                                        {label}
+                                      </span>
+                                    );
+                                  })()}
+                                </td>
                                 <td style={{ padding: "8px 10px" }}>{statusBadge(s.status, s.progress)}</td>
                               </tr>
                             ))}
@@ -2584,7 +2751,14 @@ export default function ManagerControlCenter({
                           Top performers
                         </div>
                         {topPerformers.map((s, i) => (
-                          <div key={s.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: i < topPerformers.length - 1 ? "1px solid var(--mcc-border)" : "none" }}>
+                          <div
+                            key={s.id}
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => { setSelectedStaffId(s.id); setCoachingDrawerOpen(true); }}
+                            onKeyDown={(e) => e.key === "Enter" && (setSelectedStaffId(s.id), setCoachingDrawerOpen(true))}
+                            style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: i < topPerformers.length - 1 ? "1px solid var(--mcc-border)" : "none", cursor: "pointer" }}
+                          >
                             <div>
                               <div style={{ fontWeight: 600, fontSize: "0.875rem", color: "var(--mcc-ink-900)" }}>{s.name}</div>
                               <div style={{ fontSize: "0.75rem", color: "var(--mcc-ink-500)" }}>{s.role}</div>
@@ -2611,7 +2785,14 @@ export default function ManagerControlCenter({
                           </div>
                         ) : (
                           needsHelp.map((s, i) => (
-                            <div key={s.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: i < needsHelp.length - 1 ? "1px solid #fed7aa" : "none" }}>
+                            <div
+                              key={s.id}
+                              role="button"
+                              tabIndex={0}
+                              onClick={() => { setSelectedStaffId(s.id); setCoachingDrawerOpen(true); }}
+                              onKeyDown={(e) => e.key === "Enter" && (setSelectedStaffId(s.id), setCoachingDrawerOpen(true))}
+                              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: i < needsHelp.length - 1 ? "1px solid #fed7aa" : "none", cursor: "pointer" }}
+                            >
                               <div>
                                 <div style={{ fontWeight: 600, fontSize: "0.875rem", color: "#7c2d12" }}>{s.name}</div>
                                 <div style={{ fontSize: "0.75rem", color: "#92400e" }}>{s.role} · {s.lastActive}</div>
@@ -2646,6 +2827,50 @@ export default function ManagerControlCenter({
                         ))}
                       </div>
                     </div>
+
+                    {/* A27 — Weekly report schedule */}
+                    <div style={{ marginTop: "1.25rem", padding: "16px 20px", borderRadius: 12, border: "1.5px solid var(--mcc-border)", background: "var(--mcc-bg)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: reportScheduleEnabled ? 14 : 0 }}>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: "0.875rem", color: "var(--mcc-ink-800)" }}>Weekly email report</div>
+                          <div style={{ fontSize: "0.75rem", color: "var(--mcc-ink-500)", marginTop: 2 }}>Receive a summary of this venue&apos;s training progress by email</div>
+                        </div>
+                        <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+                          <input
+                            type="checkbox"
+                            checked={reportScheduleEnabled}
+                            onChange={(e) => setReportScheduleEnabled(e.target.checked)}
+                            style={{ width: 16, height: 16, cursor: "pointer" }}
+                          />
+                          <span style={{ fontSize: "0.8rem", color: "var(--mcc-ink-600)", fontWeight: 600 }}>{reportScheduleEnabled ? "On" : "Off"}</span>
+                        </label>
+                      </div>
+                      {reportScheduleEnabled && (
+                        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                          <label style={{ fontSize: "0.8rem", color: "var(--mcc-ink-600)", fontWeight: 600 }}>
+                            Day:
+                            <select
+                              value={reportScheduleDay}
+                              onChange={(e) => setReportScheduleDay(Number(e.target.value))}
+                              style={{ marginLeft: 6, padding: "4px 8px", borderRadius: 6, border: "1.5px solid var(--mcc-border)", background: "var(--mcc-bg)", color: "var(--mcc-ink-700)", fontSize: "0.8rem" }}
+                            >
+                              {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map((d, i) => (
+                                <option key={d} value={i}>{d}</option>
+                              ))}
+                            </select>
+                          </label>
+                          <button
+                            type="button"
+                            onClick={handleSaveReportSchedule}
+                            disabled={reportScheduleSaving}
+                            style={{ padding: "6px 16px", borderRadius: 7, border: "none", background: "var(--green)", color: "white", fontWeight: 700, fontSize: "0.8rem", cursor: reportScheduleSaving ? "not-allowed" : "pointer", opacity: reportScheduleSaving ? 0.6 : 1 }}
+                          >
+                            {reportScheduleSaving ? "Saving…" : "Save"}
+                          </button>
+                          {reportScheduleSaved && <span style={{ fontSize: "0.8rem", color: "var(--green)", fontWeight: 600 }}>Saved</span>}
+                        </div>
+                      )}
+                    </div>
                   </>
                 )}
               </article>
@@ -2661,7 +2886,16 @@ export default function ManagerControlCenter({
               const avgB = (b.serviceScore + b.salesScore + b.productScore) / 3;
               return avgB - avgA;
             }),
-            active: [...venueStaff].filter((s) => s.status === "on-track").sort((a, b) => b.progress - a.progress),
+            active: [...venueStaff].filter((s) => s.status === "on-track").sort((a, b) => {
+              const parseLastActive = (str: string) => {
+                if (!str) return 999;
+                if (str.includes("today")) return 0;
+                if (str.includes("yesterday")) return 1;
+                const match = str.match(/(\d+)\s*day/);
+                return match ? parseInt(match[1]) : 999;
+              };
+              return parseLastActive(a.lastActive) - parseLastActive(b.lastActive);
+            }),
           };
           const ranked = sorted[leaderboardTab];
           const tabLabels: { key: "progress" | "score" | "active"; label: string }[] = [
@@ -2672,7 +2906,7 @@ export default function ManagerControlCenter({
           const getValue = (s: typeof venueStaff[0]) => {
             if (leaderboardTab === "progress") return `${parseFloat(s.progress.toFixed(1))}%`;
             if (leaderboardTab === "score") return `${Math.round((s.serviceScore + s.salesScore + s.productScore) / 3)}%`;
-            return `${parseFloat(s.progress.toFixed(1))}%`;
+            return s.lastActive || "No activity";
           };
           const getPoints = (s: typeof venueStaff[0]) => {
             const raw = Math.round(s.progress * 1.2 + (s.serviceScore + s.salesScore + s.productScore) / 3 * 0.8);
@@ -2708,8 +2942,13 @@ export default function ManagerControlCenter({
                           {t.label}
                         </button>
                       ))}
+                      {leaderboardTab === "progress" && (
+                        <span style={{ fontSize: "0.72rem", color: "var(--mcc-ink-400)", marginLeft: 4, alignSelf: "center" }}>
+                          Points = Training completion (×1.2) + Avg scenario score (×0.8)
+                        </span>
+                      )}
                     </div>
-                    {ranked.length >= 3 && (
+                    {ranked.length > 0 && (
                       <div style={{ display: "flex", justifyContent: "center", gap: "1.5rem", marginBottom: "2rem", alignItems: "flex-end" }}>
                         {[1, 0, 2].map((pos) => {
                           const m = ranked[pos];
@@ -2774,9 +3013,23 @@ export default function ManagerControlCenter({
                                 <div style={{ fontSize: "0.72rem", color: "var(--mcc-ink-500)" }}>{member.role}</div>
                               </div>
                             </div>
-                            <div style={{ textAlign: "right" }}>
-                              <div style={{ fontWeight: 800, fontSize: "0.95rem", color: isTop3 ? podiumColors[idx] : "var(--mcc-ink-700)" }}>{getValue(member)}</div>
-                              <div style={{ fontSize: "0.72rem", color: "var(--mcc-ink-400)" }}>{getPoints(member)}</div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                              <div style={{ textAlign: "right" }}>
+                                <div style={{ fontWeight: 800, fontSize: "0.95rem", color: isTop3 ? podiumColors[idx] : "var(--mcc-ink-700)" }}>{getValue(member)}</div>
+                                <div style={{ fontSize: "0.72rem", color: "var(--mcc-ink-400)" }}>{getPoints(member)}</div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setRecogniseTarget({ id: member.id, name: member.name });
+                                  setRecogniseMessage("");
+                                  setRecogniseSent(false);
+                                }}
+                                style={{ padding: "5px 10px", borderRadius: 6, border: "1.5px solid var(--mcc-border)", background: "var(--mcc-bg)", color: "var(--mcc-ink-600)", fontSize: "0.72rem", fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}
+                              >
+                                Recognise
+                              </button>
                             </div>
                           </li>
                         );
@@ -3011,6 +3264,17 @@ export default function ManagerControlCenter({
                     onClick={() => setAiCoachInput(suggestion)}
                   >
                     {suggestion}
+                  </button>
+                ))}
+                {needsAttention.slice(0, 5).map((s) => (
+                  <button
+                    key={`staff-${s.id}`}
+                    type="button"
+                    className="ops-ai-suggestion-chip"
+                    style={{ borderColor: "var(--gold)", color: "var(--gold-warm)" }}
+                    onClick={() => setAiCoachInput(`${s.name} (${s.role}, ${Math.round(s.progress)}% training, last active ${s.lastActive}): `)}
+                  >
+                    Coach: {s.name}
                   </button>
                 ))}
               </div>
@@ -3311,6 +3575,7 @@ export default function ManagerControlCenter({
             <div className="mcc-tab-bar" style={{ gridColumn: "1 / -1", marginBottom: 4 }}>
               <button type="button" className={`mcc-tab${settingsTab === "setup" ? " mcc-tab-active" : ""}`} onClick={() => setSettingsTab("setup")}>Venue setup</button>
               <button type="button" className={`mcc-tab${settingsTab === "billing" ? " mcc-tab-active" : ""}`} onClick={() => setSettingsTab("billing")}>Billing</button>
+              <button type="button" className={`mcc-tab${settingsTab === "account" ? " mcc-tab-active" : ""}`} onClick={() => setSettingsTab("account")}>Account</button>
             </div>
             {settingsTab === "setup" && (<>
             {/* ── Setup progress tracker ── */}
@@ -3319,7 +3584,7 @@ export default function ManagerControlCenter({
                 { label: "Add a venue", done: snapshot.venues.length > 0 },
                 { label: "Staff join code ready", done: !!selectedVenue?.venueCode },
                 { label: "Invite staff members", done: venueStaff.length > 0 },
-                { label: "Connect inventory", done: venueInventory.length > 0 },
+                { label: "First staff member trained", done: venueStaff.some((s) => s.progress > 0) },
               ];
               const completedCount = steps.filter((s) => s.done).length;
               const allDone = completedCount === steps.length;
@@ -3449,16 +3714,39 @@ export default function ManagerControlCenter({
               <div className="ops-card-head">
                 <h3>Manager limits</h3>
               </div>
-              <dl className="ops-settings-list">
-                <div>
-                  <dt>Staff limit</dt>
-                  <dd>{selectedVenue?.staffLimit ?? (isMultiVenue ? 35 : 15)} seats</dd>
-                </div>
-                <div>
-                  <dt>Venue Limit</dt>
-                  <dd>{isMultiVenue ? "5 Venues Maximum" : "1 Venue"}</dd>
-                </div>
-              </dl>
+              {(() => {
+                const staffLimit = selectedVenue?.staffLimit ?? (isMultiVenue ? 35 : 15);
+                const staffUsed = venueStaff.length;
+                const pct = staffLimit > 0 ? Math.min(100, Math.round((staffUsed / staffLimit) * 100)) : 0;
+                const isWarning = pct >= 90;
+                const isFull = staffUsed >= staffLimit;
+                return (
+                  <>
+                    <dl className="ops-settings-list">
+                      <div>
+                        <dt>Staff limit</dt>
+                        <dd>
+                          <span style={{ fontWeight: 700 }}>{staffUsed} / {staffLimit}</span>
+                          <span style={{ color: "var(--mcc-ink-400)", fontWeight: 400, marginLeft: 4 }}>seats used</span>
+                          <div style={{ marginTop: 6, height: 6, background: "var(--mcc-surface-2)", borderRadius: 999, overflow: "hidden", maxWidth: 180 }}>
+                            <div style={{ height: "100%", width: `${pct}%`, background: isFull ? "#dc2626" : isWarning ? "#d97706" : "#1E5A3C", borderRadius: 999, transition: "width 0.3s ease" }} />
+                          </div>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Venue Limit</dt>
+                        <dd>{isMultiVenue ? "5 Venues Maximum" : "1 Venue"}</dd>
+                      </div>
+                    </dl>
+                    {isWarning && (
+                      <div style={{ marginTop: 12, padding: "10px 14px", borderRadius: 8, background: isFull ? "#fef2f2" : "#fefce8", border: `1px solid ${isFull ? "#fca5a5" : "#fde68a"}`, fontSize: "0.82rem", color: isFull ? "#991b1b" : "#92400e" }}>
+                        {isFull ? "Staff limit reached." : `Approaching your staff limit (${pct}% used).`}{" "}
+                        <a href="/pricing" style={{ color: "inherit", fontWeight: 700, textDecoration: "underline" }}>Upgrade your plan</a> to add more seats.
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </article>
 
             {selectedVenue?.venueCode && (
@@ -3545,6 +3833,65 @@ export default function ManagerControlCenter({
               )}
             </article>
             </>)}
+            {settingsTab === "account" && (
+              <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+                <div className="ops-card-head">
+                  <h3>Account settings</h3>
+                </div>
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const name = accountDisplayName.trim();
+                    if (!name) return;
+                    setAccountSaving(true);
+                    setAccountSaved(false);
+                    try {
+                      const headers: Record<string, string> = { "Content-Type": "application/json" };
+                      if (sessionToken) headers["Authorization"] = `Bearer ${sessionToken}`;
+                      const res = await fetch("/api/profile/update-name", {
+                        method: "POST",
+                        headers,
+                        body: JSON.stringify({ name }),
+                      });
+                      if (res.ok) setAccountSaved(true);
+                    } catch { /* silent */ } finally {
+                      setAccountSaving(false);
+                    }
+                  }}
+                  style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 400 }}
+                >
+                  <label className="label">
+                    Display name
+                    <input
+                      className="input"
+                      value={accountDisplayName}
+                      onChange={(e) => { setAccountDisplayName(e.target.value); setAccountSaved(false); }}
+                      placeholder="Your name"
+                      required
+                    />
+                  </label>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <button className="btn btn-primary" type="submit" disabled={accountSaving}>
+                      {accountSaving ? "Saving..." : "Save name"}
+                    </button>
+                    {accountSaved && (
+                      <span style={{ fontSize: "0.82rem", color: "var(--green)", fontWeight: 600 }}>Saved</span>
+                    )}
+                  </div>
+                </form>
+                <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid var(--line-light)" }}>
+                  <p style={{ fontSize: "0.85rem", color: "var(--text-soft)", marginBottom: 10 }}>
+                    Need to update your password?
+                  </p>
+                  <a
+                    href="/reset-password"
+                    style={{ fontSize: "0.875rem", color: "var(--green)", fontWeight: 600, textDecoration: "none" }}
+                  >
+                    Change password →
+                  </a>
+                </div>
+              </article>
+            )}
             {settingsTab === "billing" && (
               <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
                 {trialTier && trialEndsAt && typeof daysRemaining === "number" ? (
@@ -3581,6 +3928,21 @@ export default function ManagerControlCenter({
                         <dd>Managed via Stripe</dd>
                       </div>
                     </dl>
+                    <div style={{ marginTop: "20px" }}>
+                      <button
+                        className="btn"
+                        style={{ fontSize: "0.875rem" }}
+                        onClick={async () => {
+                          const headers: Record<string, string> = { "Content-Type": "application/json" };
+                          if (sessionToken) headers["Authorization"] = `Bearer ${sessionToken}`;
+                          const res = await fetch("/api/billing/portal", { method: "POST", headers });
+                          const data = await res.json();
+                          if (data.url) window.location.href = data.url;
+                        }}
+                      >
+                        Manage billing in Stripe
+                      </button>
+                    </div>
                   </>
                 )}
               </article>
@@ -3601,6 +3963,43 @@ export default function ManagerControlCenter({
       </Suspense>
 
       {/* ── Venue delete confirmation modal ── */}
+      {/* A30 — Staff recognition modal */}
+      {recogniseTarget && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.45)" }} onClick={() => setRecogniseTarget(null)}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--surface-raised, #fff)", borderRadius: "var(--radius-lg)", padding: "28px 32px", maxWidth: 460, width: "calc(100% - 48px)", boxShadow: "var(--shadow-xl)" }}>
+            <h3 style={{ margin: "0 0 6px", fontFamily: "var(--font-fraunces)", color: "var(--text)" }}>Recognise {recogniseTarget.name}</h3>
+            <p style={{ margin: "0 0 16px", fontSize: "0.85rem", color: "var(--text-soft)" }}>Your message will be saved and emailed to the staff member if they have a linked account.</p>
+            <textarea
+              rows={4}
+              value={recogniseMessage}
+              onChange={(e) => setRecogniseMessage(e.target.value)}
+              placeholder={`E.g. "${recogniseTarget.name} crushed it during Friday service — best upsell numbers of the month."`}
+              style={{ width: "100%", padding: "10px 12px", borderRadius: "var(--radius-sm)", border: "1px solid var(--line)", background: "var(--surface)", fontSize: "0.875rem", resize: "vertical", minHeight: 90, boxSizing: "border-box" }}
+              autoFocus
+            />
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 16 }}>
+              <button type="button" onClick={() => setRecogniseTarget(null)} style={{ padding: "9px 20px", borderRadius: 8, border: "1.5px solid var(--line)", background: "var(--surface)", fontWeight: 600, fontSize: "0.875rem", cursor: "pointer", color: "var(--text-soft)" }}>
+                Cancel
+              </button>
+              {recogniseSent ? (
+                <button type="button" disabled style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: "var(--green)", color: "white", fontWeight: 700, fontSize: "0.875rem" }}>
+                  Sent!
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={recogniseSaving || !recogniseMessage.trim()}
+                  onClick={handleSendRecognition}
+                  style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: recogniseSaving || !recogniseMessage.trim() ? "#e5e7eb" : "var(--green)", color: recogniseSaving || !recogniseMessage.trim() ? "#9ca3af" : "white", fontWeight: 700, fontSize: "0.875rem", cursor: recogniseSaving || !recogniseMessage.trim() ? "not-allowed" : "pointer" }}
+                >
+                  {recogniseSaving ? "Sending…" : "Send recognition"}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {venueDeleteConfirm && (
         <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.45)" }} onClick={() => setVenueDeleteConfirm(null)}>
           <div onClick={(e) => e.stopPropagation()} style={{ background: "white", borderRadius: 12, padding: "28px 32px", maxWidth: 420, width: "calc(100% - 48px)", boxShadow: "0 8px 32px rgba(0,0,0,0.2)" }}>

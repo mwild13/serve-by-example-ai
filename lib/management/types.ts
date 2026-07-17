@@ -30,7 +30,7 @@ export type AustralianState = 'NSW' | 'VIC' | 'QLD' | 'WA' | 'SA' | 'TAS' | 'NT'
 
 export interface StaffComplianceRecord {
   staffId: string;
-  rsaState: RSAState;
+  rsaState?: RSAState;
   rsaJurisdiction: AustralianState;
   rsaExpiryDate: string | null;
   fssExpiryDate: string | null;
@@ -65,6 +65,7 @@ export type StaffMember = {
   compliance?: StaffComplianceRecord;
   lastActiveDays?: number;
   isJunior?: boolean;
+  managerNotes?: string | null;
 };
 
 export type Venue = {

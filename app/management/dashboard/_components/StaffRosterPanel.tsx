@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, Fragment, useCallback, useEffect, useState } from "react";
 import { EmptyState, MasteryMicroGrid } from "@/components/mission-control/manager-ui";
 import { WorkspaceHeader } from "@/app/management/dashboard/_components/WorkspaceHeader";
 import { rsaStatus } from "@/components/mission-control/compliance/helpers";
@@ -74,6 +74,22 @@ export default function StaffRosterPanel({
   const [membershipsLoaded, setMembershipsLoaded] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ staffId: string; staffName: string } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [resendingIds, setResendingIds] = useState<Set<string>>(new Set());
+  const [resentIds, setResentIds] = useState<Set<string>>(new Set());
+
+  // Compliance form state (per-row expandable)
+  const [complianceOpen, setComplianceOpen] = useState<Set<string>>(new Set());
+  const [complianceDraft, setComplianceDraft] = useState<Record<string, {
+    jurisdiction: string; rsaExpiry: string; fssExpiry: string;
+    fssOnSite: boolean; isJunior: boolean; managerNotes: string;
+  }>>({});
+  const [complianceSaving, setComplianceSaving] = useState<Set<string>>(new Set());
+
+  // Inline staff edit state
+  const [editingStaffId, setEditingStaffId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editRole, setEditRole] = useState<StaffRole>('New Staff');
+  const [editSaving, setEditSaving] = useState(false);
 
   const apiFetch = useCallback((url: string, options: RequestInit = {}) => {
     const headers: Record<string, string> = {
@@ -151,6 +167,97 @@ export default function StaffRosterPanel({
     } catch { /* silent */ }
   }
 
+  async function handleResendInvite(membershipId: string) {
+    setResendingIds(prev => new Set(prev).add(membershipId));
+    try {
+      const res = await apiFetch("/api/management/memberships/resend", {
+        method: "POST",
+        body: JSON.stringify({ membershipId }),
+      });
+      if (res.ok) {
+        setResentIds(prev => new Set(prev).add(membershipId));
+        setTimeout(() => setResentIds(prev => { const next = new Set(prev); next.delete(membershipId); return next; }), 3000);
+      }
+    } catch { /* silent */ } finally {
+      setResendingIds(prev => { const next = new Set(prev); next.delete(membershipId); return next; });
+    }
+  }
+
+  function toggleComplianceForm(member: ManagementSnapshot["staff"][0]) {
+    setComplianceOpen(prev => {
+      const next = new Set(prev);
+      if (next.has(member.id)) {
+        next.delete(member.id);
+      } else {
+        next.add(member.id);
+        setComplianceDraft(d => ({
+          ...d,
+          [member.id]: {
+            jurisdiction: member.compliance?.rsaJurisdiction ?? '',
+            rsaExpiry: member.compliance?.rsaExpiryDate?.split('T')[0] ?? '',
+            fssExpiry: member.compliance?.fssExpiryDate?.split('T')[0] ?? '',
+            fssOnSite: member.compliance?.fssOnSiteCopy ?? false,
+            isJunior: member.isJunior ?? false,
+            managerNotes: member.managerNotes ?? '',
+          },
+        }));
+      }
+      return next;
+    });
+  }
+
+  async function saveCompliance(staffId: string) {
+    const draft = complianceDraft[staffId];
+    if (!draft) return;
+    setComplianceSaving(prev => new Set(prev).add(staffId));
+    try {
+      const res = await apiFetch('/api/management/staff', {
+        method: 'PATCH',
+        body: JSON.stringify({
+          staffId,
+          ...(draft.jurisdiction ? { rsaJurisdiction: draft.jurisdiction } : {}),
+          rsaExpiryDate: draft.rsaExpiry || null,
+          fssExpiryDate: draft.fssExpiry || null,
+          fssOnSiteCopy: draft.fssOnSite,
+          isJunior: draft.isJunior,
+          managerNotes: draft.managerNotes || null,
+        }),
+      });
+      const data = await res.json() as ManagementSnapshot;
+      if (!res.ok) throw new Error((data as unknown as { error: string }).error ?? 'Save failed');
+      onSnapshotUpdate(data);
+      setComplianceOpen(prev => { const next = new Set(prev); next.delete(staffId); return next; });
+    } catch (e) {
+      console.error('Compliance save failed:', e);
+    } finally {
+      setComplianceSaving(prev => { const next = new Set(prev); next.delete(staffId); return next; });
+    }
+  }
+
+  function startEditStaff(member: ManagementSnapshot["staff"][0]) {
+    setEditingStaffId(member.id);
+    setEditName(member.name);
+    setEditRole(member.role);
+  }
+
+  async function saveEditStaff(staffId: string) {
+    setEditSaving(true);
+    try {
+      const res = await apiFetch('/api/management/staff', {
+        method: 'PATCH',
+        body: JSON.stringify({ staffId, name: editName.trim(), role: editRole }),
+      });
+      const data = await res.json() as ManagementSnapshot;
+      if (!res.ok) throw new Error((data as unknown as { error: string }).error ?? 'Update failed');
+      onSnapshotUpdate(data);
+      setEditingStaffId(null);
+    } catch (e) {
+      console.error('Staff edit failed:', e);
+    } finally {
+      setEditSaving(false);
+    }
+  }
+
   function handleDeleteStaff(staffId: string, staffName: string) {
     setDeleteConfirm({ staffId, staffName });
   }
@@ -220,84 +327,242 @@ export default function StaffRosterPanel({
                 <tbody>
                   {filteredStaff.map((member) => {
                     const initials = member.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
-                    const email = member.email ?? `${member.name.split(" ")[0].toLowerCase()}@sbe.io`;
+                    const email = member.email;
                     const isReady = member.progress >= 70;
                     const barColor = member.progress >= 70 ? "#16a34a" : member.progress >= 40 ? "#f59e0b" : "#dc2626";
+                    const isEditing = editingStaffId === member.id;
+                    const isCertOpen = complianceOpen.has(member.id);
+                    const draft = complianceDraft[member.id];
+                    const isCertSaving = complianceSaving.has(member.id);
                     return (
-                      <tr
-                        key={member.id}
-                        className={selectedStaffId === member.id ? "active" : ""}
-                        onClick={() => onOpenCoachingDrawer(member.id)}
-                      >
-                        <td>
-                          <div className="ops-staff-avatar">{initials}</div>
-                        </td>
-                        <td>
-                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            <strong>{member.name}</strong>
-                            {isReady && <span style={{ padding: "1px 7px", borderRadius: 999, fontSize: "0.65rem", fontWeight: 700, background: "#dcfce7", color: "#15803d", flexShrink: 0 }}>Ready</span>}
-                          </div>
-                        </td>
-                        <td><div className="ops-email-icon-cell" title={email}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/>
-                          </svg>
-                        </div></td>
-                        <td>{member.role}</td>
-                        <td style={{ minWidth: 90 }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            <div style={{ flex: 1, height: 5, background: "#e5e7eb", borderRadius: 999 }}>
-                              <div style={{ height: "100%", width: `${member.progress}%`, background: barColor, borderRadius: 999, transition: "width 0.3s" }} />
+                      <Fragment key={member.id}>
+                        <tr
+                          className={selectedStaffId === member.id ? "active" : ""}
+                          onClick={() => !isEditing && onOpenCoachingDrawer(member.id)}
+                          style={{ cursor: isEditing ? 'default' : 'pointer' }}
+                        >
+                          <td>
+                            <div className="ops-staff-avatar">{initials}</div>
+                          </td>
+                          <td onClick={isEditing ? e => e.stopPropagation() : undefined}>
+                            {isEditing ? (
+                              <input
+                                value={editName}
+                                onChange={e => setEditName(e.target.value)}
+                                onClick={e => e.stopPropagation()}
+                                style={{ padding: '4px 8px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--line)', fontSize: '0.85rem', width: '100%' }}
+                              />
+                            ) : (
+                              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                <strong>{member.name}</strong>
+                                {isReady && <span style={{ padding: "1px 7px", borderRadius: 999, fontSize: "0.65rem", fontWeight: 700, background: "#dcfce7", color: "#15803d", flexShrink: 0 }}>Ready</span>}
+                                <button
+                                  type="button"
+                                  onClick={e => { e.stopPropagation(); startEditStaff(member); }}
+                                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '0 2px', lineHeight: 1, flexShrink: 0 }}
+                                  aria-label={`Edit ${member.name}`}
+                                >
+                                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                  </svg>
+                                </button>
+                              </div>
+                            )}
+                          </td>
+                          <td>
+                            {email ? (
+                              <div className="ops-email-icon-cell" title={email}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/>
+                                </svg>
+                              </div>
+                            ) : null}
+                          </td>
+                          <td onClick={isEditing ? e => e.stopPropagation() : undefined}>
+                            {isEditing ? (
+                              <select
+                                value={editRole}
+                                onChange={e => setEditRole(e.target.value as StaffRole)}
+                                onClick={e => e.stopPropagation()}
+                                style={{ padding: '4px 6px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--line)', fontSize: '0.85rem' }}
+                              >
+                                {STAFF_ROLE_OPTIONS.map(r => <option key={r} value={r}>{r}</option>)}
+                              </select>
+                            ) : member.role}
+                          </td>
+                          <td style={{ minWidth: 90 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                              <div style={{ flex: 1, height: 5, background: "#e5e7eb", borderRadius: 999 }}>
+                                <div style={{ height: "100%", width: `${member.progress}%`, background: barColor, borderRadius: 999, transition: "width 0.3s" }} />
+                              </div>
+                              <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--mcc-ink-700)", width: 30, textAlign: "right" }}>{Math.round(member.progress)}%</span>
                             </div>
-                            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--mcc-ink-700)", width: 30, textAlign: "right" }}>{Math.round(member.progress)}%</span>
-                          </div>
-                        </td>
-                        <td>
-                          {(() => {
-                            const pill = readinessPill(member);
-                            return (
-                              <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: "0.72rem", fontWeight: 700, background: pill.bg, color: pill.color }}>
-                                {pill.dot} {pill.label}
-                              </span>
-                            );
-                          })()}
-                        </td>
-                        <td>
-                          {member.staffUserId ? (
-                            <span className="ops-badge ops-badge-active">Connected</span>
-                          ) : member.email ? (
-                            <span className="ops-badge ops-badge-pending">Invited</span>
-                          ) : (
-                            <span className="ops-badge ops-badge-removed">No account</span>
-                          )}
-                        </td>
-                        <td>
-                          <MasteryMicroGrid
-                            scenariosMastered={member.scenariosMastered}
-                            scenariosAttempted={member.scenariosAttempted}
-                          />
-                        </td>
-                        <td>
-                          {(() => {
-                            const days = member.lastActiveDays ?? parseLastActiveDays(member.lastActive);
-                            const lastActiveStyle = days > 30
-                              ? { color: '#b91c1c', fontWeight: 700 }
-                              : days > 14 ? { color: '#c2410c' } : {};
-                            return <span style={lastActiveStyle}>{member.lastActive}</span>;
-                          })()}
-                        </td>
-                        <td>
-                          <button
-                            type="button"
-                            className="ops-table-delete-btn"
-                            onClick={(e) => { e.stopPropagation(); handleDeleteStaff(member.id, member.name); }}
-                            disabled={isSaving}
-                            aria-label={`Remove ${member.name}`}
-                          >
-                            &times;
-                          </button>
-                        </td>
-                      </tr>
+                          </td>
+                          <td>
+                            {(() => {
+                              const pill = readinessPill(member);
+                              return (
+                                <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: "0.72rem", fontWeight: 700, background: pill.bg, color: pill.color }}>
+                                  {pill.dot} {pill.label}
+                                </span>
+                              );
+                            })()}
+                          </td>
+                          <td>
+                            {member.staffUserId ? (
+                              <span className="ops-badge ops-badge-active">Connected</span>
+                            ) : member.email ? (
+                              <span className="ops-badge ops-badge-pending">Invited</span>
+                            ) : (
+                              <span className="ops-badge ops-badge-removed">No account</span>
+                            )}
+                          </td>
+                          <td>
+                            <MasteryMicroGrid
+                              scenariosMastered={member.scenariosMastered}
+                              scenariosAttempted={member.scenariosAttempted}
+                            />
+                          </td>
+                          <td>
+                            {(() => {
+                              const days = member.lastActiveDays ?? parseLastActiveDays(member.lastActive);
+                              const lastActiveStyle = days > 30
+                                ? { color: '#b91c1c', fontWeight: 700 }
+                                : days > 14 ? { color: '#c2410c' } : {};
+                              return <span style={lastActiveStyle}>{member.lastActive}</span>;
+                            })()}
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex', gap: 4, alignItems: 'center', justifyContent: 'flex-end' }}>
+                              {isEditing ? (
+                                <>
+                                  <button
+                                    type="button"
+                                    className="btn btn-sm"
+                                    onClick={e => { e.stopPropagation(); saveEditStaff(member.id); }}
+                                    disabled={editSaving}
+                                    style={{ fontSize: '0.7rem', padding: '2px 8px', background: 'var(--green)', color: '#fff', border: 'none' }}
+                                  >
+                                    {editSaving ? '…' : 'Save'}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn btn-sm"
+                                    onClick={e => { e.stopPropagation(); setEditingStaffId(null); }}
+                                    style={{ fontSize: '0.7rem', padding: '2px 8px' }}
+                                  >
+                                    Cancel
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={e => { e.stopPropagation(); toggleComplianceForm(member); }}
+                                    title={isCertOpen ? 'Close cert form' : (member.compliance?.rsaExpiryDate ? 'Edit cert' : 'Add cert')}
+                                    style={{
+                                      background: isCertOpen ? 'var(--green-light)' : 'none',
+                                      border: '1px solid var(--line)',
+                                      borderRadius: 'var(--radius-sm)',
+                                      cursor: 'pointer',
+                                      padding: '2px 5px',
+                                      fontSize: '0.65rem',
+                                      color: isCertOpen ? 'var(--green)' : (member.compliance?.rsaExpiryDate ? 'var(--text-soft)' : 'var(--text-muted)'),
+                                      fontWeight: 600,
+                                    }}
+                                  >
+                                    {member.compliance?.rsaExpiryDate ? 'RSA' : '+ Cert'}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="ops-table-delete-btn"
+                                    onClick={(e) => { e.stopPropagation(); handleDeleteStaff(member.id, member.name); }}
+                                    disabled={isSaving}
+                                    aria-label={`Remove ${member.name}`}
+                                  >
+                                    &times;
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                        {isCertOpen && draft && (
+                          <tr style={{ background: 'var(--bg-alt)' }}>
+                            <td colSpan={10} style={{ padding: '14px 20px' }}>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px 20px', alignItems: 'flex-end' }}>
+                                <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-soft)' }}>
+                                  RSA Jurisdiction
+                                  <select
+                                    value={draft.jurisdiction}
+                                    onChange={e => setComplianceDraft(d => ({ ...d, [member.id]: { ...d[member.id], jurisdiction: e.target.value } }))}
+                                    style={{ display: 'block', marginTop: '3px', padding: '5px 8px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--line)', background: 'var(--surface)', fontSize: '0.8rem' }}
+                                  >
+                                    <option value="">— State —</option>
+                                    {['NSW','VIC','QLD','WA','SA','TAS','NT','ACT'].map(s => <option key={s} value={s}>{s}</option>)}
+                                  </select>
+                                </label>
+                                <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-soft)' }}>
+                                  RSA Expiry
+                                  <input type="date" value={draft.rsaExpiry}
+                                    onChange={e => setComplianceDraft(d => ({ ...d, [member.id]: { ...d[member.id], rsaExpiry: e.target.value } }))}
+                                    style={{ display: 'block', marginTop: '3px', padding: '5px 8px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--line)', background: 'var(--surface)', fontSize: '0.8rem' }}
+                                  />
+                                </label>
+                                <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-soft)' }}>
+                                  FSS Expiry <span style={{ fontWeight: 400 }}>(optional)</span>
+                                  <input type="date" value={draft.fssExpiry}
+                                    onChange={e => setComplianceDraft(d => ({ ...d, [member.id]: { ...d[member.id], fssExpiry: e.target.value } }))}
+                                    style={{ display: 'block', marginTop: '3px', padding: '5px 8px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--line)', background: 'var(--surface)', fontSize: '0.8rem' }}
+                                  />
+                                </label>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.78rem', color: 'var(--text-soft)', cursor: 'pointer' }}>
+                                    <input type="checkbox" checked={draft.fssOnSite}
+                                      onChange={e => setComplianceDraft(d => ({ ...d, [member.id]: { ...d[member.id], fssOnSite: e.target.checked } }))} />
+                                    FSS copy on-site
+                                  </label>
+                                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.78rem', color: 'var(--text-soft)', cursor: 'pointer' }}>
+                                    <input type="checkbox" checked={draft.isJunior}
+                                      onChange={e => setComplianceDraft(d => ({ ...d, [member.id]: { ...d[member.id], isJunior: e.target.checked } }))} />
+                                    Is junior / supervised
+                                  </label>
+                                </div>
+                                <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-soft)', width: '100%' }}>
+                                  Manager notes <span style={{ fontWeight: 400 }}>(private)</span>
+                                  <textarea
+                                    rows={2}
+                                    value={draft.managerNotes}
+                                    onChange={e => setComplianceDraft(d => ({ ...d, [member.id]: { ...d[member.id], managerNotes: e.target.value } }))}
+                                    placeholder="e.g. On probation until August, night shifts only"
+                                    style={{ display: 'block', width: '100%', marginTop: '3px', padding: '5px 8px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--line)', background: 'var(--surface)', fontSize: '0.8rem', resize: 'vertical', minWidth: '220px' }}
+                                  />
+                                </label>
+                                <div style={{ display: 'flex', gap: 8 }}>
+                                  <button
+                                    type="button"
+                                    className="btn btn-sm"
+                                    onClick={() => saveCompliance(member.id)}
+                                    disabled={isCertSaving}
+                                    style={{ fontSize: '0.8rem', background: 'var(--green)', color: '#fff', border: 'none', opacity: isCertSaving ? 0.6 : 1 }}
+                                  >
+                                    {isCertSaving ? 'Saving…' : 'Save cert'}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn btn-sm"
+                                    onClick={() => toggleComplianceForm(member)}
+                                    style={{ fontSize: '0.8rem' }}
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
                     );
                   })}
                 </tbody>
@@ -458,16 +723,29 @@ export default function StaffRosterPanel({
                         <td><span className={`ops-badge ops-badge-${m.status}`}>{m.status}</span></td>
                         <td>{new Date(m.created_at).toLocaleDateString()}</td>
                         <td>
-                          {m.status !== "removed" && (
-                            <button
-                              type="button"
-                              className="ops-table-delete-btn"
-                              onClick={() => handleRemoveMembership(m.id)}
-                              aria-label={`Remove ${m.staff_email}`}
-                            >
-                              &times;
-                            </button>
-                          )}
+                          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                            {m.status !== "active" && m.status !== "removed" && (
+                              <button
+                                type="button"
+                                className="btn btn-secondary"
+                                style={{ fontSize: "0.75rem", padding: "3px 10px", opacity: resendingIds.has(m.id) ? 0.6 : 1 }}
+                                disabled={resendingIds.has(m.id)}
+                                onClick={() => handleResendInvite(m.id)}
+                              >
+                                {resentIds.has(m.id) ? "Sent!" : resendingIds.has(m.id) ? "Sending..." : "Resend"}
+                              </button>
+                            )}
+                            {m.status !== "removed" && (
+                              <button
+                                type="button"
+                                className="ops-table-delete-btn"
+                                onClick={() => handleRemoveMembership(m.id)}
+                                aria-label={`Remove ${m.staff_email}`}
+                              >
+                                &times;
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );

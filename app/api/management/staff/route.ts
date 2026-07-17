@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
-import { createStaffMember, getManagementSnapshot } from "@/lib/management/service";
-import type { NewStaffPayload, StaffRole } from "@/lib/management/types";
+import { createStaffMember, updateStaffMember, getManagementSnapshot } from "@/lib/management/service";
+import type { NewStaffPayload, StaffRole, AustralianState } from "@/lib/management/types";
 
 const VALID_ROLES: StaffRole[] = ["Bartender", "Floor", "Supervisor", "Manager", "New Staff"];
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -236,6 +236,74 @@ export async function POST(req: Request) {
     const lowered = message.toLowerCase();
     const isConflict = code === "23505" || lowered.includes("duplicate") || lowered.includes("already");
     return NextResponse.json({ error: message }, { status: isConflict ? 409 : 400 });
+  }
+}
+
+const VALID_AU_STATES: AustralianState[] = ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "NT", "ACT"];
+
+export async function PATCH(req: Request) {
+  try {
+    const { user, supabase } = await getUserFromRequest(req);
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json() as Record<string, unknown>;
+    const staffId = typeof body.staffId === "string" ? body.staffId.trim() : null;
+
+    if (!staffId) {
+      return NextResponse.json({ error: "staffId is required" }, { status: 400 });
+    }
+
+    const updates: Parameters<typeof updateStaffMember>[3] = {};
+
+    if (typeof body.name === "string") {
+      const name = body.name.trim();
+      if (!name) return NextResponse.json({ error: "Name cannot be empty" }, { status: 400 });
+      updates.name = name;
+    }
+
+    if (typeof body.role === "string") {
+      if (!VALID_ROLES.includes(body.role as StaffRole)) {
+        return NextResponse.json({ error: "Invalid role" }, { status: 400 });
+      }
+      updates.role = body.role as StaffRole;
+    }
+
+    if ("rsaExpiryDate" in body) {
+      updates.rsaExpiryDate = typeof body.rsaExpiryDate === "string" ? body.rsaExpiryDate : null;
+    }
+
+    if (typeof body.rsaJurisdiction === "string") {
+      if (!VALID_AU_STATES.includes(body.rsaJurisdiction as AustralianState)) {
+        return NextResponse.json({ error: "Invalid AU state" }, { status: 400 });
+      }
+      updates.rsaJurisdiction = body.rsaJurisdiction;
+    }
+
+    if ("fssExpiryDate" in body) {
+      updates.fssExpiryDate = typeof body.fssExpiryDate === "string" ? body.fssExpiryDate : null;
+    }
+
+    if (typeof body.fssOnSiteCopy === "boolean") {
+      updates.fssOnSiteCopy = body.fssOnSiteCopy;
+    }
+
+    if (typeof body.isJunior === "boolean") {
+      updates.isJunior = body.isJunior;
+    }
+
+    if ("managerNotes" in body) {
+      updates.managerNotes = typeof body.managerNotes === "string" ? body.managerNotes : null;
+    }
+
+    await updateStaffMember(supabase, user.id, staffId, updates);
+
+    const snapshot = await getManagementSnapshot(supabase, user.id);
+    return NextResponse.json(snapshot);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Update failed";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }
 

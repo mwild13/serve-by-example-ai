@@ -346,3 +346,6 @@ The database schema is logically correct — no renames needed. This table docum
 | Challenge | `user_challenges` | `*` | Tap-based mini-game; entirely separate from the scenarios table |
 
 **Code reference:** `lib/domain-types.ts` contains `DbScenarioType`, `DomainScenarioType`, `mapDbToUi()`, `mapUiToDb()`, and `DomainNavigation` type definitions.
+
+# conversion-ui
+When the user types `/conversion-ui`, invoke the Skill tool with `skill: "conversion-ui"` before doing anything else.
