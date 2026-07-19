@@ -243,7 +243,6 @@ function LoginPageContent() {
           await supabase.from("profiles").upsert({
             id: data.user.id,
             display_name: email.split("@")[0],
-            plan: "free",
           });
         }
 

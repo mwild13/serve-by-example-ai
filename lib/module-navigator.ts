@@ -45,7 +45,7 @@ export async function getAvailableModules(
     // Get user's profile for platform_version and role info
     const { data: profile, error: profileError } = await admin
       .from("profiles")
-      .select("id, plan, tier, platform_version")
+      .select("id, tier, platform_version")
       .eq("id", userId)
       .maybeSingle(); // Use maybeSingle to handle new users without a profile yet
 
@@ -57,17 +57,16 @@ export async function getAvailableModules(
     // Use default profile if not found (new user on v2)
     const userProfile = profile || {
       id: userId,
-      plan: "free",
-      tier: "individual",
+      tier: "free",
       platform_version: 2,
     };
 
     // Force platform_version = 2 for individual/free users (legacy default was 1)
     // Only keep v1 for B2B venue users who need diagnostic
-    const isB2BUser = userProfile.plan === "single-venue" || userProfile.plan === "multi-venue";
+    const isB2BUser = userProfile.tier === "venue_single" || userProfile.tier === "venue_multi" || userProfile.tier === "single-venue" || userProfile.tier === "multi-venue";
     const platformVersion = isB2BUser ? userProfile.platform_version : 2;
 
-    console.log(`[getAvailableModules] User profile: plan=${userProfile.plan}, is_b2b=${isB2BUser}, platform_version=${platformVersion}`);
+    console.log(`[getAvailableModules] User profile: tier=${userProfile.tier}, is_b2b=${isB2BUser}, platform_version=${platformVersion}`);
 
     // Resolve access (tier-based module filtering)
     let access;

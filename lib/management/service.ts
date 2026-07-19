@@ -540,11 +540,11 @@ export async function getManagementSnapshot(
 async function getUserStaffLimit(supabase: ManagementSupabaseClient, userId: string): Promise<number> {
   const { data: profile } = await supabase
     .from("profiles")
-    .select("plan")
+    .select("tier")
     .eq("id", userId)
     .single();
 
-  const rawTier = profile?.plan ?? "free";
+  const rawTier = profile?.tier ?? "free";
   const tierMap: Record<string, keyof typeof TIER_SEATS> = {
     free: "free",
     pro: "pro",

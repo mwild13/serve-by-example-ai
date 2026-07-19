@@ -25,7 +25,7 @@ export async function GET(req: Request) {
 
     const admin = createSupabaseAdminClient();
     const { data, error } = await admin
-      .from("venue_memberships")
+      .from("organization_members")
       .select("id, staff_email, venue_id, status, created_at")
       .eq("manager_id", user.id)
       .order("created_at", { ascending: true });
@@ -59,11 +59,11 @@ export async function POST(req: Request) {
     // Get manager's tier to check seat cap
     const { data: profile } = await admin
       .from("profiles")
-      .select("plan")
+      .select("tier")
       .eq("id", user.id)
       .single();
 
-    const tier = profile?.plan ?? "free";
+    const tier = profile?.tier ?? "free";
     const maxSeats = TIER_MAX_SEATS[tier] ?? 0;
 
     if (maxSeats === 0) {
@@ -82,21 +82,53 @@ export async function POST(req: Request) {
       );
     }
 
-    // Insert membership
-    const { data: membership, error: insertError } = await admin
-      .from("venue_memberships")
-      .upsert(
-        {
+    // Insert or reactivate membership. Uses select-then-insert because the partial unique
+    // index on organization_members treats NULL venue_id as distinct, so upsert on conflict
+    // would silently create duplicates when venue_id is omitted.
+    let existingQuery = admin
+      .from("organization_members")
+      .select("id, staff_email, venue_id, status")
+      .eq("manager_id", user.id)
+      .ilike("staff_email", email)
+      .not("status", "eq", "removed");
+
+    if (venueId) {
+      existingQuery = existingQuery.eq("venue_id", venueId);
+    } else {
+      existingQuery = existingQuery.is("venue_id", null);
+    }
+
+    const { data: existingMembership } = await existingQuery.maybeSingle();
+
+    let membership: { id: string; staff_email: string; venue_id: string | null; status: string } | null;
+    let insertError: { message: string } | null;
+
+    if (existingMembership) {
+      const { data: updated, error: updateError } = await admin
+        .from("organization_members")
+        .update({ status: "invited", updated_at: new Date().toISOString() })
+        .eq("id", existingMembership.id)
+        .select("id, staff_email, venue_id, status")
+        .single();
+      membership = updated;
+      insertError = updateError;
+    } else {
+      const { data: inserted, error: insertErr } = await admin
+        .from("organization_members")
+        .insert({
           manager_id: user.id,
           staff_email: email,
           venue_id: venueId ?? null,
           status: "invited",
+          role: "staff",
+          seat_counted: true,
           updated_at: new Date().toISOString(),
-        },
-        { onConflict: "manager_id,staff_email" },
-      )
-      .select("id, staff_email, venue_id, status")
-      .single();
+        })
+        .select("id, staff_email, venue_id, status")
+        .single();
+      membership = inserted;
+      insertError = insertErr;
+    }
 
     if (insertError) {
       console.error("Membership insert error:", insertError);
@@ -198,7 +230,7 @@ export async function DELETE(req: Request) {
     const admin = createSupabaseAdminClient();
 
     const { error } = await admin
-      .from("venue_memberships")
+      .from("organization_members")
       .update({ status: "removed", updated_at: new Date().toISOString() })
       .eq("id", membershipId)
       .eq("manager_id", user.id);

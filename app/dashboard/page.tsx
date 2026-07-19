@@ -59,10 +59,9 @@ export default async function DashboardPage({
         if (plan) {
           const admin = createSupabaseAdminClient();
           await admin.from("profiles").update({
-            plan,
             tier: PLAN_TO_TIER[plan] ?? "free",
             stripe_customer_id: stripeSession.customer as string,
-            subscription_active: true,
+            subscription_status: "active",
           }).eq("id", user.id);
         }
       }
@@ -77,7 +76,7 @@ export default async function DashboardPage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, plan, org_id, stripe_customer_id, management_unlocked, notif_reminders, notif_weekly_digest, notif_achievement_alerts, subscription_active, onboarding_completed")
+    .select("display_name, tier, org_id, stripe_customer_id, management_unlocked, notif_reminders, notif_weekly_digest, notif_achievement_alerts, subscription_status, onboarding_completed")
     .eq("id", user.id)
     .single();
 
@@ -96,21 +95,22 @@ export default async function DashboardPage({
     user.email?.split("@")[0] ||
     "there";
 
-  let plan = profile?.plan ?? "free";
+  let plan = profile?.tier ?? "free";
 
-  // Subscription gate: only revoke when the webhook has explicitly written false.
-  // null means the cache columns haven't been written yet — trust the plan in that case.
-  // The webhook handler is the authoritative writer; no live Stripe call here.
-  if (plan !== "free" && profile?.subscription_active === false) {
+  // Subscription gate: only revoke when the webhook has explicitly written a terminal status.
+  // null means subscription_status has never been written — trust tier in that case.
+  const LAPSED_STATUSES = new Set(["canceled", "incomplete_expired", "unpaid"]);
+  if (plan !== "free" && LAPSED_STATUSES.has(profile?.subscription_status ?? "")) {
     plan = "free";
   }
 
-  // Trial gate: runs for any user without an active Stripe subscription (null = trial/new,
-  // false = already caught above and reset). Syncs plan to the live org trial state so:
+  // Trial gate: runs for any user without an active Stripe subscription (null = trial/new).
+  // Syncs plan to the live org trial state so:
   //   - active trial  → plan = trial_tier  (elevates free users; corrects manual DB edits)
   //   - expired trial → plan = "free"      (locks out after trial ends)
-  // Skipped for paying subscribers (subscription_active === true) — their plan is authoritative.
-  if (profile?.subscription_active !== true && profile?.org_id) {
+  // Skipped for paying subscribers — their tier is authoritative.
+  const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active", "trialing", "past_due"]);
+  if (!ACTIVE_SUBSCRIPTION_STATUSES.has(profile?.subscription_status ?? "") && profile?.org_id) {
     const adminForTrial = createSupabaseAdminClient();
     const { data: org } = await adminForTrial
       .from("organizations")
@@ -133,7 +133,7 @@ export default async function DashboardPage({
   if (plan === "free" && user.email) {
     const admin = createSupabaseAdminClient();
     const { data: membership } = await admin
-      .from("venue_memberships")
+      .from("organization_members")
       .select("id, manager_id")
       .eq("staff_email", user.email.toLowerCase())
       .in("status", ["invited", "active"])

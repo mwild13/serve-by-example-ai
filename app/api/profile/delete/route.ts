@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       "user_challenges",
       "user_level_progress",
       "diagnostic_questions",
-      "venue_memberships",
+      "organization_members",
       "venue_staff",
     ];
 

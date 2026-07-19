@@ -61,10 +61,9 @@ export default async function ManagementDashboardPage({
         if (plan) {
           const admin = createSupabaseAdminClient();
           await admin.from("profiles").update({
-            plan,
             tier: PLAN_TO_TIER[plan] ?? "free",
             stripe_customer_id: stripeSession.customer as string,
-            subscription_active: true,
+            subscription_status: "active",
           }).eq("id", user.id);
         }
       }
@@ -75,13 +74,13 @@ export default async function ManagementDashboardPage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, plan, tier, platform_role, subscription_active, org_id, trial_grace_modal_shown")
+    .select("display_name, tier, platform_role, subscription_status, org_id, trial_grace_modal_shown")
     .eq("id", user.id)
     .single();
 
   const displayName =
     profile?.display_name || user.email?.split("@")[0] || "Manager";
-  const plan = profile?.plan ?? "free";
+  const plan = profile?.tier ?? "free";
   const tier = profile?.tier ?? "free";
   const platformRole = profile?.platform_role ?? "staff";
 
@@ -92,9 +91,10 @@ export default async function ManagementDashboardPage({
   const hasVenueTier = B2B_TIERS.includes(tier);
   const hasManagerRole = platformRole === "venue_manager" || platformRole === "multi_venue_manager" || platformRole === "admin";
 
-  // A lapsed subscription (webhook wrote false) revokes venue-based access.
-  // null means subscription_active has never been written — treat as not lapsed.
-  const subscriptionLapsed = profile?.subscription_active === false;
+  // A lapsed subscription (webhook wrote a terminal status) revokes venue-based access.
+  // null means subscription_status has never been written — treat as not lapsed.
+  const LAPSED_STATUSES = new Set(["canceled", "incomplete_expired", "unpaid"]);
+  const subscriptionLapsed = LAPSED_STATUSES.has(profile?.subscription_status ?? "");
   const hasVenueAccess = (hasVenuePlan || hasVenueTier) && !subscriptionLapsed;
 
   // Fetch org trial state — trial managers have platform_role set to venue_manager

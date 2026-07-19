@@ -39,10 +39,9 @@ export async function POST(req: Request) {
       if (pendingPlan) {
         const adminSupabase = createSupabaseAdminClient();
 
-        const tier = PLAN_TO_TIER[pendingPlan] ?? "free";
         await adminSupabase
           .from("profiles")
-          .update({ plan: pendingPlan, tier, stripe_customer_id: customer.id })
+          .update({ tier: PLAN_TO_TIER[pendingPlan] ?? pendingPlan, stripe_customer_id: customer.id })
           .eq("id", user.id);
 
         // Clear the pending flag so it isn't applied twice

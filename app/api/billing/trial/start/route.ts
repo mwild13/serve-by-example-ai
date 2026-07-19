@@ -6,7 +6,7 @@ import { TIER_SEATS } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-// Staff invited via venue_memberships cannot start a trial — their manager is the subscriber.
+// Staff invited via organization_members cannot start a trial — their manager is the subscriber.
 // New users with no platform_role are allowed and will be assigned a manager role on trial start.
 const BLOCKED_ROLES = new Set(["staff"]);
 
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
 
   const { data: profile, error: profileError } = await admin
     .from("profiles")
-    .select("id, platform_role, subscription_active, org_id")
+    .select("id, platform_role, subscription_status, org_id")
     .eq("id", user.id)
     .single();
 
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
     );
   }
 
-  if (profile.subscription_active) {
+  if (profile.subscription_status === "active") {
     return NextResponse.json({ error: "Already subscribed" }, { status: 409 });
   }
 
@@ -111,7 +111,7 @@ export async function POST(req: Request) {
     // Sync plan to the trial tier so dashboard access resolves without manual DB edits.
     await admin
       .from("profiles")
-      .update({ plan: tier })
+      .update({ tier })
       .eq("id", user.id);
 
     console.log(
@@ -148,7 +148,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Failed to start trial" }, { status: 500 });
   }
 
-  await admin.from("profiles").update({ org_id: newOrg.id, plan: tier }).eq("id", user.id);
+  await admin.from("profiles").update({ org_id: newOrg.id, tier }).eq("id", user.id);
 
   console.log(
     `[TRIAL] Started: user=${user.id} org=${newOrg.id} tier=${tier} ends=${trialEndsAt.toISOString()}`,

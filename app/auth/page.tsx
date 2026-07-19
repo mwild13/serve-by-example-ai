@@ -60,7 +60,6 @@ function AuthCard() {
           await supabase.from("profiles").upsert({
             id: data.user.id,
             display_name: email.split("@")[0],
-            plan: "free",
           });
         }
 
@@ -113,12 +112,12 @@ function AuthCard() {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("platform_role, plan, tier, management_unlocked")
+      .select("platform_role, tier, management_unlocked")
       .eq("id", userId)
       .single();
 
     const platformRole = profile?.platform_role ?? "staff";
-    const plan = profile?.plan ?? "free";
+    const plan = profile?.tier ?? "free";
     const tier = profile?.tier ?? "free";
     const isManager =
       platformRole === "venue_manager" ||

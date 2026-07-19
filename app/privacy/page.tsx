@@ -161,7 +161,7 @@ export default function PrivacyPage() {
               <p>
                 Venue managers can access real-time team analytics and staff training progress
                 through Mission Control. We track staff_progress, scenario_mastery, and
-                venue_staff membership data to provide managers with compliance reporting and
+                staff membership data to provide managers with compliance reporting and
                 performance insights. Only the managers of a specific venue can see that
                 venue&apos;s staff data; data is segregated by row-level security (RLS) policies
                 in our database.
@@ -170,7 +170,7 @@ export default function PrivacyPage() {
               <h2>8. Venue Codes & Staff Invitations</h2>
               <p>
                 Venues can generate unique venue codes to invite staff members. When a staff member
-                joins via a venue code, they are added to the venue_memberships table and receive
+                joins via a venue code, they are added to the organisation_members table and receive
                 sponsored access to training modules. Only the venue that created the code can see
                 its associated staff; staff members can see their own profile and progress, and
                 managers at their venue can see aggregated team performance.

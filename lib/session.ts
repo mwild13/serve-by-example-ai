@@ -6,7 +6,7 @@
  * verify the session matches (middleware / API).
  *
  * Tier access: determines what modules a user can reach based on
- * their tier or a sponsor (venue_memberships).
+ * their tier or a sponsor (organization_members).
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -79,7 +79,7 @@ export type AccessInfo = {
   tier: Tier;
   allowedModules: number[]; // 1 = bartending, 2 = sales, 3 = management, 4 = management-console
   maxSeats: number;
-  isSponsored: boolean; // true if access comes via venue_memberships
+  isSponsored: boolean; // true if access comes via organization_members
   sponsorManagerId?: string;
   isTrial?: boolean; // true if access comes from an active org trial
 };
@@ -108,7 +108,7 @@ export const TIER_SEATS: Record<Tier, number> = {
 
 /**
  * Resolve a user's effective access level.
- * Checks own subscription first, then falls back to sponsor (venue_memberships).
+ * Checks own subscription first, then falls back to sponsor (organization_members).
  */
 export async function resolveAccess(
   admin: SupabaseClient,
@@ -118,12 +118,12 @@ export async function resolveAccess(
   // 1. Check user's own profile tier
   const { data: profile } = await admin
     .from("profiles")
-    .select("plan, org_id")
+    .select("tier, org_id")
     .eq("id", userId)
     .single();
 
   // Map legacy plan values to tier values
-  const rawTier = profile?.plan ?? "free";
+  const rawTier = profile?.tier ?? "free";
   const tierMap: Record<string, Tier> = {
     free: "free",
     pro: "pro",
@@ -169,15 +169,16 @@ export async function resolveAccess(
     }
   }
 
-  // 3. Check if the user is sponsored via venue_memberships.
+  // 3. Check if the user is sponsored via organization_members.
   // An active membership is sufficient – no need to re-check the manager's plan.
   // This matches the dashboard page logic which grants access on membership alone.
   if (userEmail) {
     const { data: membership } = await admin
-      .from("venue_memberships")
+      .from("organization_members")
       .select("manager_id")
       .ilike("staff_email", userEmail)
       .in("status", ["active", "invited"])
+      .eq("seat_counted", true)
       .limit(1)
       .maybeSingle();
 
@@ -209,10 +210,11 @@ export async function countActiveSeats(
   venueId?: string,
 ): Promise<number> {
   let query = admin
-    .from("venue_memberships")
+    .from("organization_members")
     .select("id", { count: "exact", head: true })
     .eq("manager_id", managerId)
-    .in("status", ["invited", "active"]);
+    .in("status", ["invited", "active"])
+    .eq("seat_counted", true);
 
   if (venueId) {
     query = query.eq("venue_id", venueId);

@@ -134,10 +134,8 @@ async function handleCheckoutComplete(
     : (TIER_SEAT_LIMITS[tier] ?? 0);
 
   const profileUpdate: Record<string, unknown> = {
-    plan: tier,
     tier,
     stripe_customer_id: stripeCustomerId,
-    subscription_active: true,
     ...(isFounder && { is_founders_user: true }),
   };
 
@@ -229,9 +227,7 @@ async function handleSubscriptionUpsert(
   await supabase
     .from("profiles")
     .update({
-      plan: tier,
       tier,
-      subscription_active: true,
       subscription_status: subscription.status,
       subscription_period_end: periodEnd,
     })
@@ -267,9 +263,7 @@ async function downgradeByCustomer(
   await supabase
     .from("profiles")
     .update({
-      plan: "free",
       tier: "free",
-      subscription_active: false,
       subscription_status: "canceled",
     })
     .eq("stripe_customer_id", customerId);
@@ -295,7 +289,7 @@ async function handleInvoicePaid(
   // customer.subscription.updated event updates subscription_period_end.
   await supabase
     .from("profiles")
-    .update({ subscription_active: true, subscription_status: "active" })
+    .update({ subscription_status: "active" })
     .eq("stripe_customer_id", customerId);
 }
 

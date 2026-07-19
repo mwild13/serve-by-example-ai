@@ -15,10 +15,10 @@ export async function POST(req: Request) {
   const admin = createSupabaseAdminClient();
 
   const { data: membership, error: lookupError } = await admin
-    .from("venue_memberships")
-    .select("id, staff_email, staff_name, manager_user_id")
+    .from("organization_members")
+    .select("id, staff_email, manager_id")
     .eq("id", membershipId)
-    .eq("manager_user_id", user.id)
+    .eq("manager_id", user.id)
     .single();
 
   if (lookupError || !membership) {
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
   }
 
   const email = membership.staff_email as string;
-  const name = (membership.staff_name as string | null) ?? email.split("@")[0];
+  const name = email.split("@")[0];
   const appOrigin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? new URL(req.url).origin;
   const redirectTo = `${appOrigin}/login`;
 

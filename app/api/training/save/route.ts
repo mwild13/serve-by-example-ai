@@ -13,7 +13,7 @@ async function maybeMarkTrialActivated(
 ): Promise<void> {
   // Join membership + manager profile in one query (2 round-trips instead of 3).
   const { data: membership } = await admin
-    .from("venue_memberships")
+    .from("organization_members")
     .select("manager_id, profiles!manager_id(org_id)")
     .eq("staff_email", userEmail.toLowerCase())
     .in("status", ["invited", "active"])

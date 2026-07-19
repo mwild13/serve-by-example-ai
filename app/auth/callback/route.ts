@@ -24,7 +24,6 @@ export async function GET(request: NextRequest) {
             data.user.user_metadata?.full_name ??
             data.user.email?.split("@")[0] ??
             "User",
-          plan: "free",
         });
       }
 

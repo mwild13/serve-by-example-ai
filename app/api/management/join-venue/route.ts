@@ -62,7 +62,7 @@ export async function POST(req: Request) {
 
     const alreadyLinked = !!existingRow;
 
-    // Resolve display name once — used for both venue_staff insert and venue_memberships upsert
+    // Resolve display name once — used for both venue_staff insert and organization_members upsert
     const { data: profile } = await admin
       .from("profiles")
       .select("display_name")
@@ -104,20 +104,35 @@ export async function POST(req: Request) {
         });
     }
 
-    // Grant module access: upsert venue_memberships so resolveAccess returns the manager's tier
+    // Grant module access: upsert organization_members so resolveAccess returns the manager's tier
     if (user.email && venue.owner_user_id) {
-      await admin
-        .from("venue_memberships")
-        .upsert(
-          {
+      const { data: existingMember } = await admin
+        .from("organization_members")
+        .select("id")
+        .eq("manager_id", venue.owner_user_id)
+        .ilike("staff_email", user.email.toLowerCase())
+        .eq("venue_id", venue.id)
+        .not("status", "eq", "removed")
+        .maybeSingle();
+
+      if (existingMember) {
+        await admin
+          .from("organization_members")
+          .update({ status: "active", user_id: user.id, updated_at: new Date().toISOString() })
+          .eq("id", existingMember.id);
+      } else {
+        await admin
+          .from("organization_members")
+          .insert({
             manager_id: venue.owner_user_id,
+            user_id: user.id,
             staff_email: user.email.toLowerCase(),
             venue_id: venue.id,
             status: "active",
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: "manager_id,staff_email" },
-        );
+            role: "staff",
+            seat_counted: true,
+          });
+      }
     }
 
     // Sync any existing training data to the manager dashboard immediately
