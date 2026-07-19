@@ -1,28 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseAdminClient } from '@/lib/supabase-admin';
 
 export async function GET(req: NextRequest) {
-  const id = req.nextUrl.searchParams.get('id');
-
-  if (!id) {
-    return new NextResponse('Invalid unsubscribe link.', { status: 400 });
-  }
-
-  const db = createSupabaseAdminClient();
-  const { error } = await db
-    .from('toolkit_leads')
-    .update({
-      consent_marketing: false,
-      unsubscribed_at: new Date().toISOString(),
-    })
-    .eq('id', id);
-
-  if (error) {
-    console.error('[unsubscribe] DB update failed:', error.message);
-    return new NextResponse('Something went wrong. Please contact info@servebyexample.co to unsubscribe.', {
-      status: 500,
-    });
-  }
+  void req; // id param no longer tracked — toolkit_leads table removed
 
   return new NextResponse(
     `<!DOCTYPE html>

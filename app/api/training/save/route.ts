@@ -223,7 +223,7 @@ export async function POST(req: Request) {
     if (moduleId && moduleId <= 3) {
       const now = new Date().toISOString();
       const { data: existing } = await admin
-        .from("user_training_progress")
+        .from("_legacy_user_training_progress")
         .select("scenarios_completed, total_score_points")
         .eq("user_id", user.id)
         .eq("module", moduleName)
@@ -232,7 +232,7 @@ export async function POST(req: Request) {
       const newScenarios = (existing?.scenarios_completed ?? 0) + 1;
       const newTotalScore = (existing?.total_score_points ?? 0) + overallScore;
 
-      await admin.from("user_training_progress").upsert(
+      await admin.from("_legacy_user_training_progress").upsert(
         {
           user_id: user.id,
           module: moduleName,

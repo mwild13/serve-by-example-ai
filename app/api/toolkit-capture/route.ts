@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server';
-// Ensure these variables are configured inside your local .env.local file
-// NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY
 
 export async function POST(request: Request) {
   try {
@@ -31,53 +29,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. Initialize Supabase Service Role Client dynamically to avoid build-time leaks
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    void utm_campaign; // captured for future use
 
-    if (!supabaseUrl || !supabaseServiceKey) {
-      console.error('Missing critical Supabase environment infrastructure.');
-      return NextResponse.json(
-        { error: 'Database environment variables are unconfigured locally.' },
-        { status: 500 }
-      );
-    }
-
-    // Dynamic import to keep initialization isolated within the execution context
-    const { createClient } = await import('@supabase/supabase-js');
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: { persistSession: false }
-    });
-
-    // 3. Execute Core Data Insertion / Dynamic Profile Upsert
-    // Maps fields directly to public.toolkit_leads table framework
-    const { data: leadData, error: dbError } = await supabase
-      .from('toolkit_leads')
-      .upsert(
-        {
-          email: email.toLowerCase().trim(),
-          first_name: first_name.trim(),
-          role: role,
-          utm_campaign: utm_campaign || 'sop-preview-generic',
-          updated_at: new Date().toISOString()
-        },
-        {
-          onConflict: 'email',
-          ignoreDuplicates: false // Forces updates to trigger on existing records
-        }
-      )
-      .select('id')
-      .single();
-
-    if (dbError) {
-      console.error('Supabase operational database exception:', dbError.message);
-      return NextResponse.json(
-        { error: 'Failed to record lead state securely.' },
-        { status: 500 }
-      );
-    }
-
-    const targetLeadId = leadData?.id || 'returning-profile';
+    // Use a session-scoped ID for email link personalisation (no DB persistence)
+    const targetLeadId = crypto.randomUUID();
 
     // 4. Fire Non-Blocking Verification Email Sequence via Brevo
     if (process.env.BREVO_API_KEY) {

@@ -18,7 +18,7 @@ export async function POST(req: Request) {
 
     // Delete user training and progress data within 30 days per Privacy Policy
     const tablesToDelete = [
-      "user_training_progress",
+      "_legacy_user_training_progress",
       "scenario_mastery",
       "mastery_rows",
       "user_challenges",
