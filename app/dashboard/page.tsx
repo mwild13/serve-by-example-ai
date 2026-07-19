@@ -77,7 +77,7 @@ export default async function DashboardPage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, plan, stripe_customer_id, management_unlocked, notif_reminders, notif_weekly_digest, notif_achievement_alerts, subscription_active, onboarding_completed")
+    .select("display_name, plan, org_id, stripe_customer_id, management_unlocked, notif_reminders, notif_weekly_digest, notif_achievement_alerts, subscription_active, onboarding_completed")
     .eq("id", user.id)
     .single();
 
@@ -103,6 +103,26 @@ export default async function DashboardPage({
   // The webhook handler is the authoritative writer; no live Stripe call here.
   if (plan !== "free" && profile?.subscription_active === false) {
     plan = "free";
+  }
+
+  // Trial gate: runs for any user without an active Stripe subscription (null = trial/new,
+  // false = already caught above and reset). Syncs plan to the live org trial state so:
+  //   - active trial  → plan = trial_tier  (elevates free users; corrects manual DB edits)
+  //   - expired trial → plan = "free"      (locks out after trial ends)
+  // Skipped for paying subscribers (subscription_active === true) — their plan is authoritative.
+  if (profile?.subscription_active !== true && profile?.org_id) {
+    const adminForTrial = createSupabaseAdminClient();
+    const { data: org } = await adminForTrial
+      .from("organizations")
+      .select("trial_tier, trial_ends_at, trial_converted")
+      .eq("id", profile.org_id)
+      .single();
+    const trialStatus = getTrialStatus(org);
+    if (trialStatus === "active" && org?.trial_tier) {
+      plan = org.trial_tier as string;
+    } else if (trialStatus === "expired") {
+      plan = "free";
+    }
   }
 
   // Check if user has an active venue membership (invited by a manager).

@@ -108,6 +108,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Failed to start trial" }, { status: 500 });
     }
 
+    // Sync plan to the trial tier so dashboard access resolves without manual DB edits.
+    await admin
+      .from("profiles")
+      .update({ plan: tier })
+      .eq("id", user.id);
+
     console.log(
       `[TRIAL] Started: user=${user.id} org=${profile.org_id} tier=${tier} ends=${trialEndsAt.toISOString()}`,
     );
@@ -142,7 +148,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Failed to start trial" }, { status: 500 });
   }
 
-  await admin.from("profiles").update({ org_id: newOrg.id }).eq("id", user.id);
+  await admin.from("profiles").update({ org_id: newOrg.id, plan: tier }).eq("id", user.id);
 
   console.log(
     `[TRIAL] Started: user=${user.id} org=${newOrg.id} tier=${tier} ends=${trialEndsAt.toISOString()}`,
