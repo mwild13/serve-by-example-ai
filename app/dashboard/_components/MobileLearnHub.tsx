@@ -77,15 +77,29 @@ type Section = {
 export default function MobileLearnHub({
   setActiveNav,
   isPremium,
+  progressData,
 }: {
   setActiveNav: (nav: NavItem) => void;
   isPremium: boolean;
+  progressData?: Record<string, unknown> | null;
 }) {
+  const masteredCount = progressData?.moduleProgress
+    ? Object.values(progressData.moduleProgress as Record<string, { scenariosMastered?: number }>)
+        .filter((p) => (p.scenariosMastered ?? 0) >= 1).length
+    : null;
+  const totalModules = progressData?.allModules
+    ? (progressData.allModules as unknown[]).length
+    : 40;
+  const moduleDesc =
+    masteredCount !== null && masteredCount > 0
+      ? `${masteredCount} of ${totalModules} modules mastered`
+      : `${totalModules} modules across bartending, service and management`;
+
   const sections: Section[] = [
     {
       id: "module",
       title: "Training Modules",
-      desc: "40 modules across bartending, service and management",
+      desc: moduleDesc,
       icon: <IcBook s={26} />,
       tint: "var(--green-light)",
       iconColor: "var(--green)",
@@ -123,7 +137,7 @@ export default function MobileLearnHub({
   return (
     <div style={{ fontFamily: "var(--font-manrope, system-ui, sans-serif)", color: "var(--text)" }}>
       {/* Green header — matches other page headers */}
-      <div style={{ background: "var(--green)", padding: "20px 16px 16px" }}>
+      <div style={{ background: "var(--green)", padding: "20px 16px 16px", borderRadius: "0 0 32px 32px", boxShadow: "0 4px 20px rgba(15,45,29,0.18)" }}>
         <span style={{
           fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.1em",
           textTransform: "uppercase", color: "rgba(255,255,255,0.6)", display: "block",
@@ -181,6 +195,67 @@ export default function MobileLearnHub({
             </div>
           </button>
         ))}
+      </div>
+
+      {/* Quick Reference */}
+      <div style={{ marginTop: 20 }}>
+        <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: 10 }}>
+          Quick Reference
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          {[
+            {
+              id: "cocktails" as NavItem,
+              title: "Cocktail Library",
+              desc: "38 curated cocktail specs",
+              tint: "var(--gold-light)",
+              color: "var(--gold)",
+              icon: (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M6 4h12l-5 7v6M6 4l6 7M18 4l-6 7M9 20h6" />
+                </svg>
+              ),
+            },
+            {
+              id: "knowledge" as NavItem,
+              title: "101 Knowledge",
+              desc: "Quick-reference hospitality facts",
+              tint: "var(--green-light)",
+              color: "var(--green)",
+              icon: <IcBook s={20} />,
+            },
+          ].map((ref) => (
+            <button
+              key={ref.id}
+              onClick={() => isPremium && setActiveNav(ref.id)}
+              disabled={!isPremium}
+              style={{
+                background: "var(--surface)", border: "1px solid var(--line-light)",
+                borderRadius: "var(--radius-md)", padding: "14px 12px",
+                textAlign: "left", cursor: isPremium ? "pointer" : "default",
+                opacity: isPremium ? 1 : 0.6,
+                display: "flex", flexDirection: "column", gap: 8,
+              }}
+            >
+              <div style={{
+                width: 36, height: 36, borderRadius: 8,
+                background: ref.tint, color: ref.color,
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                {ref.icon}
+              </div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", lineHeight: 1.2, marginBottom: 3 }}>{ref.title}</div>
+                <div style={{ fontSize: 11.5, color: "var(--text-muted)", lineHeight: 1.4 }}>{ref.desc}</div>
+              </div>
+              {!isPremium && (
+                <div style={{ display: "flex", alignItems: "center", gap: 4, color: "var(--text-muted)" }}>
+                  <IcLock s={12} />
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
       {!isPremium && (

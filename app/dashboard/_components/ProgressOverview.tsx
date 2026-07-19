@@ -14,6 +14,7 @@ type ProgressOverviewProps = {
   plan: string;
   onSelectModule?: (moduleId: number) => void;
   onNavigate?: (nav: string) => void;
+  initialProgressData?: Record<string, unknown> | null;
 };
 
 // ── Tab bar ──────────────────────────────────────────────────────────────────
@@ -70,6 +71,7 @@ export default function ProgressOverview({
   plan,
   onSelectModule,
   onNavigate,
+  initialProgressData,
 }: ProgressOverviewProps) {
   const [data, setData] = useState<TrainingData>(EMPTY);
   const [loading, setLoading] = useState(true);
@@ -103,20 +105,9 @@ export default function ProgressOverview({
     });
   }
 
-  async function load() {
-    setLoading(true);
-    setError(false);
-    try {
-      const supabase = createSupabaseBrowserClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      const r = await fetch("/api/training/progress", {
-        headers: session?.access_token
-          ? { Authorization: `Bearer ${session.access_token}` }
-          : {},
-      });
-      const res = await r.json();
-
-      if (res.allModules && res.moduleProgress) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function applyResponse(res: any) {
+    if (res.allModules && res.moduleProgress) {
         const modules: ModuleSummary[] = (
           res.allModules as { id: number; title: string; category: string }[]
         ).map((m) => {
@@ -203,6 +194,20 @@ export default function ProgressOverview({
           challengesCompleted,
         });
       }
+  }
+
+  async function load() {
+    setLoading(true);
+    setError(false);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      const r = await fetch("/api/training/progress", {
+        headers: session?.access_token
+          ? { Authorization: `Bearer ${session.access_token}` }
+          : {},
+      });
+      applyResponse(await r.json() as Record<string, unknown>);
     } catch {
       setError(true);
     } finally {
@@ -210,7 +215,15 @@ export default function ProgressOverview({
     }
   }
 
-  useEffect(() => { void load(); }, []);
+  useEffect(() => {
+    if (initialProgressData) {
+      applyResponse(initialProgressData);
+      setLoading(false);
+    } else {
+      void load();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── Derived values ──────────────────────────────────────────────────────────
 
@@ -277,12 +290,9 @@ export default function ProgressOverview({
   if (loading) {
     return (
       <div className="progress-overview">
-        <div className="sbe-command-bar sbe-command-bar-active" style={{ marginBottom: "1.75rem" }}>
-          <div className="sbe-command-text">
-            <span className="sbe-command-eyebrow">Me</span>
-            <strong>Your Training Progress</strong>
-            <span className="sbe-command-meta">Track mastery, scores and certifications across all 40 modules</span>
-          </div>
+        <div style={{ background: "var(--green)", padding: "20px 16px 16px", borderRadius: "0 0 var(--radius-xl) var(--radius-xl)", boxShadow: "0 4px 20px rgba(15,45,29,0.18)", margin: "0 -1rem 1.75rem" }}>
+          <span style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)", display: "block" }}>Me</span>
+          <h1 style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 22, fontWeight: 600, color: "#fff", margin: "2px 0 0" }}>Your Training Progress</h1>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {[200, 120, 160, 100].map((h, i) => (
@@ -307,11 +317,9 @@ export default function ProgressOverview({
   if (error) {
     return (
       <div className="progress-overview">
-        <div className="sbe-command-bar sbe-command-bar-active" style={{ marginBottom: "1.75rem" }}>
-          <div className="sbe-command-text">
-            <span className="sbe-command-eyebrow">Me</span>
-            <strong>Your Training Progress</strong>
-          </div>
+        <div style={{ background: "var(--green)", padding: "20px 16px 16px", borderRadius: "0 0 var(--radius-xl) var(--radius-xl)", boxShadow: "0 4px 20px rgba(15,45,29,0.18)", margin: "0 -1rem 1.75rem" }}>
+          <span style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)", display: "block" }}>Me</span>
+          <h1 style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 22, fontWeight: 600, color: "#fff", margin: "2px 0 0" }}>Your Training Progress</h1>
         </div>
         <div
           style={{
@@ -354,12 +362,9 @@ export default function ProgressOverview({
   return (
     <div className="progress-overview">
       {/* ── Page banner ──────────────────────────────────────── */}
-      <div className="sbe-command-bar sbe-command-bar-active" style={{ marginBottom: "1.75rem" }}>
-        <div className="sbe-command-text">
-          <span className="sbe-command-eyebrow">Me</span>
-          <strong>Your Training Progress</strong>
-          <span className="sbe-command-meta">Track mastery, scores and certifications across all 40 modules</span>
-        </div>
+      <div style={{ background: "var(--green)", padding: "20px 16px 16px", borderRadius: "0 0 var(--radius-xl) var(--radius-xl)", boxShadow: "0 4px 20px rgba(15,45,29,0.18)", margin: "0 -1rem 1.75rem" }}>
+        <span style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)", display: "block" }}>Me</span>
+        <h1 style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 22, fontWeight: 600, color: "#fff", margin: "2px 0 0" }}>Your Training Progress</h1>
       </div>
 
       {/* ── Tab bar ──────────────────────────────────────────── */}

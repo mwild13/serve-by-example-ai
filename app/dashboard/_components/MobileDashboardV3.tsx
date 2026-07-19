@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
-import SignOutButton from "@/components/ui/SignOutButton";
 import { computeBadges, type Badge, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
 
 // ── Types ─────────────────────────────────────────────────────
@@ -276,6 +275,27 @@ function badgeIcon(b: Badge) {
   return <IcMedal s={26} />;
 }
 
+// ── Daily goal ring ────────────────────────────────────────────
+const RING_R = 20;
+const RING_C = 2 * Math.PI * RING_R;
+
+function getDailyGoalCount(): number {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    return parseInt(localStorage.getItem(`sbe-daily-goal-${today}`) ?? "0", 10);
+  } catch { return 0; }
+}
+
+function incrementDailyGoalCount(): number {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const key = `sbe-daily-goal-${today}`;
+    const next = Math.min(3, parseInt(localStorage.getItem(key) ?? "0", 10) + 1);
+    localStorage.setItem(key, String(next));
+    return next;
+  } catch { return 0; }
+}
+
 // ── Glowing progress bar ───────────────────────────────────────
 function GlowBar({ pct, height = 8 }: { pct: number; height?: number }) {
   const [w, setW] = useState(0);
@@ -462,9 +482,12 @@ export default function MobileDashboardV3({
   const [streak, setStreak] = useState(0);
   const [coach, setCoach] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [goalCount, setGoalCount] = useState(0);
+  const [reviewDismissed, setReviewDismissed] = useState(false);
 
-  // Initialize streak on mount
+  // Initialize streak and daily goal count on mount
   useEffect(() => {
+    setGoalCount(getDailyGoalCount());
     try {
       const supabase = createSupabaseBrowserClient();
       supabase.auth.getSession().then(({ data: { session } }) => {
@@ -519,6 +542,11 @@ export default function MobileDashboardV3({
     Math.max(1, Math.round((masteredModules / Math.max(totalModules, 1)) * 10)),
   );
   const levelTitle = LEVEL_TITLES[skillLevel] ?? "Barback";
+  const rawLevel = (masteredModules / Math.max(totalModules, 1)) * 10;
+  const levelPct = skillLevel >= 10 ? 100 : Math.min(100, Math.max(0, Math.round(((rawLevel - Math.max(0, skillLevel - 0.5)) / 1.0) * 100)));
+  const modulesToNextLevel = skillLevel < 10
+    ? Math.max(0, Math.ceil((skillLevel + 0.5) * Math.max(totalModules, 1) / 10) - masteredModules)
+    : 0;
 
   const nextModule = getNextModule(data.allModules, data.moduleProgress);
   const focusModules = getWeeklyFocus(data.allModules, data.moduleProgress);
@@ -548,6 +576,9 @@ export default function MobileDashboardV3({
     data.bestCorrectStreak,
     data.sbeEliteNumber,
   );
+  const earnedBadges = badges.filter((b) => b.earned);
+  const nextTargetBadge = badges.find((b) => !b.earned) ?? null;
+  const displayBadges = nextTargetBadge ? [...earnedBadges, nextTargetBadge] : earnedBadges;
 
   return (
     <div style={{
@@ -587,15 +618,45 @@ export default function MobileDashboardV3({
                   <IcFlame s={17} />{streak}
                 </div>
               )}
-              <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(145deg, var(--green-mid), var(--green))", border: "2px solid var(--gold-warm)", color: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
-                {initial}
+              <div style={{ position: "relative", width: 36, height: 36, flexShrink: 0 }}>
+                <svg
+                  style={{ position: "absolute", top: -4, left: -4, width: 44, height: 44, pointerEvents: "none" }}
+                  viewBox="0 0 44 44"
+                >
+                  <circle cx="22" cy="22" r={RING_R} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="2.5" />
+                  <circle
+                    cx="22" cy="22" r={RING_R}
+                    fill="none"
+                    stroke="var(--gold-warm)"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeDasharray={RING_C}
+                    strokeDashoffset={RING_C * (1 - Math.min(goalCount / 3, 1))}
+                    transform="rotate(-90 22 22)"
+                    style={{ transition: "stroke-dashoffset 0.8s cubic-bezier(.22,.9,.3,1)" }}
+                  />
+                </svg>
+                <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(145deg, var(--green-mid), var(--green))", border: "2px solid var(--gold-warm)", color: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14 }}>
+                  {initial}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Greeting */}
-          <div suppressHydrationWarning style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 25, fontWeight: 600, letterSpacing: -0.2, marginBottom: 12 }}>
+          <div suppressHydrationWarning style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 25, fontWeight: 600, letterSpacing: -0.2, marginBottom: 3 }}>
             {timeGreeting()}, {firstName}
+          </div>
+
+          {/* Momentum subline */}
+          <div suppressHydrationWarning style={{ fontSize: 12.5, color: "rgba(245,242,233,0.62)", marginBottom: 12, fontWeight: 500 }}>
+            {streak > 2
+              ? `Day ${streak} streak — keep it going`
+              : loaded && data.reviewDue > 0
+              ? `${data.reviewDue} module${data.reviewDue !== 1 ? "s" : ""} ready for review`
+              : loaded && masteredModules > 0
+              ? `${masteredModules} of ${Math.max(totalModules, 1)} modules mastered`
+              : "What will you learn today?"}
           </div>
 
           {/* Stats row */}
@@ -613,14 +674,72 @@ export default function MobileDashboardV3({
               </div>
             ))}
           </div>
+
+          {/* Level progression bar */}
+          {loaded && (
+            <div style={{ marginTop: 14, borderTop: "1px solid rgba(245,242,233,0.12)", paddingTop: 12 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(245,242,233,0.65)", textTransform: "uppercase", letterSpacing: 0.8 }}>
+                  Level {skillLevel} — {levelTitle}
+                </span>
+                {skillLevel < 10 && modulesToNextLevel > 0 && (
+                  <span style={{ fontSize: 10.5, color: "rgba(245,242,233,0.45)", fontWeight: 600 }}>
+                    {modulesToNextLevel} module{modulesToNextLevel !== 1 ? "s" : ""} to Level {skillLevel + 1}
+                  </span>
+                )}
+              </div>
+              <div style={{ height: 4, background: "rgba(255,255,255,0.12)", borderRadius: 99, overflow: "hidden" }}>
+                <div style={{
+                  height: "100%",
+                  width: `${skillLevel >= 10 ? 100 : levelPct}%`,
+                  background: "var(--gold-warm)",
+                  borderRadius: 99,
+                  transition: "width 1.1s cubic-bezier(.22,.9,.3,1)",
+                }} />
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* Review due alert */}
+        {loaded && data.reviewDue > 0 && !reviewDismissed && (
+          <div style={{ padding: "12px 16px 0" }}>
+            <div style={{
+              background: "var(--gold-light)", border: "1px solid var(--line)",
+              borderRadius: "var(--radius-md)", padding: "11px 14px",
+              display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                <div style={{ color: "var(--gold)", flexShrink: 0 }}><IcClock s={17} /></div>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text)" }}>
+                  {data.reviewDue} module{data.reviewDue !== 1 ? "s" : ""} due for review
+                </span>
+              </div>
+              <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
+                <button
+                  onClick={() => setActiveNav("module")}
+                  style={{ fontSize: 12, fontWeight: 700, color: "var(--green)", background: "var(--green-light)", border: "none", padding: "5px 10px", borderRadius: 99, cursor: "pointer" }}
+                >
+                  Review
+                </button>
+                <button
+                  onClick={() => setReviewDismissed(true)}
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", padding: 4, display: "flex", alignItems: "center" }}
+                  aria-label="Dismiss"
+                >
+                  <IcX s={15} />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Continue Learning */}
         <div style={{ padding: "12px 16px 0" }}>
           {nextModule ? (
             <button
               className="sbe-tap"
-              onClick={() => { if (onSelectModule && nextModule) onSelectModule(nextModule.id); else setActiveNav("module"); }}
+              onClick={() => { setGoalCount(incrementDailyGoalCount()); if (onSelectModule && nextModule) onSelectModule(nextModule.id); else setActiveNav("module"); }}
               style={{ width: "100%", background: "var(--surface)", borderRadius: "var(--radius-xl)", boxShadow: "0 8px 32px rgba(15,45,29,0.10)", overflow: "hidden", border: "1px solid var(--line-light)", textAlign: "left", cursor: "pointer" }}
             >
               <div style={{ height: 76, background: "var(--green-deep)", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -659,7 +778,7 @@ export default function MobileDashboardV3({
                 <button
                   key={m.id}
                   className="sbe-tap"
-                  onClick={() => { if (onSelectModule) onSelectModule(m.id); else setActiveNav("module"); }}
+                  onClick={() => { setGoalCount(incrementDailyGoalCount()); if (onSelectModule) onSelectModule(m.id); else setActiveNav("module"); }}
                   style={{ background: "var(--surface)", borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid var(--line-light)", boxShadow: "0 4px 20px rgba(15,45,29,0.05)", textAlign: "left", cursor: "pointer" }}
                 >
                   <div style={{ height: 52, background: categoryTint(m.category, i), display: "flex", alignItems: "center", justifyContent: "center", color: categoryIconColor(m.category, i) }}>
@@ -678,14 +797,14 @@ export default function MobileDashboardV3({
         )}
 
         {/* Achievements */}
-        {badges.length > 0 && (
+        {displayBadges.length > 0 && (
           <div style={{ padding: "14px 16px 0" }}>
             <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.4, color: "var(--text-muted)", marginBottom: 10, marginLeft: 2 }}>
               Achievements
             </div>
             <div style={{ maskImage: "linear-gradient(to right, black 82%, transparent 100%)", WebkitMaskImage: "linear-gradient(to right, black 82%, transparent 100%)" }}>
               <div style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 4, paddingRight: 32 }}>
-              {badges.slice(0, 8).map((b) => (
+              {displayBadges.map((b) => (
                 <button
                   key={b.id}
                   className="sbe-tap"
@@ -700,8 +819,17 @@ export default function MobileDashboardV3({
                     background: b.earned ? "var(--gold-light)" : "var(--bg-alt)",
                     color: b.earned ? "var(--gold)" : "var(--text-muted)",
                     boxShadow: b.earned ? "0 4px 14px rgba(196,154,47,0.25)" : "none",
+                    position: "relative",
                   }}>
                     {badgeIcon(b)}
+                    {!b.earned && nextTargetBadge && b.id === nextTargetBadge.id && (
+                      <span style={{
+                        position: "absolute", bottom: -2, right: -2,
+                        background: "var(--green)", color: "white",
+                        fontSize: 8, fontWeight: 800, lineHeight: 1,
+                        padding: "2px 4px", borderRadius: 99, letterSpacing: 0.3,
+                      }}>NEXT</span>
+                    )}
                   </div>
                   <span style={{ fontSize: 10, fontWeight: 700, color: b.earned ? "var(--text-soft)" : "var(--text-muted)", textAlign: "center", lineHeight: 1.2 }}>
                     {b.label}
@@ -713,9 +841,8 @@ export default function MobileDashboardV3({
           </div>
         )}
 
-        <div className="mobile-signout-wrap" style={{ padding: "18px 16px 0", display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", justifyContent: "space-between" }}>
-          <SignOutButton />
-          {onSyncProgress && (
+        {onSyncProgress && (
+          <div style={{ padding: "18px 16px 0", display: "flex", justifyContent: "flex-end" }}>
             <button
               onClick={onSyncProgress}
               style={{
@@ -731,8 +858,8 @@ export default function MobileDashboardV3({
               </svg>
               Sync progress
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
         <div style={{ height: 8 }} />
       </div>
@@ -742,7 +869,7 @@ export default function MobileDashboardV3({
         onClick={() => setCoach(true)}
         aria-label="Open AI Coach"
         style={{
-          position: "absolute", right: 20, bottom: "calc(80px + env(safe-area-inset-bottom))",
+          position: "fixed", right: 20, bottom: "calc(100px + env(safe-area-inset-bottom))",
           width: 56, height: 56, borderRadius: "50%", zIndex: 48,
           border: "none", background: "var(--gold-warm)", color: "#ffffff",
           display: "flex", alignItems: "center", justifyContent: "center",
