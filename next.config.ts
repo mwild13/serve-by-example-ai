@@ -41,6 +41,16 @@ module.exports = withBundleAnalyzer({
     ];
   },
 
+  async redirects() {
+    return [
+      {
+        source: "/pricing",
+        destination: "/membership",
+        permanent: true,
+      },
+    ];
+  },
+
   images: {
     // Serve AVIF first (best compression), fall back to WebP
     formats: ["image/avif", "image/webp"],

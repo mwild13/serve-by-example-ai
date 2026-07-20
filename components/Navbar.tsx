@@ -255,7 +255,6 @@ export default function Navbar({
             </div>
 
             <Link href="/resources">Resources</Link>
-            <Link href="/demo" className="nav-demo-btn">Explore the Demo</Link>
           </nav>
 
           <div className="nav-right">
@@ -264,11 +263,24 @@ export default function Navbar({
                 Go to Dashboard →
               </Link>
             ) : showActions ? (
-              <div className="nav-actions">
+              <div className="nav-actions" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Link
+                  href="/login?intent=trial&tier=boutique"
+                  className="btn btn-secondary"
+                  style={{ fontSize: "0.875rem", padding: "8px 16px" }}
+                >
+                  Start Free Trial
+                </Link>
                 <Link
                   href="/login"
                   className="btn"
-                  style={{ backgroundColor: "var(--green)", color: "var(--surface)", border: "none" }}
+                  style={{
+                    backgroundColor: "var(--green)",
+                    color: "var(--surface)",
+                    border: "none",
+                    fontSize: "0.875rem",
+                    padding: "8px 16px",
+                  }}
                 >
                   Login
                 </Link>
@@ -377,12 +389,16 @@ export default function Navbar({
             <Link href="/resources" className="nav-drawer-link" onClick={close}>
               Resources
             </Link>
-            <Link href="/demo" className="nav-drawer-link" onClick={close}>
-              Demo
-            </Link>
 
             {showActions && (
-              <div className="nav-drawer-actions">
+              <div className="nav-drawer-actions" style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <Link
+                  href="/login?intent=trial&tier=boutique"
+                  className="btn btn-secondary btn-block"
+                  onClick={close}
+                >
+                  Free Trial
+                </Link>
                 <Link
                   href="/login"
                   className="btn btn-block"

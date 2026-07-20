@@ -52,7 +52,8 @@ export default function Footer() {
             <li><Link href="/about">About</Link></li>
             <li><Link href="/security">Security &amp; Safety</Link></li>
             <li><Link href="/contact">Contact</Link></li>
-            <li><Link href="/pricing">Pricing</Link></li>
+            <li><Link href="/membership">Pricing</Link></li>
+            <li><Link href="/login?intent=trial&tier=boutique">Start a free trial</Link></li>
           </ul>
         </div>
       </div>

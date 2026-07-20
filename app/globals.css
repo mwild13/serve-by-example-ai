@@ -16912,6 +16912,19 @@ h1, h2, h3 {
 }
 
 /* ==========================================================================
+   Pricing / Membership — Compare Matrix sticky header
+   ========================================================================== */
+
+.pricing-matrix-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ==========================================================================
    CROSS-BROWSER VANILLA RANGE INPUT RESETS & TRACK FILL
    ========================================================================== */
 

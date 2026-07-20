@@ -8,10 +8,112 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import ROICalculator from "@/components/ui/ROICalculator";
 import CompareMatrix from "@/components/ui/CompareMatrix";
 
+// ── Feature item: premium name + muted plain sub-label ────────────────────────
+function FeatureItem({ name, sublabel }: { name: string; sublabel?: string }) {
+  return (
+    <li
+      style={{
+        display: "flex",
+        alignItems: "flex-start",
+        gap: "10px",
+        padding: "4px 0",
+        listStyle: "none",
+      }}
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        style={{ color: "var(--green)", flexShrink: 0, marginTop: 3 }}
+        aria-hidden="true"
+      >
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+      <span style={{ lineHeight: 1.5 }}>
+        <span
+          style={{
+            fontFamily: "var(--font-manrope)",
+            fontSize: "0.875rem",
+            fontWeight: 600,
+            color: "var(--text)",
+            display: "block",
+          }}
+        >
+          {name}
+        </span>
+        {sublabel && (
+          <span
+            style={{
+              fontFamily: "var(--font-manrope)",
+              fontSize: "0.75rem",
+              color: "var(--text-muted)",
+              display: "block",
+              marginTop: "1px",
+            }}
+          >
+            {sublabel}
+          </span>
+        )}
+      </span>
+    </li>
+  );
+}
+
+// ── Price block: large dominant figure + muted annual sub-line ────────────────
+function PriceBlock({
+  billing,
+  monthly,
+  annualMonthly,
+  annualTotal,
+  isCustom,
+}: {
+  billing: "monthly" | "yearly";
+  monthly: string;
+  annualMonthly: string;
+  annualTotal: string;
+  isCustom?: boolean;
+}) {
+  return (
+    <div style={{ marginBottom: "1.25rem", minHeight: "4rem" }}>
+      <div
+        style={{
+          fontFamily: "var(--font-fraunces)",
+          fontSize: "2.25rem",
+          fontWeight: 700,
+          color: "var(--text)",
+          lineHeight: 1.1,
+        }}
+      >
+        {isCustom ? "Custom" : billing === "yearly" ? annualMonthly : monthly}
+      </div>
+      <div
+        style={{
+          fontFamily: "var(--font-manrope)",
+          fontSize: "0.8rem",
+          color: "var(--text-muted)",
+          marginTop: "4px",
+          minHeight: "1.2em",
+        }}
+      >
+        {isCustom
+          ? "Per arrangement"
+          : billing === "yearly"
+          ? `Billed annually (${annualTotal})`
+          : ""}
+      </div>
+    </div>
+  );
+}
+
 export default function PricingPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
-  const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
+  const [billing, setBilling] = useState<"monthly" | "yearly">("yearly");
 
   // Reset stuck "Redirecting..." when user presses browser back from Stripe
   useEffect(() => {
@@ -82,12 +184,11 @@ export default function PricingPage() {
       <main>
         <section className="page-hero">
           <div className="container">
-            <div className="eyebrow">Pricing</div>
-            <h1>Simple plans for individuals and venue teams.</h1>
+            <div className="eyebrow">Membership</div>
+            <h1>Your Membership Starts Here.</h1>
             <p>
-              Early access pricing in AUD for founding members and venue teams. Start
-              with the demo, upgrade when you are ready, and lock in launch-stage
-              rates while onboarding is still hands-on.
+              Built for hospitality operators. Priced for founders. Lock in your
+              rate before the industry catches up.
             </p>
           </div>
         </section>
@@ -103,8 +204,17 @@ export default function PricingPage() {
               </div>
             )}
 
-            {/* Billing toggle */}
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: "2rem" }}>
+            {/* ── Billing toggle ── */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "12px",
+                marginBottom: "2rem",
+                flexWrap: "wrap",
+              }}
+            >
               <div
                 style={{
                   display: "flex",
@@ -144,164 +254,419 @@ export default function PricingPage() {
                     cursor: "pointer",
                     boxShadow: billing === "yearly" ? "0 1px 4px rgba(0,0,0,0.1)" : "none",
                     transition: "all 0.15s",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "7px",
                   }}
                 >
-                  Yearly
-                  <span
-                    style={{
-                      fontSize: "0.68rem",
-                      fontWeight: 800,
-                      color: "#16a34a",
-                      background: "#d1fae5",
-                      borderRadius: "999px",
-                      padding: "2px 8px",
-                      letterSpacing: "0.03em",
-                    }}
-                  >
-                    2 months free
-                  </span>
+                  Annually
                 </button>
               </div>
+              <span
+                style={{
+                  fontSize: "0.75rem",
+                  fontWeight: 800,
+                  color: "var(--green)",
+                  background: "var(--green-light)",
+                  borderRadius: "999px",
+                  padding: "4px 12px",
+                  letterSpacing: "0.02em",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Save up to $298
+              </span>
             </div>
 
+            {/* ── Four tier cards ── */}
             <div
               className="pricing-grid"
               style={{ gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))" }}
             >
-              {/* Free Demo */}
-              <div className="price-card">
-                <h3>Free Demo</h3>
-                <div className="price">
-                  $0 <small>/ try it</small>
+              {/* Staff | Pro */}
+              <div className="price-card" style={{ background: "var(--surface)" }}>
+                <div style={{ marginBottom: "0.5rem" }}>
+                  <h3
+                    style={{
+                      fontFamily: "var(--font-fraunces)",
+                      margin: "0 0 2px",
+                    }}
+                  >
+                    Staff
+                  </h3>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-manrope)",
+                      fontSize: "0.8rem",
+                      color: "var(--text-muted)",
+                      fontWeight: 500,
+                    }}
+                  >
+                    Pro
+                  </span>
                 </div>
-                <div className="price-note">
-                  Best for curious staff wanting to preview the platform.
-                </div>
-                <ul className="feature-list">
-                  <li>Limited demo access</li>
-                  <li>Sample coaching prompts</li>
-                  <li>1 bartender module preview</li>
-                </ul>
-                <Link href="/demo" className="btn btn-secondary">
-                  Start Demo
-                </Link>
-              </div>
 
-              {/* Pro */}
-              <div className="price-card featured">
-                <h3>Pro</h3>
-                <div className="price">
-                  AUD ${billing === "monthly" ? "19" : "190"}{" "}
-                  <small>/ {billing === "monthly" ? "month" : "year"}</small>
-                </div>
-                <div className="price-note">
-                  Best for individual bartenders and hospitality staff.
-                </div>
-                <ul className="feature-list">
-                  <li>Full 40-module training library</li>
-                  <li>Bartending, Sales and Management tracks</li>
-                  <li>AI Arena scenario practice</li>
-                  <li>Progress tracking and badges</li>
+                <PriceBlock
+                  billing={billing}
+                  monthly="AUD $19 / mo"
+                  annualMonthly="AUD $15.83 / mo"
+                  annualTotal="AUD $190/yr"
+                />
+
+                <p
+                  style={{
+                    fontFamily: "var(--font-manrope)",
+                    fontSize: "0.8125rem",
+                    color: "var(--text-soft)",
+                    marginBottom: "1.25rem",
+                  }}
+                >
+                  For individual bartenders and hospitality staff.
+                </p>
+
+                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 1.5rem" }}>
+                  <FeatureItem
+                    name="Neural Scenario Forge"
+                    sublabel="AI live roleplay evaluation"
+                  />
+                  <FeatureItem
+                    name="Mastery Protocol Engine"
+                    sublabel="40 modules across Bartending, Sales &amp; Management"
+                  />
+                  <FeatureItem
+                    name="Dynamic Skill Calibration"
+                    sublabel="Adapts to what each staff member still needs to learn"
+                  />
+                  <FeatureItem
+                    name="Rapid Deploy Drilling"
+                    sublabel="Streak-based rapid-fire quiz mode"
+                  />
+                  <FeatureItem
+                    name="Reflex Scenario Challenges"
+                    sublabel="5 tap-based mobile mini-games"
+                  />
                 </ul>
+
                 <button
-                  className="btn btn-gold"
+                  className="btn btn-primary"
                   onClick={() =>
                     handleCheckout(billing === "monthly" ? "pro" : "pro_yearly")
                   }
                   disabled={isLoading("pro", "pro_yearly")}
+                  style={{ width: "100%" }}
                 >
-                  {isLoading("pro", "pro_yearly") ? "Redirecting..." : "Join Pro"}
+                  {isLoading("pro", "pro_yearly") ? "Redirecting..." : "Subscribe now"}
                 </button>
+                <p
+                  style={{
+                    fontFamily: "var(--font-manrope)",
+                    fontSize: "0.75rem",
+                    color: "var(--text-muted)",
+                    marginTop: 8,
+                    textAlign: "center",
+                  }}
+                >
+                  No credit card required for trial. Billed annually. Cancel anytime.
+                </p>
               </div>
 
-              {/* Boutique */}
-              <div className="price-card">
-                <h3>Boutique</h3>
-                <div className="price">
-                  AUD ${billing === "monthly" ? "79" : "790"}{" "}
-                  <small>/ {billing === "monthly" ? "month" : "year"}</small>
+              {/* Venue | Boutique — Most Popular */}
+              <div
+                className="price-card"
+                style={{
+                  background: "var(--surface)",
+                  borderTop: "4px solid var(--green)",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  <div>
+                    <h3
+                      style={{
+                        fontFamily: "var(--font-fraunces)",
+                        margin: "0 0 2px",
+                      }}
+                    >
+                      Venue
+                    </h3>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-manrope)",
+                        fontSize: "0.8rem",
+                        color: "var(--text-muted)",
+                        fontWeight: 500,
+                      }}
+                    >
+                      Boutique
+                    </span>
+                  </div>
+                  <span
+                    style={{
+                      fontSize: "0.68rem",
+                      fontWeight: 700,
+                      color: "var(--green)",
+                      background: "var(--green-light)",
+                      borderRadius: "999px",
+                      padding: "3px 10px",
+                      letterSpacing: "0.03em",
+                      textTransform: "uppercase",
+                      whiteSpace: "nowrap",
+                      marginTop: 2,
+                    }}
+                  >
+                    Most Popular
+                  </span>
                 </div>
-                <div className="price-note">
-                  Best for single-venue operators and small teams.
-                </div>
-                <ul className="feature-list">
-                  <li><strong>Up to 15 staff seats</strong></li>
-                  <li>Full training library for all staff</li>
-                  <li>Mission Control manager dashboard</li>
-                  <li>Staff invite and progress tracking</li>
-                  <li>Venue onboarding framework</li>
+
+                <PriceBlock
+                  billing={billing}
+                  monthly="AUD $79 / mo"
+                  annualMonthly="AUD $65.83 / mo"
+                  annualTotal="AUD $790/yr"
+                />
+
+                <p
+                  style={{
+                    fontFamily: "var(--font-manrope)",
+                    fontSize: "0.8125rem",
+                    color: "var(--text-soft)",
+                    marginBottom: "1.25rem",
+                  }}
+                >
+                  For single-venue operators and small teams.
+                </p>
+
+                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 1.5rem" }}>
+                  <FeatureItem name="Everything in Staff" />
+                  <FeatureItem
+                    name="Up to 15 staff seats"
+                    sublabel="Invite via venue code, live in under 5 minutes"
+                  />
+                  <FeatureItem
+                    name="Command &amp; Compliance Centre"
+                    sublabel="Real-time team progress and compliance dashboard"
+                  />
+                  <FeatureItem
+                    name="Competitive Performance Index"
+                    sublabel="Live staff leaderboards"
+                  />
+                  <FeatureItem
+                    name="Guided venue setup call"
+                    sublabel="1-on-1 onboarding session included"
+                  />
                 </ul>
+
                 <button
                   className="btn btn-primary"
                   onClick={() => handleTrialStart("boutique")}
                   disabled={isTrialLoading("boutique")}
+                  style={{ width: "100%" }}
                 >
-                  {isTrialLoading("boutique") ? "Starting..." : "Start Free Trial"}
+                  {isTrialLoading("boutique") ? "Starting..." : "Try Free for 14 Days"}
                 </button>
-                <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: 8, textAlign: "center" }}>
-                  14 days free — no credit card required
+                <p
+                  style={{
+                    fontFamily: "var(--font-manrope)",
+                    fontSize: "0.75rem",
+                    color: "var(--text-muted)",
+                    marginTop: 8,
+                    textAlign: "center",
+                  }}
+                >
+                  14-day free trial. No credit card required. Pick a plan when
+                  you&rsquo;re ready.
                 </p>
               </div>
 
-              {/* Commercial */}
-              <div className="price-card">
-                <h3>Commercial</h3>
-                <div className="price">
-                  AUD ${billing === "monthly" ? "149" : "1,490"}{" "}
-                  <small>/ {billing === "monthly" ? "month" : "year"}</small>
+              {/* Group | Commercial */}
+              <div className="price-card" style={{ background: "var(--surface)" }}>
+                <div style={{ marginBottom: "0.5rem" }}>
+                  <h3
+                    style={{
+                      fontFamily: "var(--font-fraunces)",
+                      margin: "0 0 2px",
+                    }}
+                  >
+                    Group
+                  </h3>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-manrope)",
+                      fontSize: "0.8rem",
+                      color: "var(--text-muted)",
+                      fontWeight: 500,
+                    }}
+                  >
+                    Commercial
+                  </span>
                 </div>
-                <div className="price-note">
-                  Best for growing venues with larger teams and multiple locations.
-                </div>
-                <ul className="feature-list">
-                  <li><strong>Up to 35 staff seats</strong></li>
-                  <li>Full training library for all staff</li>
-                  <li>Advanced analytics and leaderboards</li>
-                  <li>Cross-team compliance tracking</li>
-                  <li>Priority support</li>
+
+                <PriceBlock
+                  billing={billing}
+                  monthly="AUD $149 / mo"
+                  annualMonthly="AUD $124.17 / mo"
+                  annualTotal="AUD $1,490/yr"
+                />
+
+                <p
+                  style={{
+                    fontFamily: "var(--font-manrope)",
+                    fontSize: "0.8125rem",
+                    color: "var(--text-soft)",
+                    marginBottom: "1.25rem",
+                  }}
+                >
+                  For growing venues with larger teams and multiple locations.
+                </p>
+
+                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 1.5rem" }}>
+                  <FeatureItem name="Everything in Venue" />
+                  <FeatureItem
+                    name="Up to 35 staff seats"
+                    sublabel="Across one or multiple service areas"
+                  />
+                  <FeatureItem
+                    name="Compliance Pulse Monitoring"
+                    sublabel="Live cross-team training compliance"
+                  />
+                  <FeatureItem
+                    name="Advanced analytics"
+                    sublabel="Cohort comparisons and performance trends"
+                  />
+                  <FeatureItem
+                    name="Dedicated onboarding specialist"
+                    sublabel="2 setup sessions included"
+                  />
                 </ul>
+
                 <button
                   className="btn btn-primary"
                   onClick={() => handleTrialStart("commercial")}
                   disabled={isTrialLoading("commercial")}
+                  style={{ width: "100%" }}
                 >
-                  {isTrialLoading("commercial") ? "Starting..." : "Start Free Trial"}
+                  {isTrialLoading("commercial") ? "Starting..." : "Try Free for 14 Days"}
                 </button>
-                <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: 8, textAlign: "center" }}>
-                  14 days free — no credit card required
+                <p
+                  style={{
+                    fontFamily: "var(--font-manrope)",
+                    fontSize: "0.75rem",
+                    color: "var(--text-muted)",
+                    marginTop: 8,
+                    textAlign: "center",
+                  }}
+                >
+                  14-day free trial. No credit card required. Pick a plan when
+                  you&rsquo;re ready.
                 </p>
               </div>
 
-              {/* Enterprise */}
-              <div className="price-card">
-                <h3>Enterprise</h3>
-                <div className="price">
-                  Custom <small>/ per arrangement</small>
+              {/* Franchise | Enterprise */}
+              <div className="price-card" style={{ background: "var(--surface)" }}>
+                <div style={{ marginBottom: "0.5rem" }}>
+                  <h3
+                    style={{
+                      fontFamily: "var(--font-fraunces)",
+                      margin: "0 0 2px",
+                    }}
+                  >
+                    Franchise
+                  </h3>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-manrope)",
+                      fontSize: "0.8rem",
+                      color: "var(--text-muted)",
+                      fontWeight: 500,
+                    }}
+                  >
+                    Enterprise
+                  </span>
                 </div>
-                <div className="price-note">
-                  Best for venue groups and large hospitality organisations.
-                </div>
-                <ul className="feature-list">
-                  <li><strong>Unlimited staff seats</strong></li>
-                  <li>Full training library for all staff</li>
-                  <li>Dedicated account management</li>
-                  <li>Custom module development</li>
-                  <li>SLA and compliance reporting</li>
-                  <li>White-label options available</li>
+
+                <PriceBlock
+                  billing={billing}
+                  monthly=""
+                  annualMonthly=""
+                  annualTotal=""
+                  isCustom
+                />
+
+                <p
+                  style={{
+                    fontFamily: "var(--font-manrope)",
+                    fontSize: "0.8125rem",
+                    color: "var(--text-soft)",
+                    marginBottom: "1.25rem",
+                  }}
+                >
+                  For venue groups and large hospitality organisations.
+                </p>
+
+                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 1.5rem" }}>
+                  <FeatureItem name="Everything in Group" />
+                  <FeatureItem
+                    name="Unlimited staff seats"
+                    sublabel="Across unlimited venues"
+                  />
+                  <FeatureItem
+                    name="Franchise Command Network"
+                    sublabel="Multi-venue staff roster and analytics"
+                  />
+                  <FeatureItem
+                    name="Custom module development"
+                    sublabel="Training tailored to your brand"
+                  />
+                  <FeatureItem
+                    name="White-glove onboarding"
+                    sublabel="Dedicated account management included"
+                  />
                 </ul>
-                <Link href="/contact" className="btn btn-secondary">
-                  Contact us
+
+                <Link
+                  href="/contact"
+                  className="btn btn-secondary"
+                  style={{ display: "block", textAlign: "center" }}
+                >
+                  Talk to us
                 </Link>
+                <p
+                  style={{
+                    fontFamily: "var(--font-manrope)",
+                    fontSize: "0.75rem",
+                    color: "var(--text-muted)",
+                    marginTop: 8,
+                    textAlign: "center",
+                  }}
+                >
+                  Custom pricing. SLA included. White-label available.
+                </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ── ROI Calculator ── */}
-        <ROICalculator />
+        {/* ── ROI Calculator — distinct background ── */}
+        <section
+          style={{
+            background: "var(--bg-alt)",
+            padding: "var(--section-pad, 5rem) 0",
+          }}
+        >
+          <div className="container">
+            <ROICalculator />
+          </div>
+        </section>
+
+        {/* ── Feature Comparison Matrix ── */}
+        <section className="section">
+          <div className="container">
+            <CompareMatrix />
+          </div>
+        </section>
 
         {/* ── Investment Protection ── */}
         <section className="section founding-section">
@@ -403,13 +768,6 @@ export default function PricingPage() {
           </div>
         </section>
 
-        {/* ── Comparison Matrix ── */}
-        <section className="section">
-          <div className="container">
-            <CompareMatrix />
-          </div>
-        </section>
-
         <section className="section section-alt">
           <div className="container">
             <SectionHeading
@@ -419,46 +777,48 @@ export default function PricingPage() {
             />
             <div className="faq-list">
               <details className="faq-item">
-                <summary>Is there a trial available?</summary>
+                <summary>Is there a free trial?</summary>
                 <p>
-                  Yes. The <strong>Free Demo</strong> provides access to three scored
-                  scenario evaluations. No credit card required. Experience the
-                  platform&apos;s tactical feedback before upgrading to a paid tier.
+                  Yes. <strong>Venue</strong> and <strong>Group</strong> plans
+                  include a 14-day free trial with no credit card required.
+                  Experience Mission Control and the full training library before
+                  committing to a paid tier.
                 </p>
               </details>
               <details className="faq-item">
                 <summary>How is billing structured?</summary>
                 <p>
-                  We operate on a transparent, monthly subscription model. There are
-                  no long-term contracts or lock-in periods; you may cancel at any
-                  time, with access continuing through the end of your billing cycle.
+                  We offer monthly and annual billing. Annual billing saves up to
+                  AUD $298 per year compared to monthly. There are no long-term
+                  contracts or lock-in periods; you may cancel at any time, with
+                  access continuing through the end of your billing cycle.
                 </p>
               </details>
               <details className="faq-item">
                 <summary>What is your refund policy?</summary>
                 <p>
-                  We offer a 14-day window on your initial payment should the platform
-                  not meet your operational standards. Beyond this period, we do not
-                  offer refunds, though you retain the flexibility to cancel at any
-                  time.
+                  We offer a 14-day window on your initial payment should the
+                  platform not meet your operational standards. Beyond this period,
+                  we do not offer refunds, though you retain the flexibility to
+                  cancel at any time.
                 </p>
               </details>
               <details className="faq-item">
                 <summary>What occurs upon cancellation?</summary>
                 <p>
-                  Your access remains active until your current paid period concludes.
-                  Afterward, your account transitions to the <strong>Free Demo</strong>{" "}
-                  tier; your historical training data is securely archived, allowing you
-                  to reactivate your subscription whenever you are ready.
+                  Your access remains active until your current paid period
+                  concludes. Your historical training data is securely archived,
+                  allowing you to reactivate your subscription whenever you are
+                  ready.
                 </p>
               </details>
               <details className="faq-item">
                 <summary>What are the limits on staff access?</summary>
                 <p>
-                  <strong>Boutique</strong> plans provide up to 15 staff seats for one
-                  venue. <strong>Commercial</strong> plans support up to 35 staff
-                  across your team. <strong>Enterprise</strong> plans are custom-scoped
-                  and support unlimited staff across multiple venues. For very large
+                  <strong>Venue</strong> plans provide up to 15 staff seats for one
+                  venue. <strong>Group</strong> plans support up to 35 staff across
+                  your team. <strong>Franchise</strong> plans are custom-scoped and
+                  support unlimited staff across multiple venues. For very large
                   venue groups, please use our contact form to discuss custom
                   arrangements.
                 </p>
@@ -469,18 +829,21 @@ export default function PricingPage() {
                   Absolutely. All scenario responses are utilised exclusively to
                   calculate your personal performance metrics. Your data is strictly
                   private and is never disclosed to third parties or other venues
-                  without your explicit consent. Refer to our{" "}
-                  <a href="/privacy">Privacy Policy</a> for technical specifications.
+                  without your explicit consent. All data is isolated per venue
+                  using Supabase Row-Level Security. Refer to our{" "}
+                  <a href="/privacy">Privacy Policy</a> for technical
+                  specifications.
                 </p>
               </details>
               <details className="faq-item">
                 <summary>Do you provide enterprise-level solutions?</summary>
                 <p>
-                  Yes. Our <strong>Enterprise</strong> tier is designed for venue
+                  Yes. Our <strong>Franchise</strong> tier is designed for venue
                   groups and large hospitality organisations. It includes unlimited
-                  seats, dedicated account management, custom module development, and
-                  white-label options. Please use our <a href="/contact">contact
-                  form</a> to discuss a custom arrangement.
+                  seats, dedicated account management, custom module development,
+                  and white-label options. Please use our{" "}
+                  <a href="/contact">contact form</a> to discuss a custom
+                  arrangement.
                 </p>
               </details>
             </div>
