@@ -4,8 +4,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About Us | Serve By Example",
+  title: "About Serve By Example | AI Hospitality Staff Training",
   description: "Serve By Example was built by people who know hospitality. Learn about our mission to replace inconsistent on-floor training with scalable, structured digital learning.",
+  alternates: { canonical: "/about" },
 };
 
 export default function AboutPage() {

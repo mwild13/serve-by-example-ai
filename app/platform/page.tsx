@@ -3,6 +3,14 @@ import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SectionSubNav from "@/components/SectionSubNav";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Platform Overview | AI Hospitality Training | Serve By Example",
+  description:
+    "Scenario simulators, live performance tracking, AI coaching, and multi-venue management. The full Serve By Example training platform for hospitality teams.",
+  alternates: { canonical: "/platform" },
+};
 
 const features = [
   {
@@ -97,12 +105,24 @@ const stats = [
   { value: "40+", label: "Training modules across bartending, sales and management" },
 ];
 
+const platformSchema = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Serve By Example",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "description": "AI-powered hospitality staff training platform featuring scenario simulators, live performance tracking, AI coaching, and multi-venue management for bars, restaurants, and hotel groups.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "AUD", "description": "Free trial available" },
+  "provider": { "@id": "https://servebyexample.co/#organization" },
+};
+
 export default function PlatformPage() {
   return (
     <div className="page-shell">
       <Navbar />
 
       <main>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(platformSchema) }} />
         <div className="section-subnav-sentinel" aria-hidden="true" />
         <SectionSubNav items={[
           { id: "overview", label: "Overview" },
@@ -299,7 +319,7 @@ export default function PlatformPage() {
                 <li>Managers get push alerts for team milestones</li>
               </ul>
               <div style={{ marginTop: 24 }}>
-                <Link href="/pricing" className="btn btn-secondary">View Pricing →</Link>
+                <Link href="/membership" className="btn btn-secondary">View Pricing →</Link>
               </div>
             </div>
             <div className="platform-mobile-visual">

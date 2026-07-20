@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Interactive Training for Pub Groups | Serve By Example",
   description:
     "Standardise training across every site in your pub group. Consistent service, faster onboarding, and real visibility into staff readiness, from a single console.",
+  alternates: { canonical: "/solutions/pub-groups" },
 };
 
 const features = [
@@ -49,11 +50,22 @@ const features = [
   },
 ];
 
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://servebyexample.co" },
+    { "@type": "ListItem", "position": 2, "name": "Solutions", "item": "https://servebyexample.co/solutions" },
+    { "@type": "ListItem", "position": 3, "name": "Multi-Venue Pub Groups", "item": "https://servebyexample.co/solutions/pub-groups" },
+  ],
+};
+
 export default function PubGroupsPage() {
   return (
     <div className="page-shell">
       <Navbar />
       <main>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
         {/* ── Hero ── */}
         <section className="inner-hero sol-hero">
           <div className="container">
@@ -71,7 +83,7 @@ export default function PubGroupsPage() {
             </p>
             <div className="inner-hero-actions">
               <Link href="/contact" className="btn btn-primary btn-lg">Request Venue Access</Link>
-              <Link href="/pricing" className="btn btn-secondary btn-lg">View Pricing</Link>
+              <Link href="/membership" className="btn btn-secondary btn-lg">View Pricing</Link>
             </div>
           </div>
         </section>

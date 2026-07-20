@@ -7,6 +7,54 @@ export const metadata: Metadata = {
   title: 'Free Staff Onboarding SOP Templates | Serve By Example',
   description:
     'Generate customised, venue-specific staff onboarding SOP templates for Australian hospitality operators in 60 seconds. Covers RSA, allergens, opening/closing, and compliance paperwork.',
+  alternates: { canonical: '/resources/sop-toolkit' },
+};
+
+const sopFaqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is this actually free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. No credit card, no account, no catch. Enter your name and email to unlock your editable template.",
+      },
+    },
+    {
+      "@type": "Question",
+      "name": "Which Australian states are covered?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "All 8 states and territories. Regulatory references are tailored to the jurisdiction you select.",
+      },
+    },
+    {
+      "@type": "Question",
+      "name": "Can I edit the template?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. You receive a fully editable Notion document you can duplicate into your own workspace and customise from there.",
+      },
+    },
+    {
+      "@type": "Question",
+      "name": "Is this a substitute for legal or HR advice?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Templates are aligned to publicly available Award and licensing frameworks. Seek qualified advice for complex compliance questions.",
+      },
+    },
+    {
+      "@type": "Question",
+      "name": "What's the difference between this and the Serve By Example platform?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The SOP template is a one-time static document. The platform gives your team interactive training, AI scenario practice, progress tracking, and a full manager dashboard.",
+      },
+    },
+  ],
 };
 
 export default function SopToolkitPage() {
@@ -14,6 +62,10 @@ export default function SopToolkitPage() {
     <div className="page-shell">
       <Navbar />
       <main>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(sopFaqSchema) }}
+        />
 
         {/* ── Hero ── */}
         <section className="inner-hero">

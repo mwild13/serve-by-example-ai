@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Interactive Training for Hotel F&B Teams | Serve By Example",
   description:
     "From all-day dining to rooftop bars, equip every hotel F&B outlet with consistent, scalable interactive training. Serve By Example works across multiple outlets, service styles, and staff levels.",
+  alternates: { canonical: "/solutions/hotel-fb" },
 };
 
 const features = [
@@ -54,11 +55,22 @@ const features = [
   },
 ];
 
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://servebyexample.co" },
+    { "@type": "ListItem", "position": 2, "name": "Solutions", "item": "https://servebyexample.co/solutions" },
+    { "@type": "ListItem", "position": 3, "name": "Hotel F&B", "item": "https://servebyexample.co/solutions/hotel-fb" },
+  ],
+};
+
 export default function HotelFBPage() {
   return (
     <div className="page-shell">
       <Navbar />
       <main>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
         {/* ── Hero ── */}
         <section className="inner-hero sol-hero">
           <div className="container">
@@ -77,7 +89,7 @@ export default function HotelFBPage() {
             </p>
             <div className="inner-hero-actions">
               <Link href="/contact" className="btn btn-primary btn-lg">Request Venue Access</Link>
-              <Link href="/pricing" className="btn btn-secondary btn-lg">View Pricing</Link>
+              <Link href="/membership" className="btn btn-secondary btn-lg">View Pricing</Link>
             </div>
           </div>
         </section>

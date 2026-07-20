@@ -4,9 +4,10 @@ import Footer from "@/components/Footer";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Product Roadmap | Serve By Example",
+  title: "Product Roadmap | What We're Building | Serve By Example",
   description:
     "See what we're building next. Serve By Example is actively developing new training modules, platform features, and tools for Australian hospitality venues.",
+  alternates: { canonical: "/roadmap" },
 };
 
 const roadmapItems = [
@@ -117,7 +118,7 @@ export default function RoadmapPage() {
               <Link href="/contact" className="btn btn-primary btn-lg">
                 Request Venue Access
               </Link>
-              <Link href="/pricing" className="btn btn-secondary btn-lg">
+              <Link href="/membership" className="btn btn-secondary btn-lg">
                 View Pricing
               </Link>
             </div>

@@ -6,10 +6,17 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import VenueMarquee from "@/components/VenueMarquee";
 import { IconUsers, IconBuilding, IconBook, IconZap, IconLayers, IconPhone } from "@/components/icons/MarketingIcons";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Serve By Example | Train Hospitality Staff 3x Faster",
+  description:
+    "Get your team shift-ready instantly with live-scored scenario roleplays and real-time skill ratings built for fast-paced hospitality.",
+  alternates: { canonical: "/" },
+};
 
 // Lazy-load heavy interactive components
 const ROICalculator = lazy(() => import("@/components/ui/ROICalculator"));
-const CompareMatrix = lazy(() => import("@/components/ui/CompareMatrix"));
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
@@ -19,6 +26,65 @@ export default function Home() {
       <Navbar showNavbarLanguageOnMobile={false} />
 
       <main id="main-content">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              "mainEntity": [
+                {
+                  "@type": "Question",
+                  "name": "How long does setup take?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Most venues are fully set up within a day. We provide starter templates, onboarding support, and pre-built training modules. No content creation required from your side.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  "name": "Is it mobile-friendly?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes. The entire platform is built mobile-first. Staff can complete training between shifts, on the way to work, or at the bar. Platforms built this way see 90%+ completion rates.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  "name": "What happens if a staff member leaves?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Their account is deactivated and their seat is freed up for a new hire. Their training history stays on record for compliance and reporting purposes.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  "name": "Do you offer compliance or RSA certificates?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Our modules cover responsible service content and service standards. Formal RSA certification requires an accredited provider. We integrate training around compliance knowledge, not replace licensed certification.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  "name": "Can I try it before committing?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes. The free demo gives you access to the scenario engine and a sample of the training content. No credit card required. Venue plans include a walkthrough call before any commitment.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  "name": "How is this different from a generic LMS?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Generic LMS platforms are built for corporate compliance training: long videos, passive quizzes, and no real skill measurement. Serve By Example is built for hospitality: scenario roleplay, live scoring, and skill ratings designed around shift-by-shift operations.",
+                  },
+                },
+              ],
+            }),
+          }}
+        />
 
         {/* ── Hero ─────────────────────────────────── */}
         <HeroSection />
@@ -427,7 +493,7 @@ export default function Home() {
               <p style={{ margin: "0.4rem 0 0" }}>If your team&rsquo;s training engagement doesn&rsquo;t noticeably increase in the first 14 days, you won&rsquo;t be charged.</p>
             </div>
             <div style={{ textAlign: "center", marginTop: "1.75rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem" }}>
-              <Link href="/pricing" className="btn btn-primary">View full pricing</Link>
+              <Link href="/membership" className="btn btn-primary">View full pricing</Link>
               <Link href="/demo" style={{ fontSize: "0.8rem", color: "var(--text-soft)", textDecoration: "underline", textUnderlineOffset: "3px" }}>or explore the demo free</Link>
             </div>
           </div>
@@ -526,15 +592,6 @@ export default function Home() {
                 </details>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* ── Comparison Matrix ────────────────────── */}
-        <section className="section section-alt">
-          <div className="container">
-            <Suspense fallback={<div style={{ height: "500px", background: "var(--bg-alt)" }} />}>
-              <CompareMatrix />
-            </Suspense>
           </div>
         </section>
 

@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Security & Data Safety | Serve By Example",
   description:
     "Serve By Example stores only what training requires: names, emails, and learning progress. Your staff data, recipes, and operational policies stay private.",
+  alternates: { canonical: "/security" },
 };
 
 const weStore = [

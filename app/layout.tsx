@@ -101,6 +101,31 @@ export default async function RootLayout({
           `}
         </Script>
 
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  "@id": "https://servebyexample.co/#organization",
+                  "name": "Serve By Example",
+                  "url": "https://servebyexample.co",
+                  "description":
+                    "AI-powered hospitality staff training platform for bars, restaurants, and hotel groups in Australia.",
+                },
+                {
+                  "@type": "WebSite",
+                  "@id": "https://servebyexample.co/#website",
+                  "url": "https://servebyexample.co",
+                  "name": "Serve By Example",
+                  "publisher": { "@id": "https://servebyexample.co/#organization" },
+                },
+              ],
+            }),
+          }}
+        />
         <a href="#main-content" className="skip-nav">Skip to main content</a>
         {children}
         <ErrorLogger />

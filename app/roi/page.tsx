@@ -5,9 +5,10 @@ import ROICalculator from "@/components/ui/ROICalculator";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "ROI Calculator | Serve By Example",
+  title: "Hospitality Training ROI Calculator | Serve By Example",
   description:
     "Calculate the revenue impact of scenario-based training for your hospitality team. See what better training is worth to your venue.",
+  alternates: { canonical: "/roi" },
 };
 
 const supportingStats = [
@@ -84,7 +85,7 @@ export default function ROIPage() {
               <Link href="/demo" className="btn btn-primary btn-lg">
                 Try the Demo
               </Link>
-              <Link href="/pricing" className="btn btn-secondary btn-lg">
+              <Link href="/membership" className="btn btn-secondary btn-lg">
                 View Pricing
               </Link>
             </div>

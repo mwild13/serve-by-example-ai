@@ -182,18 +182,88 @@ export default function PricingPage() {
       <Navbar />
 
       <main>
-        <section className="page-hero">
-          <div className="container">
-            <div className="eyebrow">Membership</div>
-            <h1>Your Membership Starts Here.</h1>
-            <p>
-              Built for hospitality operators. Priced for founders. Lock in your
-              rate before the industry catches up.
+        {/* ── Membership hero — minimal, announcement-first ── */}
+        <section
+          style={{
+            paddingTop: "clamp(3rem, 6vw, 5rem)",
+            paddingBottom: "clamp(1.5rem, 3vw, 2.5rem)",
+            textAlign: "center",
+          }}
+        >
+          <div className="container" style={{ maxWidth: 560 }}>
+            {/* Announcement pill — mirrors Kimi's top banner */}
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                background: "var(--green-light)",
+                border: "1px solid rgba(31,78,55,0.18)",
+                borderRadius: "999px",
+                padding: "5px 14px 5px 10px",
+                marginBottom: "1.75rem",
+              }}
+            >
+              {/* Lock icon */}
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ color: "var(--green)", flexShrink: 0 }}
+                aria-hidden="true"
+              >
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              <span
+                style={{
+                  fontFamily: "var(--font-manrope)",
+                  fontSize: "0.775rem",
+                  fontWeight: 700,
+                  color: "var(--green)",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                Founding Member Rates — Locked In For Life
+              </span>
+            </div>
+
+            <h1
+              style={{
+                fontFamily: "var(--font-fraunces)",
+                fontSize: "clamp(2rem, 4.5vw, 2.75rem)",
+                fontWeight: 700,
+                color: "var(--text)",
+                lineHeight: 1.15,
+                margin: "0 0 0.875rem",
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Your Membership Starts Here.
+            </h1>
+            <p
+              style={{
+                fontFamily: "var(--font-manrope)",
+                fontSize: "clamp(0.9rem, 1.5vw, 1rem)",
+                color: "var(--text-soft)",
+                lineHeight: 1.6,
+                margin: 0,
+              }}
+            >
+              Built for hospitality operators. Priced for founders.{" "}
+              <span style={{ color: "var(--text-muted)" }}>
+                Lock in your rate before the industry catches up.
+              </span>
             </p>
           </div>
         </section>
 
-        <section className="section" style={{ paddingTop: 24 }}>
+        <section className="section" style={{ paddingTop: 8 }}>
           <div className="container">
             {checkoutError && (
               <div
@@ -204,22 +274,22 @@ export default function PricingPage() {
               </div>
             )}
 
-            {/* ── Billing toggle ── */}
+            {/* ── Billing toggle — Kimi-style pill ── */}
             <div
               style={{
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                gap: "12px",
-                marginBottom: "2rem",
-                flexWrap: "wrap",
+                gap: "0",
+                marginBottom: "2.5rem",
               }}
             >
               <div
                 style={{
-                  display: "flex",
-                  background: "#f3f4f6",
-                  borderRadius: "10px",
+                  display: "inline-flex",
+                  background: "var(--bg-alt)",
+                  border: "1px solid var(--line)",
+                  borderRadius: "999px",
                   padding: "4px",
                   gap: "2px",
                 }}
@@ -227,16 +297,17 @@ export default function PricingPage() {
                 <button
                   onClick={() => setBilling("monthly")}
                   style={{
-                    padding: "8px 22px",
-                    borderRadius: "7px",
+                    padding: "7px 24px",
+                    borderRadius: "999px",
                     border: "none",
-                    background: billing === "monthly" ? "white" : "transparent",
-                    fontWeight: 700,
+                    background: billing === "monthly" ? "var(--surface)" : "transparent",
+                    fontFamily: "var(--font-manrope)",
+                    fontWeight: 600,
                     fontSize: "0.875rem",
-                    color: billing === "monthly" ? "#111827" : "#6b7280",
+                    color: billing === "monthly" ? "var(--text)" : "var(--text-muted)",
                     cursor: "pointer",
-                    boxShadow: billing === "monthly" ? "0 1px 4px rgba(0,0,0,0.1)" : "none",
-                    transition: "all 0.15s",
+                    boxShadow: billing === "monthly" ? "var(--shadow-sm)" : "none",
+                    transition: "all 0.15s ease",
                   }}
                 >
                   Monthly
@@ -244,41 +315,49 @@ export default function PricingPage() {
                 <button
                   onClick={() => setBilling("yearly")}
                   style={{
-                    padding: "8px 22px",
-                    borderRadius: "7px",
+                    padding: "7px 20px",
+                    borderRadius: "999px",
                     border: "none",
-                    background: billing === "yearly" ? "white" : "transparent",
-                    fontWeight: 700,
+                    background: billing === "yearly" ? "var(--surface)" : "transparent",
+                    fontFamily: "var(--font-manrope)",
+                    fontWeight: 600,
                     fontSize: "0.875rem",
-                    color: billing === "yearly" ? "#111827" : "#6b7280",
+                    color: billing === "yearly" ? "var(--text)" : "var(--text-muted)",
                     cursor: "pointer",
-                    boxShadow: billing === "yearly" ? "0 1px 4px rgba(0,0,0,0.1)" : "none",
-                    transition: "all 0.15s",
+                    boxShadow: billing === "yearly" ? "var(--shadow-sm)" : "none",
+                    transition: "all 0.15s ease",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
                   }}
                 >
                   Annually
+                  <span
+                    style={{
+                      fontSize: "0.7rem",
+                      fontWeight: 800,
+                      color: "var(--green)",
+                      background: "var(--green-light)",
+                      borderRadius: "999px",
+                      padding: "2px 8px",
+                      letterSpacing: "0.02em",
+                      whiteSpace: "nowrap" as const,
+                    }}
+                  >
+                    Save $298
+                  </span>
                 </button>
               </div>
-              <span
-                style={{
-                  fontSize: "0.75rem",
-                  fontWeight: 800,
-                  color: "var(--green)",
-                  background: "var(--green-light)",
-                  borderRadius: "999px",
-                  padding: "4px 12px",
-                  letterSpacing: "0.02em",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                Save up to $298
-              </span>
             </div>
 
             {/* ── Four tier cards ── */}
             <div
               className="pricing-grid"
-              style={{ gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))" }}
+              style={{
+                gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
+                gap: "12px",
+                alignItems: "stretch",
+              }}
             >
               {/* Staff | Pro */}
               <div className="price-card" style={{ background: "var(--surface)" }}>

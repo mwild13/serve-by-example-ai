@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   description:
     'Customisable FOH and BOH onboarding SOP templates for Australian hospitality venues. Covers RSA compliance, Day 1 orientation, food safety, and progress review.',
   robots: 'noindex',
+  alternates: { canonical: '/toolkit' },
 };
 
 export default function ToolkitPage() {

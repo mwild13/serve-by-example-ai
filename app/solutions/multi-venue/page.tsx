@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Interactive Training for Multi-Venue Groups | Serve By Example",
   description:
     "Centralised staff training and analytics for multi-venue hospitality groups. Compare venue health, spot skill gaps across sites, and manage up to 125 staff from one console.",
+  alternates: { canonical: "/solutions/multi-venue" },
 };
 
 const features = [
@@ -55,11 +56,22 @@ const features = [
   },
 ];
 
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://servebyexample.co" },
+    { "@type": "ListItem", "position": 2, "name": "Solutions", "item": "https://servebyexample.co/solutions" },
+    { "@type": "ListItem", "position": 3, "name": "Multi-Venue Groups", "item": "https://servebyexample.co/solutions/multi-venue" },
+  ],
+};
+
 export default function MultiVenuePage() {
   return (
     <div className="page-shell">
       <Navbar />
       <main>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
         {/* ── Hero ── */}
         <section className="inner-hero sol-hero">
           <div className="container">
@@ -77,7 +89,7 @@ export default function MultiVenuePage() {
             </p>
             <div className="inner-hero-actions">
               <Link href="/contact" className="btn btn-primary btn-lg">Request Venue Access</Link>
-              <Link href="/pricing" className="btn btn-secondary btn-lg">View Pricing</Link>
+              <Link href="/membership" className="btn btn-secondary btn-lg">View Pricing</Link>
             </div>
           </div>
         </section>

@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Interactive Training for Franchise Systems | Serve By Example",
   description:
     "Replace inconsistent franchisee training with a scalable training platform that enforces brand standards across every location without head-office oversight.",
+  alternates: { canonical: "/solutions/franchise-systems" },
 };
 
 const features = [
@@ -52,11 +53,22 @@ const features = [
   },
 ];
 
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://servebyexample.co" },
+    { "@type": "ListItem", "position": 2, "name": "Solutions", "item": "https://servebyexample.co/solutions" },
+    { "@type": "ListItem", "position": 3, "name": "Franchises & QSRs", "item": "https://servebyexample.co/solutions/franchise-systems" },
+  ],
+};
+
 export default function FranchiseSystemsPage() {
   return (
     <div className="page-shell">
       <Navbar />
       <main>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
         {/* ── Hero ── */}
         <section className="inner-hero sol-hero">
           <div className="container">
@@ -74,7 +86,7 @@ export default function FranchiseSystemsPage() {
             </p>
             <div className="inner-hero-actions">
               <Link href="/contact" className="btn btn-primary btn-lg">Request Venue Access</Link>
-              <Link href="/pricing" className="btn btn-secondary btn-lg">View Pricing</Link>
+              <Link href="/membership" className="btn btn-secondary btn-lg">View Pricing</Link>
             </div>
           </div>
         </section>

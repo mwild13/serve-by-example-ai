@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "How It Works | Serve By Example",
   description: "See how Serve By Example's three-stage training loop takes hospitality staff from onboarding through to real-world confidence — with scenario practice, scoring, and performance tracking.",
+  alternates: { canonical: "/how-it-works" },
 };
 
 const steps = [
@@ -70,12 +71,30 @@ const pillars = [
   },
 ];
 
+const howToSchema = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How Serve By Example Works",
+  "description":
+    "Serve By Example's three-stage training loop takes hospitality staff from onboarding through to real-world confidence — with scenario practice, scoring, and performance tracking.",
+  "step": steps.map((s, i) => ({
+    "@type": "HowToStep",
+    "position": i + 1,
+    "name": s.title,
+    "text": s.description,
+  })),
+};
+
 export default function HowItWorksPage() {
   return (
     <div className="page-shell">
       <Navbar />
 
       <main>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
+        />
         {/* ── Hero ── */}
         <section className="inner-hero">
           <div className="container">
@@ -90,7 +109,7 @@ export default function HowItWorksPage() {
               <Link href="/platform" className="btn btn-primary btn-lg">
                 See the Platform
               </Link>
-              <Link href="/pricing" className="btn btn-secondary btn-lg">
+              <Link href="/membership" className="btn btn-secondary btn-lg">
                 View Pricing
               </Link>
             </div>

@@ -3,6 +3,24 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DashboardMockup from "@/components/ui/DashboardMockup";
 import CompareMatrix from "@/components/ui/CompareMatrix";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Staff Training for Venue Operators | Serve By Example",
+  description:
+    "Onboard faster, train consistently, and improve service standards across your venue. Serve By Example gives operators real-time visibility into every staff member's readiness.",
+  alternates: { canonical: "/for-venues" },
+};
+
+const venueServiceSchema = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Serve By Example Staff Training",
+  "provider": { "@id": "https://servebyexample.co/#organization" },
+  "description": "AI-powered hospitality staff training for venue operators. Onboard faster, train consistently, and get real-time visibility into every staff member's readiness.",
+  "areaServed": { "@type": "Country", "name": "Australia" },
+  "serviceType": "Hospitality Staff Training",
+};
 
 const outcomes = [
   "Reduce time spent repeating the same training basics",
@@ -17,6 +35,7 @@ export default function ForVenuesPage() {
       <Navbar />
 
       <main>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(venueServiceSchema) }} />
         {/* ── Hero ── */}
         <section className="inner-hero">
           <div className="container">
@@ -33,7 +52,7 @@ export default function ForVenuesPage() {
               <Link href="/contact" className="btn btn-primary btn-lg">
                 Request Venue Access
               </Link>
-              <Link href="/pricing" className="btn btn-secondary btn-lg">
+              <Link href="/membership" className="btn btn-secondary btn-lg">
                 View Pricing
               </Link>
             </div>

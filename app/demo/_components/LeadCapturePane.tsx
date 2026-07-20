@@ -24,12 +24,12 @@ export function CtaGuaranteeBlock({ variant, pulse = false }: CtaGuaranteeBlockP
       {variant === "dark" ? (
         <>
           <a href="/login" className="btn btn-gold btn-lg">Create free account</a>
-          <a href="/pricing" className="btn btn-outline-light btn-lg">See pricing</a>
+          <a href="/membership" className="btn btn-outline-light btn-lg">See pricing</a>
         </>
       ) : (
         <>
           <a href="/login" className="btn btn-primary btn-lg">Create free account</a>
-          <a href="/pricing" className="btn btn-secondary btn-lg">See pricing</a>
+          <a href="/membership" className="btn btn-secondary btn-lg">See pricing</a>
         </>
       )}
     </div>

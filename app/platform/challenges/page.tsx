@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Interactive Challenges | Serve By Example",
   description:
     "Tap-based hospitality training mini-games. Sequence sorts, recipe builds, match pairs, and scenario responses. No typing, no exam pressure.",
+  alternates: { canonical: "/platform/challenges" },
 };
 
 const formats = [
@@ -1045,7 +1046,7 @@ export default function ChallengesMarketingPage() {
                 Open the dashboard
               </Link>
               <Link
-                href="/pricing"
+                href="/membership"
                 style={{
                   display: "inline-block",
                   padding: "0.85rem 2.25rem",

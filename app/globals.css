@@ -1755,31 +1755,31 @@ ul {
 }
 
 .price-card {
-  background: var(--surface-raised);
-  border: 1px solid var(--line-light);
-  border-radius: var(--radius-lg);
-  padding: 36px 28px 32px;
-  box-shadow: var(--shadow-sm);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);   /* softer than before — matches Kimi's card feel */
+  padding: 28px 24px 28px;           /* tighter vertical padding — less dead air */
+  box-shadow: none;                  /* no resting shadow — cleaner, Kimi-like */
   position: relative;
-  transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .price-card:hover {
-  transform: translateY(-3px);
+  /* Subtle border lift only — no translateY, avoids clunky jump on hover */
   box-shadow: var(--shadow-md);
+  border-color: var(--line-light);
 }
 
+/* .featured is no longer used in the new design — top border accent applied inline */
+/* Kept as a no-op so existing references don't error */
 .price-card.featured {
-  border: 2px solid var(--green-mid);
-  box-shadow: 0 22px 40px rgba(31, 78, 55, 0.2);
-  transform: scale(1.03);
-  z-index: 2;
-  background: linear-gradient(170deg, #f8fff9 0%, #e7f4eb 52%, #d9ecdf 100%);
+  border-top: 4px solid var(--green);
 }
 
 .price-card.featured:hover {
-  transform: scale(1.03) translateY(-3px);
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--shadow-md);
 }
 
 .price-badge {
@@ -1849,24 +1849,14 @@ ul {
 
 .price-card li {
   font-size: 0.88rem;
-  padding-left: 24px;
-  position: relative;
+  /* padding-left removed — FeatureItem handles its own indent via flexbox gap */
   color: var(--text-soft);
   line-height: 1.4;
   overflow-wrap: anywhere;
+  list-style: none;
 }
 
-.price-card li::before {
-  content: "✓";
-  position: absolute;
-  left: 0;
-  color: var(--green);
-  font-weight: 700;
-}
-
-.price-card.featured li::before {
-  color: var(--green-mid);
-}
+/* ::before tick removed — FeatureItem renders its own SVG check icon */
 
 .starter-cta {
   box-shadow: 0 10px 20px rgba(31, 78, 55, 0.22);

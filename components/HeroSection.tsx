@@ -126,12 +126,12 @@ export default function HeroSection() {
             <Link href="/membership" className="hero-cta-tile hero-cta-tile-primary mkt-sharp-btn">
               View Memberships &rarr;
             </Link>
-            <Link
-              href="/login?intent=trial&tier=boutique"
+            <button
               className="hero-cta-tile hero-cta-tile-secondary mkt-sharp-btn"
+              onClick={openModal}
             >
-              Start Free Trial
-            </Link>
+              Book a free 15-min call
+            </button>
           </div>
           <div style={{ marginTop: "16px", textAlign: "center" }}>
             <Link href="/how-it-works" style={{ fontSize: "0.9rem", color: "var(--text-soft)", textDecoration: "underline", textUnderlineOffset: "3px" }}>

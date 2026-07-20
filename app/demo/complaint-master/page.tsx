@@ -332,7 +332,7 @@ export default function ComplaintMasterPage() {
                   <Link href="/demo" className="btn btn-primary btn-lg">
                     Try more scenarios on the full platform
                   </Link>
-                  <Link href="/pricing" className="btn btn-secondary btn-lg">
+                  <Link href="/membership" className="btn btn-secondary btn-lg">
                     Get full access
                   </Link>
                 </div>

@@ -1,9 +1,11 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import type { Metadata } from "next";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Terms of Service | Serve By Example",
   description: "The terms and conditions governing your use of the Serve By Example platform.",
+  alternates: { canonical: "/terms" },
 };
 
 export default function TermsPage() {

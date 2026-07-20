@@ -4,9 +4,10 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Operator Resources | Serve By Example",
+  title: "Free Hospitality Operator Resources | Serve By Example",
   description:
     "Free SOP templates for Australian hospitality venues — select your venue type and get a structured, copy-pasteable onboarding SOP in under 60 seconds.",
+  alternates: { canonical: "/resources" },
 };
 
 function BuildIcon() {
@@ -95,7 +96,7 @@ export default function ResourcesPage() {
             </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
               <a href="/demo" className="btn btn-primary btn-lg">Try the Demo</a>
-              <a href="/pricing" className="btn btn-secondary btn-lg">View Pricing</a>
+              <a href="/membership" className="btn btn-secondary btn-lg">View Pricing</a>
             </div>
           </div>
         </section>

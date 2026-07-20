@@ -1,10 +1,12 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import type { Metadata } from "next";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Privacy Policy | Serve By Example",
   description:
     "How Serve By Example collects, uses, and protects your personal data under the Australian Privacy Principles.",
+  alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPage() {

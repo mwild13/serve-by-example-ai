@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Solutions by Venue Type | Serve By Example",
   description:
     "Interactive training built for every hospitality format: pub groups, fine dining, cocktail bars, franchises, and QSRs.",
+  alternates: { canonical: "/solutions" },
 };
 
 const segments = [
@@ -22,7 +23,7 @@ const segments = [
       "Reduce reliance on individual senior staff to train junior team members",
     ],
     stat: { value: "70%", label: "reduction in average onboarding time for multi-site groups" },
-    cta: { href: "/demo", label: "See it in action" },
+    cta: { href: "/solutions/pub-groups", label: "See pub group features" },
   },
   {
     id: "fine-dining",
@@ -36,7 +37,7 @@ const segments = [
       "Track individual staff mastery scores so managers know exactly where to focus coaching",
     ],
     stat: { value: "22%", label: "average upsell revenue lift within 8 weeks of adoption" },
-    cta: { href: "/demo", label: "Try a scenario" },
+    cta: { href: "/solutions/fine-dining", label: "See fine dining features" },
   },
   {
     id: "franchises",
@@ -50,7 +51,35 @@ const segments = [
       "Ensure brand compliance across every franchisee location without head-office oversight",
     ],
     stat: { value: "200+", label: "staff onboarded across 12 locations in under 30 days" },
-    cta: { href: "/pricing", label: "View plans" },
+    cta: { href: "/solutions/franchise-systems", label: "See franchise features" },
+  },
+  {
+    id: "hotel-fb",
+    eyebrow: "Hotel F&B",
+    headline: "Consistent service standards across every outlet, every shift.",
+    body: "Hotel F&B teams face a unique training challenge: multiple outlets, rotating staff, and guests with elevated expectations. Serve By Example gives every team member — whether they're on room service or behind the rooftop bar — the same quality training experience.",
+    points: [
+      "Train all-day dining, room service, rooftop bars, and banquet staff from a single platform",
+      "Build the language, composure, and problem-resolution skills that five-star service demands",
+      "Track readiness scores per outlet so coaching targets the right team at the right time",
+      "Onboard seasonal and contract staff quickly without pulling supervisors off the floor",
+    ],
+    stat: { value: "5★", label: "service standards trained through scenario practice, not classroom briefings" },
+    cta: { href: "/solutions/hotel-fb", label: "See hotel F&B features" },
+  },
+  {
+    id: "multi-venue",
+    eyebrow: "Multi-Venue Groups",
+    headline: "One console. Five venues. 125 staff. Full visibility.",
+    body: "Multi-venue groups lose consistency at scale. The training that works at your flagship rarely reaches every site. Serve By Example gives you a centralised view of every venue's readiness, with the ability to compare, manage, and course-correct across your entire group.",
+    points: [
+      "Compare venue health scores side by side to see which site needs coaching before it shows in revenue",
+      "Manage up to 125 staff across 5 venues from one console — transfer, assign, and track",
+      "Standardise brand voice, product knowledge, and service protocols across all locations",
+      "Spot individual skill gaps before they become team-wide performance problems",
+    ],
+    stat: { value: "125", label: "staff manageable across 5 venues from one Mission Control console" },
+    cta: { href: "/solutions/multi-venue", label: "See multi-venue features" },
   },
 ];
 
@@ -73,7 +102,7 @@ export default function SolutionsPage() {
               <Link href="/demo" className="btn btn-primary btn-lg">
                 Try the Demo
               </Link>
-              <Link href="/pricing" className="btn btn-secondary btn-lg">
+              <Link href="/membership" className="btn btn-secondary btn-lg">
                 View Pricing
               </Link>
             </div>

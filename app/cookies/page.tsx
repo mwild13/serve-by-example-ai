@@ -1,9 +1,11 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import type { Metadata } from "next";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Cookies Policy | Serve By Example",
   description: "How Serve By Example uses cookies and similar technologies.",
+  alternates: { canonical: "/cookies" },
 };
 
 export default function CookiesPage() {
