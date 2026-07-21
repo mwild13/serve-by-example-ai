@@ -38,9 +38,9 @@ const MODULE_META: Record<number, { title: string; category: "technical" | "serv
 };
 
 const CATEGORY_ACCENT: Record<"technical" | "service" | "compliance", string> = {
-  technical:  "#1E5A3C",
-  service:    "#B98220",
-  compliance: "#7A4F2C",
+  technical:  "var(--color-mastery-technical)",
+  service:    "var(--color-mastery-service)",
+  compliance: "var(--color-mastery-compliance)",
 };
 
 const ARENA_SEED_SCENARIOS: Record<number, { situation: string; context: string; task: string }> = {
@@ -223,7 +223,7 @@ export default function ArenaPage({ userId: _userId }: Props) {
           </div>
         </div>
 
-        {error && <p style={{ color: "#7a1d1d", marginBottom: 12 }}>{error}</p>}
+        {error && <p style={{ color: "var(--status-red-deep)", marginBottom: 12 }}>{error}</p>}
 
         <div
           style={{
@@ -285,7 +285,7 @@ export default function ArenaPage({ userId: _userId }: Props) {
   // ── Result screen ───────────────────────────────────────────────────────────
   if (phase === "result" && result) {
     const scoreColor =
-      result.score >= 75 ? "#1E5A3C" : result.score >= 50 ? "#B98220" : "#7A4F2C";
+      result.score >= 75 ? "var(--color-mastery-technical)" : result.score >= 50 ? "var(--color-mastery-service)" : "var(--color-mastery-compliance)";
     const meta = MODULE_META[selectedId!];
     return (
       <div>
@@ -319,7 +319,7 @@ export default function ArenaPage({ userId: _userId }: Props) {
         <div
           style={{
             background: "white",
-            border: "1.5px solid #e5e7eb",
+            border: "1.5px solid var(--viz-neutral-light)",
             borderRadius: "14px",
             overflow: "hidden",
             maxWidth: 560,
@@ -379,12 +379,12 @@ export default function ArenaPage({ userId: _userId }: Props) {
                 fontSize: "0.68rem",
                 textTransform: "uppercase",
                 letterSpacing: "0.06em",
-                color: "#1E5A3C",
+                color: "var(--color-mastery-technical)",
               }}
             >
               What you did well
             </strong>
-            <p style={{ marginTop: 6, color: "#374151", fontSize: "0.9rem", lineHeight: 1.55 }}>
+            <p style={{ marginTop: 6, color: "var(--text-secondary)", fontSize: "0.9rem", lineHeight: 1.55 }}>
               {result.what_you_did_well}
             </p>
           </div>
@@ -395,12 +395,12 @@ export default function ArenaPage({ userId: _userId }: Props) {
                 fontSize: "0.68rem",
                 textTransform: "uppercase",
                 letterSpacing: "0.06em",
-                color: "#B98220",
+                color: "var(--color-mastery-service)",
               }}
             >
               Room for improvement
             </strong>
-            <p style={{ marginTop: 6, color: "#374151", fontSize: "0.9rem", lineHeight: 1.55 }}>
+            <p style={{ marginTop: 6, color: "var(--text-secondary)", fontSize: "0.9rem", lineHeight: 1.55 }}>
               {result.room_for_improvement}
             </p>
           </div>
@@ -458,7 +458,7 @@ export default function ArenaPage({ userId: _userId }: Props) {
   // ── Writing phase ───────────────────────────────────────────────────────────
   const seed = ARENA_SEED_SCENARIOS[selectedId!];
   const meta = MODULE_META[selectedId!];
-  const accent = meta ? CATEGORY_ACCENT[meta.category] : "#1E5A3C";
+  const accent = meta ? CATEGORY_ACCENT[meta.category] : "var(--color-mastery-technical)";
 
   return (
     <div>
@@ -499,13 +499,13 @@ export default function ArenaPage({ userId: _userId }: Props) {
             >
               {meta?.category} – Scenario
             </div>
-            <p style={{ fontWeight: 700, color: "#1b4332", fontSize: "0.95rem", lineHeight: 1.55, marginBottom: 10 }}>
+            <p style={{ fontWeight: 700, color: "var(--green-gradient-stop)", fontSize: "0.95rem", lineHeight: 1.55, marginBottom: 10 }}>
               {seed.situation}
             </p>
-            <p style={{ color: "#6b7280", fontSize: "0.85rem", lineHeight: 1.5, marginBottom: 10 }}>
-              <strong style={{ color: "#374151" }}>Context:</strong> {seed.context}
+            <p style={{ color: "var(--color-text-muted)", fontSize: "0.85rem", lineHeight: 1.5, marginBottom: 10 }}>
+              <strong style={{ color: "var(--text-secondary)" }}>Context:</strong> {seed.context}
             </p>
-            <p style={{ color: "#374151", fontSize: "0.85rem", lineHeight: 1.5 }}>
+            <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", lineHeight: 1.5 }}>
               <strong>Your task:</strong> {seed.task}
             </p>
           </div>
@@ -514,7 +514,7 @@ export default function ArenaPage({ userId: _userId }: Props) {
         <div
           style={{
             background: "white",
-            border: "1.5px solid #e5e7eb",
+            border: "1.5px solid var(--viz-neutral-light)",
             borderRadius: "12px",
             padding: "1.5rem",
           }}
@@ -527,7 +527,7 @@ export default function ArenaPage({ userId: _userId }: Props) {
               fontWeight: 800,
               textTransform: "uppercase",
               letterSpacing: "0.06em",
-              color: "#6b7280",
+              color: "var(--color-text-muted)",
               marginBottom: 10,
             }}
           >
@@ -544,19 +544,19 @@ export default function ArenaPage({ userId: _userId }: Props) {
               width: "100%",
               padding: "12px 14px",
               borderRadius: 8,
-              border: "1.5px solid #e5e7eb",
+              border: "1.5px solid var(--viz-neutral-light)",
               fontSize: "0.9rem",
               lineHeight: 1.55,
               resize: "vertical",
               outline: "none",
               fontFamily: "inherit",
-              color: "#1f2937",
+              color: "var(--color-ink-soft)",
               boxSizing: "border-box",
             }}
           />
 
           {error && (
-            <p style={{ color: "#7a1d1d", fontSize: "0.85rem", marginTop: 8 }}>{error}</p>
+            <p style={{ color: "var(--status-red-deep)", fontSize: "0.85rem", marginTop: 8 }}>{error}</p>
           )}
 
           <button

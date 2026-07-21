@@ -41,7 +41,7 @@ function DetailSheet({
       <div
         style={{
           position: "relative",
-          background: "#faf9f6",
+          background: "var(--bg-cream-warm)",
           borderRadius: "14px 14px 0 0",
           maxHeight: "82vh",
           display: "flex", flexDirection: "column",
@@ -51,14 +51,14 @@ function DetailSheet({
       >
         {/* drag handle */}
         <div style={{ padding: "12px 0 0", display: "flex", justifyContent: "center" }}>
-          <div style={{ width: 38, height: 4, background: "#ddd9d0", borderRadius: 2 }} />
+          <div style={{ width: 38, height: 4, background: "var(--border-cocktail)", borderRadius: 2 }} />
         </div>
 
         {/* header */}
-        <div style={{ padding: "14px 20px 12px", borderBottom: "1px solid #e8e4db" }}>
+        <div style={{ padding: "14px 20px 12px", borderBottom: "1px solid var(--border-warm-soft)" }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
             <div>
-              <div style={{ fontSize: 19, fontWeight: 700, color: "#1a1714", letterSpacing: "-0.01em", marginBottom: 4 }}>
+              <div style={{ fontSize: 19, fontWeight: 700, color: "var(--color-ink-warm)", letterSpacing: "-0.01em", marginBottom: 4 }}>
                 {cocktail.name}
               </div>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
@@ -76,22 +76,22 @@ function DetailSheet({
                   {catMeta.label}
                 </span>
                 {cocktail.featured && (
-                  <span style={{ fontSize: 10, fontWeight: 700, color: "#7a5c00", background: "#fef9e7", border: "1px solid #f0d080", padding: "2px 7px", borderRadius: 4, letterSpacing: "0.04em", textTransform: "uppercase" as const }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: "var(--color-amber-gold)", background: "var(--status-amber-bg)", border: "1px solid var(--gold-light)", padding: "2px 7px", borderRadius: 4, letterSpacing: "0.04em", textTransform: "uppercase" as const }}>
                     Most Common
                   </span>
                 )}
                 {cocktail.origin && (
-                  <span style={{ fontSize: 10, color: "#6b6460" }}>{cocktail.origin}</span>
+                  <span style={{ fontSize: 10, color: "var(--color-warm-gray)" }}>{cocktail.origin}</span>
                 )}
               </div>
             </div>
             <button
               onClick={onClose}
               style={{
-                background: "#ede9e1", border: "none", borderRadius: 20,
+                background: "var(--bg-cocktail-card)", border: "none", borderRadius: 20,
                 width: 30, height: 30, cursor: "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 18, color: "#6b6460", flexShrink: 0,
+                fontSize: 18, color: "var(--color-warm-gray)", flexShrink: 0,
               }}
               aria-label="Close"
             >
@@ -106,13 +106,13 @@ function DetailSheet({
           {/* Ingredients + Method side by side on wider, stacked on narrow */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
             <div>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "#b5a97a", textTransform: "uppercase", marginBottom: 7 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "var(--color-warm-tan)", textTransform: "uppercase", marginBottom: 7 }}>
                 Ingredients
               </div>
               <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 5 }}>
                 {cocktail.ingredients.map((ing) => (
-                  <li key={ing} style={{ fontSize: 13, color: "#3d3a36", lineHeight: 1.35, display: "flex", alignItems: "flex-start", gap: 6 }}>
-                    <span style={{ color: "#b5a97a", flexShrink: 0, marginTop: 1 }}>·</span>
+                  <li key={ing} style={{ fontSize: 13, color: "var(--color-warm-dark)", lineHeight: 1.35, display: "flex", alignItems: "flex-start", gap: 6 }}>
+                    <span style={{ color: "var(--color-warm-tan)", flexShrink: 0, marginTop: 1 }}>·</span>
                     {ing}
                   </li>
                 ))}
@@ -125,10 +125,10 @@ function DetailSheet({
                 { label: "Garnish", value: cocktail.garnish },
               ].map(({ label, value }) => (
                 <div key={label}>
-                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "#8a8480", textTransform: "uppercase", marginBottom: 3 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "var(--color-warm-mid)", textTransform: "uppercase", marginBottom: 3 }}>
                     {label}
                   </div>
-                  <div style={{ fontSize: 13, color: "#3d3a36", lineHeight: 1.4 }}>{value}</div>
+                  <div style={{ fontSize: 13, color: "var(--color-warm-dark)", lineHeight: 1.4 }}>{value}</div>
                 </div>
               ))}
             </div>
@@ -136,16 +136,16 @@ function DetailSheet({
 
           {/* Training tip */}
           <div style={{
-            background: "#eef6ef",
-            border: "1px solid #c8e6cb",
+            background: "var(--bg-green-subtle)",
+            border: "1px solid var(--border-green-light)",
             borderRadius: 8,
             padding: "12px 14px",
             marginBottom: 16,
           }}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "#2d6a35", textTransform: "uppercase", marginBottom: 5 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "var(--green-gradient-mid)", textTransform: "uppercase", marginBottom: 5 }}>
               Training Tip
             </div>
-            <p style={{ margin: 0, fontSize: 13, color: "#2d4a30", lineHeight: 1.5 }}>{cocktail.tip}</p>
+            <p style={{ margin: 0, fontSize: 13, color: "var(--roi-forest)", lineHeight: 1.5 }}>{cocktail.tip}</p>
           </div>
 
           {/* CTA row */}
@@ -153,8 +153,8 @@ function DetailSheet({
             <button
               style={{
                 flex: 1, padding: "12px 0",
-                background: inPractice ? "#0B2B1E" : "#0B2B1E",
-                color: "#fff", border: "none", borderRadius: 6,
+                background: inPractice ? "var(--ip-green)" : "var(--ip-green)",
+                color: "var(--surface-raised)", border: "none", borderRadius: 6,
                 fontSize: 14, fontWeight: 600, cursor: inPractice ? "default" : "pointer",
                 opacity: inPractice ? 0.7 : 1,
               }}
@@ -167,8 +167,8 @@ function DetailSheet({
               style={{
                 flex: 1, padding: "12px 0",
                 background: "transparent",
-                color: "#3d3a36",
-                border: "1.5px solid #d8d3c9",
+                color: "var(--color-warm-dark)",
+                border: "1.5px solid var(--border-cocktail)",
                 borderRadius: 6,
                 fontSize: 14, fontWeight: 600, cursor: "pointer",
               }}
@@ -299,10 +299,10 @@ export default function CocktailLibrary() {
                 <div className="cocktail-glass-hint">{cocktail.glass}</div>
                 <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
                   {cocktail.featured && (
-                    <div style={{ fontSize: 10, color: "#7a5c00", fontWeight: 700, background: "#fef9e7", border: "1px solid #f0d080", display: "inline-block", padding: "2px 7px", borderRadius: 4, letterSpacing: "0.04em", textTransform: "uppercase" }}>Most Common</div>
+                    <div style={{ fontSize: 10, color: "var(--color-amber-gold)", fontWeight: 700, background: "var(--status-amber-bg)", border: "1px solid var(--gold-light)", display: "inline-block", padding: "2px 7px", borderRadius: 4, letterSpacing: "0.04em", textTransform: "uppercase" }}>Most Common</div>
                   )}
                   {inPractice && (
-                    <div style={{ fontSize: 10, color: "#0B2B1E", fontWeight: 700, background: "#e8f5e9", border: "1px solid #a5d6a7", display: "inline-block", padding: "2px 7px", borderRadius: 4, letterSpacing: "0.04em", textTransform: "uppercase" }}>Bookmarked</div>
+                    <div style={{ fontSize: 10, color: "var(--ip-green)", fontWeight: 700, background: "var(--bg-green-subtle)", border: "1px solid var(--border-green-light)", display: "inline-block", padding: "2px 7px", borderRadius: 4, letterSpacing: "0.04em", textTransform: "uppercase" }}>Bookmarked</div>
                   )}
                 </div>
               </div>

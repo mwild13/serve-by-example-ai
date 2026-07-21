@@ -80,7 +80,7 @@ export function TrialExpiredModal({ trialTier }: TrialExpiredModalProps) {
               flexShrink: 0,
             }}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--surface-raised)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" />
               <line x1="12" y1="8" x2="12" y2="12" />
               <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -173,7 +173,7 @@ export function TrialExpiredModal({ trialTier }: TrialExpiredModalProps) {
               width: "100%",
               padding: "13px 20px",
               background: "var(--green)",
-              color: "#fff",
+              color: "var(--surface-raised)",
               border: "none",
               borderRadius: "var(--radius-md)",
               fontSize: "0.925rem",

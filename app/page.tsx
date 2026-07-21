@@ -94,7 +94,7 @@ export default function Home() {
         {/* ── Trust Stats ──────────────────────────── */}
         <section className="section trust-section" style={{ background: "transparent", padding: "2rem 0" }}>
           <div className="container">
-            <div className="arch-blueprint" style={{ background: "white", padding: "2.5rem 2rem", borderRadius: "12px", border: "1px solid var(--mkt-border-subtle, #e5e7eb)", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+            <div className="arch-blueprint" style={{ background: "white", padding: "2.5rem 2rem", borderRadius: "12px", border: "1px solid var(--mkt-border-subtle, var(--viz-neutral-light))", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
               <div style={{ fontSize: "11px", color: "var(--color-text-muted)", letterSpacing: "0.15em", marginBottom: "2rem", textTransform: "uppercase", fontWeight: 700 }}>
                 System Specifications
               </div>
@@ -521,7 +521,7 @@ export default function Home() {
               fontFamily: 'var(--font-heading)',
               fontSize: 'clamp(1.85rem, 4vw, 2.6rem)',
               lineHeight: '1.2',
-              color: '#fff',
+              color: 'var(--surface-raised)',
               marginBottom: '1.25rem',
               letterSpacing: '-0.02em',
             }}>Not ready to sign up yet?</h2>
@@ -537,7 +537,7 @@ export default function Home() {
             <Link href="/toolkit" style={{
               display: 'inline-block',
               backgroundColor: 'var(--gold)',
-              color: '#fff',
+              color: 'var(--surface-raised)',
               fontFamily: 'var(--font-body)',
               fontWeight: '600',
               fontSize: '1rem',

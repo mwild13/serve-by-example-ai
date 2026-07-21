@@ -384,7 +384,7 @@ export default function SopToolkitPage() {
               fontSize: 'clamp(1.75rem, 4vw, 2.25rem)',
               textAlign: 'center',
               marginBottom: '3rem',
-              color: '#fff',
+              color: 'var(--surface-raised)',
               letterSpacing: '-0.02em',
             }}>
               Why documentation matters under Australian law.

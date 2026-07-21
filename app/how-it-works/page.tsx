@@ -220,12 +220,12 @@ export default function HowItWorksPage() {
             {/* How AI improves your score */}
             <div style={{
               marginTop: "2.5rem",
-              background: "#f0fdf4",
-              border: "1.5px solid #bbf7d0",
+              background: "var(--status-success-bg)",
+              border: "1.5px solid var(--status-success-light)",
               borderRadius: "16px",
               padding: "2rem 2.5rem",
             }}>
-              <h3 style={{ margin: "0 0 1.25rem", fontSize: "1.1rem", fontWeight: 700, color: "#1b4332" }}>
+              <h3 style={{ margin: "0 0 1.25rem", fontSize: "1.1rem", fontWeight: 700, color: "var(--green-gradient-stop)" }}>
                 How the system improves your score over time
               </h3>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.25rem" }}>
@@ -236,10 +236,10 @@ export default function HowItWorksPage() {
                   { n: "04", title: "Adjust difficulty to your level", desc: "The ELO rating system matches you to harder scenarios as you improve, always training at your current edge." },
                 ].map(({ n, title, desc }) => (
                   <div key={n} style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
-                    <span style={{ flexShrink: 0, width: "32px", height: "32px", borderRadius: "8px", background: "#2d6a4f", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 800 }}>{n}</span>
+                    <span style={{ flexShrink: 0, width: "32px", height: "32px", borderRadius: "8px", background: "var(--green-gradient-mid)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 800 }}>{n}</span>
                     <div>
-                      <p style={{ margin: "0 0 4px", fontWeight: 700, fontSize: "0.875rem", color: "#1b4332" }}>{title}</p>
-                      <p style={{ margin: 0, fontSize: "0.825rem", color: "#374151", lineHeight: 1.5 }}>{desc}</p>
+                      <p style={{ margin: "0 0 4px", fontWeight: 700, fontSize: "0.875rem", color: "var(--green-gradient-stop)" }}>{title}</p>
+                      <p style={{ margin: 0, fontSize: "0.825rem", color: "var(--text-secondary)", lineHeight: 1.5 }}>{desc}</p>
                     </div>
                   </div>
                 ))}
@@ -250,12 +250,12 @@ export default function HowItWorksPage() {
         </section>
 
         {/* ── Consoles ── */}
-        <section className="section" style={{ background: "#0B2B1E" }}>
+        <section className="section" style={{ background: "var(--ip-green)" }}>
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow" style={{ color: "#86efac" }}>Consoles</span>
+              <span className="eyebrow" style={{ color: "var(--status-success-border)" }}>Consoles</span>
               <h2 style={{ color: "white", marginBottom: "0.5rem" }}>The manager and staff consoles, side by side</h2>
-              <p style={{ color: "#9ca3af", maxWidth: "560px", margin: "0 auto" }}>
+              <p style={{ color: "var(--color-text-faint)", maxWidth: "560px", margin: "0 auto" }}>
                 Two powerful tools working together: one for managers, one for staff.
               </p>
             </div>
@@ -263,13 +263,13 @@ export default function HowItWorksPage() {
 
               {/* Management Console */}
               <div>
-                <p style={{ color: "#d1fae5", fontWeight: 700, fontSize: "0.8125rem", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "1rem" }}>Mission Control</p>
+                <p style={{ color: "var(--divider-light)", fontWeight: 700, fontSize: "0.8125rem", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "1rem" }}>Mission Control</p>
                 <DashboardMockup />
               </div>
 
               {/* Staff Mobile Console */}
               <div>
-                <p style={{ color: "#d1fae5", fontWeight: 700, fontSize: "0.8125rem", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "1rem" }}>Staff Mobile Console</p>
+                <p style={{ color: "var(--divider-light)", fontWeight: 700, fontSize: "0.8125rem", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "1rem" }}>Staff Mobile Console</p>
                 <Image
                   src="/shots/Mobile View2.png"
                   alt="Serve By Example staff mobile console – pre-shift brief and training dashboard"

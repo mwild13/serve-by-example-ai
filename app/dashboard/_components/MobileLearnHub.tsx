@@ -146,7 +146,7 @@ export default function MobileLearnHub({
         </span>
         <h1 style={{
           fontFamily: "var(--font-fraunces, Georgia, serif)",
-          fontSize: 22, fontWeight: 600, color: "#fff", margin: "2px 0 0",
+          fontSize: 22, fontWeight: 600, color: "var(--surface-raised)", margin: "2px 0 0",
         }}>
           Training Hub
         </h1>

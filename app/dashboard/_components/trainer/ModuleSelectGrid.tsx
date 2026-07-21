@@ -49,9 +49,9 @@ export default function ModuleSelectGrid({
             {moduleMastery[mod] > 0 && (
               <div className="dash-card-progress-row" style={{ marginTop: 4 }}>
                 <div className="dash-card-progress-bar">
-                  <div className="dash-card-progress-fill" style={{ width: `${moduleMastery[mod]}%`, background: '#a855f7' }} />
+                  <div className="dash-card-progress-fill" style={{ width: `${moduleMastery[mod]}%`, background: 'var(--color-indigo-light)' }} />
                 </div>
-                <span className="dash-card-progress-pct" style={{ color: '#a855f7' }}>{moduleMastery[mod]}% mastered</span>
+                <span className="dash-card-progress-pct" style={{ color: 'var(--color-indigo-light)' }}>{moduleMastery[mod]}% mastered</span>
               </div>
             )}
             <p className="dash-card-next">{`Next: ${MODULE_META[mod].nextUp}`}</p>

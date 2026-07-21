@@ -171,6 +171,51 @@
   /* ── Green gradient stop variants ── */
   --green-gradient-mid:  #2d6a4f;  /* Mid stop in dark-to-green gradients */
   --green-gradient-stop: #1b4332;  /* End stop in deep-green gradients */
+
+  /* ── Learning engine mastery category colours ── */
+  /* Used for module pip grids and staff badge accents */
+  --color-mastery-technical:  #1E5A3C;  /* Technical modules — deep forest green */
+  --color-mastery-service:    #B98220;  /* Service modules — amber gold */
+  --color-mastery-compliance: #7A4F2C;  /* Compliance modules — terra brown */
+  --color-mastery-partial:    #E5D9C0;  /* In-progress pip — warm beige */
+  --color-mastery-locked:     #F0F0EE;  /* Locked / unattempted pip — near-white */
+
+  /* ── Additional status / feedback tones ── */
+  --status-orange:       #c2410c;  /* Orange-red for caution / urgent warnings */
+  --status-red-deep:     #7a1d1d;  /* Very dark red for critical error text */
+  --status-yellow-bg:    #fefce8;  /* Very light yellow for informational banners */
+  --status-amber-dark:   #b45309;  /* Darker amber text on light amber backgrounds */
+  --color-text-faint:    #9ca3af;  /* Faint gray text (lighter than --color-text-muted) */
+  --color-slate:         #94A3B8;  /* Slate blue-gray for data labels */
+  --color-indigo-light:  #a855f7;  /* Purple / indigo for achievement highlights */
+  --status-bronze:       #CD7F32;  /* Bronze medal colour */
+
+  /* ── Google OAuth brand colours (login page SVG) ── */
+  --google-blue:   #4285F4;
+  --google-red:    #EA4335;
+  --google-yellow: #FBBC05;
+  --google-green:  #34A853;
+
+  /* ── CocktailLibrary / content card warm palette ── */
+  --color-ink-warm:       #1a1714;  /* Very dark warm near-black */
+  --color-warm-dark:      #3d3a36;  /* Dark warm gray for dense content lists */
+  --color-warm-gray:      #6b6460;  /* Warm mid-gray for secondary labels */
+  --color-warm-mid:       #8a8480;  /* Warm light-medium gray */
+  --color-warm-tan:       #b5a97a;  /* Warm tan / muted gold accent */
+  --color-amber-gold:     #7a5c00;  /* Dark olive-gold for premium content labels */
+  --bg-cream-warm:        #faf9f6;  /* Very warm near-white card background */
+  --bg-cocktail-card:     #ede9e1;  /* Warm beige content card surface */
+  --border-cocktail:      #ddd9d0;  /* Warm gray border for content components */
+
+  /* ── Status amber border / progress gradients ── */
+  --status-amber-border:  #fed7aa;  /* Peach-orange border for amber warning states */
+  --status-amber-bright:  #fbbf24;  /* Bright amber end-stop in progress gradients */
+  --status-critical-rose: #f87171;  /* Light rose red for low-progress gradients */
+
+  /* ── Miscellaneous one-off tones ── */
+  --color-warm-stone:     #b5b0a8;  /* Warm medium-gray for chart axis ticks */
+  --bg-green-pale:        #e6f4ee;  /* Very light green badge background */
+  --border-parchment:     #ede7d2;  /* Warm parchment SVG grid lines */
 }
 
 /* ── Reset ─────────────────────────────────────── */

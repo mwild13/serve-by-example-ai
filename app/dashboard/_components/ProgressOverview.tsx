@@ -292,7 +292,7 @@ export default function ProgressOverview({
       <div className="progress-overview">
         <div style={{ background: "var(--green)", padding: "20px 16px 16px", borderRadius: "0 0 var(--radius-xl) var(--radius-xl)", boxShadow: "0 4px 20px rgba(15,45,29,0.18)", margin: "0 -1rem 1.75rem" }}>
           <span style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)", display: "block" }}>Me</span>
-          <h1 style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 22, fontWeight: 600, color: "#fff", margin: "2px 0 0" }}>Your Training Progress</h1>
+          <h1 style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 22, fontWeight: 600, color: "var(--surface-raised)", margin: "2px 0 0" }}>Your Training Progress</h1>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {[200, 120, 160, 100].map((h, i) => (
@@ -319,7 +319,7 @@ export default function ProgressOverview({
       <div className="progress-overview">
         <div style={{ background: "var(--green)", padding: "20px 16px 16px", borderRadius: "0 0 var(--radius-xl) var(--radius-xl)", boxShadow: "0 4px 20px rgba(15,45,29,0.18)", margin: "0 -1rem 1.75rem" }}>
           <span style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)", display: "block" }}>Me</span>
-          <h1 style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 22, fontWeight: 600, color: "#fff", margin: "2px 0 0" }}>Your Training Progress</h1>
+          <h1 style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 22, fontWeight: 600, color: "var(--surface-raised)", margin: "2px 0 0" }}>Your Training Progress</h1>
         </div>
         <div
           style={{
@@ -364,7 +364,7 @@ export default function ProgressOverview({
       {/* ── Page banner ──────────────────────────────────────── */}
       <div style={{ background: "var(--green)", padding: "20px 16px 16px", borderRadius: "0 0 var(--radius-xl) var(--radius-xl)", boxShadow: "0 4px 20px rgba(15,45,29,0.18)", margin: "0 -1rem 1.75rem" }}>
         <span style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)", display: "block" }}>Me</span>
-        <h1 style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 22, fontWeight: 600, color: "#fff", margin: "2px 0 0" }}>Your Training Progress</h1>
+        <h1 style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 22, fontWeight: 600, color: "var(--surface-raised)", margin: "2px 0 0" }}>Your Training Progress</h1>
       </div>
 
       {/* ── Tab bar ──────────────────────────────────────────── */}

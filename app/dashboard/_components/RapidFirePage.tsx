@@ -35,9 +35,9 @@ const CATEGORY_LABEL: Record<ModuleListItem["category"], string> = {
 };
 
 const CATEGORY_ACCENT: Record<ModuleListItem["category"], string> = {
-  technical: "#1E5A3C",
-  service: "#B98220",
-  compliance: "#7A4F2C",
+  technical: "var(--color-mastery-technical)",
+  service: "var(--color-mastery-service)",
+  compliance: "var(--color-mastery-compliance)",
 };
 
 export default function RapidFirePage({ userId }: Props) {
@@ -128,28 +128,28 @@ export default function RapidFirePage({ userId }: Props) {
             style={{
               width: "40px",
               height: "40px",
-              border: "3px solid #e5e7eb",
-              borderTopColor: "#2d6a4f",
+              border: "3px solid var(--viz-neutral-light)",
+              borderTopColor: "var(--green-gradient-mid)",
               borderRadius: "50%",
               animation: "spin 0.8s linear infinite",
               margin: "0 auto 1rem",
             }}
           />
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-          <p style={{ color: "#6b7280" }}>Loading modules…</p>
+          <p style={{ color: "var(--color-text-muted)" }}>Loading modules…</p>
         </div>
       ) : error ? (
         <div
           style={{
             textAlign: "center",
             padding: "3rem 0",
-            color: "#7a1d1d",
+            color: "var(--status-red-deep)",
           }}
         >
           <p>{error}</p>
         </div>
       ) : modules.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "3rem 0", color: "#6b7280" }}>
+        <div style={{ textAlign: "center", padding: "3rem 0", color: "var(--color-text-muted)" }}>
           <p>No modules available for your plan yet.</p>
         </div>
       ) : (
@@ -163,7 +163,7 @@ export default function RapidFirePage({ userId }: Props) {
           {modules.map((mod) => {
             const mastered = mod.mastery_pct >= 100;
             const inProgress = mod.mastery_pct > 0 && !mastered;
-            const accent = CATEGORY_ACCENT[mod.category] ?? "#1E5A3C";
+            const accent = CATEGORY_ACCENT[mod.category] ?? "var(--color-mastery-technical)";
 
             return (
               <div
@@ -171,7 +171,7 @@ export default function RapidFirePage({ userId }: Props) {
                 onClick={() => setSelectedId(mod.id)}
                 style={{
                   background: "white",
-                  border: "1.5px solid #e5e7eb",
+                  border: "1.5px solid var(--viz-neutral-light)",
                   borderRadius: "14px",
                   padding: "1.25rem 1.4rem",
                   cursor: "pointer",
@@ -184,7 +184,7 @@ export default function RapidFirePage({ userId }: Props) {
                   e.currentTarget.style.transform = "translateY(-2px)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "#e5e7eb";
+                  e.currentTarget.style.borderColor = "var(--viz-neutral-light)";
                   e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.05)";
                   e.currentTarget.style.transform = "translateY(0)";
                 }}
@@ -206,7 +206,7 @@ export default function RapidFirePage({ userId }: Props) {
                       style={{
                         fontSize: "0.6rem",
                         fontWeight: 700,
-                        color: "#B98220",
+                        color: "var(--color-mastery-service)",
                         textTransform: "uppercase",
                         letterSpacing: "0.08em",
                       }}
@@ -221,7 +221,7 @@ export default function RapidFirePage({ userId }: Props) {
                     display: "block",
                     fontSize: "1rem",
                     fontWeight: 800,
-                    color: "#1b4332",
+                    color: "var(--green-gradient-stop)",
                     marginBottom: 12,
                     lineHeight: 1.3,
                   }}
@@ -232,7 +232,7 @@ export default function RapidFirePage({ userId }: Props) {
                 <div
                   style={{
                     height: "4px",
-                    background: "#f3f4f6",
+                    background: "var(--border-subtle)",
                     borderRadius: "2px",
                     overflow: "hidden",
                     marginBottom: 12,
@@ -243,7 +243,7 @@ export default function RapidFirePage({ userId }: Props) {
                       width: `${Math.min(100, mod.mastery_pct)}%`,
                       height: "100%",
                       background: mastered
-                        ? "linear-gradient(90deg, #40916c, #2d6a4f)"
+                        ? "linear-gradient(90deg, var(--green-mid), var(--green-gradient-mid))"
                         : accent,
                       borderRadius: "2px",
                       transition: "width 0.4s ease",
@@ -257,8 +257,8 @@ export default function RapidFirePage({ userId }: Props) {
                       display: "inline-block",
                       fontSize: "0.7rem",
                       fontWeight: 800,
-                      color: "#1b4332",
-                      background: "#d1fae5",
+                      color: "var(--green-gradient-stop)",
+                      background: "var(--divider-light)",
                       borderRadius: "999px",
                       padding: "3px 12px",
                       letterSpacing: "0.05em",
@@ -272,8 +272,8 @@ export default function RapidFirePage({ userId }: Props) {
                       display: "inline-block",
                       fontSize: "0.7rem",
                       fontWeight: 800,
-                      color: "#1b4332",
-                      background: "#d1fae5",
+                      color: "var(--green-gradient-stop)",
+                      background: "var(--divider-light)",
                       borderRadius: "999px",
                       padding: "3px 12px",
                       letterSpacing: "0.05em",
@@ -287,8 +287,8 @@ export default function RapidFirePage({ userId }: Props) {
                       display: "inline-block",
                       fontSize: "0.7rem",
                       fontWeight: 800,
-                      color: "#92400e",
-                      background: "#fef3c7",
+                      color: "var(--status-amber-text)",
+                      background: "var(--status-amber-bg)",
                       borderRadius: "999px",
                       padding: "3px 12px",
                       letterSpacing: "0.05em",

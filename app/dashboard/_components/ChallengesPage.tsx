@@ -85,7 +85,7 @@ export default function ChallengesPage() {
       {/* Header */}
       <div style={{ background: "var(--green)", padding: "20px 16px 16px", borderRadius: "0 0 var(--radius-xl) var(--radius-xl)", boxShadow: "0 4px 20px rgba(15,45,29,0.18)", margin: "0 -1rem 1.25rem" }}>
         <span style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)", display: "block" }}>Interactive Challenges</span>
-        <h1 style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 22, fontWeight: 600, color: "#fff", margin: "2px 0 4px" }}>Test your knowledge</h1>
+        <h1 style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 22, fontWeight: 600, color: "var(--surface-raised)", margin: "2px 0 4px" }}>Test your knowledge</h1>
         <span style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", fontWeight: 600 }}>5 questions · tap-based · no typing required</span>
       </div>
 
@@ -187,7 +187,7 @@ export default function ChallengesPage() {
             style={{
               width: "100%",
               background: "var(--green)",
-              color: "#fff",
+              color: "var(--surface-raised)",
               border: "none",
               borderRadius: "999px",
               padding: "0.9rem 2rem",

@@ -131,11 +131,11 @@ function ComplianceRing({ compliant, total }: { compliant: number; total: number
   const r = 13, cx = 16, cy = 16;
   const circ = 2 * Math.PI * r;
   const dash = pct * circ;
-  const color = compliant === total ? "#16a34a" : compliant > 0 ? "#f59e0b" : "#dc2626";
+  const color = compliant === total ? "var(--status-success)" : compliant > 0 ? "var(--status-amber)" : "var(--status-critical)";
   return (
     <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
       <svg width="32" height="32" style={{ transform: "rotate(-90deg)", flexShrink: 0 }}>
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#e5e7eb" strokeWidth="3" />
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--viz-neutral-light)" strokeWidth="3" />
         <circle cx={cx} cy={cy} r={r} fill="none" stroke={color} strokeWidth="3" strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" />
       </svg>
       <span style={{ fontWeight: 700, color, fontSize: "0.82rem" }}>{compliant}/{total}</span>
@@ -1337,7 +1337,7 @@ export default function ManagerControlCenter({
               fontWeight: 600,
             }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--status-success)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
               <polyline points="20 6 9 17 4 12" />
             </svg>
             Subscription activated. Your team is ready to train.
@@ -1919,8 +1919,8 @@ export default function ManagerControlCenter({
                               width: '32px',
                               height: '32px',
                               borderRadius: '50%',
-                              background: item.staff.status === 'attention' ? '#fff7ed' : '#fff1f2',
-                              color: item.staff.status === 'attention' ? '#c2410c' : '#b91c1c',
+                              background: item.staff.status === 'attention' ? 'var(--status-amber-bg)' : 'var(--status-critical-bg)',
+                              color: item.staff.status === 'attention' ? 'var(--status-orange)' : 'var(--status-critical-text)',
                               fontWeight: 600,
                               flexShrink: 0,
                             }}
@@ -2131,7 +2131,7 @@ export default function ManagerControlCenter({
                             </div>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                               <span>Needs attention</span>
-                              <b style={{ color: team.attention.length > 0 ? "#b45309" : "#15803d" }}>{team.attention.length}</b>
+                              <b style={{ color: team.attention.length > 0 ? "var(--status-amber-dark)" : "var(--status-success-strong)" }}>{team.attention.length}</b>
                             </div>
                           </div>
                           {team.members.length === 0 && (
@@ -2152,7 +2152,7 @@ export default function ManagerControlCenter({
                           )}
                           {team.weakest && team.members.length > 0 && (
                             <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
-                              <span style={{ fontSize: "0.72rem", fontWeight: 700, background: "#fff7ed", color: "#b45309", border: "1px solid #fed7aa", borderRadius: 999, padding: "2px 8px" }}>
+                              <span style={{ fontSize: "0.72rem", fontWeight: 700, background: "var(--status-amber-bg)", color: "var(--status-amber-dark)", border: "1px solid var(--status-amber-border)", borderRadius: 999, padding: "2px 8px" }}>
                                 Gap: {team.weakest}
                               </span>
                               <button
@@ -2177,8 +2177,8 @@ export default function ManagerControlCenter({
                         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
                           <span style={{ width: 96, flexShrink: 0 }} />
                           <div style={{ flex: 1, position: "relative", height: 10 }}>
-                            <div style={{ position: "absolute", left: `${(80 / maxScore) * 100}%`, top: -14, fontSize: "0.65rem", color: "#1E5A3C", fontWeight: 700, transform: "translateX(-50%)", whiteSpace: "nowrap" }}>80% target</div>
-                            <div style={{ position: "absolute", left: `${(80 / maxScore) * 100}%`, top: 0, width: 2, height: "100%", background: "#1E5A3C", opacity: 0.4 }} />
+                            <div style={{ position: "absolute", left: `${(80 / maxScore) * 100}%`, top: -14, fontSize: "0.65rem", color: "var(--color-mastery-technical)", fontWeight: 700, transform: "translateX(-50%)", whiteSpace: "nowrap" }}>80% target</div>
+                            <div style={{ position: "absolute", left: `${(80 / maxScore) * 100}%`, top: 0, width: 2, height: "100%", background: "var(--color-mastery-technical)", opacity: 0.4 }} />
                           </div>
                           <span style={{ width: 60 }} />
                         </div>
@@ -2186,11 +2186,11 @@ export default function ManagerControlCenter({
                           <div key={team.label} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                             <span style={{ width: 96, fontSize: "0.82rem", color: "var(--mcc-ink-700)", flexShrink: 0 }}>{team.label}</span>
                             <div style={{ flex: 1, height: 10, background: "var(--mcc-surface-2)", borderRadius: 999, overflow: "visible", position: "relative" }}>
-                              <div style={{ height: "100%", width: `${team.members.length ? (team.avgScore / maxScore) * 100 : 0}%`, background: team.avgScore >= 80 ? "#16a34a" : team.avgScore >= 50 ? "#1E5A3C" : "#f59e0b", borderRadius: 999, transition: "width 0.4s ease" }} />
+                              <div style={{ height: "100%", width: `${team.members.length ? (team.avgScore / maxScore) * 100 : 0}%`, background: team.avgScore >= 80 ? "var(--status-success)" : team.avgScore >= 50 ? "var(--color-mastery-technical)" : "var(--status-amber)", borderRadius: 999, transition: "width 0.4s ease" }} />
                               {/* 80% marker */}
-                              <div style={{ position: "absolute", left: `${(80 / maxScore) * 100}%`, top: -2, width: 2, height: 14, background: "#1E5A3C", opacity: 0.35, borderRadius: 1 }} />
+                              <div style={{ position: "absolute", left: `${(80 / maxScore) * 100}%`, top: -2, width: 2, height: 14, background: "var(--color-mastery-technical)", opacity: 0.35, borderRadius: 1 }} />
                             </div>
-                            <span style={{ width: 60, fontSize: "0.78rem", fontWeight: 600, color: team.members.length ? (team.avgScore >= 80 ? "#16a34a" : "var(--mcc-ink-900)") : "var(--mcc-ink-400)", textAlign: "right" }}>
+                            <span style={{ width: 60, fontSize: "0.78rem", fontWeight: 600, color: team.members.length ? (team.avgScore >= 80 ? "var(--status-success)" : "var(--mcc-ink-900)") : "var(--mcc-ink-400)", textAlign: "right" }}>
                               {team.members.length ? `${team.avgScore}%` : "No data"}
                             </span>
                           </div>
@@ -2199,7 +2199,7 @@ export default function ManagerControlCenter({
                     </div>
                     {teams.some((t) => t.attention.length > 0) && (
                       <div style={{ marginTop: "1.25rem", borderTop: "1px solid var(--mcc-border)", paddingTop: "1rem" }}>
-                        <p style={{ fontSize: "0.8rem", fontWeight: 600, color: "#b45309", marginBottom: 8 }}>Needs attention</p>
+                        <p style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--status-amber-dark)", marginBottom: 8 }}>Needs attention</p>
                         <ul className="ops-plain-list ops-compact-list">
                           {teams.flatMap((t) => t.attention.map((s) => (
                             <li key={s.id}>
@@ -2254,9 +2254,9 @@ export default function ManagerControlCenter({
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 8, marginBottom: 16 }}>
                   {roleStats.map((row) => {
                     const readiness = row.avgProgress ?? 0;
-                    const color = readiness >= 70 ? "#16a34a" : readiness >= 40 ? "#f59e0b" : "var(--text)";
-                    const bg = readiness >= 70 ? "#f0fdf4" : readiness >= 40 ? "#fff7ed" : "var(--surface)";
-                    const border = readiness >= 70 ? "#86efac" : readiness >= 40 ? "#fed7aa" : "var(--line)";
+                    const color = readiness >= 70 ? "var(--status-success)" : readiness >= 40 ? "var(--status-amber)" : "var(--text)";
+                    const bg = readiness >= 70 ? "var(--status-success-bg)" : readiness >= 40 ? "var(--status-amber-bg)" : "var(--surface)";
+                    const border = readiness >= 70 ? "var(--status-success-border)" : readiness >= 40 ? "var(--status-amber-border)" : "var(--line)";
                     return (
                       <div key={row.role} style={{ padding: "10px 12px", borderRadius: 8, background: bg, border: `1.5px solid ${border}` }}>
                         <div style={{ fontSize: "0.72rem", fontWeight: 600, color: "var(--mcc-ink-600)", marginBottom: 4 }}>{row.role}</div>
@@ -2264,7 +2264,7 @@ export default function ManagerControlCenter({
                           <span style={{ fontSize: "1.3rem", fontWeight: 800, color }}>{row.avgProgress ?? "–"}{row.avgProgress != null ? "%" : ""}</span>
                           <span style={{ fontSize: "0.7rem", color: "var(--mcc-ink-400)" }}>readiness</span>
                         </div>
-                        <div style={{ marginTop: 6, height: 4, background: "#e5e7eb", borderRadius: 999 }}>
+                        <div style={{ marginTop: 6, height: 4, background: "var(--viz-neutral-light)", borderRadius: 999 }}>
                           <div style={{ height: "100%", width: `${readiness}%`, background: color, borderRadius: 999, transition: "width 0.3s" }} />
                         </div>
                       </div>
@@ -2291,8 +2291,8 @@ export default function ManagerControlCenter({
                           <td key={mod.label} style={{ textAlign: "center", padding: "10px 12px", borderBottom: "1px solid var(--mcc-border)" }}>
                             <span style={{
                               display: "inline-block", padding: "2px 8px", borderRadius: 999, fontSize: "0.75rem", fontWeight: 600,
-                              background: mod.required ? "#dcfce7" : "#f3f4f6",
-                              color: mod.required ? "#15803d" : "#9ca3af",
+                              background: mod.required ? "var(--status-success-subtle)" : "var(--border-subtle)",
+                              color: mod.required ? "var(--status-success-strong)" : "var(--color-text-faint)",
                             }}>
                               {mod.required ? "Required" : "Optional"}
                             </span>
@@ -2321,15 +2321,15 @@ export default function ManagerControlCenter({
                   <h3>Permission matrix</h3>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <span>Dashboard access by role</span>
-                    <span style={{ fontSize: "0.72rem", padding: "2px 8px", borderRadius: 999, background: "#fef9c3", color: "#92400e", fontWeight: 700, border: "1px solid #fde68a" }}>Manager column = elevated access</span>
+                    <span style={{ fontSize: "0.72rem", padding: "2px 8px", borderRadius: 999, background: "var(--status-yellow-bg)", color: "var(--status-amber-text)", fontWeight: 700, border: "1px solid var(--color-amber-badge)" }}>Manager column = elevated access</span>
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: 16, marginBottom: 12, fontSize: "0.78rem", color: "var(--mcc-ink-500)" }}>
                   <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                    <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: "#1E5A3C" }} /> Permitted
+                    <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: "var(--color-mastery-technical)" }} /> Permitted
                   </span>
                   <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                    <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: "#e5e7eb" }} /> No access
+                    <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: "var(--viz-neutral-light)" }} /> No access
                   </span>
                 </div>
                 <div style={{ overflowX: "auto" }}>
@@ -2337,7 +2337,7 @@ export default function ManagerControlCenter({
                     <thead>
                       <tr>
                         <th>Capability</th>
-                        <th style={{ textAlign: "center", color: "#92400e", background: "#fef9c3", borderRadius: "8px 8px 0 0" }}>Manager</th>
+                        <th style={{ textAlign: "center", color: "var(--status-amber-text)", background: "var(--status-yellow-bg)", borderRadius: "8px 8px 0 0" }}>Manager</th>
                         <th style={{ textAlign: "center" }}>Supervisor</th>
                         <th style={{ textAlign: "center" }}>Staff</th>
                       </tr>
@@ -2345,8 +2345,8 @@ export default function ManagerControlCenter({
                     <tbody>
                       {PERMISSIONS.map((perm) => {
                         const dot = (has: boolean, isManager?: boolean) => (
-                          <td style={{ textAlign: "center", padding: "9px 12px", borderBottom: "1px solid var(--mcc-border)", background: isManager ? "#fefce8" : "transparent" }}>
-                            <span style={{ display: "inline-block", width: 12, height: 12, borderRadius: "50%", background: has ? "#1E5A3C" : "#e5e7eb" }} />
+                          <td style={{ textAlign: "center", padding: "9px 12px", borderBottom: "1px solid var(--mcc-border)", background: isManager ? "var(--status-yellow-bg)" : "transparent" }}>
+                            <span style={{ display: "inline-block", width: 12, height: 12, borderRadius: "50%", background: has ? "var(--color-mastery-technical)" : "var(--viz-neutral-light)" }} />
                           </td>
                         );
                         return (
@@ -2611,10 +2611,10 @@ export default function ManagerControlCenter({
           const statusBadge = (status: string, progress?: number) => {
             const effective = (status === "on-track" && progress === 0) ? "not-started" : status;
             const map: Record<string, { bg: string; color: string; label: string }> = {
-              "on-track":    { bg: "#f0fdf4", color: "#15803d", label: "On track" },
-              "attention":   { bg: "#fff7ed", color: "#c2410c", label: "Attention" },
-              "inactive":    { bg: "#fff1f2", color: "#b91c1c", label: "Inactive" },
-              "not-started": { bg: "#f3f4f6", color: "#6b7280", label: "Not started" },
+              "on-track":    { bg: "var(--status-success-bg)", color: "var(--status-success-strong)", label: "On track" },
+              "attention":   { bg: "var(--status-amber-bg)", color: "var(--status-orange)", label: "Attention" },
+              "inactive":    { bg: "var(--status-critical-bg)", color: "var(--status-critical-text)", label: "Inactive" },
+              "not-started": { bg: "var(--border-subtle)", color: "var(--color-text-muted)", label: "Not started" },
             };
             const s = map[effective] ?? map["inactive"];
             return (
@@ -2714,7 +2714,7 @@ export default function ManagerControlCenter({
                                 <td style={{ padding: "8px 10px", minWidth: 90 }}>
                                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                                     <div style={{ flex: 1, height: 5, background: "var(--mcc-surface-2)", borderRadius: 999 }}>
-                                      <div style={{ height: "100%", width: `${s.progress}%`, background: s.progress >= 70 ? "linear-gradient(90deg, #15803d, #22c55e)" : s.progress >= 40 ? "linear-gradient(90deg, #d97706, #fbbf24)" : "linear-gradient(90deg, #dc2626, #f87171)", borderRadius: 999, transition: "width 0.3s ease" }} />
+                                      <div style={{ height: "100%", width: `${s.progress}%`, background: s.progress >= 70 ? "linear-gradient(90deg, var(--status-success-strong), var(--status-success-bright))" : s.progress >= 40 ? "linear-gradient(90deg, var(--status-warning), var(--status-amber-bright))" : "linear-gradient(90deg, var(--status-critical), var(--status-critical-rose))", borderRadius: 999, transition: "width 0.3s ease" }} />
                                     </div>
                                     <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--mcc-ink-700)", width: 32, textAlign: "right" }}>{Math.round(s.progress)}%</span>
                                   </div>
@@ -2725,8 +2725,8 @@ export default function ManagerControlCenter({
                                 <td style={{ padding: "8px 10px", textAlign: "center" }}>
                                   {(() => {
                                     const rsa = rsaStatus(s.compliance);
-                                    const color = rsa.level === 0 ? "#15803d" : rsa.level === 1 ? "#d97706" : "#dc2626";
-                                    const bg = rsa.level === 0 ? "#f0fdf4" : rsa.level === 1 ? "#fefce8" : "#fef2f2";
+                                    const color = rsa.level === 0 ? "var(--status-success-strong)" : rsa.level === 1 ? "var(--status-warning)" : "var(--status-critical)";
+                                    const bg = rsa.level === 0 ? "var(--status-success-bg)" : rsa.level === 1 ? "var(--status-yellow-bg)" : "var(--status-critical-light)";
                                     const label = rsa.level === 0 ? "OK" : rsa.level === 1 ? "30d" : rsa.level === 2 ? "7d" : "–";
                                     return (
                                       <span title={rsa.label} style={{ display: "inline-block", padding: "2px 7px", borderRadius: 999, fontSize: "0.7rem", fontWeight: 700, background: bg, color }}>
@@ -2764,7 +2764,7 @@ export default function ManagerControlCenter({
                               <div style={{ fontSize: "0.75rem", color: "var(--mcc-ink-500)" }}>{s.role}</div>
                             </div>
                             <div style={{ textAlign: "right" }}>
-                              <div style={{ fontWeight: 800, fontSize: "0.9rem", color: "#1E5A3C" }}>{Math.round(s.progress)}%</div>
+                              <div style={{ fontWeight: 800, fontSize: "0.9rem", color: "var(--color-mastery-technical)" }}>{Math.round(s.progress)}%</div>
                               <div style={{ fontSize: "0.7rem", color: "var(--mcc-ink-400)" }}>completion</div>
                             </div>
                           </div>
@@ -2772,16 +2772,16 @@ export default function ManagerControlCenter({
                       </div>
 
                       {/* Needs attention */}
-                      <div style={{ background: needsHelp.length > 0 ? "#fff7ed" : "var(--mcc-surface-2)", borderRadius: 12, padding: "1rem", border: needsHelp.length > 0 ? "1.5px solid #fed7aa" : "none" }}>
-                        <div style={{ fontSize: "0.8rem", fontWeight: 700, color: needsHelp.length > 0 ? "#c2410c" : "var(--mcc-ink-500)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.75rem" }}>
+                      <div style={{ background: needsHelp.length > 0 ? "var(--status-amber-bg)" : "var(--mcc-surface-2)", borderRadius: 12, padding: "1rem", border: needsHelp.length > 0 ? "1.5px solid var(--status-amber-border)" : "none" }}>
+                        <div style={{ fontSize: "0.8rem", fontWeight: 700, color: needsHelp.length > 0 ? "var(--status-orange)" : "var(--mcc-ink-500)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.75rem" }}>
                           Needs attention {needsHelp.length > 0 ? `(${needsHelp.length})` : ""}
                         </div>
                         {needsHelp.length === 0 ? (
                           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#dcfce7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--status-success-subtle)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--status-success)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                             </div>
-                            <p style={{ margin: 0, fontSize: "0.875rem", color: "#15803d", fontWeight: 600 }}>All staff are on track. Great work.</p>
+                            <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--status-success-strong)", fontWeight: 600 }}>All staff are on track. Great work.</p>
                           </div>
                         ) : (
                           needsHelp.map((s, i) => (
@@ -2791,11 +2791,11 @@ export default function ManagerControlCenter({
                               tabIndex={0}
                               onClick={() => { setSelectedStaffId(s.id); setCoachingDrawerOpen(true); }}
                               onKeyDown={(e) => e.key === "Enter" && (setSelectedStaffId(s.id), setCoachingDrawerOpen(true))}
-                              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: i < needsHelp.length - 1 ? "1px solid #fed7aa" : "none", cursor: "pointer" }}
+                              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: i < needsHelp.length - 1 ? "1px solid var(--status-amber-border)" : "none", cursor: "pointer" }}
                             >
                               <div>
-                                <div style={{ fontWeight: 600, fontSize: "0.875rem", color: "#7c2d12" }}>{s.name}</div>
-                                <div style={{ fontSize: "0.75rem", color: "#92400e" }}>{s.role} · {s.lastActive}</div>
+                                <div style={{ fontWeight: 600, fontSize: "0.875rem", color: "var(--status-critical-dark)" }}>{s.name}</div>
+                                <div style={{ fontSize: "0.75rem", color: "var(--status-amber-text)" }}>{s.role} · {s.lastActive}</div>
                               </div>
                               <div>{statusBadge(s.status)}</div>
                             </div>
@@ -2811,16 +2811,16 @@ export default function ManagerControlCenter({
                       </div>
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
                         {[
-                          { label: "Service", value: metrics.serviceSkill, color: "#1E5A3C" },
-                          { label: "Sales", value: metrics.salesSkill, color: "#f59e0b" },
-                          { label: "Product knowledge", value: metrics.productSkill, color: "#1d4ed8" },
+                          { label: "Service", value: metrics.serviceSkill, color: "var(--color-mastery-technical)" },
+                          { label: "Sales", value: metrics.salesSkill, color: "var(--status-amber)" },
+                          { label: "Product knowledge", value: metrics.productSkill, color: "var(--color-link-dark)" },
                         ].map((skill) => (
                           <div key={skill.label}>
                             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
                               <span style={{ fontSize: "0.8rem", color: "var(--mcc-ink-600)", fontWeight: 600 }}>{skill.label}</span>
                               <span style={{ fontSize: "0.8rem", fontWeight: 800, color: skill.color }}>{skill.value > 0 ? `${skill.value}%` : "–"}</span>
                             </div>
-                            <div style={{ height: 10, background: "#e5e7eb", borderRadius: 999, overflow: "hidden" }}>
+                            <div style={{ height: 10, background: "var(--viz-neutral-light)", borderRadius: 999, overflow: "hidden" }}>
                               <div style={{ height: "100%", width: `${skill.value}%`, background: skill.color, borderRadius: 999, transition: "width 0.3s ease" }} />
                             </div>
                           </div>
@@ -2912,7 +2912,7 @@ export default function ManagerControlCenter({
             const raw = Math.round(s.progress * 1.2 + (s.serviceScore + s.salesScore + s.productScore) / 3 * 0.8);
             return `${raw} pts`;
           };
-          const podiumColors = ["#F59E0B", "#94A3B8", "#CD7F32"];
+          const podiumColors = ["var(--status-amber)", "var(--color-slate)", "var(--status-bronze)"];
           const podiumLabels = ["1st", "2nd", "3rd"];
           return (
             <section className="ops-grid ops-grid-main">
@@ -2933,8 +2933,8 @@ export default function ManagerControlCenter({
                           onClick={() => setLeaderboardTab(t.key)}
                           style={{
                             padding: "7px 16px", borderRadius: 999, border: "1.5px solid",
-                            borderColor: leaderboardTab === t.key ? "#1E5A3C" : "var(--mcc-border)",
-                            background: leaderboardTab === t.key ? "#1E5A3C" : "transparent",
+                            borderColor: leaderboardTab === t.key ? "var(--color-mastery-technical)" : "var(--mcc-border)",
+                            background: leaderboardTab === t.key ? "var(--color-mastery-technical)" : "transparent",
                             color: leaderboardTab === t.key ? "white" : "var(--mcc-ink-600)",
                             fontWeight: 600, fontSize: "0.82rem", cursor: "pointer",
                           }}
@@ -2984,7 +2984,7 @@ export default function ManagerControlCenter({
                     </div>
                     <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 8 }}>
                       {ranked.slice(0, 8).map((member, idx) => {
-                        const medalColors = ["#F59E0B", "#94A3B8", "#CD7F32"];
+                        const medalColors = ["var(--status-amber)", "var(--color-slate)", "var(--status-bronze)"];
                         const isTop3 = idx < 3;
                         return (
                           <li
@@ -3096,9 +3096,9 @@ export default function ManagerControlCenter({
           ];
           const urgencyOrder = { critical: 0, warning: 1, info: 2 };
           const urgencyStyle: Record<string, { bg: string; border: string; dot: string; label: string }> = {
-            critical: { bg: "#fff1f2", border: "#fca5a5", dot: "#dc2626", label: "Critical" },
-            warning:  { bg: "#fff7ed", border: "#fed7aa", dot: "#f59e0b", label: "Warning" },
-            info:     { bg: "var(--mcc-surface-2)", border: "var(--mcc-border)", dot: "#60a5fa", label: "Info" },
+            critical: { bg: "var(--status-critical-bg)", border: "var(--status-critical-border)", dot: "var(--status-critical)", label: "Critical" },
+            warning:  { bg: "var(--status-amber-bg)", border: "var(--status-amber-border)", dot: "var(--status-amber)", label: "Warning" },
+            info:     { bg: "var(--mcc-surface-2)", border: "var(--mcc-border)", dot: "var(--color-link-dark)", label: "Info" },
           };
           const filterTabs: { key: "all" | "training" | "performance" | "inventory"; label: string }[] = [
             { key: "all", label: "All" },
@@ -3121,7 +3121,7 @@ export default function ManagerControlCenter({
                       <button
                         type="button"
                         onClick={() => setShowArchivedNotifs((v) => !v)}
-                        style={{ padding: "4px 10px", borderRadius: 6, border: "1.5px solid var(--mcc-border)", background: showArchivedNotifs ? "var(--mcc-ink-100, #f3f4f6)" : "transparent", color: "var(--mcc-ink-600)", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer" }}
+                        style={{ padding: "4px 10px", borderRadius: 6, border: "1.5px solid var(--mcc-border)", background: showArchivedNotifs ? "var(--mcc-ink-100, var(--border-subtle))" : "transparent", color: "var(--mcc-ink-600)", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer" }}
                       >
                         {showArchivedNotifs ? "Hide archived" : `Show archived (${dismissedNotifs.size})`}
                       </button>
@@ -3147,8 +3147,8 @@ export default function ManagerControlCenter({
                         onClick={() => setNotifFilter(t.key)}
                         style={{
                           padding: "6px 14px", borderRadius: 999, border: "1.5px solid",
-                          borderColor: notifFilter === t.key ? "#1E5A3C" : "var(--mcc-border)",
-                          background: notifFilter === t.key ? "#1E5A3C" : "transparent",
+                          borderColor: notifFilter === t.key ? "var(--color-mastery-technical)" : "var(--mcc-border)",
+                          background: notifFilter === t.key ? "var(--color-mastery-technical)" : "transparent",
                           color: notifFilter === t.key ? "white" : "var(--mcc-ink-600)",
                           fontWeight: 600, fontSize: "0.8rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
                         }}
@@ -3156,7 +3156,7 @@ export default function ManagerControlCenter({
                         {t.label}
                         {count > 0 && (
                           <span style={{
-                            background: notifFilter === t.key ? "rgba(255,255,255,0.25)" : "#e5e7eb",
+                            background: notifFilter === t.key ? "rgba(255,255,255,0.25)" : "var(--viz-neutral-light)",
                             color: notifFilter === t.key ? "white" : "var(--mcc-ink-600)",
                             borderRadius: 999, padding: "1px 7px", fontSize: "0.72rem", fontWeight: 700,
                           }}>{count}</span>
@@ -3166,19 +3166,19 @@ export default function ManagerControlCenter({
                   })}
                 </div>
                 {visible.length === 0 ? (
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "16px", background: "#f0fdf4", borderRadius: 10, border: "1.5px solid #86efac" }}>
-                    <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#dcfce7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "16px", background: "var(--status-success-bg)", borderRadius: 10, border: "1.5px solid var(--status-success-border)" }}>
+                    <div style={{ width: 32, height: 32, borderRadius: "50%", background: "var(--status-success-subtle)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--status-success)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                     </div>
                     <div>
-                      <div style={{ fontWeight: 700, fontSize: "0.875rem", color: "#15803d" }}>All clear in this category.</div>
-                      <div style={{ fontSize: "0.8rem", color: "#16a34a" }}>No active alerts to action right now.</div>
+                      <div style={{ fontWeight: 700, fontSize: "0.875rem", color: "var(--status-success-strong)" }}>All clear in this category.</div>
+                      <div style={{ fontSize: "0.8rem", color: "var(--status-success)" }}>No active alerts to action right now.</div>
                     </div>
                   </div>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                     {visible.map((notif) => {
-                      const style = notif.id === "inventory-ok" ? { bg: "#f0fdf4", border: "#86efac", dot: "#16a34a", label: "Connected" } : urgencyStyle[notif.urgency];
+                      const style = notif.id === "inventory-ok" ? { bg: "var(--status-success-bg)", border: "var(--status-success-border)", dot: "var(--status-success)", label: "Connected" } : urgencyStyle[notif.urgency];
                       const ctaMap: Record<string, { label: string; section: ManagerSection }> = {
                         "training":     { label: "Review staff", section: "staff" },
                         "performance":  { label: "Open scenarios", section: "scenarios" },
@@ -3221,7 +3221,7 @@ export default function ManagerControlCenter({
                     <div style={{ display: "flex", flexDirection: "column", gap: 8, opacity: 0.55 }}>
                       {allNotifs.filter((n) => dismissedNotifs.has(n.id)).map((notif) => (
                         <div key={notif.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 8, background: "var(--mcc-surface-2)", border: "1px solid var(--mcc-border)" }}>
-                          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#d1d5db", flexShrink: 0, display: "inline-block" }} />
+                          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--border-neutral)", flexShrink: 0, display: "inline-block" }} />
                           <div style={{ flex: 1 }}>
                             <div style={{ fontWeight: 600, fontSize: "0.82rem", color: "var(--mcc-ink-600)" }}>{notif.title}</div>
                             <div style={{ fontSize: "0.78rem", color: "var(--mcc-ink-400)" }}>{notif.body}</div>
@@ -3313,7 +3313,7 @@ export default function ManagerControlCenter({
                             key={dir}
                             type="button"
                             onClick={() => setAiCoachFeedback((prev) => ({ ...prev, [index]: dir }))}
-                            style={{ padding: "3px 8px", borderRadius: 6, border: `1.5px solid ${aiCoachFeedback[index] === dir ? (dir === "up" ? "#86efac" : "#fca5a5") : "var(--mcc-border)"}`, background: aiCoachFeedback[index] === dir ? (dir === "up" ? "#f0fdf4" : "#fef2f2") : "transparent", cursor: "pointer", fontSize: "0.82rem", color: aiCoachFeedback[index] === dir ? (dir === "up" ? "#16a34a" : "#dc2626") : "var(--mcc-ink-400)", transition: "all 0.15s" }}
+                            style={{ padding: "3px 8px", borderRadius: 6, border: `1.5px solid ${aiCoachFeedback[index] === dir ? (dir === "up" ? "var(--status-success-border)" : "var(--status-critical-border)") : "var(--mcc-border)"}`, background: aiCoachFeedback[index] === dir ? (dir === "up" ? "var(--status-success-bg)" : "var(--status-critical-light)") : "transparent", cursor: "pointer", fontSize: "0.82rem", color: aiCoachFeedback[index] === dir ? (dir === "up" ? "var(--status-success)" : "var(--status-critical)") : "var(--mcc-ink-400)", transition: "all 0.15s" }}
                             aria-label={dir === "up" ? "Helpful" : "Not helpful"}
                           >
                             {dir === "up" ? (
@@ -3362,7 +3362,7 @@ export default function ManagerControlCenter({
                   <button
                     type="submit"
                     disabled={aiCoachLoading || !aiCoachInput.trim()}
-                    style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 20px", borderRadius: 8, border: "none", background: aiCoachLoading || !aiCoachInput.trim() ? "#e5e7eb" : "#1E5A3C", color: aiCoachLoading || !aiCoachInput.trim() ? "#9ca3af" : "white", fontWeight: 700, fontSize: "0.85rem", cursor: aiCoachLoading || !aiCoachInput.trim() ? "not-allowed" : "pointer", transition: "background 0.15s" }}
+                    style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 20px", borderRadius: 8, border: "none", background: aiCoachLoading || !aiCoachInput.trim() ? "var(--viz-neutral-light)" : "var(--color-mastery-technical)", color: aiCoachLoading || !aiCoachInput.trim() ? "var(--color-text-faint)" : "white", fontWeight: 700, fontSize: "0.85rem", cursor: aiCoachLoading || !aiCoachInput.trim() ? "not-allowed" : "pointer", transition: "background 0.15s" }}
                   >
                     {aiCoachLoading ? "Thinking…" : (
                       <>
@@ -3454,9 +3454,9 @@ export default function ManagerControlCenter({
                       <strong style={{ fontSize: "1.8rem", color: "var(--gold-warm)" }}>{masteryStats.inProgress}</strong>
                       <small>actively training</small>
                     </div>
-                    <div className="ops-kpi-card" style={{ background: "var(--surface)", borderLeft: "4px solid #b91c1c" }}>
+                    <div className="ops-kpi-card" style={{ background: "var(--surface)", borderLeft: "4px solid var(--status-critical-text)" }}>
                       <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>At Risk (Decay)</span>
-                      <strong style={{ fontSize: "1.8rem", color: "#b91c1c" }}>{masteryStats.atRisk}</strong>
+                      <strong style={{ fontSize: "1.8rem", color: "var(--status-critical-text)" }}>{masteryStats.atRisk}</strong>
                       <small>overdue reviews</small>
                     </div>
                   </div>
@@ -3515,7 +3515,7 @@ export default function ManagerControlCenter({
                                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                       <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "var(--mcc-ink-900)" }}>{name}</div>
                                       {hasHigh ? (
-                                        <span style={{ padding: "2px 8px", borderRadius: "var(--radius-sm)", fontSize: "0.68rem", fontWeight: 700, background: "#fef2f2", color: "#b91c1c", border: "1px solid #fca5a5", flexShrink: 0 }}>
+                                        <span style={{ padding: "2px 8px", borderRadius: "var(--radius-sm)", fontSize: "0.68rem", fontWeight: 700, background: "var(--status-critical-light)", color: "var(--status-critical-text)", border: "1px solid var(--status-critical-border)", flexShrink: 0 }}>
                                           High priority
                                         </span>
                                       ) : (
@@ -3538,7 +3538,7 @@ export default function ManagerControlCenter({
                                       <button
                                         type="button"
                                         onClick={() => handleSectionChange("staff")}
-                                        style={{ padding: "5px 12px", borderRadius: 6, background: "#1E5A3C", color: "white", border: "none", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer" }}
+                                        style={{ padding: "5px 12px", borderRadius: 6, background: "var(--color-mastery-technical)", color: "white", border: "none", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer" }}
                                       >
                                         {p.action}
                                       </button>
@@ -3592,23 +3592,23 @@ export default function ManagerControlCenter({
                 <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
                   <div className="ops-card-head">
                     <h3>Setup checklist</h3>
-                    <span style={{ color: allDone ? "#15803d" : "var(--mcc-ink-500)" }}>{completedCount}/{steps.length} complete</span>
+                    <span style={{ color: allDone ? "var(--status-success-strong)" : "var(--mcc-ink-500)" }}>{completedCount}/{steps.length} complete</span>
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
                     {steps.map((step) => (
-                      <div key={step.label} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 8, background: step.done ? "#f0fdf4" : "var(--mcc-surface-2)", border: `1.5px solid ${step.done ? "#86efac" : "var(--mcc-border)"}` }}>
-                        <div style={{ width: 22, height: 22, borderRadius: "50%", background: step.done ? "#16a34a" : "var(--mcc-border)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <div key={step.label} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 8, background: step.done ? "var(--status-success-bg)" : "var(--mcc-surface-2)", border: `1.5px solid ${step.done ? "var(--status-success-border)" : "var(--mcc-border)"}` }}>
+                        <div style={{ width: 22, height: 22, borderRadius: "50%", background: step.done ? "var(--status-success)" : "var(--mcc-border)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                           {step.done
                             ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                             : <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><circle cx="12" cy="12" r="2" fill="white"/></svg>
                           }
                         </div>
-                        <span style={{ fontSize: "0.82rem", fontWeight: 600, color: step.done ? "#15803d" : "var(--mcc-ink-600)" }}>{step.label}</span>
+                        <span style={{ fontSize: "0.82rem", fontWeight: 600, color: step.done ? "var(--status-success-strong)" : "var(--mcc-ink-600)" }}>{step.label}</span>
                       </div>
                     ))}
                   </div>
                   {allDone && (
-                    <div style={{ marginTop: 12, padding: "10px 14px", background: "#dcfce7", borderRadius: 8, fontSize: "0.82rem", color: "#15803d", fontWeight: 600 }}>
+                    <div style={{ marginTop: 12, padding: "10px 14px", background: "var(--status-success-subtle)", borderRadius: 8, fontSize: "0.82rem", color: "var(--status-success-strong)", fontWeight: 600 }}>
                       Venue setup complete. Your team is ready to train.
                     </div>
                   )}
@@ -3729,7 +3729,7 @@ export default function ManagerControlCenter({
                           <span style={{ fontWeight: 700 }}>{staffUsed} / {staffLimit}</span>
                           <span style={{ color: "var(--mcc-ink-400)", fontWeight: 400, marginLeft: 4 }}>seats used</span>
                           <div style={{ marginTop: 6, height: 6, background: "var(--mcc-surface-2)", borderRadius: 999, overflow: "hidden", maxWidth: 180 }}>
-                            <div style={{ height: "100%", width: `${pct}%`, background: isFull ? "#dc2626" : isWarning ? "#d97706" : "#1E5A3C", borderRadius: 999, transition: "width 0.3s ease" }} />
+                            <div style={{ height: "100%", width: `${pct}%`, background: isFull ? "var(--status-critical)" : isWarning ? "var(--status-warning)" : "var(--color-mastery-technical)", borderRadius: 999, transition: "width 0.3s ease" }} />
                           </div>
                         </dd>
                       </div>
@@ -3739,7 +3739,7 @@ export default function ManagerControlCenter({
                       </div>
                     </dl>
                     {isWarning && (
-                      <div style={{ marginTop: 12, padding: "10px 14px", borderRadius: 8, background: isFull ? "#fef2f2" : "#fefce8", border: `1px solid ${isFull ? "#fca5a5" : "#fde68a"}`, fontSize: "0.82rem", color: isFull ? "#991b1b" : "#92400e" }}>
+                      <div style={{ marginTop: 12, padding: "10px 14px", borderRadius: 8, background: isFull ? "var(--status-critical-light)" : "var(--status-yellow-bg)", border: `1px solid ${isFull ? "var(--status-critical-border)" : "var(--color-amber-badge)"}`, fontSize: "0.82rem", color: isFull ? "var(--status-critical-badge)" : "var(--status-amber-text)" }}>
                         {isFull ? "Staff limit reached." : `Approaching your staff limit (${pct}% used).`}{" "}
                         <a href="/pricing" style={{ color: "inherit", fontWeight: 700, textDecoration: "underline" }}>Upgrade your plan</a> to add more seats.
                       </div>
@@ -3754,7 +3754,7 @@ export default function ManagerControlCenter({
                 <div className="ops-card-head">
                   <h3>Staff join code</h3>
                 </div>
-                <p style={{ marginBottom: "1rem", color: "var(--ops-text-soft, #6b7280)" }}>
+                <p style={{ marginBottom: "1rem", color: "var(--ops-text-soft, var(--color-text-muted))" }}>
                   Share this code with your staff. They enter it in their training dashboard under <strong>Settings → Join Venue</strong> to link their account and sync their training data here.
                 </p>
                 <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
@@ -3763,9 +3763,9 @@ export default function ManagerControlCenter({
                     fontSize: "2.5rem",
                     fontWeight: 800,
                     letterSpacing: "0.15em",
-                    color: "#0B2B1E",
-                    background: "#f0fdf4",
-                    border: "2px solid #86efac",
+                    color: "var(--ip-green)",
+                    background: "var(--status-success-bg)",
+                    border: "2px solid var(--status-success-border)",
                     borderRadius: "12px",
                     padding: "0.5rem 1.5rem",
                     userSelect: "all",
@@ -3780,17 +3780,17 @@ export default function ManagerControlCenter({
                     Copy code
                   </button>
                 </div>
-                <p style={{ marginTop: "0.75rem", fontSize: "0.8rem", color: "var(--ops-text-soft, #9ca3af)" }}>
+                <p style={{ marginTop: "0.75rem", fontSize: "0.8rem", color: "var(--ops-text-soft, var(--color-text-faint))" }}>
                   Once a staff member joins, their training progress will appear in real time in your staff directory.
                 </p>
                 <div style={{ marginTop: 16, padding: "12px 14px", borderRadius: 8, background: "var(--mcc-surface-2)", border: "1px solid var(--mcc-border)" }}>
                   <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--mcc-ink-500)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>What your staff will see</div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.8rem", color: "var(--mcc-ink-600)" }}>
-                    <span style={{ padding: "3px 10px", borderRadius: 6, background: "#f0fdf4", border: "1px solid #86efac", fontWeight: 600, color: "#15803d" }}>Settings</span>
+                    <span style={{ padding: "3px 10px", borderRadius: 6, background: "var(--status-success-bg)", border: "1px solid var(--status-success-border)", fontWeight: 600, color: "var(--status-success-strong)" }}>Settings</span>
                     <span style={{ color: "var(--mcc-ink-400)" }}>→</span>
-                    <span style={{ padding: "3px 10px", borderRadius: 6, background: "#f0fdf4", border: "1px solid #86efac", fontWeight: 600, color: "#15803d" }}>Join Venue</span>
+                    <span style={{ padding: "3px 10px", borderRadius: 6, background: "var(--status-success-bg)", border: "1px solid var(--status-success-border)", fontWeight: 600, color: "var(--status-success-strong)" }}>Join Venue</span>
                     <span style={{ color: "var(--mcc-ink-400)" }}>→ Enter code</span>
-                    <span style={{ fontFamily: "ui-monospace, monospace", fontWeight: 800, color: "#0B2B1E", background: "#e6f4ee", padding: "2px 8px", borderRadius: 4 }}>{selectedVenue?.venueCode}</span>
+                    <span style={{ fontFamily: "ui-monospace, monospace", fontWeight: 800, color: "var(--ip-green)", background: "var(--bg-green-pale)", padding: "2px 8px", borderRadius: 4 }}>{selectedVenue?.venueCode}</span>
                   </div>
                 </div>
               </article>
@@ -3827,7 +3827,7 @@ export default function ManagerControlCenter({
                   </button>
                 </div>
               ) : (
-                <p style={{ color: "var(--ops-text-soft, #9ca3af)", fontSize: 13, marginTop: 12 }}>
+                <p style={{ color: "var(--ops-text-soft, var(--color-text-faint))", fontSize: 13, marginTop: 12 }}>
                   No join code found for this venue. Try refreshing the page.
                 </p>
               )}
@@ -3966,7 +3966,7 @@ export default function ManagerControlCenter({
       {/* A30 — Staff recognition modal */}
       {recogniseTarget && (
         <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.45)" }} onClick={() => setRecogniseTarget(null)}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--surface-raised, #fff)", borderRadius: "var(--radius-lg)", padding: "28px 32px", maxWidth: 460, width: "calc(100% - 48px)", boxShadow: "var(--shadow-xl)" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--surface-raised, var(--surface-raised))", borderRadius: "var(--radius-lg)", padding: "28px 32px", maxWidth: 460, width: "calc(100% - 48px)", boxShadow: "var(--shadow-xl)" }}>
             <h3 style={{ margin: "0 0 6px", fontFamily: "var(--font-fraunces)", color: "var(--text)" }}>Recognise {recogniseTarget.name}</h3>
             <p style={{ margin: "0 0 16px", fontSize: "0.85rem", color: "var(--text-soft)" }}>Your message will be saved and emailed to the staff member if they have a linked account.</p>
             <textarea
@@ -3990,7 +3990,7 @@ export default function ManagerControlCenter({
                   type="button"
                   disabled={recogniseSaving || !recogniseMessage.trim()}
                   onClick={handleSendRecognition}
-                  style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: recogniseSaving || !recogniseMessage.trim() ? "#e5e7eb" : "var(--green)", color: recogniseSaving || !recogniseMessage.trim() ? "#9ca3af" : "white", fontWeight: 700, fontSize: "0.875rem", cursor: recogniseSaving || !recogniseMessage.trim() ? "not-allowed" : "pointer" }}
+                  style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: recogniseSaving || !recogniseMessage.trim() ? "var(--viz-neutral-light)" : "var(--green)", color: recogniseSaving || !recogniseMessage.trim() ? "var(--color-text-faint)" : "white", fontWeight: 700, fontSize: "0.875rem", cursor: recogniseSaving || !recogniseMessage.trim() ? "not-allowed" : "pointer" }}
                 >
                   {recogniseSaving ? "Sending…" : "Send recognition"}
                 </button>
@@ -4003,21 +4003,21 @@ export default function ManagerControlCenter({
       {venueDeleteConfirm && (
         <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.45)" }} onClick={() => setVenueDeleteConfirm(null)}>
           <div onClick={(e) => e.stopPropagation()} style={{ background: "white", borderRadius: 12, padding: "28px 32px", maxWidth: 420, width: "calc(100% - 48px)", boxShadow: "0 8px 32px rgba(0,0,0,0.2)" }}>
-            <h3 style={{ margin: "0 0 8px", fontSize: "1rem", fontWeight: 700, color: "#111827" }}>Delete venue?</h3>
-            <p style={{ margin: "0 0 8px", fontSize: "0.9rem", color: "#6b7280", lineHeight: 1.55 }}>
+            <h3 style={{ margin: "0 0 8px", fontSize: "1rem", fontWeight: 700, color: "var(--color-ink)" }}>Delete venue?</h3>
+            <p style={{ margin: "0 0 8px", fontSize: "0.9rem", color: "var(--color-text-muted)", lineHeight: 1.55 }}>
               You are about to permanently delete <strong>{venueDeleteConfirm.venueName}</strong>.
             </p>
-            <div style={{ padding: "10px 14px", borderRadius: 8, background: "#fef2f2", border: "1px solid #fca5a5", marginBottom: 20 }}>
-              <p style={{ margin: 0, fontSize: "0.82rem", color: "#b91c1c", fontWeight: 600 }}>This will remove all staff assignments and training data linked to this venue. This cannot be undone.</p>
+            <div style={{ padding: "10px 14px", borderRadius: 8, background: "var(--status-critical-light)", border: "1px solid var(--status-critical-border)", marginBottom: 20 }}>
+              <p style={{ margin: 0, fontSize: "0.82rem", color: "var(--status-critical-text)", fontWeight: 600 }}>This will remove all staff assignments and training data linked to this venue. This cannot be undone.</p>
             </div>
             <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button type="button" onClick={() => setVenueDeleteConfirm(null)} style={{ padding: "9px 20px", borderRadius: 8, border: "1.5px solid #e5e7eb", background: "white", fontWeight: 600, fontSize: "0.875rem", cursor: "pointer", color: "#374151" }}>
+              <button type="button" onClick={() => setVenueDeleteConfirm(null)} style={{ padding: "9px 20px", borderRadius: 8, border: "1.5px solid var(--viz-neutral-light)", background: "white", fontWeight: 600, fontSize: "0.875rem", cursor: "pointer", color: "var(--text-secondary)" }}>
                 No, keep it
               </button>
               <button
                 type="button"
                 onClick={() => { handleDeleteVenue(venueDeleteConfirm.venueId, venueDeleteConfirm.venueName); setVenueDeleteConfirm(null); }}
-                style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: "#dc2626", color: "white", fontWeight: 700, fontSize: "0.875rem", cursor: "pointer" }}
+                style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: "var(--status-critical)", color: "white", fontWeight: 700, fontSize: "0.875rem", cursor: "pointer" }}
               >
                 Yes, delete venue
               </button>

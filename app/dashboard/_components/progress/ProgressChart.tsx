@@ -110,13 +110,13 @@ export default function ProgressChart({ hasChartData, barChartData, radarData, o
           {hasChartData ? (
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={barChartData} barSize={32}>
-                <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#7a9185" }} axisLine={false} tickLine={false} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: "#7a9185" }} axisLine={false} tickLine={false} width={28} />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: "var(--text-muted)" }} axisLine={false} tickLine={false} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: "var(--text-muted)" }} axisLine={false} tickLine={false} width={28} />
                 <Tooltip
-                  contentStyle={{ background: "#fff", border: "1px solid #e5e1d8", borderRadius: 8, fontSize: 12 }}
+                  contentStyle={{ background: "var(--surface-raised)", border: "1px solid var(--border-warm-soft)", borderRadius: 8, fontSize: 12 }}
                   formatter={(v) => [`${v ?? 0}/100`, "Score"]}
                 />
-                <Bar dataKey="score" fill="#1f4e37" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="score" fill="var(--green)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -130,10 +130,10 @@ export default function ProgressChart({ hasChartData, barChartData, radarData, o
           {hasChartData ? (
             <ResponsiveContainer width="100%" height={180}>
               <RadarChart data={radarData}>
-                <PolarGrid stroke="#e5e1d8" />
-                <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fill: "#7a9185" }} />
-                <PolarRadiusAxis domain={[0, 100]} tick={{ fontSize: 9, fill: "#b5b0a8" }} axisLine={false} />
-                <Radar dataKey="score" stroke="#1f4e37" fill="#1f4e37" fillOpacity={0.22} />
+                <PolarGrid stroke="var(--border-warm-soft)" />
+                <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fill: "var(--text-muted)" }} />
+                <PolarRadiusAxis domain={[0, 100]} tick={{ fontSize: 9, fill: "var(--color-warm-stone)" }} axisLine={false} />
+                <Radar dataKey="score" stroke="var(--green)" fill="var(--green)" fillOpacity={0.22} />
               </RadarChart>
             </ResponsiveContainer>
           ) : (

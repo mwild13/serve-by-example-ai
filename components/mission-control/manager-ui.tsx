@@ -88,17 +88,17 @@ const MODULE_META: Record<number, { title: string; category: "technical" | "serv
 };
 
 const CATEGORY_COLOR: Record<"technical" | "service" | "compliance", string> = {
-  technical:  "#1E5A3C",
-  service:    "#B98220",
-  compliance: "#7A4F2C",
+  technical:  "var(--color-mastery-technical)",
+  service:    "var(--color-mastery-service)",
+  compliance: "var(--color-mastery-compliance)",
 };
 
 type PipState = "mastered" | "in-progress" | "locked";
 
 function pipColor(state: PipState, category: "technical" | "service" | "compliance"): string {
   if (state === "mastered")     return CATEGORY_COLOR[category];
-  if (state === "in-progress")  return "#E5D9C0";
-  return "#F0F0EE";
+  if (state === "in-progress")  return "var(--color-mastery-partial)";
+  return "var(--color-mastery-locked)";
 }
 
 // ── MasteryMicroGrid ─────────────────────────────────────────
@@ -192,7 +192,7 @@ export function StaffBadges({ staff }: { staff: StaffMember }) {
       label:    "Training Started",
       sublabel: "First module attempted",
       earned:   attempted > 0,
-      accent:   "#1E5A3C",
+      accent:   "var(--color-mastery-technical)",
     },
     {
       label:    `Product Expert (${techCount}/${TECHNICAL_MODULES})`,
@@ -216,7 +216,7 @@ export function StaffBadges({ staff }: { staff: StaffMember }) {
       label:    "Fully Mastered",
       sublabel: "All 20 modules complete",
       earned:   mastered >= 20,
-      accent:   "#1E5A3C",
+      accent:   "var(--color-mastery-technical)",
     },
   ];
 

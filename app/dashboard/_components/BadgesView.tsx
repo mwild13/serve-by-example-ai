@@ -241,7 +241,7 @@ export default function BadgesView({ onBack }: BadgesViewProps) {
             <h1 style={{
               fontFamily: "var(--font-heading)",
               fontSize: "2rem",
-              color: "#fff",
+              color: "var(--surface-raised)",
               margin: "0 0 6px",
               lineHeight: 1.15,
             }}>

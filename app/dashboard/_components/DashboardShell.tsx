@@ -677,7 +677,7 @@ export default function DashboardShell({
       <aside className="dashboard-sidebar">
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: 16 }}>
           <Image src="/logo.png" alt="SBE" width={38} height={38} style={{ borderRadius: 10, display: "block", flexShrink: 0 }} />
-          <span style={{ fontSize: "18px", fontWeight: 700, color: "#fff", whiteSpace: "nowrap" }}>Serve By Example</span>
+          <span style={{ fontSize: "18px", fontWeight: 700, color: "var(--surface-raised)", whiteSpace: "nowrap" }}>Serve By Example</span>
         </div>
 
         <div className="mockup-nav">
@@ -778,11 +778,11 @@ export default function DashboardShell({
                     marginBottom: "10px",
                     padding: "8px 16px",
                     background: "transparent",
-                    border: "2px solid #e5e7eb",
+                    border: "2px solid var(--viz-neutral-light)",
                     borderRadius: "8px",
                     fontSize: "0.875rem",
                     fontWeight: 600,
-                    color: "#374151",
+                    color: "var(--text-secondary)",
                     cursor: "pointer",
                   }}
                 >

@@ -292,16 +292,16 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
               key={tile.label}
               style={{
                 padding: '20px 24px',
-                background: tile.urgent ? 'var(--status-warn-bg, #fff7ed)' : 'var(--surface)',
+                background: tile.urgent ? 'var(--status-warn-bg, var(--status-amber-bg))' : 'var(--surface)',
               }}
             >
-              <div style={{ fontSize: '1.6rem', fontWeight: 700, color: tile.urgent ? 'var(--status-warn-text, #92400e)' : 'var(--text)', fontFamily: 'var(--font-fraunces)' }}>
+              <div style={{ fontSize: '1.6rem', fontWeight: 700, color: tile.urgent ? 'var(--status-warn-text, var(--status-amber-text))' : 'var(--text)', fontFamily: 'var(--font-fraunces)' }}>
                 {tile.value}
               </div>
               <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginTop: '2px' }}>
                 {tile.label}
               </div>
-              <div style={{ fontSize: '0.75rem', color: tile.urgent ? 'var(--status-warn-text, #92400e)' : 'var(--text-soft)', marginTop: '4px' }}>
+              <div style={{ fontSize: '0.75rem', color: tile.urgent ? 'var(--status-warn-text, var(--status-amber-text))' : 'var(--text-soft)', marginTop: '4px' }}>
                 {tile.sub}
               </div>
             </div>
@@ -324,7 +324,7 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
             </button>
             <button
               className="btn btn-sm"
-              style={{ fontSize: '0.75rem', background: 'var(--green)', color: '#fff', border: 'none' }}
+              style={{ fontSize: '0.75rem', background: 'var(--green)', color: 'var(--surface-raised)', border: 'none' }}
               onClick={() => openModal()}
             >
               + Add cert
@@ -355,8 +355,8 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
                   row.status.level === 0
                     ? 'var(--text-muted)'
                     : row.status.level <= 2
-                      ? '#c2410c'
-                      : '#b91c1c';
+                      ? 'var(--status-orange)'
+                      : 'var(--status-critical-text)';
                 const badgeCls =
                   row.status.level === 0
                     ? 'mgmt-badge mgmt-badge-ready'
@@ -383,12 +383,12 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
                       <td style={{ textAlign: 'center', padding: '10px 12px' }}>
                         <span className={badgeCls}>{row.status.label}</span>
                         {row.certType === 'RSA' && 'nsw28Day' in row.status && row.status.nsw28Day && (
-                          <div style={{ color: '#b91c1c', fontSize: '0.7rem', fontStyle: 'italic', marginTop: 4 }}>
+                          <div style={{ color: 'var(--status-critical-text)', fontSize: '0.7rem', fontStyle: 'italic', marginTop: 4 }}>
                             NSW: Full SITHFAB021 required
                           </div>
                         )}
                         {row.certType === 'FSS' && 'gracePeriodDaysRemaining' in row.status && row.status.gracePeriodDaysRemaining !== undefined && (
-                          <div style={{ color: row.status.level >= 2 ? '#b91c1c' : '#c2410c', fontSize: '0.7rem', fontStyle: 'italic', marginTop: 4 }}>
+                          <div style={{ color: row.status.level >= 2 ? 'var(--status-critical-text)' : 'var(--status-orange)', fontSize: '0.7rem', fontStyle: 'italic', marginTop: 4 }}>
                             {row.status.level === 3 ? 'Appoint FSS immediately' : `${row.status.gracePeriodDaysRemaining}d to appoint FSS`}
                           </div>
                         )}
@@ -447,13 +447,13 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
                   {!hasCopy && (
                     <div
                       style={{
-                        background: '#fff1f2',
-                        border: '1px solid #fecdd3',
-                        borderLeft: '4px solid #b91c1c',
+                        background: 'var(--status-critical-bg)',
+                        border: '1px solid var(--status-critical-border)',
+                        borderLeft: '4px solid var(--status-critical-text)',
                         padding: '10px 12px',
                         borderRadius: 'var(--radius-sm)',
                         fontSize: '0.85rem',
-                        color: '#b91c1c',
+                        color: 'var(--status-critical-text)',
                         marginTop: '8px',
                       }}
                     >
@@ -476,7 +476,7 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
             <span>{customCerts.length} recorded</span>
             <button
               className="btn btn-sm"
-              style={{ fontSize: '0.75rem', background: 'var(--green)', color: '#fff', border: 'none' }}
+              style={{ fontSize: '0.75rem', background: 'var(--green)', color: 'var(--surface-raised)', border: 'none' }}
               onClick={() => { setShowCustomModal(true); setCustomStaffId(''); setCustomCertName(''); setCustomCertNumber(''); setCustomExpiryDate(''); setCustomNotes(''); setCustomError(''); }}
             >
               + Add cert
@@ -510,7 +510,7 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
                     <td style={{ padding: '10px 12px', color: 'var(--text)' }}>{staff?.name ?? '—'}</td>
                     <td style={{ padding: '10px 12px', fontWeight: 500, color: 'var(--text)' }}>{cert.cert_name}</td>
                     <td style={{ padding: '10px 12px', color: 'var(--text-soft)', fontSize: '0.8rem' }}>{cert.cert_number ?? '—'}</td>
-                    <td style={{ padding: '10px 12px', fontSize: '0.8rem', color: isExpiring ? '#b91c1c' : 'var(--text-soft)' }}>
+                    <td style={{ padding: '10px 12px', fontSize: '0.8rem', color: isExpiring ? 'var(--status-critical-text)' : 'var(--text-soft)' }}>
                       {expiryDate ? expiryDate.toLocaleDateString() : '—'}
                       {isExpiring && daysLeft !== null && <span style={{ marginLeft: 6, fontSize: '0.72rem', fontWeight: 700 }}>({daysLeft}d)</span>}
                     </td>
@@ -540,7 +540,7 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
           style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) setShowCustomModal(false); }}
         >
-          <div style={{ background: 'var(--surface-raised, #fff)', borderRadius: 'var(--radius-lg)', padding: '28px 32px', width: '100%', maxWidth: '480px', boxShadow: 'var(--shadow-xl)' }}>
+          <div style={{ background: 'var(--surface-raised, var(--surface-raised))', borderRadius: 'var(--radius-lg)', padding: '28px 32px', width: '100%', maxWidth: '480px', boxShadow: 'var(--shadow-xl)' }}>
             <h3 style={{ margin: '0 0 20px', color: 'var(--text)', fontFamily: 'var(--font-fraunces)' }}>Add Custom Certification</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-soft)' }}>
@@ -567,10 +567,10 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
                 <textarea rows={2} value={customNotes} onChange={e => setCustomNotes(e.target.value)} placeholder="e.g. Renewed via online course, expires same time as RSA" style={{ display: 'block', width: '100%', marginTop: '4px', padding: '8px 10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--line)', background: 'var(--surface)', color: 'var(--text)', fontSize: '0.875rem', resize: 'vertical' }} />
               </label>
             </div>
-            {customError && <div style={{ marginTop: '12px', padding: '8px 12px', background: 'var(--status-error-bg, #fff1f2)', color: 'var(--status-error-text, #b91c1c)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem' }}>{customError}</div>}
+            {customError && <div style={{ marginTop: '12px', padding: '8px 12px', background: 'var(--status-error-bg, var(--status-critical-bg))', color: 'var(--status-error-text, var(--status-critical-text))', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem' }}>{customError}</div>}
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '24px' }}>
               <button className="btn btn-sm" onClick={() => setShowCustomModal(false)} style={{ fontSize: '0.85rem' }}>Cancel</button>
-              <button className="btn btn-sm" onClick={handleSaveCustomCert} disabled={customSaving} style={{ fontSize: '0.85rem', background: 'var(--green)', color: '#fff', border: 'none', opacity: customSaving ? 0.6 : 1 }}>{customSaving ? 'Saving…' : 'Save cert'}</button>
+              <button className="btn btn-sm" onClick={handleSaveCustomCert} disabled={customSaving} style={{ fontSize: '0.85rem', background: 'var(--green)', color: 'var(--surface-raised)', border: 'none', opacity: customSaving ? 0.6 : 1 }}>{customSaving ? 'Saving…' : 'Save cert'}</button>
             </div>
           </div>
         </div>
@@ -587,7 +587,7 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
           onClick={e => { if (e.target === e.currentTarget) setShowModal(false); }}
         >
           <div style={{
-            background: 'var(--surface-raised, #fff)',
+            background: 'var(--surface-raised, var(--surface-raised))',
             borderRadius: 'var(--radius-lg)',
             padding: '28px 32px',
             width: '100%', maxWidth: '480px',
@@ -657,7 +657,7 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
             </div>
 
             {modalError && (
-              <div style={{ marginTop: '12px', padding: '8px 12px', background: 'var(--status-error-bg, #fff1f2)', color: 'var(--status-error-text, #b91c1c)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem' }}>
+              <div style={{ marginTop: '12px', padding: '8px 12px', background: 'var(--status-error-bg, var(--status-critical-bg))', color: 'var(--status-error-text, var(--status-critical-text))', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem' }}>
                 {modalError}
               </div>
             )}
@@ -674,7 +674,7 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
                 className="btn btn-sm"
                 onClick={handleSave}
                 disabled={modalSaving}
-                style={{ fontSize: '0.85rem', background: 'var(--green)', color: '#fff', border: 'none', opacity: modalSaving ? 0.6 : 1 }}
+                style={{ fontSize: '0.85rem', background: 'var(--green)', color: 'var(--surface-raised)', border: 'none', opacity: modalSaving ? 0.6 : 1 }}
               >
                 {modalSaving ? 'Saving…' : 'Save cert'}
               </button>

@@ -439,7 +439,7 @@ function AICoachSheet({ onClose }: { onClose: () => void }) {
           </div>
         )}
 
-        {error && <div style={{ fontSize: 12, color: "#c0392b", marginBottom: 10 }}>{error}</div>}
+        {error && <div style={{ fontSize: 12, color: "var(--status-critical-dark)", marginBottom: 10 }}>{error}</div>}
 
         <form onSubmit={handleSubmit} style={{ display: "flex", gap: 9, alignItems: "center", border: "1.5px solid var(--line)", borderRadius: 99, padding: "6px 6px 6px 16px" }}>
           <input
@@ -871,7 +871,7 @@ export default function MobileDashboardV3({
         style={{
           position: "fixed", right: 20, bottom: "calc(100px + env(safe-area-inset-bottom))",
           width: 56, height: 56, borderRadius: "50%", zIndex: 48,
-          border: "none", background: "var(--gold-warm)", color: "#ffffff",
+          border: "none", background: "var(--gold-warm)", color: "var(--surface-raised)",
           display: "flex", alignItems: "center", justifyContent: "center",
           boxShadow: "0 4px 16px rgba(169,129,42,0.4)", cursor: "pointer",
         }}

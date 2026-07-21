@@ -56,7 +56,7 @@ export function RevenueAreaChart({ trainingValue }: { trainingValue: number }) {
         </defs>
 
         {[0, 0.25, 0.5, 0.75, 1].map((p, idx) => (
-          <line key={idx} x1={pad} x2={w - pad} y1={pad + p * (h - pad * 2)} y2={pad + p * (h - pad * 2)} stroke="#EDE7D2" strokeDasharray="2 4" />
+          <line key={idx} x1={pad} x2={w - pad} y1={pad + p * (h - pad * 2)} y2={pad + p * (h - pad * 2)} stroke="var(--border-parchment)" strokeDasharray="2 4" />
         ))}
         {days.map((d, i) => (
           <text key={i} x={pad + i * stepX} y={h - 8} fontSize="12" fill="var(--text-muted)" textAnchor="middle">{d}</text>

@@ -48,10 +48,10 @@ function parseLastActiveDays(lastActive: string): number {
 function readinessPill(member: StaffMember): { label: string; dot: string; bg: string; color: string } {
   const rsaStat = rsaStatus(member.compliance);
   if (rsaStat.level === 3)
-    return { label: 'At Risk', dot: '○', bg: '#fff1f2', color: '#b91c1c' };
+    return { label: 'At Risk', dot: '○', bg: 'var(--status-critical-bg)', color: 'var(--status-critical-text)' };
   if (member.status === 'attention' || rsaStat.level === 2)
-    return { label: 'Caution', dot: '◐', bg: '#fff7ed', color: '#c2410c' };
-  return { label: 'Ready', dot: '●', bg: '#dcfce7', color: '#16a34a' };
+    return { label: 'Caution', dot: '◐', bg: 'var(--status-amber-bg)', color: 'var(--status-orange)' };
+  return { label: 'Ready', dot: '●', bg: 'var(--status-success-subtle)', color: 'var(--status-success)' };
 }
 
 export default function StaffRosterPanel({
@@ -329,7 +329,7 @@ export default function StaffRosterPanel({
                     const initials = member.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
                     const email = member.email;
                     const isReady = member.progress >= 70;
-                    const barColor = member.progress >= 70 ? "#16a34a" : member.progress >= 40 ? "#f59e0b" : "#dc2626";
+                    const barColor = member.progress >= 70 ? "var(--status-success)" : member.progress >= 40 ? "var(--status-amber)" : "var(--status-critical)";
                     const isEditing = editingStaffId === member.id;
                     const isCertOpen = complianceOpen.has(member.id);
                     const draft = complianceDraft[member.id];
@@ -355,7 +355,7 @@ export default function StaffRosterPanel({
                             ) : (
                               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                                 <strong>{member.name}</strong>
-                                {isReady && <span style={{ padding: "1px 7px", borderRadius: 999, fontSize: "0.65rem", fontWeight: 700, background: "#dcfce7", color: "#15803d", flexShrink: 0 }}>Ready</span>}
+                                {isReady && <span style={{ padding: "1px 7px", borderRadius: 999, fontSize: "0.65rem", fontWeight: 700, background: "var(--status-success-subtle)", color: "var(--status-success-strong)", flexShrink: 0 }}>Ready</span>}
                                 <button
                                   type="button"
                                   onClick={e => { e.stopPropagation(); startEditStaff(member); }}
@@ -393,7 +393,7 @@ export default function StaffRosterPanel({
                           </td>
                           <td style={{ minWidth: 90 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                              <div style={{ flex: 1, height: 5, background: "#e5e7eb", borderRadius: 999 }}>
+                              <div style={{ flex: 1, height: 5, background: "var(--viz-neutral-light)", borderRadius: 999 }}>
                                 <div style={{ height: "100%", width: `${member.progress}%`, background: barColor, borderRadius: 999, transition: "width 0.3s" }} />
                               </div>
                               <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--mcc-ink-700)", width: 30, textAlign: "right" }}>{Math.round(member.progress)}%</span>
@@ -428,8 +428,8 @@ export default function StaffRosterPanel({
                             {(() => {
                               const days = member.lastActiveDays ?? parseLastActiveDays(member.lastActive);
                               const lastActiveStyle = days > 30
-                                ? { color: '#b91c1c', fontWeight: 700 }
-                                : days > 14 ? { color: '#c2410c' } : {};
+                                ? { color: 'var(--status-critical-text)', fontWeight: 700 }
+                                : days > 14 ? { color: 'var(--status-orange)' } : {};
                               return <span style={lastActiveStyle}>{member.lastActive}</span>;
                             })()}
                           </td>
@@ -442,7 +442,7 @@ export default function StaffRosterPanel({
                                     className="btn btn-sm"
                                     onClick={e => { e.stopPropagation(); saveEditStaff(member.id); }}
                                     disabled={editSaving}
-                                    style={{ fontSize: '0.7rem', padding: '2px 8px', background: 'var(--green)', color: '#fff', border: 'none' }}
+                                    style={{ fontSize: '0.7rem', padding: '2px 8px', background: 'var(--green)', color: 'var(--surface-raised)', border: 'none' }}
                                   >
                                     {editSaving ? '…' : 'Save'}
                                   </button>
@@ -545,7 +545,7 @@ export default function StaffRosterPanel({
                                     className="btn btn-sm"
                                     onClick={() => saveCompliance(member.id)}
                                     disabled={isCertSaving}
-                                    style={{ fontSize: '0.8rem', background: 'var(--green)', color: '#fff', border: 'none', opacity: isCertSaving ? 0.6 : 1 }}
+                                    style={{ fontSize: '0.8rem', background: 'var(--green)', color: 'var(--surface-raised)', border: 'none', opacity: isCertSaving ? 0.6 : 1 }}
                                   >
                                     {isCertSaving ? 'Saving…' : 'Save cert'}
                                   </button>
@@ -632,7 +632,7 @@ export default function StaffRosterPanel({
                               <td>
                                 {(() => {
                                   const lbl = m.status === "on-track" && m.progress === 0 ? "Not started" : m.status === "on-track" ? "On track" : m.status === "attention" ? "Attention" : "Inactive";
-                                  const sty = m.status === "on-track" && m.progress === 0 ? { background: "#f3f4f6", color: "#6b7280" } : m.status === "on-track" ? { background: "#dcfce7", color: "#16a34a" } : m.status === "attention" ? { background: "#fff7ed", color: "#c2410c" } : { background: "#fff1f2", color: "#b91c1c" };
+                                  const sty = m.status === "on-track" && m.progress === 0 ? { background: "var(--border-subtle)", color: "var(--color-text-muted)" } : m.status === "on-track" ? { background: "var(--status-success-subtle)", color: "var(--status-success)" } : m.status === "attention" ? { background: "var(--status-amber-bg)", color: "var(--status-orange)" } : { background: "var(--status-critical-bg)", color: "var(--status-critical-text)" };
                                   return <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: "0.72rem", fontWeight: 700, ...sty }}>{lbl}</span>;
                                 })()}
                               </td>
@@ -714,8 +714,8 @@ export default function StaffRosterPanel({
                           <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 4 }}>
                             {steps.map((step, si) => (
                               <span key={step.label} style={{ display: "flex", alignItems: "center", gap: 3 }}>
-                                <span style={{ fontSize: "0.65rem", fontWeight: 600, padding: "1px 6px", borderRadius: 999, background: step.done ? "#dcfce7" : "#f3f4f6", color: step.done ? "#15803d" : "#9ca3af" }}>{step.label}</span>
-                                {si < steps.length - 1 && <span style={{ color: "#e5e7eb", fontSize: "0.65rem" }}>→</span>}
+                                <span style={{ fontSize: "0.65rem", fontWeight: 600, padding: "1px 6px", borderRadius: 999, background: step.done ? "var(--status-success-subtle)" : "var(--border-subtle)", color: step.done ? "var(--status-success-strong)" : "var(--color-text-faint)" }}>{step.label}</span>
+                                {si < steps.length - 1 && <span style={{ color: "var(--viz-neutral-light)", fontSize: "0.65rem" }}>→</span>}
                               </span>
                             ))}
                           </div>
@@ -777,10 +777,10 @@ export default function StaffRosterPanel({
               boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
             }}
           >
-            <h3 style={{ margin: "0 0 8px", fontSize: "1rem", fontWeight: 700, color: "#111827" }}>
+            <h3 style={{ margin: "0 0 8px", fontSize: "1rem", fontWeight: 700, color: "var(--color-ink)" }}>
               Remove staff member?
             </h3>
-            <p style={{ margin: "0 0 24px", fontSize: "0.9rem", color: "#6b7280", lineHeight: 1.55 }}>
+            <p style={{ margin: "0 0 24px", fontSize: "0.9rem", color: "var(--color-text-muted)", lineHeight: 1.55 }}>
               Are you sure you want to remove <strong>{deleteConfirm.staffName}</strong> from the roster? This cannot be undone.
             </p>
             <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
@@ -788,9 +788,9 @@ export default function StaffRosterPanel({
                 type="button"
                 onClick={() => setDeleteConfirm(null)}
                 style={{
-                  padding: "9px 20px", borderRadius: 8, border: "1.5px solid #e5e7eb",
+                  padding: "9px 20px", borderRadius: 8, border: "1.5px solid var(--viz-neutral-light)",
                   background: "white", fontWeight: 600, fontSize: "0.875rem",
-                  cursor: "pointer", color: "#374151",
+                  cursor: "pointer", color: "var(--text-secondary)",
                 }}
               >
                 No, keep
@@ -800,7 +800,7 @@ export default function StaffRosterPanel({
                 onClick={confirmDeleteStaff}
                 style={{
                   padding: "9px 20px", borderRadius: 8, border: "none",
-                  background: "#dc2626", color: "white",
+                  background: "var(--status-critical)", color: "white",
                   fontWeight: 700, fontSize: "0.875rem", cursor: "pointer",
                 }}
               >

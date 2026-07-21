@@ -14,8 +14,7 @@ import tsPlugin from "@typescript-eslint/eslint-plugin";
 //   lib/cocktails.ts    — colour describes drink appearance (content data, not UI)
 //   lib/knowledge-base.ts — same rationale
 //
-// Severity: "warn" until remaining components (learning-engine, mission-control,
-//   etc.) are cleaned up. Upgrade to "error" after a full codebase pass.
+// Severity: "error" — all TSX/TS files are clean. Any new hardcoded hex will fail CI.
 // ---------------------------------------------------------------------------
 const sbeDesign = {
   rules: {
@@ -90,8 +89,7 @@ export default defineConfig([
     ],
     plugins: { "sbe-design": sbeDesign },
     rules: {
-      // warn → upgrade to "error" after learning-engine / mission-control cleanup
-      "sbe-design/no-hardcoded-hex": "warn",
+      "sbe-design/no-hardcoded-hex": "error",
     },
   },
 ]);

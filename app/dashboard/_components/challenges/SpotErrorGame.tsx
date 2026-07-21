@@ -110,13 +110,13 @@ export default function SpotErrorGame({ onComplete, onIncorrect }: ChallengeGame
                   borderRadius: "var(--radius-sm)",
                   border: `1px solid ${
                     showResult && isError ? "var(--gold)"
-                    : showResult && !isError ? "var(--red-text, #b91c1c)"
+                    : showResult && !isError ? "var(--red-text, var(--status-critical-text))"
                     : "transparent"
                   }`,
                   background: showResult && isError
                     ? "var(--gold-light)"
                     : showResult && !isError
-                    ? "var(--red-soft, #fee2e2)"
+                    ? "var(--red-soft, var(--status-critical-light))"
                     : "transparent",
                   color: "var(--text)",
                   fontSize: "0.88rem",
