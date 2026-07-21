@@ -414,14 +414,14 @@ export default function SopToolkitPage() {
                   <h3 style={{
                     fontFamily: 'var(--font-heading)',
                     fontSize: '1.15rem',
-                    color: '#fff',
-                    borderBottom: '1px solid rgba(255,255,255,0.2)',
+                    color: 'var(--text-light-on-dark)',
+                    borderBottom: '1px solid var(--border-light-on-dark)',
                     paddingBottom: '0.6rem',
                     marginBottom: '0.9rem',
                   }}>
                     {stat.heading}
                   </h3>
-                  <p style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.8)', lineHeight: '1.6' }}>
+                  <p style={{ fontSize: '0.95rem', color: 'var(--text-light-muted-on-dark)', lineHeight: '1.6' }}>
                     {stat.body}
                   </p>
                 </div>
@@ -430,9 +430,9 @@ export default function SopToolkitPage() {
 
             <p style={{
               fontSize: '0.8rem',
-              color: 'rgba(255,255,255,0.5)',
+              color: 'var(--text-light-faint-on-dark)',
               textAlign: 'center',
-              borderTop: '1px solid rgba(255,255,255,0.1)',
+              borderTop: '1px solid var(--border-light-faint-on-dark)',
               paddingTop: '1.5rem',
               maxWidth: '640px',
               margin: '0 auto',

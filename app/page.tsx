@@ -95,7 +95,7 @@ export default function Home() {
         <section className="section trust-section" style={{ background: "transparent", padding: "2rem 0" }}>
           <div className="container">
             <div className="arch-blueprint" style={{ background: "white", padding: "2.5rem 2rem", borderRadius: "12px", border: "1px solid var(--mkt-border-subtle, #e5e7eb)", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
-              <div style={{ fontSize: "11px", color: "#6b7280", letterSpacing: "0.15em", marginBottom: "2rem", textTransform: "uppercase", fontWeight: 700 }}>
+              <div style={{ fontSize: "11px", color: "var(--color-text-muted)", letterSpacing: "0.15em", marginBottom: "2rem", textTransform: "uppercase", fontWeight: 700 }}>
                 System Specifications
               </div>
 
@@ -105,43 +105,43 @@ export default function Home() {
                 gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
                 gap: "1.5rem"
               }}>
-                <article className="stat-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "8px", border: "1px solid #f3f4f6", background: "#fff" }}>
-                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "#1b4332", lineHeight: 1, marginBottom: "0.5rem" }}>
-                    3<span style={{ fontSize: "1.75rem", marginLeft: "2px", color: "var(--mkt-gold-500, #b79438)" }}>×</span>
+                <article className="stat-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "8px", border: "1px solid var(--border-subtle)", background: "var(--surface-raised)" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "var(--green-deep)", lineHeight: 1, marginBottom: "0.5rem" }}>
+                    3<span style={{ fontSize: "1.75rem", marginLeft: "2px", color: "var(--mkt-gold-500, var(--gold))" }}>×</span>
                   </div>
-                  <div style={{ fontSize: "0.9rem", color: "#374151", fontWeight: 600, lineHeight: 1.4 }}>
+                  <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)", fontWeight: 600, lineHeight: 1.4 }}>
                     Faster Onboarding<br/>
-                    <em style={{ fontSize: "0.8rem", color: "#b79438", fontStyle: "normal", fontWeight: 500 }}>6 months to 6 weeks</em>
+                    <em style={{ fontSize: "0.8rem", color: "var(--gold)", fontStyle: "normal", fontWeight: 500 }}>6 months to 6 weeks</em>
                   </div>
                 </article>
 
-                <article className="stat-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "8px", border: "1px solid #f3f4f6", background: "#fff" }}>
-                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "#1b4332", lineHeight: 1, marginBottom: "0.5rem" }}>
-                    100<span style={{ fontSize: "1.75rem", marginLeft: "2px", color: "var(--mkt-gold-500, #b79438)" }}>+</span>
+                <article className="stat-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "8px", border: "1px solid var(--border-subtle)", background: "var(--surface-raised)" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "var(--green-deep)", lineHeight: 1, marginBottom: "0.5rem" }}>
+                    100<span style={{ fontSize: "1.75rem", marginLeft: "2px", color: "var(--mkt-gold-500, var(--gold))" }}>+</span>
                   </div>
-                  <div style={{ fontSize: "0.9rem", color: "#374151", fontWeight: 600, lineHeight: 1.4 }}>
+                  <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)", fontWeight: 600, lineHeight: 1.4 }}>
                     Learning Modules<br/>
-                    <em style={{ fontSize: "0.8rem", color: "#b79438", fontStyle: "normal", fontWeight: 500 }}>&amp; Scenarios</em>
+                    <em style={{ fontSize: "0.8rem", color: "var(--gold)", fontStyle: "normal", fontWeight: 500 }}>&amp; Scenarios</em>
                   </div>
                 </article>
 
-                <article className="stat-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "8px", border: "1px solid #f3f4f6", background: "#fff" }}>
-                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "#1b4332", lineHeight: 1, marginBottom: "0.5rem" }}>
+                <article className="stat-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "8px", border: "1px solid var(--border-subtle)", background: "var(--surface-raised)" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "var(--green-deep)", lineHeight: 1, marginBottom: "0.5rem" }}>
                     19
                   </div>
-                  <div style={{ fontSize: "0.9rem", color: "#374151", fontWeight: 600, lineHeight: 1.4 }}>
+                  <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)", fontWeight: 600, lineHeight: 1.4 }}>
                     Languages Supported<br/>
-                    <em style={{ fontSize: "0.8rem", color: "#b79438", fontStyle: "normal", fontWeight: 500 }}>Aus Training Ready</em>
+                    <em style={{ fontSize: "0.8rem", color: "var(--gold)", fontStyle: "normal", fontWeight: 500 }}>Aus Training Ready</em>
                   </div>
                 </article>
 
-                <article className="stat-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "8px", border: "1px solid #f3f4f6", background: "#fff" }}>
-                  <div style={{ fontSize: "2.25rem", fontWeight: 800, color: "#1b4332", lineHeight: 1.1, letterSpacing: "-0.03em", marginBottom: "0.5rem" }}>
+                <article className="stat-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "8px", border: "1px solid var(--border-subtle)", background: "var(--surface-raised)" }}>
+                  <div style={{ fontSize: "2.25rem", fontWeight: 800, color: "var(--green-deep)", lineHeight: 1.1, letterSpacing: "-0.03em", marginBottom: "0.5rem" }}>
                     GPT-4o-mini
                   </div>
-                  <div style={{ fontSize: "0.9rem", color: "#374151", fontWeight: 600, lineHeight: 1.4 }}>
+                  <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)", fontWeight: 600, lineHeight: 1.4 }}>
                     5-Dimension AI<br/>
-                    <em style={{ fontSize: "0.8rem", color: "#b79438", fontStyle: "normal", fontWeight: 500 }}>Evaluation Engine</em>
+                    <em style={{ fontSize: "0.8rem", color: "var(--gold)", fontStyle: "normal", fontWeight: 500 }}>Evaluation Engine</em>
                   </div>
                 </article>
               </div>
@@ -237,39 +237,39 @@ export default function Home() {
                 <div className="founder-text">
                   <span className="eyebrow">Built From Experience</span>
                   <h2 style={{ marginBottom: "1rem" }}>Built by a 15-year hospitality veteran.</h2>
-                  <p style={{ fontSize: "1.125rem", color: "#374151", lineHeight: 1.7, margin: 0 }}>
+                  <p style={{ fontSize: "1.125rem", color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
                     Serve By Example was created and is managed by a real hospitality professional with over 15 years of experience across Australian bars, pubs and venues. Not built in a boardroom, built behind the bar.
                   </p>
                 </div>
               </div>
               <div style={{ display: "flex", justifyContent: "center", gap: "3rem", flexWrap: "wrap", marginBottom: "2.5rem" }}>
                 <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "#1b4332", lineHeight: 1 }}>15+</div>
-                  <div style={{ fontSize: "0.875rem", color: "#6b7280", marginTop: "6px", fontWeight: 500 }}>Years in Australian Hospitality</div>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "var(--green-deep)", lineHeight: 1 }}>15+</div>
+                  <div style={{ fontSize: "0.875rem", color: "var(--color-text-muted)", marginTop: "6px", fontWeight: 500 }}>Years in Australian Hospitality</div>
                 </div>
                 <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "#1b4332", lineHeight: 1 }}>100s</div>
-                  <div style={{ fontSize: "0.875rem", color: "#6b7280", marginTop: "6px", fontWeight: 500 }}>Staff Trained &amp; Managed</div>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "var(--green-deep)", lineHeight: 1 }}>100s</div>
+                  <div style={{ fontSize: "0.875rem", color: "var(--color-text-muted)", marginTop: "6px", fontWeight: 500 }}>Staff Trained &amp; Managed</div>
                 </div>
                 <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "#1b4332", lineHeight: 1 }}>40+</div>
-                  <div style={{ fontSize: "0.875rem", color: "#6b7280", marginTop: "6px", fontWeight: 500 }}>Modules Built for Hospitality</div>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "var(--green-deep)", lineHeight: 1 }}>40+</div>
+                  <div style={{ fontSize: "0.875rem", color: "var(--color-text-muted)", marginTop: "6px", fontWeight: 500 }}>Modules Built for Hospitality</div>
                 </div>
               </div>
               <blockquote style={{
                 margin: "0 auto",
                 maxWidth: "600px",
                 padding: "1.5rem 2rem",
-                background: "white",
-                border: "1.5px solid #d1fae5",
-                borderLeft: "4px solid #2d6a4f",
+                background: "var(--surface-raised)",
+                border: "1.5px solid var(--divider-light)",
+                borderLeft: "4px solid var(--green-mid)",
                 borderRadius: "12px",
                 textAlign: "left",
               }}>
-                <p style={{ margin: 0, fontSize: "1.05rem", fontStyle: "italic", color: "#1b4332", lineHeight: 1.65, fontWeight: 500 }}>
+                <p style={{ margin: 0, fontSize: "1.05rem", fontStyle: "italic", color: "var(--green-deep)", lineHeight: 1.65, fontWeight: 500 }}>
                   &ldquo;I built the training tool I always wished I had, one that works for real venues, real staff, and the real pressure of a busy service.&rdquo;
                 </p>
-                <footer style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: "#6b7280", fontStyle: "normal", fontWeight: 600 }}>
+                <footer style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: "var(--color-text-muted)", fontStyle: "normal", fontWeight: 600 }}>
                   Mitch, Serve By Example, Australia
                 </footer>
               </blockquote>
@@ -434,7 +434,7 @@ export default function Home() {
         </section>
 
         {/* ── Quantified Benefits ─────────────────────── */}
-        <section className="section" style={{ background: "#fff" }}>
+        <section className="section" style={{ background: "var(--surface-raised)" }}>
           <div className="container">
             <div className="section-header center">
               <span className="eyebrow">What makes it different</span>

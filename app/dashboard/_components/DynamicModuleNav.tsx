@@ -63,17 +63,17 @@ export default function DynamicModuleNav({
   }, [sortBy, userToken]);
 
   const getEloDisplay = (elo: number) => {
-    if (elo < 1100) return { color: "#dc2626", label: "Needs Work", tooltip: "ELO below 1100, needs more practice on this module" };
-    if (elo < 1200) return { color: "#d97706", label: "Building", tooltip: "ELO 1100–1199, building skills on this module" };
-    if (elo < 1300) return { color: "#2563eb", label: "Solid", tooltip: "ELO 1200–1299, solid performance on this module" };
-    return { color: "#16a34a", label: "Strong", tooltip: "ELO 1300+, strong mastery on this module" };
+    if (elo < 1100) return { color: "var(--status-critical)", label: "Needs Work", tooltip: "ELO below 1100, needs more practice on this module" };
+    if (elo < 1200) return { color: "var(--status-warning)", label: "Building", tooltip: "ELO 1100–1199, building skills on this module" };
+    if (elo < 1300) return { color: "var(--status-info)", label: "Solid", tooltip: "ELO 1200–1299, solid performance on this module" };
+    return { color: "var(--status-success)", label: "Strong", tooltip: "ELO 1300+, strong mastery on this module" };
   };
 
   if (error) {
     return (
-      <div style={{ padding: "1.5rem", background: "#fff1f2", border: "1px solid #fecaca", borderRadius: "12px" }}>
-        <p style={{ color: "#b91c1c", fontWeight: 700, marginBottom: "0.5rem" }}>Error loading modules</p>
-        <p style={{ color: "#dc2626", fontSize: "0.9rem" }}>{error}</p>
+      <div style={{ padding: "1.5rem", background: "var(--status-error-bg)", border: `1px solid var(--status-error)`, borderRadius: "12px" }}>
+        <p style={{ color: "var(--status-error-text)", fontWeight: 700, marginBottom: "0.5rem" }}>Error loading modules</p>
+        <p style={{ color: "var(--status-error)", fontSize: "0.9rem" }}>{error}</p>
       </div>
     );
   }
@@ -94,9 +94,9 @@ export default function DynamicModuleNav({
       {/* Loading */}
       {loading && (
         <div style={{ textAlign: "center", padding: "4rem 0" }}>
-          <div style={{ width: "40px", height: "40px", border: "3px solid #e5e7eb", borderTopColor: "#2d6a4f", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 1rem" }} />
+          <div style={{ width: "40px", height: "40px", border: "3px solid var(--viz-neutral-light)", borderTopColor: "var(--green-mid)", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 1rem" }} />
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-          <p style={{ color: "#6b7280" }}>Loading modules…</p>
+          <p style={{ color: "var(--color-text-muted)" }}>Loading modules…</p>
         </div>
       )}
 
@@ -112,18 +112,18 @@ export default function DynamicModuleNav({
                 key={module.id}
                 onClick={() => onModuleSelect(module.id)}
                 style={{
-                  background: "white",
-                  border: isSelected ? "1.5px solid #2d6a4f" : "1px solid var(--line)",
+                  background: "var(--surface-raised)",
+                  border: isSelected ? `1.5px solid var(--green-mid)` : "1px solid var(--line)",
                   borderRadius: "14px",
                   padding: "1.4rem 1.5rem",
                   cursor: "pointer",
                   transition: "all 0.18s ease",
-                  boxShadow: isSelected ? "0 0 0 3px rgba(45,106,79,0.15)" : "none",
+                  boxShadow: isSelected ? `0 0 0 3px rgba(42, 104, 72, 0.15)` : "none",
                 }}
                 onMouseEnter={(e) => {
                   if (!isSelected) {
-                    e.currentTarget.style.borderColor = "#40916c";
-                    e.currentTarget.style.boxShadow = "0 4px 16px rgba(45,106,79,0.1)";
+                    e.currentTarget.style.borderColor = "var(--green-mid)";
+                    e.currentTarget.style.boxShadow = "0 4px 16px rgba(42, 104, 72, 0.1)";
                     e.currentTarget.style.transform = "translateY(-2px)";
                   }
                 }}
@@ -138,39 +138,39 @@ export default function DynamicModuleNav({
                 {/* Top: recommended + status */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px", gap: "8px" }}>
                   {module.recommended ? (
-                    <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "#92400e", background: "#fef3c7", border: "1px solid #fcd34d", borderRadius: "999px", padding: "3px 10px", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                    <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "var(--status-warn-text)", background: "var(--status-warn-bg)", border: `1px solid var(--status-warn)`, borderRadius: "999px", padding: "3px 10px", letterSpacing: "0.05em", textTransform: "uppercase" }}>
                       ★ Recommended
                     </span>
                   ) : <span />}
-                  <span title={eloDisplay.tooltip} style={{ fontSize: "0.7rem", fontWeight: 700, color: eloDisplay.color, background: "#f9fafb", borderRadius: "6px", padding: "3px 8px", cursor: "help" }}>
+                  <span title={eloDisplay.tooltip} style={{ fontSize: "0.7rem", fontWeight: 700, color: eloDisplay.color, background: "var(--surface)", borderRadius: "6px", padding: "3px 8px", cursor: "help" }}>
                     {eloDisplay.label}
                   </span>
                 </div>
 
                 {/* Title */}
-                <h3 style={{ fontSize: "1.05rem", fontWeight: 800, color: "#1b4332", marginBottom: "6px", lineHeight: 1.3, letterSpacing: "-0.01em" }}>
+                <h3 style={{ fontSize: "1.05rem", fontWeight: 800, color: "var(--green-deep)", marginBottom: "6px", lineHeight: 1.3, letterSpacing: "-0.01em" }}>
                   {module.title}
                 </h3>
 
                 {/* Description */}
-                <p style={{ fontSize: "0.85rem", color: "#4b5563", lineHeight: 1.55, marginBottom: "14px" }}>
+                <p style={{ fontSize: "0.85rem", color: "var(--text-soft)", lineHeight: 1.55, marginBottom: "14px" }}>
                   {module.description || `Train and master ${module.title.toLowerCase()} skills.`}
                 </p>
 
                 {/* Mastery progress bar */}
                 <div style={{ marginBottom: "14px" }}>
-                  <div style={{ height: "5px", background: "#f3f4f6", borderRadius: "3px", overflow: "hidden" }}>
-                    <div style={{ width: `${module.mastery_pct}%`, height: "100%", background: "linear-gradient(90deg, #40916c, #2d6a4f)", borderRadius: "3px", transition: "width 0.4s ease" }} />
+                  <div style={{ height: "5px", background: "var(--viz-neutral-light)", borderRadius: "3px", overflow: "hidden" }}>
+                    <div style={{ width: `${module.mastery_pct}%`, height: "100%", background: `linear-gradient(90deg, var(--green-mid), var(--green-deep))`, borderRadius: "3px", transition: "width 0.4s ease" }} />
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", marginTop: "5px" }}>
-                    <span style={{ fontSize: "0.72rem", color: "#6b7280" }}>Mastery</span>
-                    <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#1b4332" }}>{module.mastery_pct}%</span>
+                    <span style={{ fontSize: "0.72rem", color: "var(--color-text-muted)" }}>Mastery</span>
+                    <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--green-deep)" }}>{module.mastery_pct}%</span>
                   </div>
                 </div>
 
                 {/* Recommendation reason */}
                 {module.recommendation_reason && (
-                  <p style={{ fontSize: "0.78rem", color: "#6b7280", fontStyle: "italic", marginBottom: "14px", lineHeight: 1.5 }}>
+                  <p style={{ fontSize: "0.78rem", color: "var(--color-text-muted)", fontStyle: "italic", marginBottom: "14px", lineHeight: 1.5 }}>
                     {module.recommendation_reason}
                   </p>
                 )}
@@ -183,7 +183,7 @@ export default function DynamicModuleNav({
                     style={{ display: "flex", gap: "3px" }}
                   >
                     {[...Array(5)].map((_, i) => (
-                      <div key={i} style={{ width: "7px", height: "7px", borderRadius: "50%", background: i < module.difficulty_level ? "#2d6a4f" : "#e5e7eb" }} />
+                      <div key={i} style={{ width: "7px", height: "7px", borderRadius: "50%", background: i < module.difficulty_level ? "var(--green-deep)" : "var(--viz-neutral-light)" }} />
                     ))}
                   </div>
                   <span className="btn-secondary" style={{ fontSize: "0.78rem", padding: "4px 12px" }}>
@@ -198,9 +198,9 @@ export default function DynamicModuleNav({
 
       {/* Empty State */}
       {!loading && filteredModules.length === 0 && (
-        <div style={{ textAlign: "center", padding: "4rem 2rem", background: "#f9fafb", borderRadius: "14px", border: "2px dashed #d1d5db" }}>
-          <p style={{ fontSize: "1.125rem", fontWeight: 700, color: "#374151", marginBottom: "0.5rem" }}>No modules found</p>
-          <p style={{ fontSize: "0.9rem", color: "#6b7280" }}>Try a different category or contact support</p>
+        <div style={{ textAlign: "center", padding: "4rem 2rem", background: "var(--surface)", borderRadius: "14px", border: "2px dashed var(--line)" }}>
+          <p style={{ fontSize: "1.125rem", fontWeight: 700, color: "var(--text-secondary)", marginBottom: "0.5rem" }}>No modules found</p>
+          <p style={{ fontSize: "0.9rem", color: "var(--color-text-muted)" }}>Try a different category or contact support</p>
         </div>
       )}
     </div>

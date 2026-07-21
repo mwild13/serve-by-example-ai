@@ -94,7 +94,7 @@ export async function middleware(request: NextRequest) {
     if (!error) {
       user = authUser;
     }
-  } catch (err) {
+  } catch {
     // Silently handle missing env vars (local dev) or refresh token errors
     // User will be redirected to login if needed
   }

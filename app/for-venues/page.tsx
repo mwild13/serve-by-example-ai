@@ -64,7 +64,7 @@ export default function ForVenuesPage() {
           <div className="container">
             <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
               <span className="eyebrow">The Platform</span>
-              <h3 style={{ margin: "0.5rem 0 0", fontSize: "1.35rem", fontWeight: 700, color: "#111827" }}>
+              <h3 style={{ margin: "0.5rem 0 0", fontSize: "1.35rem", fontWeight: 700, color: "var(--text)" }}>
                 Everything you need to manage and measure your team&rsquo;s training.
               </h3>
             </div>

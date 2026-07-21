@@ -753,7 +753,7 @@ export default function ChallengesMarketingPage() {
                       key={i}
                       points={pts}
                       fill="none"
-                      stroke="#d4cfc4"
+                      stroke="var(--viz-neutral-stroke)"
                       strokeWidth="1"
                     />
                   ))}
@@ -772,7 +772,7 @@ export default function ChallengesMarketingPage() {
                       y1={pts.split(" ")[0].split(",")[1]}
                       x2={pts.split(" ")[1].split(",")[0]}
                       y2={pts.split(" ")[1].split(",")[1]}
-                      stroke="#d4cfc4"
+                      stroke="var(--viz-neutral-stroke)"
                       strokeWidth="1"
                     />
                   ))}
@@ -780,16 +780,16 @@ export default function ChallengesMarketingPage() {
                   {/* Legacy data polygon */}
                   <polygon
                     points="150,107 176,127 169,161 128,165 124,127"
-                    fill="rgba(169,129,42,0.12)"
-                    stroke="rgba(169,129,42,0.5)"
+                    fill="var(--gold-dim)"
+                    stroke="var(--gold-accent)"
                     strokeWidth="1.5"
                   />
 
                   {/* Interactive data polygon */}
                   <polygon
                     points="150,70 209,116 184,182 113,186 99,118"
-                    fill="rgba(31,78,55,0.12)"
-                    stroke="#1f4e37"
+                    fill="var(--green-dim)"
+                    stroke="var(--green)"
                     strokeWidth="2"
                   />
 
@@ -797,38 +797,38 @@ export default function ChallengesMarketingPage() {
                   {[
                     [150, 70], [209, 116], [184, 182], [113, 186], [99, 118],
                   ].map(([x, y], i) => (
-                    <circle key={i} cx={x} cy={y} r="3" fill="#1f4e37" />
+                    <circle key={i} cx={x} cy={y} r="3" fill="var(--green)" />
                   ))}
 
                   {/* Axis dot markers – legacy */}
                   {[
                     [150, 107], [176, 127], [169, 161], [128, 165], [124, 127],
                   ].map(([x, y], i) => (
-                    <circle key={i} cx={x} cy={y} r="2.5" fill="none" stroke="rgba(169,129,42,0.7)" strokeWidth="1.5" />
+                    <circle key={i} cx={x} cy={y} r="2.5" fill="none" stroke="var(--gold-accent-dark)" strokeWidth="1.5" />
                   ))}
 
                   {/* Labels */}
-                  <text x="150" y="46" textAnchor="middle" fontSize="9" fill="#6b6459" fontWeight="700">Workflow</text>
-                  <text x="150" y="56" textAnchor="middle" fontSize="9" fill="#6b6459" fontWeight="700">Accuracy</text>
+                  <text x="150" y="46" textAnchor="middle" fontSize="9" fill="var(--viz-text-tertiary)" fontWeight="700">Workflow</text>
+                  <text x="150" y="56" textAnchor="middle" fontSize="9" fill="var(--viz-text-tertiary)" fontWeight="700">Accuracy</text>
 
-                  <text x="234" y="108" textAnchor="start" fontSize="9" fill="#6b6459" fontWeight="700">Knowledge</text>
-                  <text x="234" y="118" textAnchor="start" fontSize="9" fill="#6b6459" fontWeight="700">Retention</text>
+                  <text x="234" y="108" textAnchor="start" fontSize="9" fill="var(--viz-text-tertiary)" fontWeight="700">Knowledge</text>
+                  <text x="234" y="118" textAnchor="start" fontSize="9" fill="var(--viz-text-tertiary)" fontWeight="700">Retention</text>
 
-                  <text x="200" y="212" textAnchor="middle" fontSize="9" fill="#6b6459" fontWeight="700">Task</text>
-                  <text x="200" y="222" textAnchor="middle" fontSize="9" fill="#6b6459" fontWeight="700">Engagement</text>
+                  <text x="200" y="212" textAnchor="middle" fontSize="9" fill="var(--viz-text-tertiary)" fontWeight="700">Task</text>
+                  <text x="200" y="222" textAnchor="middle" fontSize="9" fill="var(--viz-text-tertiary)" fontWeight="700">Engagement</text>
 
-                  <text x="100" y="212" textAnchor="middle" fontSize="9" fill="#6b6459" fontWeight="700">Completion</text>
-                  <text x="100" y="222" textAnchor="middle" fontSize="9" fill="#6b6459" fontWeight="700">Speed</text>
+                  <text x="100" y="212" textAnchor="middle" fontSize="9" fill="var(--viz-text-tertiary)" fontWeight="700">Completion</text>
+                  <text x="100" y="222" textAnchor="middle" fontSize="9" fill="var(--viz-text-tertiary)" fontWeight="700">Speed</text>
 
-                  <text x="66" y="108" textAnchor="end" fontSize="9" fill="#6b6459" fontWeight="700">User</text>
-                  <text x="66" y="118" textAnchor="end" fontSize="9" fill="#6b6459" fontWeight="700">Enjoyment</text>
+                  <text x="66" y="108" textAnchor="end" fontSize="9" fill="var(--viz-text-tertiary)" fontWeight="700">User</text>
+                  <text x="66" y="118" textAnchor="end" fontSize="9" fill="var(--viz-text-tertiary)" fontWeight="700">Enjoyment</text>
                 </svg>
 
                 {/* Legend */}
                 <div style={{ display: "flex", justifyContent: "center", gap: "1.5rem", marginTop: "0.5rem" }}>
                   {[
                     { color: "rgba(169,129,42,0.5)", fill: "transparent", label: "Legacy Text Inputs" },
-                    { color: "#1f4e37", fill: "#1f4e37", label: "Interactive Formats" },
+                    { color: "var(--green)", fill: "var(--green)", label: "Interactive Formats" },
                   ].map((item) => (
                     <div key={item.label} style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
                       <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
@@ -910,11 +910,11 @@ export default function ChallengesMarketingPage() {
                     }}
                   >
                     {[
-                      { label: "Sequence Sort", seconds: 35, pct: 87.5, color: "#1f4e37" },
-                      { label: "Fill the Blank", seconds: 25, pct: 62.5, color: "#2d7a52" },
-                      { label: "Spot the Error", seconds: 20, pct: 50, color: "#a9812a" },
-                      { label: "Match the Pair", seconds: 15, pct: 37.5, color: "#c4a04a" },
-                      { label: "Multiple Choice", seconds: 12, pct: 30, color: "#9e9e8a" },
+                      { label: "Sequence Sort", seconds: 35, pct: 87.5, color: "var(--green)" },
+                      { label: "Fill the Blank", seconds: 25, pct: 62.5, color: "var(--green-chart)" },
+                      { label: "Spot the Error", seconds: 20, pct: 50, color: "var(--gold)" },
+                      { label: "Match the Pair", seconds: 15, pct: 37.5, color: "var(--gold-warm)" },
+                      { label: "Multiple Choice", seconds: 12, pct: 30, color: "var(--viz-neutral-bar)" },
                     ].map((bar) => (
                       <div
                         key={bar.label}

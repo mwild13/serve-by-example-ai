@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "lint:css": "node scripts/lint-css-tokens.mjs",
     "build:cloudflare": "npx @opennextjs/cloudflare build && node -e \"const fs=require('fs'),path=require('path');const src=path.join('.open-next','assets');for(const f of fs.readdirSync(src,{withFileTypes:true,recursive:true})){if(f.isFile()){const rel=path.relative(src,path.join(f.parentPath||f.path,f.name));const dst=path.join('.open-next',rel);fs.mkdirSync(path.dirname(dst),{recursive:true});fs.copyFileSync(path.join(f.parentPath||f.path,f.name),dst)}}fs.copyFileSync('.open-next/worker.js','.open-next/_worker.js');fs.writeFileSync('.open-next/_routes.json',JSON.stringify({version:1,include:['/*'],exclude:['/_next/static/*','/favicon.ico','/*.svg','/downloads/*','/*.png','/images/*']}));\""
   },
   "dependencies": {
@@ -29,6 +30,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
+    "eslint-config-next": "^16.2.10",
     "typescript": "^5"
   }
 }

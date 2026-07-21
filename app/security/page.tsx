@@ -227,8 +227,8 @@ export default function SecurityPage() {
           border: 1px solid rgba(31, 78, 55, 0.15);
         }
         .security-data-badge--no {
-          background: #f8eded;
-          color: #7d3535;
+          background: var(--red-soft);
+          color: var(--red-text);
           border: 1px solid rgba(125, 53, 53, 0.15);
         }
         .security-data-list {

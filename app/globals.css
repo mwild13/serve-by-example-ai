@@ -15,12 +15,20 @@
   --green-deep: #0f2d1d;
   --green-mid: #2a6848;
   --green-light: #e4efea;
+  --green-dim: rgba(31, 78, 55, 0.12);  /* Low-opacity green for data viz fills */
+  --green-chart: #2d7a52;               /* Chart/data series green variant */
   --gold: #a9812a;
   --gold-warm: #c49a2f;
   --gold-light: #f7ecd0;
   --gold-dim: rgba(169, 129, 42, 0.12);
+  --gold-accent: rgba(169, 129, 42, 0.5);        /* Mid-opacity for data viz accents */
+  --gold-accent-dark: rgba(169, 129, 42, 0.7);  /* Darker opacity for strokes */
   --red-soft: #f8eded;
   --red-text: #7d3535;
+  /* UI semantic tokens for common patterns */
+  --text-secondary: #374151;       /* Mid-tone for secondary labels; 5.1:1 on white */
+  --border-subtle: #f3f4f6;        /* Subtle borders and dividers */
+  --divider-light: #d1fae5;        /* Light divider, near green-light */
   /* Manager console semantic status tokens — compliant/expiring/expired.
      "-text" variants are darkened for AAA (7:1) contrast when used as text
      on the matching tint background; the base token stays brand-accurate
@@ -34,6 +42,38 @@
   --status-error: #b3432f;
   --status-error-bg: #fbeae5;
   --status-error-text: #84291b;
+
+  /* ELO/mastery status indicators — 4-tier system */
+  --status-critical: #dc2626;           /* ELO < 1100: Needs Work (red) */
+  --status-warning: #d97706;            /* ELO 1100–1199: Building (orange) */
+  --status-info: #2563eb;               /* ELO 1200–1299: Solid (blue) */
+  --status-success: #16a34a;            /* ELO 1300+: Strong (green) */
+
+  /* Status feedback colour families — used for insight cards, badges, banners */
+  --status-success-bg: #f0fdf4;         /* Light green card/banner background */
+  --status-success-border: #86efac;     /* Green success border accent */
+  --status-info-bg: #eff6ff;            /* Light blue card background */
+  --status-info-border: #93c5fd;        /* Blue info border accent */
+  --status-achievement: #7c3aed;        /* Purple milestone/achievement */
+  --status-achievement-bg: #faf5ff;     /* Purple achievement background */
+  --status-achievement-border: #c4b5fd; /* Purple achievement border */
+
+  /* Dark section backgrounds — for dark overlays with white text */
+  --bg-dark: #1b1b1b;                   /* Deep charcoal for dark sections */
+  --bg-dark-soft: #2d2d2d;              /* Slightly lighter dark section variant */
+  --text-light-on-dark: rgba(255, 255, 255, 0.85);  /* Primary text on dark, AAA compliant */
+  --text-light-muted-on-dark: rgba(255, 255, 255, 0.65);  /* Muted text on dark */
+  --text-light-faint-on-dark: rgba(255, 255, 255, 0.45);  /* Faint text on dark */
+  --border-light-on-dark: rgba(255, 255, 255, 0.2);  /* Divider borders on dark sections */
+  --border-light-faint-on-dark: rgba(255, 255, 255, 0.1);  /* Very faint borders on dark */
+
+  /* Data visualization palette — charts, graphs, heatmaps */
+  --viz-chart-accent: #2563eb;          /* Primary data series */
+  --viz-neutral-light: #e5e7eb;         /* Light neutral (backgrounds, borders) */
+  --viz-neutral-stroke: #d4cfc4;        /* SVG strokes, chart grid lines */
+  --viz-neutral-bar: #9e9e8a;           /* Neutral/tertiary bar in multi-series charts */
+  --viz-text-tertiary: #6b6459;         /* Axis labels and annotations */
+
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 20px;
