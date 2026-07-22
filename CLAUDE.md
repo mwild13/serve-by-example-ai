@@ -85,7 +85,8 @@ components/
   ProductTour.tsx               Interactive product tour component
   SectionSubNav.tsx             Reusable section sub-navigation
   StickyDemoCTA.tsx             Sticky demo call-to-action banner
-  learning-engine/              All staff-facing training UI
+app/dashboard/_components/    All staff-facing training UI (colocated with the dashboard route)
+    DashboardShell.tsx          Main authenticated staff UI (client component)
     PreShiftHome.tsx            Dashboard home tab
     DynamicModuleNav.tsx        Module browser and stage routing
     ModuleVerify.tsx            Final verification quiz per module
@@ -102,6 +103,10 @@ components/
     RecommenderCard.tsx         Module recommendation widget
     MobileDashboardV3.tsx       Mobile-specific dashboard layout
     MobileLearnHub.tsx          Mobile learning hub wrapper
+    knowledge-base/             CocktailLibrary.tsx + KnowledgeBase.tsx (lazy-loaded)
+    challenges/                 5 tap-based challenge game components
+    progress/                   ProgressOverview sub-components
+    trainer/                    DashboardTrainer sub-components
   mission-control/              Manager-facing tools
     ManagerControlCenter.tsx    Main manager dashboard (~3,965 lines)
     StaffRosterPanel.tsx        Extracted staff roster panel component
@@ -204,7 +209,7 @@ The staff training platform has a **3-stage mastery path** plus AI-powered extra
 
 ## Dashboard Shell
 
-`components/DashboardShell.tsx` is the main authenticated staff UI — a client component that manages `NavItem` state and renders the correct view. The mobile bottom nav bar shows: Home, Modules, Scenarios, AI Arena, Me.
+`app/dashboard/_components/DashboardShell.tsx` is the main authenticated staff UI — a client component that manages `NavItem` state and renders the correct view. The mobile bottom nav bar shows: Home, Learn, Scenarios, Me.
 
 To add a new learning view:
 1. Add a string literal to `type NavItem`
@@ -265,12 +270,11 @@ app/api/
 | Root CSS + design tokens | `app/globals.css` |
 | Root layout + font config | `app/layout.tsx` |
 | Dashboard entry point (server) | `app/dashboard/page.tsx` |
-| Main staff shell (client) | `components/DashboardShell.tsx` |
+| Main staff shell (client) | `app/dashboard/_components/DashboardShell.tsx` |
+| All learning UI | `app/dashboard/_components/` |
 | Manager dashboard (server) | `app/management/dashboard/page.tsx` |
-| All learning UI | `components/learning-engine/` |
 | Shared UI primitives | `components/ui/` |
 | Manager console | `components/mission-control/` |
-| Knowledge base | `components/knowledge-base/` |
 | SOP toolkit components | `components/toolkit/` |
 | Mastery engine | `lib/mastery.ts` |
 | Tier + session logic | `lib/session.ts` |

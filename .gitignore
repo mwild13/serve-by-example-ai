@@ -47,3 +47,7 @@ Please
 
 # Claude Code internal state
 .claude/worktrees/
+
+# Generated outputs
+graphify-out/
+supabase/.temp/

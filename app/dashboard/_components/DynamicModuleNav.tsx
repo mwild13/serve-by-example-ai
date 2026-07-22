@@ -108,9 +108,11 @@ export default function DynamicModuleNav({
             const eloDisplay = getEloDisplay(module.current_elo);
 
             return (
-              <div
+              <button
                 key={module.id}
                 onClick={() => onModuleSelect(module.id)}
+                aria-pressed={isSelected}
+                aria-label={`${module.title}${isSelected ? ", selected" : ""}`}
                 style={{
                   background: "var(--surface-raised)",
                   border: isSelected ? `1.5px solid var(--green-mid)` : "1px solid var(--line)",
@@ -119,6 +121,9 @@ export default function DynamicModuleNav({
                   cursor: "pointer",
                   transition: "all 0.18s ease",
                   boxShadow: isSelected ? `0 0 0 3px rgba(42, 104, 72, 0.15)` : "none",
+                  textAlign: "left",
+                  width: "100%",
+                  fontFamily: "inherit",
                 }}
                 onMouseEnter={(e) => {
                   if (!isSelected) {
@@ -190,7 +195,7 @@ export default function DynamicModuleNav({
                     {isSelected ? "Selected ✓" : module.mastery_pct >= 100 ? "Review →" : module.mastery_pct > 0 ? "Continue →" : "Start →"}
                   </span>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>

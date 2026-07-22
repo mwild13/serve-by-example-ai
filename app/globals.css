@@ -10,7 +10,7 @@
   --line-faint: #f0ebe0;
   --text: #172f22;
   --text-soft: #496155;
-  --text-muted: #7a9185;
+  --text-muted: #577067;  /* raised from #7a9185 (3.02:1) to 4.79:1 on --bg — WCAG AA */
   --green: #1f4e37;
   --green-deep: #0f2d1d;
   --green-mid: #2a6848;
@@ -11924,6 +11924,8 @@ body {
 }
 .s4-bubble-input:focus {
   outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(31, 78, 55, 0.15);
 }
 .s4-bubble-input::placeholder {
   color: var(--text-muted);

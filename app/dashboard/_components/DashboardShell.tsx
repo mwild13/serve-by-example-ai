@@ -448,7 +448,7 @@ function MobileBottomNavBar({
             style={{
               background: "none", border: "none", cursor: "pointer",
               display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
-              padding: 0, color: on ? "var(--ip-parchment)" : "rgba(255,255,255,0.45)",
+              padding: 0, color: on ? "var(--ip-parchment)" : "rgba(255,255,255,0.55)",
               flex: 1, position: "relative", flexShrink: 0,
               fontFamily: "var(--font-manrope, system-ui, sans-serif)",
             }}
