@@ -40,9 +40,7 @@ export const metadata: Metadata = {
     apple: [
       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
-    other: [
-      { rel: "manifest", url: "/site.webmanifest" },
-    ],
+
   },
   openGraph: {
     title: ogTitle,
@@ -87,6 +85,8 @@ export default async function RootLayout({
   return (
     <html lang="en-AU" className={`${fraunces.variable} ${manrope.variable}`}>
       <head>
+        {/* Preload hero LCP image — discovered before JS executes */}
+        <link rel="preload" as="image" href="/shots/257shots_so.webp" fetchPriority="high" />
         {/* Warm up the GTM connection so lazyOnload fires faster */}
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />

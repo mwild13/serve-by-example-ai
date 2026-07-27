@@ -1,0 +1,40 @@
+# Serve By Example
+
+> AI-powered hospitality staff training platform. Replaces paper manuals and inconsistent on-floor coaching with a structured, mobile-first digital learning system for bars, restaurants, and hotel groups.
+
+Serve By Example helps venue operators train bartenders, floor staff, and hospitality employees through a 3-stage mastery path covering Bartending, Sales, and Management skills. Managers get Mission Control: real-time team analytics, compliance tracking, AI coaching, and multi-venue roster management.
+
+## Product
+
+- [Platform Overview](https://servebyexample.co/platform)
+- [How It Works](https://servebyexample.co/how-it-works)
+- [Interactive Challenges](https://servebyexample.co/platform/challenges)
+- [ROI Calculator](https://servebyexample.co/roi)
+
+## Solutions
+
+- [Solutions by Venue Type](https://servebyexample.co/solutions)
+- [Fine Dining](https://servebyexample.co/solutions/fine-dining)
+- [Franchise Systems](https://servebyexample.co/solutions/franchise-systems)
+- [Hotel Food & Beverage](https://servebyexample.co/solutions/hotel-fb)
+- [Multi-Venue Groups](https://servebyexample.co/solutions/multi-venue)
+- [Pub Groups](https://servebyexample.co/solutions/pub-groups)
+- [For Venues](https://servebyexample.co/for-venues)
+
+## Pricing & Membership
+
+- [Membership Plans](https://servebyexample.co/membership)
+
+## Resources
+
+- [Resources Hub](https://servebyexample.co/resources)
+- [Free SOP Toolkit](https://servebyexample.co/resources/sop-toolkit)
+- [Public Product Roadmap](https://servebyexample.co/roadmap)
+
+## Company
+
+- [About](https://servebyexample.co/about)
+- [Security & Safety](https://servebyexample.co/security)
+- [Contact](https://servebyexample.co/contact)
+- [Privacy Policy](https://servebyexample.co/privacy)
+- [Terms of Service](https://servebyexample.co/terms)
