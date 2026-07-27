@@ -8,7 +8,7 @@ export default function Footer() {
       <div className="container footer-inner">
         <div className="footer-brand">
           <div className="footer-brand-mark">
-            <Image src="/logo.png" alt="Serve By Example" width={40} height={40} />
+            <Image src="/logo.webp" alt="Serve By Example" width={40} height={40} />
             <div className="footer-brand-name">Serve By Example</div>
           </div>
           <p>Scenario-based training for hospitality teams.</p>
@@ -16,7 +16,7 @@ export default function Footer() {
         </div>
 
         <div className="footer-col">
-          <h4>Platform</h4>
+          <h3>Platform</h3>
           <ul>
             <li><Link href="/platform">Platform Tour</Link></li>
             <li><Link href="/platform/challenges">Interactive Challenges</Link></li>
@@ -25,7 +25,7 @@ export default function Footer() {
         </div>
 
         <div className="footer-col">
-          <h4>For Venues</h4>
+          <h3>For Venues</h3>
           <ul>
             <li><Link href="/for-venues">For Venues – Overview</Link></li>
             <li><Link href="/solutions/pub-groups">Pub Groups</Link></li>
@@ -37,7 +37,7 @@ export default function Footer() {
         </div>
 
         <div className="footer-col">
-          <h4>Resources</h4>
+          <h3>Resources</h3>
           <ul>
             <li><Link href="/resources">Free Training Checklist</Link></li>
             <li><Link href="/roi">ROI Calculator</Link></li>
@@ -47,7 +47,7 @@ export default function Footer() {
         </div>
 
         <div className="footer-col">
-          <h4>Company</h4>
+          <h3>Company</h3>
           <ul>
             <li><Link href="/about">About</Link></li>
             <li><Link href="/security">Security &amp; Safety</Link></li>

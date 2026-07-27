@@ -17,7 +17,7 @@ export default function GeoBlockPage() {
         {/* Logo */}
         <div className="geo-block-logo">
           <Image
-            src="/logo.png"
+            src="/logo.webp"
             alt="Serve By Example"
             width={56}
             height={56}

@@ -607,7 +607,7 @@ export default function MobileDashboardV3({
           {/* Mini-bar */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Image src="/logo.png" alt="SBE" width={28} height={28} style={{ borderRadius: 6 }} />
+              <Image src="/logo.webp" alt="SBE" width={28} height={28} style={{ borderRadius: 6 }} />
               <span style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 20, fontWeight: 600, letterSpacing: 0.3, lineHeight: 1 }}>
                 Serve<span style={{ color: "var(--gold-warm)" }}>·</span>SBE
               </span>

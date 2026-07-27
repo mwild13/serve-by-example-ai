@@ -111,7 +111,7 @@ export default function Home() {
                   </div>
                   <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)", fontWeight: 600, lineHeight: 1.4 }}>
                     Faster Onboarding<br/>
-                    <em style={{ fontSize: "0.8rem", color: "var(--gold)", fontStyle: "normal", fontWeight: 500 }}>6 months to 6 weeks</em>
+                    <em style={{ fontSize: "0.8rem", color: "var(--gold-deep)", fontStyle: "normal", fontWeight: 500 }}>6 months to 6 weeks</em>
                   </div>
                 </article>
 
@@ -121,7 +121,7 @@ export default function Home() {
                   </div>
                   <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)", fontWeight: 600, lineHeight: 1.4 }}>
                     Learning Modules<br/>
-                    <em style={{ fontSize: "0.8rem", color: "var(--gold)", fontStyle: "normal", fontWeight: 500 }}>&amp; Scenarios</em>
+                    <em style={{ fontSize: "0.8rem", color: "var(--gold-deep)", fontStyle: "normal", fontWeight: 500 }}>&amp; Scenarios</em>
                   </div>
                 </article>
 
@@ -131,7 +131,7 @@ export default function Home() {
                   </div>
                   <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)", fontWeight: 600, lineHeight: 1.4 }}>
                     Languages Supported<br/>
-                    <em style={{ fontSize: "0.8rem", color: "var(--gold)", fontStyle: "normal", fontWeight: 500 }}>Aus Training Ready</em>
+                    <em style={{ fontSize: "0.8rem", color: "var(--gold-deep)", fontStyle: "normal", fontWeight: 500 }}>Aus Training Ready</em>
                   </div>
                 </article>
 
@@ -141,7 +141,7 @@ export default function Home() {
                   </div>
                   <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)", fontWeight: 600, lineHeight: 1.4 }}>
                     5-Dimension AI<br/>
-                    <em style={{ fontSize: "0.8rem", color: "var(--gold)", fontStyle: "normal", fontWeight: 500 }}>Evaluation Engine</em>
+                    <em style={{ fontSize: "0.8rem", color: "var(--gold-deep)", fontStyle: "normal", fontWeight: 500 }}>Evaluation Engine</em>
                   </div>
                 </article>
               </div>
@@ -225,10 +225,12 @@ export default function Home() {
                 {/* Left: photo + name */}
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
                   <Image
-                    src="/24 May Jpg's/Founder.png"
+                    src="/24 May Jpg's/Founder.webp"
                     alt="Mitch, Founder of Serve By Example"
                     width={140}
                     height={140}
+                    loading="lazy"
+                    quality={60}
                     style={{ borderRadius: "4px", objectFit: "cover", width: "140px", height: "140px", display: "block" }}
                   />
                   <span style={{ marginTop: "0.625rem", fontSize: "0.875rem", fontWeight: 700, color: "var(--text-soft)", textAlign: "center" }}>Mitch</span>
@@ -298,12 +300,12 @@ export default function Home() {
                   </div>
                 </div>
                 <Image
-                  src="/shots/Management Console View.png"
+                  src="/shots/Management Console View.webp"
                   alt="Serve By Example management console – venue performance mission control"
                   width={1200}
                   height={750}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
-                  priority={true}
+                  loading="lazy"
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
               </div>
@@ -318,12 +320,12 @@ export default function Home() {
                   </div>
                 </div>
                 <Image
-                  src="/shots/Staff Certifications.png"
+                  src="/shots/Staff Certifications.webp"
                   alt="Staff certification and module mastery progress view"
                   width={1200}
                   height={630}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
-                  priority={true}
+                  loading="lazy"
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
               </div>

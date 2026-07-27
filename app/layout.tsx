@@ -86,6 +86,11 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en-AU" className={`${fraunces.variable} ${manrope.variable}`}>
+      <head>
+        {/* Warm up the GTM connection so lazyOnload fires faster */}
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+      </head>
       <body>
         {/* Google Analytics (gtag.js) */}
         <Script

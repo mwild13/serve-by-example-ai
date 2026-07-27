@@ -37,7 +37,7 @@ const GoogleIcon = () => (
 
 const BrandMark = () => (
   <div className="login-brand">
-    <Image src="/logo.png" alt="Serve By Example" width={36} height={36} className="login-brand-mark" />
+    <Image src="/logo.webp" alt="Serve By Example" width={36} height={36} className="login-brand-mark" />
     <span className="login-brand-name">Serve By Example</span>
   </div>
 );

@@ -676,7 +676,7 @@ export default function DashboardShell({
 
       <aside className="dashboard-sidebar">
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: 16 }}>
-          <Image src="/logo.png" alt="SBE" width={38} height={38} style={{ borderRadius: 10, display: "block", flexShrink: 0 }} />
+          <Image src="/logo.webp" alt="SBE" width={38} height={38} style={{ borderRadius: 10, display: "block", flexShrink: 0 }} />
           <span style={{ fontSize: "18px", fontWeight: 700, color: "var(--surface-raised)", whiteSpace: "nowrap" }}>Serve By Example</span>
         </div>
 

@@ -143,7 +143,7 @@ export default function Navbar({
       <header className="navbar" ref={headerRef}>
         <div className="container navbar-inner">
           <Link href="/" className="brand" onClick={close}>
-            <Image src="/logo.png" alt="Serve By Example" width={40} height={40} className="brand-mark-img" />
+            <Image src="/logo.webp" alt="Serve By Example" width={40} height={40} quality={50} className="brand-mark-img" />
             <div className="brand-copy">
               <span className="brand-title">Serve By Example</span>
             </div>

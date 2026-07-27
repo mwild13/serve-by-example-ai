@@ -141,7 +141,7 @@ export default function HeroSection() {
 
           <div className="hero-showcase">
             <Image
-              src="/shots/257shots_so.png"
+              src="/shots/257shots_so.webp"
               alt="Serve By Example staff training dashboard"
               width={1400}
               height={875}
