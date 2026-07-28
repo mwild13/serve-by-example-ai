@@ -12,25 +12,25 @@ export const metadata: Metadata = {
 
 const roadmapItems = [
   {
-    eta: "2 months",
+    eta: "Q3 2026",
     status: "soon",
     title: "Expanded Staff Modules",
     desc: "New training modules covering coffee service, food pairing, wine fundamentals and advanced guest interaction, built around Australian hospitality standards.",
   },
   {
-    eta: "4 months",
+    eta: "Q4 2026",
     status: "soon",
     title: "Large-Venue & Events Training",
     desc: "Expanded scenario sets for large-venue management, events service and high-volume bar operations.",
   },
   {
-    eta: "6 months",
+    eta: "H1 2027",
     status: "planned",
     title: "Certification Deep-Dives",
     desc: "Deep-dive certifications in spirits, cocktail history, advanced bar technique and cellar management for venues that want to build genuine expertise.",
   },
   {
-    eta: "Within 6 months",
+    eta: "Q4 2026",
     status: "soon",
     title: "V2: Major Platform Release",
     desc: "A significant platform update informed by founding member feedback, with new features across training, analytics and management. Founding members shape what gets prioritised.",
@@ -115,11 +115,11 @@ export default function RoadmapPage() {
               If you join now, your operation shapes the platform.
             </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-              <Link href="/contact" className="btn btn-primary btn-lg">
-                Request Venue Access
+              <Link href="/login?intent=trial&tier=boutique" className="btn btn-primary btn-lg">
+                Start Free Trial
               </Link>
-              <Link href="/pricing" className="btn btn-secondary btn-lg">
-                View Pricing
+              <Link href="/contact" className="btn btn-secondary btn-lg">
+                Request Venue Access
               </Link>
             </div>
           </div>

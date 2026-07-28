@@ -30,7 +30,6 @@ export default function Footer() {
             <li><Link href="/for-venues">Overview</Link></li>
             <li><Link href="/solutions/pub-groups">Pubs</Link></li>
             <li><Link href="/solutions/fine-dining">Bars</Link></li>
-            <li><Link href="/solutions/fine-dining">Restaurants</Link></li>
             <li><Link href="/solutions/hotel-fb">Hotels</Link></li>
             <li><Link href="/solutions/franchise-systems">Franchises</Link></li>
           </ul>

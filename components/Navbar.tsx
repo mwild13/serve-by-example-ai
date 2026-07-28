@@ -30,19 +30,6 @@ const platformLinks: Array<{ href: string; title: string; desc: string; badge?: 
   },
 ];
 
-const companyLinks = [
-  {
-    href: "/about",
-    title: "About",
-    desc: "The story behind Serve By Example and what we're building.",
-  },
-  {
-    href: "/security",
-    title: "Security & Safety",
-    desc: "How we protect your team's data, privacy, and platform access.",
-  },
-];
-
 const solutionsLinks = [
   {
     href: "/for-venues",
@@ -60,11 +47,6 @@ const solutionsLinks = [
     desc: "Complex recipe specs, cellar logic, and premium service recovery.",
   },
   {
-    href: "/solutions/fine-dining",
-    title: "Restaurants",
-    desc: "Consistent service standards and upsell training for full-service restaurant teams.",
-  },
-  {
     href: "/solutions/hotel-fb",
     title: "Hotels",
     desc: "Consistent service standards across restaurant, bar, and room service teams.",
@@ -76,19 +58,42 @@ const solutionsLinks = [
   },
 ];
 
+const resourcesLinks = [
+  {
+    href: "/roi",
+    title: "ROI Calculator",
+    desc: "Estimate the training ROI for your venue in under a minute.",
+  },
+  {
+    href: "/resources/sop-toolkit",
+    title: "Free SOP Checklist",
+    desc: "Download a venue-specific staff onboarding SOP template.",
+  },
+  {
+    href: "/vs-generic-lms",
+    title: "vs Generic LMS",
+    desc: "See how Serve By Example compares to off-the-shelf LMS tools.",
+  },
+  {
+    href: "/roadmap",
+    title: "Product Roadmap",
+    desc: "What we're building next and when.",
+  },
+];
+
 export default function Navbar({
   showActions = true,
   showTextLogin = false,
   showNavbarLanguageOnMobile: _showNavbarLanguageOnMobile = true,
 }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [openMenu, setOpenMenu] = useState<"platform" | "industries" | "company" | null>(null);
-  const [mobileExpanded, setMobileExpanded] = useState<"platform" | "industries" | "company" | null>(null);
+  const [openMenu, setOpenMenu] = useState<"platform" | "solutions" | "resources" | null>(null);
+  const [mobileExpanded, setMobileExpanded] = useState<"platform" | "solutions" | "resources" | null>(null);
   const [authEmail, setAuthEmail] = useState<string | null>(null);
   const headerRef = useRef<HTMLElement>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const openDropdown = useCallback((menu: "platform" | "industries" | "company") => {
+  const openDropdown = useCallback((menu: "platform" | "solutions" | "resources") => {
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
     setOpenMenu(menu);
   }, []);
@@ -149,6 +154,9 @@ export default function Navbar({
           </Link>
 
           <nav className="nav-links">
+            {/* How It Works */}
+            <Link href="/how-it-works">How It Works</Link>
+
             {/* Platform dropdown */}
             <div
               className="nav-item-wrapper"
@@ -185,24 +193,24 @@ export default function Navbar({
               )}
             </div>
 
-            {/* Industries dropdown */}
+            {/* Solutions dropdown */}
             <div
               className="nav-item-wrapper"
-              onMouseEnter={() => openDropdown("industries")}
+              onMouseEnter={() => openDropdown("solutions")}
               onMouseLeave={scheduleClose}
             >
               <button
-                className={`nav-dropdown-trigger${openMenu === "industries" ? " active" : ""}`}
-                aria-expanded={openMenu === "industries"}
+                className={`nav-dropdown-trigger${openMenu === "solutions" ? " active" : ""}`}
+                aria-expanded={openMenu === "solutions"}
                 aria-haspopup="true"
-                aria-controls="nav-industries-dropdown"
-                onClick={() => setOpenMenu(openMenu === "industries" ? null : "industries")}
+                aria-controls="nav-solutions-dropdown"
+                onClick={() => setOpenMenu(openMenu === "solutions" ? null : "solutions")}
               >
-                Industries
+                Solutions
                 <ChevronDown className="nav-chevron" size={14} strokeWidth={2.5} />
               </button>
-              {openMenu === "industries" && (
-                <div id="nav-industries-dropdown" className="mega-menu" onMouseEnter={cancelClose} onMouseLeave={scheduleClose}>
+              {openMenu === "solutions" && (
+                <div id="nav-solutions-dropdown" className="mega-menu" onMouseEnter={cancelClose} onMouseLeave={scheduleClose}>
                   {solutionsLinks.map((item) => (
                     <Link
                       key={item.title}
@@ -218,29 +226,27 @@ export default function Navbar({
               )}
             </div>
 
-            <Link href="/pricing">Pricing</Link>
-
-            {/* Company dropdown */}
+            {/* Resources dropdown */}
             <div
               className="nav-item-wrapper"
-              onMouseEnter={() => openDropdown("company")}
+              onMouseEnter={() => openDropdown("resources")}
               onMouseLeave={scheduleClose}
             >
               <button
-                className={`nav-dropdown-trigger${openMenu === "company" ? " active" : ""}`}
-                aria-expanded={openMenu === "company"}
+                className={`nav-dropdown-trigger${openMenu === "resources" ? " active" : ""}`}
+                aria-expanded={openMenu === "resources"}
                 aria-haspopup="true"
-                aria-controls="nav-company-dropdown"
-                onClick={() => setOpenMenu(openMenu === "company" ? null : "company")}
+                aria-controls="nav-resources-dropdown"
+                onClick={() => setOpenMenu(openMenu === "resources" ? null : "resources")}
               >
-                Company
+                Resources
                 <ChevronDown className="nav-chevron" size={14} strokeWidth={2.5} />
               </button>
-              {openMenu === "company" && (
-                <div id="nav-company-dropdown" className="mega-menu" onMouseEnter={cancelClose} onMouseLeave={scheduleClose}>
-                  {companyLinks.map((item) => (
+              {openMenu === "resources" && (
+                <div id="nav-resources-dropdown" className="mega-menu" onMouseEnter={cancelClose} onMouseLeave={scheduleClose}>
+                  {resourcesLinks.map((item) => (
                     <Link
-                      key={item.href}
+                      key={item.title}
                       href={item.href}
                       className="mega-menu-item"
                       onClick={() => setOpenMenu(null)}
@@ -253,7 +259,7 @@ export default function Navbar({
               )}
             </div>
 
-            <Link href="/resources">Resources</Link>
+            <Link href="/pricing">Pricing</Link>
           </nav>
 
           <div className="nav-right">
@@ -314,6 +320,10 @@ export default function Navbar({
               Home
             </Link>
 
+            <Link href="/how-it-works" className="nav-drawer-link" onClick={close}>
+              How It Works
+            </Link>
+
             {/* Platform accordion */}
             <button
               className="nav-drawer-link nav-drawer-accordion"
@@ -337,19 +347,19 @@ export default function Navbar({
               </div>
             )}
 
-            {/* Industries accordion */}
+            {/* Solutions accordion */}
             <button
               className="nav-drawer-link nav-drawer-accordion"
-              onClick={() => setMobileExpanded(mobileExpanded === "industries" ? null : "industries")}
+              onClick={() => setMobileExpanded(mobileExpanded === "solutions" ? null : "solutions")}
             >
-              Industries
+              Solutions
               <ChevronDown
-                className={`nav-chevron${mobileExpanded === "industries" ? " rotated" : ""}`}
+                className={`nav-chevron${mobileExpanded === "solutions" ? " rotated" : ""}`}
                 size={16}
                 strokeWidth={2.5}
               />
             </button>
-            {mobileExpanded === "industries" && (
+            {mobileExpanded === "solutions" && (
               <div className="nav-drawer-sub">
                 {solutionsLinks.map((item) => (
                   <Link key={item.title} href={item.href} className="nav-drawer-sub-link" onClick={close}>
@@ -359,34 +369,30 @@ export default function Navbar({
               </div>
             )}
 
-            <Link href="/pricing" className="nav-drawer-link" onClick={close}>
-              Pricing
-            </Link>
-
-            {/* Company accordion */}
+            {/* Resources accordion */}
             <button
               className="nav-drawer-link nav-drawer-accordion"
-              onClick={() => setMobileExpanded(mobileExpanded === "company" ? null : "company")}
+              onClick={() => setMobileExpanded(mobileExpanded === "resources" ? null : "resources")}
             >
-              Company
+              Resources
               <ChevronDown
-                className={`nav-chevron${mobileExpanded === "company" ? " rotated" : ""}`}
+                className={`nav-chevron${mobileExpanded === "resources" ? " rotated" : ""}`}
                 size={16}
                 strokeWidth={2.5}
               />
             </button>
-            {mobileExpanded === "company" && (
+            {mobileExpanded === "resources" && (
               <div className="nav-drawer-sub">
-                {companyLinks.map((item) => (
-                  <Link key={item.href} href={item.href} className="nav-drawer-sub-link" onClick={close}>
+                {resourcesLinks.map((item) => (
+                  <Link key={item.title} href={item.href} className="nav-drawer-sub-link" onClick={close}>
                     {item.title}
                   </Link>
                 ))}
               </div>
             )}
 
-            <Link href="/resources" className="nav-drawer-link" onClick={close}>
-              Resources
+            <Link href="/pricing" className="nav-drawer-link" onClick={close}>
+              Pricing
             </Link>
 
             {showActions && (

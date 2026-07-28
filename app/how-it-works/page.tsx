@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "How It Works | Serve By Example",
-  description: "See how Serve By Example's three-stage training loop takes hospitality staff from onboarding through to real-world confidence — with scenario practice, scoring, and performance tracking.",
+  description: "See how Serve By Example's five-step training loop takes hospitality staff from onboarding through to real-world confidence — with scenario practice, scoring, and performance tracking.",
   alternates: { canonical: "/how-it-works" },
 };
 
@@ -76,7 +76,7 @@ const howToSchema = {
   "@type": "HowTo",
   "name": "How Serve By Example Works",
   "description":
-    "Serve By Example's three-stage training loop takes hospitality staff from onboarding through to real-world confidence — with scenario practice, scoring, and performance tracking.",
+    "Serve By Example's five-step training loop takes hospitality staff from onboarding through to real-world confidence — with scenario practice, scoring, and performance tracking.",
   "step": steps.map((s, i) => ({
     "@type": "HowToStep",
     "position": i + 1,
@@ -295,8 +295,8 @@ export default function HowItWorksPage() {
               </p>
             </div>
             <div className="cta-actions-single">
-              <Link href="/demo" className="btn btn-gold btn-lg">
-                Try the Demo
+              <Link href="/book-call" className="btn btn-gold btn-lg">
+                Book a 15-Min Call
               </Link>
             </div>
           </div>
