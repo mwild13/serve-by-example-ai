@@ -161,7 +161,10 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Pages and routes (exclude API routes with negative lookahead)
-    "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+    // Pages and routes only — exclude API, Next.js internals, and any public
+    // static file (paths containing a dot, e.g. *.webp, *.png, *.txt).
+    // Without this exclusion the image optimizer's internal fetch to /logo.webp
+    // was intercepted and redirected to /restricted, breaking all optimised images.
+    "/((?!api|_next/static|_next/image|favicon\\.ico|sitemap\\.xml|robots\\.txt|.*\\..*).*)",
   ],
 };
