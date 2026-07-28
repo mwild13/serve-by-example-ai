@@ -23,12 +23,12 @@ export function CtaGuaranteeBlock({ variant, pulse = false }: CtaGuaranteeBlockP
       </div>
       {variant === "dark" ? (
         <>
-          <a href="/login" className="btn btn-gold btn-lg">Create free account</a>
+          <a href="/login?intent=trial&tier=boutique" className="btn btn-gold btn-lg">Start Free Trial</a>
           <a href="/pricing" className="btn btn-outline-light btn-lg">See pricing</a>
         </>
       ) : (
         <>
-          <a href="/login" className="btn btn-primary btn-lg">Create free account</a>
+          <a href="/login?intent=trial&tier=boutique" className="btn btn-primary btn-lg">Start Free Trial</a>
           <a href="/pricing" className="btn btn-secondary btn-lg">See pricing</a>
         </>
       )}
@@ -36,13 +36,6 @@ export function CtaGuaranteeBlock({ variant, pulse = false }: CtaGuaranteeBlockP
   );
 }
 
-const SOLUTIONS_LINKS = [
-  { href: "/solutions/pub-groups", label: "Pub Groups" },
-  { href: "/solutions/fine-dining", label: "Fine Dining & Bars" },
-  { href: "/solutions/hotel-fb", label: "Hotel F&B" },
-  { href: "/solutions/franchise-systems", label: "Franchise Systems" },
-  { href: "/solutions/pub-groups", label: "Multi-Venue Groups" },
-];
 
 type LeadCapturePaneProps = {
   pulseKey: number;
@@ -63,18 +56,6 @@ export default function LeadCapturePane({ pulseKey, hasResult }: LeadCapturePane
         </div>
 
         <CtaGuaranteeBlock key={pulseKey} variant="dark" pulse={hasResult} />
-
-        <div className="demo-solutions-links-wrap">
-          <p className="demo-solutions-links-label">Which solution fits your venue?</p>
-          <div className="demo-solutions-links">
-            {SOLUTIONS_LINKS.map((link, i) => (
-              <span key={link.href}>
-                {i > 0 && <span className="sep">· </span>}
-                <a href={link.href}>{link.label}</a>
-              </span>
-            ))}
-          </div>
-        </div>
       </aside>
     </div>
   );
