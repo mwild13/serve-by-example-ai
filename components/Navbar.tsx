@@ -12,7 +12,7 @@ type NavbarProps = {
   showNavbarLanguageOnMobile?: boolean;
 };
 
-const platformLinks = [
+const platformLinks: Array<{ href: string; title: string; desc: string; badge?: string }> = [
   {
     href: "/platform",
     title: "Platform Tour",
