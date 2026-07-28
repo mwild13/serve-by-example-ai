@@ -15,7 +15,7 @@ export default function HeroSection() {
         </p>
 
         <div className="hero-cta-tiles">
-          <Link href="/membership" className="hero-cta-tile hero-cta-tile-primary mkt-sharp-btn">
+          <Link href="/pricing" className="hero-cta-tile hero-cta-tile-primary mkt-sharp-btn">
             View Memberships &rarr;
           </Link>
         </div>

@@ -118,7 +118,7 @@ export default function RoadmapPage() {
               <Link href="/contact" className="btn btn-primary btn-lg">
                 Request Venue Access
               </Link>
-              <Link href="/membership" className="btn btn-secondary btn-lg">
+              <Link href="/pricing" className="btn btn-secondary btn-lg">
                 View Pricing
               </Link>
             </div>

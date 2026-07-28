@@ -1,7 +1,7 @@
 "use client";
 
 const GUARANTEE_COPY =
-  "Onboard your team in under 5 minutes. If your staff doesn't complete their first live scenario within 7 days, you pay $0.";
+  "14-Day Performance Guarantee: If training engagement doesn’t measurably increase within your first 14 days, you won’t be charged. No questions asked.";
 
 type CtaGuaranteeBlockProps = {
   variant: "dark" | "light";
@@ -24,12 +24,12 @@ export function CtaGuaranteeBlock({ variant, pulse = false }: CtaGuaranteeBlockP
       {variant === "dark" ? (
         <>
           <a href="/login" className="btn btn-gold btn-lg">Create free account</a>
-          <a href="/membership" className="btn btn-outline-light btn-lg">See pricing</a>
+          <a href="/pricing" className="btn btn-outline-light btn-lg">See pricing</a>
         </>
       ) : (
         <>
           <a href="/login" className="btn btn-primary btn-lg">Create free account</a>
-          <a href="/membership" className="btn btn-secondary btn-lg">See pricing</a>
+          <a href="/pricing" className="btn btn-secondary btn-lg">See pricing</a>
         </>
       )}
     </div>

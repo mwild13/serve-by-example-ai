@@ -109,7 +109,7 @@ export default function HowItWorksPage() {
               <Link href="/platform" className="btn btn-primary btn-lg">
                 See the Platform
               </Link>
-              <Link href="/membership" className="btn btn-secondary btn-lg">
+              <Link href="/pricing" className="btn btn-secondary btn-lg">
                 View Pricing
               </Link>
             </div>

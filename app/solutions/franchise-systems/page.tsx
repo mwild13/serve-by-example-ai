@@ -86,7 +86,7 @@ export default function FranchiseSystemsPage() {
             </p>
             <div className="inner-hero-actions">
               <Link href="/contact" className="btn btn-primary btn-lg">Request Venue Access</Link>
-              <Link href="/membership" className="btn btn-secondary btn-lg">View Pricing</Link>
+              <Link href="/pricing" className="btn btn-secondary btn-lg">View Pricing</Link>
             </div>
           </div>
         </section>

@@ -289,7 +289,7 @@ export default function PlatformPage() {
                 <li>Managers get push alerts for team milestones</li>
               </ul>
               <div style={{ marginTop: 24 }}>
-                <Link href="/membership" className="btn btn-secondary">View Pricing →</Link>
+                <Link href="/pricing" className="btn btn-secondary">View Pricing →</Link>
               </div>
             </div>
             <div className="platform-mobile-visual">

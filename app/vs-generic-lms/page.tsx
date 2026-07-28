@@ -106,7 +106,7 @@ export default function VsGenericLmsPage() {
               <Link href="/demo" className="btn btn-primary btn-lg">
                 Try the Free Demo
               </Link>
-              <Link href="/membership" className="btn btn-secondary btn-lg">
+              <Link href="/pricing" className="btn btn-secondary btn-lg">
                 View Pricing
               </Link>
             </div>

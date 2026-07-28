@@ -1046,7 +1046,7 @@ export default function ChallengesMarketingPage() {
                 Open the dashboard
               </Link>
               <Link
-                href="/membership"
+                href="/pricing"
                 style={{
                   display: "inline-block",
                   padding: "0.85rem 2.25rem",

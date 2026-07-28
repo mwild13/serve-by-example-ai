@@ -96,7 +96,7 @@ export default function ResourcesPage() {
             </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
               <a href="/demo" className="btn btn-primary btn-lg">Try the Demo</a>
-              <a href="/membership" className="btn btn-secondary btn-lg">View Pricing</a>
+              <a href="/pricing" className="btn btn-secondary btn-lg">View Pricing</a>
             </div>
           </div>
         </section>
