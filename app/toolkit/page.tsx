@@ -105,7 +105,7 @@ export default function ToolkitPage() {
         >
           Templates are aligned to the Hospitality Industry (General) Award 2020 and
           applicable state licensing requirements. Not a substitute for legal or HR advice.
-          Current as at June 2026.
+          Current as at July 2026.
         </p>
         <p style={{ marginTop: '1rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
           <Link

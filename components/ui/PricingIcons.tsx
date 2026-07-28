@@ -191,7 +191,7 @@ export function UsersIcon(props: IconProps) {
   return <Users strokeWidth={1.5} {...props} />;
 }
 
-/** Command & Compliance Centre — Mission Control dashboard */
+/** Manager Console dashboard */
 export function LayoutDashboardIcon(props: IconProps) {
   return <LayoutDashboard strokeWidth={1.5} {...props} />;
 }
