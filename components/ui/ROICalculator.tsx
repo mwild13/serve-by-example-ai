@@ -251,7 +251,7 @@ export default function ROICalculator() {
                 Thanks &mdash; we&rsquo;ll email your projection shortly.
               </p>
             ) : (
-              <form onSubmit={handleEmailSubmit} style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem" }}>
+              <form onSubmit={handleEmailSubmit} style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem" }} noValidate>
                 <label htmlFor="roi-email" style={{ fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "0.82rem", color: "rgba(250,249,246,0.6)", whiteSpace: "nowrap" }}>
                   Email me this projection
                 </label>
@@ -295,6 +295,11 @@ export default function ROICalculator() {
                   {sending ? "Sending…" : "Email me this projection"}
                 </button>
               </form>
+            )}
+            {!emailSent && (
+              <p style={{ margin: "0.5rem 0 0", fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "0.72rem", color: "rgba(250,249,246,0.35)", textAlign: "left" }}>
+                No spam. Unsubscribe in 1-click.
+              </p>
             )}
           </div>
 

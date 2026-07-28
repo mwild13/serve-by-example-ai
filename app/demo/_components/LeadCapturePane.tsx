@@ -41,7 +41,7 @@ const SOLUTIONS_LINKS = [
   { href: "/solutions/fine-dining", label: "Fine Dining & Bars" },
   { href: "/solutions/hotel-fb", label: "Hotel F&B" },
   { href: "/solutions/franchise-systems", label: "Franchise Systems" },
-  { href: "/solutions/multi-venue", label: "Multi-Venue Groups" },
+  { href: "/solutions/pub-groups", label: "Multi-Venue Groups" },
 ];
 
 type LeadCapturePaneProps = {

@@ -14,15 +14,14 @@ type NavbarProps = {
 
 const platformLinks = [
   {
-    href: "/platform#arena",
-    title: "Live Scenarios",
-    desc: "Real-time roleplay simulation that tests staff under pressure before real service.",
+    href: "/platform",
+    title: "Platform Tour",
+    desc: "A full walkthrough of how Serve By Example trains staff and gives managers real-time visibility.",
   },
   {
-    href: "/platform/challenges",
-    title: "Interactive Challenges",
-    desc: "Tap-based mini-games that replace essay inputs: sequence sorts, recipe builds, and match pairs.",
-    badge: "New",
+    href: "/platform#features",
+    title: "Features",
+    desc: "Scenario simulators, rapid-fire quizzes, tap-based challenges, and AI coaching — all in one platform.",
   },
   {
     href: "/platform#insights",
@@ -47,33 +46,33 @@ const companyLinks = [
 const solutionsLinks = [
   {
     href: "/for-venues",
-    title: "For Venues – Overview",
+    title: "Overview",
     desc: "How Serve By Example fits into your venue operations end to end.",
   },
   {
     href: "/solutions/pub-groups",
-    title: "Multi-Venue Pub Groups",
-    desc: "Standardise brand guidelines and scale training across multi-site teams.",
+    title: "Pubs",
+    desc: "Standardise brand guidelines and scale training across multi-site pub teams.",
   },
   {
     href: "/solutions/fine-dining",
-    title: "Fine Dining & Cocktail Bars",
+    title: "Bars",
     desc: "Complex recipe specs, cellar logic, and premium service recovery.",
   },
   {
+    href: "/solutions/fine-dining",
+    title: "Restaurants",
+    desc: "Consistent service standards and upsell training for full-service restaurant teams.",
+  },
+  {
     href: "/solutions/hotel-fb",
-    title: "Hotel F&B",
+    title: "Hotels",
     desc: "Consistent service standards across restaurant, bar, and room service teams.",
   },
   {
     href: "/solutions/franchise-systems",
-    title: "Franchise Systems",
+    title: "Franchises",
     desc: "Speed of service, upselling workflows, and high-turnover cost reduction.",
-  },
-  {
-    href: "/solutions/multi-venue",
-    title: "Multi-Venue Groups",
-    desc: "Centralised analytics and training management across all your sites.",
   },
 ];
 
@@ -83,13 +82,13 @@ export default function Navbar({
   showNavbarLanguageOnMobile: _showNavbarLanguageOnMobile = true,
 }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [openMenu, setOpenMenu] = useState<"platform" | "solutions" | "company" | null>(null);
-  const [mobileExpanded, setMobileExpanded] = useState<"platform" | "solutions" | "company" | null>(null);
+  const [openMenu, setOpenMenu] = useState<"platform" | "industries" | "company" | null>(null);
+  const [mobileExpanded, setMobileExpanded] = useState<"platform" | "industries" | "company" | null>(null);
   const [authEmail, setAuthEmail] = useState<string | null>(null);
   const headerRef = useRef<HTMLElement>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const openDropdown = useCallback((menu: "platform" | "solutions" | "company") => {
+  const openDropdown = useCallback((menu: "platform" | "industries" | "company") => {
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
     setOpenMenu(menu);
   }, []);
@@ -186,27 +185,27 @@ export default function Navbar({
               )}
             </div>
 
-            {/* Solutions dropdown */}
+            {/* Industries dropdown */}
             <div
               className="nav-item-wrapper"
-              onMouseEnter={() => openDropdown("solutions")}
+              onMouseEnter={() => openDropdown("industries")}
               onMouseLeave={scheduleClose}
             >
               <button
-                className={`nav-dropdown-trigger${openMenu === "solutions" ? " active" : ""}`}
-                aria-expanded={openMenu === "solutions"}
+                className={`nav-dropdown-trigger${openMenu === "industries" ? " active" : ""}`}
+                aria-expanded={openMenu === "industries"}
                 aria-haspopup="true"
-                aria-controls="nav-solutions-dropdown"
-                onClick={() => setOpenMenu(openMenu === "solutions" ? null : "solutions")}
+                aria-controls="nav-industries-dropdown"
+                onClick={() => setOpenMenu(openMenu === "industries" ? null : "industries")}
               >
-                Solutions
+                Industries
                 <ChevronDown className="nav-chevron" size={14} strokeWidth={2.5} />
               </button>
-              {openMenu === "solutions" && (
-                <div id="nav-solutions-dropdown" className="mega-menu" onMouseEnter={cancelClose} onMouseLeave={scheduleClose}>
+              {openMenu === "industries" && (
+                <div id="nav-industries-dropdown" className="mega-menu" onMouseEnter={cancelClose} onMouseLeave={scheduleClose}>
                   {solutionsLinks.map((item) => (
                     <Link
-                      key={item.href}
+                      key={item.title}
                       href={item.href}
                       className="mega-menu-item"
                       onClick={() => setOpenMenu(null)}
@@ -338,22 +337,22 @@ export default function Navbar({
               </div>
             )}
 
-            {/* Solutions accordion */}
+            {/* Industries accordion */}
             <button
               className="nav-drawer-link nav-drawer-accordion"
-              onClick={() => setMobileExpanded(mobileExpanded === "solutions" ? null : "solutions")}
+              onClick={() => setMobileExpanded(mobileExpanded === "industries" ? null : "industries")}
             >
-              Solutions
+              Industries
               <ChevronDown
-                className={`nav-chevron${mobileExpanded === "solutions" ? " rotated" : ""}`}
+                className={`nav-chevron${mobileExpanded === "industries" ? " rotated" : ""}`}
                 size={16}
                 strokeWidth={2.5}
               />
             </button>
-            {mobileExpanded === "solutions" && (
+            {mobileExpanded === "industries" && (
               <div className="nav-drawer-sub">
                 {solutionsLinks.map((item) => (
-                  <Link key={item.href} href={item.href} className="nav-drawer-sub-link" onClick={close}>
+                  <Link key={item.title} href={item.href} className="nav-drawer-sub-link" onClick={close}>
                     {item.title}
                   </Link>
                 ))}

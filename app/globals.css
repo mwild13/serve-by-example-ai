@@ -17366,3 +17366,11 @@ h1, h2, h3 {
   .demo-cta-stack .btn { flex: 1 1 auto; min-width: 140px; }
   .demo-cta-inline-mount.demo-cta-inline-mount { margin: 12px 0; gap: 8px; }
 }
+
+/* ── Floating Book-a-Call Button ──────────────────────────── */
+/* Collapse label to icon-only on small screens */
+@media (max-width: 480px) {
+  .floating-btn-label {
+    display: none;
+  }
+}

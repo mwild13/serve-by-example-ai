@@ -131,13 +131,13 @@ export default function Home() {
                   </div>
                   <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)", fontWeight: 600, lineHeight: 1.4 }}>
                     Languages Supported<br/>
-                    <em style={{ fontSize: "0.8rem", color: "var(--gold-deep)", fontStyle: "normal", fontWeight: 500 }}>Aus Training Ready</em>
+                    <em style={{ fontSize: "0.8rem", color: "var(--gold-deep)", fontStyle: "normal", fontWeight: 500 }}>Australian Compliance Ready</em>
                   </div>
                 </article>
 
                 <article className="stat-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "8px", border: "1px solid var(--border-subtle)", background: "var(--surface-raised)" }}>
-                  <div style={{ fontSize: "2.25rem", fontWeight: 800, color: "var(--green-deep)", lineHeight: 1.1, letterSpacing: "-0.03em", marginBottom: "0.5rem" }}>
-                    GPT-4o-mini
+                  <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--green-deep)", lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: "0.5rem" }}>
+                    Advanced AI Scoring
                   </div>
                   <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)", fontWeight: 600, lineHeight: 1.4 }}>
                     5-Dimension AI<br/>
@@ -468,6 +468,62 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ── SOP Lead Magnet Banner ───────────────── */}
+        <section style={{ backgroundColor: 'var(--green)', padding: '5rem 1.5rem' }}>
+          <div style={{ maxWidth: '660px', margin: '0 auto', textAlign: 'center' }}>
+            <span style={{
+              display: 'inline-block',
+              fontFamily: 'var(--font-manrope)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              fontSize: '0.75rem',
+              color: 'rgba(255,255,255,0.55)',
+              fontWeight: '600',
+              marginBottom: '1.25rem',
+            }}>Free resource</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="12" y1="18" x2="12" y2="12"/>
+                <line x1="9" y1="15" x2="15" y2="15"/>
+              </svg>
+              <h2 style={{
+                fontFamily: 'var(--font-fraunces)',
+                fontSize: 'clamp(1.85rem, 4vw, 2.6rem)',
+                lineHeight: '1.2',
+                color: 'var(--surface-raised)',
+                margin: 0,
+                letterSpacing: '-0.02em',
+              }}>Download your free Venue SOP template before you go.</h2>
+            </div>
+            <p style={{
+              fontSize: '1.1rem',
+              lineHeight: '1.7',
+              color: 'rgba(255,255,255,0.72)',
+              maxWidth: '520px',
+              margin: '0 auto 2.5rem auto',
+            }}>
+              Customised to your venue type and biggest compliance pain point in under 60 seconds.
+            </p>
+            <Link href="/toolkit" style={{
+              display: 'inline-block',
+              backgroundColor: 'var(--gold)',
+              color: 'var(--surface-raised)',
+              fontFamily: 'var(--font-manrope)',
+              fontWeight: '600',
+              fontSize: '1rem',
+              padding: '0.9rem 2.25rem',
+              borderRadius: 'var(--radius-md)',
+              textDecoration: 'none',
+              letterSpacing: '0.01em',
+              transition: 'background-color 0.2s ease',
+            }}>
+              Build Your Custom SOP &rarr;
+            </Link>
+          </div>
+        </section>
+
         {/* ── Pricing Teaser ───────────────────────── */}
         <section className="section">
           <div className="container">
@@ -478,9 +534,9 @@ export default function Home() {
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", justifyContent: "center", maxWidth: 860, margin: "2rem auto 0" }}>
               {[
-                { tier: "Individual", name: "Pro", desc: "Full access to all 40 modules, scenario training, and progress analytics. For staff investing in their craft." },
-                { tier: "Single Venue", name: "Boutique", desc: "Full manager console, team analytics, compliance tracking, and up to 15 staff seats for one venue." },
-                { tier: "Multi-Venue", name: "Commercial", desc: "Up to 35 staff across your team, multi-venue health scores, and group-wide performance analytics." },
+                { tier: "Starter", name: "Pro", desc: "Full access to all 40 modules, scenario training, and progress analytics. For staff investing in their craft." },
+                { tier: "Venue Pro", name: "Boutique", desc: "Full manager console, team analytics, compliance tracking, and up to 15 staff seats for one venue." },
+                { tier: "Group", name: "Commercial", desc: "Up to 35 staff across your team, multi-venue health scores, and group-wide performance analytics." },
                 { tier: "Enterprise", name: "Enterprise", desc: "Unlimited seats, dedicated account management, custom modules, and white-label options for venue groups." },
               ].map((plan) => (
                 <div key={plan.name} style={{ flex: "1 1 180px", maxWidth: 220, background: "var(--surface)", border: "1.5px solid var(--line)", borderRadius: "14px", padding: "1.25rem 1.1rem", display: "flex", flexDirection: "column", gap: "0.4rem" }}>
@@ -501,58 +557,43 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ── 14-Day Performance Guarantee ─────────── */}
+        <section className="section" style={{ padding: "0 0 2.5rem" }}>
+          <div className="container">
+            <div style={{
+              maxWidth: "720px",
+              margin: "0 auto",
+              padding: "2.5rem 2rem",
+              background: "var(--surface-raised)",
+              border: "1.5px solid var(--green-light)",
+              borderRadius: "var(--radius-lg)",
+              display: "flex",
+              gap: "1.5rem",
+              alignItems: "flex-start",
+            }}>
+              {/* Shield icon */}
+              <div style={{ flexShrink: 0, width: "48px", height: "48px", background: "var(--green-light)", borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  <polyline points="9 12 11 14 15 10"/>
+                </svg>
+              </div>
+              <div>
+                <h3 style={{ margin: "0 0 0.625rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--green-deep)" }}>
+                  14-Day Performance Guarantee
+                </h3>
+                <p style={{ margin: 0, fontSize: "0.95rem", color: "var(--text-soft)", lineHeight: 1.65 }}>
+                  If training engagement doesn&rsquo;t measurably increase within your first 14 days, you won&rsquo;t be charged. No questions asked.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* ── ROI Calculator ───────────────────────── */}
         <Suspense fallback={<div style={{ height: "400px", background: "var(--bg-alt)" }} />}>
           <ROICalculator />
         </Suspense>
-
-        {/* ── Free Toolkit Teaser ──────────────────── */}
-        <section style={{ backgroundColor: 'var(--green)', padding: '5rem 1.5rem' }}>
-          <div style={{ maxWidth: '660px', margin: '0 auto', textAlign: 'center' }}>
-            <span style={{
-              display: 'inline-block',
-              fontFamily: 'var(--font-body)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              fontSize: '0.75rem',
-              color: 'rgba(255,255,255,0.55)',
-              fontWeight: '600',
-              marginBottom: '1.25rem',
-            }}>Free resource</span>
-            <h2 style={{
-              fontFamily: 'var(--font-heading)',
-              fontSize: 'clamp(1.85rem, 4vw, 2.6rem)',
-              lineHeight: '1.2',
-              color: 'var(--surface-raised)',
-              marginBottom: '1.25rem',
-              letterSpacing: '-0.02em',
-            }}>Not ready to sign up yet?</h2>
-            <p style={{
-              fontSize: '1.1rem',
-              lineHeight: '1.7',
-              color: 'rgba(255,255,255,0.72)',
-              maxWidth: '520px',
-              margin: '0 auto 2.5rem auto',
-            }}>
-              Get a free, venue-specific staff onboarding SOP template. Customised to your venue type and biggest compliance pain point in under 60 seconds.
-            </p>
-            <Link href="/toolkit" style={{
-              display: 'inline-block',
-              backgroundColor: 'var(--gold)',
-              color: 'var(--surface-raised)',
-              fontFamily: 'var(--font-body)',
-              fontWeight: '600',
-              fontSize: '1rem',
-              padding: '0.9rem 2.25rem',
-              borderRadius: 'var(--radius-md)',
-              textDecoration: 'none',
-              letterSpacing: '0.01em',
-              transition: 'background-color 0.2s ease',
-            }}>
-              Build Your Custom SOP &rarr;
-            </Link>
-          </div>
-        </section>
 
         {/* ── FAQ ──────────────────────────────────── */}
         <section className="section">
@@ -605,8 +646,8 @@ export default function Home() {
               <p className="cta-proof">No credit card required.</p>
             </div>
             <div className="cta-actions cta-actions-single">
-              <Link href="/demo" className="btn btn-gold btn-lg">
-                Explore the Demo
+              <Link href="/login?intent=trial&tier=boutique" className="btn btn-gold btn-lg">
+                Start My Free Trial – No CC Needed
               </Link>
             </div>
           </div>

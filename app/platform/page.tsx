@@ -234,7 +234,7 @@ export default function PlatformPage() {
         </section>
 
         {/* ── Three Layers — Bento Grid 2.0 ── */}
-        <section className="section sbe-mkt-scope">
+        <section id="features" className="section sbe-mkt-scope">
           <div className="container">
             <div className="section-header center">
               <span className="sbe-eyebrow">Three Systems, One Hub</span>

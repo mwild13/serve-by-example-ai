@@ -19,20 +19,20 @@ export default function Footer() {
           <h3>Platform</h3>
           <ul>
             <li><Link href="/platform">Platform Tour</Link></li>
-            <li><Link href="/platform/challenges">Interactive Challenges</Link></li>
+            <li><Link href="/platform#features">Features</Link></li>
             <li><Link href="/platform#insights">Mission Control</Link></li>
           </ul>
         </div>
 
         <div className="footer-col">
-          <h3>For Venues</h3>
+          <h3>Industries</h3>
           <ul>
-            <li><Link href="/for-venues">For Venues – Overview</Link></li>
-            <li><Link href="/solutions/pub-groups">Pub Groups</Link></li>
-            <li><Link href="/solutions/fine-dining">Fine Dining &amp; Bars</Link></li>
-            <li><Link href="/solutions/hotel-fb">Hotel F&amp;B</Link></li>
-            <li><Link href="/solutions/franchise-systems">Franchise Systems</Link></li>
-            <li><Link href="/solutions/multi-venue">Multi-Venue Groups</Link></li>
+            <li><Link href="/for-venues">Overview</Link></li>
+            <li><Link href="/solutions/pub-groups">Pubs</Link></li>
+            <li><Link href="/solutions/fine-dining">Bars</Link></li>
+            <li><Link href="/solutions/fine-dining">Restaurants</Link></li>
+            <li><Link href="/solutions/hotel-fb">Hotels</Link></li>
+            <li><Link href="/solutions/franchise-systems">Franchises</Link></li>
           </ul>
         </div>
 
@@ -43,6 +43,7 @@ export default function Footer() {
             <li><Link href="/roi">ROI Calculator</Link></li>
             <li><Link href="/how-it-works">How It Works</Link></li>
             <li><Link href="/roadmap">Roadmap</Link></li>
+            <li><Link href="/vs-generic-lms">vs Generic LMS</Link></li>
           </ul>
         </div>
 

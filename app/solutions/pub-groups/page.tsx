@@ -4,9 +4,9 @@ import Footer from "@/components/Footer";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Interactive Training for Pub Groups | Serve By Example",
+  title: "Interactive Training for Pub Groups & Multi-Venue Operators | Serve By Example",
   description:
-    "Standardise training across every site in your pub group. Consistent service, faster onboarding, and real visibility into staff readiness, from a single console.",
+    "Centralised staff training for pub groups and multi-venue hospitality operators. Standardise service quality, track compliance, and manage up to 125 staff from one console.",
   alternates: { canonical: "/solutions/pub-groups" },
 };
 
@@ -28,7 +28,7 @@ const features = [
       </svg>
     ),
     title: "Group-wide visibility in one console",
-    desc: "Compare readiness scores across venues, spot skill gaps before they become service issues, and direct coaching where it matters.",
+    desc: "Compare readiness scores across venues, spot skill gaps before they become service issues, and direct coaching where it matters most. Manage up to 125 staff across 5 venues from a single dashboard.",
   },
   {
     icon: (
@@ -48,6 +48,26 @@ const features = [
     title: "Compliance tracked automatically",
     desc: "RSA, responsible service, and venue policy modules are completed and logged. Managers are alerted before anything lapses.",
   },
+  {
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10"/>
+        <line x1="12" y1="20" x2="12" y2="4"/>
+        <line x1="6" y1="20" x2="6" y2="14"/>
+      </svg>
+    ),
+    title: "Skill gap analysis across the group",
+    desc: "The platform identifies patterns across venues. If multiple sites have weak upsell scores, you know to run group-wide coaching before it affects revenue.",
+  },
+  {
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+    ),
+    title: "Cross-venue performance tracking",
+    desc: "Staff across all venues train on the same content. Group leaderboards surface your top performers and flag who needs support across the whole group.",
+  },
 ];
 
 const breadcrumbSchema = {
@@ -55,8 +75,8 @@ const breadcrumbSchema = {
   "@type": "BreadcrumbList",
   "itemListElement": [
     { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://servebyexample.co" },
-    { "@type": "ListItem", "position": 2, "name": "Solutions", "item": "https://servebyexample.co/solutions" },
-    { "@type": "ListItem", "position": 3, "name": "Multi-Venue Pub Groups", "item": "https://servebyexample.co/solutions/pub-groups" },
+    { "@type": "ListItem", "position": 2, "name": "Industries", "item": "https://servebyexample.co/solutions" },
+    { "@type": "ListItem", "position": 3, "name": "Pubs & Multi-Venue Groups", "item": "https://servebyexample.co/solutions/pub-groups" },
   ],
 };
 
@@ -70,16 +90,17 @@ export default function PubGroupsPage() {
         <section className="inner-hero sol-hero">
           <div className="container">
             <div className="sol-hero-breadcrumb">
-              <Link href="/solutions">Solutions</Link>
+              <Link href="/solutions">Industries</Link>
               <span aria-hidden="true"> / </span>
-              <span>Pub Groups</span>
+              <span>Pubs &amp; Multi-Venue Groups</span>
             </div>
-            <span className="eyebrow">Multi-Venue Pub Groups</span>
+            <span className="eyebrow">Pubs &amp; Multi-Venue Groups</span>
             <h1>Train every venue. Manage from one place.</h1>
             <p className="inner-hero-sub">
-              Inconsistent training is the silent killer of multi-site pub brands. One venue nails
+              Inconsistent training is the silent killer of multi-site operations. One venue nails
               upselling; three others improvise. Serve By Example gives every staff member the same
-              quality training experience, regardless of location, manager, or roster.
+              quality training experience, regardless of location, manager, or roster — and gives
+              operators a single view across their entire group.
             </p>
             <div className="inner-hero-actions">
               <Link href="/contact" className="btn btn-primary btn-lg">Request Venue Access</Link>
@@ -97,12 +118,12 @@ export default function PubGroupsPage() {
                 <div className="metrics-strip-label">reduction in average onboarding time</div>
               </div>
               <div className="metrics-strip-item">
-                <div className="metrics-strip-value">6 wks</div>
-                <div className="metrics-strip-label">to floor-ready from day one</div>
+                <div className="metrics-strip-value">5 venues</div>
+                <div className="metrics-strip-label">managed from a single console on multi-venue plans</div>
               </div>
               <div className="metrics-strip-item">
-                <div className="metrics-strip-value">1 console</div>
-                <div className="metrics-strip-label">to manage every site and every staff member</div>
+                <div className="metrics-strip-value">125</div>
+                <div className="metrics-strip-label">staff supported across all venues on the top tier</div>
               </div>
             </div>
             <p className="metrics-strip-disclaimer">*Based on hospitality group onboarding models and multi-venue industry averages.</p>
@@ -114,7 +135,7 @@ export default function PubGroupsPage() {
           <div className="container">
             <div className="section-header center">
               <span className="eyebrow">Multi-site management</span>
-              <h2>Built for the complexity of a pub group</h2>
+              <h2>Built for the complexity of pub groups and multi-venue operators</h2>
             </div>
             <div className="sol-feature-grid">
               {features.map((f) => (

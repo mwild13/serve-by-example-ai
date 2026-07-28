@@ -48,6 +48,12 @@ module.exports = withBundleAnalyzer({
         destination: "/membership",
         permanent: true,
       },
+      // /solutions/multi-venue consolidated into /solutions/pub-groups (2026-07-28)
+      {
+        source: "/solutions/multi-venue",
+        destination: "/solutions/pub-groups",
+        permanent: true,
+      },
     ];
   },
 

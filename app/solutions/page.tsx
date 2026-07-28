@@ -79,7 +79,7 @@ const segments = [
       "Spot individual skill gaps before they become team-wide performance problems",
     ],
     stat: { value: "125", label: "staff manageable across 5 venues from one Mission Control console" },
-    cta: { href: "/solutions/multi-venue", label: "See multi-venue features" },
+    cta: { href: "/solutions/pub-groups", label: "See multi-venue features" },
   },
 ];
 

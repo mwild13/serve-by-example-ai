@@ -3,6 +3,7 @@ import { Fraunces, Manrope } from "next/font/google";
 import "./globals.css";
 import LanguageRuntimeTranslator from "@/components/LanguageRuntimeTranslator";
 import ErrorLogger from "@/components/ErrorLogger";
+import FloatingBookCallButton from "@/components/FloatingBookCallButton";
 import Script from 'next/script';
 
 const fraunces = Fraunces({
@@ -131,6 +132,7 @@ export default async function RootLayout({
         />
         <a href="#main-content" className="skip-nav">Skip to main content</a>
         {children}
+        <FloatingBookCallButton />
         <ErrorLogger />
         <LanguageRuntimeTranslator />
       </body>
