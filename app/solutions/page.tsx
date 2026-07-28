@@ -78,7 +78,7 @@ const segments = [
       "Standardise brand voice, product knowledge, and service protocols across all locations",
       "Spot individual skill gaps before they become team-wide performance problems",
     ],
-    stat: { value: "125", label: "staff manageable across 5 venues from one Mission Control console" },
+    stat: { value: "125", label: "staff manageable across 5 venues from the Manager Console" },
     cta: { href: "/solutions/pub-groups", label: "See multi-venue features" },
   },
 ];

@@ -162,7 +162,7 @@ export default function PrivacyPage() {
               <h2>7. Manager Analytics</h2>
               <p>
                 Venue managers can access real-time team analytics and staff training progress
-                through Mission Control. We track staff_progress, scenario_mastery, and
+                through the Manager Console. We track staff_progress, scenario_mastery, and
                 staff membership data to provide managers with compliance reporting and
                 performance insights. Only the managers of a specific venue can see that
                 venue&apos;s staff data; data is segregated by row-level security (RLS) policies

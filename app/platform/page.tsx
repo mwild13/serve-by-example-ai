@@ -86,16 +86,6 @@ const productBlocks = [
       "Multi-venue health score comparison",
     ],
   },
-  {
-    icon: "◆",
-    heading: "For venues",
-    points: [
-      "Faster onboarding with starter templates",
-      "Stronger and more consistent service standards",
-      "Revenue impact from better upsell performance",
-      "Scalable from single bar to group rollout",
-    ],
-  },
 ];
 
 const stats = [
@@ -237,7 +227,7 @@ export default function PlatformPage() {
         <section id="features" className="section sbe-mkt-scope">
           <div className="container">
             <div className="section-header center">
-              <span className="sbe-eyebrow">Three Systems, One Hub</span>
+              <span className="sbe-eyebrow">Two Systems, One Platform</span>
               <h2 className="sbe-serif-title">What each layer actually does.</h2>
             </div>
 
@@ -270,26 +260,6 @@ export default function PlatformPage() {
                     {productBlocks[1].points.map((point) => (
                       <li key={point} style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", fontSize: "0.875rem", color: "var(--mkt-charcoal-400)", lineHeight: 1.55 }}>
                         <span style={{ color: "var(--mkt-gold-500)", flexShrink: 0, fontWeight: 700 }}>&#10003;</span>
-                        {point}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              {/* Wide col-12 — For Multi-Site Venue Groups */}
-              <div className="bento-card sbe-span-12 sbe-interactive-hover">
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "2rem", alignItems: "flex-start" }}>
-                  <div style={{ flex: "1 1 220px" }}>
-                    <span style={{ fontSize: "1.8rem", display: "block", marginBottom: "1rem", color: "var(--mkt-forest-900)" }}>&#9670;</span>
-                    <span className="sbe-eyebrow">For Multi-Site Venue Groups</span>
-                    <h3 style={{ margin: "0 0 0.5rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-forest-900)" }}>For venues</h3>
-                    <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--mkt-charcoal-400)", lineHeight: 1.6 }}>Scalable training infrastructure for operators managing one location or an entire group.</p>
-                  </div>
-                  <ul style={{ flex: "2 1 320px", listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.625rem" }}>
-                    {productBlocks[2].points.map((point) => (
-                      <li key={point} style={{ display: "flex", alignItems: "flex-start", gap: "0.625rem", fontSize: "0.875rem", color: "var(--mkt-charcoal-900)", borderBottom: "1px solid var(--mkt-border-subtle)", paddingBottom: "0.625rem" }}>
-                        <span style={{ color: "var(--mkt-gold-500)", fontWeight: 700, flexShrink: 0, lineHeight: 1.65 }}>&#10003;</span>
                         {point}
                       </li>
                     ))}

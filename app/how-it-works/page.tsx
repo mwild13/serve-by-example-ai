@@ -263,7 +263,7 @@ export default function HowItWorksPage() {
 
               {/* Management Console */}
               <div>
-                <p style={{ color: "var(--divider-light)", fontWeight: 700, fontSize: "0.8125rem", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "1rem" }}>Mission Control</p>
+                <p style={{ color: "var(--divider-light)", fontWeight: 700, fontSize: "0.8125rem", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "1rem" }}>Manager Console</p>
                 <DashboardMockup />
               </div>
 

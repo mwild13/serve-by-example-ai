@@ -20,7 +20,7 @@ export default function Footer() {
           <ul>
             <li><Link href="/platform">Platform Tour</Link></li>
             <li><Link href="/platform#features">Features</Link></li>
-            <li><Link href="/platform#insights">Mission Control</Link></li>
+            <li><Link href="/platform#insights">Manager Console</Link></li>
           </ul>
         </div>
 

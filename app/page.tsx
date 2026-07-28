@@ -154,7 +154,7 @@ export default function Home() {
         <section className="section sbe-mkt-scope">
           <div className="container">
             <div className="section-header center">
-              <span className="sbe-eyebrow">Three Systems, One Hub</span>
+              <span className="sbe-eyebrow">Two Systems, One Platform</span>
               <h2 className="sbe-serif-title">Built for High-Performance Venues</h2>
               <p className="sbe-sans-body">Everything your venue needs to train staff confidently, built for real hospitality operations.</p>
             </div>
@@ -180,35 +180,8 @@ export default function Home() {
                     <IconBuilding size={22} />
                   </div>
                   <span className="sbe-eyebrow">For General Managers</span>
-                  <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-forest-900)" }}>Manager Mission Control</h3>
+                  <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-forest-900)" }}>Manager Console</h3>
                   <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.65, color: "var(--mkt-charcoal-400)" }}>Every module completion, quiz score, and scenario session syncs to the manager console automatically. Full visibility, zero admin overhead.</p>
-                </div>
-              </div>
-
-              {/* Wide col-12 — Multi-Site Venue Groups */}
-              <div className="bento-card sbe-span-12 sbe-interactive-hover mkt-card-sharp">
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "2rem", alignItems: "flex-start" }}>
-                  <div style={{ flex: "1 1 260px" }}>
-                    <div style={{ width: "44px", height: "44px", background: "var(--green-light)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--green)", marginBottom: "1.25rem" }}>
-                      <IconBook size={22} />
-                    </div>
-                    <span className="sbe-eyebrow">For Multi-Site Venue Groups</span>
-                    <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-forest-900)" }}>Cocktail &amp; Spec Library</h3>
-                    <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.65, color: "var(--mkt-charcoal-400)" }}>40+ build guides, garnish specs, and flavour profiles. Searchable by staff on any device, any shift. Standardise service quality across every location.</p>
-                  </div>
-                  <ul style={{ flex: "1 1 260px", listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.625rem" }}>
-                    {[
-                      "Faster onboarding with venue-specific starter templates",
-                      "Stronger, more consistent service standards across sites",
-                      "Revenue impact from better upsell performance",
-                      "Scalable from a single bar to a full group rollout",
-                    ].map((item) => (
-                      <li key={item} style={{ display: "flex", alignItems: "flex-start", gap: "0.625rem", fontSize: "0.875rem", color: "var(--mkt-charcoal-900)", borderBottom: "1px solid var(--mkt-border-subtle)", paddingBottom: "0.625rem" }}>
-                        <span style={{ color: "var(--mkt-gold-500)", fontWeight: 700, flexShrink: 0, lineHeight: 1.65 }}>&#10003;</span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
                 </div>
               </div>
 
@@ -429,7 +402,7 @@ export default function Home() {
                 </div>
                 <div className="mastery-step-num">Step 3</div>
                 <h3>Managers See Everything, in Real Time.</h3>
-                <p>Every module completion, quiz score, and scenario session syncs to Manager Mission Control automatically. No chasing staff for updates. <em className="step-highlight">No guessing</em> who&rsquo;s been trained and who hasn&rsquo;t.</p>
+                <p>Every module completion, quiz score, and scenario session syncs to the Manager Console automatically. No chasing staff for updates. <em className="step-highlight">No guessing</em> who&rsquo;s been trained and who hasn&rsquo;t.</p>
               </div>
             </div>
           </div>

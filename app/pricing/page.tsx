@@ -860,7 +860,7 @@ export default function PricingPage() {
                 <p>
                   Yes. <strong>Venue</strong> and <strong>Group</strong> plans
                   include a 14-day free trial with no credit card required.
-                  Experience Mission Control and the full training library before
+                  Experience the Manager Console and the full training library before
                   committing to a paid tier.
                 </p>
               </details>

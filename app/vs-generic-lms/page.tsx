@@ -29,7 +29,7 @@ const comparisonRows = [
   {
     topic: "Manager visibility",
     generic: "Module completion rates in a spreadsheet export. No real-time alerts, no skill-gap analysis, no per-staff drill-down.",
-    sbe: "Mission Control shows every module completion, quiz score, and scenario session in real time. Managers are alerted when compliance lapses. No chasing, no guessing.",
+    sbe: "The Manager Console shows every module completion, quiz score, and scenario session in real time. Managers are alerted when compliance lapses. No chasing, no guessing.",
   },
   {
     topic: "Mobile experience",

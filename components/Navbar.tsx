@@ -25,7 +25,7 @@ const platformLinks: Array<{ href: string; title: string; desc: string; badge?: 
   },
   {
     href: "/platform#insights",
-    title: "Mission Control",
+    title: "Manager Console",
     desc: "Live dashboards, audit-ready metrics, and squad-level performance analysis.",
   },
 ];
