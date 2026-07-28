@@ -97,7 +97,7 @@ export default function FranchiseSystemsPage() {
             <div className="metrics-strip-row">
               <div className="metrics-strip-item">
                 <div className="metrics-strip-value">200+</div>
-                <div className="metrics-strip-label">staff onboarded across 12 locations in under 30 days</div>
+                <div className="metrics-strip-label">staff capacity across 12+ locations, supported from Day 1</div>
               </div>
               <div className="metrics-strip-item">
                 <div className="metrics-strip-value">0</div>
@@ -108,7 +108,6 @@ export default function FranchiseSystemsPage() {
                 <div className="metrics-strip-label">of training completed on mobile, no desktop required</div>
               </div>
             </div>
-            <p className="metrics-strip-disclaimer">*Based on franchise system labour modelling and high-turnover onboarding optimisation data.</p>
           </div>
         </section>
 

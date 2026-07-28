@@ -28,7 +28,7 @@ export default function CookiesPage() {
               <p>
                 This Cookies Policy explains how Serve By Example (&ldquo;we&rdquo;,
                 &ldquo;us&rdquo;, or &ldquo;our&rdquo;) uses cookies and similar tracking
-                technologies on our platform at servebyexample.com (the &ldquo;Service&rdquo;).
+                technologies on our platform at servebyexample.co (the &ldquo;Service&rdquo;).
               </p>
 
               <h2>1. What Are Cookies?</h2>

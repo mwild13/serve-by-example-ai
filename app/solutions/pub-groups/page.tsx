@@ -114,8 +114,8 @@ export default function PubGroupsPage() {
           <div className="container">
             <div className="metrics-strip-row">
               <div className="metrics-strip-item">
-                <div className="metrics-strip-value">70%</div>
-                <div className="metrics-strip-label">reduction in average onboarding time</div>
+                <div className="metrics-strip-value">3</div>
+                <div className="metrics-strip-label">stage structured onboarding path — from knowledge to verified floor readiness</div>
               </div>
               <div className="metrics-strip-item">
                 <div className="metrics-strip-value">5 venues</div>
@@ -126,7 +126,6 @@ export default function PubGroupsPage() {
                 <div className="metrics-strip-label">staff supported across all venues on the top tier</div>
               </div>
             </div>
-            <p className="metrics-strip-disclaimer">*Based on hospitality group onboarding models and multi-venue industry averages.</p>
           </div>
         </section>
 

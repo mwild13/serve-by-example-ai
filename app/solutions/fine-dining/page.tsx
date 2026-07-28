@@ -94,8 +94,8 @@ export default function FineDiningPage() {
           <div className="container">
             <div className="metrics-strip-row">
               <div className="metrics-strip-item">
-                <div className="metrics-strip-value">22%</div>
-                <div className="metrics-strip-label">average upsell revenue lift within 8 weeks</div>
+                <div className="metrics-strip-value">38</div>
+                <div className="metrics-strip-label">cocktail and spirit specs embedded in the training library</div>
               </div>
               <div className="metrics-strip-item">
                 <div className="metrics-strip-value">65+</div>
@@ -106,7 +106,6 @@ export default function FineDiningPage() {
                 <div className="metrics-strip-label">every response evaluated across 5 service dimensions</div>
               </div>
             </div>
-            <p className="metrics-strip-disclaimer">*Based on premium venue recipe specification audits and cocktail sales velocity averages.</p>
           </div>
         </section>
 
