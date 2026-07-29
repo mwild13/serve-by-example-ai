@@ -26,17 +26,17 @@ export default function CookiesPage() {
           <div className="container">
             <div className="legal-prose">
               <p>
-                This Cookies Policy explains how Serve By Example (&ldquo;we&rdquo;,
-                &ldquo;us&rdquo;, or &ldquo;our&rdquo;) uses cookies and similar tracking
-                technologies on our platform at servebyexample.co (the &ldquo;Service&rdquo;).
+                This Cookies Policy explains how Serve By Example ("we",
+                "us", or "our") uses cookies and similar tracking
+                technologies on our platform at servebyexample.co (the "Service").
               </p>
 
               <h2>1. What Are Cookies?</h2>
               <p>
                 Cookies are small text files that are placed on your device when you visit a website.
                 They are widely used to make websites work, improve performance, and provide
-                information to website owners. Cookies can be &ldquo;session cookies&rdquo; (deleted
-                when you close your browser) or &ldquo;persistent cookies&rdquo; (which remain on
+                information to website owners. Cookies can be "session cookies" (deleted
+                when you close your browser) or "persistent cookies" (which remain on
                 your device until they expire or you delete them).
               </p>
 
@@ -182,7 +182,7 @@ export default function CookiesPage() {
                 </li>
                 <li>
                   <strong>Opt-out tools</strong>: You can opt out of analytics tracking through
-                  your browser&apos;s &ldquo;Do Not Track&rdquo; setting where supported.
+                  your browser&apos;s "Do Not Track" setting where supported.
                 </li>
               </ul>
               <p>
@@ -193,7 +193,7 @@ export default function CookiesPage() {
               <h2>5. Changes to This Policy</h2>
               <p>
                 We may update this Cookies Policy from time to time. Changes will be posted on this
-                page with an updated &ldquo;Last updated&rdquo; date. Your continued use of the
+                page with an updated "Last updated" date. Your continued use of the
                 Service after any changes constitutes acceptance of the updated policy.
               </p>
 

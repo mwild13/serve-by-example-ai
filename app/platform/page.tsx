@@ -132,11 +132,11 @@ export default function PlatformPage() {
               an AI Coach that knows your venue, all from a single management console.
             </p>
             <div className="inner-hero-actions">
-              <Link href="/demo" className="btn btn-primary btn-lg">
-                Try the Demo
+              <Link href="/login?intent=trial&tier=boutique" className="btn btn-primary btn-lg">
+                Start Free Trial
               </Link>
-              <Link href="/for-venues" className="btn btn-secondary btn-lg">
-                For Venues
+              <Link href="/demo" className="btn btn-secondary btn-lg">
+                Try the Demo
               </Link>
             </div>
           </div>
@@ -161,7 +161,7 @@ export default function PlatformPage() {
           <div className="container">
             <div className="section-header center">
               <span className="eyebrow">Management console</span>
-              <h2>Your venue&rsquo;s mission control.</h2>
+              <h2>Your venue's mission control.</h2>
               <p>A live dashboard that shows staff performance, training completion, upsell trends, and venue health, all in one view.</p>
             </div>
             <div className="platform-dashboard-mockup">
@@ -196,7 +196,7 @@ export default function PlatformPage() {
                   </div>
                   <div className="platform-dash-ai-response">
                     <span className="platform-dash-ai-label">✦ AI Coach</span>
-                    <p>Sarah (Bartender) and James (Floor) haven&rsquo;t completed their sales training module. Their upsell scores are below the venue average. I&rsquo;d recommend assigning &ldquo;Sales Conversations&rdquo; this week.</p>
+                    <p>Sarah (Bartender) and James (Floor) haven't completed their sales training module. Their upsell scores are below the venue average. I'd recommend assigning "Sales Conversations" this week.</p>
                   </div>
                 </div>
               </div>
@@ -208,7 +208,7 @@ export default function PlatformPage() {
         <section id="arena" className="section section-alt">
           <div className="container">
             <div className="section-header center">
-              <span className="eyebrow">What&rsquo;s inside</span>
+              <span className="eyebrow">What's inside</span>
               <h2>Everything your team needs to perform at their best.</h2>
             </div>
             <div className="card-grid card-grid-3">
@@ -309,18 +309,18 @@ export default function PlatformPage() {
         <section className="section section-cta">
           <div className="container cta-box">
             <div>
-              <h3>The market is shifting to interactive, scenario-based training. You&rsquo;re already there.</h3>
+              <h3>The market is shifting to interactive, scenario-based training. You're already there.</h3>
               <p>
                 Major hospitality platforms are just now beginning to build what Serve By Example already has.
                 Your window of competitive advantage is now, while the incumbents are still in the planning phase.
               </p>
             </div>
             <div className="cta-actions">
-              <Link href="/demo" className="btn btn-gold btn-lg">
-                Try the Demo
+              <Link href="/login?intent=trial&tier=boutique" className="btn btn-gold btn-lg">
+                Start Free Trial
               </Link>
-              <Link href="/for-venues" className="btn btn-outline-light btn-lg">
-                For Venues
+              <Link href="/demo" className="btn btn-outline-light btn-lg">
+                Try the Demo
               </Link>
             </div>
           </div>

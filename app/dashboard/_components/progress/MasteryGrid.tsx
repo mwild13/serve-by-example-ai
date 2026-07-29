@@ -47,7 +47,7 @@ export default function MasteryGrid({
                     <span className="progress-cert-done-text">Certified – all modules mastered.</span>
                     {onNavigate && (
                       <button className="progress-cert-btn" onClick={() => onNavigate("scenarios")}>
-                        Practice in AI Scenarios &rarr;
+                        Practice in AI Scenarios →
                       </button>
                     )}
                   </div>
@@ -68,7 +68,7 @@ export default function MasteryGrid({
                       <span className="progress-cert-module-name">{cert.nextModule.title}</span>
                       {onSelectModule && (
                         <button className="progress-cert-btn" onClick={() => onSelectModule(cert.nextModule!.id)}>
-                          Strengthen Now &rarr;
+                          Strengthen Now →
                         </button>
                       )}
                     </div>

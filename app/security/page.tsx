@@ -58,7 +58,7 @@ export default function SecurityPage() {
         <section className="inner-hero">
           <div className="container">
             <span className="eyebrow">Trust &amp; Security</span>
-            <h1>Your team&rsquo;s data stays yours.</h1>
+            <h1>Your team's data stays yours.</h1>
             <p className="inner-hero-sub">
               Serve By Example is a training platform, not a data platform. We collect the minimum
               required to run an effective training experience, nothing more.
@@ -117,7 +117,7 @@ export default function SecurityPage() {
               <span className="eyebrow">Platform transparency</span>
               <h2>How the platform handles your data.</h2>
               <p>
-                We use OpenAI&rsquo;s API for scenario evaluation. Here is exactly how it interacts
+                We use OpenAI's API for scenario evaluation. Here is exactly how it interacts
                 with your content.
               </p>
             </div>
@@ -147,7 +147,7 @@ export default function SecurityPage() {
                   handles the entire payment flow. We receive only a confirmation token.
                 </p>
                 <Link href="https://stripe.com/docs/security" className="btn btn-secondary" target="_blank" rel="noopener noreferrer">
-                  Stripe&rsquo;s security documentation
+                  Stripe's security documentation
                 </Link>
               </div>
               <div className="security-payments-badge">
@@ -170,7 +170,7 @@ export default function SecurityPage() {
         <section className="section section-cta">
           <div className="container" style={{ textAlign: "center" }}>
             <span className="eyebrow">Still have questions?</span>
-            <h2>We&rsquo;re happy to go deeper.</h2>
+            <h2>We're happy to go deeper.</h2>
             <p style={{ maxWidth: 480, margin: "0 auto 32px", color: "var(--text-soft)" }}>
               If your organisation has specific data requirements, compliance questions, or a security
               review process, contact us directly.

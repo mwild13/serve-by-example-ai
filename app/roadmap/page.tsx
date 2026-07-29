@@ -65,10 +65,10 @@ export default function RoadmapPage() {
         <section className="inner-hero">
           <div className="container">
             <span className="eyebrow">Product Roadmap</span>
-            <h1>What we&rsquo;re building next.</h1>
+            <h1>What we're building next.</h1>
             <p className="inner-hero-sub">
               Serve By Example is actively built and improved based on venue operator feedback.
-              Here&rsquo;s what&rsquo;s coming, and when founding members can expect it.
+              Here's what's coming, and when founding members can expect it.
             </p>
           </div>
         </section>
@@ -111,7 +111,7 @@ export default function RoadmapPage() {
             <span className="eyebrow">Shape What Gets Built</span>
             <h2>Founding members influence the roadmap directly.</h2>
             <p style={{ color: "var(--text-soft)", fontSize: "1.05rem", lineHeight: 1.7, marginBottom: "2rem" }}>
-              We run monthly calls with founding venue members to review what&rsquo;s working, what&rsquo;s missing, and what gets prioritised next.
+              We run monthly calls with founding venue members to review what's working, what's missing, and what gets prioritised next.
               If you join now, your operation shapes the platform.
             </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>

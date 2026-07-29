@@ -134,19 +134,19 @@ export default function BookCallModal({ open, onClose }: BookCallModalProps) {
         <div className="book-modal-inner">
           {/* Left info panel */}
           <div className="book-modal-left">
-            <h3 className="book-modal-left-heading">Let&rsquo;s Chat</h3>
+            <h3 className="book-modal-left-heading">Let's Chat</h3>
             <ol className="book-modal-steps">
               <li><strong>Step 1:</strong> Tell us a bit about your venues on the right.</li>
-              <li><strong>Step 2:</strong> We&rsquo;ll reach out shortly to lock in a brief, low-friction strategy call.</li>
+              <li><strong>Step 2:</strong> We'll reach out shortly to lock in a brief, low-friction strategy call.</li>
             </ol>
             <div className="book-modal-divider" />
             <h4 className="book-modal-brief-heading">15-Min Operational Briefing</h4>
             <p className="book-modal-brief-body">
-              We&rsquo;ll map out your current staff onboarding layout, look at your venue count, and determine if interactive scenario roleplay can realistically drop your training timeline from six months down to six weeks.
+              We'll map out your current staff onboarding layout, look at your venue count, and determine if interactive scenario roleplay can realistically drop your training timeline from six months down to six weeks.
             </p>
             <blockquote className="book-modal-blockquote">
               <strong>Zero fluff. No aggressive sales pitch.</strong>
-              <p>There is absolutely no point walking you through a software console unless it mathematically protects your venue&rsquo;s service margins, fixes consistency issues, and gets your new hires floor-ready before their first real shift.</p>
+              <p>There is absolutely no point walking you through a software console unless it mathematically protects your venue's service margins, fixes consistency issues, and gets your new hires floor-ready before their first real shift.</p>
             </blockquote>
           </div>
 
@@ -154,8 +154,8 @@ export default function BookCallModal({ open, onClose }: BookCallModalProps) {
           <div className="book-modal-right">
             {submitted ? (
               <div className="book-modal-success">
-                <h3>We&rsquo;ll be in touch shortly.</h3>
-                <p>Thanks for booking. We&rsquo;ll reach out within one business day to lock in your call.</p>
+                <h3>We'll be in touch shortly.</h3>
+                <p>Thanks for booking. We'll reach out within one business day to lock in your call.</p>
               </div>
             ) : (
               <form className="book-form" onSubmit={handleSubmit} noValidate>

@@ -190,22 +190,22 @@ export default function HowItWorksPage() {
               <span className="eyebrow">Example Scenario</span>
               <h2>How a scored scenario response works</h2>
               <p style={{ maxWidth: "560px", margin: "0 auto" }}>
-                Every response is scored instantly. Over time, the platform tracks your weak areas and resurfaces them, so improvement isn&rsquo;t left to chance.
+                Every response is scored instantly. Over time, the platform tracks your weak areas and resurfaces them, so improvement isn't left to chance.
               </p>
             </div>
             <div className="card-grid card-grid-3">
               <article className="info-card">
                 <span className="info-card-label">Scenario</span>
                 <p>
-                  A guest approaches the bar while you&rsquo;re finishing
+                  A guest approaches the bar while you're finishing
                   another drink. How do you acknowledge them?
                 </p>
               </article>
               <article className="info-card">
                 <span className="info-card-label">Staff response</span>
                 <p>
-                  &ldquo;Hi there, I&rsquo;ll be with you in just a
-                  moment.&rdquo;
+                  "Hi there, I'll be with you in just a
+                  moment."
                 </p>
               </article>
               <article className="info-card">
@@ -294,8 +294,11 @@ export default function HowItWorksPage() {
                 consistency and better service.
               </p>
             </div>
-            <div className="cta-actions-single">
-              <Link href="/book-call" className="btn btn-gold btn-lg">
+            <div className="cta-actions">
+              <Link href="/demo" className="btn btn-gold btn-lg">
+                Try the Demo
+              </Link>
+              <Link href="/book-call" className="btn btn-outline-light btn-lg">
                 Book a 15-Min Call
               </Link>
             </div>

@@ -96,7 +96,7 @@ export default function SolutionsPage() {
             <h1>Built for the way hospitality actually works.</h1>
             <p className="inner-hero-sub">
               Every venue type has different priorities. Serve By Example adapts to yours, whether
-              you&rsquo;re running a pub group, a cocktail bar, or a national franchise.
+              you're running a pub group, a cocktail bar, or a national franchise.
             </p>
             <div className="inner-hero-actions">
               <Link href="/demo" className="btn btn-primary btn-lg">

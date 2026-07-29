@@ -37,7 +37,7 @@ const features = [
       </svg>
     ),
     title: "Upsell confidence scored and tracked",
-    desc: "The platform tracks every staff member&rsquo;s upsell scenario performance and flags who needs targeted coaching before the next big service.",
+    desc: "The platform tracks every staff member's upsell scenario performance and flags who needs targeted coaching before the next big service.",
   },
   {
     icon: (
@@ -77,8 +77,8 @@ export default function FineDiningPage() {
             <span className="eyebrow">Fine Dining &amp; Cocktail Bars</span>
             <h1>Spec sheets memorised. Service elevated. Guests impressed.</h1>
             <p className="inner-hero-sub">
-              Premium venues live and die by the detail. A staff member who can&rsquo;t describe a
-              cocktail&rsquo;s ingredients or explain a dish&rsquo;s provenance isn&rsquo;t just
+              Premium venues live and die by the detail. A staff member who can't describe a
+              cocktail's ingredients or explain a dish's provenance isn't just
               uninformed. They damage the experience. Serve By Example trains your team on the
               precise knowledge that earns loyalty.
             </p>

@@ -93,7 +93,7 @@ export function SuccessContent() {
           marginBottom: '2rem',
         }}
       >
-        We&rsquo;ve also sent it to your inbox. Look for an email from Mitch
+        We've also sent it to your inbox. Look for an email from Mitch
         at Serve By Example.
       </p>
 

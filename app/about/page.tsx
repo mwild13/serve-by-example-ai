@@ -84,10 +84,10 @@ export default function AboutPage() {
                     fontStyle: "italic",
                   }}
                 >
-                  &ldquo;I&apos;ve watched too many hospitality teams rely on a
+                  "I&apos;ve watched too many hospitality teams rely on a
                   single great manager to hold everything together. When that
                   person is off the floor, standards slip. We built Serve By
-                  Example to put the standard in the system, not the person.&rdquo;
+                  Example to put the standard in the system, not the person."
                 </blockquote>
                 <p
                   style={{
@@ -98,7 +98,7 @@ export default function AboutPage() {
                     fontWeight: 600,
                   }}
                 >
-                  Mitch Wildman &mdash; Founder, Serve By Example
+                  Mitch Wildman — Founder, Serve By Example
                 </p>
               </div>
             </div>

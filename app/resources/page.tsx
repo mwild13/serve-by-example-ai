@@ -60,7 +60,7 @@ export default function ResourcesPage() {
                 color: "var(--green-mid)",
               }}>
                 <BuildIcon />
-                Interactive Builder &middot; Free
+                Interactive Builder · Free
               </div>
               <h2 style={{ margin: 0, fontSize: "1.75rem", fontWeight: 700, color: "var(--text)", lineHeight: 1.25, fontFamily: "var(--font-heading)" }}>
                 Free Staff Onboarding SOP Templates
@@ -82,6 +82,21 @@ export default function ResourcesPage() {
                 Customised to your venue type and jurisdiction.
               </p>
             </div>
+          </div>
+        </section>
+
+        {/* ── Coming soon ── */}
+        <section className="section-tight section-alt">
+          <div className="container" style={{ maxWidth: 760 }}>
+            <p style={{
+              fontFamily: "var(--font-manrope)",
+              fontSize: "0.875rem",
+              color: "var(--text-muted)",
+              textAlign: "center",
+              margin: 0,
+            }}>
+              More operator tools coming soon — training checklists, onboarding guides, and compliance reference sheets for Australian venues.
+            </p>
           </div>
         </section>
 

@@ -19,7 +19,7 @@ const features = [
       </svg>
     ),
     title: "Brand standards enforced, not just suggested",
-    desc: "Every franchisee&rsquo;s staff trains on the same materials. Service language, upsell scripts, and compliance modules are standardised across the network.",
+    desc: "Every franchisee's staff trains on the same materials. Service language, upsell scripts, and compliance modules are standardised across the network.",
   },
   {
     icon: (

@@ -65,7 +65,7 @@ export default function ForVenuesPage() {
             <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
               <span className="eyebrow">The Platform</span>
               <h3 style={{ margin: "0.5rem 0 0", fontSize: "1.35rem", fontWeight: 700, color: "var(--text)" }}>
-                Everything you need to manage and measure your team&rsquo;s training.
+                Everything you need to manage and measure your team's training.
               </h3>
             </div>
             <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
@@ -81,7 +81,7 @@ export default function ForVenuesPage() {
               <span className="sbe-eyebrow">The Business Case</span>
               <h2 className="sbe-serif-title" style={{ fontSize: "36px", marginTop: "8px" }}>Why Structured Training Matters</h2>
               <p className="sbe-sans-body" style={{ color: "var(--mkt-charcoal-400)", fontSize: "14px", marginTop: "16px" }}>
-                Australia&rsquo;s hospitality sector operates on thin 3&ndash;9% net profit margins. The cost isn&rsquo;t just recruiting and placing staff &mdash; it&rsquo;s the massive revenue drain of inconsistent floor shifts in between.
+                Australia's hospitality sector operates on thin 3–9% net profit margins. The cost isn't just recruiting and placing staff — it's the massive revenue drain of inconsistent floor shifts in between.
               </p>
             </div>
 
@@ -96,7 +96,7 @@ export default function ForVenuesPage() {
               <div className="why-grid-item">
                 <h3 className="sbe-serif-title" style={{ fontSize: "20px", marginBottom: "8px" }}>2. Attrition starts with weak onboarding</h3>
                 <p className="sbe-sans-body" style={{ color: "var(--mkt-charcoal-400)", fontSize: "14px" }}>
-                  Up to 39% of FOH and 42% of BOH staff quit within their first 90 days of work. Providing structured, AI-guided scenario training builds confidence early, which directly reduces turnover by 20&ndash;23%.
+                  Up to 39% of FOH and 42% of BOH staff quit within their first 90 days of work. Providing structured, AI-guided scenario training builds confidence early, which directly reduces turnover by 20–23%.
                 </p>
               </div>
 
@@ -110,7 +110,7 @@ export default function ForVenuesPage() {
               <div style={{ borderBottom: "none" }}>
                 <h3 className="sbe-serif-title" style={{ fontSize: "20px", marginBottom: "8px" }}>4. Training only works if staff actually do it</h3>
                 <p className="sbe-sans-body" style={{ color: "var(--mkt-charcoal-400)", fontSize: "14px" }}>
-                  Long videos and physical training binders are ignored by younger staff. Interactive active-recall mobile modules are short, relevant, and engaging &mdash; built to fit seamlessly between shifts.
+                  Long videos and physical training binders are ignored by younger staff. Interactive active-recall mobile modules are short, relevant, and engaging — built to fit seamlessly between shifts.
                 </p>
               </div>
             </div>

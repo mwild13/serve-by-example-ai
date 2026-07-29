@@ -126,7 +126,7 @@ export default function SopToolkitPage() {
                   fontSize: '0.875rem',
                   lineHeight: '1.5',
                 }}>
-                  &ldquo;Log all incident reports inside the Shift Registry within 30 minutes of any patron eviction event.&rdquo;
+                  "Log all incident reports inside the Shift Registry within 30 minutes of any patron eviction event."
                 </blockquote>
               </div>
 
@@ -157,7 +157,7 @@ export default function SopToolkitPage() {
                   fontSize: '0.875rem',
                   lineHeight: '1.5',
                 }}>
-                  &ldquo;Verify alternative milk pitchers are chemically isolated and machine-washed after every single use.&rdquo;
+                  "Verify alternative milk pitchers are chemically isolated and machine-washed after every single use."
                 </blockquote>
               </div>
 
@@ -188,7 +188,7 @@ export default function SopToolkitPage() {
                   fontSize: '0.875rem',
                   lineHeight: '1.5',
                 }}>
-                  &ldquo;Confirm all fire egress pathways are cleared and unlocked before opening for service.&rdquo;
+                  "Confirm all fire egress pathways are cleared and unlocked before opening for service."
                 </blockquote>
               </div>
 
@@ -222,7 +222,7 @@ export default function SopToolkitPage() {
                   fontSize: '0.875rem',
                   lineHeight: '1.5',
                 }}>
-                  &ldquo;Issue the Fair Work Information Statement before assigning the first paid roster shift.&rdquo;
+                  "Issue the Fair Work Information Statement before assigning the first paid roster shift."
                 </blockquote>
               </div>
             </div>

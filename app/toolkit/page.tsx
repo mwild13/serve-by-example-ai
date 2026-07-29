@@ -66,7 +66,7 @@ export default function ToolkitPage() {
             letterSpacing: '-0.02em',
           }}
         >
-          Your venue&rsquo;s staff onboarding SOP, built in 60 seconds.
+          Your venue's staff onboarding SOP, built in 60 seconds.
         </h1>
 
         <p
@@ -78,7 +78,7 @@ export default function ToolkitPage() {
             margin: '0 auto',
           }}
         >
-          Select your venue type and biggest compliance pain point. We&rsquo;ll generate
+          Select your venue type and biggest compliance pain point. We'll generate
           a structured, copy-pasteable SOP template matched to your operation.
         </p>
       </section>

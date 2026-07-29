@@ -144,7 +144,7 @@ export default function ProgressSummary({
     <>
       {/* Skill meter */}
       <div className="progress-hub-header">
-        <h1>{displayName}&rsquo;s Progress Hub</h1>
+        <h1>{displayName}'s Progress Hub</h1>
         <SkillMeter skillLevel={skillLevel} />
       </div>
 
@@ -202,7 +202,7 @@ export default function ProgressSummary({
               </p>
               {onSelectModule && (
                 <button className="progress-hub-rec-btn" onClick={() => onSelectModule(firstUnmastered.id)}>
-                  Start Module &rarr;
+                  Start Module →
                 </button>
               )}
             </>
@@ -211,7 +211,7 @@ export default function ProgressSummary({
               <span className="progress-hub-rec-title">All modules complete. Run AI Scenario sessions to stay sharp.</span>
               {onNavigate && (
                 <button className="progress-hub-rec-btn" onClick={() => onNavigate("scenarios")}>
-                  Enter AI Scenarios &rarr;
+                  Enter AI Scenarios →
                 </button>
               )}
             </>

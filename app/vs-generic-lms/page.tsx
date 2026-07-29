@@ -94,7 +94,7 @@ export default function VsGenericLmsPage() {
           <div className="container">
             <span className="eyebrow">Serve By Example vs Generic LMS</span>
             <h1>
-              Why a generic LMS won&rsquo;t work for hospitality.
+              Why a generic LMS won't work for hospitality.
             </h1>
             <p className="inner-hero-sub" style={{ maxWidth: "640px" }}>
               Generic LMS platforms were built for corporate compliance training:
@@ -190,8 +190,8 @@ export default function VsGenericLmsPage() {
               <span className="eyebrow">The Business Case</span>
               <h2 style={{ marginTop: "0.5rem", marginBottom: "1rem" }}>Why the training format actually matters for your bottom line.</h2>
               <p style={{ fontSize: "0.975rem", color: "var(--text-soft)", lineHeight: 1.7 }}>
-                Australia&rsquo;s hospitality sector operates on 3–9% net profit margins. The cost
-                of weak training isn&rsquo;t just recruitment — it&rsquo;s the revenue drain of
+                Australia's hospitality sector operates on 3–9% net profit margins. The cost
+                of weak training isn't just recruitment — it's the revenue drain of
                 inconsistent floor shifts compounding week after week.
               </p>
             </div>
@@ -232,7 +232,7 @@ export default function VsGenericLmsPage() {
         <section className="section section-cta">
           <div className="container cta-box">
             <div>
-              <h2>See what hospitality training looks like when it&rsquo;s built for hospitality.</h2>
+              <h2>See what hospitality training looks like when it's built for hospitality.</h2>
               <p className="cta-proof">No credit card required. Full platform access in the demo.</p>
             </div>
             <div className="cta-actions">
