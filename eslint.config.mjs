@@ -76,6 +76,9 @@ export default defineConfig([
       "react-hooks/set-state-in-effect": "warn",
       "react-hooks/purity": "warn",
       "react-hooks/immutability": "warn",
+      // Natural-language copy in JSX legitimately contains apostrophes and quotes.
+      // Downgraded to warn — the codebase is not using raw entities for security reasons.
+      "react/no-unescaped-entities": "warn",
     },
   },
 
