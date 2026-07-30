@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import BookCallModal from '@/components/BookCallModal';
 
 // Calendar SVG icon — no emojis per design system rules
@@ -25,8 +26,17 @@ function CalendarIcon() {
   );
 }
 
+// Routes where the floating button must not appear — authenticated app shells
+const APP_ROUTE_PREFIXES = ['/dashboard', '/management'];
+
 export default function FloatingBookCallButton() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
+
+  // Hide on all authenticated app routes — button is for marketing pages only
+  if (APP_ROUTE_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
+    return null;
+  }
 
   // Support the #book-call hash from other pages (e.g. links pointing to /#book-call)
   useEffect(() => {
