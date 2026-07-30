@@ -33,18 +33,20 @@ export default function FloatingBookCallButton() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  // Hide on all authenticated app routes — button is for marketing pages only
-  if (APP_ROUTE_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
-    return null;
-  }
-
   // Support the #book-call hash from other pages (e.g. links pointing to /#book-call)
+  // MUST be called before any conditional return — React Rules of Hooks
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (window.location.hash === '#book-call') {
       setOpen(true);
     }
   }, []);
+
+  // Hide on all authenticated app routes — button is for marketing pages only
+  // Conditional return is AFTER all hooks
+  if (APP_ROUTE_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
+    return null;
+  }
 
   function openModal() {
     setOpen(true);
