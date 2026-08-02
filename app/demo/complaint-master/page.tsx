@@ -236,7 +236,7 @@ export default function ComplaintMasterPage() {
                   {loading ? (
                     <>
                       <span className="drill-spinner" aria-hidden="true" />
-                      Evaluating…
+                      Evaluating&hellip;
                     </>
                   ) : (
                     "Submit response"
@@ -322,17 +322,17 @@ export default function ComplaintMasterPage() {
 
                 <p className="cm-complete-body">
                   {avgScore >= 20
-                    ? "That's a strong result. You handle guest complaints with composure and care. On the Serve By Example platform, you'd be competing near the top of the Live Scenarios leaderboard."
+                    ? "That&rsquo;s a strong result. You handle guest complaints with composure and care. On the Serve By Example platform, you&rsquo;d be competing near the top of the Live Scenarios leaderboard."
                     : avgScore >= 14
-                    ? "Solid foundation. A bit more practice on structure and specificity will get your scores into the excellent range, and that's exactly what our full platform is built to deliver."
-                    : "Complaint handling is one of the hardest skills in hospitality. The good news: it's entirely trainable. Our full platform has structured coaching paths that build these skills rapidly."}
+                    ? "Solid foundation. A bit more practice on structure and specificity will get your scores into the excellent range, and that&rsquo;s exactly what our full platform is built to deliver."
+                    : "Complaint handling is one of the hardest skills in hospitality. The good news: it&rsquo;s entirely trainable. Our full platform has structured coaching paths that build these skills rapidly."}
                 </p>
 
                 <div className="cm-complete-cta-group">
                   <Link href="/demo" className="btn btn-primary btn-lg">
                     Try more scenarios on the full platform
                   </Link>
-                  <Link href="/pricing" className="btn btn-secondary btn-lg">
+                  <Link href="/membership" className="btn btn-secondary btn-lg">
                     Get full access
                   </Link>
                 </div>
@@ -340,7 +340,7 @@ export default function ComplaintMasterPage() {
                 <div className="cm-complete-email">
                   {emailSent ? (
                     <p className="cm-email-thanks">
-                      Thanks. We'll send your score summary shortly.
+                      Thanks. We&rsquo;ll send your score summary shortly.
                     </p>
                   ) : (
                     <form className="cm-email-form" onSubmit={handleEmailSubmit}>

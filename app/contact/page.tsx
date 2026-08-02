@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-const VENUE_TYPES = ["Bar / Pub", "Restaurant", "Hotel F&B", "Events venue", "Franchise / Chain", "Multi-venue Group", "Other"];
+const VENUE_TYPES = ["Bar / Pub", "Restaurant", "Hotel F&B", "Events venue", "Other"];
 
 export default function ContactPage() {
   const [name, setName] = useState("");

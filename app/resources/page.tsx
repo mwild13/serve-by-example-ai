@@ -60,7 +60,7 @@ export default function ResourcesPage() {
                 color: "var(--green-mid)",
               }}>
                 <BuildIcon />
-                Interactive Builder · Free
+                Interactive Builder &middot; Free
               </div>
               <h2 style={{ margin: 0, fontSize: "1.75rem", fontWeight: 700, color: "var(--text)", lineHeight: 1.25, fontFamily: "var(--font-heading)" }}>
                 Free Staff Onboarding SOP Templates
@@ -85,21 +85,6 @@ export default function ResourcesPage() {
           </div>
         </section>
 
-        {/* ── Coming soon ── */}
-        <section className="section-tight section-alt">
-          <div className="container" style={{ maxWidth: 760 }}>
-            <p style={{
-              fontFamily: "var(--font-manrope)",
-              fontSize: "0.875rem",
-              color: "var(--text-muted)",
-              textAlign: "center",
-              margin: 0,
-            }}>
-              More operator tools coming soon — training checklists, onboarding guides, and compliance reference sheets for Australian venues.
-            </p>
-          </div>
-        </section>
-
         {/* ── Platform nudge ── */}
         <section className="section">
           <div className="container" style={{ maxWidth: 640, textAlign: "center" }}>
@@ -111,7 +96,7 @@ export default function ResourcesPage() {
             </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
               <a href="/demo" className="btn btn-primary btn-lg">Try the Demo</a>
-              <a href="/pricing" className="btn btn-secondary btn-lg">View Pricing</a>
+              <a href="/membership" className="btn btn-secondary btn-lg">View Pricing</a>
             </div>
           </div>
         </section>

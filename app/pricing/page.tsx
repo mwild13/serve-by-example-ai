@@ -556,7 +556,7 @@ export default function PricingPage() {
                   }}
                 >
                   14-day free trial. No credit card required. Pick a plan when
-                  you're ready.
+                  you&rsquo;re ready.
                 </p>
               </div>
 
@@ -639,7 +639,7 @@ export default function PricingPage() {
                   }}
                 >
                   14-day free trial. No credit card required. Pick a plan when
-                  you're ready.
+                  you&rsquo;re ready.
                 </p>
               </div>
 
@@ -753,10 +753,10 @@ export default function PricingPage() {
             <div className="founding-inner">
               <div className="founding-header">
                 <span className="eyebrow eyebrow-gold">Investment Protection</span>
-                <h2>Lock In Founding Member Rates — Before Prices Rise</h2>
+                <h2>Lock In Founding Member Rates &mdash; Before Prices Rise</h2>
                 <p>
                   Serve By Example is opening to its first venues now. Join as a
-                  Founding Member and your rate is locked in for life —
+                  Founding Member and your rate is locked in for life &mdash;
                   guaranteed, regardless of future pricing. This isn&apos;t a
                   discount. It&apos;s rate protection.
                 </p>
@@ -780,7 +780,7 @@ export default function PricingPage() {
                   </div>
                   <h3>Locked Rates, Forever</h3>
                   <p>
-                    Join at <strong>AUD $79/venue</strong> today — as our
+                    Join at <strong>AUD $79/venue</strong> today &mdash; as our
                     platform scales, rates will rise. Founding Members are
                     grandfathered at their original rate for life.
                   </p>
@@ -807,7 +807,7 @@ export default function PricingPage() {
                   <h3>1-on-1 Onboarding</h3>
                   <p>
                     We personally walk your team through setup. Get your first staff
-                    trained in week one — a direct conversation, not a video
+                    trained in week one &mdash; a direct conversation, not a video
                     tutorial.
                   </p>
                 </div>
@@ -942,7 +942,7 @@ export default function PricingPage() {
             </div>
             <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
               <p style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>
-                Curious about what we're building next?{" "}
+                Curious about what we&rsquo;re building next?{" "}
                 <a
                   href="/roadmap"
                   style={{
@@ -951,7 +951,7 @@ export default function PricingPage() {
                     textUnderlineOffset: "3px",
                   }}
                 >
-                  View our product roadmap →
+                  View our product roadmap &rarr;
                 </a>
               </p>
             </div>

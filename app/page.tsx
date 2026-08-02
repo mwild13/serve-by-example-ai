@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { lazy, Suspense } from "react";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
@@ -10,9 +11,12 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Serve By Example | Train Hospitality Staff 3x Faster",
   description:
-    "Serve By Example helps Australian venue operators train staff faster, track compliance in real time, and scale onboarding without pulling managers off the floor.",
+    "Get your team shift-ready instantly with live-scored scenario roleplays and real-time skill ratings built for fast-paced hospitality.",
   alternates: { canonical: "/" },
 };
+
+// Lazy-load heavy interactive components
+const ROICalculator = lazy(() => import("@/components/ui/ROICalculator"));
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
@@ -238,7 +242,7 @@ export default function Home() {
                 textAlign: "left",
               }}>
                 <p style={{ margin: 0, fontSize: "1.05rem", fontStyle: "italic", color: "var(--green-deep)", lineHeight: 1.65, fontWeight: 500 }}>
-                  "I built the training tool I always wished I had, one that works for real venues, real staff, and the real pressure of a busy service."
+                  &ldquo;I built the training tool I always wished I had, one that works for real venues, real staff, and the real pressure of a busy service.&rdquo;
                 </p>
                 <footer style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: "var(--color-text-muted)", fontStyle: "normal", fontWeight: 600 }}>
                   Mitch, Serve By Example, Australia
@@ -398,7 +402,7 @@ export default function Home() {
                 </div>
                 <div className="mastery-step-num">Step 3</div>
                 <h3>Managers See Everything, in Real Time.</h3>
-                <p>Every module completion, quiz score, and scenario session syncs to the Manager Console automatically. No chasing staff for updates. <em className="step-highlight">No guessing</em> who's been trained and who hasn't.</p>
+                <p>Every module completion, quiz score, and scenario session syncs to the Manager Console automatically. No chasing staff for updates. <em className="step-highlight">No guessing</em> who&rsquo;s been trained and who hasn&rsquo;t.</p>
               </div>
             </div>
           </div>
@@ -424,7 +428,7 @@ export default function Home() {
                   24<span className="benefit-metric-unit">/7</span>
                 </div>
                 <h3 className="benefit-title">AI Coach, Always On</h3>
-                <p className="benefit-desc">Instant personalised feedback on every scenario response. No manager required. No waiting until next week's check-in.</p>
+                <p className="benefit-desc">Instant personalised feedback on every scenario response. No manager required. No waiting until next week&rsquo;s check-in.</p>
               </div>
               <div className="benefit-card">
                 <div className="benefit-metric">
@@ -488,7 +492,7 @@ export default function Home() {
               letterSpacing: '0.01em',
               transition: 'background-color 0.2s ease',
             }}>
-              Build Your Custom SOP →
+              Build Your Custom SOP &rarr;
             </Link>
           </div>
         </section>
@@ -503,8 +507,8 @@ export default function Home() {
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", justifyContent: "center", maxWidth: 860, margin: "2rem auto 0" }}>
               {[
-                { tier: "Individual", name: "Pro", desc: "Full access to all 40 modules, scenario training, and progress analytics. For staff investing in their craft." },
-                { tier: "Venue", name: "Boutique", desc: "Full manager console, team analytics, compliance tracking, and up to 15 staff seats for one venue." },
+                { tier: "Starter", name: "Pro", desc: "Full access to all 40 modules, scenario training, and progress analytics. For staff investing in their craft." },
+                { tier: "Venue Pro", name: "Boutique", desc: "Full manager console, team analytics, compliance tracking, and up to 15 staff seats for one venue." },
                 { tier: "Group", name: "Commercial", desc: "Up to 35 staff across your team, multi-venue health scores, and group-wide performance analytics." },
                 { tier: "Enterprise", name: "Enterprise", desc: "Unlimited seats, dedicated account management, custom modules, and white-label options for venue groups." },
               ].map((plan) => (
@@ -517,10 +521,10 @@ export default function Home() {
             </div>
             <div className="zero-risk-block" style={{ maxWidth: 860, margin: "1.75rem auto 0" }}>
               <strong>Zero risk to your floor operations.</strong>
-              <p style={{ margin: "0.4rem 0 0" }}>If your team's training engagement doesn't noticeably increase in the first 14 days, you won't be charged.</p>
+              <p style={{ margin: "0.4rem 0 0" }}>If your team&rsquo;s training engagement doesn&rsquo;t noticeably increase in the first 14 days, you won&rsquo;t be charged.</p>
             </div>
             <div style={{ textAlign: "center", marginTop: "1.75rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem" }}>
-              <Link href="/pricing" className="btn btn-primary">View full pricing</Link>
+              <Link href="/membership" className="btn btn-primary">View full pricing</Link>
               <Link href="/demo" style={{ fontSize: "0.8rem", color: "var(--text-soft)", textDecoration: "underline", textUnderlineOffset: "3px" }}>or explore the demo free</Link>
             </div>
           </div>
@@ -552,12 +556,17 @@ export default function Home() {
                   14-Day Performance Guarantee
                 </h3>
                 <p style={{ margin: 0, fontSize: "0.95rem", color: "var(--text-soft)", lineHeight: 1.65 }}>
-                  If training engagement doesn't measurably increase within your first 14 days, you won't be charged. No questions asked.
+                  If training engagement doesn&rsquo;t measurably increase within your first 14 days, you won&rsquo;t be charged. No questions asked.
                 </p>
               </div>
             </div>
           </div>
         </section>
+
+        {/* ── ROI Calculator ───────────────────────── */}
+        <Suspense fallback={<div style={{ height: "400px", background: "var(--bg-alt)" }} />}>
+          <ROICalculator />
+        </Suspense>
 
         {/* ── FAQ ──────────────────────────────────── */}
         <section className="section">

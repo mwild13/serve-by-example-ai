@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "How It Works | Serve By Example",
-  description: "See how Serve By Example's five-step training loop takes hospitality staff from onboarding through to real-world confidence — with scenario practice, scoring, and performance tracking.",
+  description: "See how Serve By Example's three-stage training loop takes hospitality staff from onboarding through to real-world confidence — with scenario practice, scoring, and performance tracking.",
   alternates: { canonical: "/how-it-works" },
 };
 
@@ -76,7 +76,7 @@ const howToSchema = {
   "@type": "HowTo",
   "name": "How Serve By Example Works",
   "description":
-    "Serve By Example's five-step training loop takes hospitality staff from onboarding through to real-world confidence — with scenario practice, scoring, and performance tracking.",
+    "Serve By Example's three-stage training loop takes hospitality staff from onboarding through to real-world confidence — with scenario practice, scoring, and performance tracking.",
   "step": steps.map((s, i) => ({
     "@type": "HowToStep",
     "position": i + 1,
@@ -109,7 +109,7 @@ export default function HowItWorksPage() {
               <Link href="/platform" className="btn btn-primary btn-lg">
                 See the Platform
               </Link>
-              <Link href="/pricing" className="btn btn-secondary btn-lg">
+              <Link href="/membership" className="btn btn-secondary btn-lg">
                 View Pricing
               </Link>
             </div>
@@ -190,22 +190,22 @@ export default function HowItWorksPage() {
               <span className="eyebrow">Example Scenario</span>
               <h2>How a scored scenario response works</h2>
               <p style={{ maxWidth: "560px", margin: "0 auto" }}>
-                Every response is scored instantly. Over time, the platform tracks your weak areas and resurfaces them, so improvement isn't left to chance.
+                Every response is scored instantly. Over time, the platform tracks your weak areas and resurfaces them, so improvement isn&rsquo;t left to chance.
               </p>
             </div>
             <div className="card-grid card-grid-3">
               <article className="info-card">
                 <span className="info-card-label">Scenario</span>
                 <p>
-                  A guest approaches the bar while you're finishing
+                  A guest approaches the bar while you&rsquo;re finishing
                   another drink. How do you acknowledge them?
                 </p>
               </article>
               <article className="info-card">
                 <span className="info-card-label">Staff response</span>
                 <p>
-                  "Hi there, I'll be with you in just a
-                  moment."
+                  &ldquo;Hi there, I&rsquo;ll be with you in just a
+                  moment.&rdquo;
                 </p>
               </article>
               <article className="info-card">
@@ -294,12 +294,9 @@ export default function HowItWorksPage() {
                 consistency and better service.
               </p>
             </div>
-            <div className="cta-actions">
+            <div className="cta-actions-single">
               <Link href="/demo" className="btn btn-gold btn-lg">
                 Try the Demo
-              </Link>
-              <Link href="/book-call" className="btn btn-outline-light btn-lg">
-                Book a 15-Min Call
               </Link>
             </div>
           </div>

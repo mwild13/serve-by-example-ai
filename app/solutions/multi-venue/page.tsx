@@ -81,7 +81,7 @@ export default function MultiVenuePage() {
               <span>Multi-Venue Groups</span>
             </div>
             <span className="eyebrow">Multi-Venue Groups</span>
-            <h1>Manage every venue's training from one place.</h1>
+            <h1>Manage every venue&rsquo;s training from one place.</h1>
             <p className="inner-hero-sub">
               Running multiple venues means managing complexity at scale. Serve By Example gives
               group operators a single platform to train, track, and compare staff performance across
@@ -89,7 +89,7 @@ export default function MultiVenuePage() {
             </p>
             <div className="inner-hero-actions">
               <Link href="/contact" className="btn btn-primary btn-lg">Request Venue Access</Link>
-              <Link href="/pricing" className="btn btn-secondary btn-lg">View Pricing</Link>
+              <Link href="/membership" className="btn btn-secondary btn-lg">View Pricing</Link>
             </div>
           </div>
         </section>
@@ -120,7 +120,7 @@ export default function MultiVenuePage() {
           <div className="container">
             <div className="section-header center">
               <span className="eyebrow">Group operations</span>
-              <h2>The operator's view across your entire group</h2>
+              <h2>The operator&rsquo;s view across your entire group</h2>
             </div>
             <div className="sol-feature-grid">
               {features.map((f) => (

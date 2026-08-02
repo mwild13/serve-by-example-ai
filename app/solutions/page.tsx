@@ -96,13 +96,13 @@ export default function SolutionsPage() {
             <h1>Built for the way hospitality actually works.</h1>
             <p className="inner-hero-sub">
               Every venue type has different priorities. Serve By Example adapts to yours, whether
-              you're running a pub group, a cocktail bar, or a national franchise.
+              you&rsquo;re running a pub group, a cocktail bar, or a national franchise.
             </p>
             <div className="inner-hero-actions">
               <Link href="/demo" className="btn btn-primary btn-lg">
                 Try the Demo
               </Link>
-              <Link href="/pricing" className="btn btn-secondary btn-lg">
+              <Link href="/membership" className="btn btn-secondary btn-lg">
                 View Pricing
               </Link>
             </div>

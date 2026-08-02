@@ -271,7 +271,7 @@ export default function CocktailLibrary() {
 
       {search && (
         <p style={{ color: "var(--text-soft)", fontSize: ".9rem", margin: "8px 0 16px" }}>
-          {filtered.length} result{filtered.length !== 1 ? "s" : ""} for "{search}"
+          {filtered.length} result{filtered.length !== 1 ? "s" : ""} for &ldquo;{search}&rdquo;
         </p>
       )}
 
@@ -311,7 +311,7 @@ export default function CocktailLibrary() {
         </div>
       ) : (
         <div style={{ padding: "40px 0", textAlign: "center", color: "var(--text-soft)" }}>
-          No cocktails found for "{search}".
+          No cocktails found for &ldquo;{search}&rdquo;.
         </div>
       )}
 

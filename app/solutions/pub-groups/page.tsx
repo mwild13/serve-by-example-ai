@@ -75,7 +75,7 @@ const breadcrumbSchema = {
   "@type": "BreadcrumbList",
   "itemListElement": [
     { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://servebyexample.co" },
-    { "@type": "ListItem", "position": 2, "name": "Solutions", "item": "https://servebyexample.co/solutions" },
+    { "@type": "ListItem", "position": 2, "name": "Industries", "item": "https://servebyexample.co/solutions" },
     { "@type": "ListItem", "position": 3, "name": "Pubs & Multi-Venue Groups", "item": "https://servebyexample.co/solutions/pub-groups" },
   ],
 };
@@ -90,7 +90,7 @@ export default function PubGroupsPage() {
         <section className="inner-hero sol-hero">
           <div className="container">
             <div className="sol-hero-breadcrumb">
-              <Link href="/solutions">Solutions</Link>
+              <Link href="/solutions">Industries</Link>
               <span aria-hidden="true"> / </span>
               <span>Pubs &amp; Multi-Venue Groups</span>
             </div>
@@ -104,7 +104,7 @@ export default function PubGroupsPage() {
             </p>
             <div className="inner-hero-actions">
               <Link href="/contact" className="btn btn-primary btn-lg">Request Venue Access</Link>
-              <Link href="/pricing" className="btn btn-secondary btn-lg">View Pricing</Link>
+              <Link href="/membership" className="btn btn-secondary btn-lg">View Pricing</Link>
             </div>
           </div>
         </section>

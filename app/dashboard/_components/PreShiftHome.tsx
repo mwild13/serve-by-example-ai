@@ -407,7 +407,7 @@ const CocktailCard = ({ cocktail }: { cocktail: Cocktail }) => {
       }}
     >
       <span style={{ fontSize: "0.58rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "0.375rem", display: "block" }}>
-        TODAY'S COCKTAIL
+        TODAY&rsquo;S COCKTAIL
       </span>
       <strong style={{ fontSize: "0.9rem", fontWeight: 800, color: "var(--text)", lineHeight: 1.25, marginBottom: "0.25rem", letterSpacing: "-0.01em" }}>
         {cocktail.name}
@@ -850,7 +850,7 @@ export default function PreShiftHome({
                 </div>
               )}
             </div>
-            <span className="psh-badges-cta">View all →</span>
+            <span className="psh-badges-cta">View all &rarr;</span>
           </div>
         )}
       </div>

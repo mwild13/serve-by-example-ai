@@ -126,7 +126,7 @@ export default function SopToolkitPage() {
                   fontSize: '0.875rem',
                   lineHeight: '1.5',
                 }}>
-                  "Log all incident reports inside the Shift Registry within 30 minutes of any patron eviction event."
+                  &ldquo;Log all incident reports inside the Shift Registry within 30 minutes of any patron eviction event.&rdquo;
                 </blockquote>
               </div>
 
@@ -157,7 +157,7 @@ export default function SopToolkitPage() {
                   fontSize: '0.875rem',
                   lineHeight: '1.5',
                 }}>
-                  "Verify alternative milk pitchers are chemically isolated and machine-washed after every single use."
+                  &ldquo;Verify alternative milk pitchers are chemically isolated and machine-washed after every single use.&rdquo;
                 </blockquote>
               </div>
 
@@ -188,7 +188,7 @@ export default function SopToolkitPage() {
                   fontSize: '0.875rem',
                   lineHeight: '1.5',
                 }}>
-                  "Confirm all fire egress pathways are cleared and unlocked before opening for service."
+                  &ldquo;Confirm all fire egress pathways are cleared and unlocked before opening for service.&rdquo;
                 </blockquote>
               </div>
 
@@ -222,7 +222,7 @@ export default function SopToolkitPage() {
                   fontSize: '0.875rem',
                   lineHeight: '1.5',
                 }}>
-                  "Issue the Fair Work Information Statement before assigning the first paid roster shift."
+                  &ldquo;Issue the Fair Work Information Statement before assigning the first paid roster shift.&rdquo;
                 </blockquote>
               </div>
             </div>
@@ -437,7 +437,7 @@ export default function SopToolkitPage() {
               maxWidth: '640px',
               margin: '0 auto',
             }}>
-              Templates are aligned to the Hospitality Industry (General) Award 2020 and applicable state licensing requirements. Not a substitute for legal or HR advice. Current as at July 2026.
+              Templates are aligned to the Hospitality Industry (General) Award 2020 and applicable state licensing requirements. Not a substitute for legal or HR advice. Current as at June 2026.
             </p>
           </div>
         </section>

@@ -18,7 +18,7 @@ export default function TermsPage() {
           <div className="container">
             <div className="eyebrow">Legal</div>
             <h1>Terms of Service</h1>
-            <p className="inner-hero-sub">Last updated: 28 July 2026</p>
+            <p className="inner-hero-sub">Last updated: 26 April 2026</p>
           </div>
         </section>
 
@@ -26,8 +26,8 @@ export default function TermsPage() {
           <div className="container">
             <div className="legal-prose">
               <p>
-                Please read these Terms of Service ("Terms") carefully before using the
-                Serve By Example platform ("Service"). By accessing or using the
+                Please read these Terms of Service (&ldquo;Terms&rdquo;) carefully before using the
+                Serve By Example platform (&ldquo;Service&rdquo;). By accessing or using the
                 Service, you confirm your acceptance of these Terms.
               </p>
 
@@ -90,7 +90,7 @@ export default function TermsPage() {
                 </li>
                 <li>
                   <strong>Refunds</strong>: Beyond your statutory rights under the ACL, we offer a
-                  14-day "cooling-off" period for your first subscription payment if you
+                  14-day &ldquo;cooling-off&rdquo; period for your first subscription payment if you
                   are dissatisfied.
                 </li>
                 <li>
@@ -153,7 +153,7 @@ export default function TermsPage() {
               <h2>9. Limitation of Liability</h2>
               <p>To the extent permitted by law:</p>
               <ul>
-                <li>The Service is provided on an "as is" basis.</li>
+                <li>The Service is provided on an &ldquo;as is&rdquo; basis.</li>
                 <li>
                   Our total liability shall be limited to the total amount paid by you to us in the
                   12 months preceding the claim, or AUD $100, whichever is greater.

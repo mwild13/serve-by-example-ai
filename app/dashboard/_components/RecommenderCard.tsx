@@ -76,7 +76,7 @@ export default function RecommenderCard({ tags, score, maxScore, onNavigateToKB 
 
       {onNavigateToKB && (
         <button className="btn btn-secondary rec-kb-link" onClick={onNavigateToKB}>
-          Open 101 Knowledge Base →
+          Open 101 Knowledge Base &rarr;
         </button>
       )}
     </div>

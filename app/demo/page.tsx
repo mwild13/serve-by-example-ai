@@ -171,50 +171,6 @@ export default function DemoPage() {
           </div>
         </section>
 
-        {/* ── Complaint Master discovery ── */}
-        <section className="section-tight section-alt">
-          <div className="container" style={{ maxWidth: 760 }}>
-            <div style={{
-              background: "var(--surface)",
-              border: "1.5px solid var(--line)",
-              borderRadius: "var(--radius-md)",
-              padding: "1.5rem 2rem",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "1.5rem",
-              flexWrap: "wrap",
-            }}>
-              <div>
-                <p style={{
-                  fontFamily: "var(--font-manrope)",
-                  fontWeight: 700,
-                  fontSize: "0.9375rem",
-                  color: "var(--text)",
-                  margin: "0 0 0.25rem",
-                }}>
-                  Also try: Complaint Master
-                </p>
-                <p style={{
-                  fontFamily: "var(--font-manrope)",
-                  fontSize: "0.875rem",
-                  color: "var(--text-soft)",
-                  margin: 0,
-                }}>
-                  Practice handling difficult guests — de-escalation, empathy, and service recovery scored by AI.
-                </p>
-              </div>
-              <a
-                href="/demo/complaint-master"
-                className="btn btn-secondary"
-                style={{ whiteSpace: "nowrap" as const, flexShrink: 0 }}
-              >
-                Try Complaint Master
-              </a>
-            </div>
-          </div>
-        </section>
-
         <section className="container demo-dual-pane">
           <ScenarioSimulatorPane
             scenarios={DEMO_SCENARIOS}

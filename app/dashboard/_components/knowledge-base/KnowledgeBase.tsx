@@ -137,7 +137,7 @@ export default function KnowledgeBase() {
       {/* Search results count */}
       {search && (
         <p className="kb-result-count">
-          {filtered.length} result{filtered.length !== 1 ? "s" : ""} for "{search}"
+          {filtered.length} result{filtered.length !== 1 ? "s" : ""} for &ldquo;{search}&rdquo;
         </p>
       )}
 

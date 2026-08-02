@@ -66,7 +66,7 @@ export default function ToolkitPage() {
             letterSpacing: '-0.02em',
           }}
         >
-          Your venue's staff onboarding SOP, built in 60 seconds.
+          Your venue&rsquo;s staff onboarding SOP, built in 60 seconds.
         </h1>
 
         <p
@@ -78,7 +78,7 @@ export default function ToolkitPage() {
             margin: '0 auto',
           }}
         >
-          Select your venue type and biggest compliance pain point. We'll generate
+          Select your venue type and biggest compliance pain point. We&rsquo;ll generate
           a structured, copy-pasteable SOP template matched to your operation.
         </p>
       </section>
@@ -105,7 +105,7 @@ export default function ToolkitPage() {
         >
           Templates are aligned to the Hospitality Industry (General) Award 2020 and
           applicable state licensing requirements. Not a substitute for legal or HR advice.
-          Current as at July 2026.
+          Current as at June 2026.
         </p>
         <p style={{ marginTop: '1rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
           <Link

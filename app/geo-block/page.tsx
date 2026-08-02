@@ -54,7 +54,7 @@ export default function GeoBlockPage() {
         </p>
 
         <p className="geo-block-note">
-          We're working to expand into additional regions and will
+          We&rsquo;re working to expand into additional regions and will
           announce availability as we grow. Thank you for your interest.
         </p>
 
