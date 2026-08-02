@@ -13,12 +13,10 @@ import { SCENARIOS, SCENARIO_INSIGHTS } from "./trainer/trainer-data";
 export type { TrainerProgressPreload };
 
 export default function DashboardTrainer({
-  displayName,
   managementUnlocked = false,
   userToken,
   initialProgress,
 }: {
-  displayName: string;
   managementUnlocked?: boolean;
   userToken?: string;
   initialProgress?: TrainerProgressPreload;
@@ -271,7 +269,6 @@ export default function DashboardTrainer({
 
       {!result && (
         <ModuleSelectGrid
-          displayName={displayName}
           activeModule={activeModule}
           mgmtUnlocked={mgmtUnlocked}
           moduleProgress={moduleProgress}

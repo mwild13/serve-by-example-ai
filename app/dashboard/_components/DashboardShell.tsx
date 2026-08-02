@@ -816,7 +816,6 @@ export default function DashboardShell({
         ) : activeNav === "stage4" ? (
           <DashboardTrainer
             key="stage4"
-            displayName={displayName}
             managementUnlocked={managementUnlocked}
           />
         ) : activeNav === "mobile-learn" ? (

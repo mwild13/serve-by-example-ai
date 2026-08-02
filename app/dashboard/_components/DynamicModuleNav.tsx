@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Module, AvailableModulesResponse } from "@/lib/modules";
+import SharedTrainingCard from "@/app/dashboard/_components/common/SharedTrainingCard";
 
 interface DynamicModuleNavProps {
   userId: string;
@@ -10,6 +11,12 @@ interface DynamicModuleNavProps {
   onModuleSelect: (moduleId: number) => void;
   selectedModuleId?: number;
   initialCategory?: "technical" | "service" | "compliance"; // retained for call-site compatibility
+}
+
+function getDifficultyLabel(level: number): string {
+  if (level <= 2) return "Beginner";
+  if (level === 3) return "Intermediate";
+  return "Advanced";
 }
 
 export default function DynamicModuleNav({
@@ -62,13 +69,6 @@ export default function DynamicModuleNav({
     fetchModules();
   }, [sortBy, userToken]);
 
-  const getEloDisplay = (elo: number) => {
-    if (elo < 1100) return { color: "var(--status-critical)", label: "Needs Work", tooltip: "ELO below 1100, needs more practice on this module" };
-    if (elo < 1200) return { color: "var(--status-warning)", label: "Building", tooltip: "ELO 1100–1199, building skills on this module" };
-    if (elo < 1300) return { color: "var(--status-info)", label: "Solid", tooltip: "ELO 1200–1299, solid performance on this module" };
-    return { color: "var(--status-success)", label: "Strong", tooltip: "ELO 1300+, strong mastery on this module" };
-  };
-
   if (error) {
     return (
       <div style={{ padding: "1.5rem", background: "var(--status-error-bg)", border: `1px solid var(--status-error)`, borderRadius: "12px" }}>
@@ -105,97 +105,39 @@ export default function DynamicModuleNav({
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "1rem" }}>
           {filteredModules.map((module) => {
             const isSelected = selectedModuleId === module.id;
-            const eloDisplay = getEloDisplay(module.current_elo);
+
+            const topBadge = module.recommended ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "var(--status-warn-text)", background: "var(--status-warn-bg)", border: `1px solid var(--status-warn)`, borderRadius: "999px", padding: "3px 10px", letterSpacing: "0.05em", textTransform: "uppercase", width: "fit-content" }}>
+                  ★ Recommended
+                </span>
+                {module.recommendation_reason && (
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", fontStyle: "italic", lineHeight: 1.4 }}>
+                    {module.recommendation_reason}
+                  </span>
+                )}
+              </div>
+            ) : undefined;
+
+            const footerAction = (
+              <span className="btn-secondary" style={{ fontSize: "0.78rem", padding: "4px 12px" }}>
+                {isSelected ? "Selected ✓" : module.mastery_pct >= 100 ? "Review →" : module.mastery_pct > 0 ? "Continue →" : "Start →"}
+              </span>
+            );
 
             return (
-              <button
+              <SharedTrainingCard
                 key={module.id}
+                topBadge={topBadge}
+                title={module.title}
+                description={module.description || `Train and master ${module.title.toLowerCase()} skills.`}
+                progressValue={module.mastery_pct}
+                progressLabel={`${module.mastery_pct}% mastery`}
+                metaRight={getDifficultyLabel(module.difficulty_level)}
+                footerAction={footerAction}
                 onClick={() => onModuleSelect(module.id)}
-                aria-pressed={isSelected}
-                aria-label={`${module.title}${isSelected ? ", selected" : ""}`}
-                style={{
-                  background: "var(--surface-raised)",
-                  border: isSelected ? `1.5px solid var(--green-mid)` : "1px solid var(--line)",
-                  borderRadius: "14px",
-                  padding: "1.4rem 1.5rem",
-                  cursor: "pointer",
-                  transition: "all 0.18s ease",
-                  boxShadow: isSelected ? `0 0 0 3px rgba(42, 104, 72, 0.15)` : "none",
-                  textAlign: "left",
-                  width: "100%",
-                  fontFamily: "inherit",
-                }}
-                onMouseEnter={(e) => {
-                  if (!isSelected) {
-                    e.currentTarget.style.borderColor = "var(--green-mid)";
-                    e.currentTarget.style.boxShadow = "0 4px 16px rgba(42, 104, 72, 0.1)";
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isSelected) {
-                    e.currentTarget.style.borderColor = "var(--line)";
-                    e.currentTarget.style.boxShadow = "none";
-                    e.currentTarget.style.transform = "translateY(0)";
-                  }
-                }}
-              >
-                {/* Top: recommended + status */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px", gap: "8px" }}>
-                  {module.recommended ? (
-                    <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "var(--status-warn-text)", background: "var(--status-warn-bg)", border: `1px solid var(--status-warn)`, borderRadius: "999px", padding: "3px 10px", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                      ★ Recommended
-                    </span>
-                  ) : <span />}
-                  <span title={eloDisplay.tooltip} style={{ fontSize: "0.7rem", fontWeight: 700, color: eloDisplay.color, background: "var(--surface)", borderRadius: "6px", padding: "3px 8px", cursor: "help" }}>
-                    {eloDisplay.label}
-                  </span>
-                </div>
-
-                {/* Title */}
-                <h3 style={{ fontSize: "1.05rem", fontWeight: 800, color: "var(--green-deep)", marginBottom: "6px", lineHeight: 1.3, letterSpacing: "-0.01em" }}>
-                  {module.title}
-                </h3>
-
-                {/* Description */}
-                <p style={{ fontSize: "0.85rem", color: "var(--text-soft)", lineHeight: 1.55, marginBottom: "14px" }}>
-                  {module.description || `Train and master ${module.title.toLowerCase()} skills.`}
-                </p>
-
-                {/* Mastery progress bar */}
-                <div style={{ marginBottom: "14px" }}>
-                  <div style={{ height: "5px", background: "var(--viz-neutral-light)", borderRadius: "3px", overflow: "hidden" }}>
-                    <div style={{ width: `${module.mastery_pct}%`, height: "100%", background: `linear-gradient(90deg, var(--green-mid), var(--green-deep))`, borderRadius: "3px", transition: "width 0.4s ease" }} />
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: "5px" }}>
-                    <span style={{ fontSize: "0.72rem", color: "var(--color-text-muted)" }}>Mastery</span>
-                    <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--green-deep)" }}>{module.mastery_pct}%</span>
-                  </div>
-                </div>
-
-                {/* Recommendation reason */}
-                {module.recommendation_reason && (
-                  <p style={{ fontSize: "0.78rem", color: "var(--color-text-muted)", fontStyle: "italic", marginBottom: "14px", lineHeight: 1.5 }}>
-                    {module.recommendation_reason}
-                  </p>
-                )}
-
-                {/* Footer */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div
-                    title={`Difficulty: ${module.difficulty_level} / 5`}
-                    aria-label={`Difficulty level ${module.difficulty_level} out of 5`}
-                    style={{ display: "flex", gap: "3px" }}
-                  >
-                    {[...Array(5)].map((_, i) => (
-                      <div key={i} style={{ width: "7px", height: "7px", borderRadius: "50%", background: i < module.difficulty_level ? "var(--green-deep)" : "var(--viz-neutral-light)" }} />
-                    ))}
-                  </div>
-                  <span className="btn-secondary" style={{ fontSize: "0.78rem", padding: "4px 12px" }}>
-                    {isSelected ? "Selected ✓" : module.mastery_pct >= 100 ? "Review →" : module.mastery_pct > 0 ? "Continue →" : "Start →"}
-                  </span>
-                </div>
-              </button>
+                selected={isSelected}
+              />
             );
           })}
         </div>

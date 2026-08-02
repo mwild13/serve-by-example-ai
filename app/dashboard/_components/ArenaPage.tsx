@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
+import SharedTrainingCard from "@/app/dashboard/_components/common/SharedTrainingCard";
 
 type AssessmentResult = {
   score: number;
@@ -237,44 +238,36 @@ export default function ArenaPage({ userId: _userId }: Props) {
             const accent = CATEGORY_ACCENT[meta.category];
             const prog = arenaProgress[id];
             return (
-              <div
+              <SharedTrainingCard
                 key={id}
-                className={`arena-card${prog?.passed ? " arena-card--passed" : (prog?.attempts ?? 0) > 0 ? " arena-card--attempted" : ""}`}
-                onClick={() => selectModule(id)}
-              >
-                <div className="arena-card-top">
-                  <span className="arena-card-category" style={{ color: accent }}>{meta.category}</span>
-                  {prog?.passed && <span className="arena-card-badge arena-card-badge--passed">Passed</span>}
-                  {!prog?.passed && (prog?.attempts ?? 0) > 0 && <span className="arena-card-badge arena-card-badge--attempted">Attempted</span>}
-                </div>
-                <strong className="arena-card-title">{meta.title}</strong>
-                {prog && (
-                  <div className="arena-card-score-row">
-                    <div className="arena-card-score-bar">
-                      <div
-                        className="arena-card-score-fill"
-                        style={{
-                          width: `${prog.bestScore}%`,
-                          background: prog.passed ? "var(--green)" : "var(--gold-warm)",
-                        }}
-                      />
-                    </div>
-                    <span className="arena-card-score-label">Best: {prog.bestScore}/100</span>
+                className={prog?.passed ? "arena-card--passed" : (prog?.attempts ?? 0) > 0 ? "arena-card--attempted" : undefined}
+                topBadge={<span className="arena-card-category" style={{ color: accent }}>{meta.category}</span>}
+                metaRight={
+                  prog?.passed ? (
+                    <span className="arena-card-badge arena-card-badge--passed">Passed</span>
+                  ) : (prog?.attempts ?? 0) > 0 ? (
+                    <span className="arena-card-badge arena-card-badge--attempted">Attempted</span>
+                  ) : undefined
+                }
+                title={meta.title}
+                progressValue={prog ? prog.bestScore : undefined}
+                progressLabel={prog ? `Best: ${prog.bestScore}/100` : undefined}
+                footerAction={
+                  <div className="arena-card-footer">
+                    <span className="arena-card-status">
+                      {prog?.passed
+                        ? "Complete"
+                        : (prog?.attempts ?? 0) > 0
+                        ? `${prog!.attempts} attempt${prog!.attempts !== 1 ? "s" : ""}`
+                        : "Not started"}
+                    </span>
+                    <span className={`arena-card-cta${prog?.passed ? " arena-card-cta--muted" : ""}`}>
+                      {prog?.passed ? "Retake →" : (prog?.attempts ?? 0) > 0 ? "Retry →" : "Start →"}
+                    </span>
                   </div>
-                )}
-                <div className="arena-card-footer">
-                  <span className="arena-card-status">
-                    {prog?.passed
-                      ? "Complete"
-                      : (prog?.attempts ?? 0) > 0
-                      ? `${prog!.attempts} attempt${prog!.attempts !== 1 ? "s" : ""}`
-                      : "Not started"}
-                  </span>
-                  <span className={`arena-card-cta${prog?.passed ? " arena-card-cta--muted" : ""}`}>
-                    {prog?.passed ? "Retake →" : (prog?.attempts ?? 0) > 0 ? "Retry →" : "Start →"}
-                  </span>
-                </div>
-              </div>
+                }
+                onClick={() => selectModule(id)}
+              />
             );
           })}
         </div>
@@ -428,26 +421,29 @@ export default function ArenaPage({ userId: _userId }: Props) {
               <div style={{ fontSize: "0.65rem", fontWeight: 800, letterSpacing: "0.08em", color: "var(--text-muted)", textTransform: "uppercase", marginBottom: 8 }}>
                 Up next
               </div>
-              <div
-                className={`arena-card${nextProg?.passed ? " arena-card--passed" : (nextProg?.attempts ?? 0) > 0 ? " arena-card--attempted" : ""}`}
+              <SharedTrainingCard
+                className={nextProg?.passed ? "arena-card--passed" : (nextProg?.attempts ?? 0) > 0 ? "arena-card--attempted" : undefined}
+                topBadge={<span className="arena-card-category" style={{ color: nextAccent }}>{nextMeta.category}</span>}
+                metaRight={
+                  nextProg?.passed ? (
+                    <span className="arena-card-badge arena-card-badge--passed">Passed</span>
+                  ) : (nextProg?.attempts ?? 0) > 0 ? (
+                    <span className="arena-card-badge arena-card-badge--attempted">Attempted</span>
+                  ) : undefined
+                }
+                title={nextMeta.title}
+                footerAction={
+                  <div className="arena-card-footer">
+                    <span className="arena-card-status">
+                      {nextProg?.passed ? "Complete" : (nextProg?.attempts ?? 0) > 0 ? "Previously attempted" : "Not started"}
+                    </span>
+                    <span className="arena-card-cta">
+                      {nextProg?.passed ? "Retake →" : (nextProg?.attempts ?? 0) > 0 ? "Retry →" : "Start →"}
+                    </span>
+                  </div>
+                }
                 onClick={() => selectModule(nextId)}
-                style={{ cursor: "pointer" }}
-              >
-                <div className="arena-card-top">
-                  <span className="arena-card-category" style={{ color: nextAccent }}>{nextMeta.category}</span>
-                  {nextProg?.passed && <span className="arena-card-badge arena-card-badge--passed">Passed</span>}
-                  {!nextProg?.passed && (nextProg?.attempts ?? 0) > 0 && <span className="arena-card-badge arena-card-badge--attempted">Attempted</span>}
-                </div>
-                <strong className="arena-card-title">{nextMeta.title}</strong>
-                <div className="arena-card-footer">
-                  <span className="arena-card-status">
-                    {nextProg?.passed ? "Complete" : (nextProg?.attempts ?? 0) > 0 ? "Previously attempted" : "Not started"}
-                  </span>
-                  <span className="arena-card-cta">
-                    {nextProg?.passed ? "Retake →" : (nextProg?.attempts ?? 0) > 0 ? "Retry →" : "Start →"}
-                  </span>
-                </div>
-              </div>
+              />
             </div>
           );
         })()}

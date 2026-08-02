@@ -9,8 +9,8 @@
   --line-light: #ece5d5;
   --line-faint: #f0ebe0;
   --text: #172f22;
-  --text-soft: #496155;
-  --text-muted: #577067;  /* raised from #7a9185 (3.02:1) to 4.79:1 on --bg — WCAG AA */
+  --text-soft: #525047;   /* AAA 8.0:1 on surface (older-user demographic) — was #496155, later duplicate-`:root` override merged in here. See consolidation note near the bottom of this file's changelog. */
+  --text-muted: #54544c;  /* AAA 7.6:1 on surface (older-user demographic) — was #577067, then #6b6860; a second `:root` block further down the file silently overrode this value at cascade time. Merged to a single declaration here — this is the canonical, and only, definition now. */
   --green: #1f4e37;
   --green-deep: #0f2d1d;
   --green-mid: #2a6848;
@@ -107,9 +107,9 @@
 
   /* ── Accessibility-compliant grey scale ── */
   /* All values meet WCAG AA 4.5:1 on white (#fff) */
-  --color-text-muted:  #6b7280;  /* 5.74:1 on white */
+  --color-text-muted:  var(--text-muted);  /* Legacy alias — was its own hex (#6b7280), competing with --text-muted for the same "muted secondary text" job across the staff dashboard. Aliased so its ~25 existing call sites (DynamicModuleNav.tsx, ArenaPage.tsx, RapidFirePage.tsx, StaffRosterPanel.tsx, ManagerControlCenter.tsx) now render the same color as everywhere else. Do not use this token in new code — use --text-muted directly. */
   --color-text-subtle: #737373;  /* 5.01:1 on white */
-  --ops-text-soft:     #6b7280;  /* fallback for manager dashboard muted text */
+  --ops-text-soft:     #6b7280;  /* fallback for manager dashboard muted text — out of scope for this pass, left as-is */
 
   /* ── Extended neutral gray scale ── */
   --color-ink:         #111827;  /* Near-black heading text */
@@ -5237,6 +5237,124 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 }
 .arena-card-cta--muted {
   color: var(--text-muted);
+}
+
+/* ── Shared Training Card ─────────────────────────────────────────────────────
+   New unified card shell (app/dashboard/_components/common/SharedTrainingCard.tsx)
+   for Modules / Scenarios / Live Scenarios. Standardized on --radius-lg + --shadow-sm
+   to match the cleanest of the three prior card patterns (.dash-card). UPDATE: as of
+   the Modules/Scenarios/Live Scenarios migration, all three pages now render through
+   this component — DynamicModuleNav.tsx, trainer/ModuleSelectGrid.tsx, and
+   ArenaPage.tsx all use `<SharedTrainingCard>`. The `.dash-card` and `.arena-card`
+   base/layout classes above are now dead CSS on the pages that used to own them
+   (`.arena-card--passed`/`--attempted`, `.arena-card-category`, `.arena-card-badge*`,
+   `.arena-card-footer`, `.arena-card-status`, `.arena-card-cta*` are still live —
+   ArenaPage.tsx now applies them as content/className on top of this shell rather than
+   as the card container itself). Not deleted yet — do that as a deliberate follow-up,
+   not silently. ── */
+.shared-training-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-body);
+  background: var(--surface-raised);
+  border: 1px solid var(--line-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+  cursor: default;
+  transition: box-shadow 0.2s var(--ease-out), transform 0.2s var(--ease-out), border-color 0.2s;
+}
+.shared-training-card--interactive {
+  cursor: pointer;
+}
+.shared-training-card--interactive:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--green-mid);
+}
+.shared-training-card--selected {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(31, 78, 55, 0.14);
+}
+/* ArenaPage.tsx passes "arena-card--passed"/"arena-card--attempted" via the
+   `className` prop to tint passed/attempted cards. Those classes and this one
+   are equal specificity (0,1,0) — without the compound selectors below, source
+   order alone would decide the winner, and `.arena-card--passed`/`--attempted`
+   are declared earlier in this file than `.shared-training-card`, so the tint
+   would lose. Compound selectors here guarantee the tint always wins regardless
+   of source order. Found during the ArenaPage.tsx migration — fixed here rather
+   than by reordering the file, since reordering is one CSS edit away from
+   breaking again the next time something gets inserted between them. */
+.shared-training-card.arena-card--passed {
+  background: var(--bg-green-faint);
+  border-color: var(--green-mid);
+}
+.shared-training-card.arena-card--attempted {
+  background: var(--bg-parchment);
+  border-color: var(--gold);
+}
+.stc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 20px;
+}
+.stc-meta-right {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--bg-alt);
+  border-radius: 6px;
+  padding: 2px 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.stc-title {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.3;
+  margin: 0;
+}
+.stc-subtext {
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  line-height: 1.55;
+  margin: 0;
+}
+.stc-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+.stc-progress-track {
+  flex: 1;
+  height: 6px;
+  background: var(--line-light);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.stc-progress-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--green-mid), var(--green-deep));
+  transition: width 0.4s ease;
+}
+.stc-progress-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.stc-footer {
+  margin-top: 4px;
 }
 
 /* Band 4: Performance Analytics */
@@ -10770,11 +10888,12 @@ body {
 .skeleton-table-row { display: flex; gap: 12px; padding: 8px 0; }
 .skeleton-table-header { border-bottom: 1px solid var(--line-light, #ece8df); }
 
-/* ── Contrast / readability fixes (WCAG AAA 7:1 for older-user demographic) ────── */
-:root {
-  --text-soft: #525047;     /* 8.0:1 on surface — AAA */
-  --text-muted: #54544c;    /* raised from #6b6860 (5.5:1) to 7.6:1 — AAA */
-}
+/* ── Contrast / readability fixes (WCAG AAA 7:1 for older-user demographic) ──────
+   Formerly a second `:root { --text-soft; --text-muted }` block here silently
+   overrode the values declared at the top of this file (later `:root` wins the
+   cascade). Consolidated into the single declaration at the top of the file —
+   nothing else needs to change, this is a no-op for computed styles. Kept this
+   comment so a future reader doesn't reintroduce a second override by mistake. */
 
 /* ══════════════════════════════════════════════════════
    SCAFFOLDED LEARNING — Level Switcher, Quiz, Descriptor

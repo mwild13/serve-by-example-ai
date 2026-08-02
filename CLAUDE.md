@@ -190,7 +190,7 @@ The staff training platform has a **3-stage mastery path** plus AI-powered extra
 | `home` | Home | `PreShiftHome.tsx` | Daily dashboard with recommendations |
 | `module` | Modules | `DynamicModuleNav.tsx` + `ModuleVerify.tsx` | 40 modules across Bartending, Sales, Management |
 | `rapid-fire` | — | `RapidFirePage.tsx` | Internal sub-nav from Modules; rapid quiz mode |
-| `stage4` | Scenario Training | `DiagnosticFlow.tsx` | Written scenario practice |
+| `stage4` | Scenario Training | `DashboardTrainer.tsx` | Written scenario practice (routed in `DashboardShell.tsx:816-821`; `DiagnosticFlow.tsx` is only the first-login onboarding modal, not this nav destination) |
 | `scenarios` | AI Arena | `ArenaPage.tsx` | GPT-4o-mini live roleplay evaluation |
 | `challenges` | Challenges | `ChallengesPage.tsx` | 5 tap-based interactive mini-games |
 | `cocktails` | Cocktail Library | `CocktailLibrary.tsx` | 38-cocktail reference (lazy-loaded) |

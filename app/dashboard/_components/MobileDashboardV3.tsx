@@ -534,7 +534,7 @@ export default function MobileDashboardV3({
   const firstName = displayName.split(" ")[0] || displayName;
   const initial = (firstName[0] ?? "?").toUpperCase();
   const masteredModules = data.allModules.filter(
-    (m) => (data.moduleProgress[m.id]?.scenariosMastered ?? 0) >= 1,
+    (m) => (data.moduleProgress[m.id]?.mastery ?? 0) >= 80,
   ).length;
   const totalModules = data.allModules.length;
   const skillLevel = Math.min(
