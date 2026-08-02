@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Staff Dashboard UX Mockups — Modules / Scenarios / Live Scenarios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ── Tokens copied verbatim from app/globals.css :root — nothing invented.
+       Each is labeled with its source variable name so every color here is traceable. ── */
+  :root{
+    --bg:#f5f2e9; --bg-alt:#eeebe1; --surface:#fffef9; --surface-raised:#fff;
+    --line:#ddd2ba; --line-light:#ece5d5;
+    --text:#172f22; --text-soft:#496155; --text-muted:#577067;
+    --green:#1f4e37; --green-deep:#0f2d1d; --green-mid:#2a6848; --green-light:#e4efea;
+    --gold:#a9812a; --gold-warm:#c49a2f; --gold-light:#f7ecd0;
+    --status-critical:#dc2626; --status-warning:#d97706; --status-info:#2563eb; --status-success:#16a34a;
+    --status-warn-bg:#f7ecd0; --status-warn-text:#644a17; --status-warn:#a9812a;
+    --color-mastery-technical:#1E5A3C; --color-mastery-service:#B98220; --color-mastery-compliance:#7A4F2C;
+    --color-text-muted:#6b7280; --color-indigo-light:#a855f7;
+    --radius-sm:10px; --radius-md:14px; --radius-lg:20px; --radius-pill:999px;
+    --shadow-sm:0 2px 8px rgba(15,45,29,.05),0 1px 2px rgba(15,45,29,.03);
+    --shadow-md:0 6px 24px rgba(15,45,29,.07),0 2px 6px rgba(15,45,29,.04);
+    --font-heading:'Fraunces',Georgia,serif; --font-body:'Manrope','Segoe UI',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg-alt);color:var(--text);font-family:var(--font-body);padding:40px 24px 80px;}
+  .wrap{max-width:1180px;margin:0 auto;}
+  h1{font-family:var(--font-heading);font-size:1.9rem;margin:0 0 6px;color:var(--green-deep);}
+  .lede{color:var(--text-soft);font-size:.95rem;max-width:760px;margin:0 0 40px;line-height:1.6;}
+  h2.section{font-family:var(--font-heading);font-size:1.3rem;color:var(--green-deep);margin:56px 0 4px;padding-top:24px;border-top:1px solid var(--line);}
+  .section-sub{color:var(--text-muted);font-size:.85rem;margin:0 0 20px;}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;}
+  .col-label{font-size:.68rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;margin:0 0 12px;padding:5px 12px;border-radius:var(--radius-pill);display:inline-block;}
+  .col-label.current{background:var(--line-light);color:var(--text-soft);}
+  .col-label.proposed{background:var(--green-light);color:var(--green-deep);}
+  .stage{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px;}
+  .grid3{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+
+  /* ── CURRENT: Modules card — recreated from DynamicModuleNav.tsx inline styles ── */
+  .m-card{background:var(--surface-raised);border:1px solid var(--line);border-radius:14px;padding:22.4px 24px;}
+  .m-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:8px;}
+  .m-rec{font-size:.7rem;font-weight:800;color:var(--status-warn-text);background:var(--status-warn-bg);border:1px solid var(--status-warn);border-radius:999px;padding:3px 10px;letter-spacing:.05em;text-transform:uppercase;}
+  .m-elo{font-size:.7rem;font-weight:700;color:var(--status-info);background:var(--surface);border-radius:6px;padding:3px 8px;}
+  .m-title{font-size:1.05rem;font-weight:800;color:var(--green-deep);margin:0 0 6px;font-family:var(--font-heading);}
+  .m-desc{font-size:.85rem;color:var(--text-soft);line-height:1.55;margin:0 0 14px;}
+  .m-bar-row{margin-bottom:14px;}
+  .m-bar{height:5px;background:#e5e7eb;border-radius:3px;overflow:hidden;}
+  .m-bar-fill{height:100%;background:linear-gradient(90deg,var(--green-mid),var(--green-deep));border-radius:3px;}
+  .m-bar-meta{display:flex;justify-content:space-between;margin-top:5px;font-size:.72rem;}
+  .m-bar-meta span:first-child{color:var(--color-text-muted);}
+  .m-bar-meta span:last-child{color:var(--green-deep);font-weight:700;}
+  .m-reason{font-size:.78rem;color:var(--color-text-muted);font-style:italic;margin:0 0 14px;line-height:1.5;}
+  .m-footer{display:flex;justify-content:space-between;align-items:center;}
+  .m-dots{display:flex;gap:3px;}
+  .m-dot{width:7px;height:7px;border-radius:50%;background:#e5e7eb;}
+  .m-dot.on{background:var(--green-deep);}
+  .m-cta{font-size:.78rem;padding:4px 12px;color:var(--green-mid);font-weight:700;}
+
+  /* ── PROPOSED: shared card, one metric language, promoted reason, visible difficulty ── */
+  .s-card{background:var(--surface-raised);border:1px solid var(--line-light);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:8px;}
+  .s-top{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+  .s-badge{font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:var(--gold-light);color:var(--status-warn-text);border-radius:999px;padding:3px 10px;}
+  .s-cat{font-size:.62rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--color-mastery-technical);}
+  .s-title{font-size:.98rem;font-weight:800;color:var(--text);margin:0;font-family:var(--font-heading);}
+  .s-reason{font-size:.78rem;color:var(--text-soft);margin:0;line-height:1.45;}
+  .s-bar{height:6px;background:var(--line-light);border-radius:99px;overflow:hidden;margin-top:2px;}
+  .s-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green-mid),var(--green-deep));}
+  .s-meta-row{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;color:var(--text-muted);}
+  .s-diff{font-size:.68rem;font-weight:700;color:var(--text-muted);background:var(--bg-alt);padding:2px 8px;border-radius:6px;}
+  .s-footer{display:flex;justify-content:space-between;align-items:center;margin-top:2px;}
+  .s-cta{font-size:.75rem;font-weight:800;color:var(--green-mid);}
+
+  /* ── CURRENT: Live Scenarios arena-card, faithful to ArenaPage.tsx / globals.css ── */
+  .a-card{background:var(--surface-raised);border:1px solid var(--line);border-radius:14px;padding:17.6px 20px 16px;display:flex;flex-direction:column;gap:6px;}
+  .a-top{display:flex;justify-content:space-between;align-items:center;}
+  .a-cat{font-size:.62rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--color-mastery-technical);}
+  .a-badge{font-size:.6rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:2px 9px;background:var(--green-light);color:var(--green-deep);}
+  .a-title{font-size:.95rem;font-weight:800;color:var(--text);margin:2px 0 4px;font-family:var(--font-heading);}
+  .a-bar-row{display:flex;align-items:center;gap:8px;}
+  .a-bar{flex:1;height:5px;background:var(--line-light);border-radius:99px;overflow:hidden;}
+  .a-bar-fill{height:100%;border-radius:99px;background:var(--green);}
+  .a-score{font-size:.7rem;font-weight:700;color:var(--text-muted);white-space:nowrap;}
+  .a-footer{display:flex;justify-content:space-between;align-items:center;margin-top:4px;}
+  .a-status{font-size:.75rem;color:var(--text-muted);}
+  .a-cta{font-size:.75rem;font-weight:800;color:var(--green-mid);}
+
+  /* ── PROPOSED: Live Scenarios gains the one thing Modules has that it doesn't — a priority signal ── */
+  .a2-card{background:var(--surface-raised);border:1px solid var(--line-light);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:8px;}
+
+  /* ── Scenarios page: duplicate action path ── */
+  .dup-wrap{display:flex;flex-direction:column;gap:14px;}
+  .dup-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .dup-card{background:var(--surface-raised);border:1px solid var(--line-light);border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow-sm);}
+  .dup-card h4{margin:0 0 8px;font-family:var(--font-heading);color:var(--green-deep);font-size:.92rem;}
+  .dup-bar{height:6px;background:#e0d8ca;border-radius:3px;overflow:hidden;margin-bottom:4px;}
+  .dup-bar-fill{height:100%;border-radius:3px;}
+  .dup-next{font-size:.72rem;color:var(--text-soft);margin:6px 0 0;}
+  .coach{background:var(--surface-raised);border:1px solid var(--line-light);border-radius:var(--radius-lg);padding:16px 16px 12px;box-shadow:var(--shadow-sm);}
+  .coach p{font-size:.85rem;margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid var(--line-light);}
+  .pills{display:flex;gap:8px;flex-wrap:wrap;}
+  .pill{background:var(--green-light);color:var(--green-deep);border-radius:999px;padding:6px 12px;font-size:.78rem;font-weight:600;}
+  .flag{border:1.5px dashed var(--gold-warm);border-radius:10px;padding:2px;}
+  .flag-label{font-size:.68rem;font-weight:800;color:var(--gold-warm);text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px;display:block;}
+
+  /* token fragmentation swatches */
+  .swatch-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;}
+  .swatch{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:.78rem;}
+  .swatch i{width:18px;height:18px;border-radius:5px;display:block;flex-shrink:0;border:1px solid rgba(0,0,0,.08);}
+  .swatch code{font-size:.72rem;color:var(--text-soft);}
+
+  .note{font-size:.8rem;color:var(--text-muted);margin-top:14px;line-height:1.55;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Staff dashboard card mockups</h1>
+  <p class="lede">Companion to <strong>staff-dashboard-ux-audit.md</strong>. Every color, radius, and shadow below is copied from an existing <code>app/globals.css</code> token or an existing inline style in the component — nothing here is a new value. This is a research artifact, not implementation.</p>
+  <p class="lede" style="margin-top:-24px;background:var(--green-light);border:1px solid var(--green);border-radius:10px;padding:12px 16px;color:var(--green-deep);">Updated: the ELO tier badge is confirmed for removal — staff no longer see ELO anywhere. The "Proposed" Modules card below reflects that decision directly; it's no longer a "merge two metrics" option, it's a "there's one metric left" result.</p>
+
+  <h2 class="section">1 · Modules card</h2>
+  <p class="section-sub">Current: fully inline-styled, 4 competing signals per card (DynamicModuleNav.tsx) once you count what's left after ELO. Proposed: ELO badge removed entirely, shared card shell, promoted reason, visible difficulty.</p>
+  <div class="cols">
+    <div>
+      <span class="col-label current">Current</span>
+      <div class="stage">
+        <div class="m-card">
+          <div class="m-top">
+            <span class="m-rec">★ Recommended</span>
+            <span class="m-elo">Solid</span>
+          </div>
+          <h3 class="m-title">Coffee and Barista Basics</h3>
+          <p class="m-desc">Espresso extraction, milk texturing, coffee menu knowledge and service standards</p>
+          <div class="m-bar-row">
+            <div class="m-bar"><div class="m-bar-fill" style="width:100%"></div></div>
+            <div class="m-bar-meta"><span>Mastery</span><span>100%</span></div>
+          </div>
+          <p class="m-reason">Next challenge: improve your technical skills</p>
+          <div class="m-footer">
+            <div class="m-dots">
+              <div class="m-dot on"></div><div class="m-dot on"></div><div class="m-dot"></div><div class="m-dot"></div><div class="m-dot"></div>
+            </div>
+            <span class="m-cta">Review →</span>
+          </div>
+        </div>
+      </div>
+      <p class="note">ELO badge ("Solid") — confirmed for removal, including the word "ELO" in its hover tooltip. Difficulty dots have no visible label either — <code>title</code> tooltip only, which never fires on touch.</p>
+    </div>
+    <div>
+      <span class="col-label proposed">Proposed direction — ELO badge removed</span>
+      <div class="stage">
+        <div class="s-card">
+          <div class="s-top">
+            <span class="s-badge">★ Recommended</span>
+            <span class="s-diff">Beginner</span>
+          </div>
+          <h3 class="s-title">Coffee and Barista Basics</h3>
+          <p class="s-reason"><strong style="color:var(--green-deep)">Next challenge:</strong> improve your technical skills — 100% mastered</p>
+          <div class="s-bar"><div class="s-bar-fill" style="width:100%"></div></div>
+          <div class="s-footer">
+            <span class="s-meta-row">100% mastery</span>
+            <span class="s-cta">Review →</span>
+          </div>
+        </div>
+      </div>
+      <p class="note">ELO tier chip is gone entirely — no replacement badge, no merged label. Mastery % is now the card's only skill metric. Reason text folded onto the same line as the badge instead of buried below; difficulty replaced with a plain-language label. No fields invented — mastery %, recommended flag, and reason text are the same fields the card already receives today.</p>
+    </div>
+  </div>
+
+  <h2 class="section">2 · Live Scenarios card</h2>
+  <p class="section-sub">Current: already the leanest card of the three (ArenaPage.tsx / <code>.arena-card</code>). Proposed: same shell language as Modules above, plus the one thing it's missing — a priority signal.</p>
+  <div class="cols">
+    <div>
+      <span class="col-label current">Current</span>
+      <div class="stage">
+        <div class="a-card">
+          <div class="a-top">
+            <span class="a-cat">technical</span>
+            <span class="a-badge">Passed</span>
+          </div>
+          <strong class="a-title">Wine Knowledge &amp; Service</strong>
+          <div class="a-bar-row">
+            <div class="a-bar"><div class="a-bar-fill" style="width:85%"></div></div>
+            <span class="a-score">Best: 85/100</span>
+          </div>
+          <div class="a-footer">
+            <span class="a-status">Complete</span>
+            <span class="a-cta">Retake →</span>
+          </div>
+        </div>
+      </div>
+      <p class="note">Already 2–3 signals, not 5. This is why it reads clean — not because it's better made.</p>
+    </div>
+    <div>
+      <span class="col-label proposed">Proposed direction</span>
+      <div class="stage">
+        <div class="a2-card">
+          <div class="s-top">
+            <span class="a-cat">technical</span>
+            <span class="a-badge">Passed</span>
+          </div>
+          <strong class="s-title">Wine Knowledge &amp; Service</strong>
+          <div class="s-bar"><div class="s-bar-fill" style="width:85%;background:var(--green)"></div></div>
+          <div class="s-footer">
+            <span class="s-meta-row">Best: 85/100</span>
+            <span class="s-cta">Retake →</span>
+          </div>
+        </div>
+      </div>
+      <p class="note">Same shell radius/padding/shadow as the Modules card above — this is the "make the three pages feel like siblings" fix. No new signal added here unless you decide Live Scenarios should also carry a "recommended next" badge (see audit §2).</p>
+    </div>
+  </div>
+
+  <h2 class="section">3 · Scenarios page — the duplicate action path</h2>
+  <p class="section-sub">Current: 3 track cards, then an "AI Coach" panel whose 3 pills call the identical handler as the cards above (ModuleSelectGrid.tsx), plus two stacked headlines saying near-adjacent things. Confirmed for cleanup — this is the one page where the finding was redundancy, not density.</p>
+  <div class="cols">
+    <div>
+      <span class="col-label current">Current</span>
+      <div class="stage">
+        <div class="dup-wrap">
+          <p style="font-family:var(--font-heading);font-size:1.05rem;color:var(--green-deep);margin:0;">Practice real hospitality situations</p>
+          <p style="font-size:.8rem;color:var(--text-soft);margin:0 0 4px;">Scored roleplay across Bartending, Service &amp; Management — <em>command bar copy</em></p>
+          <h3 style="font-family:var(--font-heading);font-size:1.3rem;color:var(--green-deep);margin:0;">Welcome back, Alex.</h3>
+          <p style="font-size:.85rem;color:var(--text-soft);margin:0 0 12px;">Choose a module to pick up where you left off, or follow the recommendation above. — <em>near-duplicate subhead</em></p>
+          <div class="dup-cards">
+            <div class="dup-card"><h4>Bartending Training</h4><div class="dup-bar"><div class="dup-bar-fill" style="width:100%;background:var(--green)"></div></div><div class="dup-bar"><div class="dup-bar-fill" style="width:80%;background:var(--color-indigo-light)"></div></div><p class="dup-next">Next: Guest acknowledgement</p></div>
+            <div class="dup-card"><h4>Sales Training</h4><div class="dup-bar"><div class="dup-bar-fill" style="width:100%;background:var(--gold-warm)"></div></div><div class="dup-bar"><div class="dup-bar-fill" style="width:20%;background:var(--color-indigo-light)"></div></div><p class="dup-next">Next: Objection handling</p></div>
+            <div class="dup-card"><h4>Management Training</h4><div class="dup-bar"><div class="dup-bar-fill" style="width:100%;background:var(--green)"></div></div><div class="dup-bar"><div class="dup-bar-fill" style="width:10%;background:var(--color-indigo-light)"></div></div><p class="dup-next">Next: Delegation under pressure</p></div>
+          </div>
+          <div class="flag">
+            <div style="padding:14px 14px 4px;">
+              <span class="flag-label">Confirmed for removal — identical action, second UI pattern</span>
+            </div>
+            <div class="coach" style="border:none;box-shadow:none;margin:0 14px 14px;width:auto;">
+              <p>AI Coach: Use the recommendation above, or pick a module to begin a scored scenario session.</p>
+              <div class="pills">
+                <span class="pill" style="opacity:.4;text-decoration:line-through;">Start Bartending</span>
+                <span class="pill" style="opacity:.4;text-decoration:line-through;">Start Sales</span>
+                <span class="pill" style="opacity:.4;text-decoration:line-through;">Start Management</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="note">Clicking any pill and clicking its matching card above both call <code>onSelectModule()</code> with the same argument (ModuleSelectGrid.tsx, lines 38 &amp; 69–73).</p>
+    </div>
+    <div>
+      <span class="col-label proposed">Proposed direction</span>
+      <div class="stage">
+        <div class="dup-wrap">
+          <h3 style="font-family:var(--font-heading);font-size:1.3rem;color:var(--green-deep);margin:0;">Welcome back, Alex — pick up where you left off.</h3>
+          <p style="font-size:.85rem;color:var(--text-soft);margin:0 0 12px;">Single merged headline — command bar eyebrow above still reads "Scenario Training," so this no longer repeats it.</p>
+          <div class="dup-cards">
+            <div class="dup-card"><h4>Bartending Training</h4><div class="dup-bar"><div class="dup-bar-fill" style="width:100%;background:var(--green)"></div></div><div class="dup-bar"><div class="dup-bar-fill" style="width:80%;background:var(--green-mid)"></div></div><p class="dup-next">Next: Guest acknowledgement</p></div>
+            <div class="dup-card"><h4>Sales Training</h4><div class="dup-bar"><div class="dup-bar-fill" style="width:100%;background:var(--gold-warm)"></div></div><div class="dup-bar"><div class="dup-bar-fill" style="width:20%;background:var(--gold)"></div></div><p class="dup-next">Next: Objection handling</p></div>
+            <div class="dup-card"><h4>Management Training</h4><div class="dup-bar"><div class="dup-bar-fill" style="width:100%;background:var(--green)"></div></div><div class="dup-bar"><div class="dup-bar-fill" style="width:10%;background:var(--green-mid)"></div></div><p class="dup-next">Next: Delegation under pressure</p></div>
+          </div>
+        </div>
+      </div>
+      <p class="note">Coach panel and its duplicate pills removed entirely. Headline merged to one line. Mastery bar re-mapped from purple (<code>--color-indigo-light</code>, unrelated to anything else in this flow) onto the same green/gold family used by the completion bar directly above it — same data, one consistent palette instead of two.</p>
+    </div>
+  </div>
+
+  <h2 class="section">4 · The token fragmentation, made visible</h2>
+  <p class="section-sub">Four "muted text" tokens exist in <code>app/globals.css</code>; these three are actually in use across the pages audited here.</p>
+  <div class="swatch-row">
+    <div class="swatch"><i style="background:#577067"></i>text on Live Scenarios<br><code>--text-muted #577067</code></div>
+    <div class="swatch"><i style="background:#6b7280"></i>text on Modules<br><code>--color-text-muted #6b7280</code></div>
+    <div class="swatch"><i style="background:#737373"></i>adjacent, unused here<br><code>--color-text-subtle #737373</code></div>
+  </div>
+  <p class="section-sub" style="margin-top:24px;">Three "status color" systems live in this same 3-page flow — not wrong individually, but crossing all three in one session is what makes the pages feel unrelated.</p>
+  <div class="swatch-row">
+    <div class="swatch"><i style="background:#dc2626"></i>ELO tiers (Modules)<br><code>--status-critical/warning/info/success</code></div>
+    <div class="swatch"><i style="background:#1E5A3C"></i>Mastery category (Live Scenarios)<br><code>--color-mastery-technical/service/compliance</code></div>
+    <div class="swatch"><i style="background:#1f4e37"></i>Pass/fail (Live Scenarios result)<br><code>--status-good / --status-warn</code></div>
+  </div>
+</div>
+</body>
+</html>
