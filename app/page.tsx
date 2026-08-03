@@ -91,69 +91,14 @@ export default function Home() {
 
         <VenueMarquee />
 
-        {/* ── Trust Stats ──────────────────────────── */}
-        <section className="section trust-section" style={{ background: "transparent", padding: "2rem 0" }}>
-          <div className="container">
-            <div className="arch-blueprint" style={{ background: "white", padding: "2.5rem 2rem", borderRadius: "12px", border: "1px solid var(--mkt-border-subtle, var(--viz-neutral-light))", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
-              <div style={{ fontSize: "11px", color: "var(--color-text-muted)", letterSpacing: "0.15em", marginBottom: "2rem", textTransform: "uppercase", fontWeight: 700 }}>
-                System Specifications
-              </div>
-
-              {/* Responsive CSS Grid to force perfect card balance */}
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                gap: "1.5rem"
-              }}>
-                <article className="stat-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "8px", border: "1px solid var(--border-subtle)", background: "var(--surface-raised)" }}>
-                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "var(--green-deep)", lineHeight: 1, marginBottom: "0.5rem" }}>
-                    3<span style={{ fontSize: "1.75rem", marginLeft: "2px", color: "var(--mkt-gold-500, var(--gold))" }}>×</span>
-                  </div>
-                  <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)", fontWeight: 600, lineHeight: 1.4 }}>
-                    Faster Onboarding<br/>
-                    <em style={{ fontSize: "0.8rem", color: "var(--gold-deep)", fontStyle: "normal", fontWeight: 500 }}>6 months to 6 weeks</em>
-                  </div>
-                </article>
-
-                <article className="stat-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "8px", border: "1px solid var(--border-subtle)", background: "var(--surface-raised)" }}>
-                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "var(--green-deep)", lineHeight: 1, marginBottom: "0.5rem" }}>
-                    100<span style={{ fontSize: "1.75rem", marginLeft: "2px", color: "var(--mkt-gold-500, var(--gold))" }}>+</span>
-                  </div>
-                  <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)", fontWeight: 600, lineHeight: 1.4 }}>
-                    Learning Modules<br/>
-                    <em style={{ fontSize: "0.8rem", color: "var(--gold-deep)", fontStyle: "normal", fontWeight: 500 }}>&amp; Scenarios</em>
-                  </div>
-                </article>
-
-                <article className="stat-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "8px", border: "1px solid var(--border-subtle)", background: "var(--surface-raised)" }}>
-                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "var(--green-deep)", lineHeight: 1, marginBottom: "0.5rem" }}>
-                    19
-                  </div>
-                  <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)", fontWeight: 600, lineHeight: 1.4 }}>
-                    Languages Supported<br/>
-                    <em style={{ fontSize: "0.8rem", color: "var(--gold-deep)", fontStyle: "normal", fontWeight: 500 }}>Australian Compliance Ready</em>
-                  </div>
-                </article>
-
-                <article className="stat-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "1.5rem", borderRadius: "8px", border: "1px solid var(--border-subtle)", background: "var(--surface-raised)" }}>
-                  <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--green-deep)", lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: "0.5rem" }}>
-                    Advanced AI Scoring
-                  </div>
-                  <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)", fontWeight: 600, lineHeight: 1.4 }}>
-                    5-Dimension AI<br/>
-                    <em style={{ fontSize: "0.8rem", color: "var(--gold-deep)", fontStyle: "normal", fontWeight: 500 }}>Evaluation Engine</em>
-                  </div>
-                </article>
-              </div>
-
-            </div>
-          </div>
-        </section>
+        {/* Trust Stats band removed — the hero's in-line trust row now carries
+            3× / 100+ / 19 (Pages-Redesign.md §6.1); repeating them in cards
+            directly below was numbers-as-decoration (§6.3). */}
 
         {/* ── Core Pillars — Bento Grid 2.0 ──────── */}
         <section className="section sbe-mkt-scope">
           <div className="container">
-            <div className="section-header center">
+            <div className="section-header">
               <span className="sbe-eyebrow">Two Systems, One Platform</span>
               <h2 className="sbe-serif-title">Built for High-Performance Venues</h2>
               <p className="sbe-sans-body">Everything your venue needs to train staff confidently, built for real hospitality operations.</p>
@@ -217,28 +162,16 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              <div style={{ display: "flex", justifyContent: "center", gap: "3rem", flexWrap: "wrap", marginBottom: "2.5rem" }}>
-                <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "var(--green-deep)", lineHeight: 1 }}>15+</div>
-                  <div style={{ fontSize: "0.875rem", color: "var(--color-text-muted)", marginTop: "6px", fontWeight: 500 }}>Years in Australian Hospitality</div>
-                </div>
-                <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "var(--green-deep)", lineHeight: 1 }}>100s</div>
-                  <div style={{ fontSize: "0.875rem", color: "var(--color-text-muted)", marginTop: "6px", fontWeight: 500 }}>Staff Trained &amp; Managed</div>
-                </div>
-                <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "var(--green-deep)", lineHeight: 1 }}>40+</div>
-                  <div style={{ fontSize: "0.875rem", color: "var(--color-text-muted)", marginTop: "6px", fontWeight: 500 }}>Modules Built for Hospitality</div>
-                </div>
-              </div>
+              {/* Stat row (15+/100s/40+) removed per §6.3 — the photo and
+                  quote are the trust asset, not the digits. */}
               <blockquote style={{
-                margin: "0 auto",
+                margin: "2rem 0 0",
                 maxWidth: "600px",
                 padding: "1.5rem 2rem",
                 background: "var(--surface-raised)",
                 border: "1.5px solid var(--divider-light)",
                 borderLeft: "4px solid var(--green-mid)",
-                borderRadius: "12px",
+                borderRadius: "var(--radius-md)",
                 textAlign: "left",
               }}>
                 <p style={{ margin: 0, fontSize: "1.05rem", fontStyle: "italic", color: "var(--green-deep)", lineHeight: 1.65, fontWeight: 500 }}>
@@ -255,7 +188,7 @@ export default function Home() {
         {/* ── One platform. Two outcomes. ───────────── */}
         <section className="section section-ecosystem">
           <div className="container">
-            <div className="section-header center">
+            <div className="section-header">
               <span className="eyebrow">One Platform</span>
               <h2>Built for two different roles.</h2>
               <p>Staff train and improve. Managers see everything. One platform, no duplication of effort.</p>
@@ -359,7 +292,7 @@ export default function Home() {
         {/* ── How It Works – 3-Step Process ─────── */}
         <section id="mastery-path" className="section section-band-green">
           <div className="container">
-            <div className="section-header center">
+            <div className="section-header">
               <span className="eyebrow">The Mastery Path</span>
               <h2>Know it. Apply it. Managers see it.</h2>
               <p>Three stages that take staff from day one to floor-confident, every step tracked and visible without chasing anyone.</p>
@@ -411,7 +344,7 @@ export default function Home() {
         {/* ── Quantified Benefits ─────────────────────── */}
         <section className="section" style={{ background: "var(--surface-raised)" }}>
           <div className="container">
-            <div className="section-header center">
+            <div className="section-header">
               <span className="eyebrow">What makes it different</span>
               <h2>Training that actually measures performance.</h2>
             </div>
@@ -500,7 +433,7 @@ export default function Home() {
         {/* ── Pricing Teaser ───────────────────────── */}
         <section className="section">
           <div className="container">
-            <div className="section-header center">
+            <div className="section-header">
               <span className="eyebrow">Pricing</span>
               <h2>Plans &amp; Pricing</h2>
               <p>From individual staff to multi-site venue groups, one platform that grows with you.</p>
@@ -571,7 +504,7 @@ export default function Home() {
         {/* ── FAQ ──────────────────────────────────── */}
         <section className="section">
           <div className="container">
-            <div className="section-header center">
+            <div className="section-header">
               <span className="eyebrow">Common Questions</span>
               <h2>Everything you need to know before starting.</h2>
             </div>
