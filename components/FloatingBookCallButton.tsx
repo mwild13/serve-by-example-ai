@@ -67,7 +67,7 @@ export default function FloatingBookCallButton() {
         aria-label="Book a free 15-min call"
         style={{
           position: 'fixed',
-          bottom: '24px',
+          bottom: 'var(--fab-bottom, 24px)', /* lifted above the mobile sticky hero CTA via media query in globals.css */
           right: '24px',
           zIndex: 50,
           display: 'flex',

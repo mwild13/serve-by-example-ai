@@ -1,8 +1,11 @@
-import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DashboardMockup from "@/components/ui/DashboardMockup";
 import CompareMatrix from "@/components/ui/CompareMatrix";
+import PageHero from "@/components/marketing/PageHero";
+import CTABand from "@/components/marketing/CTABand";
+import FeatureGrid, { type FeatureGridItem } from "@/components/marketing/FeatureGrid";
+import SectionHeading from "@/components/ui/SectionHeading";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -29,6 +32,21 @@ const outcomes = [
   "Identify weak points in communication, sales and service standards",
 ];
 
+const useCases: FeatureGridItem[] = [
+  {
+    title: "New starter onboarding",
+    body: "Help junior staff build confidence in greetings, drink orders and guest interaction before peak service.",
+  },
+  {
+    title: "Sales improvement",
+    body: "Train teams to recommend premium drinks and upsell naturally without sounding scripted.",
+  },
+  {
+    title: "Leadership development",
+    body: "Support managers with complaint handling, delegation and operational decision-making under pressure.",
+  },
+];
+
 export default function ForVenuesPage() {
   return (
     <div className="page-shell">
@@ -36,46 +54,34 @@ export default function ForVenuesPage() {
 
       <main>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(venueServiceSchema) }} />
-        {/* ── Hero ── */}
-        <section className="inner-hero">
-          <div className="container">
-            <span className="eyebrow">For Venues</span>
-            <h1>
-              Built for venue owners, operators and hospitality&nbsp;groups.
-            </h1>
-            <p className="inner-hero-sub">
-              Serve By Example helps teams onboard faster, train more
-              consistently and improve service standards with interactive
-              hospitality training.
-            </p>
-            <div className="inner-hero-actions">
-              <Link href="/contact" className="btn btn-primary btn-lg">
-                Request Venue Access
-              </Link>
-              <Link href="/membership" className="btn btn-secondary btn-lg">
-                View Pricing
-              </Link>
-            </div>
-          </div>
-        </section>
+
+        {/* ── Hero — dark variant, reserved for /for-venues and /pricing ── */}
+        <PageHero
+          variant="dark"
+          eyebrow="For Venues"
+          title="Built for venue owners, operators and hospitality groups."
+          subtitle="Serve By Example helps teams onboard faster, train more consistently and improve service standards with interactive hospitality training."
+          actions={[
+            { label: "Request Venue Access", href: "/contact", variant: "primary" },
+            { label: "View Pricing", href: "/membership", variant: "secondary" },
+          ]}
+        />
 
         {/* ── Platform Screenshot ── */}
         <section className="section" style={{ paddingTop: "2.5rem", paddingBottom: "2.5rem" }}>
           <div className="container">
-            <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
-              <span className="eyebrow">The Platform</span>
-              <h3 style={{ margin: "0.5rem 0 0", fontSize: "1.35rem", fontWeight: 700, color: "var(--text)" }}>
-                Everything you need to manage and measure your team&rsquo;s training.
-              </h3>
-            </div>
-            <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+            <SectionHeading
+              eyebrow="The Platform"
+              title="Everything you need to manage and measure your team’s training."
+            />
+            <div style={{ maxWidth: "1000px" }}>
               <DashboardMockup />
             </div>
           </div>
         </section>
 
-        {/* ── Why It Matters — 2×2 ── */}
-        <section className="sbe-mkt-scope" style={{ padding: "64px 24px", width: "100%", borderTop: "1px solid rgba(11,41,27,0.1)", backgroundColor: "var(--mkt-cream-100)" }}>
+        {/* ── Why It Matters — 2×2 editorial grid, kept ── */}
+        <section className="sbe-mkt-scope" style={{ padding: "64px 24px", width: "100%", borderTop: "1px solid var(--line)", backgroundColor: "var(--mkt-cream-100)" }}>
           <div className="container">
             <div style={{ marginBottom: "48px", maxWidth: "650px" }}>
               <span className="sbe-eyebrow">The Business Case</span>
@@ -117,7 +123,7 @@ export default function ForVenuesPage() {
           </div>
         </section>
 
-        {/* ── The Approach ── */}
+        {/* ── The Approach — asymmetric split, kept ── */}
         <section className="section">
           <div className="container">
             <div className="split-grid">
@@ -148,33 +154,11 @@ export default function ForVenuesPage() {
         {/* ── Use Cases ── */}
         <section className="section section-alt">
           <div className="container">
-            <div className="section-header center">
-              <span className="eyebrow">Example Use Cases</span>
-              <h2>Real ways venues use the platform</h2>
-            </div>
-            <div className="card-grid card-grid-3">
-              <article className="info-card">
-                <h3>New starter onboarding</h3>
-                <p>
-                  Help junior staff build confidence in greetings, drink orders
-                  and guest interaction before peak service.
-                </p>
-              </article>
-              <article className="info-card">
-                <h3>Sales improvement</h3>
-                <p>
-                  Train teams to recommend premium drinks and upsell naturally
-                  without sounding scripted.
-                </p>
-              </article>
-              <article className="info-card">
-                <h3>Leadership development</h3>
-                <p>
-                  Support managers with complaint handling, delegation and
-                  operational decision-making under pressure.
-                </p>
-              </article>
-            </div>
+            <SectionHeading
+              eyebrow="Example Use Cases"
+              title="Real ways venues use the platform"
+            />
+            <FeatureGrid items={useCases} columns={3} />
           </div>
         </section>
 
@@ -186,29 +170,15 @@ export default function ForVenuesPage() {
         </section>
 
         {/* ── CTA ── */}
-        <section id="venue-enquiry" className="section section-cta">
-          <div className="container cta-box">
-            <div>
-              <h3>Train your team with more consistency.</h3>
-              <p>
-                Whether you run one venue or multiple locations, Serve By
-                Example gives your team a clearer path to better service and
-                stronger performance.
-              </p>
-            </div>
-            <div className="cta-actions">
-              <Link href="/contact" className="btn btn-gold btn-lg">
-                Request Venue Access
-              </Link>
-              <Link
-                href="/how-it-works"
-                className="btn btn-outline-light btn-lg"
-              >
-                See How It Works
-              </Link>
-            </div>
-          </div>
-        </section>
+        <div id="venue-enquiry">
+          <CTABand
+            background="green"
+            title="Train your team with more consistency."
+            copy="Whether you run one venue or multiple locations, Serve By Example gives your team a clearer path to better service and stronger performance."
+            primary={{ label: "Request Venue Access", href: "/contact" }}
+            secondary={{ label: "See How It Works", href: "/how-it-works" }}
+          />
+        </div>
       </main>
 
       <Footer />

@@ -7,108 +7,145 @@ import Navbar from "@/components/Navbar";
 import SectionHeading from "@/components/ui/SectionHeading";
 import ROICalculator from "@/components/ui/ROICalculator";
 import CompareMatrix from "@/components/ui/CompareMatrix";
+import PageHero from "@/components/marketing/PageHero";
+import CTABand from "@/components/marketing/CTABand";
 
-// ── Feature item: premium name + muted plain sub-label ────────────────────────
-function FeatureItem({ name, sublabel }: { name: string; sublabel?: string }) {
-  return (
-    <li
-      style={{
-        display: "flex",
-        alignItems: "flex-start",
-        gap: "10px",
-        padding: "4px 0",
-        listStyle: "none",
-      }}
-    >
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        style={{ color: "var(--green)", flexShrink: 0, marginTop: 3 }}
-        aria-hidden="true"
-      >
-        <polyline points="20 6 9 17 4 12" />
-      </svg>
-      <span style={{ lineHeight: 1.5 }}>
-        <span
-          style={{
-            fontFamily: "var(--font-manrope)",
-            fontSize: "0.875rem",
-            fontWeight: 600,
-            color: "var(--text)",
-            display: "block",
-          }}
-        >
-          {name}
-        </span>
-        {sublabel && (
-          <span
-            style={{
-              fontFamily: "var(--font-manrope)",
-              fontSize: "0.75rem",
-              color: "var(--text-muted)",
-              display: "block",
-              marginTop: "1px",
-            }}
-          >
-            {sublabel}
-          </span>
-        )}
-      </span>
-    </li>
-  );
-}
+// ── Tier data — copy locked, do not edit without a pricing review ─────────────
 
-// ── Price block: large dominant figure + muted annual sub-line ────────────────
-function PriceBlock({
-  billing,
-  monthly,
-  annualMonthly,
-  annualTotal,
-  isCustom,
-}: {
-  billing: "monthly" | "yearly";
+type TierAction =
+  | { kind: "checkout"; monthlyPlan: string; yearlyPlan: string; label: string }
+  | { kind: "trial"; tier: string; label: string }
+  | { kind: "contact"; label: string };
+
+type Tier = {
+  id: string;
+  name: string;
+  sublabel: string;
+  badge?: string;
+  highlight?: boolean;
   monthly: string;
   annualMonthly: string;
   annualTotal: string;
   isCustom?: boolean;
+  description: string;
+  features: { name: string; sublabel?: string }[];
+  action: TierAction;
+  microcopy: string;
+};
+
+const TIERS: Tier[] = [
+  {
+    id: "staff",
+    name: "Staff",
+    sublabel: "Pro",
+    monthly: "AUD $19 / mo",
+    annualMonthly: "AUD $15.83 / mo",
+    annualTotal: "AUD $190/yr",
+    description: "For individual bartenders and hospitality staff.",
+    features: [
+      { name: "Neural Scenario Forge", sublabel: "AI live roleplay evaluation" },
+      { name: "Mastery Protocol Engine", sublabel: "40 modules across Bartending, Sales & Management" },
+      { name: "Dynamic Skill Calibration", sublabel: "Adapts to what each staff member still needs to learn" },
+      { name: "Rapid Deploy Drilling", sublabel: "Streak-based rapid-fire quiz mode" },
+      { name: "Reflex Scenario Challenges", sublabel: "5 tap-based mobile mini-games" },
+    ],
+    action: { kind: "checkout", monthlyPlan: "pro", yearlyPlan: "pro_yearly", label: "Subscribe now" },
+    microcopy: "No credit card required for trial. Billed annually. Cancel anytime.",
+  },
+  {
+    id: "boutique",
+    name: "Venue",
+    sublabel: "Boutique",
+    badge: "Most Popular",
+    highlight: true,
+    monthly: "AUD $79 / mo",
+    annualMonthly: "AUD $65.83 / mo",
+    annualTotal: "AUD $790/yr",
+    description: "For single-venue operators and small teams.",
+    features: [
+      { name: "Everything in Staff" },
+      { name: "Up to 15 staff seats", sublabel: "Invite via venue code, live in under 5 minutes" },
+      { name: "Command & Compliance Centre", sublabel: "Real-time team progress and compliance dashboard" },
+      { name: "Competitive Performance Index", sublabel: "Live staff leaderboards" },
+      { name: "Guided venue setup call", sublabel: "1-on-1 onboarding session included" },
+    ],
+    action: { kind: "trial", tier: "boutique", label: "Try Free for 14 Days" },
+    microcopy: "14-day free trial. No credit card required. Pick a plan when you’re ready.",
+  },
+  {
+    id: "commercial",
+    name: "Group",
+    sublabel: "Commercial",
+    monthly: "AUD $149 / mo",
+    annualMonthly: "AUD $124.17 / mo",
+    annualTotal: "AUD $1,490/yr",
+    description: "For growing venues with larger teams and multiple locations.",
+    features: [
+      { name: "Everything in Venue" },
+      { name: "Up to 35 staff seats", sublabel: "Across one or multiple service areas" },
+      { name: "Compliance Pulse Monitoring", sublabel: "Live cross-team training compliance" },
+      { name: "Advanced analytics", sublabel: "Cohort comparisons and performance trends" },
+      { name: "Dedicated onboarding specialist", sublabel: "2 setup sessions included" },
+    ],
+    action: { kind: "trial", tier: "commercial", label: "Try Free for 14 Days" },
+    microcopy: "14-day free trial. No credit card required. Pick a plan when you’re ready.",
+  },
+  {
+    id: "enterprise",
+    name: "Franchise",
+    sublabel: "Enterprise",
+    monthly: "",
+    annualMonthly: "",
+    annualTotal: "",
+    isCustom: true,
+    description: "For venue groups and large hospitality organisations.",
+    features: [
+      { name: "Everything in Group" },
+      { name: "Unlimited staff seats", sublabel: "Across unlimited venues" },
+      { name: "Franchise Command Network", sublabel: "Multi-venue staff roster and analytics" },
+      { name: "Custom module development", sublabel: "Training tailored to your brand" },
+      { name: "White-glove onboarding", sublabel: "Dedicated account management included" },
+    ],
+    action: { kind: "contact", label: "Talk to us" },
+    microcopy: "Custom pricing. SLA included. White-label available.",
+  },
+];
+
+// ── Small presentational pieces ───────────────────────────────────────────────
+
+function FeatureItem({ name, sublabel }: { name: string; sublabel?: string }) {
+  return (
+    <li className="sbe-mkt-pricefeature">
+      <span className="sbe-mkt-pricefeature-name">{name}</span>
+      {sublabel ? <span className="sbe-mkt-pricefeature-sub">{sublabel}</span> : null}
+    </li>
+  );
+}
+
+function PriceBlock({
+  billing,
+  tier,
+}: {
+  billing: "monthly" | "yearly";
+  tier: Tier;
 }) {
   return (
-    <div style={{ marginBottom: "1.25rem", minHeight: "4rem" }}>
-      <div
-        style={{
-          fontFamily: "var(--font-fraunces)",
-          fontSize: "2.25rem",
-          fontWeight: 700,
-          color: "var(--text)",
-          lineHeight: 1.1,
-        }}
-      >
-        {isCustom ? "Custom" : billing === "yearly" ? annualMonthly : monthly}
+    <div className="sbe-mkt-priceblock">
+      <div className="sbe-mkt-priceblock-figure">
+        {tier.isCustom ? "Custom" : billing === "yearly" ? tier.annualMonthly : tier.monthly}
       </div>
-      <div
-        style={{
-          fontFamily: "var(--font-manrope)",
-          fontSize: "0.8rem",
-          color: "var(--text-muted)",
-          marginTop: "4px",
-          minHeight: "1.2em",
-        }}
-      >
-        {isCustom
+      <div className="sbe-mkt-priceblock-note">
+        {tier.isCustom
           ? "Per arrangement"
           : billing === "yearly"
-          ? `Billed annually (${annualTotal})`
+          ? `Billed annually (${tier.annualTotal})`
           : ""}
       </div>
     </div>
   );
 }
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function PricingPage() {
   const [loading, setLoading] = useState<string | null>(null);
@@ -172,98 +209,54 @@ export default function PricingPage() {
     }
   }
 
-  const isLoading = (monthly: string, yearly: string) =>
-    loading === monthly || loading === yearly;
-
-  const isTrialLoading = (tier: string) => loading === `trial-${tier}`;
+  function renderAction(tier: Tier) {
+    const a = tier.action;
+    if (a.kind === "contact") {
+      return (
+        <Link href="/contact" className="btn btn-secondary sbe-mkt-pricecard-btn">
+          {a.label}
+        </Link>
+      );
+    }
+    if (a.kind === "trial") {
+      const busy = loading === `trial-${a.tier}`;
+      return (
+        <button
+          className="btn btn-primary sbe-mkt-pricecard-btn"
+          onClick={() => handleTrialStart(a.tier)}
+          disabled={busy}
+        >
+          {busy ? "Starting..." : a.label}
+        </button>
+      );
+    }
+    const busy = loading === a.monthlyPlan || loading === a.yearlyPlan;
+    return (
+      <button
+        className="btn btn-primary sbe-mkt-pricecard-btn"
+        onClick={() => handleCheckout(billing === "monthly" ? a.monthlyPlan : a.yearlyPlan)}
+        disabled={busy}
+      >
+        {busy ? "Redirecting..." : a.label}
+      </button>
+    );
+  }
 
   return (
     <div className="page-shell">
       <Navbar />
 
       <main>
-        {/* ── Membership hero — minimal, announcement-first ── */}
-        <section
-          style={{
-            paddingTop: "clamp(3rem, 6vw, 5rem)",
-            paddingBottom: "clamp(1.5rem, 3vw, 2.5rem)",
-            textAlign: "center",
-          }}
-        >
-          <div className="container" style={{ maxWidth: 560 }}>
-            {/* Announcement pill — mirrors Kimi's top banner */}
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                background: "var(--green-light)",
-                border: "1px solid rgba(31,78,55,0.18)",
-                borderRadius: "999px",
-                padding: "5px 14px 5px 10px",
-                marginBottom: "1.75rem",
-              }}
-            >
-              {/* Lock icon */}
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                style={{ color: "var(--green)", flexShrink: 0 }}
-                aria-hidden="true"
-              >
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
-              <span
-                style={{
-                  fontFamily: "var(--font-manrope)",
-                  fontSize: "0.775rem",
-                  fontWeight: 700,
-                  color: "var(--green)",
-                  letterSpacing: "0.02em",
-                }}
-              >
-                Founding Member Rates — Locked In For Life
-              </span>
-            </div>
+        {/* ── Hero — dark anchor, compact so tier cards stay near the fold ── */}
+        <PageHero
+          variant="dark"
+          compact
+          eyebrow="Founding Member Rates — Locked In For Life"
+          title="Your Membership Starts Here."
+          subtitle="Built for hospitality operators. Priced for founders. Lock in your rate before the industry catches up."
+        />
 
-            <h1
-              style={{
-                fontFamily: "var(--font-fraunces)",
-                fontSize: "clamp(2rem, 4.5vw, 2.75rem)",
-                fontWeight: 700,
-                color: "var(--text)",
-                lineHeight: 1.15,
-                margin: "0 0 0.875rem",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              Your Membership Starts Here.
-            </h1>
-            <p
-              style={{
-                fontFamily: "var(--font-manrope)",
-                fontSize: "clamp(0.9rem, 1.5vw, 1rem)",
-                color: "var(--text-soft)",
-                lineHeight: 1.6,
-                margin: 0,
-              }}
-            >
-              Built for hospitality operators. Priced for founders.{" "}
-              <span style={{ color: "var(--text-muted)" }}>
-                Lock in your rate before the industry catches up.
-              </span>
-            </p>
-          </div>
-        </section>
-
-        <section className="section" style={{ paddingTop: 8 }}>
+        <section className="section" style={{ paddingTop: "2rem" }}>
           <div className="container">
             {checkoutError && (
               <div
@@ -274,467 +267,64 @@ export default function PricingPage() {
               </div>
             )}
 
-            {/* ── Billing toggle — Kimi-style pill ── */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: "0",
-                marginBottom: "2.5rem",
-              }}
-            >
-              <div
-                style={{
-                  display: "inline-flex",
-                  background: "var(--bg-alt)",
-                  border: "1px solid var(--line)",
-                  borderRadius: "999px",
-                  padding: "4px",
-                  gap: "2px",
-                }}
-              >
+            {/* ── Billing toggle ── */}
+            <div className="sbe-mkt-billing-toggle-wrap">
+              <div className="sbe-mkt-billing-toggle" role="group" aria-label="Billing period">
                 <button
                   onClick={() => setBilling("monthly")}
-                  style={{
-                    padding: "7px 24px",
-                    borderRadius: "999px",
-                    border: "none",
-                    background: billing === "monthly" ? "var(--surface)" : "transparent",
-                    fontFamily: "var(--font-manrope)",
-                    fontWeight: 600,
-                    fontSize: "0.875rem",
-                    color: billing === "monthly" ? "var(--text)" : "var(--text-muted)",
-                    cursor: "pointer",
-                    boxShadow: billing === "monthly" ? "var(--shadow-sm)" : "none",
-                    transition: "all 0.15s ease",
-                  }}
+                  className={`sbe-mkt-billing-btn${billing === "monthly" ? " active" : ""}`}
+                  aria-pressed={billing === "monthly"}
                 >
                   Monthly
                 </button>
                 <button
                   onClick={() => setBilling("yearly")}
-                  style={{
-                    padding: "7px 20px",
-                    borderRadius: "999px",
-                    border: "none",
-                    background: billing === "yearly" ? "var(--surface)" : "transparent",
-                    fontFamily: "var(--font-manrope)",
-                    fontWeight: 600,
-                    fontSize: "0.875rem",
-                    color: billing === "yearly" ? "var(--text)" : "var(--text-muted)",
-                    cursor: "pointer",
-                    boxShadow: billing === "yearly" ? "var(--shadow-sm)" : "none",
-                    transition: "all 0.15s ease",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                  }}
+                  className={`sbe-mkt-billing-btn${billing === "yearly" ? " active" : ""}`}
+                  aria-pressed={billing === "yearly"}
                 >
                   Annually
-                  <span
-                    style={{
-                      fontSize: "0.7rem",
-                      fontWeight: 800,
-                      color: "var(--green)",
-                      background: "var(--green-light)",
-                      borderRadius: "999px",
-                      padding: "2px 8px",
-                      letterSpacing: "0.02em",
-                      whiteSpace: "nowrap" as const,
-                    }}
-                  >
-                    Save $298
-                  </span>
+                  <span className="sbe-mkt-billing-save">Save $298</span>
                 </button>
               </div>
             </div>
 
-            {/* ── Four tier cards ── */}
-            <div
-              className="pricing-grid"
-              style={{
-                gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
-                gap: "12px",
-                alignItems: "stretch",
-              }}
-            >
-              {/* Staff | Pro */}
-              <div className="price-card" style={{ background: "var(--surface)" }}>
-                <div style={{ marginBottom: "0.5rem" }}>
-                  <h3
-                    style={{
-                      fontFamily: "var(--font-fraunces)",
-                      margin: "0 0 2px",
-                    }}
-                  >
-                    Staff
-                  </h3>
-                  <span
-                    style={{
-                      fontFamily: "var(--font-manrope)",
-                      fontSize: "0.8rem",
-                      color: "var(--text-muted)",
-                      fontWeight: 500,
-                    }}
-                  >
-                    Pro
-                  </span>
-                </div>
-
-                <PriceBlock
-                  billing={billing}
-                  monthly="AUD $19 / mo"
-                  annualMonthly="AUD $15.83 / mo"
-                  annualTotal="AUD $190/yr"
-                />
-
-                <p
-                  style={{
-                    fontFamily: "var(--font-manrope)",
-                    fontSize: "0.8125rem",
-                    color: "var(--text-soft)",
-                    marginBottom: "1.25rem",
-                  }}
-                >
-                  For individual bartenders and hospitality staff.
-                </p>
-
-                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 1.5rem" }}>
-                  <FeatureItem
-                    name="Neural Scenario Forge"
-                    sublabel="AI live roleplay evaluation"
-                  />
-                  <FeatureItem
-                    name="Mastery Protocol Engine"
-                    sublabel="40 modules across Bartending, Sales &amp; Management"
-                  />
-                  <FeatureItem
-                    name="Dynamic Skill Calibration"
-                    sublabel="Adapts to what each staff member still needs to learn"
-                  />
-                  <FeatureItem
-                    name="Rapid Deploy Drilling"
-                    sublabel="Streak-based rapid-fire quiz mode"
-                  />
-                  <FeatureItem
-                    name="Reflex Scenario Challenges"
-                    sublabel="5 tap-based mobile mini-games"
-                  />
-                </ul>
-
-                <button
-                  className="btn btn-primary"
-                  onClick={() =>
-                    handleCheckout(billing === "monthly" ? "pro" : "pro_yearly")
-                  }
-                  disabled={isLoading("pro", "pro_yearly")}
-                  style={{ width: "100%" }}
-                >
-                  {isLoading("pro", "pro_yearly") ? "Redirecting..." : "Subscribe now"}
-                </button>
-                <p
-                  style={{
-                    fontFamily: "var(--font-manrope)",
-                    fontSize: "0.75rem",
-                    color: "var(--text-muted)",
-                    marginTop: 8,
-                    textAlign: "center",
-                  }}
-                >
-                  No credit card required for trial. Billed annually. Cancel anytime.
-                </p>
-              </div>
-
-              {/* Venue | Boutique — Most Popular */}
-              <div
-                className="price-card"
-                style={{
-                  background: "var(--surface)",
-                  borderTop: "4px solid var(--green)",
-                }}
-              >
+            {/* ── Tier cards ── */}
+            <div className="sbe-mkt-pricing-grid">
+              {TIERS.map((tier) => (
                 <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    marginBottom: "0.5rem",
-                  }}
+                  key={tier.id}
+                  className={`sbe-mkt-pricecard${tier.highlight ? " sbe-mkt-pricecard-highlight" : ""}`}
                 >
-                  <div>
-                    <h3
-                      style={{
-                        fontFamily: "var(--font-fraunces)",
-                        margin: "0 0 2px",
-                      }}
-                    >
-                      Venue
-                    </h3>
-                    <span
-                      style={{
-                        fontFamily: "var(--font-manrope)",
-                        fontSize: "0.8rem",
-                        color: "var(--text-muted)",
-                        fontWeight: 500,
-                      }}
-                    >
-                      Boutique
-                    </span>
+                  <div className="sbe-mkt-pricecard-head">
+                    <div>
+                      <h3 className="sbe-mkt-pricecard-name">{tier.name}</h3>
+                      <span className="sbe-mkt-pricecard-sublabel">{tier.sublabel}</span>
+                    </div>
+                    {tier.badge ? (
+                      <span className="sbe-mkt-pricecard-badge">{tier.badge}</span>
+                    ) : null}
                   </div>
-                  <span
-                    style={{
-                      fontSize: "0.68rem",
-                      fontWeight: 700,
-                      color: "var(--green)",
-                      background: "var(--green-light)",
-                      borderRadius: "999px",
-                      padding: "3px 10px",
-                      letterSpacing: "0.03em",
-                      textTransform: "uppercase",
-                      whiteSpace: "nowrap",
-                      marginTop: 2,
-                    }}
-                  >
-                    Most Popular
-                  </span>
+
+                  <PriceBlock billing={billing} tier={tier} />
+
+                  <p className="sbe-mkt-pricecard-desc">{tier.description}</p>
+
+                  <ul className="sbe-mkt-pricecard-features">
+                    {tier.features.map((f) => (
+                      <FeatureItem key={f.name} name={f.name} sublabel={f.sublabel} />
+                    ))}
+                  </ul>
+
+                  {renderAction(tier)}
+                  <p className="sbe-mkt-pricecard-microcopy">{tier.microcopy}</p>
                 </div>
-
-                <PriceBlock
-                  billing={billing}
-                  monthly="AUD $79 / mo"
-                  annualMonthly="AUD $65.83 / mo"
-                  annualTotal="AUD $790/yr"
-                />
-
-                <p
-                  style={{
-                    fontFamily: "var(--font-manrope)",
-                    fontSize: "0.8125rem",
-                    color: "var(--text-soft)",
-                    marginBottom: "1.25rem",
-                  }}
-                >
-                  For single-venue operators and small teams.
-                </p>
-
-                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 1.5rem" }}>
-                  <FeatureItem name="Everything in Staff" />
-                  <FeatureItem
-                    name="Up to 15 staff seats"
-                    sublabel="Invite via venue code, live in under 5 minutes"
-                  />
-                  <FeatureItem
-                    name="Command &amp; Compliance Centre"
-                    sublabel="Real-time team progress and compliance dashboard"
-                  />
-                  <FeatureItem
-                    name="Competitive Performance Index"
-                    sublabel="Live staff leaderboards"
-                  />
-                  <FeatureItem
-                    name="Guided venue setup call"
-                    sublabel="1-on-1 onboarding session included"
-                  />
-                </ul>
-
-                <button
-                  className="btn btn-primary"
-                  onClick={() => handleTrialStart("boutique")}
-                  disabled={isTrialLoading("boutique")}
-                  style={{ width: "100%" }}
-                >
-                  {isTrialLoading("boutique") ? "Starting..." : "Try Free for 14 Days"}
-                </button>
-                <p
-                  style={{
-                    fontFamily: "var(--font-manrope)",
-                    fontSize: "0.75rem",
-                    color: "var(--text-muted)",
-                    marginTop: 8,
-                    textAlign: "center",
-                  }}
-                >
-                  14-day free trial. No credit card required. Pick a plan when
-                  you&rsquo;re ready.
-                </p>
-              </div>
-
-              {/* Group | Commercial */}
-              <div className="price-card" style={{ background: "var(--surface)" }}>
-                <div style={{ marginBottom: "0.5rem" }}>
-                  <h3
-                    style={{
-                      fontFamily: "var(--font-fraunces)",
-                      margin: "0 0 2px",
-                    }}
-                  >
-                    Group
-                  </h3>
-                  <span
-                    style={{
-                      fontFamily: "var(--font-manrope)",
-                      fontSize: "0.8rem",
-                      color: "var(--text-muted)",
-                      fontWeight: 500,
-                    }}
-                  >
-                    Commercial
-                  </span>
-                </div>
-
-                <PriceBlock
-                  billing={billing}
-                  monthly="AUD $149 / mo"
-                  annualMonthly="AUD $124.17 / mo"
-                  annualTotal="AUD $1,490/yr"
-                />
-
-                <p
-                  style={{
-                    fontFamily: "var(--font-manrope)",
-                    fontSize: "0.8125rem",
-                    color: "var(--text-soft)",
-                    marginBottom: "1.25rem",
-                  }}
-                >
-                  For growing venues with larger teams and multiple locations.
-                </p>
-
-                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 1.5rem" }}>
-                  <FeatureItem name="Everything in Venue" />
-                  <FeatureItem
-                    name="Up to 35 staff seats"
-                    sublabel="Across one or multiple service areas"
-                  />
-                  <FeatureItem
-                    name="Compliance Pulse Monitoring"
-                    sublabel="Live cross-team training compliance"
-                  />
-                  <FeatureItem
-                    name="Advanced analytics"
-                    sublabel="Cohort comparisons and performance trends"
-                  />
-                  <FeatureItem
-                    name="Dedicated onboarding specialist"
-                    sublabel="2 setup sessions included"
-                  />
-                </ul>
-
-                <button
-                  className="btn btn-primary"
-                  onClick={() => handleTrialStart("commercial")}
-                  disabled={isTrialLoading("commercial")}
-                  style={{ width: "100%" }}
-                >
-                  {isTrialLoading("commercial") ? "Starting..." : "Try Free for 14 Days"}
-                </button>
-                <p
-                  style={{
-                    fontFamily: "var(--font-manrope)",
-                    fontSize: "0.75rem",
-                    color: "var(--text-muted)",
-                    marginTop: 8,
-                    textAlign: "center",
-                  }}
-                >
-                  14-day free trial. No credit card required. Pick a plan when
-                  you&rsquo;re ready.
-                </p>
-              </div>
-
-              {/* Franchise | Enterprise */}
-              <div className="price-card" style={{ background: "var(--surface)" }}>
-                <div style={{ marginBottom: "0.5rem" }}>
-                  <h3
-                    style={{
-                      fontFamily: "var(--font-fraunces)",
-                      margin: "0 0 2px",
-                    }}
-                  >
-                    Franchise
-                  </h3>
-                  <span
-                    style={{
-                      fontFamily: "var(--font-manrope)",
-                      fontSize: "0.8rem",
-                      color: "var(--text-muted)",
-                      fontWeight: 500,
-                    }}
-                  >
-                    Enterprise
-                  </span>
-                </div>
-
-                <PriceBlock
-                  billing={billing}
-                  monthly=""
-                  annualMonthly=""
-                  annualTotal=""
-                  isCustom
-                />
-
-                <p
-                  style={{
-                    fontFamily: "var(--font-manrope)",
-                    fontSize: "0.8125rem",
-                    color: "var(--text-soft)",
-                    marginBottom: "1.25rem",
-                  }}
-                >
-                  For venue groups and large hospitality organisations.
-                </p>
-
-                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 1.5rem" }}>
-                  <FeatureItem name="Everything in Group" />
-                  <FeatureItem
-                    name="Unlimited staff seats"
-                    sublabel="Across unlimited venues"
-                  />
-                  <FeatureItem
-                    name="Franchise Command Network"
-                    sublabel="Multi-venue staff roster and analytics"
-                  />
-                  <FeatureItem
-                    name="Custom module development"
-                    sublabel="Training tailored to your brand"
-                  />
-                  <FeatureItem
-                    name="White-glove onboarding"
-                    sublabel="Dedicated account management included"
-                  />
-                </ul>
-
-                <Link
-                  href="/contact"
-                  className="btn btn-secondary"
-                  style={{ display: "block", textAlign: "center" }}
-                >
-                  Talk to us
-                </Link>
-                <p
-                  style={{
-                    fontFamily: "var(--font-manrope)",
-                    fontSize: "0.75rem",
-                    color: "var(--text-muted)",
-                    marginTop: 8,
-                    textAlign: "center",
-                  }}
-                >
-                  Custom pricing. SLA included. White-label available.
-                </p>
-              </div>
+              ))}
             </div>
           </div>
         </section>
 
         {/* ── ROI Calculator — distinct background ── */}
-        <section
-          style={{
-            background: "var(--bg-alt)",
-            padding: "var(--section-pad, 5rem) 0",
-          }}
-        >
+        <section style={{ background: "var(--bg-alt)", padding: "var(--section-spacing-md) 0" }}>
           <div className="container">
             <ROICalculator />
           </div>
@@ -847,6 +437,7 @@ export default function PricingPage() {
           </div>
         </section>
 
+        {/* ── FAQ ── */}
         <section className="section section-alt">
           <div className="container">
             <SectionHeading
@@ -926,37 +517,27 @@ export default function PricingPage() {
                 </p>
               </details>
             </div>
-            <div style={{ textAlign: "center", marginTop: "2.5rem" }}>
-              <p
-                style={{
-                  color: "var(--text-soft)",
-                  marginBottom: "1rem",
-                  fontSize: "0.95rem",
-                }}
-              >
-                Still have questions?
-              </p>
+            <div className="sbe-mkt-pricing-support">
+              <p className="sbe-mkt-pricing-support-lead">Still have questions?</p>
               <a href="mailto:hello@serve-by-example.com" className="btn btn-secondary">
                 Contact support
               </a>
-            </div>
-            <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
-              <p style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>
+              <p className="sbe-mkt-pricing-roadmap">
                 Curious about what we&rsquo;re building next?{" "}
-                <a
-                  href="/roadmap"
-                  style={{
-                    color: "var(--green)",
-                    textDecoration: "underline",
-                    textUnderlineOffset: "3px",
-                  }}
-                >
-                  View our product roadmap &rarr;
-                </a>
+                <a href="/roadmap">View our product roadmap &rarr;</a>
               </p>
             </div>
           </div>
         </section>
+
+        {/* ── Final CTA ── */}
+        <CTABand
+          background="green"
+          title="Start training your team this week."
+          copy="14-day free trial. No credit card required. Set up in under 10 minutes."
+          primary={{ label: "Start Free Trial", href: "/login?intent=trial&tier=boutique" }}
+          secondary={{ label: "Talk to us", href: "/contact" }}
+        />
       </main>
 
       <Footer />

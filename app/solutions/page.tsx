@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHero from "@/components/marketing/PageHero";
+import CTABand from "@/components/marketing/CTABand";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -90,26 +92,18 @@ export default function SolutionsPage() {
 
       <main>
         {/* ── Hero ── */}
-        <section className="inner-hero">
-          <div className="container">
-            <span className="eyebrow">Solutions</span>
-            <h1>Built for the way hospitality actually works.</h1>
-            <p className="inner-hero-sub">
-              Every venue type has different priorities. Serve By Example adapts to yours, whether
-              you&rsquo;re running a pub group, a cocktail bar, or a national franchise.
-            </p>
-            <div className="inner-hero-actions">
-              <Link href="/demo" className="btn btn-primary btn-lg">
-                Try the Demo
-              </Link>
-              <Link href="/membership" className="btn btn-secondary btn-lg">
-                View Pricing
-              </Link>
-            </div>
-          </div>
-        </section>
+        <PageHero
+          eyebrow="Solutions"
+          title="Built for the way hospitality actually works."
+          subtitle="Every venue type has different priorities. Serve By Example adapts to yours, whether you’re running a pub group, a cocktail bar, or a national franchise."
+          actions={[
+            { label: "Try the Demo", href: "/demo", variant: "primary" },
+            { label: "View Pricing", href: "/membership", variant: "secondary" },
+          ]}
+        />
 
-        {/* ── Segment sections ── */}
+        {/* ── Segment sections — alternating asymmetric splits, kept per
+              Pages-Redesign.md §6.3 (this is the good pattern, not a grid) ── */}
         {segments.map((seg, i) => (
           <section
             key={seg.id}
@@ -117,12 +111,12 @@ export default function SolutionsPage() {
             className={`section${i % 2 === 1 ? " section-alt" : ""}`}
           >
             <div className="container">
-              <div className="solutions-segment">
-                <div className="solutions-segment-text">
+              <div className="sbe-mkt-solutions-segment">
+                <div>
                   <span className="eyebrow">{seg.eyebrow}</span>
                   <h2>{seg.headline}</h2>
-                  <p className="solutions-segment-body">{seg.body}</p>
-                  <ul className="check-list solutions-check-list">
+                  <p className="sbe-mkt-solutions-segment-body">{seg.body}</p>
+                  <ul className="check-list sbe-mkt-solutions-check-list">
                     {seg.points.map((point) => (
                       <li key={point}>{point}</li>
                     ))}
@@ -131,10 +125,10 @@ export default function SolutionsPage() {
                     {seg.cta.label}
                   </Link>
                 </div>
-                <div className="solutions-segment-stat">
-                  <div className="solutions-stat-card">
-                    <div className="solutions-stat-value">{seg.stat.value}</div>
-                    <div className="solutions-stat-label">{seg.stat.label}</div>
+                <div className="sbe-mkt-solutions-segment-stat">
+                  <div className="sbe-mkt-solutions-stat-card">
+                    <div className="sbe-mkt-solutions-stat-value">{seg.stat.value}</div>
+                    <div className="sbe-mkt-solutions-stat-label">{seg.stat.label}</div>
                   </div>
                 </div>
               </div>
@@ -143,82 +137,17 @@ export default function SolutionsPage() {
         ))}
 
         {/* ── CTA ── */}
-        <section className="section section-cta">
-          <div className="container" style={{ textAlign: "center" }}>
-            <span className="eyebrow">Get started</span>
-            <h2>Your venue type. Your training platform.</h2>
-            <p style={{ maxWidth: 520, margin: "0 auto 32px", color: "var(--text-soft)" }}>
-              Start with a free demo and see how Serve By Example fits your operation, no commitment required.
-            </p>
-            <div className="hero-actions" style={{ justifyContent: "center" }}>
-              <Link href="/demo" className="btn btn-primary btn-lg">
-                Try the Free Demo
-              </Link>
-              <Link href="/contact" className="btn btn-secondary btn-lg">
-                Talk to Us
-              </Link>
-            </div>
-          </div>
-        </section>
+        <CTABand
+          background="green"
+          eyebrow="Get started"
+          title="Your venue type. Your training platform."
+          copy="Start with a free demo and see how Serve By Example fits your operation, no commitment required."
+          primary={{ label: "Try the Free Demo", href: "/demo" }}
+          secondary={{ label: "Talk to Us", href: "/contact" }}
+        />
       </main>
 
       <Footer />
-
-      <style>{`
-        .solutions-segment {
-          display: grid;
-          grid-template-columns: 1fr 280px;
-          gap: 64px;
-          align-items: start;
-        }
-        .solutions-segment-body {
-          color: var(--text-soft);
-          line-height: 1.7;
-          margin-bottom: 24px;
-        }
-        .solutions-check-list {
-          margin-bottom: 32px;
-        }
-        .solutions-segment-stat {
-          display: flex;
-          align-items: flex-start;
-          justify-content: center;
-          padding-top: 8px;
-        }
-        .solutions-stat-card {
-          background: var(--green-light);
-          border: 1px solid rgba(31, 78, 55, 0.15);
-          border-radius: var(--radius-xl);
-          padding: 36px 28px;
-          text-align: center;
-        }
-        .solutions-stat-value {
-          font-family: var(--font-heading);
-          font-size: 3.2rem;
-          font-weight: 700;
-          color: var(--green);
-          line-height: 1;
-          margin-bottom: 12px;
-        }
-        .solutions-stat-label {
-          font-size: 0.82rem;
-          color: var(--text-soft);
-          line-height: 1.5;
-        }
-        @media (max-width: 860px) {
-          .solutions-segment {
-            grid-template-columns: 1fr;
-            gap: 32px;
-          }
-          .solutions-segment-stat {
-            justify-content: flex-start;
-          }
-          .solutions-stat-card {
-            width: 100%;
-            max-width: 320px;
-          }
-        }
-      `}</style>
     </div>
   );
 }

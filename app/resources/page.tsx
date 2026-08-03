@@ -1,6 +1,8 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+import PageHero from "@/components/marketing/PageHero";
+import CTABand from "@/components/marketing/CTABand";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -27,15 +29,12 @@ export default function ResourcesPage() {
       <Navbar />
       <main>
         {/* ── Hero ── */}
-        <section className="inner-hero">
-          <div className="container">
-            <span className="eyebrow">Free Resources</span>
-            <h1>Practical tools for Australian hospitality operators.</h1>
-            <p className="inner-hero-sub">
-              Download, use, and keep them. No strings attached.
-            </p>
-          </div>
-        </section>
+        <PageHero
+          compact
+          eyebrow="Free Resources"
+          title="Practical tools for Australian hospitality operators."
+          subtitle="Download, use, and keep them. No strings attached."
+        />
 
         {/* ── SOP Template Builder ── */}
         <section className="section section-alt">
@@ -86,20 +85,14 @@ export default function ResourcesPage() {
         </section>
 
         {/* ── Platform nudge ── */}
-        <section className="section">
-          <div className="container" style={{ maxWidth: 640, textAlign: "center" }}>
-            <span className="eyebrow">Take it further</span>
-            <h2>Want the full training platform?</h2>
-            <p style={{ color: "var(--text-soft)", lineHeight: 1.7, marginBottom: "2rem" }}>
-              The SOP templates give you a starting point. Serve By Example gives your team AI-scored
-              scenario practice, progress tracking, and a manager console, all in one place.
-            </p>
-            <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-              <a href="/demo" className="btn btn-primary btn-lg">Try the Demo</a>
-              <a href="/membership" className="btn btn-secondary btn-lg">View Pricing</a>
-            </div>
-          </div>
-        </section>
+        <CTABand
+          background="neutral"
+          eyebrow="Take it further"
+          title="Want the full training platform?"
+          copy="The SOP templates give you a starting point. Serve By Example gives your team AI-scored scenario practice, progress tracking, and a manager console, all in one place."
+          primary={{ label: "Try the Demo", href: "/demo" }}
+          secondary={{ label: "View Pricing", href: "/membership" }}
+        />
       </main>
       <Footer />
     </div>

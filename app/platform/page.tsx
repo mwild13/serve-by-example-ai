@@ -3,6 +3,19 @@ import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SectionSubNav from "@/components/SectionSubNav";
+import PageHero from "@/components/marketing/PageHero";
+import CTABand from "@/components/marketing/CTABand";
+import FeatureGrid, { type FeatureGridItem } from "@/components/marketing/FeatureGrid";
+import SectionHeading from "@/components/ui/SectionHeading";
+import {
+  IconUsers,
+  IconBuilding,
+  IconLayers,
+  IconZap,
+  IconMessage,
+  IconChart,
+  IconAward,
+} from "@/components/icons/MarketingIcons";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -12,42 +25,36 @@ export const metadata: Metadata = {
   alternates: { canonical: "/platform" },
 };
 
-const features = [
+const features: FeatureGridItem[] = [
   {
-    icon: "◉",
+    icon: <IconMessage />,
     title: "Scenario Training",
-    description:
-      "Staff practice real hospitality situations through guided scenario roleplay: upselling, de-escalation, cocktail knowledge, service recovery.",
+    body: "Staff practice real hospitality situations through guided scenario roleplay: upselling, de-escalation, cocktail knowledge, service recovery.",
   },
   {
-    icon: "→",
+    icon: <IconLayers />,
     title: "Role-Based Learning Paths",
-    description:
-      "Tailor training to bartenders, floor staff, sales-focused team members and managers. Each role gets a targeted pathway.",
+    body: "Tailor training to bartenders, floor staff, sales-focused team members and managers. Each role gets a targeted pathway.",
   },
   {
-    icon: "◈",
+    icon: <IconChart />,
     title: "Live Performance Tracking",
-    description:
-      "Track progress across service, product knowledge, and sales skills. Real data shows you who is on-track and who needs support.",
+    body: "Track progress across service, product knowledge, and sales skills. Real data shows you who is on-track and who needs support.",
   },
   {
-    icon: "✦",
+    icon: <IconZap size={22} />,
     title: "AI Coach (Ask Anything)",
-    description:
-      "The AI Coach answers management questions in plain language. Ask who needs training this week and get an instant answer.",
+    body: "The AI Coach answers management questions in plain language. Ask who needs training this week and get an instant answer.",
   },
   {
-    icon: "◆",
+    icon: <IconAward />,
     title: "Gamification & Badges",
-    description:
-      "Staff earn milestone badges for completion, skill mastery, and top performance. Portable digital credentials boost engagement.",
+    body: "Staff earn milestone badges for completion, skill mastery, and top performance. Portable digital credentials boost engagement.",
   },
   {
-    icon: "▣",
+    icon: <IconBuilding />,
     title: "Multi-Venue Management",
-    description:
-      "Manage multiple sites from a single console. Compare venue health scores, spot group-wide skill gaps, and standardize training.",
+    body: "Manage multiple sites from a single console. Compare venue health scores, spot group-wide skill gaps, and standardize training.",
   },
 ];
 
@@ -65,34 +72,53 @@ const coachQuestions = [
   "Show me staff who need upselling practice.",
 ];
 
-const productBlocks = [
-  {
-    icon: "◉",
-    heading: "For staff",
-    points: [
-      "Short, mobile-first learning modules",
-      "Realistic scenario-based practice",
-      "Instant scored feedback on every response",
-      "Earn badges and track your own progress",
-    ],
-  },
-  {
-    icon: "≡",
-    heading: "For managers",
-    points: [
-      "Full staff roster with skill analytics",
-      "Ask the AI Coach about your team instantly",
-      "Assign targeted training by role or gap",
-      "Multi-venue health score comparison",
-    ],
-  },
+const staffPoints = [
+  "Short, mobile-first learning modules",
+  "Realistic scenario-based practice",
+  "Instant scored feedback on every response",
+  "Earn badges and track your own progress",
 ];
 
-const stats = [
-  { value: "90%", label: "Mobile completion rate" },
-  { value: "3×", label: "Faster onboarding vs. traditional training" },
-  { value: "+15%", label: "Avg upsell improvement" },
-  { value: "40+", label: "Training modules across bartending, sales and management" },
+const managerPoints = [
+  "Full staff roster with skill analytics",
+  "Ask the AI Coach about your team instantly",
+  "Assign targeted training by role or gap",
+  "Multi-venue health score comparison",
+];
+
+const stats: FeatureGridItem[] = [
+  { title: "90%", body: "Mobile completion rate", variant: "stat" },
+  { title: "3×", body: "Faster onboarding vs. traditional training", variant: "stat" },
+  { title: "+15%", body: "Avg upsell improvement", variant: "stat" },
+  { title: "40+", body: "Training modules across bartending, sales and management", variant: "stat" },
+];
+
+const audienceBlocks: FeatureGridItem[] = [
+  {
+    icon: <IconUsers />,
+    eyebrow: "For Frontline Staff",
+    title: "For staff",
+    variant: "dark",
+    body: (
+      <ul className="sbe-mkt-checklist">
+        {staffPoints.map((point) => (
+          <li key={point}>{point}</li>
+        ))}
+      </ul>
+    ),
+  },
+  {
+    icon: <IconChart />,
+    eyebrow: "For General Managers",
+    title: "For managers",
+    body: (
+      <ul className="sbe-mkt-checklist">
+        {managerPoints.map((point) => (
+          <li key={point}>{point}</li>
+        ))}
+      </ul>
+    ),
+  },
 ];
 
 const platformSchema = {
@@ -120,50 +146,35 @@ export default function PlatformPage() {
           { id: "arena", label: "Live Scenarios" },
           { id: "mobile", label: "Mobile" },
         ]} />
+
         {/* ── Hero ── */}
-        <section id="overview" className="inner-hero">
-          <div className="container">
-            <span className="eyebrow">Platform tour</span>
-            <h1>
-              Interactive hospitality training that actually moves the needle.
-            </h1>
-            <p className="inner-hero-sub">
-              Serve By Example gives your team scenario-based practice, live performance tracking, and
-              an AI Coach that knows your venue, all from a single management console.
-            </p>
-            <div className="inner-hero-actions">
-              <Link href="/demo" className="btn btn-primary btn-lg">
-                Try the Demo
-              </Link>
-              <Link href="/for-venues" className="btn btn-secondary btn-lg">
-                For Venues
-              </Link>
-            </div>
-          </div>
-        </section>
+        <div id="overview">
+          <PageHero
+            eyebrow="Platform tour"
+            title="Interactive hospitality training that actually moves the needle."
+            subtitle="Serve By Example gives your team scenario-based practice, live performance tracking, and an AI Coach that knows your venue, all from a single management console."
+            actions={[
+              { label: "Try the Demo", href: "/demo", variant: "primary" },
+              { label: "For Venues", href: "/for-venues", variant: "secondary" },
+            ]}
+          />
+        </div>
 
         {/* ── Stats bar ── */}
         <section className="section-tight section-alt">
           <div className="container">
-            <div className="platform-stats-row">
-              {stats.map((stat) => (
-                <div key={stat.label} className="platform-stat">
-                  <strong>{stat.value}</strong>
-                  <span>{stat.label}</span>
-                </div>
-              ))}
-            </div>
+            <FeatureGrid items={stats} columns={4} />
           </div>
         </section>
 
         {/* ── Dashboard Preview ── */}
         <section id="insights" className="section">
           <div className="container">
-            <div className="section-header center">
-              <span className="eyebrow">Management console</span>
-              <h2>Your venue&rsquo;s mission control.</h2>
-              <p>A live dashboard that shows staff performance, training completion, upsell trends, and venue health, all in one view.</p>
-            </div>
+            <SectionHeading
+              eyebrow="Management console"
+              title="Your venue’s mission control."
+              copy="A live dashboard that shows staff performance, training completion, upsell trends, and venue health, all in one view."
+            />
             <div className="platform-dashboard-mockup">
               <div className="platform-dash-sidebar">
                 <div className="platform-dash-logo">Venue operations</div>
@@ -187,7 +198,7 @@ export default function PlatformPage() {
                 </div>
                 <div className="platform-dash-ai-preview">
                   <div className="platform-dash-ai-head">
-                    <span>✦ Ask AI Coach</span>
+                    <span>Ask AI Coach</span>
                   </div>
                   <div className="platform-dash-ai-suggestions">
                     {coachQuestions.map((q) => (
@@ -195,7 +206,7 @@ export default function PlatformPage() {
                     ))}
                   </div>
                   <div className="platform-dash-ai-response">
-                    <span className="platform-dash-ai-label">✦ AI Coach</span>
+                    <span className="platform-dash-ai-label">AI Coach</span>
                     <p>Sarah (Bartender) and James (Floor) haven&rsquo;t completed their sales training module. Their upsell scores are below the venue average. I&rsquo;d recommend assigning &ldquo;Sales Conversations&rdquo; this week.</p>
                   </div>
                 </div>
@@ -207,67 +218,22 @@ export default function PlatformPage() {
         {/* ── Feature Grid ── */}
         <section id="arena" className="section section-alt">
           <div className="container">
-            <div className="section-header center">
-              <span className="eyebrow">What&rsquo;s inside</span>
-              <h2>Everything your team needs to perform at their best.</h2>
-            </div>
-            <div className="card-grid card-grid-3">
-              {features.map((feature) => (
-                <article key={feature.title} className="info-card platform-feature-card">
-                  <span className="platform-feature-icon">{feature.icon}</span>
-                  <h3>{feature.title}</h3>
-                  <p>{feature.description}</p>
-                </article>
-              ))}
-            </div>
+            <SectionHeading
+              eyebrow="What’s inside"
+              title="Everything your team needs to perform at their best."
+            />
+            <FeatureGrid items={features} columns={3} />
           </div>
         </section>
 
-        {/* ── Three Layers — Bento Grid 2.0 ── */}
-        <section id="features" className="section sbe-mkt-scope">
+        {/* ── Two Systems ── */}
+        <section id="features" className="section">
           <div className="container">
-            <div className="section-header center">
-              <span className="sbe-eyebrow">Two Systems, One Platform</span>
-              <h2 className="sbe-serif-title">What each layer actually does.</h2>
-            </div>
-
-            <div className="bento-grid" style={{ marginTop: "2.5rem" }}>
-
-              {/* Dark col-6 — For Staff */}
-              <div className="bento-card bento-card-dark sbe-span-6 sbe-interactive-hover">
-                <div>
-                  <span style={{ fontSize: "1.8rem", display: "block", marginBottom: "1rem", color: "var(--mkt-gold-500)" }}>&#9673;</span>
-                  <span className="sbe-eyebrow">For Frontline Staff</span>
-                  <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-cream-100)" }}>For staff</h3>
-                  <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                    {productBlocks[0].points.map((point) => (
-                      <li key={point} style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", fontSize: "0.875rem", color: "rgba(250,249,246,0.75)", lineHeight: 1.55 }}>
-                        <span style={{ color: "var(--mkt-gold-500)", flexShrink: 0, fontWeight: 700 }}>&#10003;</span>
-                        {point}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              {/* Light col-6 — For Managers */}
-              <div className="bento-card sbe-span-6 sbe-interactive-hover">
-                <div>
-                  <span style={{ fontSize: "1.8rem", display: "block", marginBottom: "1rem", color: "var(--mkt-forest-900)" }}>&equiv;</span>
-                  <span className="sbe-eyebrow">For General Managers</span>
-                  <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-forest-900)" }}>For managers</h3>
-                  <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                    {productBlocks[1].points.map((point) => (
-                      <li key={point} style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", fontSize: "0.875rem", color: "var(--mkt-charcoal-400)", lineHeight: 1.55 }}>
-                        <span style={{ color: "var(--mkt-gold-500)", flexShrink: 0, fontWeight: 700 }}>&#10003;</span>
-                        {point}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-            </div>
+            <SectionHeading
+              eyebrow="Two Systems, One Platform"
+              title="What each layer actually does."
+            />
+            <FeatureGrid items={audienceBlocks} columns={2} />
           </div>
         </section>
 
@@ -306,25 +272,13 @@ export default function PlatformPage() {
         </section>
 
         {/* ── CTA ── */}
-        <section className="section section-cta">
-          <div className="container cta-box">
-            <div>
-              <h3>The market is shifting to interactive, scenario-based training. You&rsquo;re already there.</h3>
-              <p>
-                Major hospitality platforms are just now beginning to build what Serve By Example already has.
-                Your window of competitive advantage is now, while the incumbents are still in the planning phase.
-              </p>
-            </div>
-            <div className="cta-actions">
-              <Link href="/demo" className="btn btn-gold btn-lg">
-                Try the Demo
-              </Link>
-              <Link href="/for-venues" className="btn btn-outline-light btn-lg">
-                For Venues
-              </Link>
-            </div>
-          </div>
-        </section>
+        <CTABand
+          background="green"
+          title="The market is shifting to interactive, scenario-based training. You’re already there."
+          copy="Major hospitality platforms are just now beginning to build what Serve By Example already has. Your window of competitive advantage is now, while the incumbents are still in the planning phase."
+          primary={{ label: "Start Free Trial", href: "/login?intent=trial&tier=boutique" }}
+          secondary={{ label: "Try the Demo", href: "/demo" }}
+        />
       </main>
 
       <Footer />

@@ -3,6 +3,8 @@
 import { FormEvent, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHero from "@/components/marketing/PageHero";
+import CTABand from "@/components/marketing/CTABand";
 
 const VENUE_TYPES = ["Bar / Pub", "Restaurant", "Hotel F&B", "Events venue", "Other"];
 
@@ -48,16 +50,12 @@ export default function ContactPage() {
     <div className="page-shell">
       <Navbar />
       <main id="main-content">
-        <section className="inner-hero">
-          <div className="container">
-            <div className="eyebrow">Get in touch</div>
-            <h1>Talk to us</h1>
-            <p className="hero-sub">
-              Questions, partnership enquiries, or just want to see if we&apos;re a fit.
-              We&apos;d love to hear from you.
-            </p>
-          </div>
-        </section>
+        <PageHero
+          compact
+          eyebrow="Get in touch"
+          title="Talk to us"
+          subtitle="Questions, partnership enquiries, or just want to see if we're a fit. We'd love to hear from you."
+        />
 
         <section className="section">
           <div className="container contact-grid">
@@ -188,6 +186,14 @@ export default function ContactPage() {
             </div>
           </div>
         </section>
+
+        {/* ── CTA ── */}
+        <CTABand
+          background="neutral"
+          title="Not ready to talk yet?"
+          copy="Try the demo first — no account needed, no sales conversation required."
+          primary={{ label: "Try the Demo", href: "/demo" }}
+        />
       </main>
       <Footer />
     </div>
