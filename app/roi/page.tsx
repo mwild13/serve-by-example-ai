@@ -23,15 +23,15 @@ const supportingStats: FeatureGridItem[] = [
   },
   {
     variant: "stat",
-    eyebrow: "less manager overhead",
-    title: "70%",
-    body: "Venue managers spend dramatically less time running induction sessions and shadowing new starters.",
+    eyebrow: "self-serve modules",
+    title: "40+",
+    body: "Staff work through structured modules on their own device — without a manager running induction sessions or shadowing new starters.",
   },
   {
     variant: "stat",
-    eyebrow: "avg upsell lift",
-    title: "+15%",
-    body: "Staff trained on scenario-based practice consistently outperform on upsell metrics within 8 weeks.",
+    eyebrow: "service dimensions scored",
+    title: "5",
+    body: "Every scenario response is scored on communication, hospitality, problem-solving, professionalism and guest experience — including upsell technique.",
   },
 ];
 
@@ -61,7 +61,7 @@ export default function ROIPage() {
             <SectionHeading
               eyebrow="The numbers behind the calculator"
               title="Where the gains come from."
-              copy="These benchmarks are drawn from venues using interactive training versus traditional induction methods."
+              copy="How the platform is built to move these numbers: structured scenario practice and scored feedback in place of one-off inductions."
             />
             <FeatureGrid items={supportingStats} columns={3} />
           </div>

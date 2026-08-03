@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import SopGeneratorPreview from '@/app/toolkit/_components/SopGeneratorPreview';
+import PageHero from '@/components/marketing/PageHero';
 
 export const metadata: Metadata = {
   title: 'Free Staff Onboarding SOP Templates — Serve By Example',
@@ -34,54 +35,15 @@ export default function ToolkitPage() {
         </Link>
       </nav>
 
-      <section
-        style={{
-          maxWidth: '800px',
-          margin: '0 auto 3rem auto',
-          textAlign: 'center',
-        }}
-      >
-        <span
-          style={{
-            display: 'block',
-            fontFamily: 'var(--font-body)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            fontSize: '0.8rem',
-            color: 'var(--green)',
-            fontWeight: '600',
-            marginBottom: '0.75rem',
-          }}
-        >
-          Free for Australian hospitality operators
-        </span>
-
-        <h1
-          style={{
-            fontFamily: 'var(--font-heading)',
-            fontSize: 'clamp(2rem, 5vw, 2.75rem)',
-            lineHeight: '1.15',
-            color: 'var(--text)',
-            marginBottom: '1.25rem',
-            letterSpacing: '-0.02em',
-          }}
-        >
-          Your venue&rsquo;s staff onboarding SOP, built in 60 seconds.
-        </h1>
-
-        <p
-          style={{
-            fontSize: '1.1rem',
-            lineHeight: '1.65',
-            color: 'var(--text-soft)',
-            maxWidth: '580px',
-            margin: '0 auto',
-          }}
-        >
-          Select your venue type and biggest compliance pain point. We&rsquo;ll generate
-          a structured, copy-pasteable SOP template matched to your operation.
-        </p>
-      </section>
+      {/* Deliberately chrome-less lead-magnet page — PageHero for markup
+          consistency, but no Navbar/Footer/CTABand: the generator below IS
+          the conversion action, and extra nav is an exit route. */}
+      <PageHero
+        compact
+        eyebrow="Free for Australian hospitality operators"
+        title="Your venue’s staff onboarding SOP, built in 60 seconds."
+        subtitle="Select your venue type and biggest compliance pain point. We’ll generate a structured, copy-pasteable SOP template matched to your operation."
+      />
 
       <section style={{ maxWidth: '850px', margin: '0 auto' }}>
         <SopGeneratorPreview />

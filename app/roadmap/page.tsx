@@ -1,6 +1,8 @@
-import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHero from "@/components/marketing/PageHero";
+import CTABand from "@/components/marketing/CTABand";
+import FeatureGrid, { type FeatureGridItem } from "@/components/marketing/FeatureGrid";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -10,48 +12,41 @@ export const metadata: Metadata = {
   alternates: { canonical: "/roadmap" },
 };
 
-const roadmapItems = [
+const roadmapItems: FeatureGridItem[] = [
   {
-    eta: "2 months",
-    status: "soon",
+    eyebrow: "2 months",
     title: "Expanded Staff Modules",
-    desc: "New training modules covering coffee service, food pairing, wine fundamentals and advanced guest interaction, built around Australian hospitality standards.",
+    body: "New training modules covering coffee service, food pairing, wine fundamentals and advanced guest interaction, built around Australian hospitality standards.",
   },
   {
-    eta: "4 months",
-    status: "soon",
+    eyebrow: "4 months",
     title: "Large-Venue & Events Training",
-    desc: "Expanded scenario sets for large-venue management, events service and high-volume bar operations.",
+    body: "Expanded scenario sets for large-venue management, events service and high-volume bar operations.",
   },
   {
-    eta: "6 months",
-    status: "planned",
+    eyebrow: "6 months",
     title: "Certification Deep-Dives",
-    desc: "Deep-dive certifications in spirits, cocktail history, advanced bar technique and cellar management for venues that want to build genuine expertise.",
+    body: "Deep-dive certifications in spirits, cocktail history, advanced bar technique and cellar management for venues that want to build genuine expertise.",
   },
   {
-    eta: "Within 6 months",
-    status: "soon",
+    eyebrow: "Within 6 months",
     title: "V2: Major Platform Release",
-    desc: "A significant platform update informed by founding member feedback, with new features across training, analytics and management. Founding members shape what gets prioritised.",
+    body: "A significant platform update informed by founding member feedback, with new features across training, analytics and management. Founding members shape what gets prioritised.",
   },
   {
-    eta: "TBA",
-    status: "planned",
+    eyebrow: "TBA",
     title: "Custom Scenario Builder",
-    desc: "Upload your venue's menus, house rules, and POS workflows directly into the AI model. Generate training scenarios built around your specific operation, not a generic template.",
+    body: "Upload your venue's menus, house rules, and POS workflows directly into the AI model. Generate training scenarios built around your specific operation, not a generic template.",
   },
   {
-    eta: "TBA",
-    status: "planned",
+    eyebrow: "TBA",
     title: "iOS & Android Native Apps",
-    desc: "Native mobile apps so staff can train on the go, anytime, anywhere, fully synced with their progress, badges, and manager-assigned tasks.",
+    body: "Native mobile apps so staff can train on the go, anytime, anywhere, fully synced with their progress, badges, and manager-assigned tasks.",
   },
   {
-    eta: "TBA",
-    status: "planned",
+    eyebrow: "TBA",
     title: "Further Design & Functionality",
-    desc: "Continuous UI improvements, accessibility updates and performance enhancements across all pages and flows, informed by real venue feedback.",
+    body: "Continuous UI improvements, accessibility updates and performance enhancements across all pages and flows, informed by real venue feedback.",
   },
 ];
 
@@ -62,68 +57,28 @@ export default function RoadmapPage() {
 
       <main>
         {/* ── Hero ── */}
-        <section className="inner-hero">
-          <div className="container">
-            <span className="eyebrow">Product Roadmap</span>
-            <h1>What we&rsquo;re building next.</h1>
-            <p className="inner-hero-sub">
-              Serve By Example is actively built and improved based on venue operator feedback.
-              Here&rsquo;s what&rsquo;s coming, and when founding members can expect it.
-            </p>
-          </div>
-        </section>
+        <PageHero
+          eyebrow="Product Roadmap"
+          title="What we’re building next."
+          subtitle="Serve By Example is actively built and improved based on venue operator feedback. Here’s what’s coming, and when founding members can expect it."
+        />
 
         {/* ── Roadmap grid ── */}
         <section className="section section-alt">
           <div className="container">
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.25rem" }}>
-              {roadmapItems.map((item, i) => (
-                <div
-                  key={i}
-                  style={{
-                    background: "var(--surface)",
-                    border: `1.5px solid ${item.status === "soon" ? "var(--green-light)" : "var(--line)"}`,
-                    borderRadius: "var(--radius-md)",
-                    padding: "1.5rem",
-                  }}
-                >
-                  <div style={{
-                    fontSize: "0.7rem",
-                    fontWeight: 800,
-                    letterSpacing: "0.08em",
-                    color: item.status === "soon" ? "var(--green-mid)" : "var(--text-muted)",
-                    textTransform: "uppercase",
-                    marginBottom: "0.5rem",
-                  }}>
-                    {item.eta}
-                  </div>
-                  <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.9375rem", fontWeight: 700, color: "var(--text)" }}>{item.title}</h3>
-                  <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--text-soft)", lineHeight: 1.6 }}>{item.desc}</p>
-                </div>
-              ))}
-            </div>
+            <FeatureGrid items={roadmapItems} columns={3} />
           </div>
         </section>
 
         {/* ── Founding member callout ── */}
-        <section className="section">
-          <div className="container" style={{ maxWidth: 680, textAlign: "center" }}>
-            <span className="eyebrow">Shape What Gets Built</span>
-            <h2>Founding members influence the roadmap directly.</h2>
-            <p style={{ color: "var(--text-soft)", fontSize: "1.05rem", lineHeight: 1.7, marginBottom: "2rem" }}>
-              We run monthly calls with founding venue members to review what&rsquo;s working, what&rsquo;s missing, and what gets prioritised next.
-              If you join now, your operation shapes the platform.
-            </p>
-            <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-              <Link href="/contact" className="btn btn-primary btn-lg">
-                Request Venue Access
-              </Link>
-              <Link href="/membership" className="btn btn-secondary btn-lg">
-                View Pricing
-              </Link>
-            </div>
-          </div>
-        </section>
+        <CTABand
+          background="green"
+          eyebrow="Shape What Gets Built"
+          title="Founding members influence the roadmap directly."
+          copy="We run monthly calls with founding venue members to review what’s working, what’s missing, and what gets prioritised next. If you join now, your operation shapes the platform."
+          primary={{ label: "Request Venue Access", href: "/contact" }}
+          secondary={{ label: "View Pricing", href: "/membership" }}
+        />
       </main>
 
       <Footer />

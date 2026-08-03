@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/marketing/PageHero";
@@ -51,6 +52,53 @@ export default function AboutPage() {
           title="Built by people who know hospitality"
           subtitle="Serve By Example started from a simple frustration: great hospitality training was out of reach for most venues: too expensive, too generic, too slow. We built the platform we wished existed."
         />
+
+        {/* ── Founder Story — ported from homepage, minus the stat row
+              (numbers-as-decoration, per Pages-Redesign.md §6.3) ── */}
+        <section className="section section-alt" style={{ border: "1px solid var(--line)" }}>
+          <div className="container">
+            <div style={{ maxWidth: "880px" }}>
+              <div className="founder-row">
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
+                  <Image
+                    src="/24 May Jpg's/Founder.webp"
+                    alt="Mitch, Founder of Serve By Example"
+                    width={140}
+                    height={140}
+                    loading="lazy"
+                    quality={60}
+                    style={{ borderRadius: "4px", objectFit: "cover", width: "140px", height: "140px", display: "block" }}
+                  />
+                  <span style={{ marginTop: "0.625rem", fontSize: "0.875rem", fontWeight: 700, color: "var(--text-soft)", textAlign: "center" }}>Mitch</span>
+                </div>
+                <div className="founder-text">
+                  <span className="eyebrow">Built From Experience</span>
+                  <h2 style={{ marginBottom: "1rem" }}>Built by a 15-year hospitality veteran.</h2>
+                  <p style={{ fontSize: "1.125rem", color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
+                    Serve By Example was created and is managed by a real hospitality professional with over 15 years of experience across Australian bars, pubs and venues. Not built in a boardroom, built behind the bar.
+                  </p>
+                </div>
+              </div>
+              <blockquote style={{
+                margin: "2rem 0 0",
+                maxWidth: "600px",
+                padding: "1.5rem 2rem",
+                background: "var(--surface-raised)",
+                border: "1.5px solid var(--divider-light)",
+                borderLeft: "4px solid var(--green-mid)",
+                borderRadius: "var(--radius-md)",
+                textAlign: "left",
+              }}>
+                <p style={{ margin: 0, fontSize: "1.05rem", fontStyle: "italic", color: "var(--green-deep)", lineHeight: 1.65, fontWeight: 500 }}>
+                  &ldquo;I built the training tool I always wished I had, one that works for real venues, real staff, and the real pressure of a busy service.&rdquo;
+                </p>
+                <footer style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: "var(--color-text-muted)", fontStyle: "normal", fontWeight: 600 }}>
+                  Mitch, Serve By Example, Australia
+                </footer>
+              </blockquote>
+            </div>
+          </div>
+        </section>
 
         {/* ── Story blocks ── */}
         <section className="section">

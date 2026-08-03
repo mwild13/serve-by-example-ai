@@ -377,11 +377,11 @@ export default function SopToolkitPage() {
                 { q: 'Can I edit the template?', a: 'Yes. You receive a fully editable Notion document you can duplicate into your own workspace and customise from there.' },
                 { q: 'Is this a substitute for legal or HR advice?', a: 'No. Templates are aligned to publicly available Award and licensing frameworks. Seek qualified advice for complex compliance questions.' },
                 { q: "What's the difference between this and the Serve By Example platform?", a: 'The SOP template is a one-time static document. The platform gives your team interactive training, AI scenario practice, progress tracking, and a full manager dashboard.' },
-              ].map((item, i) => (
-                <div key={i} className="faq-item">
-                  <button className="faq-question">{item.q}</button>
-                  <div className="faq-answer"><p>{item.a}</p></div>
-                </div>
+              ].map((item) => (
+                <details key={item.q} className="faq-item">
+                  <summary>{item.q}</summary>
+                  <p>{item.a}</p>
+                </details>
               ))}
             </div>
           </div>

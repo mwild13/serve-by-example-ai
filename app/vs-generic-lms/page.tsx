@@ -1,6 +1,9 @@
-import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHero from "@/components/marketing/PageHero";
+import CTABand from "@/components/marketing/CTABand";
+import FeatureGrid, { type FeatureGridItem } from "@/components/marketing/FeatureGrid";
+import SectionHeading from "@/components/ui/SectionHeading";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -90,56 +93,39 @@ export default function VsGenericLmsPage() {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
 
         {/* ── Hero ── */}
-        <section className="inner-hero">
-          <div className="container">
-            <span className="eyebrow">Serve By Example vs Generic LMS</span>
-            <h1>
-              Why a generic LMS won&rsquo;t work for hospitality.
-            </h1>
-            <p className="inner-hero-sub" style={{ maxWidth: "640px" }}>
-              Generic LMS platforms were built for corporate compliance training:
-              long videos, passive click-through modules, and no real skill
-              measurement. Hospitality training requires something built for the
-              reality of a busy service — not a boardroom.
-            </p>
-            <div className="inner-hero-actions">
-              <Link href="/demo" className="btn btn-primary btn-lg">
-                Try the Free Demo
-              </Link>
-              <Link href="/membership" className="btn btn-secondary btn-lg">
-                View Pricing
-              </Link>
-            </div>
-          </div>
-        </section>
+        <PageHero
+          eyebrow="Serve By Example vs Generic LMS"
+          title="Why a generic LMS won’t work for hospitality."
+          subtitle="Generic LMS platforms were built for corporate compliance training: long videos, passive click-through modules, and no real skill measurement. Hospitality training requires something built for the reality of a busy service — not a boardroom."
+          actions={[
+            { label: "Try the Free Demo", href: "/demo", variant: "primary" },
+            { label: "View Pricing", href: "/membership", variant: "secondary" },
+          ]}
+        />
 
         {/* ── Core differentiator callout ── */}
         <section className="section" style={{ background: "var(--surface-raised)", padding: "2.5rem 0" }}>
           <div className="container">
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.5rem", maxWidth: "900px", margin: "0 auto" }}>
-              {[
-                { stat: "5", label: "Service dimensions scored per AI scenario response — not just pass/fail" },
-                { stat: "40+", label: "Hospitality-specific modules across bartending, sales, and management" },
-                { stat: "1 day", label: "Average setup time — no content creation or SCORM uploads required" },
-                { stat: "90%+", label: "Mobile completion rates when staff train between shifts on their phone" },
-              ].map(({ stat, label }) => (
-                <div key={stat} style={{ textAlign: "center", padding: "1.5rem 1rem", border: "1px solid var(--line)", borderRadius: "var(--radius-md)", background: "var(--surface)" }}>
-                  <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "var(--green-deep)", lineHeight: 1, marginBottom: "0.5rem" }}>{stat}</div>
-                  <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--text-soft)", lineHeight: 1.5 }}>{label}</p>
-                </div>
-              ))}
-            </div>
+            <FeatureGrid
+              columns={4}
+              items={[
+                { variant: "stat", title: "5", body: "Service dimensions scored per AI scenario response — not just pass/fail" },
+                { variant: "stat", title: "40+", body: "Hospitality-specific modules across bartending, sales, and management" },
+                { variant: "stat", title: "1 day", body: "Average setup time — no content creation or SCORM uploads required" },
+                { variant: "stat", title: "90%+", body: "Mobile completion rates when staff train between shifts on their phone" },
+              ] satisfies FeatureGridItem[]}
+            />
           </div>
         </section>
 
         {/* ── Head-to-head comparison table ── */}
         <section className="section section-alt">
           <div className="container">
-            <div className="section-header center">
-              <span className="eyebrow">Head-to-head</span>
-              <h2>What generic LMS platforms get wrong for hospitality.</h2>
-              <p>Eight dimensions where the platform design fundamentally differs.</p>
-            </div>
+            <SectionHeading
+              eyebrow="Head-to-head"
+              title="What generic LMS platforms get wrong for hospitality."
+              copy="Eight dimensions where the platform design fundamentally differs."
+            />
 
             <div style={{ marginTop: "2.5rem", display: "flex", flexDirection: "column", gap: "0", border: "1px solid var(--line)", borderRadius: "var(--radius-lg)", overflow: "hidden" }}>
               {/* Table header */}
@@ -229,22 +215,13 @@ export default function VsGenericLmsPage() {
         </section>
 
         {/* ── CTA ── */}
-        <section className="section section-cta">
-          <div className="container cta-box">
-            <div>
-              <h2>See what hospitality training looks like when it&rsquo;s built for hospitality.</h2>
-              <p className="cta-proof">No credit card required. Full platform access in the demo.</p>
-            </div>
-            <div className="cta-actions">
-              <Link href="/demo" className="btn btn-gold btn-lg">
-                Try the Free Demo
-              </Link>
-              <Link href="/contact" className="btn btn-outline-light btn-lg">
-                Talk to Us
-              </Link>
-            </div>
-          </div>
-        </section>
+        <CTABand
+          background="green"
+          title="See what hospitality training looks like when it’s built for hospitality."
+          copy="No credit card required. Full platform access in the demo."
+          primary={{ label: "Try the Free Demo", href: "/demo" }}
+          secondary={{ label: "Talk to Us", href: "/contact" }}
+        />
       </main>
 
       <Footer />

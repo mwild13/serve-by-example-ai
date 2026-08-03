@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
+import PageHero from "@/components/marketing/PageHero";
 import ScenarioSimulatorPane, {
   type ModuleId,
   type DemoScenario,
@@ -161,15 +162,12 @@ export default function DemoPage() {
       <Navbar />
 
       <main>
-        <section className="inner-hero demo-inner-hero">
-          <div className="container">
-            <div className="eyebrow">Interactive demo</div>
-            <h1>Try a real hospo scenario</h1>
-            <p className="inner-hero-sub">
-              Pick a module, respond, have your answer evaluated.
-            </p>
-          </div>
-        </section>
+        <PageHero
+          compact
+          eyebrow="Interactive demo"
+          title="Try a real hospo scenario"
+          subtitle="Pick a module, respond, have your answer evaluated."
+        />
 
         <section className="container demo-dual-pane">
           <ScenarioSimulatorPane

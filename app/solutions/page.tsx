@@ -24,7 +24,7 @@ const segments = [
       "Compare venue health scores and spot skill gaps across your entire group at a glance",
       "Reduce reliance on individual senior staff to train junior team members",
     ],
-    stat: { value: "70%", label: "reduction in average onboarding time for multi-site groups" },
+    stat: { value: "3", label: "stage structured onboarding path — from knowledge to verified floor readiness" },
     cta: { href: "/solutions/pub-groups", label: "See pub group features" },
   },
   {
@@ -38,7 +38,7 @@ const segments = [
       "Simulate high-pressure service situations before they happen on a Friday night",
       "Track individual staff mastery scores so managers know exactly where to focus coaching",
     ],
-    stat: { value: "22%", label: "average upsell revenue lift within 8 weeks of adoption" },
+    stat: { value: "65+", label: "bartending and service scenarios to practise before the next big service" },
     cta: { href: "/solutions/fine-dining", label: "See fine dining features" },
   },
   {
@@ -52,7 +52,7 @@ const segments = [
       "Reduce the cost of high-turnover onboarding with a scalable, self-serve training system",
       "Ensure brand compliance across every franchisee location without head-office oversight",
     ],
-    stat: { value: "200+", label: "staff onboarded across 12 locations in under 30 days" },
+    stat: { value: "200+", label: "staff capacity across 12+ locations, supported from day one" },
     cta: { href: "/solutions/franchise-systems", label: "See franchise features" },
   },
   {
