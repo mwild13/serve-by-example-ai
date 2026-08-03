@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHero from "@/components/marketing/PageHero";
 
 type Scenario = {
   id: string;
@@ -138,17 +139,12 @@ export default function ComplaintMasterPage() {
       <Navbar />
       <main>
         {/* ── Hero ── */}
-        <section className="inner-hero cm-hero">
-          <div className="container">
-            <span className="eyebrow">Free Training Tool</span>
-            <h1>Complaint Master</h1>
-            <p className="inner-hero-sub">
-              Practice turning unhappy guests into loyal ones. Three real hospitality complaint
-              scenarios, scored instantly, in Australian English, the way it happens on the
-              floor.
-            </p>
-          </div>
-        </section>
+        <PageHero
+          compact
+          eyebrow="Free Training Tool"
+          title="Complaint Master"
+          subtitle="Practice turning unhappy guests into loyal ones. Three real hospitality complaint scenarios, scored instantly, in Australian English, the way it happens on the floor."
+        />
 
         <section className="section cm-section">
           <div className="container cm-container">

@@ -4,7 +4,9 @@ import { lazy, Suspense } from "react";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
-import VenueMarquee from "@/components/VenueMarquee";
+import LogoMarquee from "@/components/marketing/LogoMarquee";
+import FeatureGrid from "@/components/marketing/FeatureGrid";
+import SectionHeading from "@/components/ui/SectionHeading";
 import { IconUsers, IconBuilding, IconBook, IconZap, IconLayers, IconPhone } from "@/components/icons/MarketingIcons";
 import type { Metadata } from "next";
 
@@ -89,48 +91,40 @@ export default function Home() {
         {/* ── Hero ─────────────────────────────────── */}
         <HeroSection />
 
-        <VenueMarquee />
+        {/* Text-category fallback until real venue logos exist (§5.3) —
+            pass `logos={[...]}` once named customers grant permission. */}
+        <LogoMarquee />
 
         {/* Trust Stats band removed — the hero's in-line trust row now carries
             3× / 100+ / 19 (Pages-Redesign.md §6.1); repeating them in cards
             directly below was numbers-as-decoration (§6.3). */}
 
-        {/* ── Core Pillars — Bento Grid 2.0 ──────── */}
-        <section className="section sbe-mkt-scope">
+        {/* ── Core Pillars ─────────────────────────── */}
+        <section className="section">
           <div className="container">
-            <div className="section-header">
-              <span className="sbe-eyebrow">Two Systems, One Platform</span>
-              <h2 className="sbe-serif-title">Built for High-Performance Venues</h2>
-              <p className="sbe-sans-body">Everything your venue needs to train staff confidently, built for real hospitality operations.</p>
-            </div>
-
-            <div className="bento-grid" style={{ marginTop: "2.5rem" }}>
-
-              {/* Dark col-6 — Frontline Staff */}
-              <div className="bento-card bento-card-dark sbe-span-6 sbe-interactive-hover mkt-card-sharp">
-                <div>
-                  <div style={{ width: "44px", height: "44px", background: "rgba(212,175,55,0.18)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1.25rem", color: "var(--mkt-gold-500)" }}>
-                    <IconZap size={22} />
-                  </div>
-                  <span className="sbe-eyebrow">For Frontline Staff</span>
-                  <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-cream-100)" }}>AI Scenario Simulators</h3>
-                  <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.65, color: "rgba(250,249,246,0.72)" }}>GPT-4o-mini scores every roleplay response across 5 service dimensions. Real pressure, real feedback and no manager required.</p>
-                </div>
-              </div>
-
-              {/* Light col-6 — General Managers */}
-              <div className="bento-card sbe-span-6 sbe-interactive-hover mkt-card-sharp">
-                <div>
-                  <div style={{ width: "44px", height: "44px", background: "var(--green-light)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--green)", marginBottom: "1.25rem" }}>
-                    <IconBuilding size={22} />
-                  </div>
-                  <span className="sbe-eyebrow">For General Managers</span>
-                  <h3 style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--mkt-forest-900)" }}>Manager Console</h3>
-                  <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.65, color: "var(--mkt-charcoal-400)" }}>Every module completion, quiz score, and scenario session syncs to the manager console automatically. Full visibility, zero admin overhead.</p>
-                </div>
-              </div>
-
-            </div>
+            <SectionHeading
+              eyebrow="Two Systems, One Platform"
+              title="Built for High-Performance Venues"
+              copy="Everything your venue needs to train staff confidently, built for real hospitality operations."
+            />
+            <FeatureGrid
+              columns={2}
+              items={[
+                {
+                  icon: <IconZap size={22} />,
+                  eyebrow: "For Frontline Staff",
+                  title: "AI Scenario Simulators",
+                  body: "GPT-4o-mini scores every roleplay response across 5 service dimensions. Real pressure, real feedback and no manager required.",
+                  variant: "dark",
+                },
+                {
+                  icon: <IconBuilding size={22} />,
+                  eyebrow: "For General Managers",
+                  title: "Manager Console",
+                  body: "Every module completion, quiz score, and scenario session syncs to the manager console automatically. Full visibility, zero admin overhead.",
+                },
+              ]}
+            />
           </div>
         </section>
 

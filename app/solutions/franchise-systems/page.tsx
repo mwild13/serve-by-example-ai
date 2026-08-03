@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/marketing/PageHero";
 import CTABand from "@/components/marketing/CTABand";
+import MetricsStrip from "@/components/marketing/MetricsStrip";
 import FeatureGrid, { type FeatureGridItem } from "@/components/marketing/FeatureGrid";
 import SectionHeading from "@/components/ui/SectionHeading";
 import {
@@ -75,25 +76,14 @@ export default function FranchiseSystemsPage() {
           ]}
         />
 
-        {/* ── Metrics strip ── */}
-        <section className="section trust-section trust-section-green metrics-strip">
-          <div className="container">
-            <div className="metrics-strip-row">
-              <div className="metrics-strip-item">
-                <div className="metrics-strip-value">200+</div>
-                <div className="metrics-strip-label">staff capacity across 12+ locations, supported from Day 1</div>
-              </div>
-              <div className="metrics-strip-item">
-                <div className="metrics-strip-value">0</div>
-                <div className="metrics-strip-label">head-office visits required to enforce training compliance</div>
-              </div>
-              <div className="metrics-strip-item">
-                <div className="metrics-strip-value">90%</div>
-                <div className="metrics-strip-label">of training completed on mobile, no desktop required</div>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* ── Metrics strip — softened to platform facts (ACCC pass) ── */}
+        <MetricsStrip
+          metrics={[
+            { value: "200+", label: "staff capacity across 12+ locations, supported from Day 1" },
+            { value: "0", label: "head-office visits required to see training compliance" },
+            { value: "100%", label: "of training completable on mobile, no desktop required" },
+          ]}
+        />
 
         {/* ── Feature grid ── */}
         <section className="section section-alt">

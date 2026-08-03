@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHero from "@/components/marketing/PageHero";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -14,13 +15,7 @@ export default function TermsPage() {
       <Navbar />
 
       <main>
-        <section className="inner-hero">
-          <div className="container">
-            <div className="eyebrow">Legal</div>
-            <h1>Terms of Service</h1>
-            <p className="inner-hero-sub">Last updated: 26 April 2026</p>
-          </div>
-        </section>
+        <PageHero compact eyebrow="Legal" title="Terms of Service" subtitle="Last updated: 26 April 2026" />
 
         <section className="section">
           <div className="container">

@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/marketing/PageHero";
 import CTABand from "@/components/marketing/CTABand";
+import MetricsStrip from "@/components/marketing/MetricsStrip";
 import FeatureGrid, { type FeatureGridItem } from "@/components/marketing/FeatureGrid";
 import SectionHeading from "@/components/ui/SectionHeading";
 import {
@@ -76,24 +77,13 @@ export default function FineDiningPage() {
         />
 
         {/* ── Metrics strip ── */}
-        <section className="section trust-section trust-section-green metrics-strip">
-          <div className="container">
-            <div className="metrics-strip-row">
-              <div className="metrics-strip-item">
-                <div className="metrics-strip-value">38</div>
-                <div className="metrics-strip-label">cocktail and spirit specs embedded in the training library</div>
-              </div>
-              <div className="metrics-strip-item">
-                <div className="metrics-strip-value">65+</div>
-                <div className="metrics-strip-label">bartending and service scenarios to practise</div>
-              </div>
-              <div className="metrics-strip-item">
-                <div className="metrics-strip-value">5 dims</div>
-                <div className="metrics-strip-label">every response evaluated across 5 service dimensions</div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <MetricsStrip
+          metrics={[
+            { value: "38", label: "cocktail and spirit specs embedded in the training library" },
+            { value: "65+", label: "bartending and service scenarios to practise" },
+            { value: "5 dims", label: "every response evaluated across 5 service dimensions" },
+          ]}
+        />
 
         {/* ── Feature grid ── */}
         <section className="section section-alt">

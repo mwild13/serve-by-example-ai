@@ -152,6 +152,19 @@ The "14-Day Performance Guarantee" and "Zero risk to your floor operations" mess
 
 ## 6. Phase 1 Blueprint — Hero & Sub-Page Redesign (August 2026)
 
+> **Status (August 2026): SHIPPED.** All six §3.1 components exist in
+> `components/marketing/` (`PageHero`, `SectionHeading` extended in
+> `components/ui/`, `FeatureGrid`, `MetricsStrip`, `CTABand`, `LogoMarquee`)
+> and every marketing route — homepage, /platform, /solutions + 5 verticals,
+> /about, /pricing, /how-it-works, /for-venues, /roi, /security, /contact,
+> /resources/*, /toolkit, /demo, /demo/complaint-master, /roadmap,
+> /vs-generic-lms, and the legal pages — consumes them. No `.inner-hero`,
+> `bento-grid`, Unicode-glyph icons, or centered-default section headers
+> remain in `app/`. Outstanding: real venue logos for `LogoMarquee` (renders
+> text-category fallback until then), testimonials (blocked on real
+> customers), and `components/VenueMarquee.tsx` is now dead code, safe to
+> delete.
+
 Written after reviewing: current codebase (`HeroSection.tsx`, `globals.css` tokens), FireShot captures of the live homepage/platform/solutions/membership/about pages, `SBE_Hero_Reconciliation_Report.docx`, and a live teardown of lemmonade.au. Copy decisions below defer to `SBE-Marketing-Audit-July2026.md` and the reconciliation report — **headline and CTA wording are locked, not up for redesign.**
 
 ### 6.1 Hero layout — 60/40 asymmetric split

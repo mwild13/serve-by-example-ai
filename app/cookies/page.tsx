@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHero from "@/components/marketing/PageHero";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -14,13 +15,7 @@ export default function CookiesPage() {
       <Navbar />
 
       <main>
-        <section className="inner-hero">
-          <div className="container">
-            <div className="eyebrow">Legal</div>
-            <h1>Cookies Policy</h1>
-            <p className="inner-hero-sub">Last updated: 3 July 2026</p>
-          </div>
-        </section>
+        <PageHero compact eyebrow="Legal" title="Cookies Policy" subtitle="Last updated: 3 July 2026" />
 
         <section className="section">
           <div className="container">

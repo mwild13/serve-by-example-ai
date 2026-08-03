@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/marketing/PageHero";
 import CTABand from "@/components/marketing/CTABand";
+import MetricsStrip from "@/components/marketing/MetricsStrip";
 import FeatureGrid, { type FeatureGridItem } from "@/components/marketing/FeatureGrid";
 import SectionHeading from "@/components/ui/SectionHeading";
 import {
@@ -75,26 +76,15 @@ export default function MultiVenuePage() {
           ]}
         />
 
-        {/* ── Metrics strip ── */}
-        <section className="section trust-section trust-section-green metrics-strip">
-          <div className="container">
-            <div className="metrics-strip-row">
-              <div className="metrics-strip-item">
-                <div className="metrics-strip-value">5 venues</div>
-                <div className="metrics-strip-label">managed from a single console on our Multi-Venue plan</div>
-              </div>
-              <div className="metrics-strip-item">
-                <div className="metrics-strip-value">125</div>
-                <div className="metrics-strip-label">staff supported across all venues on the top tier</div>
-              </div>
-              <div className="metrics-strip-item">
-                <div className="metrics-strip-value">1 view</div>
-                <div className="metrics-strip-label">group health score across every venue, instantly</div>
-              </div>
-            </div>
-            <p className="metrics-strip-disclaimer">*Based on centralised hospitality analytics modelling and group training industry averages.</p>
-          </div>
-        </section>
+        {/* ── Metrics strip — platform capacity facts, disclaimer no longer
+              needed once modelled-outcome claims were removed ── */}
+        <MetricsStrip
+          metrics={[
+            { value: "5 venues", label: "managed from a single console on our Multi-Venue plan" },
+            { value: "125", label: "staff supported across all venues on the top tier" },
+            { value: "1 view", label: "group health score across every venue, instantly" },
+          ]}
+        />
 
         {/* ── Feature grid ── */}
         <section className="section section-alt">

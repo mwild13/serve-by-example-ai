@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/marketing/PageHero";
 import CTABand from "@/components/marketing/CTABand";
+import MetricsStrip from "@/components/marketing/MetricsStrip";
 import FeatureGrid, { type FeatureGridItem } from "@/components/marketing/FeatureGrid";
 import SectionHeading from "@/components/ui/SectionHeading";
 import {
@@ -88,24 +89,13 @@ export default function PubGroupsPage() {
         />
 
         {/* ── Metrics strip ── */}
-        <section className="section trust-section trust-section-green metrics-strip">
-          <div className="container">
-            <div className="metrics-strip-row">
-              <div className="metrics-strip-item">
-                <div className="metrics-strip-value">3</div>
-                <div className="metrics-strip-label">stage structured onboarding path — from knowledge to verified floor readiness</div>
-              </div>
-              <div className="metrics-strip-item">
-                <div className="metrics-strip-value">5 venues</div>
-                <div className="metrics-strip-label">managed from a single console on multi-venue plans</div>
-              </div>
-              <div className="metrics-strip-item">
-                <div className="metrics-strip-value">125</div>
-                <div className="metrics-strip-label">staff supported across all venues on the top tier</div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <MetricsStrip
+          metrics={[
+            { value: "3", label: "stage structured onboarding path — from knowledge to verified floor readiness" },
+            { value: "5 venues", label: "managed from a single console on multi-venue plans" },
+            { value: "125", label: "staff supported across all venues on the top tier" },
+          ]}
+        />
 
         {/* ── Feature grid ── */}
         <section className="section section-alt">

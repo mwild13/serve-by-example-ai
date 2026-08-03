@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/marketing/PageHero";
 import CTABand from "@/components/marketing/CTABand";
+import MetricsStrip from "@/components/marketing/MetricsStrip";
 import FeatureGrid, { type FeatureGridItem } from "@/components/marketing/FeatureGrid";
 import SectionHeading from "@/components/ui/SectionHeading";
 import {
@@ -75,26 +76,14 @@ export default function HotelFBPage() {
           ]}
         />
 
-        {/* ── Metrics strip ── */}
-        <section className="section trust-section trust-section-green metrics-strip">
-          <div className="container">
-            <div className="metrics-strip-row">
-              <div className="metrics-strip-item">
-                <div className="metrics-strip-value">40%</div>
-                <div className="metrics-strip-label">reduction in onboarding time for seasonal intake</div>
-              </div>
-              <div className="metrics-strip-item">
-                <div className="metrics-strip-value">19</div>
-                <div className="metrics-strip-label">languages supported for diverse hotel teams</div>
-              </div>
-              <div className="metrics-strip-item">
-                <div className="metrics-strip-value">24/7</div>
-                <div className="metrics-strip-label">live coaching available across all shifts</div>
-              </div>
-            </div>
-            <p className="metrics-strip-disclaimer">*Based on international hotel F&amp;B operating models and compliance training averages.</p>
-          </div>
-        </section>
+        {/* ── Metrics strip — softened to platform facts (ACCC pass) ── */}
+        <MetricsStrip
+          metrics={[
+            { value: "3", label: "stage structured onboarding path for seasonal and casual intake" },
+            { value: "19", label: "languages supported for diverse hotel teams" },
+            { value: "40+", label: "training modules available to staff on any shift, any device" },
+          ]}
+        />
 
         {/* ── Feature grid ── */}
         <section className="section section-alt">
