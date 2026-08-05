@@ -5,6 +5,7 @@ import ManagerControlCenter from "@/components/mission-control/ManagerControlCen
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getTrialStatus, getDaysRemaining } from "@/lib/trial";
+import { isB2BTier, normalizeTier } from "@/lib/session";
 
 // Prevent static generation – this page requires auth at runtime
 export const dynamic = "force-dynamic";
@@ -13,18 +14,6 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
   .split(",")
   .map((e) => e.trim().toLowerCase())
   .filter(Boolean);
-
-const PRICE_TO_PLAN: Record<string, string> = {
-  [process.env.STRIPE_PRICE_SINGLE_VENUE ?? ""]: "single-venue",
-  [process.env.STRIPE_PRICE_SINGLE_VENUE_YEARLY ?? ""]: "single-venue",
-  [process.env.STRIPE_PRICE_MULTI_VENUE ?? ""]: "multi-venue",
-  [process.env.STRIPE_PRICE_MULTI_VENUE_YEARLY ?? ""]: "multi-venue",
-};
-
-const PLAN_TO_TIER: Record<string, string> = {
-  "single-venue": "venue_single",
-  "multi-venue": "venue_multi",
-};
 
 export default async function ManagementDashboardPage({
   searchParams,
@@ -56,12 +45,14 @@ export default async function ManagementDashboardPage({
       const stripeSession = await stripe.checkout.sessions.retrieve(stripeSessionId);
 
       if (stripeSession.payment_status === "paid") {
-        const priceId = stripeSession.metadata?.priceId;
-        const plan = priceId ? PRICE_TO_PLAN[priceId] : undefined;
-        if (plan) {
+        // Checkout metadata carries the canonical tier directly (see
+        // app/api/billing/checkout/route.ts) — same source the webhook reads,
+        // so this immediate sync can never drift from the async webhook path.
+        const tier = stripeSession.metadata?.tier;
+        if (tier) {
           const admin = createSupabaseAdminClient();
           await admin.from("profiles").update({
-            tier: PLAN_TO_TIER[plan] ?? "free",
+            tier: normalizeTier(tier),
             stripe_customer_id: stripeSession.customer as string,
             subscription_status: "active",
           }).eq("id", user.id);
@@ -84,11 +75,9 @@ export default async function ManagementDashboardPage({
   const tier = profile?.tier ?? "free";
   const platformRole = profile?.platform_role ?? "staff";
 
-  const B2B_TIERS = ["boutique", "commercial", "enterprise", "venue_single", "venue_multi", "single-venue", "multi-venue"];
-
   const isAdmin = ADMIN_EMAILS.includes(user.email ?? "");
-  const hasVenuePlan = B2B_TIERS.includes(plan);
-  const hasVenueTier = B2B_TIERS.includes(tier);
+  const hasVenuePlan = isB2BTier(plan);
+  const hasVenueTier = isB2BTier(tier);
   const hasManagerRole = platformRole === "venue_manager" || platformRole === "multi_venue_manager" || platformRole === "admin";
 
   // A lapsed subscription (webhook wrote a terminal status) revokes venue-based access.

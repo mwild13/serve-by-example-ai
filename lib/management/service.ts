@@ -1,6 +1,6 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import { buildSeedManagementSnapshot } from "@/lib/management/seed";
-import { TIER_SEATS } from "@/lib/session";
+import { TIER_SEATS, normalizeTier } from "@/lib/session";
 import type {
   InventoryCategory,
   ManagementSnapshot,
@@ -544,20 +544,7 @@ async function getUserStaffLimit(supabase: ManagementSupabaseClient, userId: str
     .eq("id", userId)
     .single();
 
-  const rawTier = profile?.tier ?? "free";
-  const tierMap: Record<string, keyof typeof TIER_SEATS> = {
-    free: "free",
-    pro: "pro",
-    boutique: "boutique",
-    commercial: "commercial",
-    enterprise: "enterprise",
-    "single-venue": "venue_single",
-    "multi-venue": "venue_multi",
-    venue_single: "venue_single",
-    venue_multi: "venue_multi",
-  };
-  const tier = tierMap[rawTier] ?? "free";
-  return TIER_SEATS[tier] ?? 15;
+  return TIER_SEATS[normalizeTier(profile?.tier)] ?? 15;
 }
 
 export async function ensureManagerVenue(supabase: ManagementSupabaseClient, userId: string) {

@@ -1,17 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { countActiveSeats } from "@/lib/session";
-
-const TIER_MAX_SEATS: Record<string, number> = {
-  boutique: 15,
-  commercial: 35,
-  enterprise: 9999,
-  "single-venue": 15,   // legacy
-  venue_single: 15,     // legacy
-  "multi-venue": 35,    // legacy
-  venue_multi: 35,      // legacy
-};
+import { countActiveSeats, tierSeatLimit } from "@/lib/session";
 
 /**
  * GET /api/management/memberships — list manager's memberships
@@ -63,8 +53,7 @@ export async function POST(req: Request) {
       .eq("id", user.id)
       .single();
 
-    const tier = profile?.tier ?? "free";
-    const maxSeats = TIER_MAX_SEATS[tier] ?? 0;
+    const maxSeats = tierSeatLimit(profile?.tier);
 
     if (maxSeats === 0) {
       return NextResponse.json(

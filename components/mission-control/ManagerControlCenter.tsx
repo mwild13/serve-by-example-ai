@@ -44,6 +44,7 @@ import StaffRosterPanel from "@/app/management/dashboard/_components/StaffRoster
 import { TrialStatusPill } from "./TrialStatusPill";
 import { TrialBillingSection } from "./TrialBillingSection";
 import { TrialExpiredModal } from "./TrialExpiredModal";
+import { isB2BTier, isMultiVenueTier, tierDisplayName } from "@/lib/session";
 
 type SnapshotResponse = ManagementSnapshot & {
   inviteMessage?: string;
@@ -196,7 +197,7 @@ export default function ManagerControlCenter({
   trialExpired?: boolean;
   showExpiredModal?: boolean;
 }) {
-  const isMultiVenue = plan === "multi-venue" || plan === "venue_multi";
+  const isMultiVenue = isMultiVenueTier(plan);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -458,10 +459,9 @@ export default function ManagerControlCenter({
   // Webhook race-condition guard: when Stripe redirects back with ?checkout=success,
   // the subscription webhook may not have fired yet. Poll the profile for up to 6s
   // to confirm the tier has updated before showing the billing success banner.
-  const B2B_TIERS_SET = new Set(["boutique", "commercial", "enterprise", "venue_single", "venue_multi"]);
   useEffect(() => {
     if (!checkoutSuccess) return;
-    if (plan && B2B_TIERS_SET.has(plan)) {
+    if (plan && isB2BTier(plan)) {
       setSubConfirmed(true);
       return;
     }
@@ -477,7 +477,7 @@ export default function ManagerControlCenter({
         .select("tier")
         .eq("id", user.id)
         .maybeSingle();
-      if (data?.tier && B2B_TIERS_SET.has(data.tier as string)) {
+      if (data?.tier && isB2BTier(data.tier as string)) {
         clearInterval(pollId);
         setSubProcessing(false);
         setSubConfirmed(true);
@@ -3910,14 +3910,7 @@ export default function ManagerControlCenter({
                     <dl className="ops-settings-list">
                       <div>
                         <dt>Current plan</dt>
-                        <dd>
-                          {plan === "enterprise" ? "Enterprise Plan" :
-                            plan === "commercial" ? "Commercial Plan" :
-                            plan === "boutique" ? "Boutique Plan" :
-                            plan === "multi-venue" || plan === "venue_multi" ? "Commercial Plan" :
-                            plan === "single-venue" || plan === "venue_single" ? "Boutique Plan" :
-                            plan === "pro" ? "Pro Plan" : "Free Plan"}
-                        </dd>
+                        <dd>{tierDisplayName(plan)} Plan</dd>
                       </div>
                       <div>
                         <dt>Seats used</dt>

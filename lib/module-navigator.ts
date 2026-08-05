@@ -4,7 +4,7 @@
  */
 
 import { createSupabaseAdminClient } from "./supabase-admin";
-import { resolveAccess } from "./session";
+import { resolveAccess, isB2BTier } from "./session";
 import { SCENARIO_COUNTS } from "./mastery";
 
 export interface Module {
@@ -63,7 +63,7 @@ export async function getAvailableModules(
 
     // Force platform_version = 2 for individual/free users (legacy default was 1)
     // Only keep v1 for B2B venue users who need diagnostic
-    const isB2BUser = userProfile.tier === "venue_single" || userProfile.tier === "venue_multi" || userProfile.tier === "single-venue" || userProfile.tier === "multi-venue";
+    const isB2BUser = isB2BTier(userProfile.tier);
     const platformVersion = isB2BUser ? userProfile.platform_version : 2;
 
     console.log(`[getAvailableModules] User profile: tier=${userProfile.tier}, is_b2b=${isB2BUser}, platform_version=${platformVersion}`);

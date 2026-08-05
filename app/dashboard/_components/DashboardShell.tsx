@@ -4,6 +4,7 @@ import { FormEvent, useState, useEffect, useCallback, Suspense, lazy } from "rea
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAuthSessionGuard } from "@/lib/use-auth-session-guard";
+import { isB2BTier } from "@/lib/session";
 
 // Hydration-safe viewport detection hook (no CSS-based hiding to avoid blank screens on slow networks)
 function useIsMobile() {
@@ -573,7 +574,7 @@ export default function DashboardShell({
           } else {
             // Show diagnostic if not completed (only for B2B users - check plan)
             const userPlan = profile?.tier || plan;
-            const isBB2User = userPlan === "venue_single" || userPlan === "venue_multi" || userPlan === "single-venue" || userPlan === "multi-venue";
+            const isBB2User = isB2BTier(userPlan);
             const hasDiagnostic = profile?.diagnostic_completed === true;
 
             if (!hasDiagnostic && isBB2User) {

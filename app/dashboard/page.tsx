@@ -3,22 +3,8 @@ import Stripe from "stripe";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getTrialStatus } from "@/lib/trial";
+import { normalizeTier } from "@/lib/session";
 import DashboardShell from "@/app/dashboard/_components/DashboardShell";
-
-const PRICE_TO_PLAN: Record<string, string> = {
-  [process.env.STRIPE_PRICE_PRO ?? ""]: "pro",
-  [process.env.STRIPE_PRICE_PRO_YEARLY ?? ""]: "pro",
-  [process.env.STRIPE_PRICE_SINGLE_VENUE ?? ""]: "single-venue",
-  [process.env.STRIPE_PRICE_SINGLE_VENUE_YEARLY ?? ""]: "single-venue",
-  [process.env.STRIPE_PRICE_MULTI_VENUE ?? ""]: "multi-venue",
-  [process.env.STRIPE_PRICE_MULTI_VENUE_YEARLY ?? ""]: "multi-venue",
-};
-
-const PLAN_TO_TIER: Record<string, string> = {
-  pro: "pro",
-  "single-venue": "venue_single",
-  "multi-venue": "venue_multi",
-};
 
 // Prevent static generation – this page requires auth at runtime
 export const dynamic = "force-dynamic";
@@ -54,12 +40,14 @@ export default async function DashboardPage({
       const stripeSession = await stripe.checkout.sessions.retrieve(stripeSessionId);
 
       if (stripeSession.payment_status === "paid") {
-        const priceId = stripeSession.metadata?.priceId;
-        const plan = priceId ? PRICE_TO_PLAN[priceId] : undefined;
-        if (plan) {
+        // Checkout metadata carries the canonical tier directly (see
+        // app/api/billing/checkout/route.ts) — same source the webhook reads,
+        // so this immediate sync can never drift from the async webhook path.
+        const tier = stripeSession.metadata?.tier;
+        if (tier) {
           const admin = createSupabaseAdminClient();
           await admin.from("profiles").update({
-            tier: PLAN_TO_TIER[plan] ?? "free",
+            tier: normalizeTier(tier),
             stripe_customer_id: stripeSession.customer as string,
             subscription_status: "active",
           }).eq("id", user.id);

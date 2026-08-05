@@ -3,6 +3,7 @@
 import { FormEvent, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
+import { isB2BTier } from "@/lib/session";
 
 type AuthMode = "sign-in" | "sign-up" | "forgot-password";
 
@@ -117,15 +118,12 @@ function AuthCard() {
       .single();
 
     const platformRole = profile?.platform_role ?? "staff";
-    const plan = profile?.tier ?? "free";
-    const tier = profile?.tier ?? "free";
     const isManager =
       platformRole === "venue_manager" ||
       platformRole === "multi_venue_manager" ||
       platformRole === "admin" ||
       // Legacy fallback for users before platform_role was added
-      plan === "single-venue" || plan === "multi-venue" ||
-      tier === "venue_single" || tier === "venue_multi" ||
+      isB2BTier(profile?.tier) ||
       profile?.management_unlocked;
 
     if (isManager) {

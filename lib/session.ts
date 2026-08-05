@@ -106,6 +106,64 @@ export const TIER_SEATS: Record<Tier, number> = {
   venue_multi: 35,
 };
 
+// Human-readable label per tier. venue_single/venue_multi are the pre-rename
+// legacy values (kept for old Supabase rows) and display as their modern
+// equivalent — Boutique / Commercial — so the UI never shows a raw DB string.
+export const TIER_DISPLAY_NAMES: Record<Tier, string> = {
+  free: "Free",
+  pro: "Pro",
+  boutique: "Boutique",
+  commercial: "Commercial",
+  enterprise: "Enterprise",
+  venue_single: "Boutique",
+  venue_multi: "Commercial",
+};
+
+// Tiers that unlock venue-based (B2B) management access, i.e. /management/dashboard.
+export const B2B_TIERS: Tier[] = ["boutique", "commercial", "enterprise", "venue_single", "venue_multi"];
+
+// Tiers whose venue-switcher UI should show multi-venue controls.
+// venue_single/venue_multi are legacy aliases for boutique/commercial.
+const MULTI_VENUE_TIERS: Tier[] = ["commercial", "enterprise", "venue_multi"];
+
+// Single source of truth for mapping a raw profiles.tier / plan string (including
+// pre-rename legacy values) to the canonical Tier. Every tier-branching check in
+// the app should normalize through this — do not re-implement this map elsewhere.
+const TIER_ALIASES: Record<string, Tier> = {
+  free: "free",
+  pro: "pro",
+  boutique: "boutique",
+  commercial: "commercial",
+  enterprise: "enterprise",
+  "single-venue": "venue_single",
+  "multi-venue": "venue_multi",
+  venue_single: "venue_single",
+  venue_multi: "venue_multi",
+};
+
+export function normalizeTier(raw: string | null | undefined): Tier {
+  if (!raw) return "free";
+  return TIER_ALIASES[raw] ?? "free";
+}
+
+/** True for any tier that grants venue-based (B2B) management access. */
+export function isB2BTier(raw: string | null | undefined): boolean {
+  return B2B_TIERS.includes(normalizeTier(raw));
+}
+
+/** True for tiers whose venue switcher should show multi-venue controls. */
+export function isMultiVenueTier(raw: string | null | undefined): boolean {
+  return MULTI_VENUE_TIERS.includes(normalizeTier(raw));
+}
+
+export function tierDisplayName(raw: string | null | undefined): string {
+  return TIER_DISPLAY_NAMES[normalizeTier(raw)];
+}
+
+export function tierSeatLimit(raw: string | null | undefined): number {
+  return TIER_SEATS[normalizeTier(raw)];
+}
+
 /**
  * Resolve a user's effective access level.
  * Checks own subscription first, then falls back to sponsor (organization_members).
@@ -122,20 +180,7 @@ export async function resolveAccess(
     .eq("id", userId)
     .single();
 
-  // Map legacy plan values to tier values
-  const rawTier = profile?.tier ?? "free";
-  const tierMap: Record<string, Tier> = {
-    free: "free",
-    pro: "pro",
-    boutique: "boutique",
-    commercial: "commercial",
-    enterprise: "enterprise",
-    "single-venue": "venue_single",
-    "multi-venue": "venue_multi",
-    venue_single: "venue_single",
-    venue_multi: "venue_multi",
-  };
-  const tier = tierMap[rawTier] ?? "free";
+  const tier = normalizeTier(profile?.tier);
 
   if (tier !== "free") {
     return {
@@ -158,7 +203,7 @@ export async function resolveAccess(
 
     const trialStatus = getTrialStatus(org);
     if (trialStatus === "active" && org?.trial_tier) {
-      const trialTier = (tierMap[org.trial_tier] ?? org.trial_tier) as Tier;
+      const trialTier = normalizeTier(org.trial_tier);
       return {
         tier: trialTier,
         allowedModules: TIER_MODULES[trialTier] ?? ALL_MODULES,
