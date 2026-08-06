@@ -333,7 +333,18 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
         </div>
         {certRows.length === 0 ? (
           <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>
-            No certifications recorded yet. Staff compliance data will appear here.
+            <p style={{ margin: '0 0 14px', fontSize: '0.9rem' }}>
+              No certifications recorded yet. Add your first staff member&apos;s RSA or FSS record to start tracking compliance.
+            </p>
+            <button
+              className="btn btn-sm"
+              style={{ fontSize: '0.8rem', background: 'var(--green)', color: 'var(--surface-raised)', border: 'none', padding: '8px 16px' }}
+              onClick={() => openModal()}
+              disabled={venueStaff.length === 0}
+              title={venueStaff.length === 0 ? "Add a staff member first, then record their certification here" : undefined}
+            >
+              + Add cert
+            </button>
           </div>
         ) : (
           <table className="mgmt-table">
@@ -422,7 +433,18 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
         </div>
         {fssStates.size === 0 ? (
           <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>
-            No FSS data recorded yet.
+            <p style={{ margin: '0 0 14px', fontSize: '0.9rem' }}>
+              No FSS data recorded yet. This fills in once a staff member has an RSA jurisdiction on file.
+            </p>
+            <button
+              className="btn btn-sm"
+              style={{ fontSize: '0.8rem', background: 'var(--green)', color: 'var(--surface-raised)', border: 'none', padding: '8px 16px' }}
+              onClick={() => openModal()}
+              disabled={venueStaff.length === 0}
+              title={venueStaff.length === 0 ? "Add a staff member first, then record their certification here" : undefined}
+            >
+              + Add cert
+            </button>
           </div>
         ) : (
           <div style={{ padding: '16px 20px' }}>
@@ -444,21 +466,28 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
                     <input type="checkbox" checked={hasCopy} readOnly style={{ cursor: 'pointer' }} />
                     <span style={{ fontWeight: 600, color: 'var(--text)' }}>{state} — Physical FSS copy on-site</span>
                   </div>
+                  {/* Standing reminder, not a violation-in-progress — downgraded
+                      from red/critical to amber/warning (Phase 5 UX
+                      Refinement Pass, alarm-fatigue fix). Red is reserved
+                      exclusively for actually-expired certifications
+                      elsewhere in this file (see rsaStatus level 3 / row
+                      styling above), so this checklist item no longer reads
+                      as equally urgent as a genuinely lapsed cert. */}
                   {!hasCopy && (
                     <div
                       style={{
-                        background: 'var(--status-critical-bg)',
-                        border: '1px solid var(--status-critical-border)',
-                        borderLeft: '4px solid var(--status-critical-text)',
+                        background: 'var(--status-amber-bg)',
+                        border: '1px solid var(--status-amber-border)',
+                        borderLeft: '4px solid var(--status-amber-dark)',
                         padding: '10px 12px',
                         borderRadius: 'var(--radius-sm)',
                         fontSize: '0.85rem',
-                        color: 'var(--status-critical-text)',
+                        color: 'var(--status-amber-text)',
                         marginTop: '8px',
                       }}
                     >
-                      Legal requirement: A physical copy of the active FSS certificate must be kept on-premises at all
-                      times (NSW Food Authority).
+                      Reminder: A physical copy of the active FSS certificate must be kept on-premises
+                      (NSW Food Authority requirement).
                     </div>
                   )}
                 </div>

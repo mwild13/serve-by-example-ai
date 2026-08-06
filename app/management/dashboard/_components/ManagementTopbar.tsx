@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { ChevronDown, Search, Bell } from "lucide-react";
+import { useRef } from "react";
+import { Search, Bell } from "lucide-react";
 import type { QuickActionId, SearchResult } from "@/components/mission-control/manager-types";
+import { QuickActionMenu } from "@/components/mission-control/QuickActionMenu";
 
 interface ManagementTopbarProps {
   breadcrumbs: string[];
@@ -23,18 +24,11 @@ export function ManagementTopbar({
   onResultClick,
   onActionSelect,
 }: ManagementTopbarProps) {
-  const [isCreateDropdownOpen, setIsCreateDropdownOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleResultClick = (result: SearchResult) => {
     onResultClick(result);
     onSearchChange("");
-  };
-
-  const handleCreateActionClick = (actionId: QuickActionId) => {
-    onActionSelect(actionId);
-    setIsCreateDropdownOpen(false);
   };
 
   return (
@@ -89,40 +83,7 @@ export function ManagementTopbar({
 
       {/* Right slot: Create New dropdown + notification bell */}
       <div className="ops-topbar-slot ops-topbar-right">
-        <div className="ops-create-dropdown-wrapper" ref={dropdownRef}>
-          <button
-            className="ops-create-dropdown-trigger"
-            onClick={() => setIsCreateDropdownOpen(!isCreateDropdownOpen)}
-            aria-haspopup="menu"
-            aria-expanded={isCreateDropdownOpen}
-          >
-            <span>+ Create New</span>
-            <ChevronDown
-              size={16}
-              style={{
-                transition: "transform 0.25s var(--ease-out)",
-                transform: isCreateDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
-              }}
-            />
-          </button>
-
-          {isCreateDropdownOpen && (
-            <div className="ops-create-dropdown-menu">
-              <button
-                className="ops-create-dropdown-item"
-                onClick={() => handleCreateActionClick("add-staff")}
-              >
-                Add staff
-              </button>
-              <button
-                className="ops-create-dropdown-item"
-                onClick={() => handleCreateActionClick("add-inventory")}
-              >
-                Add inventory
-              </button>
-            </div>
-          )}
-        </div>
+        <QuickActionMenu onActionSelect={onActionSelect} />
 
         <button
           className="ops-topbar-notification-btn"

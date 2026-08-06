@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
-import { OpsKpiCard, StaffBadges } from "@/components/mission-control/manager-ui";
+import { OpsKpiCard, StaffBadges, MasteryMicroGrid } from "@/components/mission-control/manager-ui";
 import type { StaffMember } from "@/lib/management/types";
 
 interface CoachingDrawerProps {
@@ -113,6 +113,26 @@ export default function CoachingDrawer({ isOpen, staff, onClose, onAssignTrainin
             <OpsKpiCard label="Service" value={`${parseFloat(staff.serviceScore.toFixed(2))}%`} />
             <OpsKpiCard label="Sales" value={`${parseFloat(staff.salesScore.toFixed(2))}%`} />
             <OpsKpiCard label="Product" value={`${parseFloat(staff.productScore.toFixed(2))}%`} />
+          </div>
+
+          {/* Contact / connection metadata — moved here from the Staff
+              Directory table (Phase 5 UX Refinement Pass, streamlined to 4
+              essential columns: Name/Role, Readiness, Progress, Action).
+              Module mastery grid moved here alongside it. */}
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px 18px", padding: "10px 0", borderTop: "1px solid var(--line-light)", borderBottom: "1px solid var(--line-light)", marginBottom: 16, fontSize: "0.8rem" }}>
+            {staff.email && (
+              <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--text-soft)" }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
+                {staff.email}
+              </div>
+            )}
+            <span className={`ops-badge ${staff.staffUserId ? "ops-badge-active" : staff.email ? "ops-badge-pending" : "ops-badge-removed"}`}>
+              {staff.staffUserId ? "Connected" : staff.email ? "Invited" : "No account"}
+            </span>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ color: "var(--text-muted)", fontSize: "0.72rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em" }}>Module mastery</span>
+              <MasteryMicroGrid scenariosMastered={staff.scenariosMastered} scenariosAttempted={staff.scenariosAttempted} />
+            </div>
           </div>
 
           <StaffBadges staff={staff} />

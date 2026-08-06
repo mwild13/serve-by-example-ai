@@ -6,8 +6,35 @@
 import { useState } from "react";
 import type { StaffMember } from "@/lib/management/types";
 
-export function EmptyState({ copy }: { copy: string }) {
+// ctaLabel/onCtaClick are optional — pass both to render a real actionable
+// button (e.g. "+ Add staff") instead of the passive "Notify Me" fallback.
+// "Notify Me" stays the default for genuinely not-yet-built features
+// (Programs/Scenario builders etc.) where there's nothing to act on yet;
+// first-run states that ARE actionable (no staff, no certs on file) should
+// always pass a real CTA — see Phase 5 execution brief, Bottleneck #3.
+export function EmptyState({
+  copy,
+  ctaLabel,
+  onCtaClick,
+}: {
+  copy: string;
+  ctaLabel?: string;
+  onCtaClick?: () => void;
+}) {
   const [notified, setNotified] = useState(false);
+
+  if (ctaLabel && onCtaClick) {
+    return (
+      <div className="ops-empty-state">
+        <p className="ops-empty-state-title">{copy}</p>
+        <p className="ops-empty-state-sub">This section will populate once your team has data.</p>
+        <button className="ops-empty-state-btn" onClick={onCtaClick}>
+          {ctaLabel}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="ops-empty-state">
       <p className="ops-empty-state-title">{copy}</p>
@@ -236,7 +263,7 @@ export function StaffBadges({ staff }: { staff: StaffMember }) {
             </span>
             <div>
               <div style={{ fontWeight: 700 }}>{badge.label}</div>
-              <div style={{ fontSize: "0.68rem", color: "var(--mcc-ink-500)", marginTop: 1 }}>
+              <div style={{ fontSize: "0.68rem", color: "var(--text-muted)", marginTop: 1 }}>
                 {badge.sublabel}
               </div>
             </div>

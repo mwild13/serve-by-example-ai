@@ -1,10 +1,10 @@
 "use client";
 
-import { FormEvent, Fragment, useCallback, useEffect, useState } from "react";
-import { EmptyState, MasteryMicroGrid } from "@/components/mission-control/manager-ui";
+import { FormEvent, Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { EmptyState } from "@/components/mission-control/manager-ui";
 import { WorkspaceHeader } from "@/app/management/dashboard/_components/WorkspaceHeader";
-import { rsaStatus } from "@/components/mission-control/compliance/helpers";
-import type { ManagementSnapshot, StaffRole, StaffMember } from "@/lib/management/types";
+import { rsaStatus, readinessPill } from "@/components/mission-control/compliance/helpers";
+import type { ManagementSnapshot, StaffRole } from "@/lib/management/types";
 
 type MembershipRow = {
   id: string;
@@ -15,7 +15,7 @@ type MembershipRow = {
   created_at: string;
 };
 
-export type StaffRosterPanelProps = {
+export type StaffDirectoryTableProps = {
   snapshot: ManagementSnapshot;
   selectedVenueId: string;
   selectedVenue: ManagementSnapshot["venues"][0] | undefined;
@@ -24,6 +24,7 @@ export type StaffRosterPanelProps = {
   sessionToken: string | null;
   onSnapshotUpdate: (updated: ManagementSnapshot) => void;
   onOpenCoachingDrawer: (staffId: string) => void;
+  onAddStaff: () => void;
 };
 
 const STAFF_ROLE_OPTIONS: StaffRole[] = [
@@ -34,27 +35,15 @@ const STAFF_ROLE_OPTIONS: StaffRole[] = [
   "New Staff",
 ];
 
-function parseLastActiveDays(lastActive: string): number {
-  if (!lastActive) return 0;
-  const m = lastActive.match(/(\d+)\s*(day|week|month)/);
-  if (!m) return 0;
-  const n = parseInt(m[1], 10);
-  if (isNaN(n)) return 0;
-  if (m[2] === 'week') return n * 7;
-  if (m[2] === 'month') return n * 30;
-  return n;
-}
+// NOTE: readinessPill() is imported from ./compliance/helpers — the same
+// function StaffReadinessBoard.tsx uses on the Overview tab. This file used
+// to define its own local readinessPill() that ignored trainingProgress
+// entirely, which is why every staff member here rendered a green "Ready"
+// pill regardless of 0% completion while Overview correctly showed amber/red
+// (Phase 5 execution brief, Friction #1 — dual-status bug). Do not
+// reintroduce a second implementation here.
 
-function readinessPill(member: StaffMember): { label: string; dot: string; bg: string; color: string } {
-  const rsaStat = rsaStatus(member.compliance);
-  if (rsaStat.level === 3)
-    return { label: 'At Risk', dot: '○', bg: 'var(--status-critical-bg)', color: 'var(--status-critical-text)' };
-  if (member.status === 'attention' || rsaStat.level === 2)
-    return { label: 'Caution', dot: '◐', bg: 'var(--status-amber-bg)', color: 'var(--status-orange)' };
-  return { label: 'Ready', dot: '●', bg: 'var(--status-success-subtle)', color: 'var(--status-success)' };
-}
-
-export default function StaffRosterPanel({
+export default function StaffDirectoryTable({
   selectedVenueId,
   selectedVenue,
   venueStaff,
@@ -62,7 +51,9 @@ export default function StaffRosterPanel({
   sessionToken,
   onSnapshotUpdate,
   onOpenCoachingDrawer,
-}: StaffRosterPanelProps) {
+  onAddStaff,
+}: StaffDirectoryTableProps) {
+  const inviteEmailRef = useRef<HTMLInputElement>(null);
   const [staffRoleFilter, setStaffRoleFilter] = useState<string>("all");
   const [openRosterSections, setOpenRosterSections] = useState<Set<string>>(new Set(["Bar Team"]));
   const [memberships, setMemberships] = useState<MembershipRow[]>([]);
@@ -295,13 +286,13 @@ export default function StaffRosterPanel({
                 <select
                   value={staffRoleFilter}
                   onChange={(e) => setStaffRoleFilter(e.target.value)}
-                  style={{ padding: "5px 10px", borderRadius: 8, border: "1.5px solid var(--mcc-border)", background: "var(--mcc-bg)", color: "var(--mcc-ink-700)", fontSize: "0.82rem", cursor: "pointer" }}
+                  style={{ padding: "5px 10px", borderRadius: 8, border: "1.5px solid var(--line)", background: "var(--bg)", color: "var(--text-soft)", fontSize: "0.82rem", cursor: "pointer" }}
                   aria-label="Filter by role"
                 >
                   <option value="all">All roles</option>
                   {STAFF_ROLE_OPTIONS.map((r) => <option key={r} value={r}>{r}</option>)}
                 </select>
-                <span style={{ fontSize: "0.82rem", color: "var(--mcc-ink-500)" }}>
+                <span style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
                   {filteredStaff.length} {filteredStaff.length === 1 ? "person" : "people"} · {selectedVenue?.name}
                 </span>
               </div>
@@ -310,18 +301,19 @@ export default function StaffRosterPanel({
           {venueStaff.length ? (
             <div className="ops-table-wrap">
               <table className="ops-table ops-staff-table">
+                {/* Streamlined to 4 essential columns (Phase 5 UX Refinement
+                    Pass, "5pm shift test"): Staff (name+role), Readiness
+                    (traffic light), Progress, Action. Contact, Connection,
+                    Module mastery, and Last active moved into the coaching
+                    drawer that already opens on row click — this table is
+                    the glance view, the drawer is the detail view. */}
                 <thead style={{ position: "sticky", top: 0, zIndex: 1, background: "var(--surface-raised)" }}>
                   <tr>
                     <th style={{ width: 40 }}></th>
-                    <th>Name</th>
-                    <th>Contact</th>
-                    <th>Role</th>
+                    <th>Staff</th>
+                    <th>Readiness</th>
                     <th>Progress</th>
-                    <th>Status</th>
-                    <th>Connection</th>
-                    <th>Module mastery</th>
-                    <th>Last active</th>
-                    <th></th>
+                    <th style={{ textAlign: "right" }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -346,91 +338,66 @@ export default function StaffRosterPanel({
                           </td>
                           <td onClick={isEditing ? e => e.stopPropagation() : undefined}>
                             {isEditing ? (
-                              <input
-                                value={editName}
-                                onChange={e => setEditName(e.target.value)}
-                                onClick={e => e.stopPropagation()}
-                                style={{ padding: '4px 8px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--line)', fontSize: '0.85rem', width: '100%' }}
-                              />
-                            ) : (
-                              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                                <strong>{member.name}</strong>
-                                {isReady && <span style={{ padding: "1px 7px", borderRadius: 999, fontSize: "0.65rem", fontWeight: 700, background: "var(--status-success-subtle)", color: "var(--status-success-strong)", flexShrink: 0 }}>Ready</span>}
-                                <button
-                                  type="button"
-                                  onClick={e => { e.stopPropagation(); startEditStaff(member); }}
-                                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '0 2px', lineHeight: 1, flexShrink: 0 }}
-                                  aria-label={`Edit ${member.name}`}
+                              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                                <input
+                                  value={editName}
+                                  onChange={e => setEditName(e.target.value)}
+                                  onClick={e => e.stopPropagation()}
+                                  style={{ padding: '4px 8px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--line)', fontSize: '0.85rem', width: '100%' }}
+                                />
+                                <select
+                                  value={editRole}
+                                  onChange={e => setEditRole(e.target.value as StaffRole)}
+                                  onClick={e => e.stopPropagation()}
+                                  style={{ padding: '4px 6px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--line)', fontSize: '0.8rem' }}
                                 >
-                                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                  </svg>
-                                </button>
+                                  {STAFF_ROLE_OPTIONS.map(r => <option key={r} value={r}>{r}</option>)}
+                                </select>
+                              </div>
+                            ) : (
+                              <div>
+                                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                  <strong>{member.name}</strong>
+                                  {isReady && <span style={{ padding: "1px 7px", borderRadius: 999, fontSize: "0.65rem", fontWeight: 700, background: "var(--status-success-subtle)", color: "var(--status-success-strong)", flexShrink: 0 }}>Ready</span>}
+                                  <button
+                                    type="button"
+                                    onClick={e => { e.stopPropagation(); startEditStaff(member); }}
+                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '0 2px', lineHeight: 1, flexShrink: 0 }}
+                                    aria-label={`Edit ${member.name}`}
+                                  >
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                  </button>
+                                </div>
+                                <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                                  {member.role}{email ? ` · ${email}` : ""}
+                                </div>
                               </div>
                             )}
-                          </td>
-                          <td>
-                            {email ? (
-                              <div className="ops-email-icon-cell" title={email}>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                  <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/>
-                                </svg>
-                              </div>
-                            ) : null}
-                          </td>
-                          <td onClick={isEditing ? e => e.stopPropagation() : undefined}>
-                            {isEditing ? (
-                              <select
-                                value={editRole}
-                                onChange={e => setEditRole(e.target.value as StaffRole)}
-                                onClick={e => e.stopPropagation()}
-                                style={{ padding: '4px 6px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--line)', fontSize: '0.85rem' }}
-                              >
-                                {STAFF_ROLE_OPTIONS.map(r => <option key={r} value={r}>{r}</option>)}
-                              </select>
-                            ) : member.role}
                           </td>
                           <td style={{ minWidth: 90 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                               <div style={{ flex: 1, height: 5, background: "var(--viz-neutral-light)", borderRadius: 999 }}>
                                 <div style={{ height: "100%", width: `${member.progress}%`, background: barColor, borderRadius: 999, transition: "width 0.3s" }} />
                               </div>
-                              <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--mcc-ink-700)", width: 30, textAlign: "right" }}>{Math.round(member.progress)}%</span>
+                              <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-soft)", width: 30, textAlign: "right" }}>{Math.round(member.progress)}%</span>
                             </div>
                           </td>
                           <td>
                             {(() => {
-                              const pill = readinessPill(member);
+                              const rsaStat = rsaStatus(member.compliance);
+                              const isBlocked = rsaStat.level === 3;
+                              const pill = readinessPill(member.compliance, member.status, member.progress);
+                              const label = isBlocked ? "Blocked" : pill.label;
+                              const bg = isBlocked ? "var(--status-error-bg)" : pill.bg;
+                              const color = isBlocked ? "var(--status-error)" : pill.color;
                               return (
-                                <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: "0.72rem", fontWeight: 700, background: pill.bg, color: pill.color }}>
-                                  {pill.dot} {pill.label}
+                                <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: "0.72rem", fontWeight: 700, background: bg, color }}>
+                                  {pill.dot} {label}
                                 </span>
                               );
-                            })()}
-                          </td>
-                          <td>
-                            {member.staffUserId ? (
-                              <span className="ops-badge ops-badge-active">Connected</span>
-                            ) : member.email ? (
-                              <span className="ops-badge ops-badge-pending">Invited</span>
-                            ) : (
-                              <span className="ops-badge ops-badge-removed">No account</span>
-                            )}
-                          </td>
-                          <td>
-                            <MasteryMicroGrid
-                              scenariosMastered={member.scenariosMastered}
-                              scenariosAttempted={member.scenariosAttempted}
-                            />
-                          </td>
-                          <td>
-                            {(() => {
-                              const days = member.lastActiveDays ?? parseLastActiveDays(member.lastActive);
-                              const lastActiveStyle = days > 30
-                                ? { color: 'var(--status-critical-text)', fontWeight: 700 }
-                                : days > 14 ? { color: 'var(--status-orange)' } : {};
-                              return <span style={lastActiveStyle}>{member.lastActive}</span>;
                             })()}
                           </td>
                           <td>
@@ -490,7 +457,7 @@ export default function StaffRosterPanel({
                         </tr>
                         {isCertOpen && draft && (
                           <tr style={{ background: 'var(--bg-alt)' }}>
-                            <td colSpan={10} style={{ padding: '14px 20px' }}>
+                            <td colSpan={5} style={{ padding: '14px 20px' }}>
                               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px 20px', alignItems: 'flex-end' }}>
                                 <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-soft)' }}>
                                   RSA Jurisdiction
@@ -569,7 +536,11 @@ export default function StaffRosterPanel({
               </table>
             </div>
           ) : (
-            <EmptyState copy="No staff added yet. Hit + Add staff to build your first roster entry." />
+            <EmptyState
+              copy="No staff added yet. Hit + Add staff to build your first roster entry."
+              ctaLabel="+ Add staff"
+              onCtaClick={onAddStaff}
+            />
           )}
         </article>
       </section>
@@ -646,7 +617,13 @@ export default function StaffRosterPanel({
               </div>
             );
           })}
-          {!venueStaff.length && <EmptyState copy="No staff data for this venue yet." />}
+          {!venueStaff.length && (
+            <EmptyState
+              copy="No staff data for this venue yet."
+              ctaLabel="+ Add staff"
+              onCtaClick={onAddStaff}
+            />
+          )}
         </article>
       </section>
 
@@ -673,6 +650,7 @@ export default function StaffRosterPanel({
               <label className="label">
                 Staff email
                 <input
+                  ref={inviteEmailRef}
                   className="input"
                   type="email"
                   value={inviteEmail}
@@ -754,7 +732,11 @@ export default function StaffRosterPanel({
               </table>
             </div>
           ) : (
-            <EmptyState copy="No staff invites yet. Invite team members by email to give them sponsored access to training modules." />
+            <EmptyState
+              copy="No staff invites yet. Invite team members by email to give them sponsored access to training modules."
+              ctaLabel="Invite by email"
+              onCtaClick={() => inviteEmailRef.current?.focus()}
+            />
           )}
         </article>
       </section>

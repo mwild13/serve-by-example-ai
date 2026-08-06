@@ -5580,6 +5580,46 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 }
 .ops-btn-tertiary:hover { color: var(--green-deep); }
 
+/* Standard secondary outline-button token — Phase 5 UX Refinement Pass.
+   Every bare text link / floating arrow in the console (mission-control
+   "Manage shifts", "Review staff", "Resolve", per-item alert CTAs, etc.)
+   converts to this so interactive elements read as distinctly clickable
+   rather than plain text. Rectangular radius matches the ops-shell button
+   paradigm (see .ops-shell .btn above), not the marketing site's pill btn. */
+.sbe-button-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--green);
+  background: transparent;
+  color: var(--green);
+  font-weight: 700;
+  font-size: 0.82rem;
+  font-family: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.sbe-button-outline:hover {
+  background: var(--green-light);
+  border-color: var(--green-deep);
+  color: var(--green-deep);
+}
+.sbe-button-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+/* Compact variant for dense contexts — alert-list rows, inline card CTAs —
+   where the full-padding button would blow out row height. */
+.sbe-button-outline--sm {
+  padding: 4px 10px;
+  font-size: 0.74rem;
+  border-width: 1px;
+}
+
 .ops-sidebar {
   width: 280px;
   flex-shrink: 0;
@@ -5829,13 +5869,13 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 .ops-coming-soon-title {
   font-size: 1.45rem;
   font-weight: 700;
-  color: var(--mcc-ink-900, #111827);
+  color: var(--text, #111827);
   margin: 0;
 }
 
 .ops-coming-soon-body {
   font-size: 0.9rem;
-  color: var(--mcc-ink-500, #6b7280);
+  color: var(--text-muted, #6b7280);
   line-height: 1.6;
   margin: 0;
 }
@@ -5869,7 +5909,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 
 .mcc-training-notice-text {
   font-size: 0.82rem;
-  color: var(--mcc-ink-600, #4b5563);
+  color: var(--text-soft, #4b5563);
   line-height: 1.5;
 }
 
@@ -13317,50 +13357,41 @@ body {
    ============================================================ */
 
 .mcc-overview-shell {
-  --mcc-canvas:      #F6F2E8;
-  --mcc-canvas-2:    #EFEAD9;
-  --mcc-paper:       #FBF8F0;
-  --mcc-ink-900:     #1A1F1B;
-  --mcc-ink-700:     #3D4742;
-  --mcc-ink-500:     #6B7670;
-  --mcc-rule:        #D9D2BE;
-  --mcc-rule-2:      #E8E2CE;
-  --mcc-rule-soft:   #EDE7D2;
-  --mcc-gold:        #D4A53A;
-  --mcc-amber:       #B98220;
-  --mcc-amber-soft:  #E8D4A8;
-  --mcc-sage:        #6F9C5F;
-  --mcc-sage-soft:   #CFE0BF;
-  --mcc-terra:       #B65C3D;
-  --mcc-terra-soft:  #E8C9BC;
-  --mcc-rose:        #C77D7D;
-  --mcc-forest-900:  #0B2B1E;
-  --mcc-forest-800:  #0F3A28;
-  --mcc-forest-700:  #14492F;
-  --mcc-forest-600:  #1E5A3C;
-  --mcc-forest-300:  #6F9C81;
-  --mcc-good:        #5C8C4F;
-  --mcc-bad:         #B6543C;
-  --mcc-info:        #4A7B8C;
+  /* Phase 5 token consolidation (Aug 2026): this block previously defined a
+     parallel --mcc-* colour namespace (26 custom properties) scoped to this
+     shell, several of which (--mcc-bg, --mcc-border, --mcc-surface-2,
+     --mcc-ink-400/600/800/100) were referenced in ManagerControlCenter.tsx
+     but never defined here — an invisible bug (unset CSS vars silently
+     fall through). All --mcc-* usages across globals.css and
+     ManagerControlCenter.tsx have been remapped onto the canonical :root /
+     --status-* tokens (e.g. --mcc-good -> --status-good, --mcc-ink-500 ->
+     --text-muted, --mcc-canvas -> --bg). See docs/ManagmentConsoleUpgradeV5.md
+     and the Phase 5 execution brief for the full mapping table. */
 
   display: flex;
   flex: 1;
   align-items: flex-start;
-  background: var(--mcc-canvas);
+  background: var(--bg);
 }
 
 .mcc-overview-main {
   flex: 1;
   min-width: 0;
-  background: var(--mcc-canvas);
+  /* Phase 5, Task 2: on wide/ultrawide monitors this panel previously had no
+     max-width, so content stretched to a single flex-basis:0 column pinned
+     to the left edge with the remaining viewport left blank (Friction #3,
+     confirmed at 2560px+ in the Teams screenshot). Cap and center instead. */
+  max-width: 1440px;
+  margin: 0 auto;
+  background: var(--bg);
 }
 
 /* ── Hero ── */
 .mcc-hero-section { padding: 20px 28px 0; }
 
 .mcc-hero-inner {
-  background: linear-gradient(135deg, var(--mcc-paper) 0%, var(--mcc-canvas-2) 100%);
-  border: 1px solid var(--mcc-rule-2);
+  background: linear-gradient(135deg, var(--surface) 0%, var(--bg-alt) 100%);
+  border: 1px solid var(--line-light);
   border-radius: 12px;
   padding: 32px;
   display: grid;
@@ -13373,7 +13404,7 @@ body {
   font-size: 10px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--mcc-ink-500);
+  color: var(--text-muted);
   margin-bottom: 10px;
 }
 
@@ -13384,11 +13415,11 @@ body {
   letter-spacing: -0.02em;
   line-height: 1.08;
   margin: 0;
-  color: var(--mcc-ink-900);
+  color: var(--text);
 }
 
 .mcc-hero-sub {
-  color: var(--mcc-ink-500);
+  color: var(--text-muted);
   font-size: 14px;
   max-width: 520px;
   margin-top: 12px;
@@ -13410,30 +13441,30 @@ body {
   font-weight: 500;
   padding: 9px 14px;
   border-radius: 6px;
-  border: 1px solid var(--mcc-rule);
-  background: var(--mcc-paper);
-  color: var(--mcc-ink-900);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
   cursor: pointer;
   font-family: inherit;
 }
-.mcc-hero-btn:hover { background: var(--mcc-canvas-2); }
-.mcc-hero-btn-primary { background: var(--mcc-forest-900); color: var(--gold-light); border-color: var(--mcc-forest-900); }
-.mcc-hero-btn-primary:hover { background: var(--mcc-forest-800); }
-.mcc-hero-btn-ghost { background: transparent; border-color: transparent; color: var(--mcc-ink-500); }
+.mcc-hero-btn:hover { background: var(--bg-alt); }
+.mcc-hero-btn-primary { background: var(--green-deep); color: var(--gold-light); border-color: var(--green-deep); }
+.mcc-hero-btn-primary:hover { background: var(--green-deep); }
+.mcc-hero-btn-ghost { background: transparent; border-color: transparent; color: var(--text-muted); }
 
 /* ── Health card ── */
 .mcc-health-card {
-  background: var(--mcc-forest-900);
+  background: var(--green-deep);
   color: var(--gold-light);
   border-radius: 10px;
   padding: 24px 28px;
-  border: 1px solid var(--mcc-forest-700);
+  border: 1px solid var(--green);
 }
 .mcc-health-lbl {
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--mcc-forest-300);
+  color: var(--green-mid);
 }
 .mcc-health-score {
   font-family: 'Fraunces', Georgia, serif;
@@ -13443,9 +13474,9 @@ body {
   line-height: 1;
   margin: 6px 0 8px;
 }
-.mcc-health-score em { font-style: normal; font-size: 20px; color: var(--mcc-forest-300); }
-.mcc-health-breakdown { font-size: 11px; color: var(--mcc-forest-300); letter-spacing: 0.06em; }
-.mcc-health-breakdown b { color: var(--mcc-gold); font-weight: 500; }
+.mcc-health-score em { font-style: normal; font-size: 20px; color: var(--green-mid); }
+.mcc-health-breakdown { font-size: 11px; color: var(--green-mid); letter-spacing: 0.06em; }
+.mcc-health-breakdown b { color: var(--gold-warm); font-weight: 500; }
 
 /* ── KPI strip ── */
 .mcc-kpi-strip {
@@ -13505,8 +13536,8 @@ body {
 
 /* ── Card ── */
 .mcc-card {
-  background: var(--mcc-paper);
-  border: 1px solid var(--mcc-rule-2);
+  background: var(--surface);
+  border: 1px solid var(--line-light);
   border-radius: 8px;
   box-shadow: 0 1px 2px rgba(11,43,30,0.04);
 }
@@ -13516,7 +13547,7 @@ body {
   justify-content: space-between;
   align-items: baseline;
   padding: 18px 20px 14px;
-  border-bottom: 1px solid var(--mcc-rule-soft);
+  border-bottom: 1px solid var(--line-light);
   gap: 12px;
   flex-wrap: wrap;
 }
@@ -13527,10 +13558,10 @@ body {
   font-weight: 500;
   letter-spacing: -0.01em;
   margin: 0;
-  color: var(--mcc-ink-900);
+  color: var(--text);
 }
 
-.mcc-card-meta { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mcc-ink-500); }
+.mcc-card-meta { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
 
 /* ── Pills ── */
 .mcc-pill {
@@ -13539,13 +13570,13 @@ body {
   font-size: 10px;
   padding: 2px 8px;
   border-radius: 99px;
-  background: var(--mcc-canvas-2);
-  color: var(--mcc-ink-700);
-  border: 1px solid var(--mcc-rule);
+  background: var(--bg-alt);
+  color: var(--text-soft);
+  border: 1px solid var(--line);
 }
-.mcc-pill-good { background: var(--mcc-sage-soft); color: var(--green-gradient-stop); border-color: var(--mcc-sage); }
-.mcc-pill-warn { background: var(--mcc-amber-soft); color: var(--status-amber-text); border-color: var(--mcc-amber); }
-.mcc-pill-bad  { background: var(--mcc-terra-soft); color: var(--status-critical-dark); border-color: var(--mcc-terra); }
+.mcc-pill-good { background: var(--green-light); color: var(--green-gradient-stop); border-color: var(--green-mid); }
+.mcc-pill-warn { background: var(--status-warn-bg); color: var(--status-amber-text); border-color: var(--status-warn); }
+.mcc-pill-bad  { background: var(--status-error-bg); color: var(--status-critical-dark); border-color: var(--status-error); }
 
 /* ── Bento grid layout (mobile-first) ── */
 .mcc-overview-grid {
@@ -13603,13 +13634,13 @@ body {
 /* ── Progress bar ── */
 .mcc-bar {
   height: 6px;
-  background: var(--mcc-rule-soft);
+  background: var(--line-light);
   border-radius: 3px;
   overflow: hidden;
 }
 .mcc-bar-fill {
   height: 100%;
-  background: var(--mcc-forest-600);
+  background: var(--green-mid);
   border-radius: 3px;
   transition: width 0.3s ease;
 }
@@ -13621,10 +13652,10 @@ body {
   align-items: center;
   gap: 10px;
   padding: 10px 20px;
-  border-bottom: 1px solid var(--mcc-rule-soft);
+  border-bottom: 1px solid var(--line-light);
 }
 .mcc-staff-row:last-child { border-bottom: none; }
-.mcc-staff-row:nth-child(even) { background: var(--mcc-canvas-2); }
+.mcc-staff-row:nth-child(even) { background: var(--bg-alt); }
 
 .mcc-avatar {
   width: 26px;
@@ -13641,15 +13672,15 @@ body {
 
 /* ── Insight items ── */
 .mcc-insight {
-  border-left: 3px solid var(--mcc-amber);
+  border-left: 3px solid var(--status-warn);
   padding: 10px 14px;
   border-radius: 0 6px 6px 0;
-  background: var(--mcc-canvas-2);
+  background: var(--bg-alt);
 }
-.mcc-insight.good { background: var(--mcc-sage-soft); border-left-color: var(--mcc-sage); }
-.mcc-insight-title { font-size: 13px; color: var(--mcc-ink-900); font-weight: 500; line-height: 1.4; }
-.mcc-insight-body  { font-size: 12px; color: var(--mcc-ink-500); margin-top: 2px; line-height: 1.45; }
-.mcc-insight-cta   { font-size: 11px; color: var(--mcc-forest-700); cursor: pointer; display: inline-block; margin-top: 6px; font-weight: 500; background: none; border: none; padding: 0; font-family: inherit; }
+.mcc-insight.good { background: var(--green-light); border-left-color: var(--green-mid); }
+.mcc-insight-title { font-size: 13px; color: var(--text); font-weight: 500; line-height: 1.4; }
+.mcc-insight-body  { font-size: 12px; color: var(--text-muted); margin-top: 2px; line-height: 1.45; }
+.mcc-insight-cta   { font-size: 11px; color: var(--green); cursor: pointer; display: inline-block; margin-top: 6px; font-weight: 500; background: none; border: none; padding: 0; font-family: inherit; }
 
 /* ── Alert items ── */
 .mcc-alert-item {
@@ -13658,7 +13689,7 @@ body {
   gap: 12px;
   padding: 10px 16px;
   align-items: center;
-  border-bottom: 1px solid var(--mcc-rule-soft);
+  border-bottom: 1px solid var(--line-light);
 }
 .mcc-alert-item:last-child { border-bottom: none; }
 
@@ -13671,15 +13702,15 @@ body {
   font-size: 13px;
   flex-shrink: 0;
 }
-.mcc-alert-icon.good { background: var(--mcc-sage-soft); color: var(--mcc-good); }
-.mcc-alert-icon.warn { background: var(--mcc-amber-soft); color: var(--mcc-amber); }
-.mcc-alert-icon.info { background: var(--bg-neutral-blue); color: var(--mcc-info); }
-.mcc-alert-icon.bad  { background: var(--mcc-terra-soft); color: var(--mcc-bad); }
+.mcc-alert-icon.good { background: var(--green-light); color: var(--status-good); }
+.mcc-alert-icon.warn { background: var(--status-warn-bg); color: var(--status-warn); }
+.mcc-alert-icon.info { background: var(--bg-neutral-blue); color: var(--status-info); }
+.mcc-alert-icon.bad  { background: var(--status-error-bg); color: var(--status-error); }
 
-.mcc-alert-title { font-size: 13px; font-weight: 500; color: var(--mcc-ink-900); }
-.mcc-alert-desc  { font-size: 12px; color: var(--mcc-ink-500); margin-top: 2px; line-height: 1.4; }
-.mcc-alert-cta   { font-size: 11px; color: var(--mcc-forest-700); cursor: pointer; white-space: nowrap; background: none; border: none; padding: 0; font-family: inherit; }
-.mcc-alert-cta:hover { color: var(--mcc-forest-600); }
+.mcc-alert-title { font-size: 13px; font-weight: 500; color: var(--text); }
+.mcc-alert-desc  { font-size: 12px; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+.mcc-alert-cta   { font-size: 11px; color: var(--green); cursor: pointer; white-space: nowrap; background: none; border: none; padding: 0; font-family: inherit; }
+.mcc-alert-cta:hover { color: var(--green-mid); }
 
 /* ── Training pillars ── */
 .mcc-pillar-row {
@@ -13690,15 +13721,15 @@ body {
   margin-bottom: 12px;
 }
 .mcc-pillar-row:last-child { margin-bottom: 0; }
-.mcc-pillar-name { font-size: 12px; color: var(--mcc-ink-700); }
-.mcc-pillar-pct  { font-size: 12px; color: var(--mcc-ink-900); text-align: right; font-weight: 500; font-variant-numeric: tabular-nums; }
+.mcc-pillar-name { font-size: 12px; color: var(--text-soft); }
+.mcc-pillar-pct  { font-size: 12px; color: var(--text); text-align: right; font-weight: 500; font-variant-numeric: tabular-nums; }
 
 /* ── Right rail ── */
 .mcc-rail {
   width: 268px;
   flex-shrink: 0;
-  background: var(--mcc-canvas);
-  border-left: 1px solid var(--mcc-rule-2);
+  background: var(--bg);
+  border-left: 1px solid var(--line-light);
   padding: 24px 20px;
   display: flex;
   flex-direction: column;
@@ -13711,25 +13742,25 @@ body {
   align-items: baseline;
   margin-bottom: 12px;
 }
-.mcc-rail-title { font-family: 'Fraunces', Georgia, serif; font-size: 17px; font-weight: 500; letter-spacing: -0.01em; margin: 0; color: var(--mcc-ink-900); }
-.mcc-rail-meta  { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mcc-ink-500); }
+.mcc-rail-title { font-family: 'Fraunces', Georgia, serif; font-size: 17px; font-weight: 500; letter-spacing: -0.01em; margin: 0; color: var(--text); }
+.mcc-rail-meta  { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
 
 .mcc-rail-kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .mcc-rail-kpi {
-  background: var(--mcc-paper);
-  border: 1px solid var(--mcc-rule-2);
+  background: var(--surface);
+  border: 1px solid var(--line-light);
   border-radius: 4px;
   padding: 10px;
 }
-.mcc-rail-kpi-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mcc-ink-500); }
-.mcc-rail-kpi-value { font-size: 22px; font-weight: 500; margin-top: 2px; font-variant-numeric: tabular-nums; color: var(--mcc-ink-900); }
+.mcc-rail-kpi-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
+.mcc-rail-kpi-value { font-size: 22px; font-weight: 500; margin-top: 2px; font-variant-numeric: tabular-nums; color: var(--text); }
 
 .mcc-rail-actions { display: flex; flex-direction: column; gap: 4px; }
 .mcc-rail-action-btn {
-  color: var(--mcc-ink-700);
+  color: var(--text-soft);
   text-decoration: none;
   padding: 5px 0;
-  border-bottom: 1px dashed var(--mcc-rule-2);
+  border-bottom: 1px dashed var(--line-light);
   cursor: pointer;
   background: none;
   border-top: none;
@@ -13740,7 +13771,7 @@ body {
   font-family: inherit;
 }
 .mcc-rail-action-btn:last-child { border-bottom: none; }
-.mcc-rail-action-btn:hover { color: var(--mcc-forest-700); }
+.mcc-rail-action-btn:hover { color: var(--green); }
 
 /* ── Responsive ── */
 @media (max-width: 1400px) {

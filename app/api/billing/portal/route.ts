@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { getUserFromRequest } from "@/lib/supabase-server";
 
 export async function POST(req: Request) {
@@ -8,12 +7,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Billing not configured" }, { status: 503 });
   }
 
-  const { user } = await getUserFromRequest(req);
+  // Reuse the authenticated client from getUserFromRequest rather than a
+  // fresh cookie-only createSupabaseServerClient() — on Cloudflare Pages
+  // cookies are often not forwarded to API routes, so a cookie-only client
+  // has no auth.uid() during RLS evaluation and this profiles query would
+  // silently come back empty even when stripe_customer_id is populated.
+  const { user, supabase } = await getUserFromRequest(req);
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const supabase = await createSupabaseServerClient();
   const { data: profile } = await supabase
     .from("profiles")
     .select("stripe_customer_id")
@@ -30,10 +33,17 @@ export async function POST(req: Request) {
   });
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? process.env.NEXT_PUBLIC_BASE_URL ?? "";
-  const session = await stripe.billingPortal.sessions.create({
-    customer: profile.stripe_customer_id,
-    return_url: `${baseUrl}/management/dashboard?tab=settings&subtab=billing`,
-  });
 
-  return NextResponse.json({ url: session.url });
+  try {
+    const session = await stripe.billingPortal.sessions.create({
+      customer: profile.stripe_customer_id,
+      return_url: `${baseUrl}/management/dashboard?tab=settings&subtab=billing`,
+    });
+
+    return NextResponse.json({ url: session.url });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("Stripe billing portal error:", message);
+    return NextResponse.json({ error: message }, { status: 502 });
+  }
 }
