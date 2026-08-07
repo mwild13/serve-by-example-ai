@@ -36,12 +36,12 @@ const STAFF_ROLE_OPTIONS: StaffRole[] = [
 ];
 
 // NOTE: readinessPill() is imported from ./compliance/helpers — the same
-// function StaffReadinessBoard.tsx uses on the Overview tab. This file used
-// to define its own local readinessPill() that ignored trainingProgress
-// entirely, which is why every staff member here rendered a green "Ready"
-// pill regardless of 0% completion while Overview correctly showed amber/red
-// (Phase 5 execution brief, Friction #1 — dual-status bug). Do not
-// reintroduce a second implementation here.
+// shared function the Overview tab's Needs Attention card uses. This file
+// used to define its own local readinessPill() that ignored
+// trainingProgress entirely, which is why every staff member here rendered
+// a green "Ready" pill regardless of 0% completion while Overview correctly
+// showed amber/red (Phase 5 execution brief, Friction #1 — dual-status
+// bug). Do not reintroduce a second implementation here.
 
 export default function StaffDirectoryTable({
   selectedVenueId,

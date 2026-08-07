@@ -5,8 +5,10 @@ import { createSupabaseBrowserClient } from "@/lib/supabase";
 
 export default function SignOutButton({
   redirectTo = "/login",
+  className = "sign-out-btn",
 }: {
   redirectTo?: string;
+  className?: string;
 }) {
   const router = useRouter();
 
@@ -18,7 +20,7 @@ export default function SignOutButton({
   }
 
   return (
-    <button className="sign-out-btn" onClick={handleSignOut}>
+    <button className={className} onClick={handleSignOut}>
       Sign out
     </button>
   );
