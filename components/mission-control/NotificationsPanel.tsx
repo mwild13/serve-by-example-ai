@@ -163,10 +163,13 @@ export function NotificationsPanel({ venueStaff, needsAttention, venueInventory,
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {visible.map((notif) => {
               const style = notif.id === "inventory-ok" ? { bg: "var(--status-success-bg)", border: "var(--status-success-border)", dot: "var(--status-success)", label: "Connected" } : urgencyStyle[notif.urgency];
-              const ctaMap: Record<string, { label: string; section: ManagerSection }> = {
-                "training":     { label: "Review staff", section: "staff" },
-                "performance":  { label: "Open scenarios", section: "scenarios" },
-                "inventory":    { label: "Manage inventory", section: "inventory" },
+              // "scenarios" (Scenario Builder) and "inventory" (Inventory
+              // management) are unbuilt EmptyState placeholders — no CTA
+              // entry for those categories so the alert doesn't click
+              // through to a dead end. Only "training" routes to a real,
+              // built section (Staff).
+              const ctaMap: Partial<Record<string, { label: string; section: ManagerSection }>> = {
+                "training": { label: "Review staff", section: "staff" },
               };
               const inlineCta = notif.urgency !== "info" ? ctaMap[notif.category] : null;
               return (

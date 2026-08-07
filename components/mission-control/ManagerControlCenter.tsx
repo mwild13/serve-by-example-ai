@@ -708,7 +708,9 @@ export default function ManagerControlCenter({
     title: string;
     detail: string;
     actionLabel: string;
-    section: ManagerSection;
+    // null = target section is an unbuilt placeholder; CTA is suppressed
+    // rather than click-through to a "coming soon" EmptyState.
+    section: ManagerSection | null;
   }> = [
     {
       title: "Training risk",
@@ -726,7 +728,7 @@ export default function ManagerControlCenter({
           ? `Upselling performance is ${metrics.salesSkill}%. Assign Upsell Mastery to boost conversion.`
           : "Upsell performance has no data yet. Assign a sales scenario to start tracking.",
       actionLabel: "Open scenarios",
-      section: "scenarios",
+      section: null, // Scenario Builder is not yet built
     },
     {
       title: "Engagement",
@@ -734,8 +736,8 @@ export default function ManagerControlCenter({
         inactiveCount > 0
           ? `${inactiveCount} staff inactive for 7 days or more.`
           : "No inactive staff this week.",
-      actionLabel: "Assign training",
-      section: "training",
+      actionLabel: "Review staff",
+      section: "staff",
     },
     {
       title: "Inventory intelligence",
@@ -743,7 +745,7 @@ export default function ManagerControlCenter({
         ? `The training engine has access to ${venueInventory.reduce((sum, category) => sum + category.products.length, 0)} products.`
         : "No inventory saved yet. Add categories to improve scenario realism.",
       actionLabel: "Manage inventory",
-      section: "inventory",
+      section: null, // Inventory management is not yet built
     },
   ];
 
@@ -1723,35 +1725,29 @@ export default function ManagerControlCenter({
 
               <article className="ops-card">
                 <WorkspaceHeader
-                  title="This week vs last week"
-                  description="Comparison to 7 days prior"
+                  title="This week"
+                  description="Current-period snapshot"
                   meta={selectedVenue?.name}
                 />
-                <div className="ops-compare-grid">
-                  <div className="ops-compare-row ops-compare-head">
-                    <span>Metric</span><span>Current</span><span>Active this week</span>
+                {/* Prior-week column intentionally omitted: no historical
+                    snapshot table exists yet to compare against, so a "vs
+                    last week" figure would be fabricated. Re-add once
+                    historical tracking is wired up (see feature-data-audit). */}
+                <div className="ops-compare-grid" style={{ gridTemplateColumns: "1fr auto" }}>
+                  <div className="ops-compare-row ops-compare-head" style={{ gridTemplateColumns: "1fr auto" }}>
+                    <span>Metric</span><span>Current</span>
                   </div>
                   {[
                     { label: "Training completion", current: metrics.avgCompletion, suffix: "%" },
                     { label: "Scenario score", current: metrics.avgScenarioScore, suffix: "%" },
                     { label: "Upsell rate", current: metrics.salesSkill, suffix: "%" },
                     { label: "Active staff", current: metrics.activeThisWeek, suffix: "" },
-                  ].map((row) => {
-                    const activeCount = venueStaff.filter((s) => {
-                      if (!s.lastActive) return false;
-                      const str = s.lastActive.toLowerCase();
-                      return str.includes("today") || str.includes("yesterday") || (str.includes("day") && parseInt(str) <= 7);
-                    }).length;
-                    return (
-                      <div key={row.label} className="ops-compare-row">
-                        <span>{row.label}</span>
-                        <span>{row.current > 0 ? `${row.current}${row.suffix}` : "–"}</span>
-                        <span style={{ color: "var(--text-muted)" }}>
-                          {row.label === "Active staff" ? `${activeCount} trained in last 7d` : "—"}
-                        </span>
-                      </div>
-                    );
-                  })}
+                  ].map((row) => (
+                    <div key={row.label} className="ops-compare-row" style={{ gridTemplateColumns: "1fr auto" }}>
+                      <span>{row.label}</span>
+                      <span>{row.current > 0 ? `${row.current}${row.suffix}` : "–"}</span>
+                    </div>
+                  ))}
                 </div>
                 <p style={{ fontSize: "0.72rem", color: "var(--text-muted)", margin: "10px 0 0", fontStyle: "italic" }}>
                   Week-on-week trend comparison will appear once historical tracking is live.
@@ -1802,8 +1798,8 @@ export default function ManagerControlCenter({
 
               <article className="ops-card ops-revenue-model">
                 <div className="ops-card-head">
-                  <h3>Revenue impact estimator</h3>
-                  <span>Upsell improvement estimator</span>
+                  <h3>Revenue Impact Simulator</h3>
+                  <span>Formula projection, not live POS data</span>
                 </div>
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>

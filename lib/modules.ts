@@ -1,6 +1,6 @@
 /**
  * Module System Types
- * Defines all TypeScript interfaces for the 20-module adaptive learning platform
+ * Defines all TypeScript interfaces for the 40-module adaptive learning platform
  */
 
 export type Category = 'technical' | 'service' | 'compliance';
@@ -8,10 +8,10 @@ export type ScenarioType = 'quiz' | 'descriptor_l2' | 'descriptor_l3' | 'rolepla
 
 /**
  * Module Definition
- * Core metadata for each of the 20 learning modules
+ * Core metadata for each of the 40 learning modules
  */
 export interface Module {
-  id: number; // 1-20, immutable
+  id: number; // 1-40, immutable
   title: string; // e.g., "Pouring the Perfect Beer"
   description: string;
   category: Category;

@@ -128,7 +128,7 @@ export async function GET(req: Request) {
     const masteredModuleCount = allModules
       ? allModules.filter((mod) => (moduleProgress[mod.id]?.mastery ?? 0) >= 80).length
       : 0;
-    const totalModuleCount = allModules?.length ?? 20;
+    const totalModuleCount = allModules?.length ?? 40;
     const scenariosStartedCount = allModules
       ? allModules.filter((mod) => (moduleProgress[mod.id]?.scenariosAttempted ?? 0) > 0).length
       : 0;

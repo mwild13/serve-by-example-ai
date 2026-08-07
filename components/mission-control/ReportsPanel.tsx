@@ -142,7 +142,7 @@ export function ReportsPanel({
             { label: "Total staff", value: venueStaff.length, noData: false },
             { label: "Avg training", value: `${metrics.avgCompletion}%`, noData: venueStaff.length === 0 },
             { label: "Avg score", value: `${metrics.avgScenarioScore}%`, noData: venueStaff.length === 0 },
-            { label: "Compliant", value: `${fullyCompliant.length}/${venueStaff.length}`, noData: venueStaff.length === 0 },
+            { label: "Training qualified", value: `${fullyCompliant.length}/${venueStaff.length}`, noData: venueStaff.length === 0 },
           ].map((kpi) => (
             <div key={kpi.label} style={{ padding: "14px 16px", background: "var(--surface-raised)", borderRadius: 10, border: "1px solid var(--line)", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
               {kpi.noData ? (

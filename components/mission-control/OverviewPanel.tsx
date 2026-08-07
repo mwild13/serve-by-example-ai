@@ -34,7 +34,10 @@ export interface OverviewOperationalAlert {
   title: string;
   detail: string;
   actionLabel: string;
-  section: ManagerSection;
+  // null when the target section is an unbuilt placeholder (e.g. Scenario
+  // Builder, Inventory) — the CTA is suppressed rather than click-through
+  // to an EmptyState "coming soon" page.
+  section: ManagerSection | null;
 }
 
 export interface OverviewCoachingItem {
@@ -333,9 +336,11 @@ export function OverviewPanel({
                       <div className="mcc-alert-title">{alert.title}</div>
                       <div className="mcc-alert-desc">{alert.detail}</div>
                     </div>
-                    <button type="button" className="sbe-button-outline sbe-button-outline--sm" onClick={() => handleSectionChange(alert.section)}>
-                      {alert.actionLabel} →
-                    </button>
+                    {alert.section && (
+                      <button type="button" className="sbe-button-outline sbe-button-outline--sm" onClick={() => handleSectionChange(alert.section as ManagerSection)}>
+                        {alert.actionLabel} →
+                      </button>
+                    )}
                   </div>
                 );
               })}

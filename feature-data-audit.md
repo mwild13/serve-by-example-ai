@@ -146,13 +146,65 @@ Compiled directly from source (components, `lib/mastery.ts`, `lib/badges.ts`, `l
 
 ---
 
-### Reports, Analytics, Training Programs, Inventory, AI Coach, Roles/Teams, Notifications
-**Lower confidence — typed but not fully read.** Per `lib/management/types.ts` and the app route map, these exist as distinct Mission Control sections:
-- **Reports** (`ReportsPanel.tsx`) — includes a schedulable recurring report (day-of-month + enable toggle, per the `reportScheduleEnabled/Day` state in `ManagerControlCenter.tsx`), built on `reportSummaries: { title, summary }[]`.
-- **Analytics** — team performance snapshot, likely backed by `app/api/management/snapshot/`.
-- **Training Programs** (`TrainingProgram` type) — named, role-targeted, day-plan-based programs with a completion %; CRUD via `app/api/management/training-programs/`.
-- **Inventory** (`InventoryCategory`, `MenuKnowledgeItem` types) — venue-specific product/category linkage tied to menu knowledge, via `app/api/management/inventory/`.
-- **AI Coach** — coaching message generation via `app/api/management/coach/` (separate from the per-staff CoachingDrawer).
-- **Roles/Teams/Notifications** — present as `ManagerSection` nav entries; no component detail confirmed in this pass.
+### Teams (`TeamsPerformancePanel.tsx`)
+**What it does:** Auto-derived team rollup — staff are bucketed into three fixed teams by role (Bar Team = Bartender, Floor Team = Floor + New Staff, Leadership = Supervisor + Manager) with no manual team-building step. Shows per-team avg progress/service/sales/product score, a bar-chart comparison against an explicit 80%-score target line, and a "needs attention" roster grouped by team.
 
-**Manager value:** Directionally the same pattern as the rest of the suite (structured data → actionable manager view), but I'd verify the actual UI and data shape against the live components before quoting specifics on these six to a market-research model — everything above them in this doc is verified against source.
+**Data tracked:** Per-team avg progress, avg composite score, and each team's single weakest sub-score (Service/Sales/Product) surfaced as a "Gap" chip with a one-click "Resolve →" action that pre-fills a prompt into AI Coach (e.g. "What training should I assign to close the Sales gap for my Floor Team?"). Exportable as CSV.
+
+**Manager value:** Role-based team grouping is automatic, not something a manager configures — reduces setup friction, but also means teams can't be redefined outside the 5 fixed `StaffRole` values. The direct Gap → AI Coach handoff is a real workflow shortcut, not just a static report.
+
+---
+
+### Roles & Permissions (`RolesPermissionsMatrix.tsx`)
+**What it does:** Two linked tables. (1) A **role training matrix**: for each of the 5 roles, shows which of the 3 modules (Bartending/Sales/Management) are Required vs. Optional for that role, average progress, and a compliance ring (staff at ≥80% progress / total in that role). (2) A **static permission matrix**: read-only reference table of what Manager / Supervisor / Staff can access (Manager dashboard, Staff management, Training programs, Inventory & menu, Reports & analytics, Complete training, View own progress).
+
+**Data tracked:** Per-role headcount, avg progress, ≥80%-progress compliance ratio per role.
+
+**Manager value:** The permission matrix is a **hardcoded reference table, not a configurable settings screen** — worth being precise about this if it's going in front of a market-research model, since "role-based permissions" reads very differently from "role-based permissions matrix you can view but not edit." The training-requirements-by-role table is genuinely useful and computed live from real staff data.
+
+---
+
+### Analytics (inline section, `ManagerControlCenter.tsx` lines ~1672–1848)
+**What it does:** Four live panels: (1) multi-venue comparison grid (completion/scenario/upsell rate per venue, flags venues <30% completion as "Low," multi-venue tier only), (2) "this week vs last week" comparison table — **currently only shows current-period values; the prior-week column is a static "—" placeholder** (explicit note in the UI: "Week-on-week trend comparison will appear once historical tracking is live"), (3) Bar team vs. Floor team side-by-side score comparison, (4) a revenue-impact estimator — a slider-driven calculator (`staff count × 40 transactions/shift × 3 shifts/week × avg order value × upsell-improvement %`) projecting weekly revenue uplift at 5/10/15/20% upsell improvement.
+
+**Data tracked:** Per-venue completion/scenario/upsell rate, bar-vs-floor avg completion/service/sales/product score, user-adjustable avg transaction value ($5–$300) feeding a formula-based (not measured) revenue projection.
+
+**Manager value:** The revenue estimator is the platform's clearest ROI-justification tool for a manager who has to defend the training spend — but it's explicitly a projection built on an assumed formula, not measured pre/post revenue data, and the week-over-week trend panel is not yet functional despite being visually present. Both are worth flagging precisely rather than presenting as live historical analytics.
+
+---
+
+### Reports (`ReportsPanel.tsx`)
+**What it does:** KPI summary strip (total staff, avg training %, avg score %, "compliant" count), a sortable/searchable full staff table (by name/role/progress/service/sales/product), Top Performers and Needs Attention shortlists, and a weekly email report scheduler (enable toggle + day-of-month picker).
+
+**Data tracked:** "Compliant" here is a **role-based module-score threshold**, not the RSA/FSS compliance from the Compliance Hub — a staff member is "compliant" if they clear ≥60% in whichever modules their role requires (e.g. a Manager needs ≥60% on Sales, Bartending, *and* Management; a Floor staffer only needs ≥60% Sales). This is a different, narrower definition of "compliant" than the legal-certification one in the Compliance tab, and the two are easy to conflate.
+
+**Manager value:** Good day-to-day performance view, but the reused word "compliant" across two different tabs with two different meanings (training-threshold vs. RSA/FSS legal status) is a real UX/terminology risk worth fixing before a manager assumes "compliant" in Reports means their RSA obligations are covered.
+
+---
+
+### Notifications (`NotificationsPanel.tsx`)
+**What it does:** Rule-generated alert feed (not manager-authored) across 3 categories — Training, Performance, Inventory — with critical/warning/info severity, filter tabs, and a dismiss-to-archive flow.
+
+**Data tracked / trigger rules:** Inactive staff with zero training → critical. Staff flagged "attention" → warning, shows their current % complete. Any staff with sales score 1–49% → warning. Venue-wide avg upsell <60% → warning, ≥60% → info. Zero inventory categories linked → info nudge to connect inventory; nonzero → info confirmation. Zero training programs created → info nudge.
+
+**Manager value:** Legitimate proactive surfacing of the same underlying data (staff scores, inventory linkage, program count) rather than a separate data source — but note two of the "inventory" and "training program" notification triggers point at features that are themselves still placeholders (see below), so those specific nudges currently lead to an empty "coming soon" screen if clicked through.
+
+---
+
+### Ask AI Coach (inline section, `ManagerControlCenter.tsx` ~1891+)
+**What it does:** A chat interface (backed by `/api/management/coach`) scoped to the currently selected venue, seeded with 5 canned prompt suggestions ("Who needs the most attention this week?", "Which staff are falling behind on training?", "What are my top upselling risks?", "Who is close to full mastery?", "Summarise this venue's performance.") plus one auto-generated chip per at-risk staff member that pre-fills their name/role/progress/last-active into the prompt box. Shows a venue-at-a-glance stat strip (staff count, avg score, training completion, count needing attention) before the first message, and supports thumbs up/down feedback on responses.
+
+**Data tracked:** Feeds the model live venue staff data (scores, progress, activity) rather than being a generic chatbot — this is distinct from `DashboardTrainer`'s AI evaluation and from the per-staff `CoachingDrawer`.
+
+**Manager value:** This is the natural-language front door to everything else in Mission Control — a manager who doesn't want to dig through Predictive/Reports/Teams tabs can just ask, and the per-staff quick-chips remove the step of typing out who they mean.
+
+---
+
+### NOT YET BUILT: Training Programs, Scenario Builder, Inventory, Menu Engineering
+**This is a material correction to earlier drafts of this audit** — these four nav items exist in the sidebar and are typed in `lib/management/types.ts` (`TrainingProgram`, `InventoryCategory`, `MenuKnowledgeItem`), but clicking into any of them in `ManagerControlCenter.tsx` currently renders nothing but a generic `EmptyState` placeholder:
+- **Training** → "Programs builder coming soon. Saved data will appear here automatically."
+- **Scenarios** → "Scenario builder coming soon. Performance is tracked in the background."
+- **Inventory** → "Full inventory management coming soon. Saved data will appear here automatically."
+- **Menu** → "Menu engineering tools coming soon."
+
+**Manager value / risk:** Don't represent these as shipped, functioning features to a research model or to prospects — they're roadmap items with data types already scaffolded but no UI behind them yet. Also note the Notifications panel actively nudges managers toward "Add inventory" / "Create a training program," which currently routes into these same empty states — that's a real in-product dead end worth fixing before it ships to real users.

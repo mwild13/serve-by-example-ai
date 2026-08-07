@@ -228,7 +228,7 @@ export default function ProgressOverview({
   // ── Derived values ──────────────────────────────────────────────────────────
 
   const masteredCount = data.modules.filter((m) => m.mastered).length;
-  const totalCount = data.modules.length || 20;
+  const totalCount = data.modules.length || 40;
   const skillLevel = data.skillLevel;
 
   const categoryGroups: Record<"technical" | "service" | "compliance", ModuleSummary[]> = {

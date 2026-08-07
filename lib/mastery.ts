@@ -18,12 +18,16 @@ export const SCENARIO_COUNTS: Record<string, number> = {
 /**
  * V3: Total modules in the platform. Drives the binary mastery
  * percentage shown on the manager dashboard (mastered / TOTAL_MODULES).
+ * Fallback only — syncMasteryToVenueStaff() prefers the live count from
+ * the modules table. Platform has 40 modules (see lib/verify-questions.ts).
  */
-export const V3_TOTAL_MODULES = 20;
+export const V3_TOTAL_MODULES = 40;
 
 /**
- * V3: Module category mapping. Mirrors supabase/migrations/20260421_1_create_modules.sql.
+ * V3: Module category mapping. Mirrors supabase/migrations/20260421_1_create_modules.sql
+ * plus the modules 21-40 added in lib/module-navigator.ts's default catalog.
  * Used by the Manager dashboard StaffBadges to compute category mastery.
+ * Fallback only — syncMasteryToVenueStaff() prefers live categories from the modules table.
  */
 export const V3_MODULE_CATEGORIES: Record<number, "technical" | "service" | "compliance"> = {
   1: "technical", 2: "technical", 3: "technical", 4: "technical",
@@ -32,6 +36,11 @@ export const V3_MODULE_CATEGORIES: Record<number, "technical" | "service" | "com
   12: "service", 13: "service", 14: "service",
   15: "compliance", 16: "compliance", 17: "compliance",
   18: "compliance", 19: "compliance", 20: "compliance",
+  21: "compliance", 22: "compliance", 23: "service", 24: "compliance",
+  25: "compliance", 26: "technical", 27: "technical", 28: "technical",
+  29: "service", 30: "service", 31: "compliance", 32: "technical",
+  33: "technical", 34: "technical", 35: "compliance", 36: "service",
+  37: "service", 38: "service", 39: "technical", 40: "service",
 };
 
 const MASTERY_THRESHOLD = 3; // consecutive correct for mastery
