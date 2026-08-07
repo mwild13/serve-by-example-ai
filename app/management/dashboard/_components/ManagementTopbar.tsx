@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Search, Sparkles, Bell } from "lucide-react";
+import { ChevronDown, Search, Sparkles } from "lucide-react";
 import type { QuickActionId, SearchResult } from "@/components/mission-control/manager-types";
 import { QuickActionMenu } from "@/components/mission-control/QuickActionMenu";
 
@@ -31,7 +31,7 @@ interface ManagementTopbarProps {
 }
 
 export function ManagementTopbar({
-  breadcrumbs,
+  breadcrumbs: _breadcrumbs,
   venueName,
   searchQuery,
   onSearchChange,
@@ -122,12 +122,6 @@ export function ManagementTopbar({
             )}
           </div>
         )}
-
-        {breadcrumbs.length > 0 && (
-          <span style={{ marginLeft: 10, fontSize: "0.8rem", color: "var(--mc-text-muted)" }}>
-            / {breadcrumbs[breadcrumbs.length - 1]}
-          </span>
-        )}
       </div>
 
       {/* Right: search + AI coach + notifications + create + avatar */}
@@ -172,10 +166,6 @@ export function ManagementTopbar({
         </button>
 
         <QuickActionMenu onActionSelect={onActionSelect} />
-
-        <button className="mc-topbar-icon-btn" aria-label="Notifications" type="button">
-          <Bell size={16} />
-        </button>
 
         <div className="mc-topbar-avatar" title={displayName ?? undefined}>{initials || "M"}</div>
       </div>

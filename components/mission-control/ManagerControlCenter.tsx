@@ -1,6 +1,7 @@
 "use client";
 
 import React, { FormEvent, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import SignOutButton from "@/components/ui/SignOutButton";
@@ -960,8 +961,8 @@ export default function ManagerControlCenter({
       <div className="ops-shell mc-shell">
         <SessionRefresher />
         <aside className="mc-sidebar" style={{ opacity: 0.5, pointerEvents: "none" }}>
-          <div className="mc-sidebar-logo">
-            <img src="/logo.webp" alt="" />
+          <div className="mc-sidebar-logo" style={{ width: "100%", height: 64, display: "flex", alignItems: "center", flexShrink: 0 }}>
+            <Image src="/logo.webp" alt="Serve By Example Logo" width={32} height={32} style={{ borderRadius: 8, flexShrink: 0 }} />
             <div className="mc-sidebar-logo-text">
               <span className="mc-sidebar-logo-brand">Serve By Example</span>
               <span className="mc-sidebar-logo-sub">Management Console</span>
