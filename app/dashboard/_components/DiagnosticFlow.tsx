@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 
 interface DiagnosticOption {
@@ -19,6 +19,19 @@ interface DiagnosticFlowProps {
   userToken: string;
   onComplete: (categoryScores: Record<string, number>) => void;
 }
+
+// Rebuilt from scratch (was written entirely in Tailwind utility classes,
+// e.g. "fixed inset-0 bg-black/50" — this project has no Tailwind build
+// pipeline, so every className here was a no-op. The component rendered as
+// unstyled, unpositioned text dumped into the normal page flow instead of a
+// centered modal overlay, which is why it appeared to "leak" onto every
+// dashboard page (it's a single instance in DashboardShell that isn't tied
+// to activeNav, so once showDiagnostic is true it renders regardless of
+// which tab is open — with no fixed positioning, that's just visible
+// wherever it sits in the DOM). Now uses the same inline style={{}} + CSS
+// variable token pattern as the rest of the app, and matches the existing
+// modal/backdrop convention from .ops-coaching-drawer-backdrop in
+// globals.css (rgba(15, 45, 29, 0.3) backdrop, blur, fixed inset-0).
 
 export default function DiagnosticFlow({
   userId: _userId,
@@ -134,14 +147,42 @@ export default function DiagnosticFlow({
     }
   };
 
+  const backdropStyle: CSSProperties = {
+    position: "fixed",
+    inset: 0,
+    zIndex: 9999,
+    background: "rgba(15, 45, 29, 0.3)",
+    backdropFilter: "blur(4px)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 16,
+  };
+
+  const cardStyle: CSSProperties = {
+    background: "var(--surface-raised)",
+    borderRadius: "var(--radius-lg)",
+    maxWidth: 560,
+    width: "100%",
+    boxShadow: "var(--shadow-xl)",
+    fontFamily: "var(--font-manrope)",
+  };
+
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-8 max-w-2xl w-full mx-4">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading assessment...</p>
-          </div>
+      <div style={backdropStyle}>
+        <div style={{ ...cardStyle, maxWidth: 360, padding: "40px 32px", textAlign: "center" }}>
+          <div
+            aria-hidden="true"
+            style={{
+              width: 40, height: 40, margin: "0 auto 16px",
+              borderRadius: "50%",
+              border: "3px solid var(--line)",
+              borderTopColor: "var(--green)",
+              animation: "drill-spin 0.8s linear infinite",
+            }}
+          />
+          <p style={{ margin: 0, color: "var(--text-soft)", fontSize: "0.95rem" }}>Loading assessment…</p>
         </div>
       </div>
     );
@@ -149,13 +190,14 @@ export default function DiagnosticFlow({
 
   if (error) {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-8 max-w-2xl w-full mx-4">
-          <h2 className="text-xl font-bold text-red-600 mb-4">Error</h2>
-          <p className="text-gray-700 mb-6">{error}</p>
+      <div style={backdropStyle}>
+        <div style={{ ...cardStyle, maxWidth: 400, padding: "32px" }}>
+          <h2 style={{ margin: "0 0 12px", fontFamily: "var(--font-fraunces)", fontSize: "1.3rem", color: "var(--status-critical-text)" }}>Something went wrong</h2>
+          <p style={{ margin: "0 0 20px", color: "var(--text-soft)", fontSize: "0.9rem", lineHeight: 1.5 }}>{error}</p>
           <button
+            type="button"
             onClick={() => window.location.reload()}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition"
+            className="btn btn-primary btn-block"
           >
             Retry
           </button>
@@ -166,9 +208,9 @@ export default function DiagnosticFlow({
 
   if (questions.length === 0) {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-8 max-w-2xl w-full mx-4">
-          <p className="text-gray-600">No diagnostic questions available</p>
+      <div style={backdropStyle}>
+        <div style={{ ...cardStyle, maxWidth: 400, padding: "32px", textAlign: "center" }}>
+          <p style={{ margin: 0, color: "var(--text-soft)" }}>No diagnostic questions available.</p>
         </div>
       </div>
     );
@@ -180,74 +222,68 @@ export default function DiagnosticFlow({
   const progressPercentage = ((currentQuestionIndex + 1) / questions.length) * 100;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-2xl w-full shadow-2xl">
+    <div style={backdropStyle}>
+      <div style={cardStyle}>
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6">
-          <h2 className="text-2xl font-bold mb-2">Diagnostic Assessment</h2>
-          <p className="text-blue-100">
-            Answer 10 questions to personalize your learning path
+        <div style={{ background: "var(--green-deep)", color: "var(--surface-raised)", padding: "24px 28px", borderRadius: "var(--radius-lg) var(--radius-lg) 0 0" }}>
+          <h2 style={{ margin: "0 0 6px", fontFamily: "var(--font-fraunces)", fontSize: "1.4rem", fontWeight: 600 }}>Diagnostic Assessment</h2>
+          <p style={{ margin: 0, color: "var(--green-light)", fontSize: "0.9rem" }}>
+            Answer 10 questions to personalise your learning path.
           </p>
         </div>
 
-        {/* Progress Bar */}
-        <div className="px-6 pt-6">
-          <div className="flex justify-between mb-2">
-            <span className="text-sm font-semibold text-gray-700">
+        {/* Progress bar */}
+        <div style={{ padding: "20px 28px 0" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+            <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--text-soft)" }}>
               Question {currentQuestionIndex + 1} of {questions.length}
             </span>
-            <span className="text-sm font-semibold text-gray-700">
+            <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--text-soft)" }}>
               {Math.round(progressPercentage)}%
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${progressPercentage}%` }}
-            ></div>
+          <div style={{ width: "100%", height: 6, background: "var(--bg-alt)", borderRadius: 999 }}>
+            <div style={{ height: "100%", width: `${progressPercentage}%`, background: "var(--green)", borderRadius: 999, transition: "width 0.3s ease" }} />
           </div>
         </div>
 
-        {/* Content */}
-        <div className="p-6">
-          {/* Question */}
-          <div className="mb-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
-              {currentQuestion.question_text}
-            </h3>
-          </div>
+        {/* Question */}
+        <div style={{ padding: "20px 28px" }}>
+          <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", fontWeight: 700, color: "var(--text)", lineHeight: 1.4 }}>
+            {currentQuestion.question_text}
+          </h3>
 
-          {/* Options */}
-          <div className="space-y-3">
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {currentQuestion.options.map((option, idx) => {
               const isSelected = answers[currentQuestion.id] === option.text;
-
               return (
                 <button
                   key={idx}
+                  type="button"
                   onClick={() => handleSelectOption(option.text)}
-                  className={`w-full p-4 rounded-lg border-2 text-left transition ${
-                    isSelected
-                      ? "border-blue-600 bg-blue-50"
-                      : "border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50"
-                  }`}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 12,
+                    width: "100%", padding: "12px 16px", textAlign: "left",
+                    borderRadius: "var(--radius-md)",
+                    border: `2px solid ${isSelected ? "var(--green)" : "var(--line)"}`,
+                    background: isSelected ? "var(--green-light)" : "var(--bg-alt)",
+                    cursor: "pointer",
+                    transition: "border-color 0.15s ease, background 0.15s ease",
+                    fontFamily: "inherit",
+                  }}
                 >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        isSelected
-                          ? "border-blue-600 bg-blue-600"
-                          : "border-gray-300"
-                      }`}
-                    >
-                      {isSelected && (
-                        <div className="w-2 h-2 bg-white rounded-full"></div>
-                      )}
-                    </div>
-                    <span className="text-gray-900 font-medium">
-                      {option.text}
-                    </span>
-                  </div>
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      flexShrink: 0, width: 18, height: 18, borderRadius: "50%",
+                      border: `2px solid ${isSelected ? "var(--green)" : "var(--line)"}`,
+                      background: isSelected ? "var(--green)" : "transparent",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}
+                  >
+                    {isSelected && <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--surface-raised)" }} />}
+                  </span>
+                  <span style={{ fontSize: "0.9rem", fontWeight: 600, color: "var(--text)" }}>{option.text}</span>
                 </button>
               );
             })}
@@ -255,49 +291,60 @@ export default function DiagnosticFlow({
         </div>
 
         {/* Navigation */}
-        <div className="px-6 pb-6 flex gap-3">
+        <div style={{ padding: "0 28px 20px", display: "flex", gap: 10 }}>
           <button
+            type="button"
             onClick={handlePrevious}
             disabled={currentQuestionIndex === 0}
-            className="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-secondary"
+            style={{ flex: 1, opacity: currentQuestionIndex === 0 ? 0.5 : 1, cursor: currentQuestionIndex === 0 ? "not-allowed" : "pointer" }}
           >
             ← Previous
           </button>
 
           {currentQuestionIndex < questions.length - 1 ? (
             <button
+              type="button"
               onClick={handleNext}
               disabled={!isAnswered}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn btn-primary"
+              style={{ flex: 1, opacity: isAnswered ? 1 : 0.5, cursor: isAnswered ? "pointer" : "not-allowed" }}
             >
               Next →
             </button>
           ) : (
             <button
+              type="button"
               onClick={handleSubmit}
               disabled={!allAnswered || submitting}
-              className="flex-1 px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn btn-primary"
+              style={{ flex: 1, opacity: allAnswered && !submitting ? 1 : 0.5, cursor: allAnswered && !submitting ? "pointer" : "not-allowed" }}
             >
-              {submitting ? "Submitting..." : "Complete Assessment"}
+              {submitting ? "Submitting…" : "Complete assessment"}
             </button>
           )}
         </div>
 
-        {/* Question Dots */}
-        <div className="px-6 pb-6 flex gap-1 justify-center flex-wrap">
+        {/* Question dots */}
+        <div style={{ padding: "0 28px 24px", display: "flex", gap: 6, justifyContent: "center", flexWrap: "wrap" }}>
           {questions.map((q, idx) => (
             <button
               key={q.id}
+              type="button"
               onClick={() => setCurrentQuestionIndex(idx)}
-              className={`w-3 h-3 rounded-full transition ${
-                idx === currentQuestionIndex
-                  ? "bg-blue-600 scale-125"
-                  : answers[q.id] !== undefined
-                  ? "bg-green-600"
-                  : "bg-gray-300"
-              }`}
               title={`Question ${idx + 1}`}
-            ></button>
+              aria-label={`Go to question ${idx + 1}`}
+              style={{
+                width: 9, height: 9, borderRadius: "50%", border: "none", padding: 0, cursor: "pointer",
+                background: idx === currentQuestionIndex
+                  ? "var(--green)"
+                  : answers[q.id] !== undefined
+                  ? "var(--status-success)"
+                  : "var(--line)",
+                transform: idx === currentQuestionIndex ? "scale(1.25)" : "scale(1)",
+                transition: "transform 0.15s ease",
+              }}
+            />
           ))}
         </div>
       </div>

@@ -83,31 +83,17 @@ export async function getAvailableModules(
       };
     }
 
-    // If platform_version = 1 (legacy B2B), return only old 3 modules
-    if (platformVersion === 1) {
-      return {
-        modules: [
-          {
-            id: 1,
-            title: "Bartending (Legacy)",
-            description: "Legacy module",
-            category: "technical",
-            difficulty_level: 2,
-            current_elo: 1200,
-            mastery_pct: 0,
-            completion_pct: 0,
-            recommended: true,
-            recommendation_reason: "Start here",
-          },
-        ],
-        total_modules: 3,
-        accessible_modules: access.allowedModules.length,
-        user_role: access.tier || "unknown",
-        platform_version: 1,
-      };
-    }
+    // NOTE: platform_version no longer gates the module catalog. It previously
+    // short-circuited here with a single hardcoded "Bartending (Legacy)" stub
+    // for any B2B user still on platform_version === 1, on the assumption
+    // they'd complete the diagnostic (which auto-bumps them to v2) almost
+    // immediately. In practice the diagnostic overlay had a rendering bug
+    // that made it effectively unusable, so anyone who hadn't finished it
+    // got permanently stuck seeing 1 module instead of all 40. Diagnostic
+    // completion should only affect personalization (category_scores /
+    // recommendations below), never whether the real catalog loads.
 
-    // Platform v2: Fetch all modules from database
+    // Fetch all modules from database
     console.log(`[getAvailableModules] Fetching all modules from database`);
     const { data: allModules, error: modulesError } = await admin
       .from("modules")
