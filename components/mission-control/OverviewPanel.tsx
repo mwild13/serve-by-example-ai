@@ -2,7 +2,6 @@
 
 import type { ManagementSnapshot, ManagerSection } from "@/lib/management/types";
 import { rsaStatus } from "./compliance/helpers";
-import { WorkspaceHeader } from "@/app/management/dashboard/_components/WorkspaceHeader";
 import { OverviewKpiStrip, type OverviewKpi } from "./OverviewKpiStrip";
 import { LearningActivityChart } from "./LearningActivityChart";
 import { NeedsAttentionCard } from "./NeedsAttentionCard";
@@ -11,15 +10,20 @@ import { RoleQualificationCard } from "./RoleQualificationCard";
 
 // Extracted from ManagerControlCenter.tsx (Phase 5 — component extraction
 // roadmap). Covers the Overview tab — the Figma "Venue Manager Dashboard"
-// port: compact header + compliance banners, then strictly the 4-card KPI
-// strip and the 60/40 grid (Learning Activity + Needs Attention on the
-// left; Predictive Skill Gaps + Role Qualification Progress on the right).
-// Everything from the pre-redesign Overview that isn't part of that grid —
-// the old sparkline KPI strip, "Upcoming shifts" (static hardcoded
-// content), the full shift-readiness board, the merged operational-alerts/
-// AI-coaching-queue row, the 14-day training-progression chart, and the
-// Venue health / pillar-breakdown / compliance-summary row — has been
-// removed rather than kept alongside the new grid, per the redesign brief.
+// port: strictly the compliance banners, the 4-card KPI strip, and the
+// 60/40 grid (Learning Activity + Needs Attention on the left; Predictive
+// Skill Gaps + Role Qualification Progress on the right).
+//
+// The page-level "{venue} · {date} · N things need attention" sub-header
+// and its "View roster →" / "Export →" actions have been removed — the
+// venue name + switcher already lives permanently in the sticky
+// ManagementTopbar above this panel, so repeating it here was a duplicate
+// title bar. The attention count is still surfaced honestly via the
+// NeedsAttentionCard's "N flagged" badge and the Confidence Mismatch KPI
+// card, not fabricated a second time. "Export →" moved to the Staff
+// Directory tab's own header, next to the role filter, since that's where
+// staff records actually live.
+//
 // The RSA compliance banners are kept: they're live legal/safety alerts
 // (7-day and 30-day expiry warnings), not a duplicate "overview" card.
 //
@@ -39,26 +43,18 @@ export interface OverviewMetrics {
 }
 
 export interface OverviewPanelProps {
-  selectedVenueName: string | undefined;
-  todayDateStr: string;
-  attentionCount: number;
   metrics: OverviewMetrics;
   venueStaff: ManagementSnapshot["staff"];
   needsAttention: ManagementSnapshot["staff"];
   handleSectionChange: (section: ManagerSection) => void;
-  handleExportStaff: () => void;
   onOpenCoachingDrawer: (staffId: string) => void;
 }
 
 export function OverviewPanel({
-  selectedVenueName,
-  todayDateStr,
-  attentionCount,
   metrics,
   venueStaff,
   needsAttention,
   handleSectionChange,
-  handleExportStaff,
   onOpenCoachingDrawer,
 }: OverviewPanelProps) {
   // ── KPI strip data (Figma: Shift Readiness / RSA·FSS / Confidence / Mastery) ──
@@ -119,59 +115,27 @@ export function OverviewPanel({
 
   return (
     <div className="mcc-overview-shell">
-      <div className="mcc-overview-main">
-
-        {/* ── Compact workspace header ── */}
-        <div style={{ padding: "20px 28px 0" }}>
-          <WorkspaceHeader
-            title={selectedVenueName ?? "Your Venue"}
-            description={`${todayDateStr} · ${attentionCount > 0 ? `${attentionCount} ${attentionCount === 1 ? "thing needs" : "things need"} attention` : "All systems operational"}`}
-            actions={
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <button
-                  type="button"
-                  className="sbe-button-outline sbe-button-outline--sm"
-                  onClick={() => handleSectionChange("staff")}
-                >
-                  View roster →
-                </button>
-                <button
-                  type="button"
-                  className="sbe-button-outline sbe-button-outline--sm"
-                  onClick={handleExportStaff}
-                >
-                  Export →
-                </button>
-              </div>
-            }
-          />
-        </div>
+      <div className="mcc-overview-main" style={{ display: "flex", flexDirection: "column", gap: 12, padding: 16 }}>
 
         {/* ── Level 1 Compliance Banner (30-day warning) ── */}
         {venueStaff.some(s => rsaStatus(s.compliance).level === 1) && (
-          <div style={{ padding: "12px 28px 0 28px" }}>
-            <div style={{ background: 'var(--gold-light)', border: '1px solid var(--gold)', color: 'var(--text)', borderRadius: 'var(--radius-md)', padding: '12px 16px', fontSize: '0.9rem' }}>
-              Compliance reminder: {venueStaff.filter(s => rsaStatus(s.compliance).level === 1).length} staff member{venueStaff.filter(s => rsaStatus(s.compliance).level === 1).length > 1 ? 's have' : ' has'} RSA certifications expiring within 30 days. Plan renewals early.
-            </div>
+          <div style={{ background: 'var(--gold-light)', border: '1px solid var(--gold)', color: 'var(--text)', borderRadius: 'var(--radius-md)', padding: '10px 14px', fontSize: '0.85rem' }}>
+            Compliance reminder: {venueStaff.filter(s => rsaStatus(s.compliance).level === 1).length} staff member{venueStaff.filter(s => rsaStatus(s.compliance).level === 1).length > 1 ? 's have' : ' has'} RSA certifications expiring within 30 days. Plan renewals early.
           </div>
         )}
 
         {/* ── Level 2 Compliance Banner (7-day alert) ── */}
         {venueStaff.some(s => rsaStatus(s.compliance).level >= 2) && (
-          <div style={{ padding: "12px 28px 0 28px" }}>
-            <div style={{ background: 'var(--status-error-bg)', border: '1px solid var(--status-error)', color: 'var(--status-error-text)', borderRadius: 'var(--radius-md)', padding: '12px 16px', marginBottom: 16, fontWeight: 600, fontSize: '1rem' }}>
-              Compliance alert: one or more staff have certifications expiring within 7 days. Review the Compliance tab immediately.
-            </div>
+          <div style={{ background: 'var(--status-error-bg)', border: '1px solid var(--status-error)', color: 'var(--status-error-text)', borderRadius: 'var(--radius-md)', padding: '10px 14px', fontWeight: 600, fontSize: '0.92rem' }}>
+            Compliance alert: one or more staff have certifications expiring within 7 days. Review the Compliance tab immediately.
           </div>
         )}
 
         {/* ── KPI strip (Figma: Shift Readiness / RSA·FSS / Confidence / Mastery) ── */}
-        <div style={{ padding: "16px 28px 0" }}>
-          <OverviewKpiStrip items={kpis} onNav={handleSectionChange} />
-        </div>
+        <OverviewKpiStrip items={kpis} onNav={handleSectionChange} />
 
         {/* ── 60/40 grid: Learning Activity + Needs Attention | Skill Gaps + Role Qualification ── */}
-        <div className="mc-overview-grid" style={{ padding: "16px 28px 20px" }}>
+        <div className="mc-overview-grid">
           <div className="mc-col">
             <div className="mc-panel">
               <div className="mc-panel-head">

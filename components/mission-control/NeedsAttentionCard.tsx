@@ -15,7 +15,7 @@ export function NeedsAttentionCard({
   staff: ManagementSnapshot["staff"];
   onCoach: (member: StaffMember) => void;
 }) {
-  const rows = staff.slice(0, 6);
+  const rows = staff.slice(0, 2);
 
   return (
     <div className="mc-panel">

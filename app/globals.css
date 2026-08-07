@@ -18812,6 +18812,10 @@ h1, h2, h3 {
 }
 .ops-shell.mc-shell .ops-workspace {
   background: var(--mc-bg);
+  /* Kill the grid's top padding so the sticky .mc-topbar sits flush against
+     the very top of the viewport, aligned with .mc-sidebar-logo's top edge
+     (both are 64px tall — see below) instead of floating 32px below it. */
+  padding-top: 0;
 }
 
 /* ── Sidebar ───────────────────────────────────────────────────────────── */
@@ -18830,7 +18834,8 @@ h1, h2, h3 {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 18px 18px;
+  height: 64px;
+  padding: 0 18px;
   border-bottom: 1px solid var(--mc-line);
   flex-shrink: 0;
 }
@@ -19192,7 +19197,7 @@ h1, h2, h3 {
   display: flex;
   flex-direction: column;
   text-align: left;
-  padding: 18px;
+  padding: 16px;
   border-radius: var(--mc-radius-lg);
   border: 1px solid var(--mc-line);
   background: var(--mc-surface);
@@ -19261,6 +19266,11 @@ h1, h2, h3 {
   grid-template-columns: 3fr 2fr;
   gap: 16px;
   align-items: start;
+  /* Above-the-fold constraint: contain the grid's own scroll within itself
+     (80px ≈ sticky topbar height + the compliance banners/KPI strip above
+     it) rather than letting the whole page scroll on a 1080p viewport. */
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
 }
 @media (max-width: 1180px) {
   .mc-overview-grid { grid-template-columns: 1fr; }
@@ -19274,7 +19284,7 @@ h1, h2, h3 {
   overflow: hidden;
 }
 .mc-panel-head {
-  padding: 16px 20px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--mc-line);
   display: flex;
   align-items: flex-start;
@@ -19300,7 +19310,7 @@ h1, h2, h3 {
   white-space: nowrap;
   flex-shrink: 0;
 }
-.mc-panel-body { padding: 18px 20px; }
+.mc-panel-body { padding: 16px; }
 
 /* Learning activity chart */
 .mc-chart-legend { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
@@ -19317,7 +19327,7 @@ h1, h2, h3 {
   display: flex;
   align-items: flex-end;
   gap: 8px;
-  height: 130px;
+  height: 176px;
 }
 .mc-bar-chart-col {
   flex: 1;

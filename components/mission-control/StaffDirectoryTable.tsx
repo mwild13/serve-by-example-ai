@@ -25,6 +25,7 @@ export type StaffDirectoryTableProps = {
   onSnapshotUpdate: (updated: ManagementSnapshot) => void;
   onOpenCoachingDrawer: (staffId: string) => void;
   onAddStaff: () => void;
+  handleExportStaff: () => void;
 };
 
 const STAFF_ROLE_OPTIONS: StaffRole[] = [
@@ -52,6 +53,7 @@ export default function StaffDirectoryTable({
   onSnapshotUpdate,
   onOpenCoachingDrawer,
   onAddStaff,
+  handleExportStaff,
 }: StaffDirectoryTableProps) {
   const inviteEmailRef = useRef<HTMLInputElement>(null);
   const [staffRoleFilter, setStaffRoleFilter] = useState<string>("all");
@@ -283,6 +285,13 @@ export default function StaffDirectoryTable({
             description="Click any row to open the coaching profile"
             actions={
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <button
+                  type="button"
+                  className="sbe-button-outline sbe-button-outline--sm"
+                  onClick={handleExportStaff}
+                >
+                  Export →
+                </button>
                 <select
                   value={staffRoleFilter}
                   onChange={(e) => setStaffRoleFilter(e.target.value)}

@@ -598,89 +598,6 @@ export default function ManagerControlCenter({
     return member.status !== "on-track";
   });
 
-  const inactiveCount = venueStaff.filter((member) => {
-    const daysInactive = parseLastActiveDays(member.lastActive);
-    return daysInactive !== null && daysInactive >= 14;
-  }).length;
-
-  // ── Manager Insights – auto-generated action tips ──
-  const managerInsights = useMemo(() => {
-    const tips: { id: string; icon: string; text: string; priority: "high" | "medium" | "low" }[] = [];
-
-    // Staff struggling with low scores
-    const lowScoreStaff = venueStaff.filter((s) => {
-      const avg = (s.serviceScore + s.salesScore + s.productScore) / 3;
-      return avg > 0 && avg < 50;
-    });
-    if (lowScoreStaff.length > 0) {
-      tips.push({
-        id: "low-score",
-        icon: "!",
-        text: `${lowScoreStaff.length} staff member${lowScoreStaff.length > 1 ? "s" : ""} scoring below 50% average (${lowScoreStaff.map((s) => s.name).join(", ")}). Consider assigning targeted training.`,
-        priority: "high",
-      });
-    }
-
-    // Weak product knowledge across team
-    if (metrics.productSkill > 0 && metrics.productSkill < 60) {
-      tips.push({
-        id: "product-weak",
-        icon: "≡",
-        text: `Team product knowledge at ${metrics.productSkill}%. Schedule a tasting or assign Spirit/Wine 101 modules.`,
-        priority: "medium",
-      });
-    }
-
-    // Upselling below threshold
-    if (metrics.salesSkill > 0 && metrics.salesSkill < 50) {
-      tips.push({
-        id: "upsell-low",
-        icon: "→",
-        text: `Upsell performance at ${metrics.salesSkill}%. Run a sales scenario drill with the team to build recommendation confidence.`,
-        priority: "medium",
-      });
-    }
-
-    // Inactive staff
-    if (inactiveCount > 0) {
-      tips.push({
-        id: "inactive",
-        icon: "◉",
-        text: `${inactiveCount} staff inactive for 7+ days. A quick check-in or refresher assignment can re-engage them.`,
-        priority: "medium",
-      });
-    }
-
-    // Positive reinforcement
-    const onTrackCount = venueStaff.filter((s) => s.status === "on-track").length;
-    if (onTrackCount > 0 && venueStaff.length > 0 && onTrackCount === venueStaff.length) {
-      tips.push({
-        id: "all-good",
-        icon: "◆",
-        text: "All staff are on track. Great momentum, keep the training rhythm going.",
-        priority: "low",
-      });
-    }
-
-    // No staff yet
-    if (venueStaff.length === 0) {
-      tips.push({
-        id: "no-staff",
-        icon: "◉",
-        text: "Add staff members to start seeing performance insights and training recommendations.",
-        priority: "high",
-      });
-    }
-
-    return tips.sort((a, b) => {
-      const order = { high: 0, medium: 1, low: 2 };
-      return order[a.priority] - order[b.priority];
-    });
-  }, [venueStaff, metrics, inactiveCount]);
-
-  const todayDateStr = new Date().toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" }).toUpperCase();
-  const attentionCount = needsAttention.length + managerInsights.filter((i) => i.priority === "high").length;
-
   const searchResults = useMemo<SearchResult[]>(() => {
     if (!searchQuery.trim()) return [];
     const q = searchQuery.toLowerCase();
@@ -1496,14 +1413,10 @@ export default function ManagerControlCenter({
 
         {activeSection === "overview" && (
           <OverviewPanel
-            selectedVenueName={selectedVenue?.name}
-            todayDateStr={todayDateStr}
-            attentionCount={attentionCount}
             metrics={metrics}
             venueStaff={venueStaff}
             needsAttention={needsAttention}
             handleSectionChange={handleSectionChange}
-            handleExportStaff={handleExportStaff}
             onOpenCoachingDrawer={(staffId) => { setSelectedStaffId(staffId); setCoachingDrawerOpen(true); }}
           />
         )}
@@ -1519,6 +1432,7 @@ export default function ManagerControlCenter({
             onSnapshotUpdate={(updated) => setSnapshot(updated)}
             onOpenCoachingDrawer={(staffId) => { setSelectedStaffId(staffId); setCoachingDrawerOpen(true); }}
             onAddStaff={() => openAction("add-staff")}
+            handleExportStaff={handleExportStaff}
           />
         )}
 
