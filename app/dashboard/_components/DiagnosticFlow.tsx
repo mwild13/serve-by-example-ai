@@ -53,13 +53,21 @@ export default function DiagnosticFlow({
         setLoading(true);
         setError(null);
 
-        const response = await fetch("/api/training/diagnostic/start", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${userToken}`,
-          },
-        });
+        // cache: "no-store" plus a unique query param defeats both the
+        // browser's HTTP cache and any Cloudflare edge rule that caches by
+        // URL regardless of method/headers — this endpoint's response is
+        // per-user and must never be replayed to a different caller.
+        const response = await fetch(
+          `/api/training/diagnostic/start?_=${Date.now()}`,
+          {
+            method: "POST",
+            cache: "no-store",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${userToken}`,
+            },
+          }
+        );
 
         if (!response.ok) {
           throw new Error("Failed to load diagnostic questions");
