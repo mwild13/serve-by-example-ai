@@ -95,7 +95,7 @@ export default function StaffDirectoryTable({
     return fetch(url, { ...options, headers });
   }, [sessionToken]);
 
-  async function loadMemberships() {
+  const loadMemberships = useCallback(async () => {
     try {
       const res = await apiFetch("/api/management/memberships");
       if (!res.ok) {
@@ -110,14 +110,18 @@ export default function StaffDirectoryTable({
     } finally {
       setMembershipsLoaded(true);
     }
-  }
+  }, [apiFetch]);
 
   useEffect(() => {
     if (!membershipsLoaded && sessionToken) {
-      loadMemberships();
+      // Legitimate mount-time data fetch (external system: the memberships
+      // API) — loadMemberships eventually calls setState once the response
+      // resolves, which react-hooks/set-state-in-effect can't distinguish
+      // from a synchronous setState call in the effect body.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      void loadMemberships();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionToken]);
+  }, [sessionToken, membershipsLoaded, loadMemberships]);
 
   const toggleRosterSection = useCallback((label: string) => {
     setOpenRosterSections((prev) => {

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { FormEvent, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import SignOutButton from "@/components/ui/SignOutButton";
@@ -164,13 +163,29 @@ export default function ManagerControlCenter({
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Declared up here (rather than alongside the other form/UI state below)
+  // because setActiveSection's useCallback closes over these setters — they
+  // need to exist before that definition for the react-hooks static
+  // ordering check.
+  const [requestError, setRequestError] = useState("");
+  const [requestSuccess, setRequestSuccess] = useState("");
+
   // Tab state is URL-driven so it survives refresh and post-Stripe redirects.
   // Shim functions keep all existing call sites working without change.
   const activeSection =
     (searchParams.get("tab") as ManagerSection | null) ?? "overview";
-  function setActiveSection(section: ManagerSection) {
+  // useCallback so effects that depend on it (stale-tab guard, keydown
+  // shortcuts) get a stable reference instead of re-running every render.
+  const setActiveSection = useCallback((section: ManagerSection) => {
+    // Clear any settings-tab status messages as soon as we navigate away from
+    // settings — handled here (in the single call site every navigation path
+    // funnels through) instead of a useEffect keyed on activeSection.
+    if (section !== "settings") {
+      setRequestSuccess("");
+      setRequestError("");
+    }
     router.push(`?tab=${section}`, { scroll: false });
-  }
+  }, [router]);
 
   const settingsTab =
     (searchParams.get("subtab") as "setup" | "billing" | "account" | null) ?? "setup";
@@ -211,8 +226,6 @@ export default function ManagerControlCenter({
     programId: "",
   });
   const [newVenueName, setNewVenueName] = useState("");
-  const [requestError, setRequestError] = useState("");
-  const [requestSuccess, setRequestSuccess] = useState("");
   const [pendingInviteLink, setPendingInviteLink] = useState<{ link: string; email: string; name: string; emailSent: boolean } | null>(null);
   const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -380,26 +393,12 @@ export default function ManagerControlCenter({
     }
   }, [assignmentForm.programId, assignmentForm.staffId, venuePrograms, venueStaff]);
 
-  useEffect(() => {
-    if (activeSection !== "settings") {
-      setRequestSuccess("");
-      setRequestError("");
-    }
-  }, [activeSection]);
-
   // Guard: redirect any stale deprecated section values to overview
   useEffect(() => {
     if ((activeSection as string) === "billing" || (activeSection as string) === "sign-out") {
       setActiveSection("overview");
     }
-  }, [activeSection]);
-
-  // Reset dirty state when drawer opens/closes
-  useEffect(() => {
-    if (!activeAction) {
-      setIsDirty(false);
-    }
-  }, [activeAction]);
+  }, [activeSection, setActiveSection]);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -414,17 +413,19 @@ export default function ManagerControlCenter({
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []); // router is a stable reference so the closure does not go stale
+  }, [setActiveSection]);
 
   // Webhook race-condition guard: when Stripe redirects back with ?checkout=success,
   // the subscription webhook may not have fired yet. Poll the profile for up to 6s
   // to confirm the tier has updated before showing the billing success banner.
+  // If the plan is already confirmed B2B by the time this renders, there's
+  // nothing to poll for — derive that case directly instead of setting state
+  // from an effect just to mirror already-available render-time values.
+  const isBillingConfirmedFromPlan = checkoutSuccess && !!plan && isB2BTier(plan);
+
   useEffect(() => {
     if (!checkoutSuccess) return;
-    if (plan && isB2BTier(plan)) {
-      setSubConfirmed(true);
-      return;
-    }
+    if (plan && isB2BTier(plan)) return;
     setSubProcessing(true);
     let attempts = 0;
     const supabase = createSupabaseBrowserClient();
@@ -961,8 +962,9 @@ export default function ManagerControlCenter({
       <div className="ops-shell mc-shell">
         <SessionRefresher />
         <aside className="mc-sidebar" style={{ opacity: 0.5, pointerEvents: "none" }}>
-          <div className="mc-sidebar-logo" style={{ width: "100%", height: 64, display: "flex", alignItems: "center", flexShrink: 0 }}>
-            <Image src="/logo.webp" alt="Serve By Example Logo" width={32} height={32} style={{ borderRadius: 8, flexShrink: 0 }} />
+          <div className="mc-sidebar-logo">
+            {/* eslint-disable-next-line @next/next/no-img-element -- intentional plain <img>; see .mc-sidebar-logo CSS for sizing, avoids next/image layout quirks in the sidebar */}
+            <img src="/logo.webp" alt="Serve By Example" width={32} height={32} />
             <div className="mc-sidebar-logo-text">
               <span className="mc-sidebar-logo-brand">Serve By Example</span>
               <span className="mc-sidebar-logo-sub">Management Console</span>
@@ -993,7 +995,8 @@ export default function ManagerControlCenter({
       )}
       <aside className="mc-sidebar">
         <div className="mc-sidebar-logo">
-          <img src="/logo.webp" alt="Serve By Example" />
+          {/* eslint-disable-next-line @next/next/no-img-element -- intentional plain <img>; see .mc-sidebar-logo CSS for sizing, avoids next/image layout quirks in the sidebar */}
+          <img src="/logo.webp" alt="Serve By Example" width={32} height={32} />
           <div className="mc-sidebar-logo-text">
             <span className="mc-sidebar-logo-brand">Serve By Example</span>
             <span className="mc-sidebar-logo-sub">Management Console</span>
@@ -1113,7 +1116,7 @@ export default function ManagerControlCenter({
             Processing your subscription — this takes just a moment...
           </div>
         )}
-        {checkoutSuccess && subConfirmed && !subProcessing && (
+        {checkoutSuccess && (subConfirmed || isBillingConfirmedFromPlan) && !subProcessing && (
           <div
             style={{
               display: "flex",
@@ -1138,7 +1141,7 @@ export default function ManagerControlCenter({
 
         <ActionDrawer
           isOpen={!!activeAction}
-          onClose={() => setActiveAction(null)}
+          onClose={() => { setActiveAction(null); setIsDirty(false); }}
           title={
             activeAction === "add-staff"
               ? "Add staff member"

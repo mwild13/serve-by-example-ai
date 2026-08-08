@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
@@ -148,6 +149,7 @@ function PriceBlock({
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function PricingPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [billing, setBilling] = useState<"monthly" | "yearly">("yearly");
@@ -172,6 +174,10 @@ export default function PricingPage() {
       });
       const data = await res.json();
       if (data.url) {
+        // Stripe Checkout is on an external domain — router.push only
+        // handles internal app routes, so a full browser navigation via
+        // window.location.href is required (and correct) here.
+        // eslint-disable-next-line react-hooks/immutability
         window.location.href = data.url;
       } else {
         setLoading(null);
@@ -193,12 +199,12 @@ export default function PricingPage() {
         body: JSON.stringify({ tier }),
       });
       if (res.status === 401) {
-        window.location.href = `/login?intent=trial&tier=${tier}`;
+        router.push(`/login?intent=trial&tier=${tier}`);
         return;
       }
       const data = await res.json();
       if (res.ok) {
-        window.location.href = "/management/dashboard";
+        router.push("/management/dashboard");
       } else {
         setLoading(null);
         setCheckoutError(data.error || "Unable to start trial. Please try again.");

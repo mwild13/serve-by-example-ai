@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { StaffMember, AustralianState, ManagementSnapshot } from '@/lib/management/types';
 import { rsaStatus, fssStatus, daysUntilExpiry, normalizeExpiryDate } from './helpers';
 
@@ -33,6 +33,13 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
   const [customSaving, setCustomSaving] = useState(false);
   const [customError, setCustomError] = useState('');
   const [customDeletingId, setCustomDeletingId] = useState<string | null>(null);
+
+  // Sampled once per mount (memoized) for a day-granularity expiry
+  // countdown. react-hooks/purity still flags any Date.now() call reachable
+  // from render, even memoized ones — there's no render-pure way to seed a
+  // "current time" value, so this is an intentional, scoped exception.
+  // eslint-disable-next-line react-hooks/purity
+  const now = useMemo(() => Date.now(), []);
 
   useEffect(() => {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -532,7 +539,7 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
               {customCerts.map((cert) => {
                 const staff = venueStaff.find(s => s.id === cert.venue_staff_id);
                 const expiryDate = cert.expiry_date ? new Date(cert.expiry_date) : null;
-                const daysLeft = expiryDate ? Math.ceil((expiryDate.getTime() - Date.now()) / 86400000) : null;
+                const daysLeft = expiryDate ? Math.ceil((expiryDate.getTime() - now) / 86400000) : null;
                 const isExpiring = daysLeft !== null && daysLeft <= 30;
                 return (
                   <tr key={cert.id} style={{ borderBottom: '1px solid var(--line-light)' }}>

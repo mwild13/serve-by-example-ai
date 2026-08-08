@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { GlassWater, TrendingUp, Users, Flame, Trophy, BookOpen, Share2, Target, Check } from "lucide-react";
 import { computeBadges, countEarned, recentEarned, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
 import { KB_ENTRIES, KB_CATEGORIES } from "@/lib/knowledge-base";
@@ -557,7 +557,13 @@ export default function PreShiftHome({
   const kbEntry = KB_ENTRIES[kbIndex];
   const kbCatColor = KB_CATEGORIES[kbEntry.category].color;
   const kbCatLabel = KB_CATEGORIES[kbEntry.category].label;
-  const dayIdx = Math.floor(Date.now() / 86400000);
+  // Sampled once per mount (memoized) to pick "today's" cocktails, which
+  // only needs day-level precision. react-hooks/purity still flags any
+  // Date.now() call reachable from render, even memoized ones — there's no
+  // render-pure way to seed a "current time" value, so this is an
+  // intentional, scoped exception.
+  // eslint-disable-next-line react-hooks/purity
+  const dayIdx = useMemo(() => Math.floor(Date.now() / 86400000), []);
   const dailyCocktail1 = COCKTAILS[(dayIdx * 2) % COCKTAILS.length];
   const dailyCocktail2 = COCKTAILS[(dayIdx * 2 + 1) % COCKTAILS.length];
 

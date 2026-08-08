@@ -10,6 +10,9 @@ import { isB2BTier } from "@/lib/session";
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
+    // One-time client read of window size, deliberately deferred to an effect
+    // (not a lazy initializer) so SSR/hydration always starts from `false`.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMobile(window.innerWidth <= 720);
     const handleResize = () => setIsMobile(window.innerWidth <= 720);
     window.addEventListener("resize", handleResize);
@@ -534,6 +537,8 @@ export default function DashboardShell({
       const params = new URLSearchParams(window.location.search);
       const joinCode = params.get("join");
       if (joinCode) {
+        // One-time redirect derived from the URL on mount, not reactive state.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setJoinCodeFromUrl(joinCode);
         setActiveNav("settings");
         const url = new URL(window.location.href);
@@ -602,6 +607,9 @@ export default function DashboardShell({
       setProgressData(await r.json() as Record<string, unknown>);
     } catch { /* non-critical */ }
   }, []);
+  // fetchProgress is async — its setState call happens after the awaited
+  // fetch resolves, not synchronously within this effect.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { void fetchProgress(); }, [fetchProgress]);
 
   const PREMIUM_NAV_ITEMS: NavItem[] = ["module", "stage4", "scenarios", "cocktails", "knowledge"];
@@ -613,7 +621,7 @@ export default function DashboardShell({
   function handleNavClick(id: NavItem) {
     if (id !== "module") setSelectedCategory(null);
     if (!isPremium && PREMIUM_NAV_ITEMS.includes(id)) {
-      window.location.href = "/pricing";
+      router.push("/pricing");
       return;
     }
     setActiveNav(id);
@@ -633,7 +641,7 @@ export default function DashboardShell({
           <p style={{ color: "var(--text-soft)", marginBottom: "24px", fontSize: "14px", lineHeight: "1.6" }}>{authGuard.errorMessage || "Your session is being restored. Please wait..."}</p>
           <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
             <button
-              onClick={() => window.location.href = "/login"}
+              onClick={() => router.push("/login")}
               style={{
                 padding: "10px 20px",
                 backgroundColor: "var(--green)",
