@@ -17,7 +17,7 @@ import Image from "next/image";
 
 const SEGMENTS = ["HOTELS", "BARS", "RESTAURANTS", "PUBS", "FRANCHISES"];
 
-export type MarqueeLogo = {
+type MarqueeLogo = {
   src: string;
   alt: string;
   width: number;

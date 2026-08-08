@@ -547,7 +547,7 @@ async function getUserStaffLimit(supabase: ManagementSupabaseClient, userId: str
   return TIER_SEATS[normalizeTier(profile?.tier)] ?? 15;
 }
 
-export async function ensureManagerVenue(supabase: ManagementSupabaseClient, userId: string) {
+async function ensureManagerVenue(supabase: ManagementSupabaseClient, userId: string) {
   const venueResult = await getOwnedVenues(supabase, userId);
 
   if (venueResult.missing) {

@@ -285,6 +285,10 @@ export default function ManagerControlCenter({
         setSnapshotLoading(false);
       }
     })();
+  // selectedVenueId is read inside but intentionally omitted — the hasFetchedSnapshot
+  // ref guard makes this a true mount-once fetch; adding the dep would re-fetch on
+  // every venue switch, which is wrong.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialSnapshot, apiFetch]);
 
   const [revenueTransactionValue, setRevenueTransactionValue] = useState(() => {
@@ -332,24 +336,32 @@ export default function ManagerControlCenter({
 
   useEffect(() => {
     if (initialSnapshot) {
+      // Sync server-provided snapshot into state when prop updates.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSnapshot(initialSnapshot);
     }
   }, [initialSnapshot]);
 
   useEffect(() => {
     if (!snapshot.venues.some((venue) => venue.id === selectedVenueId)) {
+      // Selected venue no longer exists after snapshot refresh — reset to first.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedVenueId(snapshot.venues[0]?.id ?? "");
     }
   }, [snapshot.venues, selectedVenueId]);
 
   useEffect(() => {
     const venue = snapshot.venues.find((v) => v.id === selectedVenueId) ?? snapshot.venues[0];
+    // Keep rename field in sync with the selected venue.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (venue) setRenameVenueName(venue.name);
   }, [selectedVenueId, snapshot.venues]);
 
   // A31 — Load AI Coach history the first time the user opens the AI Coach section
   useEffect(() => {
     if (activeSection !== "aicoach" || aiCoachHistoryLoaded || aiCoachMessages.length > 0) return;
+    // Mark history as loaded before the async fetch to prevent duplicate requests.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAiCoachHistoryLoaded(true);
     const qs = selectedVenueId ? `?venueId=${encodeURIComponent(selectedVenueId)}&limit=40` : "?limit=40";
     apiFetch(`/api/management/coach/history${qs}`)
@@ -379,12 +391,16 @@ export default function ManagerControlCenter({
 
   useEffect(() => {
     if (!venueStaff.some((member) => member.id === selectedStaffId)) {
+      // Selected staff member left the venue — reset to first available.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedStaffId(venueStaff[0]?.id ?? "");
     }
   }, [venueStaff, selectedStaffId]);
 
   useEffect(() => {
     if (!venueStaff.some((member) => member.id === assignmentForm.staffId)) {
+      // Assignment form staff/program IDs become stale after venue switch — reset to first.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAssignmentForm((current) => ({ ...current, staffId: venueStaff[0]?.id ?? "" }));
     }
 
@@ -396,6 +412,8 @@ export default function ManagerControlCenter({
   // Guard: redirect any stale deprecated section values to overview
   useEffect(() => {
     if ((activeSection as string) === "billing" || (activeSection as string) === "sign-out") {
+      // Migrate deprecated URL section values to "overview" on load.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveSection("overview");
     }
   }, [activeSection, setActiveSection]);
@@ -426,6 +444,8 @@ export default function ManagerControlCenter({
   useEffect(() => {
     if (!checkoutSuccess) return;
     if (plan && isB2BTier(plan)) return;
+    // Begin Stripe webhook polling — synchronous setState before the async interval is correct.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSubProcessing(true);
     let attempts = 0;
     const supabase = createSupabaseBrowserClient();

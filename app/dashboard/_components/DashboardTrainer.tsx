@@ -73,10 +73,6 @@ export default function DashboardTrainer({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [result]);
 
-  useEffect(() => {
-    if (managementUnlocked) setMgmtUnlocked(true);
-  }, [managementUnlocked]);
-
   // Load mastery-based progress – skipped when parent prefetched initial data
   useEffect(() => {
     if (initialProgress) return;
@@ -133,7 +129,7 @@ export default function DashboardTrainer({
       }
     }
     void fetchScenarioDetails();
-  }, [activeModule]);
+  }, [activeModule, userToken]);
 
   function selectModule(mod: Module) {
     // Go directly to scenarios (level gating handled by ModuleVerify in V3)

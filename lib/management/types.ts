@@ -25,7 +25,7 @@ export type StaffRole =
 
 export type StaffStatus = "on-track" | "attention" | "inactive";
 
-export type RSAState = 'valid' | 'warning_30d' | 'warning_7d' | 'expired';
+type RSAState = 'valid' | 'warning_30d' | 'warning_7d' | 'expired';
 export type AustralianState = 'NSW' | 'VIC' | 'QLD' | 'WA' | 'SA' | 'TAS' | 'NT' | 'ACT';
 
 export interface StaffComplianceRecord {
@@ -110,7 +110,7 @@ export type ScenarioCategory = {
   failed: string;
 };
 
-export type ManagementCapabilities = {
+type ManagementCapabilities = {
   databaseConnected: boolean;
   staffCrud: boolean;
   inventoryCrud: boolean;

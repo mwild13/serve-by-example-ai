@@ -476,15 +476,17 @@ export default function PreShiftHome({
   progressData?: Record<string, unknown> | null;
   onSyncProgress?: () => void;
 }) {
-  const [data, setData] = useState<ProgressData>(EMPTY);
   const [streak, setStreak] = useState(0);
-  const [loaded, setLoaded] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [kbIndex, setKbIndex] = useState(0);
 
-  // A1: trigger segment bar animation on mount
+  // A1: trigger segment bar animation on mount. `mounted` must start false and
+  // flip true in a post-mount effect (not a lazy initializer) — the CSS
+  // transition depends on the browser painting the initial state first.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
+    // One-time client read (localStorage-backed streak calc).
     setStreak(computeStreak());
   }, []);
 
@@ -505,42 +507,38 @@ export default function PreShiftHome({
     });
   }, []);
 
-  // Single effect: consume parent progressData prop (DashboardShell fetches once on mount, passes via prop)
-  useEffect(() => {
-    if (!progressData) {
-      setLoaded(false);
-      return;
-    }
+  // data/loaded are pure derivations of the progressData prop (DashboardShell
+  // fetches once on mount, passes via prop) — no effect needed.
+  const loaded = !!progressData?.modules;
+  const data: ProgressData = useMemo(() => {
+    if (!progressData?.modules) return EMPTY;
     const res = progressData;
-    if (res.modules) {
-      const lp = res.levelProgress as Record<string, LevelProgress> | undefined;
-      setData({
-        modules: res.modules as Record<ModuleKey, number>,
-        mastery: (res.mastery as Record<ModuleKey, number>) ?? EMPTY.mastery,
-        scores: (res.scores as Record<ModuleKey, number>) ?? EMPTY.scores,
-        sessions: (res.sessions as Record<ModuleKey, number>) ?? EMPTY.sessions,
-        reviewDue: Array.isArray(res.reviewQueue) ? (res.reviewQueue as unknown[]).length : 0,
-        levelProgress: {
-          bartending: lp?.bartending ?? EMPTY.levelProgress.bartending,
-          sales: lp?.sales ?? EMPTY.levelProgress.sales,
-          management: lp?.management ?? EMPTY.levelProgress.management,
-        },
-        lastAttemptAt: (res.lastAttemptAt as string | null) ?? null,
-        allModules: Array.isArray(res.allModules) ? res.allModules as DbModule[] : [],
-        moduleProgress: (res.moduleProgress as Record<number, DbModuleProgress>) ?? {},
-        arenaProgress: (res.arenaProgress as Record<number, { attempts: number; bestScore: number; passed: boolean }>) ?? {},
-        skillLevel: typeof res.skillLevel === "number" ? res.skillLevel : 1,
-        bestCorrectStreak: typeof res.bestCorrectStreak === "number" ? res.bestCorrectStreak : 0,
-        sbeEliteNumber: typeof res.sbeEliteNumber === "number" ? res.sbeEliteNumber : 0,
-        masteredModuleCount: typeof res.masteredModuleCount === "number" ? res.masteredModuleCount : 0,
-        totalModuleCount: typeof res.totalModuleCount === "number" ? res.totalModuleCount : 40,
-        scenariosStartedCount: typeof res.scenariosStartedCount === "number" ? res.scenariosStartedCount : 0,
-        arenaModuleCount: typeof res.arenaModuleCount === "number" ? res.arenaModuleCount : 0,
-        challengesCompleted: typeof res.challengesCompleted === "number" ? res.challengesCompleted : 0,
-        totalChallenges: typeof res.totalChallenges === "number" ? res.totalChallenges : 5,
-      });
-      setLoaded(true);
-    }
+    const lp = res.levelProgress as Record<string, LevelProgress> | undefined;
+    return {
+      modules: res.modules as Record<ModuleKey, number>,
+      mastery: (res.mastery as Record<ModuleKey, number>) ?? EMPTY.mastery,
+      scores: (res.scores as Record<ModuleKey, number>) ?? EMPTY.scores,
+      sessions: (res.sessions as Record<ModuleKey, number>) ?? EMPTY.sessions,
+      reviewDue: Array.isArray(res.reviewQueue) ? (res.reviewQueue as unknown[]).length : 0,
+      levelProgress: {
+        bartending: lp?.bartending ?? EMPTY.levelProgress.bartending,
+        sales: lp?.sales ?? EMPTY.levelProgress.sales,
+        management: lp?.management ?? EMPTY.levelProgress.management,
+      },
+      lastAttemptAt: (res.lastAttemptAt as string | null) ?? null,
+      allModules: Array.isArray(res.allModules) ? res.allModules as DbModule[] : [],
+      moduleProgress: (res.moduleProgress as Record<number, DbModuleProgress>) ?? {},
+      arenaProgress: (res.arenaProgress as Record<number, { attempts: number; bestScore: number; passed: boolean }>) ?? {},
+      skillLevel: typeof res.skillLevel === "number" ? res.skillLevel : 1,
+      bestCorrectStreak: typeof res.bestCorrectStreak === "number" ? res.bestCorrectStreak : 0,
+      sbeEliteNumber: typeof res.sbeEliteNumber === "number" ? res.sbeEliteNumber : 0,
+      masteredModuleCount: typeof res.masteredModuleCount === "number" ? res.masteredModuleCount : 0,
+      totalModuleCount: typeof res.totalModuleCount === "number" ? res.totalModuleCount : 40,
+      scenariosStartedCount: typeof res.scenariosStartedCount === "number" ? res.scenariosStartedCount : 0,
+      arenaModuleCount: typeof res.arenaModuleCount === "number" ? res.arenaModuleCount : 0,
+      challengesCompleted: typeof res.challengesCompleted === "number" ? res.challengesCompleted : 0,
+      totalChallenges: typeof res.totalChallenges === "number" ? res.totalChallenges : 5,
+    };
   }, [progressData]);
 
   const categoryMastery: Record<ModuleKey, number> = {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import RapidFireQuiz from "@/app/dashboard/_components/RapidFireQuiz";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { VERIFY_QUESTIONS } from "@/lib/verify-questions";
@@ -71,44 +71,46 @@ type Props = {
   nextModuleId?: number;
 };
 
+// Pure derivation from moduleId — both call sites key ModuleVerify by
+// moduleId, so a fresh instance (and fresh initial state below) is mounted
+// whenever it changes; no effect is needed to "reset" on prop change.
+function buildInitialVerifyState(moduleId: number): { scenarios: Scenario[]; status: Status; error: string | null } {
+  const questions = VERIFY_QUESTIONS[moduleId] ?? [];
+
+  if (questions.length < MIN_QUIZ_SCENARIOS) {
+    return {
+      scenarios: [],
+      status: "error",
+      error: "This module does not yet have enough verification questions. Please check back soon.",
+    };
+  }
+
+  const mapped: Scenario[] = questions.map((q, i) => ({
+    id: `${moduleId}-${i}`,
+    module_id: moduleId,
+    scenario_index: i,
+    scenario_type: "quiz",
+    prompt: q.prompt,
+    content: {
+      question: q.prompt,
+      answer: q.answer,
+      explanation: q.explanation,
+      option_type: "truefalse",
+    },
+    difficulty: 2,
+  }));
+
+  return { scenarios: mapped, status: "ready", error: null };
+}
+
 export default function ModuleVerify({ moduleId, userId, onArena, onComplete, nextModuleId }: Props) {
-  const [scenarios, setScenarios] = useState<Scenario[]>([]);
-  const [moduleTitle, setModuleTitle] = useState<string>("");
-  const [status, setStatus] = useState<Status>("loading");
-  const [error, setError] = useState<string | null>(null);
+  const [initialState] = useState(() => buildInitialVerifyState(moduleId));
+  const [scenarios] = useState<Scenario[]>(initialState.scenarios);
+  const [moduleTitle] = useState<string>(() => MODULE_TITLES[moduleId] ?? `Module ${moduleId}`);
+  const [status, setStatus] = useState<Status>(initialState.status);
+  const [error, setError] = useState<string | null>(initialState.error);
   const [attemptKey, setAttemptKey] = useState(0);
   const [finalScore, setFinalScore] = useState(0);
-
-  useEffect(() => {
-    const questions = VERIFY_QUESTIONS[moduleId] ?? [];
-
-    if (questions.length < MIN_QUIZ_SCENARIOS) {
-      setError(
-        "This module does not yet have enough verification questions. Please check back soon.",
-      );
-      setStatus("error");
-      return;
-    }
-
-    const mapped: Scenario[] = questions.map((q, i) => ({
-      id: `${moduleId}-${i}`,
-      module_id: moduleId,
-      scenario_index: i,
-      scenario_type: "quiz",
-      prompt: q.prompt,
-      content: {
-        question: q.prompt,
-        answer: q.answer,
-        explanation: q.explanation,
-        option_type: "truefalse",
-      },
-      difficulty: 2,
-    }));
-
-    setModuleTitle(MODULE_TITLES[moduleId] ?? `Module ${moduleId}`);
-    setScenarios(mapped);
-    setStatus("ready");
-  }, [moduleId]);
 
   async function handleQuizComplete(score: number, answers: Array<{id: string; answer: string}>) {
     if (score < PASS_THRESHOLD) {

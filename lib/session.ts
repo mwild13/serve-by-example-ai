@@ -109,7 +109,7 @@ export const TIER_SEATS: Record<Tier, number> = {
 // Human-readable label per tier. venue_single/venue_multi are the pre-rename
 // legacy values (kept for old Supabase rows) and display as their modern
 // equivalent — Boutique / Commercial — so the UI never shows a raw DB string.
-export const TIER_DISPLAY_NAMES: Record<Tier, string> = {
+const TIER_DISPLAY_NAMES: Record<Tier, string> = {
   free: "Free",
   pro: "Pro",
   boutique: "Boutique",
@@ -120,7 +120,7 @@ export const TIER_DISPLAY_NAMES: Record<Tier, string> = {
 };
 
 // Tiers that unlock venue-based (B2B) management access, i.e. /management/dashboard.
-export const B2B_TIERS: Tier[] = ["boutique", "commercial", "enterprise", "venue_single", "venue_multi"];
+const B2B_TIERS: Tier[] = ["boutique", "commercial", "enterprise", "venue_single", "venue_multi"];
 
 // Tiers whose venue-switcher UI should show multi-venue controls.
 // venue_single/venue_multi are legacy aliases for boutique/commercial.

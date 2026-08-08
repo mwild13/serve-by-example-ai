@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { computeBadges, type Badge, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
@@ -478,15 +478,16 @@ export default function MobileDashboardV3({
   progressData?: Record<string, unknown> | null;
   onSyncProgress?: () => void;
 }) {
-  const [data, setData] = useState<ProgressData>(EMPTY);
   const [streak, setStreak] = useState(0);
   const [coach, setCoach] = useState(false);
-  const [loaded, setLoaded] = useState(false);
   const [goalCount, setGoalCount] = useState(0);
   const [reviewDismissed, setReviewDismissed] = useState(false);
 
   // Initialize streak and daily goal count on mount
   useEffect(() => {
+    // One-time client reads (localStorage / Supabase session) — deferred to
+    // an effect so SSR/hydration always starts from the empty defaults above.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setGoalCount(getDailyGoalCount());
     try {
       const supabase = createSupabaseBrowserClient();
@@ -498,35 +499,31 @@ export default function MobileDashboardV3({
     }
   }, []);
 
-  // Single effect: consume parent progressData prop (DashboardShell fetches once on mount, passes via prop)
-  useEffect(() => {
-    if (!progressData) {
-      setLoaded(false);
-      return;
-    }
+  // data/loaded are pure derivations of the progressData prop (DashboardShell
+  // fetches once on mount, passes via prop) — no effect needed.
+  const loaded = !!progressData?.modules;
+  const data: ProgressData = useMemo(() => {
+    if (!progressData?.modules) return EMPTY;
     const res = progressData;
-    if (res.modules) {
-      const lp = res.levelProgress as Record<string, LevelProgress> | undefined;
-      setData({
-        modules: res.modules as ProgressData["modules"],
-        mastery: (res.mastery as ProgressData["mastery"]) ?? EMPTY.mastery,
-        scores: (res.scores as ProgressData["scores"]) ?? EMPTY.scores,
-        sessions: (res.sessions as ProgressData["sessions"]) ?? EMPTY.sessions,
-        reviewDue: Array.isArray(res.reviewQueue) ? (res.reviewQueue as unknown[]).length : 0,
-        levelProgress: {
-          bartending: (lp?.bartending as LevelProgress) ?? EMPTY_LP,
-          sales: (lp?.sales as LevelProgress) ?? EMPTY_LP,
-          management: (lp?.management as LevelProgress) ?? EMPTY_LP,
-        },
-        lastAttemptAt: (res.lastAttemptAt as string | null) ?? null,
-        allModules: Array.isArray(res.allModules) ? res.allModules as ProgressData["allModules"] : [],
-        moduleProgress: (res.moduleProgress as ProgressData["moduleProgress"]) ?? {},
-        scenarioCounts: (res.scenarioCounts as ProgressData["scenarioCounts"]) ?? {},
-        bestCorrectStreak: typeof res.bestCorrectStreak === "number" ? res.bestCorrectStreak : 0,
-        sbeEliteNumber: typeof res.sbeEliteNumber === "number" ? res.sbeEliteNumber : 0,
-      });
-      setLoaded(true);
-    }
+    const lp = res.levelProgress as Record<string, LevelProgress> | undefined;
+    return {
+      modules: res.modules as ProgressData["modules"],
+      mastery: (res.mastery as ProgressData["mastery"]) ?? EMPTY.mastery,
+      scores: (res.scores as ProgressData["scores"]) ?? EMPTY.scores,
+      sessions: (res.sessions as ProgressData["sessions"]) ?? EMPTY.sessions,
+      reviewDue: Array.isArray(res.reviewQueue) ? (res.reviewQueue as unknown[]).length : 0,
+      levelProgress: {
+        bartending: (lp?.bartending as LevelProgress) ?? EMPTY_LP,
+        sales: (lp?.sales as LevelProgress) ?? EMPTY_LP,
+        management: (lp?.management as LevelProgress) ?? EMPTY_LP,
+      },
+      lastAttemptAt: (res.lastAttemptAt as string | null) ?? null,
+      allModules: Array.isArray(res.allModules) ? res.allModules as ProgressData["allModules"] : [],
+      moduleProgress: (res.moduleProgress as ProgressData["moduleProgress"]) ?? {},
+      scenarioCounts: (res.scenarioCounts as ProgressData["scenarioCounts"]) ?? {},
+      bestCorrectStreak: typeof res.bestCorrectStreak === "number" ? res.bestCorrectStreak : 0,
+      sbeEliteNumber: typeof res.sbeEliteNumber === "number" ? res.sbeEliteNumber : 0,
+    };
   }, [progressData]);
 
   // Derived values

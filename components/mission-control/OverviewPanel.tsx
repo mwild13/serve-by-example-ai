@@ -31,7 +31,7 @@ import { RoleQualificationCard } from "./RoleQualificationCard";
 // (metrics, needsAttention, venueStaff) and passed down as props; no new
 // data-fetching, no hardcoded identities.
 
-export interface OverviewMetrics {
+interface OverviewMetrics {
   venueHealthScore: number;
   serviceSkill: number;
   salesSkill: number;

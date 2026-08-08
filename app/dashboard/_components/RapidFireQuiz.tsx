@@ -126,7 +126,7 @@ export default function RapidFireQuiz({
 
       setTimeout(() => setButtonFlash(null), 400);
     },
-    [answered, currentContent, consecutiveCorrect]
+    [answered, currentContent, consecutiveCorrect, currentScenario]
   );
 
   const nextQuestion = useCallback(() => {

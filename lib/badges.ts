@@ -1,4 +1,4 @@
-export type BadgeCategory = "technical" | "service" | "compliance" | "streak" | "special";
+type BadgeCategory = "technical" | "service" | "compliance" | "streak" | "special";
 
 export type Badge = {
   id: string;
