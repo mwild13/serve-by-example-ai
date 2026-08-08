@@ -88,6 +88,7 @@
   --shadow-xl: 0 20px 60px rgba(15, 45, 29, 0.14), 0 6px 16px rgba(15, 45, 29, 0.06);
   --font-heading: var(--font-fraunces), Georgia, serif;
   --font-body: var(--font-manrope), "Segoe UI", system-ui, sans-serif;
+  --font-mono: "SFMono-Regular", "JetBrains Mono", "Fira Mono", monospace;
 
   /* ── Marketing type scale (Pages-Redesign.md §6.4) ── */
   /* Six fluid steps, defined once. Do not re-invent clamp() per section. */
@@ -7284,7 +7285,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   align-items: center;
 }
 .ops-invite-link-input {
-  font-family: monospace;
+  font-family: var(--font-mono);
   font-size: 0.78rem;
   flex: 1;
   min-width: 0;
@@ -7784,7 +7785,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
     border-radius: 4px;
     padding: 1px 6px;
     font-size: .75rem;
-    font-family: monospace;
+    font-family: var(--font-mono);
     color: var(--text);
   }
 
@@ -7863,7 +7864,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
     border-radius: 5px;
     padding: 2px 8px;
     font-size: .82rem;
-    font-family: monospace;
+    font-family: var(--font-mono);
     color: var(--text);
   }
 
@@ -18764,9 +18765,12 @@ h1, h2, h3 {
    --green/--gold design system for this pass — these are brand-new `--mc-*`
    tokens and `.mc-*` classes rather than overrides of shared variables, so
    nothing here changes how those other tabs render.
-   Fonts: --font-mc-lora / --font-mc-dm-mono are loaded in
-   app/management/layout.tsx (scoped to /management, does not affect the
-   marketing site or staff dashboard, which keep Fraunces/Manrope).
+   3-font system — Lora (serif, headings/titles/KPI numbers), Outfit
+   (sans-serif, base body copy), DM Mono (monospace, metadata/status
+   pills/sidebar category headers/data labels/chart labels). --font-lora /
+   --font-outfit / --font-dm-mono are loaded in app/management/layout.tsx
+   (scoped to /management, does not affect the marketing site or staff
+   dashboard, which keep Fraunces/Manrope).
    ══════════════════════════════════════════════════════════════════════════ */
 
 :root {
@@ -18802,8 +18806,26 @@ h1, h2, h3 {
   --mc-shadow-sm: 0 1px 3px rgba(31, 30, 27, 0.05);
   --mc-shadow-md: 0 8px 24px rgba(31, 30, 27, 0.08);
 
-  --font-mc-heading: var(--font-mc-lora), Georgia, serif;
-  --font-mc-mono: var(--font-mc-dm-mono), "SFMono-Regular", Menlo, monospace;
+  --font-mc-heading: var(--font-lora), Georgia, serif;
+  --font-mc-body: var(--font-outfit), "Segoe UI", system-ui, sans-serif;
+  --font-mc-mono: var(--font-dm-mono), "SFMono-Regular", Menlo, monospace;
+}
+
+/* Base body font for the whole Mission Control console — everything not
+   explicitly set to --font-mc-heading or --font-mc-mono inherits Outfit
+   from here (page titles, KPI numbers, and mono labels override it below).
+   Because --font-heading/--font-body/--font-mono are custom properties,
+   redefining them here cascades into every management tab (Overview,
+   Staff Directory, Compliance, Analytics, Roles, Reports, Settings,
+   Leaderboards, AI Coach) that still uses the shared --font-heading /
+   --font-body / --font-mono tokens from the "green/gold" ops-* theme —
+   without touching the marketing site or staff dashboard, which never
+   render inside .ops-shell.mc-shell. */
+.ops-shell.mc-shell {
+  --font-heading: var(--font-mc-heading);
+  --font-body: var(--font-mc-body);
+  --font-mono: var(--font-mc-mono);
+  font-family: var(--font-mc-body);
 }
 
 /* ── Shell ─────────────────────────────────────────────────────────────── */
@@ -18832,22 +18854,28 @@ h1, h2, h3 {
 
 .mc-sidebar-logo {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  gap: 10px;
-  height: 64px;
-  padding: 0 18px;
+  gap: 12px;
+  width: 100%;
+  padding: 16px;
+  min-height: 64px;
   border-bottom: 1px solid var(--mc-line);
   flex-shrink: 0;
+  overflow: visible;
 }
 .mc-sidebar-logo img {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   object-fit: contain;
   flex-shrink: 0;
   border-radius: 8px;
 }
 .mc-sidebar-logo-text {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
+  flex: 1;
 }
 .mc-sidebar-logo-brand,
 .mc-sidebar-logo-sub {
