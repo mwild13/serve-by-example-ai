@@ -2,12 +2,27 @@
 const GEO_CONFIG = {
   allowedCountries: ['AU'],
 
-  // Routes accessible to all countries (not behind geo-lock)
-  publicRoutes: ['/restricted', '/geo-block', '/privacy', '/terms', '/cookies', '/'],
+  // Routes accessible to all countries regardless of geo (legal / compliance pages +
+  // the geo-block destination itself). This list must stay minimal — adding marketing
+  // pages here is the main source of geo-block bypasses.
+  // NOTE: '/' (homepage) is intentionally NOT listed here. The homepage and all
+  // marketing content (pricing, demo, platform…) are AU-only. Non-AU users that
+  // land on /privacy or /terms will see a Navbar, but clicking any non-listed link
+  // simply bounces them back to /restricted via the middleware.
+  publicRoutes: [
+    '/restricted',
+    '/geo-block',
+    '/privacy',
+    '/terms',
+    '/cookies',
+    '/contact', // linked from /restricted footer — kept accessible for enquiries
+  ],
 
-  // Routes that allow all countries to view (marketing pages)
-  // Non-Australian users can see these but will be redirected when trying to access paid/training features
-  marketingRoutes: ['/pricing', '/for-venues', '/demo', '/platform'],
+  // Marketing routes visible to non-AU visitors.
+  // Intentionally empty — all marketing/hero content is AU-only.
+  // Previously this listed /pricing, /for-venues, /demo, /platform which created
+  // a bypass: /restricted → /privacy (public) → Navbar → /pricing (allowed) → full site.
+  marketingRoutes: [] as string[],
 
   // Geo-block page path
   geoBlockPath: '/restricted',
