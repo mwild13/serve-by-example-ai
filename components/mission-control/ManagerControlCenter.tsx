@@ -1,6 +1,7 @@
 "use client";
 
 import React, { FormEvent, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import SignOutButton from "@/components/ui/SignOutButton";
@@ -983,8 +984,7 @@ export default function ManagerControlCenter({
         <SessionRefresher />
         <aside className="mc-sidebar" style={{ opacity: 0.5, pointerEvents: "none" }}>
           <div className="mc-sidebar-logo">
-            {/* eslint-disable-next-line @next/next/no-img-element -- intentional plain <img>; see .mc-sidebar-logo CSS for sizing, avoids next/image layout quirks in the sidebar */}
-            <img src="/logo.webp" alt="Serve By Example" width={32} height={32} />
+            <Image src="/logo.webp" alt="Serve By Example" width={36} height={36} className="mc-sidebar-logo-img" />
             <div className="mc-sidebar-logo-text">
               <span className="mc-sidebar-logo-brand">Serve By Example</span>
               <span className="mc-sidebar-logo-sub">Management Console</span>
@@ -1015,8 +1015,7 @@ export default function ManagerControlCenter({
       )}
       <aside className="mc-sidebar">
         <div className="mc-sidebar-logo">
-          {/* eslint-disable-next-line @next/next/no-img-element -- intentional plain <img>; see .mc-sidebar-logo CSS for sizing, avoids next/image layout quirks in the sidebar */}
-          <img src="/logo.webp" alt="Serve By Example" width={32} height={32} />
+          <Image src="/logo.webp" alt="Serve By Example" width={36} height={36} className="mc-sidebar-logo-img" />
           <div className="mc-sidebar-logo-text">
             <span className="mc-sidebar-logo-brand">Serve By Example</span>
             <span className="mc-sidebar-logo-sub">Management Console</span>
