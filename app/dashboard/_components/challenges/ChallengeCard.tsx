@@ -66,7 +66,7 @@ export function ChallengeCard({
 }
 
 // Inline checkmark SVG with animated draw-in
-export function CheckmarkSVG() {
+function CheckmarkSVG() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path

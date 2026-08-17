@@ -21,7 +21,7 @@ export const SCENARIO_COUNTS: Record<string, number> = {
  * Fallback only — syncMasteryToVenueStaff() prefers the live count from
  * the modules table. Platform has 40 modules (see lib/verify-questions.ts).
  */
-export const V3_TOTAL_MODULES = 40;
+const V3_TOTAL_MODULES = 40;
 
 /**
  * V3: Module category mapping. Mirrors supabase/migrations/20260421_1_create_modules.sql
@@ -29,7 +29,7 @@ export const V3_TOTAL_MODULES = 40;
  * Used by the Manager dashboard StaffBadges to compute category mastery.
  * Fallback only — syncMasteryToVenueStaff() prefers live categories from the modules table.
  */
-export const V3_MODULE_CATEGORIES: Record<number, "technical" | "service" | "compliance"> = {
+const V3_MODULE_CATEGORIES: Record<number, "technical" | "service" | "compliance"> = {
   1: "technical", 2: "technical", 3: "technical", 4: "technical",
   5: "technical", 6: "technical", 7: "technical",
   8: "service", 9: "service", 10: "service", 11: "service",

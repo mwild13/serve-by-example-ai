@@ -7,7 +7,7 @@ import { createSupabaseAdminClient } from "./supabase-admin";
 import { resolveAccess, isB2BTier } from "./session";
 import { SCENARIO_COUNTS } from "./mastery";
 
-export interface Module {
+interface Module {
   id: number;
   title: string;
   description: string;

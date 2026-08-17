@@ -9,6 +9,9 @@ export function useDemoViewport() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // One-time client read of window size, deliberately deferred to an effect
+    // (not a lazy initializer) so SSR/hydration always starts from `false`.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT);
 
     let timeoutId: ReturnType<typeof setTimeout> | undefined;

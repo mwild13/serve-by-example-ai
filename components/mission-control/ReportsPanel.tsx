@@ -25,7 +25,7 @@ import { EmptyState } from "./manager-ui";
 
 type ReportSortKey = "name" | "role" | "progress" | "service" | "sales" | "product";
 
-export interface ReportsPanelMetrics {
+interface ReportsPanelMetrics {
   avgCompletion: number;
   avgScenarioScore: number;
   serviceSkill: number;

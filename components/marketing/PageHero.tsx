@@ -12,14 +12,14 @@ import type { ReactNode } from 'react';
  *   'dark'     — navy anchor (--bg-dark), reserved for /for-venues and /pricing only
  */
 
-export type PageHeroAction = {
+type PageHeroAction = {
   label: string;
   href: string;
   /** Exactly one 'primary' per hero. Everything else renders as a text link. */
   variant?: 'primary' | 'secondary';
 };
 
-export type PageHeroCrumb = {
+type PageHeroCrumb = {
   label: string;
   href?: string;
 };

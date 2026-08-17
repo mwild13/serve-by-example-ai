@@ -25,6 +25,7 @@ export type StaffDirectoryTableProps = {
   onSnapshotUpdate: (updated: ManagementSnapshot) => void;
   onOpenCoachingDrawer: (staffId: string) => void;
   onAddStaff: () => void;
+  handleExportStaff: () => void;
 };
 
 const STAFF_ROLE_OPTIONS: StaffRole[] = [
@@ -36,12 +37,12 @@ const STAFF_ROLE_OPTIONS: StaffRole[] = [
 ];
 
 // NOTE: readinessPill() is imported from ./compliance/helpers — the same
-// function StaffReadinessBoard.tsx uses on the Overview tab. This file used
-// to define its own local readinessPill() that ignored trainingProgress
-// entirely, which is why every staff member here rendered a green "Ready"
-// pill regardless of 0% completion while Overview correctly showed amber/red
-// (Phase 5 execution brief, Friction #1 — dual-status bug). Do not
-// reintroduce a second implementation here.
+// shared function the Overview tab's Needs Attention card uses. This file
+// used to define its own local readinessPill() that ignored
+// trainingProgress entirely, which is why every staff member here rendered
+// a green "Ready" pill regardless of 0% completion while Overview correctly
+// showed amber/red (Phase 5 execution brief, Friction #1 — dual-status
+// bug). Do not reintroduce a second implementation here.
 
 export default function StaffDirectoryTable({
   selectedVenueId,
@@ -52,6 +53,7 @@ export default function StaffDirectoryTable({
   onSnapshotUpdate,
   onOpenCoachingDrawer,
   onAddStaff,
+  handleExportStaff,
 }: StaffDirectoryTableProps) {
   const inviteEmailRef = useRef<HTMLInputElement>(null);
   const [staffRoleFilter, setStaffRoleFilter] = useState<string>("all");
@@ -93,7 +95,7 @@ export default function StaffDirectoryTable({
     return fetch(url, { ...options, headers });
   }, [sessionToken]);
 
-  async function loadMemberships() {
+  const loadMemberships = useCallback(async () => {
     try {
       const res = await apiFetch("/api/management/memberships");
       if (!res.ok) {
@@ -108,14 +110,18 @@ export default function StaffDirectoryTable({
     } finally {
       setMembershipsLoaded(true);
     }
-  }
+  }, [apiFetch]);
 
   useEffect(() => {
     if (!membershipsLoaded && sessionToken) {
-      loadMemberships();
+      // Legitimate mount-time data fetch (external system: the memberships
+      // API) — loadMemberships eventually calls setState once the response
+      // resolves, which react-hooks/set-state-in-effect can't distinguish
+      // from a synchronous setState call in the effect body.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      void loadMemberships();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionToken]);
+  }, [sessionToken, membershipsLoaded, loadMemberships]);
 
   const toggleRosterSection = useCallback((label: string) => {
     setOpenRosterSections((prev) => {
@@ -283,6 +289,13 @@ export default function StaffDirectoryTable({
             description="Click any row to open the coaching profile"
             actions={
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <button
+                  type="button"
+                  className="sbe-button-outline sbe-button-outline--sm"
+                  onClick={handleExportStaff}
+                >
+                  Export →
+                </button>
                 <select
                   value={staffRoleFilter}
                   onChange={(e) => setStaffRoleFilter(e.target.value)}

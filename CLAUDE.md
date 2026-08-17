@@ -349,7 +349,57 @@ The database schema is logically correct — no renames needed. This table docum
 | AI Scenario (Arena) | `scenarios` | `scenario_type = 'roleplay'` | AI-evaluated roleplay; internal code uses `'ai_roleplay'` for clarity |
 | Challenge | `user_challenges` | `*` | Tap-based mini-game; entirely separate from the scenarios table |
 
-**Code reference:** `lib/domain-types.ts` contains `DbScenarioType`, `DomainScenarioType`, `mapDbToUi()`, `mapUiToDb()`, and `DomainNavigation` type definitions.
+Note: `lib/domain-types.ts` was removed (Aug 2026) — it had no importers. The `DbScenarioType` / `DomainScenarioType` mapping was dead code; the table above is the authoritative reference.
+
+## Mastery Engine Rules
+
+`lib/mastery.ts` is the **single source of truth** for all ELO and mastery logic. Never add a second ELO calculation or mastery formula elsewhere.
+
+**Key functions:**
+- `recordAttempt()` — canonical write path for scenario attempts (ELO, mastery level, streaks)
+- `markModuleMastered()` — verify-quiz gate (binary pass/fail; does not touch ELO)
+- `getMasteryProgress()` — aggregate per-module stats
+- `syncMasteryToVenueStaff()` — only bridge from staff-side mastery into manager-facing `venue_staff` rows
+
+**Canonical field names — use exactly these in new code:**
+
+| Concept | Canonical | Not this |
+|---------|-----------|----------|
+| ELO rating | `elo_rating` | ~~`current_elo`~~, ~~`eloRating`~~, ~~`avgElo`~~ |
+| Mastery % | `mastery` | ~~`mastery_pct`~~, ~~`mastery_status`~~ |
+
+**Module catalog:** `modules` DB table + `lib/module-navigator.ts` is the single source of truth for module metadata. Never hardcode a parallel module list in a component — fetch through `module-navigator.ts` or `/api/training/modules`.
+
+**Known duplication (do not expand — migrate toward canonical when touching these files):**
+- Module catalog duplicated in `ArenaPage.tsx::MODULE_META`, `lib/diagnostic-engine.ts`, `ModuleVerify.tsx`
+- Scenario content duplicated in `trainer/trainer-data.ts::SCENARIOS` and `ArenaPage.tsx::ARENA_SEED_SCENARIOS`
+- ELO write paths: `recordAttempt()` (canonical) vs. hand-rolled upsert in `app/api/arena/evaluate/route.ts`
+
+## Mission Control Architecture Constraints
+
+**CSS token anti-pattern:** `--bg-dark` (`#1B2A2F`) is a **marketing-site** dark-hero token — NOT a Mission Control token. The console runs on `--bg` (parchment `#f5f2e9`), `--surface`, and `--surface-raised`. Never apply `--bg-dark` to console panels.
+
+**`--mcc-*` token block** (`app/globals.css` near line 13319) is a parallel 20-token palette (`--mcc-canvas`, `--mcc-forest-900`, `--mcc-good`, `--mcc-bad`, etc.) used in the readiness board and KPI strip. This is known tech debt — migrate onto `--status-*`/`--green`/`--surface` before adding more `--mcc-*` usages.
+
+**`ManagerControlCenter.tsx` line-count target: under 3,200 lines.** Current state ~4,025 lines. Every component extraction must reduce net line count — not just move code.
+
+**Pending component extractions (do not inline new features for these — extract the section first):**
+- `StaffDirectoryTable.tsx` — Staff Directory table + mobile cards. Status pill must use shared `rsaStatus()`/`readinessPill()` helpers from `compliance/helpers.ts`, same as `StaffReadinessBoard.tsx` — one renderer, two call sites.
+- `QuickActionMenu.tsx` — `+Create New` dropdown. Wire the existing typed-but-unrendered `QuickActionId` values `assign-training` and `create-program`.
+- `TeamsPerformancePanel.tsx` — Team performance cards. Add `max-width: 1440px; margin: 0 auto` at the shell level so Overview and Analytics inherit the wide-viewport fix.
+- `RolesPermissionsMatrix.tsx` — Role Training Matrix + Permission Matrix (paired, extract together).
+- `LeaderboardBoard.tsx` — Leaderboards. Remove the podium visualization unless it is a stated sales-demo requirement; the ranked list is more legible.
+
+Full audit and acceptance criteria: `docs/Phase5-Mission-Control-Execution-Brief.md`
+
+## Marketing Page Design Rules
+
+Full spec: `docs/Pages-Redesign.md`. Key rules for quick reference:
+
+- **Default left-aligned** section headers. Reserve centering for the hero and final CTA — not every section. The existing pattern of `eyebrow → centered h2 → centered p` repeated 28 times across 13 files reads as a template.
+- **No generic gradient backgrounds** — use `--bg` / `--bg-alt` / `--surface` shifts, a border, or photography for section separation.
+- **Vary feature-list presentation** — the default "3 icon + heading + paragraph" grid is overused. Use tables, timelines, annotated screenshots, or two-column lists where the content suits it.
+- **Scope boundary:** marketing pages only. Never port bento grids, big-serif stat numbers, or oversized decoration into `/dashboard` or `/management/dashboard` — those are product surfaces with different density constraints.
 
 # conversion-ui
 When the user types `/conversion-ui`, invoke the Skill tool with `skill: "conversion-ui"` before doing anything else.

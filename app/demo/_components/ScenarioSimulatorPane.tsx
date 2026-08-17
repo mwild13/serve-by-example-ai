@@ -6,7 +6,7 @@ import { CtaGuaranteeBlock } from "./LeadCapturePane";
 
 export type ModuleId = "bartending" | "sales" | "management";
 
-export type PillOption = {
+type PillOption = {
   intent: string;
   text: string;
   positive: boolean;

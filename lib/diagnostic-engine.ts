@@ -8,7 +8,7 @@ export interface DiagnosticAnswer {
   selected: string | boolean;
 }
 
-export interface CategoryScore {
+interface CategoryScore {
   category: string;
   score: number; // Elo rating (base 1200, range 1000-1500)
   percentage: number; // 0-100 % correct

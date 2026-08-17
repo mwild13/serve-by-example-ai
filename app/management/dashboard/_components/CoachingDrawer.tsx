@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { OpsKpiCard, StaffBadges, MasteryMicroGrid } from "@/components/mission-control/manager-ui";
 import type { StaffMember } from "@/lib/management/types";
@@ -14,23 +14,20 @@ interface CoachingDrawerProps {
 
 export default function CoachingDrawer({ isOpen, staff, onClose, onAssignTraining }: CoachingDrawerProps) {
   const drawerRef = useRef<HTMLDivElement>(null);
-  const [focusTrapActive, setFocusTrapActive] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
-      setFocusTrapActive(true);
     }
     return () => {
       document.body.style.overflow = "";
-      setFocusTrapActive(false);
     };
   }, [isOpen]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
-      if (focusTrapActive && e.key === "Tab" && drawerRef.current) {
+      if (isOpen && e.key === "Tab" && drawerRef.current) {
         const focusableElements = drawerRef.current.querySelectorAll(
           "button, [href], input, select, textarea, [tabindex]:not([tabindex=\"-1\"])"
         );
@@ -69,7 +66,7 @@ export default function CoachingDrawer({ isOpen, staff, onClose, onAssignTrainin
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, onClose, focusTrapActive]);
+  }, [isOpen, onClose]);
 
   if (!staff) return null;
 

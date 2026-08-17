@@ -105,7 +105,6 @@ export default function ProgressOverview({
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function applyResponse(res: any) {
     if (res.allModules && res.moduleProgress) {
         const modules: ModuleSummary[] = (
@@ -217,6 +216,9 @@ export default function ProgressOverview({
 
   useEffect(() => {
     if (initialProgressData) {
+      // Server-prefetched data is already available on mount — applying it
+      // synchronously here (vs. a network round-trip via load()) is the point.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       applyResponse(initialProgressData);
       setLoading(false);
     } else {

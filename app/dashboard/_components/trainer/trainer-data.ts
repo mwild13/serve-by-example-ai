@@ -11,7 +11,7 @@ export type TrainerProgressPreload = {
   autoUnlockManagement?: boolean;
 };
 
-export type PillOption = {
+type PillOption = {
   text: string;
   intent: string;
   positive: boolean;

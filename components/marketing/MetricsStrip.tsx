@@ -8,7 +8,7 @@
  * facts or capacities — never fabricated customer outcomes.
  */
 
-export type Metric = {
+type Metric = {
   value: string;
   label: string;
 };

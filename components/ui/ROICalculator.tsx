@@ -93,7 +93,7 @@ export default function ROICalculator() {
           <span className="sbe-eyebrow">Revenue Impact Calculator</span>
           <h2 className="sbe-serif-title" style={{ marginBottom: "0.75rem" }}>See what better training is worth</h2>
           <p className="sbe-sans-body" style={{ maxWidth: "560px", margin: "0 auto", color: "var(--mkt-charcoal-400)" }}>
-            Adjust the inputs below to model your venue's projected annual profit lift across three revenue vectors.
+            Adjust the inputs below to model your venue&apos;s projected annual profit lift across three revenue vectors.
           </p>
         </div>
 
@@ -248,7 +248,7 @@ export default function ROICalculator() {
           <div style={{ marginTop: "2rem", paddingTop: "2rem", borderTop: "1px solid rgba(231,226,214,0.1)" }}>
             {emailSent ? (
               <p style={{ fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "0.95rem", color: "var(--mkt-gold-500)", textAlign: "center", margin: 0 }}>
-                Thanks — we'll email your projection shortly.
+                Thanks — we&apos;ll email your projection shortly.
               </p>
             ) : (
               <form onSubmit={handleEmailSubmit} style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem" }} noValidate>

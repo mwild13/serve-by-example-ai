@@ -83,10 +83,6 @@ export function OpsKpiCard({
   );
 }
 
-export function formatPercent(value: number) {
-  if (!value) return "No data yet";
-  return `${Number(value).toFixed(1)}%`;
-}
 
 // ── Module metadata for pip tooltips ────────────────────────
 // Matches supabase/migrations/20260421_1_create_modules.sql

@@ -44,16 +44,24 @@ function BadgeCard({ badge }: { badge: Badge }) {
   );
 }
 
+function readStreakCount(): number {
+  try {
+    const count = parseInt(localStorage.getItem("sbe-streak-count") ?? "0", 10);
+    return isNaN(count) ? 0 : count;
+  } catch {
+    return 0;
+  }
+}
+
 export default function BadgeStreakSection({ modules, scores, bestStreak, sbeElite }: Props) {
   const [streak, setStreak] = useState<number | null>(null);
 
   useEffect(() => {
-    try {
-      const count = parseInt(localStorage.getItem("sbe-streak-count") ?? "0", 10);
-      setStreak(isNaN(count) ? 0 : count);
-    } catch {
-      setStreak(0);
-    }
+    // Mount-only client read (avoids SSR/hydration mismatch — streak renders a
+    // skeleton until this resolves). Not a reactive sync, so intentionally
+    // outside the "derive during render" pattern.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setStreak(readStreakCount());
   }, []);
 
   if (streak === null) {

@@ -19,8 +19,10 @@ export default function ChallengesPage() {
   const [personalBest, setPersonalBest] = useState<number | null>(null);
 
   useEffect(() => {
+    // Mount-only client read (localStorage is unavailable during SSR).
     try {
       const stored = localStorage.getItem("sbe-challenges-best-score");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (stored !== null) setPersonalBest(parseInt(stored, 10));
     } catch { /* ignore */ }
   }, []);

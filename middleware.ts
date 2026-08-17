@@ -4,11 +4,25 @@ import { shouldApplyGeoBlock } from "@/lib/geo-config";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 function buildCSP(nonce: string): string {
+  // `next dev`'s webpack devtool wraps every module in eval() for Fast
+  // Refresh/HMR — with no 'unsafe-eval', that eval is blocked entirely,
+  // which breaks React hydration/event handling app-wide in local dev
+  // (controlled inputs stop updating, onClick handlers stop firing —
+  // this is what made login, and every other button/dropdown, appear dead
+  // on localhost). `next build` (production, and every Cloudflare Pages
+  // preview/production deployment) never emits eval-wrapped bundles, so
+  // this only ever relaxes the policy for `next dev` — production and
+  // preview keep the strict policy untouched.
+  const isLocalDev = process.env.NODE_ENV === "development";
+  const scriptSrc = isLocalDev
+    ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval' https://js.stripe.com`
+    : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://js.stripe.com`;
+
   return [
     // Deny everything not explicitly listed
     "default-src 'none'",
     // Scripts: only self + nonce-tagged scripts + scripts loaded by those (strict-dynamic) + Stripe
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://js.stripe.com`,
+    scriptSrc,
     // Styles: unsafe-inline kept — Next.js injects critical CSS inline at render time
     "style-src 'self' 'unsafe-inline'",
     // Images: self + data URIs + blob (canvas) + any https (for /_next/image CDN)

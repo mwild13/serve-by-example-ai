@@ -1,6 +1,7 @@
 "use client";
 
 import React, { FormEvent, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import SignOutButton from "@/components/ui/SignOutButton";
@@ -16,6 +17,7 @@ import {
   Trophy,
   Sparkles,
   Settings,
+  ChevronDown,
 } from "lucide-react";
 import type {
   ManagementSnapshot,
@@ -124,10 +126,6 @@ const EMPTY_ACTION_MESSAGE =
   "Run supabase/management_schema.sql in Supabase, then reload this page to switch from seeded data to live manager data.";
 
 
-// mgrMockSpark, KpiStrip usage, StaffReadinessBoard, and RevenueAreaChart
-// moved into OverviewPanel.tsx along with the rest of the Overview tab —
-// this was their only call site in this file.
-
 const EMPTY_SNAPSHOT: ManagementSnapshot = {
   source: "seed",
   notices: [],
@@ -166,13 +164,29 @@ export default function ManagerControlCenter({
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Declared up here (rather than alongside the other form/UI state below)
+  // because setActiveSection's useCallback closes over these setters — they
+  // need to exist before that definition for the react-hooks static
+  // ordering check.
+  const [requestError, setRequestError] = useState("");
+  const [requestSuccess, setRequestSuccess] = useState("");
+
   // Tab state is URL-driven so it survives refresh and post-Stripe redirects.
   // Shim functions keep all existing call sites working without change.
   const activeSection =
     (searchParams.get("tab") as ManagerSection | null) ?? "overview";
-  function setActiveSection(section: ManagerSection) {
+  // useCallback so effects that depend on it (stale-tab guard, keydown
+  // shortcuts) get a stable reference instead of re-running every render.
+  const setActiveSection = useCallback((section: ManagerSection) => {
+    // Clear any settings-tab status messages as soon as we navigate away from
+    // settings — handled here (in the single call site every navigation path
+    // funnels through) instead of a useEffect keyed on activeSection.
+    if (section !== "settings") {
+      setRequestSuccess("");
+      setRequestError("");
+    }
     router.push(`?tab=${section}`, { scroll: false });
-  }
+  }, [router]);
 
   const settingsTab =
     (searchParams.get("subtab") as "setup" | "billing" | "account" | null) ?? "setup";
@@ -213,8 +227,6 @@ export default function ManagerControlCenter({
     programId: "",
   });
   const [newVenueName, setNewVenueName] = useState("");
-  const [requestError, setRequestError] = useState("");
-  const [requestSuccess, setRequestSuccess] = useState("");
   const [pendingInviteLink, setPendingInviteLink] = useState<{ link: string; email: string; name: string; emailSent: boolean } | null>(null);
   const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -274,6 +286,10 @@ export default function ManagerControlCenter({
         setSnapshotLoading(false);
       }
     })();
+  // selectedVenueId is read inside but intentionally omitted — the hasFetchedSnapshot
+  // ref guard makes this a true mount-once fetch; adding the dep would re-fetch on
+  // every venue switch, which is wrong.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialSnapshot, apiFetch]);
 
   const [revenueTransactionValue, setRevenueTransactionValue] = useState(() => {
@@ -321,24 +337,32 @@ export default function ManagerControlCenter({
 
   useEffect(() => {
     if (initialSnapshot) {
+      // Sync server-provided snapshot into state when prop updates.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSnapshot(initialSnapshot);
     }
   }, [initialSnapshot]);
 
   useEffect(() => {
     if (!snapshot.venues.some((venue) => venue.id === selectedVenueId)) {
+      // Selected venue no longer exists after snapshot refresh — reset to first.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedVenueId(snapshot.venues[0]?.id ?? "");
     }
   }, [snapshot.venues, selectedVenueId]);
 
   useEffect(() => {
     const venue = snapshot.venues.find((v) => v.id === selectedVenueId) ?? snapshot.venues[0];
+    // Keep rename field in sync with the selected venue.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (venue) setRenameVenueName(venue.name);
   }, [selectedVenueId, snapshot.venues]);
 
   // A31 — Load AI Coach history the first time the user opens the AI Coach section
   useEffect(() => {
     if (activeSection !== "aicoach" || aiCoachHistoryLoaded || aiCoachMessages.length > 0) return;
+    // Mark history as loaded before the async fetch to prevent duplicate requests.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAiCoachHistoryLoaded(true);
     const qs = selectedVenueId ? `?venueId=${encodeURIComponent(selectedVenueId)}&limit=40` : "?limit=40";
     apiFetch(`/api/management/coach/history${qs}`)
@@ -368,12 +392,16 @@ export default function ManagerControlCenter({
 
   useEffect(() => {
     if (!venueStaff.some((member) => member.id === selectedStaffId)) {
+      // Selected staff member left the venue — reset to first available.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedStaffId(venueStaff[0]?.id ?? "");
     }
   }, [venueStaff, selectedStaffId]);
 
   useEffect(() => {
     if (!venueStaff.some((member) => member.id === assignmentForm.staffId)) {
+      // Assignment form staff/program IDs become stale after venue switch — reset to first.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAssignmentForm((current) => ({ ...current, staffId: venueStaff[0]?.id ?? "" }));
     }
 
@@ -382,26 +410,14 @@ export default function ManagerControlCenter({
     }
   }, [assignmentForm.programId, assignmentForm.staffId, venuePrograms, venueStaff]);
 
-  useEffect(() => {
-    if (activeSection !== "settings") {
-      setRequestSuccess("");
-      setRequestError("");
-    }
-  }, [activeSection]);
-
   // Guard: redirect any stale deprecated section values to overview
   useEffect(() => {
     if ((activeSection as string) === "billing" || (activeSection as string) === "sign-out") {
+      // Migrate deprecated URL section values to "overview" on load.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveSection("overview");
     }
-  }, [activeSection]);
-
-  // Reset dirty state when drawer opens/closes
-  useEffect(() => {
-    if (!activeAction) {
-      setIsDirty(false);
-    }
-  }, [activeAction]);
+  }, [activeSection, setActiveSection]);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -416,17 +432,21 @@ export default function ManagerControlCenter({
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []); // router is a stable reference so the closure does not go stale
+  }, [setActiveSection]);
 
   // Webhook race-condition guard: when Stripe redirects back with ?checkout=success,
   // the subscription webhook may not have fired yet. Poll the profile for up to 6s
   // to confirm the tier has updated before showing the billing success banner.
+  // If the plan is already confirmed B2B by the time this renders, there's
+  // nothing to poll for — derive that case directly instead of setting state
+  // from an effect just to mirror already-available render-time values.
+  const isBillingConfirmedFromPlan = checkoutSuccess && !!plan && isB2BTier(plan);
+
   useEffect(() => {
     if (!checkoutSuccess) return;
-    if (plan && isB2BTier(plan)) {
-      setSubConfirmed(true);
-      return;
-    }
+    if (plan && isB2BTier(plan)) return;
+    // Begin Stripe webhook polling — synchronous setState before the async interval is correct.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSubProcessing(true);
     let attempts = 0;
     const supabase = createSupabaseBrowserClient();
@@ -600,163 +620,6 @@ export default function ManagerControlCenter({
     // Fallback to status-based flagging for other issues
     return member.status !== "on-track";
   });
-
-  const inactiveCount = venueStaff.filter((member) => {
-    const daysInactive = parseLastActiveDays(member.lastActive);
-    return daysInactive !== null && daysInactive >= 14;
-  }).length;
-
-  // ── AI Coaching Queue ──
-  const coachingQueue = venueStaff
-    .filter(s => s.status !== 'on-track' || rsaStatus(s.compliance).level >= 2)
-    .slice(0, 4)
-    .map(s => {
-      const rsaStat = rsaStatus(s.compliance);
-      let reason: string;
-      let moduleTag: string;
-
-      if (rsaStat.level >= 2) {
-        reason = `RSA expiring in ${rsaStat.label} — assign refresher`;
-        moduleTag = 'RSA Refresher';
-      } else if (s.salesScore < 50) {
-        reason = `Sales score ${s.salesScore}% — assign upsell module`;
-        moduleTag = 'Sales Training';
-      } else {
-        reason = `Training completion ${s.progress}% — push core modules`;
-        moduleTag = 'Core Training';
-      }
-
-      return { staff: s, reason, moduleTag };
-    });
-
-  // ── Manager Insights – auto-generated action tips ──
-  const managerInsights = useMemo(() => {
-    const tips: { id: string; icon: string; text: string; priority: "high" | "medium" | "low" }[] = [];
-
-    // Staff struggling with low scores
-    const lowScoreStaff = venueStaff.filter((s) => {
-      const avg = (s.serviceScore + s.salesScore + s.productScore) / 3;
-      return avg > 0 && avg < 50;
-    });
-    if (lowScoreStaff.length > 0) {
-      tips.push({
-        id: "low-score",
-        icon: "!",
-        text: `${lowScoreStaff.length} staff member${lowScoreStaff.length > 1 ? "s" : ""} scoring below 50% average (${lowScoreStaff.map((s) => s.name).join(", ")}). Consider assigning targeted training.`,
-        priority: "high",
-      });
-    }
-
-    // Weak product knowledge across team
-    if (metrics.productSkill > 0 && metrics.productSkill < 60) {
-      tips.push({
-        id: "product-weak",
-        icon: "≡",
-        text: `Team product knowledge at ${metrics.productSkill}%. Schedule a tasting or assign Spirit/Wine 101 modules.`,
-        priority: "medium",
-      });
-    }
-
-    // Upselling below threshold
-    if (metrics.salesSkill > 0 && metrics.salesSkill < 50) {
-      tips.push({
-        id: "upsell-low",
-        icon: "→",
-        text: `Upsell performance at ${metrics.salesSkill}%. Run a sales scenario drill with the team to build recommendation confidence.`,
-        priority: "medium",
-      });
-    }
-
-    // Inactive staff
-    if (inactiveCount > 0) {
-      tips.push({
-        id: "inactive",
-        icon: "◉",
-        text: `${inactiveCount} staff inactive for 7+ days. A quick check-in or refresher assignment can re-engage them.`,
-        priority: "medium",
-      });
-    }
-
-    // Positive reinforcement
-    const onTrackCount = venueStaff.filter((s) => s.status === "on-track").length;
-    if (onTrackCount > 0 && venueStaff.length > 0 && onTrackCount === venueStaff.length) {
-      tips.push({
-        id: "all-good",
-        icon: "◆",
-        text: "All staff are on track. Great momentum, keep the training rhythm going.",
-        priority: "low",
-      });
-    }
-
-    // No staff yet
-    if (venueStaff.length === 0) {
-      tips.push({
-        id: "no-staff",
-        icon: "◉",
-        text: "Add staff members to start seeing performance insights and training recommendations.",
-        priority: "high",
-      });
-    }
-
-    return tips.sort((a, b) => {
-      const order = { high: 0, medium: 1, low: 2 };
-      return order[a.priority] - order[b.priority];
-    });
-  }, [venueStaff, metrics, inactiveCount]);
-
-  const operationalAlerts: Array<{
-    title: string;
-    detail: string;
-    actionLabel: string;
-    // null = target section is an unbuilt placeholder; CTA is suppressed
-    // rather than click-through to a "coming soon" EmptyState.
-    section: ManagerSection | null;
-  }> = [
-    {
-      title: "Training risk",
-      detail:
-        needsAttention.length > 0
-          ? `${needsAttention.length} staff need targeted intervention on skills or completion.`
-          : "All active staff are currently on-track.",
-      actionLabel: "Review staff performance",
-      section: "staff",
-    },
-    {
-      title: "Upsell performance",
-      detail:
-        metrics.salesSkill > 0
-          ? `Upselling performance is ${metrics.salesSkill}%. Assign Upsell Mastery to boost conversion.`
-          : "Upsell performance has no data yet. Assign a sales scenario to start tracking.",
-      actionLabel: "Open scenarios",
-      section: null, // Scenario Builder is not yet built
-    },
-    {
-      title: "Engagement",
-      detail:
-        inactiveCount > 0
-          ? `${inactiveCount} staff inactive for 7 days or more.`
-          : "No inactive staff this week.",
-      actionLabel: "Review staff",
-      section: "staff",
-    },
-    {
-      title: "Inventory intelligence",
-      detail: venueInventory.length
-        ? `The training engine has access to ${venueInventory.reduce((sum, category) => sum + category.products.length, 0)} products.`
-        : "No inventory saved yet. Add categories to improve scenario realism.",
-      actionLabel: "Manage inventory",
-      section: null, // Inventory management is not yet built
-    },
-  ];
-
-  const todaySnapshot = {
-    staffActive: metrics.activeThisWeek,
-    scenariosCompleted: snapshot.scenarioCategories.reduce((sum, scenario) => sum + scenario.attempts, 0),
-    salesImpact: metrics.salesSkill,
-  };
-
-  const todayDateStr = new Date().toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" }).toUpperCase();
-  const attentionCount = needsAttention.length + managerInsights.filter((i) => i.priority === "high").length;
 
   const searchResults = useMemo<SearchResult[]>(() => {
     if (!searchQuery.trim()) return [];
@@ -1117,14 +980,19 @@ export default function ManagerControlCenter({
   // Show skeleton loaders while snapshot is loading
   if (snapshotLoading) {
     return (
-      <div className="ops-shell">
+      <div className="ops-shell mc-shell">
         <SessionRefresher />
-        <aside className="ops-sidebar" style={{ opacity: 0.5, pointerEvents: "none" }}>
-          <div className="ops-sidebar-top">
-            <span className="ops-sidebar-brand">Management console</span>
-            <h3>Venue operations</h3>
-            <div style={{ background: "var(--line-light)", height: 40, borderRadius: 8, marginTop: 12 }} />
-            <div style={{ background: "var(--line-light)", height: 200, borderRadius: 8, marginTop: 12 }} />
+        <aside className="mc-sidebar" style={{ opacity: 0.5, pointerEvents: "none" }}>
+          <div className="mc-sidebar-logo">
+            <Image src="/logo.webp" alt="Serve By Example" width={36} height={36} className="mc-sidebar-logo-img" />
+            <div className="mc-sidebar-logo-text">
+              <span className="mc-sidebar-logo-brand">Serve By Example</span>
+              <span className="mc-sidebar-logo-sub">Management Console</span>
+            </div>
+          </div>
+          <div style={{ padding: 16 }}>
+            <div style={{ background: "var(--mc-line)", height: 40, borderRadius: 8 }} />
+            <div style={{ background: "var(--mc-line)", height: 200, borderRadius: 8, marginTop: 12 }} />
           </div>
         </aside>
         <section className="ops-workspace" style={{ opacity: 0.4, pointerEvents: "none" }}>
@@ -1140,101 +1008,61 @@ export default function ManagerControlCenter({
   }
 
   return (
-    <div className="ops-shell">
+    <div className="ops-shell mc-shell">
       <SessionRefresher />
       {showExpiredModal && trialTier && (
         <TrialExpiredModal trialTier={trialTier} />
       )}
-      <aside className="ops-sidebar">
-        <div className="ops-sidebar-top">
-          <span className="ops-sidebar-brand">Management console</span>
-          {displayName && <span className="ops-sidebar-user">{displayName}</span>}
-          <h3>Venue operations</h3>
-          <div className="ops-venue-switcher">
-            {snapshot.venues.length === 0 ? (
-              <div className="ops-venue-single">
-                <strong>No venues</strong>
-                <p style={{ color: "var(--text-soft)", fontSize: ".95rem", margin: "8px 0 0 0" }}>Create your first venue to get started.</p>
-              </div>
-            ) : !isMultiVenue ? (
-              <div className="ops-venue-single">
-                <strong>{snapshot.venues[0]?.name || "Your Venue"}</strong>
-                <p style={{ color: "var(--text-soft)", fontSize: ".95rem", margin: "8px 0 0 0" }}>Single venue plan</p>
-              </div>
-            ) : (
-              <>
-                <div className="ops-venue-switcher-head">
-                  <strong>Multi-venue switcher</strong>
-                  <button type="button" className="btn btn-secondary" onClick={() => handleSectionChange("analytics")}> 
-                    Group analytics
-                  </button>
-                </div>
-                <label className="label" htmlFor="venue-select">
-                  Active venue
-                  <select
-                    id="venue-select"
-                    className="input"
-                    value={selectedVenueId}
-                    onChange={(event) => setSelectedVenueId(event.target.value)}
-                  >
-                    {snapshot.venues.map((venue) => (
-                      <option key={venue.id} value={venue.id}>
-                        {venue.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <div className="ops-venue-mini-list">
-                  {snapshot.venues.map((venue) => (
-                    <button
-                      key={`mini-${venue.id}`}
-                      type="button"
-                      className={`ops-venue-chip${selectedVenueId === venue.id ? " active" : ""}`}
-                      onClick={() => setSelectedVenueId(venue.id)}
-                    >
-                      {venue.name}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
+      <aside className="mc-sidebar">
+        <div className="mc-sidebar-logo">
+          <Image src="/logo.webp" alt="Serve By Example" width={36} height={36} className="mc-sidebar-logo-img" />
+          <div className="mc-sidebar-logo-text">
+            <span className="mc-sidebar-logo-brand">Serve By Example</span>
+            <span className="mc-sidebar-logo-sub">Management Console</span>
           </div>
         </div>
 
-        <nav className="ops-nav">
-          {NAV_GROUPS.map((group) => {
-            const isCollapsed = group.collapsible && collapsedGroups.has(group.label);
-            return (
-              <div key={group.label} className="ops-nav-group">
-                {group.collapsible ? (
-                  <button
-                    type="button"
-                    className="ops-nav-group-toggle"
-                    onClick={() => toggleGroup(group.label)}
-                    aria-expanded={!isCollapsed}
-                  >
-                    <span>{group.label}</span>
-                    <span className="ops-nav-chevron" aria-hidden="true">{isCollapsed ? "▸" : "▾"}</span>
-                  </button>
-                ) : (
-                  <div className="ops-nav-group-label">{group.label}</div>
-                )}
-                {!isCollapsed && group.items.map((section) => (
-                  <button
-                    key={section.id}
-                    type="button"
-                    className={`ops-nav-item${activeSection === section.id ? " active" : ""}`}
-                    onClick={() => handleSectionChange(section.id)}
-                  >
-                    <section.icon size={15} strokeWidth={1.5} aria-hidden="true" />
-                    <span>{section.label}</span>
-                  </button>
-                ))}
-              </div>
-            );
-          })}
-        </nav>
-        <div className="ops-sidebar-footer">
+        <div className="mc-sidebar-scroll">
+          <nav>
+            {NAV_GROUPS.map((group) => {
+              const isCollapsed = group.collapsible && collapsedGroups.has(group.label);
+              return (
+                <div key={group.label} className="mc-nav-group">
+                  {group.collapsible ? (
+                    <button
+                      type="button"
+                      className="mc-nav-group-toggle"
+                      onClick={() => toggleGroup(group.label)}
+                      aria-expanded={!isCollapsed}
+                    >
+                      <span>{group.label}</span>
+                      <ChevronDown size={12} strokeWidth={2} className={`mc-nav-chevron${isCollapsed ? " collapsed" : ""}`} aria-hidden="true" />
+                    </button>
+                  ) : (
+                    <div className="mc-nav-group-label">{group.label}</div>
+                  )}
+                  {!isCollapsed && (
+                    <div className="mc-nav-items">
+                      {group.items.map((section) => (
+                        <button
+                          key={section.id}
+                          type="button"
+                          className={`mc-nav-item${activeSection === section.id ? " active" : ""}`}
+                          onClick={() => handleSectionChange(section.id)}
+                        >
+                          <section.icon size={15} strokeWidth={1.5} aria-hidden="true" />
+                          <span className="mc-nav-item-label">{section.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </nav>
+        </div>
+
+        <div className="mc-sidebar-bottom">
           {trialTier && trialEndsAt && typeof daysRemaining === "number" && (
             <TrialStatusPill
               trialTier={trialTier}
@@ -1243,14 +1071,29 @@ export default function ManagerControlCenter({
               isExpired={trialExpired}
             />
           )}
-          <SignOutButton />
+          <div className="mc-profile-row">
+            <div className="mc-profile-avatar">
+              {(accountDisplayName || "M").trim().slice(0, 1).toUpperCase()}
+            </div>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div className="mc-profile-name">{accountDisplayName || "Manager"}</div>
+              <div className="mc-profile-role">Venue Manager</div>
+            </div>
+          </div>
+          <SignOutButton className="mc-signout-btn" />
         </div>
       </aside>
 
       <section className="ops-workspace">
         <ManagementTopbar
           breadcrumbs={breadcrumbs}
-          venueName={selectedVenueId ? snapshot.venues.find((v) => v.id === selectedVenueId)?.name ?? "Venue" : "Venue"}
+          venueName={
+            snapshot.venues.length === 0
+              ? "No venues"
+              : selectedVenueId
+              ? snapshot.venues.find((v) => v.id === selectedVenueId)?.name ?? "Venue"
+              : "Venue"
+          }
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           searchResults={searchResults}
@@ -1259,6 +1102,13 @@ export default function ManagerControlCenter({
             setSearchQuery("");
           }}
           onActionSelect={setActiveAction}
+          venues={snapshot.venues.map((v) => ({ id: v.id, name: v.name }))}
+          selectedVenueId={selectedVenueId}
+          onVenueChange={setSelectedVenueId}
+          isMultiVenue={isMultiVenue}
+          onGroupAnalytics={() => handleSectionChange("analytics")}
+          onAICoach={() => handleSectionChange("aicoach")}
+          displayName={accountDisplayName || displayName}
         />
 
         {/* Checkout success / webhook processing banner */}
@@ -1285,7 +1135,7 @@ export default function ManagerControlCenter({
             Processing your subscription — this takes just a moment...
           </div>
         )}
-        {checkoutSuccess && subConfirmed && !subProcessing && (
+        {checkoutSuccess && (subConfirmed || isBillingConfirmedFromPlan) && !subProcessing && (
           <div
             style={{
               display: "flex",
@@ -1310,7 +1160,7 @@ export default function ManagerControlCenter({
 
         <ActionDrawer
           isOpen={!!activeAction}
-          onClose={() => setActiveAction(null)}
+          onClose={() => { setActiveAction(null); setIsDirty(false); }}
           title={
             activeAction === "add-staff"
               ? "Add staff member"
@@ -1586,21 +1436,11 @@ export default function ManagerControlCenter({
 
         {activeSection === "overview" && (
           <OverviewPanel
-            selectedVenueName={selectedVenue?.name}
-            todayDateStr={todayDateStr}
-            attentionCount={attentionCount}
             metrics={metrics}
             venueStaff={venueStaff}
-            venuePrograms={venuePrograms}
-            venueInventory={venueInventory}
-            todaySnapshot={todaySnapshot}
-            operationalAlerts={operationalAlerts}
             needsAttention={needsAttention}
-            inactiveCount={inactiveCount}
-            coachingQueue={coachingQueue}
-            revenueTransactionValue={revenueTransactionValue}
             handleSectionChange={handleSectionChange}
-            handleExportStaff={handleExportStaff}
+            onOpenCoachingDrawer={(staffId) => { setSelectedStaffId(staffId); setCoachingDrawerOpen(true); }}
           />
         )}
 
@@ -1615,6 +1455,7 @@ export default function ManagerControlCenter({
             onSnapshotUpdate={(updated) => setSnapshot(updated)}
             onOpenCoachingDrawer={(staffId) => { setSelectedStaffId(staffId); setCoachingDrawerOpen(true); }}
             onAddStaff={() => openAction("add-staff")}
+            handleExportStaff={handleExportStaff}
           />
         )}
 

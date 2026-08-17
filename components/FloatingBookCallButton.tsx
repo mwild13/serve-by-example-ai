@@ -38,6 +38,8 @@ export default function FloatingBookCallButton() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (window.location.hash === '#book-call') {
+      // Mount-only hash check — deliberately deferred so SSR hydrates with `false` first.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOpen(true);
     }
   }, []);

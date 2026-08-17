@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 
 interface ActionDrawerProps {
@@ -13,16 +13,23 @@ interface ActionDrawerProps {
 
 export function ActionDrawer({ isOpen, onClose, title, children, isDirty = false }: ActionDrawerProps) {
   const drawerRef = useRef<HTMLDivElement>(null);
-  const [focusTrapActive, setFocusTrapActive] = useState(false);
+
+  const handleClose = useCallback(() => {
+    if (isDirty) {
+      const confirmed = window.confirm(
+        "You have unsaved changes. Are you sure you want to discard them?"
+      );
+      if (!confirmed) return;
+    }
+    onClose();
+  }, [isDirty, onClose]);
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
-      setFocusTrapActive(true);
     }
     return () => {
       document.body.style.overflow = "";
-      setFocusTrapActive(false);
     };
   }, [isOpen]);
 
@@ -31,7 +38,7 @@ export function ActionDrawer({ isOpen, onClose, title, children, isDirty = false
       if (e.key === "Escape") {
         handleClose();
       }
-      if (focusTrapActive && e.key === "Tab" && drawerRef.current) {
+      if (isOpen && e.key === "Tab" && drawerRef.current) {
         const focusableElements = drawerRef.current.querySelectorAll(
           "button, [href], input, select, textarea, [tabindex]:not([tabindex=\"-1\"])"
         );
@@ -71,17 +78,7 @@ export function ActionDrawer({ isOpen, onClose, title, children, isDirty = false
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, focusTrapActive]);
-
-  function handleClose() {
-    if (isDirty) {
-      const confirmed = window.confirm(
-        "You have unsaved changes. Are you sure you want to discard them?"
-      );
-      if (!confirmed) return;
-    }
-    onClose();
-  }
+  }, [isOpen, handleClose]);
 
   return (
     <>

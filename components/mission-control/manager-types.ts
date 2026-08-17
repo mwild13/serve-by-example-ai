@@ -3,7 +3,7 @@ import type { ManagerSection } from "@/lib/management/types";
 
 export type QuickActionId = "add-staff" | "assign-training" | "add-inventory" | "create-program";
 
-export type NavItem = {
+type NavItem = {
   id: ManagerSection;
   label: string;
   icon: LucideIcon;

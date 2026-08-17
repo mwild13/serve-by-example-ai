@@ -3,8 +3,8 @@
  * Defines all TypeScript interfaces for the 40-module adaptive learning platform
  */
 
-export type Category = 'technical' | 'service' | 'compliance';
-export type ScenarioType = 'quiz' | 'descriptor_l2' | 'descriptor_l3' | 'roleplay';
+type Category = 'technical' | 'service' | 'compliance';
+type ScenarioType = 'quiz' | 'descriptor_l2' | 'descriptor_l3' | 'roleplay';
 
 /**
  * Module Definition
@@ -34,7 +34,7 @@ export interface Module {
  * Quiz Content (L1)
  * True/false or simple recall format
  */
-export interface QuizContent {
+interface QuizContent {
   question: string;
   answer: string; // The correct answer text
   explanation: string;
@@ -45,7 +45,7 @@ export interface QuizContent {
  * Descriptor Content (L2 & L3)
  * Pick N of 5 descriptors format
  */
-export interface DescriptorContent {
+interface DescriptorContent {
   prompt: string;
   descriptors: string[]; // Exactly 5 options
   correctIndices: number[]; // Indices of correct descriptors
@@ -56,7 +56,7 @@ export interface DescriptorContent {
  * Roleplay Content (L4)
  * Open-ended scenario evaluated by AI
  */
-export interface RoleplayContent {
+interface RoleplayContent {
   prompt: string;
   evaluation_dimensions: string[]; // e.g., ["Communication", "Problem-Solving"]
   model_response_for_ai_grading?: string; // Optional example response

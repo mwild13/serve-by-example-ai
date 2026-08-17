@@ -48,23 +48,19 @@ export default function LanguageSwitcher({
   hideOnMobile = false,
 }: LanguageSwitcherProps) {
   const selectId = useId();
-  const [language, setLanguage] = useState(DEFAULT_LANGUAGE);
+  // Initialized directly from localStorage (guarded for SSR) instead of via
+  // a mount effect + setState, which avoided an extra render but tripped
+  // react-hooks/set-state-in-effect.
+  const [language, setLanguage] = useState<string>(() => {
+    if (typeof window === "undefined") return DEFAULT_LANGUAGE;
 
-  useEffect(() => {
     const saved = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
 
-    if (saved === "auto" || saved === "en") {
-      setLanguage(DEFAULT_LANGUAGE);
-      return;
-    }
+    if (saved === "auto" || saved === "en") return DEFAULT_LANGUAGE;
+    if (saved && LANGUAGE_OPTIONS.some((option) => option.code === saved)) return saved;
 
-    if (saved && LANGUAGE_OPTIONS.some((option) => option.code === saved)) {
-      setLanguage(saved);
-      return;
-    }
-
-    setLanguage(DEFAULT_LANGUAGE);
-  }, []);
+    return DEFAULT_LANGUAGE;
+  });
 
   useEffect(() => {
     const htmlLanguage = resolveLanguageCode(language);

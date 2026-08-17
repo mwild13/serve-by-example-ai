@@ -46,7 +46,9 @@ export default function RapidFireQuiz({
   const [speedBonus, setSpeedBonus] = useState(false);
   const [streakPop, setStreakPop] = useState(false);
   const [buttonFlash, setButtonFlash] = useState<string | null>(null);
-  const questionStartRef = useRef(Date.now());
+  // Stamped in a mount effect rather than here — calling Date.now() directly
+  // in the render body is an impure side effect the React Compiler flags.
+  const questionStartRef = useRef<number>(0);
   // Tracks the answer entries in the current consecutive-correct streak.
   // Using a ref avoids stale-closure issues in nextQuestion's useCallback.
   const streakAnswersRef = useRef<AnswerEntry[]>([]);
@@ -82,6 +84,11 @@ export default function RapidFireQuiz({
 
   const currentScenario = questionPool[questionIndex] ?? questionPool[questionPool.length - 1];
   const currentContent = currentScenario?.content as QuizContent | undefined;
+
+  // Stamp the start time for the first question once, on mount.
+  useEffect(() => {
+    questionStartRef.current = Date.now();
+  }, []);
 
   const handleAnswer = useCallback(
     (userAnswer: string) => {
@@ -119,7 +126,7 @@ export default function RapidFireQuiz({
 
       setTimeout(() => setButtonFlash(null), 400);
     },
-    [answered, currentContent, consecutiveCorrect]
+    [answered, currentContent, consecutiveCorrect, currentScenario]
   );
 
   const nextQuestion = useCallback(() => {

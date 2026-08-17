@@ -39,6 +39,9 @@ export default function SectionSubNav({ items }: SectionSubNavProps) {
   useEffect(() => {
     const sentinel = document.querySelector(".section-subnav-sentinel");
     if (!sentinel) {
+      // No sentinel found — show nav immediately. Synchronous setState is intentional:
+      // this branch runs before any listener is attached so there is no cascading risk.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVisible(true);
       return;
     }

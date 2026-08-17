@@ -51,22 +51,3 @@ export function getClientIp(req: Request): string {
   );
 }
 
-/**
- * Generate a rate-limit key for authenticated endpoints.
- * Uses ${userId}:${route} to prevent IP-rotation attacks on edge networks.
- * @param userId User ID from auth token
- * @param route The API route or endpoint identifier
- */
-export function getAuthenticatedRateLimitKey(userId: string, route: string): string {
-  return `${userId}:${route}`;
-}
-
-/**
- * Generate a rate-limit key for public endpoints.
- * Uses ${ip}:${route} for basic DDoS protection.
- * @param ip Client IP address
- * @param route The API route or endpoint identifier
- */
-export function getPublicRateLimitKey(ip: string, route: string): string {
-  return `${ip}:${route}`;
-}
