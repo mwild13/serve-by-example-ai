@@ -246,6 +246,117 @@ export async function resolveAccess(
   };
 }
 
+// ── Shared tier-resolution chain (dashboard + mobile) ────────
+
+export type TierAccessInput = {
+  tier: string | null;
+  org_id: string | null;
+  subscription_status: string | null;
+  management_unlocked?: boolean | null;
+};
+
+export type ResolvedTierAccess = {
+  plan: string;
+  allowedModules: number[];
+  hasVenueMembership: boolean;
+  venueMembershipPaused: boolean;
+  managementUnlocked: boolean;
+};
+
+const LAPSED_SUBSCRIPTION_STATUSES = new Set(["canceled", "incomplete_expired", "unpaid"]);
+const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active", "trialing", "past_due"]);
+
+/**
+ * Canonical tier-resolution chain: own profile tier → lapsed-subscription
+ * downgrade → org trial sync → sponsored venue-membership fallback (paused
+ * if the sponsor's own org trial has expired). Extracted from
+ * app/dashboard/page.tsx so /dashboard and /mobile (app/mobile/layout.tsx)
+ * share one implementation instead of two hand-copied chains drifting apart
+ * — see v4-migration-plan/01-supabase-client-and-auth.md. Deliberately
+ * separate from resolveAccess() above: that function is the general-purpose
+ * API-route resolver and doesn't model the lapsed-subscription or
+ * paused-sponsor cases these two page-level entry points need.
+ */
+export async function resolveTierAccess(
+  admin: SupabaseClient,
+  userEmail: string | undefined,
+  profile: TierAccessInput,
+): Promise<ResolvedTierAccess> {
+  let plan = profile.tier ?? "free";
+
+  // Lapsed-subscription downgrade: only revoke when the webhook has explicitly
+  // written a terminal status. null means subscription_status has never been
+  // written — trust tier in that case.
+  if (plan !== "free" && LAPSED_SUBSCRIPTION_STATUSES.has(profile.subscription_status ?? "")) {
+    plan = "free";
+  }
+
+  // Trial gate: runs for any user without an active Stripe subscription (null = trial/new).
+  // Skipped for paying subscribers — their tier is authoritative.
+  if (!ACTIVE_SUBSCRIPTION_STATUSES.has(profile.subscription_status ?? "") && profile.org_id) {
+    const { data: org } = await admin
+      .from("organizations")
+      .select("trial_tier, trial_ends_at, trial_converted")
+      .eq("id", profile.org_id)
+      .single();
+    const trialStatus = getTrialStatus(org);
+    if (trialStatus === "active" && org?.trial_tier) {
+      plan = org.trial_tier as string;
+    } else if (trialStatus === "expired") {
+      plan = "free";
+    }
+  }
+
+  // Sponsored venue staff (invited by a manager) get full training access
+  // even on the free plan tier — unless the sponsoring manager's own org
+  // trial has expired, in which case sponsored access pauses.
+  let hasVenueMembership = false;
+  let venueMembershipPaused = false;
+  if (plan === "free" && userEmail) {
+    const { data: membership } = await admin
+      .from("organization_members")
+      .select("id, manager_id")
+      .eq("staff_email", userEmail.toLowerCase())
+      .in("status", ["invited", "active"])
+      .limit(1)
+      .maybeSingle();
+    hasVenueMembership = !!membership;
+
+    if (membership?.manager_id) {
+      const { data: managerProfile } = await admin
+        .from("profiles")
+        .select("org_id")
+        .eq("id", membership.manager_id)
+        .single();
+
+      if (managerProfile?.org_id) {
+        const { data: managerOrg } = await admin
+          .from("organizations")
+          .select("trial_tier, trial_ends_at, trial_converted")
+          .eq("id", managerProfile.org_id)
+          .single();
+
+        if (getTrialStatus(managerOrg) === "expired") {
+          venueMembershipPaused = true;
+        }
+      }
+    }
+  }
+
+  const normalizedTier = normalizeTier(plan);
+  const allowedModules = hasVenueMembership
+    ? (venueMembershipPaused ? [] : ALL_MODULES)
+    : TIER_MODULES[normalizedTier];
+
+  // Sponsored staff on the free tier must never see management content,
+  // even if management_unlocked was previously set in their profile.
+  const managementUnlocked = hasVenueMembership && plan === "free"
+    ? false
+    : (profile.management_unlocked ?? false);
+
+  return { plan, allowedModules, hasVenueMembership, venueMembershipPaused, managementUnlocked };
+}
+
 /**
  * Check how many active memberships a manager has for seat cap enforcement.
  */

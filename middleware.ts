@@ -114,6 +114,12 @@ export async function middleware(request: NextRequest) {
   }
 
   const isDashboard = path.startsWith("/dashboard");
+  // /mobile is the V4 staff surface — same auth + one-device enforcement as
+  // /dashboard. Its own auth gate (app/mobile/layout.tsx) redirects on no
+  // user too, but the session-displacement check below only ever runs here
+  // in middleware, so /mobile must be included in this gate or a displaced
+  // session could browse the mobile screens un-checked.
+  const isMobile = path.startsWith("/mobile");
   const isOnboarding = path.startsWith("/onboarding");
   const isManagementDashboard = path.startsWith("/management/dashboard");
   const isSessionConflict = path === "/session-conflict";
@@ -123,7 +129,7 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  if ((isDashboard || isOnboarding) && !user) {
+  if ((isDashboard || isMobile || isOnboarding) && !user) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
     return syncRedirect(loginUrl);
@@ -143,7 +149,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // ── Session displacement check for protected routes ────────
-  if (user && supabase && (isDashboard || isManagementDashboard)) {
+  if (user && supabase && (isDashboard || isMobile || isManagementDashboard)) {
     const browserSessionId = request.cookies.get("sbe_session_id")?.value;
 
     if (browserSessionId) {
