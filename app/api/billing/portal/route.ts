@@ -34,10 +34,19 @@ export async function POST(req: Request) {
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? process.env.NEXT_PUBLIC_BASE_URL ?? "";
 
+  // Allow callers to specify where to return after portal (e.g. staff vs manager)
+  let returnPath = "/dashboard?tab=settings";
+  try {
+    const body = await req.json() as { returnPath?: string };
+    if (typeof body.returnPath === "string" && body.returnPath.startsWith("/")) {
+      returnPath = body.returnPath;
+    }
+  } catch { /* no body / not JSON — use default */ }
+
   try {
     const session = await stripe.billingPortal.sessions.create({
       customer: profile.stripe_customer_id,
-      return_url: `${baseUrl}/management/dashboard?tab=settings&subtab=billing`,
+      return_url: `${baseUrl}${returnPath}`,
     });
 
     return NextResponse.json({ url: session.url });

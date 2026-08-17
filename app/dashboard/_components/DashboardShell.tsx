@@ -58,6 +58,7 @@ const NAV_ITEMS: { id: NavItem; label: string }[] = [
 function StaffSettingsPanel({
   displayName,
   userEmail,
+  plan,
   notifReminders,
   notifWeeklyDigest,
   notifAchievementAlerts,
@@ -65,6 +66,7 @@ function StaffSettingsPanel({
 }: {
   displayName: string;
   userEmail: string;
+  plan: string;
   notifReminders: boolean;
   notifWeeklyDigest: boolean;
   notifAchievementAlerts: boolean;
@@ -90,6 +92,32 @@ function StaffSettingsPanel({
   const [isSavingNotifications, setIsSavingNotifications] = useState(false);
   const [notifMessage, setNotifMessage] = useState("");
   const [notifError, setNotifError] = useState("");
+
+  const [isBillingLoading, setIsBillingLoading] = useState(false);
+  const [billingError, setBillingError] = useState("");
+
+  async function handleManageBilling() {
+    setIsBillingLoading(true);
+    setBillingError("");
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch("/api/billing/portal", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({ returnPath: "/dashboard?tab=settings" }),
+      });
+      const data = await res.json() as { url?: string; error?: string };
+      if (!res.ok || !data.url) throw new Error(data.error ?? "Could not open billing portal.");
+      window.location.href = data.url;
+    } catch (err) {
+      setBillingError(err instanceof Error ? err.message : "Could not open billing portal.");
+      setIsBillingLoading(false);
+    }
+  }
 
   async function handleDisplayNameUpdate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -367,6 +395,27 @@ function StaffSettingsPanel({
         <p>Choose the language for your training content. Scenarios and scored feedback will be delivered in the language you select.</p>
         <LanguageSwitcher variant="drawer" />
       </div>
+
+      {plan !== "free" && (
+        <div className="card">
+          <h3>Subscription &amp; billing</h3>
+          <p>View invoices, update your payment method, or cancel your subscription.</p>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleManageBilling}
+            disabled={isBillingLoading}
+            style={{ marginTop: "0.5rem" }}
+          >
+            {isBillingLoading ? "Opening..." : "Manage billing"}
+          </button>
+          {billingError && (
+            <div className="auth-status auth-status-error" style={{ marginTop: "0.75rem" }}>
+              {billingError}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="card">
         <h3>Join your venue</h3>
@@ -887,6 +936,7 @@ export default function DashboardShell({
           <StaffSettingsPanel
             displayName={displayName}
             userEmail={userEmail}
+            plan={plan}
             notifReminders={notifReminders}
             notifWeeklyDigest={notifWeeklyDigest}
             notifAchievementAlerts={notifAchievementAlerts}
