@@ -354,6 +354,7 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
             </button>
           </div>
         ) : (
+          <div style={{ overflowX: "auto" }}>
           <table className="mgmt-table">
             <thead>
               <tr>
@@ -429,6 +430,7 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
               })}
             </tbody>
           </table>
+          </div>
         )}
       </article>
 
@@ -524,6 +526,7 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
             No custom certifications recorded yet. Add First Aid, Barista, Liquor Licence, or any other cert here.
           </div>
         ) : (
+          <div style={{ overflowX: "auto" }}>
           <table className="mgmt-table">
             <thead>
               <tr>
@@ -567,6 +570,7 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
               })}
             </tbody>
           </table>
+          </div>
         )}
       </article>
 

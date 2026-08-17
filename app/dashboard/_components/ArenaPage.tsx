@@ -546,7 +546,8 @@ export default function ArenaPage({ userId: _userId }: Props) {
               resize: "vertical",
               outline: "none",
               fontFamily: "inherit",
-              color: "var(--color-ink-soft)",
+              color: "var(--text)",
+              background: "var(--surface-raised)",
               boxSizing: "border-box",
             }}
           />
