@@ -2,6 +2,8 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });
 
+const { withSentryConfig } = require("@sentry/nextjs");
+
 // CSP is set per-request by middleware.ts (nonce-based) — not here.
 // These headers apply to all routes via next.config, covering anything
 // middleware doesn't touch (e.g. static assets served by Next.js directly).
@@ -28,7 +30,7 @@ const securityHeaders = [
   },
 ];
 
-module.exports = withBundleAnalyzer({
+const nextConfig = {
   output: "standalone",
   outputFileTracingRoot: require("path").resolve(__dirname),
 
@@ -69,4 +71,22 @@ module.exports = withBundleAnalyzer({
     // Cache optimised images for 1 year on the edge
     minimumCacheTTL: 31536000,
   },
-});
+};
+
+// Wrap with Sentry then bundle analyzer
+// Sentry options: disable source-map uploads (no auth token configured yet —
+// add SENTRY_AUTH_TOKEN to Cloudflare env vars to enable uploads).
+module.exports = withSentryConfig(
+  withBundleAnalyzer(nextConfig),
+  {
+    org: process.env.SENTRY_ORG,
+    project: process.env.SENTRY_PROJECT,
+    silent: true,
+    // Disable source map upload until SENTRY_AUTH_TOKEN is set
+    sourcemaps: {
+      disable: !process.env.SENTRY_AUTH_TOKEN,
+    },
+    // Don't tunnel requests through the app (keeps CSP simpler)
+    tunnelRoute: undefined,
+  }
+);

@@ -4,7 +4,7 @@ import "./globals.css";
 import LanguageRuntimeTranslator from "@/components/LanguageRuntimeTranslator";
 import ErrorLogger from "@/components/ErrorLogger";
 import FloatingBookCallButton from "@/components/FloatingBookCallButton";
-import Script from 'next/script';
+import CookieBanner from "@/components/CookieBanner";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -86,24 +86,11 @@ export default async function RootLayout({
   return (
     <html lang="en-AU" className={`${fraunces.variable} ${manrope.variable}`}>
       <head>
-        {/* Warm up the GTM connection so lazyOnload fires faster */}
+        {/* GTM preconnect hint — GA4 is loaded post-consent by CookieBanner */}
         <link rel="preconnect" href="https://www.googletagmanager.com" />
-        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
       </head>
       <body>
-        {/* Google Analytics (gtag.js) */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-EF9YRFXKBG"
-          strategy="lazyOnload"
-        />
-        <Script id="google-analytics" strategy="lazyOnload">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-EF9YRFXKBG');
-          `}
-        </Script>
+        {/* GA4 is injected by CookieBanner only after the user accepts analytics cookies */}
 
         <script
           type="application/ld+json"
@@ -133,6 +120,7 @@ export default async function RootLayout({
         <a href="#main-content" className="skip-nav">Skip to main content</a>
         {children}
         <FloatingBookCallButton />
+        <CookieBanner />
         <ErrorLogger />
         <LanguageRuntimeTranslator />
       </body>
