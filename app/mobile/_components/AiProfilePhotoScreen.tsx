@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Zap, Loader2 } from "lucide-react";
+import { ArrowLeft, Zap, Loader2, Camera, X } from "lucide-react";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 
@@ -13,6 +13,18 @@ import { useTrainingProgress } from "../_lib/use-training-progress";
 // server-side (see the API route) — this list only needs id/label/thumbnail
 // for the UI and to select a style server-side. See
 // v4-migration-plan/08-onboarding-diagnostic-and-profile.md.
+//
+// Live-QA fix (2026-08-19): reported "No place to take photo on ai photo
+// page." True at the time — generation was text-to-image only (a style
+// prompt, no reference to the user at all), so a camera control would have
+// had nothing to feed. Closed 2026-08-19: capture/upload now feeds a real
+// selfie into the generate call as an image-to-image reference (see the
+// route's comment for the fal-ai/flux/dev/image-to-image switch). The raw
+// selfie itself is never persisted anywhere in Supabase — it's downscaled
+// client-side, sent once to the generate route, and only the AI-generated
+// result (a fal.media URL) is ever eligible to be saved as
+// profiles.profile_photo_url (see app/api/profile-photo/save/route.ts's
+// isAllowedFalUrl check, unchanged by this feature).
 
 type StyleOption = { id: string; label: string; image: string };
 
@@ -31,17 +43,66 @@ const STYLES: StyleOption[] = [
 
 const PLACEHOLDER_AVATAR = "/mobile/ai-portrait-main.png";
 
+// Downscales a captured/selected photo client-side before it ever leaves the
+// device — a phone camera photo can be several MB; the model only needs a
+// modest reference image, and keeping the request small matters more here
+// than on a text-only prompt. Caps the longest edge at 768px, re-encodes as
+// JPEG at 0.85 quality.
+async function downscaleImage(file: File): Promise<string> {
+  const dataUrl: string = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error("Couldn't read the photo."));
+    reader.readAsDataURL(file);
+  });
+
+  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const el = new window.Image();
+    el.onload = () => resolve(el);
+    el.onerror = () => reject(new Error("Couldn't read the photo."));
+    el.src = dataUrl;
+  });
+
+  const maxEdge = 768;
+  const scale = Math.min(1, maxEdge / Math.max(img.width, img.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(img.width * scale);
+  canvas.height = Math.round(img.height * scale);
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return dataUrl;
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL("image/jpeg", 0.85);
+}
+
 export default function AiProfilePhotoScreen() {
   const router = useRouter();
   const session = useMobileSession();
   const { status, data } = useTrainingProgress();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<StyleOption>(STYLES[0]);
   const [avatarUrl, setAvatarUrl] = useState<string>(PLACEHOLDER_AVATAR);
+  const [selfieDataUrl, setSelfieDataUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const hasGenerated = avatarUrl !== PLACEHOLDER_AVATAR;
+
+  const handlePhotoSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-selecting the same file later
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setErrorMsg("Please choose an image file.");
+      return;
+    }
+    try {
+      setErrorMsg(null);
+      setSelfieDataUrl(await downscaleImage(file));
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : "Couldn't read the photo.");
+    }
+  };
 
   const handleGenerate = async () => {
     setIsLoading(true);
@@ -54,7 +115,10 @@ export default function AiProfilePhotoScreen() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.token}`,
         },
-        body: JSON.stringify({ styleId: selectedStyle.id }),
+        body: JSON.stringify({
+          styleId: selectedStyle.id,
+          ...(selfieDataUrl ? { selfieImage: selfieDataUrl } : {}),
+        }),
       });
 
       const data = await res.json();
@@ -158,8 +222,21 @@ export default function AiProfilePhotoScreen() {
         {/* prompt-header */}
         <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "4px 24px 0" }}>
           <p style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "var(--text-mobile)" }}>Your AI Portrait</p>
-          <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>Pick a style, we&apos;ll generate your portrait</p>
+          <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>
+            {selfieDataUrl
+              ? "Pick a style — we'll generate a portrait using your photo"
+              : "Take a photo or pick a style, we'll generate your portrait"}
+          </p>
         </div>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          capture="user"
+          onChange={handlePhotoSelected}
+          style={{ display: "none" }}
+        />
 
         {/* preview-container */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "4px 0" }}>
@@ -197,7 +274,57 @@ export default function AiProfilePhotoScreen() {
                 </div>
               )}
             </div>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              aria-label={selfieDataUrl ? "Retake photo" : "Take or upload a photo"}
+              style={{
+                position: "absolute",
+                bottom: 2,
+                right: 2,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 36,
+                height: 36,
+                borderRadius: "var(--radius-pill)",
+                background: "var(--gold-mobile)",
+                border: "2px solid var(--bg-mobile-dark)",
+                cursor: "pointer",
+              }}
+            >
+              <Camera size={16} strokeWidth={2} color="var(--bg-mobile-dark)" aria-hidden="true" />
+            </button>
           </div>
+
+          {selfieDataUrl && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
+              <div style={{ position: "relative", width: 28, height: 28, borderRadius: "var(--radius-pill)", overflow: "hidden", border: "1px solid var(--border-mobile)" }}>
+                <Image src={selfieDataUrl} alt="Your photo" fill style={{ objectFit: "cover" }} unoptimized />
+              </div>
+              <span style={{ fontSize: 12, color: "var(--text-mobile-muted)" }}>Your photo will guide the AI portrait</span>
+              <button
+                type="button"
+                onClick={() => setSelfieDataUrl(null)}
+                aria-label="Remove photo"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: 22,
+                  height: 22,
+                  borderRadius: "var(--radius-pill)",
+                  background: "var(--surface-mobile)",
+                  border: "1px solid var(--border-mobile)",
+                  cursor: "pointer",
+                  flexShrink: 0,
+                }}
+              >
+                <X size={12} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
+              </button>
+            </div>
+          )}
+
           {errorMsg && (
             <p style={{ margin: "8px 24px 0", fontSize: 12, color: "var(--red-mobile)", textAlign: "center" }}>
               {errorMsg}

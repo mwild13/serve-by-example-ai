@@ -26,6 +26,21 @@ import { rateLimit, getClientIp } from "@/lib/rate-limit";
 // they never confirmed it — same "don't fabricate/assume state" discipline
 // applied elsewhere in this migration, just applied to writes instead of
 // mock data.
+//
+// Live-QA fix (2026-08-19): reported "No place to take photo on ai photo
+// page" — accurate at the time, since generation never referenced the user
+// at all (pure text-to-image). This route now accepts an optional
+// `selfieImage` (a client-downscaled data: URL, capped below). When present,
+// generation switches from `flux/schnell` (text-to-image) to
+// `flux/dev/image-to-image`, passing the selfie as the reference image and
+// the style prompt as the transformation — the result still looks like the
+// chosen hospitality setting, but is guided by the user's own photo. No
+// selfie is stored anywhere in Supabase: the fal client uploads it to Fal's
+// own storage only as part of making this one call (auto-handled by
+// `transformInput`/the Blob input), and only the model's *output* URL
+// (already `.fal.media`, per `save/route.ts`'s existing allow-list) is ever
+// eligible to become `profiles.profile_photo_url`. Without a selfie, the
+// route behaves exactly as before — schnell, text-to-image only.
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +60,20 @@ const STYLE_PROMPTS: StylePrompt[] = [
 ];
 
 fal.config({ credentials: process.env.FAL_KEY });
+
+const SELFIE_DATA_URL_RE = /^data:image\/(png|jpe?g|webp);base64,([A-Za-z0-9+/=]+)$/;
+// ~6MB decoded, generous headroom over the client's 768px/0.85-quality
+// downscale — this is a backstop against a modified client, not the normal
+// path (a downscaled photo is typically well under 500KB).
+const MAX_SELFIE_BASE64_CHARS = 8_000_000;
+
+function parseSelfieDataUrl(value: unknown): { mime: string; buffer: Buffer } | null {
+  if (typeof value !== "string" || value.length > MAX_SELFIE_BASE64_CHARS) return null;
+  const match = SELFIE_DATA_URL_RE.exec(value);
+  if (!match) return null;
+  const mime = `image/${match[1]}`;
+  return { mime, buffer: Buffer.from(match[2], "base64") };
+}
 
 export async function POST(req: Request) {
   try {
@@ -68,15 +97,33 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid style." }, { status: 400 });
     }
 
-    const result = await fal.subscribe("fal-ai/flux/schnell", {
-      input: {
-        prompt: style.prompt,
-        image_size: "square_hd",
-        num_inference_steps: 4,
-      },
-    });
+    let imageUrl: string | undefined;
 
-    const imageUrl = result.data.images?.[0]?.url;
+    if (body?.selfieImage !== undefined) {
+      const selfie = parseSelfieDataUrl(body.selfieImage);
+      if (!selfie) {
+        return NextResponse.json({ error: "Invalid photo." }, { status: 400 });
+      }
+
+      const result = await fal.subscribe("fal-ai/flux/dev/image-to-image", {
+        input: {
+          image_url: new Blob([Uint8Array.from(selfie.buffer)], { type: selfie.mime }),
+          prompt: style.prompt,
+          strength: 0.75,
+        },
+      });
+      imageUrl = result.data.images?.[0]?.url;
+    } else {
+      const result = await fal.subscribe("fal-ai/flux/schnell", {
+        input: {
+          prompt: style.prompt,
+          image_size: "square_hd",
+          num_inference_steps: 4,
+        },
+      });
+      imageUrl = result.data.images?.[0]?.url;
+    }
+
     if (!imageUrl) {
       return NextResponse.json({ error: "Failed to generate image" }, { status: 500 });
     }

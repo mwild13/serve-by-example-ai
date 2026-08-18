@@ -309,3 +309,24 @@ User asked for a broader sweep of `app/mobile` for anything else worth fixing, t
 - Retest on this fresh deploy: the diagnostic per-question content and Home's Continue Learning state (both investigated exhaustively last pass with no code bug found — possible stale-build artifact).
 - Still the single largest remaining gap, still not silently built: a real per-module Arena/scenario entry point from `LearnHubScreen` — needs new backend work (real scenario content per module from the `scenarios` table) and an explicit go-ahead, not just a link fix.
 - Camera/selfie capture for AI Profile Photo still doesn't exist — only the misleading copy was fixed, not the feature itself.
+
+## Day 6 — 2026-08-19 (continued again: scoping and building the two flagged items)
+
+User asked directly why the two items above hadn't been built yet and asked for scoping + a go-ahead to start. Both were flagged as open, not silently deferred, because each turned out to carry a real decision worth surfacing rather than a pure "just build it" task — see each item's own note below for why. User's answer: build both now.
+
+**Real per-module Arena entry point — smaller than originally flagged.** Investigation found the "needs new backend work" framing from the earlier note was wrong: desktop's `ArenaPage.tsx` already has real situation/context/task content for modules 1–20 (`ARENA_SEED_SCENARIOS`), just never shared with mobile. No new backend, no new DB content needed for those 20.
+- Extracted `lib/arena-scenarios.ts` (shared `ARENA_SEED_SCENARIOS` + `formatArenaScenario()`); `ArenaPage.tsx` now imports from it instead of keeping a private copy — resolves the Arena-scenario half of CLAUDE.md's known-duplication note.
+- `ScenarioTrainingScreen.tsx`'s 6 module cards now link into a real per-module Arena run instead of always bouncing to `/mobile/learn`; card selection prefers modules that actually have Arena content.
+- Genuinely still open: modules 21–40 have zero Arena content in V3 or V4 — that's real scenario-writing work, not wiring, and stays out of scope. Full detail: `v4-migration-plan/04-scenario-training-and-ai-arena.md`.
+
+**Camera/selfie capture for AI Photo — the real scope question was "capture into what," and it's now answered.** Generation was pure text-to-image (a style prompt, nothing about the user) — a camera button alone would have had nothing to feed. Built the actual pipeline:
+- Client captures/downscales a photo (`<input capture="user">`, resized to 768px max edge client-side before it ever leaves the device).
+- `/api/profile-photo/generate` now accepts an optional selfie and switches from `flux/schnell` (text-to-image) to `flux/dev/image-to-image`, using the photo as the generation reference under the same style prompts. No selfie is ever persisted — `save/route.ts`'s existing `*.fal.media`-only allow-list (unchanged) still means only the AI-generated result can ever become the saved profile photo, never a raw upload.
+- Cost note carried into the plan doc: `flux/dev/image-to-image` costs more per call than `flux/schnell`; same 5/min rate limits apply to both paths unchanged. Full detail: `v4-migration-plan/08-onboarding-diagnostic-and-profile.md`.
+
+Verified clean: `npx tsc --noEmit`, `npx eslint app/mobile app/api/profile-photo app/dashboard/_components/ArenaPage.tsx lib/arena-scenarios.ts --max-warnings=0`, full `npx next build` — all pass with zero errors/warnings.
+
+### Open items carried forward
+- Live verification for both features above — Arena run from a per-module card scores and updates mastery correctly; AI Photo image-to-image call returns a usable result and the non-photo path is unchanged. Batches into the same standing combined live pass as every other file's open item.
+- Modules 21–40 still have no Arena roleplay content — a content-writing task, not wiring.
+- `LearnHubScreen`'s 40-module browser still has no per-module scenario entry point of its own (separate from `ScenarioTrainingScreen`'s 6-card grid, which is now wired) — not addressed this pass, not silently expanded into.

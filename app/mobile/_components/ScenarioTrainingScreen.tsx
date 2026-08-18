@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import BottomNav from "./BottomNav";
 import { useTrainingProgress } from "../_lib/use-training-progress";
+import { ARENA_SEED_SCENARIOS, formatArenaScenario } from "@/lib/arena-scenarios";
 
 // Phase B.5 — "Start Simulation" routes into the Arena.
 //
@@ -28,12 +29,17 @@ import { useTrainingProgress } from "../_lib/use-training-progress";
 // useTrainingProgress()'s allModules/moduleProgress (same hook every other
 // mobile screen already reads through). Real attempts count, real
 // difficulty_level (1-5, already on TrainingModule — no invented field).
-// Arena itself only has ONE wired real scenario today (the featured card
-// above) — there's no per-module scenario content or route yet (that's file
-// 03's still-open "orphaned [moduleId]/scenarios" item), so these cards link
-// to /mobile/learn (the real module browser) rather than a fake Arena
-// dead-end. A full "start a real Arena run from any module" flow is a
-// separate, bigger build, not a copy fix.
+//
+// Real per-module Arena entry point (2026-08-19, later same day): each card
+// now links straight into a real Arena run — `lib/arena-scenarios.ts`
+// (extracted from desktop's ArenaPage.tsx, which previously kept this
+// content as a private inline const) has situation/context/task content for
+// modules 1-20. Cards for those modules build the same
+// moduleId/moduleTitle/scenario query-param payload the featured banner
+// above already uses. Modules 21-40 have no Arena roleplay content in V3
+// either (desktop's own picker only ever offered 1-20) — those cards still
+// link to /mobile/learn rather than a dead-end, since there's genuinely no
+// scenario to run yet, not because of a mobile-side gap.
 
 const FEATURED_SCENARIO = {
   moduleId: 11,
@@ -76,10 +82,21 @@ export default function ScenarioTrainingScreen() {
 
   const moduleCards = (() => {
     if (status !== "ready") return [];
-    return data.allModules
-      .filter((mod) => data.access.allowedModules.includes(mod.id))
-      .slice(0, 6);
+    const allowed = data.allModules.filter((mod) => data.access.allowedModules.includes(mod.id));
+    // Show modules with a real Arena scenario first (playable, not a
+    // /mobile/learn dead-end) — otherwise the first 6 by catalog order could
+    // easily be all modules 21-40, which have no Arena content in V3 yet.
+    const withArena = allowed.filter((mod) => ARENA_SEED_SCENARIOS[mod.id]);
+    const withoutArena = allowed.filter((mod) => !ARENA_SEED_SCENARIOS[mod.id]);
+    return [...withArena, ...withoutArena].slice(0, 6);
   })();
+
+  function moduleHref(moduleId: number, moduleTitle: string): string {
+    const seed = ARENA_SEED_SCENARIOS[moduleId];
+    if (!seed) return "/mobile/learn";
+    const scenario = formatArenaScenario(seed);
+    return `/mobile/arena?moduleId=${moduleId}&moduleTitle=${encodeURIComponent(moduleTitle)}&scenario=${encodeURIComponent(scenario)}`;
+  }
 
   return (
     <div
@@ -207,7 +224,7 @@ export default function ScenarioTrainingScreen() {
                 return (
                   <Link
                     key={mod.id}
-                    href="/mobile/learn"
+                    href={moduleHref(mod.id, mod.title)}
                     style={{
                       display: "flex",
                       flexDirection: "column",
