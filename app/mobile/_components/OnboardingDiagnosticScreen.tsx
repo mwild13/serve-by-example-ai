@@ -190,7 +190,10 @@ export default function OnboardingDiagnosticScreen() {
           </div>
         </div>
 
-        {/* question-prompt */}
+        {/* question-prompt + option-grid — keyed on currentQuestion.id so React
+           fully remounts this block per question instead of reconciling
+           into reused DOM nodes across question changes. */}
+        <div key={currentQuestion.id} style={{ display: "flex", flexDirection: "column", width: "100%" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "12px 20px 20px" }}>
           <p style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "var(--text-mobile)", lineHeight: 1.35 }}>
             {currentQuestion.question_text}
@@ -200,7 +203,6 @@ export default function OnboardingDiagnosticScreen() {
           </p>
         </div>
 
-        {/* option-grid */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "0 20px 24px" }}>
           {currentQuestion.options.map((option, idx) => {
             const isSelected = answers[currentQuestion.id] === option.text;
@@ -243,6 +245,7 @@ export default function OnboardingDiagnosticScreen() {
               </button>
             );
           })}
+        </div>
         </div>
 
         {submitError && (

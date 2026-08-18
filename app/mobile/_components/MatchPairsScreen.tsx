@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Martini, RotateCcw } from "lucide-react";
 import BottomNav from "./BottomNav";
@@ -60,6 +60,7 @@ export default function MatchPairsScreen() {
   const [elapsedSec, setElapsedSec] = useState(0);
   const [bestMoves, setBestMoves] = useState<number | null>(null);
   const [saved, setSaved] = useState(false);
+  const completionRef = useRef<HTMLDivElement | null>(null);
 
   const pairsFound = matched.size / 2;
   const isComplete = pairsFound === PAIRS.length;
@@ -78,6 +79,15 @@ export default function MatchPairsScreen() {
     if (isComplete) return;
     const timer = setInterval(() => setElapsedSec((s) => s + 1), 1000);
     return () => clearInterval(timer);
+  }, [isComplete]);
+
+  useEffect(() => {
+    // Live-QA fix (2026-08-19): "doesn't finish when the answers are all
+    // done" — the completion banner renders below the 3x4 card grid, off
+    // the bottom of the viewport on real phones with no auto-scroll cue, so
+    // it looked like nothing happened. Scroll it into view the moment it
+    // mounts.
+    if (isComplete) completionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [isComplete]);
 
   useEffect(() => {
@@ -252,7 +262,7 @@ export default function MatchPairsScreen() {
         </div>
 
         {isComplete && (
-          <div style={{ padding: "0 20px 20px" }}>
+          <div ref={completionRef} style={{ padding: "0 20px 20px" }}>
             <div
               style={{
                 display: "flex",

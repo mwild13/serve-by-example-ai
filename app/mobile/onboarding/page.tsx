@@ -1,7 +1,10 @@
 import OnboardingDiagnosticScreen from "../_components/OnboardingDiagnosticScreen";
 
-// Phase B preview route — renders the dumb-UI skeleton so it can be viewed at
-// /mobile/onboarding. No auth/data wiring yet.
+// Phase C file 08 Half A — real 10-question diagnostic via
+// app/api/training/diagnostic/start + .../submit. Retake-only entry point,
+// reachable from ProgressScreen's "Retake placement assessment" link (see
+// v4-migration-plan/08's Implementation Notes for why first-time onboarding
+// still redirects to desktop's /onboarding instead of here).
 export default function MobileOnboardingPage() {
   return <OnboardingDiagnosticScreen />;
 }

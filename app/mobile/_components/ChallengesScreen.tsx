@@ -15,9 +15,7 @@ import {
 import BottomNav from "./BottomNav";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 
-// Phase C file 05 — "Ingredient Match" is the only row with a built game
-// (routes to /mobile/match-pairs, challengeIndex 2). The other 4 rows stay
-// inert until their own game screens exist, per v4-migration-plan/05.
+// Phase C file 05 — all 5 rows now route to a real game screen.
 //
 // The Phase B mock's "14h 22m" countdown, "+150 XP earned today", and each
 // row's "Best: N XP" / star rating had no backing data — V3 has no XP system
@@ -38,11 +36,11 @@ type ChallengeRow = {
 };
 
 const CHALLENGES: ChallengeRow[] = [
-  { title: "Speed Round", description: "Speed Multiple Choice Questions", icon: Clock, challengeIndex: 4 },
-  { title: "Memory Test", description: "Fill in the blank cocktail descriptions", icon: Lightbulb, challengeIndex: 1 },
+  { title: "Speed Round", description: "Speed Multiple Choice Questions", icon: Clock, href: "/mobile/speed-round", challengeIndex: 4 },
+  { title: "Memory Test", description: "Fill in the blank cocktail descriptions", icon: Lightbulb, href: "/mobile/memory-test", challengeIndex: 1 },
   { title: "Ingredient Match", description: "Pair custom ingredients with names", icon: LinkIcon, href: "/mobile/match-pairs", challengeIndex: 2 },
-  { title: "Recipe Order", description: "Sequence sorting cocktail building process", icon: ListOrdered, challengeIndex: 0 },
-  { title: "Menu Audit", description: "Spot the errors in seasonal menu listings", icon: ScanSearch, challengeIndex: 3 },
+  { title: "Recipe Order", description: "Sequence sorting cocktail building process", icon: ListOrdered, href: "/mobile/recipe-order", challengeIndex: 0 },
+  { title: "Menu Audit", description: "Spot the errors in seasonal menu listings", icon: ScanSearch, href: "/mobile/menu-audit", challengeIndex: 3 },
 ];
 
 export default function ChallengesScreen() {

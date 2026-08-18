@@ -265,3 +265,47 @@ User made both final calls: (1) rename "101 Knowledge Base"/"101" to plain "Know
 - Nothing left to check against files `01`, `02`(partially, see above), `03` beyond their already-noted optional/lower-priority items.
 
 Nothing has been committed or pushed this entire migration effort — still fully local, per project convention (commit/push only on explicit request).
+
+## Day 6 — 2026-08-19 (first live-device QA pass, bug fixes)
+
+User committed/pushed `e9f3e8f` to `origin/preview/v4-migration` and ran the first real live-device pass on the deployed preview build, reporting 6 issues in one message with screenshots.
+
+**Confirmed real, fixed:**
+- **`HomeScreen` "Today's Hot Picks"** was still the Phase B mock ("Upselling Bordeaux"/"Classic Refresher" — no such modules or cocktails exist anywhere in V3). Replaced with the two real featured cocktails from `lib/cocktails.ts`, linking to `/mobile/cocktails`.
+- **`HomeScreen` Continue Learning's message logic was genuinely wrong** for one real case: an account with zero `access.allowedModules` (free tier / no venue) fell into the same branch as "you've mastered everything," which is actively misleading — split into three distinct, correct states (has a module / no modules unlocked / all mastered), plus a distinct error-state message that the old ternary also collapsed into "loading."
+- **`ScenarioTrainingScreen`'s 6 "Category Simulations" cards were 100% fabricated** — invented attempt counts, invented difficulty ratings, zero navigation. Replaced with real modules from `useTrainingProgress()` (real title, real category icon, real attempts count, real `difficulty_level`), linking to `/mobile/learn`. Full per-module Arena entry (a real scenario for every module, not just the one featured one) is a separate, bigger build — same "orphaned `[moduleId]/scenarios`" item flagged since file `03`, not something this fix expanded into.
+- **`AiProfilePhotoScreen` needed scroll to reach the footer buttons** — removed the "Helps managers put a face to the team" tagline pill (per direct instruction), shrank the portrait preview (210px→176px) and tightened several paddings/gaps to bring total content height back under one viewport on real devices. Also fixed genuinely misleading copy: "Snap a selfie, pick your look" implied a camera/selfie capture that has never existed in this feature (it's style-preset AI generation only) — changed to "Pick a style, we'll generate your portrait."
+- **`MatchPairsScreen` "doesn't finish when the answers are all done"** — the completion banner renders below the 3×4 card grid with no auto-scroll, so on a real phone viewport it was rendering off-screen with nothing visibly happening. Added a `scrollIntoView` on completion.
+
+**Investigated thoroughly, could not reproduce a code-level bug — hardened defensively instead:**
+- **"Scenarios isn't mapped to actual dashboard modules"** — this is `ScenarioTrainingScreen`'s already-known, already-documented gap (see above), not a new regression.
+- **"Placement assessment gets stuck on only one question for all 10"** and **Home's "Continue Learning" stuck on "Loading…"** — both traced exhaustively: `OnboardingDiagnosticScreen.tsx`'s index logic is correct on inspection, and the live `diagnostic_questions` table was queried directly via Supabase MCP — confirmed 10 genuinely distinct, correctly-ordered rows, no duplicates, matching the route's own query exactly. Could not find a code path that produces the reported symptom. Added a `key={currentQuestion.id}` remount boundary around the question/option block regardless, since it structurally eliminates any possible stale-DOM-reuse class of bug even though none was proven. **Flagged to the user: retest both specifically after this new deploy** — the first pass may have hit a stale Cloudflare Pages preview build rather than a real bug in the code that shipped in `e9f3e8f`.
+- **"Only Ingredient Match connected" in Challenges** — confirmed as-designed, not a bug: the other 4 challenge games were never built (file `05`'s explicit scope), same status as before this pass.
+
+Verified clean: `npx tsc --noEmit`, `npx eslint app/mobile --max-warnings=0`, full `npx next build` — all pass with zero errors/warnings.
+
+### Open items carried into the next pass
+- Retest, on a fresh deploy: the diagnostic's per-question content, Home's Continue Learning state, and everything just fixed above.
+- Building real per-module Arena scenario content (beyond the one featured "Wine Cork Complaint") is a real, scoped, **not-yet-started** feature — distinct from a bug fix, worth an explicit go/no-go before starting.
+- Camera/selfie capture for AI Profile Photo does not exist and was not built this pass — only the misleading copy referencing it was fixed. Confirm whether real photo capture is in scope before promising it in future copy.
+
+## Day 6 — 2026-08-19 (continued: broader mobile sweep + the other 4 Challenge games)
+
+User asked for a broader sweep of `app/mobile` for anything else worth fixing, then directly: "Can you build the other 4 games?" — followed by "look into these then deploy fresh."
+
+**Sweep findings:** grepped every mobile screen for fabricated-data patterns and dead navigation. Found nothing new beyond what's already tracked — `LearnHubScreen.tsx` (the primary 40-module browser) has real data but genuinely no tap-through to any module or scenario content; this is the *same* "orphaned `[moduleId]/scenarios`" gap flagged since Day 4 (file `03` step 5), not a new find, and not something to silently build given how large real per-module scenario content actually is (would mean a new API route pulling from the `scenarios` table, not a link fix). Flagging again rather than expanding scope unilaterally. Everything else checked out — `ArenaScreen.tsx`, `CocktailLibraryScreen.tsx`/`KnowledgeBaseScreen.tsx` (modal-based, correctly have no page-level links), `BottomNav.tsx` all clean.
+
+**Built the remaining 4 Challenge games**, closing out `ChallengesScreen`'s last 4 disabled rows:
+- `SequenceSortScreen` (Recipe Order, index 0), `FillBlankScreen` (Memory Test, index 1), `SpotErrorScreen` (Menu Audit, index 3), `MultipleChoiceScreen` (Speed Round, index 4) — real content ported verbatim from desktop's own game components (same questions, correct answers, and explanations — not new content, not a difficulty rebalance).
+- Mobile keeps its own established shape (5 independent standalone routes, matching `MatchPairsScreen`'s precedent) rather than porting desktop's sequential 5-question wizard — a deliberate, documented divergence, not an oversight.
+- Factored out two shared files rather than quadruplicating boilerplate: `use-challenge-complete.ts` (the completion-sync hook) and `MobileChallengeChrome.tsx` (mobile-dark feedback/retry/completion UI, with the same-day Match Pairs `scrollIntoView` fix built in from the start).
+- New routes: `/mobile/recipe-order`, `/mobile/memory-test`, `/mobile/menu-audit`, `/mobile/speed-round`. `ChallengesScreen.tsx` updated to link all 5 rows.
+- Verified clean: `tsc --noEmit`, `eslint app/mobile --max-warnings=0`, full `next build` — all pass. Plan file `05` updated with a second Implementation Notes section.
+
+**Deploy**: committed and pushed to `origin/preview/v4-migration` per direct instruction — see the commit for the full file list.
+
+### Open items carried forward
+- Live verification of all 4 new games (`user_challenges` upsert per index, `ProgressScreen` count increments) — same category as every other file's still-open manual-verification item, batches into the standing combined pass.
+- Retest on this fresh deploy: the diagnostic per-question content and Home's Continue Learning state (both investigated exhaustively last pass with no code bug found — possible stale-build artifact).
+- Still the single largest remaining gap, still not silently built: a real per-module Arena/scenario entry point from `LearnHubScreen` — needs new backend work (real scenario content per module from the `scenarios` table) and an explicit go-ahead, not just a link fix.
+- Camera/selfie capture for AI Profile Photo still doesn't exist — only the misleading copy was fixed, not the feature itself.

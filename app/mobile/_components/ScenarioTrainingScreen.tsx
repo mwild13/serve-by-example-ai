@@ -5,23 +5,35 @@ import Link from "next/link";
 import {
   ArrowRight,
   BookmarkPlus,
-  Angry,
   TrendingUp,
   Wine,
   AlertTriangle,
-  Users,
-  Clock,
+  type LucideIcon,
 } from "lucide-react";
 import BottomNav from "./BottomNav";
+import { useTrainingProgress } from "../_lib/use-training-progress";
 
-// Phase B.5 — "Start Simulation" routes into the Arena. The 6 category cards
-// stay inert (no per-category detail screen exists yet — see v4-migration-plan/04).
+// Phase B.5 — "Start Simulation" routes into the Arena.
 //
 // Phase C file 04 — "Start Simulation" now carries the scenario payload
 // (moduleId/moduleTitle/scenario) as query params into /mobile/arena, which
 // reads them to build the real POST /api/arena/evaluate request. Module 11
 // ("Handling Guest Complaints") is the closest real catalog match to the
 // featured "Wine Cork Complaint" scenario copy below — see lib/module-navigator.ts.
+//
+// Live-QA fix (2026-08-19): the "Category Simulations" grid below was still
+// 6 fully fabricated cards (invented "N attempts" counts, invented
+// difficulty ratings, zero navigation) — reported as "Scenarios isn't
+// mapped to actual dashboard modules." Replaced with real modules from
+// useTrainingProgress()'s allModules/moduleProgress (same hook every other
+// mobile screen already reads through). Real attempts count, real
+// difficulty_level (1-5, already on TrainingModule — no invented field).
+// Arena itself only has ONE wired real scenario today (the featured card
+// above) — there's no per-module scenario content or route yet (that's file
+// 03's still-open "orphaned [moduleId]/scenarios" item), so these cards link
+// to /mobile/learn (the real module browser) rather than a fake Arena
+// dead-end. A full "start a real Arena run from any module" flow is a
+// separate, bigger build, not a copy fix.
 
 const FEATURED_SCENARIO = {
   moduleId: 11,
@@ -34,21 +46,13 @@ const arenaHref = `/mobile/arena?moduleId=${FEATURED_SCENARIO.moduleId}&moduleTi
   FEATURED_SCENARIO.moduleTitle,
 )}&scenario=${encodeURIComponent(FEATURED_SCENARIO.scenario)}`;
 
-type ScenarioCard = {
-  title: string;
-  attempts: string;
-  difficulty: number; // out of 5, matches the Figma "rating-row" bookmark icons
-  icon: typeof Angry;
+// Category icon keyed by real module category — decorative only, not a
+// fabricated data field like the old per-title icon map was.
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  technical: Wine,
+  service: TrendingUp,
+  compliance: AlertTriangle,
 };
-
-const SCENARIOS: ScenarioCard[] = [
-  { title: "Difficult Guests", attempts: "12 attempts", difficulty: 4, icon: Angry },
-  { title: "Upselling Techniques", attempts: "8 attempts", difficulty: 5, icon: TrendingUp },
-  { title: "Wine Pairing Guide", attempts: "5 attempts", difficulty: 3, icon: Wine },
-  { title: "Complaint Handling", attempts: "15 attempts", difficulty: 4, icon: AlertTriangle },
-  { title: "Team Leadership", attempts: "3 attempts", difficulty: 3, icon: Users },
-  { title: "Rush Hour Rush", attempts: "24 attempts", difficulty: 5, icon: Clock },
-];
 
 function DifficultyRating({ level }: { level: number }) {
   return (
@@ -68,6 +72,15 @@ function DifficultyRating({ level }: { level: number }) {
 }
 
 export default function ScenarioTrainingScreen() {
+  const { status, data } = useTrainingProgress();
+
+  const moduleCards = (() => {
+    if (status !== "ready") return [];
+    return data.allModules
+      .filter((mod) => data.access.allowedModules.includes(mod.id))
+      .slice(0, 6);
+  })();
+
   return (
     <div
       style={{
@@ -171,57 +184,78 @@ export default function ScenarioTrainingScreen() {
 
         {/* grid-scenarios */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "0 20px 20px" }}>
-          <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>Category Simulations</p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            {SCENARIOS.map((scenario) => {
-              const Icon = scenario.icon;
-              return (
-                <div
-                  key={scenario.title}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 12,
-                    padding: 14,
-                    borderRadius: "var(--radius-lg)",
-                    background: "var(--surface-mobile)",
-                    border: "1px solid var(--border-mobile)",
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        width: 36,
-                        height: 36,
-                        borderRadius: "var(--radius-sm)",
-                        background: "var(--surface-mobile-alt)",
-                      }}
-                    >
-                      <Icon size={18} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
-                    </div>
-                    <span style={{ fontSize: 11, color: "var(--text-mobile-muted)" }}>{scenario.attempts}</span>
-                  </div>
-                  <p
+          <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>Your Modules</p>
+          {status === "ready" && moduleCards.length === 0 ? (
+            <div
+              style={{
+                padding: 16,
+                borderRadius: "var(--radius-md)",
+                background: "var(--surface-mobile)",
+                border: "1px solid var(--border-mobile)",
+                color: "var(--text-mobile-muted)",
+                fontSize: 13,
+              }}
+            >
+              No modules unlocked yet.
+            </div>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              {moduleCards.map((mod) => {
+                const Icon = CATEGORY_ICONS[mod.category] ?? Wine;
+                const progress = data?.moduleProgress[mod.id];
+                const attempts = progress?.scenariosAttempted ?? 0;
+                return (
+                  <Link
+                    key={mod.id}
+                    href="/mobile/learn"
                     style={{
-                      margin: 0,
-                      fontSize: 14,
-                      fontWeight: 700,
-                      color: "var(--text-mobile)",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 12,
+                      padding: 14,
+                      borderRadius: "var(--radius-lg)",
+                      background: "var(--surface-mobile)",
+                      border: "1px solid var(--border-mobile)",
+                      textDecoration: "none",
                     }}
                   >
-                    {scenario.title}
-                  </p>
-                  <DifficultyRating level={scenario.difficulty} />
-                </div>
-              );
-            })}
-          </div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: 36,
+                          height: 36,
+                          borderRadius: "var(--radius-sm)",
+                          background: "var(--surface-mobile-alt)",
+                        }}
+                      >
+                        <Icon size={18} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
+                      </div>
+                      <span style={{ fontSize: 11, color: "var(--text-mobile-muted)" }}>
+                        {attempts} attempt{attempts === 1 ? "" : "s"}
+                      </span>
+                    </div>
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: "var(--text-mobile)",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {mod.title}
+                    </p>
+                    <DifficultyRating level={mod.difficulty_level} />
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 

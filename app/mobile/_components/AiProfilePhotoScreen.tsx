@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Zap, Award, Loader2 } from "lucide-react";
+import { ArrowLeft, Zap, Loader2 } from "lucide-react";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 
@@ -118,7 +118,7 @@ export default function AiProfilePhotoScreen() {
         fontFamily: "var(--font-body)",
       }}
     >
-      <div style={{ display: "flex", flexDirection: "column", gap: 20, width: "100%" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 14, width: "100%" }}>
         {/* header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px 0" }}>
           <button
@@ -158,18 +158,18 @@ export default function AiProfilePhotoScreen() {
         {/* prompt-header */}
         <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "4px 24px 0" }}>
           <p style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "var(--text-mobile)" }}>Your AI Portrait</p>
-          <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>Snap a selfie, pick your look</p>
+          <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>Pick a style, we&apos;ll generate your portrait</p>
         </div>
 
         {/* preview-container */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "8px 0" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "4px 0" }}>
           <div
             style={{
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              width: 210,
-              height: 210,
+              width: 176,
+              height: 176,
               padding: 4,
               borderRadius: "var(--radius-pill)",
               border: "2px solid var(--gold-mobile)",
@@ -271,25 +271,6 @@ export default function AiProfilePhotoScreen() {
           })}
         </div>
 
-        {/* tagline-row */}
-        <div style={{ display: "flex", justifyContent: "center", padding: "4px 24px 0" }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "8px 16px",
-              borderRadius: "var(--radius-pill)",
-              background: "var(--surface-mobile)",
-              border: "1px solid var(--border-mobile)",
-            }}
-          >
-            <Award size={14} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
-            <span style={{ fontSize: 13, fontWeight: 500, color: "var(--text-mobile-muted)" }}>
-              Helps managers put a face to the team
-            </span>
-          </div>
-        </div>
       </div>
 
       {/* footer-dock */}
@@ -297,8 +278,8 @@ export default function AiProfilePhotoScreen() {
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: 16,
-          padding: "20px 24px",
+          gap: 12,
+          padding: "14px 24px",
           background: "var(--surface-mobile)",
           borderTop: "1px solid var(--border-mobile)",
           borderTopLeftRadius: "var(--radius-xl)",

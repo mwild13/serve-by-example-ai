@@ -7,10 +7,10 @@ import { Bell, Flame, Swords, BrainCircuit, Martini, Award } from "lucide-react"
 import BottomNav from "./BottomNav";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
+import { COCKTAILS } from "@/lib/cocktails";
 
 // Phase B.5 — dumb UI plus real navigation. Matches the Figma "home" frame
-// 1:1 visually. Pre-Shift Warmup and Today's Hot Picks cards stay inert (no
-// detail screen exists for either yet) — everything else routes.
+// 1:1 visually. Pre-Shift Warmup stays inert (no detail screen exists yet).
 //
 // Phase C file 02 — the streak badge and Continue Learning card are now
 // sourced from useTrainingProgress() (GET /api/training/progress) instead of
@@ -18,6 +18,27 @@ import { useTrainingProgress } from "../_lib/use-training-progress";
 // lowest avg Elo among in-progress modules, falling back to the lowest-Elo
 // untouched module — "light composition" over getAvailableModules'
 // lowest-Elo logic per v4-migration-plan/02, not new domain logic.
+//
+// Live-QA fix (2026-08-19): "Today's Hot Picks" was still the Phase B mock
+// ("Upselling Bordeaux"/"Classic Refresher" — no such modules or cocktails
+// exist). Replaced with the two real featured cocktails from lib/cocktails.ts
+// (COCKTAILS.featured, sorted by featuredOrder), linking to /mobile/cocktails
+// — same "don't fabricate a data source" call as every other file in this
+// migration. Also split Continue Learning's "no module to show" case into
+// its real two possibilities — "you have zero accessible modules" (free
+// tier/no venue) vs. "you've mastered everything accessible" — the old
+// two-branch ternary collapsed both into the same "mastered" message, which
+// is actively misleading for a free/unlicensed account.
+
+const HOT_PICKS = [...COCKTAILS].filter((c) => c.featured).sort((a, b) => a.featuredOrder - b.featuredOrder).slice(0, 2);
+// Same real-photo mapping as CocktailLibraryScreen.tsx — only 4 of 38
+// cocktails have dedicated photography in /public/mobile.
+const HOT_PICK_IMAGES: Record<string, string> = {
+  "Espresso Martini": "/mobile/cocktail-espresso-martini.png",
+  "Aperol Spritz": "/mobile/cocktail-aperol-spritz.png",
+  Negroni: "/mobile/cocktail-negroni.png",
+  Sazerac: "/mobile/cocktail-smoked-sazerac.png",
+};
 
 const QUICK_ACCESS = [
   { label: "Challenges", icon: Swords, href: "/mobile/challenges" },
@@ -164,12 +185,10 @@ export default function HomeScreen() {
             </div>
           </div>
           <div style={{ display: "flex", gap: 12, overflowX: "auto" }}>
-            {[
-              { src: "/mobile/thumb-wine.png", category: "Wine pairing", title: "Upselling Bordeaux" },
-              { src: "/mobile/thumb-cocktail.png", category: "Cocktail Craft", title: "Classic Refresher" },
-            ].map((card) => (
-              <div
-                key={card.title}
+            {HOT_PICKS.map((cocktail) => (
+              <Link
+                key={cocktail.name}
+                href="/mobile/cocktails"
                 style={{
                   display: "flex",
                   flexDirection: "column",
@@ -180,18 +199,25 @@ export default function HomeScreen() {
                   borderRadius: "var(--radius-lg)",
                   background: "var(--surface-mobile)",
                   border: "1px solid var(--border-mobile)",
+                  textDecoration: "none",
                 }}
               >
                 <div style={{ width: "100%", height: 100, borderRadius: "var(--radius-sm)", overflow: "hidden" }}>
-                  <Image src={card.src} alt="" width={188} height={100} style={{ objectFit: "cover", width: "100%", height: "100%" }} />
+                  <Image
+                    src={HOT_PICK_IMAGES[cocktail.name] ?? "/mobile/thumb-cocktail.png"}
+                    alt=""
+                    width={188}
+                    height={100}
+                    style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                  />
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                   <p style={{ margin: 0, fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "var(--gold-mobile)" }}>
-                    {card.category}
+                    Most Common
                   </p>
-                  <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: "var(--text-mobile)" }}>{card.title}</p>
+                  <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: "var(--text-mobile)" }}>{cocktail.name}</p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -230,8 +256,14 @@ export default function HomeScreen() {
                     <span style={{ fontSize: 12, fontWeight: 700, color: "var(--gold-mobile)" }}>{continueModule.progress?.mastery ?? 0}%</span>
                   </div>
                 </>
+              ) : status === "ready" && data.access.allowedModules.length === 0 ? (
+                <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>
+                  No modules unlocked yet — join a venue or upgrade to start training.
+                </p>
               ) : status === "ready" ? (
                 <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>All accessible modules mastered — nice work.</p>
+              ) : status === "error" ? (
+                <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>Couldn&apos;t load your progress.</p>
               ) : (
                 <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>Loading your next module…</p>
               )}
