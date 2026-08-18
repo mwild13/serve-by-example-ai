@@ -218,7 +218,7 @@ export default function MobileLearnHub({
             },
             {
               id: "knowledge" as NavItem,
-              title: "101 Knowledge",
+              title: "Knowledge Base",
               desc: "Quick-reference hospitality facts",
               tint: "var(--green-light)",
               color: "var(--green)",

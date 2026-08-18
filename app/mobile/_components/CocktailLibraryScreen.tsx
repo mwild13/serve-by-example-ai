@@ -1,33 +1,63 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
-import { Search, SlidersHorizontal, Bookmark, LockKeyhole } from "lucide-react";
+import { Search, Bookmark, BookmarkCheck } from "lucide-react";
 import BottomNav from "./BottomNav";
+import { COCKTAILS, CATEGORIES, type Category } from "@/lib/cocktails";
 
-// Phase B.5 — category tabs hold local selection state. Search, the filter
-// button, and cocktail cards stay inert (no detail screen exists yet) —
-// data wiring is Phase C.
+// Phase C file 06 — real data + search/filter, ported from the desktop
+// CocktailLibrary.tsx `useMemo` pattern (app/dashboard/_components/
+// knowledge-base/CocktailLibrary.tsx). No backend/DB involved — lib/cocktails.ts
+// is pure static data, per v4-migration-plan/06.
+//
+// The Phase B mock's per-card "base"/"difficulty"/"locked" fields don't exist
+// on the real `Cocktail` type and are dropped rather than faked. Only 4 of 38
+// cocktails have dedicated photography in /public/mobile (Espresso Martini,
+// Aperol Spritz, Negroni, Sazerac); every other card falls back to the shared
+// /public/mobile/thumb-cocktail.png glass icon rather than a nonexistent path.
+// Bookmarking mirrors desktop exactly: local session state only, not persisted
+// — same as `practiceAdded` in CocktailLibrary.tsx today.
 
-const CATEGORIES = ["All", "Classic", "Modern", "Shots", "Mocktails"];
+const CATEGORY_KEYS = Object.keys(CATEGORIES) as Category[];
 
-type CocktailCard = {
-  title: string;
-  base: string;
-  difficulty: string;
-  image: string;
-  locked?: boolean;
+const COCKTAIL_IMAGES: Record<string, string> = {
+  "Espresso Martini": "/mobile/cocktail-espresso-martini.png",
+  "Aperol Spritz": "/mobile/cocktail-aperol-spritz.png",
+  Negroni: "/mobile/cocktail-negroni.png",
+  Sazerac: "/mobile/cocktail-smoked-sazerac.png",
 };
-
-const COCKTAILS: CocktailCard[] = [
-  { title: "Espresso Martini", base: "Vodka", difficulty: "Medium", image: "/mobile/cocktail-espresso-martini.png" },
-  { title: "Negroni Classico", base: "Gin", difficulty: "Easy", image: "/mobile/cocktail-negroni.png" },
-  { title: "Aperol Spritz", base: "Prosecco", difficulty: "Easy", image: "/mobile/cocktail-aperol-spritz.png" },
-  { title: "Smoked Sazerac", base: "Cognac", difficulty: "Hard", image: "/mobile/cocktail-smoked-sazerac.png", locked: true },
-];
+const FALLBACK_IMAGE = "/mobile/thumb-cocktail.png";
 
 export default function CocktailLibraryScreen() {
-  const [activeCategory, setActiveCategory] = useState(CATEGORIES[0]);
+  const [activeCategory, setActiveCategory] = useState<Category | "all">("all");
+  const [search, setSearch] = useState("");
+  const [bookmarked, setBookmarked] = useState<Set<string>>(new Set());
+
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    const results = COCKTAILS.filter((c) => {
+      const matchesCat = activeCategory === "all" || c.category === activeCategory;
+      const matchesSearch = c.name.toLowerCase().includes(q) || c.ingredients.some((i) => i.toLowerCase().includes(q));
+      return matchesCat && matchesSearch;
+    });
+
+    return [...results].sort((a, b) => {
+      if (a.featured && b.featured) return a.featuredOrder - b.featuredOrder;
+      if (a.featured) return -1;
+      if (b.featured) return 1;
+      return a.name.localeCompare(b.name);
+    });
+  }, [activeCategory, search]);
+
+  function toggleBookmark(name: string) {
+    setBookmarked((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  }
 
   return (
     <div
@@ -47,7 +77,7 @@ export default function CocktailLibraryScreen() {
         {/* title-section */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 20 }}>
           <p style={{ margin: 0, fontSize: 22, fontWeight: 700, color: "var(--text-mobile)" }}>Drink Library</p>
-          <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>38 recipes</p>
+          <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>{COCKTAILS.length} recipes</p>
         </div>
 
         {/* search-container */}
@@ -69,7 +99,8 @@ export default function CocktailLibraryScreen() {
             <input
               type="text"
               placeholder="Search by name or ingredient..."
-              readOnly
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               style={{
                 flex: 1,
                 background: "none",
@@ -77,40 +108,24 @@ export default function CocktailLibraryScreen() {
                 outline: "none",
                 fontFamily: "var(--font-body)",
                 fontSize: 14,
-                color: "var(--text-mobile-muted)",
+                color: "var(--text-mobile)",
               }}
             />
           </div>
-          <button
-            type="button"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 46,
-              height: 44,
-              borderRadius: "var(--radius-md)",
-              background: "var(--surface-mobile)",
-              border: "1px solid var(--border-mobile)",
-              flexShrink: 0,
-              cursor: "pointer",
-            }}
-            aria-label="Filter"
-          >
-            <SlidersHorizontal size={20} strokeWidth={2} color="var(--text-mobile)" aria-hidden="true" />
-          </button>
         </div>
 
         {/* category-tabs */}
         <div style={{ display: "flex", gap: 8, padding: "0 0 16px 20px", overflowX: "auto" }}>
-          {CATEGORIES.map((cat) => {
-            const isActive = cat === activeCategory;
+          {(["all", ...CATEGORY_KEYS.filter((key) => COCKTAILS.some((c) => c.category === key))] as const).map((key) => {
+            const isActive = key === activeCategory;
+            const label = key === "all" ? "All" : CATEGORIES[key].label;
+            const count = key === "all" ? COCKTAILS.length : COCKTAILS.filter((c) => c.category === key).length;
             return (
               <button
-                key={cat}
+                key={key}
                 type="button"
                 aria-pressed={isActive}
-                onClick={() => setActiveCategory(cat)}
+                onClick={() => setActiveCategory(key)}
                 style={{
                   flexShrink: 0,
                   padding: "8px 16px",
@@ -125,68 +140,90 @@ export default function CocktailLibraryScreen() {
                   whiteSpace: "nowrap",
                 }}
               >
-                {cat}
+                {label} ({count})
               </button>
             );
           })}
         </div>
 
+        {search && (
+          <p style={{ margin: "0 20px 12px", fontSize: 13, color: "var(--text-mobile-muted)" }}>
+            {filtered.length} result{filtered.length !== 1 ? "s" : ""} for &ldquo;{search}&rdquo;
+          </p>
+        )}
+
         {/* library-list */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "0 20px 20px" }}>
-          {COCKTAILS.map((cocktail) => (
-            <div
-              key={cocktail.title}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                padding: 12,
-                borderRadius: "var(--radius-lg)",
-                background: "var(--surface-mobile)",
-                border: "1px solid var(--border-mobile)",
-              }}
-            >
-              <div style={{ position: "relative", width: 64, height: 64, borderRadius: "var(--radius-sm)", overflow: "hidden", flexShrink: 0 }}>
-                <Image src={cocktail.image} alt="" fill style={{ objectFit: "cover" }} />
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1, minWidth: 0 }}>
-                <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--text-mobile)" }}>{cocktail.title}</p>
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <span
-                    style={{
-                      padding: "2px 6px",
-                      borderRadius: 4,
-                      background: "var(--surface-mobile-alt)",
-                      fontSize: 11,
-                      fontWeight: 600,
-                      color: "var(--gold-mobile)",
-                    }}
-                  >
-                    {cocktail.base}
-                  </span>
-                  <span style={{ fontSize: 11, color: "var(--text-mobile-muted)" }}>{cocktail.difficulty}</span>
-                </div>
-              </div>
-              {cocktail.locked ? (
+          {filtered.length > 0 ? (
+            filtered.map((cocktail) => {
+              const catMeta = CATEGORIES[cocktail.category];
+              const isBookmarked = bookmarked.has(cocktail.name);
+              return (
                 <div
+                  key={cocktail.name}
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
-                    width: 30,
-                    height: 30,
-                    borderRadius: "var(--radius-pill)",
-                    background: "var(--gold-mobile-bg)",
-                    flexShrink: 0,
+                    gap: 12,
+                    padding: 12,
+                    borderRadius: "var(--radius-lg)",
+                    background: "var(--surface-mobile)",
+                    border: "1px solid var(--border-mobile)",
                   }}
                 >
-                  <LockKeyhole size={14} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
+                  <div style={{ position: "relative", width: 64, height: 64, borderRadius: "var(--radius-sm)", overflow: "hidden", flexShrink: 0 }}>
+                    <Image src={COCKTAIL_IMAGES[cocktail.name] ?? FALLBACK_IMAGE} alt="" fill style={{ objectFit: "cover" }} />
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1, minWidth: 0 }}>
+                    <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--text-mobile)" }}>{cocktail.name}</p>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                      <span
+                        style={{
+                          padding: "2px 6px",
+                          borderRadius: 4,
+                          background: "var(--surface-mobile-alt)",
+                          fontSize: 11,
+                          fontWeight: 600,
+                          color: "var(--gold-mobile)",
+                        }}
+                      >
+                        {catMeta.label}
+                      </span>
+                      <span style={{ fontSize: 11, color: "var(--text-mobile-muted)" }}>{cocktail.glass}</span>
+                      {cocktail.featured && (
+                        <span style={{ fontSize: 10, fontWeight: 700, color: "var(--green-mobile)" }}>Most Common</span>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => toggleBookmark(cocktail.name)}
+                    aria-label={isBookmarked ? `Remove ${cocktail.name} bookmark` : `Bookmark ${cocktail.name}`}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "none",
+                      border: "none",
+                      padding: 0,
+                      cursor: "pointer",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {isBookmarked ? (
+                      <BookmarkCheck size={20} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
+                    ) : (
+                      <Bookmark size={20} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
+                    )}
+                  </button>
                 </div>
-              ) : (
-                <Bookmark size={20} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" style={{ flexShrink: 0 }} />
-              )}
+              );
+            })
+          ) : (
+            <div style={{ padding: "32px 0", textAlign: "center", fontSize: 13, color: "var(--text-mobile-muted)" }}>
+              No cocktails found for &ldquo;{search}&rdquo;.
             </div>
-          ))}
+          )}
         </div>
       </div>
 

@@ -33,7 +33,7 @@ export default async function MobileLayout({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, tier, org_id, subscription_status, onboarding_completed")
+    .select("display_name, tier, org_id, subscription_status, onboarding_completed, profile_photo_url")
     .eq("id", user.id)
     .single();
 
@@ -66,6 +66,7 @@ export default async function MobileLayout({
         allowedModules,
         hasVenueMembership,
         venueMembershipPaused,
+        profilePhotoUrl: profile?.profile_photo_url ?? null,
       }}
     >
       {children}

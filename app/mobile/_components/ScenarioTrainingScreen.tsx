@@ -16,6 +16,23 @@ import BottomNav from "./BottomNav";
 
 // Phase B.5 — "Start Simulation" routes into the Arena. The 6 category cards
 // stay inert (no per-category detail screen exists yet — see v4-migration-plan/04).
+//
+// Phase C file 04 — "Start Simulation" now carries the scenario payload
+// (moduleId/moduleTitle/scenario) as query params into /mobile/arena, which
+// reads them to build the real POST /api/arena/evaluate request. Module 11
+// ("Handling Guest Complaints") is the closest real catalog match to the
+// featured "Wine Cork Complaint" scenario copy below — see lib/module-navigator.ts.
+
+const FEATURED_SCENARIO = {
+  moduleId: 11,
+  moduleTitle: "Handling Guest Complaints",
+  scenario:
+    "A guest sends back a bottle of wine, claiming it's corked, but you can tell from the cork and the smell that it is fine — it's just not to their taste. They are becoming insistent and slightly hostile about wanting a refund or a replacement bottle immediately.",
+};
+
+const arenaHref = `/mobile/arena?moduleId=${FEATURED_SCENARIO.moduleId}&moduleTitle=${encodeURIComponent(
+  FEATURED_SCENARIO.moduleTitle,
+)}&scenario=${encodeURIComponent(FEATURED_SCENARIO.scenario)}`;
 
 type ScenarioCard = {
   title: string;
@@ -136,7 +153,7 @@ export default function ScenarioTrainingScreen() {
             </div>
 
             <Link
-              href="/mobile/arena"
+              href={arenaHref}
               style={{
                 position: "relative",
                 zIndex: 2,

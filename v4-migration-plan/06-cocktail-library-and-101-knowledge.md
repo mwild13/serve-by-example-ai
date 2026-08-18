@@ -30,3 +30,30 @@ Primary targets: `CocktailLibraryScreen`, `KnowledgeBaseScreen`. "Done" = both s
 4. Port the equivalent `useMemo` filter logic into `KnowledgeBaseScreen.tsx`, wiring its category pills (already has the reference `useState` pattern per the Phase B.5 nav plan).
 5. Surface the "101 vs 31" naming question to the user before considering this screen launch-ready; record the decision here or in `00` once made.
 6. Manually verify: search returns correct matches on both screens, category filters narrow correctly, entry counts on screen match the real array lengths (38 cocktails, 31 KB entries).
+
+## Implementation Notes (Day 5 — 2026-08-18, continued)
+
+Steps 1–4 done. Step 5 (naming decision) surfaced below, not resolved unilaterally. Step 6 still open (manual verification).
+
+- **`CocktailLibraryScreen`** now imports `COCKTAILS`/`CATEGORIES` directly from `lib/cocktails.ts` and ports the desktop `useMemo` filter (name + ingredient search, category filter, featured-first sort) verbatim from `CocktailLibrary.tsx`. The Phase B mock's per-card `base`/`difficulty`/`locked` fields don't exist on the real `Cocktail` type and were dropped rather than faked — replaced with the real `glass` field and a `featured` ("Most Common") tag. Only 4 of 38 cocktails have dedicated photography in `/public/mobile` (Espresso Martini, Aperol Spritz, Negroni, Sazerac); every other card now falls back to the existing generic `/public/mobile/thumb-cocktail.png` rather than a broken image path. Bookmarking is wired as a real toggle, session-only state — an honest 1:1 port of desktop's own `practiceAdded` behavior, which also doesn't persist beyond the session today.
+- **`KnowledgeBaseScreen`** now imports `KB_ENTRIES`/`KB_CATEGORIES` directly from `lib/knowledge-base.ts`, replacing the Phase B mock's hardcoded 6-entry `SPIRITS_101` sample array entirely. Ported the desktop `useMemo` filter (title/content/tag search, category filter, grouped-by-category display) from `KnowledgeBase.tsx`. Desktop's slide-over detail panel had no mobile equivalent (tapping a card previously did nothing), so a bottom-sheet `DetailSheet` was built for mobile — same content shape (content, key facts, tags), same interaction as `CocktailLibrary.tsx`'s existing `DetailSheet`, styled with mobile dark tokens.
+- **Step 5 — the "101 vs 31" naming question is flagged, not decided.** Confirmed this isn't a decision this migration introduces: desktop's own `KnowledgeBase.tsx` already ships the literal title "101 Knowledge Base" over the same 31-entry array today, in production. Mobile now matches that pre-existing (if inconsistent) desktop behavior exactly rather than diverging from it unilaterally — same label, same real count shown directly underneath ("31 quick-reference cards..."). Whether to rename the label or expand `KB_ENTRIES` toward 101 is a product content decision still owed to the user before either screen is called launch-final; recorded here as still open, not silently resolved.
+- Verified clean: `npx tsc --noEmit`, `npx eslint app/mobile/_components/CocktailLibraryScreen.tsx app/mobile/_components/KnowledgeBaseScreen.tsx --max-warnings=0`, and a full `npx next build` — all pass with zero errors/warnings.
+- **Still open:** Step 6 — manual verification that search/filter results and displayed counts are correct on-device for both screens. Lower risk than the other files' open items since there's no backend write path here to get wrong, but not yet eyeballed in a browser.
+
+## Implementation Notes (Day 5 — 2026-08-18, continued) — Step 5 resolved
+
+User's final call: **rename "101 Knowledge Base"/"101" to plain "Knowledge Base" everywhere**, not expand content toward a literal 101 entries. Applied across every reference found repo-wide, not mobile-only:
+
+- `app/mobile/_components/KnowledgeBaseScreen.tsx` — title and description ("...the 101 Series" clause dropped).
+- `app/mobile/_components/HomeScreen.tsx` — Quick Access tile label.
+- `app/dashboard/_components/knowledge-base/KnowledgeBase.tsx` — header title and description (same "101 Series" clause dropped).
+- `app/dashboard/_components/DashboardShell.tsx` — nav label (`NAV_ITEMS`; the `"knowledge"` nav *id* is unchanged, only the display label).
+- `app/dashboard/_components/PreShiftHome.tsx` — home-tab carousel eyebrow tag.
+- `app/dashboard/_components/MobileLearnHub.tsx` — tile title.
+- `app/dashboard/_components/RecommenderCard.tsx` — CTA link text.
+- `components/ui/CompareMatrix.tsx` — marketing-site feature comparison row label. Technically outside "dashboard references" but names the same feature — left mismatched here while everywhere else says "Knowledge Base" would just relocate the inconsistency to a public marketing page, so fixed it too.
+- `lib/knowledge-base.ts` — file header comment updated (not user-facing, but was the last "101" reference still describing the file's own purpose incorrectly).
+- **Deliberately not touched**: `KB_CATEGORIES`' `"Spirits 101"` / `"Beer 101"` / `"Wine 101"` / `"Cocktails 101"` / `"Non-Alcoholic 101"` category labels — these use "101" as the common "basics of X" idiom, unrelated to the count-mismatch naming issue this decision resolves. Renaming those would be a different, unrequested content change.
+- Verified clean: `npx tsc --noEmit`, `npx eslint app/mobile --max-warnings=0`, plus targeted eslint on every touched dashboard/marketing file, and a full `npx next build` — all pass with zero errors/warnings.
+- **File `06` step 5 is now closed.** Step 6 (on-device search/filter eyeball check) remains open, folded into the standing combined live-browser pass.

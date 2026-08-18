@@ -113,7 +113,7 @@ const sections: MatrixSection[] = [
         franchise: "yes",
       },
       {
-        label: "101 Knowledge Base",
+        label: "Knowledge Base",
         staff: "yes",
         venue: "yes",
         group: "yes",

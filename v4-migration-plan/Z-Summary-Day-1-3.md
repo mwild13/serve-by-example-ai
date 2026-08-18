@@ -119,3 +119,149 @@ Phase B.5 done and verified. User confirmed: keep flagging real gaps proactively
 - File `02` (mastery engine harvest) is the natural next file — it's what every subsequent screen (Learn Hub, Arena, Challenges, Badges, Progress) needs for real reads/writes, and `01`'s context now gives it a token/tier to work with.
 - Still-unresolved from Day 1/2: Knowledge Base "101" label vs. 31 real entries (file `06`); confirming `app/api/training/diagnostic/start`/`submit` against `diagnostic-engine.ts`'s real flow (file `08`); `gpt-image-2` pricing re-confirmation at build time (file `08`); AI Profile Photo cost/budget sign-off still needs explicit user approval before any code is written.
 - Pre-existing, lower-priority inconsistency noticed but not touched (out of scope for `01`): the sponsored-membership email lookup uses `.eq(staff_email, email.toLowerCase())` in `resolveTierAccess()` (preserved from `app/dashboard/page.tsx`'s original behavior) vs. `.ilike(staff_email, email)` in the older `resolveAccess()` — two slightly different case-handling strategies for the same lookup. Worth unifying whenever `resolveAccess()` itself is next touched, not urgent.
+
+## Day 4 — 2026-08-18
+
+### Where we started
+
+User signed into the deployed `/mobile` build in a real browser (screenshots confirmed: Home screen renders correctly, navigation works, no redirect loop) — closing file `01`'s last open item. Also flagged a real bug from that session: a "Book a free 15-min call" floating button/modal was appearing on mobile screens.
+
+### What we did today
+
+**1. Fixed `FloatingBookCallButton.tsx` leaking onto `/mobile`.** `APP_ROUTE_PREFIXES` (the list of authenticated-app routes where the marketing-site floating CTA hides itself) only had `/dashboard` and `/management` — never updated when `/mobile` was added. One-line fix: added `/mobile` to the array. Unrelated to the V4 migration plan itself, just a global-layout bug the new route tree exposed. Verified clean via `tsc`/`eslint`. Uncommitted.
+
+**2. File `01` (auth) formally closed** — the deployment check requested on Day 3 confirmed the `/mobile` auth gate works end-to-end in a real signed-in session. No further action needed on file `01`.
+
+**3. Phase C file `02` — Mastery Engine Harvest — executed (steps 1, 2, 3, 5 of 6):**
+- Built `app/mobile/_lib/use-training-progress.ts` — the single mobile data hook wrapping `GET /api/training/progress`, authenticated via the bearer token from `useMobileSession()`. All three target screens read through it; no independent re-derivation.
+- Rewired `ProgressScreen.tsx`: real `masteredModuleCount/totalModuleCount`, `bestCorrectStreak`, `skillLevel` stats (mock "Total XP" removed — no XP field exists in V3); 3-ring mastery breakdown (bartending/sales/management) replacing the mock 9-ring grid; the fabricated "Recent Activity Log" replaced with "Up Next For Review" sourced from the real spaced-repetition `reviewQueue` (a deliberate upcoming-vs-past substitution, documented inline since nothing analogous to a past-activity feed exists in the API).
+- Rewired `LearnHubScreen.tsx`: real 40-module catalog + `moduleProgress` map replacing the 6 mock cards; category pills now filter on real `modules.category` (Technical/Service/Compliance) instead of placeholder categories; "mastered"/"locked" badges driven by real thresholds, module locking kept cosmetic-only per the already-locked product decision.
+- Rewired `HomeScreen.tsx`: streak badge now shows real `bestCorrectStreak` (relabeled off "Days" — the field counts consecutive correct answers, not daily logins, so the old unit would have misrepresented it); Continue Learning card now recommends a real module via lowest-Elo-first composition over already-fetched progress data (mirrors `getAvailableModules()`'s logic without a second network call, since that function is server/admin-only).
+- **Step 4 (wiring scored-attempt writes to `POST /api/training/save`) confirmed genuinely out of scope for this file** — checked `ArenaScreen.tsx`/`ScenarioTrainingScreen.tsx` directly; neither has any submit logic yet. Nothing to wire until file `04` builds the real scoring UI.
+- Verified clean: `npx tsc --noEmit` and `npx eslint app/mobile --max-warnings=0`, zero errors/warnings.
+- Patched `v4-migration-plan/02-mastery-engine-harvest.md` with an Implementation Notes section, same append-only pattern as files `01`/`04`/`08`.
+
+### Net state at end of Day 4
+
+- **Phase C file `01` (auth)**: fully closed — code complete and manually verified.
+- **Phase C file `02` (mastery engine)**: steps 1/2/3/5 done and lint/type clean. Step 4 confirmed as file `04`'s scope, not skipped. **Step 6 (manual verification — complete a real scenario, confirm `elo_rating`/`venue_staff` update correctly) is still open** — same shape as file `01`'s closing gap, needs a live browser pass.
+- Global-layout bug fixed (`FloatingBookCallButton.tsx` `/mobile` exclusion).
+- Nothing committed/pushed yet — still local, per project convention.
+
+### Open items carried into Day 5
+
+- Manually verify file `02` step 6 in a real signed-in session (complete a scenario attempt, confirm the Elo delta and `venue_staff` sync).
+- File `03` (Learn Hub integration — the rest of it, beyond the mastery badges just wired) or file `04` (Scenario Training & AI Arena — where step 4's deferred write-wiring actually belongs) is the natural next file.
+- Still-unresolved from Day 1/2/3: Knowledge Base "101" label vs. 31 real entries (file `06`); confirming `training/diagnostic/start`/`submit` against `diagnostic-engine.ts` (file `08`); `gpt-image-2` pricing re-confirmation at build time (file `08`); AI Profile Photo cost sign-off still needed before any code is written.
+
+## Day 5 — 2026-08-18
+
+User asked what could be picked up immediately without further product decisions or a live browser. Re-read file `03` against the Day 4 work and found it was already almost entirely satisfied as a side effect of file `02` (real module fetch, real category pills, real locked/mastery badges) — nothing new to do there beyond its optional step 5 (module-detail view) and its step 6 manual check. File `04`'s steps 1–5 were fully spec'd with no open product decisions, so that's what got built.
+
+**File `04` (Scenario Training & AI Arena) — steps 1–5 done, step 6 open:**
+
+- `lib/openai.ts` created — single shared `getOpenAIClient()` factory, replacing the identical local helper duplicated across 7 AI routes (`arena/evaluate`, `evaluate`, `coach`, `management/coach`, `translate`, `demo/evaluate`, `demo/generate-drills`). No behavior change, pure de-duplication.
+- `app/api/arena/evaluate/route.ts`'s hand-rolled `scenario_mastery.upsert()` replaced with a call to the canonical `recordAttempt()`, closing the known-duplication item flagged in `CLAUDE.md`. Score normalized `score / 4` (0–100 → 0–25) before the call. Arena has no confidence-capture UI, so `confidence: "medium"` is passed as a neutral default — flagged inline for whoever eventually adds a real confidence prompt to Arena.
+- `ArenaScreen.tsx` rewired end-to-end: composer/Send button now hit the real endpoint, an in-flight "Evaluating…" state shows, the real `{score, passed, what_you_did_well, room_for_improvement}` result renders in place of nothing, 429s surface a distinct rate-limit message. The old fake `METRICS` row (Empathy/Knowledge/Resolution — no backing data) was removed rather than kept, consistent with file `02`'s "don't fabricate a data source" precedent.
+- `ScenarioTrainingScreen.tsx`'s "Start Simulation" now carries a real scenario payload (moduleId 11 "Handling Guest Complaints", matched to the existing "Wine Cork Complaint" copy) into Arena via query params, rather than linking to a bare route with nothing behind it. A full scenario browser (multiple selectable scenarios from the DB) is still not built — that's the bigger deferred piece tied to file `03` step 5's orphaned `[moduleId]/scenarios` route, not done here.
+- Added a `Suspense` boundary around `ArenaScreen` in `app/mobile/arena/page.tsx` (required by Next.js for `useSearchParams()`).
+- Verified: `npx tsc --noEmit`, `npx eslint app/mobile app/api/arena/evaluate/route.ts lib/openai.ts --max-warnings=0`, and a full `npx next build` all pass clean.
+
+### Open items carried into Day 6
+
+- Manually verify file `02` step 6 AND file `04` step 6 together in one live signed-in pass: submit a real Arena response, confirm the score renders, confirm `elo_rating`/`mastery` move via `recordAttempt()` in Supabase, confirm `venue_staff` sync, confirm the 20/min rate limit trips under repeated calls.
+- File `03`'s only remaining open piece: an optional module-detail view wired through the orphaned `[moduleId]/scenarios` route — not required for V4 launch, worth a product call on whether it's in scope.
+- Next candidate files: `05` (Challenges & Match Pairs) or `06` (Cocktail Library & 101 Knowledge) look similarly self-contained and decision-free — good next picks for another "what's easy right now" pass.
+- Still-unresolved from Day 1–3: Knowledge Base "101" label vs. 31 real entries (file `06`); confirming `training/diagnostic/start`/`submit` against `diagnostic-engine.ts` (file `08`); `gpt-image-2` pricing re-confirmation at build time (file `08`); AI Profile Photo cost sign-off still needed before any code is written.
+
+## Day 5 — 2026-08-18 (continued: file 05)
+
+User confirmed files `02`/`04` step 6 manual verification can wait for a later live pass — instructed to keep trickling: "continue on next step." Picked file `05` (Challenges & Match Pairs), the next candidate flagged above — no open product decisions, no live-browser dependency, matching the same selection criteria used for file `04`.
+
+- **Confirmed `challengeIndex` mapping** by reading `ChallengesPage.tsx`'s `markComplete()` call order directly, rather than guessing: `0`=Sequence Sort, `1`=Fill the Blank, `2`=Match Pair, `3`=Spot the Error, `4`=Multiple Choice. Applied this mapping to all 5 mobile lobby rows on `ChallengesScreen` (not just the built one), so the "Completed" badge is already correct for any challenge a user finished on desktop V3, and no remap is needed when the other 4 games eventually get built.
+- **Built real game logic for `MatchPairsScreen`** — 6-pair ingredient/cocktail matching, shuffled 12-card deck, live move counter, live elapsed timer, replacing the Phase B skeleton's static hardcoded "1:14 Min" / "Moves: 8". On full match: fire-and-forget `POST /api/training/challenges/save { challengeIndex: 2 }` (mirrors `ChallengesPage.tsx`'s exact pattern) plus a `localStorage` write to the **same** `sbe_challenges_completed` key V3 desktop already uses (deliberate — same account, same device, V3's own `ProgressOverview.tsx` already treats completion as device-level, not per-surface) and a new mobile-only `sbe-match-pairs-best-moves` personal-best key (no V3 analogue to collide with).
+- **Resolved the file's own flagged scope question rather than leaving it open**: dropped the Phase B mock's fabricated XP figures ("+150 XP earned today," "14h 22m" countdown, per-row "Best: N XP" / stars) — grep-reconfirmed no XP system exists in V3 anywhere. Replaced with a real completion-count card sourced from `useTrainingProgress()`'s `challengesCompleted`/`totalChallenges` (same field `ProgressOverview.tsx` reads on desktop). Same "don't fabricate a data source that doesn't exist" call already applied to files `02` and `04`.
+- Verified clean: `tsc --noEmit`, targeted `eslint --max-warnings=0`, full `next build` — all pass. Plan file `05` updated with its own Implementation Notes section.
+- **Still open:** step 6 (live signed-in verification: `user_challenges` upsert, `ProgressScreen` count increment, no duplicate on replay) — same category as files `02`/`04`'s open items, batchable into the same future live-browser pass.
+
+## Day 5 — 2026-08-18 (continued: file 06, and a merge-safety check)
+
+User asked for a merge-perspective sanity check before continuing, then to proceed to file `06`.
+
+- **Merge check**: branch is only 2 commits ahead of its merge-base with `origin/main`; `origin/main`'s one new commit (`55ab440`) is a no-op merge with zero file overlap against anything touched this session. No conflict markers anywhere in the tree (grep hits were false positives — comment separators in `lib/cocktails.ts`). `preview/v4-migration` is in sync with its own remote. Flagged (not touched): `.vscode/settings.json` and untracked `.clineignore` are unrelated Roo/Cline editor config, not V4 work — should stay out of any future commit on this branch.
+- **File `06` (Cocktail Library & 101 Knowledge)** — the lowest-risk file in the plan (no backend/DB/API route at all, pure static-data wiring). Steps 1–4 done:
+  - `CocktailLibraryScreen` now imports `COCKTAILS`/`CATEGORIES` from `lib/cocktails.ts` directly, with the desktop `useMemo` search/filter/sort ported verbatim. Dropped the Phase B mock's fabricated `base`/`difficulty`/`locked` per-card fields (no such fields exist on the real `Cocktail` type); real `glass` field and `featured` tag used instead. Only 4 of 38 cocktails have real photography in `/public/mobile` — the rest fall back to the existing generic `thumb-cocktail.png` instead of a broken path. Bookmark toggle is real session-state, matching desktop's own non-persisted `practiceAdded` behavior exactly.
+  - `KnowledgeBaseScreen` now imports `KB_ENTRIES`/`KB_CATEGORIES` from `lib/knowledge-base.ts`, replacing the Phase B mock's hardcoded 6-card sample entirely — same `useMemo` filter/group pattern ported from desktop. Built a new mobile bottom-sheet detail view (desktop has a slide-over; mobile previously had no tap-through at all).
+  - **Step 5's "101 vs 31" naming question was surfaced, not silently resolved**: confirmed desktop already ships the literal "101 Knowledge Base" title over the real 31-entry array in production today, so mobile now matches that existing (if inconsistent) behavior rather than diverging from it on its own initiative. Still an open product call for the user: rename the label, or treat 101 real entries as separate content work.
+  - Verified clean: `tsc --noEmit`, targeted `eslint --max-warnings=0`, full `next build` — all pass.
+  - **Still open:** step 6, on-device eyeball check of search/filter correctness — lower risk than the other files' open items since there's no write path to get wrong here.
+
+## Day 5 — 2026-08-18 (continued: file 07)
+
+Continued the trickle straight to file `07` (Badges & Achievements) per the user's own selection — next self-contained, decision-free candidate in the queue.
+
+- **`BadgesGalleryScreen` wired to the real `computeBadges()`** from `lib/badges.ts`, sourced entirely through the shared `useTrainingProgress()` hook already used by files `02`–`06` (no second fetch path introduced). `modules`/`scores` derived exactly like desktop's `BadgesView.tsx` does — `scores` uses `data.mastery` directly (`{bartending, sales, management}`) since the API already returns that exact `CategoryScores` shape, rather than re-deriving a redundant per-category average client-side.
+- **Found and fixed a real gap while wiring this**: `/api/training/progress` has always returned `sbeEliteNumber`, but the mobile `useTrainingProgress()` hook's `TrainingProgress` type never declared it — the field was silently unreachable from any mobile screen until now. Added it next to the existing `bestCorrectStreak` field.
+- **Kept the plan's own explicit "two streaks" warning intact**: daily-login streak (`localStorage["sbe-streak-count"]`, mount-effect + null-skeleton read, same SSR-safe pattern as desktop's `BadgeStreakSection.tsx`) is never mixed with the server-sourced `bestCorrectStreak`/`sbeEliteNumber` used only for the Pro/SBE Elite badges. No streak-increment logic was added on mobile — reading only, same as desktop's own `BadgeStreakSection.tsx` (the increment itself lives in `PreShiftHome.tsx`, shared `localStorage`, same device/account, per the file `05` precedent).
+- **Dropped two more fabricated data points, per the now-established pattern** (files `02`/`04`/`05`): the mock's "14/52 earned" header (no 52-badge catalog exists anywhere in V3 — real total is 17: 12 category + 3 streak + 2 special) is now a live `countEarned(badges)/badges.length`; the "Your personal best is 28 days" streak-banner line was dropped rather than faked, since V3 only ever persists the *current* streak count, never a best.
+- **Category pills rebuilt against the real taxonomy**: the mock's `["All", "Learning", "Challenges", "Streaks"]` corresponded to nothing `computeBadges()` actually emits. Replaced with the 5 real categories (technical/service/compliance/streak/special) plus "All," each pill showing a live count — a deliberate, documented deviation from the plan's illustrative "4 pills," since forcing the real 5-category output into 4 buckets would just reintroduce the same mismatch this file exists to fix.
+- **Caught and fixed a real navigation gap** — the user specifically asked to double-check mobile linking stayed clean this pass. `/mobile/badges` had no inbound `Link` anywhere in the app; it was only reachable by typing the URL directly, and its own file comment was a stale "Phase B preview route." Added an "Achievements" tile to `HomeScreen`'s Quick Access row (same pattern as the existing Challenges/101 Knowledge/Cocktail Library tiles), so the badges screen is now reachable from the primary landing tab. Updated the stale route comment to match.
+- Verified clean: `tsc --noEmit`, targeted `eslint --max-warnings=0`, full `next build` — all pass. Plan file `07` updated with its own Implementation Notes section.
+- **Still open:** step 6 (live verification of low- vs. high-mastery badge states, streak/Pro-badge independence) — folded into the same combined future browser pass as files `02`/`04`/`05`/`06`.
+- **Swept the rest of `app/mobile` for the same orphaned-route pattern** while fixing badges — `/mobile/ai-photo` and `/mobile/onboarding` are *also* unlinked from anywhere in the mobile tree. Left both alone deliberately: they're file `08`'s scope (Onboarding Diagnostic & Profile), and AI Profile Photo specifically has a known open cost/budget sign-off blocking it from being wired live — not a gap this session should silently close. Every other mobile route (`home`, `learn`, `progress`, `challenges`, `match-pairs`, `knowledge`, `scenarios`, `cocktails`, `arena`, and now `badges`) has a confirmed inbound `Link` somewhere in the tree.
+
+## Day 5 — 2026-08-18 (continued: file 08 Half B — AI Profile Photo)
+
+User cleared the previously-open cost/budget sign-off directly: **Fal.ai `fal-ai/flux/schnell` at ~$0.003/generation**, not `gpt-image-2` as file `08` originally recommended — `@fal-ai/client` was already a `package.json` dependency, and an unauthenticated, unhardened route scaffold already existed at `app/api/profile-photo/generate/route.ts`. Instructed to wire it to `AiProfilePhotoScreen.tsx` per file `08`.
+
+- **Hardened the existing scaffold rather than trusting it as-is**: it accepted a raw free-text `prompt` from the client with no auth gate and no rate limit — a real-cost, real-abuse-shape gap. Added `getUserFromRequest` gating, 5/min dual user+IP rate limiting (`lib/rate-limit.ts`, stricter than the standard 20/min text-route tier per file `08`'s own guidance), and moved all 10 style prompts server-side into a canonical `id`-keyed list — the client now only ever sends a validated `styleId`.
+- **Split generate from save into two routes**, matching the plan's literal "generate → preview → Save Portrait" sequence: `generate/route.ts` returns a preview URL only; a new `save/route.ts` persists to `profiles.profile_photo_url` (new column, `supabase/migrations/20260818_profile_photo_url.sql` — **not yet applied**, flagged for the user's own deploy process) only when the user explicitly confirms. Auto-persisting on every preview would have silently overwritten a saved portrait with an unconfirmed style.
+- **Storage decision**: no Supabase bucket — Fal's URLs live on Fal's own durable CDN (`*.fal.media`), so `save/route.ts` just validates the hostname and stores the URL directly. Re-uploading into our own bucket would be a redundant copy with no stated history/versioning requirement to justify it.
+- **`AiProfilePhotoScreen.tsx` had real bugs beyond "not wired"**: a banned `err: any`, a missing `Authorization` header (would have 401'd the instant auth gating landed), and a fabricated static "12 Days" streak badge — replaced with the real `bestCorrectStreak` value `HomeScreen` already sources the same way.
+- **Found a second orphaned-route gap**, same shape as `/mobile/badges` last session: `/mobile/ai-photo` had zero inbound links anywhere and a stale "Phase B, no wiring yet" comment. Fixed by adding an edit-pencil badge on `ProgressScreen`'s avatar, linking to `/mobile/ai-photo` — a natural "tap your photo to change it" affordance on the "Me" tab.
+- **Flagged, not silently left broken**: nothing reads `profiles.profile_photo_url` back yet — `ProgressScreen`/`HomeScreen` still show the static placeholder avatar even after a successful save. Threading the real photo through `MobileSession` (file `01`'s server-side session plumbing) is a bigger, separate change than "wire the generate route" and was left for a future pass rather than expanded into silently.
+- Verified clean: `tsc --noEmit`, targeted `eslint --max-warnings=0` across every touched file, full `next build` — all pass. Plan file `08` updated with its own Implementation Notes section (Half B only — Half A, Onboarding Diagnostic, is untouched).
+- **Still open:** step 6 (live verification: generation completes, rate limit trips, saved URL round-trips on next login) — folds into the standing combined browser pass. Half A (the real 10-question diagnostic replacing the self-report picker) has not been started.
+
+## Day 5 — 2026-08-18 (continued: profile-photo read path + file 08 Half A)
+
+User confirmed the migration was applied and `FAL_KEY` is set in Cloudflare, then gave direct instructions: wire the `profile_photo_url` read path (explicitly approving touching file `01`'s session plumbing for this), and build Half A (real diagnostic).
+
+**Read path:**
+- `app/mobile/layout.tsx` now selects `profile_photo_url` and passes it into `MobileSessionProvider` as `profilePhotoUrl: string | null`; `MobileSession`'s type updated to match. `ProgressScreen` and `HomeScreen` both now render the real saved photo (with `unoptimized`) when present, falling back to the static placeholder otherwise — closing the exact gap flagged at the end of the last AI-photo pass.
+
+**File 08 Half A:**
+- **Confirmed rather than assumed**: `app/api/training/diagnostic/start`/`.../submit` already fully implement `diagnostic-engine.ts` against a real, already-seeded 10-question `diagnostic_questions` table — this was working, complete backend that mobile simply never called. Answers the user's "5 vs 10" question directly: 10 was already built and seeded, so it stayed at 10 per their own "if 10 already done, all good."
+- **`OnboardingDiagnosticScreen.tsx` rewritten** as a straight mobile port of desktop's `DiagnosticFlow.tsx` flow — real fetch, single-select per question, Next/Previous, real progress bar, real submit, routes to `/mobile/home` on success. Confirmed (not separately built) that the diagnostic's Elo seeding and `HomeScreen`'s existing recommendation sort already connect with zero new code — they both already read/write the same `scenario_mastery` table.
+- **Caught a second real bug this session**: both the new screen and the existing `AiProfilePhotoScreen.tsx` used a dead Tailwind class (`animate-spin`) on their loading spinners — this project has no Tailwind pipeline, the same bug class `DiagnosticFlow.tsx`'s own file comment already documents fixing once on desktop. Added a real `.mobile-spin` keyframes utility to `globals.css` and fixed both.
+- **Flagged, not fixed**: `/diagnostic/start` leaks `isCorrect` in its response, inspectable via devtools — confirmed desktop has the identical leak already in production, not something this migration introduced. Not treated as blocking since diagnostic scoring only seeds an initial Elo baseline, not a compliance gate.
+- **Third orphaned-route fix, with a twist**: `/mobile/onboarding` was also unlinked, but unlike badges/ai-photo its *intended* first-time entry point is architecturally gated — `app/mobile/layout.tsx` redirects users with incomplete onboarding to desktop's `/onboarding`, never to the mobile screen. Rewiring that redirect is a bigger, riskier call than adding a link (could break the working desktop gate) and wasn't made unilaterally — added a "Retake placement assessment" link on `ProgressScreen` instead, and flagged the redirect-target question as an open product decision.
+- Verified clean: `tsc --noEmit`, targeted `eslint --max-warnings=0` across every touched file, full `next build` — all pass. Plan file `08` updated with a second Implementation Notes section.
+
+### Open items carried into Day 6 (updated)
+- One combined live signed-in pass now covers five files: `02` (Elo/`venue_staff` update), `04` (Arena score render + rate limit), `05` (Match Pairs completion + count increment), `07` (badge tier states + streak independence), `08` (AI photo round-trip + real diagnostic → Elo seed → Home recommendation chain). File `06` step 6 (search/filter eyeball check) rides along too, lowest priority of the set.
+- File `03`'s optional module-detail view (orphaned `[moduleId]/scenarios` route) — still needs a product scope call, not started.
+- File `08` is now fully built (both halves) pending only live verification — no code work remaining in this file barring the one flagged pre-existing gap (devtools `isCorrect` leak in the diagnostic endpoints), not a regression introduced by this migration.
+
+## Day 6 — 2026-08-18 (both open product decisions closed)
+
+User made both final calls: (1) rename "101 Knowledge Base"/"101" to plain "Knowledge Base" everywhere, not expand content toward a literal 101 entries; (2) keep first-time onboarding redirects pointing to desktop `/onboarding` — `/mobile/onboarding` stays retake-only, reachable from `ProgressScreen`, no redirect-target change.
+
+- **"Knowledge Base" rename applied repo-wide**, not just mobile: `KnowledgeBaseScreen.tsx`, `HomeScreen.tsx` (mobile), `KnowledgeBase.tsx`, `DashboardShell.tsx`, `PreShiftHome.tsx`, `MobileLearnHub.tsx`, `RecommenderCard.tsx` (desktop), plus `components/ui/CompareMatrix.tsx` (marketing comparison table — named the same feature, would've become a new inconsistency if left as "101 Knowledge Base" while every in-app surface now says otherwise) and `lib/knowledge-base.ts`'s file header comment. Deliberately left the `KB_CATEGORIES` "Spirits 101"/"Beer 101"/etc. sub-labels alone — different "basics of X" idiom, not the count-mismatch this decision was about.
+- **Decision 2 required no code change** — `/mobile/onboarding` was already retake-only (added last session), and the desktop `/onboarding` redirect in `app/mobile/layout.tsx` was already left untouched pending this call. Confirmed as final, no further action.
+- Verified clean: `tsc --noEmit`, `eslint app/mobile --max-warnings=0`, targeted `eslint` on every touched dashboard/marketing file, full `next build` — all pass. Plan file `06` updated with a closing Implementation Notes section (step 5 now resolved).
+
+### Both standing product decisions are now closed. Everything else remaining is verification, not open questions.
+
+**File `06` is now fully done** except step 6 (on-device eyeball check), same shape as the other files' remaining open items — folded into the standing combined pass.
+
+**Ready for the final combined live-browser verification pass**, covering in one signed-in session:
+- File `02` — complete a scenario, confirm `elo_rating`/`mastery` move and `venue_staff` syncs.
+- File `04` — Arena score renders correctly, 20/min rate limit trips under repeated calls.
+- File `05` — Match Pairs completion upserts `user_challenges` (index 2), `ProgressScreen` count increments, no duplicate row on replay.
+- File `06` — search/filter results and counts correct on both Cocktail Library and Knowledge Base; "Knowledge Base" title renders everywhere with no stray "101" left visible.
+- File `07` — low- vs. high-mastery badge tier states render correctly; daily-streak badges track independently from the Pro badge's server-sourced best-streak.
+- File `08` — AI photo generate → preview → Save Portrait round-trips and the saved photo now actually renders on `ProgressScreen`/`HomeScreen`; 5/min rate limit trips under repeated generate calls; the real 10-question diagnostic produces 1000–1500 Elo scores, visible `scenario_mastery` rows, and a `HomeScreen` recommendation that reflects the new baseline; "Retake placement assessment" link works from `ProgressScreen`.
+- Nothing left to check against files `01`, `02`(partially, see above), `03` beyond their already-noted optional/lower-priority items.
+
+Nothing has been committed or pushed this entire migration effort — still fully local, per project convention (commit/push only on explicit request).

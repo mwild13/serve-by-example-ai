@@ -1,8 +1,10 @@
 /**
- * knowledge-base.ts — 101 Knowledge Base content data
+ * knowledge-base.ts — Knowledge Base content data
  *
  * Categories: Spirits, Beer, Wine, Cocktails, Non-Alcoholic
- * Used by the KnowledgeBase component for the 101 Library.
+ * Used by the KnowledgeBase component (desktop + mobile). Renamed from
+ * "101 Knowledge Base" 2026-08-18 — the "101" label overstated the real
+ * 31-entry count; see v4-migration-plan/06's flagged naming question.
  */
 
 export type KBCategory = "spirits" | "beer" | "wine" | "cocktails" | "non-alcoholic";

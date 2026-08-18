@@ -712,12 +712,12 @@ export default function PreShiftHome({
 
         <div className="psh-challenge-col" style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
 
-          {/* ── 101 Knowledge Carousel ── */}
+          {/* ── Knowledge Base Carousel ── */}
           <div key={kbIndex} style={{ background: "var(--green)", borderRadius: "var(--radius-lg)", padding: "1.25rem 1.5rem", color: "var(--surface-raised)", flex: "0 0 auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.625rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <span className="psh-section-tag">
-                  101 KNOWLEDGE
+                  KNOWLEDGE BASE
                 </span>
                 <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", background: kbCatColor + "33", color: kbCatColor, border: `1px solid ${kbCatColor}55`, padding: "1px 7px", borderRadius: 99 }}>
                   {kbCatLabel}

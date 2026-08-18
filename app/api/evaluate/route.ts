@@ -1,15 +1,9 @@
-import OpenAI from "openai";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { getUserFromRequest } from "@/lib/supabase-server";
+import { getOpenAIClient } from "@/lib/openai";
 
 // Prevent static generation for this route (requires API credentials at runtime)
 export const dynamic = "force-dynamic";
-
-function getOpenAIClient() {
-  return new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-}
 
 export async function POST(req: Request) {
   try {

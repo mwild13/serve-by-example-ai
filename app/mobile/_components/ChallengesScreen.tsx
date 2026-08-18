@@ -1,58 +1,67 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  AlarmClock,
-  Flame,
+  Trophy,
   Clock,
   Lightbulb,
   Link as LinkIcon,
   ListOrdered,
   ScanSearch,
-  Star,
   Play,
+  Check,
 } from "lucide-react";
 import BottomNav from "./BottomNav";
+import { useTrainingProgress } from "../_lib/use-training-progress";
 
-// Phase B.5 — "Ingredient Match" routes to the Match Pairs game (the only
-// challenge with a built screen). The other 4 play buttons stay inert — no
-// dedicated game screen exists for them yet.
+// Phase C file 05 — "Ingredient Match" is the only row with a built game
+// (routes to /mobile/match-pairs, challengeIndex 2). The other 4 rows stay
+// inert until their own game screens exist, per v4-migration-plan/05.
+//
+// The Phase B mock's "14h 22m" countdown, "+150 XP earned today", and each
+// row's "Best: N XP" / star rating had no backing data — V3 has no XP system
+// anywhere (grep-confirmed) and no daily-reset mechanic for challenges. Rather
+// than invent numbers for them, this screen now shows the real completion
+// count from GET /api/training/progress (challengesCompleted/totalChallenges,
+// same read path ProgressOverview.tsx uses on desktop) plus a per-row
+// "Completed" state read from the same "sbe_challenges_completed" localStorage
+// key V3 writes — device-level completion tracking, matching V3's own
+// documented behavior ("Completion is tracked on this device").
 
-type ChallengeCard = {
+type ChallengeRow = {
   title: string;
   description: string;
-  bestXp: number;
-  stars: number; // out of 3, matches the Figma "stars" row
   icon: typeof Clock;
   href?: string;
+  challengeIndex?: number;
 };
 
-const CHALLENGES: ChallengeCard[] = [
-  { title: "Speed Round", description: "Speed Multiple Choice Questions", bestXp: 420, stars: 3, icon: Clock },
-  { title: "Memory Test", description: "Fill in the blank cocktail descriptions", bestXp: 350, stars: 2, icon: Lightbulb },
-  { title: "Ingredient Match", description: "Pair custom ingredients with names", bestXp: 300, stars: 3, icon: LinkIcon, href: "/mobile/match-pairs" },
-  { title: "Recipe Order", description: "Sequence sorting cocktail building process", bestXp: 450, stars: 1, icon: ListOrdered },
-  { title: "Menu Audit", description: "Spot the errors in seasonal menu listings", bestXp: 500, stars: 0, icon: ScanSearch },
+const CHALLENGES: ChallengeRow[] = [
+  { title: "Speed Round", description: "Speed Multiple Choice Questions", icon: Clock, challengeIndex: 4 },
+  { title: "Memory Test", description: "Fill in the blank cocktail descriptions", icon: Lightbulb, challengeIndex: 1 },
+  { title: "Ingredient Match", description: "Pair custom ingredients with names", icon: LinkIcon, href: "/mobile/match-pairs", challengeIndex: 2 },
+  { title: "Recipe Order", description: "Sequence sorting cocktail building process", icon: ListOrdered, challengeIndex: 0 },
+  { title: "Menu Audit", description: "Spot the errors in seasonal menu listings", icon: ScanSearch, challengeIndex: 3 },
 ];
 
-function StarRating({ count }: { count: number }) {
-  return (
-    <div style={{ display: "flex", gap: 2, alignItems: "center" }} aria-label={`${count} of 3 stars`}>
-      {Array.from({ length: 3 }, (_, i) => (
-        <Star
-          key={i}
-          size={10}
-          strokeWidth={2}
-          color="var(--gold-mobile)"
-          fill={i < count ? "var(--gold-mobile)" : "none"}
-          aria-hidden="true"
-        />
-      ))}
-    </div>
-  );
-}
-
 export default function ChallengesScreen() {
+  const { status, data } = useTrainingProgress();
+  const [completedLocal, setCompletedLocal] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("sbe_challenges_completed");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (stored) setCompletedLocal(new Set(JSON.parse(stored) as number[]));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const completedCount = status === "ready" ? data.challengesCompleted : completedLocal.size;
+  const totalCount = status === "ready" ? data.totalChallenges : 5;
+
   return (
     <div
       style={{
@@ -68,24 +77,9 @@ export default function ChallengesScreen() {
       }}
     >
       <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-        {/* header-timer */}
+        {/* header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 20 }}>
           <p style={{ margin: 0, fontSize: 22, fontWeight: 700, color: "var(--text-mobile)" }}>Daily Challenges</p>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              padding: "6px 10px",
-              borderRadius: "var(--radius-pill)",
-              background: "var(--surface-mobile)",
-              border: "1px solid var(--border-mobile)",
-              flexShrink: 0,
-            }}
-          >
-            <AlarmClock size={14} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
-            <span style={{ fontSize: 12, fontWeight: 700, color: "var(--gold-mobile)" }}>14h 22m</span>
-          </div>
           <div
             style={{
               display: "flex",
@@ -105,7 +99,7 @@ export default function ChallengesScreen() {
           </div>
         </div>
 
-        {/* streak-xp-banner */}
+        {/* completion-summary */}
         <div style={{ padding: "0 20px 20px" }}>
           <div
             style={{
@@ -130,11 +124,15 @@ export default function ChallengesScreen() {
                 flexShrink: 0,
               }}
             >
-              <Flame size={24} strokeWidth={2} color="var(--green-mobile)" aria-hidden="true" />
+              <Trophy size={24} strokeWidth={2} color="var(--green-mobile)" aria-hidden="true" />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--text-mobile)" }}>Active Streak &bull; 12 Days</p>
-              <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>+150 XP earned today</p>
+              <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--text-mobile)" }}>
+                {completedCount} of {totalCount} completed
+              </p>
+              <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>
+                Interactive mini-games — tap-based, no typing required
+              </p>
             </div>
           </div>
         </div>
@@ -144,6 +142,7 @@ export default function ChallengesScreen() {
           <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>Active Mini-Games</p>
           {CHALLENGES.map((challenge) => {
             const Icon = challenge.icon;
+            const isCompleted = challenge.challengeIndex !== undefined && completedLocal.has(challenge.challengeIndex);
             return (
               <div
                 key={challenge.title}
@@ -185,10 +184,9 @@ export default function ChallengesScreen() {
                   >
                     {challenge.description}
                   </p>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <StarRating count={challenge.stars} />
-                    <span style={{ fontSize: 11, fontWeight: 600, color: "var(--gold-mobile)" }}>Best: {challenge.bestXp} XP</span>
-                  </div>
+                  {isCompleted && (
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "var(--green-mobile)" }}>Completed</span>
+                  )}
                 </div>
                 {challenge.href ? (
                   <Link
@@ -200,12 +198,16 @@ export default function ChallengesScreen() {
                       width: 32,
                       height: 32,
                       borderRadius: "var(--radius-pill)",
-                      background: "var(--gold-mobile)",
+                      background: isCompleted ? "var(--green-mobile)" : "var(--gold-mobile)",
                       flexShrink: 0,
                     }}
-                    aria-label={`Play ${challenge.title}`}
+                    aria-label={isCompleted ? `Replay ${challenge.title}` : `Play ${challenge.title}`}
                   >
-                    <Play size={12} strokeWidth={2} color="var(--bg-mobile-dark)" fill="var(--bg-mobile-dark)" aria-hidden="true" />
+                    {isCompleted ? (
+                      <Check size={14} strokeWidth={2.5} color="var(--bg-mobile-dark)" aria-hidden="true" />
+                    ) : (
+                      <Play size={12} strokeWidth={2} color="var(--bg-mobile-dark)" fill="var(--bg-mobile-dark)" aria-hidden="true" />
+                    )}
                   </Link>
                 ) : (
                   <button

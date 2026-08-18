@@ -1,59 +1,140 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Search,
   BottleWine,
-  BrainCircuit,
+  Users,
   ShieldCheck,
-  ClipboardCheck,
+  BadgeCheck,
   LockKeyhole,
-  WineOff,
-  TrendingUp,
-  FileLock2,
 } from "lucide-react";
 import BottomNav from "./BottomNav";
+import { useTrainingProgress } from "../_lib/use-training-progress";
 
-// Phase B.5 — category pills hold local selection state. Search stays
-// read-only and module cards stay inert (no per-module detail screen exists
-// yet, ditto for cards' onward routing) — data wiring is Phase C.
+// Phase C file 02 — Mastery Engine Harvest. Module cards now read from the
+// real 40-module catalog + moduleProgress map returned by
+// GET /api/training/progress, via useTrainingProgress(). Category pills map
+// to the real `modules.category` values (technical/service/compliance) —
+// not the arbitrary Phase B placeholder categories. Module locking stays
+// cosmetic-only per v4-migration-plan/00 Locked Decision #3: V3 has a single
+// global free/paid gate, no per-module rules.
 
-const CATEGORIES = ["All", "Modules", "Scenarios", "Live Scenarios"];
+const CATEGORIES = ["All", "Technical", "Service", "Compliance"] as const;
+type Category = (typeof CATEGORIES)[number];
 
-type ModuleCard = {
-  title: string;
-  lessons: string;
-  pct: number;
-  icon: typeof BottleWine;
-  badge?: "mastered" | "locked";
+const CATEGORY_KEY: Record<Exclude<Category, "All">, "technical" | "service" | "compliance"> = {
+  Technical: "technical",
+  Service: "service",
+  Compliance: "compliance",
 };
 
-const MODULES: ModuleCard[] = [
-  { title: "Spirits Knowledge", lessons: "8/12 lessons", pct: 65, icon: BottleWine },
-  { title: "Guest Psychology", lessons: "10/10 lessons", pct: 100, icon: BrainCircuit, badge: "mastered" },
-  { title: "Inventory Master", lessons: "1/8 lessons", pct: 12, icon: ClipboardCheck, badge: "locked" },
-  { title: "Cocktail Shaking", lessons: "0/5 lessons", pct: 0, icon: WineOff },
-  { title: "Upselling Science", lessons: "4/8 lessons", pct: 50, icon: TrendingUp },
-  { title: "Compliance & Safety", lessons: "2/10 lessons", pct: 20, icon: FileLock2, badge: "locked" },
-];
+const CATEGORY_ICON: Record<"technical" | "service" | "compliance", typeof BottleWine> = {
+  technical: BottleWine,
+  service: Users,
+  compliance: ShieldCheck,
+};
 
-export default function LearnHubScreen() {
-  const [activeCategory, setActiveCategory] = useState(CATEGORIES[0]);
-
+function StatusMessage({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{
         display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        width: "100%",
-        maxWidth: 390,
-        margin: "0 auto",
-        minHeight: "100dvh",
-        background: "var(--bg-mobile-dark)",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "60dvh",
+        padding: 20,
+        color: "var(--text-mobile-muted)",
         fontFamily: "var(--font-body)",
+        fontSize: 14,
+        textAlign: "center",
       }}
     >
+      {children}
+    </div>
+  );
+}
+
+export default function LearnHubScreen() {
+  const [activeCategory, setActiveCategory] = useState<Category>("All");
+  const { status, data, error, refetch } = useTrainingProgress();
+
+  const shellStyle: React.CSSProperties = {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    width: "100%",
+    maxWidth: 390,
+    margin: "0 auto",
+    minHeight: "100dvh",
+    background: "var(--bg-mobile-dark)",
+    fontFamily: "var(--font-body)",
+  };
+
+  const modules = useMemo(() => {
+    if (!data) return [];
+    const filtered =
+      activeCategory === "All"
+        ? data.allModules
+        : data.allModules.filter((mod) => mod.category === CATEGORY_KEY[activeCategory]);
+
+    return filtered.map((mod) => {
+      const progress = data.moduleProgress[mod.id];
+      const scenarioTotal = data.scenarioCounts[`module_${mod.id}`] ?? 10;
+      const pct = progress?.mastery ?? 0;
+      const attempted = progress?.scenariosAttempted ?? 0;
+      const locked = !data.access.allowedModules.includes(mod.id);
+
+      return {
+        id: mod.id,
+        title: mod.title,
+        subtitle: `${attempted}/${scenarioTotal} scenarios`,
+        pct,
+        icon: CATEGORY_ICON[mod.category],
+        badge: pct >= 80 ? ("mastered" as const) : locked ? ("locked" as const) : undefined,
+      };
+    });
+  }, [data, activeCategory]);
+
+  if (status === "loading") {
+    return (
+      <div style={shellStyle}>
+        <StatusMessage>Loading modules…</StatusMessage>
+        <BottomNav active="learn" />
+      </div>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <div style={shellStyle}>
+        <StatusMessage>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
+            <span>{error}</span>
+            <button
+              type="button"
+              onClick={refetch}
+              style={{
+                padding: "8px 16px",
+                borderRadius: "var(--radius-pill)",
+                border: "1px solid var(--border-mobile)",
+                background: "var(--surface-mobile)",
+                color: "var(--text-mobile)",
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              Try again
+            </button>
+          </div>
+        </StatusMessage>
+        <BottomNav active="learn" />
+      </div>
+    );
+  }
+
+  return (
+    <div style={shellStyle}>
       <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
         {/* header-search-group */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: 20 }}>
@@ -137,13 +218,15 @@ export default function LearnHubScreen() {
 
         {/* modules-section */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "0 20px 20px" }}>
-          <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>All Modules</p>
+          <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>
+            {activeCategory === "All" ? "All Modules" : `${activeCategory} Modules`}
+          </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            {MODULES.map((mod) => {
+            {modules.map((mod) => {
               const Icon = mod.icon;
               return (
                 <div
-                  key={mod.title}
+                  key={mod.id}
                   style={{
                     display: "flex",
                     flexDirection: "column",
@@ -169,7 +252,7 @@ export default function LearnHubScreen() {
                       <Icon size={18} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
                     </div>
                     {mod.badge === "mastered" && (
-                      <ShieldCheck size={18} strokeWidth={2} color="var(--green-mobile)" aria-hidden="true" />
+                      <BadgeCheck size={18} strokeWidth={2} color="var(--green-mobile)" aria-hidden="true" />
                     )}
                     {mod.badge === "locked" && (
                       <div
@@ -199,7 +282,7 @@ export default function LearnHubScreen() {
                     >
                       {mod.title}
                     </p>
-                    <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>{mod.lessons}</p>
+                    <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>{mod.subtitle}</p>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <div style={{ width: 100, height: 6, borderRadius: 3, background: "var(--surface-mobile-alt)", overflow: "hidden" }}>

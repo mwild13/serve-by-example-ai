@@ -4,31 +4,105 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Zap, Award } from "lucide-react";
+import { ArrowLeft, Zap, Award, Loader2 } from "lucide-react";
+import { useMobileSession } from "../_lib/mobile-session-context";
+import { useTrainingProgress } from "../_lib/use-training-progress";
 
-// Phase B.5 — back button routes via router.back(); style chips hold local
-// selection state; "Skip for now" and "Save Portrait" both route to Home
-// (actual image generation is net-new Phase C work — see
-// v4-migration-plan/08). "Retake Selfie" stays inert — no camera flow exists.
+// Phase C file 08, Half B — real generation via app/api/profile-photo/generate
+// (Fal.ai flux/schnell) and app/api/profile-photo/save. Prompts moved
+// server-side (see the API route) — this list only needs id/label/thumbnail
+// for the UI and to select a style server-side. See
+// v4-migration-plan/08-onboarding-diagnostic-and-profile.md.
 
-type StyleOption = { label: string; image: string };
+type StyleOption = { id: string; label: string; image: string };
 
 const STYLES: StyleOption[] = [
-  { label: "Classic Bar", image: "/mobile/ai-style-classic-bar.png" },
-  { label: "Fine Dining", image: "/mobile/ai-style-fine-dining.png" },
-  { label: "Cocktail Lounge", image: "/mobile/ai-style-cocktail-lounge.png" },
-  { label: "Hotel Lobby", image: "/mobile/ai-style-hotel-lobby.png" },
-  { label: "Rooftop Bar", image: "/mobile/ai-style-rooftop-bar.png" },
-  { label: "Wine Cellar", image: "/mobile/ai-style-wine-cellar.png" },
-  { label: "Coffee House", image: "/mobile/ai-style-coffee-house.png" },
-  { label: "Beach Club", image: "/mobile/ai-style-beach-club.png" },
-  { label: "Speakeasy", image: "/mobile/ai-style-speakeasy.png" },
-  { label: "Corporate", image: "/mobile/ai-style-corporate.png" },
+  { id: "classic-bar", label: "Classic Bar", image: "/mobile/ai-style-classic-bar.png" },
+  { id: "fine-dining", label: "Fine Dining", image: "/mobile/ai-style-fine-dining.png" },
+  { id: "cocktail-lounge", label: "Cocktail Lounge", image: "/mobile/ai-style-cocktail-lounge.png" },
+  { id: "hotel-lobby", label: "Hotel Lobby", image: "/mobile/ai-style-hotel-lobby.png" },
+  { id: "rooftop-bar", label: "Rooftop Bar", image: "/mobile/ai-style-rooftop-bar.png" },
+  { id: "wine-cellar", label: "Wine Cellar", image: "/mobile/ai-style-wine-cellar.png" },
+  { id: "coffee-house", label: "Coffee House", image: "/mobile/ai-style-coffee-house.png" },
+  { id: "beach-club", label: "Beach Club", image: "/mobile/ai-style-beach-club.png" },
+  { id: "speakeasy", label: "Speakeasy", image: "/mobile/ai-style-speakeasy.png" },
+  { id: "corporate", label: "Corporate", image: "/mobile/ai-style-corporate.png" },
 ];
+
+const PLACEHOLDER_AVATAR = "/mobile/ai-portrait-main.png";
 
 export default function AiProfilePhotoScreen() {
   const router = useRouter();
-  const [selectedStyle, setSelectedStyle] = useState("Classic Bar");
+  const session = useMobileSession();
+  const { status, data } = useTrainingProgress();
+  const [selectedStyle, setSelectedStyle] = useState<StyleOption>(STYLES[0]);
+  const [avatarUrl, setAvatarUrl] = useState<string>(PLACEHOLDER_AVATAR);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const hasGenerated = avatarUrl !== PLACEHOLDER_AVATAR;
+
+  const handleGenerate = async () => {
+    setIsLoading(true);
+    setErrorMsg(null);
+
+    try {
+      const res = await fetch("/api/profile-photo/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.token}`,
+        },
+        body: JSON.stringify({ styleId: selectedStyle.id }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.url) {
+        throw new Error(data.error || "Failed to generate photo");
+      }
+
+      setAvatarUrl(data.url);
+    } catch (err) {
+      console.error("Failed to generate avatar:", err);
+      setErrorMsg(err instanceof Error ? err.message : "Generation failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!hasGenerated) {
+      router.push("/mobile/home");
+      return;
+    }
+
+    setIsSaving(true);
+    setErrorMsg(null);
+
+    try {
+      const res = await fetch("/api/profile-photo/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.token}`,
+        },
+        body: JSON.stringify({ url: avatarUrl }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to save portrait");
+      }
+
+      router.push("/mobile/home");
+    } catch (err) {
+      console.error("Failed to save avatar:", err);
+      setErrorMsg(err instanceof Error ? err.message : "Couldn't save your portrait. Please try again.");
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div
@@ -75,7 +149,9 @@ export default function AiProfilePhotoScreen() {
             }}
           >
             <Zap size={12} strokeWidth={2} color="var(--text-mobile)" fill="var(--text-mobile)" aria-hidden="true" />
-            <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text-mobile)" }}>12 Days</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text-mobile)" }}>
+              {status === "ready" ? `${data.bestCorrectStreak} Streak` : "—"}
+            </span>
           </div>
         </div>
 
@@ -98,12 +174,35 @@ export default function AiProfilePhotoScreen() {
               borderRadius: "var(--radius-pill)",
               border: "2px solid var(--gold-mobile)",
               boxShadow: "0px 8px 24px 0px rgba(242, 175, 52, 0.2)",
+              position: "relative",
             }}
           >
             <div style={{ position: "relative", width: "100%", height: "100%", borderRadius: "var(--radius-pill)", overflow: "hidden" }}>
-              <Image src="/mobile/ai-portrait-main.png" alt="" fill style={{ objectFit: "cover" }} />
+              <Image src={avatarUrl} alt="AI Portrait Preview" fill style={{ objectFit: "cover" }} unoptimized={avatarUrl.startsWith("http")} />
+              {isLoading && (
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    background: "rgba(0, 0, 0, 0.65)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 8,
+                  }}
+                >
+                  <Loader2 size={28} className="mobile-spin" color="var(--gold-mobile)" />
+                  <span style={{ fontSize: 12, color: "var(--text-mobile)", fontWeight: 600 }}>Generating...</span>
+                </div>
+              )}
             </div>
           </div>
+          {errorMsg && (
+            <p style={{ margin: "8px 24px 0", fontSize: 12, color: "var(--red-mobile)", textAlign: "center" }}>
+              {errorMsg}
+            </p>
+          )}
         </div>
 
         {/* category-label */}
@@ -116,13 +215,13 @@ export default function AiProfilePhotoScreen() {
         {/* styles-scroller */}
         <div style={{ display: "flex", gap: 12, padding: "0 24px", overflowX: "auto" }}>
           {STYLES.map((style) => {
-            const isSelected = style.label === selectedStyle;
+            const isSelected = style.label === selectedStyle.label;
             return (
               <button
                 key={style.label}
                 type="button"
                 aria-pressed={isSelected}
-                onClick={() => setSelectedStyle(style.label)}
+                onClick={() => setSelectedStyle(style)}
                 style={{
                   display: "flex",
                   flexDirection: "column",
@@ -209,19 +308,29 @@ export default function AiProfilePhotoScreen() {
         <div style={{ display: "flex", gap: 12 }}>
           <button
             type="button"
+            onClick={handleGenerate}
+            disabled={isLoading}
             style={{
               flex: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               padding: "14px 0",
               borderRadius: "var(--radius-pill)",
               background: "none",
               border: "1px solid var(--border-mobile)",
-              cursor: "pointer",
+              cursor: isLoading ? "not-allowed" : "pointer",
+              opacity: isLoading ? 0.6 : 1,
             }}
           >
-            <span style={{ fontSize: 15, fontWeight: 600, color: "var(--text-mobile)" }}>Retake Selfie</span>
+            <span style={{ fontSize: 15, fontWeight: 600, color: "var(--text-mobile)" }}>
+              {isLoading ? "Generating..." : "Generate Portrait"}
+            </span>
           </button>
-          <Link
-            href="/mobile/home"
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={isSaving}
             style={{
               flex: 1,
               display: "flex",
@@ -231,11 +340,14 @@ export default function AiProfilePhotoScreen() {
               borderRadius: "var(--radius-pill)",
               background: "var(--gold-mobile)",
               border: "none",
-              textDecoration: "none",
+              cursor: isSaving ? "not-allowed" : "pointer",
+              opacity: isSaving ? 0.6 : 1,
             }}
           >
-            <span style={{ fontSize: 15, fontWeight: 700, color: "var(--bg-mobile-dark)" }}>Save Portrait</span>
-          </Link>
+            <span style={{ fontSize: 15, fontWeight: 700, color: "var(--bg-mobile-dark)" }}>
+              {isSaving ? "Saving..." : "Save Portrait"}
+            </span>
+          </button>
         </div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
           <Link

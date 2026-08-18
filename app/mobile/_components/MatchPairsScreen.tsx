@@ -1,41 +1,157 @@
 "use client";
 
-import { Martini } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { Martini, RotateCcw } from "lucide-react";
 import BottomNav from "./BottomNav";
+import { useMobileSession } from "../_lib/mobile-session-context";
 
-// Phase B skeleton — dumb UI only. Matches the Figma "match-pairs-game" frame
-// 1:1 visually; local layout state only (no click handlers, no game logic).
+// Phase C file 05 — real tap/match game logic (net-new mobile frontend; V3 has
+// no server-side game-state API to extract, per v4-migration-plan/05). This is
+// the mobile equivalent of MatchPairGame.tsx (V3's "Match Pair" challenge,
+// challengeIndex 2 in the 5-challenge ordering — confirmed against
+// ChallengesPage.tsx's markComplete() call sites). On full match:
+//   1. POST /api/training/challenges/save { challengeIndex: 2 }, fire-and-forget.
+//   2. Mirror to the SAME localStorage keys V3 uses ("sbe_challenges_completed",
+//      "sbe-challenges-best-score" — here repurposed as "fewest moves") rather
+//      than a mobile-namespaced key, since mobile and desktop are the same
+//      account on the same device/browser and V3's own ProgressOverview.tsx
+//      already treats this as "completion tracked on this device," not per-surface.
+//
+// The "1:14 Min" / "Moves: 8" figures in the Phase B skeleton were static mock
+// values — no backend or client state produced them. Moves is now a real
+// counter; elapsed time is a real running clock. Neither is invented data.
 
-type CardState = "closed" | "selected" | "matched";
+const CHALLENGE_INDEX = 2;
 
-type PairCard = {
-  state: CardState;
-  label?: string; // only set for "selected" and "matched" cards
-};
+type PairDef = { id: string; ingredient: string; cocktail: string };
 
-const CARDS: PairCard[] = [
-  { state: "selected", label: "Angostura Bitters" },
-  { state: "closed" },
-  { state: "closed" },
-  { state: "closed" },
-  { state: "selected", label: "Old Fashioned" },
-  { state: "closed" },
-  { state: "matched", label: "Bourbon Whiskey" },
-  { state: "closed" },
-  { state: "matched", label: "Whiskey Sour" },
-  { state: "closed" },
-  { state: "closed" },
-  { state: "closed" },
+const PAIRS: PairDef[] = [
+  { id: "old-fashioned", ingredient: "Angostura Bitters", cocktail: "Old Fashioned" },
+  { id: "whiskey-sour", ingredient: "Bourbon Whiskey", cocktail: "Whiskey Sour" },
+  { id: "margarita", ingredient: "Triple Sec", cocktail: "Margarita" },
+  { id: "mojito", ingredient: "Fresh Mint", cocktail: "Mojito" },
+  { id: "bloody-mary", ingredient: "Tomato Juice", cocktail: "Bloody Mary" },
+  { id: "espresso-martini", ingredient: "Coffee Liqueur", cocktail: "Espresso Martini" },
 ];
 
-const CARD_STYLES: Record<CardState, { background: string; border: string; color?: string }> = {
-  closed: { background: "var(--surface-mobile)", border: "1px solid var(--border-mobile)" },
-  selected: { background: "var(--gold-mobile-bg)", border: "2px solid var(--gold-mobile)", color: "var(--gold-mobile)" },
-  matched: { background: "var(--green-mobile-bg)", border: "1px solid var(--green-mobile)", color: "var(--green-mobile)" },
-};
+type Card = { key: string; pairId: string; label: string };
+
+function buildDeck(): Card[] {
+  const deck: Card[] = PAIRS.flatMap((p) => [
+    { key: `${p.id}-a`, pairId: p.id, label: p.ingredient },
+    { key: `${p.id}-b`, pairId: p.id, label: p.cocktail },
+  ]);
+  // Fisher-Yates shuffle
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  return deck;
+}
 
 export default function MatchPairsScreen() {
-  const pairsFound = CARDS.filter((c) => c.state === "matched").length / 2;
+  const session = useMobileSession();
+  const [deck, setDeck] = useState<Card[]>(() => buildDeck());
+  const [selected, setSelected] = useState<string[]>([]);
+  const [matched, setMatched] = useState<Set<string>>(new Set());
+  const [wrongPair, setWrongPair] = useState<string[]>([]);
+  const [moves, setMoves] = useState(0);
+  const [elapsedSec, setElapsedSec] = useState(0);
+  const [bestMoves, setBestMoves] = useState<number | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  const pairsFound = matched.size / 2;
+  const isComplete = pairsFound === PAIRS.length;
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("sbe-match-pairs-best-moves");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (stored !== null) setBestMoves(parseInt(stored, 10));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isComplete) return;
+    const timer = setInterval(() => setElapsedSec((s) => s + 1), 1000);
+    return () => clearInterval(timer);
+  }, [isComplete]);
+
+  useEffect(() => {
+    if (!isComplete || saved) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSaved(true);
+
+    try {
+      const stored = localStorage.getItem("sbe_challenges_completed");
+      const existing: number[] = stored ? (JSON.parse(stored) as number[]) : [];
+      if (!existing.includes(CHALLENGE_INDEX)) {
+        localStorage.setItem("sbe_challenges_completed", JSON.stringify([...existing, CHALLENGE_INDEX]));
+      }
+      if (bestMoves === null || moves < bestMoves) {
+        localStorage.setItem("sbe-match-pairs-best-moves", String(moves));
+        setBestMoves(moves);
+      }
+    } catch {
+      /* ignore */
+    }
+
+    void fetch("/api/training/challenges/save", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.token}`,
+      },
+      body: JSON.stringify({ challengeIndex: CHALLENGE_INDEX }),
+    }).catch((err) => console.error("[MatchPairsScreen] Failed to sync challenge:", err));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isComplete, saved]);
+
+  function handleTap(card: Card) {
+    if (isComplete || matched.has(card.pairId) || selected.includes(card.key) || selected.length === 2) return;
+
+    const next = [...selected, card.key];
+    setSelected(next);
+
+    if (next.length === 2) {
+      const [firstKey, secondKey] = next;
+      const first = deck.find((c) => c.key === firstKey)!;
+      const second = deck.find((c) => c.key === secondKey)!;
+      setMoves((m) => m + 1);
+
+      if (first.pairId === second.pairId) {
+        setTimeout(() => {
+          setMatched((prev) => new Set(prev).add(first.pairId));
+          setSelected([]);
+        }, 350);
+      } else {
+        setWrongPair(next);
+        setTimeout(() => {
+          setWrongPair([]);
+          setSelected([]);
+        }, 700);
+      }
+    }
+  }
+
+  function reset() {
+    setDeck(buildDeck());
+    setSelected([]);
+    setMatched(new Set());
+    setWrongPair([]);
+    setMoves(0);
+    setElapsedSec(0);
+    setSaved(false);
+  }
+
+  const timeLabel = useMemo(() => {
+    const m = Math.floor(elapsedSec / 60);
+    const s = elapsedSec % 60;
+    return `${m}:${String(s).padStart(2, "0")} Min`;
+  }, [elapsedSec]);
 
   return (
     <div
@@ -67,17 +183,17 @@ export default function MatchPairsScreen() {
               flexShrink: 0,
             }}
           >
-            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--gold-mobile)" }}>1:14 Min</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--gold-mobile)" }}>{timeLabel}</span>
           </div>
         </div>
 
         {/* game-stats */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px 16px" }}>
           <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: "var(--text-mobile-muted)" }}>
-            Pairs Found: <span style={{ fontWeight: 700, color: "var(--gold-mobile)" }}>{pairsFound}/6</span>
+            Pairs Found: <span style={{ fontWeight: 700, color: "var(--gold-mobile)" }}>{pairsFound}/{PAIRS.length}</span>
           </p>
           <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: "var(--text-mobile-muted)" }}>
-            Moves: <span style={{ fontWeight: 700, color: "var(--text-mobile)" }}>8</span>
+            Moves: <span style={{ fontWeight: 700, color: "var(--text-mobile)" }}>{moves}</span>
           </p>
         </div>
 
@@ -90,11 +206,27 @@ export default function MatchPairsScreen() {
             padding: "0 20px 20px",
           }}
         >
-          {CARDS.map((card, i) => {
-            const style = CARD_STYLES[card.state];
+          {deck.map((card) => {
+            const isMatched = matched.has(card.pairId);
+            const isSelected = selected.includes(card.key);
+            const isWrong = wrongPair.includes(card.key);
+            const revealed = isMatched || isSelected || isWrong;
+
+            const style = isMatched
+              ? { background: "var(--green-mobile-bg)", border: "1px solid var(--green-mobile)", color: "var(--green-mobile)" }
+              : isWrong
+                ? { background: "var(--red-mobile-bg, var(--surface-mobile))", border: "2px solid var(--red-mobile)", color: "var(--red-mobile)" }
+                : isSelected
+                  ? { background: "var(--gold-mobile-bg)", border: "2px solid var(--gold-mobile)", color: "var(--gold-mobile)" }
+                  : { background: "var(--surface-mobile)", border: "1px solid var(--border-mobile)" };
+
             return (
-              <div
-                key={i}
+              <button
+                key={card.key}
+                type="button"
+                onClick={() => handleTap(card)}
+                disabled={isMatched || isComplete}
+                aria-label={revealed ? card.label : "Hidden card"}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -105,17 +237,82 @@ export default function MatchPairsScreen() {
                   background: style.background,
                   border: style.border,
                   textAlign: "center",
+                  cursor: isMatched || isComplete ? "default" : "pointer",
+                  fontFamily: "var(--font-body)",
                 }}
               >
-                {card.label ? (
+                {revealed ? (
                   <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: style.color }}>{card.label}</p>
                 ) : (
                   <Martini size={24} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
                 )}
-              </div>
+              </button>
             );
           })}
         </div>
+
+        {isComplete && (
+          <div style={{ padding: "0 20px 20px" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 12,
+                padding: 16,
+                borderRadius: "var(--radius-lg)",
+                background: "var(--surface-mobile)",
+                border: "1px solid var(--green-mobile)",
+                textAlign: "center",
+              }}
+            >
+              <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--text-mobile)" }}>All pairs matched!</p>
+              <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>
+                {moves} moves &bull; {timeLabel}
+                {bestMoves !== null && ` • Best: ${bestMoves} moves`}
+              </p>
+              <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+                <button
+                  type="button"
+                  onClick={reset}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "10px 16px",
+                    borderRadius: "var(--radius-pill)",
+                    background: "var(--gold-mobile-bg)",
+                    border: "1px solid var(--gold-mobile)",
+                    color: "var(--gold-mobile)",
+                    fontFamily: "var(--font-body)",
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  <RotateCcw size={14} strokeWidth={2} aria-hidden="true" />
+                  Play Again
+                </button>
+                <Link
+                  href="/mobile/challenges"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "10px 16px",
+                    borderRadius: "var(--radius-pill)",
+                    background: "var(--gold-mobile)",
+                    color: "var(--bg-mobile-dark)",
+                    fontFamily: "var(--font-body)",
+                    fontSize: 13,
+                    fontWeight: 700,
+                    textDecoration: "none",
+                  }}
+                >
+                  Back to Challenges
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <BottomNav active="home" />

@@ -1,14 +1,10 @@
-import OpenAI from "openai";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { moduleIdToString, syncMasteryToVenueStaff } from "@/lib/mastery";
+import { moduleIdToString, recordAttempt, syncMasteryToVenueStaff } from "@/lib/mastery";
+import { getOpenAIClient } from "@/lib/openai";
 
 export const dynamic = "force-dynamic";
-
-function getOpenAIClient() {
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-}
 
 const PASS_THRESHOLD = 75;
 const ARENA_SCENARIO_INDEX = 40;
@@ -110,42 +106,21 @@ export async function POST(req: Request) {
 
     const score = Math.max(0, Math.min(100, Math.round(parsed.score ?? 0)));
     const passed = score >= PASS_THRESHOLD;
-    const now = new Date().toISOString();
-    const moduleName = moduleIdToString(moduleId);
 
     const admin = createSupabaseAdminClient();
 
-    const { data: existingRow } = await admin
-      .from("scenario_mastery")
-      .select("best_score, total_attempts, total_score_points")
-      .eq("user_id", user.id)
-      .eq("module", moduleName)
-      .eq("scenario_index", ARENA_SCENARIO_INDEX)
-      .maybeSingle();
-
-    const bestScore = Math.max(score, (existingRow?.best_score as number | null) ?? 0);
-    const totalAttempts = ((existingRow?.total_attempts as number | null) ?? 0) + 1;
-
-    await admin.from("scenario_mastery").upsert(
-      {
-        user_id: user.id,
-        module: moduleName,
-        module_id: moduleId,
-        scenario_index: ARENA_SCENARIO_INDEX,
-        is_mastered: passed,
-        mastery_level: passed ? 3 : 1,
-        last_score: score,
-        best_score: bestScore,
-        total_attempts: totalAttempts,
-        total_score_points: ((existingRow?.total_score_points as number | null) ?? 0) + score,
-        consecutive_correct: passed ? 1 : 0,
-        consecutive_fails: passed ? 0 : 1,
-        last_attempt_at: now,
-        next_review_at: now,
-        updated_at: now,
-      },
-      { onConflict: "user_id,module,scenario_index" },
-    );
+    // Arena has no confidence-selection UI (no "how sure are you?" prompt like
+    // Stage 4 scenario training does) — "medium" is the neutral default per
+    // v4-migration-plan/04. Score is normalized 0-100 → 0-25 to match
+    // recordAttempt()'s expected scale (see lib/mastery.ts PASS_SCORE).
+    await recordAttempt(admin, {
+      userId: user.id,
+      module: moduleIdToString(moduleId),
+      moduleId,
+      scenarioIndex: ARENA_SCENARIO_INDEX,
+      overallScore: score / 4,
+      confidence: "medium",
+    });
 
     await syncMasteryToVenueStaff(admin, user.id, user.email ?? "");
 

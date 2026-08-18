@@ -19521,3 +19521,15 @@ h1, h2, h3 {
   overflow-wrap: break-word;
   word-break: break-word;
 }
+
+/* Shared spin utility — replaces the no-op `className="animate-spin"` found
+   in AiProfilePhotoScreen.tsx (a leftover from Tailwind, which this project
+   doesn't build — same dead-class shape already documented and fixed once in
+   DiagnosticFlow.tsx's own file comment). Reused by
+   OnboardingDiagnosticScreen.tsx's loading state too. */
+@keyframes mobile-spin {
+  to { transform: rotate(360deg); }
+}
+.mobile-spin {
+  animation: mobile-spin 0.8s linear infinite;
+}

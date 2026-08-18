@@ -1,7 +1,12 @@
+import { Suspense } from "react";
 import ArenaScreen from "../_components/ArenaScreen";
 
-// Phase B preview route — renders the dumb-UI skeleton so it can be viewed at
-// /mobile/arena. No auth/data wiring yet.
+// Phase C file 04 — ArenaScreen reads scenario payload via useSearchParams(),
+// which Next.js requires to be wrapped in Suspense.
 export default function MobileArenaPage() {
-  return <ArenaScreen />;
+  return (
+    <Suspense fallback={null}>
+      <ArenaScreen />
+    </Suspense>
+  );
 }

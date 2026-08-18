@@ -20,6 +20,8 @@ export type MobileSession = {
   allowedModules: number[];
   hasVenueMembership: boolean;
   venueMembershipPaused: boolean;
+  /** Saved AI portrait URL (profiles.profile_photo_url), or null if the user has never saved one. */
+  profilePhotoUrl: string | null;
 };
 
 const MobileSessionContext = createContext<MobileSession | null>(null);

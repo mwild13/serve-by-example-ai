@@ -1,14 +1,8 @@
-import OpenAI from "openai";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { getOpenAIClient } from "@/lib/openai";
 
 export const dynamic = "force-dynamic";
-
-function getOpenAIClient() {
-  return new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-}
 
 type CoachRequest = {
   question?: string;

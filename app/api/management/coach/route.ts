@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getManagementSnapshot } from "@/lib/management/service";
+import { getOpenAIClient } from "@/lib/openai";
 
 export const dynamic = "force-dynamic";
-
-function getOpenAIClient() {
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-}
 
 function getCookieValue(req: Request, name: string): string | null {
   const header = req.headers.get("cookie");
