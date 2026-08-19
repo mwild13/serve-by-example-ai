@@ -90,7 +90,17 @@ export default function ArenaPage({ userId: _userId }: Props) {
     setSubmitting(true);
     setError(null);
     try {
-      const seed = ARENA_SEED_SCENARIOS[selectedId]!;
+      // Boundary guard (2026-08-19): this was a non-null assertion, so a
+      // module id with no seed content reached formatArenaScenario() as
+      // undefined and threw a raw TypeError. Every other call site in the
+      // app (mobile's LearnHubScreen/ScenarioTrainingScreen, and the writing
+      // phase's own `{seed && ...}` render below) already treats this lookup
+      // as one that can miss — this one didn't.
+      const seed = ARENA_SEED_SCENARIOS[selectedId];
+      if (!seed) {
+        setError("No scenario is available for this module yet.");
+        return;
+      }
       const scenario = formatArenaScenario(seed);
       const headers = await authHeaders();
       const res = await fetch("/api/arena/evaluate", {

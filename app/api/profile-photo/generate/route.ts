@@ -115,7 +115,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Image generation isn't configured in this environment." }, { status: 500 });
     }
 
-    const body = await req.json();
+    // A malformed/empty body previously threw out of req.json() into the
+    // catch-all below and came back as a 500 "Generation failed" — a client
+    // error reported as a server fault, and one more way "not working" gave
+    // no usable signal. Bad input is a 400.
+    const body = await req.json().catch(() => null);
+    if (body === null || typeof body !== "object") {
+      return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+    }
+
     const styleId = typeof body?.styleId === "string" ? body.styleId : "";
     const style = STYLE_PROMPTS.find((s) => s.id === styleId);
     if (!style) {

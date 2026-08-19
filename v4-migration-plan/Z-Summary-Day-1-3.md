@@ -365,4 +365,20 @@ Verified clean: `npx tsc --noEmit`, `npx eslint app/mobile --max-warnings=0`, fu
 - Retest AI Photo generation and report back what the `detail` field shows if it still fails.
 - Live verification pass now also covers: LearnHub card taps landing on the right scenario / locked cards redirecting to `/pricing`; ScenarioTrainingScreen's new error+retry state.
 - File `10`'s actual scope (offline detection, retry queue, pending-state banner) is still fully unbuilt — a real net-new feature needing its own go/no-go, not covered by today's audit.
+- Nothing committed/pushed this pass yet. *(Committed as `e73332e` and pushed to `origin/preview/v4-migration` immediately after this entry was written.)*
+
+## Day 6 — 2026-08-19 (continued a fifth time: runtime safety audit — hydration, boundary, route exceptions)
+
+User asked for a surgical runtime safety audit over the four areas changed this session — hydration/SSR guardrails across `app/mobile`, boundary safety on the new modules 21–40 scenario lookups, and exception safety in the Fal.ai route — explicitly scoped to preventing crashes, not refactoring working UI. Three real defects found, all fixed with minimum-touch guards.
+
+**A genuine hydration mismatch in `MatchPairsScreen.tsx`** — the one real find of the pass, and pre-existing rather than introduced today. The card deck was shuffled with `Math.random()` inside a `useState` initialiser; since every `app/mobile` route is server-rendered, the server and client produced different card orders on every load. Initial deck is now deterministic (and ordered so the pre-hydration HTML still doesn't give away any pairing), with the real shuffle moved to a mount effect. Swept the whole mobile tree for the same class — everything else was already correct, including the `localStorage` reads (all in effects/handlers) and `AiProfilePhotoScreen`'s `window.Image`/`canvas` use (client-only callback). Also checked specifically for time-based render (`getHours`/`toLocale*`/`Intl`/`new Date()`) — none anywhere in mobile.
+
+**An unguarded `ARENA_SEED_SCENARIOS[selectedId]!` in desktop's `ArenaPage.tsx`** — a non-null assertion that would have thrown a raw `TypeError` into the user-facing error banner for any module id without seed content. Now a real guard with a clear message. Notably every *other* call site (both mobile screens, and ArenaPage's own writing-phase render) already treated the lookup as fallible — this one didn't.
+
+**A 500-instead-of-400 on malformed bodies** in `app/api/profile-photo/generate/route.ts` — `req.json()` threw into the catch-all and surfaced as "Generation failed," reporting a client error as a server fault. Now an explicit 400. The rest of the route's exception surface (auth, bad base64, oversized selfie, unknown style, Fal timeouts/rejections) was already returning clean JSON on every path with nothing able to escape as an HTML error page. Deliberately kept the `{ error }` response shape rather than the `{ success: false, error }` the brief suggested — the whole codebase uses `{ error }` and the client reads it directly.
+
+Verified clean: `npx tsc --noEmit`, `npm run lint`, full `npx next build` — all pass. Full detail: `v4-migration-plan/10-error-handling-offline-resilience.md`.
+
+### Open items carried forward
+- Unchanged from the entry above: AI Photo retest, the standing combined live-browser verification pass, and file `10`'s still-unbuilt offline/retry-queue scope.
 - Nothing committed/pushed this pass yet.

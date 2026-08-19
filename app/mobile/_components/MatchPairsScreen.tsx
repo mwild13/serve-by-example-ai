@@ -37,11 +37,19 @@ const PAIRS: PairDef[] = [
 
 type Card = { key: string; pairId: string; label: string };
 
-function buildDeck(): Card[] {
-  const deck: Card[] = PAIRS.flatMap((p) => [
-    { key: `${p.id}-a`, pairId: p.id, label: p.ingredient },
-    { key: `${p.id}-b`, pairId: p.id, label: p.cocktail },
-  ]);
+// Hydration guard (2026-08-19): this screen is SSR'd like every other
+// `app/mobile` route, so a Math.random() shuffle in the useState initialiser
+// produced one deck order on the server and a different one on the client —
+// a genuine hydration mismatch across all 12 card labels. The initial deck is
+// now deterministic (all ingredients, then all cocktails: pair `i` lands at
+// index `i` and `i + 6`, two rows apart in the 3x4 grid, so the pre-hydration
+// HTML never reveals a pairing), and the real shuffle runs in a mount effect.
+function buildDeck(shuffle: boolean): Card[] {
+  const deck: Card[] = [
+    ...PAIRS.map((p) => ({ key: `${p.id}-a`, pairId: p.id, label: p.ingredient })),
+    ...PAIRS.map((p) => ({ key: `${p.id}-b`, pairId: p.id, label: p.cocktail })),
+  ];
+  if (!shuffle) return deck;
   // Fisher-Yates shuffle
   for (let i = deck.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -52,7 +60,7 @@ function buildDeck(): Card[] {
 
 export default function MatchPairsScreen() {
   const session = useMobileSession();
-  const [deck, setDeck] = useState<Card[]>(() => buildDeck());
+  const [deck, setDeck] = useState<Card[]>(() => buildDeck(false));
   const [selected, setSelected] = useState<string[]>([]);
   const [matched, setMatched] = useState<Set<string>>(new Set());
   const [wrongPair, setWrongPair] = useState<string[]>([]);
@@ -64,6 +72,12 @@ export default function MatchPairsScreen() {
 
   const pairsFound = matched.size / 2;
   const isComplete = pairsFound === PAIRS.length;
+
+  useEffect(() => {
+    // Client-only shuffle — see buildDeck()'s note above.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDeck(buildDeck(true));
+  }, []);
 
   useEffect(() => {
     try {
@@ -148,7 +162,7 @@ export default function MatchPairsScreen() {
   }
 
   function reset() {
-    setDeck(buildDeck());
+    setDeck(buildDeck(true));
     setSelected([]);
     setMatched(new Set());
     setWrongPair([]);
