@@ -34,12 +34,19 @@ import { ARENA_SEED_SCENARIOS, formatArenaScenario } from "@/lib/arena-scenarios
 // now links straight into a real Arena run — `lib/arena-scenarios.ts`
 // (extracted from desktop's ArenaPage.tsx, which previously kept this
 // content as a private inline const) has situation/context/task content for
-// modules 1-20. Cards for those modules build the same
+// modules 1-20 at the time this was written. Cards build the same
 // moduleId/moduleTitle/scenario query-param payload the featured banner
-// above already uses. Modules 21-40 have no Arena roleplay content in V3
-// either (desktop's own picker only ever offered 1-20) — those cards still
-// link to /mobile/learn rather than a dead-end, since there's genuinely no
-// scenario to run yet, not because of a mobile-side gap.
+// above already uses. `moduleHref()`'s fallback to /mobile/learn for a
+// module with no seed content is now defensive rather than expected —
+// modules 21-40 gained real Arena content later the same day (see
+// lib/arena-scenarios.ts's own header) — but kept in case the catalog ever
+// grows past what has seed content again.
+//
+// Resilience pass (2026-08-19): this screen previously had no visible
+// feedback on a training-progress load failure — the grid just rendered
+// empty with nothing to explain why, same status quietly swallowed. Added
+// an explicit error state with retry, matching the pattern already used in
+// LearnHubScreen/ProgressScreen.
 
 const FEATURED_SCENARIO = {
   moduleId: 11,
@@ -78,7 +85,7 @@ function DifficultyRating({ level }: { level: number }) {
 }
 
 export default function ScenarioTrainingScreen() {
-  const { status, data } = useTrainingProgress();
+  const { status, data, error, refetch } = useTrainingProgress();
 
   const moduleCards = (() => {
     if (status !== "ready") return [];
@@ -202,7 +209,40 @@ export default function ScenarioTrainingScreen() {
         {/* grid-scenarios */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "0 20px 20px" }}>
           <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>Your Modules</p>
-          {status === "ready" && moduleCards.length === 0 ? (
+          {status === "error" ? (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+                alignItems: "center",
+                padding: 16,
+                borderRadius: "var(--radius-md)",
+                background: "var(--surface-mobile)",
+                border: "1px solid var(--border-mobile)",
+                color: "var(--text-mobile-muted)",
+                fontSize: 13,
+                textAlign: "center",
+              }}
+            >
+              <span>{error}</span>
+              <button
+                type="button"
+                onClick={refetch}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: "var(--radius-pill)",
+                  border: "1px solid var(--border-mobile)",
+                  background: "var(--surface-mobile-alt)",
+                  color: "var(--text-mobile)",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Try again
+              </button>
+            </div>
+          ) : status === "ready" && moduleCards.length === 0 ? (
             <div
               style={{
                 padding: 16,
@@ -214,6 +254,19 @@ export default function ScenarioTrainingScreen() {
               }}
             >
               No modules unlocked yet.
+            </div>
+          ) : status === "loading" ? (
+            <div
+              style={{
+                padding: 16,
+                borderRadius: "var(--radius-md)",
+                background: "var(--surface-mobile)",
+                border: "1px solid var(--border-mobile)",
+                color: "var(--text-mobile-muted)",
+                fontSize: 13,
+              }}
+            >
+              Loading your modules…
             </div>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>

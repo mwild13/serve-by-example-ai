@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { fal } from "@fal-ai/client";
+import { fal, ApiError, ValidationError } from "@fal-ai/client";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
@@ -41,6 +41,22 @@ import { rateLimit, getClientIp } from "@/lib/rate-limit";
 // (already `.fal.media`, per `save/route.ts`'s existing allow-list) is ever
 // eligible to become `profiles.profile_photo_url`. Without a selfie, the
 // route behaves exactly as before — schnell, text-to-image only.
+//
+// Diagnostic fix (2026-08-19): reported "AI photo generation not working."
+// The flux/dev/image-to-image and flux/schnell payloads were re-checked
+// field-by-field against the installed @fal-ai/client 1.10.1 type defs
+// (FluxDevImageToImageInput / FluxDevInput) and are correct — image_url/
+// prompt/strength and prompt/image_size/num_inference_steps all match. The
+// real gap was error visibility: the catch-all below always returned a flat
+// "Generation failed" no matter the cause (missing FAL_KEY, a Fal auth/
+// validation rejection, a timeout), which made "not working" mean "no
+// signal to diagnose from," both server- and client-side. Fixed by: (1)
+// failing fast with a distinct message when FAL_KEY isn't configured
+// instead of letting Fal's own opaque auth error surface; (2) branching on
+// @fal-ai/client's ApiError/ValidationError types for a specific, still
+// user-safe message per failure class; (3) always logging the full error
+// server-side, and echoing a `detail` field in the JSON response outside
+// production only (never reaches the deployed client-facing build).
 
 export const dynamic = "force-dynamic";
 
@@ -90,6 +106,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
     }
 
+    if (!process.env.FAL_KEY) {
+      // Fails fast with a specific message instead of letting fal.subscribe()
+      // hit Fal's API with an empty credential and surface an opaque auth
+      // error further down — the single most likely cause of "not working"
+      // in a fresh local checkout where FAL_KEY is only set in Cloudflare.
+      console.error("[profile-photo/generate] FAL_KEY is not set in this environment.");
+      return NextResponse.json({ error: "Image generation isn't configured in this environment." }, { status: 500 });
+    }
+
     const body = await req.json();
     const styleId = typeof body?.styleId === "string" ? body.styleId : "";
     const style = STYLE_PROMPTS.find((s) => s.id === styleId);
@@ -131,6 +156,24 @@ export async function POST(req: Request) {
     return NextResponse.json({ url: imageUrl });
   } catch (error) {
     console.error("[profile-photo/generate] Error:", error);
-    return NextResponse.json({ error: "Generation failed" }, { status: 500 });
+
+    // Branch on @fal-ai/client's own error types so the message actually
+    // says something about *why* generation failed, without ever leaking
+    // Fal's raw response body (which can include the request payload) to
+    // the client in production.
+    let message = "Generation failed. Please try again.";
+    if (error instanceof ValidationError) {
+      message = "The photo or style was rejected by the image model. Try a different photo.";
+    } else if (error instanceof ApiError) {
+      message = error.status === 401 || error.status === 403
+        ? "Image generation isn't configured correctly in this environment."
+        : "The image service couldn't process this request. Please try again.";
+    }
+
+    const debug = process.env.NODE_ENV !== "production"
+      ? { detail: error instanceof Error ? error.message : String(error) }
+      : {};
+
+    return NextResponse.json({ error: message, ...debug }, { status: 500 });
   }
 }

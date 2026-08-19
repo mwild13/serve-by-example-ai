@@ -330,3 +330,39 @@ Verified clean: `npx tsc --noEmit`, `npx eslint app/mobile app/api/profile-photo
 - Live verification for both features above — Arena run from a per-module card scores and updates mastery correctly; AI Photo image-to-image call returns a usable result and the non-photo path is unchanged. Batches into the same standing combined live pass as every other file's open item.
 - Modules 21–40 still have no Arena roleplay content — a content-writing task, not wiring.
 - `LearnHubScreen`'s 40-module browser still has no per-module scenario entry point of its own (separate from `ScenarioTrainingScreen`'s 6-card grid, which is now wired) — not addressed this pass, not silently expanded into.
+
+## Day 6 — 2026-08-19 (continued once more: modules 21–40 content, and a real AI-photo bug diagnosis)
+
+User asked why generation was actually failing during manual testing and pointed at three likely causes (payload shape, missing local `FAL_KEY`, silent failure handling), then separately asked to write the remaining Arena content for modules 21–40.
+
+**AI Photo diagnosis + fix** — checked all three of the user's hypotheses against the real code instead of guessing:
+- Payload shape: re-verified against `@fal-ai/client` 1.10.1's own type defs — correct, not the bug.
+- Missing local `FAL_KEY`: real risk, now fails fast with a specific message instead of a buried Fal auth error.
+- Silent failure handling: this was the actual root cause of "not working" being undiagnosable — the route always returned a flat "Generation failed" no matter what broke. Now branches on Fal's own `ApiError`/`ValidationError` types, always logs server-side, and echoes a `detail` field outside production only; the client's error banner shows it. Full detail: `v4-migration-plan/08-onboarding-diagnostic-and-profile.md`.
+- Not fully closed — this was a static-code fix, not a live retest (no local dev server run this session). Asked the user to retest and report whatever `detail` now shows if it still fails.
+
+**Arena scenarios for modules 21–40** — the standing content gap flagged every session since Day 6's first pass today is now closed. Wrote 20 new situation/context/task scenarios directly into `lib/arena-scenarios.ts`, each matched to its module's real title/category from `lib/module-navigator.ts` rather than generic filler. Kept the existing 3-field `ArenaSeedScenario` shape (didn't add `initialMessage`/`evaluationCriteria` fields floated at scoping time — nothing in the actual Arena evaluate flow reads more than the formatted 3-field string). All 40 modules now have real Arena content; desktop and mobile both pick it up automatically through the shared file. Full detail: `v4-migration-plan/04-scenario-training-and-ai-arena.md`.
+
+Verified clean: `npx tsc --noEmit`, `npx eslint` on every touched file `--max-warnings=0`, full `npx next build` — all pass.
+
+### Open items carried forward
+- Retest AI Photo generation (locally with `FAL_KEY` set, or on the deployed preview) and report back — the new `detail` field should now name the actual failure if one remains.
+- Live verification of modules 21–40 Arena runs scoring/updating mastery correctly — same standing combined-pass item as every other module range.
+- `LearnHubScreen`'s 40-module browser still has no per-module scenario entry point of its own — still not addressed, still not silently expanded into.
+- Nothing committed/pushed this pass yet.
+
+## Day 6 — 2026-08-19 (continued a fourth time: LearnHub card wiring + a scoped resilience audit)
+
+User asked for two more items in the same session: wire `LearnHubScreen`'s module cards to a real scenario (the item flagged immediately above), and a targeted error-resilience audit across `app/mobile`/`app/api` (not the full file `10` retry-queue build — explicitly scoped to "add defensive handling where missing, don't rewrite working logic").
+
+**`LearnHubScreen` card wiring** — the last standing "orphaned browse screen" gap. Unlocked cards now route into a real Arena run via the same `lib/arena-scenarios.ts` payload contract `ScenarioTrainingScreen`'s grid already uses; locked cards route to `/pricing`, matching the one real "locked item" precedent in the codebase (`DashboardShell.tsx`'s nav-click handler) rather than inventing a modal that doesn't exist anywhere in this app. Card element changed from an inert `<div>` to an accessible `<button>`. Full detail: `v4-migration-plan/03-learn-hub-integration.md`.
+
+**Resilience audit** — read every `fetch()` call site under `app/mobile` (8) and every API route mobile calls into, checking for missing try/catch, infinitely-hanging spinners on 429/500, and unhandled rejections. Found one real gap: `ScenarioTrainingScreen.tsx` had no `status === "error"` rendering at all — a failed progress load just left the module grid silently empty. Fixed with the same error+retry pattern already used in `LearnHubScreen`/`ProgressScreen`/`BadgesGalleryScreen`. Everything else audited checked out already-correct: the shared `useTrainingProgress()` hook (covers 6 of 7 screens), `ArenaScreen`/`AiProfilePhotoScreen`/`OnboardingDiagnosticScreen` (all already reset their loading flags in every code path), and the two intentionally-fire-and-forget challenge-completion syncs (matches desktop's own documented pattern, not a bug). Full detail: `v4-migration-plan/10-error-handling-offline-resilience.md`.
+
+Verified clean: `npx tsc --noEmit`, `npx eslint app/mobile --max-warnings=0`, full `npx next build` — all pass.
+
+### Open items carried forward
+- Retest AI Photo generation and report back what the `detail` field shows if it still fails.
+- Live verification pass now also covers: LearnHub card taps landing on the right scenario / locked cards redirecting to `/pricing`; ScenarioTrainingScreen's new error+retry state.
+- File `10`'s actual scope (offline detection, retry queue, pending-state banner) is still fully unbuilt — a real net-new feature needing its own go/no-go, not covered by today's audit.
+- Nothing committed/pushed this pass yet.

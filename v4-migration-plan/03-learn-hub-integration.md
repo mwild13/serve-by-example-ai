@@ -32,3 +32,14 @@ Primary target: `LearnHubScreen`. "Done" = the 4 category pills and module grid 
 4. Wire mastery badges to file `02`'s shared mastery read.
 5. If a module-detail view is added, wire it through the orphaned `[moduleId]/route.ts` + `.../scenarios/route.ts` rather than a new endpoint.
 6. Manually verify: `free`-tier account sees all modules locked; paid-tier account sees all unlocked; category pills filter correctly; mastery badges match `ProgressScreen`'s numbers for the same modules.
+
+## Implementation Notes (Day 6 — 2026-08-19) — module cards now launch a real scenario
+
+Steps 1–4 were already satisfied as a side effect of file `02`'s work (see the Day 5 diary entry) — this closes the remaining gap: tapping a module card did nothing at all. Not step 5 as originally scoped (a module-detail view through the orphaned `[moduleId]/scenarios` route) — a simpler, now-viable option existed instead: `lib/arena-scenarios.ts` covers all 40 modules as of this same day, so a card tap can go straight into a real Arena run rather than a detail screen.
+
+- Unlocked module cards now call `router.push()` into `/mobile/arena?moduleId=…&moduleTitle=…&scenario=…`, same query-param contract `ScenarioTrainingScreen`'s 6-card grid already uses, sourced from the same `lib/arena-scenarios.ts`.
+- Locked cards route to `/pricing` instead. There's no "gate modal" component anywhere in this codebase — the one real precedent for a locked/premium item (`DashboardShell.tsx`'s `handleNavClick`) does the exact same direct `/pricing` redirect, not a modal, so this matches existing behavior rather than inventing new UI.
+- The card element changed from a plain `<div>` to a `<button type="button">` (with `textAlign: "left"` to preserve the original layout) so the interaction is a real, accessible control — matches the `<button>`-first convention used everywhere else in `app/mobile`.
+- The orphaned `[moduleId]/scenarios` route remains unused — still a viable option for a genuine module-detail view (multiple scenarios per module, not just the one Arena run) if that's ever wanted, but out of scope for this fix.
+- Verified clean: `npx tsc --noEmit`, `npx eslint app/mobile --max-warnings=0`, full `npx next build` — all pass.
+- **Still open**: live verification that tapping a card actually lands on the right scenario and that a locked card correctly redirects to `/pricing`.

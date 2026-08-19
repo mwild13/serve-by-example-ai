@@ -25,6 +25,11 @@ import { useTrainingProgress } from "../_lib/use-training-progress";
 // result (a fal.media URL) is ever eligible to be saved as
 // profiles.profile_photo_url (see app/api/profile-photo/save/route.ts's
 // isAllowedFalUrl check, unchanged by this feature).
+//
+// Diagnostic fix (2026-08-19): reported "AI photo generation not working."
+// See app/api/profile-photo/generate/route.ts's own comment for the root
+// cause and server-side fix — this file's only change is surfacing the
+// route's optional dev-only `detail` field in the error banner below.
 
 type StyleOption = { id: string; label: string; image: string };
 
@@ -124,7 +129,12 @@ export default function AiProfilePhotoScreen() {
       const data = await res.json();
 
       if (!res.ok || !data.url) {
-        throw new Error(data.error || "Failed to generate photo");
+        // route.ts only ever includes `detail` outside production — append
+        // it when present so a local/dev tester sees the actual cause
+        // (missing FAL_KEY, a Fal validation rejection, etc.) instead of
+        // just the generic user-facing message.
+        const message = data.error || "Failed to generate photo";
+        throw new Error(data.detail ? `${message} (${data.detail})` : message);
       }
 
       setAvatarUrl(data.url);

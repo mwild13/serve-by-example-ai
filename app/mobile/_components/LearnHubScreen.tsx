@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Search,
   BottleWine,
@@ -11,6 +12,7 @@ import {
 } from "lucide-react";
 import BottomNav from "./BottomNav";
 import { useTrainingProgress } from "../_lib/use-training-progress";
+import { ARENA_SEED_SCENARIOS, formatArenaScenario } from "@/lib/arena-scenarios";
 
 // Phase C file 02 — Mastery Engine Harvest. Module cards now read from the
 // real 40-module catalog + moduleProgress map returned by
@@ -19,6 +21,16 @@ import { useTrainingProgress } from "../_lib/use-training-progress";
 // not the arbitrary Phase B placeholder categories. Module locking stays
 // cosmetic-only per v4-migration-plan/00 Locked Decision #3: V3 has a single
 // global free/paid gate, no per-module rules.
+//
+// Wiring fix (2026-08-19): tapping a module card previously did nothing —
+// the primary 40-module catalog had no way to actually start a scenario.
+// Unlocked cards now route into a real per-module Arena run (same
+// lib/arena-scenarios.ts content ScenarioTrainingScreen's 6-card grid
+// already uses). Locked cards route to /pricing instead — there is no
+// "gate modal" anywhere in this codebase to reuse; the one real precedent
+// for a locked/premium nav item (DashboardShell.tsx's handleNavClick) does
+// the exact same thing, a direct /pricing redirect, not a modal. Matching
+// that existing pattern here rather than inventing a new modal component.
 
 const CATEGORIES = ["All", "Technical", "Service", "Compliance"] as const;
 type Category = (typeof CATEGORIES)[number];
@@ -56,6 +68,7 @@ function StatusMessage({ children }: { children: React.ReactNode }) {
 }
 
 export default function LearnHubScreen() {
+  const router = useRouter();
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const { status, data, error, refetch } = useTrainingProgress();
 
@@ -92,9 +105,21 @@ export default function LearnHubScreen() {
         pct,
         icon: CATEGORY_ICON[mod.category],
         badge: pct >= 80 ? ("mastered" as const) : locked ? ("locked" as const) : undefined,
+        locked,
       };
     });
   }, [data, activeCategory]);
+
+  function handleModuleClick(mod: { id: number; title: string; locked: boolean }) {
+    if (mod.locked) {
+      router.push("/pricing");
+      return;
+    }
+    const seed = ARENA_SEED_SCENARIOS[mod.id];
+    if (!seed) return; // defensive — every catalog module has content as of 2026-08-19, but don't assume forever
+    const scenario = formatArenaScenario(seed);
+    router.push(`/mobile/arena?moduleId=${mod.id}&moduleTitle=${encodeURIComponent(mod.title)}&scenario=${encodeURIComponent(scenario)}`);
+  }
 
   if (status === "loading") {
     return (
@@ -225,8 +250,11 @@ export default function LearnHubScreen() {
             {modules.map((mod) => {
               const Icon = mod.icon;
               return (
-                <div
+                <button
                   key={mod.id}
+                  type="button"
+                  onClick={() => handleModuleClick(mod)}
+                  aria-label={mod.locked ? `${mod.title} (locked — upgrade to unlock)` : `Start ${mod.title} scenario`}
                   style={{
                     display: "flex",
                     flexDirection: "column",
@@ -235,6 +263,9 @@ export default function LearnHubScreen() {
                     borderRadius: "var(--radius-lg)",
                     background: "var(--surface-mobile)",
                     border: "1px solid var(--border-mobile)",
+                    textAlign: "left",
+                    cursor: "pointer",
+                    font: "inherit",
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -290,7 +321,7 @@ export default function LearnHubScreen() {
                     </div>
                     <span style={{ fontSize: 12, fontWeight: 700, color: "var(--gold-mobile)" }}>{mod.pct}%</span>
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
