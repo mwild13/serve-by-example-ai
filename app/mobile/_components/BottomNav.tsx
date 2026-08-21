@@ -1,17 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { Home, Library, MessageCircle, User } from "lucide-react";
+import { Home, Library, User } from "lucide-react";
 
 // Phase B.5 — real routing. Tabs render an active state via the `active` prop
 // (still passed explicitly by each screen) and now navigate via next/link.
+//
+// 3-tab consolidation (2026-08-21): "Scenarios" was removed as a top-level
+// tab — it was a training *method* (roleplay/descriptor/quiz), not a
+// distinct destination from "Learn", and splitting them confused the IA.
+// Scenario Training, Descriptor Practice, and AI Arena now live under
+// /mobile/learn's "Practice & Scenarios" section. /mobile/scenarios redirects
+// there for old links/bookmarks — see app/mobile/scenarios/page.tsx.
 
-export type MobileNavTab = "home" | "learn" | "scenarios" | "me";
+export type MobileNavTab = "home" | "learn" | "me";
 
 const TABS: { id: MobileNavTab; label: string; icon: typeof Home; href: string }[] = [
   { id: "home", label: "Home", icon: Home, href: "/mobile/home" },
   { id: "learn", label: "Learn", icon: Library, href: "/mobile/learn" },
-  { id: "scenarios", label: "Scenarios", icon: MessageCircle, href: "/mobile/scenarios" },
   { id: "me", label: "Me", icon: User, href: "/mobile/progress" },
 ];
 

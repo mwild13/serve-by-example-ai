@@ -392,7 +392,7 @@ export default function ScenarioPracticeScreen() {
         )}
       </div>
 
-      <BottomNav active="scenarios" />
+      <BottomNav active="learn" />
     </div>
   );
 }

@@ -28,7 +28,7 @@ import { useTrainingProgress } from "../_lib/use-training-progress";
 // key V3 writes — device-level completion tracking, matching V3's own
 // documented behavior ("Completion is tracked on this device").
 
-type ChallengeRow = {
+export type ChallengeRow = {
   title: string;
   description: string;
   icon: typeof Clock;
@@ -36,7 +36,9 @@ type ChallengeRow = {
   challengeIndex?: number;
 };
 
-const CHALLENGES: ChallengeRow[] = [
+// Exported so LearnHubScreen's MiniGamesSection can render a teaser slice of
+// the same 5 games without maintaining a second, divergence-prone copy.
+export const CHALLENGES: ChallengeRow[] = [
   { title: "Speed Round", description: "Speed Multiple Choice Questions", icon: Clock, href: "/mobile/speed-round", challengeIndex: 4 },
   { title: "Memory Test", description: "Fill in the blank cocktail descriptions", icon: Lightbulb, href: "/mobile/memory-test", challengeIndex: 1 },
   { title: "Ingredient Match", description: "Pair custom ingredients with names", icon: LinkIcon, href: "/mobile/match-pairs", challengeIndex: 2 },

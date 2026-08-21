@@ -336,7 +336,7 @@ export default function ArenaScreen() {
           </button>
         </div>
 
-        <BottomNav active="scenarios" />
+        <BottomNav active="learn" />
       </div>
     </div>
   );
