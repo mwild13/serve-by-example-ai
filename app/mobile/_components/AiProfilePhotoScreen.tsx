@@ -1,12 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Zap, Loader2, Camera, X } from "lucide-react";
 import { useMobileSession } from "../_lib/mobile-session-context";
-import { useTrainingProgress } from "../_lib/use-training-progress";
 
 // Phase C file 08, Half B — real generation via app/api/profile-photo/generate
 // (Fal.ai flux/schnell) and app/api/profile-photo/save. Prompts moved
@@ -30,6 +29,15 @@ import { useTrainingProgress } from "../_lib/use-training-progress";
 // See app/api/profile-photo/generate/route.ts's own comment for the root
 // cause and server-side fix — this file's only change is surfacing the
 // route's optional dev-only `detail` field in the error banner below.
+//
+// Phase 7 (2026-08-21, v4-migration-plan/00-bug-batch-plan.md, F3) — draft
+// cache. Generation only ever fires from handleGenerate's onClick (never an
+// effect/re-render), so there was no re-trigger risk — but navigating away
+// (back button) and returning lost the generated-but-unsaved preview,
+// forcing a wasted, costed re-generation call. DRAFT_KEY below is keyed per
+// user so a shared device can't leak one account's preview into another's
+// session; it's cleared on both a successful Save and an explicit Skip, so
+// nothing stale reappears for a different session later.
 
 type StyleOption = { id: string; label: string; image: string };
 
@@ -82,7 +90,6 @@ async function downscaleImage(file: File): Promise<string> {
 export default function AiProfilePhotoScreen() {
   const router = useRouter();
   const session = useMobileSession();
-  const { status, data } = useTrainingProgress();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<StyleOption>(STYLES[0]);
   const [avatarUrl, setAvatarUrl] = useState<string>(PLACEHOLDER_AVATAR);
@@ -90,6 +97,30 @@ export default function AiProfilePhotoScreen() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Requirement F3: cache an unsaved generated preview so back-navigation
+  // doesn't lose it and force a wasted (costed) re-generation call.
+  const draftKey = `sbe-ai-portrait-draft:${session.userEmail}`;
+
+  // Keep the two useState lines above exactly as they are (PLACEHOLDER_AVATAR
+  // / null) — do NOT read localStorage in the initializer. This route is
+  // SSR'd like every other app/mobile screen, and reading localStorage
+  // during a lazy-init function would make the client's first render
+  // diverge from the server-rendered HTML — the same hydration-mismatch
+  // class already found and fixed in MatchPairsScreen.tsx. Load the cached
+  // draft in a mount effect instead, same SSR-safe pattern used everywhere
+  // else in app/mobile for localStorage reads (e.g. BadgesGalleryScreen.tsx).
+  useEffect(() => {
+    try {
+      const cached = JSON.parse(localStorage.getItem(draftKey) ?? "null");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (cached?.avatarUrl) setAvatarUrl(cached.avatarUrl);
+      if (cached?.selfieDataUrl) setSelfieDataUrl(cached.selfieDataUrl);
+    } catch {
+      // corrupt/unreadable cache — ignore, stays on PLACEHOLDER_AVATAR
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const hasGenerated = avatarUrl !== PLACEHOLDER_AVATAR;
 
@@ -138,6 +169,7 @@ export default function AiProfilePhotoScreen() {
       }
 
       setAvatarUrl(data.url);
+      localStorage.setItem(draftKey, JSON.stringify({ avatarUrl: data.url, selfieDataUrl }));
     } catch (err) {
       console.error("Failed to generate avatar:", err);
       setErrorMsg(err instanceof Error ? err.message : "Generation failed. Please try again.");
@@ -170,6 +202,7 @@ export default function AiProfilePhotoScreen() {
         throw new Error(data.error || "Failed to save portrait");
       }
 
+      localStorage.removeItem(draftKey);
       router.push("/mobile/home");
     } catch (err) {
       console.error("Failed to save avatar:", err);
@@ -224,7 +257,13 @@ export default function AiProfilePhotoScreen() {
           >
             <Zap size={12} strokeWidth={2} color="var(--text-mobile)" fill="var(--text-mobile)" aria-hidden="true" />
             <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text-mobile)" }}>
-              {status === "ready" ? `${data.bestCorrectStreak} Streak` : "—"}
+              {/* Incidental fix alongside Phase 7 (same bug already fixed in
+                  HomeScreen.tsx under Phase 6, item 12): this was reading
+                  TrainingProgress.bestCorrectStreak — a server-tracked
+                  quiz-answer-accuracy streak, not a daily login streak — and
+                  mislabeling it "Streak" here too. session.streakCount is
+                  the real client-side daily-login streak (lib/streak.ts). */}
+              {session.streakCount !== null ? `${session.streakCount} Streak` : "—"}
             </span>
           </div>
         </div>
@@ -470,6 +509,7 @@ export default function AiProfilePhotoScreen() {
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
           <Link
             href="/mobile/home"
+            onClick={() => localStorage.removeItem(draftKey)}
             style={{
               background: "none",
               border: "none",

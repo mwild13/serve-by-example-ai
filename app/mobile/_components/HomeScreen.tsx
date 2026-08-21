@@ -120,7 +120,15 @@ export default function HomeScreen() {
           >
             <Flame size={16} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
             <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text-mobile)" }}>
-              {status === "ready" ? `${data.bestCorrectStreak} Streak` : "—"}
+              {/* Phase 6 fix (v4-migration-plan/00-bug-batch-plan.md item 12):
+                  this was reading TrainingProgress.bestCorrectStreak — the
+                  server-tracked *quiz-answer-accuracy* streak, not a daily
+                  login streak, and mislabeled "Streak" next to a flame icon.
+                  session.streakCount is the real client-side daily-login
+                  streak (lib/streak.ts), incremented once per mobile session
+                  by MobileSessionProvider — same value BadgesGalleryScreen
+                  shows as "Active Streak: N Days". */}
+              {session.streakCount !== null ? `${session.streakCount} Streak` : "—"}
             </span>
           </div>
         </div>
@@ -167,22 +175,16 @@ export default function HomeScreen() {
         <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: 20 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>Today&apos;s Hot Picks</p>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "4px 8px",
-                borderRadius: "var(--radius-pill)",
-                background: "var(--surface-mobile-inverse)",
-                fontSize: 12,
-                fontWeight: 700,
-              }}
-              aria-hidden="true"
-            >
-              <span style={{ color: "var(--green-mobile)" }}>S</span>
-              <span style={{ color: "var(--gold-mobile)" }}>B</span>
-              <span style={{ color: "var(--green-mobile)" }}>E</span>
-            </div>
+            {/* Real brand mark — same asset/pattern as components/Navbar.tsx's
+                <Image src="/logo.webp" ... />, replacing the fake S/B/E wordmark. */}
+            <Image
+              src="/logo.webp"
+              alt="Serve By Example"
+              width={32}
+              height={32}
+              quality={50}
+              style={{ flexShrink: 0, width: 32, height: 32, objectFit: "contain" }}
+            />
           </div>
           <div style={{ display: "flex", gap: 12, overflowX: "auto" }}>
             {HOT_PICKS.map((cocktail) => (

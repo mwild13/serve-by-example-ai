@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useMobileSession } from "./mobile-session-context";
+import type { ScenarioType } from "@/lib/mastery";
 
 // Phase C file 02 — Mastery Engine Harvest. Single mobile-facing read path
 // wrapping GET /api/training/progress, the canonical aggregate read defined
@@ -29,6 +30,14 @@ export type ModuleProgress = {
 
 export type ReviewQueueItem = {
   module: string;
+  /**
+   * Which write path produced this row — Quiz, Scenario Training
+   * (descriptor), or Arena (roleplay). GET /api/training/progress has
+   * always returned this (getReviewQueue() in lib/mastery.ts selects
+   * scenario_type), it just wasn't in this type yet. ProgressScreen's
+   * "Up Next For Review" list (Phase 5) branches its label on it.
+   */
+  scenarioType: ScenarioType;
   scenarioIndex: number;
   masteryLevel: number;
   nextReviewAt: string;
@@ -53,6 +62,16 @@ export type TrainingProgress = {
   bestArenaScore: number;
   challengesCompleted: number;
   totalChallenges: number;
+  /**
+   * True when this user's own staff role (Manager/Supervisor at a linked
+   * venue) auto-unlocked the Management category — distinct from paying
+   * for it directly. API already computes and returns this (server-side
+   * write happens in the same request); Phase 3 (v4-migration-plan/00,
+   * item 9) is the first mobile consumer, used to tell "management is
+   * paywalled" apart from "management needs a Manager/Supervisor role" on
+   * ScenarioTrainingScreen's category cards.
+   */
+  autoUnlockManagement: boolean;
   access: { tier: string; allowedModules: number[]; isSponsored: boolean };
 };
 

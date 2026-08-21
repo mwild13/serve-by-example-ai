@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   Search,
@@ -12,7 +13,6 @@ import {
 } from "lucide-react";
 import BottomNav from "./BottomNav";
 import { useTrainingProgress } from "../_lib/use-training-progress";
-import { ARENA_SEED_SCENARIOS, formatArenaScenario } from "@/lib/arena-scenarios";
 
 // Phase C file 02 — Mastery Engine Harvest. Module cards now read from the
 // real 40-module catalog + moduleProgress map returned by
@@ -22,15 +22,15 @@ import { ARENA_SEED_SCENARIOS, formatArenaScenario } from "@/lib/arena-scenarios
 // cosmetic-only per v4-migration-plan/00 Locked Decision #3: V3 has a single
 // global free/paid gate, no per-module rules.
 //
-// Wiring fix (2026-08-19): tapping a module card previously did nothing —
-// the primary 40-module catalog had no way to actually start a scenario.
-// Unlocked cards now route into a real per-module Arena run (same
-// lib/arena-scenarios.ts content ScenarioTrainingScreen's 6-card grid
-// already uses). Locked cards route to /pricing instead — there is no
-// "gate modal" anywhere in this codebase to reuse; the one real precedent
-// for a locked/premium nav item (DashboardShell.tsx's handleNavClick) does
-// the exact same thing, a direct /pricing redirect, not a modal. Matching
-// that existing pattern here rather than inventing a new modal component.
+// Phase 3 (v4-migration-plan/00, item 8): a module card is a Quiz gate on
+// desktop (DynamicModuleNav → ModuleVerify), not an Arena entry point —
+// routing straight into Arena (2026-08-19 wiring fix, now superseded) was
+// itself the root-cause bug the plan's Phase 3 fixes. Unlocked cards now
+// route into /mobile/quiz, which offers its own "Try it in Live Arena" CTA
+// once the module is actually mastered. Locked cards still route to
+// /pricing — no "gate modal" exists anywhere in this codebase to reuse; the
+// one real precedent for a locked/premium nav item (DashboardShell.tsx's
+// handleNavClick) does the exact same thing, a direct /pricing redirect.
 
 const CATEGORIES = ["All", "Technical", "Service", "Compliance"] as const;
 type Category = (typeof CATEGORIES)[number];
@@ -115,10 +115,7 @@ export default function LearnHubScreen() {
       router.push("/pricing");
       return;
     }
-    const seed = ARENA_SEED_SCENARIOS[mod.id];
-    if (!seed) return; // defensive — every catalog module has content as of 2026-08-19, but don't assume forever
-    const scenario = formatArenaScenario(seed);
-    router.push(`/mobile/arena?moduleId=${mod.id}&moduleTitle=${encodeURIComponent(mod.title)}&scenario=${encodeURIComponent(scenario)}`);
+    router.push(`/mobile/quiz?moduleId=${mod.id}&moduleTitle=${encodeURIComponent(mod.title)}`);
   }
 
   if (status === "loading") {
@@ -165,22 +162,16 @@ export default function LearnHubScreen() {
         <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: 20 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <p style={{ margin: 0, fontSize: 22, fontWeight: 700, color: "var(--text-mobile)" }}>Learn Hub</p>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "4px 8px",
-                borderRadius: "var(--radius-pill)",
-                background: "var(--surface-mobile-inverse)",
-                fontSize: 12,
-                fontWeight: 700,
-              }}
-              aria-hidden="true"
-            >
-              <span style={{ color: "var(--green-mobile)" }}>S</span>
-              <span style={{ color: "var(--gold-mobile)" }}>B</span>
-              <span style={{ color: "var(--green-mobile)" }}>E</span>
-            </div>
+            {/* Real brand mark — same asset/pattern as components/Navbar.tsx's
+                <Image src="/logo.webp" ... />, replacing the fake S/B/E wordmark. */}
+            <Image
+              src="/logo.webp"
+              alt="Serve By Example"
+              width={32}
+              height={32}
+              quality={50}
+              style={{ flexShrink: 0, width: 32, height: 32, objectFit: "contain" }}
+            />
           </div>
           <div
             style={{
@@ -212,7 +203,21 @@ export default function LearnHubScreen() {
         </div>
 
         {/* category-scroller */}
-        <div style={{ display: "flex", gap: 8, padding: "0 20px 20px", overflowX: "auto" }}>
+        {/* Live-QA fix (2026-08-20, Phase 1 item 3): "Technical"/"Compliance" ghost
+            edges + "Service" overflow — no structural bug found in static review,
+            but the scroller was missing scroll-snap and iOS's momentum-scroll
+            opt-in, both of which affect how trailing/leading pills render mid-drag
+            on real devices. Best-effort hardening; flagged to user for live retest. */}
+        <div
+          style={{
+            display: "flex",
+            gap: 8,
+            padding: "0 20px 20px",
+            overflowX: "auto",
+            scrollSnapType: "x proximity",
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
           {CATEGORIES.map((cat) => {
             const isActive = cat === activeCategory;
             return (
@@ -223,6 +228,7 @@ export default function LearnHubScreen() {
                 onClick={() => setActiveCategory(cat)}
                 style={{
                   flexShrink: 0,
+                  scrollSnapAlign: "start",
                   padding: "8px 16px",
                   borderRadius: "var(--radius-pill)",
                   border: isActive ? "1px solid var(--gold-mobile)" : "1px solid var(--border-mobile)",

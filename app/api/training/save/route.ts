@@ -209,10 +209,16 @@ export async function POST(req: Request) {
     }
 
     // ── Record attempt in mastery engine ──────────────────────
+    // This route's non-verify branch is exclusively the Scenario Training
+    // (DashboardTrainer) save path — ModuleVerify posts verifyPassed:true
+    // instead and is handled above via markModuleMastered(). Arena has its
+    // own route (app/api/arena/evaluate/route.ts) that calls recordAttempt
+    // with scenarioType: "roleplay" directly.
     const result = await recordAttempt(admin, {
       userId: user.id,
       module: moduleName,
       moduleId: moduleId ?? undefined,
+      scenarioType: "descriptor",
       scenarioIndex,
       overallScore,
       confidence,

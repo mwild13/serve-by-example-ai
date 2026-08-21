@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Settings, CalendarClock, Pencil } from "lucide-react";
 import BottomNav from "./BottomNav";
 import { useMobileSession } from "../_lib/mobile-session-context";
-import { useTrainingProgress } from "../_lib/use-training-progress";
+import { useTrainingProgress, type ReviewQueueItem } from "../_lib/use-training-progress";
+import { moduleStringToId, SCENARIO_COUNTS } from "@/lib/mastery";
 
 // Phase C file 02 — Mastery Engine Harvest. Real data via useTrainingProgress()
 // (GET /api/training/progress). No XP field and no 9-category skill taxonomy
@@ -18,6 +19,32 @@ const LEGACY_MODULE_LABELS: Record<"bartending" | "sales" | "management", string
   sales: "Sales",
   management: "Management",
 };
+
+// Phase 5 (v4-migration-plan/00-bug-batch-plan.md, item 11) — "Up Next For
+// Review" label builder. A review row can come from three structurally
+// different write paths (scenario_type, live since Phase 2's key-collision
+// fix): Quiz, Scenario Training (descriptor), or Arena (roleplay).
+//
+// Quiz and Arena roleplay both operate on the real 1-40 module catalog, so
+// reverse-mapping `module` to a numeric id and looking up its title in
+// data.allModules gives an accurate name. Scenario Training does NOT — its
+// content is the separate legacy trainer-data.ts::SCENARIOS bank, and the
+// numeric ids 1/2/3 that LEGACY_MODULE_NAMES maps "bartending"/"sales"/
+// "management" onto only exist for access-gate plumbing (see
+// LEGACY_MODULE_ID in app/api/training/save/route.ts) — catalog module 2 is
+// literally "Wine Knowledge & Service", not "Sales". So descriptor rows keep
+// the legacy category label instead of resolving a mismatched catalog title.
+function reviewLabel(item: ReviewQueueItem, titleById: Map<number, string>): string {
+  if (item.scenarioType === "descriptor") {
+    const label = LEGACY_MODULE_LABELS[item.module as keyof typeof LEGACY_MODULE_LABELS] ?? item.module;
+    const total = SCENARIO_COUNTS[item.module] ?? item.scenarioIndex + 1;
+    return `${label} · Scenario ${item.scenarioIndex + 1} of ${total}`;
+  }
+
+  const moduleId = moduleStringToId(item.module);
+  const title = (moduleId != null ? titleById.get(moduleId) : undefined) ?? item.module;
+  return item.scenarioType === "quiz" ? `${title} · Quiz review` : `${title} · Live Scenario review`;
+}
 
 function SkillRing({ label, pct }: { label: string; pct: number }) {
   const r = 26;
@@ -132,6 +159,7 @@ export default function ProgressScreen() {
   }));
 
   const reviewItems = data.reviewQueue.slice(0, 5);
+  const titleById = new Map(data.allModules.map((mod) => [mod.id, mod.title]));
 
   return (
     <div style={shellStyle}>
@@ -264,7 +292,7 @@ export default function ProgressScreen() {
             <div style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%" }}>
               {reviewItems.map((item) => (
                 <div
-                  key={`${item.module}-${item.scenarioIndex}`}
+                  key={`${item.module}-${item.scenarioType}-${item.scenarioIndex}`}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -291,7 +319,7 @@ export default function ProgressScreen() {
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 2, flex: 1, minWidth: 0 }}>
                     <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "var(--text-mobile)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {LEGACY_MODULE_LABELS[item.module as keyof typeof LEGACY_MODULE_LABELS] ?? item.module} · Scenario {item.scenarioIndex + 1}
+                      {reviewLabel(item, titleById)}
                     </p>
                     <p style={{ margin: 0, fontSize: 11, color: "var(--text-mobile-muted)" }}>Due for review</p>
                   </div>

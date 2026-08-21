@@ -31,16 +31,17 @@ import { rateLimit, getClientIp } from "@/lib/rate-limit";
 // page" — accurate at the time, since generation never referenced the user
 // at all (pure text-to-image). This route now accepts an optional
 // `selfieImage` (a client-downscaled data: URL, capped below). When present,
-// generation switches from `flux/schnell` (text-to-image) to
-// `flux/dev/image-to-image`, passing the selfie as the reference image and
-// the style prompt as the transformation — the result still looks like the
-// chosen hospitality setting, but is guided by the user's own photo. No
-// selfie is stored anywhere in Supabase: the fal client uploads it to Fal's
-// own storage only as part of making this one call (auto-handled by
-// `transformInput`/the Blob input), and only the model's *output* URL
-// (already `.fal.media`, per `save/route.ts`'s existing allow-list) is ever
-// eligible to become `profiles.profile_photo_url`. Without a selfie, the
-// route behaves exactly as before — schnell, text-to-image only.
+// generation switches from a text-to-image model to an image-guided one,
+// passing the selfie as an identity reference and the style prompt as the
+// setting — the result still looks like the chosen hospitality setting, but
+// is guided by the user's own face. No selfie is stored anywhere in
+// Supabase: it's uploaded to Fal's own storage only as part of making this
+// one call, and only the model's *output* URL (already `.fal.media`, per
+// `save/route.ts`'s existing allow-list) is ever eligible to become
+// `profiles.profile_photo_url`. Without a selfie, the route is text-to-image
+// only (see the Phase 7 comment below for the exact model on each path —
+// the image-guided model was changed post-launch and is no longer
+// `flux/dev/image-to-image`).
 //
 // Diagnostic fix (2026-08-19): reported "AI photo generation not working."
 // The flux/dev/image-to-image and flux/schnell payloads were re-checked
@@ -57,6 +58,57 @@ import { rateLimit, getClientIp } from "@/lib/rate-limit";
 // user-safe message per failure class; (3) always logging the full error
 // server-side, and echoing a `detail` field in the JSON response outside
 // production only (never reaches the deployed client-facing build).
+//
+// Phase 7 (2026-08-21, v4-migration-plan/00-bug-batch-plan.md) — cost
+// minimization + identity-preserving selfie generation:
+//
+// 1. Resolution cap (B3/B4): `image_size: "square_hd"` (1024×1024, Fal's
+//    most expensive text-to-image tier) is gone. Both branches now pass an
+//    explicit `{width, height}` — DEFAULT_IMAGE_SIZE (512×512) unless the
+//    client opts into `highQuality: true`, which steps up to HQ_IMAGE_SIZE
+//    (768×768) *and* switches the no-selfie branch from `flux/schnell` to
+//    `flux/dev`. There is no `highQuality` control in the UI yet
+//    (AiProfilePhotoScreen.tsx) — this is the server-side half of that
+//    contract, ready for whenever a "higher quality" toggle is added.
+//
+// 2. Selfie path switched from `flux/dev/image-to-image` to `fal-ai/flux-pulid`
+//    (user decision, 2026-08-20). Root cause of the prior bug: image-to-image's
+//    `strength: 0.75` controls how far the model may deviate from the input
+//    image — Fal's own default for that model is 0.95 (even less
+//    preservation) — and the prompt only described the *setting*, never
+//    instructed the model to keep the subject's actual features. With
+//    enough freedom and no identity anchor, the model reinvented faces
+//    (wrong hair colour, wrong skin tone/ethnicity vs. the uploaded photo).
+//    That's expected behaviour for denoising-strength image-to-image, not a
+//    misconfiguration — it was never designed to lock facial identity, only
+//    to partially blend pixels. PuLID preserves identity via ID embedding
+//    instead, which is architecturally the right tool for "same person,
+//    restyled into a new setting."
+//
+//    Field names below (`reference_image_url`, `id_weight`, `true_cfg`,
+//    `image_size`) were confirmed against the installed @fal-ai/client
+//    1.10.1's real type defs (types/endpoints.d.ts, `FluxPulidInput` /
+//    `"fal-ai/flux-pulid"` endpoint entry) before writing this, per the
+//    same discipline already documented above for flux/dev/flux/schnell —
+//    this is a distinct, real type (not FluxDevInput's shape reused).
+//    `reference_image_url` is typed `string | Blob | File`, so passing a
+//    Blob directly and letting the client's own transformInput upload it
+//    would have worked — but per the migration decision we upload via
+//    `fal.storage.upload()` explicitly and pass the resulting URL, so the
+//    upload is visible as its own awaited step rather than implicit
+//    library behavior.
+//
+//    Unlike the old image-to-image branch, PuLID does NOT inherit the
+//    reference image's dimensions (it's ID-conditioned generation, not
+//    pixel-blend img2img) — image_size is pinned explicitly here for
+//    exactly that reason; leaving it unset would silently regress the
+//    512/768 cost cap the same way the old `square_hd` default did.
+//
+//    `id_weight: 1.2` / `true_cfg: 1.5` sit slightly above PuLID's own
+//    documented defaults (1 / 1) — a modest bias toward facial likeness
+//    over prompt adherence, on top of the model swap itself. The prompt
+//    also gets an explicit "preserve identity" instruction appended as a
+//    cheap belt-and-suspenders measure alongside the model change.
 
 export const dynamic = "force-dynamic";
 
@@ -76,6 +128,14 @@ const STYLE_PROMPTS: StylePrompt[] = [
 ];
 
 fal.config({ credentials: process.env.FAL_KEY });
+
+// Cost-minimization (Phase 7, B4): default to the cheapest square tier;
+// only step up when explicitly requested. Fal's "square_hd" (1024×1024) was
+// previously used unconditionally for text-to-image — meaningfully pricier
+// per call than either of these for a feature whose output is a small
+// circular avatar.
+const DEFAULT_IMAGE_SIZE = { width: 512, height: 512 } as const;
+const HQ_IMAGE_SIZE = { width: 768, height: 768 } as const;
 
 const SELFIE_DATA_URL_RE = /^data:image\/(png|jpe?g|webp);base64,([A-Za-z0-9+/=]+)$/;
 // ~6MB decoded, generous headroom over the client's 768px/0.85-quality
@@ -130,6 +190,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid style." }, { status: 400 });
     }
 
+    // Explicit opt-in only (B3) — absent/false always stays on the cheap
+    // defaults (schnell or PuLID at 512×512). Mirrors the existing
+    // selfieImage-gates-image-to-image pattern: a flag the client must
+    // deliberately set, never an implicit upgrade.
+    const highQuality = body?.highQuality === true;
+    const imageSize = highQuality ? HQ_IMAGE_SIZE : DEFAULT_IMAGE_SIZE;
+
     let imageUrl: string | undefined;
 
     if (body?.selfieImage !== undefined) {
@@ -138,22 +205,47 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Invalid photo." }, { status: 400 });
       }
 
-      const result = await fal.subscribe("fal-ai/flux/dev/image-to-image", {
+      // PuLID, not flux/dev/image-to-image — see the header comment above
+      // for the identity-preservation root cause and the field-by-field
+      // type check against @fal-ai/client's real FluxPulidInput. Upload the
+      // selfie to Fal's storage ourselves first: reference_image_url wants
+      // a URL, and the migration decision was explicit upload over relying
+      // on the client's implicit Blob-transform behavior.
+      const referenceImageUrl = await fal.storage.upload(
+        new Blob([Uint8Array.from(selfie.buffer)], { type: selfie.mime }),
+      );
+
+      const result = await fal.subscribe("fal-ai/flux-pulid", {
         input: {
-          image_url: new Blob([Uint8Array.from(selfie.buffer)], { type: selfie.mime }),
-          prompt: style.prompt,
-          strength: 0.75,
+          reference_image_url: referenceImageUrl,
+          prompt: `${style.prompt}, preserve the exact facial identity, skin tone, and hair color of the reference photo`,
+          id_weight: 1.2, // slightly above the 1.0 default — bias toward likeness over prompt
+          true_cfg: 1.5, // modest prompt adherence without overpowering identity
+          // Unlike flux/dev/image-to-image, PuLID does not inherit the
+          // reference image's dimensions — pinning this explicitly is what
+          // keeps the 512/768 cost cap intact for this branch too.
+          image_size: imageSize,
         },
       });
       imageUrl = result.data.images?.[0]?.url;
     } else {
-      const result = await fal.subscribe("fal-ai/flux/schnell", {
-        input: {
-          prompt: style.prompt,
-          image_size: "square_hd",
-          num_inference_steps: 4,
-        },
-      });
+      // No selfie: text-to-image. Model only steps up from schnell to dev
+      // when highQuality is explicitly true — same cost-tiering B3/B4 need.
+      const result = highQuality
+        ? await fal.subscribe("fal-ai/flux/dev", {
+            input: {
+              prompt: style.prompt,
+              image_size: imageSize,
+              num_inference_steps: 28,
+            },
+          })
+        : await fal.subscribe("fal-ai/flux/schnell", {
+            input: {
+              prompt: style.prompt,
+              image_size: imageSize,
+              num_inference_steps: 4,
+            },
+          });
       imageUrl = result.data.images?.[0]?.url;
     }
 

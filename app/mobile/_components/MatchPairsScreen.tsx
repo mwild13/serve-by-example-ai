@@ -70,7 +70,10 @@ export default function MatchPairsScreen() {
   const [saved, setSaved] = useState(false);
   const completionRef = useRef<HTMLDivElement | null>(null);
 
-  const pairsFound = matched.size / 2;
+  // `matched` holds one entry per PAIR (keyed by pairId), not one per card —
+  // the old `/ 2` halved the real count, so the counter stalled at 3/6 on a
+  // fully-solved board.
+  const pairsFound = matched.size;
   const isComplete = pairsFound === PAIRS.length;
 
   useEffect(() => {

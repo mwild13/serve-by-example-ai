@@ -300,8 +300,13 @@ body {
   font-size: 16px;
   line-height: 1.65;
   overflow-x: clip;
-  touch-action: pan-x pan-y;
+  /* `pan-x pan-y` omitted pinch-zoom from the allowed gesture list, which could
+     leave a pinched-in viewport stuck (unable to zoom back out). `manipulation`
+     allows panning + pinch-zoom while still suppressing double-tap-to-zoom and
+     the 300ms tap delay — the original intent of this rule. */
+  touch-action: manipulation;
   overscroll-behavior-y: none;
+
   width: 100%;
 }
 

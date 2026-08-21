@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
-import { getMasteryProgress, getReviewQueue, getScenarioMasteryDetails, SCENARIO_COUNTS } from "@/lib/mastery";
+import { getMasteryProgress, getReviewQueue, getScenarioMasteryDetails, categoryMasteryAverage, SCENARIO_COUNTS } from "@/lib/mastery";
 import { resolveAccess } from "@/lib/session";
 
 const MANAGEMENT_ROLES = ["Manager", "Supervisor"];
@@ -36,7 +36,11 @@ export async function GET(req: Request) {
     ] = await Promise.all([
       Promise.all(
         LEGACY_MODULES.map(async (mod) => {
-          const progress = await getMasteryProgress(admin, user.id, mod);
+          // These 3 legacy fields (modules/mastery/scores/etc.) have always
+          // represented Scenario Training progress specifically — distinct
+          // from the newer is_mastered quiz gate and Arena's roleplay
+          // tracking — so "descriptor" is the correct, unambiguous type here.
+          const progress = await getMasteryProgress(admin, user.id, mod, "descriptor");
           return [mod, progress] as const;
         }),
       ),
@@ -123,6 +127,21 @@ export async function GET(req: Request) {
         };
       }
     }
+
+    // ── Category-average mastery rollup (Phase 4 fix, v4-migration-plan/00
+    // item 10) ── The old `mastery: {bartending, sales, management}` field
+    // below was actually masteryByModule[...].mastery — getMasteryProgress()
+    // run per *legacy string module*, a completely different calculation
+    // that happened to share a field name. This is the real category
+    // rollup desktop already computes independently 3x (see
+    // categoryMasteryAverage's doc comment in lib/mastery.ts); mobile's
+    // ScenarioTrainingScreen category cards (Phase 3) already read this
+    // same field, they just didn't get the fix until now.
+    const categoryMastery = {
+      bartending: categoryMasteryAverage(allModules ?? [], moduleProgress, "technical"),
+      sales: categoryMasteryAverage(allModules ?? [], moduleProgress, "service"),
+      management: categoryMasteryAverage(allModules ?? [], moduleProgress, "compliance"),
+    };
 
     // ── Canonical skill level (mastered modules / total × 10) ──
     const masteredModuleCount = allModules
@@ -223,11 +242,7 @@ export async function GET(req: Request) {
         sales: masteryByModule["sales"].completion,
         management: masteryByModule["management"].completion,
       },
-      mastery: {
-        bartending: masteryByModule["bartending"].mastery,
-        sales: masteryByModule["sales"].mastery,
-        management: masteryByModule["management"].mastery,
-      },
+      mastery: categoryMastery,
       scores: {
         bartending: masteryByModule["bartending"].avgScore,
         sales: masteryByModule["sales"].avgScore,

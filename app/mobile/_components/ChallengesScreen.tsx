@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   Trophy,
@@ -78,23 +79,16 @@ export default function ChallengesScreen() {
         {/* header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 20 }}>
           <p style={{ margin: 0, fontSize: 22, fontWeight: 700, color: "var(--text-mobile)" }}>Daily Challenges</p>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              padding: "4px 8px",
-              borderRadius: "var(--radius-pill)",
-              background: "var(--surface-mobile-inverse)",
-              fontSize: 12,
-              fontWeight: 700,
-              flexShrink: 0,
-            }}
-            aria-hidden="true"
-          >
-            <span style={{ color: "var(--green-mobile)" }}>S</span>
-            <span style={{ color: "var(--gold-mobile)" }}>B</span>
-            <span style={{ color: "var(--green-mobile)" }}>E</span>
-          </div>
+          {/* Real brand mark — same asset/pattern as components/Navbar.tsx's
+              <Image src="/logo.webp" ... />, replacing the fake S/B/E wordmark. */}
+          <Image
+            src="/logo.webp"
+            alt="Serve By Example"
+            width={32}
+            height={32}
+            quality={50}
+            style={{ flexShrink: 0, width: 32, height: 32, objectFit: "contain" }}
+          />
         </div>
 
         {/* completion-summary */}

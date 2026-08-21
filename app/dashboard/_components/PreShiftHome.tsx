@@ -5,6 +5,7 @@ import { GlassWater, TrendingUp, Users, Flame, Trophy, BookOpen, Share2, Target,
 import { computeBadges, countEarned, recentEarned, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
 import { KB_ENTRIES, KB_CATEGORIES } from "@/lib/knowledge-base";
 import { COCKTAILS, type Cocktail } from "@/lib/cocktails";
+import { computeStreak } from "@/lib/streak";
 
 type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "challenges" | "cocktails" | "knowledge" | "progress" | "settings";
 type ModuleKey = "bartending" | "sales" | "management";
@@ -123,33 +124,6 @@ function getWeakestModule(mastery: Record<ModuleKey, number>): ModuleKey {
   const keys: ModuleKey[] = ["bartending", "sales", "management"];
   return keys.reduce((w, k) => (mastery[k] < mastery[w] ? k : w));
 }
-
-function computeStreak(): number {
-  try {
-    const today = new Date().toISOString().slice(0, 10);
-    const lastDate = localStorage.getItem("sbe-streak-last");
-    const streakCount = parseInt(localStorage.getItem("sbe-streak-count") ?? "0", 10);
-    if (!lastDate) {
-      localStorage.setItem("sbe-streak-last", today);
-      localStorage.setItem("sbe-streak-count", "1");
-      return 1;
-    }
-    if (lastDate === today) return streakCount || 1;
-    const daysDiff = Math.round((new Date(today).getTime() - new Date(lastDate).getTime()) / 86400000);
-    if (daysDiff === 1) {
-      const next = streakCount + 1;
-      localStorage.setItem("sbe-streak-last", today);
-      localStorage.setItem("sbe-streak-count", String(next));
-      return next;
-    }
-    localStorage.setItem("sbe-streak-last", today);
-    localStorage.setItem("sbe-streak-count", "1");
-    return 1;
-  } catch {
-    return 0;
-  }
-}
-
 
 const AWARD_ICON = (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

@@ -117,6 +117,7 @@ export async function POST(req: Request) {
       userId: user.id,
       module: moduleIdToString(moduleId),
       moduleId,
+      scenarioType: "roleplay",
       scenarioIndex: ARENA_SCENARIO_INDEX,
       overallScore: score / 4,
       confidence: "medium",

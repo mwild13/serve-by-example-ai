@@ -2,17 +2,19 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowRight,
-  BookmarkPlus,
   TrendingUp,
   Wine,
-  AlertTriangle,
+  Users,
+  LockKeyhole,
+  ShieldAlert,
   type LucideIcon,
 } from "lucide-react";
 import BottomNav from "./BottomNav";
 import { useTrainingProgress } from "../_lib/use-training-progress";
-import { ARENA_SEED_SCENARIOS, formatArenaScenario } from "@/lib/arena-scenarios";
+import type { Module } from "@/app/dashboard/_components/trainer/trainer-data";
 
 // Phase B.5 — "Start Simulation" routes into the Arena.
 //
@@ -22,88 +24,39 @@ import { ARENA_SEED_SCENARIOS, formatArenaScenario } from "@/lib/arena-scenarios
 // ("Handling Guest Complaints") is the closest real catalog match to the
 // featured "Wine Cork Complaint" scenario copy below — see lib/module-navigator.ts.
 //
-// Live-QA fix (2026-08-19): the "Category Simulations" grid below was still
-// 6 fully fabricated cards (invented "N attempts" counts, invented
-// difficulty ratings, zero navigation) — reported as "Scenarios isn't
-// mapped to actual dashboard modules." Replaced with real modules from
-// useTrainingProgress()'s allModules/moduleProgress (same hook every other
-// mobile screen already reads through). Real attempts count, real
-// difficulty_level (1-5, already on TrainingModule — no invented field).
-//
-// Real per-module Arena entry point (2026-08-19, later same day): each card
-// now links straight into a real Arena run — `lib/arena-scenarios.ts`
-// (extracted from desktop's ArenaPage.tsx, which previously kept this
-// content as a private inline const) has situation/context/task content for
-// modules 1-20 at the time this was written. Cards build the same
-// moduleId/moduleTitle/scenario query-param payload the featured banner
-// above already uses. `moduleHref()`'s fallback to /mobile/learn for a
-// module with no seed content is now defensive rather than expected —
-// modules 21-40 gained real Arena content later the same day (see
-// lib/arena-scenarios.ts's own header) — but kept in case the catalog ever
-// grows past what has seed content again.
-//
-// Resilience pass (2026-08-19): this screen previously had no visible
-// feedback on a training-progress load failure — the grid just rendered
-// empty with nothing to explain why, same status quietly swallowed. Added
-// an explicit error state with retry, matching the pattern already used in
-// LearnHubScreen/ProgressScreen.
+// Phase 3 (v4-migration-plan/00, item 9): the "Category Simulations" grid
+// below used to be a fake 6-card slice of the 40-module Arena catalog
+// (ARENA_SEED_SCENARIOS) — the wrong content source entirely. Scenario
+// Training on desktop is a separate, legacy 3-module system
+// (trainer-data.ts::SCENARIOS — bartending ×10, sales ×10, management ×20),
+// distinct from both the Quiz gate (now /mobile/quiz) and Arena. Replaced
+// with 3 real category cards routing into /mobile/scenario-practice, one
+// per legacy module, gated the same way desktop gates them: a binary
+// free/paid tier gate (lib/session.ts), plus — for Management only — the
+// Manager/Supervisor role check the API already resolves server-side
+// (`autoUnlockManagement`, app/api/training/progress/route.ts) but mobile
+// wasn't reading yet. The featured Arena banner below is untouched — it
+// already links correctly into a real Arena run.
 
-const FEATURED_SCENARIO = {
-  moduleId: 11,
-  moduleTitle: "Handling Guest Complaints",
-  scenario:
-    "A guest sends back a bottle of wine, claiming it's corked, but you can tell from the cork and the smell that it is fine — it's just not to their taste. They are becoming insistent and slightly hostile about wanting a refund or a replacement bottle immediately.",
-};
+const arenaHref = (() => {
+  const moduleId = 11;
+  const moduleTitle = "Handling Guest Complaints";
+  const scenario =
+    "A guest sends back a bottle of wine, claiming it's corked, but you can tell from the cork and the smell that it is fine — it's just not to their taste. They are becoming insistent and slightly hostile about wanting a refund or a replacement bottle immediately.";
+  return `/mobile/arena?moduleId=${moduleId}&moduleTitle=${encodeURIComponent(moduleTitle)}&scenario=${encodeURIComponent(scenario)}`;
+})();
 
-const arenaHref = `/mobile/arena?moduleId=${FEATURED_SCENARIO.moduleId}&moduleTitle=${encodeURIComponent(
-  FEATURED_SCENARIO.moduleTitle,
-)}&scenario=${encodeURIComponent(FEATURED_SCENARIO.scenario)}`;
-
-// Category icon keyed by real module category — decorative only, not a
-// fabricated data field like the old per-title icon map was.
-const CATEGORY_ICONS: Record<string, LucideIcon> = {
-  technical: Wine,
-  service: TrendingUp,
-  compliance: AlertTriangle,
-};
-
-function DifficultyRating({ level }: { level: number }) {
-  return (
-    <div style={{ display: "flex", gap: 2, alignItems: "center" }} aria-label={`Difficulty ${level} of 5`}>
-      {Array.from({ length: 5 }, (_, i) => (
-        <BookmarkPlus
-          key={i}
-          size={12}
-          strokeWidth={2}
-          color={i < level ? "var(--gold-mobile)" : "var(--text-mobile-muted)"}
-          opacity={i < level ? 1 : 0.35}
-          aria-hidden="true"
-        />
-      ))}
-    </div>
-  );
-}
+const CATEGORY_CARDS: { module: Module; label: string; count: number; icon: LucideIcon }[] = [
+  { module: "bartending", label: "Bartending", count: 10, icon: Wine },
+  { module: "sales", label: "Sales", count: 10, icon: TrendingUp },
+  { module: "management", label: "Management", count: 20, icon: Users },
+];
 
 export default function ScenarioTrainingScreen() {
+  const router = useRouter();
   const { status, data, error, refetch } = useTrainingProgress();
 
-  const moduleCards = (() => {
-    if (status !== "ready") return [];
-    const allowed = data.allModules.filter((mod) => data.access.allowedModules.includes(mod.id));
-    // Show modules with a real Arena scenario first (playable, not a
-    // /mobile/learn dead-end) — otherwise the first 6 by catalog order could
-    // easily be all modules 21-40, which have no Arena content in V3 yet.
-    const withArena = allowed.filter((mod) => ARENA_SEED_SCENARIOS[mod.id]);
-    const withoutArena = allowed.filter((mod) => !ARENA_SEED_SCENARIOS[mod.id]);
-    return [...withArena, ...withoutArena].slice(0, 6);
-  })();
-
-  function moduleHref(moduleId: number, moduleTitle: string): string {
-    const seed = ARENA_SEED_SCENARIOS[moduleId];
-    if (!seed) return "/mobile/learn";
-    const scenario = formatArenaScenario(seed);
-    return `/mobile/arena?moduleId=${moduleId}&moduleTitle=${encodeURIComponent(moduleTitle)}&scenario=${encodeURIComponent(scenario)}`;
-  }
+  const isFreeTier = data?.access.tier === "free";
 
   return (
     <div
@@ -206,9 +159,9 @@ export default function ScenarioTrainingScreen() {
           </div>
         </div>
 
-        {/* grid-scenarios */}
+        {/* category-cards */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "0 20px 20px" }}>
-          <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>Your Modules</p>
+          <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>Category Simulations</p>
           {status === "error" ? (
             <div
               style={{
@@ -242,19 +195,6 @@ export default function ScenarioTrainingScreen() {
                 Try again
               </button>
             </div>
-          ) : status === "ready" && moduleCards.length === 0 ? (
-            <div
-              style={{
-                padding: 16,
-                borderRadius: "var(--radius-md)",
-                background: "var(--surface-mobile)",
-                border: "1px solid var(--border-mobile)",
-                color: "var(--text-mobile-muted)",
-                fontSize: 13,
-              }}
-            >
-              No modules unlocked yet.
-            </div>
           ) : status === "loading" ? (
             <div
               style={{
@@ -269,58 +209,119 @@ export default function ScenarioTrainingScreen() {
               Loading your modules…
             </div>
           ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              {moduleCards.map((mod) => {
-                const Icon = CATEGORY_ICONS[mod.category] ?? Wine;
-                const progress = data?.moduleProgress[mod.id];
-                const attempts = progress?.scenariosAttempted ?? 0;
-                return (
-                  <Link
-                    key={mod.id}
-                    href={moduleHref(mod.id, mod.title)}
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 12,
-                      padding: 14,
-                      borderRadius: "var(--radius-lg)",
-                      background: "var(--surface-mobile)",
-                      border: "1px solid var(--border-mobile)",
-                      textDecoration: "none",
-                    }}
-                  >
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {CATEGORY_CARDS.map((card) => {
+                const Icon = card.icon;
+                const mastery = data?.mastery[card.module] ?? 0;
+                // Management additionally requires the Manager/Supervisor
+                // role auto-unlock — a paid user without that role sees a
+                // role message, not a pricing redirect (matches desktop's
+                // gate: lib/session.ts's binary tier gate covers the paywall,
+                // MANAGEMENT_ROLES in app/api/training/progress/route.ts
+                // covers the role check).
+                const needsRole = card.module === "management" && !isFreeTier && !data?.autoUnlockManagement;
+                const locked = isFreeTier || needsRole;
+
+                const cardContent = (
+                  <>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <div
                         style={{
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          width: 36,
-                          height: 36,
+                          width: 40,
+                          height: 40,
                           borderRadius: "var(--radius-sm)",
                           background: "var(--surface-mobile-alt)",
                         }}
                       >
-                        <Icon size={18} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
+                        <Icon size={20} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
                       </div>
-                      <span style={{ fontSize: 11, color: "var(--text-mobile-muted)" }}>
-                        {attempts} attempt{attempts === 1 ? "" : "s"}
-                      </span>
+                      {isFreeTier && (
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 4,
+                            padding: "4px 8px",
+                            borderRadius: "var(--radius-pill)",
+                            background: "var(--gold-mobile-bg)",
+                          }}
+                        >
+                          <LockKeyhole size={12} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
+                          <span style={{ fontSize: 10, fontWeight: 700, color: "var(--gold-mobile)" }}>PRO</span>
+                        </div>
+                      )}
+                      {needsRole && (
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 4,
+                            padding: "4px 8px",
+                            borderRadius: "var(--radius-pill)",
+                            background: "var(--surface-mobile-alt)",
+                          }}
+                        >
+                          <ShieldAlert size={12} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
+                          <span style={{ fontSize: 10, fontWeight: 700, color: "var(--text-mobile-muted)" }}>ROLE</span>
+                        </div>
+                      )}
                     </div>
-                    <p
-                      style={{
-                        margin: 0,
-                        fontSize: 14,
-                        fontWeight: 700,
-                        color: "var(--text-mobile)",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                      <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--text-mobile)" }}>{card.label}</p>
+                      <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>
+                        {needsRole ? "Manager/Supervisor role required" : `${card.count} scenarios`}
+                      </p>
+                    </div>
+
+                    {!needsRole && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <div style={{ flex: 1, height: 6, borderRadius: 3, background: "var(--surface-mobile-alt)", overflow: "hidden" }}>
+                          <div style={{ width: `${mastery}%`, height: "100%", background: "var(--gold-mobile)" }} />
+                        </div>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: "var(--gold-mobile)" }}>{mastery}%</span>
+                      </div>
+                    )}
+                  </>
+                );
+
+                const cardStyle: React.CSSProperties = {
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 12,
+                  padding: 16,
+                  borderRadius: "var(--radius-lg)",
+                  background: "var(--surface-mobile)",
+                  border: "1px solid var(--border-mobile)",
+                  textAlign: "left",
+                  textDecoration: "none",
+                  font: "inherit",
+                  cursor: "pointer",
+                  opacity: needsRole ? 0.7 : 1,
+                };
+
+                if (locked) {
+                  return (
+                    <button
+                      key={card.module}
+                      type="button"
+                      disabled={needsRole}
+                      onClick={() => {
+                        if (isFreeTier) router.push("/pricing");
                       }}
+                      style={{ ...cardStyle, cursor: needsRole ? "default" : "pointer" }}
                     >
-                      {mod.title}
-                    </p>
-                    <DifficultyRating level={mod.difficulty_level} />
+                      {cardContent}
+                    </button>
+                  );
+                }
+
+                return (
+                  <Link key={card.module} href={`/mobile/scenario-practice?module=${card.module}&index=0`} style={cardStyle}>
+                    {cardContent}
                   </Link>
                 );
               })}

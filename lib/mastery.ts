@@ -50,10 +50,22 @@ const PASS_SCORE = 15; // out of 25 – threshold for "correct"
 
 export type ConfidenceLevel = "low" | "medium" | "high";
 
+/**
+ * scenario_mastery's real key is (user_id, module, scenario_type, scenario_index) —
+ * see supabase/migrations/20260820_scenario_mastery_scenario_type.sql. Quiz
+ * (markModuleMastered) always writes scenario_index=0; Arena roleplay
+ * (recordAttempt) always writes scenario_index=40; Scenario Training
+ * (recordAttempt, descriptor) writes the real trainer-data.ts content index.
+ * Without scenario_type, Quiz and the first Scenario Training scenario for
+ * modules 1-3 collide on the same (user, module, 0) row.
+ */
+export type ScenarioType = "quiz" | "descriptor" | "roleplay";
+
 export type MasteryRow = {
   id: string;
   user_id: string;
   module: string;
+  scenario_type: ScenarioType;
   scenario_index: number;
   mastery_level: number;
   consecutive_correct: number;
@@ -89,6 +101,7 @@ export type MasteryProgress = {
 
 export type SpacedRepetitionItem = {
   module: string;
+  scenarioType: ScenarioType;
   scenarioIndex: number;
   masteryLevel: number;
   nextReviewAt: string;
@@ -100,6 +113,12 @@ export type RecordAttemptInput = {
   userId: string;
   module: string;
   moduleId?: number; // numeric module id for new 20-module system
+  /**
+   * "quiz" never goes through recordAttempt() — that write path is
+   * markModuleMastered() only. recordAttempt() callers are Scenario
+   * Training (descriptor) and AI Arena (roleplay).
+   */
+  scenarioType: Exclude<ScenarioType, "quiz">;
   scenarioIndex: number;
   overallScore: number;
   confidence: ConfidenceLevel;
@@ -114,6 +133,26 @@ const LEGACY_MODULE_NAMES: Record<number, string> = {
 
 export function moduleIdToString(moduleId: number): string {
   return LEGACY_MODULE_NAMES[moduleId] ?? `module_${moduleId}`;
+}
+
+// Reverse of moduleIdToString() — resolves a scenario_mastery `module`
+// string back to its numeric catalog id. Used by consumers (Phase 5,
+// v4-migration-plan/00-bug-batch-plan.md item 11) that need to look up real
+// module metadata (title, category) from the `modules` table/allModules for
+// Quiz and Arena roleplay rows, where the numeric id genuinely identifies
+// matching catalog content. NOT safe to use for resolving a title for
+// "descriptor" (Scenario Training) rows on modules 1-3 — LEGACY_MODULE_NAMES
+// only exists so those legacy string rows can reuse the numeric catalog's
+// access-gate plumbing (see LEGACY_MODULE_ID in training/save/route.ts); the
+// catalog content actually sitting at ids 1/2/3 ("Pouring the Perfect Beer",
+// "Wine Knowledge & Service", "Cocktail Fundamentals") is unrelated to the
+// Scenario Training content shown under the "sales"/"management" labels.
+const LEGACY_MODULE_IDS: Record<string, number> = { bartending: 1, sales: 2, management: 3 };
+
+export function moduleStringToId(moduleStr: string): number | null {
+  if (moduleStr in LEGACY_MODULE_IDS) return LEGACY_MODULE_IDS[moduleStr];
+  const match = /^module_(\d+)$/.exec(moduleStr);
+  return match ? Number(match[1]) : null;
 }
 
 export type RecordAttemptResult = {
@@ -176,7 +215,7 @@ export async function recordAttempt(
   admin: SupabaseClient,
   input: RecordAttemptInput,
 ): Promise<RecordAttemptResult> {
-  const { userId, scenarioIndex, overallScore, confidence } = input;
+  const { userId, scenarioType, scenarioIndex, overallScore, confidence } = input;
 
   // Resolve module string – if moduleId is provided, derive from it
   const moduleName = input.moduleId
@@ -187,12 +226,15 @@ export async function recordAttempt(
   const isCorrect = overallScore >= PASS_SCORE;
   const now = new Date();
 
-  // Fetch existing mastery row
+  // Fetch existing mastery row — scoped to scenario_type so a Scenario
+  // Training (descriptor) attempt at index 0 never reads/overwrites the
+  // Quiz-mastery row that also lives at (user, module, index 0).
   const { data: existing } = await admin
     .from("scenario_mastery")
     .select("*")
     .eq("user_id", userId)
     .eq("module", moduleName)
+    .eq("scenario_type", scenarioType)
     .eq("scenario_index", scenarioIndex)
     .maybeSingle();
 
@@ -258,29 +300,41 @@ export async function recordAttempt(
   const newTotalScore = (row?.total_score_points ?? 0) + overallScore;
   const newBestScore = Math.max(row?.best_score ?? 0, overallScore);
 
-  await admin.from("scenario_mastery").upsert(
-    {
-      user_id: userId,
-      module: moduleName,
-      module_id: moduleId,
-      scenario_index: scenarioIndex,
-      mastery_level: newMasteryLevel,
-      consecutive_correct: newConsecutiveCorrect,
-      consecutive_fails: newConsecutiveFails,
-      total_attempts: newTotalAttempts,
-      total_score_points: newTotalScore,
-      best_score: newBestScore,
-      last_score: overallScore,
-      last_attempt_at: now.toISOString(),
-      next_review_at: review,
-      elo_rating: updatedElo,
-      last_confidence: confidence,
-      high_confidence_incorrect: (row?.high_confidence_incorrect ?? 0) + incHighConfIncorrect,
-      low_confidence_correct: (row?.low_confidence_correct ?? 0) + incLowConfCorrect,
-      updated_at: now.toISOString(),
-    },
-    { onConflict: "user_id,module,scenario_index" },
-  );
+  const upsertPayload: Record<string, unknown> = {
+    user_id: userId,
+    module: moduleName,
+    module_id: moduleId,
+    scenario_type: scenarioType,
+    scenario_index: scenarioIndex,
+    mastery_level: newMasteryLevel,
+    consecutive_correct: newConsecutiveCorrect,
+    consecutive_fails: newConsecutiveFails,
+    total_attempts: newTotalAttempts,
+    total_score_points: newTotalScore,
+    best_score: newBestScore,
+    last_score: overallScore,
+    last_attempt_at: now.toISOString(),
+    next_review_at: review,
+    elo_rating: updatedElo,
+    last_confidence: confidence,
+    high_confidence_incorrect: (row?.high_confidence_incorrect ?? 0) + incHighConfIncorrect,
+    low_confidence_correct: (row?.low_confidence_correct ?? 0) + incLowConfCorrect,
+    updated_at: now.toISOString(),
+  };
+
+  // Roleplay (Arena) mirrors the Quiz gate: a pass sets is_mastered=true as
+  // a sticky flag that a later fail never reverses — same one-directional
+  // semantics as markModuleMastered(). syncMasteryToVenueStaff() reads this
+  // on scenario_index=40 rows for the 20% Arena slice of service_score.
+  // On a fail we omit the key entirely (not set it false) so upsert leaves
+  // any existing true value untouched, rather than clobbering a past pass.
+  if (scenarioType === "roleplay" && isCorrect) {
+    upsertPayload.is_mastered = true;
+  }
+
+  await admin.from("scenario_mastery").upsert(upsertPayload, {
+    onConflict: "user_id,module,scenario_type,scenario_index",
+  });
 
   // ── Bridge logic ───────────────────────────────────────────
   const isBridge = newConsecutiveFails >= 2;
@@ -329,6 +383,7 @@ export async function markModuleMastered(
     .select("is_mastered, total_attempts")
     .eq("user_id", userId)
     .eq("module", moduleName)
+    .eq("scenario_type", "quiz")
     .eq("scenario_index", 0)
     .maybeSingle();
 
@@ -341,6 +396,7 @@ export async function markModuleMastered(
       user_id: userId,
       module: moduleName,
       module_id: moduleId,
+      scenario_type: "quiz",
       scenario_index: 0,
       is_mastered: true,
       mastery_level: 3,
@@ -354,7 +410,7 @@ export async function markModuleMastered(
       next_review_at: now,
       updated_at: now,
     },
-    { onConflict: "user_id,module,scenario_index" },
+    { onConflict: "user_id,module,scenario_type,scenario_index" },
   );
 
   return { isMastered: true, alreadyMastered };
@@ -366,12 +422,14 @@ export async function getMasteryProgress(
   admin: SupabaseClient,
   userId: string,
   module: string,
+  scenarioType: ScenarioType,
 ): Promise<MasteryProgress> {
   const { data: rows } = await admin
     .from("scenario_mastery")
     .select("mastery_level, total_attempts, total_score_points, elo_rating")
     .eq("user_id", userId)
-    .eq("module", module);
+    .eq("module", module)
+    .eq("scenario_type", scenarioType);
 
   const total = SCENARIO_COUNTS[module] ?? 10;
   const masteryRows = (rows ?? []) as Pick<MasteryRow, "mastery_level" | "total_attempts" | "total_score_points" | "elo_rating">[];
@@ -408,9 +466,14 @@ export async function getReviewQueue(
 ): Promise<SpacedRepetitionItem[]> {
   const now = new Date().toISOString();
 
+  // Not filtered by scenario_type — a review row can be Quiz, Scenario
+  // Training, or Arena content; scenario_type is returned so callers (e.g.
+  // ProgressScreen's "Up Next For Review" labels, Phase 5) can branch the
+  // display text per type instead of assuming every row is descriptor
+  // content.
   let query = admin
     .from("scenario_mastery")
-    .select("module, scenario_index, mastery_level, next_review_at, last_score, consecutive_fails")
+    .select("module, scenario_type, scenario_index, mastery_level, next_review_at, last_score, consecutive_fails")
     .eq("user_id", userId)
     .lte("next_review_at", now)
     .order("next_review_at", { ascending: true })
@@ -424,6 +487,7 @@ export async function getReviewQueue(
 
   return (rows ?? []).map((r) => ({
     module: r.module as string,
+    scenarioType: r.scenario_type as ScenarioType,
     scenarioIndex: r.scenario_index as number,
     masteryLevel: r.mastery_level as number,
     nextReviewAt: r.next_review_at as string,
@@ -447,6 +511,31 @@ export async function getScenarioMasteryDetails(
     .order("scenario_index", { ascending: true });
 
   return (data ?? []) as MasteryRow[];
+}
+
+// ── Category-average mastery rollup ──────────────────────────
+//
+// Phase 4 (v4-migration-plan/00-bug-batch-plan.md, item 10). Averages
+// moduleProgress[m.id].mastery across every module in `allModules` matching
+// `category`, defaulting to 0 when the category has no modules. This was
+// hand-duplicated 3x on desktop (ProgressOverview.tsx::catAvg(),
+// PreShiftHome.tsx::getCategoryMastery(), BadgesView.tsx::catAvg()) and NOT
+// implemented server-side at all — GET /api/training/progress's legacy
+// `mastery: {bartending, sales, management}` field was actually
+// getMasteryProgress() run per legacy-string-module, a different and
+// unrelated calculation that happened to share a field name. New callers
+// (mobile or desktop) should read this helper — or the `mastery` field on
+// GET /api/training/progress, which now calls it — rather than
+// re-deriving the average locally a 4th time.
+export function categoryMasteryAverage(
+  allModules: { id: number; category: string }[],
+  moduleProgress: Record<number, { mastery: number }>,
+  category: string,
+): number {
+  const mods = allModules.filter((m) => m.category === category);
+  if (mods.length === 0) return 0;
+  const avg = mods.reduce((sum, m) => sum + (moduleProgress[m.id]?.mastery ?? 0), 0) / mods.length;
+  return Math.round(avg);
 }
 
 // ── Sync mastery data to venue_staff for management dashboard ──
