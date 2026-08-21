@@ -3,6 +3,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { getMasteryProgress, getReviewQueue, getScenarioMasteryDetails, categoryMasteryAverage, SCENARIO_COUNTS } from "@/lib/mastery";
 import { resolveAccess } from "@/lib/session";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 const MANAGEMENT_ROLES = ["Manager", "Supervisor"];
 
@@ -13,6 +14,16 @@ export async function GET(req: Request) {
   try {
     const { user } = await getUserFromRequest(req);
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    // V4 priority-1 fix (2026-08-21): this read fires on mount from nearly
+    // every mobile screen (Home, Learn Hub, Progress, Challenges, Badges,
+    // Scenario Training) plus its desktop equivalents, so the limit is set
+    // much higher than the 20/min write-route norm to absorb normal rapid
+    // screen-to-screen navigation without false-positiving real users.
+    const ip = getClientIp(req);
+    if (!rateLimit(`training-progress:user:${user.id}`, 60) || !rateLimit(`training-progress:ip:${ip}`, 60)) {
+      return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    }
 
     const admin = createSupabaseAdminClient();
 

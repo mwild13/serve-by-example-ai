@@ -4,6 +4,7 @@ import { getUserFromRequest } from "@/lib/supabase-server";
 import { recordAttempt, syncMasteryToVenueStaff, markModuleMastered, moduleIdToString, SCENARIO_COUNTS, type ConfidenceLevel } from "@/lib/mastery";
 import { resolveAccess, validateSession } from "@/lib/session";
 import { VERIFY_QUESTIONS } from "@/lib/verify-questions";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 const VERIFY_PASS_THRESHOLD = 4; // must match ModuleVerify PASS_THRESHOLD
 
@@ -65,6 +66,18 @@ export async function POST(req: Request) {
     const { user } = await getUserFromRequest(req);
     if (!user) {
       return NextResponse.json({ error: "Unauthorized", code: "UNAUTHORIZED" }, { status: 401 });
+    }
+
+    // V4 priority-1 fix (2026-08-21): this write path had no rate limiting —
+    // mobile's Scenario Training and ModuleVerify screens both post here.
+    // 20/min matches the "text-route norm" this same file 08 established for
+    // evaluate/arena (dual user+IP, same shape as arena/evaluate/route.ts).
+    const ip = getClientIp(req);
+    if (!rateLimit(`training-save:user:${user.id}`, 20) || !rateLimit(`training-save:ip:${ip}`, 20)) {
+      return NextResponse.json(
+        { error: "Too many requests. Try again in a minute.", code: "RATE_LIMITED" },
+        { status: 429 },
+      );
     }
 
     const body = await req.json();
