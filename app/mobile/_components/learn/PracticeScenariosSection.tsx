@@ -1,11 +1,20 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, TrendingUp, Wine, Users, LockKeyhole, ShieldAlert, type LucideIcon } from "lucide-react";
+import {
+  TrendingUp,
+  Wine,
+  Users,
+  LockKeyhole,
+  ShieldAlert,
+  BottleWine,
+  ShieldCheck,
+  type LucideIcon,
+} from "lucide-react";
 import type { TrainingProgress } from "../../_lib/use-training-progress";
 import type { Module } from "@/app/dashboard/_components/trainer/trainer-data";
+import { ARENA_SEED_SCENARIOS, formatArenaScenario } from "@/lib/arena-scenarios";
 
 // 3-tab consolidation (2026-08-21): ported from the deleted
 // ScenarioTrainingScreen.tsx (formerly the whole /mobile/scenarios page) —
@@ -14,26 +23,44 @@ import type { Module } from "@/app/dashboard/_components/trainer/trainer-data";
 // was stripped; LearnHubScreen.tsx owns all of that now and only renders
 // this section once training progress is loaded (`data` is never null here).
 //
-// Phase C file 04 — "Start Simulation" carries the scenario payload
-// (moduleId/moduleTitle/scenario) as query params into /mobile/arena, which
-// reads them to build the real POST /api/arena/evaluate request. Module 11
-// ("Handling Guest Complaints") is the closest real catalog match to the
-// featured "Wine Cork Complaint" scenario copy below — see lib/module-navigator.ts.
+// Priority-2 fix (2026-08-21): the single static "Wine Cork Complaint" /
+// Module 11 banner is replaced with a real Live Arena picker across all 40
+// modules. Checked GET /api/training/modules/[moduleId]/scenarios first
+// (live DB query) — it only ever returns scenario_type='quiz' rows (8 per
+// module, all 40 modules; zero descriptor_l2/descriptor_l3/roleplay rows
+// exist), so it can't back a real Arena/Practice picker today. Built instead
+// from lib/arena-scenarios.ts::ARENA_SEED_SCENARIOS, which already has one
+// real roleplay scenario per module id (1-40) — same source QuizScreen's
+// "Try it in Live Arena" CTA already uses, so this doesn't introduce a
+// second content system. Module title/difficulty/mastery come from `data`
+// (already prop-drilled from LearnHubScreen's single useTrainingProgress()
+// call). Tapping a card routes into /mobile/arena?moduleId=...&moduleTitle=
+// ...&scenario=..., the exact param shape ArenaScreen already reads — no
+// ArenaScreen changes needed.
 //
-// Phase 3 (v4-migration-plan/00, item 9): the 3 category cards route into
-// /mobile/scenario-practice, one per legacy module (trainer-data.ts::SCENARIOS
-// — bartending ×10, sales ×10, management ×20), gated the same way desktop
-// gates them: a binary free/paid tier gate (lib/session.ts), plus — for
-// Management only — the Manager/Supervisor role check the API already
-// resolves server-side (`autoUnlockManagement`).
+// Phase 3 (v4-migration-plan/00, item 9): the 3 category cards below route
+// into /mobile/scenario-practice, one per legacy module (trainer-data.ts::
+// SCENARIOS — bartending ×10, sales ×10, management ×20), gated the same
+// way desktop gates them: a binary free/paid tier gate (lib/session.ts),
+// plus — for Management only — the Manager/Supervisor role check the API
+// already resolves server-side (`autoUnlockManagement`). This part already
+// browses real content (index-based Next/Skip in ScenarioPracticeScreen),
+// so it's untouched by the Live Arena picker change above.
 
-const arenaHref = (() => {
-  const moduleId = 11;
-  const moduleTitle = "Handling Guest Complaints";
-  const scenario =
-    "A guest sends back a bottle of wine, claiming it's corked, but you can tell from the cork and the smell that it is fine — it's just not to their taste. They are becoming insistent and slightly hostile about wanting a refund or a replacement bottle immediately.";
-  return `/mobile/arena?moduleId=${moduleId}&moduleTitle=${encodeURIComponent(moduleTitle)}&scenario=${encodeURIComponent(scenario)}`;
-})();
+function getDifficultyLabel(level: number): string {
+  // Matches app/dashboard/_components/DynamicModuleNav.tsx's convention —
+  // duplicated here (not exported/imported) since it's a 4-line pure
+  // function and that file isn't otherwise a dependency of the mobile tree.
+  if (level <= 2) return "Beginner";
+  if (level === 3) return "Intermediate";
+  return "Advanced";
+}
+
+const ARENA_CATEGORY_ICON: Record<"technical" | "service" | "compliance", LucideIcon> = {
+  technical: BottleWine,
+  service: Users,
+  compliance: ShieldCheck,
+};
 
 const CATEGORY_CARDS: { module: Module; label: string; count: number; icon: LucideIcon }[] = [
   { module: "bartending", label: "Bartending", count: 10, icon: Wine },
@@ -51,61 +78,128 @@ export default function PracticeScenariosSection({ data }: { data: TrainingProgr
         Practice &amp; Scenarios
       </p>
 
-      {/* featured-scenario-section */}
-      <div style={{ padding: "0 20px 20px" }}>
+      {/* live-arena-picker — replaces the old single hardcoded scenario */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "0 0 20px" }}>
+        <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--text-mobile-muted)", padding: "0 20px" }}>
+          LIVE ARENA — PICK A MODULE
+        </p>
         <div
           style={{
-            position: "relative",
             display: "flex",
-            flexDirection: "column",
             gap: 12,
-            padding: 18,
-            borderRadius: "var(--radius-xl)",
-            overflow: "hidden",
-            minHeight: 190,
-            justifyContent: "flex-end",
+            padding: "0 20px",
+            overflowX: "auto",
+            scrollSnapType: "x proximity",
+            WebkitOverflowScrolling: "touch",
           }}
         >
-          <Image src="/mobile/scenario-banner.png" alt="" fill style={{ objectFit: "cover", zIndex: 0 }} />
-          <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 1 }} />
+          {data.allModules
+            .filter((mod) => ARENA_SEED_SCENARIOS[mod.id] !== undefined)
+            .map((mod) => {
+              const seed = ARENA_SEED_SCENARIOS[mod.id];
+              const Icon = ARENA_CATEGORY_ICON[mod.category];
+              const mastery = data.moduleProgress[mod.id]?.mastery ?? 0;
+              const locked = !data.access.allowedModules.includes(mod.id);
+              const scenarioText = formatArenaScenario(seed);
+              const arenaHref = `/mobile/arena?moduleId=${mod.id}&moduleTitle=${encodeURIComponent(mod.title)}&scenario=${encodeURIComponent(scenarioText)}`;
 
-          <div style={{ position: "relative", zIndex: 2, display: "flex", gap: 6 }}>
-            <div
-              style={{
+              const cardContent = (
+                <>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 36,
+                        height: 36,
+                        borderRadius: "var(--radius-sm)",
+                        background: "var(--surface-mobile-alt)",
+                      }}
+                    >
+                      <Icon size={18} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
+                    </div>
+                    {locked && (
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 4,
+                          padding: "4px 8px",
+                          borderRadius: "var(--radius-pill)",
+                          background: "var(--gold-mobile-bg)",
+                        }}
+                      >
+                        <LockKeyhole size={12} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
+                        <span style={{ fontSize: 10, fontWeight: 700, color: "var(--gold-mobile)" }}>PRO</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: "var(--text-mobile)",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {mod.title}
+                    </p>
+                    <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>
+                      {getDifficultyLabel(mod.difficulty_level)}
+                    </p>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ flex: 1, height: 6, borderRadius: 3, background: "var(--surface-mobile-alt)", overflow: "hidden" }}>
+                      <div style={{ width: `${mastery}%`, height: "100%", background: "var(--gold-mobile)" }} />
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "var(--gold-mobile)" }}>{mastery}%</span>
+                  </div>
+                </>
+              );
+
+              const cardStyle: React.CSSProperties = {
+                flexShrink: 0,
+                scrollSnapAlign: "start",
+                width: 180,
                 display: "flex",
-                padding: "4px 10px",
-                borderRadius: "var(--radius-pill)",
-                background: "var(--gold-mobile)",
-              }}
-            >
-              <span style={{ fontSize: 10, fontWeight: 700, color: "var(--bg-mobile-dark)" }}>NEW RELEASE</span>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                padding: "4px 10px",
-                borderRadius: "var(--radius-pill)",
-                border: "1px solid var(--border-light-on-dark)",
-              }}
-            >
-              <span style={{ fontSize: 10, fontWeight: 700, color: "var(--text-mobile)" }}>Advanced</span>
-            </div>
-          </div>
+                flexDirection: "column",
+                gap: 12,
+                padding: 14,
+                borderRadius: "var(--radius-lg)",
+                background: "var(--surface-mobile)",
+                border: "1px solid var(--border-mobile)",
+                textAlign: "left",
+                textDecoration: "none",
+                font: "inherit",
+                cursor: "pointer",
+              };
 
-          <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", gap: 4 }}>
-            <p style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "var(--text-mobile)" }}>Wine Cork Complaint</p>
-            <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>
-              Learn the exact words to say to save a table and upsell a higher premium bottle.
-            </p>
-          </div>
+              if (locked) {
+                return (
+                  <button
+                    key={mod.id}
+                    type="button"
+                    onClick={() => router.push("/pricing")}
+                    style={cardStyle}
+                  >
+                    {cardContent}
+                  </button>
+                );
+              }
 
-          <Link
-            href={arenaHref}
-            style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", gap: 6, textDecoration: "none" }}
-          >
-            <span style={{ fontSize: 14, fontWeight: 700, color: "var(--gold-mobile)" }}>Start Simulation</span>
-            <ArrowRight size={16} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
-          </Link>
+              return (
+                <Link key={mod.id} href={arenaHref} style={cardStyle}>
+                  {cardContent}
+                </Link>
+              );
+            })}
         </div>
       </div>
 
