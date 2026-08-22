@@ -177,8 +177,14 @@ export default function ScenarioPracticeScreen() {
           </div>
         </div>
 
+        {/* key forces a full remount per scenario — same pattern desktop's
+            DashboardTrainer.tsx uses (key={`${activeModule}-${scenarioIndex}`}
+            on its trainer-panel). Without it, this subtree relies purely on
+            goToScenario()'s manual state resets to reflect a new question;
+            with it, React can't carry any stale DOM/state across an index
+            change even if a future edit here adds child-local state. */}
         {status === "result" && result ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 14, padding: "0 20px 20px" }}>
+          <div key={`${moduleName}-${index}`} style={{ display: "flex", flexDirection: "column", gap: 14, padding: "0 20px 20px" }}>
             {/* save-failure notice — surfaces a dropped /api/training/save
                 call instead of silently discarding it (persistAttempt above).
                 Non-blocking: the score above is already final either way. */}
@@ -300,7 +306,7 @@ export default function ScenarioPracticeScreen() {
             </button>
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "0 20px 20px" }}>
+          <div key={`${moduleName}-${index}`} style={{ display: "flex", flexDirection: "column", gap: 12, padding: "0 20px 20px" }}>
             <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: "var(--text-mobile-muted)" }}>
               CHOOSE AN APPROACH, OR WRITE YOUR OWN
             </p>

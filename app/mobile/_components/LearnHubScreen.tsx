@@ -190,6 +190,8 @@ export default function LearnHubScreen() {
             background: "var(--bg-mobile-dark)",
             overflowX: "auto",
             scrollSnapType: "x proximity",
+            scrollPaddingLeft: 20,
+            scrollPaddingRight: 20,
             WebkitOverflowScrolling: "touch",
           }}
         >
