@@ -2,7 +2,7 @@
 
 ## Primary Goal & UI Targets
 
-All 13 `app/mobile/_components/` screens. "Done" = a single end-to-end integration checklist confirming every screen's real data path works (not just navigation, which the earlier Phase B.5 plan already covers), every rate limit is accounted for, and the codebase passes the same type/lint/style bar the rest of the project holds.
+All 17 `app/mobile/_components/*Screen.tsx` screens (corrected 2026-08-22 — this file's original "13" count predates Challenges' 4 mini-game screens and AI Photo). "Done" = a single end-to-end integration checklist confirming every screen's real data path works (not just navigation, which the earlier Phase B.5 plan already covers), every rate limit is accounted for, and the codebase passes the same type/lint/style bar the rest of the project holds.
 
 ## Diamond Extraction List
 
@@ -37,14 +37,34 @@ All 13 `app/mobile/_components/` screens. "Done" = a single end-to-end integrati
 2. Run `npx eslint` across every file touched in files `01`–`10`'s implementation — clean, including `sbe-design/no-hardcoded-hex`.
 3. Full manual click-through, real data this time (extends the earlier Phase B.5 navigation-only pass):
    - Log in fresh → `/mobile/home` → confirm no redirect loop, confirm real recommendation data (not static copy).
-   - Learn Hub → confirm real modules, real lock state per tier, real mastery badges.
-   - Scenario Training → Start Simulation → Arena → submit a response → confirm real score, confirm `elo_rating` updates, confirm manager console reflects it (file `09`).
+   - Learn Hub → confirm real modules, real lock state per tier, real mastery badges. (Post 3-tab consolidation, 2026-08-21: Learn Hub is now the single entry point for Practice & Scenarios / Core Knowledge / Mini-Games / Reference Library — "Scenario Training" as a standalone screen no longer exists, see below.)
+   - Learn Hub's Practice & Scenarios section → tap a Live Arena module card → Arena → submit a response → confirm real score, confirm `elo_rating` updates, confirm manager console reflects it (traced end-to-end 2026-08-22, see Implementation Notes below — confirmed wired, no broken link).
    - Challenges → Match Pairs → complete → confirm `user_challenges` upsert, confirm Progress screen's challenge count increments.
    - Cocktail Library / Knowledge Base → confirm real 38/31-entry data, confirm search and filters work.
    - Badges → confirm real computed badge states, not the "14/52" mock.
    - Onboarding Diagnostic → confirm the real 10-question flow (not the self-report picker) produces correct category Elo and seeds `scenario_mastery`.
-   - AI Profile Photo → confirm generation, save, and persistence (if file `08`'s net-new build has shipped by this point — otherwise confirm it's clearly marked as not-yet-available rather than silently broken).
-4. Confirm every mobile write path traces to an existing V3 API route per file `09`'s audit — no orphaned mobile-only persistence.
-5. Confirm the rate-limit table above is current; add limits to any previously-unrated route if mobile traffic volume warrants it.
-6. Confirm resilience behavior from file `10` (offline queue, retry UI) on at least the two idempotent write paths.
+   - AI Profile Photo → confirm generation, save, and persistence (shipped; confirm on-device).
+4. Confirm every mobile write path traces to an existing V3 API route per file `09`'s audit — no orphaned mobile-only persistence. (Audited 2026-08-22, see Implementation Notes below — no orphaned-persistence bug found.)
+5. Confirm the rate-limit table above is current; add limits to any previously-unrated route if mobile traffic volume warrants it. (`training/save`, `training/progress`, `training/challenges/save`, `session/stamp` rate-limited 2026-08-21 — table above still needs a manual refresh to list them.)
+6. Confirm resilience behavior from file `10` (offline queue, retry UI) — shipped 2026-08-22, scoped to `training/challenges/save` only (not both write paths originally specced — `training/save`'s cumulative-write design made it unsafe to blind-retry; see file `10`'s own updated notes).
 7. Sign-off: only after all of the above pass does Phase C get marked complete.
+
+## Implementation Notes (2026-08-22) — code-level audit pass, not the human click-through
+
+Ran the 3 code-verifiable items from the checklist above (Arena→manager propagation, orphaned-persistence sweep, real-data sweep) as a full trace/grep audit before handing the remaining device-only items to the user. No code changes made in this pass — audit only, findings below.
+
+**Arena → manager console (checklist item 3's Scenario Training row, item 4):** traced `ArenaScreen.tsx` → `POST /api/arena/evaluate` → `recordAttempt(..., scenarioType: "roleplay")` → `syncMasteryToVenueStaff()` → `venue_staff.service_score` → `TeamsPerformancePanel.tsx`/`LeaderboardBoard.tsx` (manager UI), hop by hop. **Fully wired, no broken link.** Two things a prior session flagged as open concerns are confirmed fixed in current code: `syncMasteryToVenueStaff()` is called unconditionally after every Arena evaluate (`arena/evaluate/route.ts:126`, not dead code), and a roleplay pass does set `is_mastered = true` (`lib/mastery.ts:325-333`, mirrors the quiz gate, sticky/never-reversed). Arena is a real, non-zero 20% weight in `service_score`.
+
+**Orphaned persistence (item 4):** every `localStorage` key under `app/mobile/` traced. One key (`sbe_challenges_completed`) is meant to sync — confirmed every write path POSTs immediately with retry-queue coverage on failure (file `10`, 2026-08-22). Everything else (`sbe-ai-portrait-draft`, `sbe-match-pairs-best-moves`, `sbe-streak-*`, `sbe-retry-queue`) is intentionally local-only, each already documented as such in its own file. `sbe-match-pairs-best-moves` specifically: confirmed no DB column or API route touches it anywhere — a device-level vanity stat matching desktop's own equivalent, not a bug.
+
+**Real-data sweep (all 17 screens, corrected count above):** zero `TODO`/`FIXME` hits. Every "mock" string found is a comment describing a fix already made (Phase B skeleton → real data), not a live placeholder. Two intentional non-DB elements confirmed by design: Cocktail Library/Knowledge Base (static content libraries, same pattern as desktop) and the hardcoded `"medium"` confidence default on Arena/Scenario Practice (no confidence-picker UI was ever spec'd).
+
+**Still outstanding — genuinely needs a human on a real device, not code review:** the actual click-through (steps 1-3 above), visual rendering of the new sticky jump-nav pills and offline/sync banner, touch-gesture correctness on Match Pairs, and the rate-limit table refresh noted at item 5.
+
+## Headless Functional Checks (2026-08-22)
+
+Ran the 3 backend flows the user asked to confirm headlessly, against a local `next dev` server before any device pass. One passed cleanly with a caveat noted; the other two hit a genuine auth blocker and are deferred to the human device pass rather than worked around.
+
+- **Redirect check — pass, with one caveat.** `curl -D - http://localhost:3000/mobile/scenarios` (unauthenticated) returns `307 Temporary Redirect` → `location: /login`. That's `middleware.ts:122`'s `/mobile/*` auth gate firing first, before `app/mobile/scenarios/page.tsx`'s own `redirect("/mobile/learn")` ever runs — correct behavior, confirms no unauthenticated leak on the route. What this *didn't* confirm: the authenticated case (signed-in user hits `/mobile/scenarios`, gets 307 → `/mobile/learn` specifically). That needs a real session cookie past the middleware gate — fold it into the device click-through (step 3 of the checklist above already covers this route implicitly via the old-bookmark scenario).
+- **Manager Sync check (Arena → `service_score`) — deferred to device pass.** `/api/arena/evaluate` checks `getUserFromRequest()` before anything else, and there's no test-user credential anywhere in this repo (checked — no seed fixtures, no documented QA account). Firing it for real would mean fabricating a live Supabase auth user, spending a real billed GPT-4o-mini call, and writing real rows to `scenario_mastery`/`venue_staff.service_score` on the production project — decided against automating that without a designated test account. The chain itself is already confirmed correct at the code level (see the Arena → manager console note above, hop-by-hop trace). Confirm live during the device pass using a real or designated test staff login.
+- **Rate limit check (`training/challenges/save`) — deferred to device pass, and not meaningfully automatable without auth anyway.** Same route checks auth before the rate limiter runs (`getUserFromRequest()` → 401 gate → `rateLimit()`), so 25 *unauthenticated* rapid-fire requests would just 401 every time and never exercise the limiter — that wouldn't actually test what was being asked. Needs a signed-in session to mean anything; fold into the device pass (rapid-tap a Challenge game's completion a few times in a row and confirm a 429 surfaces as a queued retry, not a silent failure).
