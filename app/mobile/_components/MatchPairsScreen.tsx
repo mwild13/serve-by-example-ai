@@ -5,13 +5,17 @@ import Link from "next/link";
 import { Martini, RotateCcw } from "lucide-react";
 import BottomNav from "./BottomNav";
 import { useMobileSession } from "../_lib/mobile-session-context";
+import { enqueueRetry } from "../_lib/retry-queue";
 
 // Phase C file 05 — real tap/match game logic (net-new mobile frontend; V3 has
 // no server-side game-state API to extract, per v4-migration-plan/05). This is
 // the mobile equivalent of MatchPairGame.tsx (V3's "Match Pair" challenge,
 // challengeIndex 2 in the 5-challenge ordering — confirmed against
 // ChallengesPage.tsx's markComplete() call sites). On full match:
-//   1. POST /api/training/challenges/save { challengeIndex: 2 }, fire-and-forget.
+//   1. POST /api/training/challenges/save { challengeIndex: 2 } — still
+//      fire-and-forget from the UI's perspective, but a real failure (offline,
+//      or an HTTP error status the original version never checked for) now
+//      queues for retry (Priority 3, retry-queue.ts) instead of only logging.
 //   2. Mirror to the SAME localStorage keys V3 uses ("sbe_challenges_completed",
 //      "sbe-challenges-best-score" — here repurposed as "fewest moves") rather
 //      than a mobile-namespaced key, since mobile and desktop are the same
@@ -133,7 +137,14 @@ export default function MatchPairsScreen() {
         Authorization: `Bearer ${session.token}`,
       },
       body: JSON.stringify({ challengeIndex: CHALLENGE_INDEX }),
-    }).catch((err) => console.error("[MatchPairsScreen] Failed to sync challenge:", err));
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Challenge sync failed (${res.status})`);
+      })
+      .catch((err) => {
+        console.error("[MatchPairsScreen] Failed to sync challenge:", err);
+        enqueueRetry({ challengeIndex: CHALLENGE_INDEX });
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isComplete, saved]);
 

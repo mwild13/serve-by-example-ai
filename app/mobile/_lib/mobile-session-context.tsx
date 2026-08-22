@@ -1,7 +1,9 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { AlertTriangle, WifiOff } from "lucide-react";
 import { computeStreak } from "@/lib/streak";
+import { flushRetryQueue, getPendingCount } from "./retry-queue";
 
 // Phase C file 01 — seeded once by app/mobile/layout.tsx (server) and read
 // by any client screen via useMobileSession(). V4's mobile surface is 12
@@ -36,11 +38,20 @@ export type MobileSession = {
    * racing a sibling effect that hasn't incremented it yet.
    */
   streakCount: number | null;
+  /**
+   * Priority 3 (offline resilience, 2026-08-22). Starts `true` — matches
+   * what SSR renders (no banner), then corrected from `navigator.onLine` in
+   * the mount effect below, same SSR-safe-then-correct pattern as
+   * streakCount above (never read a browser global during initial render).
+   */
+  isOnline: boolean;
+  /** Count of queued challenges/save retries not yet flushed. See retry-queue.ts. */
+  pendingSyncCount: number;
 };
 
 /** What app/mobile/layout.tsx (server) actually seeds — everything except
- * the client-computed streakCount, which this provider fills in itself. */
-type MobileSessionSeed = Omit<MobileSession, "streakCount">;
+ * the client-computed fields this provider fills in itself. */
+type MobileSessionSeed = Omit<MobileSession, "streakCount" | "isOnline" | "pendingSyncCount">;
 
 const MobileSessionContext = createContext<MobileSession | null>(null);
 
@@ -52,18 +63,102 @@ export function MobileSessionProvider({
   children: ReactNode;
 }) {
   const [streakCount, setStreakCount] = useState<number | null>(null);
+  const [isOnline, setIsOnline] = useState(true);
+  const [pendingSyncCount, setPendingSyncCount] = useState(0);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setStreakCount(computeStreak());
   }, []);
 
-  const merged = useMemo<MobileSession>(() => ({ ...value, streakCount }), [value, streakCount]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsOnline(navigator.onLine);
+    setPendingSyncCount(getPendingCount());
+
+    async function attemptFlush() {
+      const remaining = await flushRetryQueue(value.token);
+      setPendingSyncCount(remaining);
+    }
+
+    function handleOnline() {
+      setIsOnline(true);
+      void attemptFlush();
+    }
+    function handleOffline() {
+      setIsOnline(false);
+    }
+    function handleVisibility() {
+      if (document.visibilityState === "visible" && navigator.onLine) {
+        void attemptFlush();
+      }
+    }
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    // Items may already be queued from a previous offline session — flush
+    // immediately if we're online on this mount rather than waiting for the
+    // next online/foreground event.
+    if (navigator.onLine) void attemptFlush();
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const merged = useMemo<MobileSession>(
+    () => ({ ...value, streakCount, isOnline, pendingSyncCount }),
+    [value, streakCount, isOnline, pendingSyncCount],
+  );
 
   return (
     <MobileSessionContext.Provider value={merged}>
+      {(!isOnline || pendingSyncCount > 0) && <SyncStatusBanner isOnline={isOnline} pendingSyncCount={pendingSyncCount} />}
       {children}
     </MobileSessionContext.Provider>
+  );
+}
+
+// Single insertion point for the whole /mobile tree (rendered here in the
+// provider, not per-screen) — reuses the exact visual pattern already
+// established by ScenarioPracticeScreen.tsx's save-failure banner
+// (AlertTriangle, --red-mobile, pill-radius), rather than inventing new
+// styling for offline state.
+function SyncStatusBanner({ isOnline, pendingSyncCount }: { isOnline: boolean; pendingSyncCount: number }) {
+  const offline = !isOnline;
+  return (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: "100%",
+        maxWidth: 390,
+        zIndex: 100,
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        padding: "8px 16px",
+        background: offline ? "var(--red-mobile)" : "var(--gold-mobile)",
+      }}
+    >
+      {offline ? (
+        <WifiOff size={14} strokeWidth={2} color="var(--bg-mobile-dark)" aria-hidden="true" />
+      ) : (
+        <AlertTriangle size={14} strokeWidth={2} color="var(--bg-mobile-dark)" aria-hidden="true" />
+      )}
+      <span style={{ fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 700, color: "var(--bg-mobile-dark)" }}>
+        {offline
+          ? "You're offline — changes will sync when you reconnect."
+          : `Syncing ${pendingSyncCount} pending change${pendingSyncCount === 1 ? "" : "s"}…`}
+      </span>
+    </div>
   );
 }
 
