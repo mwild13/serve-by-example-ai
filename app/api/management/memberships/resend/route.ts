@@ -65,7 +65,7 @@ export async function POST(req: Request) {
     });
   }
 
-  const fromEmail = process.env.BREVO_FROM_EMAIL ?? "info@servebyexample.co";
+  const fromEmail = "info@servebyexample.co";
   const fromName = process.env.BREVO_FROM_NAME ?? "Serve By Example";
 
   try {

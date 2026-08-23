@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 
   const brevoApiKey = process.env.BREVO_API_KEY;
   if (brevoApiKey && staffEmail) {
-    const fromEmail = process.env.BREVO_FROM_EMAIL ?? "info@servebyexample.co";
+    const fromEmail = "info@servebyexample.co";
     const fromName = process.env.BREVO_FROM_NAME ?? "Serve By Example";
     const appOrigin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "";
 

@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
   const admin = createSupabaseAdminClient();
   const brevoApiKey = process.env.BREVO_API_KEY;
-  const fromEmail = process.env.BREVO_FROM_EMAIL ?? "info@servebyexample.co";
+  const fromEmail = "info@servebyexample.co";
   const fromName = process.env.BREVO_FROM_NAME ?? "Serve By Example";
 
   // Find all staff with RSA expiry within 30 days

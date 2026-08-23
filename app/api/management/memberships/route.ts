@@ -146,7 +146,7 @@ export async function POST(req: Request) {
     // For existing users: send a login notification instead.
     const appOrigin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? new URL(req.url).origin;
     const brevoApiKey = process.env.BREVO_API_KEY;
-    const fromEmail = process.env.BREVO_FROM_EMAIL ?? "info@servebyexample.co";
+    const fromEmail = "info@servebyexample.co";
     const fromName = process.env.BREVO_FROM_NAME ?? "Serve By Example";
     let inviteSent = false;
     // Surfaced to the client so the manager UI can stop reporting "Invite
