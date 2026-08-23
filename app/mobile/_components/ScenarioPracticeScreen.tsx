@@ -160,8 +160,16 @@ export default function ScenarioPracticeScreen() {
           </div>
         </div>
 
-        {/* scenario card */}
-        <div style={{ padding: "0 20px 16px" }}>
+        {/* scenario card — keyed directly on this node (not just the
+            ternary below it). A prior fix keyed only the result/answering
+            branches and left this <p> unkeyed on the assumption a plain
+            {scenario.text} expression didn't need one to update; live
+            testing proved that assumption wrong — this specific node was
+            confirmed frozen via DOM inspection, accessibility snapshot, and
+            screenshot while every keyed sibling updated correctly. Keying
+            it directly forces React to mount a fresh node per scenario
+            instead of patching the existing one in place. */}
+        <div key={`${moduleName}-${index}`} style={{ padding: "0 20px 16px" }}>
           <div
             style={{
               display: "flex",
