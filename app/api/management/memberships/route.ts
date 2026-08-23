@@ -131,6 +131,10 @@ export async function POST(req: Request) {
     const fromEmail = process.env.BREVO_FROM_EMAIL ?? "info@servebyexample.co";
     const fromName = process.env.BREVO_FROM_NAME ?? "Serve By Example";
     let inviteSent = false;
+    // Surfaced to the client so the manager UI can stop reporting "Invite
+    // sent" when the email silently failed — this used to only reach a
+    // console.warn that nobody could see.
+    let inviteEmailError: string | null = null;
 
     if (brevoApiKey) {
       // Try to generate a signup link for new users
@@ -180,21 +184,27 @@ export async function POST(req: Request) {
           });
           inviteSent = emailRes.ok;
           if (!emailRes.ok) {
-            console.warn("Memberships: Brevo send failed:", emailRes.status, await emailRes.text());
+            const detail = await emailRes.text();
+            console.warn("Memberships: Brevo send failed:", emailRes.status, detail);
+            inviteEmailError = `Email provider rejected the send (HTTP ${emailRes.status}). Check the Brevo sender/API key configuration.`;
           }
         } catch (err) {
           console.warn("Memberships: Brevo fetch threw:", err);
+          inviteEmailError = "Could not reach the email provider.";
         }
       } else {
         console.warn("Memberships: generateLink failed:", linkError.message);
+        inviteEmailError = linkError.message ?? "Could not generate an invite link.";
       }
     } else {
       console.warn("Memberships: BREVO_API_KEY not set — no invite email sent.");
+      inviteEmailError = "Email sending is not configured for this environment.";
     }
 
     return NextResponse.json({
       membership,
       inviteSent,
+      inviteEmailError,
       seatsUsed: currentSeats + 1,
       maxSeats,
     });

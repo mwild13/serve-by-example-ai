@@ -150,6 +150,16 @@ export default function StaffDirectoryTable({
       if (!res.ok) { setInviteError(data.error ?? "Failed to invite"); return; }
       setInviteEmail("");
       setInviteName("");
+      // The membership record can be created successfully while the Brevo
+      // send itself silently fails (bad sender, missing API key, etc.) — the
+      // old code only checked res.ok and reported "sent" either way.
+      if (!data.inviteSent) {
+        setInviteError(
+          data.inviteEmailError
+            ? `Staff member added, but the invite email failed to send: ${data.inviteEmailError}`
+            : "Staff member added, but the invite email could not be sent. They can still join using your venue code."
+        );
+      }
       await loadMemberships();
     } catch { setInviteError("Network error"); } finally { setInviteLoading(false); }
   }
@@ -166,16 +176,25 @@ export default function StaffDirectoryTable({
 
   async function handleResendInvite(membershipId: string) {
     setResendingIds(prev => new Set(prev).add(membershipId));
+    setInviteError("");
     try {
       const res = await apiFetch("/api/management/memberships/resend", {
         method: "POST",
         body: JSON.stringify({ membershipId }),
       });
-      if (res.ok) {
+      const data = await res.json().catch(() => ({} as { emailSent?: boolean; error?: string }));
+      // This used to be entirely silent on failure — no error state, no
+      // res.ok check even shown to the manager — so a rejected resend just
+      // looked like nothing happened when the button was clicked.
+      if (res.ok && data.emailSent) {
         setResentIds(prev => new Set(prev).add(membershipId));
         setTimeout(() => setResentIds(prev => { const next = new Set(prev); next.delete(membershipId); return next; }), 3000);
+      } else {
+        setInviteError(data.error ? `Resend failed: ${data.error}` : "Resend failed. Please try again.");
       }
-    } catch { /* silent */ } finally {
+    } catch {
+      setInviteError("Resend failed: network error.");
+    } finally {
       setResendingIds(prev => { const next = new Set(prev); next.delete(membershipId); return next; });
     }
   }
@@ -677,7 +696,10 @@ export default function StaffDirectoryTable({
               {inviteLoading ? "Inviting..." : "Invite staff member"}
             </button>
           </form>
-          {inviteError && <p className="ops-notice ops-notice-error">{inviteError}</p>}
+          {/* .ops-notice was never defined in globals.css — the manager
+              never actually saw this text. auth-status-error is a real,
+              styled class used elsewhere for the same purpose. */}
+          {inviteError && <p className="auth-status auth-status-error" style={{ marginTop: 12 }}>{inviteError}</p>}
 
           {memberships.length > 0 ? (
             <div className="ops-table-wrap">
