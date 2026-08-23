@@ -168,8 +168,17 @@ export default function ScenarioPracticeScreen() {
             confirmed frozen via DOM inspection, accessibility snapshot, and
             screenshot while every keyed sibling updated correctly. Keying
             it directly forces React to mount a fresh node per scenario
-            instead of patching the existing one in place. */}
-        <div key={`${moduleName}-${index}`} style={{ padding: "0 20px 16px" }}>
+            instead of patching the existing one in place.
+            "card-" prefix is load-bearing, not decorative: this div and the
+            ternary block below it are SIBLINGS in the same parent, and an
+            earlier version of this fix gave both the identical key
+            `${moduleName}-${index}` — duplicate keys among siblings is
+            undefined behavior in React and was confirmed live to cause
+            exactly this: old scenario cards never torn down, stacking up
+            instead of being replaced (screenshot evidence showed 2, 3, then
+            4 accumulated cards after 3 advances). Every key on a sibling in
+            this component must stay prefixed and distinct from every other. */}
+        <div key={`card-${moduleName}-${index}`} style={{ padding: "0 20px 16px" }}>
           <div
             style={{
               display: "flex",
@@ -192,7 +201,7 @@ export default function ScenarioPracticeScreen() {
             with it, React can't carry any stale DOM/state across an index
             change even if a future edit here adds child-local state. */}
         {status === "result" && result ? (
-          <div key={`${moduleName}-${index}`} style={{ display: "flex", flexDirection: "column", gap: 14, padding: "0 20px 20px" }}>
+          <div key={`result-${moduleName}-${index}`} style={{ display: "flex", flexDirection: "column", gap: 14, padding: "0 20px 20px" }}>
             {/* save-failure notice — surfaces a dropped /api/training/save
                 call instead of silently discarding it (persistAttempt above).
                 Non-blocking: the score above is already final either way. */}
@@ -314,7 +323,7 @@ export default function ScenarioPracticeScreen() {
             </button>
           </div>
         ) : (
-          <div key={`${moduleName}-${index}`} style={{ display: "flex", flexDirection: "column", gap: 12, padding: "0 20px 20px" }}>
+          <div key={`answer-${moduleName}-${index}`} style={{ display: "flex", flexDirection: "column", gap: 12, padding: "0 20px 20px" }}>
             <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: "var(--text-mobile-muted)" }}>
               CHOOSE AN APPROACH, OR WRITE YOUR OWN
             </p>
