@@ -84,6 +84,7 @@ export default function OnboardingPage() {
   async function handleAbsoluteSkip() {
     if (isSkipping) return;
     setIsSkipping(true);
+    setError("");
     try {
       const res = await fetch("/api/onboarding/complete", {
         method: "POST",
@@ -91,13 +92,21 @@ export default function OnboardingPage() {
         body: JSON.stringify({}),
       });
       if (!res.ok) {
-        const data = await res.json() as { error?: string };
+        // Don't redirect on failure — the dashboard gates on
+        // onboarding_completed and will just bounce the user straight back
+        // here, which looks like a silent infinite loop. Surface the error
+        // instead so the user can retry.
+        const data = await res.json().catch(() => ({} as { error?: string }));
         console.error("Onboarding skip error:", data.error);
+        setError(data.error || "Something went wrong saving your progress. Please try again.");
+        setIsSkipping(false);
+        return;
       }
       window.location.href = "/dashboard";
     } catch (err) {
       console.error("Skip handler error:", err);
-      window.location.href = "/dashboard";
+      setError("Could not reach the server. Check your connection and try again.");
+      setIsSkipping(false);
     }
   }
 
@@ -203,6 +212,11 @@ export default function OnboardingPage() {
                 >
                   Continue
                 </button>
+              )}
+              {error && (
+                <div className="auth-status auth-status-error" style={{ marginTop: 12 }}>
+                  {error}
+                </div>
               )}
             </div>
           </>
