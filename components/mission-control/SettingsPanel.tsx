@@ -359,7 +359,7 @@ export function SettingsPanel({
             <input
               className="input"
               readOnly
-              value={`${typeof window !== "undefined" ? window.location.origin : "https://serve-by-example.com"}/dashboard?join=${selectedVenue.venueCode}`}
+              value={`${typeof window !== "undefined" ? window.location.origin : "https://servebyexample.co"}/dashboard?join=${selectedVenue.venueCode}`}
               style={{ fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace", fontSize: "0.8rem", marginBottom: 8 }}
             />
             <button
