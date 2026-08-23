@@ -14,17 +14,32 @@ export async function GET(req: Request) {
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const admin = createSupabaseAdminClient();
+    // "removed" rows are soft-deleted, not dropped (see DELETE handler) — they
+    // must not resurface here, or a manager who removed someone sees them
+    // sitting in the list forever with no way to make them go away.
     const { data, error } = await admin
       .from("organization_members")
       .select("id, staff_email, venue_id, status, created_at")
       .eq("manager_id", user.id)
+      .not("status", "eq", "removed")
       .order("created_at", { ascending: true });
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ memberships: data ?? [] });
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("tier")
+      .eq("id", user.id)
+      .single();
+    const maxSeats = tierSeatLimit(profile?.tier);
+    const usedSeats = await countActiveSeats(admin, user.id);
+
+    return NextResponse.json({
+      memberships: data ?? [],
+      seatUsage: { used: usedSeats, max: maxSeats },
+    });
   } catch (error) {
     console.error("Memberships GET error:", error);
     return NextResponse.json({ error: "Failed to load memberships." }, { status: 500 });
@@ -74,12 +89,15 @@ export async function POST(req: Request) {
     // Insert or reactivate membership. Uses select-then-insert because the partial unique
     // index on organization_members treats NULL venue_id as distinct, so upsert on conflict
     // would silently create duplicates when venue_id is omitted.
+    // Deliberately includes "removed" rows here (unlike GET, which hides them) — a manager
+    // re-inviting an email they'd previously removed should reactivate that row, not spawn
+    // a second one. Excluding removed rows was the cause of the duplicate-row bug where the
+    // same staff email ended up with a "removed" row and a separate "invited" row.
     let existingQuery = admin
       .from("organization_members")
       .select("id, staff_email, venue_id, status")
       .eq("manager_id", user.id)
-      .ilike("staff_email", email)
-      .not("status", "eq", "removed");
+      .ilike("staff_email", email);
 
     if (venueId) {
       existingQuery = existingQuery.eq("venue_id", venueId);

@@ -19,7 +19,12 @@ All 17 `app/mobile/_components/*Screen.tsx` screens (corrected 2026-08-22 — th
 | `demo/evaluate` | `demo-evaluate:ip:${ip}` | 5/min |
 | `demo/generate-drills` | `demo-generate-drills:ip:${ip}` | 3/min |
 | `roi/email` | `roi-email:${ip}` | 5/min |
-| `training/save`, `training/progress`, `training/challenges/save`, `session/stamp` | — | **none** — existing V3 gap, not a regression V4 introduces |
+| `training/save` | `training-save:user:${id}` + `training-save:ip:${ip}` | 20/min (both) |
+| `training/progress` | `training-progress:user:${id}` + `training-progress:ip:${ip}` | 60/min (both) |
+| `training/challenges/save` | `challenges-save:user:${id}` + `challenges-save:ip:${ip}` | 20/min (both) |
+| `session/stamp` | `session-stamp:user:${id}` + `session-stamp:ip:${ip}` | 10/min (both) |
+
+(Table refreshed 2026-08-23 — the 4 routes above were rate-limited in commit `a5f824f`; this table had gone stale since.)
 
 **Flag before launch:** if mobile usage patterns (e.g. tap-based mini-games firing saves rapidly) drive materially more traffic to the unrated routes than V3's desktop usage ever did, consider adding rate limiting to `training/save`/`challenges/save` as part of this migration rather than deferring further — it's cheap to add (`rateLimit()` is a one-line call) and this audit is the first time the gap has been documented.
 
@@ -45,7 +50,7 @@ All 17 `app/mobile/_components/*Screen.tsx` screens (corrected 2026-08-22 — th
    - Onboarding Diagnostic → confirm the real 10-question flow (not the self-report picker) produces correct category Elo and seeds `scenario_mastery`.
    - AI Profile Photo → confirm generation, save, and persistence (shipped; confirm on-device).
 4. Confirm every mobile write path traces to an existing V3 API route per file `09`'s audit — no orphaned mobile-only persistence. (Audited 2026-08-22, see Implementation Notes below — no orphaned-persistence bug found.)
-5. Confirm the rate-limit table above is current; add limits to any previously-unrated route if mobile traffic volume warrants it. (`training/save`, `training/progress`, `training/challenges/save`, `session/stamp` rate-limited 2026-08-21 — table above still needs a manual refresh to list them.)
+5. Confirm the rate-limit table above is current; add limits to any previously-unrated route if mobile traffic volume warrants it. (`training/save`, `training/progress`, `training/challenges/save`, `session/stamp` rate-limited 2026-08-21, table refreshed to match 2026-08-23 — done.)
 6. Confirm resilience behavior from file `10` (offline queue, retry UI) — shipped 2026-08-22, scoped to `training/challenges/save` only (not both write paths originally specced — `training/save`'s cumulative-write design made it unsafe to blind-retry; see file `10`'s own updated notes).
 7. Sign-off: only after all of the above pass does Phase C get marked complete.
 

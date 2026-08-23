@@ -90,7 +90,18 @@
       "mcp__claude-in-chrome__read_network_requests",
       "mcp__claude-in-chrome__read_console_messages",
       "Bash(awk -F, '{print $1}')",
-      "mcp__Figma__get_metadata"
+      "mcp__Figma__get_metadata",
+      "mcp__claude_ai_Supabase__execute_sql",
+      "Bash(tee /tmp/build3.log)",
+      "Bash(tee /tmp/build4.log)",
+      "Bash(grep -rn \"setItem\\(\\\\\"sbe-streak-count\\\\\"\\\\|setItem\\('sbe-streak-count'\\\\|setItem\\(\\\\`sbe-streak-count\" /Users/mitchellwildman/Desktop/serve-by-example-ai-main/app /Users/mitchellwildman/Desktop/serve-by-example-ai-main/lib /Users/mitchellwildman/Desktop/serve-by-example-ai-main/components)",
+      "Bash(lsof -iTCP -sTCP:LISTEN -P)",
+      "Bash(curl -s -D - -o /dev/null http://localhost:3000/mobile/scenarios)",
+      "Bash(curl -s -o /dev/null -w \"status=%{http_code} redirect_url=%{redirect_url}\\\\n\" http://localhost:3000/mobile/scenarios)",
+      "Bash(lsof -iTCP:3000 -sTCP:LISTEN -P)",
+      "Bash(xargs -I{} sh -c 'echo \"=== {} ===\"; cat {}')",
+      "Bash(xargs -I{} echo {})",
+      "Bash(grep -n \"^button\\\\|^button,\\\\|button {\" /Users/mitchellwildman/Desktop/serve-by-example-ai-main/app/globals.css)"
     ]
   }
 }

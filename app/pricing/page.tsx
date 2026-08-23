@@ -525,7 +525,7 @@ export default function PricingPage() {
             </div>
             <div className="sbe-mkt-pricing-support">
               <p className="sbe-mkt-pricing-support-lead">Still have questions?</p>
-              <a href="mailto:hello@serve-by-example.com" className="btn btn-secondary">
+              <a href="mailto:info@servebyexample.co" className="btn btn-secondary">
                 Contact support
               </a>
               <p className="sbe-mkt-pricing-roadmap">
