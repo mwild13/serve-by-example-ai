@@ -281,6 +281,10 @@ export default function HomeScreen() {
                 style={{
                   display: "flex",
                   flex: 1,
+                  minWidth: 0, // flex items default to min-width:auto — without
+                  // this, "Achievements" (the longest unbreakable label) forces
+                  // this tile wider than its equal 1/4 share, pushing the row
+                  // past the 390px frame instead of all 4 shrinking to fit.
                   flexDirection: "column",
                   alignItems: "center",
                   gap: 8,
@@ -292,7 +296,17 @@ export default function HomeScreen() {
                 }}
               >
                 <Icon size={24} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
-                <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text-mobile)", textAlign: "center" }}>{label}</span>
+                <span
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: "var(--text-mobile)",
+                    textAlign: "center",
+                    overflowWrap: "break-word",
+                  }}
+                >
+                  {label}
+                </span>
               </Link>
             ))}
           </div>

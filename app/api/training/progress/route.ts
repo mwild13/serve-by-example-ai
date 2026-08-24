@@ -143,29 +143,14 @@ export async function GET(req: Request) {
       }
     }
 
-    // ── Category-average mastery rollup (Phase 4 fix, v4-migration-plan/00
-    // item 10) ── The old `mastery: {bartending, sales, management}` field
-    // below was actually masteryByModule[...].mastery — getMasteryProgress()
-    // run per *legacy string module*, a completely different calculation
-    // that happened to share a field name. This is the real category
-    // rollup desktop already computes independently 3x (see
-    // categoryMasteryAverage's doc comment in lib/mastery.ts); mobile's
-    // ScenarioTrainingScreen category cards (Phase 3) already read this
-    // same field, they just didn't get the fix until now.
-    const categoryMastery = {
-      bartending: categoryMasteryAverage(allModules ?? [], moduleProgress, "technical"),
-      sales: categoryMasteryAverage(allModules ?? [], moduleProgress, "service"),
-      management: categoryMasteryAverage(allModules ?? [], moduleProgress, "compliance"),
-    };
-
     // ── Per-category Modules/Scenarios/AI Scenarios breakdown (Phase 3c,
     // mobile bug-fix plan) — for the Me page's 3 sub-bars under each ring.
     // "Modules" and "AI Scenarios" isolate quiz vs. roleplay rows out of the
-    // same module_id-keyed data moduleProgress/categoryMastery above blend
-    // together (see moduleMasteryByType()'s doc comment in lib/mastery.ts).
-    // "Scenarios" (Category Simulations) reuses masteryByModule, already
-    // computed above via getMasteryProgress(admin, user.id, mod,
-    // "descriptor") per legacy module — no new query needed for that piece.
+    // same module_id-keyed data moduleProgress above blends together (see
+    // moduleMasteryByType()'s doc comment in lib/mastery.ts). "Scenarios"
+    // (Category Simulations) reuses masteryByModule, already computed above
+    // via getMasteryProgress(admin, user.id, mod, "descriptor") per legacy
+    // module — no new query needed for that piece.
     const quizModuleProgress = moduleMasteryByType(masteryRows ?? [], allModules ?? [], SCENARIO_COUNTS, "quiz");
     const roleplayModuleProgress = moduleMasteryByType(masteryRows ?? [], allModules ?? [], SCENARIO_COUNTS, "roleplay");
     const categoryBreakdown = {
@@ -184,6 +169,23 @@ export async function GET(req: Request) {
         scenarios: masteryByModule["management"].mastery,
         aiScenarios: categoryMasteryAverage(allModules ?? [], roleplayModuleProgress, "compliance"),
       },
+    };
+
+    // ── Category-average mastery rollup (Phase 4 fix, v4-migration-plan/00
+    // item 10; re-fixed 2026-08-24) ── This used to be
+    // categoryMasteryAverage(moduleProgress) — i.e. the quiz-gate mastery
+    // only, completely ignoring Category Simulations and Arena. That made
+    // the Me page ring read "100%" for a user who had only ever passed
+    // verify quizzes and never touched Scenarios or AI Scenarios at all,
+    // while the 3 sub-bars directly underneath it showed those two modes
+    // near-empty — a real user flagged this as "the mastery isn't making
+    // sense." The ring is now the average of the same 3 sub-metrics the
+    // breakdown row shows, so the headline number and the bars underneath
+    // it always tell the same story.
+    const categoryMastery = {
+      bartending: Math.round((categoryBreakdown.bartending.modules + categoryBreakdown.bartending.scenarios + categoryBreakdown.bartending.aiScenarios) / 3),
+      sales: Math.round((categoryBreakdown.sales.modules + categoryBreakdown.sales.scenarios + categoryBreakdown.sales.aiScenarios) / 3),
+      management: Math.round((categoryBreakdown.management.modules + categoryBreakdown.management.scenarios + categoryBreakdown.management.aiScenarios) / 3),
     };
 
     // ── Canonical skill level (mastered modules / total × 10) ──

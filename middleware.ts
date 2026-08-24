@@ -3,6 +3,18 @@ import { createSupabaseMiddlewareClient } from "@/lib/supabase-server";
 import { shouldApplyGeoBlock } from "@/lib/geo-config";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
+// Phone-only detection for the /dashboard -> /mobile/home auto-route below.
+// Deliberately narrow: only iPhone/iPod and Android-with-"Mobile"-token match.
+// iPad is NOT special-cased — modern iPadOS reports a desktop Safari UA by
+// default (no "iPhone"/"Mobile" token), so it falls through to the desktop
+// /dashboard experience on its own, matching the product decision that
+// tablets use the desktop version. No inverse redirect exists (a desktop
+// browser hitting /mobile/* is left alone) — that's the pattern this whole
+// mobile build has been visually QA'd through all session.
+function isMobilePhoneUserAgent(ua: string): boolean {
+  return /iPhone|iPod/i.test(ua) || (/Android/i.test(ua) && /Mobile/i.test(ua));
+}
+
 function buildCSP(nonce: string): string {
   // `next dev`'s webpack devtool wraps every module in eval() for Fast
   // Refresh/HMR — with no 'unsafe-eval', that eval is blocked entirely,
@@ -133,6 +145,19 @@ export async function middleware(request: NextRequest) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
     return syncRedirect(loginUrl);
+  }
+
+  // Staff on a phone always land on the V4 mobile app, regardless of how
+  // they got to /dashboard (password login, Google OAuth, onboarding
+  // completion, a bookmark, the back button — every one of those paths ends
+  // with a request to /dashboard, so gating it here catches all of them in
+  // one place instead of patching each entry point separately). No role
+  // check needed: /dashboard is staff-only by construction — managers land
+  // on /management/dashboard, a different route entirely.
+  if (isDashboard && user && isMobilePhoneUserAgent(request.headers.get("user-agent") ?? "")) {
+    const mobileHomeUrl = request.nextUrl.clone();
+    mobileHomeUrl.pathname = "/mobile/home";
+    return syncRedirect(mobileHomeUrl);
   }
 
   if (isManagementDashboard && !user) {

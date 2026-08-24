@@ -147,7 +147,13 @@ export default function PracticeScenariosSection({ data }: { data: TrainingProgr
               const cardStyle: React.CSSProperties = {
                 flexShrink: 0,
                 scrollSnapAlign: "start",
-                width: 180,
+                // 169 = (390 frame - 40px side padding - 12px gap) / 2 — the
+                // same math CoreKnowledgeSection.tsx's 2-col module grid uses.
+                // At the old 180px, 2 cards + gap + padding summed to 392px,
+                // 2px past the frame, so the 2nd card never sat flush and its
+                // right edge didn't line up with the grid cards above/below —
+                // this was the visible misalignment.
+                width: 169,
                 display: "flex",
                 flexDirection: "column",
                 gap: 12,
