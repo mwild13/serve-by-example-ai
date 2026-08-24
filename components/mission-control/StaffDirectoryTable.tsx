@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { FormEvent, Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components/mission-control/manager-ui";
 import { WorkspaceHeader } from "@/app/management/dashboard/_components/WorkspaceHeader";
 import { rsaStatus, readinessPill } from "@/components/mission-control/compliance/helpers";
@@ -12,6 +12,7 @@ type MembershipRow = {
   staff_name?: string;
   venue_id: string | null;
   status: string;
+  role?: string;
   created_at: string;
 };
 
@@ -22,6 +23,11 @@ export type StaffDirectoryTableProps = {
   venueStaff: ManagementSnapshot["staff"];
   selectedStaffId?: string;
   sessionToken: string | null;
+  /** False for a duty manager — hides the Staff/Duty Manager invite selector
+   * below so only the venue owner can grant duty-manager access. See
+   * lib/session.ts's isOwnerLevelRole. Defaults true (owner) so an existing
+   * caller that hasn't been updated to pass this still sees today's behavior. */
+  isOwnerLevel?: boolean;
   onSnapshotUpdate: (updated: ManagementSnapshot) => void;
   onOpenCoachingDrawer: (staffId: string) => void;
   onAddStaff: () => void;
@@ -50,6 +56,7 @@ export default function StaffDirectoryTable({
   venueStaff,
   selectedStaffId,
   sessionToken,
+  isOwnerLevel = true,
   onSnapshotUpdate,
   onOpenCoachingDrawer,
   onAddStaff,
@@ -62,6 +69,7 @@ export default function StaffDirectoryTable({
   const [membershipSeats, setMembershipSeats] = useState<{ used: number; max: number }>({ used: 0, max: 0 });
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteName, setInviteName] = useState("");
+  const [inviteRole, setInviteRole] = useState<"staff" | "duty_manager">("staff");
   const [inviteLoading, setInviteLoading] = useState(false);
   const [inviteError, setInviteError] = useState("");
   const [membershipsLoaded, setMembershipsLoaded] = useState(false);
@@ -83,6 +91,15 @@ export default function StaffDirectoryTable({
   const [editName, setEditName] = useState('');
   const [editRole, setEditRole] = useState<StaffRole>('New Staff');
   const [editSaving, setEditSaving] = useState(false);
+  const [editAccessLevel, setEditAccessLevel] = useState<"staff" | "duty_manager">("staff");
+
+  // Emails currently holding duty-manager access, derived from the same
+  // memberships list already loaded for the invites panel below — avoids a
+  // second fetch just to know who's already promoted.
+  const dutyManagerEmails = useMemo(
+    () => new Set(memberships.filter((m) => m.role === "duty_manager").map((m) => m.staff_email.toLowerCase())),
+    [memberships],
+  );
 
   const apiFetch = useCallback((url: string, options: RequestInit = {}) => {
     const headers: Record<string, string> = {
@@ -144,12 +161,18 @@ export default function StaffDirectoryTable({
           staffEmail: inviteEmail.trim(),
           staffName: inviteName.trim() || undefined,
           venueId: selectedVenueId || undefined,
+          // Only ever sent as "duty_manager" when the selector below is
+          // visible (isOwnerLevel), but the API route re-checks the
+          // inviting user's own role server-side regardless — this client
+          // gate is a UX convenience, not the security boundary.
+          role: isOwnerLevel ? inviteRole : "staff",
         }),
       });
       const data = await res.json();
       if (!res.ok) { setInviteError(data.error ?? "Failed to invite"); return; }
       setInviteEmail("");
       setInviteName("");
+      setInviteRole("staff");
       // The membership record can be created successfully while the Brevo
       // send itself silently fails (bad sender, missing API key, etc.) — the
       // old code only checked res.ok and reported "sent" either way.
@@ -254,9 +277,12 @@ export default function StaffDirectoryTable({
     setEditingStaffId(member.id);
     setEditName(member.name);
     setEditRole(member.role);
+    setEditAccessLevel(
+      member.email && dutyManagerEmails.has(member.email.toLowerCase()) ? "duty_manager" : "staff",
+    );
   }
 
-  async function saveEditStaff(staffId: string) {
+  async function saveEditStaff(staffId: string, email: string | undefined, accessLevelChanged: boolean) {
     setEditSaving(true);
     try {
       const res = await apiFetch('/api/management/staff', {
@@ -266,6 +292,25 @@ export default function StaffDirectoryTable({
       const data = await res.json() as ManagementSnapshot;
       if (!res.ok) throw new Error((data as unknown as { error: string }).error ?? 'Update failed');
       onSnapshotUpdate(data);
+
+      // Access level lives on organization_members/profiles, not
+      // venue_staff — a separate call, only fired when it actually changed
+      // and there's an email to match against (self-serve venue-code joins
+      // and legacy staff rows sometimes have none, in which case there's no
+      // membership row to promote — this silently no-ops rather than erroring).
+      if (accessLevelChanged && email) {
+        const accessRes = await apiFetch('/api/management/memberships', {
+          method: 'PATCH',
+          body: JSON.stringify({ staffEmail: email, role: editAccessLevel }),
+        });
+        if (!accessRes.ok) {
+          const accessData = await accessRes.json().catch(() => ({}));
+          setInviteError(accessData.error ?? 'Failed to update access level.');
+        } else {
+          await loadMemberships();
+        }
+      }
+
       setEditingStaffId(null);
     } catch (e) {
       console.error('Staff edit failed:', e);
@@ -385,12 +430,30 @@ export default function StaffDirectoryTable({
                                 >
                                   {STAFF_ROLE_OPTIONS.map(r => <option key={r} value={r}>{r}</option>)}
                                 </select>
+                                {/* Access level (Mission Control) is separate from the
+                                    job-title Role select above — owner-only, and only
+                                    meaningful for staff with an email (nothing to match
+                                    a membership row against otherwise). */}
+                                {isOwnerLevel && email && (
+                                  <select
+                                    value={editAccessLevel}
+                                    onChange={e => setEditAccessLevel(e.target.value as "staff" | "duty_manager")}
+                                    onClick={e => e.stopPropagation()}
+                                    style={{ padding: '4px 6px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--line)', fontSize: '0.8rem' }}
+                                  >
+                                    <option value="staff">Staff — training only</option>
+                                    <option value="duty_manager">Duty Manager — Mission Control</option>
+                                  </select>
+                                )}
                               </div>
                             ) : (
                               <div>
                                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                                   <strong>{member.name}</strong>
                                   {isReady && <span style={{ padding: "1px 7px", borderRadius: 999, fontSize: "0.65rem", fontWeight: 700, background: "var(--status-success-subtle)", color: "var(--status-success-strong)", flexShrink: 0 }}>Ready</span>}
+                                  {email && dutyManagerEmails.has(email.toLowerCase()) && (
+                                    <span style={{ padding: "1px 7px", borderRadius: 999, fontSize: "0.65rem", fontWeight: 700, background: "var(--gold-light)", color: "var(--gold-warm)", flexShrink: 0 }}>Duty Manager</span>
+                                  )}
                                   <button
                                     type="button"
                                     onClick={e => { e.stopPropagation(); startEditStaff(member); }}
@@ -439,7 +502,12 @@ export default function StaffDirectoryTable({
                                   <button
                                     type="button"
                                     className="btn btn-sm"
-                                    onClick={e => { e.stopPropagation(); saveEditStaff(member.id); }}
+                                    onClick={e => {
+                                      e.stopPropagation();
+                                      const wasDutyManager = !!member.email && dutyManagerEmails.has(member.email.toLowerCase());
+                                      const isNowDutyManager = editAccessLevel === "duty_manager";
+                                      saveEditStaff(member.id, member.email, wasDutyManager !== isNowDutyManager);
+                                    }}
                                     disabled={editSaving}
                                     style={{ fontSize: '0.7rem', padding: '2px 8px', background: 'var(--green)', color: 'var(--surface-raised)', border: 'none' }}
                                   >
@@ -691,9 +759,25 @@ export default function StaffDirectoryTable({
                   required
                 />
               </label>
+              {/* Only the venue owner can grant duty-manager access — a duty
+                  manager inviting someone else only ever sends role: "staff"
+                  (enforced server-side too, see memberships/route.ts). */}
+              {isOwnerLevel && (
+                <label className="label">
+                  Access level
+                  <select
+                    className="input"
+                    value={inviteRole}
+                    onChange={(e) => setInviteRole(e.target.value as "staff" | "duty_manager")}
+                  >
+                    <option value="staff">Staff — training only</option>
+                    <option value="duty_manager">Duty Manager — Mission Control (no Billing)</option>
+                  </select>
+                </label>
+              )}
             </div>
             <button className="btn btn-primary" type="submit" disabled={inviteLoading} style={{ marginTop: 4 }}>
-              {inviteLoading ? "Inviting..." : "Invite staff member"}
+              {inviteLoading ? "Inviting..." : inviteRole === "duty_manager" ? "Invite duty manager" : "Invite staff member"}
             </button>
           </form>
           {/* .ops-notice was never defined in globals.css — the manager

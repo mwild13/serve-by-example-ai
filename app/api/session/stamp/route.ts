@@ -26,6 +26,46 @@ export async function POST(req: Request) {
 
     await stampSession(admin, user.id, sessionId);
 
+    // Duty-manager promotion reconciliation. memberships/route.ts's invite
+    // handler already promotes an *existing* account immediately by email —
+    // this is the fallback for a brand-new invitee: they have no profiles
+    // row (or still the "staff" default) until this, their first
+    // signup/login, which is also the earliest point their real user_id is
+    // known. Runs on every login, not just signup, so it's self-healing if
+    // the immediate-promotion path above ever missed. Scoped to
+    // platform_role === "staff" only — never touches an existing
+    // owner/admin's role, and never re-runs for someone already promoted.
+    try {
+      const { data: currentProfile } = await admin
+        .from("profiles")
+        .select("platform_role")
+        .eq("id", user.id)
+        .single();
+
+      if ((currentProfile?.platform_role ?? "staff") === "staff" && user.email) {
+        const { data: dutyManagerGrant } = await admin
+          .from("organization_members")
+          .select("id")
+          .or(`user_id.eq.${user.id},staff_email.ilike.${user.email}`)
+          .eq("role", "duty_manager")
+          .in("status", ["invited", "active"])
+          .limit(1)
+          .maybeSingle();
+
+        if (dutyManagerGrant) {
+          await admin.from("profiles").update({ platform_role: "duty_manager" }).eq("id", user.id);
+          await admin
+            .from("organization_members")
+            .update({ status: "active", user_id: user.id, updated_at: new Date().toISOString() })
+            .eq("id", dutyManagerGrant.id);
+        }
+      }
+    } catch (err) {
+      // Never block login/session-stamping on this — worst case, the
+      // promotion is retried on the user's next login instead.
+      console.warn("Session stamp: duty_manager reconciliation failed:", err);
+    }
+
     const res = NextResponse.json({ success: true });
     res.headers.set(
       "Set-Cookie",

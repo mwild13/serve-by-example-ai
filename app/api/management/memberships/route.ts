@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { countActiveSeats, tierSeatLimit } from "@/lib/session";
+import { countActiveSeats, tierSeatLimit, isOwnerLevelRole } from "@/lib/session";
 
 /**
  * GET /api/management/memberships — list manager's memberships
@@ -19,7 +19,7 @@ export async function GET(req: Request) {
     // sitting in the list forever with no way to make them go away.
     const { data, error } = await admin
       .from("organization_members")
-      .select("id, staff_email, venue_id, status, created_at")
+      .select("id, staff_email, venue_id, status, role, created_at")
       .eq("manager_id", user.id)
       .not("status", "eq", "removed")
       .order("created_at", { ascending: true });
@@ -52,21 +52,39 @@ export async function POST(req: Request) {
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const body = await req.json();
-    const { staffEmail, venueId } = body as { staffEmail?: string; venueId?: string };
+    const { staffEmail, venueId, role: requestedRole } = body as {
+      staffEmail?: string;
+      venueId?: string;
+      role?: string;
+    };
 
     if (!staffEmail || typeof staffEmail !== "string") {
       return NextResponse.json({ error: "staffEmail is required." }, { status: 400 });
     }
     const email = staffEmail.trim().toLowerCase();
 
+    if (requestedRole !== undefined && requestedRole !== "staff" && requestedRole !== "duty_manager") {
+      return NextResponse.json({ error: "Invalid role. Must be \"staff\" or \"duty_manager\"." }, { status: 400 });
+    }
+
     const admin = createSupabaseAdminClient();
 
-    // Get manager's tier to check seat cap
+    // Get manager's tier + platform_role — tier drives the seat cap,
+    // platform_role gates who's allowed to grant duty-manager access below.
     const { data: profile } = await admin
       .from("profiles")
-      .select("tier")
+      .select("tier, platform_role")
       .eq("id", user.id)
       .single();
+
+    // Only an owner-level manager (never a duty manager, even one already
+    // in Mission Control) can grant duty-manager access to someone else —
+    // otherwise a duty manager could mint peers without the venue owner
+    // ever being involved. Silently downgrades to "staff" rather than
+    // erroring, since the UI selector is already hidden for non-owners and
+    // this should only ever fire on a crafted request.
+    const role: "staff" | "duty_manager" =
+      requestedRole === "duty_manager" && isOwnerLevelRole(profile?.platform_role) ? "duty_manager" : "staff";
 
     const maxSeats = tierSeatLimit(profile?.tier);
 
@@ -111,9 +129,12 @@ export async function POST(req: Request) {
     let insertError: { message: string } | null;
 
     if (existingMembership) {
+      // role is included here too (not just status) so re-inviting an
+      // existing "staff" row as "duty_manager" (or vice versa) actually
+      // changes their access, not just reactivates the old grant.
       const { data: updated, error: updateError } = await admin
         .from("organization_members")
-        .update({ status: "invited", updated_at: new Date().toISOString() })
+        .update({ status: "invited", role, updated_at: new Date().toISOString() })
         .eq("id", existingMembership.id)
         .select("id, staff_email, venue_id, status")
         .single();
@@ -127,7 +148,7 @@ export async function POST(req: Request) {
           staff_email: email,
           venue_id: venueId ?? null,
           status: "invited",
-          role: "staff",
+          role,
           seat_counted: true,
           updated_at: new Date().toISOString(),
         })
@@ -140,6 +161,22 @@ export async function POST(req: Request) {
     if (insertError) {
       console.error("Membership insert error:", insertError);
       return NextResponse.json({ error: "Failed to invite staff member." }, { status: 500 });
+    }
+
+    // Best-effort immediate promotion: if this email already belongs to an
+    // existing account, don't make them wait for their next login to pick
+    // up duty-manager access — /api/session/stamp does the same promotion
+    // (matched by organization_members row) as a fallback for brand-new
+    // signups who have no profiles row yet at this point.
+    if (role === "duty_manager") {
+      const { error: promoteError } = await admin
+        .from("profiles")
+        .update({ platform_role: "duty_manager" })
+        .eq("email", email)
+        .eq("platform_role", "staff");
+      if (promoteError) {
+        console.warn("Membership invite: duty_manager promotion failed (will retry on next login):", promoteError);
+      }
     }
 
     // Send invite email via Brevo. For new users: generate a signup link.
@@ -229,6 +266,81 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Memberships POST error:", error);
     return NextResponse.json({ error: "Failed to invite staff." }, { status: 500 });
+  }
+}
+
+/**
+ * PATCH /api/management/memberships — change an existing staff member's
+ * access level (staff <-> duty_manager). Separate from the invite-time role
+ * assignment in POST above — this is how a manager promotes/demotes someone
+ * who already joined (via venue code or an earlier plain-staff invite),
+ * without re-inviting them. Owner-level only, same as inviting a duty
+ * manager in the first place.
+ */
+export async function PATCH(req: Request) {
+  try {
+    const { user } = await getUserFromRequest(req);
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const body = await req.json();
+    const { staffEmail, role: requestedRole } = body as { staffEmail?: string; role?: string };
+
+    if (!staffEmail || typeof staffEmail !== "string") {
+      return NextResponse.json({ error: "staffEmail is required." }, { status: 400 });
+    }
+    if (requestedRole !== "staff" && requestedRole !== "duty_manager") {
+      return NextResponse.json({ error: "Invalid role. Must be \"staff\" or \"duty_manager\"." }, { status: 400 });
+    }
+    const email = staffEmail.trim().toLowerCase();
+
+    const admin = createSupabaseAdminClient();
+
+    const { data: callerProfile } = await admin
+      .from("profiles")
+      .select("platform_role")
+      .eq("id", user.id)
+      .single();
+
+    if (!isOwnerLevelRole(callerProfile?.platform_role)) {
+      return NextResponse.json({ error: "Only the venue owner can change a staff member's access level." }, { status: 403 });
+    }
+
+    const { data: membership, error: findError } = await admin
+      .from("organization_members")
+      .select("id")
+      .eq("manager_id", user.id)
+      .ilike("staff_email", email)
+      .not("status", "eq", "removed")
+      .maybeSingle();
+
+    if (findError || !membership) {
+      return NextResponse.json({ error: "No matching staff membership found for that email." }, { status: 404 });
+    }
+
+    const { error: updateError } = await admin
+      .from("organization_members")
+      .update({ role: requestedRole, updated_at: new Date().toISOString() })
+      .eq("id", membership.id);
+
+    if (updateError) {
+      console.error("Membership PATCH role update error:", updateError);
+      return NextResponse.json({ error: "Failed to update access level." }, { status: 500 });
+    }
+
+    // Guarded to only ever flip a "staff"/"duty_manager" row — never touches
+    // an owner/admin profile even if an email somehow collided, since a
+    // real owner/admin would never also have their own email listed as
+    // their own organization_members row under themselves in practice.
+    await admin
+      .from("profiles")
+      .update({ platform_role: requestedRole })
+      .eq("email", email)
+      .in("platform_role", ["staff", "duty_manager"]);
+
+    return NextResponse.json({ success: true, role: requestedRole });
+  } catch (error) {
+    console.error("Memberships PATCH error:", error);
+    return NextResponse.json({ error: "Failed to update access level." }, { status: 500 });
   }
 }
 
