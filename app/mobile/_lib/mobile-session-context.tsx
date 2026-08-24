@@ -25,6 +25,12 @@ export type MobileSession = {
   venueMembershipPaused: boolean;
   /** Saved AI portrait URL (profiles.profile_photo_url), or null if the user has never saved one. */
   profilePhotoUrl: string | null;
+  /** AI portraits left today (0–2) per the durable daily cap — see
+   *  lib/profile-photo-cap.ts. Seeded once here like profilePhotoUrl above;
+   *  AiProfilePhotoScreen.tsx keeps its own local state updated from each
+   *  generate response after that, since a fresh generation can change it
+   *  without a full page navigation. */
+  profilePhotoGenerationsRemaining: number;
   /**
    * Client-only daily-login streak (see lib/streak.ts) — null until the
    * mount effect below resolves, same SSR-safe placeholder pattern every

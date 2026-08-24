@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { resolveTierAccess } from "@/lib/session";
+import { remainingGenerations } from "@/lib/profile-photo-cap";
 import { MobileSessionProvider } from "./_lib/mobile-session-context";
 import { TrainingProgressProvider } from "./_lib/training-progress-context";
 
@@ -34,7 +35,9 @@ export default async function MobileLayout({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, tier, org_id, subscription_status, onboarding_completed, profile_photo_url")
+    .select(
+      "display_name, tier, org_id, subscription_status, onboarding_completed, profile_photo_url, profile_photo_generations_today, profile_photo_generations_reset_at",
+    )
     .eq("id", user.id)
     .single();
 
@@ -68,6 +71,10 @@ export default async function MobileLayout({
         hasVenueMembership,
         venueMembershipPaused,
         profilePhotoUrl: profile?.profile_photo_url ?? null,
+        profilePhotoGenerationsRemaining: remainingGenerations(
+          profile?.profile_photo_generations_today ?? null,
+          profile?.profile_photo_generations_reset_at ?? null,
+        ),
       }}
     >
       {/* Perf fix (Phase 1a) — single shared fetch of /api/training/progress
