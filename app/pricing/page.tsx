@@ -152,7 +152,15 @@ export default function PricingPage() {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
-  const [billing, setBilling] = useState<"monthly" | "yearly">("yearly");
+  // Defaults to "monthly" — the full, undiscounted rate — so the price shown
+  // on first load always matches whichever toggle pill looks selected. It
+  // previously defaulted to "yearly" while still showing "Monthly" as the
+  // visually active pill, so visitors saw the discounted annual-equivalent
+  // rate ($15.83/mo) under what looked like the plain monthly price.
+  // Confirmed against live Stripe prices 2026-08-24: $19/$79/$149 per month
+  // and $190/$790/$1,490 per year match tier.monthly/annualTotal exactly —
+  // only the toggle's default state was wrong, not the dollar figures.
+  const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
 
   // Reset stuck "Redirecting..." when user presses browser back from Stripe
   useEffect(() => {
