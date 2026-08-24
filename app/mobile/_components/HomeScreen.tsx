@@ -7,7 +7,7 @@ import { Bell, Flame, Swords, BrainCircuit, Martini, Award } from "lucide-react"
 import BottomNav from "./BottomNav";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
-import { COCKTAILS } from "@/lib/cocktails";
+import { COCKTAILS, COCKTAIL_IMAGES } from "@/lib/cocktails";
 
 // Phase B.5 — dumb UI plus real navigation. Matches the Figma "home" frame
 // 1:1 visually. Pre-Shift Warmup stays inert (no detail screen exists yet).
@@ -31,14 +31,6 @@ import { COCKTAILS } from "@/lib/cocktails";
 // is actively misleading for a free/unlicensed account.
 
 const HOT_PICKS = [...COCKTAILS].filter((c) => c.featured).sort((a, b) => a.featuredOrder - b.featuredOrder).slice(0, 2);
-// Same real-photo mapping as CocktailLibraryScreen.tsx — only 4 of 38
-// cocktails have dedicated photography in /public/mobile.
-const HOT_PICK_IMAGES: Record<string, string> = {
-  "Espresso Martini": "/mobile/cocktail-espresso-martini.png",
-  "Aperol Spritz": "/mobile/cocktail-aperol-spritz.png",
-  Negroni: "/mobile/cocktail-negroni.png",
-  Sazerac: "/mobile/cocktail-smoked-sazerac.png",
-};
 
 const QUICK_ACCESS = [
   { label: "Challenges", icon: Swords, href: "/mobile/challenges" },
@@ -211,7 +203,7 @@ export default function HomeScreen() {
               >
                 <div style={{ width: "100%", height: 100, borderRadius: "var(--radius-sm)", overflow: "hidden" }}>
                   <Image
-                    src={HOT_PICK_IMAGES[cocktail.name] ?? "/mobile/thumb-cocktail.png"}
+                    src={COCKTAIL_IMAGES[cocktail.name] ?? "/mobile/thumb-cocktail.png"}
                     alt=""
                     width={188}
                     height={100}

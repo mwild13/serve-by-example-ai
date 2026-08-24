@@ -5,7 +5,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import BottomNav from "./BottomNav";
-import { COCKTAILS, CATEGORIES, type Category, type Cocktail } from "@/lib/cocktails";
+import { COCKTAILS, CATEGORIES, COCKTAIL_IMAGES, type Category, type Cocktail } from "@/lib/cocktails";
 
 // Phase C file 06 — real data + search/filter, ported from the desktop
 // CocktailLibrary.tsx `useMemo` pattern (app/dashboard/_components/
@@ -13,10 +13,10 @@ import { COCKTAILS, CATEGORIES, type Category, type Cocktail } from "@/lib/cockt
 // is pure static data, per v4-migration-plan/06.
 //
 // The Phase B mock's per-card "base"/"difficulty"/"locked" fields don't exist
-// on the real `Cocktail` type and are dropped rather than faked. Only 4 of 38
-// cocktails have dedicated photography in /public/mobile (Espresso Martini,
-// Aperol Spritz, Negroni, Sazerac); every other card falls back to the shared
-// /public/mobile/thumb-cocktail.png glass icon rather than a nonexistent path.
+// on the real `Cocktail` type and are dropped rather than faked. All 38
+// cocktails now have dedicated photography (lib/cocktails.ts's
+// COCKTAIL_IMAGES, added 2026-08-24) — FALLBACK_IMAGE stays as a safety net
+// for any future cocktail added without a matching photo.
 //
 // Phase 1b fix (mobile bug-fix plan, 2026-08-24): tapping a cocktail used to
 // do nothing at all — no onClick, no detail view existed for this screen
@@ -37,12 +37,6 @@ import { COCKTAILS, CATEGORIES, type Category, type Cocktail } from "@/lib/cockt
 
 const CATEGORY_KEYS = Object.keys(CATEGORIES) as Category[];
 
-const COCKTAIL_IMAGES: Record<string, string> = {
-  "Espresso Martini": "/mobile/cocktail-espresso-martini.png",
-  "Aperol Spritz": "/mobile/cocktail-aperol-spritz.png",
-  Negroni: "/mobile/cocktail-negroni.png",
-  Sazerac: "/mobile/cocktail-smoked-sazerac.png",
-};
 const FALLBACK_IMAGE = "/mobile/thumb-cocktail.png";
 
 /** Stable, URL-safe identifier for a cocktail — lib/cocktails.ts has no id
