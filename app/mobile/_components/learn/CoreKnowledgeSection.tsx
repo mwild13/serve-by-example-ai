@@ -153,6 +153,10 @@ export default function CoreKnowledgeSection({ data, search = "" }: { data: Trai
                   display: "flex",
                   flexDirection: "column",
                   gap: 12,
+                  minWidth: 0, // grid items default to min-width:auto — without
+                  // this override, the title's white-space:nowrap content
+                  // forces this button wider than its 1fr track, blowing the
+                  // whole grid (and page) out past the 390px mobile frame.
                   padding: 14,
                   borderRadius: "var(--radius-lg)",
                   background: "var(--surface-mobile)",
@@ -210,10 +214,10 @@ export default function CoreKnowledgeSection({ data, search = "" }: { data: Trai
                   <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>{mod.subtitle}</p>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ width: 100, height: 6, borderRadius: 3, background: "var(--surface-mobile-alt)", overflow: "hidden" }}>
+                  <div style={{ flex: 1, minWidth: 0, height: 6, borderRadius: 3, background: "var(--surface-mobile-alt)", overflow: "hidden" }}>
                     <div style={{ width: `${mod.pct}%`, height: "100%", background: "var(--gold-mobile)" }} />
                   </div>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "var(--gold-mobile)" }}>{mod.pct}%</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "var(--gold-mobile)", flexShrink: 0 }}>{mod.pct}%</span>
                 </div>
               </button>
             );
