@@ -8,22 +8,23 @@ import { ArrowLeft, Zap, Loader2, Camera, X } from "lucide-react";
 import { useMobileSession } from "../_lib/mobile-session-context";
 
 // Phase C file 08, Half B — real generation via app/api/profile-photo/generate
-// (Fal.ai flux/schnell) and app/api/profile-photo/save. Prompts moved
-// server-side (see the API route) — this list only needs id/label/thumbnail
-// for the UI and to select a style server-side. See
-// v4-migration-plan/08-onboarding-diagnostic-and-profile.md.
+// and app/api/profile-photo/save. Style environments moved to static base
+// plate images (see the API route's Phase D comment) — this file only needs
+// id/label/image per style/gender for the UI and to select a style+gender
+// server-side.
+// See v4-migration-plan/08-onboarding-diagnostic-and-profile.md.
 //
 // Live-QA fix (2026-08-19): reported "No place to take photo on ai photo
 // page." True at the time — generation was text-to-image only (a style
 // prompt, no reference to the user at all), so a camera control would have
 // had nothing to feed. Closed 2026-08-19: capture/upload now feeds a real
-// selfie into the generate call as an image-to-image reference (see the
-// route's comment for the fal-ai/flux/dev/image-to-image switch). The raw
-// selfie itself is never persisted anywhere in Supabase — it's downscaled
-// client-side, sent once to the generate route, and only the AI-generated
-// result (a fal.media URL) is ever eligible to be saved as
-// profiles.profile_photo_url (see app/api/profile-photo/save/route.ts's
-// isAllowedFalUrl check, unchanged by this feature).
+// selfie into the generate call as an identity reference (see the route's
+// header comment for the current model). The raw selfie itself is never
+// persisted anywhere in Supabase — it's downscaled client-side, sent once
+// to the generate route, and only the resulting URL (either a fal.media
+// result or one of our own static base-plate URLs — see
+// app/api/profile-photo/save/route.ts's isAllowedPhotoUrl check) is ever
+// eligible to be saved as profiles.profile_photo_url.
 //
 // Diagnostic fix (2026-08-19): reported "AI photo generation not working."
 // See app/api/profile-photo/generate/route.ts's own comment for the root
@@ -38,21 +39,35 @@ import { useMobileSession } from "../_lib/mobile-session-context";
 // user so a shared device can't leak one account's preview into another's
 // session; it's cleared on both a successful Save and an explicit Skip, so
 // nothing stale reappears for a different session later.
+//
+// Phase D (2026-08-25) — gender selector + locked-environment plates. Each
+// style now has a male and a female base portrait
+// (public/mobile/men|women/ai-style-<id>.png — see
+// app/api/profile-photo/generate/route.ts's header comment for why), so the
+// style list is duplicated per gender rather than a single shared thumbnail
+// set. genderId also gates which 10 thumbnails render and is sent to the
+// generate route alongside styleId.
 
 type StyleOption = { id: string; label: string; image: string };
+type GenderId = "male" | "female";
 
-const STYLES: StyleOption[] = [
-  { id: "classic-bar", label: "Classic Bar", image: "/mobile/ai-style-classic-bar.png" },
-  { id: "fine-dining", label: "Fine Dining", image: "/mobile/ai-style-fine-dining.png" },
-  { id: "cocktail-lounge", label: "Cocktail Lounge", image: "/mobile/ai-style-cocktail-lounge.png" },
-  { id: "hotel-lobby", label: "Hotel Lobby", image: "/mobile/ai-style-hotel-lobby.png" },
-  { id: "rooftop-bar", label: "Rooftop Bar", image: "/mobile/ai-style-rooftop-bar.png" },
-  { id: "wine-cellar", label: "Wine Cellar", image: "/mobile/ai-style-wine-cellar.png" },
-  { id: "coffee-house", label: "Coffee House", image: "/mobile/ai-style-coffee-house.png" },
-  { id: "beach-club", label: "Beach Club", image: "/mobile/ai-style-beach-club.png" },
-  { id: "speakeasy", label: "Speakeasy", image: "/mobile/ai-style-speakeasy.png" },
-  { id: "corporate", label: "Corporate", image: "/mobile/ai-style-corporate.png" },
+const STYLE_META: { id: string; label: string }[] = [
+  { id: "classic-bar", label: "Classic Bar" },
+  { id: "fine-dining", label: "Fine Dining" },
+  { id: "cocktail-lounge", label: "Cocktail Lounge" },
+  { id: "hotel-lobby", label: "Hotel Lobby" },
+  { id: "rooftop-bar", label: "Rooftop Bar" },
+  { id: "wine-cellar", label: "Wine Cellar" },
+  { id: "coffee-house", label: "Coffee House" },
+  { id: "beach-club", label: "Beach Club" },
+  { id: "speakeasy", label: "Speakeasy" },
+  { id: "corporate", label: "Corporate" },
 ];
+
+const STYLES_BY_GENDER: Record<GenderId, StyleOption[]> = {
+  male: STYLE_META.map((s) => ({ ...s, image: `/mobile/men/ai-style-${s.id}.png` })),
+  female: STYLE_META.map((s) => ({ ...s, image: `/mobile/women/ai-style-${s.id}.png` })),
+};
 
 const PLACEHOLDER_AVATAR = "/mobile/ai-portrait-main.png";
 
@@ -91,12 +106,20 @@ export default function AiProfilePhotoScreen() {
   const router = useRouter();
   const session = useMobileSession();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [selectedStyle, setSelectedStyle] = useState<StyleOption>(STYLES[0]);
+  const [genderId, setGenderId] = useState<GenderId>("male");
+  const [selectedStyle, setSelectedStyle] = useState<StyleOption>(STYLES_BY_GENDER.male[0]);
   const [avatarUrl, setAvatarUrl] = useState<string>(PLACEHOLDER_AVATAR);
   const [selfieDataUrl, setSelfieDataUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  // Seeded from the layout's server-fetched profile row (see
+  // mobile-session-context.tsx) so the button shows the correct count on
+  // first paint; kept in local state after that so a fresh generate
+  // response can update it without a page navigation.
+  const [remaining, setRemaining] = useState<number>(session.profilePhotoGenerationsRemaining);
+
+  const activeStyles = STYLES_BY_GENDER[genderId];
 
   // Requirement F3: cache an unsaved generated preview so back-navigation
   // doesn't lose it and force a wasted (costed) re-generation call.
@@ -113,9 +136,24 @@ export default function AiProfilePhotoScreen() {
   useEffect(() => {
     try {
       const cached = JSON.parse(localStorage.getItem(draftKey) ?? "null");
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (cached?.avatarUrl) setAvatarUrl(cached.avatarUrl);
-      if (cached?.selfieDataUrl) setSelfieDataUrl(cached.selfieDataUrl);
+      if (cached?.avatarUrl) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setAvatarUrl(cached.avatarUrl);
+        if (cached?.selfieDataUrl) setSelfieDataUrl(cached.selfieDataUrl);
+        if (cached?.genderId === "male" || cached?.genderId === "female") {
+          setGenderId(cached.genderId);
+          setSelectedStyle(
+            STYLES_BY_GENDER[cached.genderId as GenderId].find((s) => s.id === cached?.styleId)
+              ?? STYLES_BY_GENDER[cached.genderId as GenderId][0],
+          );
+        }
+      } else if (session.profilePhotoUrl) {
+        // No unsaved draft — fall back to the user's existing saved
+        // portrait instead of leaving PLACEHOLDER_AVATAR, so re-opening this
+        // screen after a save shows what's actually saved, not an empty
+        // state (F5 fix, 2026-08-25).
+        setAvatarUrl(session.profilePhotoUrl);
+      }
     } catch {
       // corrupt/unreadable cache — ignore, stays on PLACEHOLDER_AVATAR
     }
@@ -153,6 +191,7 @@ export default function AiProfilePhotoScreen() {
         },
         body: JSON.stringify({
           styleId: selectedStyle.id,
+          genderId,
           ...(selfieDataUrl ? { selfieImage: selfieDataUrl } : {}),
         }),
       });
@@ -160,6 +199,11 @@ export default function AiProfilePhotoScreen() {
       const data = await res.json();
 
       if (!res.ok || !data.url) {
+        // The daily-cap 429 (see generate/route.ts) always includes
+        // `remaining: 0` — sync it locally even though the seeded value
+        // from session should already agree, in case the tab was left open
+        // across the UTC day boundary or another tab used up the cap first.
+        if (typeof data.remaining === "number") setRemaining(data.remaining);
         // route.ts only ever includes `detail` outside production — append
         // it when present so a local/dev tester sees the actual cause
         // (missing FAL_KEY, a Fal validation rejection, etc.) instead of
@@ -169,7 +213,8 @@ export default function AiProfilePhotoScreen() {
       }
 
       setAvatarUrl(data.url);
-      localStorage.setItem(draftKey, JSON.stringify({ avatarUrl: data.url, selfieDataUrl }));
+      if (typeof data.remaining === "number") setRemaining(data.remaining);
+      localStorage.setItem(draftKey, JSON.stringify({ avatarUrl: data.url, selfieDataUrl, genderId, styleId: selectedStyle.id }));
     } catch (err) {
       console.error("Failed to generate avatar:", err);
       setErrorMsg(err instanceof Error ? err.message : "Generation failed. Please try again.");
@@ -203,6 +248,15 @@ export default function AiProfilePhotoScreen() {
       }
 
       localStorage.removeItem(draftKey);
+      // F5 fix (2026-08-25): profilePhotoUrl is seeded once by the shared
+      // server layout (app/mobile/layout.tsx) into MobileSessionContext,
+      // which has no client-side setter for it. A bare router.push between
+      // sibling routes under that same layout segment does NOT re-run it,
+      // so Home/Me kept showing the stale (often null) value until a hard
+      // reload — router.refresh() forces the layout to re-fetch before we
+      // navigate, matching the pattern SettingsScreen.tsx already uses
+      // after its own profile mutations.
+      router.refresh();
       router.push("/mobile/home");
     } catch (err) {
       console.error("Failed to save avatar:", err);
@@ -289,6 +343,56 @@ export default function AiProfilePhotoScreen() {
 
         {/* preview-container */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "4px 0" }}>
+          {/* gender-toggle — positioned directly above the preview photo per
+              product request. Swaps both the 10-thumbnail style scroller
+              below and which base plate the next generation uses. */}
+          <div
+            role="group"
+            aria-label="Portrait gender"
+            style={{
+              display: "flex",
+              padding: 3,
+              marginBottom: 12,
+              borderRadius: "var(--radius-pill)",
+              background: "var(--surface-mobile)",
+              border: "1px solid var(--border-mobile)",
+            }}
+          >
+            {(["male", "female"] as const).map((g) => {
+              const isActive = genderId === g;
+              return (
+                <button
+                  key={g}
+                  type="button"
+                  aria-pressed={isActive}
+                  onClick={() => {
+                    if (g === genderId) return;
+                    setGenderId(g);
+                    const match = STYLES_BY_GENDER[g].find((s) => s.id === selectedStyle.id);
+                    setSelectedStyle(match ?? STYLES_BY_GENDER[g][0]);
+                  }}
+                  style={{
+                    padding: "6px 20px",
+                    borderRadius: "var(--radius-pill)",
+                    border: "none",
+                    background: isActive ? "var(--gold-mobile)" : "none",
+                    cursor: "pointer",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: isActive ? "var(--bg-mobile-dark)" : "var(--text-mobile-muted)",
+                    }}
+                  >
+                    {g === "male" ? "Male" : "Female"}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
           <div
             style={{
               display: "flex",
@@ -390,7 +494,7 @@ export default function AiProfilePhotoScreen() {
 
         {/* styles-scroller */}
         <div style={{ display: "flex", gap: 12, padding: "0 24px", overflowX: "auto" }}>
-          {STYLES.map((style) => {
+          {activeStyles.map((style) => {
             const isSelected = style.label === selectedStyle.label;
             return (
               <button
@@ -466,7 +570,7 @@ export default function AiProfilePhotoScreen() {
           <button
             type="button"
             onClick={handleGenerate}
-            disabled={isLoading}
+            disabled={isLoading || remaining <= 0}
             style={{
               flex: 1,
               display: "flex",
@@ -476,12 +580,16 @@ export default function AiProfilePhotoScreen() {
               borderRadius: "var(--radius-pill)",
               background: "none",
               border: "1px solid var(--border-mobile)",
-              cursor: isLoading ? "not-allowed" : "pointer",
-              opacity: isLoading ? 0.6 : 1,
+              cursor: isLoading || remaining <= 0 ? "not-allowed" : "pointer",
+              opacity: isLoading || remaining <= 0 ? 0.6 : 1,
             }}
           >
             <span style={{ fontSize: 15, fontWeight: 600, color: "var(--text-mobile)" }}>
-              {isLoading ? "Generating..." : "Generate Portrait"}
+              {isLoading
+                ? "Generating..."
+                : remaining <= 0
+                  ? "No portraits left today"
+                  : `Generate Portrait (${remaining})`}
             </span>
           </button>
           <button

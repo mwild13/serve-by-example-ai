@@ -13,13 +13,26 @@ import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 // would just be a redundant copy for a feature with no stated multi-photo/
 // history requirement. Revisit only if Fal URL longevity becomes a problem
 // in practice or the product grows a "photo history" requirement.
+//
+// Phase D (2026-08-25): a no-selfie generation now returns our own static
+// base-plate URL directly (see generate/route.ts) instead of always being a
+// Fal-hosted result — isAllowedPhotoUrl (renamed from isAllowedFalUrl)
+// accepts that shape too now, scoped tightly to the exact
+// public/mobile/{men,women}/ai-style-*.png plates so this stays a real
+// allow-list, not a same-origin free-for-all.
 
 export const dynamic = "force-dynamic";
 
-function isAllowedFalUrl(url: string): boolean {
+const PLATE_PATH_RE = /^\/mobile\/(men|women)\/ai-style-[a-z-]+\.png$/;
+
+function isAllowedPhotoUrl(url: string, requestOrigin: string): boolean {
   try {
     const parsed = new URL(url);
-    return parsed.protocol === "https:" && parsed.hostname.endsWith(".fal.media");
+    if (parsed.protocol === "https:" && parsed.hostname.endsWith(".fal.media")) return true;
+    // Same-origin static base plate — deliberately not https-only like the
+    // fal.media branch above, since requestOrigin is itself http in local
+    // dev (matching whatever protocol the current request actually used).
+    return parsed.origin === requestOrigin && PLATE_PATH_RE.test(parsed.pathname);
   } catch {
     return false;
   }
@@ -34,7 +47,8 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const url = typeof body?.url === "string" ? body.url : "";
-    if (!isAllowedFalUrl(url)) {
+    const requestOrigin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || new URL(req.url).origin;
+    if (!isAllowedPhotoUrl(url, requestOrigin)) {
       return NextResponse.json({ error: "Invalid photo URL." }, { status: 400 });
     }
 
