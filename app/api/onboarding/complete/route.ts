@@ -24,6 +24,11 @@ export async function POST(req: NextRequest) {
     .upsert(
       {
         id: user.id,
+        // profiles.email is NOT NULL with no default. Postgres validates
+        // NOT NULL on the full candidate row for INSERT ... ON CONFLICT DO
+        // UPDATE even when the row already exists and only an UPDATE runs —
+        // omitting email here throws 23502 and the upsert never lands.
+        email: user.email ?? "",
         onboarding_completed: true,
         ...(venueType ? { venue_type: venueType } : {}),
         ...(experienceLevel ? { experience_level: experienceLevel } : {}),

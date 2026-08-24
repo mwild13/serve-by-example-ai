@@ -4,6 +4,7 @@ import { getUserFromRequest } from "@/lib/supabase-server";
 import { recordAttempt, syncMasteryToVenueStaff, markModuleMastered, moduleIdToString, SCENARIO_COUNTS, type ConfidenceLevel } from "@/lib/mastery";
 import { resolveAccess, validateSession } from "@/lib/session";
 import { VERIFY_QUESTIONS } from "@/lib/verify-questions";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 const VERIFY_PASS_THRESHOLD = 4; // must match ModuleVerify PASS_THRESHOLD
 
@@ -65,6 +66,18 @@ export async function POST(req: Request) {
     const { user } = await getUserFromRequest(req);
     if (!user) {
       return NextResponse.json({ error: "Unauthorized", code: "UNAUTHORIZED" }, { status: 401 });
+    }
+
+    // V4 priority-1 fix (2026-08-21): this write path had no rate limiting —
+    // mobile's Scenario Training and ModuleVerify screens both post here.
+    // 20/min matches the "text-route norm" this same file 08 established for
+    // evaluate/arena (dual user+IP, same shape as arena/evaluate/route.ts).
+    const ip = getClientIp(req);
+    if (!rateLimit(`training-save:user:${user.id}`, 20) || !rateLimit(`training-save:ip:${ip}`, 20)) {
+      return NextResponse.json(
+        { error: "Too many requests. Try again in a minute.", code: "RATE_LIMITED" },
+        { status: 429 },
+      );
     }
 
     const body = await req.json();
@@ -167,7 +180,8 @@ export async function POST(req: Request) {
             .from("scenario_mastery")
             .select("module_id", { count: "exact", head: true })
             .eq("user_id", user.id)
-            .eq("is_mastered", true);
+            .eq("is_mastered", true)
+            .is("archived_at", null);
 
           if ((count ?? 0) >= 20) {
             await admin
@@ -209,10 +223,16 @@ export async function POST(req: Request) {
     }
 
     // ── Record attempt in mastery engine ──────────────────────
+    // This route's non-verify branch is exclusively the Scenario Training
+    // (DashboardTrainer) save path — ModuleVerify posts verifyPassed:true
+    // instead and is handled above via markModuleMastered(). Arena has its
+    // own route (app/api/arena/evaluate/route.ts) that calls recordAttempt
+    // with scenarioType: "roleplay" directly.
     const result = await recordAttempt(admin, {
       userId: user.id,
       module: moduleName,
       moduleId: moduleId ?? undefined,
+      scenarioType: "descriptor",
       scenarioIndex,
       overallScore,
       confidence,

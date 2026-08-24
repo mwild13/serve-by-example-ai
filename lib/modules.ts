@@ -12,7 +12,7 @@ type ScenarioType = 'quiz' | 'descriptor_l2' | 'descriptor_l3' | 'roleplay';
  */
 export interface Module {
   id: number; // 1-40, immutable
-  title: string; // e.g., "Pouring the Perfect Beer"
+  title: string; // e.g., "Beer Pouring"
   description: string;
   category: Category;
   difficulty_level: number; // 1-5 scale

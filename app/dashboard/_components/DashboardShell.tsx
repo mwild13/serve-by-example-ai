@@ -49,7 +49,7 @@ const NAV_ITEMS: { id: NavItem; label: string }[] = [
   { id: "scenarios", label: "Live Scenarios" },
   { id: "challenges", label: "Challenges" },
   { id: "cocktails", label: "Cocktail Library" },
-  { id: "knowledge", label: "101 Knowledge Base" },
+  { id: "knowledge", label: "Knowledge Base" },
   { id: "progress", label: "How I'm improving" },
   { id: "badges", label: "Badges" },
   { id: "settings", label: "Settings" },

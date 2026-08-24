@@ -165,6 +165,50 @@ export function tierSeatLimit(raw: string | null | undefined): number {
 }
 
 /**
+ * Roles that unlock Mission Control (app/management/dashboard). Includes
+ * "duty_manager" — delegated console access granted by an owner-level
+ * manager via Invite Staff, independent of Stripe subscription ownership.
+ * Single source of truth: app/management/dashboard/page.tsx's gate,
+ * app/auth/page.tsx's post-signup routing, and ManagerControlCenter.tsx's
+ * settings-visibility check all read through the two helpers below rather
+ * than re-deriving this list.
+ */
+export function hasManagerConsoleAccess(platformRole: string | null | undefined): boolean {
+  return (
+    platformRole === "venue_manager" ||
+    platformRole === "multi_venue_manager" ||
+    platformRole === "duty_manager" ||
+    platformRole === "admin"
+  );
+}
+
+/**
+ * Owner-level roles only — excludes "duty_manager". Gates Billing and the
+ * rest of Mission Control's "settings" section (venue setup, subscription,
+ * account), which duty managers must never reach.
+ */
+export function isOwnerLevelRole(platformRole: string | null | undefined): boolean {
+  return (
+    platformRole === "venue_manager" ||
+    platformRole === "multi_venue_manager" ||
+    platformRole === "admin"
+  );
+}
+
+/** Shared by resolveAccess() and resolveTierAccess() — both need the same
+ * trial fields for an org by id. Returns null on no-row/error, same
+ * not-throwing style the rest of this file uses. */
+async function fetchOrgTrial(admin: SupabaseClient, orgId: string | null | undefined) {
+  if (!orgId) return null;
+  const { data } = await admin
+    .from("organizations")
+    .select("trial_tier, trial_ends_at, trial_converted")
+    .eq("id", orgId)
+    .single();
+  return data;
+}
+
+/**
  * Resolve a user's effective access level.
  * Checks own subscription first, then falls back to sponsor (organization_members).
  */
@@ -191,51 +235,50 @@ export async function resolveAccess(
     };
   }
 
-  // 2. Check if the user's org has an active trial (manager path).
-  // Trial state lives on organizations so both manager and staff paths can resolve it
-  // via a single join without cross-profile lookups.
-  if (profile?.org_id) {
-    const { data: org } = await admin
-      .from("organizations")
-      .select("trial_tier, trial_ends_at, trial_converted")
-      .eq("id", profile.org_id)
-      .single();
+  // 2 & 3. Org trial (manager path) and sponsored-membership (staff path) are
+  // independent of each other — trial depends only on profile.org_id from
+  // step 1, membership depends only on userEmail — so fire them concurrently
+  // instead of serially (this was a real, measured latency contributor on
+  // the free/sponsored-account load path) and apply the same
+  // trial-takes-priority-over-membership ordering the sequential version had.
+  const [org, membership] = await Promise.all([
+    fetchOrgTrial(admin, profile?.org_id),
+    userEmail
+      ? admin
+          .from("organization_members")
+          .select("manager_id")
+          .ilike("staff_email", userEmail)
+          .in("status", ["active", "invited"])
+          .eq("seat_counted", true)
+          .limit(1)
+          .maybeSingle()
+          .then((r) => r.data)
+      : Promise.resolve(null),
+  ]);
 
-    const trialStatus = getTrialStatus(org);
-    if (trialStatus === "active" && org?.trial_tier) {
-      const trialTier = normalizeTier(org.trial_tier);
-      return {
-        tier: trialTier,
-        allowedModules: TIER_MODULES[trialTier] ?? ALL_MODULES,
-        maxSeats: TIER_SEATS[trialTier] ?? 0,
-        isSponsored: false,
-        isTrial: true,
-      };
-    }
+  const trialStatus = getTrialStatus(org);
+  if (trialStatus === "active" && org?.trial_tier) {
+    const trialTier = normalizeTier(org.trial_tier);
+    return {
+      tier: trialTier,
+      allowedModules: TIER_MODULES[trialTier] ?? ALL_MODULES,
+      maxSeats: TIER_SEATS[trialTier] ?? 0,
+      isSponsored: false,
+      isTrial: true,
+    };
   }
 
-  // 3. Check if the user is sponsored via organization_members.
-  // An active membership is sufficient – no need to re-check the manager's plan.
-  // This matches the dashboard page logic which grants access on membership alone.
-  if (userEmail) {
-    const { data: membership } = await admin
-      .from("organization_members")
-      .select("manager_id")
-      .ilike("staff_email", userEmail)
-      .in("status", ["active", "invited"])
-      .eq("seat_counted", true)
-      .limit(1)
-      .maybeSingle();
-
-    if (membership) {
-      return {
-        tier: "venue_single",
-        allowedModules: ALL_MODULES,
-        maxSeats: 0,
-        isSponsored: true,
-        sponsorManagerId: membership.manager_id as string,
-      };
-    }
+  // Sponsored via organization_members — an active membership is sufficient,
+  // no need to re-check the manager's plan (matches the dashboard page logic
+  // which grants access on membership alone).
+  if (membership) {
+    return {
+      tier: "venue_single",
+      allowedModules: ALL_MODULES,
+      maxSeats: 0,
+      isSponsored: true,
+      sponsorManagerId: membership.manager_id as string,
+    };
   }
 
   return {
@@ -244,6 +287,136 @@ export async function resolveAccess(
     maxSeats: 0,
     isSponsored: false,
   };
+}
+
+// ── Shared tier-resolution chain (dashboard + mobile) ────────
+
+export type TierAccessInput = {
+  tier: string | null;
+  org_id: string | null;
+  subscription_status: string | null;
+  management_unlocked?: boolean | null;
+};
+
+export type ResolvedTierAccess = {
+  plan: string;
+  allowedModules: number[];
+  hasVenueMembership: boolean;
+  venueMembershipPaused: boolean;
+  managementUnlocked: boolean;
+};
+
+const LAPSED_SUBSCRIPTION_STATUSES = new Set(["canceled", "incomplete_expired", "unpaid"]);
+const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active", "trialing", "past_due"]);
+
+/**
+ * Canonical tier-resolution chain: own profile tier → lapsed-subscription
+ * downgrade → org trial sync → sponsored venue-membership fallback (paused
+ * if the sponsor's own org trial has expired). Extracted from
+ * app/dashboard/page.tsx so /dashboard and /mobile (app/mobile/layout.tsx)
+ * share one implementation instead of two hand-copied chains drifting apart
+ * — see v4-migration-plan/01-supabase-client-and-auth.md. Deliberately
+ * separate from resolveAccess() above: that function is the general-purpose
+ * API-route resolver and doesn't model the lapsed-subscription or
+ * paused-sponsor cases these two page-level entry points need.
+ */
+export async function resolveTierAccess(
+  admin: SupabaseClient,
+  userEmail: string | undefined,
+  profile: TierAccessInput,
+): Promise<ResolvedTierAccess> {
+  let plan = profile.tier ?? "free";
+
+  // Lapsed-subscription downgrade: only revoke when the webhook has explicitly
+  // written a terminal status. null means subscription_status has never been
+  // written — trust tier in that case.
+  if (plan !== "free" && LAPSED_SUBSCRIPTION_STATUSES.has(profile.subscription_status ?? "")) {
+    plan = "free";
+  }
+
+  const subscriptionIsActive = ACTIVE_SUBSCRIPTION_STATUSES.has(profile.subscription_status ?? "");
+  // Trial gate: runs for any user without an active Stripe subscription (null = trial/new).
+  // Skipped for paying subscribers — their tier is authoritative.
+  const runsTrialGate = !subscriptionIsActive && !!profile.org_id;
+
+  // Perf fix: the org-trial lookup and the sponsored-membership lookup used
+  // to run strictly sequentially (trial, THEN membership gated on its
+  // outcome), which meant a brand-new free/sponsored account paid for two
+  // round trips back to back before this even got to the manager-lookup
+  // chain below — the direct cause of "Continue Learning" loading slowly on
+  // first login. Membership can only ever end up mattering when the trial
+  // gate could leave the user on the free plan, so it shares the trial
+  // gate's own precondition (no active paid subscription) and fires
+  // alongside it; if the trial *does* resolve to a paid plan, the fetched
+  // membership result is simply discarded below. Worst case this fires one
+  // extra (harmless, unused) query for a non-org paid-tier-override edge
+  // case — a fine trade for cutting a full round trip off the common path.
+  const canBeSponsored = !subscriptionIsActive && !!userEmail;
+
+  const [org, membership] = await Promise.all([
+    runsTrialGate ? fetchOrgTrial(admin, profile.org_id) : Promise.resolve(null),
+    canBeSponsored
+      ? admin
+          .from("organization_members")
+          .select("id, manager_id")
+          .eq("staff_email", (userEmail as string).toLowerCase())
+          .in("status", ["invited", "active"])
+          .limit(1)
+          .maybeSingle()
+          .then((r) => r.data)
+      : Promise.resolve(null),
+  ]);
+
+  if (runsTrialGate) {
+    const trialStatus = getTrialStatus(org);
+    if (trialStatus === "active" && org?.trial_tier) {
+      plan = org.trial_tier as string;
+    } else if (trialStatus === "expired") {
+      plan = "free";
+    }
+  }
+
+  // Sponsored venue staff (invited by a manager) get full training access
+  // even on the free plan tier — unless the sponsoring manager's own org
+  // trial has expired, in which case sponsored access pauses.
+  let hasVenueMembership = false;
+  let venueMembershipPaused = false;
+  if (plan === "free" && userEmail) {
+    hasVenueMembership = !!membership;
+
+    if (membership?.manager_id) {
+      // Perf fix: this used to be 2 sequential round trips (fetch the
+      // manager's profile for org_id, then fetch that org's trial fields).
+      // profiles.org_id has a real FK to organizations(id), so PostgREST can
+      // embed the related org row in one query instead.
+      const { data: managerProfile } = await admin
+        .from("profiles")
+        .select("org_id, organizations(trial_tier, trial_ends_at, trial_converted)")
+        .eq("id", membership.manager_id)
+        .single();
+
+      const managerOrg = Array.isArray(managerProfile?.organizations)
+        ? managerProfile?.organizations[0]
+        : managerProfile?.organizations;
+
+      if (managerProfile?.org_id && getTrialStatus(managerOrg ?? null) === "expired") {
+        venueMembershipPaused = true;
+      }
+    }
+  }
+
+  const normalizedTier = normalizeTier(plan);
+  const allowedModules = hasVenueMembership
+    ? (venueMembershipPaused ? [] : ALL_MODULES)
+    : TIER_MODULES[normalizedTier];
+
+  // Sponsored staff on the free tier must never see management content,
+  // even if management_unlocked was previously set in their profile.
+  const managementUnlocked = hasVenueMembership && plan === "free"
+    ? false
+    : (profile.management_unlocked ?? false);
+
+  return { plan, allowedModules, hasVenueMembership, venueMembershipPaused, managementUnlocked };
 }
 
 /**

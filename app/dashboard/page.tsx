@@ -2,8 +2,7 @@
 import Stripe from "stripe";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { getTrialStatus } from "@/lib/trial";
-import { normalizeTier } from "@/lib/session";
+import { normalizeTier, resolveTierAccess } from "@/lib/session";
 import DashboardShell from "@/app/dashboard/_components/DashboardShell";
 
 // Prevent static generation – this page requires auth at runtime
@@ -45,8 +44,8 @@ export default async function DashboardPage({
         // so this immediate sync can never drift from the async webhook path.
         const tier = stripeSession.metadata?.tier;
         if (tier) {
-          const admin = createSupabaseAdminClient();
-          await admin.from("profiles").update({
+          const checkoutAdmin = createSupabaseAdminClient();
+          await checkoutAdmin.from("profiles").update({
             tier: normalizeTier(tier),
             stripe_customer_id: stripeSession.customer as string,
             subscription_status: "active",
@@ -83,80 +82,18 @@ export default async function DashboardPage({
     user.email?.split("@")[0] ||
     "there";
 
-  let plan = profile?.tier ?? "free";
-
-  // Subscription gate: only revoke when the webhook has explicitly written a terminal status.
-  // null means subscription_status has never been written — trust tier in that case.
-  const LAPSED_STATUSES = new Set(["canceled", "incomplete_expired", "unpaid"]);
-  if (plan !== "free" && LAPSED_STATUSES.has(profile?.subscription_status ?? "")) {
-    plan = "free";
-  }
-
-  // Trial gate: runs for any user without an active Stripe subscription (null = trial/new).
-  // Syncs plan to the live org trial state so:
-  //   - active trial  → plan = trial_tier  (elevates free users; corrects manual DB edits)
-  //   - expired trial → plan = "free"      (locks out after trial ends)
-  // Skipped for paying subscribers — their tier is authoritative.
-  const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active", "trialing", "past_due"]);
-  if (!ACTIVE_SUBSCRIPTION_STATUSES.has(profile?.subscription_status ?? "") && profile?.org_id) {
-    const adminForTrial = createSupabaseAdminClient();
-    const { data: org } = await adminForTrial
-      .from("organizations")
-      .select("trial_tier, trial_ends_at, trial_converted")
-      .eq("id", profile.org_id)
-      .single();
-    const trialStatus = getTrialStatus(org);
-    if (trialStatus === "active" && org?.trial_tier) {
-      plan = org.trial_tier as string;
-    } else if (trialStatus === "expired") {
-      plan = "free";
-    }
-  }
-
-  // Check if user has an active venue membership (invited by a manager).
-  // These users get full training access even on the free plan tier.
-  // Use admin client to bypass RLS – the filter is scoped to this user's email.
-  let hasVenueMembership = false;
-  let venueMembershipPaused = false;
-  if (plan === "free" && user.email) {
-    const admin = createSupabaseAdminClient();
-    const { data: membership } = await admin
-      .from("organization_members")
-      .select("id, manager_id")
-      .eq("staff_email", user.email.toLowerCase())
-      .in("status", ["invited", "active"])
-      .limit(1)
-      .maybeSingle();
-    hasVenueMembership = !!membership;
-
-    // If sponsored, check whether the manager's org trial has expired.
-    // An expired trial means training is paused for all staff on that org.
-    if (membership?.manager_id) {
-      const { data: managerProfile } = await admin
-        .from("profiles")
-        .select("org_id")
-        .eq("id", membership.manager_id)
-        .single();
-
-      if (managerProfile?.org_id) {
-        const { data: managerOrg } = await admin
-          .from("organizations")
-          .select("trial_tier, trial_ends_at, trial_converted")
-          .eq("id", managerProfile.org_id)
-          .single();
-
-        if (getTrialStatus(managerOrg) === "expired") {
-          venueMembershipPaused = true;
-        }
-      }
-    }
-  }
-
-  // Sponsored venue staff (free plan + venue membership) must never see management content,
-  // even if management_unlocked was previously set in their profile.
-  const managementUnlocked = hasVenueMembership && plan === "free"
-    ? false
-    : (profile?.management_unlocked ?? false);
+  // Tier resolution (own tier → lapsed-subscription downgrade → org trial
+  // sync → sponsored venue-membership fallback) lives in resolveTierAccess()
+  // so this chain can't drift from the one app/mobile/layout.tsx runs — see
+  // v4-migration-plan/01-supabase-client-and-auth.md.
+  const admin = createSupabaseAdminClient();
+  const { plan, hasVenueMembership, venueMembershipPaused, managementUnlocked } =
+    await resolveTierAccess(admin, user.email ?? undefined, {
+      tier: profile?.tier ?? null,
+      org_id: profile?.org_id ?? null,
+      subscription_status: profile?.subscription_status ?? null,
+      management_unlocked: profile?.management_unlocked ?? null,
+    });
 
   return (
     <DashboardShell

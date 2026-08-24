@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
-import { getMasteryProgress, getReviewQueue, getScenarioMasteryDetails, SCENARIO_COUNTS } from "@/lib/mastery";
+import { getMasteryProgress, getReviewQueue, getScenarioMasteryDetails, categoryMasteryAverage, moduleMasteryByType, SCENARIO_COUNTS } from "@/lib/mastery";
 import { resolveAccess } from "@/lib/session";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 const MANAGEMENT_ROLES = ["Manager", "Supervisor"];
 
@@ -13,6 +14,16 @@ export async function GET(req: Request) {
   try {
     const { user } = await getUserFromRequest(req);
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    // V4 priority-1 fix (2026-08-21): this read fires on mount from nearly
+    // every mobile screen (Home, Learn Hub, Progress, Challenges, Badges,
+    // Scenario Training) plus its desktop equivalents, so the limit is set
+    // much higher than the 20/min write-route norm to absorb normal rapid
+    // screen-to-screen navigation without false-positiving real users.
+    const ip = getClientIp(req);
+    if (!rateLimit(`training-progress:user:${user.id}`, 60) || !rateLimit(`training-progress:ip:${ip}`, 60)) {
+      return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    }
 
     const admin = createSupabaseAdminClient();
 
@@ -36,7 +47,11 @@ export async function GET(req: Request) {
     ] = await Promise.all([
       Promise.all(
         LEGACY_MODULES.map(async (mod) => {
-          const progress = await getMasteryProgress(admin, user.id, mod);
+          // These 3 legacy fields (modules/mastery/scores/etc.) have always
+          // represented Scenario Training progress specifically — distinct
+          // from the newer is_mastered quiz gate and Arena's roleplay
+          // tracking — so "descriptor" is the correct, unambiguous type here.
+          const progress = await getMasteryProgress(admin, user.id, mod, "descriptor");
           return [mod, progress] as const;
         }),
       ),
@@ -46,14 +61,16 @@ export async function GET(req: Request) {
         .order("id", { ascending: true }),
       admin
         .from("scenario_mastery")
-        .select("module_id, mastery_level, elo_rating, total_attempts, total_score_points, last_attempt_at, is_mastered")
+        .select("module_id, scenario_type, mastery_level, elo_rating, total_attempts, total_score_points, last_attempt_at, is_mastered")
         .eq("user_id", user.id)
+        .is("archived_at", null)
         .not("module_id", "is", null),
       admin
         .from("scenario_mastery")
         .select("module_id, best_score, total_attempts, mastery_level")
         .eq("user_id", user.id)
         .eq("scenario_index", 40)
+        .is("archived_at", null)
         .not("module_id", "is", null),
       admin
         .from("profiles")
@@ -68,6 +85,7 @@ export async function GET(req: Request) {
         .from("scenario_mastery")
         .select("last_attempt_at")
         .eq("user_id", user.id)
+        .is("archived_at", null)
         .not("last_attempt_at", "is", null)
         .order("last_attempt_at", { ascending: false })
         .limit(1)
@@ -84,6 +102,7 @@ export async function GET(req: Request) {
         .from("user_challenges")
         .select("challenge_index, completed_at")
         .eq("user_id", user.id)
+        .is("archived_at", null)
         .order("challenge_index", { ascending: true }),
     ]);
 
@@ -123,6 +142,51 @@ export async function GET(req: Request) {
         };
       }
     }
+
+    // ── Per-category Modules/Scenarios/AI Scenarios breakdown (Phase 3c,
+    // mobile bug-fix plan) — for the Me page's 3 sub-bars under each ring.
+    // "Modules" and "AI Scenarios" isolate quiz vs. roleplay rows out of the
+    // same module_id-keyed data moduleProgress above blends together (see
+    // moduleMasteryByType()'s doc comment in lib/mastery.ts). "Scenarios"
+    // (Category Simulations) reuses masteryByModule, already computed above
+    // via getMasteryProgress(admin, user.id, mod, "descriptor") per legacy
+    // module — no new query needed for that piece.
+    const quizModuleProgress = moduleMasteryByType(masteryRows ?? [], allModules ?? [], SCENARIO_COUNTS, "quiz");
+    const roleplayModuleProgress = moduleMasteryByType(masteryRows ?? [], allModules ?? [], SCENARIO_COUNTS, "roleplay");
+    const categoryBreakdown = {
+      bartending: {
+        modules: categoryMasteryAverage(allModules ?? [], quizModuleProgress, "technical"),
+        scenarios: masteryByModule["bartending"].mastery,
+        aiScenarios: categoryMasteryAverage(allModules ?? [], roleplayModuleProgress, "technical"),
+      },
+      sales: {
+        modules: categoryMasteryAverage(allModules ?? [], quizModuleProgress, "service"),
+        scenarios: masteryByModule["sales"].mastery,
+        aiScenarios: categoryMasteryAverage(allModules ?? [], roleplayModuleProgress, "service"),
+      },
+      management: {
+        modules: categoryMasteryAverage(allModules ?? [], quizModuleProgress, "compliance"),
+        scenarios: masteryByModule["management"].mastery,
+        aiScenarios: categoryMasteryAverage(allModules ?? [], roleplayModuleProgress, "compliance"),
+      },
+    };
+
+    // ── Category-average mastery rollup (Phase 4 fix, v4-migration-plan/00
+    // item 10; re-fixed 2026-08-24) ── This used to be
+    // categoryMasteryAverage(moduleProgress) — i.e. the quiz-gate mastery
+    // only, completely ignoring Category Simulations and Arena. That made
+    // the Me page ring read "100%" for a user who had only ever passed
+    // verify quizzes and never touched Scenarios or AI Scenarios at all,
+    // while the 3 sub-bars directly underneath it showed those two modes
+    // near-empty — a real user flagged this as "the mastery isn't making
+    // sense." The ring is now the average of the same 3 sub-metrics the
+    // breakdown row shows, so the headline number and the bars underneath
+    // it always tell the same story.
+    const categoryMastery = {
+      bartending: Math.round((categoryBreakdown.bartending.modules + categoryBreakdown.bartending.scenarios + categoryBreakdown.bartending.aiScenarios) / 3),
+      sales: Math.round((categoryBreakdown.sales.modules + categoryBreakdown.sales.scenarios + categoryBreakdown.sales.aiScenarios) / 3),
+      management: Math.round((categoryBreakdown.management.modules + categoryBreakdown.management.scenarios + categoryBreakdown.management.aiScenarios) / 3),
+    };
 
     // ── Canonical skill level (mastered modules / total × 10) ──
     const masteredModuleCount = allModules
@@ -223,11 +287,8 @@ export async function GET(req: Request) {
         sales: masteryByModule["sales"].completion,
         management: masteryByModule["management"].completion,
       },
-      mastery: {
-        bartending: masteryByModule["bartending"].mastery,
-        sales: masteryByModule["sales"].mastery,
-        management: masteryByModule["management"].mastery,
-      },
+      mastery: categoryMastery,
+      categoryBreakdown,
       scores: {
         bartending: masteryByModule["bartending"].avgScore,
         sales: masteryByModule["sales"].avgScore,

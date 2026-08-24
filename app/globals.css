@@ -122,6 +122,26 @@
   --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
+  /* ── Mobile Staff Dashboard — Dark Mode (Figma: NEW-MOBILE-STAFF-DASHBOARD) ── */
+  /* Extracted from the "home" and "me-progress" frames. Scoped to app/mobile/_components/ —
+     does not replace the --ip-* (Industrial Premium) tokens used elsewhere. --green and
+     --gold stay the canonical brand colours; these are brightened dark-bg variants tuned
+     for contrast against a near-black surface. */
+  --bg-mobile-dark:         #0B0D16;  /* page background */
+  --surface-mobile:         #171A26;  /* card / panel background */
+  --surface-mobile-alt:     #202538;  /* progress track fill-track, activity icon circle */
+  --surface-mobile-inverse: rgba(255, 255, 255, 0.9);  /* brand monogram chip background */
+  --border-mobile:          #2C3145;  /* card borders, bottom-nav divider */
+  --text-mobile:            #FFFFFF;  /* primary text on dark */
+  --text-mobile-muted:      #8A90A6;  /* secondary/meta text, inactive nav labels */
+  --text-mobile-faint:      rgba(138, 144, 166, 0.3);  /* home-indicator pill */
+  --gold-mobile:            #F2AF34;  /* bright amber accent — active nav tab, progress fill, XP values (dark-bg variant of --gold-warm) */
+  --gold-mobile-bg:         #3A280F;  /* warm icon-wrapper background (bell) */
+  --green-mobile:           #3A7A57;  /* bright green accent — streak stat, +XP values (dark-bg variant of --green-mid) */
+  --green-mobile-bg:        #1B3B28;  /* streak badge pill background */
+  --red-mobile:             #A63B3B;  /* danger/difficulty-hard accent — extracted from "ai-arena" frame */
+  --avatar-mobile-bg:       #51566B;  /* neutral avatar circle background — extracted from "ai-arena" frame */
+
   /* ── Accessibility-compliant grey scale ── */
   /* All values meet WCAG AA 4.5:1 on white (#fff) */
   --color-text-muted:  var(--text-muted);  /* Legacy alias — was its own hex (#6b7280), competing with --text-muted for the same "muted secondary text" job across the staff dashboard. Aliased so its ~25 existing call sites (DynamicModuleNav.tsx, ArenaPage.tsx, RapidFirePage.tsx, StaffRosterPanel.tsx, ManagerControlCenter.tsx) now render the same color as everywhere else. Do not use this token in new code — use --text-muted directly. */
@@ -280,8 +300,13 @@ body {
   font-size: 16px;
   line-height: 1.65;
   overflow-x: clip;
-  touch-action: pan-x pan-y;
+  /* `pan-x pan-y` omitted pinch-zoom from the allowed gesture list, which could
+     leave a pinched-in viewport stuck (unable to zoom back out). `manipulation`
+     allows panning + pinch-zoom while still suppressing double-tap-to-zoom and
+     the 300ms tap delay — the original intent of this rule. */
+  touch-action: manipulation;
   overscroll-behavior-y: none;
+
   width: 100%;
 }
 
@@ -19500,4 +19525,16 @@ h1, h2, h3 {
 .staff-settings-wrap .card {
   overflow-wrap: break-word;
   word-break: break-word;
+}
+
+/* Shared spin utility — replaces the no-op `className="animate-spin"` found
+   in AiProfilePhotoScreen.tsx (a leftover from Tailwind, which this project
+   doesn't build — same dead-class shape already documented and fixed once in
+   DiagnosticFlow.tsx's own file comment). Reused by
+   OnboardingDiagnosticScreen.tsx's loading state too. */
+@keyframes mobile-spin {
+  to { transform: rotate(360deg); }
+}
+.mobile-spin {
+  animation: mobile-spin 0.8s linear infinite;
 }

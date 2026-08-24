@@ -5,7 +5,7 @@ import ManagerControlCenter from "@/components/mission-control/ManagerControlCen
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getTrialStatus, getDaysRemaining } from "@/lib/trial";
-import { isB2BTier, normalizeTier } from "@/lib/session";
+import { isB2BTier, normalizeTier, hasManagerConsoleAccess, isOwnerLevelRole } from "@/lib/session";
 
 // Prevent static generation – this page requires auth at runtime
 export const dynamic = "force-dynamic";
@@ -78,7 +78,11 @@ export default async function ManagementDashboardPage({
   const isAdmin = ADMIN_EMAILS.includes(user.email ?? "");
   const hasVenuePlan = isB2BTier(plan);
   const hasVenueTier = isB2BTier(tier);
-  const hasManagerRole = platformRole === "venue_manager" || platformRole === "multi_venue_manager" || platformRole === "admin";
+  const hasManagerRole = hasManagerConsoleAccess(platformRole);
+  // Duty managers (platformRole === "duty_manager") pass hasManagerRole above
+  // — they belong in Mission Control — but must never reach Billing/Settings,
+  // which stays owner-level only. See lib/session.ts's isOwnerLevelRole doc.
+  const isOwnerLevel = isOwnerLevelRole(platformRole) || isAdmin;
 
   // A lapsed subscription (webhook wrote a terminal status) revokes venue-based access.
   // null means subscription_status has never been written — treat as not lapsed.
@@ -128,6 +132,7 @@ export default async function ManagementDashboardPage({
       <Suspense fallback={null}>
         <ManagerControlCenter
           plan={plan}
+          isOwnerLevel={isOwnerLevel}
           displayName={displayName}
           trialTier={trialTier}
           trialEndsAt={trialEndsAt}

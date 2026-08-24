@@ -143,6 +143,7 @@ const EMPTY_SNAPSHOT: ManagementSnapshot = {
 export default function ManagerControlCenter({
   initialSnapshot,
   plan,
+  isOwnerLevel = true,
   displayName,
   trialTier,
   trialEndsAt,
@@ -152,6 +153,16 @@ export default function ManagerControlCenter({
 }: {
   initialSnapshot?: ManagementSnapshot;
   plan?: string;
+  /**
+   * False for a "duty_manager" — delegated Mission Control access without
+   * Stripe subscription ownership. Hides the Settings nav item (Billing,
+   * venue setup, account) and blocks that section from rendering even via
+   * direct ?tab=settings navigation. Defaults true so this component never
+   * silently locks itself for a caller that doesn't pass the prop — the one
+   * real call site (app/management/dashboard/page.tsx) always passes it
+   * explicitly. See lib/session.ts's isOwnerLevelRole for the role list.
+   */
+  isOwnerLevel?: boolean;
   displayName?: string;
   trialTier?: string | null;
   trialEndsAt?: string | null;
@@ -193,6 +204,15 @@ export default function ManagerControlCenter({
   function setSettingsTab(subtab: "setup" | "billing" | "account") {
     router.replace(`?tab=settings&subtab=${subtab}`, { scroll: false });
   }
+
+  // Duty managers can't reach Settings (Billing/venue setup/account) even by
+  // typing ?tab=settings directly — the nav item is already hidden below,
+  // this is the defense-in-depth redirect for that bypass.
+  useEffect(() => {
+    if (activeSection === "settings" && !isOwnerLevel) {
+      router.replace("?tab=overview", { scroll: false });
+    }
+  }, [activeSection, isOwnerLevel, router]);
 
   // Checkout success: detect post-Stripe redirect and poll for webhook confirmation.
   const checkoutSuccess = searchParams.get("checkout") === "success";
@@ -1043,7 +1063,9 @@ export default function ManagerControlCenter({
                   )}
                   {!isCollapsed && (
                     <div className="mc-nav-items">
-                      {group.items.map((section) => (
+                      {group.items
+                        .filter((section) => section.id !== "settings" || isOwnerLevel)
+                        .map((section) => (
                         <button
                           key={section.id}
                           type="button"
@@ -1452,6 +1474,7 @@ export default function ManagerControlCenter({
             venueStaff={venueStaff}
             selectedStaffId={selectedStaffId}
             sessionToken={sessionToken}
+            isOwnerLevel={isOwnerLevel}
             onSnapshotUpdate={(updated) => setSnapshot(updated)}
             onOpenCoachingDrawer={(staffId) => { setSelectedStaffId(staffId); setCoachingDrawerOpen(true); }}
             onAddStaff={() => openAction("add-staff")}
@@ -1872,7 +1895,7 @@ export default function ManagerControlCenter({
           />
         )}
 
-        {activeSection === "settings" && (
+        {activeSection === "settings" && isOwnerLevel && (
           <SettingsPanel
             settingsTab={settingsTab}
             setSettingsTab={setSettingsTab}

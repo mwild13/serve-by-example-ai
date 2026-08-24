@@ -381,16 +381,16 @@ Note: `lib/domain-types.ts` was removed (Aug 2026) — it had no importers. The 
 
 **`--mcc-*` token block** (`app/globals.css` near line 13319) is a parallel 20-token palette (`--mcc-canvas`, `--mcc-forest-900`, `--mcc-good`, `--mcc-bad`, etc.) used in the readiness board and KPI strip. This is known tech debt — migrate onto `--status-*`/`--green`/`--surface` before adding more `--mcc-*` usages.
 
-**`ManagerControlCenter.tsx` line-count target: under 3,200 lines.** Current state ~4,025 lines. Every component extraction must reduce net line count — not just move code.
+**`ManagerControlCenter.tsx` line-count target: under 3,200 lines.** Current state ~1,990 lines — target met.
 
-**Pending component extractions (do not inline new features for these — extract the section first):**
-- `StaffDirectoryTable.tsx` — Staff Directory table + mobile cards. Status pill must use shared `rsaStatus()`/`readinessPill()` helpers from `compliance/helpers.ts`, same as `StaffReadinessBoard.tsx` — one renderer, two call sites.
-- `QuickActionMenu.tsx` — `+Create New` dropdown. Wire the existing typed-but-unrendered `QuickActionId` values `assign-training` and `create-program`.
-- `TeamsPerformancePanel.tsx` — Team performance cards. Add `max-width: 1440px; margin: 0 auto` at the shell level so Overview and Analytics inherit the wide-viewport fix.
-- `RolesPermissionsMatrix.tsx` — Role Training Matrix + Permission Matrix (paired, extract together).
-- `LeaderboardBoard.tsx` — Leaderboards. Remove the podium visualization unless it is a stated sales-demo requirement; the ranked list is more legible.
+**Component extractions — complete.** All five sections named in the original Phase 5 audit are extracted and wired:
+- `StaffDirectoryTable.tsx` — Staff Directory table + mobile cards, imported into `ManagerControlCenter.tsx`.
+- `QuickActionMenu.tsx` — `+Create New` dropdown; lives under `components/mission-control/` and is wired into `app/management/dashboard/_components/ManagementTopbar.tsx` (not `ManagerControlCenter.tsx` — the `assign-training`/`create-program` handling itself stayed in `openAction()` on `ManagerControlCenter.tsx`, which the menu calls into).
+- `TeamsPerformancePanel.tsx` — imported into `ManagerControlCenter.tsx`; the `max-width: 1440px` wide-viewport fix is applied at the shell level in `app/globals.css`.
+- `RolesPermissionsMatrix.tsx` — imported into `ManagerControlCenter.tsx`.
+- `LeaderboardBoard.tsx` — imported into `ManagerControlCenter.tsx`. Note: a later UX refinement pass deliberately kept the podium visualization (made "additive, not duplicative" alongside the ranked list) — this supersedes the original acceptance note to remove it.
 
-Full audit and acceptance criteria: `docs/Phase5-Mission-Control-Execution-Brief.md`
+Full audit and original acceptance criteria: `docs/Phase5-Mission-Control-Execution-Brief.md` (historical — extractions it called for are done).
 
 ## Marketing Page Design Rules
 

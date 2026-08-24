@@ -1,11 +1,7 @@
-import OpenAI from "openai";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { getOpenAIClient } from "@/lib/openai";
 
 export const dynamic = "force-dynamic";
-
-function getOpenAIClient() {
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-}
 
 export async function POST(req: Request) {
   try {

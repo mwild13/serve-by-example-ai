@@ -76,6 +76,54 @@ export const CATEGORIES: Record<Category, { label: string; description: string; 
   },
 };
 
+// Real photography for all 38 cocktails, added 2026-08-24 (mobile bug-fix
+// follow-up). Source photos optimized via sharp — 640x640 cover crop,
+// mozjpeg q78 — into public/cocktails/<slug>.jpg. Keys are `name` (COCKTAILS
+// has no id field, `name` is the unique key everywhere else too — see
+// CocktailLibraryScreen.tsx's slugify()). Single source of truth: both
+// CocktailLibraryScreen.tsx and HomeScreen.tsx import this instead of each
+// keeping their own partial copy.
+export const COCKTAIL_IMAGES: Record<string, string> = {
+  "Espresso Martini": "/cocktails/espresso-martini.jpg",
+  Margarita: "/cocktails/margarita.jpg",
+  Mojito: "/cocktails/mojito.jpg",
+  "Old Fashioned": "/cocktails/old-fashioned.jpg",
+  "Aperol Spritz": "/cocktails/aperol-spritz.jpg",
+  "Gin & Tonic": "/cocktails/gin-tonic.jpg",
+  "Whiskey Sour": "/cocktails/whiskey-sour.jpg",
+  Negroni: "/cocktails/negroni.jpg",
+  "Pornstar Martini": "/cocktails/pornstar-martini.jpg",
+  "Classic Daiquiri": "/cocktails/classic-daiquiri.jpg",
+  Cosmopolitan: "/cocktails/cosmopolitan.jpg",
+  "Long Island Iced Tea": "/cocktails/long-island-iced-tea.jpg",
+  "Moscow Mule": "/cocktails/moscow-mule.jpg",
+  "Lemon, Lime & Bitters": "/cocktails/lemon-lime-bitters.jpg",
+  Paloma: "/cocktails/paloma.jpg",
+  Sidecar: "/cocktails/sidecar.jpg",
+  Gimlet: "/cocktails/gimlet.jpg",
+  "Chilli Margarita": "/cocktails/chilli-margarita.jpg",
+  "Pisco Sour": "/cocktails/pisco-sour.jpg",
+  "Dry Martini": "/cocktails/dry-martini.jpg",
+  Manhattan: "/cocktails/manhattan.jpg",
+  Sazerac: "/cocktails/sazerac.jpg",
+  "Vieux Carré": "/cocktails/vieux-carre.jpg",
+  "Tom Collins": "/cocktails/tom-collins.jpg",
+  "Dark & Stormy": "/cocktails/dark-stormy.jpg",
+  "Hugo Spritz": "/cocktails/hugo-spritz.jpg",
+  "Mai Tai": "/cocktails/mai-tai.jpg",
+  "Pina Colada": "/cocktails/pina-colada.jpg",
+  "Jungle Bird": "/cocktails/jungle-bird.jpg",
+  "Singapore Sling": "/cocktails/singapore-sling.jpg",
+  Bellini: "/cocktails/bellini.jpg",
+  Mimosa: "/cocktails/mimosa.jpg",
+  "Japanese Slipper": "/cocktails/japanese-slipper.jpg",
+  Sunnyboy: "/cocktails/sunnyboy.jpg",
+  "Death Flip": "/cocktails/death-flip.jpg",
+  "Irish Coffee": "/cocktails/irish-coffee.jpg",
+  "Hot Toddy": "/cocktails/hot-toddy.jpg",
+  Eggnog: "/cocktails/eggnog.jpg",
+};
+
 export const COCKTAILS: Cocktail[] = [
   // ============================================
   // MOST COMMON (TOP 15) - featured = true

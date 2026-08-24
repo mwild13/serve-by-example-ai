@@ -5,6 +5,7 @@ import { GlassWater, TrendingUp, Users, Flame, Trophy, BookOpen, Share2, Target,
 import { computeBadges, countEarned, recentEarned, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
 import { KB_ENTRIES, KB_CATEGORIES } from "@/lib/knowledge-base";
 import { COCKTAILS, type Cocktail } from "@/lib/cocktails";
+import { computeStreak } from "@/lib/streak";
 
 type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "challenges" | "cocktails" | "knowledge" | "progress" | "settings";
 type ModuleKey = "bartending" | "sales" | "management";
@@ -123,33 +124,6 @@ function getWeakestModule(mastery: Record<ModuleKey, number>): ModuleKey {
   const keys: ModuleKey[] = ["bartending", "sales", "management"];
   return keys.reduce((w, k) => (mastery[k] < mastery[w] ? k : w));
 }
-
-function computeStreak(): number {
-  try {
-    const today = new Date().toISOString().slice(0, 10);
-    const lastDate = localStorage.getItem("sbe-streak-last");
-    const streakCount = parseInt(localStorage.getItem("sbe-streak-count") ?? "0", 10);
-    if (!lastDate) {
-      localStorage.setItem("sbe-streak-last", today);
-      localStorage.setItem("sbe-streak-count", "1");
-      return 1;
-    }
-    if (lastDate === today) return streakCount || 1;
-    const daysDiff = Math.round((new Date(today).getTime() - new Date(lastDate).getTime()) / 86400000);
-    if (daysDiff === 1) {
-      const next = streakCount + 1;
-      localStorage.setItem("sbe-streak-last", today);
-      localStorage.setItem("sbe-streak-count", String(next));
-      return next;
-    }
-    localStorage.setItem("sbe-streak-last", today);
-    localStorage.setItem("sbe-streak-count", "1");
-    return 1;
-  } catch {
-    return 0;
-  }
-}
-
 
 const AWARD_ICON = (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -712,12 +686,12 @@ export default function PreShiftHome({
 
         <div className="psh-challenge-col" style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
 
-          {/* ── 101 Knowledge Carousel ── */}
+          {/* ── Knowledge Base Carousel ── */}
           <div key={kbIndex} style={{ background: "var(--green)", borderRadius: "var(--radius-lg)", padding: "1.25rem 1.5rem", color: "var(--surface-raised)", flex: "0 0 auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.625rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <span className="psh-section-tag">
-                  101 KNOWLEDGE
+                  KNOWLEDGE BASE
                 </span>
                 <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", background: kbCatColor + "33", color: kbCatColor, border: `1px solid ${kbCatColor}55`, padding: "1px 7px", borderRadius: 99 }}>
                   {kbCatLabel}

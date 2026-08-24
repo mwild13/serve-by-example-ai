@@ -1,12 +1,21 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   try {
     const { user } = await getUserFromRequest(req);
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // V4 priority-1 fix (2026-08-21): mobile's tap-based Challenges games
+    // post here on completion — was unrated. 20/min matches the text-route
+    // norm (dual user+IP), same as training/save.
+    const ip = getClientIp(req);
+    if (!rateLimit(`challenges-save:user:${user.id}`, 20) || !rateLimit(`challenges-save:ip:${ip}`, 20)) {
+      return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
     }
 
     const body = await req.json();
@@ -19,7 +28,10 @@ export async function POST(req: Request) {
 
     const admin = createSupabaseAdminClient();
 
-    // Upsert: insert if new, ignore if already exists (UNIQUE constraint)
+    // Upsert: insert if new, ignore if already exists (UNIQUE constraint).
+    // archived_at: null reactivates a row soft-deleted by a prior "reset
+    // progress" (POST /api/profile/reset-progress) instead of leaving it
+    // archived or conflicting with the unique constraint.
     const { data, error } = await admin
       .from("user_challenges")
       .upsert(
@@ -27,6 +39,7 @@ export async function POST(req: Request) {
           user_id: user.id,
           challenge_index: challengeIndex,
           completed_at: new Date().toISOString(),
+          archived_at: null,
         },
         {
           onConflict: "user_id,challenge_index",

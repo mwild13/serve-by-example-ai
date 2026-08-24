@@ -41,27 +41,29 @@ export async function GET(
 
     if (error || !module) {
       // Return fallback module info if DB lookup fails
+      // Shortened 2026-08-24 (docs/Module-Title-Renames-Proposal.md) — 2-3
+      // word titles, matching the modules table.
       const fallbackTitles: Record<number, { title: string; category: string }> = {
-        1: { title: "Pouring the Perfect Beer", category: "technical" },
-        2: { title: "Wine Knowledge & Service", category: "technical" },
+        1: { title: "Beer Pouring", category: "technical" },
+        2: { title: "Wine Service", category: "technical" },
         3: { title: "Cocktail Fundamentals", category: "technical" },
-        4: { title: "Coffee/Barista Basics", category: "technical" },
-        5: { title: "Carrying Glassware & Trays", category: "technical" },
-        6: { title: "Cleaning & Sanitation", category: "technical" },
-        7: { title: "Bar Back Efficiency", category: "technical" },
-        8: { title: "The Art of the Greeting", category: "service" },
-        9: { title: "Managing Table Dynamics", category: "service" },
+        4: { title: "Barista Basics", category: "technical" },
+        5: { title: "Tray Carrying", category: "technical" },
+        6: { title: "Sanitation Basics", category: "technical" },
+        7: { title: "Bar-Back Efficiency", category: "technical" },
+        8: { title: "The Greeting", category: "service" },
+        9: { title: "Table Dynamics", category: "service" },
         10: { title: "Anticipatory Service", category: "service" },
-        11: { title: "Handling Guest Complaints", category: "service" },
-        12: { title: "Up-selling & Suggestive Sales", category: "service" },
-        13: { title: "VIP/Table Management", category: "service" },
-        14: { title: "Phone Etiquette & Reservations", category: "service" },
-        15: { title: "RSA (Responsible Service of Alcohol)", category: "compliance" },
-        16: { title: "Food Safety & Hygiene", category: "compliance" },
+        11: { title: "Guest Complaints", category: "service" },
+        12: { title: "Suggestive Selling", category: "service" },
+        13: { title: "VIP Management", category: "service" },
+        14: { title: "Phone Etiquette", category: "service" },
+        15: { title: "RSA Compliance", category: "compliance" },
+        16: { title: "Food Safety", category: "compliance" },
         17: { title: "Conflict De-escalation", category: "compliance" },
-        18: { title: "Emergency Evacuation Protocols", category: "compliance" },
-        19: { title: "Opening & Closing Procedures", category: "compliance" },
-        20: { title: "Inventory & Waste Control", category: "compliance" },
+        18: { title: "Evacuation Protocols", category: "compliance" },
+        19: { title: "Opening & Closing", category: "compliance" },
+        20: { title: "Inventory Control", category: "compliance" },
       };
 
       const fallback = fallbackTitles[moduleId] || { title: `Module ${moduleId}`, category: "technical" };
