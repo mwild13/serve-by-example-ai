@@ -252,27 +252,30 @@ export function getRecommendedModules(
     const lowestCategory = sortedCategories[0]?.[0];
 
     if (category === lowestCategory && recommended.length < count) {
+      // Shortened 2026-08-24 (docs/Module-Title-Renames-Proposal.md) — 2-3
+      // word titles so the Learn Hub's 2-column module grid and the
+      // Practice & Scenarios single-line tiles both fit without truncation.
       const moduleNames: Record<number, string> = {
-        1: "Pouring the Perfect Beer",
-        2: "Wine Knowledge & Service",
+        1: "Beer Pouring",
+        2: "Wine Service",
         3: "Cocktail Fundamentals",
-        4: "Coffee/Barista Basics",
-        5: "Carrying Glassware & Trays",
-        6: "Cleaning & Sanitation",
-        7: "Bar Back Efficiency",
-        8: "The Art of the Greeting",
-        9: "Managing Table Dynamics",
+        4: "Barista Basics",
+        5: "Tray Carrying",
+        6: "Sanitation Basics",
+        7: "Bar-Back Efficiency",
+        8: "The Greeting",
+        9: "Table Dynamics",
         10: "Anticipatory Service",
-        11: "Handling Guest Complaints",
-        12: "Up-selling & Suggestive Sales",
-        13: "VIP/Table Management",
-        14: "Phone Etiquette & Reservations",
-        15: "RSA (Responsible Service of Alcohol)",
-        16: "Food Safety & Hygiene",
+        11: "Guest Complaints",
+        12: "Suggestive Selling",
+        13: "VIP Management",
+        14: "Phone Etiquette",
+        15: "RSA Compliance",
+        16: "Food Safety",
         17: "Conflict De-escalation",
-        18: "Emergency Evacuation Protocols",
-        19: "Opening & Closing Procedures",
-        20: "Inventory & Waste Control",
+        18: "Evacuation Protocols",
+        19: "Opening & Closing",
+        20: "Inventory Control",
       };
 
       const categoryScore = categoryScores[category] || 1200;

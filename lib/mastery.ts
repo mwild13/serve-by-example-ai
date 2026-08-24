@@ -144,8 +144,8 @@ export function moduleIdToString(moduleId: number): string {
 // "descriptor" (Scenario Training) rows on modules 1-3 — LEGACY_MODULE_NAMES
 // only exists so those legacy string rows can reuse the numeric catalog's
 // access-gate plumbing (see LEGACY_MODULE_ID in training/save/route.ts); the
-// catalog content actually sitting at ids 1/2/3 ("Pouring the Perfect Beer",
-// "Wine Knowledge & Service", "Cocktail Fundamentals") is unrelated to the
+// catalog content actually sitting at ids 1/2/3 ("Beer Pouring",
+// "Wine Service", "Cocktail Fundamentals") is unrelated to the
 // Scenario Training content shown under the "sales"/"management" labels.
 const LEGACY_MODULE_IDS: Record<string, number> = { bartending: 1, sales: 2, management: 3 };
 

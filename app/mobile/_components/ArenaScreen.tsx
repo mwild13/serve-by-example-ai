@@ -15,7 +15,7 @@ import { useTrainingProgress } from "../_lib/use-training-progress";
 // params; falls back to the same copy if Arena is opened directly.
 
 const DEFAULT_MODULE_ID = 11;
-const DEFAULT_MODULE_TITLE = "Handling Guest Complaints";
+const DEFAULT_MODULE_TITLE = "Guest Complaints";
 const DEFAULT_SCENARIO =
   "A guest sends back a bottle of wine, claiming it's corked, but you can tell from the cork and the smell that it is fine — it's just not to their taste. They are becoming insistent and slightly hostile about wanting a refund or a replacement bottle immediately.";
 
