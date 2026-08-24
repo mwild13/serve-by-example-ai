@@ -28,7 +28,10 @@ export async function POST(req: Request) {
 
     const admin = createSupabaseAdminClient();
 
-    // Upsert: insert if new, ignore if already exists (UNIQUE constraint)
+    // Upsert: insert if new, ignore if already exists (UNIQUE constraint).
+    // archived_at: null reactivates a row soft-deleted by a prior "reset
+    // progress" (POST /api/profile/reset-progress) instead of leaving it
+    // archived or conflicting with the unique constraint.
     const { data, error } = await admin
       .from("user_challenges")
       .upsert(
@@ -36,6 +39,7 @@ export async function POST(req: Request) {
           user_id: user.id,
           challenge_index: challengeIndex,
           completed_at: new Date().toISOString(),
+          archived_at: null,
         },
         {
           onConflict: "user_id,challenge_index",

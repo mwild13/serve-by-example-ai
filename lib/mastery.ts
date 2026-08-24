@@ -229,6 +229,11 @@ export async function recordAttempt(
   // Fetch existing mastery row — scoped to scenario_type so a Scenario
   // Training (descriptor) attempt at index 0 never reads/overwrites the
   // Quiz-mastery row that also lives at (user, module, index 0).
+  // archived_at IS NULL — an archived row (soft-deleted by "reset progress")
+  // is treated as not existing, so a fresh attempt starts clean instead of
+  // resuming stale mastery_level/elo/streak state. The upsert below still
+  // resurrects the same physical row via its unique key, but with
+  // archived_at reset to NULL and every value overwritten fresh.
   const { data: existing } = await admin
     .from("scenario_mastery")
     .select("*")
@@ -236,6 +241,7 @@ export async function recordAttempt(
     .eq("module", moduleName)
     .eq("scenario_type", scenarioType)
     .eq("scenario_index", scenarioIndex)
+    .is("archived_at", null)
     .maybeSingle();
 
   const row = existing as MasteryRow | null;
@@ -320,6 +326,8 @@ export async function recordAttempt(
     high_confidence_incorrect: (row?.high_confidence_incorrect ?? 0) + incHighConfIncorrect,
     low_confidence_correct: (row?.low_confidence_correct ?? 0) + incLowConfCorrect,
     updated_at: now.toISOString(),
+    // Reactivate — see the archived_at note on the `existing` read above.
+    archived_at: null,
   };
 
   // Roleplay (Arena) mirrors the Quiz gate: a pass sets is_mastered=true as
@@ -378,6 +386,7 @@ export async function markModuleMastered(
   const moduleName = moduleIdToString(moduleId);
   const now = new Date().toISOString();
 
+  // archived_at IS NULL — see the same note in recordAttempt() above.
   const { data: existing } = await admin
     .from("scenario_mastery")
     .select("is_mastered, total_attempts")
@@ -385,6 +394,7 @@ export async function markModuleMastered(
     .eq("module", moduleName)
     .eq("scenario_type", "quiz")
     .eq("scenario_index", 0)
+    .is("archived_at", null)
     .maybeSingle();
 
   const alreadyMastered = Boolean(existing?.is_mastered);
@@ -409,6 +419,8 @@ export async function markModuleMastered(
       last_attempt_at: now,
       next_review_at: now,
       updated_at: now,
+      // Reactivate — see the archived_at note on the `existing` read above.
+      archived_at: null,
     },
     { onConflict: "user_id,module,scenario_type,scenario_index" },
   );
@@ -429,7 +441,8 @@ export async function getMasteryProgress(
     .select("mastery_level, total_attempts, total_score_points, elo_rating")
     .eq("user_id", userId)
     .eq("module", module)
-    .eq("scenario_type", scenarioType);
+    .eq("scenario_type", scenarioType)
+    .is("archived_at", null);
 
   const total = SCENARIO_COUNTS[module] ?? 10;
   const masteryRows = (rows ?? []) as Pick<MasteryRow, "mastery_level" | "total_attempts" | "total_score_points" | "elo_rating">[];
@@ -475,6 +488,7 @@ export async function getReviewQueue(
     .from("scenario_mastery")
     .select("module, scenario_type, scenario_index, mastery_level, next_review_at, last_score, consecutive_fails")
     .eq("user_id", userId)
+    .is("archived_at", null)
     .lte("next_review_at", now)
     .order("next_review_at", { ascending: true })
     .limit(20);
@@ -508,6 +522,7 @@ export async function getScenarioMasteryDetails(
     .select("*")
     .eq("user_id", userId)
     .eq("module", module)
+    .is("archived_at", null)
     .order("scenario_index", { ascending: true });
 
   return (data ?? []) as MasteryRow[];
@@ -536,6 +551,49 @@ export function categoryMasteryAverage(
   if (mods.length === 0) return 0;
   const avg = mods.reduce((sum, m) => sum + (moduleProgress[m.id]?.mastery ?? 0), 0) / mods.length;
   return Math.round(avg);
+}
+
+// ── Per-scenario_type module mastery (Phase 3c, mobile bug-fix plan) ────
+//
+// GET /api/training/progress's own `moduleProgress[mod.id].mastery` blends
+// every scenario_type recorded against a module_id together — a module's
+// quiz row (scenario_index=0) and its Arena roleplay row (scenario_index=40)
+// both land in the same module_id bucket and get averaged as one number.
+// That's the right shape for the single top-level ring per category, but
+// not precise enough for the Me page's "Modules"/"AI Scenarios" sub-bars,
+// which need quiz and roleplay told apart. This isolates one scenario_type
+// at a time, in the same shape categoryMasteryAverage() already expects, so
+// callers compose it the same way: categoryMasteryAverage(allModules,
+// moduleMasteryByType(rows, allModules, counts, "quiz"), category).
+//
+// The third sub-bar, "Scenarios" (Category Simulations), isn't computed
+// here — it's legacy-string-keyed (trainer-data.ts's 3-module bank, not
+// module_id), already covered by the existing per-legacy-module
+// getMasteryProgress(admin, userId, module, "descriptor") call every caller
+// of GET /api/training/progress already makes for masteryByModule.
+export function moduleMasteryByType(
+  rows: Array<{ module_id: number | null; scenario_type?: ScenarioType | null; mastery_level: number; is_mastered?: boolean | null }>,
+  allModules: { id: number }[],
+  scenarioCounts: Record<string, number>,
+  type: ScenarioType,
+): Record<number, { mastery: number }> {
+  const byModuleId: Record<number, typeof rows> = {};
+  for (const row of rows) {
+    if (row.module_id == null || row.scenario_type !== type) continue;
+    (byModuleId[row.module_id] ??= []).push(row);
+  }
+
+  const result: Record<number, { mastery: number }> = {};
+  for (const mod of allModules) {
+    const modRows = byModuleId[mod.id] ?? [];
+    const mastered = modRows.filter((r) => r.mastery_level >= 3).length;
+    const hasVerified = modRows.some((r) => r.is_mastered === true);
+    const scenarioTotal = scenarioCounts[`module_${mod.id}`] ?? 10;
+    result[mod.id] = {
+      mastery: hasVerified ? 100 : modRows.length > 0 ? Math.round((mastered / scenarioTotal) * 100) : 0,
+    };
+  }
+  return result;
 }
 
 // ── Sync mastery data to venue_staff for management dashboard ──
@@ -587,7 +645,8 @@ export async function syncMasteryToVenueStaff(
   const { data: allMastery } = await admin
     .from("scenario_mastery")
     .select("module, module_id, scenario_index, is_mastered, elo_rating")
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .is("archived_at", null);
 
   const rows = (allMastery ?? []) as Array<{
     module: string;

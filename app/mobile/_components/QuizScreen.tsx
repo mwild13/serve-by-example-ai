@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, XCircle, ArrowRight, ShieldCheck } from "lucide-react";
 import BottomNav from "./BottomNav";
 import { useMobileSession } from "../_lib/mobile-session-context";
+import { useTrainingProgress } from "../_lib/use-training-progress";
 import { VERIFY_QUESTIONS } from "@/lib/verify-questions";
 import { ARENA_SEED_SCENARIOS, formatArenaScenario } from "@/lib/arena-scenarios";
 
@@ -57,6 +58,7 @@ export default function QuizScreen() {
   const session = useMobileSession();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { refetch } = useTrainingProgress();
 
   const moduleId = Number(searchParams.get("moduleId") ?? 1) || 1;
   const moduleTitle = searchParams.get("moduleTitle") ?? `Module ${moduleId}`;
@@ -127,6 +129,11 @@ export default function QuizScreen() {
       }
 
       setStatus("mastered");
+      // Perf fix (Phase 1a): shared TrainingProgressProvider no longer
+      // refetches on every screen mount, so a successful save must
+      // explicitly refresh it — otherwise Home/Learn/Me would keep showing
+      // pre-quiz progress until a full page reload.
+      refetch();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to record mastery.");
       setStatus("error");

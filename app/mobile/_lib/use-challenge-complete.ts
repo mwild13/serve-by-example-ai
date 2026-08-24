@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useMobileSession } from "./mobile-session-context";
+import { useTrainingProgress } from "./use-training-progress";
 import { enqueueRetry } from "./retry-queue";
 
 // Shared completion-sync hook for the 5 mobile Challenge games. Factored out
@@ -23,6 +24,7 @@ import { enqueueRetry } from "./retry-queue";
 // for retry (Priority 3, retry-queue.ts) instead of only logging to console.
 export function useMarkChallengeComplete(challengeIndex: number, isComplete: boolean) {
   const session = useMobileSession();
+  const { refetch } = useTrainingProgress();
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -50,6 +52,11 @@ export function useMarkChallengeComplete(challengeIndex: number, isComplete: boo
     })
       .then((res) => {
         if (!res.ok) throw new Error(`Challenge sync failed (${res.status})`);
+        // Perf fix (Phase 1a): shared TrainingProgressProvider no longer
+        // refetches on every screen mount, so a successful save must
+        // explicitly refresh it — otherwise challengesCompleted/badges would
+        // stay stale until a full page reload.
+        refetch();
       })
       .catch((err) => {
         console.error("[useMarkChallengeComplete] Failed to sync challenge:", err);

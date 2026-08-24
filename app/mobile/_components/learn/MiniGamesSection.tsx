@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import Link from "next/link";
 import { Swords, ChevronRight } from "lucide-react";
 import { CHALLENGES } from "../ChallengesScreen";
@@ -10,8 +11,13 @@ import { CHALLENGES } from "../ChallengesScreen";
 // 5-game list in sync; "See all" routes to the real hub at /mobile/challenges
 // for the complete list. Reuses ChallengesScreen's exported CHALLENGES array
 // as the single source of truth for game metadata.
+//
+// Phase 1d fix: wrapped in React.memo — this section takes no props and
+// never changes once mounted, so there's no reason for it to re-render on
+// every Learn Hub search keystroke along with the modules grid it sits next
+// to.
 
-export default function MiniGamesSection() {
+function MiniGamesSection() {
   const preview = CHALLENGES.slice(0, 3);
 
   return (
@@ -100,3 +106,5 @@ export default function MiniGamesSection() {
     </div>
   );
 }
+
+export default memo(MiniGamesSection);

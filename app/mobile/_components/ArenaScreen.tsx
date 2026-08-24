@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Sparkles, Send } from "lucide-react";
 import BottomNav from "./BottomNav";
 import { useMobileSession } from "../_lib/mobile-session-context";
+import { useTrainingProgress } from "../_lib/use-training-progress";
 
 // Phase C file 04 — wired to the real single-shot POST /api/arena/evaluate
 // endpoint (Locked Decision #2: one static scenario, one typed response, one
@@ -30,6 +31,7 @@ type Assessment = {
 export default function ArenaScreen() {
   const session = useMobileSession();
   const searchParams = useSearchParams();
+  const { refetch } = useTrainingProgress();
 
   const moduleId = Number(searchParams.get("moduleId") ?? DEFAULT_MODULE_ID) || DEFAULT_MODULE_ID;
   const moduleTitle = searchParams.get("moduleTitle") ?? DEFAULT_MODULE_TITLE;
@@ -73,6 +75,10 @@ export default function ArenaScreen() {
 
       const data = (await res.json()) as { assessment: Assessment };
       setAssessment(data.assessment);
+      // Perf fix (Phase 1a): shared TrainingProgressProvider no longer
+      // refetches on every screen mount, so a successful save must
+      // explicitly refresh it.
+      refetch();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {

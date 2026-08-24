@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { CheckCircle2, AlertTriangle, XCircle, ArrowRight } from "lucide-react";
 import BottomNav from "./BottomNav";
 import { useMobileSession } from "../_lib/mobile-session-context";
+import { useTrainingProgress } from "../_lib/use-training-progress";
 import { SCENARIOS, SCORE_DIMENSIONS, type EvalResult, type Module } from "@/app/dashboard/_components/trainer/trainer-data";
 
 // Phase 3 (v4-migration-plan/00-bug-batch-plan.md, item 7) — net-new
@@ -34,6 +35,7 @@ type SaveStatus = "idle" | "saving" | "saved" | "failed";
 export default function ScenarioPracticeScreen() {
   const session = useMobileSession();
   const searchParams = useSearchParams();
+  const { refetch } = useTrainingProgress();
 
   // Named moduleName, not module — Next.js reserves the bare `module`
   // identifier (CommonJS interop) and eslint-plugin-next flags assigning it.
@@ -76,6 +78,10 @@ export default function ScenarioPracticeScreen() {
       });
       if (!res.ok) throw new Error(`Save failed (${res.status})`);
       setSaveStatus("saved");
+      // Perf fix (Phase 1a): shared TrainingProgressProvider no longer
+      // refetches on every screen mount, so a successful save must
+      // explicitly refresh it.
+      refetch();
     } catch {
       setSaveStatus("failed");
     }

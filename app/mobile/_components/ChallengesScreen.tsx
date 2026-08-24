@@ -82,15 +82,20 @@ export default function ChallengesScreen() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 20 }}>
           <p style={{ margin: 0, fontSize: 22, fontWeight: 700, color: "var(--text-mobile)" }}>Daily Challenges</p>
           {/* Real brand mark — same asset/pattern as components/Navbar.tsx's
-              <Image src="/logo.webp" ... />, replacing the fake S/B/E wordmark. */}
-          <Image
-            src="/logo.webp"
-            alt="Serve By Example"
-            width={32}
-            height={32}
-            quality={50}
-            style={{ flexShrink: 0, width: 32, height: 32, objectFit: "contain" }}
-          />
+              <Image src="/logo.webp" ... />, replacing the fake S/B/E wordmark.
+              Phase 1c fix: wrapped in a Link so the logo doubles as a home
+              button everywhere it's shown, matching Navbar.tsx's own
+              <Link href="/" ...> pattern. */}
+          <Link href="/mobile/home" style={{ flexShrink: 0, display: "flex" }} aria-label="Go to Home">
+            <Image
+              src="/logo.webp"
+              alt="Serve By Example"
+              width={32}
+              height={32}
+              quality={50}
+              style={{ flexShrink: 0, width: 32, height: 32, objectFit: "contain" }}
+            />
+          </Link>
         </div>
 
         {/* completion-summary */}

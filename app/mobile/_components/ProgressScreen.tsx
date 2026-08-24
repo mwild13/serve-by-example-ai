@@ -2,17 +2,22 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Settings, CalendarClock, Pencil } from "lucide-react";
+import { Settings, Pencil } from "lucide-react";
 import BottomNav from "./BottomNav";
+import AiCoachWidget from "./progress/AiCoachWidget";
 import { useMobileSession } from "../_lib/mobile-session-context";
-import { useTrainingProgress, type ReviewQueueItem } from "../_lib/use-training-progress";
-import { moduleStringToId, SCENARIO_COUNTS } from "@/lib/mastery";
+import { useTrainingProgress } from "../_lib/use-training-progress";
 
 // Phase C file 02 — Mastery Engine Harvest. Real data via useTrainingProgress()
 // (GET /api/training/progress). No XP field and no 9-category skill taxonomy
 // exist in V3 (see v4-migration-plan/02-mastery-engine-harvest.md, Locked
 // Decision #4 in file 00) — this screen shows the real 3-category breakdown
 // (bartending/sales/management) and skillLevel instead of inventing either.
+//
+// Phase 3b (mobile bug-fix plan, 2026-08-24): "Up Next For Review" removed
+// per explicit user instruction — reviewLabel() and its review-queue
+// rendering are gone with it (data.reviewQueue itself is untouched server
+// -side; nothing else on this screen read it).
 
 const LEGACY_MODULE_LABELS: Record<"bartending" | "sales" | "management", string> = {
   bartending: "Bartending",
@@ -20,33 +25,7 @@ const LEGACY_MODULE_LABELS: Record<"bartending" | "sales" | "management", string
   management: "Management",
 };
 
-// Phase 5 (v4-migration-plan/00-bug-batch-plan.md, item 11) — "Up Next For
-// Review" label builder. A review row can come from three structurally
-// different write paths (scenario_type, live since Phase 2's key-collision
-// fix): Quiz, Scenario Training (descriptor), or Arena (roleplay).
-//
-// Quiz and Arena roleplay both operate on the real 1-40 module catalog, so
-// reverse-mapping `module` to a numeric id and looking up its title in
-// data.allModules gives an accurate name. Scenario Training does NOT — its
-// content is the separate legacy trainer-data.ts::SCENARIOS bank, and the
-// numeric ids 1/2/3 that LEGACY_MODULE_NAMES maps "bartending"/"sales"/
-// "management" onto only exist for access-gate plumbing (see
-// LEGACY_MODULE_ID in app/api/training/save/route.ts) — catalog module 2 is
-// literally "Wine Knowledge & Service", not "Sales". So descriptor rows keep
-// the legacy category label instead of resolving a mismatched catalog title.
-function reviewLabel(item: ReviewQueueItem, titleById: Map<number, string>): string {
-  if (item.scenarioType === "descriptor") {
-    const label = LEGACY_MODULE_LABELS[item.module as keyof typeof LEGACY_MODULE_LABELS] ?? item.module;
-    const total = SCENARIO_COUNTS[item.module] ?? item.scenarioIndex + 1;
-    return `${label} · Scenario ${item.scenarioIndex + 1} of ${total}`;
-  }
-
-  const moduleId = moduleStringToId(item.module);
-  const title = (moduleId != null ? titleById.get(moduleId) : undefined) ?? item.module;
-  return item.scenarioType === "quiz" ? `${title} · Quiz review` : `${title} · Live Scenario review`;
-}
-
-function SkillRing({ label, pct }: { label: string; pct: number }) {
+function SkillRing({ label, pct, breakdown }: { label: string; pct: number; breakdown: { modules: number; scenarios: number; aiScenarios: number } }) {
   const r = 26;
   const circ = 2 * Math.PI * r;
   const offset = (1 - pct / 100) * circ;
@@ -70,6 +49,27 @@ function SkillRing({ label, pct }: { label: string; pct: number }) {
         </text>
       </svg>
       <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-mobile-muted)", textAlign: "center" }}>{label}</span>
+
+      {/* Phase 3c sub-bars — Modules (quiz gate) / Scenarios (Category
+          Simulations, descriptor) / AI Scenarios (Live Arena, roleplay),
+          split by scenario_type per lib/mastery.ts's moduleMasteryByType()
+          and GET /api/training/progress's categoryBreakdown field. */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 4, width: "100%" }}>
+        {([
+          ["Modules", breakdown.modules],
+          ["Scenarios", breakdown.scenarios],
+          ["AI Scenarios", breakdown.aiScenarios],
+        ] as const).map(([subLabel, subPct]) => (
+          <div key={subLabel} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 9, color: "var(--text-mobile-muted)", width: 46, flexShrink: 0, textAlign: "left" }}>
+              {subLabel}
+            </span>
+            <div style={{ flex: 1, height: 4, borderRadius: 2, background: "var(--surface-mobile-alt)", overflow: "hidden" }}>
+              <div style={{ width: `${subPct}%`, height: "100%", background: "var(--green-mobile)" }} />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -156,10 +156,8 @@ export default function ProgressScreen() {
   const SKILLS = (Object.keys(LEGACY_MODULE_LABELS) as Array<keyof typeof LEGACY_MODULE_LABELS>).map((key) => ({
     label: LEGACY_MODULE_LABELS[key],
     pct: data.mastery[key] ?? 0,
+    breakdown: data.categoryBreakdown[key] ?? { modules: 0, scenarios: 0, aiScenarios: 0 },
   }));
-
-  const reviewItems = data.reviewQueue.slice(0, 5);
-  const titleById = new Map(data.allModules.map((mod) => [mod.id, mod.title]));
 
   return (
     <div style={shellStyle}>
@@ -204,8 +202,10 @@ export default function ProgressScreen() {
               )}
             </div>
           </div>
-          <button
-            type="button"
+          {/* Phase 3a fix: was a dead button with no onClick/href — now
+              routes to the new /mobile/settings page. */}
+          <Link
+            href="/mobile/settings"
             aria-label="Settings"
             style={{
               display: "flex",
@@ -221,7 +221,7 @@ export default function ProgressScreen() {
             }}
           >
             <Settings size={20} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
-          </button>
+          </Link>
         </div>
 
         {/* stats-row */}
@@ -261,7 +261,7 @@ export default function ProgressScreen() {
             }}
           >
             {SKILLS.map((skill) => (
-              <SkillRing key={skill.label} label={skill.label} pct={skill.pct} />
+              <SkillRing key={skill.label} label={skill.label} pct={skill.pct} breakdown={skill.breakdown} />
             ))}
           </div>
           <Link
@@ -271,65 +271,12 @@ export default function ProgressScreen() {
             Retake placement assessment
           </Link>
         </div>
-
-        {/* up-next-section — spaced-repetition review queue, not a fabricated history log */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: 20 }}>
-          <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>Up Next For Review</p>
-          {reviewItems.length === 0 ? (
-            <div
-              style={{
-                padding: 16,
-                borderRadius: "var(--radius-md)",
-                background: "var(--surface-mobile)",
-                border: "1px solid var(--border-mobile)",
-                color: "var(--text-mobile-muted)",
-                fontSize: 13,
-              }}
-            >
-              You&apos;re all caught up — nothing due for review.
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%" }}>
-              {reviewItems.map((item) => (
-                <div
-                  key={`${item.module}-${item.scenarioType}-${item.scenarioIndex}`}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    padding: 12,
-                    borderRadius: "var(--radius-md)",
-                    background: "var(--surface-mobile)",
-                    border: "1px solid var(--border-mobile)",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: 32,
-                      height: 32,
-                      borderRadius: 16,
-                      background: "var(--surface-mobile-alt)",
-                      flexShrink: 0,
-                    }}
-                  >
-                    <CalendarClock size={16} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 2, flex: 1, minWidth: 0 }}>
-                    <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "var(--text-mobile)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {reviewLabel(item, titleById)}
-                    </p>
-                    <p style={{ margin: 0, fontSize: 11, color: "var(--text-mobile-muted)" }}>Due for review</p>
-                  </div>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "var(--green-mobile)", flexShrink: 0 }}>{item.lastScore}/25</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
       </div>
+
+      {/* Phase 3d — AI chat widget, lower third above BottomNav. Rendered
+          only on the main content branch (not loading/error), stateless
+          per request (v1 scope confirmed with user — no persisted history). */}
+      <AiCoachWidget />
 
       <BottomNav active="me" />
     </div>

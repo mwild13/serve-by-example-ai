@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
-import { getMasteryProgress, getReviewQueue, getScenarioMasteryDetails, categoryMasteryAverage, SCENARIO_COUNTS } from "@/lib/mastery";
+import { getMasteryProgress, getReviewQueue, getScenarioMasteryDetails, categoryMasteryAverage, moduleMasteryByType, SCENARIO_COUNTS } from "@/lib/mastery";
 import { resolveAccess } from "@/lib/session";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
@@ -61,14 +61,16 @@ export async function GET(req: Request) {
         .order("id", { ascending: true }),
       admin
         .from("scenario_mastery")
-        .select("module_id, mastery_level, elo_rating, total_attempts, total_score_points, last_attempt_at, is_mastered")
+        .select("module_id, scenario_type, mastery_level, elo_rating, total_attempts, total_score_points, last_attempt_at, is_mastered")
         .eq("user_id", user.id)
+        .is("archived_at", null)
         .not("module_id", "is", null),
       admin
         .from("scenario_mastery")
         .select("module_id, best_score, total_attempts, mastery_level")
         .eq("user_id", user.id)
         .eq("scenario_index", 40)
+        .is("archived_at", null)
         .not("module_id", "is", null),
       admin
         .from("profiles")
@@ -83,6 +85,7 @@ export async function GET(req: Request) {
         .from("scenario_mastery")
         .select("last_attempt_at")
         .eq("user_id", user.id)
+        .is("archived_at", null)
         .not("last_attempt_at", "is", null)
         .order("last_attempt_at", { ascending: false })
         .limit(1)
@@ -99,6 +102,7 @@ export async function GET(req: Request) {
         .from("user_challenges")
         .select("challenge_index, completed_at")
         .eq("user_id", user.id)
+        .is("archived_at", null)
         .order("challenge_index", { ascending: true }),
     ]);
 
@@ -152,6 +156,34 @@ export async function GET(req: Request) {
       bartending: categoryMasteryAverage(allModules ?? [], moduleProgress, "technical"),
       sales: categoryMasteryAverage(allModules ?? [], moduleProgress, "service"),
       management: categoryMasteryAverage(allModules ?? [], moduleProgress, "compliance"),
+    };
+
+    // ── Per-category Modules/Scenarios/AI Scenarios breakdown (Phase 3c,
+    // mobile bug-fix plan) — for the Me page's 3 sub-bars under each ring.
+    // "Modules" and "AI Scenarios" isolate quiz vs. roleplay rows out of the
+    // same module_id-keyed data moduleProgress/categoryMastery above blend
+    // together (see moduleMasteryByType()'s doc comment in lib/mastery.ts).
+    // "Scenarios" (Category Simulations) reuses masteryByModule, already
+    // computed above via getMasteryProgress(admin, user.id, mod,
+    // "descriptor") per legacy module — no new query needed for that piece.
+    const quizModuleProgress = moduleMasteryByType(masteryRows ?? [], allModules ?? [], SCENARIO_COUNTS, "quiz");
+    const roleplayModuleProgress = moduleMasteryByType(masteryRows ?? [], allModules ?? [], SCENARIO_COUNTS, "roleplay");
+    const categoryBreakdown = {
+      bartending: {
+        modules: categoryMasteryAverage(allModules ?? [], quizModuleProgress, "technical"),
+        scenarios: masteryByModule["bartending"].mastery,
+        aiScenarios: categoryMasteryAverage(allModules ?? [], roleplayModuleProgress, "technical"),
+      },
+      sales: {
+        modules: categoryMasteryAverage(allModules ?? [], quizModuleProgress, "service"),
+        scenarios: masteryByModule["sales"].mastery,
+        aiScenarios: categoryMasteryAverage(allModules ?? [], roleplayModuleProgress, "service"),
+      },
+      management: {
+        modules: categoryMasteryAverage(allModules ?? [], quizModuleProgress, "compliance"),
+        scenarios: masteryByModule["management"].mastery,
+        aiScenarios: categoryMasteryAverage(allModules ?? [], roleplayModuleProgress, "compliance"),
+      },
     };
 
     // ── Canonical skill level (mastered modules / total × 10) ──
@@ -254,6 +286,7 @@ export async function GET(req: Request) {
         management: masteryByModule["management"].completion,
       },
       mastery: categoryMastery,
+      categoryBreakdown,
       scores: {
         bartending: masteryByModule["bartending"].avgScore,
         sales: masteryByModule["sales"].avgScore,

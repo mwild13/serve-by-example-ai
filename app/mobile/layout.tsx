@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { resolveTierAccess } from "@/lib/session";
 import { MobileSessionProvider } from "./_lib/mobile-session-context";
+import { TrainingProgressProvider } from "./_lib/training-progress-context";
 
 // Phase C file 01 — auth + tier gate for the whole /mobile route tree,
 // mirroring app/dashboard/page.tsx via the shared resolveTierAccess() helper
@@ -69,7 +70,12 @@ export default async function MobileLayout({
         profilePhotoUrl: profile?.profile_photo_url ?? null,
       }}
     >
-      {children}
+      {/* Perf fix (Phase 1a) — single shared fetch of /api/training/progress
+          for the whole /mobile tree, instead of every screen independently
+          re-fetching on its own mount. See training-progress-context.tsx. */}
+      <TrainingProgressProvider token={session?.access_token ?? ""}>
+        {children}
+      </TrainingProgressProvider>
     </MobileSessionProvider>
   );
 }

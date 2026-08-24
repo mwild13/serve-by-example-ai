@@ -180,7 +180,8 @@ export async function POST(req: Request) {
             .from("scenario_mastery")
             .select("module_id", { count: "exact", head: true })
             .eq("user_id", user.id)
-            .eq("is_mastered", true);
+            .eq("is_mastered", true)
+            .is("archived_at", null);
 
           if ((count ?? 0) >= 20) {
             await admin

@@ -137,7 +137,8 @@ export async function getAvailableModules(
     const { data: masteryData, error: masteryError } = await admin
       .from("scenario_mastery")
       .select("module_id, mastery_level, elo_rating, is_mastered")
-      .eq("user_id", userId);
+      .eq("user_id", userId)
+      .is("archived_at", null);
 
     if (masteryError) {
       console.error(`[getAvailableModules] Mastery error:`, masteryError);

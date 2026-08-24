@@ -1,16 +1,25 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useMobileSession } from "./mobile-session-context";
+import { useTrainingProgressContext } from "./training-progress-context";
 import type { ScenarioType } from "@/lib/mastery";
 
 // Phase C file 02 — Mastery Engine Harvest. Single mobile-facing read path
 // wrapping GET /api/training/progress, the canonical aggregate read defined
-// in lib/mastery.ts. ProgressScreen, LearnHubScreen, and HomeScreen all read
-// through this hook instead of each independently re-deriving mastery state
-// from raw attempt rows. See v4-migration-plan/02-mastery-engine-harvest.md.
+// in lib/mastery.ts. ProgressScreen, LearnHubScreen, HomeScreen,
+// ChallengesScreen, and BadgesGalleryScreen all read through this hook
+// instead of each independently re-deriving mastery state from raw attempt
+// rows. See v4-migration-plan/02-mastery-engine-harvest.md.
 //
 // Field names below are canonical per CLAUDE.md: `elo_rating`, `mastery`.
+//
+// Perf fix (Phase 1a, mobile bug-fix plan, 2026-08-24): this hook used to own
+// its own fetch effect, independently re-run on every mount of every
+// consuming screen — meaning navigating Home -> Learn -> Home re-fetched
+// from zero each time. It now just reads the single shared fetch result from
+// TrainingProgressProvider (mounted once in app/mobile/layout.tsx, see
+// training-progress-context.tsx). The public shape below
+// ({status, data, error, refetch}) is unchanged, so no consumer needed to
+// change its import or usage.
 
 export type TrainingModule = {
   id: number;
@@ -45,9 +54,15 @@ export type ReviewQueueItem = {
   consecutiveFails: number;
 };
 
+/** Phase 3c (mobile bug-fix plan) — Modules (quiz) / Scenarios (Category
+ * Simulations, descriptor) / AI Scenarios (Live Arena, roleplay) mastery %,
+ * per legacy category label. See moduleMasteryByType() in lib/mastery.ts. */
+export type CategoryTypeBreakdown = { modules: number; scenarios: number; aiScenarios: number };
+
 export type TrainingProgress = {
   // Legacy 3-category breakdown (bartending/sales/management ~= technical/service/compliance)
   mastery: { bartending: number; sales: number; management: number };
+  categoryBreakdown: { bartending: CategoryTypeBreakdown; sales: CategoryTypeBreakdown; management: CategoryTypeBreakdown };
   skillLevel: number;
   masteredModuleCount: number;
   totalModuleCount: number;
@@ -75,46 +90,6 @@ export type TrainingProgress = {
   access: { tier: string; allowedModules: number[]; isSponsored: boolean };
 };
 
-type State =
-  | { status: "loading"; data: null; error: null }
-  | { status: "error"; data: null; error: string }
-  | { status: "ready"; data: TrainingProgress; error: null };
-
 export function useTrainingProgress() {
-  const { token } = useMobileSession();
-  const [state, setState] = useState<State>({ status: "loading", data: null, error: null });
-  const [refetchToken, setRefetchToken] = useState(0);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      setState((prev) => (prev.status === "ready" ? prev : { status: "loading", data: null, error: null }));
-      try {
-        const res = await fetch("/api/training/progress", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error(`Failed to load training progress (${res.status})`);
-        const data = (await res.json()) as TrainingProgress;
-        if (!cancelled) setState({ status: "ready", data, error: null });
-      } catch (err) {
-        if (!cancelled) {
-          setState({
-            status: "error",
-            data: null,
-            error: err instanceof Error ? err.message : "Failed to load training progress.",
-          });
-        }
-      }
-    }
-
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [token, refetchToken]);
-
-  const refetch = useCallback(() => setRefetchToken((n) => n + 1), []);
-
-  return { ...state, refetch };
+  return useTrainingProgressContext();
 }

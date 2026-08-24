@@ -1,9 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BottleWine, Users, ShieldCheck, BadgeCheck, LockKeyhole, BrainCircuit, ChevronRight } from "lucide-react";
+import { BottleWine, Users, ShieldCheck, BadgeCheck, LockKeyhole } from "lucide-react";
 import type { TrainingProgress } from "../../_lib/use-training-progress";
 
 // 3-tab consolidation (2026-08-21) — this is LearnHubScreen's original,
@@ -18,6 +17,11 @@ import type { TrainingProgress } from "../../_lib/use-training-progress";
 //
 // A module card is a Quiz gate (→ /mobile/quiz), not an Arena entry point —
 // /mobile/quiz offers its own "Try it in Live Arena" CTA once mastered.
+//
+// Phase 2 (mobile bug-fix plan, 2026-08-24): the Knowledge Base link tile
+// that used to live at the bottom of this section moved into
+// ReferenceLibrarySection.tsx (above Cocktail Library) — see that file's
+// header comment.
 
 const CATEGORIES = ["All", "Technical", "Service", "Compliance"] as const;
 type Category = (typeof CATEGORIES)[number];
@@ -34,15 +38,20 @@ const CATEGORY_ICON: Record<"technical" | "service" | "compliance", typeof Bottl
   compliance: ShieldCheck,
 };
 
-export default function CoreKnowledgeSection({ data }: { data: TrainingProgress }) {
+export default function CoreKnowledgeSection({ data, search = "" }: { data: TrainingProgress; search?: string }) {
   const router = useRouter();
   const [activeCategory, setActiveCategory] = useState<Category>("All");
 
   const modules = useMemo(() => {
-    const filtered =
+    const byCategory =
       activeCategory === "All"
         ? data.allModules
         : data.allModules.filter((mod) => mod.category === CATEGORY_KEY[activeCategory]);
+
+    // Phase 1d fix: LearnHubScreen's top search bar filters this grid — the
+    // input is literally labeled "Search training modules...".
+    const q = search.trim().toLowerCase();
+    const filtered = q ? byCategory.filter((mod) => mod.title.toLowerCase().includes(q)) : byCategory;
 
     return filtered.map((mod) => {
       const progress = data.moduleProgress[mod.id];
@@ -61,7 +70,7 @@ export default function CoreKnowledgeSection({ data }: { data: TrainingProgress 
         locked,
       };
     });
-  }, [data, activeCategory]);
+  }, [data, activeCategory, search]);
 
   function handleModuleClick(mod: { id: number; title: string; locked: boolean }) {
     if (mod.locked) {
@@ -120,8 +129,17 @@ export default function CoreKnowledgeSection({ data }: { data: TrainingProgress 
       {/* modules-grid */}
       <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "0 20px 20px" }}>
         <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>
-          {activeCategory === "All" ? "All Modules" : `${activeCategory} Modules`}
+          {search.trim()
+            ? `${modules.length} result${modules.length !== 1 ? "s" : ""} for “${search.trim()}”`
+            : activeCategory === "All"
+              ? "All Modules"
+              : `${activeCategory} Modules`}
         </p>
+        {modules.length === 0 && (
+          <div style={{ padding: "24px 0", textAlign: "center", fontSize: 13, color: "var(--text-mobile-muted)" }}>
+            No modules found for &ldquo;{search.trim()}&rdquo;.
+          </div>
+        )}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           {modules.map((mod) => {
             const Icon = mod.icon;
@@ -201,47 +219,6 @@ export default function CoreKnowledgeSection({ data }: { data: TrainingProgress 
             );
           })}
         </div>
-
-        {/* Knowledge Base link tile — structured, read-through reference
-            content (fundamentals, in order), distinct from the fast
-            on-the-floor lookup that ReferenceLibrarySection's Cocktail
-            Library tile provides. See CoreKnowledgeSection/ReferenceLibrarySection
-            split note in LearnHubScreen.tsx — do not merge these. */}
-        <Link
-          href="/mobile/knowledge"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 12,
-            padding: 14,
-            borderRadius: "var(--radius-lg)",
-            background: "var(--surface-mobile)",
-            border: "1px solid var(--border-mobile)",
-            textDecoration: "none",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 36,
-                height: 36,
-                borderRadius: "var(--radius-sm)",
-                background: "var(--surface-mobile-alt)",
-              }}
-            >
-              <BrainCircuit size={18} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "var(--text-mobile)" }}>Knowledge Base</p>
-              <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>Foundational guides &amp; venue rules</p>
-            </div>
-          </div>
-          <ChevronRight size={18} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
-        </Link>
       </div>
     </div>
   );
