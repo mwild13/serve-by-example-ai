@@ -64,16 +64,25 @@ export default function QuizScreen() {
 
   // Mobile cleanup pass (2026-08-25): the mastered screen used to always
   // offer "Try it in Live Arena" here. Replaced with "Next Module" so
-  // mastering a module continues the learning path — same accessible,
-  // catalog-order list HomeScreen.tsx's continueModule memo already uses
-  // (data.allModules is server-ordered by id ascending).
+  // mastering a module continues the learning path.
+  //
+  // Round 2 (2026-08-25): changed from "next accessible module in catalog
+  // order" to a strict numeric moduleId+1 walk through 1-40. This screen is
+  // only reachable once a user already has module access at all (module/
+  // stage4 nav items are premium-gated at the DashboardShell/mobile-shell
+  // level before a user ever lands on /mobile/quiz), and access is
+  // effectively all-40-or-nothing for any tier that reaches this screen —
+  // so id+1 and "next accessible module" are the same module in practice,
+  // and id+1 is simpler and matches "map 1-40" exactly as asked. Module 40
+  // is the deliberate end of the line: no "next", the mastered screen shows
+  // a distinct completed state instead (isFinalModule below) with a
+  // "Start Again" action back to module 1, rather than a dead end.
+  const isFinalModule = moduleId >= 40;
   const nextModule = useMemo(() => {
-    if (!data) return null;
-    const accessible = data.allModules.filter((mod) => data.access.allowedModules.includes(mod.id));
-    const idx = accessible.findIndex((mod) => mod.id === moduleId);
-    if (idx === -1) return null;
-    return accessible[idx + 1] ?? null;
-  }, [data, moduleId]);
+    if (!data || isFinalModule) return null;
+    return data.allModules.find((mod) => mod.id === moduleId + 1) ?? null;
+  }, [data, moduleId, isFinalModule]);
+  const firstModule = useMemo(() => data?.allModules.find((mod) => mod.id === 1) ?? null, [data]);
 
   const [attemptKey, setAttemptKey] = useState(0);
   // attemptKey isn't read inside buildPool — it's a deliberate cache-buster
@@ -257,7 +266,36 @@ export default function QuizScreen() {
             <p style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "var(--text-mobile)" }}>Module Mastered</p>
             <p style={{ margin: "4px 0 0", fontSize: 13, color: "var(--text-mobile-muted)" }}>{moduleTitle}</p>
           </div>
-          {nextModule ? (
+          {isFinalModule ? (
+            <>
+              <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "var(--gold-mobile)" }}>
+                All modules completed — start again
+              </p>
+              <button
+                type="button"
+                onClick={() =>
+                  router.push(`/mobile/quiz?moduleId=1&moduleTitle=${encodeURIComponent(firstModule?.title ?? "Module 1")}`)
+                }
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "12px 24px",
+                  borderRadius: "var(--radius-pill)",
+                  border: "none",
+                  background: "var(--gold-mobile)",
+                  color: "var(--bg-mobile-dark)",
+                  fontFamily: "var(--font-body)",
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Start Again
+                <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
+              </button>
+            </>
+          ) : nextModule ? (
             <button
               type="button"
               onClick={() => router.push(`/mobile/quiz?moduleId=${nextModule.id}&moduleTitle=${encodeURIComponent(nextModule.title)}`)}
@@ -280,7 +318,7 @@ export default function QuizScreen() {
               <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
             </button>
           ) : (
-            <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>All accessible modules mastered — nice work.</p>
+            <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>Nice work — check back soon for more.</p>
           )}
           <button
             type="button"

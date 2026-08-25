@@ -10,9 +10,10 @@ import tsPlugin from "@typescript-eslint/eslint-plugin";
 //   CSS variables from app/globals.css should be used instead.
 //
 // Exclusions (see config block below):
-//   app/api/**          — email HTML templates; CSS vars are invalid in email clients
-//   lib/cocktails.ts    — colour describes drink appearance (content data, not UI)
-//   lib/knowledge-base.ts — same rationale
+//   app/api/**             — email HTML templates; CSS vars are invalid in email clients
+//   lib/email-template.ts  — same rationale; the one shared branded-email template, used by app/api routes
+//   lib/cocktails.ts       — colour describes drink appearance (content data, not UI)
+//   lib/knowledge-base.ts  — same rationale
 //
 // Severity: "error" — all TSX/TS files are clean. Any new hardcoded hex will fail CI.
 // ---------------------------------------------------------------------------
@@ -87,6 +88,7 @@ export default defineConfig([
     files: ["**/*.tsx", "**/*.ts"],
     ignores: [
       "app/api/**",              // Email HTML templates — CSS vars invalid in email clients
+      "lib/email-template.ts",   // Shared branded email template — same rationale
       "lib/cocktails.ts",        // Content data — colours describe drink appearance
       "lib/knowledge-base.ts",   // Content data — same rationale
     ],

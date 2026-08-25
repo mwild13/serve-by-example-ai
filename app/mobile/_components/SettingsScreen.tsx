@@ -183,10 +183,25 @@ export default function SettingsScreen() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
   // ── Notifications ──
-  const [notifReminders, setNotifReminders] = useState(true);
-  const [notifWeeklyDigest, setNotifWeeklyDigest] = useState(true);
-  const [notifAchievementAlerts, setNotifAchievementAlerts] = useState(true);
+  // Notifications pass (2026-08-25): both toggles now default OFF (opt-in,
+  // not opt-out) — a real notification cadence (weekly digest, reminders)
+  // shouldn't be pre-enabled for every user without them choosing it.
+  // "Achievement alerts" is removed entirely per explicit ask — badges/
+  // progress are already visible on the Me page, a push alert for them is
+  // redundant. The `notif_achievement_alerts` DB column is left in place
+  // (unused legacy column) rather than migrated away, matching this repo's
+  // convention of not chasing every dead column immediately.
+  //
+  // Turning EITHER toggle on requires confirming in a small dialog first
+  // (confirmingNotif below) — each toggle sends real recurring email, so a
+  // one-tap accidental enable shouldn't silently opt someone in. Confirming
+  // is what actually flips the toggle + persists it; the PATCH route also
+  // adds the user's email to the Brevo notifications list and sends a
+  // branded confirmation email (see app/api/profile/notifications/route.ts).
+  const [notifReminders, setNotifReminders] = useState(false);
+  const [notifWeeklyDigest, setNotifWeeklyDigest] = useState(false);
   const [notifLoaded, setNotifLoaded] = useState(false);
+  const [confirmingNotif, setConfirmingNotif] = useState<"reminders" | "digest" | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -199,12 +214,10 @@ export default function SettingsScreen() {
         const data = (await res.json()) as {
           notifReminders: boolean;
           notifWeeklyDigest: boolean;
-          notifAchievementAlerts: boolean;
         };
         if (!cancelled) {
           setNotifReminders(data.notifReminders);
           setNotifWeeklyDigest(data.notifWeeklyDigest);
-          setNotifAchievementAlerts(data.notifAchievementAlerts);
           setNotifLoaded(true);
         }
       } catch {
@@ -217,7 +230,7 @@ export default function SettingsScreen() {
     };
   }, [session.token]);
 
-  async function saveNotification(patch: Partial<{ notifReminders: boolean; notifWeeklyDigest: boolean; notifAchievementAlerts: boolean }>) {
+  async function saveNotification(patch: Partial<{ notifReminders: boolean; notifWeeklyDigest: boolean }>) {
     try {
       await fetch("/api/profile/notifications", {
         method: "PATCH",
@@ -228,6 +241,32 @@ export default function SettingsScreen() {
       // Optimistic UI already reflects the toggle; a failed save here just
       // means it reverts on next load — acceptable for a low-stakes pref.
     }
+  }
+
+  function handleNotifToggle(which: "reminders" | "digest", next: boolean) {
+    // Turning OFF never needs confirmation — only opting IN does.
+    if (!next) {
+      if (which === "reminders") {
+        setNotifReminders(false);
+        void saveNotification({ notifReminders: false });
+      } else {
+        setNotifWeeklyDigest(false);
+        void saveNotification({ notifWeeklyDigest: false });
+      }
+      return;
+    }
+    setConfirmingNotif(which);
+  }
+
+  function confirmNotifOptIn() {
+    if (confirmingNotif === "reminders") {
+      setNotifReminders(true);
+      void saveNotification({ notifReminders: true });
+    } else if (confirmingNotif === "digest") {
+      setNotifWeeklyDigest(true);
+      void saveNotification({ notifWeeklyDigest: true });
+    }
+    setConfirmingNotif(null);
   }
 
   // ── Join venue ──
@@ -406,10 +445,76 @@ export default function SettingsScreen() {
 
       {/* Notifications */}
       <SectionCard title="Notifications" icon={Bell}>
-        <ToggleRow label="Training reminders" checked={notifReminders} disabled={!notifLoaded} onChange={(next) => { setNotifReminders(next); void saveNotification({ notifReminders: next }); }} />
-        <ToggleRow label="Weekly progress digest" checked={notifWeeklyDigest} disabled={!notifLoaded} onChange={(next) => { setNotifWeeklyDigest(next); void saveNotification({ notifWeeklyDigest: next }); }} />
-        <ToggleRow label="Achievement alerts" checked={notifAchievementAlerts} disabled={!notifLoaded} onChange={(next) => { setNotifAchievementAlerts(next); void saveNotification({ notifAchievementAlerts: next }); }} />
+        <ToggleRow label="Training reminders" checked={notifReminders} disabled={!notifLoaded} onChange={(next) => handleNotifToggle("reminders", next)} />
+        <ToggleRow label="Weekly progress digest" checked={notifWeeklyDigest} disabled={!notifLoaded} onChange={(next) => handleNotifToggle("digest", next)} />
       </SectionCard>
+
+      {confirmingNotif && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 60,
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "center",
+            background: "rgba(0,0,0,0.55)",
+          }}
+          onClick={() => setConfirmingNotif(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: "100%",
+              maxWidth: 390,
+              display: "flex",
+              flexDirection: "column",
+              gap: 14,
+              padding: "24px 20px calc(24px + env(safe-area-inset-bottom, 0px))",
+              borderTopLeftRadius: "var(--radius-lg)",
+              borderTopRightRadius: "var(--radius-lg)",
+              background: "var(--surface-mobile)",
+              border: "1px solid var(--border-mobile)",
+              borderBottom: "none",
+            }}
+          >
+            <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>
+              {confirmingNotif === "digest" ? "Turn on weekly progress digest?" : "Turn on training reminders?"}
+            </p>
+            <p style={{ margin: 0, fontSize: 13, lineHeight: "20px", color: "var(--text-mobile-muted)" }}>
+              {confirmingNotif === "digest"
+                ? `You'll get a short email summary of your progress every Monday morning, sent to ${session.userEmail}.`
+                : `You'll get a training reminder email every Sunday night to help you get ready for the week ahead, sent to ${session.userEmail}.`}
+              {" "}You can turn this off again any time.
+            </p>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button
+                type="button"
+                onClick={() => setConfirmingNotif(null)}
+                style={{
+                  flex: 1,
+                  padding: "11px 16px",
+                  borderRadius: "var(--radius-pill)",
+                  border: "1px solid var(--border-mobile)",
+                  background: "none",
+                  color: "var(--text-mobile)",
+                  fontFamily: "var(--font-body)",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
+              <button type="button" onClick={confirmNotifOptIn} style={{ ...primaryButtonStyle, flex: 1, alignSelf: "auto", textAlign: "center" }}>
+                Yes, turn on
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Language */}
       <SectionCard title="Language" icon={Globe}>
@@ -441,6 +546,7 @@ export default function SettingsScreen() {
       {/* Support */}
       <SectionCard title="Support" icon={AlertTriangle}>
         {[
+          { label: "Report a Bug", href: "/mobile/report-bug" },
           { label: "Help & FAQ", href: "/mobile/help" },
           { label: "Contact support", href: "/contact" },
           { label: "Terms of Service", href: "/terms" },

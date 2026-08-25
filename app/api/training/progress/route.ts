@@ -126,7 +126,22 @@ export async function GET(req: Request) {
 
       for (const mod of allModules) {
         const rows = byModuleId[mod.id] ?? [];
+        // `attempted` = distinct scenario_mastery rows touched (one per
+        // scenario_type+index slot) — kept exactly as before for the
+        // completion/mastery % basis below, which is about breadth of
+        // coverage, not repeat count.
         const attempted = rows.length;
+        // Mobile cleanup pass (2026-08-25): the *displayed* "N attempts"
+        // text (HomeScreen.tsx, CoreKnowledgeSection.tsx) used `attempted`
+        // (row count) directly, which silently undercounts quiz-type
+        // modules — markModuleMastered() always upserts the SAME single
+        // row (scenario_type:"quiz", scenario_index:0) no matter how many
+        // times the user retakes the quiz, so a quiz module's row count is
+        // permanently capped at 1 even after real repeat attempts. The row
+        // already tracks a real per-row `total_attempts` counter that DOES
+        // increment on every retake — sum that instead for the number we
+        // actually show the user.
+        const totalAttempts = rows.reduce((sum, r) => sum + ((r as { total_attempts?: number | null }).total_attempts ?? 0), 0);
         const mastered = rows.filter((r) => r.mastery_level >= 3).length;
         const totalElo = rows.reduce((sum, r) => sum + (r.elo_rating ?? 1200), 0);
         const scenarioTotal = SCENARIO_COUNTS[`module_${mod.id}`] ?? 10;
@@ -134,7 +149,7 @@ export async function GET(req: Request) {
         const hasVerified = rows.some((r) => (r as { is_mastered?: boolean | null }).is_mastered === true);
 
         moduleProgress[mod.id] = {
-          scenariosAttempted: attempted,
+          scenariosAttempted: totalAttempts,
           scenariosMastered: mastered,
           avgElo: attempted > 0 ? Math.round(totalElo / attempted) : 1200,
           completion: hasVerified ? 100 : (attempted > 0 ? Math.round((attempted / scenarioTotal) * 100) : 0),
