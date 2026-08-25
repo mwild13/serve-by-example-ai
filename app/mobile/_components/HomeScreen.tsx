@@ -115,13 +115,14 @@ export default function HomeScreen() {
           paddingBottom: "calc(84px + env(safe-area-inset-bottom, 0px))",
         }}
       >
-        {/* hero-header */}
+        {/* hero-header — vertical padding trimmed (2026-08-25 iPhone-13-fit
+            pass, see the section comments below for the full rationale) */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: 20,
+            padding: "16px 20px 12px",
           }}
         >
           <Link href="/mobile/progress" style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none" }}>
@@ -165,8 +166,9 @@ export default function HomeScreen() {
           </div>
         </div>
 
-        {/* pre-shift-brief */}
-        <div style={{ padding: "0 20px 20px" }}>
+        {/* pre-shift-brief — bottom padding + card padding trimmed
+            (2026-08-25 iPhone-13-fit pass) */}
+        <div style={{ padding: "0 20px 16px" }}>
           {warmupModule ? (
             <Link
               href={`/mobile/quiz?moduleId=${warmupModule.id}&moduleTitle=${encodeURIComponent(warmupModule.title)}`}
@@ -174,7 +176,7 @@ export default function HomeScreen() {
                 display: "flex",
                 alignItems: "center",
                 gap: 12,
-                padding: 16,
+                padding: 14,
                 borderRadius: "var(--radius-lg)",
                 background: "var(--surface-mobile)",
                 border: "1px solid var(--border-mobile)",
@@ -208,7 +210,7 @@ export default function HomeScreen() {
                 display: "flex",
                 alignItems: "center",
                 gap: 12,
-                padding: 16,
+                padding: 14,
                 borderRadius: "var(--radius-lg)",
                 background: "var(--surface-mobile)",
                 border: "1px solid var(--border-mobile)",
@@ -238,10 +240,13 @@ export default function HomeScreen() {
           )}
         </div>
 
-        {/* todays-picks-section — top padding trimmed 20->12 (2026-08-25
-            bottom-nav fix pass) to reclaim vertical space now that the
-            fixed nav needs 84px+ reserved below Quick Access Training. */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 20px 20px" }}>
+        {/* todays-picks-section — this card's 100px-tall image was the
+            single biggest vertical-space consumer on the page. iPhone 13
+            fit pass (2026-08-25): shrunk to 76px, tightened padding/gap
+            around it too — together with the other section trims below,
+            this closes the ~40-60px gap that was clipping Quick Access
+            Training's labels behind the fixed nav on shorter viewports. */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "8px 20px 16px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>Today&apos;s Hot Picks</p>
             {/* Real brand mark — same asset/pattern as components/Navbar.tsx's
@@ -268,22 +273,22 @@ export default function HomeScreen() {
                 style={{
                   display: "flex",
                   flexDirection: "column",
-                  gap: 12,
+                  gap: 10,
                   width: 220,
                   flexShrink: 0,
-                  padding: 16,
+                  padding: 14,
                   borderRadius: "var(--radius-lg)",
                   background: "var(--surface-mobile)",
                   border: "1px solid var(--border-mobile)",
                   textDecoration: "none",
                 }}
               >
-                <div style={{ width: "100%", height: 100, borderRadius: "var(--radius-sm)", overflow: "hidden" }}>
+                <div style={{ width: "100%", height: 76, borderRadius: "var(--radius-sm)", overflow: "hidden" }}>
                   <Image
                     src={COCKTAIL_IMAGES[cocktail.name] ?? "/mobile/thumb-cocktail.png"}
                     alt=""
                     width={188}
-                    height={100}
+                    height={76}
                     style={{ objectFit: "cover", width: "100%", height: "100%" }}
                   />
                 </div>
@@ -298,8 +303,8 @@ export default function HomeScreen() {
           </div>
         </div>
 
-        {/* continue-learning-section */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "0 20px 20px" }}>
+        {/* continue-learning-section — trimmed (2026-08-25 iPhone-13-fit pass) */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "0 20px 14px" }}>
           <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>Continue Learning</p>
           <Link
             href="/mobile/learn"
@@ -307,15 +312,15 @@ export default function HomeScreen() {
               display: "flex",
               alignItems: "center",
               gap: 16,
-              padding: 16,
+              padding: 14,
               borderRadius: "var(--radius-lg)",
               background: "var(--surface-mobile)",
               border: "1px solid var(--border-mobile)",
               textDecoration: "none",
             }}
           >
-            <div style={{ width: 54, height: 54, borderRadius: "var(--radius-sm)", overflow: "hidden", flexShrink: 0 }}>
-              <Image src="/mobile/module-cover.png" alt="" width={54} height={54} style={{ objectFit: "cover", width: "100%", height: "100%" }} />
+            <div style={{ width: 48, height: 48, borderRadius: "var(--radius-sm)", overflow: "hidden", flexShrink: 0 }}>
+              <Image src="/mobile/module-cover.png" alt="" width={48} height={48} style={{ objectFit: "cover", width: "100%", height: "100%" }} />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, minWidth: 0 }}>
               {status === "ready" && continueModule ? (
@@ -349,9 +354,8 @@ export default function HomeScreen() {
           </Link>
         </div>
 
-        {/* quick-access-section — top padding trimmed 20->12, same rationale
-            as todays-picks-section above. */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 20px 20px" }}>
+        {/* quick-access-section — trimmed (2026-08-25 iPhone-13-fit pass) */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "8px 20px 16px" }}>
           <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>Quick Access Training</p>
           <div style={{ display: "flex", gap: 6 }}>
             {QUICK_ACCESS.map(({ label, icon: Icon, href }) => (
