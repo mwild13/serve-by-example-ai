@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Membership Plans | Serve By Example",
+  title: "Pricing | Serve By Example",
   description:
-    "Join as a Founding Member. Choose from solo practitioner, single venue, or multi-venue plans and lock in founding rates before prices rise.",
-  alternates: { canonical: "/membership" },
+    "Compare Serve By Example plans for solo practitioners, single venues, and multi-venue groups. Start a free 14-day trial and lock in founding rates before prices rise.",
+  alternates: { canonical: "/pricing" },
 };
 
 export default function PricingLayout({ children }: { children: React.ReactNode }) {

@@ -42,7 +42,7 @@ export async function POST(request: Request) {
       if (role === 'venue_manager') {
         emailHookText = 'Protect your site licensing framework and streamline your casual rosters floor execution.';
       } else if (role === 'owner_operator') {
-        emailHookText = 'Isolate your labor expenditure risks and protect your bottom line operating standards.';
+        emailHookText = 'Isolate your labour expenditure risks and protect your bottom line operating standards.';
       }
 
       // Brevo v3 Transactional Email Endpoint

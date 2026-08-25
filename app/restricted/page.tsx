@@ -3,9 +3,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Australia Only – For Now | Serve By Example",
+  title: "Access Restricted | Serve By Example",
   description:
-    "Serve By Example is currently available to hospitality venues and staff in Australia. Expanding to additional regions soon.",
+    "This Serve By Example account or venue doesn't currently have access. Contact your manager or our support team for help.",
   robots: { index: false, follow: false },
 };
 

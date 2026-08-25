@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import Stripe from "stripe";
@@ -9,6 +10,12 @@ import { isB2BTier, normalizeTier, hasManagerConsoleAccess, isOwnerLevelRole } f
 
 // Prevent static generation – this page requires auth at runtime
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Mission Control | Serve By Example",
+  description: "Manager dashboard for team analytics, compliance tracking, and venue management.",
+  robots: { index: false, follow: false },
+};
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
   .split(",")

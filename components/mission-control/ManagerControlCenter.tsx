@@ -111,6 +111,7 @@ const QUICK_ACTIONS: Array<{
   section: ManagerSection;
 }> = [
   { id: "add-staff", label: "Add staff", section: "staff" },
+  { id: "assign-training", label: "Assign training", section: "staff" },
   { id: "add-inventory", label: "Add inventory", section: "inventory" },
 ];
 
@@ -1123,7 +1124,6 @@ export default function ManagerControlCenter({
             handleSectionChange(result.section);
             setSearchQuery("");
           }}
-          onActionSelect={setActiveAction}
           venues={snapshot.venues.map((v) => ({ id: v.id, name: v.name }))}
           selectedVenueId={selectedVenueId}
           onVenueChange={setSelectedVenueId}

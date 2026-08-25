@@ -441,7 +441,7 @@ export default function SettingsScreen() {
       {/* Support */}
       <SectionCard title="Support" icon={AlertTriangle}>
         {[
-          { label: "Help & FAQ", href: "/resources" },
+          { label: "Help & FAQ", href: "/mobile/help" },
           { label: "Contact support", href: "/contact" },
           { label: "Terms of Service", href: "/terms" },
           { label: "Privacy Policy", href: "/privacy" },

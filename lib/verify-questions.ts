@@ -34,7 +34,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "A dirty beer line makes the beer taste like butter.",
       answer: "true",
-      explanation: "Diacetyl buildup in uncleaned draught lines creates a distinct, unpleasant buttery flavor in the beer.",
+      explanation: "Diacetyl buildup in uncleaned draught lines creates a distinct, unpleasant buttery flavour in the beer.",
     },
     {
       prompt: "You should always hold the glass at a 45-degree angle.",
@@ -108,7 +108,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Muddling mint too hard makes a Mojito taste very bitter.",
       answer: "true",
-      explanation: "Crushing the mint stems releases chlorophyll, which introduces a harsh, bitter flavor to the drink.",
+      explanation: "Crushing the mint stems releases chlorophyll, which introduces a harsh, bitter flavour to the drink.",
     },
     {
       prompt: "An Espresso Martini requires fresh hot espresso to froth properly.",
@@ -180,9 +180,9 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
       explanation: "Looking at the drinks throws off your balance. Keep your eyes up to navigate through patrons safely.",
     },
     {
-      prompt: "Heavy schooner glasses should be placed in the tray's center.",
+      prompt: "Heavy schooner glasses should be placed in the tray's centre.",
       answer: "true",
-      explanation: "Keeping the heaviest items in the center lowers the center of gravity, making the tray much more stable.",
+      explanation: "Keeping the heaviest items in the centre lowers the centre of gravity, making the tray much more stable.",
     },
     {
       prompt: "Balancing the tray on your fingertips gives the most stability.",
@@ -234,7 +234,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Mops used in the bathrooms can be used behind the bar.",
       answer: "false",
-      explanation: "This is a massive health code violation. Bathroom equipment must be color-coded and strictly separated from food/beverage areas.",
+      explanation: "This is a massive health code violation. Bathroom equipment must be colour-coded and strictly separated from food/beverage areas.",
     },
     {
       prompt: "A wet floor sign must be placed over spills immediately.",
@@ -405,7 +405,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
       explanation: "It means anticipating their needs (water, cutlery, clearing), not forcefully dictating their meal choices.",
     },
     {
-      prompt: "Recognizing a regular guest and remembering their order builds loyalty.",
+      prompt: "Recognising a regular guest and remembering their order builds loyalty.",
       answer: "true",
       explanation: "Saying 'The usual schooner of New, mate?' makes the guest feel like a VIP and guarantees repeat business.",
     },
@@ -434,7 +434,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Blaming the kitchen calms the guest down much faster.",
       answer: "false",
-      explanation: "Throwing chefs under the bus makes the venue look disorganized and unprofessional. Take ownership as a team.",
+      explanation: "Throwing chefs under the bus makes the venue look disorganised and unprofessional. Take ownership as a team.",
     },
     {
       prompt: "Offering a free drink is a good initial service recovery step.",
@@ -632,14 +632,14 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "You can accept a university ID card as proof of age.",
       answer: "false",
-      explanation: "Only government-issued ID (Driver's License, Passport, Keypass) is legally acceptable for age verification in Australia.",
+      explanation: "Only government-issued ID (Driver's Licence, Passport, Keypass) is legally acceptable for age verification in Australia.",
     },
   ],
   16: [
     {
       prompt: "A coeliac allergy requires entirely separate preparation equipment.",
       answer: "true",
-      explanation: "Even a microscopic crumb of gluten on a shared cutting board can hospitalize a guest with true coeliac disease.",
+      explanation: "Even a microscopic crumb of gluten on a shared cutting board can hospitalise a guest with true coeliac disease.",
     },
     {
       prompt: "Chicken can be safely stored on the top fridge shelf.",
@@ -674,7 +674,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Blue band-aids must be worn over cuts in the kitchen.",
       answer: "true",
-      explanation: "Blue is the only color that does not naturally occur in food, making the band-aid instantly visible if it falls off.",
+      explanation: "Blue is the only colour that does not naturally occur in food, making the band-aid instantly visible if it falls off.",
     },
   ],
   17: [
@@ -704,9 +704,9 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
       explanation: "Getting into a shouting match compromises your professionalism and can quickly trigger a physical altercation.",
     },
     {
-      prompt: "Addressing the bad behavior rather than the person diffuses tension.",
+      prompt: "Addressing the bad behaviour rather than the person diffuses tension.",
       answer: "true",
-      explanation: "Targeting the action, not the ego, de-personalizes the conflict and reduces the patron's need to fight back.",
+      explanation: "Targeting the action, not the ego, de-personalises the conflict and reduces the patron's need to fight back.",
     },
     {
       prompt: "You must notify security or a manager if threats are made.",
@@ -790,7 +790,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "You should leave the safe unlocked for the morning manager.",
       answer: "false",
-      explanation: "This is a fireable offense. The safe must be locked, spun, and secured every single night without exception.",
+      explanation: "This is a fireable offence. The safe must be locked, spun, and secured every single night without exception.",
     },
     {
       prompt: "Emptying the glass bins at 2 AM is quiet and respectful.",
@@ -870,7 +870,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Compressing your body sideways when moving through a crowd reduces collision risk.",
       answer: "true",
-      explanation: "Turning sideways and tucking elbows in — the \"compressed walk\" — minimizes your physical footprint in a packed venue.",
+      explanation: "Turning sideways and tucking elbows in — the \"compressed walk\" — minimises your physical footprint in a packed venue.",
     },
     {
       prompt: "Staff should run between the bar and kitchen during busy service.",
@@ -966,7 +966,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Eye contact and a nod from across the room are enough to reassure a waiting guest.",
       answer: "true",
-      explanation: "A visible acknowledgment resets the guest's patience clock even from 10 meters away, buying you critical time.",
+      explanation: "A visible acknowledgment resets the guest's patience clock even from 10 metres away, buying you critical time.",
     },
     {
       prompt: "Noticing empty glasses and guest needs is the floor manager's job, not the server's.",
@@ -1032,7 +1032,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "A severe nut allergy can trigger anaphylaxis from trace amounts on shared equipment.",
       answer: "true",
-      explanation: "Cross-contamination on a shared cutting board or pan is enough to cause a life-threatening reaction in a sensitized guest.",
+      explanation: "Cross-contamination on a shared cutting board or pan is enough to cause a life-threatening reaction in a sensitised guest.",
     },
     {
       prompt: "If you are busy, the guest can relay their own allergy directly to the kitchen.",
@@ -1171,7 +1171,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "A tidy, fully-stocked station signals professionalism to your colleagues and management.",
       answer: "true",
-      explanation: "How your station looks mid-service communicates your standards. A stocked, organized station says you are in control.",
+      explanation: "How your station looks mid-service communicates your standards. A stocked, organised station says you are in control.",
     },
     {
       prompt: "Asking a colleague to cover for 90 seconds while you restock is bad teamwork.",
@@ -1202,7 +1202,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
       explanation: "Guests sometimes forget to mention allergies at order time. Always confirm verbally with the server if you are unsure.",
     },
     {
-      prompt: "Food tickets are prioritized by the time they are printed, not by table number.",
+      prompt: "Food tickets are prioritised by the time they are printed, not by table number.",
       answer: "true",
       explanation: "The printer queue represents order of entry. Skipping ahead by table number disrupts the entire kitchen's flow and makes some tables wait unfairly.",
     },
@@ -1217,9 +1217,9 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
       explanation: '"86\'d" is the universal hospitality term for an item that has run out. All floor staff must be briefed on 86 items immediately.',
     },
     {
-      prompt: "Runners can reorganize dockets to make carrying plates easier when food is ready.",
+      prompt: "Runners can reorganise dockets to make carrying plates easier when food is ready.",
       answer: "false",
-      explanation: "Dockets control the order of service. Reorganizing them without manager direction causes incorrect dishes to reach the wrong tables.",
+      explanation: "Dockets control the order of service. Reorganising them without manager direction causes incorrect dishes to reach the wrong tables.",
     },
     {
       prompt: "Calling out a table number when placing food in the pass prevents it from sitting cold.",
@@ -1300,7 +1300,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Using a jigger protects the bartender from accusations of short-changing a guest.",
       answer: "true",
-      explanation: "A jigger is both a profit tool and a legal defense. If a guest claims they were under-poured, the jigger is the proof.",
+      explanation: "A jigger is both a profit tool and a legal defence. If a guest claims they were under-poured, the jigger is the proof.",
     },
     {
       prompt: "The jigger is only required for cocktails, not for spirit-and-mixer drinks.",
@@ -1315,7 +1315,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: 'Guests who ask for "a bit extra" can be accommodated as a goodwill gesture.',
       answer: "false",
-      explanation: "Unauthorized over-pours are both a compliance and a theft issue. Only a manager can authorize a complimentary extra.",
+      explanation: "Unauthorised over-pours are both a compliance and a theft issue. Only a manager can authorise a complimentary extra.",
     },
   ],
 
@@ -1396,7 +1396,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Beer lines should be professionally cleaned at least once per week.",
       answer: "true",
-      explanation: "Weekly line cleans remove yeast and bacteria buildup that creates off-flavors in the beer and can impact guest health.",
+      explanation: "Weekly line cleans remove yeast and bacteria buildup that creates off-flavours in the beer and can impact guest health.",
     },
     {
       prompt: "A tap that is still fobbing after 5 minutes will clear itself without investigation.",
@@ -1434,7 +1434,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "The heaviest glasses should be placed at the outer edge of a tray for easy access.",
       answer: "false",
-      explanation: "Heavy items belong in the center of the tray. This lowers the center of gravity and dramatically improves stability.",
+      explanation: "Heavy items belong in the centre of the tray. This lowers the centre of gravity and dramatically improves stability.",
     },
     {
       prompt: "Wet or freshly washed glasses are significantly more likely to slip from your grip.",
@@ -1561,9 +1561,9 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
       explanation: "You cannot pivot to an alternative if you do not know what is comparable on the menu. Product knowledge is the foundation.",
     },
     {
-      prompt: "Apologizing excessively when an item is unavailable is the mark of good service.",
+      prompt: "Apologising excessively when an item is unavailable is the mark of good service.",
       answer: "false",
-      explanation: "A single brief apology is professional. Over-apologizing draws more attention to the failure and makes guests feel worse, not better.",
+      explanation: "A single brief apology is professional. Over-apologising draws more attention to the failure and makes guests feel worse, not better.",
     },
     {
       prompt: '"Our house red is very similar and actually pairs better with that dish" is an ideal pivot.',
@@ -1611,7 +1611,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Carrying a full arm of cleared glassware to the glass wash in one trip is expert pre-bussing.",
       answer: "true",
-      explanation: "Minimizing trips by loading up on cleared items in one pass is exactly what efficient, professional pre-bussing looks like.",
+      explanation: "Minimising trips by loading up on cleared items in one pass is exactly what efficient, professional pre-bussing looks like.",
     },
     {
       prompt: "Dead soldiers should only be removed when the entire table has finished drinking.",

@@ -264,12 +264,42 @@ export default function ProgressScreen() {
               <SkillRing key={skill.label} label={skill.label} pct={skill.pct} breakdown={skill.breakdown} />
             ))}
           </div>
-          <Link
-            href="/mobile/onboarding"
-            style={{ fontSize: 12, fontWeight: 600, color: "var(--gold-mobile)", textDecoration: "underline", alignSelf: "flex-start" }}
+
+          {/* Mobile cleanup pass (2026-08-25): "Retake placement assessment"
+              replaced with a helper explaining the two sub-metrics shown in
+              each ring above (Scenarios / AI Scenarios), pointing straight at
+              the screens that build them. */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 12,
+              padding: 16,
+              borderRadius: "var(--radius-lg)",
+              background: "var(--surface-mobile)",
+              border: "1px solid var(--border-mobile)",
+            }}
           >
-            Retake placement assessment
-          </Link>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--text-mobile)" }}>Scenarios</p>
+              <p style={{ margin: 0, fontSize: 12, lineHeight: "18px", color: "var(--text-mobile-muted)" }}>
+                Complete AI-graded scenario practice for each module.{" "}
+                <Link href="/mobile/scenario-practice" style={{ color: "var(--gold-mobile)", fontWeight: 600, textDecoration: "underline" }}>
+                  Start practicing
+                </Link>
+              </p>
+            </div>
+            <div style={{ height: 1, background: "var(--border-mobile)" }} />
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--text-mobile)" }}>AI Scenarios</p>
+              <p style={{ margin: 0, fontSize: 12, lineHeight: "18px", color: "var(--text-mobile-muted)" }}>
+                Enter Live Arena and complete AI Coach roleplay evaluations.{" "}
+                <Link href="/mobile/arena" style={{ color: "var(--gold-mobile)", fontWeight: 600, textDecoration: "underline" }}>
+                  Go to Arena
+                </Link>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 

@@ -89,7 +89,7 @@ export async function DELETE(req: Request) {
     .eq("manager_user_id", user.id)
     .single();
 
-  if (!staffRow) return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+  if (!staffRow) return NextResponse.json({ error: "Not authorised" }, { status: 403 });
 
   const { error } = await admin
     .from("venue_staff_certifications")

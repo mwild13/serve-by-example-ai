@@ -55,7 +55,6 @@ export default function CoreKnowledgeSection({ data, search = "" }: { data: Trai
 
     return filtered.map((mod) => {
       const progress = data.moduleProgress[mod.id];
-      const scenarioTotal = data.scenarioCounts[`module_${mod.id}`] ?? 10;
       const pct = progress?.mastery ?? 0;
       const attempted = progress?.scenariosAttempted ?? 0;
       const locked = !data.access.allowedModules.includes(mod.id);
@@ -63,7 +62,14 @@ export default function CoreKnowledgeSection({ data, search = "" }: { data: Trai
       return {
         id: mod.id,
         title: mod.title,
-        subtitle: `${attempted}/${scenarioTotal} scenarios`,
+        // Mobile cleanup pass (2026-08-25): this used to be `${attempted}/${scenarioTotal}
+        // scenarios`, but scenarioCounts has no real per-module `module_${id}` entries
+        // (lib/mastery.ts's SCENARIO_COUNTS only defines the 3 legacy category keys), so
+        // the denominator always silently fell back to a hardcoded 10 — producing
+        // nonsense like "12/10 scenarios". attempted itself is accurate (raw attempt-row
+        // count), so just show that; the mastery % bar next to it is the real
+        // completeness signal.
+        subtitle: attempted === 0 ? "No attempts yet" : `${attempted} attempt${attempted === 1 ? "" : "s"}`,
         pct,
         icon: CATEGORY_ICON[mod.category],
         badge: pct >= 80 ? ("mastered" as const) : locked ? ("locked" as const) : undefined,

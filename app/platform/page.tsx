@@ -54,7 +54,7 @@ const features: FeatureGridItem[] = [
   {
     icon: <IconBuilding />,
     title: "Multi-Venue Management",
-    body: "Manage multiple sites from a single console. Compare venue health scores, spot group-wide skill gaps, and standardize training.",
+    body: "Manage multiple sites from a single console. Compare venue health scores, spot group-wide skill gaps, and standardise training.",
   },
 ];
 

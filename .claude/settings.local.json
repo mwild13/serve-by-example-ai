@@ -101,7 +101,16 @@
       "Bash(lsof -iTCP:3000 -sTCP:LISTEN -P)",
       "Bash(xargs -I{} sh -c 'echo \"=== {} ===\"; cat {}')",
       "Bash(xargs -I{} echo {})",
-      "Bash(grep -n \"^button\\\\|^button,\\\\|button {\" /Users/mitchellwildman/Desktop/serve-by-example-ai-main/app/globals.css)"
+      "Bash(grep -n \"^button\\\\|^button,\\\\|button {\" /Users/mitchellwildman/Desktop/serve-by-example-ai-main/app/globals.css)",
+      "Bash(echo \"EXIT CODE: $?\")",
+      "Bash(echo \"TSC EXIT: $?\")",
+      "Bash(echo \"ESLINT EXIT: $?\")",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(git check-ignore *)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(grep -iE \"sk-[a-zA-Z0-9]{10,}|service_role|api[_-]?key\\\\s*=\\\\s*['\\\\\"][a-zA-Z0-9]{15,}|BEGIN \\(RSA|PRIVATE\\) KEY\")",
+      "Bash(npm ls *)",
+      "Bash(node -e \"console.log\\(require.resolve\\('sharp'\\)\\)\")"
     ]
   }
 }

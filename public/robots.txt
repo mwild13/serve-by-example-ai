@@ -5,6 +5,12 @@ Allow: /legal
 Disallow: /api/
 Disallow: /dashboard/
 Disallow: /auth/
+Disallow: /login
+Disallow: /mobile/
+Disallow: /management/
+Disallow: /onboarding
+Disallow: /reset-password
+Disallow: /session-conflict
 
 User-agent: GPTBot
 Allow: /

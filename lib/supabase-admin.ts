@@ -22,8 +22,6 @@ export function createSupabaseAdminClient() {
     );
   }
 
-  console.log("[supabase-admin] Creating admin client for:", supabaseUrl);
-
   return createClient(supabaseUrl, supabaseServiceRoleKey, {
     auth: {
       persistSession: false,

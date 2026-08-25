@@ -1,4 +1,5 @@
-﻿import { redirect } from "next/navigation";
+﻿import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import Stripe from "stripe";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
@@ -7,6 +8,12 @@ import DashboardShell from "@/app/dashboard/_components/DashboardShell";
 
 // Prevent static generation – this page requires auth at runtime
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Dashboard | Serve By Example",
+  description: "Your staff training dashboard — modules, scenario practice, and progress tracking.",
+  robots: { index: false, follow: false },
+};
 
 export default async function DashboardPage({
   searchParams,

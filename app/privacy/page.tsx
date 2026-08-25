@@ -60,7 +60,7 @@ export default function PrivacyPage() {
 
               <h2>3. Data Storage and Sovereignty</h2>
               <p>
-                We prioritize data security and utilize infrastructure primarily hosted in Australia
+                We prioritise data security and utilise infrastructure primarily hosted in Australia
                 (ap-southeast-2).
               </p>
 

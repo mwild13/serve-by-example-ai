@@ -277,7 +277,7 @@ function groupInventory(rows: Record<string, unknown>[]): InventoryCategory[] {
   const venueByCategory = new Map<string, string>();
 
   for (const row of rows) {
-    const category = asString(row.category, "Uncategorized");
+    const category = asString(row.category, "Uncategorised");
     const venueId = asString(row.venue_id);
     const compoundKey = `${venueId}:::${category}`;
     const current = grouped.get(compoundKey) ?? [];
@@ -288,7 +288,7 @@ function groupInventory(rows: Record<string, unknown>[]): InventoryCategory[] {
 
   return Array.from(grouped.entries()).map(([compoundKey, products]) => ({
     venueId: venueByCategory.get(compoundKey) ?? "",
-    name: compoundKey.split(":::")[1] ?? "Uncategorized",
+    name: compoundKey.split(":::")[1] ?? "Uncategorised",
     products,
   }));
 }

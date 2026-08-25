@@ -51,11 +51,6 @@ export default function DynamicModuleNav({
         }
 
         const data: AvailableModulesResponse = await response.json();
-        console.log("[DynamicModuleNav] Modules loaded:", {
-          count: data.modules.length,
-          platform_version: data.platform_version,
-          user_role: data.user_role,
-        });
         setFilteredModules(data.modules);
       } catch (err) {
         const message = err instanceof Error ? err.message : "Unknown error";

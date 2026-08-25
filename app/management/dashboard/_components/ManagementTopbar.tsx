@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Search, Sparkles } from "lucide-react";
-import type { QuickActionId, SearchResult } from "@/components/mission-control/manager-types";
-import { QuickActionMenu } from "@/components/mission-control/QuickActionMenu";
+import type { SearchResult } from "@/components/mission-control/manager-types";
 
 interface VenueOption {
   id: string;
@@ -17,7 +16,6 @@ interface ManagementTopbarProps {
   onSearchChange: (query: string) => void;
   searchResults: SearchResult[];
   onResultClick: (result: SearchResult) => void;
-  onActionSelect: (actionId: QuickActionId) => void;
   // Venue switcher (Figma: top-header dropdown, replacing the sidebar's
   // venue block) — same selectedVenueId/setSelectedVenueId state that
   // already drives the rest of ManagerControlCenter, just relocated.
@@ -37,7 +35,6 @@ export function ManagementTopbar({
   onSearchChange,
   searchResults,
   onResultClick,
-  onActionSelect,
   venues,
   selectedVenueId,
   onVenueChange,
@@ -164,8 +161,6 @@ export function ManagementTopbar({
           <Sparkles size={15} strokeWidth={1.75} />
           Ask AI Coach
         </button>
-
-        <QuickActionMenu onActionSelect={onActionSelect} />
 
         <div className="mc-topbar-avatar" title={displayName ?? undefined}>{initials || "M"}</div>
       </div>

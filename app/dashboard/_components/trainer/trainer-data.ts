@@ -205,7 +205,7 @@ export const SCENARIOS: Record<Module, Scenario[]> = {
       ],
     },
     {
-      text: "Your company wants to implement structured progression plans like a formal development program. How do you introduce it to the team and get buy-in from skeptical staff?",
+      text: "Your company wants to implement structured progression plans like a formal development program. How do you introduce it to the team and get buy-in from sceptical staff?",
       pills: [
         { intent: "Make it relevant", text: "Connect the program to pay growth, confidence, and future opportunities", positive: true },
         { intent: "Set shared goals", text: "Help each person choose individual goals rather than forcing a generic plan", positive: true },

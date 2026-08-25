@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Sparkles, X, MessageCircleMore, Send } from "lucide-react";
+import { Sparkles, X, Send } from "lucide-react";
 import { useMobileSession } from "../../_lib/mobile-session-context";
 
 // Mobile bug-fix plan, Phase 3d — AI chat widget for the Me page's lower
@@ -98,7 +98,7 @@ export default function AiCoachWidget() {
           cursor: "pointer",
         }}
       >
-        <MessageCircleMore size={24} strokeWidth={2} color="var(--bg-mobile-dark)" aria-hidden="true" />
+        <Sparkles size={24} strokeWidth={2} color="var(--bg-mobile-dark)" aria-hidden="true" />
       </button>
     );
   }
@@ -141,7 +141,7 @@ export default function AiCoachWidget() {
           <button
             type="button"
             onClick={() => setMinimized(true)}
-            aria-label="Minimize AI Coach"
+            aria-label="Minimise AI Coach"
             style={{
               display: "flex",
               alignItems: "center",

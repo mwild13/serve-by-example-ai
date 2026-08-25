@@ -19,7 +19,7 @@ const SOP_CONTENT_DATABASE: Record<string, { title: string; risk: string; visibl
     ],
     realHidden: [
       'Document unique identifier values chronologically inside compliance log framework.',
-      'Execute secondary supervisor authorization checklist upon refusal escalation.',
+      'Execute secondary supervisor authorisation checklist upon refusal escalation.',
       'Enforce chronological incident data logging within legal operating hours.'
     ]
   },
@@ -46,9 +46,9 @@ const SOP_CONTENT_DATABASE: Record<string, { title: string; risk: string; visibl
       'Re-verify primary environmental control systems are completely deactivated post-service.'
     ],
     realHidden: [
-      'Execute deep storage clearing checks for non-authorized personnel elements.',
+      'Execute deep storage clearing checks for non-authorised personnel elements.',
       'Log mechanical access key registers chronologically at shift crossover.',
-      'Synchronize hardware safe locks and register counts under supervisor verification.'
+      'Synchronise hardware safe locks and register counts under supervisor verification.'
     ]
   },
   'paperwork': {
@@ -60,7 +60,7 @@ const SOP_CONTENT_DATABASE: Record<string, { title: string; risk: string; visibl
       'Execute baseline onboarding signatures across internal policy declarations.'
     ],
     realHidden: [
-      'Populate localized tracking infrastructure records to match regulatory parameters.',
+      'Populate localised tracking infrastructure records to match regulatory parameters.',
       'Execute historical profile validation assessments on variable talent assets.',
       'Lock profile compliance statuses inside operations archives prior to active duty.'
     ]

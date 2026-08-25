@@ -7,7 +7,6 @@ import BottomNav from "./BottomNav";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 import { VERIFY_QUESTIONS } from "@/lib/verify-questions";
-import { ARENA_SEED_SCENARIOS, formatArenaScenario } from "@/lib/arena-scenarios";
 
 // Phase 3 (v4-migration-plan/00-bug-batch-plan.md, item 6) — net-new Quiz
 // screen. LearnHubScreen's module cards used to route straight into Arena;
@@ -58,10 +57,23 @@ export default function QuizScreen() {
   const session = useMobileSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { refetch } = useTrainingProgress();
+  const { data, refetch } = useTrainingProgress();
 
   const moduleId = Number(searchParams.get("moduleId") ?? 1) || 1;
   const moduleTitle = searchParams.get("moduleTitle") ?? `Module ${moduleId}`;
+
+  // Mobile cleanup pass (2026-08-25): the mastered screen used to always
+  // offer "Try it in Live Arena" here. Replaced with "Next Module" so
+  // mastering a module continues the learning path — same accessible,
+  // catalog-order list HomeScreen.tsx's continueModule memo already uses
+  // (data.allModules is server-ordered by id ascending).
+  const nextModule = useMemo(() => {
+    if (!data) return null;
+    const accessible = data.allModules.filter((mod) => data.access.allowedModules.includes(mod.id));
+    const idx = accessible.findIndex((mod) => mod.id === moduleId);
+    if (idx === -1) return null;
+    return accessible[idx + 1] ?? null;
+  }, [data, moduleId]);
 
   const [attemptKey, setAttemptKey] = useState(0);
   // attemptKey isn't read inside buildPool — it's a deliberate cache-buster
@@ -161,11 +173,6 @@ export default function QuizScreen() {
     setStatus("playing");
   }
 
-  const arenaSeed = ARENA_SEED_SCENARIOS[moduleId];
-  const arenaHref = arenaSeed
-    ? `/mobile/arena?moduleId=${moduleId}&moduleTitle=${encodeURIComponent(moduleTitle)}&scenario=${encodeURIComponent(formatArenaScenario(arenaSeed))}`
-    : "/mobile/arena";
-
   const shellStyle: React.CSSProperties = {
     display: "flex",
     flexDirection: "column",
@@ -250,27 +257,31 @@ export default function QuizScreen() {
             <p style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "var(--text-mobile)" }}>Module Mastered</p>
             <p style={{ margin: "4px 0 0", fontSize: 13, color: "var(--text-mobile-muted)" }}>{moduleTitle}</p>
           </div>
-          <button
-            type="button"
-            onClick={() => router.push(arenaHref)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "12px 24px",
-              borderRadius: "var(--radius-pill)",
-              border: "none",
-              background: "var(--gold-mobile)",
-              color: "var(--bg-mobile-dark)",
-              fontFamily: "var(--font-body)",
-              fontSize: 14,
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
-          >
-            Try it in Live Arena
-            <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
-          </button>
+          {nextModule ? (
+            <button
+              type="button"
+              onClick={() => router.push(`/mobile/quiz?moduleId=${nextModule.id}&moduleTitle=${encodeURIComponent(nextModule.title)}`)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "12px 24px",
+                borderRadius: "var(--radius-pill)",
+                border: "none",
+                background: "var(--gold-mobile)",
+                color: "var(--bg-mobile-dark)",
+                fontFamily: "var(--font-body)",
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              Next Module
+              <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
+            </button>
+          ) : (
+            <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>All accessible modules mastered — nice work.</p>
+          )}
           <button
             type="button"
             onClick={() => router.push("/mobile/learn")}

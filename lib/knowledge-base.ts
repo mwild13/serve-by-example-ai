@@ -548,7 +548,7 @@ export const KB_ENTRIES: KBEntry[] = [
     keyFacts: [
       "Starward (Melbourne) focuses on wine barrel finishing for fruit-forward profiles",
       "Lark (Tasmania) represents the southern craft movement with maritime character",
-      "Manly Spirits Co (Sydney) emphasizes coastal terroir in their 'Coastal Stone' expression",
+      "Manly Spirits Co (Sydney) emphasises coastal terroir in their 'Coastal Stone' expression",
       "Australian whisky uses local barley and water sources",
       "Growing recognition at international spirits competitions",
     ],

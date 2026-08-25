@@ -4,7 +4,7 @@
  */
 
 import { createSupabaseAdminClient } from "./supabase-admin";
-import { resolveAccess, isB2BTier } from "./session";
+import { resolveAccess } from "./session";
 import { SCENARIO_COUNTS } from "./mastery";
 
 interface Module {
@@ -40,34 +40,6 @@ export async function getAvailableModules(
   const admin = createSupabaseAdminClient();
 
   try {
-    console.log(`[getAvailableModules] Fetching modules for user: ${userId}`);
-
-    // Get user's profile for platform_version and role info
-    const { data: profile, error: profileError } = await admin
-      .from("profiles")
-      .select("id, tier, platform_version")
-      .eq("id", userId)
-      .maybeSingle(); // Use maybeSingle to handle new users without a profile yet
-
-    if (profileError) {
-      console.error(`[getAvailableModules] Profile error:`, profileError);
-      throw new Error(`Profile query failed: ${profileError.message}`);
-    }
-
-    // Use default profile if not found (new user on v2)
-    const userProfile = profile || {
-      id: userId,
-      tier: "free",
-      platform_version: 2,
-    };
-
-    // Force platform_version = 2 for individual/free users (legacy default was 1)
-    // Only keep v1 for B2B venue users who need diagnostic
-    const isB2BUser = isB2BTier(userProfile.tier);
-    const platformVersion = isB2BUser ? userProfile.platform_version : 2;
-
-    console.log(`[getAvailableModules] User profile: tier=${userProfile.tier}, is_b2b=${isB2BUser}, platform_version=${platformVersion}`);
-
     // Resolve access (tier-based module filtering)
     let access;
     try {
@@ -94,7 +66,6 @@ export async function getAvailableModules(
     // recommendations below), never whether the real catalog loads.
 
     // Fetch all modules from database
-    console.log(`[getAvailableModules] Fetching all modules from database`);
     const { data: allModules, error: modulesError } = await admin
       .from("modules")
       .select("id, title, description, category, difficulty_level")
@@ -109,8 +80,6 @@ export async function getAvailableModules(
       console.error(`[getAvailableModules] No modules found in database`);
       throw new Error("No modules found in database");
     }
-
-    console.log(`[getAvailableModules] Found ${allModules.length} modules`);
 
     // Get user's Elo ratings from module_elo_baseline (optional - new users won't have this)
     const { data: diagnosticResult, error: diagnosticError } = await admin
@@ -130,10 +99,7 @@ export async function getAvailableModules(
       compliance: 1200,
     };
 
-    console.log(`[getAvailableModules] Using category scores:`, categoryScores);
-
     // Get user's mastery progress for each module
-    console.log(`[getAvailableModules] Fetching mastery data for user`);
     const { data: masteryData, error: masteryError } = await admin
       .from("scenario_mastery")
       .select("module_id, mastery_level, elo_rating, is_mastered")
@@ -152,7 +118,6 @@ export async function getAvailableModules(
     (masteryData || []).forEach((m) => {
       // Skip records without module_id (legacy data)
       if (!m.module_id) {
-        console.log(`[getAvailableModules] Skipping mastery record without module_id`);
         return;
       }
       if (!masteryByModule[m.module_id]) {
@@ -164,8 +129,6 @@ export async function getAvailableModules(
         is_mastered: m.is_mastered === true,
       });
     });
-
-    console.log(`[getAvailableModules] Processed ${Object.keys(masteryByModule).length} modules with mastery data`);
 
     // Calculate module Elo and mastery percentage
     const modulesWithProgress = allModules.map((module) => {
