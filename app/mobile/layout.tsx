@@ -1,3 +1,4 @@
+import type { Viewport } from "next";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
@@ -14,6 +15,22 @@ import { TrainingProgressProvider } from "./_lib/training-progress-context";
 // One-device session displacement is enforced in middleware.ts (not here) —
 // see the /mobile addition to that gate.
 export const dynamic = "force-dynamic";
+
+// Fix-locked viewport (2026-08-25) — this app is meant to feel like a
+// native tab app, not a zoomable web page: pinch-to-zoom let the fixed
+// header/nav chrome and the 390px frame drift out of alignment. Scoped to
+// this /mobile segment only (a child layout's `viewport` export fully
+// overrides the root's app/layout.tsx here) rather than site-wide — the
+// public marketing pages keep normal pinch-zoom, which is a real
+// accessibility affordance there (WCAG 1.4.4) that this app-shell tree
+// doesn't need since every screen is already laid out for one fixed frame.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+};
 
 export default async function MobileLayout({
   children,

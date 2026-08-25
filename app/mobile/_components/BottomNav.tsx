@@ -21,14 +21,32 @@ const TABS: { id: MobileNavTab; label: string; icon: typeof Home; href: string }
   { id: "me", label: "Me", icon: User, href: "/mobile/progress" },
 ];
 
-export default function BottomNav({ active }: { active: MobileNavTab }) {
+// Fix-locked bottom nav (2026-08-25): Home's content could run taller than
+// the viewport, and since this nav rendered inline at the end of that
+// column (not fixed), it only came into view once the user scrolled all
+// the way down — it should behave like a normal app tab bar, always
+// visible. `fixed` is opt-in per screen (only HomeScreen passes it for
+// now) rather than a global behavior change, so every other screen using
+// this component keeps its current inline layout untouched.
+export default function BottomNav({ active, fixed }: { active: MobileNavTab; fixed?: boolean }) {
   return (
     <nav
       style={{
         width: "100%",
+        maxWidth: fixed ? 390 : undefined,
         flexShrink: 0,
         background: "var(--surface-mobile)",
         borderTop: "1px solid var(--border-mobile)",
+        ...(fixed
+          ? {
+              position: "fixed" as const,
+              left: "50%",
+              transform: "translateX(-50%)",
+              bottom: 0,
+              zIndex: 50,
+              paddingBottom: "env(safe-area-inset-bottom, 0px)",
+            }
+          : {}),
       }}
     >
       <div

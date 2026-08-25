@@ -91,7 +91,6 @@ export default function HomeScreen() {
       style={{
         display: "flex",
         flexDirection: "column",
-        justifyContent: "space-between",
         width: "100%",
         maxWidth: 390,
         margin: "0 auto",
@@ -100,7 +99,22 @@ export default function HomeScreen() {
         fontFamily: "var(--font-body)",
       }}
     >
-      <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+      {/* Fix-locked bottom nav (2026-08-25): BottomNav now renders fixed
+          (see BottomNav.tsx) instead of inline at the end of this column, so
+          it's always visible instead of only appearing once scrolled to the
+          bottom. This wrapper reserves the same 84px (64px tab row + 20px
+          indicator strip — see AiCoachWidget.tsx's WIDGET_BOTTOM, the
+          existing source of that number) + safe-area space as padding so
+          the fixed nav never overlaps Quick Access Training, the last
+          section. */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          paddingBottom: "calc(84px + env(safe-area-inset-bottom, 0px))",
+        }}
+      >
         {/* hero-header */}
         <div
           style={{
@@ -224,8 +238,10 @@ export default function HomeScreen() {
           )}
         </div>
 
-        {/* todays-picks-section */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: 20 }}>
+        {/* todays-picks-section — top padding trimmed 20->12 (2026-08-25
+            bottom-nav fix pass) to reclaim vertical space now that the
+            fixed nav needs 84px+ reserved below Quick Access Training. */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 20px 20px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>Today&apos;s Hot Picks</p>
             {/* Real brand mark — same asset/pattern as components/Navbar.tsx's
@@ -333,8 +349,9 @@ export default function HomeScreen() {
           </Link>
         </div>
 
-        {/* quick-access-section */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: 20 }}>
+        {/* quick-access-section — top padding trimmed 20->12, same rationale
+            as todays-picks-section above. */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 20px 20px" }}>
           <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>Quick Access Training</p>
           <div style={{ display: "flex", gap: 6 }}>
             {QUICK_ACCESS.map(({ label, icon: Icon, href }) => (
@@ -386,7 +403,7 @@ export default function HomeScreen() {
         </div>
       </div>
 
-      <BottomNav active="home" />
+      <BottomNav active="home" fixed />
     </div>
   );
 }
