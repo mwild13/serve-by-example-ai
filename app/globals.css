@@ -7247,7 +7247,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   gap: 10px;
 }
 
-.ops-settings-list div {
+.ops-settings-list > div {
   border: 1px solid var(--line-light);
   border-radius: var(--radius-md);
   background: var(--bg-warm);

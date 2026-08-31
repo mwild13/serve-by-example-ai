@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { ManagerSection } from "@/lib/management/types";
 
-export type QuickActionId = "add-staff" | "assign-training" | "add-inventory" | "create-program";
+export type QuickActionId = "add-staff" | "add-inventory" | "create-program";
 
 type NavItem = {
   id: ManagerSection;

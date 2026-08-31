@@ -279,8 +279,8 @@ export function SettingsPanel({
                   <dd>
                     <span style={{ fontWeight: 700 }}>{staffUsed} / {staffLimit}</span>
                     <span style={{ color: "var(--text-muted)", fontWeight: 400, marginLeft: 4 }}>seats used</span>
-                    <div style={{ marginTop: 6, height: 6, background: "var(--bg-alt)", borderRadius: 999, overflow: "hidden", maxWidth: 180 }}>
-                      <div style={{ height: "100%", width: `${pct}%`, background: isFull ? "var(--status-critical)" : isWarning ? "var(--status-warning)" : "var(--color-mastery-technical)", borderRadius: 999, transition: "width 0.3s ease" }} />
+                    <div style={{ marginTop: 6, height: 6, background: "var(--bg-alt)", borderRadius: 999, overflow: "hidden", maxWidth: 180, border: "none", padding: 0 }}>
+                      <div style={{ height: "100%", width: `${pct}%`, background: isFull ? "var(--status-critical)" : isWarning ? "var(--status-warning)" : "var(--color-mastery-technical)", borderRadius: 999, transition: "width 0.3s ease", border: "none", padding: 0 }} />
                     </div>
                   </dd>
                 </div>

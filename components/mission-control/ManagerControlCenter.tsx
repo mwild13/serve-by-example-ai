@@ -111,8 +111,8 @@ const QUICK_ACTIONS: Array<{
   section: ManagerSection;
 }> = [
   { id: "add-staff", label: "Add staff", section: "staff" },
-  { id: "assign-training", label: "Assign training", section: "staff" },
   { id: "add-inventory", label: "Add inventory", section: "inventory" },
+  { id: "create-program", label: "Create program", section: "training" },
 ];
 
 const STAFF_ROLE_OPTIONS: StaffRole[] = [
@@ -242,10 +242,6 @@ export default function ManagerControlCenter({
     roleTarget: "Bartenders",
     description: "",
     dayPlan: ["", "", ""],
-  });
-  const [assignmentForm, setAssignmentForm] = useState<{ staffId: string; programId: string }>({
-    staffId: "",
-    programId: "",
   });
   const [newVenueName, setNewVenueName] = useState("");
   const [pendingInviteLink, setPendingInviteLink] = useState<{ link: string; email: string; name: string; emailSent: boolean } | null>(null);
@@ -419,18 +415,6 @@ export default function ManagerControlCenter({
     }
   }, [venueStaff, selectedStaffId]);
 
-  useEffect(() => {
-    if (!venueStaff.some((member) => member.id === assignmentForm.staffId)) {
-      // Assignment form staff/program IDs become stale after venue switch — reset to first.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setAssignmentForm((current) => ({ ...current, staffId: venueStaff[0]?.id ?? "" }));
-    }
-
-    if (!venuePrograms.some((program) => program.id === assignmentForm.programId)) {
-      setAssignmentForm((current) => ({ ...current, programId: venuePrograms[0]?.id ?? "" }));
-    }
-  }, [assignmentForm.programId, assignmentForm.staffId, venuePrograms, venueStaff]);
-
   // Guard: redirect any stale deprecated section values to overview
   useEffect(() => {
     if ((activeSection as string) === "billing" || (activeSection as string) === "sign-out") {
@@ -494,14 +478,13 @@ export default function ManagerControlCenter({
   }, [checkoutSuccess]);
 
   const selectedStaff = venueStaff.find((member) => member.id === selectedStaffId) ?? venueStaff[0];
-  const selectedProgram = venuePrograms.find((program) => program.id === assignmentForm.programId) ?? venuePrograms[0];
 
   const handleExportStaff = useCallback(() => {
     const rows = [
       ["Name", "Email", "Role", "Completion %", "Service %", "Sales %", "Last Active", "Status"],
       ...venueStaff.map((m) => [
         m.name,
-        m.email ?? `${m.name.split(" ")[0].toLowerCase()}@sbe.io`,
+        m.email ?? "",
         m.role,
         String(m.progress),
         String(m.serviceScore),
@@ -532,12 +515,8 @@ export default function ManagerControlCenter({
       trail.push(selectedStaff.name);
     }
 
-    if (activeSection === "training" && selectedProgram) {
-      trail.push(selectedProgram.name);
-    }
-
     return trail;
-  }, [activeSection, selectedProgram, selectedStaff]);
+  }, [activeSection, selectedStaff]);
 
   const metrics = useMemo(() => {
     const totalStaff = venueStaff.length;
@@ -824,22 +803,6 @@ export default function ManagerControlCenter({
         setRequestError(`You've reached the ${limit}-seat limit for ${selectedVenue.name}. Upgrade your plan to add more staff.`);
         return;
       }
-    }
-
-    if (activeAction === "assign-training") {
-      const staffMember = venueStaff.find((member) => member.id === assignmentForm.staffId);
-      const program = venuePrograms.find((item) => item.id === assignmentForm.programId);
-
-      if (!staffMember || !program) {
-        setRequestError("Pick a staff member and program before assigning training.");
-        return;
-      }
-
-      setRequestError("");
-      setRequestSuccess(`${program.name} assigned to ${staffMember.name}.`);
-      setActiveAction(null);
-      setIsDirty(false);
-      return;
     }
 
     const requestConfig =
@@ -1186,8 +1149,6 @@ export default function ManagerControlCenter({
           title={
             activeAction === "add-staff"
               ? "Add staff member"
-              : activeAction === "assign-training"
-                ? "Assign training"
               : activeAction === "add-inventory"
                 ? "Add inventory item"
               : activeAction === "create-program"
@@ -1243,53 +1204,6 @@ export default function ManagerControlCenter({
                 Dismiss
               </button>
             </div>
-          )}
-
-          {activeAction === "assign-training" && (
-            <form className="ops-action-form" onSubmit={submitAction}>
-              <label className="label">
-                Staff member
-                <select
-                  className="input"
-                  value={assignmentForm.staffId}
-                  onChange={(event) => {
-                    setIsDirty(true);
-                    setAssignmentForm((current) => ({ ...current, staffId: event.target.value }));
-                  }}
-                  required
-                >
-                  {venueStaff.map((member) => {
-                    const isBlockedRsa = rsaStatus(member.compliance).level === 3;
-                    return (
-                      <option key={member.id} value={member.id} disabled={isBlockedRsa}>
-                        {member.name}{isBlockedRsa ? ' (Blocked: Expired RSA)' : ''}
-                      </option>
-                    );
-                  })}
-                </select>
-              </label>
-              <label className="label">
-                Program
-                <select
-                  className="input"
-                  value={assignmentForm.programId}
-                  onChange={(event) => {
-                    setIsDirty(true);
-                    setAssignmentForm((current) => ({ ...current, programId: event.target.value }));
-                  }}
-                  required
-                >
-                  {venuePrograms.map((program) => (
-                    <option key={program.id} value={program.id}>
-                      {program.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <button className="btn btn-primary" type="submit">
-                Assign now
-              </button>
-            </form>
           )}
 
           {activeAction === "add-staff" && (
@@ -1498,7 +1412,37 @@ export default function ManagerControlCenter({
         {activeSection === "training" && (
           <section className="ops-grid ops-grid-main">
             <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
-              <EmptyState copy="Programs builder coming soon. Saved data will appear here automatically." />
+              <div className="ops-card-head">
+                <h3>Training programs</h3>
+                <button type="button" className="btn btn-primary" style={{ fontSize: "0.78rem", padding: "6px 14px" }} onClick={() => openAction("create-program")}>
+                  + Create program
+                </button>
+              </div>
+              {venuePrograms.length === 0 ? (
+                <EmptyState
+                  copy="No training programs yet."
+                  ctaLabel="+ Create program"
+                  onCtaClick={() => openAction("create-program")}
+                />
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {venuePrograms.map((program) => (
+                    <div key={program.id} style={{ padding: "12px 16px", borderRadius: 10, border: "1px solid var(--line-light)", background: "var(--bg-warm)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+                        <strong style={{ color: "var(--green-deep)" }}>{program.name}</strong>
+                        <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>{program.roleTarget}</span>
+                      </div>
+                      {program.description && (
+                        <p style={{ margin: "4px 0 8px", fontSize: "0.82rem", color: "var(--text-soft)" }}>{program.description}</p>
+                      )}
+                      <div className="mc-progress-track">
+                        <div className="mc-progress-fill" style={{ width: `${Math.round(program.completion)}%`, background: "var(--color-mastery-technical)" }} />
+                      </div>
+                      <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{Math.round(program.completion)}% complete</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </article>
           </section>
         )}
@@ -1745,6 +1689,7 @@ export default function ManagerControlCenter({
             metrics={metrics}
             selectedVenueName={selectedVenue?.name}
             handleSectionChange={handleSectionChange}
+            venueId={selectedVenue?.id}
           />
         )}
 
@@ -1939,7 +1884,6 @@ export default function ManagerControlCenter({
           isOpen={coachingDrawerOpen}
           staff={selectedStaff}
           onClose={() => setCoachingDrawerOpen(false)}
-          onAssignTraining={() => { setCoachingDrawerOpen(false); openAction("assign-training"); }}
         />
       </Suspense>
 

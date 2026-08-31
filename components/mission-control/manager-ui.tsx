@@ -3,15 +3,19 @@
 // Shared UI primitives for the Manager Control Center.
 // Extracted to keep ManagerControlCenter.tsx focused on logic and layout.
 
-import { useState } from "react";
 import type { StaffMember } from "@/lib/management/types";
 
 // ctaLabel/onCtaClick are optional — pass both to render a real actionable
-// button (e.g. "+ Add staff") instead of the passive "Notify Me" fallback.
-// "Notify Me" stays the default for genuinely not-yet-built features
-// (Programs/Scenario builders etc.) where there's nothing to act on yet;
-// first-run states that ARE actionable (no staff, no certs on file) should
-// always pass a real CTA — see Phase 5 execution brief, Bottleneck #3.
+// button (e.g. "+ Add staff") instead of the plain copy-only fallback.
+// The fallback (no button) is for genuinely not-yet-built features
+// (Scenario builder, Inventory management, Menu engineering etc.) where
+// there's nothing to act on yet — it used to show a "Notify Me" button
+// that only flipped local React state and never recorded anything, so
+// clicking it made a false promise ("You'll be notified...") that reset
+// on every reload. Removed rather than wired up, since there's no
+// notification mechanism behind it; first-run states that ARE actionable
+// (no staff, no certs on file) should always pass a real CTA — see Phase 5
+// execution brief, Bottleneck #3.
 export function EmptyState({
   copy,
   ctaLabel,
@@ -21,8 +25,6 @@ export function EmptyState({
   ctaLabel?: string;
   onCtaClick?: () => void;
 }) {
-  const [notified, setNotified] = useState(false);
-
   if (ctaLabel && onCtaClick) {
     return (
       <div className="ops-empty-state">
@@ -39,18 +41,6 @@ export function EmptyState({
     <div className="ops-empty-state">
       <p className="ops-empty-state-title">{copy}</p>
       <p className="ops-empty-state-sub">This section will populate once your team has data.</p>
-      {notified ? (
-        <span className="ops-empty-state-success">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-          You&apos;ll be notified when data is ready
-        </span>
-      ) : (
-        <button className="ops-empty-state-btn" onClick={() => setNotified(true)}>
-          Notify Me
-        </button>
-      )}
     </div>
   );
 }

@@ -9,10 +9,9 @@ interface CoachingDrawerProps {
   isOpen: boolean;
   staff: StaffMember | null;
   onClose: () => void;
-  onAssignTraining?: () => void;
 }
 
-export default function CoachingDrawer({ isOpen, staff, onClose, onAssignTraining }: CoachingDrawerProps) {
+export default function CoachingDrawer({ isOpen, staff, onClose }: CoachingDrawerProps) {
   const drawerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -152,17 +151,6 @@ export default function CoachingDrawer({ isOpen, staff, onClose, onAssignTrainin
               </ul>
             </div>
           </div>
-
-          {onAssignTraining && (
-            <button
-              type="button"
-              className="btn btn-primary"
-              style={{ fontSize: "0.78rem", padding: "6px 14px", marginTop: 20, width: "100%" }}
-              onClick={onAssignTraining}
-            >
-              + Assign training
-            </button>
-          )}
         </div>
       </aside>
     </>

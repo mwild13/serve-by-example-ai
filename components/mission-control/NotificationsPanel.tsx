@@ -1,14 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ManagementSnapshot, ManagerSection } from "@/lib/management/types";
 
 // Extracted from ManagerControlCenter.tsx (Phase 5 — component extraction
 // roadmap, line-count reduction). Covers the Notifications tab: category
 // filter tabs, active alert feed with inline CTAs, and an archive drawer.
 //
-// notifFilter / dismissedNotifs / showArchivedNotifs are local UI-only
-// state — nothing outside this tab reads them.
+// notifFilter / showArchivedNotifs are local UI-only state — nothing
+// outside this tab reads them. dismissedNotifs is mirrored to
+// localStorage (per venue) so an "Archive" click survives reload —
+// these alerts are computed from live data each render rather than
+// stored as DB rows, so there's no server-side place to persist a
+// dismissal; localStorage keeps the illusion honest instead of silently
+// resetting it.
 
 type NotifItem = { id: string; category: "training" | "performance" | "inventory"; urgency: "critical" | "warning" | "info"; title: string; body: string };
 
@@ -20,12 +25,39 @@ export interface NotificationsPanelProps {
   metrics: { salesSkill: number };
   selectedVenueName: string | undefined;
   handleSectionChange: (section: ManagerSection) => void;
+  venueId?: string;
 }
 
-export function NotificationsPanel({ venueStaff, needsAttention, venueInventory, venuePrograms, metrics, selectedVenueName, handleSectionChange }: NotificationsPanelProps) {
+function dismissedNotifsStorageKey(venueId: string | undefined): string {
+  return `sbe-dismissed-notifs-${venueId ?? "default"}`;
+}
+
+export function NotificationsPanel({ venueStaff, needsAttention, venueInventory, venuePrograms, metrics, selectedVenueName, handleSectionChange, venueId }: NotificationsPanelProps) {
   const [notifFilter, setNotifFilter] = useState<"all" | "training" | "performance" | "inventory">("all");
   const [dismissedNotifs, setDismissedNotifs] = useState<Set<string>>(new Set());
   const [showArchivedNotifs, setShowArchivedNotifs] = useState(false);
+
+  // Hydrate archived-alert ids from localStorage whenever the selected venue changes.
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(dismissedNotifsStorageKey(venueId));
+      const ids = raw ? (JSON.parse(raw) as string[]) : [];
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDismissedNotifs(new Set(ids));
+    } catch {
+      // Private browsing / storage disabled — fall back to session-only dismissal.
+      setDismissedNotifs(new Set());
+    }
+  }, [venueId]);
+
+  function persistDismissed(next: Set<string>) {
+    setDismissedNotifs(next);
+    try {
+      window.localStorage.setItem(dismissedNotifsStorageKey(venueId), JSON.stringify([...next]));
+    } catch {
+      // Ignore storage failures — the in-memory state still updates for this session.
+    }
+  }
 
   const allNotifs: NotifItem[] = [
     ...(needsAttention.filter((s) => s.status === "inactive").map((s) => ({
@@ -192,7 +224,7 @@ export function NotificationsPanel({ venueStaff, needsAttention, venueInventory,
                     <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Now</span>
                     <button
                       type="button"
-                      onClick={() => setDismissedNotifs((prev) => new Set([...prev, notif.id]))}
+                      onClick={() => persistDismissed(new Set([...dismissedNotifs, notif.id]))}
                       style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", fontSize: "0.75rem", fontWeight: 600, padding: "2px 6px", borderRadius: 4, lineHeight: 1 }}
                       aria-label="Dismiss"
                     >Archive</button>
@@ -215,7 +247,7 @@ export function NotificationsPanel({ venueStaff, needsAttention, venueInventory,
                   </div>
                   <button
                     type="button"
-                    onClick={() => setDismissedNotifs((prev) => { const next = new Set(prev); next.delete(notif.id); return next; })}
+                    onClick={() => { const next = new Set(dismissedNotifs); next.delete(notif.id); persistDismissed(next); }}
                     style={{ background: "none", border: "1px solid var(--line)", borderRadius: 4, cursor: "pointer", color: "var(--text-muted)", fontSize: "0.72rem", padding: "2px 7px" }}
                   >Restore</button>
                 </div>
