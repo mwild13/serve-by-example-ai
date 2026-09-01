@@ -45,6 +45,7 @@ import { PredictivePanel } from "./PredictivePanel";
 import { SettingsPanel } from "./SettingsPanel";
 import { LeaderboardBoard } from "./LeaderboardBoard";
 import { OverviewPanel } from "./OverviewPanel";
+import { GroupAnalyticsPanel } from "./GroupAnalyticsPanel";
 import { TrialStatusPill } from "./TrialStatusPill";
 import { TrialExpiredModal } from "./TrialExpiredModal";
 import { isB2BTier, isMultiVenueTier } from "@/lib/session";
@@ -98,6 +99,7 @@ const SECTION_META: Record<ManagerSection, { cluster: string; label: string }> =
   menu: { cluster: "Operations", label: "Menu Items" },
   compliance: { cluster: "Operations", label: "Compliance" },
   analytics: { cluster: "Performance", label: "Analytics" },
+  "group-analytics": { cluster: "Performance", label: "Group Analytics" },
   reports: { cluster: "Performance", label: "Reports" },
   leaderboards: { cluster: "Performance", label: "Leaderboards" },
   notifications: { cluster: "Performance", label: "Notifications" },
@@ -265,6 +267,17 @@ export default function ManagerControlCenter({
       setActiveSection("overview");
     }
   }, [activeSection, isOwnerLevel, setActiveSection]);
+
+  // Same defense-in-depth pattern as the Settings guard above: a
+  // single-venue account can't reach Group Analytics even by typing
+  // ?tab=group-analytics directly — the "All Venues" entry point is already
+  // hidden from the venue-selector dropdown for these accounts.
+  useEffect(() => {
+    if (activeSection === "group-analytics" && !isMultiVenue) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- correcting an invalid deep-link, not syncing from an external source.
+      setActiveSection("overview");
+    }
+  }, [activeSection, isMultiVenue, setActiveSection]);
 
   // Checkout success: detect post-Stripe redirect and poll for webhook confirmation.
   const checkoutSuccess = searchParams.get("checkout") === "success";
@@ -1161,7 +1174,9 @@ export default function ManagerControlCenter({
         <ManagementTopbar
           breadcrumbs={breadcrumbs}
           venueName={
-            snapshot.venues.length === 0
+            activeSection === "group-analytics"
+              ? "All Venues"
+              : snapshot.venues.length === 0
               ? "No venues"
               : selectedVenueId
               ? snapshot.venues.find((v) => v.id === selectedVenueId)?.name ?? "Venue"
@@ -1176,9 +1191,18 @@ export default function ManagerControlCenter({
           }}
           venues={snapshot.venues.map((v) => ({ id: v.id, name: v.name }))}
           selectedVenueId={selectedVenueId}
-          onVenueChange={setSelectedVenueId}
+          onVenueChange={(venueId) => {
+            setSelectedVenueId(venueId);
+            // Picking a specific venue always means "show me that one
+            // venue" — if the manager was looking at the cross-venue
+            // rollup, drop them back into its single-venue equivalent
+            // instead of leaving them on Group Analytics with a venue
+            // selected that view doesn't scope to.
+            if (activeSection === "group-analytics") setActiveSection("overview");
+          }}
           isMultiVenue={isMultiVenue}
-          onGroupAnalytics={() => handleSectionChange("analytics")}
+          onGroupAnalytics={() => handleSectionChange("group-analytics")}
+          isGroupAnalyticsActive={activeSection === "group-analytics"}
           onAICoach={() => handleSectionChange("aicoach")}
           displayName={accountDisplayName || displayName}
         />
@@ -1529,6 +1553,14 @@ export default function ManagerControlCenter({
           />
         )}
 
+        {activeSection === "group-analytics" && (
+          <GroupAnalyticsPanel
+            sessionToken={sessionToken}
+            onSelectVenue={(venueId) => { setSelectedVenueId(venueId); setActiveSection("overview"); }}
+            onAddVenue={() => handleSectionChange("settings")}
+          />
+        )}
+
         {activeSection === "staff" && (
           <StaffDirectoryTable
             snapshot={snapshot}
@@ -1631,52 +1663,29 @@ export default function ManagerControlCenter({
         {activeSection === "analytics" && (
           <>
             <section className="ops-grid ops-grid-main">
+              {/* The old per-venue "Multi-venue comparison" card that used to
+                  live here has been promoted into its own dedicated Group
+                  Analytics view (see GroupAnalyticsPanel.tsx) as a proper
+                  cross-venue rollup with org-wide KPIs and a compliance risk
+                  matrix, rather than staying a relabeled slice of this
+                  single-venue Analytics tab. This card is just the pointer
+                  to it now. */}
               {isMultiVenue && (
                 <article className="ops-card">
                   <div className="ops-card-head">
-                    <h3>Multi-venue comparison</h3>
-                    <span>All venues</span>
+                    <h3>Cross-venue view</h3>
                   </div>
-                  {snapshot.venues.length === 0 ? (
-                    <EmptyState
-                      copy="No venues yet."
-                      ctaLabel="+ Add venue"
-                      onCtaClick={() => handleSectionChange("settings")}
-                    />
-                  ) : (
-                  <div className="ops-module-grid">
-                    {snapshot.venues.map((venue) => {
-                      const isLow = venue.completionRate < 30;
-                      const isActive = selectedVenueId === venue.id;
-                      return (
-                        <div
-                          key={venue.id}
-                          className={`ops-module-card${isActive ? " active" : ""}`}
-                          style={{}}
-                          onClick={() => setSelectedVenueId(venue.id)}
-                        >
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                            <strong>{venue.name}</strong>
-                            {isLow && <span style={{ fontSize: "0.68rem", fontWeight: 700, background: "var(--bg-alt)", color: "var(--text-soft)", border: "1px solid var(--line)", borderRadius: 999, padding: "1px 6px" }}>Low</span>}
-                          </div>
-                          <span style={{ color: "inherit" }}>Completion: {venue.completionRate}%</span>
-                          <span>Scenario: {venue.avgScenarioScore}%</span>
-                          <span>Upsell: {venue.upsellRate}%</span>
-                          {isLow && (
-                            <button
-                              type="button"
-                              onClick={(e) => { e.stopPropagation(); setSelectedVenueId(venue.id); handleSectionChange("staff"); }}
-                              className="sbe-button-outline sbe-button-outline--sm"
-                              style={{ marginTop: 8 }}
-                            >
-                              Review staff →
-                            </button>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                  )}
+                  <p style={{ fontSize: "0.85rem", color: "var(--text-soft)", margin: "4px 0 12px" }}>
+                    Compare headcount, completion, mastery and shift-readiness across every venue in one place.
+                  </p>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    style={{ fontSize: "0.78rem", padding: "6px 14px" }}
+                    onClick={() => handleSectionChange("group-analytics")}
+                  >
+                    Open Group Analytics →
+                  </button>
                 </article>
               )}
 

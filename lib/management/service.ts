@@ -1,6 +1,7 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import { buildSeedManagementSnapshot } from "@/lib/management/seed";
 import { TIER_SEATS, normalizeTier } from "@/lib/session";
+import { computeOrgGroupSummary, type OrgGroupSummary } from "@/lib/management/group-summary";
 import type {
   InventoryCategory,
   ManagementSnapshot,
@@ -533,6 +534,24 @@ export async function getManagementSnapshot(
     reportSummaries: buildReportSummaries(staff),
     enabledModules: DEFAULT_ENABLED_MODULES,
   };
+}
+
+// Group Analytics rollup (Mission Control Batch 5) — cross-venue KPIs,
+// per-venue breakdown, and the compliance risk matrix, all reduced to one
+// small aggregate object before it ever leaves the server. Deliberately
+// reuses getManagementSnapshot()'s already-proven venue/staff fetch (same
+// query path, so this can never drift out of sync with the main snapshot)
+// rather than hand-rolling a second Supabase query here — but unlike the
+// /api/management/snapshot route, this route's response never includes the
+// raw `staff` array. computeOrgGroupSummary() (lib/management/group-summary.ts)
+// does the reduction, and only its output — totals, per-venue averages,
+// compliance counts — is serialized back to the client.
+export async function getOrgGroupSummary(
+  supabase: ManagementSupabaseClient,
+  userId: string,
+): Promise<OrgGroupSummary> {
+  const snapshot = await getManagementSnapshot(supabase, userId);
+  return computeOrgGroupSummary(snapshot.venues, snapshot.staff);
 }
 
 async function getUserStaffLimit(supabase: ManagementSupabaseClient, userId: string): Promise<number> {

@@ -19128,19 +19128,6 @@ h1, h2, h3 {
 .mc-venue-menu-item:hover { background: var(--mc-bg); }
 .mc-venue-menu-item.active { color: var(--mc-terracotta); font-weight: 600; }
 .mc-venue-menu-divider { border-top: 1px solid var(--mc-line); margin: 4px 0; }
-.mc-venue-menu-action {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 9px 14px;
-  border: none;
-  background: transparent;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--mc-text-soft);
-  cursor: pointer;
-}
-.mc-venue-menu-action:hover { background: var(--mc-bg); color: var(--mc-text); }
 
 .mc-topbar-right { display: flex; align-items: center; gap: 12px; }
 

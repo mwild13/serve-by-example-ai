@@ -24,6 +24,11 @@ interface ManagementTopbarProps {
   onVenueChange: (venueId: string) => void;
   isMultiVenue: boolean;
   onGroupAnalytics: () => void;
+  // True while the Group Analytics ("All Venues") view is active — used to
+  // show "All Venues" as the venue-selector label and to deselect every
+  // individual venue in the dropdown, instead of leaving whichever venue
+  // was last selected looking active while a cross-venue view is showing.
+  isGroupAnalyticsActive?: boolean;
   onAICoach: () => void;
   displayName?: string;
 }
@@ -40,6 +45,7 @@ export function ManagementTopbar({
   onVenueChange,
   isMultiVenue,
   onGroupAnalytics,
+  isGroupAnalyticsActive = false,
   onAICoach,
   displayName,
 }: ManagementTopbarProps) {
@@ -101,12 +107,28 @@ export function ManagementTopbar({
 
         {venueMenuOpen && (
           <div className="mc-venue-menu" role="menu">
+            {isMultiVenue && venues.length > 0 && (
+              <>
+                <button
+                  type="button"
+                  role="menuitem"
+                  className={`mc-venue-menu-item${isGroupAnalyticsActive ? " active" : ""}`}
+                  onClick={() => {
+                    onGroupAnalytics();
+                    setVenueMenuOpen(false);
+                  }}
+                >
+                  All Venues
+                </button>
+                <div className="mc-venue-menu-divider" />
+              </>
+            )}
             {venues.map((venue) => (
               <button
                 key={venue.id}
                 type="button"
                 role="menuitem"
-                className={`mc-venue-menu-item${venue.id === selectedVenueId ? " active" : ""}`}
+                className={`mc-venue-menu-item${!isGroupAnalyticsActive && venue.id === selectedVenueId ? " active" : ""}`}
                 onClick={() => {
                   onVenueChange(venue.id);
                   setVenueMenuOpen(false);
@@ -115,21 +137,6 @@ export function ManagementTopbar({
                 {venue.name}
               </button>
             ))}
-            {isMultiVenue && venues.length > 0 && (
-              <>
-                <div className="mc-venue-menu-divider" />
-                <button
-                  type="button"
-                  className="mc-venue-menu-action"
-                  onClick={() => {
-                    onGroupAnalytics();
-                    setVenueMenuOpen(false);
-                  }}
-                >
-                  Group analytics →
-                </button>
-              </>
-            )}
           </div>
         )}
       </div>
