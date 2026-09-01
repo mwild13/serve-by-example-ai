@@ -30,7 +30,7 @@ import type {
 import { ComplianceHub } from "./compliance/ComplianceHub";
 import { rsaStatus } from "./compliance/helpers";
 import type { QuickActionId, NavGroup, SearchResult } from "./manager-types";
-import { EmptyState } from "./manager-ui";
+import { EmptyState, MissionControlSkeleton } from "./manager-ui";
 import { WorkspaceHeader } from "@/app/management/dashboard/_components/WorkspaceHeader";
 import { ManagementTopbar } from "@/app/management/dashboard/_components/ManagementTopbar";
 import { ActionDrawer } from "@/app/management/dashboard/_components/ActionDrawer";
@@ -432,10 +432,15 @@ export default function ManagerControlCenter({
   );
 
   useEffect(() => {
-    if (!venueStaff.some((member) => member.id === selectedStaffId)) {
-      // Selected staff member left the venue — reset to first available.
+    if (selectedStaffId && !venueStaff.some((member) => member.id === selectedStaffId)) {
+      // Selected staff member isn't in the current venue's roster anymore
+      // — either they left, or (far more commonly) the active venue was
+      // just switched. Clear the selection rather than silently
+      // substituting venueStaff[0] — a manager must never see a different
+      // real staff member's coaching profile/highlighted row swapped in
+      // for the one they actually selected.
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSelectedStaffId(venueStaff[0]?.id ?? "");
+      setSelectedStaffId("");
     }
   }, [venueStaff, selectedStaffId]);
 
@@ -501,7 +506,13 @@ export default function ManagerControlCenter({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkoutSuccess]);
 
-  const selectedStaff = venueStaff.find((member) => member.id === selectedStaffId) ?? venueStaff[0];
+  // Falls back to null, never to an arbitrary "venueStaff[0]" substitute —
+  // showing a different real person's coaching profile by mistake (silently
+  // rendering the wrong staff member's name/data) is a trust bug, not a
+  // cosmetic one. This can legitimately be momentarily null right after a
+  // venue switch, before selectedStaffId catches up; CoachingDrawer already
+  // renders nothing when staff is null rather than showing stale data.
+  const selectedStaff = venueStaff.find((member) => member.id === selectedStaffId) ?? null;
 
   const handleExportStaff = useCallback(() => {
     const rows = [
@@ -990,33 +1001,18 @@ export default function ManagerControlCenter({
     }
   }
 
-  // Show skeleton loaders while snapshot is loading
+  // Show skeleton loaders while snapshot is loading. In practice this
+  // rarely fires now — app/management/dashboard/page.tsx starts the
+  // snapshot fetch server-side and streams it in via Suspense (see
+  // ManagerControlCenterLoader), showing the same skeleton as the Suspense
+  // fallback before this component ever mounts. This stays as a safety net
+  // for any future render path that skips the loader.
   if (snapshotLoading) {
     return (
-      <div className="ops-shell mc-shell">
+      <>
         <SessionRefresher />
-        <aside className="mc-sidebar" style={{ opacity: 0.5, pointerEvents: "none" }}>
-          <div className="mc-sidebar-logo">
-            <Image src="/logo.webp" alt="Serve By Example" width={36} height={36} className="mc-sidebar-logo-img" />
-            <div className="mc-sidebar-logo-text">
-              <span className="mc-sidebar-logo-brand">Serve By Example</span>
-              <span className="mc-sidebar-logo-sub">Management Console</span>
-            </div>
-          </div>
-          <div style={{ padding: 16 }}>
-            <div style={{ background: "var(--mc-line)", height: 40, borderRadius: 8 }} />
-            <div style={{ background: "var(--mc-line)", height: 200, borderRadius: 8, marginTop: 12 }} />
-          </div>
-        </aside>
-        <section className="ops-workspace" style={{ opacity: 0.4, pointerEvents: "none" }}>
-          <div style={{ background: "var(--line-light)", height: 60, borderRadius: 8, marginBottom: 20 }} />
-          <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} style={{ background: "var(--line-light)", height: 200, borderRadius: 8 }} />
-            ))}
-          </div>
-        </section>
-      </div>
+        <MissionControlSkeleton />
+      </>
     );
   }
 

@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import Stripe from "stripe";
-import ManagerControlCenter from "@/components/mission-control/ManagerControlCenter";
+import ManagerControlCenterLoader from "@/components/mission-control/ManagerControlCenterLoader";
+import { MissionControlSkeleton } from "@/components/mission-control/manager-ui";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
+import { getManagementSnapshot } from "@/lib/management/service";
 import { getTrialStatus, getDaysRemaining } from "@/lib/trial";
 import { isB2BTier, normalizeTier, hasManagerConsoleAccess, isOwnerLevelRole } from "@/lib/session";
 
@@ -134,10 +136,19 @@ export default async function ManagementDashboardPage({
     redirect("/pricing");
   }
 
+  // Intentionally NOT awaited — starts the query immediately, in parallel
+  // with the rest of this render, and streams the result into
+  // ManagerControlCenterLoader via Suspense/use() below. Do not add an
+  // `await` here: an earlier version of this page did that and it blocked
+  // the entire page shell behind this one query (see commit ae46df6,
+  // "perf(stage-1): Unblock dashboard render").
+  const snapshotPromise = getManagementSnapshot(supabase, user.id);
+
   return (
     <div className="management-app-root">
-      <Suspense fallback={null}>
-        <ManagerControlCenter
+      <Suspense fallback={<MissionControlSkeleton />}>
+        <ManagerControlCenterLoader
+          snapshotPromise={snapshotPromise}
           plan={plan}
           isOwnerLevel={isOwnerLevel}
           displayName={displayName}

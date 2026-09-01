@@ -3,7 +3,44 @@
 // Shared UI primitives for the Manager Control Center.
 // Extracted to keep ManagerControlCenter.tsx focused on logic and layout.
 
+import Image from "next/image";
 import type { StaffMember } from "@/lib/management/types";
+
+// Shell-shaped loading skeleton, shown two ways:
+//  1. As the Suspense `fallback` in app/management/dashboard/page.tsx while
+//     the server-started getManagementSnapshot() promise is still pending
+//     (streamed, not blocking — see git history ae46df6 for why a blocking
+//     `await` was previously removed from that page).
+//  2. Inside ManagerControlCenter itself, in the rare case it's ever
+//     rendered without initialSnapshot already resolved.
+// Kept as one shared component so both paths look identical.
+export function MissionControlSkeleton() {
+  return (
+    <div className="ops-shell mc-shell">
+      <aside className="mc-sidebar" style={{ opacity: 0.5, pointerEvents: "none" }}>
+        <div className="mc-sidebar-logo">
+          <Image src="/logo.webp" alt="Serve By Example" width={36} height={36} className="mc-sidebar-logo-img" />
+          <div className="mc-sidebar-logo-text">
+            <span className="mc-sidebar-logo-brand">Serve By Example</span>
+            <span className="mc-sidebar-logo-sub">Management Console</span>
+          </div>
+        </div>
+        <div style={{ padding: 16 }}>
+          <div style={{ background: "var(--mc-line)", height: 40, borderRadius: 8 }} />
+          <div style={{ background: "var(--mc-line)", height: 200, borderRadius: 8, marginTop: 12 }} />
+        </div>
+      </aside>
+      <section className="ops-workspace" style={{ opacity: 0.4, pointerEvents: "none" }}>
+        <div style={{ background: "var(--line-light)", height: 60, borderRadius: 8, marginBottom: 20 }} />
+        <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} style={{ background: "var(--line-light)", height: 200, borderRadius: 8 }} />
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
 
 // ctaLabel/onCtaClick are optional — pass both to render a real actionable
 // button (e.g. "+ Add staff") instead of the plain copy-only fallback.
