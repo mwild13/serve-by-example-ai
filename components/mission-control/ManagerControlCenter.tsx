@@ -480,12 +480,27 @@ export default function ManagerControlCenter({
   // render, so by React's rules they shouldn't be able to, which is what
   // makes this worth confirming directly rather than guessing further.
   useEffect(() => {
+    const expectedVenueName = snapshot.venues.find((v) => v.id === selectedVenueId)?.name;
     console.log("[VENUE_DEBUG]", {
       selectedVenueId,
       selectedVenueName: selectedVenue?.name,
-      topbarVenueName: snapshot.venues.find((v) => v.id === selectedVenueId)?.name,
+      topbarVenueName: expectedVenueName,
       allVenues: snapshot.venues.map((v) => ({ id: v.id, name: v.name })),
       renderedAt: new Date().toISOString(),
+    });
+    // Cross-check what React committed against what the browser is ACTUALLY
+    // painting for the topbar button, a beat after paint (rAF + a short
+    // timeout) — a mismatch here means the DOM/paint layer is stuck, not
+    // React's state or props (which the log above already proves correct).
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        const btnEl = document.querySelector(".mc-venue-btn");
+        console.log("[VENUE_DEBUG][DOM CHECK]", {
+          expectedVenueName,
+          actualButtonText: btnEl?.textContent?.trim(),
+          match: btnEl?.textContent?.trim().startsWith(expectedVenueName ?? " "),
+        });
+      }, 50);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedVenueId, snapshot.venues]);
