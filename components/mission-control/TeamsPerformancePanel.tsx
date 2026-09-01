@@ -2,6 +2,7 @@
 
 import type { ManagementSnapshot, StaffRole } from "@/lib/management/types";
 import { EmptyState } from "./manager-ui";
+import { needsAttention } from "@/lib/management/needs-attention";
 
 // Extracted from ManagerControlCenter.tsx (Phase 5, Task 2 — component
 // extraction roadmap). Pure presentational: all team math is derived here
@@ -33,7 +34,12 @@ export function TeamsPerformancePanel({
     const avgSales = avg(members.map((s) => s.salesScore));
     const avgProduct = avg(members.map((s) => s.productScore));
     const avgScore = avg(members.map((s) => Math.round((s.serviceScore + s.salesScore + s.productScore) / 3)));
-    const attention = members.filter((s) => s.status !== "on-track");
+    // Same rule the Overview tab's "Needs Attention" card uses (onboarding
+    // stagnation, 14+ day inactivity, zero progress, non-on-track status) —
+    // used to be a narrower status-only filter here, which made this tab's
+    // count disagree with Overview's for reasons that had nothing to do
+    // with either being wrong, just different definitions.
+    const attention = members.filter(needsAttention);
     const top = members.length ? [...members].sort((a, b) => b.progress - a.progress)[0] : null;
     const weakest = (() => {
       const scores = { Service: avgService, Sales: avgSales, "Product knowledge": avgProduct };

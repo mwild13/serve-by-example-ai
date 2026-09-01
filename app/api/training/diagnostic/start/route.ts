@@ -53,7 +53,11 @@ export async function POST(request: NextRequest) {
 
     const supabase = getSupabaseClient();
 
-    // Fetch diagnostic questions from database
+    // Fetch diagnostic questions from database. sort_order (1-10) is what
+    // lib/diagnostic-engine.ts's DIAGNOSTIC_ANSWER_KEY/QUESTION_CATEGORY_MAP
+    // are actually keyed by ("q1".."q10") — diagnostic_questions.id is a
+    // real UUID and was never a valid key into those maps (see
+    // formattedQuestions below).
     const { data: questions, error } = await supabase
       .from("diagnostic_questions")
       .select("id, question_text, options, sort_order")
@@ -76,9 +80,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Format response
-    const formattedQuestions = questions.map((q) => ({
+    // Format response. Real UUID kept as `id` (a stable per-question
+    // identity for the client's answers state/keys), but `answer_key` is
+    // the "q1".."q10" form the scoring engine actually understands —
+    // derived from sort_order (falls back to array position if sort_order
+    // is ever missing, so a submission still scores rather than silently
+    // dropping the answer).
+    const formattedQuestions = questions.map((q, index) => ({
       id: q.id,
+      answer_key: `q${q.sort_order ?? index + 1}`,
       question_text: q.question_text,
       options: q.options, // Already in format [{text, isCorrect}, ...]
     }));

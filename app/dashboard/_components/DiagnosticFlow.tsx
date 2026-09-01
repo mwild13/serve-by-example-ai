@@ -10,6 +10,10 @@ interface DiagnosticOption {
 
 interface DiagnosticQuestion {
   id: string;
+  // "q1".."q10" — the key lib/diagnostic-engine.ts's scoring maps actually
+  // use. Distinct from `id` (a real DB UUID, used only for local answer
+  // tracking/React keys in this component) — see start/route.ts.
+  answer_key: string;
   question_text: string;
   options: DiagnosticOption[];
 }
@@ -112,11 +116,14 @@ export default function DiagnosticFlow({
       setSubmitting(true);
       setError(null);
 
-      // Prepare answers object with question IDs as keys
+      // Submit keyed by answer_key ("q1".."q10"), not the DB's real question
+      // UUID — the scoring engine (lib/diagnostic-engine.ts) only knows the
+      // former. `answers` itself stays keyed by q.id locally (see
+      // handleSelectOption); this is purely a wire-format translation.
       const answersPayload: Record<string, string> = {};
       questions.forEach((q) => {
         if (answers[q.id]) {
-          answersPayload[q.id] = answers[q.id];
+          answersPayload[q.answer_key] = answers[q.id];
         }
       });
 

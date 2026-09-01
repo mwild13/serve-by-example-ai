@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 interface TrialBillingSectionProps {
   trialTier: string;
   trialEndsAt: string;
@@ -15,6 +17,16 @@ const TIER_CONFIG: Record<string, { label: string; monthly: number; yearly: numb
   venue_multi:  { label: "Commercial", monthly: 149, yearly: 1490,  seats: "35", venues: "Multiple venues" },
 };
 
+// /api/billing/checkout only accepts these plan keys (app/api/billing/checkout/route.ts's
+// PLAN_METADATA) — trialTier can be either the current tier id ("boutique"/"commercial")
+// or a legacy value ("venue_single"/"venue_multi"), both map to the same checkout plan.
+const CHECKOUT_PLAN: Record<string, string> = {
+  boutique: "boutique",
+  venue_single: "boutique",
+  commercial: "commercial",
+  venue_multi: "commercial",
+};
+
 export function TrialBillingSection({
   trialTier,
   trialEndsAt,
@@ -23,6 +35,43 @@ export function TrialBillingSection({
   scenariosRun,
 }: TrialBillingSectionProps) {
   const config = TIER_CONFIG[trialTier] ?? TIER_CONFIG.boutique;
+  const checkoutPlan = CHECKOUT_PLAN[trialTier];
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
+  // "Reactivate" used to be a 4-hop detour: sidebar → Settings/Billing →
+  // this "Add billing details" link → the generic /pricing page → manager
+  // picks a tier there and clicks *its* Subscribe button. This calls the
+  // same /api/billing/checkout endpoint app/pricing/page.tsx's own
+  // handleCheckout() already uses, pre-filled with the org's existing
+  // trialTier so reactivating doesn't ask the manager to re-pick a plan
+  // they already chose when they started the trial.
+  async function handleReactivate() {
+    if (!checkoutPlan) {
+      window.location.href = "/pricing";
+      return;
+    }
+    setCheckoutLoading(true);
+    setCheckoutError(null);
+    try {
+      const res = await fetch("/api/billing/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: checkoutPlan }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setCheckoutLoading(false);
+        setCheckoutError(data.error || "Unable to start checkout. Please try again.");
+      }
+    } catch {
+      setCheckoutLoading(false);
+      setCheckoutError("Network error. Please try again.");
+    }
+  }
+
   const isUrgent = daysRemaining <= 3;
   const daysElapsed = 14 - daysRemaining;
   const progressPct = Math.min(100, (daysElapsed / 14) * 100);
@@ -298,6 +347,11 @@ export function TrialBillingSection({
           <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: 3 }}>
             Add your billing details now to keep your team&apos;s training running without interruption.
           </div>
+          {checkoutError && (
+            <div style={{ fontSize: "0.78rem", color: "var(--status-error-text)", marginTop: 6 }}>
+              {checkoutError}
+            </div>
+          )}
         </div>
         <div style={{ display: "flex", gap: 10, alignItems: "center", flexShrink: 0 }}>
           <a
@@ -309,21 +363,25 @@ export function TrialBillingSection({
           >
             Talk to us first
           </a>
-          <a
-            href="/pricing"
+          <button
+            type="button"
+            onClick={handleReactivate}
+            disabled={checkoutLoading}
             style={{
               display: "inline-block",
               padding: "10px 22px",
               borderRadius: "var(--radius-sm)",
+              border: "none",
               background: isUrgent ? "var(--gold-warm)" : "var(--green)",
               color: "white",
               fontWeight: 700,
               fontSize: "0.9rem",
-              textDecoration: "none",
+              cursor: checkoutLoading ? "default" : "pointer",
+              opacity: checkoutLoading ? 0.7 : 1,
             }}
           >
-            Add billing details
-          </a>
+            {checkoutLoading ? "Redirecting…" : "Add billing details"}
+          </button>
         </div>
       </div>
     </div>

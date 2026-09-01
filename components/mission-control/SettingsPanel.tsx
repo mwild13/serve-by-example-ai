@@ -325,11 +325,11 @@ export function SettingsPanel({
       </article>
 
       {selectedVenue?.venueCode && (
-        <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
+        <article className="ops-card">
           <div className="ops-card-head">
             <h3>Staff join code</h3>
           </div>
-          <p style={{ marginBottom: "1rem", color: "var(--ops-text-soft, var(--color-text-muted))" }}>
+          <p className="ops-settings-hint" style={{ marginTop: 0, marginBottom: "1rem" }}>
             Share this code with your staff. They enter it in their training dashboard under <strong>Settings → Join Venue</strong> to link their account and sync their training data here.
           </p>
           <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>

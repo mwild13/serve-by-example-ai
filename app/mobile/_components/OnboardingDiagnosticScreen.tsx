@@ -21,7 +21,10 @@ import { useMobileSession } from "../_lib/mobile-session-context";
 // for whoever eventually hardens the diagnostic endpoints.
 
 type DiagnosticOption = { text: string; isCorrect: boolean };
-type DiagnosticQuestion = { id: string; question_text: string; options: DiagnosticOption[] };
+// answer_key ("q1".."q10") is what lib/diagnostic-engine.ts's scoring maps
+// are actually keyed by — `id` is a real DB UUID, used here only for local
+// answers-state keys/React keys. See start/route.ts.
+type DiagnosticQuestion = { id: string; answer_key: string; question_text: string; options: DiagnosticOption[] };
 
 function StatusMessage({ children }: { children: React.ReactNode }) {
   return (
@@ -157,13 +160,21 @@ export default function OnboardingDiagnosticScreen() {
     setSubmitting(true);
     setSubmitError(null);
     try {
+      // Translate from local (q.id-keyed) answers state to the answer_key
+      // ("q1".."q10") the scoring engine understands — sending raw `answers`
+      // here silently scored every submission as blank (all answers keyed
+      // by a UUID that never matched anything server-side).
+      const answersPayload: Record<string, string> = {};
+      questions!.forEach((q) => {
+        if (answers[q.id]) answersPayload[q.answer_key] = answers[q.id];
+      });
       const res = await fetch("/api/training/diagnostic/submit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.token}`,
         },
-        body: JSON.stringify({ answers }),
+        body: JSON.stringify({ answers: answersPayload }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || "Failed to submit diagnostic assessment");

@@ -171,6 +171,20 @@ export default function PricingPage() {
     return () => window.removeEventListener("pageshow", onPageShow);
   }, []);
 
+  // A logged-in visitor whose org has already used its 14-day trial (or is
+  // already subscribed) shouldn't be offered a second trial — swap those
+  // tiers' CTA to "Subscribe now" instead. Null until this resolves, or on
+  // fetch failure/logged-out — both fail open to the default trial CTAs
+  // rather than blocking a fresh visitor on a network hiccup.
+  const [trialGate, setTrialGate] = useState<{ subscriptionActive: boolean; trialStatus: string } | null>(null);
+  useEffect(() => {
+    fetch("/api/billing/trial/status")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => { if (data) setTrialGate(data); })
+      .catch(() => { /* fail open — default trial CTAs stay as-is */ });
+  }, []);
+  const alreadyTrialed = !!trialGate && (trialGate.subscriptionActive || trialGate.trialStatus !== "none");
+
   async function handleCheckout(plan: string) {
     setLoading(plan);
     setCheckoutError(null);
@@ -233,6 +247,22 @@ export default function PricingPage() {
       );
     }
     if (a.kind === "trial") {
+      if (alreadyTrialed) {
+        // Already trialed (or already subscribed) — offer to subscribe
+        // directly instead of a second trial, using the same checkout call
+        // the "Subscribe now" (Staff/pro) tier already makes.
+        const plan = billing === "monthly" ? a.tier : `${a.tier}_yearly`;
+        const busy = loading === plan;
+        return (
+          <button
+            className="btn btn-primary sbe-mkt-pricecard-btn"
+            onClick={() => handleCheckout(plan)}
+            disabled={busy}
+          >
+            {busy ? "Redirecting..." : "Subscribe now"}
+          </button>
+        );
+      }
       const busy = loading === `trial-${a.tier}`;
       return (
         <button

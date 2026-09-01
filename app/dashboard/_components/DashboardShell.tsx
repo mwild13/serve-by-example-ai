@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState, useEffect, useCallback, Suspense, lazy } from "react";
+import { FormEvent, useState, useEffect, useCallback, useRef, Suspense, lazy } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAuthSessionGuard } from "@/lib/use-auth-session-guard";
@@ -199,14 +199,7 @@ function StaffSettingsPanel({
     }
   }
 
-  async function handleJoinVenue(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const code = parseInt(venueCode.trim(), 10);
-    if (isNaN(code)) {
-      setJoinVenueStatus("error");
-      setJoinVenueMessage("Please enter a valid venue code.");
-      return;
-    }
+  async function submitJoinVenue(code: number) {
     setJoinVenueStatus("loading");
     setJoinVenueMessage("");
     try {
@@ -234,6 +227,35 @@ function StaffSettingsPanel({
       setJoinVenueMessage(err instanceof Error ? err.message : "Could not join venue.");
     }
   }
+
+  async function handleJoinVenue(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const code = parseInt(venueCode.trim(), 10);
+    if (isNaN(code)) {
+      setJoinVenueStatus("error");
+      setJoinVenueMessage("Please enter a valid venue code.");
+      return;
+    }
+    await submitJoinVenue(code);
+  }
+
+  // Arriving via the "Staff sign-up link" (?join=CODE) used to only
+  // pre-fill this field and leave the new staff member to notice it and
+  // click "Connect to venue" themselves — silently missing that step meant
+  // they never actually joined, and the manager's staff/compliance counts
+  // never included them. That link's own copy promises "join your venue
+  // directly", so auto-submit once here rather than waiting for a manual
+  // click. Ref-guarded so it only ever fires once per mount, and a manual
+  // code entry (no initialJoinCode) is completely unaffected.
+  const hasAutoJoined = useRef(false);
+  useEffect(() => {
+    if (!initialJoinCode || hasAutoJoined.current) return;
+    const code = parseInt(initialJoinCode.trim(), 10);
+    if (isNaN(code)) return;
+    hasAutoJoined.current = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- deliberately kicking off the join request as soon as this one-time deep-link condition is met, not syncing from an external source.
+    submitJoinVenue(code);
+  }, [initialJoinCode]);
 
   return (
     <>

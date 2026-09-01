@@ -644,7 +644,7 @@ export async function syncMasteryToVenueStaff(
   // service_score = 80% quiz mastery + 20% roleplay mastery.
   const { data: allMastery } = await admin
     .from("scenario_mastery")
-    .select("module, module_id, scenario_index, is_mastered, elo_rating")
+    .select("module, module_id, scenario_index, is_mastered, elo_rating, high_confidence_incorrect, low_confidence_correct")
     .eq("user_id", userId)
     .is("archived_at", null);
 
@@ -654,17 +654,35 @@ export async function syncMasteryToVenueStaff(
     scenario_index: number;
     is_mastered: boolean;
     elo_rating: number;
+    high_confidence_incorrect: number | null;
+    low_confidence_correct: number | null;
   }>;
 
   const attemptedIds = new Set<number>();
   const masteredIds = new Set<number>();       // quiz mastered (scenario_index = 0)
   const roleplayMasteredIds = new Set<number>(); // Arena passed (scenario_index = 40)
+  let totalHighConfidenceIncorrect = 0;
+  let totalLowConfidenceCorrect = 0;
   for (const r of rows) {
     if (r.module_id == null) continue;
     attemptedIds.add(r.module_id);
     if (r.scenario_index === 0 && r.is_mastered) masteredIds.add(r.module_id);
     if (r.scenario_index === 40 && r.is_mastered) roleplayMasteredIds.add(r.module_id);
+    totalHighConfidenceIncorrect += r.high_confidence_incorrect ?? 0;
+    totalLowConfidenceCorrect += r.low_confidence_correct ?? 0;
   }
+
+  // "Confidence Mismatch" signal for the manager console (Overview KPI tile,
+  // Predictive/Skill-Gaps panels): what fraction of confidence-tagged
+  // attempts were a high-confidence wrong answer vs. a low-confidence right
+  // one. Only high_confidence_incorrect/low_confidence_correct are counted
+  // (matches recordAttempt()'s own confidence-accuracy buckets, see
+  // classifyConfidenceAccuracy above) — undefined when the user has no
+  // confidence-tagged attempts yet, rather than a misleading 0.
+  const confidenceMismatchTotal = totalHighConfidenceIncorrect + totalLowConfidenceCorrect;
+  const highConfidenceIncorrectRatio = confidenceMismatchTotal > 0
+    ? totalHighConfidenceIncorrect / confidenceMismatchTotal
+    : undefined;
 
   const totalAttempted = attemptedIds.size;
   const totalMastered = masteredIds.size;
@@ -714,6 +732,7 @@ export async function syncMasteryToVenueStaff(
     avg_module_elo: avgElo,
     last_active_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    ...(highConfidenceIncorrectRatio !== undefined ? { high_confidence_incorrect_ratio: highConfidenceIncorrectRatio } : {}),
   };
 
   for (const staffRow of staffRows) {

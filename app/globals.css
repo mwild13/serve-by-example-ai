@@ -19364,7 +19364,10 @@ h1, h2, h3 {
   color: var(--text-muted);
 }
 
-/* Needs attention */
+/* Needs attention — scrollable list, sized to roughly match
+   RoleQualificationCard's fixed 4-row body height so the two cards sitting
+   side-by-side in .mc-col don't visually mismatch. */
+.mc-attention-scroll { max-height: 240px; overflow-y: auto; }
 .mc-attention-row {
   display: flex;
   align-items: center;

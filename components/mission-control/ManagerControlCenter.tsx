@@ -50,6 +50,7 @@ import { TrialStatusPill } from "./TrialStatusPill";
 import { TrialExpiredModal } from "./TrialExpiredModal";
 import { isB2BTier, isMultiVenueTier } from "@/lib/session";
 import { groupStaffByPresentRoles } from "@/lib/management/team-grouping";
+import { filterNeedsAttention } from "@/lib/management/needs-attention";
 
 type SnapshotResponse = ManagementSnapshot & {
   inviteMessage?: string;
@@ -706,30 +707,10 @@ export default function ManagerControlCenter({
     };
   }, [selectedVenue, venueStaff]);
 
-  // Explicit attention tracking: captures onboarding stagnation, inactivity, and zero progress
-  const parseLastActiveDays = (lastActive: string): number | null => {
-    if (lastActive === "Not started") return null; // flag for onboarding stagnation
-    const match = lastActive.match(/^(\d+)\s+days?\s+ago$/);
-    if (match) return parseInt(match[1], 10);
-    if (lastActive === "Today") return 0;
-    if (lastActive === "Yesterday") return 1;
-    return null;
-  };
-
-  const needsAttention = venueStaff.filter((member) => {
-    // Onboarding Stagnation: never started training
-    if (member.lastActive === "Not started") return true;
-
-    // Inactivity/Absence: no activity for 14+ days
-    const daysInactive = parseLastActiveDays(member.lastActive);
-    if (daysInactive !== null && daysInactive >= 14) return true;
-
-    // Zero-Progress Alert: 0% completion on active staff
-    if (member.progress === 0 && member.lastActive !== "Not started") return true;
-
-    // Fallback to status-based flagging for other issues
-    return member.status !== "on-track";
-  });
+  // Explicit attention tracking: captures onboarding stagnation, inactivity,
+  // and zero progress — single source of truth in lib/management/needs-attention.ts,
+  // also used by TeamsPerformancePanel.tsx so both tabs agree on the same rule.
+  const needsAttention = filterNeedsAttention(venueStaff);
 
   const searchResults = useMemo<SearchResult[]>(() => {
     if (!searchQuery.trim()) return [];

@@ -16,7 +16,13 @@ export function NeedsAttentionCard({
   staff: ManagementSnapshot["staff"];
   onCoach: (member: StaffMember) => void;
 }) {
-  const rows = staff.slice(0, 2);
+  // Used to render every flagged staff member, not just the first 2 — the
+  // badge above already showed the true "N flagged" count while the list
+  // silently dropped everyone past index 1. Now scrollable instead of
+  // truncated (.mc-attention-scroll, app/globals.css) so a long list
+  // doesn't blow out the card's height past its sibling in .mc-col
+  // (RoleQualificationCard.tsx, which always renders exactly 4 rows).
+  const rows = staff;
 
   return (
     <div className="mc-panel">
@@ -31,7 +37,7 @@ export function NeedsAttentionCard({
       {rows.length === 0 ? (
         <EmptyState copy="All staff are on track." />
       ) : (
-        <div>
+        <div className="mc-attention-scroll">
           {rows.map((member) => {
             const progress = Math.round(member.progress);
             const barColor = progress === 100 ? "var(--mc-green)" : progress < 50 ? "var(--mc-terracotta)" : "var(--mc-brown)";

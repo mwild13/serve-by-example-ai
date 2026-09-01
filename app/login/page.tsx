@@ -106,6 +106,15 @@ function LoginPageContent() {
   const checkoutSuccess = searchParams.get("checkout") === "success";
   const stripeSessionId = searchParams.get("session_id");
   const oauthError = searchParams.get("error") === "oauth-error";
+  // Carried forward from "Try Free for 14 Days" CTAs (HeroSection.tsx,
+  // app/pricing/page.tsx) for a logged-out visitor — this page previously
+  // never read these, so clicking Start Trial while logged out silently
+  // dropped the intent and just signed the visitor in/up with no trial
+  // ever created. Password-based sign-in/sign-up handlers below call
+  // maybeStartTrial() once authenticated; Google OAuth is a separate
+  // redirect-based flow (/auth/callback) not covered by this fix.
+  const trialIntent = searchParams.get("intent") === "trial";
+  const trialTier = searchParams.get("tier");
 
   const [portal, setPortal] = useState<Portal>("staff");
   const [mode, setMode] = useState<AuthMode>(checkoutSuccess ? "sign-up" : "sign-in");
@@ -149,6 +158,40 @@ function LoginPageContent() {
     if (oauthErr) {
       setError(oauthErr.message);
       setGoogleLoading(false);
+    }
+  }
+
+  // Called right after a successful sign-in/sign-up when the visitor
+  // arrived via a "Try Free for 14 Days" CTA. Returns true if it's safe to
+  // continue to the normal post-auth redirect; false means a real problem
+  // occurred (most commonly a 409 — org already used its trial) and the
+  // caller should stop and show the error here instead of navigating away,
+  // since /pricing itself can't tell the visitor apart from a fresh one
+  // without a live session, and errors won't be seen at all after redirect.
+  async function maybeStartTrial(accessToken: string | undefined): Promise<boolean> {
+    if (!trialIntent || !trialTier) return true;
+    try {
+      const res = await fetch("/api/billing/trial/start", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        },
+        body: JSON.stringify({ tier: trialTier }),
+      });
+      if (res.ok) return true;
+      const data = await res.json().catch(() => ({}));
+      setError(
+        data.error === "This organisation has already used its free trial"
+          ? "This organisation has already used its free trial. Visit Pricing to subscribe directly."
+          : (data.error || "Unable to start your free trial. You can still sign in and add billing from Settings.")
+      );
+      return false;
+    } catch {
+      // Network failure starting the trial shouldn't strand the visitor on
+      // a form that otherwise succeeded — let them through; the dashboard's
+      // own trial-state banner will reflect whatever actually happened.
+      return true;
     }
   }
 
@@ -196,6 +239,12 @@ function LoginPageContent() {
       const supabase = createSupabaseBrowserClient();
       const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
       if (signInError) throw signInError;
+      const { data: { session: authSession } } = await supabase.auth.getSession();
+      const canContinue = await maybeStartTrial(authSession?.access_token);
+      if (!canContinue) {
+        setLoading(false);
+        return;
+      }
       router.push("/management/dashboard");
       router.refresh();
     } catch (err) {
@@ -258,8 +307,15 @@ function LoginPageContent() {
               headers: { "Authorization": `Bearer ${authSession.access_token}` },
             });
           }
+          const canContinue = await maybeStartTrial(authSession?.access_token);
+          if (!canContinue) {
+            setLoading(false);
+            return;
+          }
           router.push(
-            stripeSessionId
+            trialIntent
+              ? "/management/dashboard"
+              : stripeSessionId
               ? `/onboarding?checkout=success&session_id=${stripeSessionId}`
               : "/onboarding"
           );
@@ -284,7 +340,12 @@ function LoginPageContent() {
             headers: { "Authorization": `Bearer ${authSession.access_token}` },
           });
         }
-        router.push("/dashboard");
+        const canContinue = await maybeStartTrial(authSession?.access_token);
+        if (!canContinue) {
+          setLoading(false);
+          return;
+        }
+        router.push(trialIntent ? "/management/dashboard" : "/dashboard");
         router.refresh();
       }
     } catch (submitError) {
