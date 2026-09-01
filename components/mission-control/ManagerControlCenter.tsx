@@ -470,48 +470,6 @@ export default function ManagerControlCenter({
 
   const selectedVenue = snapshot.venues.find((venue) => venue.id === selectedVenueId) ?? snapshot.venues[0];
 
-  // TEMP DIAGNOSTIC — remove once the topbar/venue desync (venue name in
-  // ManagementTopbar staying stale while venue-scoped panels update
-  // correctly) is root-caused. Logs whenever selectedVenueId or the venues
-  // list changes, so we can confirm from the live console whether the two
-  // computations below (topbar's venueName vs. selectedVenue.name, used by
-  // e.g. StaffDirectoryTable's subtitle) ever actually disagree — they're
-  // derived from the same selectedVenueId/snapshot.venues in the same
-  // render, so by React's rules they shouldn't be able to, which is what
-  // makes this worth confirming directly rather than guessing further.
-  useEffect(() => {
-    const expectedVenueName = snapshot.venues.find((v) => v.id === selectedVenueId)?.name;
-    console.log("[VENUE_DEBUG]", {
-      selectedVenueId,
-      selectedVenueName: selectedVenue?.name,
-      topbarVenueName: expectedVenueName,
-      allVenues: snapshot.venues.map((v) => ({ id: v.id, name: v.name })),
-      renderedAt: new Date().toISOString(),
-    });
-    // Cross-check what React committed against what the browser is ACTUALLY
-    // painting for the topbar button, a beat after paint (rAF + a short
-    // timeout) — a mismatch here means the DOM/paint layer is stuck, not
-    // React's state or props (which the log above already proves correct).
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        // querySelectorAll, not querySelector — the leading theory after the
-        // last round of data is a duplicate/orphaned .mc-venue-btn left over
-        // from a hydration or Suspense edge case, with the stale one sitting
-        // first in DOM order (so querySelector's single match would always
-        // report the frozen one even if a second, correctly-updating button
-        // also exists in the DOM).
-        const btnEls = document.querySelectorAll(".mc-venue-btn");
-        console.log("[VENUE_DEBUG][DOM CHECK]", {
-          expectedVenueName,
-          buttonCount: btnEls.length,
-          buttonTexts: Array.from(btnEls).map((el) => el.textContent?.trim()),
-          match: Array.from(btnEls).some((el) => el.textContent?.trim().startsWith(expectedVenueName ?? " ")),
-        });
-      }, 50);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedVenueId, snapshot.venues]);
-
   const venueStaff = useMemo(
     () => snapshot.staff.filter((member) => member.venueId === selectedVenue?.id),
     [selectedVenue?.id, snapshot.staff],
@@ -1489,6 +1447,21 @@ export default function ManagerControlCenter({
           )}
         </ActionDrawer>
 
+        {/* key={selectedVenueId} forces this entire content block to
+            unmount/remount on venue switch, rather than patching it in
+            place. This generalizes the fix applied to the topbar's venue
+            button (see ManagementTopbar.tsx and its git history) to every
+            panel below: several of them render selectedVenue?.name /
+            selectedVenueName as plain inline text (the "This week" and "Bar
+            team vs floor team" card subtitles, several selectedVenueName
+            props, etc.), all susceptible to the same in-place text
+            reconciliation freeze that affected the topbar. Remounting the
+            whole active section on venue change sidesteps the entire bug
+            class in one place instead of hunting down each stale span
+            individually as it's reported. display:"contents" keeps this
+            div invisible to ops-workspace's layout (its children lay out as
+            if they were direct children of the section, same as before). */}
+        <div key={selectedVenueId} style={{ display: "contents" }}>
         {activeSection === "overview" && (
           <OverviewPanel
             metrics={metrics}
@@ -1995,6 +1968,7 @@ export default function ManagerControlCenter({
             plan={plan}
           />
         )}
+        </div>
       </section>
 
 
