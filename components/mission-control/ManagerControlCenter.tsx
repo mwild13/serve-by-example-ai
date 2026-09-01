@@ -135,7 +135,6 @@ const EMPTY_SNAPSHOT: ManagementSnapshot = {
   staff: [],
   trainingPrograms: [],
   inventory: [],
-  menuKnowledge: [],
   scenarioCategories: [],
   reportSummaries: [],
   enabledModules: [],

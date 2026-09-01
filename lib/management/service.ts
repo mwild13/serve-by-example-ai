@@ -4,7 +4,6 @@ import { TIER_SEATS, normalizeTier } from "@/lib/session";
 import type {
   InventoryCategory,
   ManagementSnapshot,
-  MenuKnowledgeItem,
   NewInventoryPayload,
   NewStaffPayload,
   NewTrainingProgramPayload,
@@ -173,16 +172,6 @@ async function safeSelect<T>(
   return { data, missing: false };
 }
 
-function buildMenuKnowledge(inventory: InventoryCategory[]): MenuKnowledgeItem[] {
-  const totalProducts = inventory.reduce((sum, category) => sum + category.products.length, 0);
-
-  return [
-    { name: "Inventory knowledge", count: totalProducts, note: "Products configured for AI scenario realism" },
-    { name: "Spirits", count: totalProducts, note: "House and premium upgrade range" },
-    { name: "Categories", count: inventory.length, note: "Distinct category groupings" },
-  ];
-}
-
 function calculateMetrics(staff: StaffMember[]) {
   // Phase 4: Calculate metrics dynamically from real data
   if (staff.length === 0) {
@@ -218,9 +207,7 @@ function mapVenue(row: Record<string, unknown>, staff: StaffMember[]): Venue {
     completionRate,
     avgScenarioScore,
     upsellRate,
-    activeStaff: staff.length,
     staffLimit: asNumber(row.staff_limit, 15),
-    managerPermissions: asString(row.manager_permissions, "2 managers, 1 supervisor admin"),
   };
 }
 
@@ -542,7 +529,6 @@ export async function getManagementSnapshot(
     staff,
     trainingPrograms,
     inventory,
-    menuKnowledge: inventory.length ? buildMenuKnowledge(inventory) : fallbackSnapshot.menuKnowledge,
     scenarioCategories: buildScenarioCategories(staff),
     reportSummaries: buildReportSummaries(staff),
     enabledModules: DEFAULT_ENABLED_MODULES,

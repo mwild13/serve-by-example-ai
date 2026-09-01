@@ -25,12 +25,10 @@ export type StaffRole =
 
 export type StaffStatus = "on-track" | "attention" | "inactive";
 
-type RSAState = 'valid' | 'warning_30d' | 'warning_7d' | 'expired';
 export type AustralianState = 'NSW' | 'VIC' | 'QLD' | 'WA' | 'SA' | 'TAS' | 'NT' | 'ACT';
 
 export interface StaffComplianceRecord {
   staffId: string;
-  rsaState?: RSAState;
   rsaJurisdiction: AustralianState;
   rsaExpiryDate: string | null;
   fssExpiryDate: string | null;
@@ -63,7 +61,6 @@ export type StaffMember = {
   staffUserId?: string | null;
   // Compliance & operational fields (optional – absent until compliance data is recorded)
   compliance?: StaffComplianceRecord;
-  lastActiveDays?: number;
   isJunior?: boolean;
   managerNotes?: string | null;
 };
@@ -75,10 +72,8 @@ export type Venue = {
   completionRate: number;
   avgScenarioScore: number;
   upsellRate: number;
-  activeStaff: number;
   venueType?: string;
   staffLimit?: number;
-  managerPermissions?: string;
 };
 
 export type TrainingProgram = {
@@ -95,12 +90,6 @@ export type InventoryCategory = {
   venueId: string;
   name: string;
   products: string[];
-};
-
-export type MenuKnowledgeItem = {
-  name: string;
-  count: number;
-  note: string;
 };
 
 export type ScenarioCategory = {
@@ -125,7 +114,6 @@ export type ManagementSnapshot = {
   staff: StaffMember[];
   trainingPrograms: TrainingProgram[];
   inventory: InventoryCategory[];
-  menuKnowledge: MenuKnowledgeItem[];
   scenarioCategories: ScenarioCategory[];
   reportSummaries: Array<{
     title: string;

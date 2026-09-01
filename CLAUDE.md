@@ -379,13 +379,12 @@ Note: `lib/domain-types.ts` was removed (Aug 2026) — it had no importers. The 
 
 **CSS token anti-pattern:** `--bg-dark` (`#1B2A2F`) is a **marketing-site** dark-hero token — NOT a Mission Control token. The console runs on `--bg` (parchment `#f5f2e9`), `--surface`, and `--surface-raised`. Never apply `--bg-dark` to console panels.
 
-**`--mcc-*` token block** (`app/globals.css` near line 13319) is a parallel 20-token palette (`--mcc-canvas`, `--mcc-forest-900`, `--mcc-good`, `--mcc-bad`, etc.) used in the readiness board and KPI strip. This is known tech debt — migrate onto `--status-*`/`--green`/`--surface` before adding more `--mcc-*` usages.
+**`--mcc-*` token block** — resolved. The parallel 20-token palette (`--mcc-canvas`, `--mcc-forest-900`, `--mcc-good`, `--mcc-bad`, etc.) that used to live in `app/globals.css` near line 13319 has been fully migrated onto `--status-*`/`--green`/`--surface`; zero `--mcc-*` definitions or usages remain anywhere in the codebase. Do not reintroduce a parallel `--mcc-*` namespace — extend `--status-*`/`--green`/`--surface` instead.
 
-**`ManagerControlCenter.tsx` line-count target: under 3,200 lines.** Current state ~1,990 lines — target met.
+**`ManagerControlCenter.tsx` line-count target: under 3,200 lines.** Current state ~2,050 lines — target met.
 
-**Component extractions — complete.** All five sections named in the original Phase 5 audit are extracted and wired:
+**Component extractions — complete.** The extractions named in the original Phase 5 audit are extracted and wired (the `+Create New` dropdown extraction never happened/was reverted — `QuickActionMenu.tsx` does not exist in the repo; the `QUICK_ACTIONS` array still lives inline in `ManagerControlCenter.tsx`, reachable via keyboard shortcuts and EmptyState CTAs):
 - `StaffDirectoryTable.tsx` — Staff Directory table + mobile cards, imported into `ManagerControlCenter.tsx`.
-- `QuickActionMenu.tsx` — `+Create New` dropdown; lives under `components/mission-control/` and is wired into `app/management/dashboard/_components/ManagementTopbar.tsx` (not `ManagerControlCenter.tsx` — the `assign-training`/`create-program` handling itself stayed in `openAction()` on `ManagerControlCenter.tsx`, which the menu calls into).
 - `TeamsPerformancePanel.tsx` — imported into `ManagerControlCenter.tsx`; the `max-width: 1440px` wide-viewport fix is applied at the shell level in `app/globals.css`.
 - `RolesPermissionsMatrix.tsx` — imported into `ManagerControlCenter.tsx`.
 - `LeaderboardBoard.tsx` — imported into `ManagerControlCenter.tsx`. Note: a later UX refinement pass deliberately kept the podium visualization (made "additive, not duplicative" alongside the ranked list) — this supersedes the original acceptance note to remove it.

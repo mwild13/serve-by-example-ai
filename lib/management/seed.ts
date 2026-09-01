@@ -1,7 +1,6 @@
 import type {
   InventoryCategory,
   ManagementSnapshot,
-  MenuKnowledgeItem,
   ScenarioCategory,
   StaffMember,
   TrainingProgram,
@@ -15,9 +14,7 @@ const SEED_VENUES: Venue[] = [
     completionRate: 76,
     avgScenarioScore: 81,
     upsellRate: 64,
-    activeStaff: 10,
     staffLimit: 25,
-    managerPermissions: "2 managers, 1 supervisor admin",
   },
   {
     id: "seed-rooftop-lounge",
@@ -25,9 +22,7 @@ const SEED_VENUES: Venue[] = [
     completionRate: 68,
     avgScenarioScore: 77,
     upsellRate: 59,
-    activeStaff: 8,
     staffLimit: 20,
-    managerPermissions: "2 managers",
   },
   {
     id: "seed-cocktail-room",
@@ -35,9 +30,7 @@ const SEED_VENUES: Venue[] = [
     completionRate: 82,
     avgScenarioScore: 84,
     upsellRate: 71,
-    activeStaff: 7,
     staffLimit: 18,
-    managerPermissions: "1 manager, 1 lead bartender",
   },
 ];
 
@@ -204,13 +197,6 @@ export const DEFAULT_STARTER_INVENTORY = [
   { category: "Tequila", products: ["Silver", "Reposado"] },
 ];
 
-const SEED_MENU_KNOWLEDGE: MenuKnowledgeItem[] = [
-  { name: "Cocktails", count: 24, note: "Core classics + venue signatures" },
-  { name: "Beer", count: 14, note: "Tap + bottled selections" },
-  { name: "Wine", count: 18, note: "By-glass and bottle list" },
-  { name: "Spirits", count: 32, note: "House + premium upgrade range" },
-];
-
 const SEED_SCENARIO_CATEGORIES: ScenarioCategory[] = [
   { name: "Customer Service", attempts: 128, avgScore: 79, failed: "Intoxicated guest" },
   { name: "Sales", attempts: 92, avgScore: 72, failed: "Suggesting second drinks" },
@@ -234,7 +220,6 @@ export function buildSeedManagementSnapshot(): ManagementSnapshot {
     staff: SEED_STAFF,
     trainingPrograms: SEED_TRAINING_PROGRAMS,
     inventory: SEED_INVENTORY,
-    menuKnowledge: SEED_MENU_KNOWLEDGE,
     scenarioCategories: SEED_SCENARIO_CATEGORIES,
     reportSummaries: [
       {
