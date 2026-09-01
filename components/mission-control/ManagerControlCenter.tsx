@@ -469,6 +469,27 @@ export default function ManagerControlCenter({
   }, [activeSection]);
 
   const selectedVenue = snapshot.venues.find((venue) => venue.id === selectedVenueId) ?? snapshot.venues[0];
+
+  // TEMP DIAGNOSTIC — remove once the topbar/venue desync (venue name in
+  // ManagementTopbar staying stale while venue-scoped panels update
+  // correctly) is root-caused. Logs whenever selectedVenueId or the venues
+  // list changes, so we can confirm from the live console whether the two
+  // computations below (topbar's venueName vs. selectedVenue.name, used by
+  // e.g. StaffDirectoryTable's subtitle) ever actually disagree — they're
+  // derived from the same selectedVenueId/snapshot.venues in the same
+  // render, so by React's rules they shouldn't be able to, which is what
+  // makes this worth confirming directly rather than guessing further.
+  useEffect(() => {
+    console.log("[VENUE_DEBUG]", {
+      selectedVenueId,
+      selectedVenueName: selectedVenue?.name,
+      topbarVenueName: snapshot.venues.find((v) => v.id === selectedVenueId)?.name,
+      allVenues: snapshot.venues.map((v) => ({ id: v.id, name: v.name })),
+      renderedAt: new Date().toISOString(),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedVenueId, snapshot.venues]);
+
   const venueStaff = useMemo(
     () => snapshot.staff.filter((member) => member.venueId === selectedVenue?.id),
     [selectedVenue?.id, snapshot.staff],
