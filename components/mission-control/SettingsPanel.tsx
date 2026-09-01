@@ -44,6 +44,7 @@ export interface SettingsPanelProps {
   setRenameVenueName: (name: string) => void;
   renameSaving: boolean;
   venueStaff: ManagementSnapshot["staff"];
+  seatUsage: { used: number; max: number; unlimited: boolean } | null;
   accountDisplayName: string;
   setAccountDisplayName: (name: string) => void;
   accountSaving: boolean;
@@ -78,6 +79,7 @@ export function SettingsPanel({
   setRenameVenueName,
   renameSaving,
   venueStaff,
+  seatUsage,
   accountDisplayName,
   setAccountDisplayName,
   accountSaving,
@@ -266,27 +268,45 @@ export function SettingsPanel({
           <h3>Manager limits</h3>
         </div>
         {(() => {
-          const staffLimit = selectedVenue?.staffLimit ?? (isMultiVenue ? 35 : 15);
-          const staffUsed = venueStaff.length;
-          const pct = staffLimit > 0 ? Math.min(100, Math.round((staffUsed / staffLimit) * 100)) : 0;
-          const isWarning = pct >= 90;
-          const isFull = staffUsed >= staffLimit;
+          // Real org-wide seat usage (tierSeatLimit()/countActiveSeats(),
+          // the same helper the "Staff invites & seat management" card
+          // uses) — not the stale, per-venue `venues.staff_limit` column,
+          // which never updated after a tier change (an Enterprise upgrade
+          // kept showing whatever cap was true the day a venue was first
+          // created). seatUsage is fetched once on mount and may briefly be
+          // null; fall back to the current venue's staff count so the card
+          // never flashes "0 / …" while it loads.
+          const staffUsed = seatUsage?.used ?? venueStaff.length;
+          const isUnlimited = seatUsage?.unlimited ?? false;
+          const staffLimit = seatUsage?.max ?? null;
+          const pct = !isUnlimited && staffLimit && staffLimit > 0 ? Math.min(100, Math.round((staffUsed / staffLimit) * 100)) : 0;
+          const isWarning = !isUnlimited && pct >= 90;
+          const isFull = !isUnlimited && staffLimit != null && staffUsed >= staffLimit;
           return (
             <>
               <dl className="ops-settings-list">
                 <div>
                   <dt>Staff limit</dt>
                   <dd>
-                    <span style={{ fontWeight: 700 }}>{staffUsed} / {staffLimit}</span>
-                    <span style={{ color: "var(--text-muted)", fontWeight: 400, marginLeft: 4 }}>seats used</span>
-                    <div style={{ marginTop: 6, height: 6, background: "var(--bg-alt)", borderRadius: 999, overflow: "hidden", maxWidth: 180, border: "none", padding: 0 }}>
-                      <div style={{ height: "100%", width: `${pct}%`, background: isFull ? "var(--status-critical)" : isWarning ? "var(--status-warning)" : "var(--color-mastery-technical)", borderRadius: 999, transition: "width 0.3s ease", border: "none", padding: 0 }} />
-                    </div>
+                    <span style={{ fontWeight: 700 }}>
+                      {staffUsed} / {isUnlimited ? "Unlimited" : staffLimit ?? "…"}
+                    </span>
+                    {!isUnlimited && <span style={{ color: "var(--text-muted)", fontWeight: 400, marginLeft: 4 }}>seats used</span>}
+                    {!isUnlimited && staffLimit != null && (
+                      <div style={{ marginTop: 6, height: 6, background: "var(--bg-alt)", borderRadius: 999, overflow: "hidden", maxWidth: 180, border: "none", padding: 0 }}>
+                        <div style={{ height: "100%", width: `${pct}%`, background: isFull ? "var(--status-critical)" : isWarning ? "var(--status-warning)" : "var(--color-mastery-technical)", borderRadius: 999, transition: "width 0.3s ease", border: "none", padding: 0 }} />
+                      </div>
+                    )}
                   </dd>
                 </div>
                 <div>
                   <dt>Venue Limit</dt>
-                  <dd>{isMultiVenue ? "5 Venues Maximum" : "1 Venue"}</dd>
+                  {/* No tier in this codebase has a documented/enforced venue
+                      cap — the old "5 Venues Maximum" was fabricated with no
+                      backing config anywhere. Multi-venue tiers (commercial,
+                      enterprise, venue_multi) are honestly unlimited; single-
+                      venue tiers are exactly 1 by product design. */}
+                  <dd>{isMultiVenue ? "Unlimited venues" : "1 Venue"}</dd>
                 </div>
               </dl>
               {isWarning && (

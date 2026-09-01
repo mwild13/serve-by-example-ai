@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { countActiveSeats, tierSeatLimit, isOwnerLevelRole } from "@/lib/session";
+import { countActiveSeats, tierSeatLimit, isOwnerLevelRole, TIER_SEATS } from "@/lib/session";
 
 /**
  * GET /api/management/memberships — list manager's memberships
@@ -35,10 +35,14 @@ export async function GET(req: Request) {
       .single();
     const maxSeats = tierSeatLimit(profile?.tier);
     const usedSeats = await countActiveSeats(admin, user.id);
+    // TIER_SEATS.enterprise (9999) is the codebase's own "effectively
+    // unlimited" sentinel for this map — surface that as an explicit flag
+    // so UI callers show "Unlimited" rather than a literal "9999".
+    const unlimited = maxSeats >= TIER_SEATS.enterprise;
 
     return NextResponse.json({
       memberships: data ?? [],
-      seatUsage: { used: usedSeats, max: maxSeats },
+      seatUsage: { used: usedSeats, max: maxSeats, unlimited },
     });
   } catch (error) {
     console.error("Memberships GET error:", error);

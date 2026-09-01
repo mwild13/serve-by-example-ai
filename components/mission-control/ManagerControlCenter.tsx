@@ -309,6 +309,30 @@ export default function ManagerControlCenter({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialSnapshot, apiFetch]);
 
+  // Org-wide seat usage (used/max/unlimited), from the same tierSeatLimit()/
+  // countActiveSeats() computation already proven correct in the "Staff
+  // invites & seat management" card (StaffDirectoryTable.tsx). This is the
+  // single source of truth for seat limits shown/enforced anywhere in this
+  // component — replaces the old per-venue `venues.staff_limit` reads,
+  // which went stale the moment an account's tier changed after the venue
+  // was first created.
+  const [seatUsage, setSeatUsage] = useState<{ used: number; max: number; unlimited: boolean } | null>(null);
+  const hasFetchedSeatUsage = useRef(false);
+  useEffect(() => {
+    if (hasFetchedSeatUsage.current) return;
+    hasFetchedSeatUsage.current = true;
+    (async () => {
+      try {
+        const res = await apiFetch("/api/management/memberships");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json() as { seatUsage?: { used: number; max: number; unlimited: boolean } };
+        if (data.seatUsage) setSeatUsage(data.seatUsage);
+      } catch (err) {
+        console.error("Failed to fetch seat usage:", err);
+      }
+    })();
+  }, [apiFetch]);
+
   const [revenueTransactionValue, setRevenueTransactionValue] = useState(() => {
     if (typeof window === 'undefined') return 45;
     try {
@@ -798,9 +822,14 @@ export default function ManagerControlCenter({
     }
 
     if (activeAction === "add-staff") {
-      const limit = selectedVenue.staffLimit ?? (isMultiVenue ? 35 : 15);
-      if (venueStaff.length >= limit) {
-        setRequestError(`You've reached the ${limit}-seat limit for ${selectedVenue.name}. Upgrade your plan to add more staff.`);
+      // Org-wide seat cap (tierSeatLimit()/countActiveSeats(), same helper
+      // the "Staff invites & seat management" card uses) — not the stale
+      // per-venue venues.staff_limit column, which never updates after a
+      // tier change. seatUsage may still be loading on a fast click; skip
+      // the client-side check in that case rather than block on stale data
+      // — the server enforces the real cap regardless.
+      if (seatUsage && !seatUsage.unlimited && seatUsage.used >= seatUsage.max) {
+        setRequestError(`You've reached your ${seatUsage.max}-seat plan limit. Upgrade your plan to add more staff.`);
         return;
       }
     }
@@ -1862,6 +1891,7 @@ export default function ManagerControlCenter({
             setRenameVenueName={setRenameVenueName}
             renameSaving={renameSaving}
             venueStaff={venueStaff}
+            seatUsage={seatUsage}
             accountDisplayName={accountDisplayName}
             setAccountDisplayName={setAccountDisplayName}
             accountSaving={accountSaving}

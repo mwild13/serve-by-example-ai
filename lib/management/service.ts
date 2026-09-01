@@ -460,11 +460,23 @@ export async function getManagementSnapshot(
     // Auto-provision a real venue so settings (rename, join code) work immediately
     try {
       await ensureManagerVenue(supabase, userId);
-      const refetch = await getOwnedVenues(supabase, userId);
-      venueRows = refetch.data ?? [];
-    } catch {
-      // Non-critical – fall through to seed data
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      const isDuplicateRace = /duplicate key|already exists/i.test(message);
+      if (!isDuplicateRace) {
+        // A genuine provisioning failure (RLS misconfig, constraint
+        // violation, transient DB error, etc.) must never be silently
+        // replaced with fake seed data — that renders as an
+        // indistinguishable "real, but empty" account and hides the bug.
+        // Let it propagate to the route's error handler (a real 500).
+        console.error("getManagementSnapshot: ensureManagerVenue failed:", err);
+        throw err;
+      }
+      // Duplicate-provisioning race: a concurrent request already created
+      // this manager's venue. Safe to ignore — the refetch below will find it.
     }
+    const refetch = await getOwnedVenues(supabase, userId);
+    venueRows = refetch.data ?? [];
   }
   if (!venueRows.length) {
     return {
