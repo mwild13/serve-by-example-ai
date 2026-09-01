@@ -2,7 +2,7 @@
 
 import React, { FormEvent, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import SignOutButton from "@/components/ui/SignOutButton";
 import SessionRefresher from "@/components/ui/SessionRefresher";
@@ -173,7 +173,6 @@ export default function ManagerControlCenter({
 }) {
   const isMultiVenue = isMultiVenueTier(plan);
 
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   // Declared up here (rather than alongside the other form/UI state below)
@@ -183,10 +182,37 @@ export default function ManagerControlCenter({
   const [requestError, setRequestError] = useState("");
   const [requestSuccess, setRequestSuccess] = useState("");
 
-  // Tab state is URL-driven so it survives refresh and post-Stripe redirects.
-  // Shim functions keep all existing call sites working without change.
-  const activeSection =
-    (searchParams.get("tab") as ManagerSection | null) ?? "overview";
+  // Tab state used to be fully URL-driven via router.push/router.replace, so
+  // every in-app tab click (the single most common navigation in this
+  // component) went through Next's router. That forces
+  // app/management/dashboard/page.tsx — force-dynamic and reading
+  // searchParams for the Stripe checkout flow — to re-render on the client,
+  // which creates a brand-new getManagementSnapshot() promise every time
+  // (calling an async function always returns a new Promise object, even
+  // when the underlying data resolves instantly from the unstable_cache
+  // added in commit 7bed8f0). React 19's use() re-suspends on that new
+  // promise reference regardless of how fast it resolves, and Next commits a
+  // fresh instance of this subtree on resume — resetting local state such as
+  // selectedVenueId back to its initial value (venues[0]). That's what
+  // caused the reported "topbar venue selection doesn't stick" bug; 7bed8f0
+  // reduced the round-trip latency but never removed the promise-identity
+  // churn that actually triggers the resuspend/reset, so the bug persisted.
+  //
+  // Fix: tab/subtab are now ordinary local state, seeded once from the URL
+  // on mount (via useSearchParams(), which is SSR-safe so there's no
+  // hydration mismatch), and written back to the URL with the raw History
+  // API instead of router.push/replace. history.pushState/replaceState keep
+  // the address bar in sync — so refresh, bookmarks, browser back/forward,
+  // and the Stripe return_url flow all keep working — without going through
+  // Next's router, so an in-app tab click never triggers a server re-render
+  // or a new snapshot promise again.
+  const [activeSection, setActiveSectionState] = useState<ManagerSection>(
+    () => (searchParams.get("tab") as ManagerSection | null) ?? "overview",
+  );
+  const [settingsTab, setSettingsTabState] = useState<"setup" | "billing" | "account">(
+    () => (searchParams.get("subtab") as "setup" | "billing" | "account" | null) ?? "setup",
+  );
+
   // useCallback so effects that depend on it (stale-tab guard, keydown
   // shortcuts) get a stable reference instead of re-running every render.
   const setActiveSection = useCallback((section: ManagerSection) => {
@@ -197,23 +223,48 @@ export default function ManagerControlCenter({
       setRequestSuccess("");
       setRequestError("");
     }
-    router.push(`?tab=${section}`, { scroll: false });
-  }, [router]);
+    setActiveSectionState(section);
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      params.set("tab", section);
+      if (section !== "settings") params.delete("subtab");
+      window.history.pushState(null, "", `?${params.toString()}`);
+    }
+  }, []);
 
-  const settingsTab =
-    (searchParams.get("subtab") as "setup" | "billing" | "account" | null) ?? "setup";
-  function setSettingsTab(subtab: "setup" | "billing" | "account") {
-    router.replace(`?tab=settings&subtab=${subtab}`, { scroll: false });
-  }
+  const setSettingsTab = useCallback((subtab: "setup" | "billing" | "account") => {
+    setActiveSectionState("settings");
+    setSettingsTabState(subtab);
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      params.set("tab", "settings");
+      params.set("subtab", subtab);
+      window.history.replaceState(null, "", `?${params.toString()}`);
+    }
+  }, []);
+
+  // Browser back/forward no longer goes through Next's router for tab
+  // changes (see above), so restore it manually by reading the URL back on
+  // popstate.
+  useEffect(() => {
+    function handlePopState() {
+      const params = new URLSearchParams(window.location.search);
+      setActiveSectionState((params.get("tab") as ManagerSection | null) ?? "overview");
+      setSettingsTabState((params.get("subtab") as "setup" | "billing" | "account" | null) ?? "setup");
+    }
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   // Duty managers can't reach Settings (Billing/venue setup/account) even by
   // typing ?tab=settings directly — the nav item is already hidden below,
   // this is the defense-in-depth redirect for that bypass.
   useEffect(() => {
     if (activeSection === "settings" && !isOwnerLevel) {
-      router.replace("?tab=overview", { scroll: false });
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- correcting an invalid deep-link (?tab=settings typed directly by a duty manager), not syncing from an external source.
+      setActiveSection("overview");
     }
-  }, [activeSection, isOwnerLevel, router]);
+  }, [activeSection, isOwnerLevel, setActiveSection]);
 
   // Checkout success: detect post-Stripe redirect and poll for webhook confirmation.
   const checkoutSuccess = searchParams.get("checkout") === "success";
