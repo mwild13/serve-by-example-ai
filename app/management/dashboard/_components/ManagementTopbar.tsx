@@ -75,7 +75,20 @@ export function ManagementTopbar({
     <div className="mc-topbar">
       {/* Left: venue switcher */}
       <div className="mc-topbar-left" ref={venueMenuRef}>
+        {/* key={venueName} is a deliberate workaround, not decoration: on
+            production this button's own text node was confirmed (via a
+            temporary diagnostic — see ManagerControlCenter.tsx git history
+            around the [VENUE_DEBUG] commits) to sometimes stop reflecting
+            new venueName props in place, even though React's underlying
+            state/props were proven correct on every render and there was
+            only ever one .mc-venue-btn in the DOM (so it wasn't a duplicate-
+            node issue either). Keying on venueName forces React to discard
+            and recreate this exact button whenever the venue name it should
+            show changes, instead of trying to patch the existing node's
+            text in place — sidesteps whatever in-place reconciliation issue
+            was causing the freeze, regardless of its ultimate cause. */}
         <button
+          key={venueName}
           type="button"
           className="mc-venue-btn"
           onClick={() => setVenueMenuOpen((v) => !v)}
