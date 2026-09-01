@@ -494,11 +494,18 @@ export default function ManagerControlCenter({
     // React's state or props (which the log above already proves correct).
     requestAnimationFrame(() => {
       setTimeout(() => {
-        const btnEl = document.querySelector(".mc-venue-btn");
+        // querySelectorAll, not querySelector — the leading theory after the
+        // last round of data is a duplicate/orphaned .mc-venue-btn left over
+        // from a hydration or Suspense edge case, with the stale one sitting
+        // first in DOM order (so querySelector's single match would always
+        // report the frozen one even if a second, correctly-updating button
+        // also exists in the DOM).
+        const btnEls = document.querySelectorAll(".mc-venue-btn");
         console.log("[VENUE_DEBUG][DOM CHECK]", {
           expectedVenueName,
-          actualButtonText: btnEl?.textContent?.trim(),
-          match: btnEl?.textContent?.trim().startsWith(expectedVenueName ?? " "),
+          buttonCount: btnEls.length,
+          buttonTexts: Array.from(btnEls).map((el) => el.textContent?.trim()),
+          match: Array.from(btnEls).some((el) => el.textContent?.trim().startsWith(expectedVenueName ?? " ")),
         });
       }, 50);
     });
