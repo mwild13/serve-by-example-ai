@@ -2,14 +2,15 @@
 
 import type { ManagementSnapshot, ManagerSection } from "@/lib/management/types";
 import { WorkspaceHeader } from "@/app/management/dashboard/_components/WorkspaceHeader";
+import { EmptyState } from "@/components/mission-control/manager-ui";
+import { computeSkillGapFlags, groupSkillGapsByCategory, countShiftReadyStaff, countUrgentBottlenecks } from "@/lib/management/skill-gaps";
 
 // Extracted from ManagerControlCenter.tsx (Phase 5 — component extraction
-// roadmap, line-count reduction). Covers the Predictive Skill Gaps tab:
-// rule-based flag generation from staff scores/mastery data, KPI summary,
-// per-staff flag cards, and a systemic-gap rollup. All derived from props —
-// no local state beyond the immediate render.
-
-type PredictionFlag = { id: string; staffName: string; role: string; gap: string; risk: "high" | "medium"; reason: string; action: string };
+// roadmap, line-count reduction). Covers the shift-readiness / training
+// bottlenecks tab: rule-based flag generation from staff scores/mastery data
+// (lib/management/skill-gaps.ts — shared with SkillGapsSummaryCard.tsx's
+// Overview-tab rollup), KPI summary, per-staff flag cards, and a systemic-gap
+// rollup. All derived from props — no local state beyond the immediate render.
 
 export interface PredictivePanelProps {
   venueStaff: ManagementSnapshot["staff"];
@@ -18,27 +19,18 @@ export interface PredictivePanelProps {
 }
 
 export function PredictivePanel({ venueStaff, selectedVenueName, handleSectionChange }: PredictivePanelProps) {
-  const predictions: PredictionFlag[] = venueStaff.flatMap((member) => {
-    const flags: PredictionFlag[] = [];
-    if (member.salesScore < 70)
-      flags.push({ id: `${member.id}-sales`, staffName: member.name, role: member.role, gap: "Upselling & Sales", risk: "high", reason: `Sales score ${member.salesScore}% – below 70% threshold`, action: "Assign 'Sales Conversations' training module" });
-    if (member.serviceScore < 65)
-      flags.push({ id: `${member.id}-service`, staffName: member.name, role: member.role, gap: "Service Quality", risk: "medium", reason: `Service score ${member.serviceScore}% – needs attention`, action: "Assign 'Guest Experience Foundations' scenario" });
-    if (member.productScore < 60)
-      flags.push({ id: `${member.id}-product`, staffName: member.name, role: member.role, gap: "Product Knowledge", risk: "medium", reason: `Product score ${member.productScore}% – knowledge gaps likely`, action: "Review menu knowledge module assignment" });
-    if (member.progress < 40 && member.status !== "inactive")
-      flags.push({ id: `${member.id}-progress`, staffName: member.name, role: member.role, gap: "Training Completion", risk: "high", reason: `Only ${member.progress}% complete – falling behind`, action: "Schedule a check-in and re-assign priority modules" });
-    // Mastery engine flags
-    if (member.knowledgeDecayRisk)
-      flags.push({ id: `${member.id}-decay`, staffName: member.name, role: member.role, gap: "Knowledge Decay", risk: "high", reason: "Spaced-repetition items overdue – skills fading", action: "Prompt staff to complete review queue" });
-    if (member.highConfidenceIncorrectRatio != null && member.highConfidenceIncorrectRatio > 0.3)
-      flags.push({ id: `${member.id}-confidence`, staffName: member.name, role: member.role, gap: "Confidence Mismatch", risk: "medium", reason: `${Math.round(member.highConfidenceIncorrectRatio * 100)}% of high-confidence attempts are incorrect`, action: "Coach on self-assessment accuracy – over-confidence risk" });
-    return flags;
-  });
-  const highRisk = predictions.filter((p) => p.risk === "high");
-  const gapTotals: Record<string, number> = {};
-  predictions.forEach((p) => { gapTotals[p.gap] = (gapTotals[p.gap] ?? 0) + 1; });
-  const topGaps = Object.entries(gapTotals).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  const predictions = computeSkillGapFlags(venueStaff);
+  const groupedGaps = groupSkillGapsByCategory(predictions);
+  const topGaps = groupedGaps.slice(0, 3);
+  // "Shift-ready" and "urgent bottleneck" replace the old Total flags/Top gap
+  // area framing (vague — a manager can't act on "3 flags") with two numbers
+  // that map directly to a decision: who can I put on the floor right now,
+  // and which training gap is big enough to need venue-wide content rather
+  // than a one-off coaching conversation. Bottleneck count is computed off
+  // the full grouped list, not the top-3 slice used for on-screen display,
+  // so it doesn't undercount venues with more than 3 systemic gap categories.
+  const shiftReadyCount = countShiftReadyStaff(venueStaff, predictions);
+  const urgentBottleneckCount = countUrgentBottlenecks(groupedGaps);
 
   // Mastery status summary
   const masteryStats = { mastered: 0, inProgress: 0, atRisk: 0 };
@@ -53,8 +45,8 @@ export function PredictivePanel({ venueStaff, selectedVenueName, handleSectionCh
     <section className="ops-grid ops-grid-main">
       <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
         <WorkspaceHeader
-          title="Predictive Skill Gaps"
-          description="Identify training risks before they show up on the floor"
+          title="Shift Readiness & Training Bottlenecks"
+          description="Who's ready to work a shift right now, and which training gaps are big enough to need venue-wide content"
           actions={
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <span style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>{selectedVenueName ?? "All venues"}</span>
@@ -99,30 +91,24 @@ export function PredictivePanel({ venueStaff, selectedVenueName, handleSectionCh
         )}
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 24 }}>
-          <div className="ops-kpi-card" style={{ background: "var(--surface)", borderColor: "var(--line)" }}>
-            <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>Total flags</span>
-            <strong style={{ fontSize: "1.8rem", color: "var(--text)" }}>{predictions.length}</strong>
-            <small>{predictions.length === 0 ? "All staff on track" : `${highRisk.length} high priority`}</small>
+          <div className="ops-kpi-card" style={{ background: "var(--surface)", borderLeft: "4px solid var(--green)" }}>
+            <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>Shift-Ready Staff</span>
+            <strong style={{ fontSize: "1.8rem", color: "var(--green)" }}>{shiftReadyCount} / {venueStaff.length}</strong>
+            <small>no high-risk flags right now</small>
+          </div>
+          <div className="ops-kpi-card" style={{ background: "var(--surface)", borderLeft: urgentBottleneckCount > 0 ? "4px solid var(--status-critical-text)" : "4px solid var(--line)" }}>
+            <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>Urgent Training Bottlenecks</span>
+            <strong style={{ fontSize: "1.8rem", color: urgentBottleneckCount > 0 ? "var(--status-critical-text)" : "var(--text)" }}>{urgentBottleneckCount}</strong>
+            <small>{urgentBottleneckCount === 0 ? "no systemic gaps" : "gap areas hitting 2+ staff, high-risk"}</small>
           </div>
           <div className="ops-kpi-card">
             <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>Staff flagged</span>
             <strong style={{ fontSize: "1.8rem" }}>{new Set(predictions.map((p) => p.staffName)).size}</strong>
             <small>of {venueStaff.length} total</small>
           </div>
-          <div className="ops-kpi-card">
-            <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>Top gap area</span>
-            <strong style={{ fontSize: "1.1rem" }}>{topGaps[0]?.[0] ?? "None"}</strong>
-            <small>{topGaps[0] ? `${topGaps[0][1]} staff affected` : "All clear"}</small>
-          </div>
         </div>
         {predictions.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "40px 0", color: "var(--text-soft)" }}>
-            <div style={{ marginBottom: 8 }}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4 }}><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <strong>No skill gaps detected.</strong>
-            <p style={{ marginTop: 4, fontSize: ".9rem" }}>All staff are tracking above performance thresholds. Keep monitoring as new staff join.</p>
-          </div>
+          <EmptyState copy="No skill gaps detected. All staff are tracking above performance thresholds — keep monitoring as new staff join." />
         ) : (
           <>
             {(() => {
@@ -190,10 +176,10 @@ export function PredictivePanel({ venueStaff, selectedVenueName, handleSectionCh
             {topGaps.length > 0 && (
               <div style={{ marginTop: 28, padding: "16px", background: "var(--surface)", borderRadius: 10, border: "1px solid var(--line)" }}>
                 <strong style={{ fontSize: ".9rem", display: "block", marginBottom: 10 }}>Systemic gap analysis</strong>
-                {topGaps.map(([gap, count]) => (
+                {topGaps.map(([gap, info]) => (
                   <div key={gap} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px solid var(--line)" }}>
                     <span style={{ fontSize: ".9rem" }}>{gap}</span>
-                    <span style={{ fontWeight: 700, color: "var(--text)" }}>{count} staff affected</span>
+                    <span style={{ fontWeight: 700, color: "var(--text)" }}>{info.count} staff affected</span>
                   </div>
                 ))}
                 <p style={{ marginTop: 10, fontSize: ".82rem", color: "var(--text-soft)" }}>Patterns across multiple staff suggest a systemic gap. Consider creating venue-wide training content for these areas.</p>

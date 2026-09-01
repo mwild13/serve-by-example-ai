@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { ManagementSnapshot, ManagerSection } from "@/lib/management/types";
+import { EmptyState } from "@/components/mission-control/manager-ui";
 
 // Extracted from ManagerControlCenter.tsx (Phase 5 — component extraction
 // roadmap, line-count reduction). Covers the Notifications tab: category
@@ -182,15 +183,7 @@ export function NotificationsPanel({ venueStaff, needsAttention, venueInventory,
           })}
         </div>
         {visible.length === 0 ? (
-          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "16px", background: "var(--status-success-bg)", borderRadius: 10, border: "1.5px solid var(--status-success-border)" }}>
-            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "var(--status-success-subtle)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--status-success)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div>
-              <div style={{ fontWeight: 700, fontSize: "0.875rem", color: "var(--status-success-strong)" }}>All clear in this category.</div>
-              <div style={{ fontSize: "0.8rem", color: "var(--status-success)" }}>No active alerts to action right now.</div>
-            </div>
-          </div>
+          <EmptyState tone="success" copy="All clear in this category." subCopy="No active alerts to action right now." />
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {visible.map((notif) => {

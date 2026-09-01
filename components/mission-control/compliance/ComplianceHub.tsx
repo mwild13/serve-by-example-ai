@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { StaffMember, AustralianState, ManagementSnapshot } from '@/lib/management/types';
 import { rsaStatus, fssStatus, daysUntilExpiry, normalizeExpiryDate } from './helpers';
+import { EmptyState } from '@/components/mission-control/manager-ui';
+import { MissionControlTableRowSkeleton } from '@/components/ui/Skeletons';
 
 interface CustomCert {
   id: string;
@@ -24,6 +26,7 @@ interface ComplianceHubProps {
 export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: ComplianceHubProps) {
   // A19 — Custom certifications
   const [customCerts, setCustomCerts] = useState<CustomCert[]>([]);
+  const [customCertsLoaded, setCustomCertsLoaded] = useState(false);
   const [showCustomModal, setShowCustomModal] = useState(false);
   const [customStaffId, setCustomStaffId] = useState('');
   const [customCertName, setCustomCertName] = useState('');
@@ -49,7 +52,8 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
       .then((data: { certs?: CustomCert[] }) => {
         if (Array.isArray(data.certs)) setCustomCerts(data.certs);
       })
-      .catch(() => { /* non-blocking */ });
+      .catch(() => { /* non-blocking */ })
+      .finally(() => setCustomCertsLoaded(true));
   }, [sessionToken]);
 
   async function handleSaveCustomCert() {
@@ -339,20 +343,11 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
           </div>
         </div>
         {certRows.length === 0 ? (
-          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>
-            <p style={{ margin: '0 0 14px', fontSize: '0.9rem' }}>
-              No certifications recorded yet. Add your first staff member&apos;s RSA or FSS record to start tracking compliance.
-            </p>
-            <button
-              className="btn btn-sm"
-              style={{ fontSize: '0.8rem', background: 'var(--green)', color: 'var(--surface-raised)', border: 'none', padding: '8px 16px' }}
-              onClick={() => openModal()}
-              disabled={venueStaff.length === 0}
-              title={venueStaff.length === 0 ? "Add a staff member first, then record their certification here" : undefined}
-            >
-              + Add cert
-            </button>
-          </div>
+          <EmptyState
+            copy="No certifications recorded yet. Add your first staff member's RSA or FSS record to start tracking compliance."
+            ctaLabel={venueStaff.length > 0 ? "+ Add cert" : undefined}
+            onCtaClick={venueStaff.length > 0 ? () => openModal() : undefined}
+          />
         ) : (
           <table className="mgmt-table">
             <thead>
@@ -439,20 +434,11 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
           <span>{fssStates.size} states</span>
         </div>
         {fssStates.size === 0 ? (
-          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>
-            <p style={{ margin: '0 0 14px', fontSize: '0.9rem' }}>
-              No FSS data recorded yet. This fills in once a staff member has an RSA jurisdiction on file.
-            </p>
-            <button
-              className="btn btn-sm"
-              style={{ fontSize: '0.8rem', background: 'var(--green)', color: 'var(--surface-raised)', border: 'none', padding: '8px 16px' }}
-              onClick={() => openModal()}
-              disabled={venueStaff.length === 0}
-              title={venueStaff.length === 0 ? "Add a staff member first, then record their certification here" : undefined}
-            >
-              + Add cert
-            </button>
-          </div>
+          <EmptyState
+            copy="No FSS data recorded yet. This fills in once a staff member has an RSA jurisdiction on file."
+            ctaLabel={venueStaff.length > 0 ? "+ Add cert" : undefined}
+            onCtaClick={venueStaff.length > 0 ? () => openModal() : undefined}
+          />
         ) : (
           <div style={{ padding: '16px 20px' }}>
             {Array.from(fssStates).map((state) => {
@@ -519,10 +505,10 @@ export function ComplianceHub({ venueStaff, sessionToken, onSnapshotUpdate }: Co
             </button>
           </div>
         </div>
-        {customCerts.length === 0 ? (
-          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-            No custom certifications recorded yet. Add First Aid, Barista, Liquor Licence, or any other cert here.
-          </div>
+        {!customCertsLoaded ? (
+          <MissionControlTableRowSkeleton rows={3} columns={5} />
+        ) : customCerts.length === 0 ? (
+          <EmptyState copy="No custom certifications recorded yet. Add First Aid, Barista, Liquor Licence, or any other cert here." />
         ) : (
           <table className="mgmt-table">
             <thead>

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ManagementSnapshot, StaffRole } from "@/lib/management/types";
+import { EmptyState } from "@/components/mission-control/manager-ui";
 
 // Extracted from ManagerControlCenter.tsx (Phase 5, Task 2 — component
 // extraction roadmap). Combines the Role Training Matrix and Permission
@@ -70,6 +71,10 @@ export function RolesPermissionsMatrix({ venueStaff, selectedVenueName }: RolesP
           <h3>Role training matrix</h3>
           <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>{selectedVenueName}</span>
         </div>
+        {venueStaff.length === 0 ? (
+          <EmptyState copy="No staff added yet. Role readiness and training compliance will populate here once your team joins." />
+        ) : (
+          <>
         {/* Role readiness summary */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 8, marginBottom: 16 }}>
           {roleStats.map((row) => {
@@ -135,6 +140,8 @@ export function RolesPermissionsMatrix({ venueStaff, selectedVenueName }: RolesP
             </tbody>
           </table>
         </div>
+          </>
+        )}
       </article>
       <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
         <div className="ops-card-head">

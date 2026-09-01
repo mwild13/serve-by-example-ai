@@ -48,6 +48,7 @@ import { OverviewPanel } from "./OverviewPanel";
 import { TrialStatusPill } from "./TrialStatusPill";
 import { TrialExpiredModal } from "./TrialExpiredModal";
 import { isB2BTier, isMultiVenueTier } from "@/lib/session";
+import { groupStaffByPresentRoles } from "@/lib/management/team-grouping";
 
 type SnapshotResponse = ManagementSnapshot & {
   inviteMessage?: string;
@@ -333,31 +334,41 @@ export default function ManagerControlCenter({
   // Fetch snapshot on mount if not provided server-side
   // useRef avoids refetch when sessionToken/apiFetch changes (Stale-While-Revalidate pattern)
   const hasFetchedSnapshot = useRef(false);
+  // Distinct from `requestError` (which is scoped to ActionDrawer submissions
+  // and gets cleared on every nav click, see setActiveSection above) — this
+  // has to survive tab navigation so a manager can't click away from a
+  // genuine load failure and have it silently vanish. Previously a failed
+  // fetch here just fell back to EMPTY_SNAPSHOT with a console.error and
+  // nothing else, which renders identically to a legitimately brand-new,
+  // empty account — no way to tell "no data yet" from "something broke."
+  const [snapshotError, setSnapshotError] = useState<string | null>(null);
+  const [snapshotRetrying, setSnapshotRetrying] = useState(false);
+
+  const fetchSnapshot = useCallback(async () => {
+    try {
+      const res = await apiFetch("/api/management/snapshot");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json() as ManagementSnapshot;
+      setSnapshot(data);
+      setSnapshotError(null);
+      setSelectedVenueId((current) => current || data.venues[0]?.id || "");
+    } catch (err) {
+      console.error("Failed to fetch snapshot:", err);
+      setSnapshot(EMPTY_SNAPSHOT);
+      setSnapshotError("We couldn't load your venue data. Check your connection and try again.");
+    }
+  }, [apiFetch]);
+
   useEffect(() => {
     if (initialSnapshot || hasFetchedSnapshot.current) return;
-
     hasFetchedSnapshot.current = true;
-    (async () => {
-      try {
-        const res = await apiFetch("/api/management/snapshot");
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json() as ManagementSnapshot;
-        setSnapshot(data);
-        if (data.venues.length > 0 && !selectedVenueId) {
-          setSelectedVenueId(data.venues[0].id);
-        }
-      } catch (err) {
-        console.error("Failed to fetch snapshot:", err);
-        setSnapshot(EMPTY_SNAPSHOT);
-      } finally {
-        setSnapshotLoading(false);
-      }
-    })();
-  // selectedVenueId is read inside but intentionally omitted — the hasFetchedSnapshot
-  // ref guard makes this a true mount-once fetch; adding the dep would re-fetch on
-  // every venue switch, which is wrong.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialSnapshot, apiFetch]);
+    fetchSnapshot().finally(() => setSnapshotLoading(false));
+  }, [initialSnapshot, fetchSnapshot]);
+
+  const handleRetrySnapshot = useCallback(() => {
+    setSnapshotRetrying(true);
+    fetchSnapshot().finally(() => setSnapshotRetrying(false));
+  }, [fetchSnapshot]);
 
   // Org-wide seat usage (used/max/unlimited), from the same tierSeatLimit()/
   // countActiveSeats() computation already proven correct in the "Staff
@@ -1172,6 +1183,53 @@ export default function ManagerControlCenter({
           displayName={accountDisplayName || displayName}
         />
 
+        {/* Snapshot load-failure banner — persists across tab navigation
+            (unlike requestError) until a retry succeeds. See snapshotError
+            above for why this can't just reuse requestError directly. */}
+        {snapshotError && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "12px 16px",
+              background: "var(--status-error-bg)",
+              border: "1.5px solid var(--status-error)",
+              borderRadius: "var(--radius-md)",
+              marginBottom: 12,
+              fontSize: "0.875rem",
+              color: "var(--status-error-text)",
+              fontWeight: 600,
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--status-error)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <span style={{ flex: 1 }}>{snapshotError}</span>
+            <button
+              type="button"
+              onClick={handleRetrySnapshot}
+              disabled={snapshotRetrying}
+              style={{
+                background: "none",
+                border: "1.5px solid var(--status-error)",
+                borderRadius: "var(--radius-sm)",
+                padding: "4px 12px",
+                fontSize: "0.8rem",
+                fontWeight: 600,
+                color: "var(--status-error-text)",
+                cursor: snapshotRetrying ? "default" : "pointer",
+                opacity: snapshotRetrying ? 0.6 : 1,
+                flexShrink: 0,
+              }}
+            >
+              {snapshotRetrying ? "Retrying…" : "Retry"}
+            </button>
+          </div>
+        )}
+
         {/* Checkout success / webhook processing banner */}
         {checkoutSuccess && subProcessing && (
           <div
@@ -1657,42 +1715,55 @@ export default function ManagerControlCenter({
             <section className="ops-grid ops-grid-main">
               <article className="ops-card">
                 <div className="ops-card-head">
-                  <h3>Bar team vs floor team</h3>
+                  <h3>Team comparison by role</h3>
                   <span>{selectedVenue?.name}</span>
                 </div>
-                {venueStaff.filter((m) => m.role === "Bartender" || m.role === "Floor").length > 0 ? (() => {
-                  const barTeam = venueStaff.filter((m) => m.role === "Bartender");
-                  const floorTeam = venueStaff.filter((m) => m.role === "Floor");
+                {(() => {
+                  // Derives columns from whichever roles are actually
+                  // present at this venue (lib/management/team-grouping.ts)
+                  // instead of hardcoding Bartender/Floor as the only two
+                  // possible teams — a venue staffed mostly with
+                  // Supervisors/Managers used to render "No bar or floor
+                  // staff yet" here even with a fully staffed roster.
+                  // Capped to 3 columns to match .ops-compare-grid's CSS
+                  // (app/globals.css — .ops-compare-row's fixed-width rules
+                  // only go up to 3 value columns).
+                  const roleGroups = groupStaffByPresentRoles(venueStaff, 3);
+                  if (roleGroups.length === 0) {
+                    return (
+                      <EmptyState
+                        copy="No staff assigned yet."
+                        ctaLabel="+ Add staff"
+                        onCtaClick={() => { handleSectionChange("staff"); openAction("add-staff"); }}
+                      />
+                    );
+                  }
                   const avg = (arr: typeof venueStaff, key: keyof typeof venueStaff[0]) =>
                     arr.length ? Math.round(arr.reduce((s, m) => s + (m[key] as number), 0) / arr.length) : 0;
+                  const metrics: Array<{ label: string; key: keyof typeof venueStaff[0] }> = [
+                    { label: "Avg completion", key: "progress" },
+                    { label: "Service score", key: "serviceScore" },
+                    { label: "Sales score", key: "salesScore" },
+                    { label: "Product score", key: "productScore" },
+                  ];
                   return (
                     <div className="ops-compare-grid">
                       <div className="ops-compare-row ops-compare-head">
-                        <span>Metric</span><span>Bar team ({barTeam.length})</span><span>Floor team ({floorTeam.length})</span>
+                        <span>Metric</span>
+                        {roleGroups.map((g) => <span key={g.role}>{g.role} ({g.members.length})</span>)}
                       </div>
-                      {[
-                        { label: "Avg completion", barVal: avg(barTeam, "progress"), floorVal: avg(floorTeam, "progress") },
-                        { label: "Service score", barVal: avg(barTeam, "serviceScore"), floorVal: avg(floorTeam, "serviceScore") },
-                        { label: "Sales score", barVal: avg(barTeam, "salesScore"), floorVal: avg(floorTeam, "salesScore") },
-                        { label: "Product score", barVal: avg(barTeam, "productScore"), floorVal: avg(floorTeam, "productScore") },
-                      ].map((row) => (
-                        <div key={row.label} className="ops-compare-row">
-                          <span>{row.label}</span>
-                          <span>{row.barVal > 0 ? `${row.barVal}%` : "–"}</span>
-                          <span>{row.floorVal > 0 ? `${row.floorVal}%` : "–"}</span>
+                      {metrics.map((m) => (
+                        <div key={m.label} className="ops-compare-row">
+                          <span>{m.label}</span>
+                          {roleGroups.map((g) => {
+                            const val = avg(g.members, m.key);
+                            return <span key={g.role}>{val > 0 ? `${val}%` : "–"}</span>;
+                          })}
                         </div>
                       ))}
                     </div>
                   );
-                })() : (
-                  <div style={{ padding: "28px 20px", textAlign: "center" }}>
-                    <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-soft)", marginBottom: 6 }}>No bar or floor staff yet</div>
-                    <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", margin: "0 0 14px" }}>Assign staff with Bartender or Floor roles to unlock side-by-side team comparison.</p>
-                    <button type="button" className="btn btn-secondary" style={{ fontSize: "0.8rem" }} onClick={() => { handleSectionChange("staff"); openAction("add-staff"); }}>
-                      + Add staff
-                    </button>
-                  </div>
-                )}
+                })()}
               </article>
 
               <article className="ops-card ops-revenue-model">

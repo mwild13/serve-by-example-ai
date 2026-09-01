@@ -2,6 +2,7 @@
 
 import { FormEvent, Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components/mission-control/manager-ui";
+import { MissionControlTableRowSkeleton } from "@/components/ui/Skeletons";
 import { WorkspaceHeader } from "@/app/management/dashboard/_components/WorkspaceHeader";
 import { rsaStatus, readinessPill } from "@/components/mission-control/compliance/helpers";
 import type { ManagementSnapshot, StaffRole } from "@/lib/management/types";
@@ -732,7 +733,16 @@ export default function StaffDirectoryTable({
         <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
           <div className="ops-card-head">
             <h3>Staff invites &amp; seat management</h3>
-            <span>{membershipSeats.used} / {membershipSeats.max || "∞"} seats used</span>
+            {/* Was a flash of "0 / ∞ seats used" every load until
+                loadMemberships resolved — membershipSeats starts at
+                { used: 0, max: 0 } and max:0 reads as unlimited via the
+                `|| "∞"` fallback below, so the placeholder briefly looked
+                like a real (wrong) answer instead of a loading state. */}
+            {membershipsLoaded ? (
+              <span>{membershipSeats.used} / {membershipSeats.max || "∞"} seats used</span>
+            ) : (
+              <span className="skeleton-line skeleton-line-badge" style={{ marginBottom: 0 }} />
+            )}
           </div>
 
           <form className="ops-action-form" onSubmit={handleInviteStaff} style={{ marginBottom: 16 }}>
@@ -785,7 +795,9 @@ export default function StaffDirectoryTable({
               styled class used elsewhere for the same purpose. */}
           {inviteError && <p className="auth-status auth-status-error" style={{ marginTop: 12 }}>{inviteError}</p>}
 
-          {memberships.length > 0 ? (
+          {!membershipsLoaded ? (
+            <MissionControlTableRowSkeleton rows={3} columns={4} />
+          ) : memberships.length > 0 ? (
             <div className="ops-table-wrap">
               <table className="ops-table">
                 <thead>

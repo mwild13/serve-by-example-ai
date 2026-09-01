@@ -3,6 +3,7 @@
 import { useState, type FormEvent, type MutableRefObject } from "react";
 import type { ManagementSnapshot } from "@/lib/management/types";
 import { TrialBillingSection } from "./TrialBillingSection";
+import { EmptyState } from "@/components/mission-control/manager-ui";
 import { tierDisplayName } from "@/lib/session";
 
 // Extracted from ManagerControlCenter.tsx (Phase 5, Task — line-count
@@ -206,9 +207,12 @@ export function SettingsPanel({
               </form>
               <div className="ops-venue-list">
                 {snapshot.venues.length === 0 ? (
-                  <div className="ops-venue-row-empty">
-                    <em>No venues found. Create your first venue to get started.</em>
-                  </div>
+                  // .ops-venue-row-empty (the class this used to render with)
+                  // was never defined in globals.css — this text rendered
+                  // completely unstyled, easy to miss next to the styled
+                  // "Add venue" form above it. EmptyState is an improvement,
+                  // not just a consolidation, here.
+                  <EmptyState copy="No venues found. Create your first venue to get started." />
                 ) : (
                   snapshot.venues.map((venue) => (
                     <div key={venue.id} className="ops-venue-row">

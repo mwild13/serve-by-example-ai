@@ -1,6 +1,7 @@
 "use client";
 
 import type { ManagementSnapshot, StaffMember } from "@/lib/management/types";
+import { EmptyState } from "@/components/mission-control/manager-ui";
 
 // Figma "Needs Attention" roster card — replaces the old Overview zone that
 // mixed system-level alerts with per-staff rows. This is per-staff only:
@@ -28,7 +29,7 @@ export function NeedsAttentionCard({
       </div>
 
       {rows.length === 0 ? (
-        <div className="mc-attention-empty">All staff are on track.</div>
+        <EmptyState copy="All staff are on track." />
       ) : (
         <div>
           {rows.map((member) => {

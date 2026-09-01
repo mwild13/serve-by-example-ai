@@ -55,18 +55,47 @@ export function MissionControlSkeleton() {
 // execution brief, Bottleneck #3.
 export function EmptyState({
   copy,
+  subCopy,
+  tone = "neutral",
   ctaLabel,
   onCtaClick,
 }: {
   copy: string;
+  /** Overrides the default "This section will populate once your team has
+   * data." sub-line. Needed for tone="success" states (see below), where
+   * that default would be actively misleading — there's no missing data,
+   * everything just checked out clean. */
+  subCopy?: string;
+  /** "success" renders a green "all clear" treatment (checkmark icon,
+   * success colors) instead of the neutral empty-state look. Use it for a
+   * genuinely positive zero-count (no active alerts, no urgent flags) —
+   * not for "nothing recorded here yet," which should stay tone="neutral"
+   * (the default) even when it also happens to have zero items. */
+  tone?: "neutral" | "success";
   ctaLabel?: string;
   onCtaClick?: () => void;
 }) {
+  if (tone === "success") {
+    return (
+      <div className="ops-empty-state-success">
+        <span className="ops-empty-state-success-icon" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+        </span>
+        <div>
+          <p className="ops-empty-state-title">{copy}</p>
+          {subCopy ? <p className="ops-empty-state-sub">{subCopy}</p> : null}
+        </div>
+      </div>
+    );
+  }
+
+  const sub = subCopy ?? "This section will populate once your team has data.";
+
   if (ctaLabel && onCtaClick) {
     return (
       <div className="ops-empty-state">
         <p className="ops-empty-state-title">{copy}</p>
-        <p className="ops-empty-state-sub">This section will populate once your team has data.</p>
+        <p className="ops-empty-state-sub">{sub}</p>
         <button className="ops-empty-state-btn" onClick={onCtaClick}>
           {ctaLabel}
         </button>
@@ -77,7 +106,7 @@ export function EmptyState({
   return (
     <div className="ops-empty-state">
       <p className="ops-empty-state-title">{copy}</p>
-      <p className="ops-empty-state-sub">This section will populate once your team has data.</p>
+      <p className="ops-empty-state-sub">{sub}</p>
     </div>
   );
 }

@@ -6625,13 +6625,41 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   color: var(--surface-raised);
 }
 
+/* EmptyState's tone="success" variant — a positive "all clear" state
+   (no active alerts, no urgent flags), distinct from the neutral
+   .ops-empty-state above which means "nothing recorded here yet." Was
+   previously defined as an unused single-line inline treatment with no
+   consumers anywhere in the codebase; repurposed here as its first real
+   use (EmptyState in manager-ui.tsx), matching the card-style "all clear"
+   banner NotificationsPanel used to hand-roll. */
 .ops-empty-state-success {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--green-mid);
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--status-success-bg);
+  border: 1.5px solid var(--status-success-border);
+}
+.ops-empty-state-success-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--status-success-subtle);
+  color: var(--status-success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ops-empty-state-success .ops-empty-state-title {
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--status-success-strong);
+}
+.ops-empty-state-success .ops-empty-state-sub {
+  font-size: 0.8rem;
+  color: var(--status-success);
 }
 
 .ops-ranked-list li {
