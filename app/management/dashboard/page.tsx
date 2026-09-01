@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { unstable_cache } from "next/cache";
 import Stripe from "stripe";
 import ManagerControlCenterLoader from "@/components/mission-control/ManagerControlCenterLoader";
 import { MissionControlSkeleton } from "@/components/mission-control/manager-ui";
@@ -9,6 +10,37 @@ import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getManagementSnapshot } from "@/lib/management/service";
 import { getTrialStatus, getDaysRemaining } from "@/lib/trial";
 import { isB2BTier, normalizeTier, hasManagerConsoleAccess, isOwnerLevelRole } from "@/lib/session";
+
+// This route is force-dynamic and reads searchParams (see below), which
+// means Next.js re-runs this Server Component on every navigation that
+// changes the URL — including the in-app tab switcher (?tab=...), which is
+// a pure client-side UI concept with nothing to do with server data. Without
+// caching, that regenerates a brand-new getManagementSnapshot() promise on
+// every single tab click, and per React 19's use() semantics, a promise
+// that's still PENDING when ManagerControlCenterLoader renders forces a real
+// Suspense re-suspend — which risks discarding ManagerControlCenter's entire
+// local state (selectedVenueId, selectedStaffId, filters, etc.), reported as
+// the venue-name-in-topbar-goes-stale-on-navigation bug.
+//
+// Short TTL, module-scoped (required — unstable_cache only caches across
+// requests when defined outside the request handler) so repeat calls within
+// a session resolve synchronously fast, meaning use() has nothing left to
+// suspend on after the first hit. Safe to cache: mutations never depend on
+// this path staying fresh — every mutation route returns an updated
+// snapshot that ManagerControlCenter applies directly to its own state
+// (see applySnapshotResult in ManagerControlCenter.tsx), completely
+// bypassing this server-side fetch. Staleness here only affects what a
+// fresh page load sees, never "did my change save."
+//
+// Uses the admin client rather than the request-scoped RLS client, since
+// getManagementSnapshot's own queries already scope explicitly by
+// owner_user_id/venue ownership (not relying on RLS to do it) — same
+// pattern already used by /api/management/memberships.
+const getCachedManagementSnapshot = unstable_cache(
+  async (userId: string) => getManagementSnapshot(createSupabaseAdminClient(), userId),
+  ["management-snapshot"],
+  { revalidate: 20 },
+);
 
 // Prevent static generation – this page requires auth at runtime
 export const dynamic = "force-dynamic";
@@ -141,8 +173,10 @@ export default async function ManagementDashboardPage({
   // ManagerControlCenterLoader via Suspense/use() below. Do not add an
   // `await` here: an earlier version of this page did that and it blocked
   // the entire page shell behind this one query (see commit ae46df6,
-  // "perf(stage-1): Unblock dashboard render").
-  const snapshotPromise = getManagementSnapshot(supabase, user.id);
+  // "perf(stage-1): Unblock dashboard render"). Cached (see
+  // getCachedManagementSnapshot above) so this resolves near-instantly on
+  // every navigation after the first, not just the first page load.
+  const snapshotPromise = getCachedManagementSnapshot(user.id);
 
   return (
     <div className="management-app-root">
