@@ -262,8 +262,15 @@ export default function DiagnosticFlow({
           </div>
         </div>
 
-        {/* Question */}
-        <div style={{ padding: "20px 28px" }}>
+        {/* Question — key={currentQuestion.id} forces this whole block to be
+            discarded and rebuilt on every question change instead of patched
+            in place. Same fix already proven for the identical symptom shape
+            (state visibly advances — index, progress bar — but the DOM node
+            showing the actual content doesn't) in ManagementTopbar.tsx's
+            venue-name button and ManagerControlCenter.tsx's venue-scoped
+            panels; see their comments/git history for the underlying
+            in-place-reconciliation issue this sidesteps regardless of cause. */}
+        <div key={currentQuestion.id} style={{ padding: "20px 28px" }}>
           <h3 style={{ margin: "0 0 16px", fontSize: "1.1rem", fontWeight: 700, color: "var(--text)", lineHeight: 1.4 }}>
             {currentQuestion.question_text}
           </h3>
