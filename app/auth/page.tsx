@@ -27,12 +27,17 @@ function AuthCard() {
     setError("");
     setSuccess("");
     try {
-      const supabase = createSupabaseBrowserClient();
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+      // Server-side route (not supabase.auth.resetPasswordForEmail directly)
+      // so we send our own branded email via Brevo instead of Supabase's
+      // stock template — see app/api/auth/forgot-password/route.ts.
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
       });
-      if (resetError) throw resetError;
-      setSuccess("Password reset email sent. Check your inbox and follow the link.");
+      const data = (await res.json()) as { message?: string; error?: string };
+      if (!res.ok) throw new Error(data.error || "Could not send reset email.");
+      setSuccess(data.message || "Password reset email sent. Check your inbox and follow the link.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not send reset email.");
     } finally {
