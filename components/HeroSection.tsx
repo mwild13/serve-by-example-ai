@@ -59,7 +59,7 @@ export default function HeroSection() {
             width={1335}
             height={1207}
             priority
-            sizes="(max-width: 900px) 90vw, 42vw"
+            sizes="(max-width: 900px) 90vw, 58vw"
             style={{ width: '100%', height: 'auto', display: 'block' }}
           />
         </div>
