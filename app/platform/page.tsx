@@ -155,33 +155,29 @@ export default function PlatformPage() {
 
         {/* ── Dashboard Preview ── */}
         <section id="insights" className="section">
-          <div className="container">
+          <div className="platform-mission-wrap" style={{ margin: "0 auto" }}>
             <SectionHeading
               eyebrow="Management console"
               title="Your venue’s mission control."
               copy="A live dashboard that shows staff performance, training completion, upsell trends, and venue health, all in one view."
             />
-            <div className="solution-grid">
-              <div className="solution-col">
-                <Image
-                  src="/shots/Overview Console Wide.png"
-                  alt="Serve By Example manager console – venue overview with training completion, compliance status, and staff needing attention"
-                  width={3004}
-                  height={1654}
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  style={{ width: "100%", height: "auto", display: "block", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-lg)" }}
-                />
-              </div>
-              <div className="solution-col">
-                <Image
-                  src="/shots/AI Coach Chat.png"
-                  alt="Serve By Example AI Coach – answering a manager's question about staff training progress with real venue data"
-                  width={3024}
-                  height={1654}
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  style={{ width: "100%", height: "auto", display: "block", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-lg)" }}
-                />
-              </div>
+            <div className="platform-mission-grid">
+              <Image
+                src="/shots/Overview Console Wide.png"
+                alt="Serve By Example manager console – venue overview with training completion, compliance status, and staff needing attention"
+                width={3004}
+                height={1654}
+                sizes="(max-width: 900px) 100vw, 60vw"
+                style={{ width: "100%", height: "auto", display: "block", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-lg)" }}
+              />
+              <Image
+                src="/shots/AI Coach Chat.png"
+                alt="Serve By Example AI Coach – answering a manager's question about staff training progress with real venue data"
+                width={1800}
+                height={1654}
+                sizes="(max-width: 900px) 100vw, 40vw"
+                style={{ width: "100%", height: "auto", display: "block", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-lg)" }}
+              />
             </div>
           </div>
         </section>
@@ -233,18 +229,18 @@ export default function PlatformPage() {
               <Image
                 src="/shots/Mobile-home.png"
                 alt="Serve By Example staff training app on mobile – home screen with streak, pre-shift brief, and quick access training"
-                width={1920}
-                height={1920}
-                sizes="(max-width: 768px) 42vw, 220px"
-                style={{ width: "100%", maxWidth: "220px", height: "auto", display: "block" }}
+                width={912}
+                height={1844}
+                sizes="(max-width: 768px) 42vw, 240px"
+                style={{ width: "100%", maxWidth: "240px", height: "auto", display: "block" }}
               />
               <Image
                 src="/shots/Cocktail-mobile.png"
                 alt="Serve By Example staff training app on mobile – 38-cocktail drink library"
-                width={1920}
-                height={1920}
-                sizes="(max-width: 768px) 42vw, 220px"
-                style={{ width: "100%", maxWidth: "220px", height: "auto", display: "block", marginTop: "2.5rem" }}
+                width={912}
+                height={1844}
+                sizes="(max-width: 768px) 42vw, 240px"
+                style={{ width: "100%", maxWidth: "240px", height: "auto", display: "block", marginTop: "2.5rem" }}
               />
             </div>
           </div>

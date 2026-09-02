@@ -200,10 +200,10 @@ export default function Home() {
                   </div>
                 </div>
                 <Image
-                  src="/shots/Management Console View.webp"
-                  alt="Serve By Example management console – venue performance mission control"
-                  width={1200}
-                  height={750}
+                  src="/shots/Overview Console Wide.png"
+                  alt="Serve By Example management console – venue overview with training completion, compliance status, and staff needing attention"
+                  width={3004}
+                  height={1654}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
                   loading="lazy"
                   style={{ width: "100%", height: "auto", display: "block" }}
@@ -220,10 +220,10 @@ export default function Home() {
                   </div>
                 </div>
                 <Image
-                  src="/shots/Staff Certifications.webp"
-                  alt="Staff certification and module mastery progress view"
-                  width={1200}
-                  height={630}
+                  src="/shots/Mastery Grid.png"
+                  alt="Staff training progress view – certification hub and module mastery by category"
+                  width={3024}
+                  height={1654}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
                   loading="lazy"
                   style={{ width: "100%", height: "auto", display: "block" }}
@@ -269,10 +269,10 @@ export default function Home() {
                 </div>
                 <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Image
-                    src="/shots/Mobile View3.png"
-                    alt="Mobile training view – hospitality staff learning on phone"
-                    width={347}
-                    height={707}
+                    src="/shots/Mobile-home.png"
+                    alt="Serve By Example staff training app on mobile – home screen with streak, pre-shift brief, and quick access training"
+                    width={912}
+                    height={1844}
                     sizes="(max-width: 768px) 80vw, 240px"
                     style={{ width: "100%", maxWidth: "240px", height: "auto", display: "block", margin: "0 auto" }}
                   />

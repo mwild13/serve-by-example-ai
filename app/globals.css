@@ -9099,6 +9099,24 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   align-items: center;
 }
 
+/* Mission control preview — wider than the standard .container so the
+   dense console + AI Coach screenshots stay legible side by side. */
+.platform-mission-wrap {
+  width: min(1440px, calc(100% - 48px));
+}
+
+.platform-mission-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .platform-mission-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .platform-phone-mockup {
   width: 240px;
   background: var(--green-deep);

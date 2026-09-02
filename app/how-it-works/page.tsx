@@ -256,10 +256,10 @@ export default function HowItWorksPage() {
                 <Image
                   src="/shots/Progress Skill Rings.png"
                   alt="Serve By Example staff mobile app – mastery breakdown by category with modules mastered and skill level"
-                  width={1920}
-                  height={1920}
-                  sizes="(max-width: 768px) 55vw, 240px"
-                  style={{ width: "100%", maxWidth: "240px", height: "auto", display: "block", margin: "0 auto" }}
+                  width={912}
+                  height={1844}
+                  sizes="(max-width: 768px) 45vw, 200px"
+                  style={{ width: "100%", maxWidth: "200px", height: "auto", display: "block", margin: "0 auto" }}
                 />
               </div>
 
