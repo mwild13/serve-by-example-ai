@@ -548,9 +548,9 @@ export default function SettingsScreen() {
         {[
           { label: "Report a Bug", href: "/mobile/report-bug" },
           { label: "Help & FAQ", href: "/mobile/help" },
-          { label: "Contact support", href: "/contact" },
-          { label: "Terms of Service", href: "/terms" },
-          { label: "Privacy Policy", href: "/privacy" },
+          { label: "Contact support", href: "/mobile/contact" },
+          { label: "Terms of Service", href: "/mobile/terms" },
+          { label: "Privacy Policy", href: "/mobile/privacy" },
         ].map((link) => (
           <Link key={link.href} href={link.href} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", textDecoration: "none" }}>
             <span style={{ fontSize: 14, color: "var(--text-mobile)" }}>{link.label}</span>
