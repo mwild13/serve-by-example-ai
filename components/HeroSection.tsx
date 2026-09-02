@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 /*
  * Homepage hero — Pages-Redesign.md §6.1.
@@ -11,14 +12,6 @@ const TRUST_ITEMS = [
   '3× faster onboarding',
   '100+ modules & scenarios',
   '19 languages',
-];
-
-const ARENA_DIMENSIONS: { label: string; score: number }[] = [
-  { label: 'Empathy', score: 9 },
-  { label: 'Product knowledge', score: 8 },
-  { label: 'De-escalation', score: 9 },
-  { label: 'Upsell timing', score: 7 },
-  { label: 'Policy accuracy', score: 10 },
 ];
 
 export default function HeroSection() {
@@ -58,60 +51,17 @@ export default function HeroSection() {
           </ul>
         </div>
 
-        {/* ── Right column: layered product teaser (HTML, not a screenshot) ── */}
-        <div className="sbe-mkt-hero-teaser" aria-hidden="true">
-
-          {/* Base layer: Pre-Shift Brief card */}
-          <div className="sbe-mkt-teaser-card sbe-mkt-teaser-brief">
-            <div className="sbe-mkt-teaser-card-head">
-              <span className="sbe-mkt-teaser-kicker">Pre-Shift Brief</span>
-              <span className="sbe-mkt-teaser-live">Friday · 5:40 pm</span>
-            </div>
-            <p className="sbe-mkt-teaser-title">Welcome back, David</p>
-            <p className="sbe-mkt-teaser-body">
-              You&rsquo;ve completed 7 sessions. 1 module is due for spaced repetition.
-            </p>
-            <div className="sbe-mkt-teaser-focus">
-              <span className="sbe-mkt-teaser-focus-label">Focus for tonight</span>
-              <p>When reassigning tasks, name the person and the specific job out loud.</p>
-            </div>
-            <div className="sbe-mkt-teaser-progress">
-              <span>Training progress</span>
-              <div className="sbe-mkt-teaser-progress-track">
-                <div className="sbe-mkt-teaser-progress-fill" style={{ width: '68%' }} />
-              </div>
-              <span className="sbe-mkt-teaser-progress-num">27 of 40 modules</span>
-            </div>
-          </div>
-
-          {/* Overlay layer: AI Arena score card */}
-          <div className="sbe-mkt-teaser-card sbe-mkt-teaser-arena">
-            <div className="sbe-mkt-teaser-card-head">
-              <span className="sbe-mkt-teaser-kicker">AI Arena</span>
-              <span className="sbe-mkt-teaser-score">8.6</span>
-            </div>
-            <p className="sbe-mkt-teaser-arena-scenario">
-              &ldquo;A regular disputes his tab at last call&rdquo;
-            </p>
-            <ul className="sbe-mkt-teaser-dims">
-              {ARENA_DIMENSIONS.map((d) => (
-                <li key={d.label}>
-                  <span className="sbe-mkt-teaser-dim-label">{d.label}</span>
-                  <span className="sbe-mkt-teaser-dim-track">
-                    <span
-                      className="sbe-mkt-teaser-dim-fill"
-                      style={{ width: `${d.score * 10}%` }}
-                    />
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Accent layer: manager visibility pill */}
-          <div className="sbe-mkt-teaser-pill">
-            Synced to Manager Console
-          </div>
+        {/* ── Right column: real product screenshot ── */}
+        <div className="sbe-mkt-hero-teaser">
+          <Image
+            src="/shots/HERO SHOT.png"
+            alt="Serve By Example on desktop and mobile — manager console, pre-shift home screen, and cocktail drink library"
+            width={1335}
+            height={1207}
+            priority
+            sizes="(max-width: 900px) 90vw, 42vw"
+            style={{ width: '100%', height: 'auto', display: 'block' }}
+          />
         </div>
       </div>
 

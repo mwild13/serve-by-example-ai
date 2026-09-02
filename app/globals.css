@@ -17470,10 +17470,9 @@ h1, h2, h3 {
   white-space: nowrap;
 }
 
-/* ── Right column: layered teaser ── */
+/* ── Right column: product screenshot ── */
 .sbe-mkt-hero-teaser {
-  position: relative;
-  min-height: 480px;
+  width: 100%;
 }
 
 .sbe-mkt-teaser-card {
