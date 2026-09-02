@@ -58,20 +58,6 @@ const features: FeatureGridItem[] = [
   },
 ];
 
-const dashboardStats = [
-  { label: "Avg training completion", value: "87%", trend: "↑ 12% this month" },
-  { label: "Scenario score (sales)", value: "74%", trend: "↑ 9%" },
-  { label: "Upsell performance", value: "68%", trend: "↑ 15%" },
-  { label: "Active staff this week", value: "14/16", trend: "2 need follow-up" },
-];
-
-const coachQuestions = [
-  "Who hasn't completed their alcohol training?",
-  "Which staff have the lowest sales scores?",
-  "What's our average scenario score this week?",
-  "Show me staff who need upselling practice.",
-];
-
 const staffPoints = [
   "Short, mobile-first learning modules",
   "Realistic scenario-based practice",
@@ -175,41 +161,26 @@ export default function PlatformPage() {
               title="Your venue’s mission control."
               copy="A live dashboard that shows staff performance, training completion, upsell trends, and venue health, all in one view."
             />
-            <div className="platform-dashboard-mockup">
-              <div className="platform-dash-sidebar">
-                <div className="platform-dash-logo">Venue operations</div>
-                {["Overview", "Staff", "Training", "AI Coach", "Analytics", "Settings"].map((item) => (
-                  <div key={item} className={`platform-dash-nav-item${item === "Overview" ? " active" : ""}`}>{item}</div>
-                ))}
+            <div className="solution-grid">
+              <div className="solution-col">
+                <Image
+                  src="/shots/Overview Console Wide.png"
+                  alt="Serve By Example manager console – venue overview with training completion, compliance status, and staff needing attention"
+                  width={3004}
+                  height={1654}
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  style={{ width: "100%", height: "auto", display: "block", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-lg)" }}
+                />
               </div>
-              <div className="platform-dash-main">
-                <div className="platform-dash-header">
-                  <strong>Venue performance mission control</strong>
-                  <span className="platform-dash-badge live">Live data</span>
-                </div>
-                <div className="platform-dash-kpis">
-                  {dashboardStats.map((stat) => (
-                    <div key={stat.label} className="platform-dash-kpi">
-                      <span>{stat.label}</span>
-                      <strong>{stat.value}</strong>
-                      <small className="platform-dash-trend">{stat.trend}</small>
-                    </div>
-                  ))}
-                </div>
-                <div className="platform-dash-ai-preview">
-                  <div className="platform-dash-ai-head">
-                    <span>Ask AI Coach</span>
-                  </div>
-                  <div className="platform-dash-ai-suggestions">
-                    {coachQuestions.map((q) => (
-                      <span key={q} className="platform-dash-ai-chip">{q}</span>
-                    ))}
-                  </div>
-                  <div className="platform-dash-ai-response">
-                    <span className="platform-dash-ai-label">AI Coach</span>
-                    <p>Sarah (Bartender) and James (Floor) haven&rsquo;t completed their sales training module. Their upsell scores are below the venue average. I&rsquo;d recommend assigning &ldquo;Sales Conversations&rdquo; this week.</p>
-                  </div>
-                </div>
+              <div className="solution-col">
+                <Image
+                  src="/shots/AI Coach Chat.png"
+                  alt="Serve By Example AI Coach – answering a manager's question about staff training progress with real venue data"
+                  width={3024}
+                  height={1654}
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  style={{ width: "100%", height: "auto", display: "block", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-lg)" }}
+                />
               </div>
             </div>
           </div>
@@ -258,14 +229,22 @@ export default function PlatformPage() {
                 <Link href="/membership" className="btn btn-secondary">View Pricing →</Link>
               </div>
             </div>
-            <div className="platform-mobile-visual">
+            <div className="platform-mobile-visual" style={{ gap: "1rem" }}>
               <Image
-                src="/shots/Mobile View.png"
-                alt="Serve By Example staff training app on mobile – pre-shift brief screen"
-                width={347}
-                height={707}
-                sizes="(max-width: 768px) 80vw, 320px"
-                style={{ width: "100%", maxWidth: "320px", height: "auto", display: "block", margin: "0 auto" }}
+                src="/shots/Mobile-home.png"
+                alt="Serve By Example staff training app on mobile – home screen with streak, pre-shift brief, and quick access training"
+                width={1920}
+                height={1920}
+                sizes="(max-width: 768px) 42vw, 220px"
+                style={{ width: "100%", maxWidth: "220px", height: "auto", display: "block" }}
+              />
+              <Image
+                src="/shots/Cocktail-mobile.png"
+                alt="Serve By Example staff training app on mobile – 38-cocktail drink library"
+                width={1920}
+                height={1920}
+                sizes="(max-width: 768px) 42vw, 220px"
+                style={{ width: "100%", maxWidth: "220px", height: "auto", display: "block", marginTop: "2.5rem" }}
               />
             </div>
           </div>

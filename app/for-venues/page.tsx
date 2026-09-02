@@ -1,6 +1,6 @@
+import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import DashboardMockup from "@/components/ui/DashboardMockup";
 import CompareMatrix from "@/components/ui/CompareMatrix";
 import PageHero from "@/components/marketing/PageHero";
 import CTABand from "@/components/marketing/CTABand";
@@ -75,7 +75,14 @@ export default function ForVenuesPage() {
               title="Everything you need to manage and measure your team’s training."
             />
             <div style={{ maxWidth: "1000px" }}>
-              <DashboardMockup />
+              <Image
+                src="/shots/Overview Console Wide.png"
+                alt="Serve By Example manager console – venue overview with training completion, compliance status, and staff needing attention"
+                width={3004}
+                height={1654}
+                sizes="(max-width: 1000px) 100vw, 1000px"
+                style={{ width: "100%", height: "auto", display: "block", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-lg)" }}
+              />
             </div>
           </div>
         </section>

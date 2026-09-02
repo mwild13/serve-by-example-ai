@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import DashboardMockup from "@/components/ui/DashboardMockup";
 import PageHero from "@/components/marketing/PageHero";
 import CTABand from "@/components/marketing/CTABand";
 import FeatureGrid, { type FeatureGridItem } from "@/components/marketing/FeatureGrid";
@@ -241,19 +240,26 @@ export default function HowItWorksPage() {
               {/* Management Console */}
               <div>
                 <p style={{ color: "var(--divider-light)", fontWeight: 700, fontSize: "0.8125rem", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "1rem" }}>Manager Console</p>
-                <DashboardMockup />
+                <Image
+                  src="/shots/Overview Console Compact.png"
+                  alt="Serve By Example manager console – venue overview with training completion, compliance status, and staff needing attention"
+                  width={2416}
+                  height={1558}
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  style={{ width: "100%", height: "auto", display: "block", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-lg)" }}
+                />
               </div>
 
               {/* Staff Mobile Console */}
               <div>
                 <p style={{ color: "var(--divider-light)", fontWeight: 700, fontSize: "0.8125rem", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "1rem" }}>Staff Mobile Console</p>
                 <Image
-                  src="/shots/Mobile View2.png"
-                  alt="Serve By Example staff mobile console – pre-shift brief and training dashboard"
-                  width={357}
-                  height={713}
+                  src="/shots/Progress Skill Rings.png"
+                  alt="Serve By Example staff mobile app – mastery breakdown by category with modules mastered and skill level"
+                  width={1920}
+                  height={1920}
                   sizes="(max-width: 768px) 55vw, 240px"
-                  style={{ width: "100%", maxWidth: "200px", height: "auto", display: "block", margin: "0 auto", clipPath: "inset(0 2px 2px 0)" }}
+                  style={{ width: "100%", maxWidth: "240px", height: "auto", display: "block", margin: "0 auto" }}
                 />
               </div>
 
