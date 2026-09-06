@@ -43,6 +43,8 @@ function buildCSP(nonce: string): string {
     "font-src 'self'",
     // Fetch/XHR/WebSocket: own API routes + Supabase + Stripe + Google Analytics
     "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://www.google-analytics.com https://www.google.com",
+    // Plugins/embeds: none used — explicit even though default-src already covers it
+    "object-src 'none'",
     // Iframes: Stripe payment elements only
     "frame-src https://js.stripe.com https://*.stripe.com",
     // Prevent this site being embedded in any iframe (clickjacking)
