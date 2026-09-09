@@ -54,10 +54,10 @@ export default function HeroSection() {
         {/* ── Right column: real product screenshot ── */}
         <div className="sbe-mkt-hero-teaser">
           <Image
-            src="/shots/HERO SHOT.png"
+            src="/shots/HERO SHOT1.png"
             alt="Serve By Example on desktop and mobile — manager console, pre-shift home screen, and cocktail drink library"
-            width={1335}
-            height={1207}
+            width={2123}
+            height={1258}
             priority
             sizes="(max-width: 900px) 90vw, 58vw"
             style={{ width: '100%', height: 'auto', display: 'block' }}
