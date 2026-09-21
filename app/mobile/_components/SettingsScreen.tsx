@@ -15,6 +15,7 @@ import {
   Check,
 } from "lucide-react";
 import MobileScreenShell from "./MobileScreenShell";
+import InstallPrompt from "./InstallPrompt";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
@@ -532,6 +533,9 @@ export default function SettingsScreen() {
           </>
         )}
       </SectionCard>
+
+      {/* Install nudge — renders nothing if already standalone, dismissed, or not a supported platform */}
+      <InstallPrompt />
 
       {/* Support */}
       <SectionCard title="Support" icon={AlertTriangle}>

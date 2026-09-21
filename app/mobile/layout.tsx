@@ -31,10 +31,14 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  // Literal mirror of --green (app/globals.css) — see app/layout.tsx's
-  // viewport export for why this can't be a CSS var reference.
+  // Literal mirror of --bg-mobile-dark (app/globals.css) — see
+  // app/layout.tsx's viewport export for why this can't be a CSS var
+  // reference. Phase 6 (2026-09-21): was a mirror of --green (the
+  // marketing root layout's color), which tinted the OS-level browser
+  // chrome (Android Chrome's address bar, iOS Safari's UI) marketing green
+  // against this app's actually-dark screens. Now matches what's on screen.
   // eslint-disable-next-line sbe-design/no-hardcoded-hex
-  themeColor: "#1f4e37",
+  themeColor: "#0B0D16",
 };
 
 export default async function MobileLayout({

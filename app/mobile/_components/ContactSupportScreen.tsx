@@ -187,8 +187,13 @@ export default function ContactSupportScreen() {
           />
         </div>
 
-        {/* Honeypot — hidden from real users, bots tend to fill every field */}
-        <div style={{ position: "absolute", left: -9999, width: 1, height: 1, overflow: "hidden" }} aria-hidden="true">
+        {/* Honeypot — hidden from real users, bots tend to fill every field.
+            Phase 6 fix (2026-09-21): was `position: absolute; left: -9999`,
+            which genuinely widened the document past the viewport on this
+            route (iOS Safari could be dragged/panned) instead of just being
+            visually hidden. Reuse the same safe pattern app/contact/page.tsx
+            already uses. */}
+        <div className="sr-only-hp" aria-hidden="true">
           <label htmlFor="mobile-contact-website">Website</label>
           <input id="mobile-contact-website" type="text" value={website} onChange={(e) => setWebsite(e.target.value)} tabIndex={-1} autoComplete="off" />
         </div>

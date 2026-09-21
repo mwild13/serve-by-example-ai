@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import BottomNav from "./BottomNav";
+import MobileScreenShell from "./MobileScreenShell";
 import { useMarkChallengeComplete } from "../_lib/use-challenge-complete";
-import { FeedbackBanner, TryAgainButton, CompletionCard, mobileShellStyle } from "./challenges/MobileChallengeChrome";
+import { FeedbackBanner, TryAgainButton, CompletionCard } from "./challenges/MobileChallengeChrome";
 
 // Phase C file 05 (remaining games) — real content ported verbatim from
 // desktop's SpotErrorGame.tsx. challengeIndex 3.
@@ -42,7 +43,7 @@ export default function SpotErrorScreen() {
   }
 
   return (
-    <div style={mobileShellStyle}>
+    <MobileScreenShell style={{ justifyContent: "space-between" }}>
       <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
         <div style={{ padding: 20 }}>
           <p style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "var(--text-mobile)" }}>Menu Audit</p>
@@ -121,6 +122,6 @@ export default function SpotErrorScreen() {
       </div>
 
       <BottomNav active="home" />
-    </div>
+    </MobileScreenShell>
   );
 }

@@ -363,8 +363,26 @@ body {
      the 300ms tap delay — the original intent of this rule. */
   touch-action: manipulation;
   overscroll-behavior-y: none;
+  /* Phase 6 mobile-responsive fix (2026-09-21) — belt-and-suspenders. Only
+     -y was suppressed before; any future one-off horizontal-overflow bug
+     under /mobile (see .mobile-dark-shell below for the confirmed real one)
+     now degrades to an inert bounce instead of a genuinely draggable page. */
+  overscroll-behavior-x: none;
 
   width: 100%;
+}
+
+/* Phase 6 mobile-responsive fix (2026-09-21) — toggled on/off document.body
+   by MobileOrientationGuard.tsx for the lifetime of the /mobile route tree.
+   MobileScreenShell's own dark background only covers the normal-paint
+   case (a div inside body); it can't cover iOS Safari's elastic overscroll
+   (rubber-banding past the top/bottom reveals body's own background, not
+   any div inside it) or the home-indicator safe-area strip on notched
+   iPhones, both of which paint straight through to body. Without this,
+   both reveal body's default `--bg` (light marketing parchment) under a
+   dark app. */
+body.mobile-dark-shell {
+  background: var(--bg-mobile-dark);
 }
 
 body.ai-coach-enabled {
