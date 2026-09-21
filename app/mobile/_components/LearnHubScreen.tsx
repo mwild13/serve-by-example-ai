@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import BottomNav from "./BottomNav";
+import MobileScreenShell from "./MobileScreenShell";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 import CoreKnowledgeSection from "./learn/CoreKnowledgeSection";
 import PracticeScenariosSection from "./learn/PracticeScenariosSection";
@@ -110,30 +111,20 @@ export default function LearnHubScreen() {
     }
   }
 
-  const shellStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    width: "100%",
-    maxWidth: 390,
-    margin: "0 auto",
-    minHeight: "100dvh",
-    background: "var(--bg-mobile-dark)",
-    fontFamily: "var(--font-body)",
-  };
+  const shellStyle: React.CSSProperties = { justifyContent: "space-between" };
 
   if (status === "loading") {
     return (
-      <div style={shellStyle}>
+      <MobileScreenShell style={shellStyle}>
         <StatusMessage>Loading modules…</StatusMessage>
         <BottomNav active="learn" />
-      </div>
+      </MobileScreenShell>
     );
   }
 
   if (status === "error") {
     return (
-      <div style={shellStyle}>
+      <MobileScreenShell style={shellStyle}>
         <StatusMessage>
           <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
             <span>{error}</span>
@@ -155,12 +146,12 @@ export default function LearnHubScreen() {
           </div>
         </StatusMessage>
         <BottomNav active="learn" />
-      </div>
+      </MobileScreenShell>
     );
   }
 
   return (
-    <div style={shellStyle}>
+    <MobileScreenShell style={shellStyle}>
       <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
         {/* header-search-group */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: 20 }}>
@@ -275,6 +266,6 @@ export default function LearnHubScreen() {
       </div>
 
       <BottomNav active="learn" />
-    </div>
+    </MobileScreenShell>
   );
 }

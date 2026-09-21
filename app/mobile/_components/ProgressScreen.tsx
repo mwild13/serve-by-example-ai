@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Settings, Pencil } from "lucide-react";
 import BottomNav from "./BottomNav";
+import MobileScreenShell from "./MobileScreenShell";
 import AiCoachWidget from "./progress/AiCoachWidget";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
@@ -98,30 +99,20 @@ export default function ProgressScreen() {
   const session = useMobileSession();
   const { status, data, error, refetch } = useTrainingProgress();
 
-  const shellStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    width: "100%",
-    maxWidth: 390,
-    margin: "0 auto",
-    minHeight: "100dvh",
-    background: "var(--bg-mobile-dark)",
-    fontFamily: "var(--font-body)",
-  };
+  const shellStyle: React.CSSProperties = { justifyContent: "space-between" };
 
   if (status === "loading") {
     return (
-      <div style={shellStyle}>
+      <MobileScreenShell style={shellStyle}>
         <StatusMessage>Loading your progress…</StatusMessage>
         <BottomNav active="me" />
-      </div>
+      </MobileScreenShell>
     );
   }
 
   if (status === "error") {
     return (
-      <div style={shellStyle}>
+      <MobileScreenShell style={shellStyle}>
         <StatusMessage>
           <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
             <span>{error}</span>
@@ -143,7 +134,7 @@ export default function ProgressScreen() {
           </div>
         </StatusMessage>
         <BottomNav active="me" />
-      </div>
+      </MobileScreenShell>
     );
   }
 
@@ -160,7 +151,7 @@ export default function ProgressScreen() {
   }));
 
   return (
-    <div style={shellStyle}>
+    <MobileScreenShell style={shellStyle}>
       <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
         {/* profile-header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 20 }}>
@@ -309,6 +300,6 @@ export default function ProgressScreen() {
       <AiCoachWidget />
 
       <BottomNav active="me" />
-    </div>
+    </MobileScreenShell>
   );
 }

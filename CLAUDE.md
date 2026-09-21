@@ -15,7 +15,7 @@ Serve By Example is an AI-powered hospitality staff training platform that repla
 
 **Two audiences:**
 - **Staff** — bartenders, floor staff, and hospitality employees — work through a 3-stage mastery path covering Bartending, Sales, and Management modules.
-- **Managers** — get Mission Control: real-time team analytics, compliance tracking, AI coaching, multi-venue roster management, and venue-specific inventory linking.
+- **Managers** — get the Manager Console: real-time team analytics, compliance tracking, AI coaching, multi-venue roster management, and venue-specific inventory linking.
 
 ## Tech Stack
 
@@ -24,6 +24,16 @@ Serve By Example is an AI-powered hospitality staff training platform that repla
 - **AI:** OpenAI GPT-4o-mini (scenario evaluation, manager coaching, translation)
 - **Payments:** Stripe — 3 tiers: `free` → `pro` → `venue_single` → `venue_multi`
 - **Language:** TypeScript throughout — no `any` types
+
+## Where to Find Domain-Specific Rules
+
+This file is global rules only. Domain-specific architecture, component maps, and per-surface conventions live in `docs/`:
+
+- Marketing site (public routes, geo-blocking, brand voice, component usage): `docs/MARKETING_SITE.md`
+- Manager Console (data fetching, RBAC, state management): `docs/MANAGER_CONSOLE.md`
+- Staff App — web & mobile training loop, AI Arena, PWA: `docs/STAFF_APP.md`
+- Database schema, table map, RLS rules: `docs/DATABASE_SCHEMA.md`
+- Mastery/ELO scoring engine: `docs/MASTERY_ENGINE.md`
 
 ## Design System — Use These Exactly
 
@@ -69,92 +79,6 @@ All styling uses CSS custom properties defined in `app/globals.css`. **Do not in
 
 **No Tailwind utility classes.** Use `style={{}}` inline props with CSS variables, or CSS class names defined in `app/globals.css`.
 
-## Key Architecture
-
-```
-app/                            Next.js App Router pages and API routes
-components/
-  DashboardShell.tsx            Main authenticated staff UI (client component)
-  ErrorLogger.tsx               Client-side error boundary and logger
-  HeroSection.tsx               Homepage hero section
-  HeroPlayableSandbox.tsx       Interactive sandbox embedded in hero
-  LanguageRuntimeTranslator.tsx Runtime language translation wrapper
-  MenuDrillGenerator.tsx        Menu drill generation UI
-  Navbar.tsx                    Marketing site nav with mega-menu dropdowns
-  Footer.tsx                    5-column marketing footer
-  ProductTour.tsx               Interactive product tour component
-  SectionSubNav.tsx             Reusable section sub-navigation
-  StickyDemoCTA.tsx             Sticky demo call-to-action banner
-app/dashboard/_components/    All staff-facing training UI (colocated with the dashboard route)
-    DashboardShell.tsx          Main authenticated staff UI (client component)
-    PreShiftHome.tsx            Dashboard home tab
-    DynamicModuleNav.tsx        Module browser and stage routing
-    ModuleVerify.tsx            Final verification quiz per module
-    RapidFirePage.tsx           Rapid-fire quiz wrapper
-    RapidFireQuiz.tsx           Quiz engine (streak-based, keyboard shortcuts)
-    ArenaPage.tsx               AI Arena (GPT-4o-mini roleplay evaluation)
-    ChallengesPage.tsx          Interactive mini-games (5 tap-based formats)
-    DiagnosticFlow.tsx          Onboarding diagnostic
-    DashboardTrainer.tsx        In-dashboard training prompt component
-    ProgressOverview.tsx        Staff progress view
-    BadgeStreakSection.tsx       Achievement display
-    BadgeProgressRing.tsx       Badge progress ring animation
-    BadgesView.tsx              Full badges gallery view
-    RecommenderCard.tsx         Module recommendation widget
-    MobileDashboardV3.tsx       Mobile-specific dashboard layout
-    MobileLearnHub.tsx          Mobile learning hub wrapper
-    knowledge-base/             CocktailLibrary.tsx + KnowledgeBase.tsx (lazy-loaded)
-    challenges/                 5 tap-based challenge game components
-    progress/                   ProgressOverview sub-components
-    trainer/                    DashboardTrainer sub-components
-  mission-control/              Manager-facing tools
-    ManagerControlCenter.tsx    Main manager dashboard (~3,965 lines)
-    StaffRosterPanel.tsx        Extracted staff roster panel component
-    CoachingDrawer.tsx          AI coaching slide-out drawer
-    WorkspaceHeader.tsx         Manager workspace top header
-    manager-ui.tsx              Shared manager UI primitives
-  knowledge-base/
-    CocktailLibrary.tsx         38-cocktail reference library (lazy-loaded)
-    KnowledgeBase.tsx           101 Knowledge Base (lazy-loaded)
-  toolkit/
-    SopGeneratorPreview.tsx     SOP generator preview panel
-    SopPreviewDocument.tsx      SOP formatted document preview
-  ui/                           Shared primitives
-    BrowserMockup.tsx           Browser chrome mockup for demos
-    CompareMatrix.tsx           Feature comparison matrix
-    DashboardMockup.tsx         Dashboard screenshot mockup
-    LanguageSwitcher.tsx        Language selection UI
-    ROICalculator.tsx           Interactive ROI calculator
-    SectionHeading.tsx          Reusable section heading component
-    SessionRefresher.tsx        Client-side session keepalive (polls every 5 min)
-    SignOutButton.tsx            Auth sign-out button
-    Skeletons.tsx               Loading skeleton components
-    WaitlistSection.tsx         Waitlist signup section
-
-lib/
-  mastery.ts                    ELO scoring, streak tracking, spaced repetition, mastery flags
-  session.ts                    Session displacement + tier access control
-  verify-questions.ts           Hardcoded True/False question bank (all 40 modules)
-  modules.ts                    Module type definitions and metadata
-  cocktails.ts                  38 curated cocktail definitions
-  knowledge-base.ts             101 Knowledge Base content
-  badges.ts                     Badge definitions and award logic
-  diagnostic-engine.ts          Onboarding diagnostic logic
-  module-navigator.ts           Module progression helpers
-  daily-focus.ts                Daily focus/recommendation logic
-  rate-limit.ts                 Rate limiting for public API routes
-  geo-config.ts                 Geo-blocking configuration
-  supabase.ts                   Browser Supabase client factory
-  supabase-server.ts            Server Supabase client + getUserFromRequest helper
-  supabase-admin.ts             Admin Supabase client (bypasses RLS)
-  management/
-    service.ts                  Venue and staff management service layer (~896 lines)
-    types.ts                    Manager-specific types
-    seed.ts                     Management data seed helpers
-
-supabase/migrations/            SQL schema migration files (chronological)
-```
-
 ## Coding Conventions
 
 - TypeScript throughout — no `any` unless truly unavoidable
@@ -163,6 +87,8 @@ supabase/migrations/            SQL schema migration files (chronological)
 - Never fetch from the DB directly inside a client component — call an API route instead
 - API routes validate input at the boundary before any DB access
 - Rate limiting applied to all public-facing API routes (`lib/rate-limit.ts`)
+- Custom lint rule: `sbe-design/no-hardcoded-hex` (`eslint.config.mjs`) — enforces the Design System rule above as a lint error, not just a style guideline
+- Git commit style: Conventional Commits prefixes — `feat:`, `fix:`, `style:`, `test:`, `chore:`, `debug:` — followed by a short imperative summary
 
 ## Auth Pattern
 
@@ -181,224 +107,22 @@ import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 
 API routes must call `getUserFromRequest(req)` from `@/lib/supabase-server` and return 401 immediately if no user.
 
-## Learning Engine Structure
-
-The staff training platform has a **3-stage mastery path** plus AI-powered extras:
-
-| Nav ID | Label | Component | Description |
-|--------|-------|-----------|-------------|
-| `home` | Home | `PreShiftHome.tsx` | Daily dashboard with recommendations |
-| `module` | Modules | `DynamicModuleNav.tsx` + `ModuleVerify.tsx` | 40 modules across Bartending, Sales, Management |
-| `rapid-fire` | — | `RapidFirePage.tsx` | Internal sub-nav from Modules; rapid quiz mode |
-| `stage4` | Scenario Training | `DashboardTrainer.tsx` | Written scenario practice (routed in `DashboardShell.tsx:816-821`; `DiagnosticFlow.tsx` is only the first-login onboarding modal, not this nav destination) |
-| `scenarios` | AI Arena | `ArenaPage.tsx` | GPT-4o-mini live roleplay evaluation |
-| `challenges` | Challenges | `ChallengesPage.tsx` | 5 tap-based interactive mini-games |
-| `cocktails` | Cocktail Library | `CocktailLibrary.tsx` | 38-cocktail reference (lazy-loaded) |
-| `knowledge` | 101 Knowledge Base | `KnowledgeBase.tsx` | Quick-reference knowledge base (lazy-loaded) |
-| `progress` | Me / How I'm improving | `ProgressOverview.tsx` | Personal stats and mastery overview |
-| `settings` | Settings | `StaffSettingsPanel` | Profile, security, venue join |
-
-**Premium gating** — `PREMIUM_NAV_ITEMS = ["module", "stage4", "scenarios", "cocktails", "knowledge"]`. Free users see these as locked. `challenges`, `home`, `progress`, and `settings` are always available.
-
-**Tier access (lib/session.ts):**
-- `free` — no module access
-- `pro` — all 40 modules
-- `venue_single` — all 40 modules, up to 25 staff
-- `venue_multi` — all 40 modules, up to 125 staff (5 venues × 25)
-- Staff invited via venue code (`venue_memberships` table) receive sponsored access equivalent to `pro`
-
-## Dashboard Shell
-
-`app/dashboard/_components/DashboardShell.tsx` is the main authenticated staff UI — a client component that manages `NavItem` state and renders the correct view. The mobile bottom nav bar shows: Home, Learn, Scenarios, Me.
-
-To add a new learning view:
-1. Add a string literal to `type NavItem`
-2. Add an entry to `NAV_ITEMS`
-3. Import the component (lazy-load heavy ones with `lazy(() => import(...))`)
-4. Add a render case in the conditional chain
-5. Add to `PREMIUM_NAV_ITEMS` if it should be gated
-
-## API Routes
-
-```
-app/api/
-  arena/evaluate/               GPT-4o-mini scenario evaluation
-  billing/
-    checkout/                   Stripe checkout session creation
-    link-pending/               Link a pending purchase to a signed-in user
-    webhook/                    Stripe webhook handler (billing state machine)
-  book-call/                    Book a sales call lead capture
-  coach/                        AI coaching messages
-  contact/                      Contact form submission
-  demo/
-    evaluate/                   Public demo evaluation (no auth)
-    generate-drills/            Public menu drill generation (no auth)
-  evaluate/                     General scenario evaluation
-  geo/                          Geo-block check endpoint
-  management/
-    coach/                      AI coaching for managers
-    inventory/                  Venue inventory management
-    join-venue/                 Staff join a venue via code
-    memberships/                Venue membership CRUD
-    snapshot/                   Team performance snapshot
-    staff/                      Staff management (list, remove)
-    test-invite-email/          Test invite email dispatch
-    training-programs/          Training program management
-    venues/                     Venue CRUD
-  profile/update-name/          Profile name update
-  roi/
-    email/                      Send ROI report via email
-  session/stamp/                Session displacement stamp
-  toolkit-capture/              SOP toolkit lead capture
-  toolkit-open/                 SOP toolkit open tracking
-  training/
-    save/                       Save training progress
-    progress/                   Fetch training progress
-    modules/[moduleId]/         Module data
-    modules/[moduleId]/scenarios/ Module scenarios
-    diagnostic/start/           Start onboarding diagnostic
-    diagnostic/submit/          Submit diagnostic answer
-  translate/                    Language translation
-  unsubscribe/                  Email unsubscribe handler
-  verify-session/               Stripe checkout session verification
-```
-
-## Key File Locations
-
-| What | Where |
-|------|-------|
-| Root CSS + design tokens | `app/globals.css` |
-| Root layout + font config | `app/layout.tsx` |
-| Dashboard entry point (server) | `app/dashboard/page.tsx` |
-| Main staff shell (client) | `app/dashboard/_components/DashboardShell.tsx` |
-| All learning UI | `app/dashboard/_components/` |
-| Manager dashboard (server) | `app/management/dashboard/page.tsx` |
-| Shared UI primitives | `components/ui/` |
-| Manager console | `components/mission-control/` |
-| SOP toolkit components | `components/toolkit/` |
-| Mastery engine | `lib/mastery.ts` |
-| Tier + session logic | `lib/session.ts` |
-| Verify question bank | `lib/verify-questions.ts` |
-| All training API routes | `app/api/training/` |
-| SQL migrations | `supabase/migrations/` |
-
 ## App Pages (Authenticated / Utility)
+
+Cross-cutting auth/utility routes not owned by a single domain doc:
 
 | Route | Purpose |
 |-------|---------|
-| `/dashboard` | Staff learning dashboard |
-| `/dashboard/badges` | Full badge gallery |
-| `/management/dashboard` | Manager Mission Control |
 | `/login` | Auth login |
 | `/auth/callback` | Supabase OAuth callback |
 | `/onboarding` | New user onboarding flow |
 | `/payment-success` | Post-Stripe checkout confirmation |
 | `/session-conflict` | One-device enforcement conflict page |
 | `/reset-password` | Password reset |
-| `/geo-block` | Geo-restricted access page |
+| `/geo-block` | Geo-restricted access page (see `docs/MARKETING_SITE.md` for a routing nuance — the geo-block middleware's actual redirect target is `/restricted`, not this page) |
 | `/restricted` | General access-denied page |
 
-## Marketing Pages
-
-Public-facing marketing site lives in `app/` alongside the app routes:
-
-| Route | Purpose |
-|-------|---------|
-| `/` | Homepage |
-| `/platform` | Platform overview |
-| `/platform/challenges` | Interactive Challenges marketing page |
-| `/solutions` | Solutions by venue type |
-| `/solutions/fine-dining` | Fine dining vertical |
-| `/solutions/franchise-systems` | Franchise systems vertical |
-| `/solutions/hotel-fb` | Hotel F&B vertical |
-| `/solutions/multi-venue` | Multi-venue groups vertical |
-| `/solutions/pub-groups` | Pub groups vertical |
-| `/for-venues` | Venue operator landing |
-| `/pricing` | Pricing (Stripe checkout) |
-| `/demo` | Public AI demo |
-| `/demo/complaint-master` | Complaint handling demo |
-| `/how-it-works` | How It Works |
-| `/roi` | ROI Calculator |
-| `/resources` | Resources hub |
-| `/resources/sop-toolkit` | Free SOP toolkit lead magnet |
-| `/toolkit` | SOP toolkit landing page |
-| `/toolkit/success` | Post-toolkit-download success page |
-| `/roadmap` | Public product roadmap |
-| `/security` | Security & Safety |
-| `/about` | About |
-| `/contact` | Contact |
-| `/privacy` | Privacy Policy |
-| `/terms` | Terms of Service |
-| `/cookies` | Cookie Policy |
-
-Shared marketing layout components: `components/Navbar.tsx` (mega-menu dropdowns) and `components/Footer.tsx` (5-column footer).
-
-## Terminology Reference
-
-### Database vs. Domain Language
-
-The database schema is logically correct — no renames needed. This table documents how user-facing terms map to database reality.
-
-| Domain Concept | Database Table | Database Column / Value | Notes |
-|----------------|----------------|-------------------------|-------|
-| Module | `modules` | `id` (1–40) | Training module identifier |
-| Scenario (generic) | `scenarios` | `*` | Any question/exercise in the scenarios table |
-| Quiz (L1) | `scenarios` | `scenario_type = 'quiz'` | Rapid-fire true/false; used in rapid-fire mode |
-| Descriptor (L2) | `scenarios` | `scenario_type = 'descriptor_l2'` | Pick 2 of 5; used in Stage 4 |
-| Descriptor (L3) | `scenarios` | `scenario_type = 'descriptor_l3'` | Pick 3 of 5; used in Stage 4 |
-| AI Scenario (Arena) | `scenarios` | `scenario_type = 'roleplay'` | AI-evaluated roleplay; internal code uses `'ai_roleplay'` for clarity |
-| Challenge | `user_challenges` | `*` | Tap-based mini-game; entirely separate from the scenarios table |
-
-Note: `lib/domain-types.ts` was removed (Aug 2026) — it had no importers. The `DbScenarioType` / `DomainScenarioType` mapping was dead code; the table above is the authoritative reference.
-
-## Mastery Engine Rules
-
-`lib/mastery.ts` is the **single source of truth** for all ELO and mastery logic. Never add a second ELO calculation or mastery formula elsewhere.
-
-**Key functions:**
-- `recordAttempt()` — canonical write path for scenario attempts (ELO, mastery level, streaks)
-- `markModuleMastered()` — verify-quiz gate (binary pass/fail; does not touch ELO)
-- `getMasteryProgress()` — aggregate per-module stats
-- `syncMasteryToVenueStaff()` — only bridge from staff-side mastery into manager-facing `venue_staff` rows
-
-**Canonical field names — use exactly these in new code:**
-
-| Concept | Canonical | Not this |
-|---------|-----------|----------|
-| ELO rating | `elo_rating` | ~~`current_elo`~~, ~~`eloRating`~~, ~~`avgElo`~~ |
-| Mastery % | `mastery` | ~~`mastery_pct`~~, ~~`mastery_status`~~ |
-
-**Module catalog:** `modules` DB table + `lib/module-navigator.ts` is the single source of truth for module metadata. Never hardcode a parallel module list in a component — fetch through `module-navigator.ts` or `/api/training/modules`.
-
-**Known duplication (do not expand — migrate toward canonical when touching these files):**
-- Module catalog duplicated in `ArenaPage.tsx::MODULE_META`, `lib/diagnostic-engine.ts`, `ModuleVerify.tsx`
-- Scenario content duplicated in `trainer/trainer-data.ts::SCENARIOS` and `ArenaPage.tsx::ARENA_SEED_SCENARIOS`
-- ELO write paths: `recordAttempt()` (canonical) vs. hand-rolled upsert in `app/api/arena/evaluate/route.ts`
-
-## Mission Control Architecture Constraints
-
-**CSS token anti-pattern:** `--bg-dark` (`#1B2A2F`) is a **marketing-site** dark-hero token — NOT a Mission Control token. The console runs on `--bg` (parchment `#f5f2e9`), `--surface`, and `--surface-raised`. Never apply `--bg-dark` to console panels.
-
-**`--mcc-*` token block** — resolved. The parallel 20-token palette (`--mcc-canvas`, `--mcc-forest-900`, `--mcc-good`, `--mcc-bad`, etc.) that used to live in `app/globals.css` near line 13319 has been fully migrated onto `--status-*`/`--green`/`--surface`; zero `--mcc-*` definitions or usages remain anywhere in the codebase. Do not reintroduce a parallel `--mcc-*` namespace — extend `--status-*`/`--green`/`--surface` instead.
-
-**`ManagerControlCenter.tsx` line-count target: under 3,200 lines.** Current state ~2,050 lines — target met.
-
-**Component extractions — complete.** The extractions named in the original Phase 5 audit are extracted and wired (the `+Create New` dropdown extraction never happened/was reverted — `QuickActionMenu.tsx` does not exist in the repo; the `QUICK_ACTIONS` array still lives inline in `ManagerControlCenter.tsx`, reachable via keyboard shortcuts and EmptyState CTAs):
-- `StaffDirectoryTable.tsx` — Staff Directory table + mobile cards, imported into `ManagerControlCenter.tsx`.
-- `TeamsPerformancePanel.tsx` — imported into `ManagerControlCenter.tsx`; the `max-width: 1440px` wide-viewport fix is applied at the shell level in `app/globals.css`.
-- `RolesPermissionsMatrix.tsx` — imported into `ManagerControlCenter.tsx`.
-- `LeaderboardBoard.tsx` — imported into `ManagerControlCenter.tsx`. Note: a later UX refinement pass deliberately kept the podium visualization (made "additive, not duplicative" alongside the ranked list) — this supersedes the original acceptance note to remove it.
-
-Full audit and original acceptance criteria: `docs/Phase5-Mission-Control-Execution-Brief.md` (historical — extractions it called for are done).
-
-## Marketing Page Design Rules
-
-Full spec: `docs/Pages-Redesign.md`. Key rules for quick reference:
-
-- **Default left-aligned** section headers. Reserve centering for the hero and final CTA — not every section. The existing pattern of `eyebrow → centered h2 → centered p` repeated 28 times across 13 files reads as a template.
-- **No generic gradient backgrounds** — use `--bg` / `--bg-alt` / `--surface` shifts, a border, or photography for section separation.
-- **Vary feature-list presentation** — the default "3 icon + heading + paragraph" grid is overused. Use tables, timelines, annotated screenshots, or two-column lists where the content suits it.
-- **Scope boundary:** marketing pages only. Never port bento grids, big-serif stat numbers, or oversized decoration into `/dashboard` or `/management/dashboard` — those are product surfaces with different density constraints.
+Domain-specific app pages (`/dashboard`, `/management/dashboard`, etc.) are documented in `docs/STAFF_APP.md` and `docs/MANAGER_CONSOLE.md`.
 
 # conversion-ui
 When the user types `/conversion-ui`, invoke the Skill tool with `skill: "conversion-ui"` before doing anything else.

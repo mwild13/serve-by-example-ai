@@ -17,8 +17,11 @@ import { CHALLENGES } from "../ChallengesScreen";
 // every Learn Hub search keystroke along with the modules grid it sits next
 // to.
 
+const PREVIEW_COUNT = 3;
+
 function MiniGamesSection() {
-  const preview = CHALLENGES.slice(0, 3);
+  const preview = CHALLENGES.slice(0, PREVIEW_COUNT);
+  const remaining = CHALLENGES.length - preview.length;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "0 20px 20px" }}>
@@ -80,28 +83,30 @@ function MiniGamesSection() {
             </Link>
           );
         })}
-        <Link
-          href="/mobile/challenges"
-          style={{
-            flexShrink: 0,
-            scrollSnapAlign: "start",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
-            width: 92,
-            padding: "14px 10px",
-            borderRadius: "var(--radius-lg)",
-            background: "var(--surface-mobile-alt)",
-            border: "1px dashed var(--border-mobile)",
-            textDecoration: "none",
-            textAlign: "center",
-          }}
-        >
-          <Swords size={18} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
-          <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: "var(--text-mobile-muted)" }}>+2 more</p>
-        </Link>
+        {remaining > 0 && (
+          <Link
+            href="/mobile/challenges"
+            style={{
+              flexShrink: 0,
+              scrollSnapAlign: "start",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              width: 92,
+              padding: "14px 10px",
+              borderRadius: "var(--radius-lg)",
+              background: "var(--surface-mobile-alt)",
+              border: "1px dashed var(--border-mobile)",
+              textDecoration: "none",
+              textAlign: "center",
+            }}
+          >
+            <Swords size={18} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
+            <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: "var(--text-mobile-muted)" }}>+{remaining} more</p>
+          </Link>
+        )}
       </div>
     </div>
   );

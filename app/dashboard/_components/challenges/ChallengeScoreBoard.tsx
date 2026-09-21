@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import confetti from "canvas-confetti";
 import { STEP_LABELS } from "./challenge-types";
+import { TOTAL_CHALLENGES } from "@/lib/challenges";
 
 // ── Completion summary / scoreboard ─────────────────────────────────────────
 
@@ -48,10 +49,10 @@ export default function ChallengeScoreBoard({
           </svg>
         </div>
         <h2 style={{ fontFamily: "var(--font-fraunces)", fontSize: "1.75rem", fontWeight: 700, color: "var(--green)", margin: "0 0 0.25rem" }}>
-          {score} of 5 correct
+          {score} of {TOTAL_CHALLENGES} correct
         </h2>
         <p style={{ fontSize: "0.875rem", color: "var(--text-soft)", margin: 0 }}>
-          {score === 5 ? "Perfect run. All 5 on the first try." : score >= 3 ? "Good effort. Review the ones you missed." : "Keep practising. These questions are always replayable."}
+          {score === TOTAL_CHALLENGES ? `Perfect run. All ${TOTAL_CHALLENGES} on the first try.` : score >= 3 ? "Good effort. Review the ones you missed." : "Keep practising. These questions are always replayable."}
         </p>
       </div>
 

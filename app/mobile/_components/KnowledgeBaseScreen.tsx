@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Search } from "lucide-react";
 import BottomNav from "./BottomNav";
+import MobileScreenShell from "./MobileScreenShell";
 import { KB_CATEGORIES, KB_ENTRIES, type KBCategory, type KBEntry } from "@/lib/knowledge-base";
 
 // Phase C file 06 — real data + search/filter, ported from the desktop
@@ -144,19 +145,7 @@ export default function KnowledgeBaseScreen() {
   }, [filtered]);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        width: "100%",
-        maxWidth: 390,
-        margin: "0 auto",
-        minHeight: "100dvh",
-        background: "var(--bg-mobile-dark)",
-        fontFamily: "var(--font-body)",
-      }}
-    >
+    <MobileScreenShell style={{ justifyContent: "space-between" }}>
       <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
         {/* header-section */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 20px 16px" }}>
@@ -322,6 +311,6 @@ export default function KnowledgeBaseScreen() {
       <BottomNav active="learn" />
 
       {selected && <DetailSheet entry={selected} onClose={() => setSelected(null)} />}
-    </div>
+    </MobileScreenShell>
   );
 }

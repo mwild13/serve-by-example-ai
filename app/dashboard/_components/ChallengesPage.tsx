@@ -8,6 +8,7 @@ import FillBlankGame from "./challenges/FillBlankGame";
 import MatchPairGame from "./challenges/MatchPairGame";
 import SpotErrorGame from "./challenges/SpotErrorGame";
 import MultipleChoiceGame from "./challenges/MultipleChoiceGame";
+import { TOTAL_CHALLENGES, MAX_CHALLENGE_INDEX } from "@/lib/challenges";
 
 // ── Page shell / dispatcher ──────────────────────────────────────────────────
 
@@ -45,8 +46,8 @@ export default function ChallengesPage() {
     }).catch((err) => console.error("[ChallengesPage] Failed to sync challenge:", err));
 
     // Advance wizard
-    if (index === 4) {
-      const finalScore = 5 - hadError.size;
+    if (index === MAX_CHALLENGE_INDEX) {
+      const finalScore = TOTAL_CHALLENGES - hadError.size;
       try {
         const stored = localStorage.getItem("sbe-challenges-best-score");
         const prev = stored !== null ? parseInt(stored, 10) : -1;
@@ -80,7 +81,7 @@ export default function ChallengesPage() {
     } catch { /* ignore */ }
   }
 
-  const score = 5 - hadError.size;
+  const score = TOTAL_CHALLENGES - hadError.size;
 
   return (
     <div style={{ width: "100%", paddingBottom: "3rem" }}>
@@ -209,7 +210,7 @@ export default function ChallengesPage() {
                 Personal best:&nbsp;
               </span>
               <span style={{ fontSize: 12, color: "var(--gold)", fontWeight: 800 }}>
-                {personalBest}/5
+                {personalBest}/{TOTAL_CHALLENGES}
               </span>
             </div>
           )}

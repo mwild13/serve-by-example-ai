@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Bell, Flame, Swords, BrainCircuit, Martini, Award } from "lucide-react";
 import BottomNav from "./BottomNav";
+import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 import { COCKTAILS, COCKTAIL_IMAGES } from "@/lib/cocktails";
@@ -87,18 +88,7 @@ export default function HomeScreen() {
   }, [data, dayIdx]);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        width: "100%",
-        maxWidth: 390,
-        margin: "0 auto",
-        minHeight: "100dvh",
-        background: "var(--bg-mobile-dark)",
-        fontFamily: "var(--font-body)",
-      }}
-    >
+    <MobileScreenShell>
       {/* Fix-locked bottom nav (2026-08-25): BottomNav now renders fixed
           (see BottomNav.tsx) instead of inline at the end of this column, so
           it's always visible instead of only appearing once scrolled to the
@@ -408,6 +398,6 @@ export default function HomeScreen() {
       </div>
 
       <BottomNav active="home" fixed />
-    </div>
+    </MobileScreenShell>
   );
 }

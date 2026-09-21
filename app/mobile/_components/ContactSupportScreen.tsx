@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
 
 // Mobile bugfix pass (2026-09-02) — Settings > Support > "Contact support"
@@ -14,17 +15,6 @@ import { useMobileSession } from "../_lib/mobile-session-context";
 // ReportBugScreen.tsx, so mobile users never leave the app.
 
 const VENUE_TYPES = ["Bar / Pub", "Restaurant", "Hotel F&B", "Events venue", "Other"];
-
-const shellStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  width: "100%",
-  maxWidth: 390,
-  margin: "0 auto",
-  minHeight: "100dvh",
-  background: "var(--bg-mobile-dark)",
-  fontFamily: "var(--font-body)",
-};
 
 const inputStyle: React.CSSProperties = {
   padding: "10px 12px",
@@ -84,7 +74,7 @@ export default function ContactSupportScreen() {
 
   if (status === "sent") {
     return (
-      <div style={shellStyle}>
+      <MobileScreenShell>
         <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 20px 16px" }}>
           <BackHeader onBack={() => router.back()} />
         </div>
@@ -117,12 +107,12 @@ export default function ContactSupportScreen() {
             Back to Settings
           </button>
         </div>
-      </div>
+      </MobileScreenShell>
     );
   }
 
   return (
-    <div style={shellStyle}>
+    <MobileScreenShell>
       <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 20px 16px" }}>
         <BackHeader onBack={() => router.back()} />
         <p style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "var(--text-mobile)" }}>Contact support</p>
@@ -234,6 +224,6 @@ export default function ContactSupportScreen() {
           rollout options.
         </p>
       </div>
-    </div>
+    </MobileScreenShell>
   );
 }

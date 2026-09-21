@@ -4,6 +4,7 @@ import { getUserFromRequest } from "@/lib/supabase-server";
 import { getMasteryProgress, getReviewQueue, getScenarioMasteryDetails, categoryMasteryAverage, moduleMasteryByType, SCENARIO_COUNTS } from "@/lib/mastery";
 import { resolveAccess } from "@/lib/session";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { TOTAL_CHALLENGES } from "@/lib/challenges";
 
 const MANAGEMENT_ROLES = ["Manager", "Supervisor"];
 
@@ -259,7 +260,7 @@ export async function GET(req: Request) {
 
     // ── Challenge completion count — from user_challenges table ──
     const challengesCompleted = challengesCompletedRows?.length ?? 0;
-    const totalChallenges = 5;
+    const totalChallenges = TOTAL_CHALLENGES;
 
     // ── Best Live Scenario score — derived from arenaRows (no extra query needed) ──
     const bestArenaScore: number = arenaRows

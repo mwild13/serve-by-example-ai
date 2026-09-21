@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
 
 // Phase C file 08, Half A — the real 10-question diagnostic, replacing the
@@ -86,21 +87,11 @@ export default function OnboardingDiagnosticScreen() {
     };
   }, [session.token]);
 
-  const shellStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    width: "100%",
-    maxWidth: 390,
-    margin: "0 auto",
-    minHeight: "100dvh",
-    background: "var(--bg-mobile-dark)",
-    fontFamily: "var(--font-body)",
-  };
+  const shellStyle: React.CSSProperties = { justifyContent: "space-between" };
 
   if (loadError) {
     return (
-      <div style={shellStyle}>
+      <MobileScreenShell style={shellStyle}>
         <StatusMessage>
           <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
             <span>{loadError}</span>
@@ -121,20 +112,20 @@ export default function OnboardingDiagnosticScreen() {
             </Link>
           </div>
         </StatusMessage>
-      </div>
+      </MobileScreenShell>
     );
   }
 
   if (!questions) {
     return (
-      <div style={shellStyle}>
+      <MobileScreenShell style={shellStyle}>
         <StatusMessage>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
             <Loader2 size={24} className="mobile-spin" color="var(--gold-mobile)" aria-hidden="true" />
             <span>Loading your assessment…</span>
           </div>
         </StatusMessage>
-      </div>
+      </MobileScreenShell>
     );
   }
 
@@ -186,7 +177,7 @@ export default function OnboardingDiagnosticScreen() {
   }
 
   return (
-    <div style={shellStyle}>
+    <MobileScreenShell style={shellStyle}>
       <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
         {/* step-header */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: 20 }}>
@@ -345,6 +336,6 @@ export default function OnboardingDiagnosticScreen() {
           Skip Assessment
         </Link>
       </div>
-    </div>
+    </MobileScreenShell>
   );
 }

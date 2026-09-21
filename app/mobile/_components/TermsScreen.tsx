@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import MobileScreenShell from "./MobileScreenShell";
 import { LegalSection, LegalParagraph, LegalList, LegalDivider, LegalEmailLink } from "./LegalProse";
 
 // Mobile bugfix pass (2026-09-02) — Settings > Support > "Terms of Service"
@@ -15,18 +16,7 @@ export default function TermsScreen() {
   const router = useRouter();
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        width: "100%",
-        maxWidth: 390,
-        margin: "0 auto",
-        minHeight: "100dvh",
-        background: "var(--bg-mobile-dark)",
-        fontFamily: "var(--font-body)",
-      }}
-    >
+    <MobileScreenShell>
       <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 20px 16px" }}>
         <button
           type="button"
@@ -213,6 +203,6 @@ export default function TermsScreen() {
           Email: <LegalEmailLink />
         </LegalParagraph>
       </LegalSection>
-    </div>
+    </MobileScreenShell>
   );
 }

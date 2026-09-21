@@ -33,7 +33,7 @@ export default function BottomNav({ active, fixed }: { active: MobileNavTab; fix
     <nav
       style={{
         width: "100%",
-        maxWidth: fixed ? 390 : undefined,
+        maxWidth: fixed ? "var(--mobile-frame-max)" : undefined,
         flexShrink: 0,
         background: "var(--surface-mobile)",
         borderTop: "1px solid var(--border-mobile)",

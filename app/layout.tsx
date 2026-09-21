@@ -33,6 +33,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  manifest: "/manifest.json",
   icons: {
     icon: [
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
@@ -76,6 +77,12 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  // Browser/OS chrome colour (PWA install bar, Android status bar) — a static
+  // <meta name="theme-color"> tag can't reference a CSS custom property, so
+  // this is a literal mirror of --green (app/globals.css). Keep in sync if
+  // --green ever changes.
+  // eslint-disable-next-line sbe-design/no-hardcoded-hex
+  themeColor: "#1f4e37",
 };
 
 export default async function RootLayout({

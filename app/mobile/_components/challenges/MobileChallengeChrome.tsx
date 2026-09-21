@@ -147,7 +147,7 @@ export const mobileShellStyle: React.CSSProperties = {
   flexDirection: "column",
   justifyContent: "space-between",
   width: "100%",
-  maxWidth: 390,
+  maxWidth: "var(--mobile-frame-max)",
   margin: "0 auto",
   minHeight: "100dvh",
   background: "var(--bg-mobile-dark)",

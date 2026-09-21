@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import MobileScreenShell from "./MobileScreenShell";
 
 // Mobile cleanup pass (2026-08-25) — Settings > Support > "Help & FAQ" used
 // to send users to the public marketing /resources page. This is the real
@@ -43,18 +44,7 @@ export default function HelpScreen() {
   const router = useRouter();
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        width: "100%",
-        maxWidth: 390,
-        margin: "0 auto",
-        minHeight: "100dvh",
-        background: "var(--bg-mobile-dark)",
-        fontFamily: "var(--font-body)",
-      }}
-    >
+    <MobileScreenShell>
       {/* header */}
       <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 20px 16px" }}>
         <button
@@ -178,6 +168,6 @@ export default function HelpScreen() {
           .
         </FaqItem>
       </div>
-    </div>
+    </MobileScreenShell>
   );
 }

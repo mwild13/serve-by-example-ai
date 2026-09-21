@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Zap, Loader2, Camera, X } from "lucide-react";
+import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
 
 // Phase C file 08, Half B — real generation via app/api/profile-photo/generate
@@ -266,19 +267,7 @@ export default function AiProfilePhotoScreen() {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        width: "100%",
-        maxWidth: 390,
-        margin: "0 auto",
-        minHeight: "100dvh",
-        background: "var(--bg-mobile-dark)",
-        fontFamily: "var(--font-body)",
-      }}
-    >
+    <MobileScreenShell style={{ justifyContent: "space-between" }}>
       <div style={{ display: "flex", flexDirection: "column", gap: 14, width: "100%" }}>
         {/* header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px 0" }}>
@@ -634,6 +623,6 @@ export default function AiProfilePhotoScreen() {
           <div style={{ width: 120, height: 5, borderRadius: 10, background: "var(--text-mobile-faint)" }} />
         </div>
       </div>
-    </div>
+    </MobileScreenShell>
   );
 }

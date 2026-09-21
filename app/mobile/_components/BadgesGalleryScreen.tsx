@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ThumbsUp, Award, CircleCheck, CircleHelp } from "lucide-react";
 import BottomNav from "./BottomNav";
+import MobileScreenShell from "./MobileScreenShell";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 import {
   computeBadges,
@@ -164,17 +165,7 @@ export default function BadgesGalleryScreen() {
     setStreak(readStreakCount());
   }, []);
 
-  const shellStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    width: "100%",
-    maxWidth: 390,
-    margin: "0 auto",
-    minHeight: "100dvh",
-    background: "var(--bg-mobile-dark)",
-    fontFamily: "var(--font-body)",
-  };
+  const shellStyle: React.CSSProperties = { justifyContent: "space-between" };
 
   const badges = useMemo(() => {
     if (!data || streak === null) return [];
@@ -192,16 +183,16 @@ export default function BadgesGalleryScreen() {
 
   if (status === "loading" || (data && streak === null)) {
     return (
-      <div style={shellStyle}>
+      <MobileScreenShell style={shellStyle}>
         <StatusMessage>Loading your badges…</StatusMessage>
         <BottomNav active="me" />
-      </div>
+      </MobileScreenShell>
     );
   }
 
   if (status === "error" || !data) {
     return (
-      <div style={shellStyle}>
+      <MobileScreenShell style={shellStyle}>
         <StatusMessage>
           <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
             <span>{error ?? "Failed to load badges."}</span>
@@ -225,7 +216,7 @@ export default function BadgesGalleryScreen() {
           </div>
         </StatusMessage>
         <BottomNav active="me" />
-      </div>
+      </MobileScreenShell>
     );
   }
 
@@ -233,7 +224,7 @@ export default function BadgesGalleryScreen() {
   const filtered = activeCategory === "all" ? badges : badges.filter((b) => b.category === activeCategory);
 
   return (
-    <div style={shellStyle}>
+    <MobileScreenShell style={shellStyle}>
       <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
         {/* page-title */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 20 }}>
@@ -326,6 +317,6 @@ export default function BadgesGalleryScreen() {
       </div>
 
       <BottomNav active="me" />
-    </div>
+    </MobileScreenShell>
   );
 }

@@ -5,6 +5,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import BottomNav from "./BottomNav";
+import MobileScreenShell from "./MobileScreenShell";
 import { COCKTAILS, CATEGORIES, COCKTAIL_IMAGES, type Category, type Cocktail } from "@/lib/cocktails";
 
 // Phase C file 06 — real data + search/filter, ported from the desktop
@@ -241,19 +242,7 @@ export default function CocktailLibraryScreen() {
   }, [activeCategory, search]);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        width: "100%",
-        maxWidth: 390,
-        margin: "0 auto",
-        minHeight: "100dvh",
-        background: "var(--bg-mobile-dark)",
-        fontFamily: "var(--font-body)",
-      }}
-    >
+    <MobileScreenShell style={{ justifyContent: "space-between" }}>
       <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
         {/* title-section */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 20 }}>
@@ -400,6 +389,6 @@ export default function CocktailLibraryScreen() {
           onClose={closeCocktail}
         />
       )}
-    </div>
+    </MobileScreenShell>
   );
 }

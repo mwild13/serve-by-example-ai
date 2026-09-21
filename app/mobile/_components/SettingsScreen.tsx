@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Check,
 } from "lucide-react";
+import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
@@ -375,18 +376,7 @@ export default function SettingsScreen() {
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        width: "100%",
-        maxWidth: 390,
-        margin: "0 auto",
-        minHeight: "100dvh",
-        background: "var(--bg-mobile-dark)",
-        fontFamily: "var(--font-body)",
-      }}
-    >
+    <MobileScreenShell>
       {/* header */}
       <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 20px 16px" }}>
         <button
@@ -468,7 +458,7 @@ export default function SettingsScreen() {
             onClick={(e) => e.stopPropagation()}
             style={{
               width: "100%",
-              maxWidth: 390,
+              maxWidth: "var(--mobile-frame-max)",
               display: "flex",
               flexDirection: "column",
               gap: 14,
@@ -659,6 +649,6 @@ export default function SettingsScreen() {
           Sign out
         </button>
       </div>
-    </div>
+    </MobileScreenShell>
   );
 }

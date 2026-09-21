@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Martini, RotateCcw } from "lucide-react";
 import BottomNav from "./BottomNav";
+import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { enqueueRetry } from "../_lib/retry-queue";
 
@@ -192,19 +193,7 @@ export default function MatchPairsScreen() {
   }, [elapsedSec]);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        width: "100%",
-        maxWidth: 390,
-        margin: "0 auto",
-        minHeight: "100dvh",
-        background: "var(--bg-mobile-dark)",
-        fontFamily: "var(--font-body)",
-      }}
-    >
+    <MobileScreenShell style={{ justifyContent: "space-between" }}>
       <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
         {/* game-header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 20 }}>
@@ -354,6 +343,6 @@ export default function MatchPairsScreen() {
       </div>
 
       <BottomNav active="home" />
-    </div>
+    </MobileScreenShell>
   );
 }
