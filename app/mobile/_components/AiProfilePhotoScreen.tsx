@@ -298,6 +298,18 @@ export default function AiProfilePhotoScreen() {
       setAvatarUrl(result.url);
       if (typeof result.remaining === "number") setRemaining(result.remaining);
       localStorage.setItem(draftKey, JSON.stringify({ avatarUrl: result.url, selfieDataUrl, genderId, styleId: selectedStyle.id }));
+
+      // Same fix as handleSave's router.refresh() below, same reason:
+      // `remaining` is only seeded from session.profilePhotoGenerationsRemaining
+      // (app/mobile/layout.tsx) once, on mount. setRemaining above updates the
+      // local count for as long as this screen stays mounted, but this page
+      // component fully unmounts on any navigation away — so navigating to
+      // Home/Progress and back re-seeds `remaining` from that same stale
+      // session value, appearing to "reset" the count back up even though
+      // the server-tracked count (confirmed correct in Supabase) never
+      // actually moved. router.refresh() re-fetches the shared layout so the
+      // session value itself is current the next time this screen mounts.
+      router.refresh();
     } catch (err) {
       console.error("Failed to generate avatar:", err);
       setErrorMsg(err instanceof Error ? err.message : "Generation failed. Please try again.");
@@ -685,6 +697,11 @@ export default function AiProfilePhotoScreen() {
             </span>
           </button>
         </div>
+        {isLoading && (
+          <p style={{ margin: 0, textAlign: "center", fontSize: 12, color: "var(--text-mobile-muted)" }}>
+            Image generation may take a minute.
+          </p>
+        )}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
           <Link
             href="/mobile/home"
