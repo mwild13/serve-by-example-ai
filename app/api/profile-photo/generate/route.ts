@@ -272,6 +272,19 @@ export async function POST(req: Request) {
         : "The image service couldn't process this request. Please try again.";
     }
 
+    // For a ValidationError, `error.message` is usually just the generic
+    // HTTP status text — @fal-ai/client's response handler falls back to
+    // `statusText` whenever the JSON body has no top-level `message` field,
+    // which a FastAPI/Pydantic 422 body never does (it uses `detail`
+    // instead). The actually useful reason lives in `error.fieldErrors`
+    // (parsed from that `detail`), so prefer it when present — otherwise a
+    // 422 only ever shows "(Unprocessable Entity)" with no way to tell
+    // which field or why.
+    let detail = error instanceof Error ? error.message : String(error);
+    if (error instanceof ValidationError && error.fieldErrors.length > 0) {
+      detail = error.fieldErrors.map((fe) => `${fe.loc.join(".")}: ${fe.msg}`).join("; ");
+    }
+
     // NODE_ENV is always "production" on a Cloudflare Pages build (next
     // build), Preview deployments included — so gating on it alone hid the
     // real cause of every preview-branch failure behind a generic message,
@@ -280,7 +293,7 @@ export async function POST(req: Request) {
     // detail on any non-main branch makes this self-diagnosing from the
     // client error banner instead.
     const debug = (process.env.NODE_ENV !== "production" || process.env.CF_PAGES_BRANCH !== "main")
-      ? { detail: error instanceof Error ? error.message : String(error) }
+      ? { detail }
       : {};
 
     return NextResponse.json({ error: message, ...debug }, { status: 500 });
