@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { fal, ApiError, ValidationError } from "@fal-ai/client";
+import { createFalClient, ApiError, ValidationError } from "@fal-ai/client";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
@@ -84,7 +84,20 @@ type StyleId = (typeof STYLE_IDS)[number];
 const GENDER_IDS = ["male", "female"] as const;
 type GenderId = (typeof GENDER_IDS)[number];
 
-fal.config({ credentials: process.env.FAL_KEY });
+// createFalClient(), not the deprecated `fal` singleton import + `fal.config()`
+// (see @fal-ai/client's own index.d.ts: that singleton is documented as "a
+// compatibility layer for existing code that uses the client version prior
+// to 1.0.0"). A module-scope client configured once at import time is the
+// same anti-pattern OpenNext's own Cloudflare troubleshooting guide warns
+// about for DB clients — "create the client inside a request context and
+// not keep a global client... not compatible with the Workers runtime."
+// Every other secret-consuming client in this codebase (getStripeClient(),
+// getOpenAIClient()) already builds lazily per-request for the same reason;
+// this route was the one exception. Built once per request in POST() below
+// instead of at module scope.
+function getFalClient() {
+  return createFalClient({ credentials: process.env.FAL_KEY });
+}
 
 const SELFIE_DATA_URL_RE = /^data:image\/(png|jpe?g|webp);base64,([A-Za-z0-9+/=]+)$/;
 // ~6MB decoded, generous headroom over the client's 768px/0.85-quality
@@ -189,6 +202,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Image generation isn't configured in this environment." }, { status: 500 });
       }
 
+      const fal = getFalClient();
       const referenceImageUrl = await fal.storage.upload(
         new Blob([Uint8Array.from(selfie.buffer)], { type: selfie.mime }),
       );
@@ -244,7 +258,14 @@ export async function POST(req: Request) {
         : "The image service couldn't process this request. Please try again.";
     }
 
-    const debug = process.env.NODE_ENV !== "production"
+    // NODE_ENV is always "production" on a Cloudflare Pages build (next
+    // build), Preview deployments included — so gating on it alone hid the
+    // real cause of every preview-branch failure behind a generic message,
+    // with no way to see it short of the Cloudflare dashboard's function
+    // logs. CF_PAGES_BRANCH is auto-injected by Cloudflare Pages; showing
+    // detail on any non-main branch makes this self-diagnosing from the
+    // client error banner instead.
+    const debug = (process.env.NODE_ENV !== "production" || process.env.CF_PAGES_BRANCH !== "main")
       ? { detail: error instanceof Error ? error.message : String(error) }
       : {};
 

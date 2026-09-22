@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Zap, Loader2, Camera, X } from "lucide-react";
 import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
+import { cropToFace } from "../_lib/face-crop";
 
 // Phase C file 08, Half B — real generation via app/api/profile-photo/generate
 // and app/api/profile-photo/save. Style environments moved to static base
@@ -48,6 +49,15 @@ import { useMobileSession } from "../_lib/mobile-session-context";
 // style list is duplicated per gender rather than a single shared thumbnail
 // set. genderId also gates which 10 thumbnails render and is sent to the
 // generate route alongside styleId.
+//
+// Phase E (2026-09-22) — client-side face crop before upload. Previously
+// the full uncropped photo (background included) went out as the swap
+// reference. handlePhotoSelected now runs it through face-crop.ts's
+// on-device detector first; a confident detection replaces the source image
+// with a padded head-and-shoulders crop before the existing downscale step
+// runs, so less background reaches Fal and the swap model gets a more
+// consistently framed face. Detection failure/low-confidence falls back to
+// the original uncropped-but-downscaled behavior — never blocks generation.
 
 type StyleOption = { id: string; label: string; image: string };
 type GenderId = "male" | "female";
@@ -72,12 +82,11 @@ const STYLES_BY_GENDER: Record<GenderId, StyleOption[]> = {
 
 const PLACEHOLDER_AVATAR = "/mobile/ai-portrait-main.png";
 
-// Downscales a captured/selected photo client-side before it ever leaves the
-// device — a phone camera photo can be several MB; the model only needs a
-// modest reference image, and keeping the request small matters more here
-// than on a text-only prompt. Caps the longest edge at 768px, re-encodes as
-// JPEG at 0.85 quality.
-async function downscaleImage(file: File): Promise<string> {
+// Reads a File into both a data URL and a decoded <img> element — the crop
+// step (face-crop.ts) needs pixel access via the element; loadImage() to
+// downscale() below need the same source, so this is split out rather than
+// duplicated.
+async function loadImage(file: File): Promise<HTMLImageElement> {
   const dataUrl: string = await new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
@@ -85,20 +94,31 @@ async function downscaleImage(file: File): Promise<string> {
     reader.readAsDataURL(file);
   });
 
-  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+  return loadImageFromDataUrl(dataUrl);
+}
+
+function loadImageFromDataUrl(dataUrl: string): Promise<HTMLImageElement> {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
     const el = new window.Image();
     el.onload = () => resolve(el);
     el.onerror = () => reject(new Error("Couldn't read the photo."));
     el.src = dataUrl;
   });
+}
 
+// Downscales a decoded image client-side before it ever leaves the device —
+// a phone camera photo can be several MB; the model only needs a modest
+// reference image, and keeping the request small matters more here than on
+// a text-only prompt. Caps the longest edge at 768px, re-encodes as JPEG at
+// 0.85 quality.
+function downscaleImage(img: HTMLImageElement): string {
   const maxEdge = 768;
   const scale = Math.min(1, maxEdge / Math.max(img.width, img.height));
   const canvas = document.createElement("canvas");
   canvas.width = Math.round(img.width * scale);
   canvas.height = Math.round(img.height * scale);
   const ctx = canvas.getContext("2d");
-  if (!ctx) return dataUrl;
+  if (!ctx) return img.src;
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   return canvas.toDataURL("image/jpeg", 0.85);
 }
@@ -173,7 +193,13 @@ export default function AiProfilePhotoScreen() {
     }
     try {
       setErrorMsg(null);
-      setSelfieDataUrl(await downscaleImage(file));
+      const img = await loadImage(file);
+      // cropToFace fails open (returns null) on any detection miss — the
+      // original, uncropped image is always a valid fallback source for
+      // downscaleImage, so a bad/slow detection never blocks the user.
+      const croppedDataUrl = await cropToFace(img);
+      const source = croppedDataUrl ? await loadImageFromDataUrl(croppedDataUrl) : img;
+      setSelfieDataUrl(downscaleImage(source));
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Couldn't read the photo.");
     }
