@@ -100,14 +100,35 @@ function parseSelfieDataUrl(value: unknown): { mime: string; buffer: Buffer } | 
   return { mime, buffer: Buffer.from(match[2], "base64") };
 }
 
-// Absolute URL for a style's locked base plate — Fal's face-swap call needs
-// a URL it can fetch over the public internet, a relative path won't do.
-// public/mobile/* is served as a plain static file (middleware.ts excludes
-// any dotted path from the geo-block/auth matcher), so this is always
-// reachable regardless of the requesting user's own auth/geo state.
+// Absolute URL for a style's locked base plate, fetched by this route
+// itself below (see fetchAsFalStorageUrl) — not handed to Fal directly as
+// base_image_url. public/mobile/* is a plain static file and bypasses
+// middleware.ts entirely (its matcher excludes any dotted path), so
+// nothing in this app's own code blocks it; whether it's reachable from
+// outside this app's own server (e.g. by Fal's fetcher) is a separate,
+// Cloudflare-edge-level question this app's code can't see or control —
+// which is exactly why this route fetches it itself instead of trusting
+// an external fetch of this URL to succeed.
 function basePlateUrl(origin: string, genderId: GenderId, styleId: StyleId): string {
   const dir = genderId === "male" ? "men" : "women";
   return `${origin}/mobile/${dir}/ai-style-${styleId}.png`;
+}
+
+// Fetches a URL on this domain and re-uploads its bytes to Fal's own
+// storage, returning a fal.media URL. Used for the base plate image so Fal
+// never has to fetch anything from this domain directly (see
+// basePlateUrl's comment) — only this app's own server does, over a plain
+// request with no Cloudflare Access/WAF distinction between "us" and any
+// other external caller, so a failure here is a real, specific signal
+// (status + statusText) about this domain's reachability, not a guess.
+async function fetchAsFalStorageUrl(fal: ReturnType<typeof getFalClient>, url: string): Promise<string> {
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`Couldn't fetch ${url} (${res.status} ${res.statusText})`);
+  }
+  const contentType = res.headers.get("content-type") ?? "image/png";
+  const bytes = await res.arrayBuffer();
+  return fal.storage.upload(new Blob([bytes], { type: contentType }));
 }
 
 export async function POST(req: Request) {
@@ -188,9 +209,22 @@ export async function POST(req: Request) {
       }
 
       const fal = getFalClient();
-      const referenceImageUrl = await fal.storage.upload(
-        new Blob([Uint8Array.from(selfie.buffer)], { type: selfie.mime }),
-      );
+
+      // Upload the base plate to Fal's own storage too, exactly like the
+      // selfie below, instead of handing Fal a URL on this domain for
+      // base_image_url. Fal's server-side fetch of that URL is what's been
+      // failing ("Could not load image from url") — this app's own server
+      // fetching it here and re-uploading the bytes removes Fal's
+      // dependency on being able to reach this domain at all, whatever the
+      // cause (Cloudflare Access/WAF/bot protection on the zone, DNS, or
+      // anything else outside this app's control — none of it is
+      // reachable to verify from here). If this fetch itself fails, the
+      // thrown error's status/statusText below is a concrete, specific
+      // signal instead of Fal's opaque validation message.
+      const [baseImageUrl, referenceImageUrl] = await Promise.all([
+        fetchAsFalStorageUrl(fal, plateUrl),
+        fal.storage.upload(new Blob([Uint8Array.from(selfie.buffer)], { type: selfie.mime })),
+      ]);
 
       // Submit to the queue and return immediately — do NOT use
       // fal.subscribe() here. subscribe() blocks this single Worker
@@ -216,7 +250,7 @@ export async function POST(req: Request) {
       // background/outfit" requirement above.
       const { request_id } = await fal.queue.submit(FACE_SWAP_MODEL, {
         input: {
-          base_image_url: plateUrl,
+          base_image_url: baseImageUrl,
           swap_image_url: referenceImageUrl,
         },
       });
