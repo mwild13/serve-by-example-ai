@@ -47,7 +47,15 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const url = typeof body?.url === "string" ? body.url : "";
-    const requestOrigin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || new URL(req.url).origin;
+    // Same normalization as generate/route.ts's resolveOrigin() — a bare
+    // host with no scheme in NEXT_PUBLIC_SITE_URL (the real, confirmed
+    // Cloudflare misconfiguration found earlier this session) would
+    // otherwise make this never match a same-origin plate URL's `origin`,
+    // silently rejecting every no-selfie save with "Invalid photo URL."
+    const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
+    const requestOrigin = rawSiteUrl
+      ? (/^https?:\/\//i.test(rawSiteUrl) ? rawSiteUrl : `https://${rawSiteUrl}`)
+      : new URL(req.url).origin;
     if (!isAllowedPhotoUrl(url, requestOrigin)) {
       return NextResponse.json({ error: "Invalid photo URL." }, { status: 400 });
     }
