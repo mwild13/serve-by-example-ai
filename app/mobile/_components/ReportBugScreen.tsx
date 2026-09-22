@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
 
 // Mobile notifications + bug-report pass (2026-08-25) — Settings > Support >
@@ -10,17 +11,6 @@ import { useMobileSession } from "../_lib/mobile-session-context";
 // full-screen dark shell as HelpScreen.tsx / SettingsScreen.tsx. Posts to
 // POST /api/report-bug, which emails info@servebyexample.co — see that
 // route for the send-only (no DB row) pattern, matching app/api/contact.
-
-const shellStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  width: "100%",
-  maxWidth: 390,
-  margin: "0 auto",
-  minHeight: "100dvh",
-  background: "var(--bg-mobile-dark)",
-  fontFamily: "var(--font-body)",
-};
 
 export default function ReportBugScreen() {
   const router = useRouter();
@@ -55,7 +45,7 @@ export default function ReportBugScreen() {
 
   if (status === "sent") {
     return (
-      <div style={shellStyle}>
+      <MobileScreenShell>
         <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 20px 16px" }}>
           <button
             type="button"
@@ -96,12 +86,12 @@ export default function ReportBugScreen() {
             Back to Settings
           </button>
         </div>
-      </div>
+      </MobileScreenShell>
     );
   }
 
   return (
-    <div style={shellStyle}>
+    <MobileScreenShell>
       <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 20px 16px" }}>
         <button
           type="button"
@@ -179,6 +169,6 @@ export default function ReportBugScreen() {
           {status === "sending" ? "Sending…" : "Submit Report"}
         </button>
       </form>
-    </div>
+    </MobileScreenShell>
   );
 }

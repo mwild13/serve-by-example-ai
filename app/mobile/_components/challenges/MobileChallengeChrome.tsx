@@ -141,15 +141,3 @@ export function CompletionCard({ title, subtitle, onReplay }: { title: string; s
     </div>
   );
 }
-
-export const mobileShellStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "space-between",
-  width: "100%",
-  maxWidth: 390,
-  margin: "0 auto",
-  minHeight: "100dvh",
-  background: "var(--bg-mobile-dark)",
-  fontFamily: "var(--font-body)",
-};

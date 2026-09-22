@@ -142,6 +142,30 @@
   --red-mobile:             #A63B3B;  /* danger/difficulty-hard accent — extracted from "ai-arena" frame */
   --avatar-mobile-bg:       #51566B;  /* neutral avatar circle background — extracted from "ai-arena" frame */
 
+  /* ── Mobile Staff Dashboard — Sizing tokens ── */
+  /* Single source of truth for the app-shell "frame" width, replacing the
+     390px literal duplicated across ~24 screen files. Widens via clamp() past
+     phone widths so tablets get a comfortably-sized centered column instead
+     of a tiny 390px island with huge dead margins. Referenced by
+     MobileScreenShell.tsx and by BottomNav.tsx's fixed variant, which centers
+     against the viewport independently of any screen's shell div. */
+  --mobile-frame-max: clamp(360px, 92vw, 520px);
+  /* Fluid type scale tuned to the phone width range (360-430px), not the
+     marketing site's --fs-* tokens — those clamp against full viewport width
+     via vw, but /mobile content is capped by --mobile-frame-max, so a
+     viewport-relative coefficient tuned for marketing would over/under-scale
+     once the frame stops growing 1:1 with the viewport (tablets). */
+  --fs-mobile-h1:      clamp(1.25rem, 5.5vw, 1.5rem);    /* screen titles */
+  --fs-mobile-body:    clamp(0.9rem, 3.8vw, 1rem);       /* body/label text */
+  --fs-mobile-caption: clamp(0.75rem, 3.2vw, 0.8125rem); /* meta/muted text */
+  /* Flat (non-fluid) spacing scale for padding/gap — spacing drift is less
+     visually damaging than type drift, so keep this simple unless QA on
+     360px devices finds specific cramped spots. */
+  --space-mobile-xs: 8px;
+  --space-mobile-sm: 12px;
+  --space-mobile-md: 16px;
+  --space-mobile-lg: 24px;
+
   /* ── Accessibility-compliant grey scale ── */
   /* All values meet WCAG AA 4.5:1 on white (#fff) */
   --color-text-muted:  var(--text-muted);  /* Legacy alias — was its own hex (#6b7280), competing with --text-muted for the same "muted secondary text" job across the staff dashboard. Aliased so its ~25 existing call sites (DynamicModuleNav.tsx, ArenaPage.tsx, RapidFirePage.tsx, StaffRosterPanel.tsx, ManagerControlCenter.tsx) now render the same color as everywhere else. Do not use this token in new code — use --text-muted directly. */
@@ -256,6 +280,39 @@
   --border-parchment:     #ede7d2;  /* Warm parchment SVG grid lines */
 }
 
+/* ── Mobile staff app — landscape guard ──────────── */
+/* This app is deliberately locked to portrait (see app/mobile/layout.tsx's
+   viewport export disabling pinch-zoom) because every screen is laid out for
+   one fixed-frame column, not a rotated one. iOS Safari honors neither the
+   Screen Orientation API nor manifest.json's "orientation" field for regular
+   (non-installed) web content, so a CSS-only guard is the only reliable
+   cross-platform way to actually stop landscape use. Capped at max-width:
+   900px so it never fires for the wider tablet frame (--mobile-frame-max
+   widens past 390px on larger screens) — a tablet in landscape has enough
+   width to reasonably show the app; only phones drift. Content underneath
+   stays mounted (just covered), so rotating back loses no state. */
+.mobile-landscape-guard {
+  display: none;
+}
+
+@media (orientation: landscape) and (max-width: 900px) {
+  .mobile-landscape-guard {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 32px;
+    text-align: center;
+    background: var(--bg-mobile-dark);
+    color: var(--text-mobile);
+    font-family: var(--font-body);
+  }
+}
+
 /* ── Reset ─────────────────────────────────────── */
 *,
 *::before,
@@ -306,8 +363,26 @@ body {
      the 300ms tap delay — the original intent of this rule. */
   touch-action: manipulation;
   overscroll-behavior-y: none;
+  /* Phase 6 mobile-responsive fix (2026-09-21) — belt-and-suspenders. Only
+     -y was suppressed before; any future one-off horizontal-overflow bug
+     under /mobile (see .mobile-dark-shell below for the confirmed real one)
+     now degrades to an inert bounce instead of a genuinely draggable page. */
+  overscroll-behavior-x: none;
 
   width: 100%;
+}
+
+/* Phase 6 mobile-responsive fix (2026-09-21) — toggled on/off document.body
+   by MobileOrientationGuard.tsx for the lifetime of the /mobile route tree.
+   MobileScreenShell's own dark background only covers the normal-paint
+   case (a div inside body); it can't cover iOS Safari's elastic overscroll
+   (rubber-banding past the top/bottom reveals body's own background, not
+   any div inside it) or the home-indicator safe-area strip on notched
+   iPhones, both of which paint straight through to body. Without this,
+   both reveal body's default `--bg` (light marketing parchment) under a
+   dark app. */
+body.mobile-dark-shell {
+  background: var(--bg-mobile-dark);
 }
 
 body.ai-coach-enabled {

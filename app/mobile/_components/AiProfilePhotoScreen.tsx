@@ -5,7 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Zap, Loader2, Camera, X } from "lucide-react";
+import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
+import { cropToFace } from "../_lib/face-crop";
 
 // Phase C file 08, Half B — real generation via app/api/profile-photo/generate
 // and app/api/profile-photo/save. Style environments moved to static base
@@ -47,6 +49,15 @@ import { useMobileSession } from "../_lib/mobile-session-context";
 // style list is duplicated per gender rather than a single shared thumbnail
 // set. genderId also gates which 10 thumbnails render and is sent to the
 // generate route alongside styleId.
+//
+// Phase E (2026-09-22) — client-side face crop before upload. Previously
+// the full uncropped photo (background included) went out as the swap
+// reference. handlePhotoSelected now runs it through face-crop.ts's
+// on-device detector first; a confident detection replaces the source image
+// with a padded head-and-shoulders crop before the existing downscale step
+// runs, so less background reaches Fal and the swap model gets a more
+// consistently framed face. Detection failure/low-confidence falls back to
+// the original uncropped-but-downscaled behavior — never blocks generation.
 
 type StyleOption = { id: string; label: string; image: string };
 type GenderId = "male" | "female";
@@ -71,12 +82,11 @@ const STYLES_BY_GENDER: Record<GenderId, StyleOption[]> = {
 
 const PLACEHOLDER_AVATAR = "/mobile/ai-portrait-main.png";
 
-// Downscales a captured/selected photo client-side before it ever leaves the
-// device — a phone camera photo can be several MB; the model only needs a
-// modest reference image, and keeping the request small matters more here
-// than on a text-only prompt. Caps the longest edge at 768px, re-encodes as
-// JPEG at 0.85 quality.
-async function downscaleImage(file: File): Promise<string> {
+// Reads a File into both a data URL and a decoded <img> element — the crop
+// step (face-crop.ts) needs pixel access via the element; loadImage() to
+// downscale() below need the same source, so this is split out rather than
+// duplicated.
+async function loadImage(file: File): Promise<HTMLImageElement> {
   const dataUrl: string = await new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
@@ -84,22 +94,75 @@ async function downscaleImage(file: File): Promise<string> {
     reader.readAsDataURL(file);
   });
 
-  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+  return loadImageFromDataUrl(dataUrl);
+}
+
+function loadImageFromDataUrl(dataUrl: string): Promise<HTMLImageElement> {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
     const el = new window.Image();
     el.onload = () => resolve(el);
     el.onerror = () => reject(new Error("Couldn't read the photo."));
     el.src = dataUrl;
   });
+}
 
+// Downscales a decoded image client-side before it ever leaves the device —
+// a phone camera photo can be several MB; the model only needs a modest
+// reference image, and keeping the request small matters more here than on
+// a text-only prompt. Caps the longest edge at 768px, re-encodes as JPEG at
+// 0.85 quality.
+function downscaleImage(img: HTMLImageElement): string {
   const maxEdge = 768;
   const scale = Math.min(1, maxEdge / Math.max(img.width, img.height));
   const canvas = document.createElement("canvas");
   canvas.width = Math.round(img.width * scale);
   canvas.height = Math.round(img.height * scale);
   const ctx = canvas.getContext("2d");
-  if (!ctx) return dataUrl;
+  if (!ctx) return img.src;
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   return canvas.toDataURL("image/jpeg", 0.85);
+}
+
+// Polls app/api/profile-photo/status for the queued face-swap job submitted
+// by generate/route.ts (see that route's comment on why it can't just wait
+// for the result itself). A single consecutive-error tolerance lets one
+// transient network/Fal blip pass without aborting the whole generation.
+const STATUS_POLL_INTERVAL_MS = 2_000;
+const STATUS_POLL_TIMEOUT_MS = 120_000;
+const STATUS_POLL_MAX_CONSECUTIVE_ERRORS = 3;
+
+async function pollGenerationStatus(
+  requestId: string,
+  token: string,
+): Promise<{ url: string; remaining?: number }> {
+  const deadline = Date.now() + STATUS_POLL_TIMEOUT_MS;
+  let consecutiveErrors = 0;
+
+  while (Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, STATUS_POLL_INTERVAL_MS));
+
+    const res = await fetch(`/api/profile-photo/status?requestId=${encodeURIComponent(requestId)}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok || !data) {
+      consecutiveErrors += 1;
+      if (consecutiveErrors >= STATUS_POLL_MAX_CONSECUTIVE_ERRORS) {
+        const message = data?.error || "Generation failed. Please try again.";
+        throw new Error(data?.detail ? `${message} (${data.detail})` : message);
+      }
+      continue;
+    }
+    consecutiveErrors = 0;
+
+    if (data.status === "completed") {
+      return { url: data.url, remaining: data.remaining };
+    }
+    // data.status === "pending" — keep polling.
+  }
+
+  throw new Error("Generation is taking longer than expected. Please try again.");
 }
 
 export default function AiProfilePhotoScreen() {
@@ -172,7 +235,13 @@ export default function AiProfilePhotoScreen() {
     }
     try {
       setErrorMsg(null);
-      setSelfieDataUrl(await downscaleImage(file));
+      const img = await loadImage(file);
+      // cropToFace fails open (returns null) on any detection miss — the
+      // original, uncropped image is always a valid fallback source for
+      // downscaleImage, so a bad/slow detection never blocks the user.
+      const croppedDataUrl = await cropToFace(img);
+      const source = croppedDataUrl ? await loadImageFromDataUrl(croppedDataUrl) : img;
+      setSelfieDataUrl(downscaleImage(source));
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Couldn't read the photo.");
     }
@@ -198,7 +267,7 @@ export default function AiProfilePhotoScreen() {
 
       const data = await res.json();
 
-      if (!res.ok || !data.url) {
+      if (!res.ok) {
         // The daily-cap 429 (see generate/route.ts) always includes
         // `remaining: 0` — sync it locally even though the seeded value
         // from session should already agree, in case the tab was left open
@@ -212,9 +281,23 @@ export default function AiProfilePhotoScreen() {
         throw new Error(data.detail ? `${message} (${data.detail})` : message);
       }
 
-      setAvatarUrl(data.url);
-      if (typeof data.remaining === "number") setRemaining(data.remaining);
-      localStorage.setItem(draftKey, JSON.stringify({ avatarUrl: data.url, selfieDataUrl, genderId, styleId: selectedStyle.id }));
+      // With a selfie, generate/route.ts only submits the face-swap job to
+      // Fal's queue and returns a requestId — it can't wait for the result
+      // in the same request (see that route's comment on the Cloudflare
+      // Workers 50-subrequest-per-invocation limit). Poll for it instead.
+      // Without a selfie there's no Fal call at all, so `url` comes back
+      // immediately.
+      const result = data.requestId
+        ? await pollGenerationStatus(data.requestId, session.token)
+        : data;
+
+      if (!result.url) {
+        throw new Error("Failed to generate photo");
+      }
+
+      setAvatarUrl(result.url);
+      if (typeof result.remaining === "number") setRemaining(result.remaining);
+      localStorage.setItem(draftKey, JSON.stringify({ avatarUrl: result.url, selfieDataUrl, genderId, styleId: selectedStyle.id }));
     } catch (err) {
       console.error("Failed to generate avatar:", err);
       setErrorMsg(err instanceof Error ? err.message : "Generation failed. Please try again.");
@@ -266,19 +349,7 @@ export default function AiProfilePhotoScreen() {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        width: "100%",
-        maxWidth: 390,
-        margin: "0 auto",
-        minHeight: "100dvh",
-        background: "var(--bg-mobile-dark)",
-        fontFamily: "var(--font-body)",
-      }}
-    >
+    <MobileScreenShell style={{ justifyContent: "space-between" }}>
       <div style={{ display: "flex", flexDirection: "column", gap: 14, width: "100%" }}>
         {/* header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px 0" }}>
@@ -634,6 +705,6 @@ export default function AiProfilePhotoScreen() {
           <div style={{ width: 120, height: 5, borderRadius: 10, background: "var(--text-mobile-faint)" }} />
         </div>
       </div>
-    </div>
+    </MobileScreenShell>
   );
 }

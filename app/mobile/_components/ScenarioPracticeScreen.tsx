@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, AlertTriangle, XCircle, ArrowRight } from "lucide-react";
 import BottomNav from "./BottomNav";
+import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 import { SCENARIOS, SCORE_DIMENSIONS, type EvalResult, type Module } from "@/app/dashboard/_components/trainer/trainer-data";
@@ -139,22 +140,10 @@ export default function ScenarioPracticeScreen() {
     setSaveStatus("idle");
   }
 
-  const shellStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    width: "100%",
-    maxWidth: 390,
-    margin: "0 auto",
-    minHeight: "100dvh",
-    background: "var(--bg-mobile-dark)",
-    fontFamily: "var(--font-body)",
-  };
-
   const moduleLabel = moduleName === "bartending" ? "Bartending" : moduleName === "sales" ? "Sales" : "Management";
 
   return (
-    <div style={shellStyle}>
+    <MobileScreenShell style={{ justifyContent: "space-between" }}>
       <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
         {/* header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 20 }}>
@@ -422,6 +411,6 @@ export default function ScenarioPracticeScreen() {
       </div>
 
       <BottomNav active="learn" />
-    </div>
+    </MobileScreenShell>
   );
 }

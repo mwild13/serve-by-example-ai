@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, XCircle, ArrowRight, ShieldCheck } from "lucide-react";
 import BottomNav from "./BottomNav";
+import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 import { VERIFY_QUESTIONS } from "@/lib/verify-questions";
@@ -182,45 +183,35 @@ export default function QuizScreen() {
     setStatus("playing");
   }
 
-  const shellStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    width: "100%",
-    maxWidth: 390,
-    margin: "0 auto",
-    minHeight: "100dvh",
-    background: "var(--bg-mobile-dark)",
-    fontFamily: "var(--font-body)",
-  };
+  const shellStyle: React.CSSProperties = { justifyContent: "space-between" };
 
   if (pool.length === 0) {
     return (
-      <div style={shellStyle}>
+      <MobileScreenShell style={shellStyle}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60dvh", padding: 20, textAlign: "center" }}>
           <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>
             This module doesn&apos;t have verification questions yet. Please check back soon.
           </p>
         </div>
         <BottomNav active="learn" />
-      </div>
+      </MobileScreenShell>
     );
   }
 
   if (status === "saving") {
     return (
-      <div style={shellStyle}>
+      <MobileScreenShell style={shellStyle}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60dvh" }}>
           <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>Recording your mastery…</p>
         </div>
         <BottomNav active="learn" />
-      </div>
+      </MobileScreenShell>
     );
   }
 
   if (status === "error") {
     return (
-      <div style={shellStyle}>
+      <MobileScreenShell style={shellStyle}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center", justifyContent: "center", minHeight: "60dvh", padding: 20, textAlign: "center" }}>
           <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>{error ?? "Something went wrong."}</p>
           <button
@@ -241,13 +232,13 @@ export default function QuizScreen() {
           </button>
         </div>
         <BottomNav active="learn" />
-      </div>
+      </MobileScreenShell>
     );
   }
 
   if (status === "mastered") {
     return (
-      <div style={shellStyle}>
+      <MobileScreenShell style={shellStyle}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "48px 24px", textAlign: "center" }}>
           <div
             style={{
@@ -338,14 +329,14 @@ export default function QuizScreen() {
           </button>
         </div>
         <BottomNav active="learn" />
-      </div>
+      </MobileScreenShell>
     );
   }
 
   const completedByThisAnswer = wasCorrect === true && consecutiveCorrect >= CONSECUTIVE_REQUIRED;
 
   return (
-    <div style={shellStyle}>
+    <MobileScreenShell style={shellStyle}>
       <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
         {/* header */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: 20 }}>
@@ -480,6 +471,6 @@ export default function QuizScreen() {
       </div>
 
       <BottomNav active="learn" />
-    </div>
+    </MobileScreenShell>
   );
 }

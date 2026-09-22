@@ -14,7 +14,9 @@ import {
   Check,
 } from "lucide-react";
 import BottomNav from "./BottomNav";
+import MobileScreenShell from "./MobileScreenShell";
 import { useTrainingProgress } from "../_lib/use-training-progress";
+import { TOTAL_CHALLENGES } from "@/lib/challenges";
 
 // Phase C file 05 — all 5 rows now route to a real game screen.
 //
@@ -61,22 +63,10 @@ export default function ChallengesScreen() {
   }, []);
 
   const completedCount = status === "ready" ? data.challengesCompleted : completedLocal.size;
-  const totalCount = status === "ready" ? data.totalChallenges : 5;
+  const totalCount = status === "ready" ? data.totalChallenges : TOTAL_CHALLENGES;
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        width: "100%",
-        maxWidth: 390,
-        margin: "0 auto",
-        minHeight: "100dvh",
-        background: "var(--bg-mobile-dark)",
-        fontFamily: "var(--font-body)",
-      }}
-    >
+    <MobileScreenShell style={{ justifyContent: "space-between" }}>
       <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
         {/* header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 20 }}>
@@ -237,6 +227,6 @@ export default function ChallengesScreen() {
       </div>
 
       <BottomNav active="home" />
-    </div>
+    </MobileScreenShell>
   );
 }

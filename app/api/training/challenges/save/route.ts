@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { isValidChallengeIndex, MAX_CHALLENGE_INDEX } from "@/lib/challenges";
 
 export async function POST(req: Request) {
   try {
@@ -21,9 +22,9 @@ export async function POST(req: Request) {
     const body = await req.json();
     const challengeIndex = Number(body.challengeIndex);
 
-    // Validate challenge index (0-4)
-    if (!Number.isFinite(challengeIndex) || challengeIndex < 0 || challengeIndex > 4) {
-      return NextResponse.json({ error: "Invalid challenge index. Must be 0-4." }, { status: 400 });
+    // Validate challenge index (0 to MAX_CHALLENGE_INDEX — see lib/challenges.ts)
+    if (!isValidChallengeIndex(challengeIndex)) {
+      return NextResponse.json({ error: `Invalid challenge index. Must be 0-${MAX_CHALLENGE_INDEX}.` }, { status: 400 });
     }
 
     const admin = createSupabaseAdminClient();

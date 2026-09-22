@@ -145,7 +145,7 @@ function SyncStatusBanner({ isOnline, pendingSyncCount }: { isOnline: boolean; p
         left: "50%",
         transform: "translateX(-50%)",
         width: "100%",
-        maxWidth: 390,
+        maxWidth: "var(--mobile-frame-max)",
         zIndex: 100,
         display: "flex",
         alignItems: "center",

@@ -113,7 +113,7 @@ export default function AiCoachWidget() {
         transform: "translateX(-50%)",
         bottom: WIDGET_BOTTOM,
         width: "100%",
-        maxWidth: 390,
+        maxWidth: "var(--mobile-frame-max)",
         padding: "0 20px",
         zIndex: 40,
       }}

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { fal, ApiError, ValidationError } from "@fal-ai/client";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { DAILY_GENERATION_LIMIT, generationsUsedToday } from "@/lib/profile-photo-cap";
+import { getFalClient, FACE_SWAP_MODEL, classifyFalError } from "@/lib/fal";
 
 // Phase C file 08, Half B — AI Profile Photo. Net-new feature, no V3
 // extraction (see v4-migration-plan/08-onboarding-diagnostic-and-profile.md).
@@ -44,11 +44,13 @@ import { DAILY_GENERATION_LIMIT, generationsUsedToday } from "@/lib/profile-phot
 //   rejected" bug this route used to throw here (that message came from a
 //   flux/schnell ValidationError; there's no Fal call on this path anymore
 //   for it to come from).
-// - With selfie: `easel-ai/advanced-face-swap` (base_image_url = the
-//   style's locked plate, swap_image_url = the uploaded selfie) swaps only
-//   the face/skin-tone/hair onto that fixed plate, leaving its body,
-//   outfit, and background pixel-identical — replacing flux-pulid, which
-//   could only approximate "same style," never guarantee it.
+// - With selfie: `fal-ai/face-swap` (base_image_url = the style's locked
+//   plate, swap_image_url = the uploaded selfie) swaps only the
+//   face/skin-tone/hair onto that fixed plate, leaving its body, outfit,
+//   and background pixel-identical — replacing flux-pulid, which could
+//   only approximate "same style," never guarantee it. (Originally wired
+//   to easel-ai/advanced-face-swap, which fal has since marked "no longer
+//   supported" — see call site in POST() below for the full note.)
 // - The old STYLE_PROMPTS text (bartender/sommelier/etc. descriptions) is
 //   gone — there's no text-to-image call left on either path to prompt.
 //   Each style's environment now lives in its plate images, not as a
@@ -83,8 +85,6 @@ type StyleId = (typeof STYLE_IDS)[number];
 
 const GENDER_IDS = ["male", "female"] as const;
 type GenderId = (typeof GENDER_IDS)[number];
-
-fal.config({ credentials: process.env.FAL_KEY });
 
 const SELFIE_DATA_URL_RE = /^data:image\/(png|jpe?g|webp);base64,([A-Za-z0-9+/=]+)$/;
 // ~6MB decoded, generous headroom over the client's 768px/0.85-quality
@@ -173,8 +173,6 @@ export async function POST(req: Request) {
     const origin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || new URL(req.url).origin;
     const plateUrl = basePlateUrl(origin, genderId as GenderId, styleId as StyleId);
 
-    let imageUrl: string | undefined;
-
     if (body?.selfieImage !== undefined) {
       const selfie = parseSelfieDataUrl(body.selfieImage);
       if (!selfie) {
@@ -182,37 +180,58 @@ export async function POST(req: Request) {
       }
 
       if (!process.env.FAL_KEY) {
-        // Fails fast with a specific message instead of letting fal.subscribe()
+        // Fails fast with a specific message instead of letting the Fal call
         // hit Fal's API with an empty credential and surface an opaque auth
         // error further down.
         console.error("[profile-photo/generate] FAL_KEY is not set in this environment.");
         return NextResponse.json({ error: "Image generation isn't configured in this environment." }, { status: 500 });
       }
 
+      const fal = getFalClient();
       const referenceImageUrl = await fal.storage.upload(
         new Blob([Uint8Array.from(selfie.buffer)], { type: selfie.mime }),
       );
 
-      const result = await fal.subscribe("easel-ai/advanced-face-swap", {
+      // Submit to the queue and return immediately — do NOT use
+      // fal.subscribe() here. subscribe() blocks this single Worker
+      // invocation in an internal poll loop (default every 500ms) until the
+      // job finishes, and Cloudflare caps a single invocation at 50
+      // subrequests (Workers Free/Bundled plan): any face-swap taking
+      // longer than ~25s blows through that and throws "Too many
+      // subrequests by single Worker invocation," which is exactly what was
+      // happening. The client instead polls app/api/profile-photo/status —
+      // each poll is its own fresh Worker invocation with its own
+      // subrequest budget, so total generation time is no longer bounded by
+      // this limit.
+      //
+      // fal-ai/face-swap, not easel-ai/advanced-face-swap: that model's own
+      // API docs (fal.ai/models/easel-ai/advanced-face-swap/api) now say
+      // "This model is no longer supported" and its real input schema is
+      // face_image_0/gender_0/workflow_type/target_image, not
+      // base_image_url/swap_image_url. fal-ai/face-swap's schema (confirmed
+      // via fal's own OpenAPI endpoint) is exactly base_image_url/
+      // swap_image_url in, { image } out, and its description — "face from
+      // swap_image_url swapped onto base_image_url; if no face is found,
+      // base_image is returned as-is" — matches the "pixel-identical
+      // background/outfit" requirement above.
+      const { request_id } = await fal.queue.submit(FACE_SWAP_MODEL, {
         input: {
           base_image_url: plateUrl,
           swap_image_url: referenceImageUrl,
         },
       });
-      // Defensive: face-swap endpoints commonly return a single `image`
-      // rather than an `images` array like the flux family did — accept
-      // either shape rather than assuming one.
-      imageUrl = result.data.images?.[0]?.url ?? result.data.image?.url;
-    } else {
-      // No selfie: there's no face to swap in, so the locked plate itself
-      // is the whole result.
-      imageUrl = plateUrl;
+
+      // The daily cap is only incremented once status/route.ts confirms a
+      // completed result (see the comment there) — not here at submit time
+      // — so a failed/abandoned generation still never counts against it,
+      // same as before this change.
+      return NextResponse.json({ requestId: request_id });
     }
 
-    if (!imageUrl) {
-      return NextResponse.json({ error: "Failed to generate image" }, { status: 500 });
-    }
-
+    // No selfie: there's no face to swap in, so the locked plate itself is
+    // the whole result — synchronous, zero Fal calls, so there's no
+    // subrequest-budget concern on this path and the cap can be incremented
+    // immediately, same as before.
     const newCount = generationsToday + 1;
     const { error: incrementError } = await admin
       .from("profiles")
@@ -228,24 +247,26 @@ export async function POST(req: Request) {
       console.error("[profile-photo/generate] Failed to record generation count:", incrementError);
     }
 
-    return NextResponse.json({ url: imageUrl, remaining: Math.max(0, DAILY_GENERATION_LIMIT - newCount) });
+    return NextResponse.json({ url: plateUrl, remaining: Math.max(0, DAILY_GENERATION_LIMIT - newCount) });
   } catch (error) {
     console.error("[profile-photo/generate] Error:", error);
 
     // Fal is only ever called on the selfie/face-swap path now (see header
     // comment) — a Fal-originated error here is genuinely about the
-    // uploaded photo, not the style, unlike before Phase D.
-    let message = "Generation failed. Please try again.";
-    if (error instanceof ValidationError) {
-      message = "Your photo couldn't be processed by the image model. Try a different photo.";
-    } else if (error instanceof ApiError) {
-      message = error.status === 401 || error.status === 403
-        ? "Image generation isn't configured correctly in this environment."
-        : "The image service couldn't process this request. Please try again.";
-    }
+    // uploaded photo, not the style, unlike before Phase D. classifyFalError
+    // (lib/fal.ts) is shared with status/route.ts, which classifies its own
+    // Fal errors (from polling/fetching the queued result) the same way.
+    const { message, detail } = classifyFalError(error);
 
-    const debug = process.env.NODE_ENV !== "production"
-      ? { detail: error instanceof Error ? error.message : String(error) }
+    // NODE_ENV is always "production" on a Cloudflare Pages build (next
+    // build), Preview deployments included — so gating on it alone hid the
+    // real cause of every preview-branch failure behind a generic message,
+    // with no way to see it short of the Cloudflare dashboard's function
+    // logs. CF_PAGES_BRANCH is auto-injected by Cloudflare Pages; showing
+    // detail on any non-main branch makes this self-diagnosing from the
+    // client error banner instead.
+    const debug = (process.env.NODE_ENV !== "production" || process.env.CF_PAGES_BRANCH !== "main")
+      ? { detail }
       : {};
 
     return NextResponse.json({ error: message, ...debug }, { status: 500 });

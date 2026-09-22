@@ -110,7 +110,22 @@
       "Bash(echo \"exit: $?\")",
       "Bash(grep -iE \"sk-[a-zA-Z0-9]{10,}|service_role|api[_-]?key\\\\s*=\\\\s*['\\\\\"][a-zA-Z0-9]{15,}|BEGIN \\(RSA|PRIVATE\\) KEY\")",
       "Bash(npm ls *)",
-      "Bash(node -e \"console.log\\(require.resolve\\('sharp'\\)\\)\")"
+      "Bash(node -e \"console.log\\(require.resolve\\('sharp'\\)\\)\")",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(echo \"exit:$?\")",
+      "mcp__claude_ai_Supabase__list_tables",
+      "Bash(mkdir -p ~/sbe-demo-seed)",
+      "Bash(cp /private/tmp/claude-501/-Users-mitchellwildman-Desktop-serve-by-example-ai-main/dd757c34-ac53-4664-acf4-a4a065da672a/scratchpad/demo-seed/manifest.json ~/sbe-demo-seed/manifest-2026-08-31.json)",
+      "Bash(rm -rf .next/types && npx tsc --noEmit 2>&1 | tail -60)",
+      "Bash(mv \"public/hero-refresh/Overview Console Compact.png\" \"public/shots/Overview Console Compact.png\")",
+      "Bash(mv \"public/hero-refresh/Overview Console Wide.png\" \"public/shots/Overview Console Wide.png\")",
+      "Bash(mv \"public/hero-refresh/AI Coach Chat.png\" \"public/shots/AI Coach Chat.png\")",
+      "Bash(file *.png)",
+      "Bash(npm audit *)",
+      "Bash(echo \"---exit:$?\")"
+    ],
+    "additionalDirectories": [
+      "/Users/mitchellwildman/Desktop/serve-by-example-ai-main/.next"
     ]
   }
 }
