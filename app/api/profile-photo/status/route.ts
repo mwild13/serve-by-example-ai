@@ -96,14 +96,10 @@ export async function GET(req: Request) {
     });
   } catch (error) {
     console.error("[profile-photo/status] Error:", error);
+    // Always include `detail` — see generate/route.ts's catch block for why
+    // the earlier branch/NODE_ENV gate on this was removed.
     const { message, detail } = classifyFalError(error);
 
-    // See generate/route.ts for why this is gated on CF_PAGES_BRANCH too,
-    // not just NODE_ENV.
-    const debug = (process.env.NODE_ENV !== "production" || process.env.CF_PAGES_BRANCH !== "main")
-      ? { detail }
-      : {};
-
-    return NextResponse.json({ error: message, ...debug }, { status: 500 });
+    return NextResponse.json({ error: message, detail }, { status: 500 });
   }
 }
