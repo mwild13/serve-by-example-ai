@@ -44,11 +44,13 @@ import { DAILY_GENERATION_LIMIT, generationsUsedToday } from "@/lib/profile-phot
 //   rejected" bug this route used to throw here (that message came from a
 //   flux/schnell ValidationError; there's no Fal call on this path anymore
 //   for it to come from).
-// - With selfie: `easel-ai/advanced-face-swap` (base_image_url = the
-//   style's locked plate, swap_image_url = the uploaded selfie) swaps only
-//   the face/skin-tone/hair onto that fixed plate, leaving its body,
-//   outfit, and background pixel-identical — replacing flux-pulid, which
-//   could only approximate "same style," never guarantee it.
+// - With selfie: `fal-ai/face-swap` (base_image_url = the style's locked
+//   plate, swap_image_url = the uploaded selfie) swaps only the
+//   face/skin-tone/hair onto that fixed plate, leaving its body, outfit,
+//   and background pixel-identical — replacing flux-pulid, which could
+//   only approximate "same style," never guarantee it. (Originally wired
+//   to easel-ai/advanced-face-swap, which fal has since marked "no longer
+//   supported" — see call site in POST() below for the full note.)
 // - The old STYLE_PROMPTS text (bartender/sommelier/etc. descriptions) is
 //   gone — there's no text-to-image call left on either path to prompt.
 //   Each style's environment now lives in its plate images, not as a
@@ -207,7 +209,19 @@ export async function POST(req: Request) {
         new Blob([Uint8Array.from(selfie.buffer)], { type: selfie.mime }),
       );
 
-      const result = await fal.subscribe("easel-ai/advanced-face-swap", {
+      // fal-ai/face-swap, not easel-ai/advanced-face-swap: that model's own
+      // API docs (fal.ai/models/easel-ai/advanced-face-swap/api) now say "This
+      // model is no longer supported" and its real input schema is
+      // face_image_0/gender_0/workflow_type/target_image, not
+      // base_image_url/swap_image_url — the fields this call was already
+      // sending. fal-ai/face-swap's schema (confirmed via fal's own
+      // OpenAPI endpoint) is exactly base_image_url/swap_image_url in,
+      // { image } out, and its description — "face from swap_image_url
+      // swapped onto base_image_url; if no face is found, base_image is
+      // returned as-is" — matches the "pixel-identical background/outfit"
+      // requirement above. The endpoint id was simply wrong for the shape
+      // of the request already being made.
+      const result = await fal.subscribe("fal-ai/face-swap", {
         input: {
           base_image_url: plateUrl,
           swap_image_url: referenceImageUrl,
