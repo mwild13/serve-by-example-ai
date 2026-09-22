@@ -256,19 +256,17 @@ export async function POST(req: Request) {
     // uploaded photo, not the style, unlike before Phase D. classifyFalError
     // (lib/fal.ts) is shared with status/route.ts, which classifies its own
     // Fal errors (from polling/fetching the queued result) the same way.
+    //
+    // `detail` is always included below, not gated by branch/NODE_ENV —
+    // that gate (removed 2026-09-22) meant a production-branch failure like
+    // this one showed no detail at all, with no way to see it short of
+    // Cloudflare's dashboard function logs. `detail` is only ever a short
+    // Fal SDK status string or Pydantic field-validation message (e.g.
+    // "body.base_image_url: Could not load image from url") — never a
+    // secret, credential, or stack trace — so there's no real exposure
+    // being traded away here, only a debugging dead end being removed.
     const { message, detail } = classifyFalError(error);
 
-    // NODE_ENV is always "production" on a Cloudflare Pages build (next
-    // build), Preview deployments included — so gating on it alone hid the
-    // real cause of every preview-branch failure behind a generic message,
-    // with no way to see it short of the Cloudflare dashboard's function
-    // logs. CF_PAGES_BRANCH is auto-injected by Cloudflare Pages; showing
-    // detail on any non-main branch makes this self-diagnosing from the
-    // client error banner instead.
-    const debug = (process.env.NODE_ENV !== "production" || process.env.CF_PAGES_BRANCH !== "main")
-      ? { detail }
-      : {};
-
-    return NextResponse.json({ error: message, ...debug }, { status: 500 });
+    return NextResponse.json({ error: message, detail }, { status: 500 });
   }
 }
