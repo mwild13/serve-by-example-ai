@@ -114,6 +114,22 @@ function basePlateUrl(origin: string, genderId: GenderId, styleId: StyleId): str
   return `${origin}/mobile/${dir}/ai-style-${styleId}.png`;
 }
 
+// NEXT_PUBLIC_SITE_URL was found live in Cloudflare's environment
+// variables set to a bare host with no scheme (e.g. "servebyexample.co"
+// instead of "https://servebyexample.co") — every URL built from it was
+// therefore schemeless, which is exactly what produced both "Invalid URL"
+// from this route's own fetch() and, earlier, Fal's "Could not load image
+// from url" (a schemeless URL fails to load the same way on any fetcher,
+// not just Fal's). Fixed at the source in Cloudflare, but normalized here
+// too — a boundary this brittle (a single unvalidated env var silently
+// breaking every base-plate URL app-wide) shouldn't be able to take the
+// feature down again the same way if it's ever misconfigured again.
+function resolveOrigin(req: Request): string {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
+  if (!raw) return new URL(req.url).origin;
+  return /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+}
+
 // Fetches a URL on this domain and re-uploads its bytes to Fal's own
 // storage, returning a fal.media URL. Used for the base plate image so Fal
 // never has to fetch anything from this domain directly (see
@@ -191,7 +207,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const origin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || new URL(req.url).origin;
+    const origin = resolveOrigin(req);
     const plateUrl = basePlateUrl(origin, genderId as GenderId, styleId as StyleId);
 
     if (body?.selfieImage !== undefined) {
