@@ -123,6 +123,48 @@ function downscaleImage(img: HTMLImageElement): string {
   return canvas.toDataURL("image/jpeg", 0.85);
 }
 
+// Polls app/api/profile-photo/status for the queued face-swap job submitted
+// by generate/route.ts (see that route's comment on why it can't just wait
+// for the result itself). A single consecutive-error tolerance lets one
+// transient network/Fal blip pass without aborting the whole generation.
+const STATUS_POLL_INTERVAL_MS = 2_000;
+const STATUS_POLL_TIMEOUT_MS = 120_000;
+const STATUS_POLL_MAX_CONSECUTIVE_ERRORS = 3;
+
+async function pollGenerationStatus(
+  requestId: string,
+  token: string,
+): Promise<{ url: string; remaining?: number }> {
+  const deadline = Date.now() + STATUS_POLL_TIMEOUT_MS;
+  let consecutiveErrors = 0;
+
+  while (Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, STATUS_POLL_INTERVAL_MS));
+
+    const res = await fetch(`/api/profile-photo/status?requestId=${encodeURIComponent(requestId)}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok || !data) {
+      consecutiveErrors += 1;
+      if (consecutiveErrors >= STATUS_POLL_MAX_CONSECUTIVE_ERRORS) {
+        const message = data?.error || "Generation failed. Please try again.";
+        throw new Error(data?.detail ? `${message} (${data.detail})` : message);
+      }
+      continue;
+    }
+    consecutiveErrors = 0;
+
+    if (data.status === "completed") {
+      return { url: data.url, remaining: data.remaining };
+    }
+    // data.status === "pending" — keep polling.
+  }
+
+  throw new Error("Generation is taking longer than expected. Please try again.");
+}
+
 export default function AiProfilePhotoScreen() {
   const router = useRouter();
   const session = useMobileSession();
@@ -225,7 +267,7 @@ export default function AiProfilePhotoScreen() {
 
       const data = await res.json();
 
-      if (!res.ok || !data.url) {
+      if (!res.ok) {
         // The daily-cap 429 (see generate/route.ts) always includes
         // `remaining: 0` — sync it locally even though the seeded value
         // from session should already agree, in case the tab was left open
@@ -239,9 +281,23 @@ export default function AiProfilePhotoScreen() {
         throw new Error(data.detail ? `${message} (${data.detail})` : message);
       }
 
-      setAvatarUrl(data.url);
-      if (typeof data.remaining === "number") setRemaining(data.remaining);
-      localStorage.setItem(draftKey, JSON.stringify({ avatarUrl: data.url, selfieDataUrl, genderId, styleId: selectedStyle.id }));
+      // With a selfie, generate/route.ts only submits the face-swap job to
+      // Fal's queue and returns a requestId — it can't wait for the result
+      // in the same request (see that route's comment on the Cloudflare
+      // Workers 50-subrequest-per-invocation limit). Poll for it instead.
+      // Without a selfie there's no Fal call at all, so `url` comes back
+      // immediately.
+      const result = data.requestId
+        ? await pollGenerationStatus(data.requestId, session.token)
+        : data;
+
+      if (!result.url) {
+        throw new Error("Failed to generate photo");
+      }
+
+      setAvatarUrl(result.url);
+      if (typeof result.remaining === "number") setRemaining(result.remaining);
+      localStorage.setItem(draftKey, JSON.stringify({ avatarUrl: result.url, selfieDataUrl, genderId, styleId: selectedStyle.id }));
     } catch (err) {
       console.error("Failed to generate avatar:", err);
       setErrorMsg(err instanceof Error ? err.message : "Generation failed. Please try again.");
