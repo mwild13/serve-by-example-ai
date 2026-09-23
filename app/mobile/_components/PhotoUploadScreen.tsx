@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Camera, Image as GalleryIcon, Loader2, RotateCcw } from "lucide-react";
+import { ArrowLeft, Camera, Image as GalleryIcon, Loader2, Minus, Plus, RotateCcw } from "lucide-react";
 import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import {
@@ -62,6 +62,73 @@ function blobToDataUrl(blob: Blob): Promise<string> {
   });
 }
 
+type CropCenter = { x: number; y: number };
+
+const CROP_MIN_ZOOM = 1;
+const CROP_MAX_ZOOM = 3;
+
+function clampNumber(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+/** The interactive gallery-upload crop step (pinch/drag) works entirely in
+ *  source-image pixel space: a square "window" of side length `L` sits
+ *  centered on `center`, sized so that at userScale=1 it exactly covers the
+ *  square preview (matching CSS object-fit: cover), and shrinks as
+ *  userScale increases (zooming in = looking at a smaller region of the
+ *  source at higher magnification). Keeping `center` clamped so the window
+ *  never leaves the source image is the only invariant this whole feature
+ *  depends on — every other calculation (drag, pinch, draw) derives from
+ *  it. */
+function clampCropCenter(
+  center: CropCenter,
+  sourceWidth: number,
+  sourceHeight: number,
+  containerSize: number,
+  userScale: number,
+): CropCenter {
+  const coverScale = Math.max(containerSize / sourceWidth, containerSize / sourceHeight);
+  const windowSize = containerSize / (coverScale * userScale);
+  return {
+    x: clampNumber(center.x, windowSize / 2, sourceWidth - windowSize / 2),
+    y: clampNumber(center.y, windowSize / 2, sourceHeight - windowSize / 2),
+  };
+}
+
+/** Draws the current crop window onto `canvas` at `outputSize`x`outputSize`
+ *  — used both for the live interactive preview (small, container-sized)
+ *  and the final high-resolution export (COMPOSITE_SIZE), sharing the same
+ *  windowing math so what the user sees while pinch/dragging is exactly
+ *  what gets sent for background removal. */
+function drawCropWindow(
+  canvas: HTMLCanvasElement,
+  source: ImageBitmap,
+  containerSize: number,
+  userScale: number,
+  center: CropCenter,
+  outputSize: number,
+) {
+  canvas.width = outputSize;
+  canvas.height = outputSize;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  const coverScale = Math.max(containerSize / source.width, containerSize / source.height);
+  const windowSize = containerSize / (coverScale * userScale);
+  const clamped = clampCropCenter(center, source.width, source.height, containerSize, userScale);
+  ctx.clearRect(0, 0, outputSize, outputSize);
+  ctx.drawImage(
+    source,
+    clamped.x - windowSize / 2,
+    clamped.y - windowSize / 2,
+    windowSize,
+    windowSize,
+    0,
+    0,
+    outputSize,
+    outputSize,
+  );
+}
+
 export default function PhotoUploadScreen() {
   const router = useRouter();
   const session = useMobileSession();
@@ -71,20 +138,65 @@ export default function PhotoUploadScreen() {
   const streamRef = useRef<MediaStream | null>(null);
   const cutoutImgRef = useRef<HTMLImageElement | null>(null);
   const backgroundImgsRef = useRef<Record<BackgroundStyleId, HTMLImageElement> | null>(null);
+  const cropSourceRef = useRef<ImageBitmap | null>(null);
+  const cropContainerRef = useRef<HTMLDivElement | null>(null);
+  const cropCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const cropPointersRef = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const cropPinchStartDistRef = useRef<number | null>(null);
+  const cropPinchStartZoomRef = useRef<number>(1);
 
   const [stage, setStage] = useState<Stage>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<BackgroundStyleId>(BACKGROUND_STYLES[0].id);
   const [remaining, setRemaining] = useState<number>(session.profilePhotoGenerationsRemaining);
-  const [pendingCropDataUrl, setPendingCropDataUrl] = useState<string | null>(null);
+  const [cropCenter, setCropCenter] = useState<CropCenter | null>(null);
+  const [cropZoom, setCropZoom] = useState(1);
+  const [cropContainerSize, setCropContainerSize] = useState(280);
 
-  // Stop the camera on unmount, whatever stage we're in — this codebase has
-  // no prior getUserMedia usage, so there's no existing pattern to copy
-  // correctness from; a leaked camera stream is a real privacy issue, not
-  // just a resource leak.
+  const releaseCropSource = () => {
+    cropSourceRef.current?.close();
+    cropSourceRef.current = null;
+  };
+
+  // Stop the camera and release the decoded gallery-photo bitmap on
+  // unmount, whatever stage we're in — this codebase has no prior
+  // getUserMedia usage, so there's no existing pattern to copy correctness
+  // from; a leaked camera stream is a real privacy issue, not just a
+  // resource leak, and an unclosed ImageBitmap holds onto decoded pixel
+  // data until GC gets around to it.
   useEffect(() => {
-    return () => stopStream(streamRef.current);
+    return () => {
+      stopStream(streamRef.current);
+      releaseCropSource();
+    };
   }, []);
+
+  // Measures the actual rendered size of the crop box (it's CSS-responsive
+  // — up to 280px, less on narrow phones) so the pinch/drag math below
+  // operates in real on-screen pixels, not an assumed constant. A layout
+  // effect, not a regular one, so the very first crop-window draw already
+  // uses the real size instead of flashing the 280px default first.
+  useLayoutEffect(() => {
+    if (stage !== "cropping") return;
+    const el = cropContainerRef.current;
+    if (!el) return;
+    const update = () => setCropContainerSize(el.clientWidth);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [stage]);
+
+  // Same class of timing bug fixed above for the composite canvas — redraw
+  // synchronously after commit, keyed on every value the crop window
+  // depends on, rather than firing once from inside an event handler.
+  useLayoutEffect(() => {
+    const canvas = cropCanvasRef.current;
+    const source = cropSourceRef.current;
+    if (stage !== "cropping" || !canvas || !source || !cropCenter) return;
+    const dpr = window.devicePixelRatio || 1;
+    drawCropWindow(canvas, source, cropContainerSize, cropZoom, cropCenter, Math.round(cropContainerSize * dpr));
+  }, [stage, cropContainerSize, cropZoom, cropCenter]);
 
   const stopCamera = () => {
     stopStream(streamRef.current);
@@ -194,27 +306,100 @@ export default function PhotoUploadScreen() {
       // relying on that metadata to display upright. Do not swap this back
       // for a plain FileReader-to-<img> decode.
       const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
-      const dataUrl = cropToSquareDataUrl(bitmap, bitmap.width, bitmap.height);
-      bitmap.close();
       // Unlike the live-camera path (already framed via the oval overlay
-      // before the shot is taken), a gallery photo could be framed any
-      // way — show the auto-cropped square back to the user with a short
-      // nudge before spending a background-removal call on it, rather than
-      // silently processing whatever the center-crop landed on.
-      setPendingCropDataUrl(dataUrl);
+      // before the shot is taken), a gallery photo could be framed any way
+      // — keep the decoded bitmap around and let the user pinch/drag it
+      // into position themselves instead of silently processing whatever a
+      // blind center-crop landed on.
+      cropSourceRef.current = bitmap;
+      setCropZoom(1);
+      setCropCenter({ x: bitmap.width / 2, y: bitmap.height / 2 });
       setStage("cropping");
     } catch {
       setErrorMsg("Couldn't read that photo. Please try another.");
     }
   };
 
+  const handleCropPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    cropPointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (cropPointersRef.current.size === 2) {
+      const [a, b] = Array.from(cropPointersRef.current.values());
+      cropPinchStartDistRef.current = Math.hypot(a.x - b.x, a.y - b.y);
+      cropPinchStartZoomRef.current = cropZoom;
+    }
+  };
+
+  const handleCropPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const source = cropSourceRef.current;
+    const prev = cropPointersRef.current.get(e.pointerId);
+    if (!source || !prev) return;
+
+    if (cropPointersRef.current.size === 1) {
+      const dx = e.clientX - prev.x;
+      const dy = e.clientY - prev.y;
+      cropPointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      const coverScale = Math.max(cropContainerSize / source.width, cropContainerSize / source.height);
+      const totalScale = coverScale * cropZoom;
+      // Content follows the finger (standard photo-crop UX): dragging right
+      // reveals content that was further left in the source image.
+      setCropCenter((c) =>
+        c
+          ? clampCropCenter(
+              { x: c.x - dx / totalScale, y: c.y - dy / totalScale },
+              source.width,
+              source.height,
+              cropContainerSize,
+              cropZoom,
+            )
+          : c,
+      );
+    } else if (cropPointersRef.current.size === 2) {
+      cropPointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      const [a, b] = Array.from(cropPointersRef.current.values());
+      const dist = Math.hypot(a.x - b.x, a.y - b.y);
+      if (cropPinchStartDistRef.current) {
+        const nextZoom = clampNumber(
+          cropPinchStartZoomRef.current * (dist / cropPinchStartDistRef.current),
+          CROP_MIN_ZOOM,
+          CROP_MAX_ZOOM,
+        );
+        setCropZoom(nextZoom);
+        setCropCenter((c) =>
+          c ? clampCropCenter(c, source.width, source.height, cropContainerSize, nextZoom) : c,
+        );
+      }
+    }
+  };
+
+  const handleCropPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    cropPointersRef.current.delete(e.pointerId);
+    if (cropPointersRef.current.size < 2) cropPinchStartDistRef.current = null;
+  };
+
+  const handleCropZoomBy = (delta: number) => {
+    const source = cropSourceRef.current;
+    if (!source || !cropCenter) return;
+    const nextZoom = clampNumber(cropZoom + delta, CROP_MIN_ZOOM, CROP_MAX_ZOOM);
+    setCropZoom(nextZoom);
+    setCropCenter(clampCropCenter(cropCenter, source.width, source.height, cropContainerSize, nextZoom));
+  };
+
   const handleConfirmCrop = () => {
-    if (!pendingCropDataUrl) return;
-    void removeBackground(pendingCropDataUrl);
+    const source = cropSourceRef.current;
+    if (!source || !cropCenter) return;
+    const canvas = document.createElement("canvas");
+    drawCropWindow(canvas, source, cropContainerSize, cropZoom, cropCenter, COMPOSITE_SIZE);
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
+    releaseCropSource();
+    setCropCenter(null);
+    void removeBackground(dataUrl);
   };
 
   const handleChooseDifferentPhoto = () => {
-    setPendingCropDataUrl(null);
+    releaseCropSource();
+    setCropCenter(null);
+    setCropZoom(1);
     setStage("idle");
   };
 
@@ -225,7 +410,9 @@ export default function PhotoUploadScreen() {
   const handleRetake = () => {
     cutoutImgRef.current = null;
     backgroundImgsRef.current = null;
-    setPendingCropDataUrl(null);
+    releaseCropSource();
+    setCropCenter(null);
+    setCropZoom(1);
     setErrorMsg(null);
     setStage("idle");
   };
@@ -303,7 +490,7 @@ export default function PhotoUploadScreen() {
             {stage === "previewingComposite" || stage === "saving"
               ? "Pick a background — you can switch anytime before saving"
               : stage === "cropping"
-                ? "For best results, keep your head and shoulders centered in the frame"
+                ? "Crop to head and shoulders, with your face centered"
                 : "Take a photo or choose one from your gallery"}
           </p>
         </div>
@@ -392,23 +579,69 @@ export default function PhotoUploadScreen() {
           </div>
         )}
 
-        {stage === "cropping" && pendingCropDataUrl && (
+        {stage === "cropping" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "0 24px" }}>
             <div
+              ref={cropContainerRef}
+              onPointerDown={handleCropPointerDown}
+              onPointerMove={handleCropPointerMove}
+              onPointerUp={handleCropPointerUp}
+              onPointerCancel={handleCropPointerUp}
               style={{
+                position: "relative",
                 width: "100%",
                 maxWidth: 280,
                 aspectRatio: "1 / 1",
                 borderRadius: "var(--radius-lg)",
                 overflow: "hidden",
                 border: "2px solid var(--gold-mobile)",
-                position: "relative",
+                background: "var(--bg-mobile-dark)",
+                touchAction: "none",
+                cursor: "grab",
               }}
             >
-              <Image src={pendingCropDataUrl} alt="Cropped photo preview" fill style={{ objectFit: "cover" }} unoptimized />
+              <canvas ref={cropCanvasRef} style={{ width: "100%", height: "100%", display: "block" }} />
+              <div style={{ position: "absolute", bottom: 10, right: 10, display: "flex", flexDirection: "column", gap: 6 }}>
+                <button
+                  type="button"
+                  aria-label="Zoom in"
+                  onClick={() => handleCropZoomBy(0.25)}
+                  style={{
+                    width: 30,
+                    height: 30,
+                    borderRadius: "var(--radius-pill)",
+                    background: "rgba(11, 13, 22, 0.75)",
+                    border: "1px solid var(--border-mobile)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Plus size={14} strokeWidth={2} color="var(--text-mobile)" aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Zoom out"
+                  onClick={() => handleCropZoomBy(-0.25)}
+                  style={{
+                    width: 30,
+                    height: 30,
+                    borderRadius: "var(--radius-pill)",
+                    background: "rgba(11, 13, 22, 0.75)",
+                    border: "1px solid var(--border-mobile)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Minus size={14} strokeWidth={2} color="var(--text-mobile)" aria-hidden="true" />
+                </button>
+              </div>
             </div>
             <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)", textAlign: "center" }}>
-              We&apos;ve cropped this to a square around the center. If your head and shoulders aren&apos;t centered, choose a different photo.
+              Pinch to zoom, drag to reposition.
             </p>
           </div>
         )}
