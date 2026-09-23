@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -31,7 +31,7 @@ import {
 // is ~1s, so losing an unsaved preview to back-navigation and re-running it
 // is an acceptable, cheap cost, not a wasted expensive generation.
 
-type Stage = "idle" | "capturing" | "removingBackground" | "previewingComposite" | "saving";
+type Stage = "idle" | "cropping" | "capturing" | "removingBackground" | "previewingComposite" | "saving";
 
 function stopStream(stream: MediaStream | null) {
   stream?.getTracks().forEach((track) => track.stop());
@@ -76,6 +76,7 @@ export default function PhotoUploadScreen() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<BackgroundStyleId>(BACKGROUND_STYLES[0].id);
   const [remaining, setRemaining] = useState<number>(session.profilePhotoGenerationsRemaining);
+  const [pendingCropDataUrl, setPendingCropDataUrl] = useState<string | null>(null);
 
   // Stop the camera on unmount, whatever stage we're in — this codebase has
   // no prior getUserMedia usage, so there's no existing pattern to copy
@@ -98,6 +99,30 @@ export default function PhotoUploadScreen() {
     if (!canvas || !cutout || !background) return;
     drawComposite(canvas, background, cutout);
   };
+
+  // Redraw whenever the composite becomes visible or the chosen background
+  // changes. Not folded into removeBackground/handleSelectStyle directly —
+  // a canvas ref attached via a rAF callback scheduled from an async
+  // (post-fetch) continuation isn't reliably ready by the time that
+  // callback runs, since React's commit for a state update made outside a
+  // synchronous event handler isn't guaranteed to land before the next
+  // animation frame. That produced a real bug: the first composite render
+  // came up blank until some other state change (e.g. tapping a swatch)
+  // forced a second draw. A layout effect keyed on [stage, selectedStyle]
+  // runs synchronously right after React commits the DOM, so the <canvas>
+  // is guaranteed to exist by the time this fires.
+  useLayoutEffect(() => {
+    if (stage === "previewingComposite" || stage === "saving") {
+      redrawComposite(selectedStyle);
+    }
+  }, [stage, selectedStyle]);
+
+  // Same class of bug, same fix, for the live-camera <video> element.
+  useLayoutEffect(() => {
+    if (stage === "capturing" && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+    }
+  }, [stage]);
 
   const removeBackground = async (selfieDataUrl: string) => {
     setStage("removingBackground");
@@ -128,9 +153,6 @@ export default function PhotoUploadScreen() {
 
       if (typeof data.remaining === "number") setRemaining(data.remaining);
       setStage("previewingComposite");
-      // The <canvas> isn't mounted until the previewingComposite branch
-      // renders — draw on the next frame once the ref is attached.
-      requestAnimationFrame(() => redrawComposite(selectedStyle));
     } catch (err) {
       setStage("idle");
       setErrorMsg(err instanceof Error ? err.message : "Couldn't process your photo. Please try again.");
@@ -143,10 +165,6 @@ export default function PhotoUploadScreen() {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
       streamRef.current = stream;
       setStage("capturing");
-      // The <video> isn't mounted until the "capturing" branch renders.
-      requestAnimationFrame(() => {
-        if (videoRef.current) videoRef.current.srcObject = stream;
-      });
     } catch {
       setErrorMsg("Couldn't access your camera. You can choose a photo from your gallery instead.");
     }
@@ -178,20 +196,36 @@ export default function PhotoUploadScreen() {
       const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
       const dataUrl = cropToSquareDataUrl(bitmap, bitmap.width, bitmap.height);
       bitmap.close();
-      void removeBackground(dataUrl);
+      // Unlike the live-camera path (already framed via the oval overlay
+      // before the shot is taken), a gallery photo could be framed any
+      // way — show the auto-cropped square back to the user with a short
+      // nudge before spending a background-removal call on it, rather than
+      // silently processing whatever the center-crop landed on.
+      setPendingCropDataUrl(dataUrl);
+      setStage("cropping");
     } catch {
       setErrorMsg("Couldn't read that photo. Please try another.");
     }
   };
 
+  const handleConfirmCrop = () => {
+    if (!pendingCropDataUrl) return;
+    void removeBackground(pendingCropDataUrl);
+  };
+
+  const handleChooseDifferentPhoto = () => {
+    setPendingCropDataUrl(null);
+    setStage("idle");
+  };
+
   const handleSelectStyle = (styleId: BackgroundStyleId) => {
     setSelectedStyle(styleId);
-    redrawComposite(styleId);
   };
 
   const handleRetake = () => {
     cutoutImgRef.current = null;
     backgroundImgsRef.current = null;
+    setPendingCropDataUrl(null);
     setErrorMsg(null);
     setStage("idle");
   };
@@ -231,6 +265,10 @@ export default function PhotoUploadScreen() {
       setStage("idle");
       return;
     }
+    if (stage === "cropping") {
+      handleChooseDifferentPhoto();
+      return;
+    }
     router.back();
   };
 
@@ -264,7 +302,9 @@ export default function PhotoUploadScreen() {
           <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>
             {stage === "previewingComposite" || stage === "saving"
               ? "Pick a background — you can switch anytime before saving"
-              : "Take a photo or choose one from your gallery"}
+              : stage === "cropping"
+                ? "For best results, keep your head and shoulders centered in the frame"
+                : "Take a photo or choose one from your gallery"}
           </p>
         </div>
 
@@ -348,6 +388,27 @@ export default function PhotoUploadScreen() {
 
             <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>
               {remaining <= 0 ? "No photo edits left today" : `${remaining} photo edit${remaining === 1 ? "" : "s"} left today`}
+            </p>
+          </div>
+        )}
+
+        {stage === "cropping" && pendingCropDataUrl && (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "0 24px" }}>
+            <div
+              style={{
+                width: "100%",
+                maxWidth: 280,
+                aspectRatio: "1 / 1",
+                borderRadius: "var(--radius-lg)",
+                overflow: "hidden",
+                border: "2px solid var(--gold-mobile)",
+                position: "relative",
+              }}
+            >
+              <Image src={pendingCropDataUrl} alt="Cropped photo preview" fill style={{ objectFit: "cover" }} unoptimized />
+            </div>
+            <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)", textAlign: "center" }}>
+              We&apos;ve cropped this to a square around the center. If your head and shoulders aren&apos;t centered, choose a different photo.
             </p>
           </div>
         )}
@@ -460,7 +521,7 @@ export default function PhotoUploadScreen() {
         )}
       </div>
 
-      {(stage === "previewingComposite" || stage === "saving") && (
+      {(stage === "cropping" || stage === "previewingComposite" || stage === "saving") && (
         <div
           style={{
             display: "flex",
@@ -473,6 +534,44 @@ export default function PhotoUploadScreen() {
             borderTopRightRadius: "var(--radius-xl)",
           }}
         >
+          {stage === "cropping" ? (
+            <div style={{ display: "flex", gap: 12 }}>
+              <button
+                type="button"
+                onClick={handleChooseDifferentPhoto}
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "14px 0",
+                  borderRadius: "var(--radius-pill)",
+                  background: "none",
+                  border: "1px solid var(--border-mobile)",
+                  cursor: "pointer",
+                }}
+              >
+                <span style={{ fontSize: 15, fontWeight: 600, color: "var(--text-mobile)" }}>Choose Different Photo</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmCrop}
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "14px 0",
+                  borderRadius: "var(--radius-pill)",
+                  background: "var(--gold-mobile)",
+                  border: "none",
+                  cursor: "pointer",
+                }}
+              >
+                <span style={{ fontSize: 15, fontWeight: 700, color: "var(--bg-mobile-dark)" }}>Looks Good</span>
+              </button>
+            </div>
+          ) : (
           <div style={{ display: "flex", gap: 12 }}>
             <button
               type="button"
@@ -517,6 +616,7 @@ export default function PhotoUploadScreen() {
               </span>
             </button>
           </div>
+          )}
         </div>
       )}
 
