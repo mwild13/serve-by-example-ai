@@ -1,21 +1,33 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Manrope } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import LanguageRuntimeTranslator from "@/components/LanguageRuntimeTranslator";
 import ErrorLogger from "@/components/ErrorLogger";
 import FloatingBookCallButton from "@/components/FloatingBookCallButton";
 import Script from 'next/script';
 
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  weight: ["400", "600"],
+// Self-hosted, not next/font/google — the Cloudflare Pages build fetches
+// font files from Google's CDN at build time with next/font/google, and
+// that fetch failed there once with "Cannot read properties of null
+// (reading '1')" inside next/font's loader (a known next/font/google
+// flakiness class, not a code bug — this file otherwise never changed).
+// Self-hosting removes the build's dependency on that network call
+// entirely. Both files below are the exact latin-subset variable-font
+// files Google's own CSS served for weights 400+600 (both weights
+// resolved to the same file — Fraunces/Manrope ship as variable fonts —
+// so one file per family, `weight: "400 600"`, covers both.
+const fraunces = localFont({
+  src: "./fonts/fraunces-latin-variable.woff2",
+  weight: "400 600",
+  style: "normal",
   display: "swap",
   variable: "--font-fraunces",
 });
 
-const manrope = Manrope({
-  subsets: ["latin"],
-  weight: ["400", "600"],
+const manrope = localFont({
+  src: "./fonts/manrope-latin-variable.woff2",
+  weight: "400 600",
+  style: "normal",
   display: "swap",
   variable: "--font-manrope",
 });
