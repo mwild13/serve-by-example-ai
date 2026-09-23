@@ -10,7 +10,7 @@
 // troubleshooting guide warns against for global clients — built fresh per
 // call instead, like getOpenAIClient()/getStripeClient() elsewhere in this
 // codebase.
-import { createFalClient, ApiError, ValidationError } from "@fal-ai/client";
+import { createFalClient, ApiError, ValidationError, type RetryOptions } from "@fal-ai/client";
 
 // Replaces the retired face-swap pipeline (fal-ai/face-swap, itself a
 // replacement for the deprecated easel-ai/advanced-face-swap). The new
@@ -22,8 +22,23 @@ import { createFalClient, ApiError, ValidationError } from "@fal-ai/client";
 // a fal.media CDN URL — see remove-background/route.ts for why that matters.
 export const BG_REMOVE_MODEL = "fal-ai/bria/background/remove";
 
+// The SDK's own default retryable set (429/502/503/504) doesn't cover
+// Cloudflare's gateway/connectivity error codes (520-527) — seen live in
+// production as `ApiError: HTTP 525: <none>` ("SSL Handshake Failed")
+// calling Fal from this app's own Cloudflare runtime, a transient
+// connectivity hiccup between two Cloudflare-fronted services, not a real
+// validation/auth failure. @fal-ai/client's DEFAULT_RETRYABLE_STATUS_CODES
+// isn't part of its public exports, so the full list is spelled out here
+// rather than imported and extended.
+const RETRYABLE_STATUS_CODES: RetryOptions["retryableStatusCodes"] = [
+  429, 500, 502, 503, 504, 520, 521, 522, 523, 524, 525, 526, 527,
+];
+
 export function getFalClient() {
-  return createFalClient({ credentials: process.env.FAL_KEY });
+  return createFalClient({
+    credentials: process.env.FAL_KEY,
+    retry: { retryableStatusCodes: RETRYABLE_STATUS_CODES },
+  });
 }
 
 /**
@@ -37,9 +52,16 @@ export function classifyFalError(error: unknown): { message: string; detail: str
   if (error instanceof ValidationError) {
     message = "Your photo couldn't be processed by the image model. Try a different photo.";
   } else if (error instanceof ApiError) {
-    message = error.status === 401 || error.status === 403
-      ? "Image processing isn't configured correctly in this environment."
-      : "The image service couldn't process this request. Please try again.";
+    if (error.status === 401 || error.status === 403) {
+      message = "Image processing isn't configured correctly in this environment.";
+    } else if (RETRYABLE_STATUS_CODES.includes(error.status)) {
+      // Reached only if the SDK's own retries (see getFalClient) were
+      // already exhausted — a clearer message than the generic one below
+      // for what's usually just a slow connectivity hiccup.
+      message = "Temporary connection issue reaching the image service. Please try again.";
+    } else {
+      message = "The image service couldn't process this request. Please try again.";
+    }
   }
 
   // For a ValidationError, `error.message` is usually just the generic HTTP
