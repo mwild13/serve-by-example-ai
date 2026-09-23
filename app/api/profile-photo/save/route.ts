@@ -1,41 +1,35 @@
 import { NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
-// Phase C file 08, Half B — persists the URL the user explicitly confirmed
-// via "Save Portrait" into profiles.profile_photo_url. Separate from
-// /generate on purpose: generating a preview should never silently commit a
-// user's profile photo before they've chosen to keep it. See
-// v4-migration-plan/08-onboarding-diagnostic-and-profile.md.
+// Persists the flattened composite (background + cutout, canvas-rendered
+// client-side — see lib/photo-composite.ts) into Supabase Storage and
+// updates profiles.profile_photo_url. Replaces the old contract of
+// { url: string } pointing at either a fal.media result or one of the
+// now-deleted static base-plate images — there's no URL to validate
+// anymore, only bytes, which closes that whole allow-list class of bug
+// (isAllowedPhotoUrl/PLATE_PATH_RE, both removed).
 //
-// No Supabase Storage bucket — Fal's returned URLs are hosted on Fal's own
-// CDN (fal.media), which is durable, so re-uploading into our own bucket
-// would just be a redundant copy for a feature with no stated multi-photo/
-// history requirement. Revisit only if Fal URL longevity becomes a problem
-// in practice or the product grows a "photo history" requirement.
-//
-// Phase D (2026-08-25): a no-selfie generation now returns our own static
-// base-plate URL directly (see generate/route.ts) instead of always being a
-// Fal-hosted result — isAllowedPhotoUrl (renamed from isAllowedFalUrl)
-// accepts that shape too now, scoped tightly to the exact
-// public/mobile/{men,women}/ai-style-*.png plates so this stays a real
-// allow-list, not a same-origin free-for-all.
+// No durable per-day cap here — saving/re-saving or just switching which
+// background is composited was never gated by the old feature either, only
+// generation was (see remove-background/route.ts). A lighter burst
+// throttle still applies below.
 
 export const dynamic = "force-dynamic";
 
-const PLATE_PATH_RE = /^\/mobile\/(men|women)\/ai-style-[a-z-]+\.png$/;
+const COMPOSITE_DATA_URL_RE = /^data:image\/webp;base64,([A-Za-z0-9+/=]+)$/;
+// exportCompositeBlob (lib/photo-composite.ts) targets ~150-300KB raw at
+// COMPOSITE_SIZE (1024x1024) WebP/0.8 quality; base64 inflates that by
+// ~33%. This cap is a generous backstop against a modified client, not the
+// normal path.
+const MAX_COMPOSITE_BASE64_CHARS = 4_000_000;
 
-function isAllowedPhotoUrl(url: string, requestOrigin: string): boolean {
-  try {
-    const parsed = new URL(url);
-    if (parsed.protocol === "https:" && parsed.hostname.endsWith(".fal.media")) return true;
-    // Same-origin static base plate — deliberately not https-only like the
-    // fal.media branch above, since requestOrigin is itself http in local
-    // dev (matching whatever protocol the current request actually used).
-    return parsed.origin === requestOrigin && PLATE_PATH_RE.test(parsed.pathname);
-  } catch {
-    return false;
-  }
+function parseCompositeDataUrl(value: unknown): Buffer | null {
+  if (typeof value !== "string" || value.length > MAX_COMPOSITE_BASE64_CHARS) return null;
+  const match = COMPOSITE_DATA_URL_RE.exec(value);
+  if (!match) return null;
+  return Buffer.from(match[1], "base64");
 }
 
 export async function POST(req: Request) {
@@ -45,30 +39,47 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await req.json();
-    const url = typeof body?.url === "string" ? body.url : "";
-    // Same normalization as generate/route.ts's resolveOrigin() — a bare
-    // host with no scheme in NEXT_PUBLIC_SITE_URL (the real, confirmed
-    // Cloudflare misconfiguration found earlier this session) would
-    // otherwise make this never match a same-origin plate URL's `origin`,
-    // silently rejecting every no-selfie save with "Invalid photo URL."
-    const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
-    const requestOrigin = rawSiteUrl
-      ? (/^https?:\/\//i.test(rawSiteUrl) ? rawSiteUrl : `https://${rawSiteUrl}`)
-      : new URL(req.url).origin;
-    if (!isAllowedPhotoUrl(url, requestOrigin)) {
-      return NextResponse.json({ error: "Invalid photo URL." }, { status: 400 });
+    const ip = getClientIp(req);
+    if (!rateLimit(`profile-photo-save:user:${user.id}`, 10) || !rateLimit(`profile-photo-save:ip:${ip}`, 10)) {
+      return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    }
+
+    const body = await req.json().catch(() => null);
+    if (body === null || typeof body !== "object") {
+      return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+    }
+
+    const buffer = parseCompositeDataUrl(body.image);
+    if (!buffer) {
+      return NextResponse.json({ error: "Invalid photo." }, { status: 400 });
     }
 
     const admin = createSupabaseAdminClient();
-    const { error } = await admin
+    const path = `${user.id}/profile-photo.webp`;
+
+    const { error: uploadError } = await admin.storage
+      .from("profile-photos")
+      .upload(path, buffer, { contentType: "image/webp", upsert: true });
+
+    if (uploadError) {
+      console.error("[profile-photo/save] Storage upload error:", uploadError);
+      return NextResponse.json({ error: "Failed to save your photo" }, { status: 500 });
+    }
+
+    const { data: publicUrlData } = admin.storage.from("profile-photos").getPublicUrl(path);
+    // The storage path is fixed per user, so its public URL never changes
+    // between saves — a cache-busting query param keeps <Image>/browser
+    // caches from showing a stale photo right after a re-save.
+    const url = `${publicUrlData.publicUrl}?v=${Date.now()}`;
+
+    const { error: updateError } = await admin
       .from("profiles")
       .update({ profile_photo_url: url })
       .eq("id", user.id);
 
-    if (error) {
-      console.error("[profile-photo/save] Supabase error:", error);
-      return NextResponse.json({ error: "Failed to save portrait" }, { status: 500 });
+    if (updateError) {
+      console.error("[profile-photo/save] Supabase error:", updateError);
+      return NextResponse.json({ error: "Failed to save your photo" }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, url });

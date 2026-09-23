@@ -32,7 +32,7 @@ Every route lives under `app/mobile/<slug>/page.tsx`, and every `page.tsx` follo
 | `/mobile/badges` | `BadgesGalleryScreen.tsx` | Earned achievement badges |
 | `/mobile/onboarding` | `OnboardingDiagnosticScreen.tsx` | Retake placement assessment |
 | `/mobile/settings` | `SettingsScreen.tsx` | Profile, security, venue settings |
-| `/mobile/ai-photo` | `AiProfilePhotoScreen.tsx` | AI-generated profile photo |
+| `/mobile/ai-photo` | `PhotoUploadScreen.tsx` | Profile photo: capture/upload own photo, Fal background removal, canvas composite onto a hospitality background |
 | `/mobile/help` | `HelpScreen.tsx` | Help & FAQ |
 | `/mobile/contact` | `ContactSupportScreen.tsx` | Contact support |
 | `/mobile/report-bug` | `ReportBugScreen.tsx` | Report a Bug feature |
