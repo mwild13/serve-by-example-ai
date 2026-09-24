@@ -15,7 +15,7 @@ export default function TermsPage() {
       <Navbar />
 
       <main>
-        <PageHero compact eyebrow="Legal" title="Terms of Service" subtitle="Last updated: 26 April 2026" />
+        <PageHero compact variant="light" eyebrow="Legal" title="Terms of Service" subtitle="Last updated: 26 April 2026" />
 
         <section className="section">
           <div className="container">

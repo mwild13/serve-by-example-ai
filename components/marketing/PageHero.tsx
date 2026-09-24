@@ -7,9 +7,10 @@ import type { ReactNode } from 'react';
  * Server component: no state, no handlers.
  *
  * Variants:
- *   'default'  — light (--bg-alt), standard sub-page
- *   'solution' — light (--bg), gold eyebrow accent for /solutions/*
- *   'dark'     — navy anchor (--bg-dark), reserved for /for-venues and /pricing only
+ *   'default'  — navy (--bg-dark), standard sub-page; matches the navbar and home hero
+ *   'solution' — navy, for /solutions/* (gold eyebrow)
+ *   'dark'     — navy; kept as an alias of 'default' for existing callers
+ *   'light'    — parchment (--bg-alt); explicit opt-out for legal / reading-heavy pages
  */
 
 type PageHeroAction = {
@@ -30,7 +31,7 @@ type Props = {
   subtitle?: string;
   breadcrumb?: PageHeroCrumb[];
   actions?: PageHeroAction[];
-  variant?: 'default' | 'solution' | 'dark';
+  variant?: 'default' | 'solution' | 'dark' | 'light';
   /** Compact mode: reduced padding, no min-height. Use where content below
    *  the hero must stay near the fold (e.g. /pricing). */
   compact?: boolean;
@@ -59,7 +60,7 @@ export default function PageHero({
             <nav aria-label="Breadcrumb" className="sbe-mkt-pagehero-crumbs">
               <ol>
                 {breadcrumb.map((crumb, i) => (
-                  <li key={crumb.label}>
+                  <li key={`${crumb.label}-${i}`}>
                     {crumb.href ? (
                       <Link href={crumb.href}>{crumb.label}</Link>
                     ) : (

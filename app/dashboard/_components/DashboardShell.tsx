@@ -551,6 +551,9 @@ export default function DashboardShell({
         document.documentElement.classList.add("sbe-dark");
       }
     } catch {}
+    // The class lives on <html>; drop it on unmount so client-side navigation
+    // from the dashboard to marketing pages does not carry the app dark theme over.
+    return () => document.documentElement.classList.remove("sbe-dark");
   }, []);
 
   // Auto-navigate to settings and pre-fill venue code if ?join= is in URL
