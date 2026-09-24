@@ -27,7 +27,7 @@ export default function PrivacyScreen() {
           <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-mobile-muted)", textTransform: "uppercase" }}>Settings</span>
         </button>
         <p style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "var(--text-mobile)" }}>Privacy Policy</p>
-        <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>Last updated: 3 July 2026</p>
+        <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>Last updated: 25 September 2026</p>
       </div>
 
       <div style={{ padding: "0 20px 20px" }}>
