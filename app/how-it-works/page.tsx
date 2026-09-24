@@ -226,7 +226,7 @@ export default function HowItWorksPage() {
         </section>
 
         {/* ── Consoles ── */}
-        <section className="section" style={{ background: "var(--ip-green)" }}>
+        <section className="section" style={{ background: "var(--bg-dark)" }}>
           <div className="container">
             <div className="section-header">
               <span className="eyebrow" style={{ color: "var(--status-success-border)" }}>Consoles</span>
@@ -270,7 +270,7 @@ export default function HowItWorksPage() {
 
         {/* ── CTA ── */}
         <CTABand
-          background="gold"
+          background="navy"
           title="Ready to train smarter?"
           copy="Give every staff member a clearer path to confidence, consistency and better service."
           primary={{ label: "Try the Demo", href: "/demo" }}
