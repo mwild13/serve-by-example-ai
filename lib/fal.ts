@@ -24,10 +24,12 @@ export const BG_REMOVE_MODEL = "fal-ai/bria/background/remove";
 
 // The SDK's own default retryable set (429/502/503/504) doesn't cover
 // Cloudflare's gateway/connectivity error codes (520-527) — seen live in
-// production as `ApiError: HTTP 525: <none>` ("SSL Handshake Failed")
-// calling Fal from this app's own Cloudflare runtime, a transient
-// connectivity hiccup between two Cloudflare-fronted services, not a real
-// validation/auth failure. @fal-ai/client's DEFAULT_RETRYABLE_STATUS_CODES
+// production as `ApiError: HTTP 525: <none>` ("SSL Handshake Failed").
+// Confirmed this isn't a Fal-side outage (status.fal.ai reports 100%
+// uptime, and this domain is reachable fine from outside Cloudflare) — it's
+// specifically the Cloudflare Workers runtime's own outbound network path
+// to Fal's origin occasionally failing the TLS handshake, independent of
+// whether Fal itself is healthy. @fal-ai/client's DEFAULT_RETRYABLE_STATUS_CODES
 // isn't part of its public exports, so the full list is spelled out here
 // rather than imported and extended.
 const RETRYABLE_STATUS_CODES: RetryOptions["retryableStatusCodes"] = [
@@ -37,7 +39,18 @@ const RETRYABLE_STATUS_CODES: RetryOptions["retryableStatusCodes"] = [
 export function getFalClient() {
   return createFalClient({
     credentials: process.env.FAL_KEY,
-    retry: { retryableStatusCodes: RETRYABLE_STATUS_CODES },
+    retry: {
+      retryableStatusCodes: RETRYABLE_STATUS_CODES,
+      // The default (3 retries, 1s/2s/4s backoff) wasn't enough in
+      // practice — a real failure exhausted all 3 in under 20s, meaning
+      // each attempt fails fast rather than hanging, so there's room for
+      // more attempts within a similar total budget. More retries, shorter
+      // backoff between them (capped lower than the SDK's 30s default) so
+      // the extra attempts don't balloon total wait time.
+      maxRetries: 5,
+      baseDelay: 500,
+      maxDelay: 8000,
+    },
   });
 }
 
