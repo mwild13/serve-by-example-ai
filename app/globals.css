@@ -17441,9 +17441,13 @@ h1, h2, h3 {
 .sbe-mkt-hero-grid {
   display: grid;
   grid-template-columns: 2fr 3fr;
+  grid-template-areas: "heading teaser" "details teaser";
   gap: clamp(2rem, 4vw, 4rem);
   align-items: center;
 }
+
+.sbe-mkt-hero-heading { grid-area: heading; }
+.sbe-mkt-hero-details { grid-area: details; }
 
 /* ── Left column ── */
 .sbe-mkt-hero-eyebrow {
@@ -17756,6 +17760,7 @@ h1, h2, h3 {
 
   .sbe-mkt-hero-grid {
     grid-template-columns: 1fr;
+    grid-template-areas: "heading" "teaser" "details";
     gap: 3rem;
   }
 
@@ -17769,6 +17774,35 @@ h1, h2, h3 {
     width: auto;
     max-width: 320px;
     margin: -2.5rem 0 0 auto;
+  }
+}
+
+/* Phones only — tighten vertical rhythm so eyebrow + headline + hero image
+   fit in the first view without scrolling. Tablets (601–900px) keep the
+   roomier spacing above since they have more viewport height to spare. */
+@media (max-width: 600px) {
+  .sbe-mkt-hero {
+    padding: clamp(1rem, 4vw, 1.5rem) 0 var(--section-spacing-sm);
+  }
+
+  .sbe-mkt-hero-grid {
+    gap: 1.25rem;
+  }
+
+  .sbe-mkt-hero-eyebrow {
+    margin: 0 0 0.75rem;
+  }
+
+  .sbe-mkt-hero-teaser {
+    max-width: 100%;
+  }
+
+  .sbe-mkt-hero-teaser img {
+    max-height: 34dvh;
+    width: auto;
+    max-width: 100%;
+    margin: 0 auto;
+    object-fit: contain;
   }
 }
 

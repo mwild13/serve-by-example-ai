@@ -27,7 +27,7 @@ function CalendarIcon() {
 }
 
 // Routes where the floating button must not appear — authenticated app shells
-const APP_ROUTE_PREFIXES = ['/dashboard', '/management', '/mobile'];
+const APP_ROUTE_PREFIXES = ['/dashboard', '/management', '/mobile', '/login'];
 
 export default function FloatingBookCallButton() {
   const pathname = usePathname();
