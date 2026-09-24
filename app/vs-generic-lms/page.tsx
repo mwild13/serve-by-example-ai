@@ -129,10 +129,10 @@ export default function VsGenericLmsPage() {
 
             <div style={{ marginTop: "2.5rem", display: "flex", flexDirection: "column", gap: "0", border: "1px solid var(--line)", borderRadius: "var(--radius-lg)", overflow: "hidden" }}>
               {/* Table header */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", background: "var(--green-deep)", color: "var(--surface-raised)", padding: "1rem 1.5rem", gap: "1.5rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", background: "var(--bg-dark)", color: "var(--surface-raised)", padding: "1rem 1.5rem", gap: "1.5rem" }}>
                 <div style={{ fontFamily: "var(--font-manrope)", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.08em", textTransform: "uppercase", opacity: 0.7 }}>Area</div>
                 <div style={{ fontFamily: "var(--font-manrope)", fontWeight: 700, fontSize: "0.875rem" }}>Generic LMS</div>
-                <div style={{ fontFamily: "var(--font-fraunces)", fontWeight: 700, fontSize: "0.975rem", color: "var(--gold)" }}>Serve By Example</div>
+                <div style={{ fontFamily: "var(--font-fraunces)", fontWeight: 700, fontSize: "0.975rem", color: "var(--gold-warm)" }}>Serve By Example</div>
               </div>
 
               {comparisonRows.map((row, i) => (

@@ -88,7 +88,7 @@ export default function SopPreviewDocument({ venueType: _venueType, painPoint, i
           marginTop: '1rem', 
           padding: '0.75rem 1rem', 
           borderLeft: '4px solid var(--gold)', 
-          background: 'rgba(169, 129, 42, 0.03)',
+          background: 'var(--bg-warm)',
           fontSize: '0.85rem',
           color: 'var(--text-main)',
           lineHeight: '1.4'

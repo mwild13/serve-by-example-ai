@@ -209,6 +209,7 @@ export default function Home() {
                   height={1654}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
                   loading="lazy"
+                  className="sbe-shot"
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
               </div>
@@ -229,6 +230,7 @@ export default function Home() {
                   height={1654}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
                   loading="lazy"
+                  className="sbe-shot"
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
               </div>
@@ -257,6 +259,7 @@ export default function Home() {
                   width={1400}
                   height={875}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
+                  className="sbe-shot"
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
               </div>

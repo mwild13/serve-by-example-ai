@@ -203,7 +203,7 @@ export default function ChallengesMarketingPage() {
                     border: "1px solid var(--line)",
                     borderRadius: "var(--radius-xl)",
                     overflow: "hidden",
-                    boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
+                    boxShadow: "var(--shadow-shot)",
                   }}
                 >
                   <Image
@@ -251,7 +251,7 @@ export default function ChallengesMarketingPage() {
                 >
                   {m.value}
                 </div>
-                <div style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>
+                <div style={{ fontSize: "0.85rem", color: "var(--text-light-muted-on-dark)", fontWeight: 600 }}>
                   {m.label}
                 </div>
               </div>
@@ -441,7 +441,7 @@ export default function ChallengesMarketingPage() {
                   border: "1px solid var(--line)",
                   borderRadius: "var(--radius-lg)",
                   overflow: "hidden",
-                  boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
+                  boxShadow: "var(--shadow-shot)",
                 }}
               >
                 <Image
@@ -471,7 +471,7 @@ export default function ChallengesMarketingPage() {
                   border: "1px solid var(--line)",
                   borderRadius: "var(--radius-lg)",
                   overflow: "hidden",
-                  boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
+                  boxShadow: "var(--shadow-shot)",
                 }}
               >
                 <Image
@@ -554,7 +554,7 @@ export default function ChallengesMarketingPage() {
             >
               Available now inside the dashboard
             </h2>
-            <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.7, marginBottom: "2rem" }}>
+            <p style={{ fontSize: "1rem", color: "var(--text-light-muted-on-dark)", lineHeight: 1.7, marginBottom: "2rem" }}>
               Interactive Challenges is live for all staff accounts. Log in and find it under Challenges in the sidebar. No setup required.
             </p>
             <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
@@ -580,7 +580,7 @@ export default function ChallengesMarketingPage() {
                   padding: "0.85rem 2.25rem",
                   background: "transparent",
                   color: "white",
-                  border: "1.5px solid rgba(255,255,255,0.35)",
+                  border: "1.5px solid var(--border-light-on-dark)",
                   borderRadius: "var(--radius-md)",
                   fontWeight: 700,
                   fontSize: "0.95rem",

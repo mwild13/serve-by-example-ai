@@ -246,7 +246,8 @@ export default function HowItWorksPage() {
                   width={2416}
                   height={1558}
                   sizes="(max-width: 768px) 100vw, 50vw"
-                  style={{ width: "100%", height: "auto", display: "block", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-lg)" }}
+                  className="sbe-shot"
+                  style={{ width: "100%", height: "auto", display: "block" }}
                 />
               </div>
 
