@@ -66,7 +66,7 @@ const segments = [
       "Track readiness scores per outlet so coaching targets the right team at the right time",
       "Onboard seasonal and contract staff quickly without pulling supervisors off the floor",
     ],
-    stat: { value: "5★", label: "service standards trained through scenario practice, not classroom briefings" },
+    stat: { value: "5-star", label: "service standards trained through scenario practice, not classroom briefings" },
     cta: { href: "/solutions/hotel-fb", label: "See hotel F&B features" },
   },
   {

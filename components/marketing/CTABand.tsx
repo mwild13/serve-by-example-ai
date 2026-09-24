@@ -19,7 +19,8 @@ type Props = {
   copy?: string;
   primary: CTAAction;
   secondary?: CTAAction;
-  background?: 'green' | 'gold' | 'neutral';
+  /** 'navy' is the default; 'green' is a deprecated alias that renders navy. */
+  background?: 'navy' | 'green' | 'gold' | 'neutral';
 };
 
 export default function CTABand({
@@ -28,7 +29,7 @@ export default function CTABand({
   copy,
   primary,
   secondary,
-  background = 'green',
+  background = 'navy',
 }: Props) {
   return (
     <section className={`sbe-mkt-ctaband sbe-mkt-ctaband-${background}`}>

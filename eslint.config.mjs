@@ -8,6 +8,10 @@ import tsPlugin from "@typescript-eslint/eslint-plugin";
 // Rule: no-hardcoded-hex
 //   Flags raw hex colour literals (#rrggbb / #rgb) in TSX/TS files.
 //   CSS variables from app/globals.css should be used instead.
+//   With option { colorFunctions: true } it also flags rgb()/rgba()/hsl()/hsla()
+//   literals. Enabled for the public marketing surface only (see the second
+//   config block below); dashboard / Mission Control are not covered yet.
+//   A var(--token, rgba(...)) fallback is stripped before matching, so it is allowed.
 //
 // Exclusions (see config block below):
 //   app/api/**             — email HTML templates; CSS vars are invalid in email clients
@@ -28,12 +32,21 @@ const sbeDesign = {
         },
         messages: {
           foundHex:
-            'Hardcoded hex "{{ hex }}" detected. Replace with a CSS variable from app/globals.css.',
+            'Hardcoded colour "{{ hex }}" detected. Replace with a CSS variable from app/globals.css.',
         },
-        schema: [],
+        schema: [
+          {
+            type: "object",
+            properties: { colorFunctions: { type: "boolean" } },
+            additionalProperties: false,
+          },
+        ],
       },
       create(context) {
-        const HEX_RE = /#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?\b/;
+        const colorFunctions = Boolean(context.options[0]?.colorFunctions);
+        const HEX_RE = colorFunctions
+          ? /#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?\b|\b(?:rgba?|hsla?)\(/
+          : /#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?\b/;
 
         // Strip var() calls so fallback values — e.g. var(--token, #fallback) — are not flagged.
         function extractHex(str) {
@@ -95,6 +108,23 @@ export default defineConfig([
     plugins: { "sbe-design": sbeDesign },
     rules: {
       "sbe-design/no-hardcoded-hex": "error",
+    },
+  },
+
+  // Public marketing surface: also forbid rgb()/rgba()/hsl()/hsla() literals.
+  // Use the alpha tokens in app/globals.css (--text-light-*-on-dark, --border-light-*-on-dark,
+  // --surface-tint-on-dark, --gold-*-on-dark, --shadow-shot) instead.
+  {
+    files: [
+      "app/page.tsx",
+      "app/{about,contact,cookies,demo,for-venues,how-it-works,membership,platform,pricing,privacy,resources,roadmap,roi,security,solutions,terms,toolkit,vs-generic-lms}/**/*.tsx",
+      "components/marketing/**/*.tsx",
+      "components/ui/**/*.tsx",
+      "components/{Navbar,Footer,HeroSection,HeroStickyBar,LogoMarquee,FloatingBookCallButton,BookCallModal}.tsx",
+    ],
+    plugins: { "sbe-design": sbeDesign },
+    rules: {
+      "sbe-design/no-hardcoded-hex": ["error", { colorFunctions: true }],
     },
   },
 ]);

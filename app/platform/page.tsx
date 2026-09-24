@@ -168,7 +168,8 @@ export default function PlatformPage() {
                 width={3004}
                 height={1654}
                 sizes="(max-width: 900px) 100vw, 60vw"
-                style={{ width: "100%", height: "auto", display: "block", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-lg)" }}
+                className="sbe-shot"
+                style={{ width: "100%", height: "auto", display: "block" }}
               />
               <Image
                 src="/shots/AI Coach Chat.png"
@@ -176,7 +177,8 @@ export default function PlatformPage() {
                 width={1800}
                 height={1654}
                 sizes="(max-width: 900px) 100vw, 40vw"
-                style={{ width: "100%", height: "auto", display: "block", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-lg)" }}
+                className="sbe-shot"
+                style={{ width: "100%", height: "auto", display: "block" }}
               />
             </div>
           </div>

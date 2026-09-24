@@ -1,5 +1,7 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import { SuccessContent } from './success-content';
 
 export const metadata: Metadata = {
@@ -9,9 +11,12 @@ export const metadata: Metadata = {
 
 export default function SuccessPage() {
   return (
+    <div className="page-shell">
+    <Navbar />
     <main
       style={{
-        minHeight: '100vh',
+        flex: 1,
+        minHeight: '60vh',
         backgroundColor: 'var(--bg)',
         display: 'flex',
         alignItems: 'center',
@@ -23,5 +28,7 @@ export default function SuccessPage() {
         <SuccessContent />
       </Suspense>
     </main>
+    <Footer />
+    </div>
   );
 }

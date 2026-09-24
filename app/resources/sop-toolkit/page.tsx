@@ -261,7 +261,7 @@ export default function SopToolkitPage() {
               display: 'flex',
               flexDirection: 'column',
               gap: '0.9rem',
-              maxWidth: '780px',
+              maxWidth: '920px',
               marginTop: '3rem',
             }}>
               {[

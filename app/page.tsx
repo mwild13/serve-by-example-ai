@@ -48,7 +48,7 @@ export default function Home() {
                   "name": "Is it mobile-friendly?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Yes. The entire platform is built mobile-first. Staff can complete training between shifts, on the way to work, or at the bar. Platforms built this way see 90%+ completion rates.",
+                    "text": "Yes. The entire platform is built mobile-first. Staff can complete training between shifts, on the way to work, or at the bar.",
                   },
                 },
                 {
@@ -209,6 +209,7 @@ export default function Home() {
                   height={1654}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
                   loading="lazy"
+                  className="sbe-shot"
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
               </div>
@@ -229,6 +230,7 @@ export default function Home() {
                   height={1654}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
                   loading="lazy"
+                  className="sbe-shot"
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
               </div>
@@ -257,6 +259,7 @@ export default function Home() {
                   width={1400}
                   height={875}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
+                  className="sbe-shot"
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
               </div>
@@ -339,7 +342,7 @@ export default function Home() {
         </section>
 
         {/* ── Quantified Benefits ─────────────────────── */}
-        <section className="section" style={{ background: "var(--surface-raised)" }}>
+        <section className="section">
           <div className="container">
             <div className="section-header">
               <span className="eyebrow">What makes it different</span>
@@ -372,56 +375,22 @@ export default function Home() {
         </section>
 
         {/* ── SOP Lead Magnet Banner ───────────────── */}
-        <section style={{ backgroundColor: 'var(--green)', padding: '5rem 1.5rem' }}>
-          <div style={{ maxWidth: '660px', margin: '0 auto', textAlign: 'center' }}>
-            <span style={{
-              display: 'inline-block',
-              fontFamily: 'var(--font-manrope)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              fontSize: '0.75rem',
-              color: 'rgba(255,255,255,0.55)',
-              fontWeight: '600',
-              marginBottom: '1.25rem',
-            }}>Free resource</span>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <section className="sbe-mkt-leadband">
+          <div className="sbe-mkt-leadband-inner">
+            <span className="sbe-mkt-leadband-eyebrow">Free resource</span>
+            <h2 className="sbe-mkt-leadband-title">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                 <polyline points="14 2 14 8 20 8"/>
                 <line x1="12" y1="18" x2="12" y2="12"/>
                 <line x1="9" y1="15" x2="15" y2="15"/>
               </svg>
-              <h2 style={{
-                fontFamily: 'var(--font-fraunces)',
-                fontSize: 'clamp(1.85rem, 4vw, 2.6rem)',
-                lineHeight: '1.2',
-                color: 'var(--surface-raised)',
-                margin: 0,
-                letterSpacing: '-0.02em',
-              }}>Download your free Venue SOP template before you go.</h2>
-            </div>
-            <p style={{
-              fontSize: '1.1rem',
-              lineHeight: '1.7',
-              color: 'rgba(255,255,255,0.72)',
-              maxWidth: '520px',
-              margin: '0 auto 2.5rem auto',
-            }}>
+              <span>Download your free Venue SOP template before you go.</span>
+            </h2>
+            <p className="sbe-mkt-leadband-copy">
               Customised to your venue type and biggest compliance pain point in under 60 seconds.
             </p>
-            <Link href="/toolkit" style={{
-              display: 'inline-block',
-              backgroundColor: 'var(--gold)',
-              color: 'var(--surface-raised)',
-              fontFamily: 'var(--font-manrope)',
-              fontWeight: '600',
-              fontSize: '1rem',
-              padding: '0.9rem 2.25rem',
-              borderRadius: 'var(--radius-md)',
-              textDecoration: 'none',
-              letterSpacing: '0.01em',
-              transition: 'background-color 0.2s ease',
-            }}>
+            <Link href="/toolkit" className="sbe-mkt-btn-primary">
               Build Your Custom SOP &rarr;
             </Link>
           </div>
@@ -443,52 +412,19 @@ export default function Home() {
                 { tier: "Enterprise", name: "Enterprise", desc: "Unlimited seats, dedicated account management, custom modules, and white-label options for venue groups." },
               ].map((plan) => (
                 <div key={plan.name} style={{ flex: "1 1 180px", maxWidth: 220, background: "var(--surface)", border: "1.5px solid var(--line)", borderRadius: "14px", padding: "1.25rem 1.1rem", display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                  <div style={{ fontSize: "0.65rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--text-muted)" }}>{plan.tier}</div>
+                  <div style={{ fontSize: "0.75rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--text-muted)" }}>{plan.tier}</div>
                   <div style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text)" }}>{plan.name}</div>
-                  <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-soft)", lineHeight: 1.5 }}>{plan.desc}</p>
+                  <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--text-soft)", lineHeight: 1.5 }}>{plan.desc}</p>
                 </div>
               ))}
             </div>
             <div className="zero-risk-block" style={{ maxWidth: 860, margin: "1.75rem auto 0" }}>
-              <strong>Zero risk to your floor operations.</strong>
-              <p style={{ margin: "0.4rem 0 0" }}>If your team&rsquo;s training engagement doesn&rsquo;t noticeably increase in the first 14 days, you won&rsquo;t be charged.</p>
+              <strong>14-Day Performance Guarantee. Zero risk to your floor operations.</strong>
+              <p style={{ margin: "0.4rem 0 0" }}>If your team&rsquo;s training engagement doesn&rsquo;t noticeably increase in the first 14 days, you won&rsquo;t be charged. No questions asked.</p>
             </div>
             <div style={{ textAlign: "center", marginTop: "1.75rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem" }}>
               <Link href="/membership" className="btn btn-primary">View full pricing</Link>
               <Link href="/demo" style={{ fontSize: "0.8rem", color: "var(--text-soft)", textDecoration: "underline", textUnderlineOffset: "3px" }}>or explore the demo free</Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ── 14-Day Performance Guarantee ─────────── */}
-        <section className="section" style={{ padding: "0 0 2.5rem" }}>
-          <div className="container">
-            <div style={{
-              maxWidth: "720px",
-              margin: "0 auto",
-              padding: "2.5rem 2rem",
-              background: "var(--surface-raised)",
-              border: "1.5px solid var(--green-light)",
-              borderRadius: "var(--radius-lg)",
-              display: "flex",
-              gap: "1.5rem",
-              alignItems: "flex-start",
-            }}>
-              {/* Shield icon */}
-              <div style={{ flexShrink: 0, width: "48px", height: "48px", background: "var(--green-light)", borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                  <polyline points="9 12 11 14 15 10"/>
-                </svg>
-              </div>
-              <div>
-                <h3 style={{ margin: "0 0 0.625rem", fontSize: "1.15rem", fontWeight: 700, color: "var(--green-deep)" }}>
-                  14-Day Performance Guarantee
-                </h3>
-                <p style={{ margin: 0, fontSize: "0.95rem", color: "var(--text-soft)", lineHeight: 1.65 }}>
-                  If training engagement doesn&rsquo;t measurably increase within your first 14 days, you won&rsquo;t be charged. No questions asked.
-                </p>
-              </div>
             </div>
           </div>
         </section>
@@ -513,7 +449,7 @@ export default function Home() {
                 },
                 {
                   q: "Is it mobile-friendly?",
-                  a: "Yes. The entire platform is built mobile-first. Staff can complete training between shifts, on the way to work, or at the bar. Platforms built this way see 90%+ completion rates.",
+                  a: "Yes. The entire platform is built mobile-first. Staff can complete training between shifts, on the way to work, or at the bar.",
                 },
                 {
                   q: "What happens if a staff member leaves?",
