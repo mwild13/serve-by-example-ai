@@ -17916,6 +17916,13 @@ h1, h2, h3 {
 /* Desktop / laptop: scale the headline with viewport height too, so the
    fold (header + hero + marquee) fits 13"/14" laptops without clipping. */
 @media (min-width: 901px) {
+  /* The mockup spans both rows and is taller than the copy, so the extra
+     height was being split between the heading and details rows (dead gap
+     under the headline). Pack the two against the row seam instead. */
+  .sbe-mkt-hero-grid { row-gap: 0; }
+  .sbe-mkt-hero-heading { align-self: end; }
+  .sbe-mkt-hero-details { align-self: start; }
+
   .sbe-mkt-hero-h1 {
     font-size: clamp(2.1rem, min(4.4vw, 7vh), 3.7rem);
   }
@@ -17925,7 +17932,7 @@ h1, h2, h3 {
   }
 
   .sbe-mkt-hero-teaser img {
-    max-height: calc(100svh - var(--nav-h) - 9rem);
+    max-height: calc(100svh - var(--nav-h) - 11rem);
     width: auto;
     max-width: 100%;
     margin: 0 auto;
@@ -17986,8 +17993,28 @@ h1, h2, h3 {
    roomier spacing above since they have more viewport height to spare. */
 @media (max-width: 600px) {
   .sbe-mkt-hero {
-    padding: clamp(1rem, 4vw, 1.5rem) 0 var(--section-spacing-sm);
+    padding: 0.9rem 0 1rem;
   }
+
+  .sbe-mkt-hero-eyebrow { font-size: 0.72rem; }
+
+  .sbe-mkt-hero-h1 {
+    font-size: clamp(1.85rem, 8vw, 2.3rem);
+    line-height: 1.05;
+  }
+
+  .sbe-mkt-hero-sub {
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+
+  .sbe-mkt-hero-microcopy {
+    font-size: 0.72rem;
+    margin-top: 0.5rem;
+  }
+
+  /* Trust facts don't fit above the marquee on a phone fold */
+  .sbe-mkt-hero-trust { display: none; }
 
   .sbe-mkt-hero-grid {
     gap: 1rem;
@@ -18012,7 +18039,7 @@ h1, h2, h3 {
   }
 
   .sbe-mkt-hero-teaser img {
-    max-height: 34dvh;
+    max-height: min(24svh, 200px);
     width: auto;
     max-width: 100%;
     margin: 0 auto;
