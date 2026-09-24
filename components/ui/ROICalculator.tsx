@@ -11,7 +11,7 @@ function fillPct(val: number, min: number, max: number): string {
 }
 
 function sliderBg(pct: string): string {
-  return `linear-gradient(to right, var(--gold-warm) ${pct}%, var(--mkt-border-subtle) ${pct}%)`;
+  return `linear-gradient(to right, var(--gold-warm) ${pct}%, var(--line-light) ${pct}%)`;
 }
 
 // Hydration-safe default fills — must match state defaults exactly

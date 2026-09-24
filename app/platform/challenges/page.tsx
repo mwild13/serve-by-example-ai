@@ -1,7 +1,8 @@
-import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHero from "@/components/marketing/PageHero";
+import CTABand from "@/components/marketing/CTABand";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -56,90 +57,15 @@ export default function ChallengesMarketingPage() {
       <Navbar />
 
       <main>
-        {/* Hero */}
-        <section
-          style={{
-            background: "var(--bg)",
-            padding: "6rem 1.5rem 5rem",
-            textAlign: "center",
-          }}
-        >
-          <div style={{ maxWidth: "860px", margin: "0 auto" }}>
-            <div
-              style={{
-                display: "inline-block",
-                padding: "0.35rem 1rem",
-                background: "var(--green-light)",
-                color: "var(--green-deep)",
-                borderRadius: "999px",
-                fontSize: "0.72rem",
-                fontWeight: 800,
-                textTransform: "uppercase",
-                letterSpacing: "0.1em",
-                marginBottom: "1.75rem",
-                border: "1px solid var(--green-mid)",
-              }}
-            >
-              Experimental Learning Engine
-            </div>
-            <h1
-              style={{
-                fontFamily: "var(--font-fraunces)",
-                fontSize: "clamp(2.5rem, 6vw, 4rem)",
-                fontWeight: 700,
-                color: "var(--text)",
-                lineHeight: 1.15,
-                marginBottom: "1.5rem",
-              }}
-            >
-              Training that feels like a game
-            </h1>
-            <p
-              style={{
-                fontSize: "1.1rem",
-                color: "var(--text-soft)",
-                lineHeight: 1.75,
-                maxWidth: "640px",
-                margin: "0 auto 2.5rem",
-              }}
-            >
-              Interactive Challenges replaces the blank text box with five tap-based mini-game formats. Built for the 18–25 cohort who learn faster through doing than reading, designed to fit in a 45-second break between orders.
-            </p>
-            <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-              <Link
-                href="/login"
-                style={{
-                  display: "inline-block",
-                  padding: "0.8rem 2rem",
-                  background: "var(--green)",
-                  color: "white",
-                  borderRadius: "var(--radius-md)",
-                  fontWeight: 700,
-                  fontSize: "0.95rem",
-                  textDecoration: "none",
-                }}
-              >
-                Try it in the dashboard
-              </Link>
-              <Link
-                href="/demo"
-                style={{
-                  display: "inline-block",
-                  padding: "0.8rem 2rem",
-                  background: "transparent",
-                  color: "var(--text)",
-                  border: "1.5px solid var(--line)",
-                  borderRadius: "var(--radius-md)",
-                  fontWeight: 700,
-                  fontSize: "0.95rem",
-                  textDecoration: "none",
-                }}
-              >
-                Book a demo
-              </Link>
-            </div>
-          </div>
-        </section>
+        <PageHero
+          eyebrow="Experimental Learning Engine"
+          title="Training that feels like a game"
+          subtitle="Interactive Challenges replaces the blank text box with five tap-based mini-game formats. Built for the 18–25 cohort who learn faster through doing than reading, designed to fit in a 45-second break between orders."
+          actions={[
+            { label: "Try it in the dashboard", href: "/login", variant: "primary" },
+            { label: "Book a demo", href: "/demo", variant: "secondary" },
+          ]}
+        />
 
         {/* Product Preview */}
         <section style={{ background: "var(--bg-alt)", padding: "5rem 1.5rem", overflow: "hidden" }}>
@@ -534,64 +460,12 @@ export default function ChallengesMarketingPage() {
           </div>
         </section>
 
-        {/* CTA */}
-        <section
-          style={{
-            background: "var(--green-deep)",
-            padding: "5rem 1.5rem",
-            textAlign: "center",
-          }}
-        >
-          <div style={{ maxWidth: "620px", margin: "0 auto" }}>
-            <h2
-              style={{
-                fontFamily: "var(--font-fraunces)",
-                fontSize: "clamp(1.8rem, 4vw, 2.5rem)",
-                fontWeight: 700,
-                color: "white",
-                marginBottom: "1rem",
-              }}
-            >
-              Available now inside the dashboard
-            </h2>
-            <p style={{ fontSize: "1rem", color: "var(--text-light-muted-on-dark)", lineHeight: 1.7, marginBottom: "2rem" }}>
-              Interactive Challenges is live for all staff accounts. Log in and find it under Challenges in the sidebar. No setup required.
-            </p>
-            <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-              <Link
-                href="/login"
-                style={{
-                  display: "inline-block",
-                  padding: "0.85rem 2.25rem",
-                  background: "white",
-                  color: "var(--green-deep)",
-                  borderRadius: "var(--radius-md)",
-                  fontWeight: 800,
-                  fontSize: "0.95rem",
-                  textDecoration: "none",
-                }}
-              >
-                Open the dashboard
-              </Link>
-              <Link
-                href="/membership"
-                style={{
-                  display: "inline-block",
-                  padding: "0.85rem 2.25rem",
-                  background: "transparent",
-                  color: "white",
-                  border: "1.5px solid var(--border-light-on-dark)",
-                  borderRadius: "var(--radius-md)",
-                  fontWeight: 700,
-                  fontSize: "0.95rem",
-                  textDecoration: "none",
-                }}
-              >
-                View pricing
-              </Link>
-            </div>
-          </div>
-        </section>
+        <CTABand
+          title="Available now inside the dashboard"
+          copy="Interactive Challenges is live for all staff accounts. Log in and find it under Challenges in the sidebar. No setup required."
+          primary={{ label: "Open the dashboard", href: "/login" }}
+          secondary={{ label: "View pricing", href: "/membership" }}
+        />
       </main>
 
       <Footer />

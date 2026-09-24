@@ -15063,7 +15063,7 @@ h1, h2, h3 {
   color: var(--green);
   border-bottom-color: var(--green);
 }
-.section-subnav-sentinel { height: 1px; pointer-events: none; }
+.section-subnav-sentinel { position: absolute; top: 0; left: 0; width: 1px; height: 1px; pointer-events: none; }
 
 /* ── Update 17A: Menu Drill Generator ───────── */
 .drill-gen-section {
@@ -16363,16 +16363,7 @@ h1, h2, h3 {
    ========================================================================== */
 
 .sbe-mkt-scope {
-  /* Marketing-Scoped Visual Palette (Desaturated Premium Editorial Tones) */
-  --mkt-forest-900: #0B291B; /* Primary background/text green */
-  --mkt-forest-800: #143524; /* Card nested containers */
-  --mkt-cream-100:  #FAF9F6; /* Soft analog parchment canvas */
-  --mkt-cream-200:  #F2EFE8; /* Secondary page containers */
-  --mkt-gold-500:   #D4AF37; /* Refined brand accent gold */
-  --mkt-gold-600:   #B8941F; /* Gold hover/active states */
-  --mkt-charcoal-900: #1A1A1A; /* Sharp body text */
-  --mkt-charcoal-400: #6B6B6B; /* Muted subtext & metrics labels */
-  --mkt-border-subtle: #E7E2D6;
+  /* Colours use root tokens; only spacing and motion are scoped here. */
 
   /* 8px Soft Grid Spacing Mappings */
   --space-xs:  4px;
@@ -16396,7 +16387,7 @@ h1, h2, h3 {
 .sbe-mkt-scope .sbe-serif-title {
   font-family: var(--font-heading, Georgia, serif) !important;
   font-weight: 500;
-  color: var(--mkt-forest-900);
+  color: var(--green-deep);
   line-height: 1.25;
   letter-spacing: -0.01em;
   font-size: clamp(1.75rem, 4.5vw, 2.25rem) !important; /* Mobile auto-clamping */
@@ -16407,7 +16398,7 @@ h1, h2, h3 {
 .sbe-mkt-scope .sbe-sans-body {
   font-family: var(--font-body, system-ui, sans-serif) !important;
   line-height: 1.6;
-  color: var(--mkt-charcoal-900);
+  color: var(--text);
 }
 
 /* Premium Uppercase Eyebrows */
@@ -16433,7 +16424,7 @@ h1, h2, h3 {
 
 .sbe-mkt-scope .sbe-interactive-hover:hover {
   transform: translateY(-4px);
-  border-color: var(--mkt-gold-500);
+  border-color: var(--gold-warm);
   box-shadow: 0 12px 24px -10px rgba(11, 41, 27, 0.12);
 }
 
@@ -16479,7 +16470,7 @@ h1, h2, h3 {
 }
 
 .sbe-mkt-scope .why-grid-item {
-  border-bottom: 1px solid var(--mkt-border-subtle);
+  border-bottom: 1px solid var(--line-light);
   padding-bottom: var(--space-lg);
 }
 
@@ -16492,7 +16483,7 @@ h1, h2, h3 {
   width: 100%;
   margin: var(--space-2xl) auto;
   border-radius: 12px;
-  border: 1px solid var(--mkt-border-subtle);
+  border: 1px solid var(--line-light);
 }
 
 .sbe-mkt-scope .compare-table {
@@ -16505,13 +16496,13 @@ h1, h2, h3 {
 .sbe-mkt-scope .compare-th {
   padding: var(--space-md);
   font-weight: 600;
-  color: var(--mkt-forest-900);
-  border-bottom: 2px solid var(--mkt-forest-900);
+  color: var(--green-deep);
+  border-bottom: 2px solid var(--green-deep);
 }
 
 .sbe-mkt-scope .compare-td {
   padding: var(--space-md);
-  border-bottom: 1px solid var(--mkt-border-subtle);
+  border-bottom: 1px solid var(--line-light);
 }
 
 .sbe-mkt-scope .compare-highlight {
@@ -16550,7 +16541,7 @@ h1, h2, h3 {
   }
 
   .sbe-mkt-scope .compare-th {
-    border-bottom: 1px solid var(--mkt-border-subtle);
+    border-bottom: 1px solid var(--line-light);
   }
 }
 
@@ -16783,7 +16774,7 @@ h1, h2, h3 {
   appearance: none;
   width: 100%;
   height: 6px;
-  background: var(--mkt-border-subtle);
+  background: var(--line-light);
   border-radius: 3px;
   outline: none;
   margin: var(--space-md) 0;
@@ -16796,7 +16787,7 @@ h1, h2, h3 {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--mkt-gold-500);
+  background: var(--gold-warm);
   cursor: pointer;
   transition: transform 150ms var(--ease-spring);
   border: none;
@@ -16811,7 +16802,7 @@ h1, h2, h3 {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--mkt-gold-500);
+  background: var(--gold-warm);
   cursor: pointer;
   transition: transform 150ms var(--ease-spring);
   border: none;
@@ -16958,10 +16949,10 @@ h1, h2, h3 {
 @media (max-width: 720px) { .demo-right-pane { display: none; } }
 
 .sbe-mkt-scope .demo-right-pane {
-  background: var(--mkt-forest-900);
-  color: var(--mkt-cream-100);
+  background: var(--bg-dark);
+  color: var(--text-light-on-dark);
 }
-.demo-right-pane h2 { font-family: var(--font-heading); color: var(--mkt-cream-100); font-size: 1.5rem; margin: 0 0 4px; }
+.demo-right-pane h2 { font-family: var(--font-heading); color: var(--text-light-on-dark); font-size: 1.5rem; margin: 0 0 4px; }
 .demo-right-pane p { color: rgba(250, 249, 246, 0.78); font-size: 0.95rem; line-height: 1.55; }
 
 /* Guarantee badge (two variants) + CTA stack */
@@ -16972,14 +16963,14 @@ h1, h2, h3 {
   align-items: flex-start;
   gap: 10px;
   background: rgba(212, 175, 55, 0.12);
-  border: 1px solid var(--mkt-gold-500);
+  border: 1px solid var(--gold-warm);
   border-radius: var(--radius-md);
   padding: 12px 14px;
   font-size: 0.8rem;
   line-height: 1.45;
-  color: var(--mkt-cream-100);
+  color: var(--text-light-on-dark);
 }
-.demo-guarantee-badge strong { color: var(--mkt-gold-500); font-weight: 700; }
+.demo-guarantee-badge strong { color: var(--gold-warm); font-weight: 700; }
 
 .demo-guarantee-badge-light {
   background: var(--gold-light);
@@ -17052,9 +17043,9 @@ h1, h2, h3 {
 
 /* Solutions links (relocated into LeadCapturePane) */
 .demo-solutions-links-wrap { margin-top: 12px; padding-top: 16px; border-top: 1px solid rgba(250, 249, 246, 0.16); }
-.demo-solutions-links-label { font-size: 0.75rem; font-weight: 700; color: var(--mkt-cream-100); opacity: 0.85; margin: 0 0 8px; }
+.demo-solutions-links-label { font-size: 0.75rem; font-weight: 700; color: var(--text-light-on-dark); opacity: 0.85; margin: 0 0 8px; }
 .demo-solutions-links { display: flex; gap: 6px; flex-wrap: wrap; font-size: 0.75rem; }
-.demo-solutions-links a { color: var(--mkt-gold-500); text-decoration: underline; text-underline-offset: 3px; }
+.demo-solutions-links a { color: var(--gold-warm); text-decoration: underline; text-underline-offset: 3px; }
 .demo-solutions-links .sep { color: rgba(250, 249, 246, 0.4); }
 
 /* Mobile-only layout overrides */
