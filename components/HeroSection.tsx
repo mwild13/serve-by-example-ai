@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import HeroStickyBar from './HeroStickyBar';
 
 /*
  * Homepage hero — Pages-Redesign.md §6.1.
@@ -19,14 +20,14 @@ export default function HeroSection() {
     <section className="sbe-mkt-hero">
       <div className="container sbe-mkt-hero-grid">
 
-        {/* ── Heading: eyebrow + h1 (mobile: shown above the hero image) ── */}
+        {/* ── Heading: eyebrow + h1 (mobile: first) ── */}
         <div className="sbe-mkt-hero-heading">
           <p className="sbe-mkt-hero-eyebrow">Built for Australian pubs, bars &amp; venues</p>
 
           <h1 className="sbe-mkt-hero-h1">Turn 6 Months of Onboarding Into 6 Weeks.</h1>
         </div>
 
-        {/* ── Product screenshot (mobile: shown right after the headline) ── */}
+        {/* ── Product screenshot (mobile: after the CTAs) ── */}
         <div className="sbe-mkt-hero-teaser">
           <Image
             src="/shots/HERO SHOT1.png"
@@ -39,25 +40,40 @@ export default function HeroSection() {
           />
         </div>
 
-        {/* ── Details: subhead, CTA, trust list (mobile: below the hero image) ── */}
+        {/* ── Details: subhead, CTA, trust list (mobile: copy first, trust row last) ── */}
         <div className="sbe-mkt-hero-details">
           <p className="sbe-mkt-hero-sub">
             Deliver the exact standard your best manager enforces, without pulling them off the floor.
           </p>
 
           <div className="sbe-mkt-hero-actions">
-            <Link
-              href="/login?intent=trial&tier=boutique"
-              className="sbe-mkt-hero-cta"
-            >
-              Start Free Trial
-            </Link>
+            <div className="sbe-mkt-hero-btn-row">
+              <Link
+                href="/login?intent=trial&tier=boutique"
+                className="sbe-mkt-hero-cta"
+              >
+                Start Free Trial
+              </Link>
+              <Link href="/how-it-works" className="sbe-mkt-hero-secondary">
+                How it works
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M3 8h10M9 4l4 4-4 4" />
+                </svg>
+              </Link>
+            </div>
             <p className="sbe-mkt-hero-microcopy">
               14-day free trial. No credit card required. Set up in under 10 minutes.
             </p>
-            <Link href="/how-it-works" className="sbe-mkt-hero-secondary">
-              How it works
-            </Link>
           </div>
 
           <ul className="sbe-mkt-hero-trust" aria-label="Platform facts">
@@ -68,16 +84,7 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* ── Mobile sticky CTA bar ── */}
-      <div className="sbe-mkt-hero-sticky">
-        <span className="sbe-mkt-hero-sticky-label">14-day free trial</span>
-        <Link
-          href="/login?intent=trial&tier=boutique"
-          className="sbe-mkt-hero-cta sbe-mkt-hero-cta-compact"
-        >
-          Start Free Trial
-        </Link>
-      </div>
+      <HeroStickyBar />
     </section>
   );
 }

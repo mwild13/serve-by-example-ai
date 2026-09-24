@@ -89,11 +89,14 @@ export default function Home() {
         />
 
         {/* ── Hero ─────────────────────────────────── */}
-        <HeroSection />
+        {/* 100svh fold: navbar (sticky, above) + hero (grows) + marquee (flush bottom) */}
+        <div className="sbe-mkt-fold">
+          <HeroSection />
 
-        {/* Text-category fallback until real venue logos exist (§5.3) —
-            pass `logos={[...]}` once named customers grant permission. */}
-        <LogoMarquee />
+          {/* Text-category fallback until real venue logos exist (§5.3) —
+              pass `logos={[...]}` once named customers grant permission. */}
+          <LogoMarquee />
+        </div>
 
         {/* Trust Stats band removed — the hero's in-line trust row now carries
             3× / 100+ / 19 (Pages-Redesign.md §6.1); repeating them in cards

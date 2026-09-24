@@ -269,17 +269,7 @@ export default function Navbar({
               </Link>
             ) : showActions ? (
               <div className="nav-actions" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <Link
-                  href="/login"
-                  className="btn"
-                  style={{
-                    backgroundColor: "var(--green)",
-                    color: "var(--surface)",
-                    border: "none",
-                    fontSize: "0.875rem",
-                    padding: "8px 16px",
-                  }}
-                >
+                <Link href="/login" className="nav-login-btn">
                   Login
                 </Link>
               </div>
