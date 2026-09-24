@@ -11,7 +11,7 @@ function fillPct(val: number, min: number, max: number): string {
 }
 
 function sliderBg(pct: string): string {
-  return `linear-gradient(to right, var(--mkt-gold-500) ${pct}%, var(--mkt-border-subtle) ${pct}%)`;
+  return `linear-gradient(to right, var(--gold-warm) ${pct}%, var(--mkt-border-subtle) ${pct}%)`;
 }
 
 // Hydration-safe default fills — must match state defaults exactly
@@ -85,21 +85,21 @@ export default function ROICalculator() {
   }
 
   return (
-    <section className="sbe-mkt-scope" id="roi-calculator" style={{ padding: "4rem 0", background: "var(--mkt-cream-200)" }}>
+    <section className="sbe-mkt-scope" id="roi-calculator" style={{ padding: "4rem 0", background: "var(--bg)" }}>
       <div className="container">
 
         {/* Section header */}
         <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
           <span className="sbe-eyebrow">Revenue Impact Calculator</span>
           <h2 className="sbe-serif-title" style={{ marginBottom: "0.75rem" }}>See what better training is worth</h2>
-          <p className="sbe-sans-body" style={{ maxWidth: "560px", margin: "0 auto", color: "var(--mkt-charcoal-400)" }}>
+          <p className="sbe-sans-body" style={{ maxWidth: "560px", margin: "0 auto", color: "var(--text-soft)" }}>
             Adjust the inputs below to model your venue&apos;s projected annual profit lift across three revenue vectors.
           </p>
         </div>
 
         {/* Dark forest card */}
         <div style={{
-          background: "var(--mkt-forest-900)",
+          background: "var(--bg-dark)",
           borderRadius: "var(--radius-xl)",
           padding: "2.5rem",
           maxWidth: "860px",
@@ -116,10 +116,10 @@ export default function ROICalculator() {
               {/* Headcount */}
               <div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.5rem" }}>
-                  <label htmlFor="roi-headcount" style={{ fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "0.8rem", fontWeight: 600, color: "rgba(250,249,246,0.65)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  <label htmlFor="roi-headcount" style={{ fontFamily: "var(--font-body)", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-light-muted-on-dark)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
                     Frontline staff
                   </label>
-                  <strong style={{ fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "1rem", fontWeight: 700, color: "var(--mkt-gold-500)", background: "rgba(212,175,55,0.12)", padding: "0.15rem 0.6rem", borderRadius: "6px" }}>
+                  <strong style={{ fontFamily: "var(--font-body)", fontSize: "1rem", fontWeight: 700, color: "var(--gold-warm)", background: "var(--gold-tint-on-dark)", padding: "0.15rem 0.6rem", borderRadius: "6px" }}>
                     {headcount}
                   </strong>
                 </div>
@@ -138,7 +138,7 @@ export default function ROICalculator() {
                   aria-valuemax={150}
                   style={{ background: sliderBg(HC_DEFAULT_PCT) }}
                 />
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.35rem", fontSize: "0.72rem", color: "rgba(250,249,246,0.35)", fontFamily: "var(--font-body, system-ui, sans-serif)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.35rem", fontSize: "0.75rem", color: "var(--text-light-muted-on-dark)", fontFamily: "var(--font-body)" }}>
                   <span>5</span><span>150</span>
                 </div>
               </div>
@@ -146,10 +146,10 @@ export default function ROICalculator() {
               {/* Manager hours */}
               <div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.5rem" }}>
-                  <label htmlFor="roi-manager-hours" style={{ fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "0.8rem", fontWeight: 600, color: "rgba(250,249,246,0.65)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  <label htmlFor="roi-manager-hours" style={{ fontFamily: "var(--font-body)", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-light-muted-on-dark)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
                     Manager training hours/week
                   </label>
-                  <strong style={{ fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "1rem", fontWeight: 700, color: "var(--mkt-gold-500)", background: "rgba(212,175,55,0.12)", padding: "0.15rem 0.6rem", borderRadius: "6px" }}>
+                  <strong style={{ fontFamily: "var(--font-body)", fontSize: "1rem", fontWeight: 700, color: "var(--gold-warm)", background: "var(--gold-tint-on-dark)", padding: "0.15rem 0.6rem", borderRadius: "6px" }}>
                     {managerHours}h
                   </strong>
                 </div>
@@ -168,7 +168,7 @@ export default function ROICalculator() {
                   aria-valuemax={40}
                   style={{ background: sliderBg(MH_DEFAULT_PCT) }}
                 />
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.35rem", fontSize: "0.72rem", color: "rgba(250,249,246,0.35)", fontFamily: "var(--font-body, system-ui, sans-serif)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.35rem", fontSize: "0.75rem", color: "var(--text-light-muted-on-dark)", fontFamily: "var(--font-body)" }}>
                   <span>2h</span><span>40h</span>
                 </div>
               </div>
@@ -176,10 +176,10 @@ export default function ROICalculator() {
               {/* Average ticket */}
               <div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.5rem" }}>
-                  <label htmlFor="roi-avg-ticket" style={{ fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "0.8rem", fontWeight: 600, color: "rgba(250,249,246,0.65)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  <label htmlFor="roi-avg-ticket" style={{ fontFamily: "var(--font-body)", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-light-muted-on-dark)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
                     Average check size
                   </label>
-                  <strong style={{ fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "1rem", fontWeight: 700, color: "var(--mkt-gold-500)", background: "rgba(212,175,55,0.12)", padding: "0.15rem 0.6rem", borderRadius: "6px" }}>
+                  <strong style={{ fontFamily: "var(--font-body)", fontSize: "1rem", fontWeight: 700, color: "var(--gold-warm)", background: "var(--gold-tint-on-dark)", padding: "0.15rem 0.6rem", borderRadius: "6px" }}>
                     AUD ${avgTicket}
                   </strong>
                 </div>
@@ -199,7 +199,7 @@ export default function ROICalculator() {
                   aria-valuemax={150}
                   style={{ background: sliderBg(AT_DEFAULT_PCT) }}
                 />
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.35rem", fontSize: "0.72rem", color: "rgba(250,249,246,0.35)", fontFamily: "var(--font-body, system-ui, sans-serif)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.35rem", fontSize: "0.75rem", color: "var(--text-light-muted-on-dark)", fontFamily: "var(--font-body)" }}>
                   <span>AUD $15</span><span>AUD $150</span>
                 </div>
               </div>
@@ -207,7 +207,7 @@ export default function ROICalculator() {
             </div>
 
             {/* ── Results panel ── */}
-            <div style={{ flex: "1 1 240px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(212,175,55,0.2)", borderRadius: "var(--radius-lg)", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0" }}>
+            <div style={{ flex: "1 1 240px", background: "var(--surface-tint-on-dark)", border: "1px solid var(--gold-line-faint-on-dark)", borderRadius: "var(--radius-lg)", padding: "1.75rem", display: "flex", flexDirection: "column", gap: "0" }}>
 
               {/* Pillar rows */}
               {[
@@ -217,27 +217,27 @@ export default function ROICalculator() {
               ].map((row, i) => (
                 <div key={row.label} style={{
                   padding: "1rem 0",
-                  borderBottom: i < 2 ? "1px solid rgba(231,226,214,0.1)" : "none",
+                  borderBottom: i < 2 ? "1px solid var(--border-light-faint-on-dark)" : "none",
                 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "1rem" }}>
-                    <span style={{ fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "0.82rem", color: "rgba(250,249,246,0.7)", lineHeight: 1.4 }}>{row.label}</span>
-                    <span style={{ fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "1rem", fontWeight: 700, color: "var(--mkt-cream-100)", whiteSpace: "nowrap" }}>AUD ${fmt(row.value)}</span>
+                    <span style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "var(--text-light-muted-on-dark)", lineHeight: 1.4 }}>{row.label}</span>
+                    <span style={{ fontFamily: "var(--font-body)", fontSize: "1rem", fontWeight: 700, color: "var(--nav-cream)", whiteSpace: "nowrap" }}>AUD ${fmt(row.value)}</span>
                   </div>
-                  <p style={{ margin: "0.2rem 0 0", fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "0.7rem", color: "rgba(250,249,246,0.35)", lineHeight: 1.4 }}>{row.note}</p>
+                  <p style={{ margin: "0.2rem 0 0", fontFamily: "var(--font-body)", fontSize: "0.75rem", color: "var(--text-light-muted-on-dark)", lineHeight: 1.4 }}>{row.note}</p>
                 </div>
               ))}
 
               {/* Total */}
-              <div style={{ marginTop: "1.25rem", padding: "1.25rem", background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.35)", borderRadius: "var(--radius-md)", textAlign: "center" }}>
-                <p style={{ margin: "0 0 0.25rem", fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--mkt-gold-500)" }}>
+              <div style={{ marginTop: "1.25rem", padding: "1.25rem", background: "var(--gold-tint-on-dark)", border: "1px solid var(--gold-line-on-dark)", borderRadius: "var(--radius-md)", textAlign: "center" }}>
+                <p style={{ margin: "0 0 0.25rem", fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--gold-warm)" }}>
                   Total Annual Profit Lift
                 </p>
-                <p style={{ margin: 0, fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "clamp(1.6rem, 4vw, 2.1rem)", fontWeight: 600, color: "var(--mkt-gold-500)", lineHeight: 1 }}>
+                <p style={{ margin: 0, fontFamily: "var(--font-heading)", fontSize: "clamp(1.6rem, 4vw, 2.1rem)", fontWeight: 600, color: "var(--gold-warm)", lineHeight: 1 }}>
                   AUD ${fmt(totalSavings)}
                 </p>
               </div>
 
-              <p style={{ margin: "1rem 0 0", fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "0.67rem", color: "rgba(250,249,246,0.3)", lineHeight: 1.5, textAlign: "center" }}>
+              <p style={{ margin: "1rem 0 0", fontFamily: "var(--font-body)", fontSize: "0.75rem", color: "var(--text-light-muted-on-dark)", lineHeight: 1.5, textAlign: "center" }}>
                 Indicative modelling only. Based on published AU hospitality benchmarks (74% turnover rate, $2,490 average replacement cost). Actual results vary by venue type, team size, and service context.
               </p>
 
@@ -245,14 +245,14 @@ export default function ROICalculator() {
           </div>
 
           {/* ── Email capture ── */}
-          <div style={{ marginTop: "2rem", paddingTop: "2rem", borderTop: "1px solid rgba(231,226,214,0.1)" }}>
+          <div style={{ marginTop: "2rem", paddingTop: "2rem", borderTop: "1px solid var(--border-light-faint-on-dark)" }}>
             {emailSent ? (
-              <p style={{ fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "0.95rem", color: "var(--mkt-gold-500)", textAlign: "center", margin: 0 }}>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: "0.95rem", color: "var(--gold-warm)", textAlign: "center", margin: 0 }}>
                 Thanks — we&apos;ll email your projection shortly.
               </p>
             ) : (
               <form onSubmit={handleEmailSubmit} style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem" }} noValidate>
-                <label htmlFor="roi-email" style={{ fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "0.82rem", color: "rgba(250,249,246,0.6)", whiteSpace: "nowrap" }}>
+                <label htmlFor="roi-email" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "var(--text-light-muted-on-dark)", whiteSpace: "nowrap" }}>
                   Email me this projection
                 </label>
                 <input
@@ -264,12 +264,12 @@ export default function ROICalculator() {
                   required
                   style={{
                     flex: "1 1 200px",
-                    padding: "0.6rem 1rem",
+                    padding: "0.75rem 1rem",
                     borderRadius: "8px",
-                    border: "1px solid rgba(231,226,214,0.2)",
-                    background: "rgba(255,255,255,0.06)",
-                    color: "var(--mkt-cream-100)",
-                    fontFamily: "var(--font-body, system-ui, sans-serif)",
+                    border: "1px solid var(--border-light-on-dark)",
+                    background: "var(--surface-tint-on-dark)",
+                    color: "var(--nav-cream)",
+                    fontFamily: "var(--font-body)",
                     fontSize: "0.875rem",
                     outline: "none",
                   }}
@@ -278,12 +278,12 @@ export default function ROICalculator() {
                   type="submit"
                   disabled={sending}
                   style={{
-                    padding: "0.6rem 1.5rem",
+                    padding: "0.75rem 1.5rem",
                     borderRadius: "8px",
                     border: "none",
-                    background: "var(--mkt-gold-500)",
-                    color: "var(--mkt-forest-900)",
-                    fontFamily: "var(--font-body, system-ui, sans-serif)",
+                    background: "var(--gold-warm)",
+                    color: "var(--bg-dark)",
+                    fontFamily: "var(--font-body)",
                     fontSize: "0.875rem",
                     fontWeight: 700,
                     cursor: sending ? "not-allowed" : "pointer",
@@ -297,7 +297,7 @@ export default function ROICalculator() {
               </form>
             )}
             {!emailSent && (
-              <p style={{ margin: "0.5rem 0 0", fontFamily: "var(--font-body, system-ui, sans-serif)", fontSize: "0.72rem", color: "rgba(250,249,246,0.35)", textAlign: "left" }}>
+              <p style={{ margin: "0.5rem 0 0", fontFamily: "var(--font-body)", fontSize: "0.75rem", color: "var(--text-light-muted-on-dark)", textAlign: "left" }}>
                 No spam. Unsubscribe in 1-click.
               </p>
             )}

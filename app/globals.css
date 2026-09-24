@@ -70,6 +70,10 @@
   --text-light-faint-on-dark: rgba(255, 255, 255, 0.45);  /* Faint text on dark */
   --border-light-on-dark: rgba(255, 255, 255, 0.2);  /* Divider borders on dark sections */
   --border-light-faint-on-dark: rgba(255, 255, 255, 0.1);  /* Very faint borders on dark */
+  --surface-tint-on-dark: rgba(255, 255, 255, 0.05);  /* Card / input fill on dark */
+  --gold-tint-on-dark: rgba(196, 154, 47, 0.14);  /* Gold-tinted fill on dark (value pills, total box) */
+  --gold-line-faint-on-dark: rgba(196, 154, 47, 0.22);  /* Gold hairline border on dark */
+  --gold-line-on-dark: rgba(196, 154, 47, 0.4);  /* Gold emphasis border on dark */
 
   /* Data visualization palette — charts, graphs, heatmaps */
   --viz-chart-accent: #2563eb;          /* Primary data series */
@@ -482,7 +486,7 @@ ul {
 
 /* ── Ecosystem Section ──────────────────────────– */
 .section-ecosystem {
-  background: var(--bg-alt);
+  background: var(--bg);
   padding: 80px 0;
 }
 
@@ -2305,6 +2309,7 @@ ul {
   pointer-events: none;
 }
 
+.cta-box h2,
 .cta-box h3 {
   font-family: var(--font-heading);
   font-size: clamp(1.7rem, 4vw, 2.3rem);
@@ -2336,6 +2341,58 @@ ul {
   color: rgba(255, 255, 255, 0.82);
   font-size: 0.92rem;
   margin-top: 4px;
+}
+
+/* ── Homepage lead-magnet band (free SOP template) — navy, class-based ── */
+.sbe-mkt-leadband {
+  background: linear-gradient(160deg, var(--bg-dark) 0%, var(--bg-dark-soft) 100%);
+  padding: var(--section-spacing-md) 1.5rem;
+}
+
+.sbe-mkt-leadband-inner {
+  max-width: 660px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.sbe-mkt-leadband-eyebrow {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold-warm);
+  margin-bottom: 1.25rem;
+}
+
+.sbe-mkt-leadband-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 0 0 1.25rem;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--nav-cream);
+}
+
+.sbe-mkt-leadband-title svg {
+  flex-shrink: 0;
+  color: var(--gold-warm);
+}
+
+.sbe-mkt-leadband-copy {
+  font-family: var(--font-body);
+  font-size: var(--fs-body-lg);
+  line-height: 1.6;
+  color: var(--text-light-muted-on-dark);
+  max-width: 520px;
+  margin: 0 auto 2.5rem;
 }
 
 /* ── Footer ────────────────────────────────────── */
