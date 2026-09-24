@@ -19,12 +19,28 @@ export default function HeroSection() {
     <section className="sbe-mkt-hero">
       <div className="container sbe-mkt-hero-grid">
 
-        {/* ── Left column: copy ── */}
-        <div className="sbe-mkt-hero-copy">
+        {/* ── Heading: eyebrow + h1 (mobile: shown above the hero image) ── */}
+        <div className="sbe-mkt-hero-heading">
           <p className="sbe-mkt-hero-eyebrow">Built for Australian pubs, bars &amp; venues</p>
 
           <h1 className="sbe-mkt-hero-h1">Turn 6 Months of Onboarding Into 6 Weeks.</h1>
+        </div>
 
+        {/* ── Product screenshot (mobile: shown right after the headline) ── */}
+        <div className="sbe-mkt-hero-teaser">
+          <Image
+            src="/shots/HERO SHOT1.png"
+            alt="Serve By Example on desktop and mobile — manager console, pre-shift home screen, and cocktail drink library"
+            width={2123}
+            height={1258}
+            priority
+            sizes="(max-width: 900px) 90vw, 58vw"
+            style={{ width: '100%', height: 'auto', display: 'block' }}
+          />
+        </div>
+
+        {/* ── Details: subhead, CTA, trust list (mobile: below the hero image) ── */}
+        <div className="sbe-mkt-hero-details">
           <p className="sbe-mkt-hero-sub">
             Deliver the exact standard your best manager enforces, without pulling them off the floor.
           </p>
@@ -49,19 +65,6 @@ export default function HeroSection() {
               <li key={item}>{item}</li>
             ))}
           </ul>
-        </div>
-
-        {/* ── Right column: real product screenshot ── */}
-        <div className="sbe-mkt-hero-teaser">
-          <Image
-            src="/shots/HERO SHOT1.png"
-            alt="Serve By Example on desktop and mobile — manager console, pre-shift home screen, and cocktail drink library"
-            width={2123}
-            height={1258}
-            priority
-            sizes="(max-width: 900px) 90vw, 58vw"
-            style={{ width: '100%', height: 'auto', display: 'block' }}
-          />
         </div>
       </div>
 

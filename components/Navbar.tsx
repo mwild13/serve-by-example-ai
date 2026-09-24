@@ -270,13 +270,6 @@ export default function Navbar({
             ) : showActions ? (
               <div className="nav-actions" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <Link
-                  href="/login?intent=trial&tier=boutique"
-                  className="btn btn-secondary"
-                  style={{ fontSize: "0.875rem", padding: "8px 16px" }}
-                >
-                  Start Free Trial
-                </Link>
-                <Link
                   href="/login"
                   className="btn"
                   style={{
@@ -397,13 +390,6 @@ export default function Navbar({
 
             {showActions && (
               <div className="nav-drawer-actions" style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                <Link
-                  href="/login?intent=trial&tier=boutique"
-                  className="btn btn-secondary btn-block"
-                  onClick={close}
-                >
-                  Free Trial
-                </Link>
                 <Link
                   href="/login"
                   className="btn btn-block"
