@@ -1,41 +1,36 @@
 /**
  * CompareMatrix.tsx
  *
- * Full-width feature comparison matrix for the /membership page.
+ * Feature comparison for /pricing and /for-venues, rendered as a dark panel
+ * that matches the navbar / hero (--bg-dark tokens).
  *
  * Columns: Staff | Venue | Group | Franchise
- * Sections: A — Learning Engine | B — Mastery & Progress |
- *           C — Venue Operations | D — Support & Trust
+ * Sections: A — Learning Engine | B — Venue Operations | C — Support
+ *
+ * The table only carries rows that differ between tiers or carry a number.
+ * Features that are identical on every plan, plus the manager / franchise /
+ * security detail, live in the "What's included" block below the table.
  *
  * Binary Icon Rule:
  *   - Simple Yes/No states: render <IncludedIcon/> or <ExcludedIcon/> only.
  *   - Capacity values: render <IncludedIcon/> followed by the value string.
  *   - No "Yes" / "No" text labels anywhere.
  *
- * Sticky thead:
- *   The <thead> carries className="pricing-matrix-sticky" so globals.css can
- *   apply position:sticky / box-shadow without touching this file.
- *
  * Rules enforced:
- *   - No Tailwind utility classes.
+ *   - No Tailwind utility classes; styles live in globals.css (.sbe-compare-*).
  *   - All colours via CSS custom properties (var(--...)).
- *   - All radius via var(--radius-*).
  *   - Headings via var(--font-fraunces); body via var(--font-manrope).
  */
 
-import React, { CSSProperties } from "react";
-import {
-  IncludedIcon,
-  ExcludedIcon,
-  TreeConnector,
-} from "@/components/ui/PricingIcons";
+import React from "react";
+import { IncludedIcon, ExcludedIcon } from "@/components/ui/PricingIcons";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type CellValue =
   | "yes"
   | "no"
-  | string; // capacity string e.g. "Up to 35 staff seats"
+  | string; // capacity string e.g. "Up to 35"
 
 interface MatrixRow {
   label: string;
@@ -43,8 +38,6 @@ interface MatrixRow {
   venue: CellValue;
   group: CellValue;
   franchise: CellValue;
-  /** If true, renders this row indented with a TreeConnector. */
-  isSubRow?: boolean;
 }
 
 interface MatrixSection {
@@ -52,6 +45,11 @@ interface MatrixSection {
   /** Inline SVG path string for the section header icon (24×24 viewBox). */
   iconPath: string;
   rows: MatrixRow[];
+}
+
+interface IncludedGroup {
+  heading: string;
+  items: { label: string; tier?: string }[];
 }
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -77,99 +75,21 @@ const sections: MatrixSection[] = [
         franchise: "All tracks + custom",
       },
       {
-        label: "AI Arena (live scenario evaluations)",
+        label: "AI Arena (live scenarios + written feedback)",
         staff: "Unlimited",
         venue: "Unlimited",
         group: "Unlimited",
         franchise: "Unlimited",
       },
       {
-        label: "AI evaluation scoring + written feedback per response",
-        staff: "yes",
-        venue: "yes",
-        group: "yes",
-        franchise: "yes",
-        isSubRow: true,
-      },
-      {
-        label: "Rapid-Fire Knowledge Drills",
+        label: "Mastery engine (ELO scoring, spaced repetition, badges, streaks)",
         staff: "yes",
         venue: "yes",
         group: "yes",
         franchise: "yes",
       },
       {
-        label: "Interactive Challenges",
-        staff: "yes",
-        venue: "yes",
-        group: "yes",
-        franchise: "yes",
-      },
-      {
-        label: "Cocktail Library (38 recipes)",
-        staff: "yes",
-        venue: "yes",
-        group: "yes",
-        franchise: "yes",
-      },
-      {
-        label: "Knowledge Base",
-        staff: "yes",
-        venue: "yes",
-        group: "yes",
-        franchise: "yes",
-      },
-      {
-        label: "19-Language Staff Support",
-        staff: "yes",
-        venue: "yes",
-        group: "yes",
-        franchise: "yes",
-      },
-      {
-        label: "Training Diagnostic",
-        staff: "yes",
-        venue: "yes",
-        group: "yes",
-        franchise: "yes",
-      },
-    ],
-  },
-  {
-    title: "Mastery & Progress",
-    iconPath:
-      "M22 12 18 12 15 21 9 3 6 12 2 12",
-    rows: [
-      {
-        label: "Dynamic Skill Calibration (ELO scoring)",
-        staff: "yes",
-        venue: "yes",
-        group: "yes",
-        franchise: "yes",
-      },
-      {
-        label: "Spaced repetition scheduling",
-        staff: "yes",
-        venue: "yes",
-        group: "yes",
-        franchise: "yes",
-      },
-      {
-        label: "Badge + achievement system",
-        staff: "yes",
-        venue: "yes",
-        group: "yes",
-        franchise: "yes",
-      },
-      {
-        label: "Streak tracking",
-        staff: "yes",
-        venue: "yes",
-        group: "yes",
-        franchise: "yes",
-      },
-      {
-        label: "Personal progress overview",
+        label: "Full training toolkit (drills, challenges, cocktail library, 19 languages)",
         staff: "yes",
         venue: "yes",
         group: "yes",
@@ -211,20 +131,6 @@ const sections: MatrixSection[] = [
         franchise: "yes",
       },
       {
-        label: "Compliance Tracking",
-        staff: "no",
-        venue: "no",
-        group: "yes",
-        franchise: "yes",
-      },
-      {
-        label: "Cohort analytics and trend reporting",
-        staff: "no",
-        venue: "no",
-        group: "yes",
-        franchise: "yes",
-      },
-      {
         label: "Venue inventory management",
         staff: "no",
         venue: "yes",
@@ -239,44 +145,23 @@ const sections: MatrixSection[] = [
         franchise: "yes",
       },
       {
-        label: "Staff invite via venue code",
+        label: "Compliance Tracking",
         staff: "no",
-        venue: "yes",
+        venue: "no",
         group: "yes",
         franchise: "yes",
       },
       {
-        label: "AI Coaching for Managers",
+        label: "Cohort analytics and trend reporting",
         staff: "no",
-        venue: "yes",
+        venue: "no",
         group: "yes",
-        franchise: "yes",
-      },
-      {
-        label: "Multi-Venue Roster Management",
-        staff: "no",
-        venue: "no",
-        group: "no",
-        franchise: "yes",
-      },
-      {
-        label: "Custom module development",
-        staff: "no",
-        venue: "no",
-        group: "no",
-        franchise: "yes",
-      },
-      {
-        label: "White-label options",
-        staff: "no",
-        venue: "no",
-        group: "no",
         franchise: "yes",
       },
     ],
   },
   {
-    title: "Support & Trust",
+    title: "Support",
     iconPath:
       "M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.07 12 19.79 19.79 0 0 1 1 3.18 2 2 0 0 1 2.96 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.09 8.72a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21 15.92z",
     rows: [
@@ -309,40 +194,51 @@ const sections: MatrixSection[] = [
         franchise: "no",
       },
       {
-        label: "Founding member rate lock",
-        staff: "yes",
-        venue: "yes",
-        group: "yes",
-        franchise: "yes",
-      },
-      {
-        label: "Data isolation (Supabase RLS)",
-        staff: "yes",
-        venue: "yes",
-        group: "yes",
-        franchise: "yes",
-      },
-      {
-        label: "Secure Single-Session Architecture",
-        staff: "yes",
-        venue: "yes",
-        group: "yes",
-        franchise: "yes",
-      },
-      {
         label: "SLA documentation",
         staff: "no",
         venue: "no",
         group: "no",
         franchise: "yes",
       },
-      {
-        label: "Uptime target",
-        staff: "99.9% (Cloudflare edge)",
-        venue: "99.9% (Cloudflare edge)",
-        group: "99.9% (Cloudflare edge)",
-        franchise: "Custom SLA",
-      },
+    ],
+  },
+];
+
+const includedGroups: IncludedGroup[] = [
+  {
+    heading: "On every plan",
+    items: [
+      { label: "Rapid-fire knowledge drills" },
+      { label: "Interactive challenges" },
+      { label: "Cocktail library (38 recipes)" },
+      { label: "Knowledge base" },
+      { label: "19-language staff support" },
+      { label: "Training diagnostic" },
+      { label: "Founding member rate lock" },
+    ],
+  },
+  {
+    heading: "Manager tools",
+    items: [
+      { label: "Staff invite via venue code", tier: "Venue and up" },
+      { label: "AI coaching for managers", tier: "Venue and up" },
+      { label: "Multi-venue roster management", tier: "Franchise" },
+    ],
+  },
+  {
+    heading: "Franchise extras",
+    items: [
+      { label: "Custom module development", tier: "Franchise" },
+      { label: "White-label options", tier: "Franchise" },
+      { label: "Custom SLA", tier: "Franchise" },
+    ],
+  },
+  {
+    heading: "Security and uptime",
+    items: [
+      { label: "Data isolation (Supabase RLS)" },
+      { label: "Secure single-session architecture" },
+      { label: "99.9% uptime target on Cloudflare edge" },
     ],
   },
 ];
@@ -353,67 +249,47 @@ const TIER_LABELS = ["Staff", "Venue", "Group", "Franchise"] as const;
 
 /**
  * Renders a single cell value.
- *
- * Binary Rule:
  *   "yes" → <IncludedIcon/> only
  *   "no"  → <ExcludedIcon/> only
  *   string (capacity / text) → <IncludedIcon/> + value text
- *
- * Exception: if value looks like a negative string that isn't "no"
- * (shouldn't happen with this dataset) it still renders as text.
  */
 function Cell({ value }: { value: CellValue }) {
-  const cellStyle: CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "6px",
-    fontFamily: "var(--font-manrope)",
-    fontSize: "0.8125rem",
-    color: "var(--text-soft)",
-    lineHeight: 1.4,
-    textAlign: "center" as const,
-  };
-
   if (value === "yes") {
     return (
-      <div style={cellStyle}>
-        <IncludedIcon />
+      <div className="sbe-compare-cell">
+        <IncludedIcon tone="dark" />
       </div>
     );
   }
 
   if (value === "no") {
     return (
-      <div style={cellStyle}>
-        <ExcludedIcon />
+      <div className="sbe-compare-cell">
+        <ExcludedIcon tone="dark" />
       </div>
     );
   }
 
-  // Capacity or text value — icon + string
   return (
-    <div style={{ ...cellStyle, flexWrap: "wrap" as const }}>
-      <IncludedIcon />
+    <div className="sbe-compare-cell sbe-compare-cell--text">
+      <IncludedIcon tone="dark" />
       <span>{value}</span>
     </div>
   );
 }
 
-// ─── Section header icon ──────────────────────────────────────────────────────
-
 function SectionIcon({ path }: { path: string }) {
   return (
     <svg
-      width="18"
-      height="18"
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
-      style={{ color: "var(--green)", flexShrink: 0 }}
+      style={{ flexShrink: 0 }}
       aria-hidden="true"
     >
       <path d={path} />
@@ -424,118 +300,38 @@ function SectionIcon({ path }: { path: string }) {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function CompareMatrix() {
-  const colWidth = "18%";
-  const labelColWidth = "28%";
-
-  const thStyle: CSSProperties = {
-    padding: "16px 12px",
-    fontFamily: "var(--font-manrope)",
-    fontWeight: 600,
-    fontSize: "0.875rem",
-    color: "var(--text)",
-    textAlign: "center",
-    verticalAlign: "bottom",
-    borderBottom: "2px solid var(--line)",
-    whiteSpace: "nowrap" as const,
-  };
-
-  const labelThStyle: CSSProperties = {
-    ...thStyle,
-    textAlign: "left",
-    width: labelColWidth,
-    color: "var(--text-muted)",
-    fontWeight: 500,
-    fontSize: "0.8125rem",
-  };
-
   return (
-    <div style={{ width: "100%" }}>
+    <div className="sbe-compare">
       {/* ── Header ── */}
-      <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-        <span
-          className="eyebrow"
-          style={{ fontFamily: "var(--font-manrope)" }}
-        >
-          Full Comparison
-        </span>
-        <h2
-          style={{
-            fontFamily: "var(--font-fraunces)",
-            fontSize: "clamp(1.6rem, 3vw, 2rem)",
-            color: "var(--text)",
-            marginTop: "0.5rem",
-            marginBottom: "0.5rem",
-          }}
-        >
-          Everything, side by side.
-        </h2>
-        <p
-          style={{
-            fontFamily: "var(--font-manrope)",
-            color: "var(--text-soft)",
-            fontSize: "0.9375rem",
-            maxWidth: 520,
-            margin: "0 auto",
-          }}
-        >
-          Every feature, every limit. No asterisks.
+      <div className="sbe-compare-head">
+        <span className="sbe-compare-eyebrow">Full Comparison</span>
+        <h2 className="sbe-compare-title">Everything, side by side.</h2>
+        <p className="sbe-compare-sub">
+          Every limit that changes between plans. No asterisks.
         </p>
       </div>
 
       {/* ── Table wrapper — horizontal scroll on small screens ── */}
-      <div
-        style={{
-          overflowX: "auto",
-          borderRadius: "var(--radius-lg)",
-          border: "1px solid var(--line)",
-          boxShadow: "var(--shadow-sm)",
-        }}
-      >
-        <table
-          style={{
-            width: "100%",
-            minWidth: 640,
-            borderCollapse: "collapse",
-            background: "var(--surface)",
-          }}
-        >
-          {/* ── Sticky thead ── */}
-          <thead className="pricing-matrix-sticky">
+      <div className="sbe-compare-scroll">
+        <table className="sbe-compare-table">
+          <thead>
             <tr>
-              <th style={labelThStyle}>Feature</th>
+              <th className="sbe-compare-th sbe-compare-th--label" scope="col">
+                Feature
+              </th>
               {TIER_LABELS.map((label) => (
-                <th key={label} style={{ ...thStyle, width: colWidth }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontFamily: "var(--font-fraunces)",
-                        fontSize: "1rem",
-                        color: "var(--text)",
-                        fontWeight: 700,
-                      }}
-                    >
-                      {label}
-                    </span>
+                <th
+                  key={label}
+                  scope="col"
+                  className={
+                    "sbe-compare-th" +
+                    (label === "Venue" ? " sbe-compare-col--featured" : "")
+                  }
+                >
+                  <div className="sbe-compare-th-inner">
+                    <span className="sbe-compare-tier">{label}</span>
                     {(label === "Venue" || label === "Group") && (
-                      <span
-                        style={{
-                          fontSize: "0.7rem",
-                          fontWeight: 700,
-                          color: "var(--green)",
-                          background: "var(--green-light)",
-                          borderRadius: "999px",
-                          padding: "2px 8px",
-                          letterSpacing: "0.03em",
-                          textTransform: "uppercase" as const,
-                        }}
-                      >
+                      <span className="sbe-compare-pill">
                         {label === "Venue" ? "Most Popular" : "Best Value"}
                       </span>
                     )}
@@ -548,128 +344,73 @@ export default function CompareMatrix() {
           <tbody>
             {sections.map((section, sIdx) => (
               <React.Fragment key={section.title}>
-                {/* ── Section header row ── */}
                 <tr>
-                  <td
-                    colSpan={5}
-                    style={{
-                      padding: "14px 20px",
-                      background: "var(--bg-alt)",
-                      borderTop: sIdx === 0 ? "none" : "2px solid var(--line)",
-                      borderBottom: "1px solid var(--line-light)",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
+                  <td colSpan={5} className="sbe-compare-section">
+                    <div className="sbe-compare-section-inner">
                       <SectionIcon path={section.iconPath} />
-                      <span
-                        style={{
-                          fontFamily: "var(--font-manrope)",
-                          fontWeight: 700,
-                          fontSize: "0.8rem",
-                          letterSpacing: "0.06em",
-                          textTransform: "uppercase" as const,
-                          color: "var(--text-soft)",
-                        }}
-                      >
+                      <span>
                         {String.fromCharCode(65 + sIdx)} — {section.title}
                       </span>
                     </div>
                   </td>
                 </tr>
 
-                {/* ── Feature rows ── */}
-                {section.rows.map((row, rIdx) => {
-                  const isLastRow = rIdx === section.rows.length - 1;
-                  const rowBg = row.isSubRow ? "var(--bg-alt)" : "var(--surface)";
-
-                  return (
-                    <tr
-                      key={row.label}
-                      style={{ background: rowBg }}
-                    >
-                      {/* Label cell */}
+                {section.rows.map((row) => (
+                  <tr key={row.label} className="sbe-compare-row">
+                    <th scope="row" className="sbe-compare-label">
+                      {row.label}
+                    </th>
+                    {(
+                      [
+                        row.staff,
+                        row.venue,
+                        row.group,
+                        row.franchise,
+                      ] as CellValue[]
+                    ).map((val, colIdx) => (
                       <td
-                        style={{
-                          padding: row.isSubRow
-                            ? "8px 20px 8px 12px"
-                            : "13px 20px",
-                          borderBottom: isLastRow
-                            ? "none"
-                            : "1px solid var(--line-light)",
-                          verticalAlign: "middle",
-                        }}
+                        key={colIdx}
+                        className={
+                          "sbe-compare-td" +
+                          (colIdx === 1 ? " sbe-compare-col--featured" : "")
+                        }
                       >
-                        {row.isSubRow ? (
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "flex-start",
-                              gap: "6px",
-                            }}
-                          >
-                            <TreeConnector />
-                            <span
-                              style={{
-                                fontFamily: "var(--font-manrope)",
-                                fontSize: "0.8rem",
-                                color: "var(--text-muted)",
-                                lineHeight: 1.4,
-                              }}
-                            >
-                              {row.label}
-                            </span>
-                          </div>
-                        ) : (
-                          <span
-                            style={{
-                              fontFamily: "var(--font-manrope)",
-                              fontSize: "0.875rem",
-                              fontWeight: 500,
-                              color: "var(--text)",
-                              lineHeight: 1.4,
-                            }}
-                          >
-                            {row.label}
-                          </span>
-                        )}
+                        <Cell value={val} />
                       </td>
-
-                      {/* Value cells */}
-                      {(
-                        [
-                          row.staff,
-                          row.venue,
-                          row.group,
-                          row.franchise,
-                        ] as CellValue[]
-                      ).map((val, colIdx) => (
-                        <td
-                          key={colIdx}
-                          style={{
-                            padding: row.isSubRow ? "8px 12px" : "13px 12px",
-                            borderBottom: isLastRow
-                              ? "none"
-                              : "1px solid var(--line-light)",
-                            borderLeft: "1px solid var(--line-light)",
-                            verticalAlign: "middle",
-                          }}
-                        >
-                          <Cell value={val} />
-                        </td>
-                      ))}
-                    </tr>
-                  );
-                })}
+                    ))}
+                  </tr>
+                ))}
               </React.Fragment>
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* ── What's included ── */}
+      <div className="sbe-compare-included">
+        <h3 className="sbe-compare-included-title">What else is included</h3>
+        <div className="sbe-compare-included-grid">
+          {includedGroups.map((group) => (
+            <div key={group.heading} className="sbe-compare-included-group">
+              <h4 className="sbe-compare-included-heading">{group.heading}</h4>
+              <ul className="sbe-compare-included-list">
+                {group.items.map((item) => (
+                  <li key={item.label}>
+                    <IncludedIcon tone="dark" size={14} />
+                    <span>
+                      {item.label}
+                      {item.tier && (
+                        <span className="sbe-compare-included-tier">
+                          {item.tier}
+                        </span>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
