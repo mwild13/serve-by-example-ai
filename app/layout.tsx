@@ -50,11 +50,17 @@ export const metadata: Metadata = {
     icon: [
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.ico", sizes: "48x48" },
     ],
     apple: [
       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
-
+  },
+  // Home Screen label on iOS — without this Safari uses the full <title>.
+  appleWebApp: {
+    capable: true,
+    title: "SBE",
+    statusBarStyle: "default",
   },
   openGraph: {
     title: ogTitle,
