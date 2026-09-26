@@ -7,18 +7,24 @@ import BottomNav from "./BottomNav";
 import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
+import { ARENA_SEED_SCENARIOS, formatArenaScenario } from "@/lib/arena-scenarios";
 
 // Phase C file 04 — wired to the real single-shot POST /api/arena/evaluate
 // endpoint (Locked Decision #2: one static scenario, one typed response, one
 // score — this is not a multi-turn conversation, so the chat-shell layout
 // below displays a single exchange, not a live thread). Scenario payload
 // comes from ScenarioTrainingScreen's "Start Simulation" link via query
-// params; falls back to the same copy if Arena is opened directly.
+// params; falls back to module 11 if Arena is opened directly.
+//
+// Security hardening (2026-09-26): the server now grades against
+// ARENA_SEED_SCENARIOS[moduleId] and ignores any client-sent scenario, so the
+// displayed scenario is derived from the same seed here rather than from the
+// `scenario` query param — otherwise the text shown could differ from the
+// text graded (the old direct-open fallback was a wine-cork scenario that
+// didn't match module 11's seed).
 
 const DEFAULT_MODULE_ID = 11;
 const DEFAULT_MODULE_TITLE = "Guest Complaints";
-const DEFAULT_SCENARIO =
-  "A guest sends back a bottle of wine, claiming it's corked, but you can tell from the cork and the smell that it is fine — it's just not to their taste. They are becoming insistent and slightly hostile about wanting a refund or a replacement bottle immediately.";
 
 const SUGGESTED_REPLIES = ["Apologise & Validate", "Ask Taste Questions", "Offer Different Pour"];
 
@@ -34,9 +40,10 @@ export default function ArenaScreen() {
   const searchParams = useSearchParams();
   const { refetch } = useTrainingProgress();
 
-  const moduleId = Number(searchParams.get("moduleId") ?? DEFAULT_MODULE_ID) || DEFAULT_MODULE_ID;
-  const moduleTitle = searchParams.get("moduleTitle") ?? DEFAULT_MODULE_TITLE;
-  const scenario = searchParams.get("scenario") ?? DEFAULT_SCENARIO;
+  const requestedId = Number(searchParams.get("moduleId") ?? DEFAULT_MODULE_ID) || DEFAULT_MODULE_ID;
+  const moduleId = ARENA_SEED_SCENARIOS[requestedId] ? requestedId : DEFAULT_MODULE_ID;
+  const moduleTitle = (moduleId === requestedId && searchParams.get("moduleTitle")) || DEFAULT_MODULE_TITLE;
+  const scenario = formatArenaScenario(ARENA_SEED_SCENARIOS[moduleId]);
 
   const [response, setResponse] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -60,7 +67,6 @@ export default function ArenaScreen() {
           action: "evaluate",
           moduleId,
           moduleTitle,
-          scenario,
           response: trimmed,
         }),
       });

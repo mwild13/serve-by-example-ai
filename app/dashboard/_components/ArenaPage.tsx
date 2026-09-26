@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import SharedTrainingCard from "@/app/dashboard/_components/common/SharedTrainingCard";
-import { ARENA_SEED_SCENARIOS, formatArenaScenario } from "@/lib/arena-scenarios";
+import { ARENA_SEED_SCENARIOS } from "@/lib/arena-scenarios";
 
 type AssessmentResult = {
   score: number;
@@ -104,7 +104,6 @@ export default function ArenaPage({ userId: _userId }: Props) {
         setError("No scenario is available for this module yet.");
         return;
       }
-      const scenario = formatArenaScenario(seed);
       const headers = await authHeaders();
       const res = await fetch("/api/arena/evaluate", {
         method: "POST",
@@ -113,7 +112,6 @@ export default function ArenaPage({ userId: _userId }: Props) {
           action: "evaluate",
           moduleId: selectedId,
           moduleTitle: MODULE_META[selectedId]?.title,
-          scenario,
           response: response.trim(),
         }),
       });
