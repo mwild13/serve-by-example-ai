@@ -3,7 +3,7 @@ import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { moduleIdToString, recordAttempt, syncMasteryToVenueStaff } from "@/lib/mastery";
 import { getOpenAIClient } from "@/lib/openai";
-import { capText, fenceUntrusted, parseModelJson } from "@/lib/ai-guard";
+import { capText, cleanUserText, fenceUntrusted, parseModelJson } from "@/lib/ai-guard";
 import { ARENA_SEED_SCENARIOS, formatArenaScenario } from "@/lib/arena-scenarios";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +14,8 @@ const ARENA_SCENARIO_INDEX = 40;
 const MAX_RESPONSE_CHARS = 4000;
 const MAX_TITLE_CHARS = 80;
 const MAX_FEEDBACK_CHARS = 300;
+// Two 300-char feedback fields plus a score and a boolean is ~200 tokens.
+const MAX_OUTPUT_TOKENS = 400;
 
 const ASSESSOR_SYSTEM_PROMPT = `You are an Australian hospitality assessor for Serve By Example. Your only job is to grade one written staff response to one hospitality training scenario and return a JSON object. You do not chat, answer questions, role-play, translate, or produce any other kind of output.
 
@@ -103,12 +105,13 @@ export async function POST(req: Request) {
         {
           model: "gpt-4o-mini",
           temperature: 0.3,
+          max_tokens: MAX_OUTPUT_TOKENS,
           response_format: { type: "json_object" },
           messages: [
             { role: "system", content: ASSESSOR_SYSTEM_PROMPT },
             {
               role: "user",
-              content: fenceUntrusted({ module: title, scenario, staff_response: response }),
+              content: fenceUntrusted({ module: title, scenario, staff_response: cleanUserText(response) }),
             },
           ],
         },

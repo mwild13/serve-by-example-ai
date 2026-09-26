@@ -14719,57 +14719,6 @@ body {
   font-family: 'SFMono-Regular', 'JetBrains Mono', 'Fira Mono', monospace;
 }
 
-/* ── Update 10A: ROI bar chart + email capture ── */
-
-.roi-email-input {
-  flex: 1;
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--line);
-  background: var(--surface-raised);
-  color: var(--green-deep);
-  font-size: 0.875rem;
-  font-family: var(--font-body);
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.roi-email-input::placeholder {
-  color: rgba(255, 255, 255, 0.35);
-}
-
-.roi-email-input:focus {
-  border-color: var(--gold-warm);
-}
-
-.roi-email-btn {
-  padding: 13px 28px;
-  border-radius: var(--radius-md);
-  border: none;
-  background: var(--gold-warm);
-  color: var(--green-deep);
-  font-size: 0.875rem;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.15s, opacity 0.15s;
-  font-family: var(--font-body);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.roi-email-btn:hover:not(:disabled) {
-  background: var(--color-amber-badge);
-}
-
-.roi-email-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-@media (max-width: 480px) {
-  .roi-email-btn { width: 100%; }
-}
-
 /* ── Update 14: Quantified-benefit grid ─────── */
 .benefit-grid {
   display: grid;
@@ -15442,12 +15391,6 @@ h1, h2, h3 {
 .cm-complete-score-grade { font-size: 1rem; font-weight: 700; color: var(--green); }
 .cm-complete-body { font-size: 0.95rem; color: var(--text-soft); line-height: 1.65; max-width: 540px; }
 .cm-complete-cta-group { display: flex; gap: 12px; flex-wrap: wrap; }
-.cm-complete-email { width: 100%; max-width: 480px; }
-.cm-email-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-soft); margin-bottom: 10px; }
-.cm-email-form .cm-email-row,
-.cm-email-form { display: flex; flex-direction: column; gap: 10px; }
-.cm-email-row { display: flex; gap: 10px; flex-wrap: wrap; }
-.cm-email-thanks { font-size: 0.875rem; color: var(--green); font-weight: 600; }
 
 @media (max-width: 500px) {
   .cm-result-dim { grid-template-columns: 1fr 1fr; }

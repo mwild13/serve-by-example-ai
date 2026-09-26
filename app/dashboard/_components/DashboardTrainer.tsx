@@ -12,6 +12,13 @@ import { SCENARIOS, SCENARIO_INSIGHTS } from "./trainer/trainer-data";
 
 export type { TrainerProgressPreload };
 
+type MasteryFeedback = {
+  level: number; previousLevel: number; levelChanged: boolean;
+  spamGuarded: boolean; eloRating: number; eloDelta: number;
+  isBridge: boolean; consecutiveFails: number;
+  confidenceAccuracy: string;
+};
+
 export default function DashboardTrainer({
   managementUnlocked = false,
   userToken,
@@ -32,12 +39,7 @@ export default function DashboardTrainer({
   const [showHelp, setShowHelp] = useState(false);
 
   // ── Mastery engine state ───────────────────────────────────
-  const [masteryFeedback, setMasteryFeedback] = useState<{
-    level: number; previousLevel: number; levelChanged: boolean;
-    spamGuarded: boolean; eloRating: number; eloDelta: number;
-    isBridge: boolean; consecutiveFails: number;
-    confidenceAccuracy: string;
-  } | null>(null);
+  const [masteryFeedback, setMasteryFeedback] = useState<MasteryFeedback | null>(null);
 
   // Mastery-based progress (completion = unique scenarios passed / total)
   const [moduleProgress, setModuleProgress] = useState<Record<Module, number>>(
@@ -189,58 +191,45 @@ export default function DashboardTrainer({
     setMasteryFeedback(null);
 
     try {
+      // The server looks the scenario up by (module, scenarioIndex), grades
+      // it and records the attempt itself; the browser never sends a score.
+      const mod = activeModule;
+      const idx = scenarioIndex;
+      const supabase = createSupabaseBrowserClient();
+      const { data: { session } } = await supabase.auth.getSession();
       const res = await fetch("/api/evaluate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scenario: currentScenario.text, userResponse: fullResponse }),
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({ module: mod, scenarioIndex: idx, userResponse: fullResponse, confidence: "medium" }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Evaluation failed.");
       setResult(data);
 
-      // Fire-and-forget: persist via mastery engine
-      if (activeModule) {
-        const mod = activeModule;
-        const score = data.overallScore as number;
-        const idx = scenarioIndex;
-        void (async () => {
-          try {
-            const supabase = createSupabaseBrowserClient();
-            const { data: { session } } = await supabase.auth.getSession();
-            const saveRes = await fetch("/api/training/save", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
-              },
-              body: JSON.stringify({ module: mod, overallScore: score, scenarioIndex: idx, confidence: "medium" }),
-            });
-            const saveData = await saveRes.json();
-            if (saveData.mastery) {
-              setMasteryFeedback(saveData.mastery);
-              // Optimistic: update scenario mastery level locally
-              setScenarioMastery((prev) => ({ ...prev, [idx]: saveData.mastery.level }));
-              // If this scenario was newly passed (level went from 0 to >=1), update progress
-              if (saveData.mastery.levelChanged && saveData.mastery.level >= 1 && saveData.mastery.previousLevel === 0) {
-                const scenarioCount = SCENARIOS[mod].length;
-                setModuleProgress((prev) => ({
-                  ...prev,
-                  [mod]: Math.min(prev[mod] + Math.round(100 / scenarioCount), 100),
-                }));
-              }
-              // Update mastery %
-              if (saveData.mastery.level === 3 && saveData.mastery.previousLevel < 3) {
-                const scenarioCount = SCENARIOS[mod].length;
-                setModuleMastery((prev) => ({
-                  ...prev,
-                  [mod]: Math.min(prev[mod] + Math.round(100 / scenarioCount), 100),
-                }));
-              }
-            }
-          } catch {
-            // Non-critical
-          }
-        })();
+      if (mod && data.mastery) {
+        const mastery = data.mastery as MasteryFeedback;
+        setMasteryFeedback(mastery);
+        // Optimistic: update scenario mastery level locally
+        setScenarioMastery((prev) => ({ ...prev, [idx]: mastery.level }));
+        // If this scenario was newly passed (level went from 0 to >=1), update progress
+        if (mastery.levelChanged && mastery.level >= 1 && mastery.previousLevel === 0) {
+          const scenarioCount = SCENARIOS[mod].length;
+          setModuleProgress((prev) => ({
+            ...prev,
+            [mod]: Math.min(prev[mod] + Math.round(100 / scenarioCount), 100),
+          }));
+        }
+        // Update mastery %
+        if (mastery.level === 3 && mastery.previousLevel < 3) {
+          const scenarioCount = SCENARIOS[mod].length;
+          setModuleMastery((prev) => ({
+            ...prev,
+            [mod]: Math.min(prev[mod] + Math.round(100 / scenarioCount), 100),
+          }));
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");

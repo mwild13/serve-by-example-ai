@@ -11,10 +11,15 @@
  */
 
 import { getOpenAIClient } from "@/lib/openai";
-import { capText, fenceUntrusted, parseModelJson } from "@/lib/ai-guard";
+import { capText, cleanUserText, fenceUntrusted, linkAbortSignal, parseModelJson } from "@/lib/ai-guard";
 
 export const MAX_SCENARIO_CHARS = 1500;
 export const MAX_USER_RESPONSE_CHARS = 3000;
+// The JSON reply is ~1,400 characters at most (300 + 300 + 800 plus scores),
+// roughly 400 tokens. The cap stops a runaway reply (e.g. JSON-mode whitespace
+// loops) billing up to the model's 16k output limit; a truncated reply fails
+// JSON parsing and returns a 500 like any other bad reply.
+const MAX_OUTPUT_TOKENS = 600;
 
 export type ScenarioEvaluation = {
   communication: number;
@@ -81,32 +86,37 @@ export function validateScenarioInput(scenario: unknown, userResponse: unknown):
 
 /**
  * Runs the evaluation. Returns null when the model reply isn't usable JSON
- * (already logged server-side). Throws on network/timeout errors.
+ * (already logged server-side). Throws on network/timeout errors, and when
+ * `signal` (the incoming request's) aborts because the client went away.
  */
 export async function evaluateScenarioResponse(
   scenario: string,
   userResponse: string,
   route: string,
+  signal?: AbortSignal,
 ): Promise<ScenarioEvaluation | null> {
   const openai = getOpenAIClient();
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 20000);
+  const unlink = linkAbortSignal(controller, signal);
   let completion;
   try {
     completion = await openai.chat.completions.create(
       {
         model: "gpt-4o-mini",
         temperature: 0.3,
+        max_tokens: MAX_OUTPUT_TOKENS,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: EVALUATOR_SYSTEM_PROMPT },
-          { role: "user", content: fenceUntrusted({ scenario, staff_response: userResponse }) },
+          { role: "user", content: fenceUntrusted({ scenario, staff_response: cleanUserText(userResponse) }) },
         ],
       },
       { signal: controller.signal },
     );
   } finally {
     clearTimeout(timeout);
+    unlink();
   }
 
   const parsed = parseModelJson(completion.choices[0]?.message?.content, route);
@@ -114,7 +124,7 @@ export async function evaluateScenarioResponse(
 
   // Never trust the model's own scores/overallScore — a prompt-injection
   // attempt could inflate them, and overallScore feeds the mastery write path
-  // (DashboardTrainer.tsx -> /api/training/save). Clamp each category to 1-5,
+  // (/api/evaluate records it via lib/training-attempt.ts). Clamp each category to 1-5,
   // recompute the total, and return only the expected fields, length-capped.
   const clamp = (n: unknown) => Math.max(1, Math.min(5, Math.round(Number(n) || 1)));
   const communication = clamp(parsed.communication);

@@ -1,17 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/marketing/PageHero";
-
-type Scenario = {
-  id: string;
-  title: string;
-  situation: string;
-  guestLine: string;
-};
+import { COMPLAINT_SCENARIOS } from "@/lib/demo-scenarios";
 
 type EvalResult = {
   communication: number;
@@ -25,32 +19,11 @@ type EvalResult = {
   improvedResponse: string;
 };
 
-const SCENARIOS: Scenario[] = [
-  {
-    id: "wrong-order",
-    title: "Wrong order delivered",
-    situation:
-      "A table of four has been waiting 35 minutes. When the food arrives, one guest's steak is cooked well-done instead of medium-rare as ordered. The guest is visibly annoyed.",
-    guestLine:
-      '"This isn\'t what I ordered. I specifically asked for medium-rare and this is completely overcooked. This is ridiculous."',
-  },
-  {
-    id: "long-wait",
-    title: "Excessive wait at the bar",
-    situation:
-      "A guest has been waiting at the bar for nearly 10 minutes on a moderately busy Friday evening. They are now flagging you down with clear frustration.",
-    guestLine:
-      '"Excuse me, I\'ve been standing here for ages. Does anyone actually work at this bar?"',
-  },
-  {
-    id: "noisy-neighbours",
-    title: "Disruptive table nearby",
-    situation:
-      "A couple has approached you quietly to complain that the table next to them has been excessively loud and rude throughout their dinner, affecting their experience.",
-    guestLine:
-      '"We came here for a nice evening and those people have ruined it. We\'re really not happy and we feel like nothing has been done about it."',
-  },
-];
+const SCENARIOS = COMPLAINT_SCENARIOS;
+
+// The server gives OpenAI 20 seconds; this leaves room for the round trip
+// so the spinner can never hang if the connection stalls.
+const REQUEST_TIMEOUT_MS = 30_000;
 
 type Stage = "intro" | "practice" | "result" | "complete";
 
@@ -61,39 +34,62 @@ export default function ComplaintMasterPage() {
   const [result, setResult] = useState<EvalResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [email, setEmail] = useState("");
-  const [emailSent, setEmailSent] = useState(false);
-  const [emailSending, setEmailSending] = useState(false);
   const [scores, setScores] = useState<number[]>([]);
 
   const scenario = SCENARIOS[scenarioIndex];
   const isLastScenario = scenarioIndex === SCENARIOS.length - 1;
 
+  // The in-flight request, if any. A ref (not state) so a second click in the
+  // same frame sees it immediately, and so unmount can abort it.
+  const inFlight = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      // Navigating away mid-evaluation: cancel the request. Clearing the ref
+      // first tells handleSubmit not to touch state after it settles.
+      const controller = inFlight.current;
+      inFlight.current = null;
+      controller?.abort();
+    };
+  }, []);
+
   async function handleSubmit() {
-    if (response.trim().length < 10) return;
+    if (inFlight.current || response.trim().length < 10) return;
+    const controller = new AbortController();
+    inFlight.current = controller;
+    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
     setLoading(true);
     setError("");
 
     try {
-      const fullScenario = `${scenario.situation}\n\nGuest says: ${scenario.guestLine}`;
       const res = await fetch("/api/demo/evaluate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scenario: fullScenario, userResponse: response.trim() }),
+        body: JSON.stringify({ scenarioId: scenario.id, userResponse: response.trim() }),
+        signal: controller.signal,
       });
       const data = await res.json();
+      if (inFlight.current !== controller) return;
       if (!res.ok || data.error) {
         setError(data.error ?? "Something went wrong. Please try again.");
-        setLoading(false);
         return;
       }
       setResult(data as EvalResult);
       setScores((prev) => [...prev, data.overallScore]);
       setStage("result");
     } catch {
-      setError("Connection error. Please try again.");
+      if (inFlight.current !== controller) return;
+      setError(
+        controller.signal.aborted
+          ? "That took too long. Please try again."
+          : "Connection error. Please try again.",
+      );
     } finally {
-      setLoading(false);
+      clearTimeout(timeout);
+      if (inFlight.current === controller) {
+        inFlight.current = null;
+        setLoading(false);
+      }
     }
   }
 
@@ -107,15 +103,6 @@ export default function ComplaintMasterPage() {
       setError("");
       setStage("practice");
     }
-  }
-
-  async function handleEmailSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!email.trim()) return;
-    setEmailSending(true);
-    await new Promise((r) => setTimeout(r, 600));
-    setEmailSending(false);
-    setEmailSent(true);
   }
 
   const avgScore =
@@ -318,10 +305,10 @@ export default function ComplaintMasterPage() {
 
                 <p className="cm-complete-body">
                   {avgScore >= 20
-                    ? "That&rsquo;s a strong result. You handle guest complaints with composure and care. On the Serve By Example platform, you&rsquo;d be competing near the top of the Live Scenarios leaderboard."
+                    ? "That’s a strong result. You handle guest complaints with composure and care. On the Serve By Example platform, you’d be competing near the top of the Live Scenarios leaderboard."
                     : avgScore >= 14
-                    ? "Solid foundation. A bit more practice on structure and specificity will get your scores into the excellent range, and that&rsquo;s exactly what our full platform is built to deliver."
-                    : "Complaint handling is one of the hardest skills in hospitality. The good news: it&rsquo;s entirely trainable. Our full platform has structured coaching paths that build these skills rapidly."}
+                    ? "Solid foundation. A bit more practice on structure and specificity will get your scores into the excellent range, and that’s exactly what our full platform is built to deliver."
+                    : "Complaint handling is one of the hardest skills in hospitality. The good news: it’s entirely trainable. Our full platform has structured coaching paths that build these skills rapidly."}
                 </p>
 
                 <div className="cm-complete-cta-group">
@@ -331,38 +318,6 @@ export default function ComplaintMasterPage() {
                   <Link href="/membership" className="btn btn-secondary btn-lg">
                     Get full access
                   </Link>
-                </div>
-
-                <div className="cm-complete-email">
-                  {emailSent ? (
-                    <p className="cm-email-thanks">
-                      Thanks. We&rsquo;ll send your score summary shortly.
-                    </p>
-                  ) : (
-                    <form className="cm-email-form" onSubmit={handleEmailSubmit}>
-                      <label htmlFor="cm-email" className="cm-email-label">
-                        Email me my score summary
-                      </label>
-                      <div className="cm-email-row">
-                        <input
-                          id="cm-email"
-                          type="email"
-                          placeholder="you@yourvenue.com.au"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className="roi-email-input"
-                          required
-                        />
-                        <button
-                          type="submit"
-                          className="roi-email-btn"
-                          disabled={emailSending}
-                        >
-                          {emailSending ? "Sending…" : "Send"}
-                        </button>
-                      </div>
-                    </form>
-                  )}
                 </div>
               </div>
             )}

@@ -160,6 +160,8 @@ content: `<module>${stripTags(title)}</module>\n<scenario>\n${stripTags(scenario
 
 ### Open issue: `/api/training/save` trusts the client's score
 
+> **Resolved later on 2026-09-26.** `/api/evaluate` now records the attempt itself and `/api/training/save` no longer accepts scores. See `2026-09-26-ai-token-abuse-and-request-races.md`, "Round 2".
+
 `DashboardTrainer.tsx` calls `/api/evaluate`, then posts `data.overallScore` to `/api/training/save`, which writes mastery. A signed-in user can skip the AI and post any score straight to `/api/training/save`, so hardening the prompt doesn't protect that path. Fix: have `/api/evaluate` write the attempt itself (the same way Arena calls `recordAttempt()`), or have it return a signed result token that `/api/training/save` checks. This needs a separate change.
 
 ## Files changed (`9ea56c8`)
@@ -184,7 +186,7 @@ Response shapes for all four routes are unchanged for existing clients. The only
    - Mobile Arena opened from Learn Hub shows the right module's scenario; opened directly it shows module 11 (late parmy order).
    - Dashboard trainer, mobile scenario practice, `/demo`, `/demo/complaint-master` and the drill generator still return results.
 2. **Run the 5 attack payloads** from "Findings" against the preview, each 3-5 times (answers vary). Pass criteria: Arena score < 75 for attacks 1 and 4; attack 2's `scenario` has no effect; no prompt text or `raw` in any response for attack 3; caps and field limits hold for attack 5. If attack 4 still passes often, consider a second grading pass or a lower temperature.
-3. **Fix the open issue** (`/api/training/save` trusts the client's score). This is now the biggest remaining hole, so do it on its own branch.
+3. ~~Fix the open issue (`/api/training/save` trusts the client's score).~~ Done; see the token-abuse handoff, "Round 2".
 4. **Audit `lib/rate-limit.ts`** for per-isolate behaviour on Cloudflare (see notes).
 5. Optional: add a unit test runner (for example Vitest) and cover `lib/ai-guard.ts`. The ad hoc checks from this session would make a good first suite.
 

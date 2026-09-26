@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Navbar from "@/components/Navbar";
 import PageHero from "@/components/marketing/PageHero";
 import ScenarioSimulatorPane, {
@@ -10,14 +10,17 @@ import ScenarioSimulatorPane, {
 import LeadCapturePane from "./_components/LeadCapturePane";
 import DemoMinimalFooter from "./_components/DemoMinimalFooter";
 import type { EvalTab, EvaluationResult, ScoreDimension } from "./_components/EvaluationTabs";
+import { DEMO_PROMPTS } from "@/lib/demo-scenarios";
+
+// The server gives OpenAI 20 seconds; this leaves room for the round trip.
+const REQUEST_TIMEOUT_MS = 30_000;
 
 const DEMO_SCENARIOS: DemoScenario[] = [
   {
     id: "bartending",
     category: "Bartending",
     title: "First guest acknowledgment",
-    prompt:
-      "A guest approaches the bar while you are finishing another drink. How do you acknowledge them?",
+    prompt: DEMO_PROMPTS.bartending,
     pills: [
       {
         intent: "Acknowledge immediately",
@@ -40,8 +43,7 @@ const DEMO_SCENARIOS: DemoScenario[] = [
     id: "sales",
     category: "Sales",
     title: "Steak pairing recommendation",
-    prompt:
-      "A guest asks what cocktail you would recommend with their steak. How do you respond?",
+    prompt: DEMO_PROMPTS.sales,
     pills: [
       {
         intent: "Pair by flavour",
@@ -64,8 +66,7 @@ const DEMO_SCENARIOS: DemoScenario[] = [
     id: "management",
     category: "Management",
     title: "Short-notice sick call",
-    prompt:
-      "A staff member calls in sick 30 minutes before a busy Friday shift. What do you do next?",
+    prompt: DEMO_PROMPTS.management,
     pills: [
       {
         intent: "Contact on-call staff",
@@ -105,7 +106,29 @@ export default function DemoPage() {
 
   const activeScenario = DEMO_SCENARIOS.find((s) => s.id === activeModuleId)!;
 
+  // The in-flight evaluation, if any. Anything that changes the scenario or
+  // the answer cancels it, so a late result can never land on a different
+  // scenario than the one it graded.
+  const inFlight = useRef<AbortController | null>(null);
+
+  function cancelInFlight() {
+    const controller = inFlight.current;
+    if (!controller) return;
+    inFlight.current = null;
+    controller.abort();
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    return () => {
+      const controller = inFlight.current;
+      inFlight.current = null;
+      controller?.abort();
+    };
+  }, []);
+
   function selectModule(id: ModuleId) {
+    cancelInFlight();
     setActiveModuleId(id);
     setResponse("");
     setResult(null);
@@ -114,6 +137,7 @@ export default function DemoPage() {
   }
 
   function applyPill(text: string) {
+    cancelInFlight();
     setResponse(text);
     setResult(null);
     setError("");
@@ -126,13 +150,17 @@ export default function DemoPage() {
   }
 
   function handleRetry() {
+    cancelInFlight();
     setResult(null);
     setResponse("");
     setActiveEvalTab("metrics");
   }
 
   async function handleSubmit() {
-    if (!response.trim()) return;
+    if (inFlight.current || !response.trim()) return;
+    const controller = new AbortController();
+    inFlight.current = controller;
+    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
     setLoading(true);
     setError("");
     setResult(null);
@@ -141,9 +169,11 @@ export default function DemoPage() {
       const res = await fetch("/api/demo/evaluate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scenario: activeScenario.prompt, userResponse: response }),
+        body: JSON.stringify({ scenarioId: activeScenario.id, userResponse: response }),
+        signal: controller.signal,
       });
       const data = (await res.json()) as EvaluationResult & { error?: string };
+      if (inFlight.current !== controller) return;
       if (!res.ok) {
         setError(data.error ?? "Something went wrong.");
       } else {
@@ -151,9 +181,18 @@ export default function DemoPage() {
         setSubmitCount((c) => c + 1);
       }
     } catch {
-      setError("Failed to connect to the evaluation service.");
+      if (inFlight.current !== controller) return;
+      setError(
+        controller.signal.aborted
+          ? "That took too long. Please try again."
+          : "Failed to connect to the evaluation service.",
+      );
     } finally {
-      setLoading(false);
+      clearTimeout(timeout);
+      if (inFlight.current === controller) {
+        inFlight.current = null;
+        setLoading(false);
+      }
     }
   }
 

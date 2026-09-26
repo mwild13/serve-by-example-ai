@@ -14,8 +14,8 @@ import { SCENARIOS, SCORE_DIMENSIONS, type EvalResult, type Module } from "@/app
 // ScenarioPractice.tsx + EvaluationResult.tsx: a free-text response to one
 // of the legacy 3-module SCENARIOS bank (bartending/sales ×10, management
 // ×20 — trainer-data.ts, not the 40-module Arena catalog), graded on the
-// same 5-dimension rubric via the existing POST /api/evaluate route, then
-// persisted via POST /api/training/save. Pills populate the textarea rather
+// same 5-dimension rubric via POST /api/evaluate, which also records the
+// attempt server-side (the browser never sends a score). Pills populate the textarea rather
 // than a pick-2/pick-3 selector — same UX as desktop's applyPill(), just a
 // single plain textarea instead of desktop's bubble/textarea toggle (that
 // split is a desktop-only word-count nudge, not load-bearing UX).
@@ -60,34 +60,6 @@ export default function ScenarioPracticeScreen() {
     setResponse(text);
   }
 
-  // Persists one attempt via the mastery engine. Fire-and-forget in the
-  // sense that it never blocks or changes the evaluation result already on
-  // screen — but a failure (dropped network, timeout, non-2xx) is now
-  // surfaced via saveStatus instead of swallowed in an empty .catch(), so a
-  // user whose connection drops right after evaluating isn't silently
-  // denied credit for the attempt with no way to know or retry.
-  async function persistAttempt(overallScore: number, scenarioIndex: number) {
-    setSaveStatus("saving");
-    try {
-      const res = await fetch("/api/training/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.token}`,
-        },
-        body: JSON.stringify({ module: moduleName, overallScore, scenarioIndex, confidence: "medium" }),
-      });
-      if (!res.ok) throw new Error(`Save failed (${res.status})`);
-      setSaveStatus("saved");
-      // Perf fix (Phase 1a): shared TrainingProgressProvider no longer
-      // refetches on every screen mount, so a successful save must
-      // explicitly refresh it.
-      refetch();
-    } catch {
-      setSaveStatus("failed");
-    }
-  }
-
   async function handleSubmit() {
     const trimmed = response.trim();
     if (!trimmed || status === "loading") return;
@@ -95,6 +67,7 @@ export default function ScenarioPracticeScreen() {
     setStatus("loading");
     setError(null);
     setResult(null);
+    setSaveStatus("saving");
 
     try {
       const res = await fetch("/api/evaluate", {
@@ -103,7 +76,7 @@ export default function ScenarioPracticeScreen() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.token}`,
         },
-        body: JSON.stringify({ scenario: scenario.text, userResponse: trimmed }),
+        body: JSON.stringify({ module: moduleName, scenarioIndex: index, userResponse: trimmed, confidence: "medium" }),
       });
 
       if (res.status === 429) {
@@ -116,15 +89,22 @@ export default function ScenarioPracticeScreen() {
         throw new Error(body?.error ?? `Evaluation failed (${res.status})`);
       }
 
-      const data = (await res.json()) as EvalResult;
+      const data = (await res.json()) as EvalResult & { saved?: boolean };
       setResult(data);
       setStatus("result");
 
-      // Same fire-and-forget shape as desktop's DashboardTrainer.handleSubmit
-      // (the score is already on screen, this save doesn't block or change
-      // what the user sees) — but persistAttempt tracks and surfaces failure
-      // instead of discarding it.
-      void persistAttempt(data.overallScore, index);
+      // /api/evaluate records the attempt itself and reports whether it was
+      // stored. A failure is surfaced via saveStatus rather than swallowed,
+      // so a user isn't silently denied credit for the attempt.
+      if (data.saved) {
+        setSaveStatus("saved");
+        // Perf fix (Phase 1a): shared TrainingProgressProvider no longer
+        // refetches on every screen mount, so a recorded attempt must
+        // explicitly refresh it.
+        refetch();
+      } else {
+        setSaveStatus("failed");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
       setStatus("error");
@@ -197,9 +177,10 @@ export default function ScenarioPracticeScreen() {
             change even if a future edit here adds child-local state. */}
         {status === "result" && result ? (
           <div key={`result-${moduleName}-${index}`} style={{ display: "flex", flexDirection: "column", gap: 14, padding: "0 20px 20px" }}>
-            {/* save-failure notice — surfaces a dropped /api/training/save
-                call instead of silently discarding it (persistAttempt above).
-                Non-blocking: the score above is already final either way. */}
+            {/* save-failure notice — /api/evaluate graded the response but
+                couldn't record it. Retry re-submits the same answer, so the
+                server grades and records it again (scores are never posted
+                from the browser). */}
             {saveStatus === "failed" && (
               <div
                 style={{
@@ -218,7 +199,7 @@ export default function ScenarioPracticeScreen() {
                 </p>
                 <button
                   type="button"
-                  onClick={() => void persistAttempt(result.overallScore, index)}
+                  onClick={() => void handleSubmit()}
                   style={{
                     flexShrink: 0,
                     padding: "6px 12px",

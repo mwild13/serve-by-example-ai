@@ -3,8 +3,12 @@ import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getManagementSnapshot } from "@/lib/management/service";
 import { getOpenAIClient } from "@/lib/openai";
+import { rateLimit } from "@/lib/rate-limit";
+import { cleanUserText, linkAbortSignal, readJsonBody } from "@/lib/ai-guard";
 
 export const dynamic = "force-dynamic";
+
+const MAX_QUESTION_CHARS = 2000;
 
 function getCookieValue(req: Request, name: string): string | null {
   const header = req.headers.get("cookie");
@@ -23,6 +27,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    if (!rateLimit(`management-coach:user:${user.id}`, 20)) {
+      return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    }
+
     // Session displacement guard — prevents a displaced session from burning OpenAI tokens
     const browserSessionId = getCookieValue(req, "sbe_session_id");
     if (browserSessionId) {
@@ -37,13 +45,18 @@ export async function POST(req: Request) {
       }
     }
 
-    const body = await req.json();
-    const question = typeof body.question === "string" ? body.question.trim() : "";
-    const venueId = typeof body.venueId === "string" ? body.venueId.trim() : undefined;
+    const read = await readJsonBody(req);
+    if (!read.ok) return read.response;
+    const rawQuestion = typeof read.body.question === "string" ? read.body.question : "";
+    const venueId = typeof read.body.venueId === "string" ? read.body.venueId.trim() : undefined;
 
-    if (!question) {
+    if (!rawQuestion.trim()) {
       return NextResponse.json({ error: "Provide a question for the AI coach." }, { status: 400 });
     }
+    if (rawQuestion.length > MAX_QUESTION_CHARS) {
+      return NextResponse.json({ error: `Question too long (max ${MAX_QUESTION_CHARS} characters).` }, { status: 400 });
+    }
+    const question = cleanUserText(rawQuestion);
 
     const snapshot = await getManagementSnapshot(supabase, user.id);
     const venue = venueId
@@ -102,6 +115,7 @@ Your role:
     const openai = getOpenAIClient();
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
+    const unlink = linkAbortSignal(controller, req.signal);
     let completion;
     try {
       completion = await openai.chat.completions.create(
@@ -118,12 +132,15 @@ Your role:
       );
     } finally {
       clearTimeout(timeout);
+      unlink();
     }
 
     const answer = completion.choices[0]?.message?.content ?? "Unable to generate a response.";
     return NextResponse.json({ answer });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "AI coach unavailable.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    // Log the detail server-side only; upstream error messages can include
+    // request IDs, model names or config details the client shouldn't see.
+    console.error("Management coach error:", error);
+    return NextResponse.json({ error: "AI coach unavailable. Please try again." }, { status: 500 });
   }
 }
