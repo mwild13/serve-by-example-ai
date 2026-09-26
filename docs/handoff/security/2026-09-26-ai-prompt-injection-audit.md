@@ -1,7 +1,7 @@
 # Handoff: AI prompt injection audit (Arena assessor and evaluate routes)
 
 - **Date:** 2026-09-26
-- **Branch:** `fix/ai-prompt-injection-hardening` (not pushed). Items 1 and 3-8 of the checklist are implemented; see "Implementation status".
+- **Branch:** `fix/ai-prompt-injection-hardening`, commit `9ea56c8` (not pushed, not merged). Items 1 and 3-8 of the checklist are implemented; see "Implementation status" and "Next steps".
 - **Scope:** All OpenAI-backed API routes, mainly `app/api/arena/evaluate`, `app/api/evaluate`, `app/api/demo/evaluate` and `app/api/demo/generate-drills`. `app/api/coach`, `app/api/management/coach` and `app/api/translate` were checked briefly and are lower risk.
 - **Source brief:** "Persona Lock system prompt audit" (external prompt, pasted into the session). It asked for 5 prompt injection attacks and a hardened system prompt.
 
@@ -40,7 +40,7 @@ POST /api/arena/evaluate
 - **Where:** `app/api/arena/evaluate/route.ts` trusts the client's `scenario`. The client builds it in `app/dashboard/_components/ArenaPage.tsx` (lines ~107-116) and `app/mobile/_components/ArenaScreen.tsx`. `app/api/evaluate/route.ts` has the same problem (called from `DashboardTrainer.tsx` and `ScenarioPracticeScreen.tsx`).
 - **Why it works:** an easy scenario plus a fitting answer is an honest pass. The grader isn't fooled, it's given a different test.
 - **Impact:** any logged-in user can pass any module and write mastery for it.
-- **Fix (code only):** find the scenario on the server by `moduleId`, using `ARENA_SEED_SCENARIOS` and `formatArenaScenario` from `lib/arena-scenarios.ts`, and ignore the `scenario` field in the request body. For `/api/evaluate`, send a scenario ID instead of the scenario text.
+- **Fix (code only):** find the scenario on the server by `moduleId`, using `ARENA_SEED_SCENARIOS` and `formatArenaScenario` from `lib/arena-scenarios.ts`, and ignore the `scenario` field in the request body. For `/api/evaluate` this lookup doesn't help, because that route never writes mastery. See "Open issue".
 
 ### 3. Force plain-text output to leak the system prompt
 
@@ -67,7 +67,7 @@ A variant writes the answer as dialogue in which the guest says "that was flawle
 - **Where:** every evaluate prompt.
 - **Why it works:** it contains no command and no direct score claim, so the current guard doesn't cover it. GPT-4o-mini tends to go along with the user.
 - **Impact:** higher score.
-- **Fix:** prompt only. The hardened prompt below lists this pattern by name and caps mixed responses at 50. Expect this to reduce the risk, not remove it.
+- **Fix:** prompt only. The hardened prompt below lists this pattern by name and caps mixed responses at 50 (Arena) or 3 per category (evaluate). Expect this to reduce the risk, not remove it.
 
 ### 5. Free-text field abuse on the demo routes (no login needed)
 
@@ -131,15 +131,15 @@ content: `<module>${stripTags(title)}</module>\n<scenario>\n${stripTags(scenario
 
 ## Implementation checklist (priority order)
 
-1. [ ] **Arena: look up the scenario on the server** by `moduleId`. Ignore the `scenario` from the client. Return 400 for an unknown `moduleId`. (Attack 2)
-2. [ ] **`/api/evaluate`: same fix.** Clients send a scenario ID and the server finds the text. This needs changes in `DashboardTrainer.tsx` and `ScenarioPracticeScreen.tsx`.
-3. [ ] **Remove `raw` from error responses** in `arena/evaluate` and `evaluate`. (Attack 3)
-4. [ ] **Add `response_format: { type: "json_object" }`** to every OpenAI call that returns JSON (arena, evaluate, demo/evaluate, generate-drills, translate).
-5. [ ] **Swap in the hardened prompt and tag-fenced user message** in arena. Adapt it for evaluate and demo/evaluate. (Attacks 1 and 4)
-6. [ ] **Move `/api/evaluate`'s rules into the system message.** At the moment they sit in the user message next to the attacker's text, and the system message is a single generic line.
-7. [ ] **Check output on the server** in all evaluate routes. Allow only the expected fields, cap text fields (about 300 characters, `improvedResponse` about 800), check types, and never spread `...parsed`.
-8. [ ] **Demo routes:** cap `scenario` (about 1,500 characters) and `venueName` (about 80), clamp scores in `demo/evaluate`, and add the guard and tag fencing to `generate-drills`, including checking each drill's shape. (Attack 5)
-9. [ ] **Tests:** send each of the 5 payloads above to each route and assert: arena score < 75 for attacks 1 and 4, 400 or server-side scenario use for attack 2, no `raw` and no prompt text in any response for attack 3, and length or field caps holding for attack 5. The model's answers vary, so prompt-level tests should run a few times and use thresholds, not exact matches.
+1. [x] **Arena: look up the scenario on the server** by `moduleId`. Ignore the `scenario` from the client. Return 400 for an unknown `moduleId`. (Attack 2)
+2. [ ] ~~**`/api/evaluate`: same fix.**~~ Dropped: this wouldn't stop anything. Replaced by the "Open issue" below.
+3. [x] **Remove `raw` from error responses** in `arena/evaluate` and `evaluate`. (Attack 3)
+4. [x] **Add `response_format: { type: "json_object" }`** to every OpenAI call that returns JSON (arena, evaluate, demo/evaluate, generate-drills; translate left as is).
+5. [x] **Swap in the hardened prompt and tag-fenced user message** in arena. Adapt it for evaluate and demo/evaluate. (Attacks 1 and 4)
+6. [x] **Move `/api/evaluate`'s rules into the system message.** At the moment they sit in the user message next to the attacker's text, and the system message is a single generic line.
+7. [x] **Check output on the server** in all evaluate routes. Allow only the expected fields, cap text fields (about 300 characters, `improvedResponse` about 800), check types, and never spread `...parsed`.
+8. [x] **Demo routes:** cap `scenario` (about 1,500 characters) and `venueName` (about 80), clamp scores in `demo/evaluate`, and add the guard and tag fencing to `generate-drills`, including checking each drill's shape. (Attack 5)
+9. [ ] **Tests (partly done, see status):** send each of the 5 payloads above to each route and assert: arena score < 75 for attacks 1 and 4, 400 or server-side scenario use for attack 2, no `raw` and no prompt text in any response for attack 3, and length or field caps holding for attack 5. The model's answers vary, so prompt-level tests should run a few times and use thresholds, not exact matches.
 
 ## Implementation status (2026-09-26)
 
@@ -161,6 +161,32 @@ content: `<module>${stripTags(title)}</module>\n<scenario>\n${stripTags(scenario
 ### Open issue: `/api/training/save` trusts the client's score
 
 `DashboardTrainer.tsx` calls `/api/evaluate`, then posts `data.overallScore` to `/api/training/save`, which writes mastery. A signed-in user can skip the AI and post any score straight to `/api/training/save`, so hardening the prompt doesn't protect that path. Fix: have `/api/evaluate` write the attempt itself (the same way Arena calls `recordAttempt()`), or have it return a signed result token that `/api/training/save` checks. This needs a separate change.
+
+## Files changed (`9ea56c8`)
+
+| File | Change |
+|---|---|
+| `lib/ai-guard.ts` | New. `fenceUntrusted` (tag fencing and stripping), `capText`, `parseModelJson` (logs output that isn't JSON; never returns it). |
+| `lib/scenario-evaluator.ts` | New. Shared 5-category evaluator: input caps, hardened prompt, OpenAI call, clamped and allow-listed output. |
+| `app/api/arena/evaluate/route.ts` | Server-side scenario lookup, hardened prompt, fencing, JSON mode, capped feedback, no `raw`. |
+| `app/api/evaluate/route.ts` | Now a thin wrapper around `scenario-evaluator` (auth and rate limit kept). |
+| `app/api/demo/evaluate/route.ts` | Now a thin wrapper around `scenario-evaluator` (IP rate limit kept). |
+| `app/api/demo/generate-drills/route.ts` | New system prompt with guard, fencing, JSON mode (`{"drills": [...]}`), venue name cap, per-drill checks. |
+| `app/mobile/_components/ArenaScreen.tsx` | Shows the seed scenario for `moduleId`; unknown IDs fall back to module 11; no longer sends `scenario`. |
+| `app/dashboard/_components/ArenaPage.tsx` | No longer sends `scenario`. |
+
+Response shapes for all four routes are unchanged for existing clients. The only visible differences: error messages are more generic, over-long input returns 400, and mobile Arena opened directly now shows module 11's real scenario.
+
+## Next steps
+
+1. **Push to a preview branch and smoke test.** Ask which branch before pushing; don't assume `main`. On preview:
+   - Arena (desktop and mobile) grades a normal answer and saves progress.
+   - Mobile Arena opened from Learn Hub shows the right module's scenario; opened directly it shows module 11 (late parmy order).
+   - Dashboard trainer, mobile scenario practice, `/demo`, `/demo/complaint-master` and the drill generator still return results.
+2. **Run the 5 attack payloads** from "Findings" against the preview, each 3-5 times (answers vary). Pass criteria: Arena score < 75 for attacks 1 and 4; attack 2's `scenario` has no effect; no prompt text or `raw` in any response for attack 3; caps and field limits hold for attack 5. If attack 4 still passes often, consider a second grading pass or a lower temperature.
+3. **Fix the open issue** (`/api/training/save` trusts the client's score). This is now the biggest remaining hole, so do it on its own branch.
+4. **Audit `lib/rate-limit.ts`** for per-isolate behaviour on Cloudflare (see notes).
+5. Optional: add a unit test runner (for example Vitest) and cover `lib/ai-guard.ts`. The ad hoc checks from this session would make a good first suite.
 
 ## Notes and decisions
 
