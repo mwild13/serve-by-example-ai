@@ -4,7 +4,7 @@ import "./globals.css";
 import LanguageRuntimeTranslator from "@/components/LanguageRuntimeTranslator";
 import ErrorLogger from "@/components/ErrorLogger";
 import FloatingBookCallButton from "@/components/FloatingBookCallButton";
-import Script from 'next/script';
+import CookieBanner from "@/components/CookieBanner";
 
 // Self-hosted, not next/font/google — the Cloudflare Pages build fetches
 // font files from Google's CDN at build time with next/font/google, and
@@ -116,20 +116,7 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
       </head>
       <body>
-        {/* Google Analytics (gtag.js) */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-EF9YRFXKBG"
-          strategy="lazyOnload"
-        />
-        <Script id="google-analytics" strategy="lazyOnload">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-EF9YRFXKBG');
-          `}
-        </Script>
-
+        {/* Google Analytics is loaded by <CookieBanner /> only after the visitor opts in (lib/consent.ts) */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -158,6 +145,7 @@ export default async function RootLayout({
         <a href="#main-content" className="skip-nav">Skip to main content</a>
         {children}
         <FloatingBookCallButton />
+        <CookieBanner />
         <ErrorLogger />
         <LanguageRuntimeTranslator />
       </body>

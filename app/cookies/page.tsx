@@ -15,7 +15,7 @@ export default function CookiesPage() {
       <Navbar />
 
       <main>
-        <PageHero compact variant="light" eyebrow="Legal" title="Cookies Policy" subtitle="Last updated: 3 July 2026" />
+        <PageHero compact variant="light" eyebrow="Legal" title="Cookies Policy" subtitle="Last updated: 27 September 2026" />
 
         <section className="section">
           <div className="container">
@@ -105,7 +105,9 @@ export default function CookiesPage() {
                   .
                 </li>
                 <li>
-                  <strong>Google Analytics</strong>: usage tracking and analytics. See{" "}
+                  <strong>Google Analytics</strong>: usage tracking and analytics. This is
+                  optional and only loads on our public website after you choose &ldquo;Accept
+                  all&rdquo; or turn Analytics on under &ldquo;Customise&rdquo;. See{" "}
                   <a
                     href="https://policies.google.com/privacy"
                     target="_blank"
@@ -133,6 +135,14 @@ export default function CookiesPage() {
                 You can control and manage cookies in several ways:
               </p>
               <ul>
+                <li>
+                  <strong>Our cookie settings</strong>: When you first visit our public website
+                  you can choose &ldquo;Accept all&rdquo;, &ldquo;Essential only&rdquo; or
+                  &ldquo;Customise&rdquo;. Your choice is saved in your browser and you can change
+                  or withdraw it at any time using the &ldquo;Cookie settings&rdquo; link in the
+                  page footer. Withdrawing consent stops analytics and clears the Google Analytics
+                  cookies we can access.
+                </li>
                 <li>
                   <strong>Browser settings</strong>: Most browsers allow you to view, delete, and
                   block cookies. Visit your browser&apos;s help documentation for instructions:

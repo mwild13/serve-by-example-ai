@@ -1,4 +1,5 @@
 import Link from "next/link";
+import CookieSettingsLink from "@/components/CookieSettingsLink";
 import Image from "next/image";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 
@@ -64,6 +65,7 @@ export default function Footer() {
           <Link href="/terms">Terms</Link>
           <Link href="/cookies">Cookies</Link>
           <Link href="/privacy">Privacy</Link>
+          <CookieSettingsLink />
         </div>
       </div>
     </footer>

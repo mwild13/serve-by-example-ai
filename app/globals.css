@@ -2376,8 +2376,20 @@ ul {
   transition: color 0.15s;
 }
 
-.footer-legal-links a:hover {
+.footer-legal-links a:hover,
+.footer-legal-btn:hover {
   color: var(--text-light-on-dark);
+}
+
+.footer-legal-btn {
+  font: inherit;
+  font-size: 0.75rem;
+  color: var(--text-light-muted-on-dark);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.15s;
 }
 
 /* ── Responsive ────────────────────────────────── */
@@ -19265,7 +19277,8 @@ h1, h2, h3 {
   }
 
   .footer-col li a,
-  .footer-legal-links a {
+  .footer-legal-links a,
+  .footer-legal-btn {
     display: inline-flex;
     align-items: center;
     min-height: 44px;
@@ -19276,4 +19289,202 @@ h1, h2, h3 {
     align-items: center;
     min-height: 44px;
   }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Cookie consent banner — components/CookieBanner.tsx
+   Small non-modal card: bottom-left on desktop (clear of the bottom-right
+   Book-a-Call button), bottom sheet on mobile. z-index 70 sits above the
+   mobile hero sticky bar (60) and below the nav drawer / modals (999+).
+   ══════════════════════════════════════════════════════════════════════ */
+.cookie-banner {
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  z-index: 70;
+  width: min(400px, calc(100vw - 48px));
+  box-sizing: border-box;
+  padding: 1.25rem 1.25rem 1rem;
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  font-family: var(--font-body);
+  animation: cookie-banner-in 0.35s var(--ease-out) both;
+}
+
+.cookie-banner:focus { outline: none; }
+
+@keyframes cookie-banner-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cookie-banner__title {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.cookie-banner__text {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--text-soft);
+}
+
+.cookie-banner__link {
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+
+.cookie-banner__actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.cookie-banner__btn {
+  flex: 1;
+  min-height: 44px;
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.cookie-banner__btn--primary {
+  background: var(--green);
+  color: var(--surface-raised);
+  border: 1px solid var(--green);
+}
+
+.cookie-banner__btn--primary:hover { background: var(--green-deep); }
+
+.cookie-banner__btn--secondary {
+  background: transparent;
+  color: var(--green);
+  border: 1px solid var(--green);
+}
+
+.cookie-banner__btn--secondary:hover { background: var(--green-light); }
+
+.cookie-banner__essential {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 0.25rem;
+  background: none;
+  border: 0;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--text-soft);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.cookie-banner__essential:hover { color: var(--text); }
+
+.cookie-banner__btn:focus-visible,
+.cookie-banner__essential:focus-visible,
+.cookie-banner__link:focus-visible,
+.cookie-banner__switch:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+.cookie-banner__panel { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.cookie-banner__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0.85rem;
+  background: var(--surface);
+  border: 1px solid var(--line-light);
+  border-radius: var(--radius-md);
+}
+
+.cookie-banner__row--toggle { cursor: pointer; }
+
+.cookie-banner__row-name {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.cookie-banner__row-desc {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--text-soft);
+}
+
+.cookie-banner__always {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* Native checkbox restyled as a switch — keeps keyboard + screen-reader semantics */
+.cookie-banner__switch {
+  appearance: none;
+  flex-shrink: 0;
+  position: relative;
+  width: 44px;
+  height: 26px;
+  margin: 0;
+  background: var(--line);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cookie-banner__switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: var(--surface-raised);
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s var(--ease-out);
+}
+
+.cookie-banner__switch:checked { background: var(--green); }
+.cookie-banner__switch:checked::after { transform: translateX(18px); }
+
+@media (max-width: 768px) {
+  .cookie-banner {
+    left: 12px;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    width: auto;
+  }
+
+  /* The Book-a-Call button would sit under the sheet — hide it until a choice is made */
+  :root:has(.cookie-banner) .floating-book-call {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cookie-banner { animation: none; }
+  .cookie-banner__switch,
+  .cookie-banner__switch::after { transition: none; }
 }

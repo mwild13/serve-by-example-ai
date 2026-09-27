@@ -94,6 +94,15 @@ These are not interchangeable — don't use "14-day" copy from one context to ju
 
 **Note**: `components/ui/` does not contain `BrowserMockup.tsx`, `DashboardMockup.tsx`, or `WaitlistSection.tsx` — if you've seen these referenced elsewhere, they no longer exist; don't import them.
 
+## Cookie Consent & Analytics
+
+Google Analytics (`G-EF9YRFXKBG`) is **not** in `app/layout.tsx`. It loads only after the visitor opts in.
+
+- `components/CookieBanner.tsx` (mounted in `app/layout.tsx`): non-modal card, bottom-left on desktop / bottom sheet on mobile. Actions: Accept all, Customise (Analytics toggle), Essential only. UI is hidden on app/utility routes (`HIDDEN_PREFIXES`), but a stored choice is still applied there.
+- `lib/consent.ts`: `sbe-cookie-consent` localStorage record (`{v, analytics, ts}`), `applyAnalyticsConsent()` injects gtag.js from the client bundle (no inline script, works with the strict-dynamic CSP). Bump `CONSENT_VERSION` to re-prompt everyone.
+- Footer `Cookie settings` (`components/CookieSettingsLink.tsx`) reopens the banner via the `sbe:open-cookie-settings` event.
+- Any new analytics/marketing tag must be gated through `lib/consent.ts`, not added to the layout.
+
 ## Known Gaps / Drift
 
 - **`/pricing` and `/membership` duplicate-canonical SEO issue** (§2) — recorded as fact, not fixed.

@@ -66,6 +66,7 @@ export default function FloatingBookCallButton() {
     <>
       <button
         onClick={openModal}
+        className="floating-book-call"
         aria-label="Book a free 15-min call"
         style={{
           position: 'fixed',
