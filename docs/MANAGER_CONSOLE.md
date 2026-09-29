@@ -9,7 +9,8 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 - Loader: `components/mission-control/ManagerControlCenterLoader.tsx`
 - Service layer: `lib/management/service.ts` (971 lines as of this doc)
 - Roster table: `components/mission-control/StaffDirectoryTable.tsx` — **this is the real component name.** A `StaffRosterPanel.tsx` referenced elsewhere in older docs does not exist in the repo.
-- Other panels: `TeamsPerformancePanel.tsx`, `RolesPermissionsMatrix.tsx`, `LeaderboardBoard.tsx`, `CoachingDrawer.tsx`, `WorkspaceHeader.tsx`, `TrialBillingSection.tsx`, `manager-ui.tsx` (shared primitives)
+- Other panels in `components/mission-control/`: `TeamsPerformancePanel.tsx`, `RolesPermissionsMatrix.tsx`, `LeaderboardBoard.tsx`, `TrialBillingSection.tsx`, `manager-ui.tsx` (shared primitives)
+- `CoachingDrawer.tsx` and `WorkspaceHeader.tsx` live in `app/management/dashboard/_components/`, not `components/mission-control/` — verified 2026-09-29, don't assume they moved
 
 ## 2. Data Fetching Pattern
 

@@ -30,12 +30,12 @@ Note: staff no longer see ELO anywhere in the UI (product decision) — but the 
 
 The `modules` database table, accessed via `lib/module-navigator.ts`, is the single source of truth for module metadata (id, title, category, difficulty). Do not hardcode a parallel module list in a new component. If a page needs module data, it should fetch through `module-navigator.ts` (or the `/api/training/modules` route it backs), not maintain its own copy.
 
-## Known duplication (not yet cleaned up)
+## Known duplication (partially cleaned up)
 
-This is documented, not fixed. If you're touching one of these files anyway, prefer migrating it toward the canonical source over leaving it as-is — but this isn't a standalone cleanup task.
+If you're touching one of these files anyway, prefer migrating it toward the canonical source over leaving it as-is — but this isn't a standalone cleanup task.
 
-- **Module catalog** is currently duplicated in `lib/module-navigator.ts`'s own fallback block, `ArenaPage.tsx::MODULE_META`, `lib/diagnostic-engine.ts`, and `ModuleVerify.tsx`, in addition to the canonical DB table.
-- **Scenario content** is duplicated across the DB `scenarios` table, `trainer/trainer-data.ts::SCENARIOS` (Scenarios page), and `ArenaPage.tsx::ARENA_SEED_SCENARIOS` (Live Scenarios page).
-- **ELO write paths**: `lib/mastery.ts::recordAttempt()` (canonical) vs. `app/api/arena/evaluate/route.ts`'s own hand-rolled upsert into `scenario_mastery`.
+- **ELO write paths — fixed.** `app/api/arena/evaluate/route.ts` no longer hand-rolls its own upsert; it calls the canonical `recordAttempt()` (confirmed in current code, 2026-09-29). `recordAttempt()` is the only write path into `scenario_mastery` from an attempt now.
+- **Module catalog** is still duplicated in more places than previously recorded here: `lib/module-navigator.ts`'s own fallback block, `lib/diagnostic-engine.ts`, `ModuleVerify.tsx`, and **three** separate `MODULE_META` constants — `app/dashboard/_components/ArenaPage.tsx`, `app/dashboard/_components/PreShiftHome.tsx`, and `app/dashboard/_components/trainer/trainer-data.ts` — in addition to the canonical `modules` DB table. Each has a different shape (different fields per module), so this isn't a copy-paste that can be collapsed mechanically.
+- **Scenario content** is duplicated across the DB `scenarios` table, `trainer/trainer-data.ts::SCENARIOS` (Scenarios page), and `ArenaPage.tsx::ARENA_SEED_SCENARIOS` (Live Scenarios page). Not re-verified this pass — re-check before relying on it.
 
-Full detail, line numbers, and a suggested cleanup process live in `staff-dashboard-codebase-audit.md`.
+Full detail, line numbers, and a suggested cleanup process live in `staff-dashboard-codebase-audit.md` (historical — written before the ELO write-path fix above, so treat that specific item as resolved regardless of what it says).

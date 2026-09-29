@@ -19,8 +19,13 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 | `venue_staff_certifications` | `20260719_venue_staff_certifications.sql` | Custom staff certs (First Aid, Barista, RSA, etc.). `venue_staff_id` FK → `venue_staff`, `cert_name`, `cert_number`, `expiry_date`. |
 | `manager_coach_sessions` | `20260719_manager_coach_sessions.sql` | AI coach chat history per manager, auto-expiring. `manager_user_id`, `venue_id` FK, `role` (`user`/`coach`), `content`. |
 | `staff_recognitions` | `20260719_staff_recognitions.sql` | Manager praise messages to staff. `staff_id` FK → `venue_staff`, `from_manager_id`, `message`. |
-| `toolkit_leads` | `20260610_toolkit_leads.sql` | SOP toolkit lead capture. `email`, `first_name`, `role`, `utm_campaign`, `toolkit_delivered`. |
 | `user_access_allowlist` | `20260716_create_user_access_allowlist.sql` | Access-gating allowlist. |
+
+**Migration file exists but table is not live** (verified 2026-09-29 against the production Supabase project via `list_tables` — 21 public tables present, this one isn't among them):
+
+| Table | Migration | Status |
+|---|---|---|
+| `toolkit_leads` | `20260610_toolkit_leads.sql` | Well-formed `CREATE TABLE IF NOT EXISTS` + RLS policy, but zero code references anywhere (`app/`, `lib/`). `app/api/toolkit-capture/route.ts` — the actual SOP-toolkit lead-capture endpoint — never calls Supabase at all: it generates `targetLeadId` via `crypto.randomUUID()`, sends the delivery email, and discards the id. No lead is ever persisted to a queryable table. Either this migration was never applied, or lead storage here was never wired up to it. Worth a product decision, not something this doc fixes. |
 
 **Not `CREATE TABLE`'d anywhere in the captured migration history** — these tables predate the migration set (base schema was created outside these files) and only ever appear as `ALTER TABLE IF EXISTS`:
 
@@ -28,9 +33,15 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 |---|---|
 | `venues` | `enabled_module_ids INT[]`, `force_diagnostic_on_join BOOLEAN` (default true), `venue_code` (rotated in `20260514_rotate_venue_codes.sql`), report-schedule columns (`20260719_venues_report_schedule.sql`). |
 | `venue_staff` | `venue_id`, `manager_user_id`, `module_completion_pct REAL`, `module_mastery_pct REAL`, `avg_module_elo INT` (default 1200), `manager_notes` (`20260718_staff_manager_notes.sql`), RSA-state + Australian-state compliance columns (`20260629_compliance_tracking.sql`). |
-| `venue_memberships` | Staff-invited-via-venue-code table. Columns seen in use: `manager_id`, `staff_email`, `status` (`invited`/`active`/`removed`), `org_id`-resolution logic lives in application code, not this table (see §2). |
-| `profiles` | `id` (== `auth.users.id`, 1:1), `platform_version`, `platform_role`, `diagnostic_completed`, `org_id` FK → `organizations` (`ON DELETE SET NULL`, added `20260621`), badge/streak columns, `trial_grace_modal_shown`, `profile_photo_url` (`20260818_profile_photo_url.sql`) — points at a `profile-photos` Storage bucket object (`20260923_profile_photos_bucket.sql`), not a static/fal.media URL — plus `profile_photo_generations_today`/`_reset_at` (`20260825_profile_photo_daily_cap.sql`). |
+| `profiles` | `id` (== `auth.users.id`, 1:1), `platform_version`, `platform_role`, `diagnostic_completed`, `org_id` FK → `organizations` (`ON DELETE SET NULL`, added `20260621`), badge/streak columns, `trial_grace_modal_shown`, `profile_photo_url` (`20260818_profile_photo_url.sql`) — points at a `profile-photos` Storage bucket object (`20260923_profile_photos_bucket.sql`), not a static/fal.media URL — plus `profile_photo_generations_today`/`_reset_at` (`20260825_profile_photo_daily_cap.sql`), `sbe_elite_number`, `all_modules_completed`, `current_session_id` (one-device session enforcement — see `/session-conflict` in `CLAUDE.md`'s App Pages table). |
 | `scenario_mastery` | The canonical mastery/ELO table — see §2. |
+| `pending_invites` | Not documented anywhere before this. Live, in active use (`app/api/management/staff/route.ts`, `app/api/profile/delete/route.ts`): `manager_user_id`, `venue_id`, `staff_name`, `email`, `invite_link`, `expires_at` (default `now() + 7 days`), `used_at`. Looks like the current staff-invite mechanism — verify against `lib/management/service.ts` before assuming `organization_members`'s `invited` status is the only invite path. |
+
+**Retired — zero code references, kept here only so it isn't rediscovered and assumed live**:
+
+| Table | Status |
+|---|---|
+| `venue_memberships` | Not present in the live Supabase project (verified 2026-09-29 via `list_tables` — 21 public tables, this isn't one) and zero references anywhere in `app/`, `lib/`, or `supabase/migrations/`. Prior versions of this doc described it as the "older model" in the dual-model bridge below (§4) — that appears to be fully retired now, not merely legacy-but-present. If you're resolving "does this user have access," `organizations`/`organization_members`/`venue_staff` is the live path; don't go looking for `venue_memberships`. |
 
 **Not live schema** — two one-off backup tables created during the V3 legacy-stage purge (`20260502_v3_purge_legacy_stages.sql`): `public._v3_backup_scenarios_20260502`, `public._v3_backup_scenario_mastery_20260502`. Never query these; they're a rollback snapshot, not part of the application schema.
 
@@ -56,12 +67,12 @@ Not a `CREATE TABLE` in the captured history (pre-existing), but it's the single
 
 **Why `scenario_type` had to be added** (real incident, worth knowing before touching this table): the key used to be just `(user_id, module, scenario_index)`. Three structurally different write paths share that key space — Quiz (`markModuleMastered()`, always `scenario_index = 0`), Scenario Training (`recordAttempt()`, real content index 0–9/0–19), and AI Arena (`recordAttempt()`, always `scenario_index = 40`). For modules 1–3, Quiz's index-0 row collided with Scenario Training's real index-0 scenario — whichever wrote last stomped the other's `mastery_level`/`elo_rating`/`total_attempts`/`consecutive_correct`. `scenario_type` was added specifically to let all three coexist without corrupting each other.
 
-## 4. The `organizations` / `venue_memberships` Dual-Model Bridge
+## 4. The `organizations` / `venue_memberships` Dual-Model Bridge (historical — `venue_memberships` now retired)
 
-Two overlapping B2B access models exist, added at different times, and **they are bridged only by a one-off data-migration `INSERT`, not a live foreign key**:
+Two overlapping B2B access models existed, added at different times, bridged only by a one-off data-migration `INSERT`, not a live foreign key. As of 2026-09-29, `venue_memberships` has zero code references and isn't in the live schema (see the Retired table in §1) — this section is kept for history and because the backfill pattern below is still a useful reference for `venue_staff`/`organization_member_id` linking, not because the old model is still live:
 
-- **Older model**: `venue_memberships` (staff invited via a venue code) → `venue_staff` (per-staff row scoped by `manager_user_id`/`venue_id`).
-- **Newer model** (added `20260621_organizations_and_billing.sql`): `organizations` (Stripe-billed entity, `owner_user_id`) → `organization_members` (`org_id` + `user_id`/`staff_email` + `role`/`status`) → `profiles.org_id` (nullable FK, `ON DELETE SET NULL`).
+- **Older model (retired)**: `venue_memberships` (staff invited via a venue code) → `venue_staff` (per-staff row scoped by `manager_user_id`/`venue_id`).
+- **Current model** (added `20260621_organizations_and_billing.sql`): `organizations` (Stripe-billed entity, `owner_user_id`) → `organization_members` (`org_id` + `user_id`/`staff_email` + `role`/`status`) → `profiles.org_id` (nullable FK, `ON DELETE SET NULL`). `venue_staff.organization_member_id` (FK → `organization_members`) is the live link between a roster row and its org membership.
 
 The bridge is a backfill query inside `20260621_organizations_and_billing.sql`:
 
@@ -75,7 +86,7 @@ WHERE p.org_id IS NOT NULL
 ON CONFLICT (org_id, staff_email) DO NOTHING;
 ```
 
-**If you're writing a new query that needs to resolve "does this user have access?", this dual-model reality is why a single JOIN won't answer it** — a row can exist in `venue_memberships`/`venue_staff` without ever having been backfilled into `organization_members`, and vice versa for anything created after the backfill ran. Check both paths, or trace the specific read path an existing feature already uses (e.g. `lib/management/service.ts`, `lib/session.ts`) rather than assuming one canonical join.
+**Historical gotcha, now moot**: at the time this ran, a row could exist in `venue_memberships`/`venue_staff` without ever having been backfilled into `organization_members`. Since `venue_memberships` is retired (§1), a new access-check query today only needs the current model — trace the read path an existing feature already uses (e.g. `lib/management/service.ts`, `lib/session.ts`) rather than re-deriving it, since `venue_staff` linkage now goes through `organization_member_id`, `manager_user_id`, and email-matching in `syncMasteryToVenueStaff()` (`lib/mastery.ts`), not a single obvious join.
 
 ## 5. RLS Policy Patterns
 
@@ -128,9 +139,11 @@ That same migration added `idx_venue_staff_manager_user_id` specifically because
 
 ## Known Gaps / Drift
 
-- **`organizations`/`venue_memberships` dual-model bridge is not a live FK** (§4) — the single most important thing to know before writing a cross-model access-check query.
+- **`venue_memberships` is retired** (§1, §4) — no live table, no code references. Don't resurrect it as an assumption when reading older docs, commits, or comments that mention it.
+- **`toolkit_leads` migration exists but the table isn't live**, and the SOP-toolkit capture route doesn't persist leads anywhere (§1) — a product gap worth flagging, not a doc-accuracy issue.
+- **`pending_invites` was previously undocumented** (§1) despite being a live, actively-used table — confirm this is still the current invite mechanism before assuming `organization_members.status = 'invited'` is the only one.
 - **`scenario_mastery`'s retroactive RLS fix** (§5) — a reminder that RLS coverage was historically incomplete; verify per table rather than assuming.
-- **Five core tables have no `CREATE TABLE` anywhere in this repo's migration history**: `venues`, `venue_staff`, `venue_memberships`, `profiles`, `scenario_mastery`. Their base schema was created outside the captured migration set — treat their columns as "known from `ALTER TABLE` calls," not as a complete list.
+- **Five core tables have no `CREATE TABLE` anywhere in this repo's migration history**: `venues`, `venue_staff`, `profiles`, `scenario_mastery`, and (historically) `venue_memberships`. Their base schema was created outside the captured migration set — treat their columns as "known from `ALTER TABLE` calls," not as a complete list.
 - **`scenario_mastery`'s key collision bug** (§3) is fixed as of `20260820_scenario_mastery_scenario_type.sql`, but any code still assuming the old 3-part key `(user_id, module, scenario_index)` would silently corrupt data across write paths — always match the write path (`markModuleMastered` / `recordAttempt`) to the correct `scenario_type`.
 
 ## Related Docs
