@@ -8,6 +8,22 @@
 // opt-in confirmations) a consistent branded shell without touching those
 // existing routes, which stay out of scope for this pass.
 
+/**
+ * Escapes a value for interpolation into email HTML. Any user-supplied string
+ * (a staff name, an email local part, a form field) must go through this
+ * before it lands in `htmlContent`, or a crafted value like
+ * `<a href="https://evil">Reset your password</a>` is rendered as real markup
+ * in an email sent from our domain.
+ */
+export function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 const SITE_URL = "https://servebyexample.co";
 const LOGO_URL = `${SITE_URL}/logo.png`;
 

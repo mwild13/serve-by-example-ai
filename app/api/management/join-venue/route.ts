@@ -2,6 +2,21 @@ import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { syncMasteryToVenueStaff } from "@/lib/mastery";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
+
+// Venue codes are 4 digits (9,000 possibilities), so without a limit the
+// whole space can be walked in minutes to join any venue and get its
+// sponsored training access (audit 2026-09-30, H2). Longer codes and manager
+// approval follow in a later phase; this caps guessing now. In-memory per
+// isolate, so the daily cap is a soft ceiling.
+const JOIN_PER_MINUTE_USER = 5;
+const JOIN_PER_MINUTE_IP = 20;
+const JOIN_PER_DAY_USER = 20;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function logJoinRejection(reason: string, userId: string, ip: string) {
+  console.warn(JSON.stringify({ event: "join_venue_rejected", reason, userId, ip }));
+}
 
 export async function POST(req: Request) {
   try {
@@ -9,6 +24,16 @@ export async function POST(req: Request) {
 
     if (!user) {
       return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+    }
+
+    const ip = getClientIp(req);
+    if (
+      !rateLimit(`join-venue:user:${user.id}`, JOIN_PER_MINUTE_USER) ||
+      !rateLimit(`join-venue:ip:${ip}`, JOIN_PER_MINUTE_IP) ||
+      !rateLimit(`join-venue:user-day:${user.id}`, JOIN_PER_DAY_USER, DAY_MS)
+    ) {
+      logJoinRejection("rate_limited", user.id, ip);
+      return NextResponse.json({ error: "Too many attempts. Please wait and try again." }, { status: 429 });
     }
 
     const body = await req.json() as { venueCode?: unknown };
@@ -32,6 +57,7 @@ export async function POST(req: Request) {
       .single();
 
     if (venueError || !venue) {
+      logJoinRejection("venue_not_found", user.id, ip);
       return NextResponse.json({ error: "Venue not found. Check the code and try again." }, { status: 404 });
     }
 
@@ -73,9 +99,13 @@ export async function POST(req: Request) {
       ?? user.email?.split("@")[0]
       ?? "Staff Member";
 
+    // Id of a venue_staff row this request creates, so it can be rolled back
+    // if the membership write below is refused (e.g. the seat-limit trigger).
+    let insertedStaffId: string | null = null;
+
     if (existingRow) {
       // Update existing row: set staff_user_id and email if missing
-      await admin
+      const { error: staffUpdateError } = await admin
         .from("venue_staff")
         .update({
           staff_user_id: user.id,
@@ -83,11 +113,13 @@ export async function POST(req: Request) {
           updated_at: new Date().toISOString(),
         })
         .eq("id", existingRow.id);
+      if (staffUpdateError) throw staffUpdateError;
     } else {
-      await admin
+      const newStaffId = crypto.randomUUID();
+      const { error: staffInsertError } = await admin
         .from("venue_staff")
         .insert({
-          id: crypto.randomUUID(),
+          id: newStaffId,
           venue_id: venue.id,
           manager_user_id: (venue as { owner_user_id?: string }).owner_user_id ?? user.id,
           staff_user_id: user.id,
@@ -102,6 +134,8 @@ export async function POST(req: Request) {
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         });
+      if (staffInsertError) throw staffInsertError;
+      insertedStaffId = newStaffId;
     }
 
     // Grant module access: upsert organization_members so resolveAccess returns the manager's tier
@@ -115,13 +149,12 @@ export async function POST(req: Request) {
         .not("status", "eq", "removed")
         .maybeSingle();
 
-      if (existingMember) {
-        await admin
+      const { error: memberError } = existingMember
+        ? await admin
           .from("organization_members")
           .update({ status: "active", user_id: user.id, updated_at: new Date().toISOString() })
-          .eq("id", existingMember.id);
-      } else {
-        await admin
+          .eq("id", existingMember.id)
+        : await admin
           .from("organization_members")
           .insert({
             manager_id: venue.owner_user_id,
@@ -132,6 +165,20 @@ export async function POST(req: Request) {
             role: "staff",
             seat_counted: true,
           });
+
+      if (memberError) {
+        if (insertedStaffId) {
+          await admin.from("venue_staff").delete().eq("id", insertedStaffId);
+        }
+        const seatLimitReached = memberError.message?.includes("Seat limit reached");
+        logJoinRejection(seatLimitReached ? "seat_limit" : "membership_write_failed", user.id, ip);
+        if (seatLimitReached) {
+          return NextResponse.json(
+            { error: "This venue has no free staff seats. Ask your manager to free a seat or upgrade their plan." },
+            { status: 409 },
+          );
+        }
+        throw memberError;
       }
     }
 
@@ -146,7 +193,7 @@ export async function POST(req: Request) {
       alreadyLinked,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unexpected error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("Join venue error:", err);
+    return NextResponse.json({ error: "Could not join the venue. Please try again." }, { status: 500 });
   }
 }

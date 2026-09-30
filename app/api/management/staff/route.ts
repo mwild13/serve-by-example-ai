@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createStaffMember, updateStaffMember, getManagementSnapshot } from "@/lib/management/service";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { escapeHtml } from "@/lib/email-template";
 import type { NewStaffPayload, StaffRole, AustralianState } from "@/lib/management/types";
 
 const VALID_ROLES: StaffRole[] = ["Bartender", "Floor", "Supervisor", "Manager", "New Staff"];
@@ -66,6 +68,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Adding staff can send an email from our domain, so it's capped per user
+    // and per IP. Role/tier gating arrives with requireManager() (audit
+    // 2026-09-30, Phase 2); until then this bounds what one account can do.
+    const ip = getClientIp(req);
+    if (!rateLimit(`staff-create:user:${user.id}`, 10) || !rateLimit(`staff-create:ip:${ip}`, 20)) {
+      console.warn(JSON.stringify({ event: "staff_create_rejected", reason: "rate_limited", userId: user.id, ip }));
+      return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    }
+
     const body = (await req.json()) as Partial<NewStaffPayload>;
     const name = body.name?.trim();
     const role = body.role;
@@ -113,6 +124,14 @@ export async function POST(req: Request) {
       // worker address that isn't in Supabase's Redirect URLs allowlist.
       const appOrigin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? new URL(req.url).origin;
       const redirectTo = `${appOrigin}/login`;
+      // The Supabase invite action link signs whoever opens it in as `email`,
+      // so it only ever goes into the email itself (which proves the
+      // recipient owns the address). It used to be returned to the caller
+      // and stored in pending_invites, which let any account mint a working
+      // login for an email it didn't own. The manager's copy-link fallback
+      // gets the plain signup page instead: the staff member signs up with
+      // the invited email, confirms it, and is matched to this invite.
+      inviteLink = redirectTo;
 
       // Step 1: Generate the invite link (works regardless of SMTP config).
       try {
@@ -134,7 +153,7 @@ export async function POST(req: Request) {
             inviteMessage = `Staff member added. Could not generate invite link: ${msg}`;
           }
         } else {
-          inviteLink = linkData?.properties?.action_link ?? undefined;
+          const actionLink = linkData?.properties?.action_link ?? undefined;
 
           // Step 2: Send invite email via Brevo API (direct — no Supabase SMTP needed).
           const brevoApiKey = process.env.BREVO_API_KEY;
@@ -142,7 +161,7 @@ export async function POST(req: Request) {
             console.error("[staff/invite] BREVO_API_KEY is not set in environment. Add it to Cloudflare Pages env vars to enable automatic invite emails.");
           }
 
-          if (brevoApiKey && inviteLink) {
+          if (brevoApiKey && actionLink) {
             try {
               const fromEmail = "info@servebyexample.co";
               const fromName = process.env.BREVO_FROM_NAME ?? "Serve By Example";
@@ -160,12 +179,12 @@ export async function POST(req: Request) {
                   htmlContent: `
                     <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px">
                       <h2 style="margin-bottom:8px">You&apos;ve been invited!</h2>
-                      <p style="color:#555">Hi ${name},</p>
+                      <p style="color:#555">Hi ${escapeHtml(name)},</p>
                       <p style="color:#555">You&apos;ve been added as a staff member on <strong>Serve By Example</strong>. Click the button below to set up your account and start your training.</p>
                       <p style="margin:32px 0">
-                        <a href="${inviteLink}" style="background:#22c55e;color:#fff;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-block">Accept invitation</a>
+                        <a href="${escapeHtml(actionLink)}" style="background:#22c55e;color:#fff;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-block">Accept invitation</a>
                       </p>
-                      <p style="color:#aaa;font-size:13px">If the button doesn&apos;t work, copy and paste this link into your browser:<br>${inviteLink}</p>
+                      <p style="color:#aaa;font-size:13px">If the button doesn&apos;t work, copy and paste this link into your browser:<br>${escapeHtml(actionLink)}</p>
                       <p style="color:#aaa;font-size:13px">This link expires in 7 days.</p>
                     </div>
                   `,
@@ -178,11 +197,11 @@ export async function POST(req: Request) {
               } else {
                 const errBody = await emailRes.text();
                 console.error(`[staff/invite] Brevo send failed (${emailRes.status}):`, errBody, "| from:", fromEmail);
-                inviteMessage = `Staff member added. Brevo email failed (${emailRes.status}): ${errBody}. Use the invite link below.`;
+                inviteMessage = `Staff member added, but the invite email failed (${emailRes.status}). Share the signup link below and ask ${name} to sign up with ${email}.`;
               }
             } catch (brevoErr) {
               console.error("[staff/invite] Brevo fetch threw:", brevoErr);
-              inviteMessage = `Staff member added. Email send error: ${brevoErr instanceof Error ? brevoErr.message : "Unknown error"}. Use the invite link below.`;
+              inviteMessage = `Staff member added, but the invite email could not be sent. Share the signup link below and ask ${name} to sign up with ${email}.`;
             }
           } else {
             // Fallback: try Supabase inviteUserByEmail if no Brevo key configured.
@@ -194,24 +213,25 @@ export async function POST(req: Request) {
 
               if (emailError) {
                 console.error("[staff/invite] Supabase inviteUserByEmail failed:", emailError.message);
-                inviteMessage = `Staff member added. Set BREVO_API_KEY in Cloudflare env to enable automatic emails, or use the invite link below to onboard ${name}.`;
+                inviteMessage = `Staff member added. Set BREVO_API_KEY in Cloudflare env to enable automatic emails, or share the signup link below and ask ${name} to sign up with ${email}.`;
               } else {
                 emailSent = true;
                 inviteMessage = `Invite email sent to ${email}.`;
               }
             } catch (supabaseInviteErr) {
               console.error("[staff/invite] Supabase inviteUserByEmail threw:", supabaseInviteErr);
-              inviteMessage = `Staff member added. Share the invite link below with ${name} directly.`;
+              inviteMessage = `Staff member added. Share the signup link below and ask ${name} to sign up with ${email}.`;
             }
           }
 
-          // Persist invite link to pending_invites so managers can retrieve it later.
+          // Record the pending invite so managers can retrieve it later. Stores
+          // the plain signup link, never the action link (see above).
           try {
             await admin.from("pending_invites").insert({
               manager_user_id: user.id,
               staff_name: name,
               email,
-              invite_link: inviteLink,
+              invite_link: redirectTo,
               expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
             });
           } catch {
