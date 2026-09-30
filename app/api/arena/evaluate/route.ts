@@ -5,6 +5,8 @@ import { moduleIdToString, recordAttempt, syncMasteryToVenueStaff } from "@/lib/
 import { getOpenAIClient } from "@/lib/openai";
 import { capText, cleanUserText, fenceUntrusted, parseModelJson } from "@/lib/ai-guard";
 import { ARENA_SEED_SCENARIOS, formatArenaScenario } from "@/lib/arena-scenarios";
+import { resolveAccess, validateSession } from "@/lib/session";
+import { getCookieValue } from "@/lib/training-attempt";
 
 export const dynamic = "force-dynamic";
 
@@ -92,6 +94,33 @@ export async function POST(req: Request) {
       return Response.json({ error: `Response too long (max ${MAX_RESPONSE_CHARS} characters).` }, { status: 400 });
     }
 
+    // Same gates as /api/evaluate, run before the OpenAI call so a refused
+    // request costs no tokens: a displaced session can't record, and a plan
+    // without this module can't use Arena at all (it's a premium nav item,
+    // so an honest free-tier client never gets here).
+    const admin = createSupabaseAdminClient();
+    const browserSessionId = getCookieValue(req, "sbe_session_id");
+    if (!browserSessionId) {
+      return Response.json(
+        { error: "Missing active session. Please sign in again.", code: "SESSION_REQUIRED" },
+        { status: 401 },
+      );
+    }
+    const sessionValidation = await validateSession(admin, user.id, browserSessionId);
+    if (!sessionValidation.valid) {
+      return Response.json(
+        { error: "Session conflict detected. Please resume this device.", code: "SESSION_CONFLICT" },
+        { status: 409 },
+      );
+    }
+    const access = await resolveAccess(admin, user.id, user.email ?? "");
+    if (!access.allowedModules.includes(moduleId)) {
+      return Response.json(
+        { error: "Your current plan does not include this module. Please upgrade.", code: "MODULE_ACCESS_DENIED" },
+        { status: 403 },
+      );
+    }
+
     const title = typeof moduleTitle === "string" && moduleTitle.trim()
       ? moduleTitle.trim().slice(0, MAX_TITLE_CHARS)
       : `Module ${moduleId}`;
@@ -129,12 +158,11 @@ export async function POST(req: Request) {
     const score = Math.max(0, Math.min(100, Math.round(Number(parsed.score) || 0)));
     const passed = score >= PASS_THRESHOLD;
 
-    const admin = createSupabaseAdminClient();
-
     // Arena has no confidence-selection UI (no "how sure are you?" prompt like
     // Stage 4 scenario training does) — "medium" is the neutral default per
     // v4-migration-plan/04. Score is normalized 0-100 → 0-25 to match
-    // recordAttempt()'s expected scale (see lib/mastery.ts PASS_SCORE).
+    // recordAttempt()'s expected scale; `passed` carries Arena's own 75 pass
+    // mark, since PASS_SCORE (15/25) alone would count 60-74 as a pass.
     await recordAttempt(admin, {
       userId: user.id,
       module: moduleIdToString(moduleId),
@@ -143,6 +171,7 @@ export async function POST(req: Request) {
       scenarioIndex: ARENA_SCENARIO_INDEX,
       overallScore: score / 4,
       confidence: "medium",
+      passed,
     });
 
     await syncMasteryToVenueStaff(admin, user.id, user.email ?? "");

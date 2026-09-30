@@ -1,4 +1,15 @@
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
+
 export async function POST(req: Request) {
+  // Public, unauthenticated and sends email, so it's capped per IP
+  // (audit 2026-09-30, M6). In-memory per isolate — the edge WAF rule is
+  // the hard ceiling.
+  const ip = getClientIp(req);
+  if (!rateLimit(`book-call:ip:${ip}`, 3)) {
+    console.warn(JSON.stringify({ event: "book_call_rejected", reason: "rate_limited", ip }));
+    return Response.json({ error: "Too many requests. Please try again in a minute." }, { status: 429 });
+  }
+
   try {
     const body = await req.json();
     const {

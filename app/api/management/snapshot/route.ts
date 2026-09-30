@@ -1,17 +1,17 @@
-import { getUserFromRequest } from "@/lib/supabase-server";
+import { managementErrorResponse, requireManager } from "@/lib/management/auth";
 import { getManagementSnapshot } from "@/lib/management/service";
 
+// Same data path as app/management/dashboard/page.tsx (admin client, rows
+// scoped to the caller in the query). Behind requireManager() because
+// getManagementSnapshot() auto-provisions a first venue — it used to do that
+// for any signed-in account that called this route (audit 2026-09-30, Phase 2).
 export async function GET(req: Request) {
-  const { user, supabase } = await getUserFromRequest(req);
-  if (!user) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
+  const gate = await requireManager(req, { rateKey: "mgmt-snapshot", limit: 60 });
+  if (!gate.ok) return gate.response;
+  const { user, admin } = gate.ctx;
 
   try {
-    const snapshot = await getManagementSnapshot(supabase, user.id);
+    const snapshot = await getManagementSnapshot(admin, user.id);
     return new Response(JSON.stringify(snapshot), {
       status: 200,
       headers: {
@@ -20,10 +20,6 @@ export async function GET(req: Request) {
       },
     });
   } catch (error) {
-    console.error("Failed to fetch management snapshot:", error);
-    return new Response(JSON.stringify({ error: "Failed to fetch snapshot" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return managementErrorResponse(error, "Failed to fetch snapshot", "snapshot GET", 500);
   }
 }

@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { escapeHtml } from "@/lib/email-template";
 
 export async function POST(req: Request) {
   const { user } = await getUserFromRequest(req);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const ip = getClientIp(req);
+  if (!rateLimit(`invite-resend:user:${user.id}`, 10) || !rateLimit(`invite-resend:ip:${ip}`, 20)) {
+    console.warn(JSON.stringify({ event: "invite_resend_rejected", reason: "rate_limited", userId: user.id, ip }));
+    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+  }
 
   const body = await req.json() as Record<string, unknown>;
   const membershipId = typeof body.membershipId === "string" ? body.membershipId.trim() : null;
@@ -49,6 +57,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: linkError.message }, { status: 422 });
   }
 
+  // The action link signs whoever opens it in as `email`, so it only goes
+  // into the email. Responses return the plain login page (`redirectTo`) —
+  // returning the action link let any account mint a login for an address it
+  // didn't own (audit 2026-09-30, H1).
   const inviteLink = linkData?.properties?.action_link ?? null;
   const ctaHref = inviteLink ?? redirectTo;
   const ctaLabel = inviteLink ? "Accept invitation" : "Log in to your account";
@@ -59,7 +71,7 @@ export async function POST(req: Request) {
   const brevoApiKey = process.env.BREVO_API_KEY;
   if (!brevoApiKey) {
     return NextResponse.json({
-      inviteLink: ctaHref,
+      inviteLink: redirectTo,
       emailSent: false,
       error: "Email sending is not configured for this environment (missing BREVO_API_KEY).",
     });
@@ -79,12 +91,12 @@ export async function POST(req: Request) {
         htmlContent: `
           <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px">
             <h2 style="margin-bottom:8px">Reminder invitation</h2>
-            <p style="color:#555">Hi ${name},</p>
+            <p style="color:#555">Hi ${escapeHtml(name)},</p>
             <p style="color:#555">${bodyText}</p>
             <p style="margin:32px 0">
-              <a href="${ctaHref}" style="background:#22c55e;color:#fff;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-block">${ctaLabel}</a>
+              <a href="${escapeHtml(ctaHref)}" style="background:#22c55e;color:#fff;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-block">${ctaLabel}</a>
             </p>
-            <p style="color:#aaa;font-size:13px">If the button doesn't work, copy and paste this link into your browser:<br>${ctaHref}</p>
+            <p style="color:#aaa;font-size:13px">If the button doesn't work, copy and paste this link into your browser:<br>${escapeHtml(ctaHref)}</p>
             ${inviteLink ? '<p style="color:#aaa;font-size:13px">This link expires in 7 days.</p>' : ""}
           </div>
         `,
@@ -95,17 +107,17 @@ export async function POST(req: Request) {
       const detail = await emailRes.text();
       console.warn("Memberships resend: Brevo send failed:", emailRes.status, detail);
       return NextResponse.json({
-        inviteLink: ctaHref,
+        inviteLink: redirectTo,
         emailSent: false,
         error: `Email provider rejected the send (HTTP ${emailRes.status}).`,
       });
     }
 
-    return NextResponse.json({ inviteLink: ctaHref, emailSent: true });
+    return NextResponse.json({ inviteLink: redirectTo, emailSent: true });
   } catch (err) {
     console.warn("Memberships resend: Brevo fetch threw:", err);
     return NextResponse.json({
-      inviteLink: ctaHref,
+      inviteLink: redirectTo,
       emailSent: false,
       error: "Could not reach the email provider.",
     });

@@ -1,4 +1,5 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
+import { ManagementAccessError } from "@/lib/management/auth";
 import { buildSeedManagementSnapshot } from "@/lib/management/seed";
 import { TIER_SEATS, normalizeTier } from "@/lib/session";
 import { computeOrgGroupSummary, type OrgGroupSummary } from "@/lib/management/group-summary";
@@ -422,13 +423,21 @@ async function resolveManagerVenueId(
     throw new Error("Management schema missing: venues table not found. Run supabase/management_schema.sql first.");
   }
 
-  const ownedVenue = (venueResult.data ?? []).find((venue) => asString(venue.id) === requestedVenueId);
+  const ownedVenues = venueResult.data ?? [];
+  const ownedVenue = ownedVenues.find((venue) => asString(venue.id) === requestedVenueId);
   if (ownedVenue) {
     return requestedVenueId;
   }
 
-  // Fallback for seeded UI IDs that do not exist in DB yet.
-  return ensureManagerVenue(supabase, userId);
+  // A manager with no venues yet may still be looking at the seeded
+  // placeholder snapshot, whose ids don't exist in the DB — create their
+  // first venue. A manager who does own venues but names one they don't
+  // gets a 404: with writes now on the admin client, a write must never
+  // silently land in a different venue (audit 2026-09-30, Phase 2).
+  if (ownedVenues.length === 0) {
+    return ensureManagerVenue(supabase, userId);
+  }
+  throw new ManagementAccessError(404, "VENUE_NOT_FOUND", "Venue not found.");
 }
 
 export async function getManagementSnapshot(

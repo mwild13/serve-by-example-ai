@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
@@ -10,21 +11,18 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error && data.user) {
-      // Create profile for first-time Google users only — don't overwrite existing plan
-      const { data: existing } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("id", data.user.id)
-        .single();
-
-      if (!existing) {
-        await supabase.from("profiles").insert({
-          id: data.user.id,
-          display_name:
-            data.user.user_metadata?.full_name ??
-            data.user.email?.split("@")[0] ??
-            "User",
-        });
+      // The on_auth_user_created trigger creates the profiles row (id, email)
+      // for every new user, so this only fills in a first-time Google user's
+      // display name — never tier/plan. Runs on the admin client: clients
+      // can no longer write profiles (audit 2026-09-30, Phase 2).
+      const googleName = data.user.user_metadata?.full_name;
+      if (typeof googleName === "string" && googleName.trim()) {
+        const admin = createSupabaseAdminClient();
+        await admin
+          .from("profiles")
+          .update({ display_name: googleName.trim().slice(0, 80) })
+          .eq("id", data.user.id)
+          .is("display_name", null);
       }
 
       const next = searchParams.get("next") ?? "/dashboard";

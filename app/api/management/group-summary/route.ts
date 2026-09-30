@@ -1,21 +1,19 @@
-import { getUserFromRequest } from "@/lib/supabase-server";
+import { managementErrorResponse, requireManager } from "@/lib/management/auth";
 import { getOrgGroupSummary } from "@/lib/management/service";
 
 // Cross-venue KPI rollup for the Group Analytics view (Batch 5). Mirrors
 // app/api/management/snapshot/route.ts's auth/error shape, but the payload
 // is the small OrgGroupSummary aggregate — see getOrgGroupSummary() — not
 // the full snapshot, so this never ships raw per-staff rows to the browser.
+// Behind requireManager() like the snapshot route, since it builds on
+// getManagementSnapshot() (audit 2026-09-30, Phase 2).
 export async function GET(req: Request) {
-  const { user, supabase } = await getUserFromRequest(req);
-  if (!user) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
+  const gate = await requireManager(req, { rateKey: "mgmt-group-summary", limit: 60 });
+  if (!gate.ok) return gate.response;
+  const { user, admin } = gate.ctx;
 
   try {
-    const summary = await getOrgGroupSummary(supabase, user.id);
+    const summary = await getOrgGroupSummary(admin, user.id);
     return new Response(JSON.stringify(summary), {
       status: 200,
       headers: {
@@ -24,10 +22,6 @@ export async function GET(req: Request) {
       },
     });
   } catch (error) {
-    console.error("Failed to fetch group summary:", error);
-    return new Response(JSON.stringify({ error: "Failed to fetch group summary" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return managementErrorResponse(error, "Failed to fetch group summary", "group-summary GET", 500);
   }
 }

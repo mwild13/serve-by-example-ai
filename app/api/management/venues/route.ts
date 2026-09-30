@@ -1,17 +1,19 @@
 import { NextResponse } from "next/server";
-import { getUserFromRequest } from "@/lib/supabase-server";
-import { createSupabaseAdminClient } from "@/lib/supabase-admin";
+import { managementErrorResponse, requireManager } from "@/lib/management/auth";
 import { createVenue, deleteVenue, renameVenue, getManagementSnapshot } from "@/lib/management/service";
 import type { NewVenuePayload } from "@/lib/management/types";
 
+// Venue setup is owner-level only (duty managers excluded), matching the
+// console's Settings gate. Writes run on the admin client behind
+// requireManager(); every venue write is scoped to owner_user_id = caller.
+// Clients can no longer write venues directly (audit 2026-09-30, Phase 2).
+
 export async function POST(req: Request) {
+  const gate = await requireManager(req, { rateKey: "mgmt-venues", ownerOnly: true, limit: 10 });
+  if (!gate.ok) return gate.response;
+  const { user, admin } = gate.ctx;
+
   try {
-    const { user, supabase } = await getUserFromRequest(req);
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const body = (await req.json()) as Partial<NewVenuePayload>;
     const name = body.name?.trim();
 
@@ -19,21 +21,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Provide a venue name." }, { status: 400 });
     }
 
-    await createVenue(supabase, user.id, { name });
-    const snapshot = await getManagementSnapshot(supabase, user.id);
+    await createVenue(admin, user.id, { name });
+    const snapshot = await getManagementSnapshot(admin, user.id);
 
     return NextResponse.json(snapshot);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unable to create venue.";
-    return NextResponse.json({ error: message }, { status: 400 });
+    return managementErrorResponse(error, "Unable to create venue.", "venues POST");
   }
 }
 
 export async function PATCH(req: Request) {
-  try {
-    const { user, supabase } = await getUserFromRequest(req);
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const gate = await requireManager(req, { rateKey: "mgmt-venues", ownerOnly: true });
+  if (!gate.ok) return gate.response;
+  const { user, admin, assertOwnsVenue } = gate.ctx;
 
+  try {
     const body = await req.json() as { venueId?: string; name?: string; reportSchedule?: { enabled: boolean; dayOfWeek: number } };
     const { venueId, name, reportSchedule } = body;
 
@@ -41,35 +43,36 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "venueId is required." }, { status: 400 });
     }
 
+    await assertOwnsVenue(venueId);
+
     if (name?.trim()) {
-      await renameVenue(supabase, user.id, venueId, name.trim());
+      await renameVenue(admin, user.id, venueId, name.trim());
     }
 
     if (reportSchedule !== undefined) {
-      const admin = createSupabaseAdminClient();
-      await admin
+      // venues has no manager_user_id column — this used to filter on it and
+      // silently update nothing (audit 2026-09-30, L2).
+      const { error } = await admin
         .from("venues")
         .update({ report_schedule: reportSchedule })
         .eq("id", venueId)
-        .eq("manager_user_id", user.id);
+        .eq("owner_user_id", user.id);
+      if (error) throw error;
     }
 
-    const snapshot = await getManagementSnapshot(supabase, user.id);
+    const snapshot = await getManagementSnapshot(admin, user.id);
     return NextResponse.json(snapshot);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unable to rename venue.";
-    return NextResponse.json({ error: message }, { status: 400 });
+    return managementErrorResponse(error, "Unable to update venue.", "venues PATCH");
   }
 }
 
 export async function DELETE(req: Request) {
+  const gate = await requireManager(req, { rateKey: "mgmt-venues", ownerOnly: true, limit: 10 });
+  if (!gate.ok) return gate.response;
+  const { user, admin } = gate.ctx;
+
   try {
-    const { user, supabase } = await getUserFromRequest(req);
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { searchParams } = new URL(req.url);
     const venueId = searchParams.get("venueId")?.trim();
 
@@ -77,12 +80,11 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Provide a venueId." }, { status: 400 });
     }
 
-    await deleteVenue(supabase, user.id, venueId);
-    const snapshot = await getManagementSnapshot(supabase, user.id);
+    await deleteVenue(admin, user.id, venueId);
+    const snapshot = await getManagementSnapshot(admin, user.id);
 
     return NextResponse.json(snapshot);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unable to delete venue.";
-    return NextResponse.json({ error: message }, { status: 400 });
+    return managementErrorResponse(error, "Unable to delete venue.", "venues DELETE");
   }
 }

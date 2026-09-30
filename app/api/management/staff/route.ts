@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { getUserFromRequest } from "@/lib/supabase-server";
+import { ManagementAccessError, requireManager } from "@/lib/management/auth";
 import { createStaffMember, updateStaffMember, getManagementSnapshot } from "@/lib/management/service";
+import { escapeHtml } from "@/lib/email-template";
 import type { NewStaffPayload, StaffRole, AustralianState } from "@/lib/management/types";
 
 const VALID_ROLES: StaffRole[] = ["Bartender", "Floor", "Supervisor", "Manager", "New Staff"];
@@ -58,14 +58,19 @@ function getErrorMessage(error: unknown) {
   return "Unable to add staff member.";
 }
 
+// Writes run on the admin client behind requireManager(), which checks the
+// caller's role and session before anything is written; every write is
+// scoped to manager_user_id = caller. Clients can no longer write venue_staff
+// directly (audit 2026-09-30, Phase 2).
+
 export async function POST(req: Request) {
+  // Adding staff can send an email from our domain, so its limit is tighter
+  // than the other management writes.
+  const gate = await requireManager(req, { rateKey: "mgmt-staff-create", limit: 10 });
+  if (!gate.ok) return gate.response;
+  const { user, admin } = gate.ctx;
+
   try {
-    const { user, supabase } = await getUserFromRequest(req);
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const body = (await req.json()) as Partial<NewStaffPayload>;
     const name = body.name?.trim();
     const role = body.role;
@@ -85,34 +90,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Please provide a valid email address." }, { status: 400 });
     }
 
-    let usedAdminInsertFallback = false;
-    try {
-      await createStaffMember(supabase, user.id, { name, role, venueId, email, sendInvite });
-    } catch (primaryInsertError) {
-      try {
-        const admin = createSupabaseAdminClient();
-        await createStaffMember(admin, user.id, { name, role, venueId, email, sendInvite });
-        usedAdminInsertFallback = true;
-      } catch {
-        throw primaryInsertError;
-      }
-    }
+    await createStaffMember(admin, user.id, { name, role, venueId, email, sendInvite });
 
     let inviteMessage: string | undefined;
     let inviteLink: string | undefined;
     let emailSent = false;
 
-    if (usedAdminInsertFallback) {
-      inviteMessage = "Staff member added. A legacy database policy required admin fallback for this write.";
-    }
-
     if (sendInvite && email) {
-      const admin = createSupabaseAdminClient();
       // Prefer NEXT_PUBLIC_SITE_URL so the redirectTo is always the real public
       // domain. Falling back to req.url origin can produce an internal Cloudflare
       // worker address that isn't in Supabase's Redirect URLs allowlist.
       const appOrigin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? new URL(req.url).origin;
       const redirectTo = `${appOrigin}/login`;
+      // The Supabase invite action link signs whoever opens it in as `email`,
+      // so it only ever goes into the email itself (which proves the
+      // recipient owns the address). It used to be returned to the caller
+      // and stored in pending_invites, which let any account mint a working
+      // login for an email it didn't own. The manager's copy-link fallback
+      // gets the plain signup page instead: the staff member signs up with
+      // the invited email, confirms it, and is matched to this invite.
+      inviteLink = redirectTo;
 
       // Step 1: Generate the invite link (works regardless of SMTP config).
       try {
@@ -134,7 +131,7 @@ export async function POST(req: Request) {
             inviteMessage = `Staff member added. Could not generate invite link: ${msg}`;
           }
         } else {
-          inviteLink = linkData?.properties?.action_link ?? undefined;
+          const actionLink = linkData?.properties?.action_link ?? undefined;
 
           // Step 2: Send invite email via Brevo API (direct — no Supabase SMTP needed).
           const brevoApiKey = process.env.BREVO_API_KEY;
@@ -142,7 +139,7 @@ export async function POST(req: Request) {
             console.error("[staff/invite] BREVO_API_KEY is not set in environment. Add it to Cloudflare Pages env vars to enable automatic invite emails.");
           }
 
-          if (brevoApiKey && inviteLink) {
+          if (brevoApiKey && actionLink) {
             try {
               const fromEmail = "info@servebyexample.co";
               const fromName = process.env.BREVO_FROM_NAME ?? "Serve By Example";
@@ -160,12 +157,12 @@ export async function POST(req: Request) {
                   htmlContent: `
                     <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px">
                       <h2 style="margin-bottom:8px">You&apos;ve been invited!</h2>
-                      <p style="color:#555">Hi ${name},</p>
+                      <p style="color:#555">Hi ${escapeHtml(name)},</p>
                       <p style="color:#555">You&apos;ve been added as a staff member on <strong>Serve By Example</strong>. Click the button below to set up your account and start your training.</p>
                       <p style="margin:32px 0">
-                        <a href="${inviteLink}" style="background:#22c55e;color:#fff;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-block">Accept invitation</a>
+                        <a href="${escapeHtml(actionLink)}" style="background:#22c55e;color:#fff;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-block">Accept invitation</a>
                       </p>
-                      <p style="color:#aaa;font-size:13px">If the button doesn&apos;t work, copy and paste this link into your browser:<br>${inviteLink}</p>
+                      <p style="color:#aaa;font-size:13px">If the button doesn&apos;t work, copy and paste this link into your browser:<br>${escapeHtml(actionLink)}</p>
                       <p style="color:#aaa;font-size:13px">This link expires in 7 days.</p>
                     </div>
                   `,
@@ -178,11 +175,11 @@ export async function POST(req: Request) {
               } else {
                 const errBody = await emailRes.text();
                 console.error(`[staff/invite] Brevo send failed (${emailRes.status}):`, errBody, "| from:", fromEmail);
-                inviteMessage = `Staff member added. Brevo email failed (${emailRes.status}): ${errBody}. Use the invite link below.`;
+                inviteMessage = `Staff member added, but the invite email failed (${emailRes.status}). Share the signup link below and ask ${name} to sign up with ${email}.`;
               }
             } catch (brevoErr) {
               console.error("[staff/invite] Brevo fetch threw:", brevoErr);
-              inviteMessage = `Staff member added. Email send error: ${brevoErr instanceof Error ? brevoErr.message : "Unknown error"}. Use the invite link below.`;
+              inviteMessage = `Staff member added, but the invite email could not be sent. Share the signup link below and ask ${name} to sign up with ${email}.`;
             }
           } else {
             // Fallback: try Supabase inviteUserByEmail if no Brevo key configured.
@@ -194,24 +191,25 @@ export async function POST(req: Request) {
 
               if (emailError) {
                 console.error("[staff/invite] Supabase inviteUserByEmail failed:", emailError.message);
-                inviteMessage = `Staff member added. Set BREVO_API_KEY in Cloudflare env to enable automatic emails, or use the invite link below to onboard ${name}.`;
+                inviteMessage = `Staff member added. Set BREVO_API_KEY in Cloudflare env to enable automatic emails, or share the signup link below and ask ${name} to sign up with ${email}.`;
               } else {
                 emailSent = true;
                 inviteMessage = `Invite email sent to ${email}.`;
               }
             } catch (supabaseInviteErr) {
               console.error("[staff/invite] Supabase inviteUserByEmail threw:", supabaseInviteErr);
-              inviteMessage = `Staff member added. Share the invite link below with ${name} directly.`;
+              inviteMessage = `Staff member added. Share the signup link below and ask ${name} to sign up with ${email}.`;
             }
           }
 
-          // Persist invite link to pending_invites so managers can retrieve it later.
+          // Record the pending invite so managers can retrieve it later. Stores
+          // the plain signup link, never the action link (see above).
           try {
             await admin.from("pending_invites").insert({
               manager_user_id: user.id,
               staff_name: name,
               email,
-              invite_link: inviteLink,
+              invite_link: redirectTo,
               expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
             });
           } catch {
@@ -227,10 +225,13 @@ export async function POST(req: Request) {
       }
     }
 
-    const snapshot = await getManagementSnapshot(supabase, user.id);
+    const snapshot = await getManagementSnapshot(admin, user.id);
 
     return NextResponse.json({ ...snapshot, inviteMessage, inviteLink, emailSent });
   } catch (error) {
+    if (error instanceof ManagementAccessError) {
+      return NextResponse.json({ error: error.message, code: error.code }, { status: error.status });
+    }
     const code = getErrorCode(error);
     const message = getErrorMessage(error);
     const lowered = message.toLowerCase();
@@ -242,12 +243,11 @@ export async function POST(req: Request) {
 const VALID_AU_STATES: AustralianState[] = ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "NT", "ACT"];
 
 export async function PATCH(req: Request) {
-  try {
-    const { user, supabase } = await getUserFromRequest(req);
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const gate = await requireManager(req, { rateKey: "mgmt-staff" });
+  if (!gate.ok) return gate.response;
+  const { user, admin, assertOwnsStaff } = gate.ctx;
 
+  try {
     const body = await req.json() as Record<string, unknown>;
     const staffId = typeof body.staffId === "string" ? body.staffId.trim() : null;
 
@@ -297,31 +297,32 @@ export async function PATCH(req: Request) {
       updates.managerNotes = typeof body.managerNotes === "string" ? body.managerNotes : null;
     }
 
-    await updateStaffMember(supabase, user.id, staffId, updates);
+    await assertOwnsStaff(staffId);
+    await updateStaffMember(admin, user.id, staffId, updates);
 
-    const snapshot = await getManagementSnapshot(supabase, user.id);
+    const snapshot = await getManagementSnapshot(admin, user.id);
     return NextResponse.json(snapshot);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Update failed";
-    return NextResponse.json({ error: message }, { status: 400 });
+    if (error instanceof ManagementAccessError) {
+      return NextResponse.json({ error: error.message, code: error.code }, { status: error.status });
+    }
+    console.error("[staff PATCH]", error);
+    return NextResponse.json({ error: "Update failed." }, { status: 400 });
   }
 }
 
 export async function DELETE(req: Request) {
-  try {
-    const { user } = await getUserFromRequest(req);
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const gate = await requireManager(req, { rateKey: "mgmt-staff" });
+  if (!gate.ok) return gate.response;
+  const { user, admin } = gate.ctx;
 
+  try {
     const url = new URL(req.url);
     const staffId = url.searchParams.get("staffId");
     if (!staffId) {
       return NextResponse.json({ error: "staffId is required." }, { status: 400 });
     }
 
-    // Use admin client to bypass RLS
-    const admin = createSupabaseAdminClient();
     const { error } = await admin
       .from("venue_staff")
       .delete()

@@ -62,12 +62,11 @@ function AuthCard() {
         });
         if (signUpError) throw signUpError;
 
-        if (data.user) {
-          await supabase.from("profiles").upsert({
-            id: data.user.id,
-            display_name: email.split("@")[0],
-          });
-        }
+        // No client-side profiles write: the on_auth_user_created trigger
+        // creates the row, and readers fall back to the email prefix for a
+        // missing display_name. (This upsert was already rejected by RLS —
+        // profiles has no INSERT policy — and clients can no longer write
+        // profiles at all; audit 2026-09-30, Phase 2.)
 
         if (data.session) {
           const { data: { session: authSession } } = await supabase.auth.getSession();

@@ -115,12 +115,21 @@ export async function PATCH(req: Request) {
     }
 
     const admin = createSupabaseAdminClient();
+
+    // Desktop settings save both flags on every submit, so only a real
+    // off → on change triggers the Brevo list-add + confirmation email.
+    const { data: current } = await admin
+      .from("profiles")
+      .select("notif_reminders, notif_weekly_digest")
+      .eq("id", user.id)
+      .maybeSingle();
+
     const { error } = await admin.from("profiles").update(update).eq("id", user.id);
     if (error) throw error;
 
     if (user.email) {
-      if (body.notifReminders === true) void notifyBrevo(user.email, "reminders");
-      if (body.notifWeeklyDigest === true) void notifyBrevo(user.email, "digest");
+      if (body.notifReminders === true && !current?.notif_reminders) void notifyBrevo(user.email, "reminders");
+      if (body.notifWeeklyDigest === true && !current?.notif_weekly_digest) void notifyBrevo(user.email, "digest");
     }
 
     return NextResponse.json({ success: true });

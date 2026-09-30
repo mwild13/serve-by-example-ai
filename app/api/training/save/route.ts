@@ -6,8 +6,24 @@ import { resolveAccess, validateSession } from "@/lib/session";
 import { VERIFY_QUESTIONS } from "@/lib/verify-questions";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { getCookieValue, maybeMarkTrialActivated } from "@/lib/training-attempt";
+import { readJsonBody } from "@/lib/ai-guard";
 
 const VERIFY_PASS_THRESHOLD = 4; // must match ModuleVerify PASS_THRESHOLD
+// Both clients send only their current correct streak (5 answers), so a
+// honest body is tiny. A real ceiling on answers also stops a body listing
+// every question with both answers.
+const MAX_VERIFY_ANSWERS = 8;
+const MAX_BODY_BYTES = 4 * 1024;
+
+type QuizRejectReason = "malformed" | "foreign_id" | "conflicting_answers" | "wrong_answer" | "too_many_answers";
+
+/**
+ * One structured line per rejected quiz submission, so anyone scripting
+ * against this route shows up in the Workers logs. Never logs answer content.
+ */
+function logQuizRejection(reason: QuizRejectReason | "body_rejected", userId: string, moduleId: number | null, answerCount: number, ip: string) {
+  console.warn(JSON.stringify({ event: "quiz_submit_rejected", reason, userId, moduleId, answerCount, ip }));
+}
 
 // Legacy 3-module string names (backward compat)
 const LEGACY_MODULES = ["bartending", "sales", "management"] as const;
@@ -32,7 +48,12 @@ export async function POST(req: Request) {
       );
     }
 
-    const body = await req.json();
+    const read = await readJsonBody(req, MAX_BODY_BYTES);
+    if (!read.ok) {
+      logQuizRejection("body_rejected", user.id, null, 0, ip);
+      return read.response;
+    }
+    const body = read.body;
 
     // This route only handles the ModuleVerify quiz, whose answers are
     // re-checked against the question bank below. Scenario Training scores
@@ -53,7 +74,7 @@ export async function POST(req: Request) {
 
     // Support both new numeric moduleId and legacy string module name
     const rawModuleId = body.moduleId != null ? Number(body.moduleId) : null;
-    const rawModuleName = body.module as string | undefined;
+    const rawModuleName = typeof body.module === "string" ? body.module : undefined;
 
     let moduleId: number;
     if (rawModuleId != null && Number.isFinite(rawModuleId) && rawModuleId >= 1 && rawModuleId <= 100) {
@@ -93,24 +114,65 @@ export async function POST(req: Request) {
     }
 
     // ── V3 Verify pass branch ─────────────────────────────────
-    // ModuleVerify posts { verifyPassed: true, answers: [{id, answer}] }.
-    // Validate submitted answers server-side against the static question bank
-    // before writing is_mastered — never trust the client's score directly.
-    const questions = VERIFY_QUESTIONS[moduleId];
+    // ModuleVerify and mobile QuizScreen post { verifyPassed: true, answers:
+    // [{id, answer}] }, where answers is the user's streak of correct answers.
+    // Every answer is re-checked against the question bank here; the client's
+    // own score is never trusted.
+    //
+    // Stopgap (audit 2026-09-30, C4) until the quiz is graded server-side with
+    // a signed attempt token: the old loop only deduped by question, so
+    // sending both "true" and "false" for every question passed any module
+    // with no knowledge at all. Now:
+    //   - an id must be "<moduleId>-<index>" for this module and a real question
+    //   - the same question with two different answers is rejected outright
+    //   - any wrong answer fails the whole submission (honest clients only
+    //     ever send their correct streak)
+    //   - a question repeated with the same answer still counts once, since
+    //     both clients' shuffled rounds can legitimately repeat a question
+    //     inside one streak
+    const questions = VERIFY_QUESTIONS[moduleId] ?? [];
     const rawAnswers: unknown[] = Array.isArray(body.answers) ? body.answers : [];
 
-    // Each question counts once, so one correct answer repeated N times
-    // can't be passed off as N correct answers.
-    const correctIndexes = new Set<number>();
-    for (const entry of questions ? rawAnswers : []) {
-      if (!entry || typeof entry !== "object") continue;
-      const e = entry as Partial<{ id: string; answer: string }>;
-      if (typeof e.id !== "string" || typeof e.answer !== "string") continue;
-      const idx = parseInt(e.id.split("-").pop() ?? "", 10);
-      if (isNaN(idx) || idx < 0 || idx >= questions.length) continue;
-      if (questions[idx].answer.toLowerCase() === e.answer.toLowerCase()) correctIndexes.add(idx);
+    const reject = (reason: QuizRejectReason, status: number, code: string, error: string) => {
+      logQuizRejection(reason, user.id, moduleId, rawAnswers.length, ip);
+      return NextResponse.json({ error, code }, { status });
+    };
+
+    if (rawAnswers.length > MAX_VERIFY_ANSWERS) {
+      return reject("too_many_answers", 400, "INVALID_ANSWERS", "Invalid quiz submission.");
     }
-    const validatedCount = correctIndexes.size;
+
+    const answersByIndex = new Map<number, string>();
+    for (const entry of rawAnswers) {
+      if (!entry || typeof entry !== "object") {
+        return reject("malformed", 400, "INVALID_ANSWERS", "Invalid quiz submission.");
+      }
+      const e = entry as Partial<{ id: unknown; answer: unknown }>;
+      if (typeof e.id !== "string" || typeof e.answer !== "string") {
+        return reject("malformed", 400, "INVALID_ANSWERS", "Invalid quiz submission.");
+      }
+      const answer = e.answer.toLowerCase();
+      if (answer !== "true" && answer !== "false") {
+        return reject("malformed", 400, "INVALID_ANSWERS", "Invalid quiz submission.");
+      }
+
+      const match = /^(\d+)-(\d+)$/.exec(e.id);
+      const idx = match ? Number(match[2]) : NaN;
+      if (!match || Number(match[1]) !== moduleId || !Number.isInteger(idx) || idx < 0 || idx >= questions.length) {
+        return reject("foreign_id", 400, "INVALID_ANSWERS", "Invalid quiz submission.");
+      }
+
+      const previous = answersByIndex.get(idx);
+      if (previous !== undefined && previous !== answer) {
+        return reject("conflicting_answers", 400, "INVALID_ANSWERS", "Invalid quiz submission.");
+      }
+      if (questions[idx].answer !== answer) {
+        return reject("wrong_answer", 403, "QUIZ_NOT_PASSED", "Quiz not passed.");
+      }
+      answersByIndex.set(idx, answer);
+    }
+
+    const validatedCount = answersByIndex.size;
 
     if (validatedCount < VERIFY_PASS_THRESHOLD) {
       return NextResponse.json({ error: "Quiz not passed.", code: "QUIZ_NOT_PASSED" }, { status: 403 });

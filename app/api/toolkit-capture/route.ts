@@ -1,6 +1,16 @@
 import { NextResponse } from 'next/server';
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
+  // Public, unauthenticated and sends email, so it's capped per IP
+  // (audit 2026-09-30, M6). In-memory per isolate — the edge WAF rule is
+  // the hard ceiling.
+  const ip = getClientIp(request);
+  if (!rateLimit(`toolkit-capture:ip:${ip}`, 3)) {
+    console.warn(JSON.stringify({ event: "toolkit_capture_rejected", reason: "rate_limited", ip }));
+    return NextResponse.json({ error: "Too many requests. Please try again in a minute." }, { status: 429 });
+  }
+
   try {
     const body = await request.json();
     const { first_name, email, role, utm_campaign } = body;

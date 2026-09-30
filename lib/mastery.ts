@@ -122,6 +122,14 @@ export type RecordAttemptInput = {
   scenarioIndex: number;
   overallScore: number;
   confidence: ConfidenceLevel;
+  /**
+   * Caller's own pass/fail verdict, when its pass mark differs from
+   * PASS_SCORE. Arena passes at 75/100, but its score arrives here as
+   * score/4, and PASS_SCORE (15/25) would count 60-74 as correct — setting
+   * the sticky is_mastered flag for attempts the user was told they failed.
+   * Omit to use PASS_SCORE.
+   */
+  passed?: boolean;
 };
 
 // Map numeric moduleId to legacy string for modules 1-3 (backward compat)
@@ -223,7 +231,7 @@ export async function recordAttempt(
     : input.module;
   const moduleId = input.moduleId ?? null;
 
-  const isCorrect = overallScore >= PASS_SCORE;
+  const isCorrect = input.passed ?? overallScore >= PASS_SCORE;
   const now = new Date();
 
   // Fetch existing mastery row — scoped to scenario_type so a Scenario

@@ -426,10 +426,32 @@ export function SettingsPanel({
                 const res = await fetch("/api/profile/update-name", {
                   method: "POST",
                   headers,
-                  body: JSON.stringify({ name }),
+                  // Bug fix (2026-10-01): this sent { name }, but
+                  // /api/profile/update-name reads body.displayName — every
+                  // save silently 400'd ("Name cannot be empty") and never
+                  // reached the database, which is why nothing persisted and
+                  // a refresh showed the old name (there was never a
+                  // successful write to revert from). Not a Phase 2
+                  // regression — that route already used the admin client
+                  // and was never touched.
+                  body: JSON.stringify({ displayName: name }),
                 });
-                if (res.ok) setAccountSaved(true);
-              } catch { /* silent */ } finally {
+                if (res.ok) {
+                  // accountDisplayName already feeds ManagementTopbar and
+                  // the mc-profile-name badge reactively (both read this
+                  // state, not a static prop), so this alone updates them
+                  // immediately — no remount/refetch needed. It was never
+                  // called here before, so even a successful save wouldn't
+                  // have shown up until a full reload re-seeded this state
+                  // from the server.
+                  setAccountDisplayName(name);
+                  setAccountSaved(true);
+                } else {
+                  console.error("Account name save failed:", res.status, await res.text().catch(() => ""));
+                }
+              } catch (err) {
+                console.error("Account name save failed:", err);
+              } finally {
                 setAccountSaving(false);
               }
             }}
