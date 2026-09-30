@@ -156,18 +156,22 @@ function StaffSettingsPanel({
     setNotifMessage("");
     setNotifError("");
     try {
+      // Goes through the API: clients can no longer write profiles directly
+      // (audit 2026-09-30, Phase 2). Achievement alerts are no longer stored —
+      // see app/api/profile/notifications/route.ts.
       const supabase = createSupabaseBrowserClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not signed in.");
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          notif_reminders: enableReminders,
-          notif_weekly_digest: enableWeeklyDigest,
-          notif_achievement_alerts: enableAchievementAlerts,
-        })
-        .eq("id", user.id);
-      if (error) throw error;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not signed in.");
+      const res = await fetch("/api/profile/notifications", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ notifReminders: enableReminders, notifWeeklyDigest: enableWeeklyDigest }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) throw new Error(data.error || "Could not save preferences.");
       setNotifMessage("Notification preferences saved.");
     } catch (err) {
       setNotifError(err instanceof Error ? err.message : "Could not save preferences.");

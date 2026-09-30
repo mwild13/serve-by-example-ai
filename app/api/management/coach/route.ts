@@ -1,50 +1,21 @@
 import { NextResponse } from "next/server";
-import { getUserFromRequest } from "@/lib/supabase-server";
-import { createSupabaseAdminClient } from "@/lib/supabase-admin";
+import { requireManager } from "@/lib/management/auth";
 import { getManagementSnapshot } from "@/lib/management/service";
 import { getOpenAIClient } from "@/lib/openai";
-import { rateLimit } from "@/lib/rate-limit";
 import { cleanUserText, linkAbortSignal, readJsonBody } from "@/lib/ai-guard";
 
 export const dynamic = "force-dynamic";
 
 const MAX_QUESTION_CHARS = 2000;
 
-function getCookieValue(req: Request, name: string): string | null {
-  const header = req.headers.get("cookie");
-  if (!header) return null;
-  const pair = header.split(";").map((c) => c.trim()).find((c) => c.startsWith(`${name}=`));
-  if (!pair) return null;
-  const [, value = ""] = pair.split("=");
-  return value || null;
-}
-
 export async function POST(req: Request) {
+  // Manager role, 20/min rate limit and the displaced-session guard (so a
+  // displaced session can't burn OpenAI tokens) all happen in requireManager().
+  const gate = await requireManager(req, { rateKey: "management-coach", limit: 20 });
+  if (!gate.ok) return gate.response;
+  const { user, admin } = gate.ctx;
+
   try {
-    const { user, supabase } = await getUserFromRequest(req);
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    if (!rateLimit(`management-coach:user:${user.id}`, 20)) {
-      return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
-    }
-
-    // Session displacement guard — prevents a displaced session from burning OpenAI tokens
-    const browserSessionId = getCookieValue(req, "sbe_session_id");
-    if (browserSessionId) {
-      const admin = createSupabaseAdminClient();
-      const { data: profile } = await admin
-        .from("profiles")
-        .select("current_session_id")
-        .eq("id", user.id)
-        .maybeSingle();
-      if (profile?.current_session_id && profile.current_session_id !== browserSessionId) {
-        return NextResponse.json({ error: "Session conflict. Please resume this device." }, { status: 401 });
-      }
-    }
-
     const read = await readJsonBody(req);
     if (!read.ok) return read.response;
     const rawQuestion = typeof read.body.question === "string" ? read.body.question : "";
@@ -58,7 +29,7 @@ export async function POST(req: Request) {
     }
     const question = cleanUserText(rawQuestion);
 
-    const snapshot = await getManagementSnapshot(supabase, user.id);
+    const snapshot = await getManagementSnapshot(admin, user.id);
     const venue = venueId
       ? snapshot.venues.find((v) => v.id === venueId) ?? snapshot.venues[0]
       : snapshot.venues[0];

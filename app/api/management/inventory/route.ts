@@ -1,16 +1,19 @@
 import { NextResponse } from "next/server";
-import { getUserFromRequest } from "@/lib/supabase-server";
+import { managementErrorResponse, requireManager } from "@/lib/management/auth";
 import { createInventoryItem, deleteInventoryItem, getManagementSnapshot } from "@/lib/management/service";
 import type { NewInventoryPayload } from "@/lib/management/types";
 
+// Writes run on the admin client behind requireManager(), which checks the
+// caller's role and session; the service functions scope every write to the
+// caller's own venues/rows. Clients can no longer write venue_inventory_items
+// directly (audit 2026-09-30, Phase 2).
+
 export async function POST(req: Request) {
+  const gate = await requireManager(req, { rateKey: "mgmt-inventory" });
+  if (!gate.ok) return gate.response;
+  const { user, admin } = gate.ctx;
+
   try {
-    const { user, supabase } = await getUserFromRequest(req);
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const body = (await req.json()) as Partial<NewInventoryPayload>;
     const category = body.category?.trim();
     const name = body.name?.trim();
@@ -20,36 +23,32 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Provide both an inventory category and product name." }, { status: 400 });
     }
 
-    await createInventoryItem(supabase, user.id, { category, name, venueId });
-    const snapshot = await getManagementSnapshot(supabase, user.id);
+    await createInventoryItem(admin, user.id, { category, name, venueId });
+    const snapshot = await getManagementSnapshot(admin, user.id);
 
     return NextResponse.json(snapshot);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unable to add inventory item.";
-    return NextResponse.json({ error: message }, { status: 400 });
+    return managementErrorResponse(error, "Unable to add inventory item.", "inventory POST");
   }
 }
 
 export async function DELETE(req: Request) {
+  const gate = await requireManager(req, { rateKey: "mgmt-inventory" });
+  if (!gate.ok) return gate.response;
+  const { user, admin } = gate.ctx;
+
   try {
-    const { user, supabase } = await getUserFromRequest(req);
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id } = (await req.json()) as { id?: string };
 
     if (!id) {
       return NextResponse.json({ error: "Provide an item id to delete." }, { status: 400 });
     }
 
-    await deleteInventoryItem(supabase, user.id, id);
-    const snapshot = await getManagementSnapshot(supabase, user.id);
+    await deleteInventoryItem(admin, user.id, id);
+    const snapshot = await getManagementSnapshot(admin, user.id);
 
     return NextResponse.json(snapshot);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unable to delete inventory item.";
-    return NextResponse.json({ error: message }, { status: 400 });
+    return managementErrorResponse(error, "Unable to delete inventory item.", "inventory DELETE");
   }
 }

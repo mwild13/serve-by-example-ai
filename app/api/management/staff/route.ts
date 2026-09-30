@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { getUserFromRequest } from "@/lib/supabase-server";
+import { ManagementAccessError, requireManager } from "@/lib/management/auth";
 import { createStaffMember, updateStaffMember, getManagementSnapshot } from "@/lib/management/service";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { escapeHtml } from "@/lib/email-template";
 import type { NewStaffPayload, StaffRole, AustralianState } from "@/lib/management/types";
 
@@ -60,23 +58,19 @@ function getErrorMessage(error: unknown) {
   return "Unable to add staff member.";
 }
 
+// Writes run on the admin client behind requireManager(), which checks the
+// caller's role and session before anything is written; every write is
+// scoped to manager_user_id = caller. Clients can no longer write venue_staff
+// directly (audit 2026-09-30, Phase 2).
+
 export async function POST(req: Request) {
+  // Adding staff can send an email from our domain, so its limit is tighter
+  // than the other management writes.
+  const gate = await requireManager(req, { rateKey: "mgmt-staff-create", limit: 10 });
+  if (!gate.ok) return gate.response;
+  const { user, admin } = gate.ctx;
+
   try {
-    const { user, supabase } = await getUserFromRequest(req);
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Adding staff can send an email from our domain, so it's capped per user
-    // and per IP. Role/tier gating arrives with requireManager() (audit
-    // 2026-09-30, Phase 2); until then this bounds what one account can do.
-    const ip = getClientIp(req);
-    if (!rateLimit(`staff-create:user:${user.id}`, 10) || !rateLimit(`staff-create:ip:${ip}`, 20)) {
-      console.warn(JSON.stringify({ event: "staff_create_rejected", reason: "rate_limited", userId: user.id, ip }));
-      return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
-    }
-
     const body = (await req.json()) as Partial<NewStaffPayload>;
     const name = body.name?.trim();
     const role = body.role;
@@ -96,29 +90,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Please provide a valid email address." }, { status: 400 });
     }
 
-    let usedAdminInsertFallback = false;
-    try {
-      await createStaffMember(supabase, user.id, { name, role, venueId, email, sendInvite });
-    } catch (primaryInsertError) {
-      try {
-        const admin = createSupabaseAdminClient();
-        await createStaffMember(admin, user.id, { name, role, venueId, email, sendInvite });
-        usedAdminInsertFallback = true;
-      } catch {
-        throw primaryInsertError;
-      }
-    }
+    await createStaffMember(admin, user.id, { name, role, venueId, email, sendInvite });
 
     let inviteMessage: string | undefined;
     let inviteLink: string | undefined;
     let emailSent = false;
 
-    if (usedAdminInsertFallback) {
-      inviteMessage = "Staff member added. A legacy database policy required admin fallback for this write.";
-    }
-
     if (sendInvite && email) {
-      const admin = createSupabaseAdminClient();
       // Prefer NEXT_PUBLIC_SITE_URL so the redirectTo is always the real public
       // domain. Falling back to req.url origin can produce an internal Cloudflare
       // worker address that isn't in Supabase's Redirect URLs allowlist.
@@ -247,10 +225,13 @@ export async function POST(req: Request) {
       }
     }
 
-    const snapshot = await getManagementSnapshot(supabase, user.id);
+    const snapshot = await getManagementSnapshot(admin, user.id);
 
     return NextResponse.json({ ...snapshot, inviteMessage, inviteLink, emailSent });
   } catch (error) {
+    if (error instanceof ManagementAccessError) {
+      return NextResponse.json({ error: error.message, code: error.code }, { status: error.status });
+    }
     const code = getErrorCode(error);
     const message = getErrorMessage(error);
     const lowered = message.toLowerCase();
@@ -262,12 +243,11 @@ export async function POST(req: Request) {
 const VALID_AU_STATES: AustralianState[] = ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "NT", "ACT"];
 
 export async function PATCH(req: Request) {
-  try {
-    const { user, supabase } = await getUserFromRequest(req);
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const gate = await requireManager(req, { rateKey: "mgmt-staff" });
+  if (!gate.ok) return gate.response;
+  const { user, admin, assertOwnsStaff } = gate.ctx;
 
+  try {
     const body = await req.json() as Record<string, unknown>;
     const staffId = typeof body.staffId === "string" ? body.staffId.trim() : null;
 
@@ -317,31 +297,32 @@ export async function PATCH(req: Request) {
       updates.managerNotes = typeof body.managerNotes === "string" ? body.managerNotes : null;
     }
 
-    await updateStaffMember(supabase, user.id, staffId, updates);
+    await assertOwnsStaff(staffId);
+    await updateStaffMember(admin, user.id, staffId, updates);
 
-    const snapshot = await getManagementSnapshot(supabase, user.id);
+    const snapshot = await getManagementSnapshot(admin, user.id);
     return NextResponse.json(snapshot);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Update failed";
-    return NextResponse.json({ error: message }, { status: 400 });
+    if (error instanceof ManagementAccessError) {
+      return NextResponse.json({ error: error.message, code: error.code }, { status: error.status });
+    }
+    console.error("[staff PATCH]", error);
+    return NextResponse.json({ error: "Update failed." }, { status: 400 });
   }
 }
 
 export async function DELETE(req: Request) {
-  try {
-    const { user } = await getUserFromRequest(req);
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const gate = await requireManager(req, { rateKey: "mgmt-staff" });
+  if (!gate.ok) return gate.response;
+  const { user, admin } = gate.ctx;
 
+  try {
     const url = new URL(req.url);
     const staffId = url.searchParams.get("staffId");
     if (!staffId) {
       return NextResponse.json({ error: "staffId is required." }, { status: 400 });
     }
 
-    // Use admin client to bypass RLS
-    const admin = createSupabaseAdminClient();
     const { error } = await admin
       .from("venue_staff")
       .delete()
