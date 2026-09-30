@@ -141,7 +141,7 @@ Preview check (unauthenticated): `snapshot`, `group-summary`, `venues`, `staff`,
 
 - [ ] `requireManager()` on the remaining `/api/management/*` handlers (Phase 2 covered inventory, training-programs, venues, staff, snapshot, group-summary and coach). Still to do: `memberships`, `memberships/resend`, `recognitions`, `compliance/certifications`, `coach/history`. Grep check: every route calls it, or `join-venue` (staff-facing) is the documented exception.
 - [ ] Duty-manager data scope: they own no venues, so they see an empty console and get a "Primary Venue" auto-created on first write. Design the real scope (their inviting owner's venues).
-- [ ] Seat trigger: decide NULL/0 `seat_limit` handling for the 3 venue owners without an `organizations` row, then enforce per-tier caps.
+- [x] Seat trigger NULL/0 handling — narrow fix written and dry-run verified 2026-10-01, **not yet applied to production** (see below). Per-tier caps on venue/staff *creation* server-side (H3) are still open.
 - [ ] Venue cap per tier (confirm numbers against the pricing page) + seat check before any `venue_staff`/`organization_members` insert; `memberships` verifies `venueId` ownership.
 - [ ] Identity linked at acceptance only; `syncMasteryToVenueStaff` by `staff_user_id` only; all email `ilike` → `eq` on lowercase; lowercase-email migration.
 - [ ] Webhook and dashboard checkout-success resolve the user from Stripe metadata only (M7).
@@ -156,6 +156,41 @@ Tests:
 - [ ] A duty manager can't reach billing or settings routes.
 
 ---
+
+## Phase 2.5 — Legacy org backfill + seat trigger tightening (2026-10-01)
+
+Out-of-band follow-up, requested alongside Phase 2/3. Scope was narrowed from what was originally asked (see "What was declined" below) after checking it against the live database and `lib/trial.ts`.
+
+### What this does
+
+`supabase/migrations/20261001_backfill_legacy_org_rows_and_tighten_seat_trigger.sql`:
+1. Creates an `organizations` row for the 3 production venue owners who don't have one (`venues`/`venue_staff` predate the org/billing model). Each gets `subscription_tier` and `seat_limit` read from their own real `profiles.tier` via the same `TIER_SEATS` mapping the app already uses (`lib/session.ts`) — commercial → 35, commercial → 35, boutique → 15. Confirmed live, not guessed.
+2. Tightens `check_org_seat_limit()`: a missing/zero `seat_limit` now means **zero** allowed seats, not unlimited. Combined with step 1 in one transaction, so no account is ever tightened before it's backfilled.
+
+Rollback: `supabase/rollbacks/20261001_backfill_legacy_org_rows_and_tighten_seat_trigger_rollback.sql` (restores the original "NULL/0 = unlimited" trigger; lists the 3 owner ids if the backfilled rows themselves ever need removing — they don't need to be, since they only grant real entitlements).
+
+### What was declined from the original ask, and why
+
+- **Not** setting `tier`/`subscription_tier`/`trial_tier` to `'enterprise'` for anyone. `lib/trial.ts` documents `enterprise` as sales-assisted-only — never a self-serve trial value — and this would have overwritten real customers' billing tier in the DB with no matching Stripe subscription.
+- **Not** applied to all 8 production venue owners — only the 3 who actually lack an `organizations` row. The other 5 already have one; touching them wasn't needed and wasn't asked for once the real scope was checked.
+- **Not** deleting the Inventory feature (a separate "Task 1" in the same request) — that's a product decision unrelated to the security audit; inventory writes are already gated behind `requireManager()` as of Phase 2.
+
+### Verification — done (dry run, rolled back)
+
+- [x] Single `DO` block: captured "before" state, applied the migration verbatim inside the transaction, re-tested, then raised an exception so everything rolled back.
+- [x] Before: a free-tier account with no venue/org row could insert an unlimited `organization_members` seat — confirms the gap existed.
+- [x] After: exactly 3 `organizations` rows inserted, with the exact expected tier/seat values (commercial/35, commercial/35, boutique/15).
+- [x] After: the same free-tier account is now blocked with `Seat limit reached. Upgrade your venue plan to add more staff.` — the same string `join-venue`'s Phase 1 handling already catches and turns into a friendly 409.
+- [x] After: the one backfilled owner with an existing seat in use (1/35) can still add another seat — no regression.
+- [x] Re-running the backfill INSERT a second time inserts 0 rows — idempotent.
+- [x] Post-rollback: production `organizations` count back to 7, trigger function body back to the original "NULL/0 = unlimited" text, no probe rows left.
+- [x] Broader check before writing this: no `organization_members.manager_id` exists without a matching `venues.owner_user_id` — the 3 found are the complete set.
+
+### Still open
+
+- [ ] **Apply the migration to production.** Writing it to the live DB was blocked by Claude Code's own auto-mode safety classifier (a local guard, not a Supabase/DB error) — it did not give a reason, and I'm not attempting another tool or channel to push it through per that guard's own instructions. **You'll need to apply it yourself**, e.g. via the Supabase SQL editor, the Supabase CLI, or by re-running it here after granting it explicitly. The migration file is on the `audit-remediation` branch, fully dry-run verified above.
+- [ ] After applying: re-run the "after" checks above for real (free-tier org-less insert blocked; a real invite from one of the 3 backfilled owners still succeeds).
+- [ ] Smoke test `join-venue`'s "no free staff seats" 409 message actually fires for a genuinely seat-capped account.
 
 ## Phase 4 — Atomic attempts, idempotency, server-graded quiz (C4 proper, M1, M2)
 
