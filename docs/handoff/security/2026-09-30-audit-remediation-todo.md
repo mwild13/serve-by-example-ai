@@ -157,6 +157,19 @@ Tests:
 
 ---
 
+## Bug fix (2026-10-01) — Manager Console "Save name" never persisted
+
+Reported as a suspected Phase 2 regression ("direct client writes to profiles were locked down, so the save handler might be failing"). It wasn't — `/api/profile/update-name` already used the admin client before Phase 2 and was never touched by it. The real, pre-existing bug, found by reading the actual code rather than assuming the report's diagnosis:
+
+- `components/mission-control/SettingsPanel.tsx`'s Account tab form POSTed `{ name }`, but the route reads `body.displayName` — every save silently 400'd ("Name cannot be empty") and never reached the database. That's why it never persisted, and why a refresh showed the old name (there was nothing to revert from — it never saved).
+- Even on a hypothetical success, the handler never called `setAccountDisplayName(...)`, so `ManagementTopbar` and the `mc-profile-name` badge — both already wired reactively to that state, confirmed by reading `ManagerControlCenter.tsx` — wouldn't have updated until a full reload re-seeded it from the server.
+
+**Fixed:** both issues in the same handler — correct body key, `setAccountDisplayName(name)` on success, and errors now at least log to the console instead of failing silently.
+
+**Verified:** `tsc`, ESLint and `next build` all clean.
+
+**Related, found but not fixed (separate, smaller bug, out of the reported scope):** the *staff* dashboard's own name-save (`DashboardShell.tsx`'s `handleDisplayNameUpdate`) already sends the correct key and does persist correctly. But `displayName` there is a static prop from the server component, not state — so the Home/Progress greeting headers that show it won't reflect a save until the next full page load. There's no persistent nav bar showing the name on the staff side to "revert," so this isn't the bug that was reported, and fixing it would mean lifting `displayName` into state threaded through `DashboardShell` similarly to `accountDisplayName` in `ManagerControlCenter.tsx` — a separate, slightly more invasive change than what was asked here. Worth a small follow-up pass.
+
 ## Phase 2.5 — Legacy org backfill + seat trigger tightening (2026-10-01)
 
 Out-of-band follow-up, requested alongside Phase 2/3. Scope was narrowed from what was originally asked (see "What was declined" below) after checking it against the live database and `lib/trial.ts`.
