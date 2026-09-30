@@ -9,13 +9,14 @@ Tick an item only once it has been **tested**, not just once it's written.
 | Phase | Branch | State |
 |---|---|---|
 | 1. Same-day API hotfixes | `fix/audit-phase1-hotfixes` (commit `950b5be`) | Deployed to preview; **signed-in smoke tests below still open**; not merged |
-| 2. RLS lockdown | `audit-remediation` (branched from phase 1) | Code done and passing locally (uncommitted). **DB migration written, not applied**: waiting on the test-environment decision below |
+| 2. RLS lockdown | `audit-remediation` (commit `47af0a5`, branched from phase 1) | Code deployed to preview. Migration **dry-run passed (rolled back)**; **not applied**. Next: signed-in smoke test on preview → merge → apply |
 | 3. Server-side gating & identity | `audit-remediation` | Not started |
 | 4. Atomic attempts, idempotency, server-graded quiz | `audit-remediation` | Not started |
 | 5. ELO retirement & dead code | `audit-remediation` | Not started |
 | 6. Polish & docs | `audit-remediation` | Not started |
 
 Phase 1 preview: https://fix-audit-phase1-hotfixes.serve-by-example-ai.pages.dev
+Phase 1 + 2 preview: https://audit-remediation.serve-by-example-ai.pages.dev
 
 ---
 
@@ -87,17 +88,32 @@ Still to test while signed in on the preview:
 - [x] `supabase/rollbacks/20260930_rls_lockdown_rollback.sql`: exact restore of the captured live policies and grants. Emergency use only.
 - [x] `tsc`, ESLint (`app lib components`) and `next build` are clean.
 
-### Open decision — how to test the migration before production
+### Migration dry run — done 2026-09-30 (option A, rolled back)
 
-- **A. Dry run on production inside a rolled-back transaction (recommended):** one `DO` block applies the migration, switches to the `authenticated` role as a real user, attempts every attack write, reports the results, then raises an error, so everything rolls back. It takes table locks for milliseconds and leaves nothing behind.
-- **B. Real Supabase branch:** needs a baseline schema dump first (`supabase db dump`, which needs the DB password and Docker), committed and registered as the first migration. Most faithful, most setup.
-- **C. Skip the dry run:** deploy the code, apply the migration with the rollback file ready, then run the attacker tests live.
+A single `DO` block on production ran each attack as a real non-manager user (`authenticated` role with that user's JWT claims), applied the migration SQL verbatim, re-ran the attacks, then raised an error so everything rolled back. Afterwards, catalog checks confirmed production was untouched: original policies and grants present, new policies absent, no test rows left.
+
+| Attack | Before (live today) | After migration |
+|---|---|---|
+| `scenario_mastery` upsert `is_mastered=true` | ALLOWED | blocked (42501) |
+| `profiles` set `tier=enterprise`, `platform_role=multi_venue_manager` | ALLOWED | blocked |
+| `organizations` insert with enterprise trial and 9999 seats | ALLOWED | blocked |
+| `organization_members` self-sponsor | ALLOWED | blocked |
+| `venue_staff` 100%-score fake staff into another org's venue | ALLOWED | blocked |
+| `venues` / `training_programs` / `venue_inventory_items` insert | ALLOWED | blocked |
+| `user_challenges` / `user_level_progress` insert | ALLOWED | blocked |
+| Read own profile; an owner reads own venues | works | works |
+
+The "before" column is live confirmation that C1–C3 are exploitable in production until the migration is applied.
+
+Preview check (unauthenticated): `snapshot`, `group-summary`, `venues`, `staff`, `inventory`, `training-programs` and `coach` all return 401.
 
 ### Deploy order (don't change it)
 
-1. [ ] Commit, push `audit-remediation` to its own preview, and smoke-test while the DB is still unlocked. The code works with or without the lockdown.
+1. [x] Commit and push `audit-remediation` to its own preview (`47af0a5`, https://audit-remediation.serve-by-example-ai.pages.dev).
+   - [ ] Signed-in smoke test on that preview while the DB is still unlocked (legitimate-flow list below). The code works with or without the lockdown.
 2. [ ] Merge the Phase 1 + 2 code to `main` (**confirm before pushing to main**).
-3. [ ] Dry-run the migration (per the decision above), then apply it to production (**explicit go-ahead**).
+3. [x] Dry-run the migration (done, table above).
+   - [ ] Apply it to production (**explicit go-ahead**), via `apply_migration` with `supabase/migrations/20260930_rls_lockdown.sql`. Rollback: `supabase/rollbacks/20260930_rls_lockdown_rollback.sql`.
 4. [ ] Re-run the tests below against production.
 
 ### Tests
