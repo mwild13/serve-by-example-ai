@@ -1,18 +1,22 @@
 import { NextResponse } from "next/server";
-import { getUserFromRequest } from "@/lib/supabase-server";
-import { createSupabaseAdminClient } from "@/lib/supabase-admin";
+import { managementErrorResponse, requireManager } from "@/lib/management/auth";
+
+const MAX_MESSAGES_PER_SAVE = 10;
+const MAX_CONTENT_CHARS = 8000;
+const VALID_ROLES = new Set(["user", "coach"]);
 
 export async function GET(req: Request) {
-  const { user } = await getUserFromRequest(req);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const gate = await requireManager(req, { rateKey: "mgmt-coach-history" });
+  if (!gate.ok) return gate.response;
+  const { user, admin } = gate.ctx;
 
   const url = new URL(req.url);
   const venueId = url.searchParams.get("venueId");
-  const limit = Math.min(parseInt(url.searchParams.get("limit") ?? "40"), 100);
+  const parsedLimit = parseInt(url.searchParams.get("limit") ?? "40", 10);
+  const limit = Number.isFinite(parsedLimit) ? Math.min(Math.max(parsedLimit, 1), 100) : 40;
 
-  const admin = createSupabaseAdminClient();
-
-  // Fetch last N messages, newest first, then reverse for chronological display
+  // Already scoped to manager_user_id = caller, so a foreign venueId just
+  // returns nothing.
   const query = admin
     .from("manager_coach_sessions")
     .select("id, role, content, created_at")
@@ -24,9 +28,8 @@ export async function GET(req: Request) {
   if (venueId) query.eq("venue_id", venueId);
 
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return managementErrorResponse(error, "Could not load coach history.", "coach/history GET", 500);
 
-  // Reverse to chronological order for display
   const messages = (data ?? []).reverse().map((row) => ({
     role: row.role as "user" | "coach",
     content: row.content as string,
@@ -36,33 +39,42 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const { user } = await getUserFromRequest(req);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const gate = await requireManager(req, { rateKey: "mgmt-coach-history" });
+  if (!gate.ok) return gate.response;
+  const { user, admin, assertOwnsVenue } = gate.ctx;
 
-  const body = await req.json() as Record<string, unknown>;
-  const venueId = typeof body.venueId === "string" ? body.venueId : null;
-  const messages = Array.isArray(body.messages) ? body.messages : [];
+  try {
+    const body = await req.json() as Record<string, unknown>;
+    const venueId = typeof body.venueId === "string" && body.venueId.trim() ? body.venueId.trim() : null;
+    const messages = Array.isArray(body.messages) ? body.messages : [];
 
-  if (messages.length === 0) return NextResponse.json({ ok: true });
+    if (messages.length === 0) return NextResponse.json({ ok: true });
+    if (messages.length > MAX_MESSAGES_PER_SAVE) {
+      return NextResponse.json({ error: "Too many messages in one save." }, { status: 400 });
+    }
 
-  const admin = createSupabaseAdminClient();
+    if (venueId) await assertOwnsVenue(venueId);
 
-  const rows = messages
-    .filter((m): m is { role: string; content: string } =>
-      typeof m === "object" && m !== null &&
-      typeof m.role === "string" && typeof m.content === "string"
-    )
-    .map((m) => ({
-      manager_user_id: user.id,
-      venue_id: venueId,
-      role: m.role,
-      content: m.content,
-    }));
+    const rows = messages
+      .filter((m): m is { role: string; content: string } =>
+        typeof m === "object" && m !== null &&
+        typeof m.role === "string" && VALID_ROLES.has(m.role) &&
+        typeof m.content === "string" && m.content.length > 0
+      )
+      .map((m) => ({
+        manager_user_id: user.id,
+        venue_id: venueId,
+        role: m.role,
+        content: m.content.slice(0, MAX_CONTENT_CHARS),
+      }));
 
-  if (rows.length === 0) return NextResponse.json({ ok: true });
+    if (rows.length === 0) return NextResponse.json({ ok: true });
 
-  const { error } = await admin.from("manager_coach_sessions").insert(rows);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    const { error } = await admin.from("manager_coach_sessions").insert(rows);
+    if (error) throw error;
 
-  return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    return managementErrorResponse(error, "Could not save coach history.", "coach/history POST", 500);
+  }
 }

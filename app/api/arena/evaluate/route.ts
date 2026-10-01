@@ -174,7 +174,7 @@ export async function POST(req: Request) {
       passed,
     });
 
-    await syncMasteryToVenueStaff(admin, user.id, user.email ?? "");
+    await syncMasteryToVenueStaff(admin, user.id);
 
     return Response.json({
       assessment: {

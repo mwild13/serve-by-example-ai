@@ -38,7 +38,7 @@ vi.mock("@/lib/supabase-server", () => ({
   getUserFromRequest: async () => ({ user: currentUser, supabase: null }),
 }));
 
-const { requireManager, managementErrorResponse, ManagementAccessError } = await import("@/lib/management/auth");
+const { requireManager, managementErrorResponse, ManagementAccessError, resolveEntitlement } = await import("@/lib/management/auth");
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -189,6 +189,37 @@ describe("requireManager — ownership assertions", () => {
     const c = await ctx();
     await expect(c.assertOwnsStaff("staff-own")).resolves.toBeUndefined();
     await expect(c.assertOwnsStaff("staff-foreign")).rejects.toMatchObject({ status: 404, code: "STAFF_NOT_FOUND" });
+  });
+});
+
+describe("entitlement (seat and venue caps)", () => {
+  it("maps tiers to the pricing page's seats and venues", () => {
+    expect(resolveEntitlement(false, "boutique")).toEqual({ tier: "boutique", seatLimit: 15, venueLimit: 1 });
+    expect(resolveEntitlement(false, "venue_single")).toEqual({ tier: "venue_single", seatLimit: 15, venueLimit: 1 });
+    expect(resolveEntitlement(false, "commercial")).toEqual({ tier: "commercial", seatLimit: 35, venueLimit: Infinity });
+    expect(resolveEntitlement(false, "venue_multi")).toEqual({ tier: "venue_multi", seatLimit: 35, venueLimit: Infinity });
+    expect(resolveEntitlement(false, "enterprise").venueLimit).toBe(Infinity);
+  });
+
+  it("gives non-venue tiers nothing, and admins everything", () => {
+    expect(resolveEntitlement(false, "pro")).toEqual({ tier: null, seatLimit: 0, venueLimit: 0 });
+    expect(resolveEntitlement(false, null)).toEqual({ tier: null, seatLimit: 0, venueLimit: 0 });
+    expect(resolveEntitlement(true, null).venueLimit).toBe(Infinity);
+  });
+
+  it("uses the paid tier, falls back to an active trial, ignores a lapsed subscription", async () => {
+    setProfile(OWNER.id, { platform_role: "venue_manager", tier: "boutique", subscription_status: "active" });
+    let r = await requireManager(request(), { rateKey: freshKey() });
+    expect(r.ok && r.ctx.entitlement.venueLimit).toBe(1);
+
+    setProfile(OWNER.id, { platform_role: "venue_manager", tier: "free", org_id: "org-1" });
+    db.organizations = [{ id: "org-1", trial_tier: "commercial", trial_ends_at: new Date(Date.now() + 86_400_000).toISOString(), trial_converted: false }];
+    r = await requireManager(request(), { rateKey: freshKey() });
+    expect(r.ok && r.ctx.entitlement.seatLimit).toBe(35);
+
+    setProfile(OWNER.id, { platform_role: "venue_manager", tier: "commercial", subscription_status: "canceled" });
+    r = await requireManager(request(), { rateKey: freshKey() });
+    expect(r.ok && r.ctx.entitlement).toEqual({ tier: null, seatLimit: 0, venueLimit: 0 });
   });
 });
 

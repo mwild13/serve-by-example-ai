@@ -195,8 +195,7 @@ export function isOwnerLevelRole(platformRole: string | null | undefined): boole
   );
 }
 
-/** Shared by resolveAccess() and resolveTierAccess() — both need the same
- * trial fields for an org by id. Returns null on no-row/error, same
+/** Trial fields for an org by id. Returns null on no-row/error, same
  * not-throwing style the rest of this file uses. */
 async function fetchOrgTrial(admin: SupabaseClient, orgId: string | null | undefined) {
   if (!orgId) return null;
@@ -209,83 +208,47 @@ async function fetchOrgTrial(admin: SupabaseClient, orgId: string | null | undef
 }
 
 /**
- * Resolve a user's effective access level.
- * Checks own subscription first, then falls back to sponsor (organization_members).
+ * Resolve a user's effective access level for API routes. Delegates to
+ * resolveTierAccess() so API routes and the /dashboard and /mobile pages
+ * apply one rule set: lapsed-subscription downgrade, org trial, sponsored
+ * membership, and paused sponsors. The two used to differ on all four, so
+ * an API route could serve modules the page had already revoked.
  */
 export async function resolveAccess(
   admin: SupabaseClient,
   userId: string,
   userEmail: string | undefined,
 ): Promise<AccessInfo> {
-  // 1. Check user's own profile tier
   const { data: profile } = await admin
     .from("profiles")
-    .select("tier, org_id")
+    .select("tier, org_id, subscription_status, management_unlocked")
     .eq("id", userId)
-    .single();
+    .maybeSingle();
 
-  const tier = normalizeTier(profile?.tier);
+  const resolved = await resolveTierAccess(admin, userEmail, {
+    tier: (profile?.tier as string | null) ?? null,
+    org_id: (profile?.org_id as string | null) ?? null,
+    subscription_status: (profile?.subscription_status as string | null) ?? null,
+    management_unlocked: (profile?.management_unlocked as boolean | null) ?? null,
+  });
 
-  if (tier !== "free") {
-    return {
-      tier,
-      allowedModules: TIER_MODULES[tier],
-      maxSeats: TIER_SEATS[tier],
-      isSponsored: false,
-    };
-  }
-
-  // 2 & 3. Org trial (manager path) and sponsored-membership (staff path) are
-  // independent of each other — trial depends only on profile.org_id from
-  // step 1, membership depends only on userEmail — so fire them concurrently
-  // instead of serially (this was a real, measured latency contributor on
-  // the free/sponsored-account load path) and apply the same
-  // trial-takes-priority-over-membership ordering the sequential version had.
-  const [org, membership] = await Promise.all([
-    fetchOrgTrial(admin, profile?.org_id),
-    userEmail
-      ? admin
-          .from("organization_members")
-          .select("manager_id")
-          .ilike("staff_email", userEmail)
-          .in("status", ["active", "invited"])
-          .eq("seat_counted", true)
-          .limit(1)
-          .maybeSingle()
-          .then((r) => r.data)
-      : Promise.resolve(null),
-  ]);
-
-  const trialStatus = getTrialStatus(org);
-  if (trialStatus === "active" && org?.trial_tier) {
-    const trialTier = normalizeTier(org.trial_tier);
-    return {
-      tier: trialTier,
-      allowedModules: TIER_MODULES[trialTier] ?? ALL_MODULES,
-      maxSeats: TIER_SEATS[trialTier] ?? 0,
-      isSponsored: false,
-      isTrial: true,
-    };
-  }
-
-  // Sponsored via organization_members — an active membership is sufficient,
-  // no need to re-check the manager's plan (matches the dashboard page logic
-  // which grants access on membership alone).
-  if (membership) {
+  if (resolved.hasVenueMembership) {
     return {
       tier: "venue_single",
-      allowedModules: ALL_MODULES,
+      allowedModules: resolved.allowedModules,
       maxSeats: 0,
       isSponsored: true,
-      sponsorManagerId: membership.manager_id as string,
+      sponsorManagerId: resolved.sponsorManagerId,
     };
   }
 
+  const tier = normalizeTier(resolved.plan);
   return {
-    tier: "free",
-    allowedModules: TIER_MODULES.free,
-    maxSeats: 0,
+    tier,
+    allowedModules: resolved.allowedModules,
+    maxSeats: TIER_SEATS[tier],
     isSponsored: false,
+    ...(resolved.isTrial ? { isTrial: true } : {}),
   };
 }
 
@@ -304,6 +267,8 @@ export type ResolvedTierAccess = {
   hasVenueMembership: boolean;
   venueMembershipPaused: boolean;
   managementUnlocked: boolean;
+  isTrial: boolean;
+  sponsorManagerId?: string;
 };
 
 const LAPSED_SUBSCRIPTION_STATUSES = new Set(["canceled", "incomplete_expired", "unpaid"]);
@@ -315,10 +280,8 @@ const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active", "trialing", "past_due"])
  * if the sponsor's own org trial has expired). Extracted from
  * app/dashboard/page.tsx so /dashboard and /mobile (app/mobile/layout.tsx)
  * share one implementation instead of two hand-copied chains drifting apart
- * — see v4-migration-plan/01-supabase-client-and-auth.md. Deliberately
- * separate from resolveAccess() above: that function is the general-purpose
- * API-route resolver and doesn't model the lapsed-subscription or
- * paused-sponsor cases these two page-level entry points need.
+ * — see v4-migration-plan/01-supabase-client-and-auth.md. resolveAccess()
+ * (API routes) is built on this too.
  */
 export async function resolveTierAccess(
   admin: SupabaseClient,
@@ -367,10 +330,12 @@ export async function resolveTierAccess(
       : Promise.resolve(null),
   ]);
 
+  let isTrial = false;
   if (runsTrialGate) {
     const trialStatus = getTrialStatus(org);
     if (trialStatus === "active" && org?.trial_tier) {
       plan = org.trial_tier as string;
+      isTrial = true;
     } else if (trialStatus === "expired") {
       plan = "free";
     }
@@ -416,7 +381,15 @@ export async function resolveTierAccess(
     ? false
     : (profile.management_unlocked ?? false);
 
-  return { plan, allowedModules, hasVenueMembership, venueMembershipPaused, managementUnlocked };
+  return {
+    plan,
+    allowedModules,
+    hasVenueMembership,
+    venueMembershipPaused,
+    managementUnlocked,
+    isTrial,
+    ...(hasVenueMembership && membership?.manager_id ? { sponsorManagerId: membership.manager_id as string } : {}),
+  };
 }
 
 /**

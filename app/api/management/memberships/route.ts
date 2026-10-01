@@ -1,7 +1,29 @@
 import { NextResponse } from "next/server";
-import { getUserFromRequest } from "@/lib/supabase-server";
-import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { countActiveSeats, tierSeatLimit, isOwnerLevelRole, TIER_SEATS } from "@/lib/session";
+import { managementErrorResponse, requireManager, type AdminClient } from "@/lib/management/auth";
+import { countActiveSeats, TIER_SEATS } from "@/lib/session";
+import { escapeHtml } from "@/lib/email-template";
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// platform_role is global, so it may only change for the account that
+// actually accepted this membership (organization_members.user_id), and a
+// demotion must not strip duty-manager access granted by another venue.
+async function setLinkedMemberRole(admin: AdminClient, linkedUserId: string, role: "staff" | "duty_manager") {
+  if (role === "staff") {
+    const { count } = await admin
+      .from("organization_members")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", linkedUserId)
+      .eq("role", "duty_manager")
+      .in("status", ["invited", "active"]);
+    if ((count ?? 0) > 0) return;
+  }
+  await admin
+    .from("profiles")
+    .update({ platform_role: role })
+    .eq("id", linkedUserId)
+    .in("platform_role", ["staff", "duty_manager"]);
+}
 
 /**
  * GET /api/management/memberships — list manager's memberships
@@ -9,11 +31,11 @@ import { countActiveSeats, tierSeatLimit, isOwnerLevelRole, TIER_SEATS } from "@
  * DELETE /api/management/memberships — remove a membership
  */
 export async function GET(req: Request) {
-  try {
-    const { user } = await getUserFromRequest(req);
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const gate = await requireManager(req, { rateKey: "mgmt-memberships" });
+  if (!gate.ok) return gate.response;
+  const { user, admin, entitlement } = gate.ctx;
 
-    const admin = createSupabaseAdminClient();
+  try {
     // "removed" rows are soft-deleted, not dropped (see DELETE handler) — they
     // must not resurface here, or a manager who removed someone sees them
     // sitting in the list forever with no way to make them go away.
@@ -28,12 +50,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    const { data: profile } = await admin
-      .from("profiles")
-      .select("tier")
-      .eq("id", user.id)
-      .single();
-    const maxSeats = tierSeatLimit(profile?.tier);
+    const maxSeats = entitlement.seatLimit;
     const usedSeats = await countActiveSeats(admin, user.id);
     // TIER_SEATS.enterprise (9999) is the codebase's own "effectively
     // unlimited" sentinel for this map — surface that as an explicit flag
@@ -51,10 +68,12 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  try {
-    const { user } = await getUserFromRequest(req);
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // Sends an email from our domain — tighter limit than other management writes.
+  const gate = await requireManager(req, { rateKey: "mgmt-memberships-invite", limit: 10 });
+  if (!gate.ok) return gate.response;
+  const { user, admin, entitlement, isOwnerLevel, assertOwnsVenue } = gate.ctx;
 
+  try {
     const body = await req.json();
     const { staffEmail, venueId, role: requestedRole } = body as {
       staffEmail?: string;
@@ -66,20 +85,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "staffEmail is required." }, { status: 400 });
     }
     const email = staffEmail.trim().toLowerCase();
+    if (!EMAIL_REGEX.test(email) || email.length > 254) {
+      return NextResponse.json({ error: "Please provide a valid email address." }, { status: 400 });
+    }
 
     if (requestedRole !== undefined && requestedRole !== "staff" && requestedRole !== "duty_manager") {
       return NextResponse.json({ error: "Invalid role. Must be \"staff\" or \"duty_manager\"." }, { status: 400 });
     }
 
-    const admin = createSupabaseAdminClient();
-
-    // Get manager's tier + platform_role — tier drives the seat cap,
-    // platform_role gates who's allowed to grant duty-manager access below.
-    const { data: profile } = await admin
-      .from("profiles")
-      .select("tier, platform_role")
-      .eq("id", user.id)
-      .single();
+    if (venueId !== undefined && typeof venueId !== "string") {
+      return NextResponse.json({ error: "Invalid venueId." }, { status: 400 });
+    }
+    if (venueId) await assertOwnsVenue(venueId);
 
     // Only an owner-level manager (never a duty manager, even one already
     // in Mission Control) can grant duty-manager access to someone else —
@@ -88,9 +105,9 @@ export async function POST(req: Request) {
     // erroring, since the UI selector is already hidden for non-owners and
     // this should only ever fire on a crafted request.
     const role: "staff" | "duty_manager" =
-      requestedRole === "duty_manager" && isOwnerLevelRole(profile?.platform_role) ? "duty_manager" : "staff";
+      requestedRole === "duty_manager" && isOwnerLevel ? "duty_manager" : "staff";
 
-    const maxSeats = tierSeatLimit(profile?.tier);
+    const maxSeats = entitlement.seatLimit;
 
     if (maxSeats === 0) {
       return NextResponse.json(
@@ -117,9 +134,9 @@ export async function POST(req: Request) {
     // same staff email ended up with a "removed" row and a separate "invited" row.
     let existingQuery = admin
       .from("organization_members")
-      .select("id, staff_email, venue_id, status")
+      .select("id, staff_email, venue_id, status, user_id")
       .eq("manager_id", user.id)
-      .ilike("staff_email", email);
+      .eq("staff_email", email);
 
     if (venueId) {
       existingQuery = existingQuery.eq("venue_id", venueId);
@@ -167,19 +184,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Failed to invite staff member." }, { status: 500 });
     }
 
-    // Best-effort immediate promotion: if this email already belongs to an
-    // existing account, don't make them wait for their next login to pick
-    // up duty-manager access — /api/session/stamp does the same promotion
-    // (matched by organization_members row) as a fallback for brand-new
-    // signups who have no profiles row yet at this point.
-    if (role === "duty_manager") {
-      const { error: promoteError } = await admin
-        .from("profiles")
-        .update({ platform_role: "duty_manager" })
-        .eq("email", email)
-        .eq("platform_role", "staff");
-      if (promoteError) {
-        console.warn("Membership invite: duty_manager promotion failed (will retry on next login):", promoteError);
+    // Role changes only apply immediately to an account that already
+    // accepted this membership. Anyone else picks it up when they next sign
+    // in with the invited email (/api/session/stamp).
+    const linkedUserId = (existingMembership as { user_id?: string | null } | null)?.user_id ?? null;
+    if (linkedUserId) {
+      try {
+        await setLinkedMemberRole(admin, linkedUserId, role);
+      } catch (promoteError) {
+        console.warn("Membership invite: role sync failed (will retry on next login):", promoteError);
       }
     }
 
@@ -233,9 +246,9 @@ export async function POST(req: Request) {
                   <h2 style="margin-bottom:8px">You've been invited!</h2>
                   <p style="color:#555">${bodyText}</p>
                   <p style="margin:32px 0">
-                    <a href="${ctaHref}" style="background:#22c55e;color:#fff;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-block">${ctaLabel}</a>
+                    <a href="${escapeHtml(ctaHref)}" style="background:#22c55e;color:#fff;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-block">${ctaLabel}</a>
                   </p>
-                  <p style="color:#aaa;font-size:13px">If the button doesn't work, copy and paste this link:<br>${ctaHref}</p>
+                  <p style="color:#aaa;font-size:13px">If the button doesn't work, copy and paste this link:<br>${escapeHtml(ctaHref)}</p>
                   ${inviteLink ? '<p style="color:#aaa;font-size:13px">This link expires in 7 days.</p>' : ""}
                 </div>
               `,
@@ -268,8 +281,7 @@ export async function POST(req: Request) {
       maxSeats,
     });
   } catch (error) {
-    console.error("Memberships POST error:", error);
-    return NextResponse.json({ error: "Failed to invite staff." }, { status: 500 });
+    return managementErrorResponse(error, "Failed to invite staff.", "memberships POST", 500);
   }
 }
 
@@ -282,10 +294,11 @@ export async function POST(req: Request) {
  * manager in the first place.
  */
 export async function PATCH(req: Request) {
-  try {
-    const { user } = await getUserFromRequest(req);
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const gate = await requireManager(req, { rateKey: "mgmt-memberships", ownerOnly: true });
+  if (!gate.ok) return gate.response;
+  const { user, admin } = gate.ctx;
 
+  try {
     const body = await req.json();
     const { staffEmail, role: requestedRole } = body as { staffEmail?: string; role?: string };
 
@@ -297,24 +310,13 @@ export async function PATCH(req: Request) {
     }
     const email = staffEmail.trim().toLowerCase();
 
-    const admin = createSupabaseAdminClient();
-
-    const { data: callerProfile } = await admin
-      .from("profiles")
-      .select("platform_role")
-      .eq("id", user.id)
-      .single();
-
-    if (!isOwnerLevelRole(callerProfile?.platform_role)) {
-      return NextResponse.json({ error: "Only the venue owner can change a staff member's access level." }, { status: 403 });
-    }
-
     const { data: membership, error: findError } = await admin
       .from("organization_members")
-      .select("id")
+      .select("id, user_id")
       .eq("manager_id", user.id)
-      .ilike("staff_email", email)
+      .eq("staff_email", email)
       .not("status", "eq", "removed")
+      .limit(1)
       .maybeSingle();
 
     if (findError || !membership) {
@@ -331,45 +333,48 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Failed to update access level." }, { status: 500 });
     }
 
-    // Guarded to only ever flip a "staff"/"duty_manager" row — never touches
-    // an owner/admin profile even if an email somehow collided, since a
-    // real owner/admin would never also have their own email listed as
-    // their own organization_members row under themselves in practice.
-    await admin
-      .from("profiles")
-      .update({ platform_role: requestedRole })
-      .eq("email", email)
-      .in("platform_role", ["staff", "duty_manager"]);
+    if (membership.user_id) {
+      await setLinkedMemberRole(admin, membership.user_id as string, requestedRole);
+    }
 
     return NextResponse.json({ success: true, role: requestedRole });
   } catch (error) {
-    console.error("Memberships PATCH error:", error);
-    return NextResponse.json({ error: "Failed to update access level." }, { status: 500 });
+    return managementErrorResponse(error, "Failed to update access level.", "memberships PATCH", 500);
   }
 }
 
 export async function DELETE(req: Request) {
-  try {
-    const { user } = await getUserFromRequest(req);
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const gate = await requireManager(req, { rateKey: "mgmt-memberships" });
+  if (!gate.ok) return gate.response;
+  const { user, admin } = gate.ctx;
 
+  try {
     const body = await req.json();
     const { membershipId } = body as { membershipId?: string };
 
-    if (!membershipId) {
+    if (!membershipId || typeof membershipId !== "string") {
       return NextResponse.json({ error: "membershipId is required." }, { status: 400 });
     }
 
-    const admin = createSupabaseAdminClient();
-
-    const { error } = await admin
+    const { data: removed, error } = await admin
       .from("organization_members")
       .update({ status: "removed", updated_at: new Date().toISOString() })
       .eq("id", membershipId)
-      .eq("manager_id", user.id);
+      .eq("manager_id", user.id)
+      .select("user_id, role")
+      .maybeSingle();
 
     if (error) {
       return NextResponse.json({ error: "Failed to remove membership." }, { status: 500 });
+    }
+    if (!removed) {
+      return NextResponse.json({ error: "Membership not found.", code: "MEMBERSHIP_NOT_FOUND" }, { status: 404 });
+    }
+
+    // Removing a duty manager revokes their console access too, unless
+    // another venue still grants it.
+    if (removed.role === "duty_manager" && removed.user_id) {
+      await setLinkedMemberRole(admin, removed.user_id as string, "staff");
     }
 
     return NextResponse.json({ success: true });

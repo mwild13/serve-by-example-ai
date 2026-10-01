@@ -3,6 +3,7 @@ import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { generateSessionId, stampSession } from "@/lib/session";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { linkStaffAccountByEmail } from "@/lib/staff-link";
 
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year in seconds
 
@@ -26,27 +27,25 @@ export async function POST(req: Request) {
 
     await stampSession(admin, user.id, sessionId);
 
-    // Duty-manager promotion reconciliation. memberships/route.ts's invite
-    // handler already promotes an *existing* account immediately by email —
-    // this is the fallback for a brand-new invitee: they have no profiles
-    // row (or still the "staff" default) until this, their first
-    // signup/login, which is also the earliest point their real user_id is
-    // known. Runs on every login, not just signup, so it's self-healing if
-    // the immediate-promotion path above ever missed. Scoped to
-    // platform_role === "staff" only — never touches an existing
-    // owner/admin's role, and never re-runs for someone already promoted.
+    // Sign-in is where an invited email becomes a linked account. Then
+    // duty-manager promotion: memberships/route.ts only applies a role change
+    // immediately to an already-linked account, so a new invitee picks it up
+    // here. Runs on every login, so it self-heals. Scoped to platform_role ===
+    // "staff" — never touches an existing owner/admin's role.
     try {
+      await linkStaffAccountByEmail(admin, user.id, user.email);
+
       const { data: currentProfile } = await admin
         .from("profiles")
         .select("platform_role")
         .eq("id", user.id)
         .single();
 
-      if ((currentProfile?.platform_role ?? "staff") === "staff" && user.email) {
+      if ((currentProfile?.platform_role ?? "staff") === "staff") {
         const { data: dutyManagerGrant } = await admin
           .from("organization_members")
           .select("id")
-          .or(`user_id.eq.${user.id},staff_email.ilike.${user.email}`)
+          .eq("user_id", user.id)
           .eq("role", "duty_manager")
           .in("status", ["invited", "active"])
           .limit(1)
@@ -56,14 +55,14 @@ export async function POST(req: Request) {
           await admin.from("profiles").update({ platform_role: "duty_manager" }).eq("id", user.id);
           await admin
             .from("organization_members")
-            .update({ status: "active", user_id: user.id, updated_at: new Date().toISOString() })
+            .update({ status: "active", updated_at: new Date().toISOString() })
             .eq("id", dutyManagerGrant.id);
         }
       }
     } catch (err) {
       // Never block login/session-stamping on this — worst case, the
       // promotion is retried on the user's next login instead.
-      console.warn("Session stamp: duty_manager reconciliation failed:", err);
+      console.warn("Session stamp: account link / duty_manager reconciliation failed:", err);
     }
 
     const res = NextResponse.json({ success: true });
