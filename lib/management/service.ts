@@ -1,4 +1,5 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
+import { generateVenueCode } from "@/lib/venue-code";
 import { ManagementAccessError } from "@/lib/management/auth";
 import { buildSeedManagementSnapshot } from "@/lib/management/seed";
 import { TIER_SEATS, normalizeTier } from "@/lib/session";
@@ -199,13 +200,12 @@ function calculateMetrics(staff: StaffMember[]) {
 }
 
 function mapVenue(row: Record<string, unknown>, staff: StaffMember[]): Venue {
-  const parsedVenueCode = Number(row.venue_code);
   const { completionRate, avgScenarioScore, upsellRate } = calculateMetrics(staff);
 
   return {
     id: asString(row.id, crypto.randomUUID()),
     name: asString(row.name, "Venue"),
-    venueCode: Number.isFinite(parsedVenueCode) && parsedVenueCode > 0 ? parsedVenueCode : undefined,
+    venueCode: row.venue_code == null || row.venue_code === "" ? undefined : String(row.venue_code),
     completionRate,
     avgScenarioScore,
     upsellRate,
@@ -338,9 +338,6 @@ async function getNextVenueCode(supabase: ManagementSupabaseClient) {
   if (error) {
     throw error;
   }
-
-  // Random 4-digit code. Caller retries on unique constraint collision (P ≈ 0.01%).
-  return 1000 + Math.floor(Math.random() * 9000);
 }
 
 async function getStaffRows(
@@ -600,7 +597,7 @@ async function ensureManagerVenue(supabase: ManagementSupabaseClient, userId: st
     };
 
     if (hasVenueCode) {
-      insertPayload.venue_code = 1000 + Math.floor(Math.random() * 9000);
+      insertPayload.venue_code = generateVenueCode();
     }
 
     let insertResult = await supabase
@@ -647,7 +644,7 @@ export async function createVenue(
     };
 
     if (hasVenueCode) {
-      insertPayload.venue_code = 1000 + Math.floor(Math.random() * 9000);
+      insertPayload.venue_code = generateVenueCode();
     }
 
     let insertResult = await supabase.from("venues").insert(insertPayload).select("id").single();

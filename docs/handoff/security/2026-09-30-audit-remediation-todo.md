@@ -10,8 +10,8 @@ Tick an item only once it has been **tested**, not just once it's written.
 |---|---|---|
 | 1. Same-day API hotfixes | merged to `main` 2026-10-01 (`3f316ef`) | **Live in production.** Signed-in smoke tests below still open |
 | 2. RLS lockdown | merged to `main` 2026-10-01 (`3f316ef`) | Code live. `20260930_rls_lockdown.sql` **applied to production 2026-10-01** (confirmed: zero client write grants on the core tables). Smoke tests still open |
-| 2.5 Legacy org backfill + seat trigger | `main` | Migration written; **not yet applied** — apply after the lockdown |
-| 3. Server-side gating & identity | `audit-phase3` | **Code done 2026-10-01**, preview only. Two product decisions open (see Phase 3) |
+| 2.5 Legacy org backfill + seat trigger | `main` | **Applied to production 2026-10-01** (confirmed: 3 org rows at 35/35/15 seats, 0 owners without an org, trigger tightened) |
+| 3. Server-side gating & identity | `audit-phase3` | **Code done 2026-10-01**, preview only. Needs `20261001b_venue_code_alphanumeric.sql` applied **before** merging |
 | 4. Atomic attempts, idempotency, server-graded quiz | — | Not started |
 | 5. ELO retirement & dead code | — | Not started |
 | 6. Polish & docs | — | Not started |
@@ -170,9 +170,20 @@ Branch `audit-phase3` (from `main` after the Phase 1+2 merge). No DB migration n
 
 ### Open — your decision
 
-- [ ] **Join codes (H2 rest).** Codes are still 4 digits, now behind Phase 1's rate limits. The plan's fix (8-character codes + manager approval) changes the product: every code already given to staff stops working, and joining waits on the manager. Not built until you choose.
+- [x] **Join codes (H2 rest) — decided 2026-10-01: 6-character letters + numbers for new venues; existing 4-digit codes stay.** No manager approval step. Built:
+  - `lib/venue-code.ts`: alphabet `ABCDEFGHJKMNPQRSTUVWXYZ23456789` (no 0/O, 1/I/L), crypto-random with rejection sampling, ~887M codes. `normalizeVenueCode()` accepts lower case, spaces and dashes, and old 4-digit codes. 5 Vitest tests.
+  - `createVenue` / `ensureManagerVenue` generate the new codes; `join-venue` looks up by normalised string; desktop, onboarding and mobile join forms accept letters (no numeric keypad, upper-cased as typed, `e.g. K7P3QX`).
+  - `supabase/migrations/20261001b_venue_code_alphanumeric.sql`: `venue_code` integer → text (existing values carry over), drops the sequential `nextval` default, adds a format CHECK. Rollback in `supabase/rollbacks/`.
+  - **Dry run on production (rolled back, then confirmed untouched):** type became text; the current production code's numeric insert still stores and looks up correctly; a new `K7P3QX` inserts; lower case, look-alike characters and duplicates are rejected.
+  - Remaining risk: the 12 existing venues keep guessable 4-digit codes (still rate-limited). A manager can be given a "regenerate code" button later if you want those rotated.
 - [ ] **Consent for email linking (H4 rest).** Linking now happens only at sign-in, with exact matching, but still without the staff member agreeing: a manager who adds someone's real email to their roster sees that person's training progress once they sign in. A real fix is an "Accept invitation from <venue>" prompt. Live data: 0 unlinked roster rows currently match an existing account, so nothing is exposed today.
-- [ ] **Duty-manager data scope.** Unchanged: duty managers own no venues, so they see an empty console. Needs a design for "the inviting owner's venues".
+- [x] **Duty-manager data scope — decided 2026-10-01: not building it.** Duty managers keep their current access; no "inviting owner's venues" scope.
+
+### Deploy order (Phase 3)
+
+1. [ ] Apply `supabase/migrations/20261001b_venue_code_alphanumeric.sql` (current production code works with it).
+2. [ ] Smoke test the `audit-phase3` preview.
+3. [ ] Merge `audit-phase3` → `main` (**confirm before pushing to main**). Merging before step 1 breaks venue creation.
 
 ### Tests (preview, then production)
 
@@ -185,6 +196,7 @@ Branch `audit-phase3` (from `main` after the Phase 1+2 merge). No DB migration n
 - [ ] A canceled subscriber gets 403 from `/api/evaluate` (same as the page now shows).
 - [ ] A reused Stripe `session_id` from another account does not upgrade the tier.
 - [ ] A duty manager gets 403 on `venues` and `memberships` PATCH.
+- [ ] Join codes: a new venue shows a 6-character code; joining with it typed in lower case works; an existing 4-digit code still joins; the `?join=` sign-up link auto-joins with both kinds.
 
 ---
 
