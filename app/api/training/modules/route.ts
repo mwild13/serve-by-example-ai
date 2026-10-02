@@ -2,12 +2,11 @@
  * GET /api/training/modules
  *
  * Returns modules available to the user
- * Filtered by: role, tier, venue config, user Elo
- * Recommended by: lowest Elo (struggle areas)
+ * Recommendations: see lib/module-navigator.ts.
  *
  * Query params:
  * - category: 'technical' | 'service' | 'compliance' (optional filter)
- * - sort: 'recommended' | 'elo' | 'title' (default: 'recommended')
+ * - sort: 'recommended' | 'title' (default: 'recommended')
  *
  * Response:
  * {
@@ -19,7 +18,6 @@
  *       description: string,
  *       category: string,
  *       difficulty_level: number,
- *       current_elo: number,
  *       mastery_pct: number,
  *       completion_pct: number,
  *       recommended: boolean,
@@ -69,18 +67,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Sort modules
-    if (sort === "elo") {
-      modules.sort((a, b) => a.current_elo - b.current_elo);
-    } else if (sort === "title") {
+    if (sort === "title") {
       modules.sort((a, b) => a.title.localeCompare(b.title));
     } else {
-      // Default: 'recommended' - recommended first, then by Elo
-      modules.sort((a, b) => {
-        if (a.recommended !== b.recommended) {
-          return a.recommended ? -1 : 1;
-        }
-        return a.current_elo - b.current_elo;
-      });
+      // Default: 'recommended' first, then foundational modules first.
+      modules.sort((a, b) =>
+        Number(b.recommended) - Number(a.recommended) ||
+        a.difficulty_level - b.difficulty_level ||
+        a.id - b.id);
     }
 
     return NextResponse.json({

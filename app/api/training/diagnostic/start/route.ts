@@ -22,7 +22,7 @@ import { getUserFromRequest } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
 
-// Diagnostic answers vary per user (score seeds Elo baseline), so this
+// Diagnostic answers vary per user (the score orders recommendations), so this
 // response must never be cached at the edge. Without an explicit no-store
 // directive, a "Cache Everything"-style zone rule on Cloudflare can cache
 // the first response body ever returned for this URL and replay that exact

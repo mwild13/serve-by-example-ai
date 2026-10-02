@@ -20,7 +20,6 @@ type ModuleListItem = {
   category: "technical" | "service" | "compliance";
   difficulty_level: number;
   mastery_pct: number;
-  current_elo: number;
   recommended: boolean;
 };
 

@@ -1,6 +1,9 @@
 /**
  * Diagnostic Assessment Engine
- * Processes user answers and generates baseline Elo ratings across module categories
+ * Scores the 10-question placement check per category (percent correct).
+ * The result only orders recommendations (lib/module-navigator.ts); it is
+ * not a compliance or mastery signal. It used to be converted to Elo-style
+ * ratings and seeded into scenario_mastery (audit Phase 5 retired both).
  */
 
 export interface DiagnosticAnswer {
@@ -10,12 +13,12 @@ export interface DiagnosticAnswer {
 
 interface CategoryScore {
   category: string;
-  score: number; // Elo rating (base 1200, range 1000-1500)
+  score: number; // 0-100 % correct (same value as percentage; kept for response compatibility)
   percentage: number; // 0-100 % correct
 }
 
 export interface DiagnosticResult {
-  category_scores: Record<string, number>; // {technical: 1350, service: 1250, ...}
+  category_scores: Record<string, number>; // {technical: 80, service: 60, ...} percent correct
   detailed_scores: CategoryScore[];
   success: boolean;
   message: string;
@@ -23,7 +26,7 @@ export interface DiagnosticResult {
 
 /**
  * Maps module IDs to their categories
- * Used to seed Elo across modules based on diagnostic category scores
+ * Used to pick recommended modules from the weakest category
  */
 const MODULE_CATEGORY_MAP: Record<number, string> = {
   // Technical (1-7)
@@ -132,7 +135,7 @@ function scoreAnswer(
 
 /**
  * Calculate category scores from answers
- * Returns Elo-style ratings (1200 base, adjusted by performance)
+ * Returns percent correct per category
  */
 function calculateCategoryScores(
   answers: Record<string, string | boolean>
@@ -156,24 +159,10 @@ function calculateCategoryScores(
     }
   });
 
-  // Convert to Elo-style ratings
-  // Base: 1200
-  // Range: 1000-1500 based on percentage correct
   const categoryScores: CategoryScore[] = Object.entries(categories).map(
     ([categoryName, stats]) => {
-      const percentage = stats.total > 0 ? (stats.correct / stats.total) * 100 : 0;
-
-      // Elo calculation: 1200 base + (percentage - 50) * 6
-      // 50% correct = 1200 Elo
-      // 100% correct = 1500 Elo
-      // 0% correct = 900 Elo (clamped to 1000)
-      const eloScore = Math.max(1000, Math.min(1500, 1200 + (percentage - 50) * 6));
-
-      return {
-        category: categoryName,
-        score: Math.round(eloScore),
-        percentage: Math.round(percentage),
-      };
+      const percentage = Math.round(stats.total > 0 ? (stats.correct / stats.total) * 100 : 0);
+      return { category: categoryName, score: percentage, percentage };
     }
   );
 
@@ -235,7 +224,7 @@ export function getRecommendedModules(
   categoryScores: Record<string, number>,
   count: number = 5
 ): Array<{ module_id: number; module_title: string; reason: string }> {
-  // Sort categories by Elo (ascending = lowest first)
+  // Sort categories by score (ascending = lowest first)
   const sortedCategories = Object.entries(categoryScores)
     .sort(([, scoreA], [, scoreB]) => scoreA - scoreB)
     .slice(0, 2); // Get lowest 2 categories
@@ -278,11 +267,11 @@ export function getRecommendedModules(
         20: "Inventory Control",
       };
 
-      const categoryScore = categoryScores[category] || 1200;
+      const categoryScore = categoryScores[category] ?? 50;
       const reason =
-        categoryScore < 1150
+        categoryScore < 50
           ? `Low score in ${category}; start here to build foundation`
-          : categoryScore < 1250
+          : categoryScore < 75
           ? `Room to improve in ${category} skills`
           : `Strengthen your ${category} expertise`;
 
@@ -295,72 +284,4 @@ export function getRecommendedModules(
   });
 
   return recommended;
-}
-
-/**
- * Seed initial scenario_mastery records from diagnostic results
- * Creates Elo baseline for all modules based on category performance
- *
- * Called after diagnostic is submitted, before user accesses first module
- */
-export function generateScenarioMasterySeeds(
-  userId: string,
-  categoryScores: Record<string, number>
-): Array<{
-  user_id: string;
-  module_id: number;
-  scenario_index: number;
-  mastery_level: number;
-  elo_rating: number;
-  consecutive_correct: number;
-  total_attempts: number;
-  total_score_points: number;
-  best_score: number;
-  last_score: number;
-  last_attempt_at: string;
-  next_review_at: string;
-}> {
-  const now = new Date();
-  const nextReview = new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000); // 1 day
-
-  const seeds: Array<{
-    user_id: string;
-    module_id: number;
-    scenario_index: number;
-    mastery_level: number;
-    elo_rating: number;
-    consecutive_correct: number;
-    total_attempts: number;
-    total_score_points: number;
-    best_score: number;
-    last_score: number;
-    last_attempt_at: string;
-    next_review_at: string;
-  }> = [];
-
-  // For each module, create a baseline seed record
-  // This gives the mastery engine a starting point
-  // Actual attempts override these seeds
-  Object.entries(MODULE_CATEGORY_MAP).forEach(([moduleIdStr, category]) => {
-    const moduleId = parseInt(moduleIdStr);
-    const categoryElo = categoryScores[category] || 1200;
-
-    // Create seed for this module
-    seeds.push({
-      user_id: userId,
-      module_id: moduleId,
-      scenario_index: 0, // Representative baseline
-      mastery_level: 0, // Not yet attempted
-      elo_rating: categoryElo, // Seed from diagnostic
-      consecutive_correct: 0,
-      total_attempts: 0,
-      total_score_points: 0,
-      best_score: 0,
-      last_score: 0,
-      last_attempt_at: now.toISOString(),
-      next_review_at: nextReview.toISOString(),
-    });
-  });
-
-  return seeds;
 }

@@ -22,8 +22,6 @@ function masteryPayload(attempt: RecordAttemptResult) {
     previousLevel: attempt.previousLevel,
     levelChanged: attempt.levelChanged,
     spamGuarded: attempt.spamGuarded,
-    eloRating: attempt.eloRating,
-    eloDelta: attempt.eloDelta,
     isBridge: attempt.isBridge,
     consecutiveFails: attempt.consecutiveFails,
     confidenceAccuracy: attempt.confidenceAccuracy,

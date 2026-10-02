@@ -82,7 +82,7 @@ const sections: MatrixSection[] = [
         franchise: "Unlimited",
       },
       {
-        label: "Mastery engine (ELO scoring, spaced repetition, badges, streaks)",
+        label: "Mastery engine (mastery levels, spaced repetition, badges, streaks)",
         staff: "yes",
         venue: "yes",
         group: "yes",

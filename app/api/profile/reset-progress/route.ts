@@ -10,11 +10,9 @@ import { rateLimit, getClientIp } from "@/lib/rate-limit";
 // (archived_at = NOW()) so the manager-facing compliance/analytics rollup
 // in Mission Control (lib/mastery.ts's syncMasteryToVenueStaff()) retains
 // history — see 20260824_reset_progress_soft_delete.sql's header comment
-// for the full rationale. user_level_progress and
-// _legacy_user_training_progress are legacy 3-stage tracking tables that
-// don't feed that manager-facing rollup, so they're hard-deleted directly,
-// matching the convention the existing (unwired) app/api/profile/delete
-// route already uses for those two tables.
+// for the full rationale. (The legacy user_level_progress and
+// _legacy_user_training_progress tables it used to hard-delete were retired
+// in audit Phase 5.)
 //
 // Deliberately narrower than app/api/profile/delete/route.ts: this keeps
 // the account, auth.users row, profiles row, and venue/organization
@@ -56,12 +54,6 @@ export async function POST(req: Request) {
       .eq("user_id", user.id)
       .is("archived_at", null);
     if (challengesError) throw challengesError;
-
-    // Legacy 3-stage tracking — not read by any manager-facing rollup, so a
-    // plain hard delete is fine here (matches app/api/profile/delete's own
-    // convention for these two tables).
-    await admin.from("user_level_progress").delete().eq("user_id", user.id);
-    await admin.from("_legacy_user_training_progress").delete().eq("user_id", user.id);
 
     // Streak/badge counters live on profiles itself, not scenario_mastery —
     // reset those too so a "fresh start" reads as fresh everywhere on the

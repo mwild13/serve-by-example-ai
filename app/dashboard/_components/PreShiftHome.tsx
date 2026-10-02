@@ -10,16 +10,6 @@ import { computeStreak } from "@/lib/streak";
 type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "challenges" | "cocktails" | "knowledge" | "progress" | "settings";
 type ModuleKey = "bartending" | "sales" | "management";
 
-type LevelProgress = {
-  level1_completed: boolean;
-  level2_completed: boolean;
-  level3_completed: boolean;
-  level4_unlocked: boolean;
-  level1_score: number;
-  level2_score: number;
-  level3_score: number;
-};
-
 type DbModule = {
   id: number;
   title: string;
@@ -31,7 +21,6 @@ type DbModule = {
 type DbModuleProgress = {
   scenariosAttempted: number;
   scenariosMastered: number;
-  avgElo: number;
   completion: number;
   mastery: number;
 };
@@ -42,7 +31,6 @@ type ProgressData = {
   scores: Record<ModuleKey, number>;
   sessions: Record<ModuleKey, number>;
   reviewDue: number;
-  levelProgress: Record<ModuleKey, LevelProgress>;
   lastAttemptAt: string | null;
   allModules: DbModule[];
   moduleProgress: Record<number, DbModuleProgress>;
@@ -64,11 +52,6 @@ const EMPTY: ProgressData = {
   scores: { bartending: 0, sales: 0, management: 0 },
   sessions: { bartending: 0, sales: 0, management: 0 },
   reviewDue: 0,
-  levelProgress: {
-    bartending: { level1_completed: false, level2_completed: false, level3_completed: false, level4_unlocked: false, level1_score: 0, level2_score: 0, level3_score: 0 },
-    sales: { level1_completed: false, level2_completed: false, level3_completed: false, level4_unlocked: false, level1_score: 0, level2_score: 0, level3_score: 0 },
-    management: { level1_completed: false, level2_completed: false, level3_completed: false, level4_unlocked: false, level1_score: 0, level2_score: 0, level3_score: 0 },
-  },
   lastAttemptAt: null,
   allModules: [],
   moduleProgress: {},
@@ -487,18 +470,12 @@ export default function PreShiftHome({
   const data: ProgressData = useMemo(() => {
     if (!progressData?.modules) return EMPTY;
     const res = progressData;
-    const lp = res.levelProgress as Record<string, LevelProgress> | undefined;
     return {
       modules: res.modules as Record<ModuleKey, number>,
       mastery: (res.mastery as Record<ModuleKey, number>) ?? EMPTY.mastery,
       scores: (res.scores as Record<ModuleKey, number>) ?? EMPTY.scores,
       sessions: (res.sessions as Record<ModuleKey, number>) ?? EMPTY.sessions,
       reviewDue: Array.isArray(res.reviewQueue) ? (res.reviewQueue as unknown[]).length : 0,
-      levelProgress: {
-        bartending: lp?.bartending ?? EMPTY.levelProgress.bartending,
-        sales: lp?.sales ?? EMPTY.levelProgress.sales,
-        management: lp?.management ?? EMPTY.levelProgress.management,
-      },
       lastAttemptAt: (res.lastAttemptAt as string | null) ?? null,
       allModules: Array.isArray(res.allModules) ? res.allModules as DbModule[] : [],
       moduleProgress: (res.moduleProgress as Record<number, DbModuleProgress>) ?? {},

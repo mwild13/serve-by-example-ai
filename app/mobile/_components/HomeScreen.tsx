@@ -15,10 +15,10 @@ import { COCKTAILS, COCKTAIL_IMAGES } from "@/lib/cocktails";
 //
 // Phase C file 02 — the streak badge and Continue Learning card are now
 // sourced from useTrainingProgress() (GET /api/training/progress) instead of
-// hardcoded mock values. Recommendation = the accessible module with the
-// lowest avg Elo among in-progress modules, falling back to the lowest-Elo
-// untouched module — "light composition" over getAvailableModules'
-// lowest-Elo logic per v4-migration-plan/02, not new domain logic.
+// hardcoded mock values. Recommendation = the in-progress module with the
+// lowest mastery (ties: the one touched most recently), falling back to the
+// most foundational untouched module (lowest difficulty_level, then id).
+// This used to sort by average Elo, retired in audit Phase 5 (2026-10).
 //
 // Live-QA fix (2026-08-19): "Today's Hot Picks" was still the Phase B mock
 // ("Upselling Bordeaux"/"Classic Refresher" — no such modules or cocktails
@@ -58,13 +58,15 @@ export default function HomeScreen() {
     const inProgress = accessible
       .map((mod) => ({ mod, progress: data.moduleProgress[mod.id] }))
       .filter(({ progress }) => progress && progress.scenariosAttempted > 0 && progress.mastery < 100)
-      .sort((a, b) => a.progress!.avgElo - b.progress!.avgElo);
+      .sort((a, b) =>
+        a.progress!.mastery - b.progress!.mastery ||
+        (b.progress!.lastAttemptAt ?? "").localeCompare(a.progress!.lastAttemptAt ?? ""));
     if (inProgress.length > 0) return inProgress[0];
 
     const untouched = accessible
       .map((mod) => ({ mod, progress: data.moduleProgress[mod.id] }))
       .filter(({ progress }) => !progress || progress.scenariosAttempted === 0)
-      .sort((a, b) => (a.progress?.avgElo ?? 1200) - (b.progress?.avgElo ?? 1200));
+      .sort((a, b) => a.mod.difficulty_level - b.mod.difficulty_level || a.mod.id - b.mod.id);
     return untouched[0] ?? null;
   }, [data]);
 

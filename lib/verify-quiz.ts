@@ -89,7 +89,7 @@ export function gradeAnswer(moduleId: number, questionIndex: number, answer: Ver
 
 /**
  * Follow-up after a quiz run masters a module: manager roster sync, trial
- * activation, and the one-time SBE Elite badge.
+ * activation, and the one-time SBE Elite number.
  */
 export async function afterModuleMastered(admin: AdminClient, user: User, alreadyMastered: boolean): Promise<void> {
   await syncMasteryToVenueStaff(admin, user.id);
@@ -97,29 +97,33 @@ export async function afterModuleMastered(admin: AdminClient, user: User, alread
     await maybeMarkTrialActivated(admin, user.email);
   }
 
-  // SBE Elite badge: only on a fresh mastery, once per lifetime. The 20-row
-  // threshold and fixed badge number are audit item M5 (Phase 5).
+  // SBE Elite: same rule the badge itself shows (lib/badges.ts) — verify
+  // quizzes passed for at least 80% of modules. Arena passes don't count.
+  // Numbers are assigned once, in order, by award_sbe_elite(). This used to
+  // fire at any 20 mastered rows (Arena included) and always store #1
+  // (audit 2026-09-30, M5).
   if (alreadyMastered) return;
-  const { data: profile } = await admin
-    .from("profiles")
-    .select("all_modules_completed")
-    .eq("id", user.id)
-    .single();
-  if (!profile || profile.all_modules_completed) return;
 
-  const { count } = await admin
-    .from("scenario_mastery")
-    .select("module_id", { count: "exact", head: true })
-    .eq("user_id", user.id)
-    .eq("is_mastered", true)
-    .is("archived_at", null);
+  const [{ count: quizMastered }, { count: totalModules }] = await Promise.all([
+    admin
+      .from("scenario_mastery")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("scenario_type", "quiz")
+      .eq("is_mastered", true)
+      .is("archived_at", null),
+    admin.from("modules").select("id", { count: "exact", head: true }),
+  ]);
 
-  if ((count ?? 0) >= 20) {
-    await admin
-      .from("profiles")
-      .update({ sbe_elite_number: 1, all_modules_completed: true })
-      .eq("id", user.id);
+  if ((quizMastered ?? 0) >= eliteThreshold(totalModules ?? 0)) {
+    const { error } = await admin.rpc("award_sbe_elite", { p_user_id: user.id });
+    if (error) console.error("award_sbe_elite failed:", error.message);
   }
+}
+
+/** Verify quizzes needed for SBE Elite: 80% of modules, rounded up (matches lib/badges.ts). */
+export function eliteThreshold(totalModules: number): number {
+  return Math.max(1, Math.ceil(totalModules * 0.8));
 }
 
 /**

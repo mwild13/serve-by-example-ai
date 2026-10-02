@@ -2,8 +2,9 @@
  * mastery.ts – Mastery Engine service layer
  *
  * Handles: mastery level progression, spaced repetition scheduling,
- * Elo rating updates, confidence-accuracy tracking, bridge logic,
- * and 60-minute spam guard.
+ * confidence-accuracy tracking, bridge logic, and the 60-minute spam guard.
+ * Elo was retired in audit Phase 5 (2026-10): it was computed but never a
+ * reliable signal (Arena's index 40 scored as difficulty 2778).
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -43,7 +44,7 @@ const V3_MODULE_CATEGORIES: Record<number, "technical" | "service" | "compliance
   37: "service", 38: "service", 39: "technical", 40: "service",
 };
 
-// Pass mark (15/25), mastery streak (3), spam guard (60 min) and Elo live in
+// Pass mark (15/25), mastery streak (3) and spam guard (60 min) live in
 // the record_attempt() Postgres function — see recordAttempt() below.
 
 export type ConfidenceLevel = "low" | "medium" | "high";
@@ -73,7 +74,6 @@ export type MasteryRow = {
   last_score: number;
   last_attempt_at: string | null;
   next_review_at: string | null;
-  elo_rating: number;
   last_confidence: ConfidenceLevel | null;
   high_confidence_incorrect: number;
   low_confidence_correct: number;
@@ -89,8 +89,6 @@ export type MasteryProgress = {
   scenariosAttempted: number;
   /** Total unique scenarios mastered (level 3) */
   scenariosMastered: number;
-  /** Average Elo across all attempted scenarios in this module */
-  avgElo: number;
   /** Average score across all attempts */
   avgScore: number;
   /** Total attempts (includes repeats) */
@@ -173,8 +171,6 @@ export type RecordAttemptResult = {
   previousLevel: number;
   levelChanged: boolean;
   spamGuarded: boolean;
-  eloRating: number;
-  eloDelta: number;
   nextReviewAt: string;
   isBridge: boolean; // should next scenario be easier?
   consecutiveFails: number;
@@ -188,7 +184,7 @@ export type RecordAttemptResult = {
 // ── Core: Record an attempt ──────────────────────────────────
 //
 // The rules (pass mark 15/25, 3 in a row to master, 60-minute spam guard,
-// spaced-repetition review dates, Elo) run inside the record_attempt()
+// spaced-repetition review dates) run inside the record_attempt()
 // Postgres function (supabase/migrations/20261002_atomic_attempts_and_verify_quiz.sql),
 // in one transaction with the mastery row locked. This used to be a
 // read-then-upsert here, which lost updates under concurrent requests and
@@ -284,23 +280,20 @@ export async function getMasteryProgress(
 ): Promise<MasteryProgress> {
   const { data: rows } = await admin
     .from("scenario_mastery")
-    .select("mastery_level, total_attempts, total_score_points, elo_rating")
+    .select("mastery_level, total_attempts, total_score_points")
     .eq("user_id", userId)
     .eq("module", module)
     .eq("scenario_type", scenarioType)
     .is("archived_at", null);
 
   const total = SCENARIO_COUNTS[module] ?? 10;
-  const masteryRows = (rows ?? []) as Pick<MasteryRow, "mastery_level" | "total_attempts" | "total_score_points" | "elo_rating">[];
+  const masteryRows = (rows ?? []) as Pick<MasteryRow, "mastery_level" | "total_attempts" | "total_score_points">[];
 
   const attempted = masteryRows.length;
   const mastered = masteryRows.filter((r) => r.mastery_level >= 3).length;
   const passed = masteryRows.filter((r) => r.mastery_level >= 1).length;
   const totalAttempts = masteryRows.reduce((s, r) => s + r.total_attempts, 0);
   const totalScorePoints = masteryRows.reduce((s, r) => s + r.total_score_points, 0);
-  const avgElo = attempted > 0
-    ? Math.round(masteryRows.reduce((s, r) => s + r.elo_rating, 0) / attempted)
-    : 1200;
   const avgScore = totalAttempts > 0
     ? Math.round((totalScorePoints / totalAttempts) * 10) / 10
     : 0;
@@ -310,7 +303,6 @@ export async function getMasteryProgress(
     mastery: Math.min(Math.round((mastered / total) * 100), 100),
     scenariosAttempted: attempted,
     scenariosMastered: mastered,
-    avgElo,
     avgScore,
     totalAttempts,
   };
@@ -473,35 +465,34 @@ export async function syncMasteryToVenueStaff(
     : Object.values(V3_MODULE_CATEGORIES).filter((c) => c === "technical").length;
 
   // V3 binary mastery aggregation.
-  // scenario_index=0 rows: set is_mastered=true by ModuleVerify (quiz gate).
-  // scenario_index=40 rows: set is_mastered=true by Arena roleplay (service gate).
+  // quiz rows: is_mastered set by the verify quiz (module gate).
+  // roleplay rows: is_mastered set by an Arena pass (service gate).
   // service_score = 80% quiz mastery + 20% roleplay mastery.
   const { data: allMastery } = await admin
     .from("scenario_mastery")
-    .select("module, module_id, scenario_index, is_mastered, elo_rating, high_confidence_incorrect, low_confidence_correct")
+    .select("module, module_id, scenario_type, is_mastered, high_confidence_incorrect, low_confidence_correct")
     .eq("user_id", userId)
     .is("archived_at", null);
 
   const rows = (allMastery ?? []) as Array<{
     module: string;
     module_id: number | null;
-    scenario_index: number;
+    scenario_type: ScenarioType;
     is_mastered: boolean;
-    elo_rating: number;
     high_confidence_incorrect: number | null;
     low_confidence_correct: number | null;
   }>;
 
   const attemptedIds = new Set<number>();
-  const masteredIds = new Set<number>();       // quiz mastered (scenario_index = 0)
-  const roleplayMasteredIds = new Set<number>(); // Arena passed (scenario_index = 40)
+  const masteredIds = new Set<number>();         // verify quiz passed
+  const roleplayMasteredIds = new Set<number>(); // Arena passed
   let totalHighConfidenceIncorrect = 0;
   let totalLowConfidenceCorrect = 0;
   for (const r of rows) {
     if (r.module_id == null) continue;
     attemptedIds.add(r.module_id);
-    if (r.scenario_index === 0 && r.is_mastered) masteredIds.add(r.module_id);
-    if (r.scenario_index === 40 && r.is_mastered) roleplayMasteredIds.add(r.module_id);
+    if (r.scenario_type === "quiz" && r.is_mastered) masteredIds.add(r.module_id);
+    if (r.scenario_type === "roleplay" && r.is_mastered) roleplayMasteredIds.add(r.module_id);
     totalHighConfidenceIncorrect += r.high_confidence_incorrect ?? 0;
     totalLowConfidenceCorrect += r.low_confidence_correct ?? 0;
   }
@@ -520,10 +511,6 @@ export async function syncMasteryToVenueStaff(
 
   const totalAttempted = attemptedIds.size;
   const totalMastered = masteredIds.size;
-
-  const avgElo = rows.length > 0
-    ? Math.round(rows.reduce((s, r) => s + (r.elo_rating ?? 1200), 0) / rows.length)
-    : 1200;
 
   // product_score = % of technical-category modules mastered
   let technicalMastered = 0;
@@ -547,15 +534,13 @@ export async function syncMasteryToVenueStaff(
     masteryStatus = "in-progress";
   }
 
-  // Completion percentage: scenarios attempted / (total modules * estimated scenarios per module)
-  const estimatedTotalScenarios = totalModules * 10; // ~10 scenarios per module on average
-  const completionPct = estimatedTotalScenarios > 0
-    ? Math.round((totalAttempted / estimatedTotalScenarios) * 100)
-    : 0;
+  // Completion: share of modules the user has started at all. totalAttempted
+  // counts distinct modules, so this used to divide modules by ~10× the
+  // module count and could never pass 10% (audit 2026-09-30, M5).
+  const completionPct = Math.min(Math.round((totalAttempted / totalModules) * 100), 100);
 
   const updatePayload = {
     progress: overallProgress,
-    elo_rating: avgElo,
     mastery_status: masteryStatus,
     scenarios_mastered: totalMastered,
     scenarios_attempted: totalAttempted,
@@ -563,7 +548,6 @@ export async function syncMasteryToVenueStaff(
     service_score: computedServiceScore,
     module_completion_pct: completionPct,
     module_mastery_pct: overallProgress,
-    avg_module_elo: avgElo,
     last_active_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     ...(highConfidenceIncorrectRatio !== undefined ? { high_confidence_incorrect_ratio: highConfidenceIncorrectRatio } : {}),

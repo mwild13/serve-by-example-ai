@@ -39,7 +39,6 @@ export async function GET(req: Request) {
       { data: masteryRows },
       { data: arenaRows },
       { data: profileRow },
-      { data: levelRows },
       { data: recentAttemptRow },
       reviewQueue,
       access,
@@ -63,7 +62,7 @@ export async function GET(req: Request) {
         .order("id", { ascending: true }),
       admin
         .from("scenario_mastery")
-        .select("module_id, scenario_type, mastery_level, elo_rating, total_attempts, total_score_points, last_attempt_at, is_mastered")
+        .select("module_id, scenario_type, mastery_level, total_attempts, total_score_points, last_attempt_at, is_mastered")
         .eq("user_id", user.id)
         .is("archived_at", null)
         .not("module_id", "is", null),
@@ -79,10 +78,6 @@ export async function GET(req: Request) {
         .select("best_correct_streak, sbe_elite_number")
         .eq("id", user.id)
         .maybeSingle(),
-      admin
-        .from("user_level_progress")
-        .select("module, level1_completed, level2_completed, level3_completed, level4_unlocked, level1_score, level2_score, level3_score")
-        .eq("user_id", user.id),
       admin
         .from("scenario_mastery")
         .select("last_attempt_at")
@@ -114,9 +109,10 @@ export async function GET(req: Request) {
     const moduleProgress: Record<number, {
       scenariosAttempted: number;
       scenariosMastered: number;
-      avgElo: number;
       completion: number;
       mastery: number;
+      /** Most recent attempt on any row of this module, for "continue learning" ordering. */
+      lastAttemptAt: string | null;
     }> = {};
 
     if (masteryRows && allModules) {
@@ -145,7 +141,10 @@ export async function GET(req: Request) {
         // actually show the user.
         const totalAttempts = rows.reduce((sum, r) => sum + ((r as { total_attempts?: number | null }).total_attempts ?? 0), 0);
         const mastered = rows.filter((r) => r.mastery_level >= 3).length;
-        const totalElo = rows.reduce((sum, r) => sum + (r.elo_rating ?? 1200), 0);
+        const lastAttemptAt = rows.reduce<string | null>(
+          (latest, r) => (r.last_attempt_at && (!latest || r.last_attempt_at > latest) ? r.last_attempt_at : latest),
+          null,
+        );
         const scenarioTotal = SCENARIO_COUNTS[`module_${mod.id}`] ?? 10;
         // ModuleVerify writes a single row with is_mastered=true — treat as 100% if present
         const hasVerified = rows.some((r) => (r as { is_mastered?: boolean | null }).is_mastered === true);
@@ -153,9 +152,9 @@ export async function GET(req: Request) {
         moduleProgress[mod.id] = {
           scenariosAttempted: totalAttempts,
           scenariosMastered: mastered,
-          avgElo: attempted > 0 ? Math.round(totalElo / attempted) : 1200,
           completion: hasVerified ? 100 : (attempted > 0 ? Math.round((attempted / scenarioTotal) * 100) : 0),
           mastery: hasVerified ? 100 : (attempted > 0 ? Math.round((mastered / scenarioTotal) * 100) : 0),
+          lastAttemptAt,
         };
       }
     }
@@ -234,29 +233,6 @@ export async function GET(req: Request) {
     const bestCorrectStreak = (profileRow?.best_correct_streak as number) ?? 0;
     const sbeEliteNumber = (profileRow?.sbe_elite_number as number) ?? 0;
 
-    // ── Level progress (Stages 1-3, legacy table) ──
-    const defaultLevel = { level1_completed: false, level2_completed: false, level3_completed: false, level4_unlocked: false, level1_score: 0, level2_score: 0, level3_score: 0 };
-    const levelProgress: Record<string, typeof defaultLevel> = {
-      bartending: { ...defaultLevel },
-      sales: { ...defaultLevel },
-      management: { ...defaultLevel },
-    };
-    if (levelRows) {
-      for (const row of levelRows) {
-        if (row.module in levelProgress) {
-          levelProgress[row.module] = {
-            level1_completed: row.level1_completed,
-            level2_completed: row.level2_completed,
-            level3_completed: row.level3_completed,
-            level4_unlocked: row.level4_unlocked,
-            level1_score: row.level1_score,
-            level2_score: row.level2_score,
-            level3_score: row.level3_score,
-          };
-        }
-      }
-    }
-
     const lastAttemptAt = recentAttemptRow?.last_attempt_at ?? null;
 
     // ── Challenge completion count — from user_challenges table ──
@@ -311,11 +287,6 @@ export async function GET(req: Request) {
         sales: masteryByModule["sales"].totalAttempts,
         management: masteryByModule["management"].totalAttempts,
       },
-      elo: {
-        bartending: masteryByModule["bartending"].avgElo,
-        sales: masteryByModule["sales"].avgElo,
-        management: masteryByModule["management"].avgElo,
-      },
       scenariosMastered: {
         bartending: masteryByModule["bartending"].scenariosMastered,
         sales: masteryByModule["sales"].scenariosMastered,
@@ -338,7 +309,6 @@ export async function GET(req: Request) {
       allModules: allModules ?? [],
       arenaProgress,
       scenarioCounts: SCENARIO_COUNTS,
-      levelProgress,
       reviewQueue,
       lastAttemptAt,
       scenarioDetails,

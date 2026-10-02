@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildQuestionOrder, gradeAnswer, questionCount } from "./verify-quiz";
+import { buildQuestionOrder, eliteThreshold, gradeAnswer, questionCount } from "./verify-quiz";
 import { VERIFY_QUESTIONS } from "./verify-questions";
 
 describe("buildQuestionOrder", () => {
@@ -41,5 +41,16 @@ describe("gradeAnswer", () => {
   it("returns null for a question or module that doesn't exist", () => {
     expect(gradeAnswer(moduleId, questionCount(moduleId), "true")).toBeNull();
     expect(gradeAnswer(9999, 0, "true")).toBeNull();
+  });
+});
+
+describe("eliteThreshold", () => {
+  it("is 80% of modules, rounded up, like the badge", () => {
+    expect(eliteThreshold(40)).toBe(32);
+    expect(eliteThreshold(41)).toBe(33);
+  });
+
+  it("never drops below one module", () => {
+    expect(eliteThreshold(0)).toBe(1);
   });
 });

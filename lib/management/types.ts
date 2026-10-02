@@ -53,7 +53,6 @@ export type StaffMember = {
   improvements: string[];
   // Mastery engine fields (optional – absent until mastery_schema.sql is run)
   masteryStatus?: string;
-  eloRating?: number;
   knowledgeDecayRisk?: boolean;
   highConfidenceIncorrectRatio?: number;
   scenariosMastered?: number;

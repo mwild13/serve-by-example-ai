@@ -39,7 +39,7 @@ export function PredictivePanel({ venueStaff, selectedVenueName, handleSectionCh
     else if (m.knowledgeDecayRisk) masteryStats.atRisk++;
     else if (m.scenariosAttempted && m.scenariosAttempted > 0) masteryStats.inProgress++;
   }
-  const hasMasteryData = venueStaff.some((m) => m.masteryStatus != null || m.eloRating != null);
+  const hasMasteryData = venueStaff.some((m) => m.masteryStatus != null);
 
   return (
     <section className="ops-grid ops-grid-main">

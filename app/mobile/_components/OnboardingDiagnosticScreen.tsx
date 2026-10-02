@@ -10,14 +10,14 @@ import { useMobileSession } from "../_lib/mobile-session-context";
 // Phase C file 08, Half A — the real 10-question diagnostic, replacing the
 // self-report 3-level picker. Confirmed (v4-migration-plan/08, step 1)
 // app/api/training/diagnostic/start + .../submit already implement
-// lib/diagnostic-engine.ts's real scoring/Elo-seeding logic end to end —
+// lib/diagnostic-engine.ts's real scoring logic end to end —
 // this screen is a straight port of DiagnosticFlow.tsx's (desktop) fetch/
 // answer/submit flow into the mobile shell, not new backend work.
 //
 // Known pre-existing gap, not introduced or fixed here: /diagnostic/start's
 // response includes `isCorrect` on every option, same as desktop's
 // DiagnosticFlow.tsx does today — inspectable via devtools. Diagnostic
-// scoring only seeds an initial Elo baseline (not a compliance/certification
+// scoring only orders module recommendations (not a compliance/certification
 // gate), so this wasn't treated as a blocking fix for this migration; noted
 // for whoever eventually hardens the diagnostic endpoints.
 
