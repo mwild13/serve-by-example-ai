@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { brandedEmailHtml } from "@/lib/email-template";
+import { readJsonBody } from "@/lib/ai-guard";
 
 // Mobile notifications + bug-report pass (2026-08-25) — new Settings >
 // Support > "Report a Bug" entry (app/mobile/_components/ReportBugScreen.tsx).
@@ -22,7 +23,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Too many reports sent. Please try again shortly." }, { status: 429 });
     }
 
-    const body = (await req.json()) as { description?: unknown; screen?: unknown };
+    const read = await readJsonBody(req, undefined, { requireJsonContentType: false });
+    if (!read.ok) return read.response;
+    const body = read.body as { description?: unknown; screen?: unknown };
     const description = typeof body.description === "string" ? body.description.trim() : "";
     const screen = typeof body.screen === "string" ? body.screen.trim() : "";
 

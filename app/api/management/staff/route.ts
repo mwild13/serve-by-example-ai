@@ -3,6 +3,7 @@ import { ManagementAccessError, requireManager } from "@/lib/management/auth";
 import { createStaffMember, updateStaffMember, getManagementSnapshot } from "@/lib/management/service";
 import { escapeHtml } from "@/lib/email-template";
 import type { NewStaffPayload, StaffRole, AustralianState } from "@/lib/management/types";
+import { readJsonBody } from "@/lib/ai-guard";
 
 const VALID_ROLES: StaffRole[] = ["Bartender", "Floor", "Supervisor", "Manager", "New Staff"];
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -18,46 +19,6 @@ function getErrorCode(error: unknown): string | undefined {
   return undefined;
 }
 
-function getErrorMessage(error: unknown) {
-  if (error && typeof error === "object") {
-    const maybeSupabaseError = error as {
-      message?: unknown;
-      code?: unknown;
-      details?: unknown;
-      hint?: unknown;
-    };
-
-    const message = typeof maybeSupabaseError.message === "string" ? maybeSupabaseError.message : "";
-    const code = typeof maybeSupabaseError.code === "string" ? maybeSupabaseError.code : "";
-    const details = typeof maybeSupabaseError.details === "string" ? maybeSupabaseError.details : "";
-    const hint = typeof maybeSupabaseError.hint === "string" ? maybeSupabaseError.hint : "";
-    const detail = [message, details, hint].filter(Boolean).join(" | ").trim();
-
-    if (code || detail) {
-      return code ? `[${code}] ${detail || "Staff insert failed."}` : detail;
-    }
-  }
-
-  if (error instanceof Error) {
-    const supabaseError = error as Error & {
-      code?: string;
-      details?: string;
-      hint?: string;
-    };
-
-    const detailParts = [supabaseError.message, supabaseError.details, supabaseError.hint].filter(Boolean);
-    const detail = detailParts.join(" | ").trim();
-
-    if (supabaseError.code) {
-      return detail ? `[${supabaseError.code}] ${detail}` : `[${supabaseError.code}] ${supabaseError.message}`;
-    }
-
-    return detail || "Unable to add staff member.";
-  }
-
-  return "Unable to add staff member.";
-}
-
 // Writes run on the admin client behind requireManager(), which checks the
 // caller's role and session before anything is written; every write is
 // scoped to manager_user_id = caller. Clients can no longer write venue_staff
@@ -71,7 +32,9 @@ export async function POST(req: Request) {
   const { user, admin } = gate.ctx;
 
   try {
-    const body = (await req.json()) as Partial<NewStaffPayload>;
+    const read = await readJsonBody(req, undefined, { requireJsonContentType: false });
+    if (!read.ok) return read.response;
+    const body = read.body as Partial<NewStaffPayload>;
     const name = body.name?.trim();
     const role = body.role;
     const venueId = body.venueId?.trim();
@@ -218,10 +181,7 @@ export async function POST(req: Request) {
         }
       } catch (linkSetupError) {
         console.error("[staff/invite] Unexpected error in invite setup:", linkSetupError);
-        inviteMessage =
-          linkSetupError instanceof Error
-            ? `Staff member added, but invite setup failed: ${linkSetupError.message}`
-            : "Staff member added, but invite setup is incomplete.";
+        inviteMessage = "Staff member added, but the invite couldn't be set up.";
       }
     }
 
@@ -232,11 +192,13 @@ export async function POST(req: Request) {
     if (error instanceof ManagementAccessError) {
       return NextResponse.json({ error: error.message, code: error.code }, { status: error.status });
     }
-    const code = getErrorCode(error);
-    const message = getErrorMessage(error);
-    const lowered = message.toLowerCase();
-    const isConflict = code === "23505" || lowered.includes("duplicate") || lowered.includes("already");
-    return NextResponse.json({ error: message }, { status: isConflict ? 409 : 400 });
+    // Database details (codes, constraint names, hints) stay in the server
+    // log; the client gets a plain message (audit 2026-09-30, L5).
+    console.error("[staff POST]", error);
+    if (getErrorCode(error) === "23505") {
+      return NextResponse.json({ error: "That staff member is already on this venue's roster." }, { status: 409 });
+    }
+    return NextResponse.json({ error: "Unable to add staff member." }, { status: 400 });
   }
 }
 
@@ -248,7 +210,9 @@ export async function PATCH(req: Request) {
   const { user, admin, assertOwnsStaff } = gate.ctx;
 
   try {
-    const body = await req.json() as Record<string, unknown>;
+    const read2 = await readJsonBody(req, undefined, { requireJsonContentType: false });
+    if (!read2.ok) return read2.response;
+    const body = read2.body as Record<string, unknown>;
     const staffId = typeof body.staffId === "string" ? body.staffId.trim() : null;
 
     if (!staffId) {

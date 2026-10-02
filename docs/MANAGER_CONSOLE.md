@@ -19,7 +19,7 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 1. `app/management/dashboard/page.tsx` starts `getCachedManagementSnapshot(user.id)` — **deliberately not awaited**. This is `unstable_cache(getManagementSnapshot, ["management-snapshot"], { revalidate: 20 })`, calling `getManagementSnapshot()` (`lib/management/service.ts`) with the **admin/service-role Supabase client** — it bypasses RLS entirely and scopes rows explicitly in the query (`.eq("manager_user_id", ...)` / `.eq("owner_user_id", ...)`) instead.
 2. The unawaited promise is passed into `<ManagerControlCenterLoader snapshotPromise={...} />` inside a `<Suspense>` boundary.
 3. `ManagerControlCenterLoader.tsx` calls React 19's `use(snapshotPromise)` to unwrap it, then renders `<ManagerControlCenter initialSnapshot={snapshot} ... />`.
-4. `ManagerControlCenter.tsx` seeds local `useState` from `initialSnapshot`. On a cache miss, invalidation, or manual refresh, a client-side fallback (`fetchSnapshot` → `apiFetch("/api/management/snapshot")`) re-derives the identical snapshot by calling the **same** `getManagementSnapshot()` function from inside the API route, this time via `getUserFromRequest(req)`.
+4. `ManagerControlCenter.tsx` seeds local `useState` from `initialSnapshot`. On a cache miss, invalidation, or manual refresh, a client-side fallback (`fetchSnapshot` → `apiFetch("/api/management/snapshot")`) re-derives the identical snapshot by calling the **same** `getManagementSnapshot()` function from inside the API route, behind `requireManager()` (§3), on the admin client.
 5. Panel components (`StaffDirectoryTable.tsx`, `TeamsPerformancePanel.tsx`, `LeaderboardBoard.tsx`, etc.) are purely prop-driven for reads — they receive the already-fetched snapshot's data as props and never fetch it themselves.
 6. **Mutations** (invite staff, edit roster, create venue, etc.) go through `/api/management/*` routes. Their JSON response (an updated snapshot fragment) is merged directly into `ManagerControlCenter`'s local state — this deliberately **bypasses** the 20-second cached server fetch, so a mutation's effect is visible immediately without waiting for `revalidate: 20` to expire.
 
@@ -34,7 +34,16 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 - A hardcoded `ADMIN_EMAILS` env-var list provides a separate internal-admin escape hatch (`isAdmin`).
 - Final gate: `if (!isAdmin && !hasVenueAccess && !hasManagerRole && !hasTrialAccess) redirect("/pricing")`.
 
-**API-route level: `/api/management/*` routes do NOT re-check `platform_role`.** They only check `getUserFromRequest(req)` returns a user (401 otherwise). Real authorization happens inside `lib/management/service.ts`: every mutation (`createStaffMember`, `updateStaffMember`, `createVenue`, etc.) filters its query on `manager_user_id`/`owner_user_id = the caller's own id` (e.g. `.eq("id", staffId).eq("manager_user_id", managerId)`). This means a manager can only touch rows they own **because of row-ownership filtering in application code**, not because of a role check at the API boundary or Postgres RLS. Keep this in mind before adding a new `/api/management/*` route — copy the row-ownership filter pattern from an existing route/service function, don't assume the page-level gate is enough.
+**API-route level: every `/api/management/*` handler starts with `requireManager()`** (`lib/management/auth.ts`, audit 2026-09-30 Phases 2–3). Since the Phase 2 RLS lockdown, clients can't write any of these tables, and every write runs on the service-role client, which bypasses RLS — so **this guard is the security boundary**. It:
+
+- validates the JWT with `auth.getUser` → 401; rate-limits per user and IP → 429; checks the one-device `sbe_session_id` → 409 (a missing cookie is allowed, matching middleware);
+- reads role, tier and trial from the database (never from the body) using the same rules as the page gate → 403; `ownerOnly: true` excludes duty managers (venues, billing-type actions, membership role changes);
+- returns `entitlement { tier, seatLimit, venueLimit }` — plan limits are enforced here (venue cap: Boutique/`venue_single` 1, Commercial/Enterprise unlimited; seats from `TIER_SEATS`), never from `profiles.tier` directly;
+- returns `assertOwnsVenue(id)` / `assertOwnsStaff(id)`, which throw a 404 for anything the caller doesn't own.
+
+Service functions still filter every update/delete by `manager_user_id`/`owner_user_id = caller` as a second layer. Errors go through `managementErrorResponse()` (generic message to the client, details to the server log).
+
+**Adding a route:** copy the pattern — `const gate = await requireManager(req, { rateKey, ownerOnly?, limit? }); if (!gate.ok) return gate.response;`, assert ownership of every id in the body, read the body with `readJsonBody()`, and escape anything that goes into an email with `escapeHtml()`. The one exception is `join-venue`, which staff must be able to call (documented in that file).
 
 **`RolesPermissionsMatrix.tsx` is purely presentational — it does not gate or enforce anything.** It renders a hardcoded `PERMISSIONS` array (e.g. `{ label: "Staff management", manager: true, supervisor: true, staff: false }`) as a static reference table, plus a training-compliance ring per role. **Never mistake this component for an ACL** — it has no connection to the real authorization logic described above.
 
@@ -58,11 +67,14 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 
 - **`RolesPermissionsMatrix.tsx` is decorative only** (§3) — the single most important gotcha in this doc. Repeated here deliberately.
 - **No date-range filter exists** (§4).
-- **API-boundary auth relies on row-ownership filtering in application code**, not a role check at the API layer or RLS (§3) — an architectural fact to know before adding a new route, not something this doc is proposing to fix.
+- **The API route is the security boundary** (§3): the admin client bypasses RLS, so a new `/api/management/*` route without `requireManager()` and ownership assertions is an open door. Clients have read-only access to these tables.
+- **Duty-manager data scope:** duty managers own no venues, so their first write auto-creates a "Primary Venue" for them (pre-existing behaviour, not yet redesigned).
+- **"Staff invites & seat management" card** lists every invite across all of an owner's venues (no venue filter) and shows Enterprise seats as "/ 9999" — tracked in `To_do_list.md`.
 - **"Mission Control" still appears in a few real user-facing strings** even though the product is marketed as "Manager Console": the `<title>` on `/management/dashboard` ("Mission Control | Serve By Example"), its `error.tsx` heading ("Mission Control couldn't load"), two `<option>` labels in `StaffDirectoryTable.tsx` ("Duty Manager — Mission Control" / "... (no Billing)"), and one blended string in `TrialBillingSection.tsx` ("Manager Mission Control"). Recorded as current state, not fixed here.
 
 ## Related Docs
 
 - `docs/Phase5-Mission-Control-Execution-Brief.md` — component-extraction history and original acceptance criteria (historical; the extractions it called for are done)
 - `docs/ManagmentConsoleUpgradeV5.md` — visual upgrade proposal (historical; note the filename's own spelling — "Managment" — is not a typo to fix, it's the real file)
-- `docs/DATABASE_SCHEMA.md` — RLS patterns and the `organizations`/`venue_memberships` dual-model bridge referenced in §2–3 above
+- `docs/DATABASE_SCHEMA.md` — RLS model (clients read-only) and the `organizations` model referenced in §2–3 above
+- `docs/handoff/security/2026-10-02-audit-remediation-handoff.md` — why the API guard exists and the rules for new code

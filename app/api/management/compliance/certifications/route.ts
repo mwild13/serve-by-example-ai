@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireManager } from "@/lib/management/auth";
+import { readJsonBody } from "@/lib/ai-guard";
 
 const MAX_FIELD_CHARS = 200;
 const MAX_NOTES_CHARS = 2000;
@@ -38,7 +39,9 @@ export async function POST(req: Request) {
   if (!gate.ok) return gate.response;
   const { user, admin } = gate.ctx;
 
-  const body = await req.json() as Record<string, unknown>;
+  const read = await readJsonBody(req, undefined, { requireJsonContentType: false });
+  if (!read.ok) return read.response;
+  const body = read.body as Record<string, unknown>;
   const venueStaffId = typeof body.venueStaffId === "string" ? body.venueStaffId.trim() : null;
   const certName = typeof body.certName === "string" ? body.certName.trim() : null;
   const certNumber = typeof body.certNumber === "string" ? body.certNumber.trim() || null : null;

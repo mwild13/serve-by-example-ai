@@ -3,6 +3,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { isValidChallengeIndex, MAX_CHALLENGE_INDEX } from "@/lib/challenges";
+import { readJsonBody } from "@/lib/ai-guard";
 
 export async function POST(req: Request) {
   try {
@@ -19,7 +20,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
     }
 
-    const body = await req.json();
+    const read = await readJsonBody(req, undefined, { requireJsonContentType: false });
+    if (!read.ok) return read.response;
+    const body = read.body;
     const challengeIndex = Number(body.challengeIndex);
 
     // Validate challenge index (0 to MAX_CHALLENGE_INDEX — see lib/challenges.ts)

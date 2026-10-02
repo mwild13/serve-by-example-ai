@@ -8,10 +8,10 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 
 | Table | Migration | Purpose |
 |---|---|---|
-| `modules` | `20260421_1_create_modules.sql` | The 40 training modules. `id INT` (1–40), `title`, `category` (`technical`/`service`/`compliance`), `subcategory`, `difficulty_level` (1–5), `recommended_prereq_ids INT[]`, `required_role`, `min_elo_for_advanced` (default 1500). |
-| `scenarios` | `20260421_2_create_scenarios.sql` (+`2b`/`2c` follow-ups) | Practice content. `module_id` FK → `modules(id)`, `scenario_index`, `scenario_type` (`quiz`/`descriptor_l2`/`descriptor_l3`/`roleplay`), `prompt`, `content JSONB`, `difficulty`, `tags TEXT[]`. `UNIQUE(module_id, scenario_index)`. |
+| `modules` | `20260421_1_create_modules.sql` | The 40 training modules. `id INT` (1–40), `title`, `category` (`technical`/`service`/`compliance`), `subcategory`, `difficulty_level` (1–5), `recommended_prereq_ids INT[]`, `required_role`. (`min_elo_for_advanced` dropped in `20261003c`.) |
+| `scenarios` | `20260421_2_create_scenarios.sql` (+`2b`/`2c` follow-ups) | Live content is the 320 verify-quiz questions (8 per module, `scenario_type = 'quiz'`) **with answers** in `content`, so clients have no access at all (`20261003_lock_scenarios_answer_key.sql`); the quiz is graded from `lib/verify-questions.ts`. Original design: `module_id` FK → `modules(id)`, `scenario_index`, `scenario_type` (`quiz`/`descriptor_l2`/`descriptor_l3`/`roleplay`), `prompt`, `content JSONB`, `difficulty`, `tags TEXT[]`. `UNIQUE(module_id, scenario_index)`. |
 | `diagnostic_questions` | `20260421_2c_create_scenarios_part3.sql` | Onboarding diagnostic bank: `question_text`, `options JSONB`, `target_categories[]`, `is_active`. |
-| `module_elo_baseline` | `20260421_3_create_module_elo_baseline.sql` | Per-user ELO seeding from the onboarding diagnostic. `user_id` FK → `auth.users`, `answers JSONB`, `category_scores JSONB` (e.g. `{technical:1350,...}`). `UNIQUE(user_id)`. |
+| `module_elo_baseline` | `20260421_3_create_module_elo_baseline.sql` | Placement-check result (name predates the Elo retirement). `user_id` FK → `auth.users`, `answers JSONB`, `category_scores JSONB` — percent correct per category since Phase 5 (`{technical:80,...}`); older rows are on the old 1000–1500 scale. Only the category order is used (module recommendations). `UNIQUE(user_id)`. |
 | `organizations` | `20260621_organizations_and_billing.sql` | B2B billing entity. `stripe_customer_id`, `subscription_tier` (default `free`), `seat_limit`, `owner_user_id` FK → `auth.users` (`ON DELETE RESTRICT`). Later extended with `trial_tier`, `trial_started_at`/`trial_ends_at`, `trial_converted` (`20260716_trial_columns.sql`). |
 | `organization_members` | `20260621_organizations_and_billing.sql` | Org ↔ user junction. `org_id` FK → `organizations` (cascade), `user_id` FK → `auth.users` (nullable — invited-but-unregistered), `staff_email`, `role` (`owner`/`admin`/`member`), `status` (`invited`/`active`/`removed`). `UNIQUE(org_id, staff_email)`. |
 | `billing_events` | `20260621_organizations_and_billing.sql` | Stripe webhook idempotency ledger: `stripe_event_id` unique, `event_type`. |
@@ -20,6 +20,8 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 | `manager_coach_sessions` | `20260719_manager_coach_sessions.sql` | AI coach chat history per manager, auto-expiring. `manager_user_id`, `venue_id` FK, `role` (`user`/`coach`), `content`. |
 | `staff_recognitions` | `20260719_staff_recognitions.sql` | Manager praise messages to staff. `staff_id` FK → `venue_staff`, `from_manager_id`, `message`. |
 | `user_access_allowlist` | `20260716_create_user_access_allowlist.sql` | Access-gating allowlist. |
+| `training_attempts` | `20261002_atomic_attempts_and_verify_quiz.sql` | Idempotency ledger for Scenario Training / Arena attempts: `id` (client attempt id), `user_id`, scenario key, `score`, `result JSONB`, `evaluation JSONB` (stored feedback for retries). Written only by `record_attempt()`. No client access. |
+| `verify_attempts` | `20261002_atomic_attempts_and_verify_quiz.sql` | One row per verify-quiz run: `question_order INT[]`, `position`, `streak`, `status` (`active`/`passed`/`exhausted`), `expires_at` (+20 min). Advanced only by `advance_verify_attempt()`. No client access. |
 
 **Migration file exists but table is not live** (verified 2026-09-29 against the production Supabase project via `list_tables` — 21 public tables present, this one isn't among them):
 
@@ -32,9 +34,9 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 | Table | What we know from `ALTER TABLE` calls |
 |---|---|
 | `venues` | `enabled_module_ids INT[]`, `force_diagnostic_on_join BOOLEAN` (default true), `venue_code` (rotated in `20260514_rotate_venue_codes.sql`), report-schedule columns (`20260719_venues_report_schedule.sql`). |
-| `venue_staff` | `venue_id`, `manager_user_id`, `module_completion_pct REAL`, `module_mastery_pct REAL`, `avg_module_elo INT` (default 1200), `manager_notes` (`20260718_staff_manager_notes.sql`), RSA-state + Australian-state compliance columns (`20260629_compliance_tracking.sql`). |
-| `profiles` | `id` (== `auth.users.id`, 1:1), `platform_version`, `platform_role`, `diagnostic_completed`, `org_id` FK → `organizations` (`ON DELETE SET NULL`, added `20260621`), badge/streak columns, `trial_grace_modal_shown`, `profile_photo_url` (`20260818_profile_photo_url.sql`) — points at a `profile-photos` Storage bucket object (`20260923_profile_photos_bucket.sql`), not a static/fal.media URL — plus `profile_photo_generations_today`/`_reset_at` (`20260825_profile_photo_daily_cap.sql`), `sbe_elite_number`, `all_modules_completed`, `current_session_id` (one-device session enforcement — see `/session-conflict` in `CLAUDE.md`'s App Pages table). |
-| `scenario_mastery` | The canonical mastery/ELO table — see §2. |
+| `venue_staff` | `venue_id`, `manager_user_id`, `module_completion_pct REAL`, `module_mastery_pct REAL`, `manager_notes` (`20260718_staff_manager_notes.sql`), RSA-state + Australian-state compliance columns (`20260629_compliance_tracking.sql`). |
+| `profiles` | `id` (== `auth.users.id`, 1:1), `platform_version`, `platform_role`, `diagnostic_completed`, `org_id` FK → `organizations` (`ON DELETE SET NULL`, added `20260621`), badge/streak columns, `trial_grace_modal_shown`, `profile_photo_url` (`20260818_profile_photo_url.sql`) — points at a `profile-photos` Storage bucket object (`20260923_profile_photos_bucket.sql`), not a static/fal.media URL — plus `profile_photo_generations_today`/`_reset_at` (`20260825_profile_photo_daily_cap.sql`), `sbe_elite_number` (assigned once from `sbe_elite_number_seq` by `award_sbe_elite()`), `all_modules_completed`, `current_session_id` (one-device session enforcement — see `/session-conflict` in `CLAUDE.md`'s App Pages table). |
+| `scenario_mastery` | The canonical mastery table — see §3. |
 | `pending_invites` | Not documented anywhere before this. Live, in active use (`app/api/management/staff/route.ts`, `app/api/profile/delete/route.ts`): `manager_user_id`, `venue_id`, `staff_name`, `email`, `invite_link`, `expires_at` (default `now() + 7 days`), `used_at`. Looks like the current staff-invite mechanism — verify against `lib/management/service.ts` before assuming `organization_members`'s `invited` status is the only invite path. |
 
 **Retired — zero code references, kept here only so it isn't rediscovered and assumed live**:
@@ -42,6 +44,8 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 | Table | Status |
 |---|---|
 | `venue_memberships` | Not present in the live Supabase project (verified 2026-09-29 via `list_tables` — 21 public tables, this isn't one) and zero references anywhere in `app/`, `lib/`, or `supabase/migrations/`. Prior versions of this doc described it as the "older model" in the dual-model bridge below (§4) — that appears to be fully retired now, not merely legacy-but-present. If you're resolving "does this user have access," `organizations`/`organization_members`/`venue_staff` is the live path; don't go looking for `venue_memberships`. |
+
+**Dropped in audit Phase 5** (`20261003c_drop_elo_columns_and_legacy_tables.sql`): `user_level_progress` (legacy 3-stage tracking) and `_legacy_user_training_progress` (write-only), plus the Elo columns `scenario_mastery.elo_rating`, `venue_staff.elo_rating`, `venue_staff.avg_module_elo`, `modules.min_elo_for_advanced`.
 
 **Not live schema** — two one-off backup tables created during the V3 legacy-stage purge (`20260502_v3_purge_legacy_stages.sql`): `public._v3_backup_scenarios_20260502`, `public._v3_backup_scenario_mastery_20260502`. Never query these; they're a rollback snapshot, not part of the application schema.
 
@@ -59,13 +63,13 @@ The database schema is logically correct — no renames needed. This table docum
 | AI Scenario (Arena) | `scenarios` | `scenario_type = 'roleplay'` | AI-evaluated roleplay; internal code uses `'ai_roleplay'` for clarity |
 | Challenge | `user_challenges` | `*` | Tap-based mini-game; entirely separate from the scenarios table |
 
-## 3. `scenario_mastery` — Canonical Mastery/ELO Table
+## 3. `scenario_mastery` — Canonical Mastery Table
 
-Not a `CREATE TABLE` in the captured history (pre-existing), but it's the single most important table in the schema: **`lib/mastery.ts` is the single source of truth for all reads/writes to it** — never add a second ELO calculation or mastery formula elsewhere. See `docs/MASTERY_ENGINE.md` and `lib/mastery.ts` for the actual scoring logic; this doc only covers the table shape.
+Not a `CREATE TABLE` in the captured history (pre-existing), but it's the single most important table in the schema. **It is written only by the `record_attempt()` and `mark_module_mastered()` Postgres functions** (called through `lib/mastery.ts` and `advance_verify_attempt()`) — never add a second mastery formula elsewhere. See `docs/MASTERY_ENGINE.md` and `lib/mastery.ts` for the actual scoring logic; this doc only covers the table shape.
 
 **Composite key**: `UNIQUE (user_id, module, scenario_type, scenario_index)` — constraint name `scenario_mastery_user_module_type_index_key`, added by `20260820_scenario_mastery_scenario_type.sql`. Also carries a `module_id` FK → `modules(id)` (added post-hoc in `20260421_4_extend_existing_tables.sql`) and an `is_mastered BOOLEAN` column.
 
-**Why `scenario_type` had to be added** (real incident, worth knowing before touching this table): the key used to be just `(user_id, module, scenario_index)`. Three structurally different write paths share that key space — Quiz (`markModuleMastered()`, always `scenario_index = 0`), Scenario Training (`recordAttempt()`, real content index 0–9/0–19), and AI Arena (`recordAttempt()`, always `scenario_index = 40`). For modules 1–3, Quiz's index-0 row collided with Scenario Training's real index-0 scenario — whichever wrote last stomped the other's `mastery_level`/`elo_rating`/`total_attempts`/`consecutive_correct`. `scenario_type` was added specifically to let all three coexist without corrupting each other.
+**Why `scenario_type` had to be added** (real incident, worth knowing before touching this table): the key used to be just `(user_id, module, scenario_index)`. Three structurally different write paths share that key space — Quiz (`markModuleMastered()`, always `scenario_index = 0`), Scenario Training (`recordAttempt()`, real content index 0–9/0–19), and AI Arena (`recordAttempt()`, always `scenario_index = 40`). For modules 1–3, Quiz's index-0 row collided with Scenario Training's real index-0 scenario — whichever wrote last stomped the other's `mastery_level`/`total_attempts`/`consecutive_correct`. `scenario_type` was added specifically to let all three coexist without corrupting each other.
 
 ## 4. The `organizations` / `venue_memberships` Dual-Model Bridge (historical — `venue_memberships` now retired)
 
@@ -86,68 +90,40 @@ WHERE p.org_id IS NOT NULL
 ON CONFLICT (org_id, staff_email) DO NOTHING;
 ```
 
-**Historical gotcha, now moot**: at the time this ran, a row could exist in `venue_memberships`/`venue_staff` without ever having been backfilled into `organization_members`. Since `venue_memberships` is retired (§1), a new access-check query today only needs the current model — trace the read path an existing feature already uses (e.g. `lib/management/service.ts`, `lib/session.ts`) rather than re-deriving it, since `venue_staff` linkage now goes through `organization_member_id`, `manager_user_id`, and email-matching in `syncMasteryToVenueStaff()` (`lib/mastery.ts`), not a single obvious join.
+**Historical gotcha, now moot**: at the time this ran, a row could exist in `venue_memberships`/`venue_staff` without ever having been backfilled into `organization_members`. Since `venue_memberships` is retired (§1), a new access-check query today only needs the current model — trace the read path an existing feature already uses (e.g. `lib/management/service.ts`, `lib/session.ts`) rather than re-deriving it, since `venue_staff` linkage goes through `organization_member_id`, `manager_user_id`, and `staff_user_id`. Email is matched exactly once, at sign-in, by `linkStaffAccountByEmail()` (`lib/staff-link.ts`, exact lowercase match, fills empty links only); `syncMasteryToVenueStaff()` follows `staff_user_id` only.
 
-## 5. RLS Policy Patterns
+## 5. RLS Model — Clients Are Read-Only
 
-Three representative patterns, with real SQL from the migrations.
+Since the audit Phase 2 lockdown (`20260930_rls_lockdown.sql`, applied 2026-10-01), **browsers can read their own rows but cannot write any application table.** Every insert, update and delete goes through an API route on the service-role client (`createSupabaseAdminClient()`), which bypasses RLS — so the API route's own checks (`requireManager()` for management routes, `getUserFromRequest()` + explicit ownership filters elsewhere) are the real authorization. See `docs/MANAGER_CONSOLE.md` §3.
 
-**Pattern 1 — plain own-row `auth.uid()`** (used for `user_challenges`, `scenario_mastery`, `module_elo_baseline`, `profiles`):
+What the lockdown did, on 21 tables (including `profiles`, `scenario_mastery`, `organizations`, `organization_members`, `venues`, `venue_staff`, `training_programs`, `venue_inventory_items`, `staff_recognitions`, `manager_coach_sessions`, `venue_staff_certifications`, `user_challenges`, `pending_invites`):
 
-```sql
--- 20260630_user_challenges.sql
-CREATE POLICY "Users can view their own challenges" ON public.user_challenges
-  FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert their own challenges" ON public.user_challenges
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-```
+- dropped every client INSERT/UPDATE/DELETE/ALL policy;
+- recreated SELECT-only policies with the same row scoping, `TO authenticated` (none on `pending_invites`);
+- revoked INSERT, UPDATE, DELETE, TRUNCATE, TRIGGER and REFERENCES from `anon` and `authenticated`.
 
-**Pattern 2 — organization ownership via a `SECURITY DEFINER` helper** (avoids recursive RLS between `organizations` ↔ `organization_members`):
+The read policies still follow the three historical patterns: own-row `auth.uid() = user_id`; organization ownership via the `SECURITY DEFINER` helper `get_user_org_id()` (avoids recursive RLS between `organizations` ↔ `organization_members`); and manager scoping through `venue_staff.manager_user_id` or a direct `manager_user_id` column.
 
-```sql
--- 20260621_organizations_and_billing.sql
-CREATE OR REPLACE FUNCTION get_user_org_id() RETURNS UUID LANGUAGE sql SECURITY DEFINER SET search_path = '' AS $$
-  SELECT org_id FROM public.profiles WHERE id = auth.uid();
-$$;
-CREATE POLICY "orgs_owner_all" ON organizations FOR ALL
-  USING (auth.uid() = owner_user_id) WITH CHECK (auth.uid() = owner_user_id);
-CREATE POLICY "orgs_member_read" ON organizations FOR SELECT
-  USING (auth.uid() = owner_user_id OR id = get_user_org_id());
-```
+Tables with **no client access at all**: `pending_invites`, `scenarios` (holds the quiz answer key), `training_attempts`, `verify_attempts`. Postgres functions that write (`record_attempt`, `mark_module_mastered`, `advance_verify_attempt`, `award_sbe_elite`) are `SECURITY DEFINER` with `EXECUTE` granted to `service_role` only.
 
-**Pattern 3 — `venue_staff` manager-scoped subquery join** (used for staff-linked tables — `venue_staff_certifications`, `staff_recognitions`, `manager_coach_sessions`):
+The seat trigger `check_org_seat_limit()` treats a NULL/0 `seat_limit` as **zero** seats (`20261001_backfill_legacy_org_rows_and_tighten_seat_trigger.sql`); only the service role writes `seat_limit`, `subscription_tier` and `trial_*`.
 
-```sql
--- 20260719_venue_staff_certifications.sql
-CREATE POLICY "manager_access_custom_certs" ON venue_staff_certifications
-  USING (venue_staff_id IN (SELECT id FROM venue_staff WHERE manager_user_id = auth.uid()))
-  WITH CHECK (venue_staff_id IN (SELECT id FROM venue_staff WHERE manager_user_id = auth.uid()));
-```
+**Before adding a table:** enable RLS, add SELECT policies only, `REVOKE ALL ... FROM anon, authenticated` and grant back only `SELECT`, and do writes from an API route. Verify with `information_schema.role_table_grants` — RLS coverage was historically incomplete (`scenario_mastery` had no policies until `20260628`), so check per table rather than assuming.
 
-`staff_recognitions`/`manager_coach_sessions` use the simpler direct-column variant of the same idea (`from_manager_id = auth.uid()` / `manager_user_id = auth.uid()`), since those tables store the manager id directly rather than requiring the `venue_staff` join.
-
-**Historical note — don't assume RLS coverage is comprehensive, verify per table.** `scenario_mastery` had *no* RLS policies at all until a retroactive fix:
-
-```sql
--- 20260628_rls_security_and_indexes.sql
--- Issue: scenario_mastery had no RLS policies, allowing potential data leakage
-ALTER TABLE scenario_mastery ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can read own scenario_mastery" ON scenario_mastery ...
-```
-
-That same migration added `idx_venue_staff_manager_user_id` specifically because manager-dashboard RLS checks against `venue_staff.manager_user_id` were unindexed (see `docs/MANAGER_CONSOLE.md` §2 for how the manager dashboard actually queries this table — spoiler: it uses the admin client and scopes by application-code filtering, not RLS, for its main read path).
+**Testing migrations:** Supabase branching doesn't work for this project (the core tables aren't in the migration history). The audit dry-ran each migration on production inside one `DO` block that applies it, re-runs the checks and then raises an exception so everything rolls back — see `docs/handoff/security/2026-10-02-audit-remediation-handoff.md`.
 
 ## Known Gaps / Drift
 
 - **`venue_memberships` is retired** (§1, §4) — no live table, no code references. Don't resurrect it as an assumption when reading older docs, commits, or comments that mention it.
 - **`toolkit_leads` migration exists but the table isn't live**, and the SOP-toolkit capture route doesn't persist leads anywhere (§1) — a product gap worth flagging, not a doc-accuracy issue.
 - **`pending_invites` was previously undocumented** (§1) despite being a live, actively-used table — confirm this is still the current invite mechanism before assuming `organization_members.status = 'invited'` is the only one.
-- **`scenario_mastery`'s retroactive RLS fix** (§5) — a reminder that RLS coverage was historically incomplete; verify per table rather than assuming.
+- **RLS coverage was historically incomplete** (§5) — verify grants and policies per table rather than assuming.
+- **`module_elo_baseline` keeps its old name** although it now stores placement-check percentages (§1).
 - **Five core tables have no `CREATE TABLE` anywhere in this repo's migration history**: `venues`, `venue_staff`, `profiles`, `scenario_mastery`, and (historically) `venue_memberships`. Their base schema was created outside the captured migration set — treat their columns as "known from `ALTER TABLE` calls," not as a complete list.
-- **`scenario_mastery`'s key collision bug** (§3) is fixed as of `20260820_scenario_mastery_scenario_type.sql`, but any code still assuming the old 3-part key `(user_id, module, scenario_index)` would silently corrupt data across write paths — always match the write path (`markModuleMastered` / `recordAttempt`) to the correct `scenario_type`.
+- **`scenario_mastery`'s key collision bug** (§3) is fixed as of `20260820_scenario_mastery_scenario_type.sql`, but any code still assuming the old 3-part key `(user_id, module, scenario_index)` would silently corrupt data across write paths — always match the write path (`mark_module_mastered` / `record_attempt`) to the correct `scenario_type`.
 
 ## Related Docs
 
 - `docs/SCHEMA_BLUEPRINT.md` — `profiles` table column-layout blueprint (historical, do not duplicate here)
 - `docs/Updates/database_blueprint.md` — broader schema blueprint (historical)
-- `lib/mastery.ts` + `docs/MASTERY_ENGINE.md` — mastery/ELO scoring logic; this doc only covers the table shape, not the formula
+- `lib/mastery.ts` + `docs/MASTERY_ENGINE.md` — mastery scoring logic; this doc only covers the table shape, not the formula

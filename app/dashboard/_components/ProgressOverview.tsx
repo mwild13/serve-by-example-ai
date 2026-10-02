@@ -105,12 +105,23 @@ export default function ProgressOverview({
     });
   }
 
-  function applyResponse(res: any) {
+  function applyResponse(raw: Record<string, unknown>) {
+    // The fields this view reads from GET /api/training/progress.
+    const res = raw as {
+      allModules?: { id: number; title: string; category: string }[];
+      moduleProgress?: Record<number, { mastery?: number; scenariosAttempted?: number; scenariosMastered?: number }>;
+      sessions?: Partial<Record<"bartending" | "sales" | "management", number>>;
+      scores?: Partial<Record<"bartending" | "sales" | "management", number>>;
+      reviewQueue?: unknown;
+      skillLevel?: unknown;
+      bestCorrectStreak?: number;
+      sbeEliteNumber?: number;
+      arenaProgress?: TrainingData["arenaProgress"];
+    };
     if (res.allModules && res.moduleProgress) {
-        const modules: ModuleSummary[] = (
-          res.allModules as { id: number; title: string; category: string }[]
-        ).map((m) => {
-          const p = res.moduleProgress[m.id] ?? { scenariosAttempted: 0, scenariosMastered: 0 };
+        const moduleProgress = res.moduleProgress;
+        const modules: ModuleSummary[] = res.allModules.map((m) => {
+          const p = moduleProgress[m.id] ?? { scenariosAttempted: 0, scenariosMastered: 0 };
           return {
             id: m.id,
             title: m.title,

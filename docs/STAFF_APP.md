@@ -21,12 +21,15 @@ The staff training platform has a **3-stage mastery path** plus AI-powered extra
 
 **Premium gating** — `PREMIUM_NAV_ITEMS = ["module", "stage4", "scenarios", "cocktails", "knowledge"]`. Free users see these as locked. `challenges`, `home`, `progress`, and `settings` are always available.
 
-**Tier access (`lib/session.ts`)**:
+**Tier access (`lib/session.ts`, `TIER_MODULES` / `TIER_SEATS`)**:
 - `free` — no module access
-- `pro` — all 40 modules
-- `venue_single` — all 40 modules, up to 25 staff
-- `venue_multi` — all 40 modules, up to 125 staff (5 venues × 25)
-- Staff invited via venue code (`venue_memberships` table) receive sponsored access equivalent to `pro`
+- `pro` — all 40 modules (individual, no staff seats)
+- `boutique` (legacy value `venue_single`) — all 40 modules, 15 staff seats, 1 venue
+- `commercial` (legacy value `venue_multi`) — all 40 modules, 35 staff seats, unlimited venues
+- `enterprise` — all 40 modules, unlimited seats (stored as 9999) and venues; sales-assisted only
+- **Sponsored staff**: an active `organization_members` row (via an invite or joining with a venue code) gives the staff member module access through their manager's plan. Accounts are linked to roster/membership rows only at sign-in, by exact lowercase email (`lib/staff-link.ts`), and everything afterwards follows `user_id`.
+
+One resolver serves pages and API routes: `resolveTierAccess()`, with `resolveAccess()` delegating to it, so the lapsed-subscription downgrade and the paused-sponsor rule apply everywhere. Venue and seat caps are enforced server-side in `requireManager()` (`docs/MANAGER_CONSOLE.md` §3).
 
 **`DashboardShell.tsx`** is the main authenticated staff UI — a client component managing `NavItem` state and rendering the correct view. To add a new learning view: add a string literal to `type NavItem` → add an entry to `NAV_ITEMS` → import the component (lazy-load heavy ones with `lazy(() => import(...))`) → add a render case in the conditional chain → add to `PREMIUM_NAV_ITEMS` if it should be gated.
 
@@ -52,11 +55,15 @@ Before touching "the mobile dashboard," confirm which of these two trees the req
 - `app/api/arena/evaluate/route.ts` calls `openai.chat.completions.create()` with **no `stream: true`**. It awaits the full completion, parses `completion.choices[0].message.content` as one JSON blob, and returns a single `Response.json({ assessment: {...} })`.
 - 25-second `AbortController` timeout, unrelated to streaming.
 - System prompt instructs the model to return `{score, what_you_did_well, room_for_improvement, passed}`. `PASS_THRESHOLD = 75` (0–100 scale).
-- After scoring, writes through the canonical path: `recordAttempt()` (normalizing the 0–100 score to the mastery engine's 0–25 scale) then `syncMasteryToVenueStaff()` — both from `lib/mastery.ts`. See `docs/MASTERY_ENGINE.md`, don't re-derive the mastery formula here.
+- After scoring, writes through the canonical path: `recordAttempt()` (normalizing the 0–100 score to the mastery engine's 0–25 scale, with Arena's own `passed` flag) then `syncMasteryToVenueStaff()` — both from `lib/mastery.ts`. Each submission carries an `attemptId` (`lib/attempt-id.ts`), so a retry returns the stored assessment instead of grading and recording twice. The route checks the one-device session and the user's plan before calling OpenAI. See `docs/MASTERY_ENGINE.md`, don't re-derive the mastery formula here.
 - **No chat history or message array exists anywhere in this flow.** `ArenaPage.tsx` state is just `phase`, `selectedId`, `response` (the textarea text), `result`, `error`, `arenaProgress` — there is no transcript. Each scenario attempt is one isolated, one-shot, scored write-up submitted via a single `fetch("/api/arena/evaluate", {...})` — it is not a multi-turn roleplay conversation, and there is no conversational context carried between attempts.
 - `arenaProgress` (attempts/bestScore/passed per module) loads once from `/api/training/progress` on mount and is updated in local memory after each submit — persistence itself happens server-side via `recordAttempt()`, not by re-fetching.
 
-## 4. PWA / Offline
+## 4. Verify Quiz (module mastery)
+
+The desktop quiz (`ModuleVerify.tsx` → `RapidFireQuiz.tsx`) and the mobile one (`app/mobile/_components/QuizScreen.tsx`) are graded **on the server, one answer at a time**: `/api/training/verify/start` returns prompts only, `/api/training/verify/answer` grades each answer and keeps the streak. 5 correct in a row masters the module. The answer key (`lib/verify-questions.ts`) is `server-only` — importing it into a client component fails the build. `/api/training/save` is retired (410). Details in `docs/MASTERY_ENGINE.md`.
+
+## 5. PWA / Offline
 
 **Confirmed greenfield — no PWA/offline infrastructure exists today.** A full-repo search for `manifest.json`, `next-pwa`, `serviceWorker`, `workbox`, `sw.js`, and `<link rel="manifest">` in source files returns zero matches outside auto-generated Next.js/OpenNext build artifacts (`.next/`, `.open-next/`), which are not app-authored and don't count. There is no service worker registration anywhere in `app/` source. State this as a definitive current-state fact — this doc round is recording reality, not proposing to add PWA support.
 
@@ -65,12 +72,12 @@ Before touching "the mobile dashboard," confirm which of these two trees the req
 - **Two parallel mobile systems** with different tab counts (§2) — the top thing a future agent must not assume is unified.
 - **`docs/MOBILE_VIEW.md` is now a partial/legacy reference**, superseded in scope (not deleted) by this doc.
 - **AI Arena has no chat history** (§3) — guard against assuming streaming or multi-turn conversation when extending it.
-- **PWA is greenfield** (§4).
+- **PWA is greenfield** (§5).
 
 ## Related Docs
 
 - `MOBILE_BUILD.md` — full architecture reference for the newer, standalone `app/mobile/` build (V4): route map, auth/session/progress data layer, offline retry queue, dark-theme design tokens
 - `CHALLENGES.md` — one-stop reference for the "Challenges" mini-game feature across all three surfaces (desktop, legacy embedded mobile, new mobile build), including a checklist for adding new challenge types
 - `docs/MOBILE_VIEW.md` — legacy mobile-dashboard detail (superseded in scope, not deleted)
-- `docs/MASTERY_ENGINE.md` — ELO/mastery scoring source of truth; this doc only describes how Arena calls into it, not the formula itself
+- `docs/MASTERY_ENGINE.md` — mastery scoring source of truth; this doc only describes how Arena and the quiz call into it, not the formula itself
 - `docs/staff-dashboard-a11y-audit.md`, `docs/STAFF_DASHBOARD_AUDIT_REPORT.md` — historical UI/accessibility audits

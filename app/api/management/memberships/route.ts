@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { managementErrorResponse, requireManager, type AdminClient } from "@/lib/management/auth";
 import { countActiveSeats, TIER_SEATS } from "@/lib/session";
 import { escapeHtml } from "@/lib/email-template";
+import { readJsonBody } from "@/lib/ai-guard";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -47,7 +48,7 @@ export async function GET(req: Request) {
       .order("created_at", { ascending: true });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return managementErrorResponse(error, "Could not load memberships.", "memberships GET", 500);
     }
 
     const maxSeats = entitlement.seatLimit;
@@ -74,7 +75,9 @@ export async function POST(req: Request) {
   const { user, admin, entitlement, isOwnerLevel, assertOwnsVenue } = gate.ctx;
 
   try {
-    const body = await req.json();
+    const read = await readJsonBody(req, undefined, { requireJsonContentType: false });
+    if (!read.ok) return read.response;
+    const body = read.body;
     const { staffEmail, venueId, role: requestedRole } = body as {
       staffEmail?: string;
       venueId?: string;
@@ -299,7 +302,9 @@ export async function PATCH(req: Request) {
   const { user, admin } = gate.ctx;
 
   try {
-    const body = await req.json();
+    const read2 = await readJsonBody(req, undefined, { requireJsonContentType: false });
+    if (!read2.ok) return read2.response;
+    const body = read2.body;
     const { staffEmail, role: requestedRole } = body as { staffEmail?: string; role?: string };
 
     if (!staffEmail || typeof staffEmail !== "string") {
@@ -349,7 +354,9 @@ export async function DELETE(req: Request) {
   const { user, admin } = gate.ctx;
 
   try {
-    const body = await req.json();
+    const read3 = await readJsonBody(req, undefined, { requireJsonContentType: false });
+    if (!read3.ok) return read3.response;
+    const body = read3.body;
     const { membershipId } = body as { membershipId?: string };
 
     if (!membershipId || typeof membershipId !== "string") {

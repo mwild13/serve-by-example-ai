@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
+import { readJsonBody } from "@/lib/ai-guard";
 
 export async function POST(req: Request) {
   try {
@@ -9,7 +10,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { displayName } = await req.json();
+    const read = await readJsonBody(req, undefined, { requireJsonContentType: false });
+    if (!read.ok) return read.response;
+    const { displayName } = read.body;
     const trimmed = typeof displayName === "string" ? displayName.trim() : "";
     if (!trimmed) {
       return NextResponse.json({ error: "Name cannot be empty." }, { status: 400 });

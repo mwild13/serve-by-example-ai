@@ -47,6 +47,11 @@ of truth that will drift further the longer it's left.
 
 ## Phase B — Live DB drift (P0 — correctness bug, not just cleanup)
 
+> **Status 2026-10-02 (security audit remediation): both items below are resolved / not reproducible.**
+> - `organization_members` is **live** in production (checked with `to_regclass`), with org rows backfilled for every venue owner (`20261001_backfill_legacy_org_rows_and_tighten_seat_trigger.sql`). It is the seat/sponsorship table the access rules depend on — do not "finish migrating away" from it.
+> - `profiles` has a `tier` column and **no** `plan` column in production, and no code reads `profiles.plan`. Nothing to remove.
+> - Related clean-up done in audit Phase 5: `user_level_progress`, `_legacy_user_training_progress` and the Elo columns were dropped (`20261003c_…`), and the unused `/api/training/modules/[moduleId]/scenarios` route was deleted.
+
 - **`organization_members`**: dropped by migration `20260629_*`, but still referenced in 9 files
   across the membership API routes — this is the confirmed root cause of the duplicate-row bug
   already seen in staff invites. Needs a decision: restore the table, or finish migrating those 9
@@ -103,7 +108,7 @@ mechanical to fix once the import sites are confirmed.
   inventory** and **Create program** are now keyboard-shortcut-only (`I` / `T`) with no click path
   anywhere in the UI. Decide whether to add a real button (e.g. inside the Inventory / Training
   sections) or keep them as intentional power-user shortcuts.
-- **Database**: cross-check every table in `supabase/migrations/` against live query call sites,
+- **Database** *(partly done 2026-10-02 — see the Phase B status note and `docs/DATABASE_SCHEMA.md` §1, which now lists the dropped tables and the two new ones, `training_attempts` and `verify_attempts`)*: cross-check every table in `supabase/migrations/` against live query call sites,
   extending the `organization_members` finding (Phase B) — look for any other dropped-but-still-
   referenced tables, or created-but-never-queried ones.
 - **Docs**: `docs/` has ~20 files, several clearly historical/superseded once their work landed

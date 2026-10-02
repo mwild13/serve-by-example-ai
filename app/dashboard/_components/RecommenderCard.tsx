@@ -45,7 +45,12 @@ export default function RecommenderCard({ tags, score, maxScore, onNavigateToKB 
   return (
     <div className="rec-card">
       <div className="rec-header">
-        <span className="rec-icon">&#128218;</span>
+        <span className="rec-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z" />
+            <path d="M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z" />
+          </svg>
+        </span>
         <div>
           <strong className="rec-title">Knowledge Gap Detected</strong>
           <p className="rec-subtitle">
