@@ -1,6 +1,9 @@
 /**
  * Module Navigator
- * Filters and recommends modules based on user role, tier, venue, and Elo ratings
+ * Lists the module catalog with the user's progress and recommends what to
+ * do next: modules already in progress first, then the weakest category
+ * from the placement check, then the most foundational modules. (Average
+ * Elo used to drive this; retired in audit Phase 5, 2026-10.)
  */
 
 import { createSupabaseAdminClient } from "./supabase-admin";
@@ -13,7 +16,6 @@ interface Module {
   description: string;
   category: "technical" | "service" | "compliance";
   difficulty_level: number;
-  current_elo: number;
   mastery_pct: number;
   completion_pct: number;
   recommended: boolean;
@@ -30,8 +32,7 @@ export interface AvailableModulesResponse {
 
 /**
  * Get all modules available to a user
- * Filtered by: role, tier, venue settings, user Elo
- * Recommended by: lowest Elo (start where struggling)
+ * Recommended: see the file header.
  */
 export async function getAvailableModules(
   userId: string,
@@ -81,28 +82,27 @@ export async function getAvailableModules(
       throw new Error("No modules found in database");
     }
 
-    // Get user's Elo ratings from module_elo_baseline (optional - new users won't have this)
+    // Placement check result (optional — not everyone has taken it). Only the
+    // ORDER of the three category scores is used, so rows saved on the old
+    // Elo scale (1000-1500) and the current percentage scale (0-100) rank
+    // the same way.
     const { data: diagnosticResult, error: diagnosticError } = await admin
       .from("module_elo_baseline")
       .select("category_scores")
       .eq("user_id", userId)
-      .maybeSingle(); // Use maybeSingle instead of single to handle 0 rows gracefully
+      .maybeSingle();
 
     if (diagnosticError) {
       console.error(`[getAvailableModules] Diagnostic error:`, diagnosticError);
-      // Don't fail - diagnostic data is optional for new users
     }
 
-    const categoryScores = diagnosticResult?.category_scores || {
-      technical: 1200,
-      service: 1200,
-      compliance: 1200,
-    };
+    const categoryRank = rankCategories(diagnosticResult?.category_scores);
+    const weakestCategory = diagnosticResult ? [...categoryRank.entries()].find(([, rank]) => rank === 0)?.[0] : undefined;
 
     // Get user's mastery progress for each module
     const { data: masteryData, error: masteryError } = await admin
       .from("scenario_mastery")
-      .select("module_id, mastery_level, elo_rating, is_mastered")
+      .select("module_id, mastery_level, is_mastered")
       .eq("user_id", userId)
       .is("archived_at", null);
 
@@ -111,98 +111,65 @@ export async function getAvailableModules(
       // Don't fail - mastery data is optional
     }
 
-    const masteryByModule: Record<
-      number,
-      { mastery_level: number; elo_rating: number; is_mastered: boolean }[]
-    > = {};
+    const masteryByModule: Record<number, { mastery_level: number; is_mastered: boolean }[]> = {};
     (masteryData || []).forEach((m) => {
       // Skip records without module_id (legacy data)
-      if (!m.module_id) {
-        return;
-      }
-      if (!masteryByModule[m.module_id]) {
-        masteryByModule[m.module_id] = [];
-      }
-      masteryByModule[m.module_id].push({
+      if (!m.module_id) return;
+      (masteryByModule[m.module_id] ??= []).push({
         mastery_level: m.mastery_level,
-        elo_rating: m.elo_rating,
         is_mastered: m.is_mastered === true,
       });
     });
 
-    // Calculate module Elo and mastery percentage
     const modulesWithProgress = allModules.map((module) => {
-      const moduleId = module.id;
-      const moduleMasteryRecords = masteryByModule[moduleId] || [];
+      const moduleMasteryRecords = masteryByModule[module.id] || [];
 
-      // Calculate module-level Elo (average of scenarios, or baseline)
-      const moduleElo =
-        moduleMasteryRecords.length > 0
-          ? Math.round(
-              moduleMasteryRecords.reduce((sum, m) => sum + m.elo_rating, 0) /
-                moduleMasteryRecords.length
-            )
-          : categoryScores[module.category] || 1200;
-
-      // Calculate mastery percentage
       // Verified modules (passed the verify quiz) are always 100%
       const isVerified = moduleMasteryRecords.some((m) => m.is_mastered);
-      const masteredScenarios = moduleMasteryRecords.filter(
-        (m) => m.mastery_level === 3
-      ).length;
-      const scenarioTotal = SCENARIO_COUNTS[`module_${moduleId}`] ?? 10;
+      const masteredScenarios = moduleMasteryRecords.filter((m) => m.mastery_level === 3).length;
+      const scenarioTotal = SCENARIO_COUNTS[`module_${module.id}`] ?? 10;
       const masteryPct = isVerified
         ? 100
-        : masteredScenarios > 0
-        ? Math.round((masteredScenarios / scenarioTotal) * 100)
-        : 0;
-
-      // Calculate completion percentage (% attempted)
-      const completionPct =
-        moduleMasteryRecords.length > 0 ? 100 : 0; // TODO: derive from scenario count
+        : Math.min(Math.round((masteredScenarios / scenarioTotal) * 100), 100);
 
       return {
-        id: moduleId,
+        id: module.id,
         title: module.title,
         description: module.description,
         category: module.category as "technical" | "service" | "compliance",
         difficulty_level: module.difficulty_level,
-        current_elo: moduleElo,
         mastery_pct: masteryPct,
-        completion_pct: completionPct,
-        recommended: false, // Will set based on Elo
-        recommendation_reason: undefined,
+        completion_pct: moduleMasteryRecords.length > 0 ? 100 : 0, // started at all
+        recommended: false,
+        recommendation_reason: undefined as string | undefined,
       };
     });
 
-    // Sort by Elo (ascending) and mark lowest 3 as recommended
-    const sortedByElo = [...modulesWithProgress].sort(
-      (a, b) => a.current_elo - b.current_elo
-    );
-
-    const recommendedModuleIds = new Set(
-      sortedByElo.slice(0, 3).map((m) => m.id)
-    );
+    const recommended = modulesWithProgress
+      .filter((m) => m.mastery_pct < 100)
+      .sort(
+        (a, b) =>
+          b.completion_pct - a.completion_pct || // in progress first
+          (categoryRank.get(a.category) ?? 1) - (categoryRank.get(b.category) ?? 1) ||
+          a.difficulty_level - b.difficulty_level ||
+          a.id - b.id,
+      )
+      .slice(0, 3);
+    const recommendedIds = new Set(recommended.map((m) => m.id));
 
     const finalModules = modulesWithProgress.map((module) => {
-      const isRecommended = recommendedModuleIds.has(module.id);
-      let recommendation_reason: string | undefined;
-
-      if (isRecommended) {
-        if (module.current_elo < 1150) {
-          recommendation_reason = `Focus area: ${module.category} needs attention`;
-        } else if (module.current_elo < 1250) {
-          recommendation_reason = `Next challenge: improve your ${module.category} skills`;
-        } else {
-          recommendation_reason = `Strengthen your expertise in ${module.title}`;
-        }
+      if (!recommendedIds.has(module.id)) return module;
+      let recommendation_reason: string;
+      if (module.completion_pct > 0) {
+        recommendation_reason = "Continue where you left off";
+      } else if (module.category === weakestCategory) {
+        recommendation_reason = `Focus area: ${module.category} was your lowest placement score`;
+      } else if (module.difficulty_level <= 1) {
+        recommendation_reason = "Start here to build your foundation";
+      } else {
+        recommendation_reason = `Next up in ${module.category}`;
       }
-
-      return {
-        ...module,
-        recommended: isRecommended,
-        recommendation_reason,
-      };
+      return { ...module, recommended: true, recommendation_reason };
     });
 
     return {
@@ -217,7 +184,7 @@ export async function getAvailableModules(
     console.error("Error in getAvailableModules:", errorMessage);
     console.error("Full error:", error);
 
-    // FALLBACK: Return all 40 modules with default Elo if query fails
+    // FALLBACK: Return all 40 modules if the query fails
     // Ordered by difficulty_level ascending (most important / foundational first)
     console.warn("[getAvailableModules] Returning fallback response with all 40 modules");
 
@@ -279,7 +246,6 @@ export async function getAvailableModules(
         description: m.description,
         category: m.category as "technical" | "service" | "compliance",
         difficulty_level: m.difficulty_level,
-        current_elo: 1200,
         mastery_pct: 0,
         completion_pct: 0,
         recommended: i < 3,
@@ -291,4 +257,18 @@ export async function getAvailableModules(
       platform_version: 2,
     };
   }
+}
+
+/**
+ * Rank of each category in a placement-check result, weakest = 0. Empty when
+ * there's no result; callers treat a missing rank as neutral.
+ */
+export function rankCategories(scores: unknown): Map<string, number> {
+  const ranks = new Map<string, number>();
+  if (!scores || typeof scores !== "object") return ranks;
+  const entries = Object.entries(scores as Record<string, unknown>)
+    .filter((e): e is [string, number] => typeof e[1] === "number" && Number.isFinite(e[1]))
+    .sort((a, b) => a[1] - b[1]);
+  entries.forEach(([category], i) => ranks.set(category, i));
+  return ranks;
 }

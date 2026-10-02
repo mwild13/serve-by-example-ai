@@ -16,7 +16,6 @@ export interface Module {
   description: string;
   category: Category;
   difficulty_level: number; // 1-5 scale
-  current_elo: number; // User's current Elo in this module
   mastery_pct: number; // Percentage of scenarios at level 3
   completion_pct: number; // Percentage of scenarios attempted
   recommended: boolean; // Whether recommended for this user
@@ -25,7 +24,6 @@ export interface Module {
   subcategory?: string; // e.g., "beer", "wine", "cocktails"
   recommended_prereq_ids?: number[]; // e.g., [1, 2] for prerequisites
   required_role?: string; // e.g., 'bartender', 'manager', null for all
-  min_elo_for_advanced?: number; // threshold to show harder scenarios (default 1500)
   created_at?: string;
   updated_at?: string;
 }
@@ -99,56 +97,9 @@ export interface DiagnosticQuestion {
 }
 
 /**
- * Module ELO Baseline
- * Results from diagnostic assessment, seeds initial module Elo ratings
- */
-export interface ModuleEloBaseline {
-  id: string; // UUID
-  user_id: string; // UUID from auth.users
-  diagnostic_completed_at: string; // ISO timestamp
-  answers: Record<string, string | boolean>; // {questionId: selectedOption}
-  category_scores: Record<string, number>; // {technical: 1300, service: 1250, ...}
-  created_at: string;
-  updated_at: string;
-}
-
-/**
- * Module Progress (Computed)
- * Aggregated view of user's progress in a module
- * Computed from scenario_mastery table
- */
-export interface ModuleProgress {
-  module_id: number;
-  module_title: string;
-  completion_pct: number; // % of scenarios attempted
-  mastery_pct: number; // % of scenarios at mastery_level=3
-  avg_elo: number;
-  scenarios_attempted: number;
-  scenarios_mastered: number;
-  avg_score: number;
-  total_attempts: number;
-  next_review_count: number; // Scenarios due for review (spaced rep)
-}
-
-/**
- * User Proficiency (Per Module)
- * Individual Elo rating for each module
- * Computed from scenario_mastery where module_id matches
- */
-export interface UserModuleProficiency {
-  user_id: string;
-  module_id: number;
-  module_title: string;
-  elo_rating: number;
-  confidence_score: number; // Average confidence across attempts
-  last_tested_date: string;
-  mastery_status: number; // 0-3 scale
-}
-
-/**
  * Available Modules Response
  * Returned by GET /api/training/modules
- * Filtered by user role, tier, venue, and recommended by Elo
+ * Recommendations: see lib/module-navigator.ts
  */
 export interface AvailableModulesResponse {
   modules: {
@@ -157,7 +108,6 @@ export interface AvailableModulesResponse {
     description: string;
     category: Category;
     difficulty_level: number;
-    current_elo: number;
     mastery_pct: number;
     completion_pct: number;
     recommended: boolean; // True if should be prioritized

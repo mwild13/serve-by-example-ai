@@ -1,89 +1,42 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-
-type Scenario = {
-  id: string;
-  module_id: number;
-  scenario_index: number;
-  scenario_type: string;
-  prompt: string;
-  content: Record<string, unknown>;
-  difficulty: number;
-};
-
-type QuizContent = {
-  question: string;
-  answer: string;
-  explanation: string;
-  option_type?: string;
-};
-
-type AnswerEntry = { id: string; answer: string };
+import type { VerifyAnswerResult, VerifyQuizQuestion } from "@/lib/verify-quiz-client";
 
 type Props = {
-  scenarios: Scenario[];
-  moduleId: number;
-  onComplete: (score: number, answers: AnswerEntry[]) => void;
-  initialScore?: number;
+  /** Prompts in the order the server will ask them; no answers. */
+  questions: VerifyQuizQuestion[];
+  required: number;
+  /** Grades one answer server-side. Rejects on a network or server error. */
+  onAnswer: (position: number, answer: "true" | "false") => Promise<VerifyAnswerResult>;
+  /** Called when the user moves on from the final answer: passed, or out of questions. */
+  onComplete: (passed: boolean, streak: number) => void;
+  onError: (message: string) => void;
 };
 
 const SPEED_BONUS_MS = 3000;
-const CONSECUTIVE_REQUIRED = 5;
 
-export default function RapidFireQuiz({
-  scenarios,
-  moduleId: _moduleId,
-  onComplete,
-  initialScore = 0,
-}: Props) {
+// Every answer is graded by /api/training/verify/answer, which also keeps the
+// streak; this component only shows what the server says. It used to grade
+// in the browser against an answer key shipped in the bundle (audit
+// 2026-09-30, C4).
+export default function RapidFireQuiz({ questions, required, onAnswer, onComplete, onError }: Props) {
   const [questionIndex, setQuestionIndex] = useState(0);
-  const [consecutiveCorrect, setConsecutiveCorrect] = useState(initialScore);
-  const [answered, setAnswered] = useState<string | null>(null);
-  const [wasCorrect, setWasCorrect] = useState<boolean | null>(null);
-  const [showExplanation, setShowExplanation] = useState(false);
-  const [completed, setCompleted] = useState(false);
+  const [consecutiveCorrect, setConsecutiveCorrect] = useState(0);
+  const [answered, setAnswered] = useState<"true" | "false" | null>(null);
+  const [checking, setChecking] = useState(false);
+  const [graded, setGraded] = useState<VerifyAnswerResult | null>(null);
   const [speedBonus, setSpeedBonus] = useState(false);
   const [streakPop, setStreakPop] = useState(false);
   const [buttonFlash, setButtonFlash] = useState<string | null>(null);
   // Stamped in a mount effect rather than here — calling Date.now() directly
   // in the render body is an impure side effect the React Compiler flags.
   const questionStartRef = useRef<number>(0);
-  // Tracks the answer entries in the current consecutive-correct streak.
-  // Using a ref avoids stale-closure issues in nextQuestion's useCallback.
-  const streakAnswersRef = useRef<AnswerEntry[]>([]);
+  // Blocks a second answer (click + keypress) while the first is in flight.
+  const checkingRef = useRef(false);
 
-  // Pre-generate 3 shuffled rounds at mount so questions never repeat within a session.
-  // Stage 1 needs at most ~30 questions (5 consecutive; realistic worst case ~20 with bad luck).
-  // 3 full rounds (60 questions for a 20-item pool) means we never exhaust the pool mid-session.
-  // RapidFireQuiz is keyed by stage so it remounts (and reshuffles) when the stage changes.
-  const [questionPool] = useState<Scenario[]>(() => {
-    function shuffle(arr: Scenario[]): Scenario[] {
-      const out = [...arr];
-      for (let i = out.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [out[i], out[j]] = [out[j], out[i]];
-      }
-      return out;
-    }
-    if (scenarios.length === 0) return [];
-    const r1 = shuffle(scenarios);
-    const r2 = shuffle(scenarios);
-    const r3 = shuffle(scenarios);
-    // Avoid showing the same question at round join points
-    if (r1.length > 1 && r2.length > 1 && r1[r1.length - 1].id === r2[0].id) {
-      [r2[0], r2[1]] = [r2[1], r2[0]];
-    }
-    if (r2.length > 1 && r3.length > 1 && r2[r2.length - 1].id === r3[0].id) {
-      [r3[0], r3[1]] = [r3[1], r3[0]];
-    }
-    return [...r1, ...r2, ...r3];
-  });
-  // Ref mirrors stable state so nextQuestion avoids a stale closure.
-  const questionPoolRef = useRef<Scenario[]>(questionPool);
-
-  const currentScenario = questionPool[questionIndex] ?? questionPool[questionPool.length - 1];
-  const currentContent = currentScenario?.content as QuizContent | undefined;
+  const currentQuestion = questions[questionIndex] ?? questions[questions.length - 1];
+  const completed = graded !== null && graded.status !== "active";
 
   // Stamp the start time for the first question once, on mount.
   useEffect(() => {
@@ -91,59 +44,49 @@ export default function RapidFireQuiz({
   }, []);
 
   const handleAnswer = useCallback(
-    (userAnswer: string) => {
-      if (answered !== null || !currentContent) return;
+    async (userAnswer: "true" | "false") => {
+      if (answered !== null || checkingRef.current || !currentQuestion) return;
+      checkingRef.current = true;
 
       const elapsed = Date.now() - questionStartRef.current;
-      const correctAnswer = String(currentContent.answer).toLowerCase();
-      const correct = userAnswer === correctAnswer;
       setAnswered(userAnswer);
-      setWasCorrect(correct);
-      setShowExplanation(true);
+      setChecking(true);
       setButtonFlash(userAnswer);
-
-      if (correct) {
-        const newStreak = consecutiveCorrect + 1;
-        setConsecutiveCorrect(newStreak);
-        streakAnswersRef.current = [
-          ...streakAnswersRef.current,
-          { id: currentScenario.id, answer: userAnswer },
-        ].slice(-CONSECUTIVE_REQUIRED);
-        if (elapsed <= SPEED_BONUS_MS) setSpeedBonus(true);
-
-        if (newStreak >= 3 && (newStreak % 2 === 1 || newStreak >= CONSECUTIVE_REQUIRED)) {
-          setStreakPop(true);
-          setTimeout(() => setStreakPop(false), 800);
-        }
-
-        if (newStreak >= CONSECUTIVE_REQUIRED) {
-          setCompleted(true);
-        }
-      } else {
-        setConsecutiveCorrect(0);
-        streakAnswersRef.current = [];
-      }
-
       setTimeout(() => setButtonFlash(null), 400);
+
+      try {
+        const result = await onAnswer(currentQuestion.position, userAnswer);
+        setGraded(result);
+        setConsecutiveCorrect(result.streak);
+        if (result.correct) {
+          if (elapsed <= SPEED_BONUS_MS) setSpeedBonus(true);
+          if (result.streak >= 3 && (result.streak % 2 === 1 || result.streak >= required)) {
+            setStreakPop(true);
+            setTimeout(() => setStreakPop(false), 800);
+          }
+        }
+      } catch (err) {
+        onError(err instanceof Error ? err.message : "Could not check that answer.");
+      } finally {
+        checkingRef.current = false;
+        setChecking(false);
+      }
     },
-    [answered, currentContent, consecutiveCorrect, currentScenario]
+    [answered, currentQuestion, onAnswer, onError, required]
   );
 
   const nextQuestion = useCallback(() => {
-    if (completed) {
-      onComplete(consecutiveCorrect, streakAnswersRef.current);
+    if (!graded) return;
+    if (graded.status !== "active") {
+      onComplete(graded.status === "passed", graded.streak);
       return;
     }
-    const len = questionPoolRef.current.length;
-    if (len > 0) {
-      setQuestionIndex((i) => i + 1);
-    }
+    setQuestionIndex((i) => i + 1);
     setAnswered(null);
-    setWasCorrect(null);
-    setShowExplanation(false);
+    setGraded(null);
     setSpeedBonus(false);
     questionStartRef.current = Date.now();
-  }, [completed, onComplete, consecutiveCorrect]);
+  }, [graded, onComplete]);
 
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
@@ -152,12 +95,12 @@ export default function RapidFireQuiz({
 
       if (answered === null) {
         if (e.key === "t" || e.key === "T") {
-          handleAnswer("true");
+          void handleAnswer("true");
         }
         if (e.key === "f" || e.key === "F") {
-          handleAnswer("false");
+          void handleAnswer("false");
         }
-      } else {
+      } else if (graded) {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           nextQuestion();
@@ -166,14 +109,27 @@ export default function RapidFireQuiz({
     }
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [answered, currentContent, handleAnswer, nextQuestion]);
+  }, [answered, graded, handleAnswer, nextQuestion]);
 
-  if (scenarios.length === 0) {
+  if (questions.length === 0) {
     return (
       <div style={{ padding: "48px 24px", textAlign: "center" }}>
         <p>No scenarios available</p>
       </div>
     );
+  }
+
+  function buttonClass(choice: "true" | "false"): string {
+    let cls = `quiz-button quiz-button-${choice}`;
+    if (graded) {
+      if (answered === choice) {
+        cls += graded.correct ? " quiz-button-correct" : " quiz-button-incorrect";
+      } else if (graded.correctAnswer === choice) {
+        cls += " quiz-button-correct"; // reveal correct answer when user chose wrong
+      }
+    }
+    if (buttonFlash === choice) cls += " quiz-button-flash";
+    return cls;
   }
 
   return (
@@ -184,12 +140,12 @@ export default function RapidFireQuiz({
           <div
             className="quiz-progress-fill"
             style={{
-              width: `${(consecutiveCorrect / CONSECUTIVE_REQUIRED) * 100}%`,
+              width: `${Math.min((consecutiveCorrect / required) * 100, 100)}%`,
             }}
           />
         </div>
         <p className="quiz-progress-text">
-          {consecutiveCorrect} / {CONSECUTIVE_REQUIRED} correct in a row
+          {consecutiveCorrect} / {required} correct in a row
         </p>
       </div>
 
@@ -204,21 +160,11 @@ export default function RapidFireQuiz({
       {/* Question — key forces a fresh mount on every question change,
           guaranteeing the text and buttons never show stale content */}
       <div key={questionIndex} className="quiz-question-card">
-        <h2 className="quiz-question-text">{currentScenario?.prompt ?? currentContent?.question ?? ""}</h2>
+        <h2 className="quiz-question-text">{currentQuestion?.prompt ?? ""}</h2>
         <div className="quiz-button-group">
           <button
-            className={`quiz-button quiz-button-true${
-              answered !== null
-                ? answered === "true"
-                  ? wasCorrect
-                    ? " quiz-button-correct"
-                    : " quiz-button-incorrect"
-                  : currentContent && String(currentContent.answer).toLowerCase() === "true"
-                    ? " quiz-button-correct"   // reveal correct answer when user chose wrong
-                    : ""
-                : ""
-            }${buttonFlash === "true" ? " quiz-button-flash" : ""}`}
-            onClick={() => handleAnswer("true")}
+            className={buttonClass("true")}
+            onClick={() => void handleAnswer("true")}
             disabled={answered !== null}
           >
             <span className="quiz-button-label">True</span>
@@ -226,18 +172,8 @@ export default function RapidFireQuiz({
           </button>
 
           <button
-            className={`quiz-button quiz-button-false${
-              answered !== null
-                ? answered === "false"
-                  ? wasCorrect
-                    ? " quiz-button-correct"
-                    : " quiz-button-incorrect"
-                  : currentContent && String(currentContent.answer).toLowerCase() === "false"
-                    ? " quiz-button-correct"   // reveal correct answer when user chose wrong
-                    : ""
-                : ""
-            }${buttonFlash === "false" ? " quiz-button-flash" : ""}`}
-            onClick={() => handleAnswer("false")}
+            className={buttonClass("false")}
+            onClick={() => void handleAnswer("false")}
             disabled={answered !== null}
           >
             <span className="quiz-button-label">False</span>
@@ -245,28 +181,32 @@ export default function RapidFireQuiz({
           </button>
         </div>
 
+        {checking && (
+          <p className="quiz-progress-text" style={{ textAlign: "center" }}>Checking…</p>
+        )}
+
         {/* Explanation + Next button live inside the card so they never scroll off screen */}
-        {showExplanation && currentContent?.explanation && (
+        {graded?.explanation && (
           <div
-            className={`quiz-explanation${wasCorrect ? " quiz-explanation-correct" : " quiz-explanation-incorrect"}`}
+            className={`quiz-explanation${graded.correct ? " quiz-explanation-correct" : " quiz-explanation-incorrect"}`}
           >
-            <p className="quiz-explanation-text">{currentContent.explanation}</p>
+            <p className="quiz-explanation-text">{graded.explanation}</p>
             {speedBonus && <p className="quiz-explanation-bonus">Speed bonus!</p>}
           </div>
         )}
 
-        {answered !== null && (
+        {graded && (
           <button
             className="btn btn-primary quiz-next-btn"
             onClick={nextQuestion}
           >
-            {completed ? "Complete Stage →" : "Next question →"}
+            {completed ? (graded.status === "passed" ? "Complete Stage →" : "See result →") : "Next question →"}
           </button>
         )}
       </div>
 
       {/* Completion state */}
-      {completed && (
+      {graded?.status === "passed" && (
         <div className="quiz-completion">
           <p className="quiz-completion-text">
             Stage completed! You got {consecutiveCorrect} in a row.

@@ -1,7 +1,8 @@
 /**
  * POST /api/training/diagnostic/submit
  *
- * Processes diagnostic answers and seeds user Elo
+ * Scores the placement check and stores per-category percentages, which
+ * order the user's module recommendations (lib/module-navigator.ts).
  *
  * Request Body:
  * {
@@ -11,7 +12,7 @@
  * Response:
  * {
  *   success: boolean,
- *   category_scores: { technical: 1350, service: 1250, compliance: 1200 },
+ *   category_scores: { technical: 80, service: 60, compliance: 40 },
  *   recommended_modules: [
  *     { module_id: 1, module_title: "...", reason: "..." },
  *     ...
@@ -23,11 +24,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
-import {
-  processDiagnosticAnswers,
-  getRecommendedModules,
-  generateScenarioMasterySeeds,
-} from "@/lib/diagnostic-engine";
+import { processDiagnosticAnswers, getRecommendedModules } from "@/lib/diagnostic-engine";
+import { readJsonBody } from "@/lib/ai-guard";
+
+// Ten short answers; anything larger isn't a real submission.
+const MAX_BODY_BYTES = 4 * 1024;
 
 export const dynamic = "force-dynamic";
 
@@ -52,10 +53,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Parse request body
-    const body = (await request.json()) as SubmitRequest;
+    const read = await readJsonBody(request, MAX_BODY_BYTES);
+    if (!read.ok) return read.response;
+    const body = read.body as Partial<SubmitRequest>;
 
-    if (!body.answers || Object.keys(body.answers).length === 0) {
+    if (!body.answers || typeof body.answers !== "object" || Object.keys(body.answers).length === 0) {
       return NextResponse.json(
         { success: false, message: "No answers provided" },
         { status: 400 }
@@ -77,7 +79,8 @@ export async function POST(request: NextRequest) {
 
     const supabase = getSupabaseClient();
 
-    // Store diagnostic results in module_elo_baseline
+    // Stored in module_elo_baseline (the table name predates the Elo
+    // retirement; it now holds percentages).
     const { error: baselineError } = await supabase
       .from("module_elo_baseline")
       .upsert(
@@ -98,25 +101,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate scenario_mastery seeds for this user
-    // This creates baseline Elo entries for each module
-    const seeds = generateScenarioMasterySeeds(
-      user.id,
-      diagnosticResult.category_scores
-    );
-
-    // Insert seeds into scenario_mastery (upsert in case duplicates)
-    // Note: We're seeding one record per module as a representative baseline
-    if (seeds.length > 0) {
-      const { error: seedError } = await supabase
-        .from("scenario_mastery")
-        .upsert(seeds, { onConflict: "user_id,module_id,scenario_index" });
-
-      if (seedError) {
-        console.error("Error seeding scenario_mastery:", seedError);
-        // Don't fail the whole response - seeds are optional
-      }
-    }
+    // This used to also seed a fake scenario_mastery row per module with an
+    // Elo baseline. The upsert named a conflict key that doesn't exist, so it
+    // never succeeded (audit 2026-09-30, M4), and Elo is retired. Removed.
 
     // Update profiles to mark diagnostic as completed
     const { error: profileError } = await supabase

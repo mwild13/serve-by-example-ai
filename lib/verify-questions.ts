@@ -1,3 +1,8 @@
+// The answer key. Server-only: graded by /api/training/verify/answer, never
+// shipped to the browser (audit 2026-09-30, C4). The build fails if a client
+// component imports this file.
+import "server-only";
+
 export type VerifyQuestion = {
   prompt: string;
   answer: "true" | "false";

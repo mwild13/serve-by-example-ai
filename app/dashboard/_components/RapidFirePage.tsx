@@ -20,12 +20,7 @@ type ModuleListItem = {
   category: "technical" | "service" | "compliance";
   difficulty_level: number;
   mastery_pct: number;
-  current_elo: number;
   recommended: boolean;
-};
-
-type Props = {
-  userId: string;
 };
 
 const CATEGORY_LABEL: Record<ModuleListItem["category"], string> = {
@@ -40,7 +35,7 @@ const CATEGORY_ACCENT: Record<ModuleListItem["category"], string> = {
   compliance: "var(--color-mastery-compliance)",
 };
 
-export default function RapidFirePage({ userId }: Props) {
+export default function RapidFirePage() {
   const [modules, setModules] = useState<ModuleListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -101,7 +96,6 @@ export default function RapidFirePage({ userId }: Props) {
         <ModuleVerify
           key={`verify-${selectedId}`}
           moduleId={selectedId}
-          userId={userId}
         />
       </div>
     );

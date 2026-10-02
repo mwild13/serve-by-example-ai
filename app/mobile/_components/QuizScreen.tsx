@@ -1,58 +1,31 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, XCircle, ArrowRight, ShieldCheck } from "lucide-react";
 import BottomNav from "./BottomNav";
 import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
-import { VERIFY_QUESTIONS } from "@/lib/verify-questions";
+import {
+  startVerifyQuiz,
+  submitVerifyAnswer,
+  type VerifyAnswerResult,
+  type VerifyQuizStart,
+} from "@/lib/verify-quiz-client";
 
-// Phase 3 (v4-migration-plan/00-bug-batch-plan.md, item 6) — net-new Quiz
-// screen. LearnHubScreen's module cards used to route straight into Arena;
-// they now land here first, matching desktop's real order (Quiz gates a
-// module, Arena is a separate later system).
+// Phase 3 (v4-migration-plan/00-bug-batch-plan.md, item 6) — Quiz screen.
+// LearnHubScreen's module cards land here first, matching desktop's order
+// (Quiz gates a module, Arena is a separate later system).
 //
-// Mirrors desktop's ModuleVerify.tsx + RapidFireQuiz.tsx exactly rather than
-// the v4 plan doc's own summary of them ("5 questions, 4/5 threshold") —
-// that summary doesn't match the live component: RapidFireQuiz shuffles the
-// module's *entire* VERIFY_QUESTIONS bank (currently 8 True/False questions
-// per module, not 5) into 3 non-repeating rounds and keeps asking until the
-// user lands CONSECUTIVE_REQUIRED (5) correct answers *in a row* — a wrong
-// answer resets the streak to 0 but does not end the quiz. Porting the real
-// mechanic (not the doc's simplification) keeps the `answers` payload this
-// screen submits identical in shape and meaning to what ModuleVerify already
-// sends, since app/api/training/save's verifyPassed branch re-validates
-// every answer id/value against VERIFY_QUESTIONS itself — it doesn't trust
-// the client's streak count, so the two clients must agree on what an
-// "answer" is.
+// Same mechanic as desktop's ModuleVerify + RapidFireQuiz: keep answering
+// True/False until you get `required` (5) correct in a row; a wrong answer
+// resets the streak but doesn't end the quiz. Since audit 2026-09-30 (C4) the
+// server grades every answer and keeps the streak (lib/verify-quiz.ts): this
+// screen gets prompts only, and mastery is recorded by the answer that
+// completes the streak — there's no separate save call.
 
-const CONSECUTIVE_REQUIRED = 5;
-const PASS_THRESHOLD = 4; // matches VERIFY_PASS_THRESHOLD in app/api/training/save/route.ts
-
-type AnswerEntry = { id: string; answer: "true" | "false" };
-type PoolQuestion = { prompt: string; answer: "true" | "false"; explanation: string; index: number };
-type Status = "playing" | "saving" | "mastered" | "error";
-
-function shuffle<T>(arr: T[]): T[] {
-  const out = [...arr];
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
-  }
-  return out;
-}
-
-function buildPool(moduleId: number): PoolQuestion[] {
-  const questions = VERIFY_QUESTIONS[moduleId] ?? [];
-  if (questions.length === 0) return [];
-  const indexed = questions.map((q, i) => ({ ...q, index: i }));
-  // 3 shuffled rounds so the pool never runs out mid-session — same
-  // approach as RapidFireQuiz's questionPool, minus its round-boundary
-  // same-question swap (a cosmetic nicety, not load-bearing for scoring).
-  return [...shuffle(indexed), ...shuffle(indexed), ...shuffle(indexed)];
-}
+type Status = "loading" | "playing" | "mastered" | "exhausted" | "error";
 
 export default function QuizScreen() {
   const session = useMobileSession();
@@ -85,138 +58,113 @@ export default function QuizScreen() {
   }, [data, moduleId, isFinalModule]);
   const firstModule = useMemo(() => data?.allModules.find((mod) => mod.id === 1) ?? null, [data]);
 
-  const [attemptKey, setAttemptKey] = useState(0);
-  // attemptKey isn't read inside buildPool — it's a deliberate cache-buster
-  // so handleRetry's setAttemptKey forces a fresh shuffle (buildPool is
-  // otherwise pure over moduleId alone, so eslint can't see why it's a dep).
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const pool = useMemo(() => buildPool(moduleId), [moduleId, attemptKey]);
-
+  const [quiz, setQuiz] = useState<VerifyQuizStart | null>(null);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [consecutiveCorrect, setConsecutiveCorrect] = useState(0);
   const [answered, setAnswered] = useState<"true" | "false" | null>(null);
-  const [wasCorrect, setWasCorrect] = useState<boolean | null>(null);
-  const [status, setStatus] = useState<Status>("playing");
+  const [graded, setGraded] = useState<VerifyAnswerResult | null>(null);
+  const [status, setStatus] = useState<Status>("loading");
   const [error, setError] = useState<string | null>(null);
-  // Ref (not state) — mirrors RapidFireQuiz's streakAnswersRef, avoiding a
-  // stale closure inside handleAnswer/finishQuiz. Only the last 5 correct
-  // answers ever need to be sent — that's exactly what a passing streak is.
-  const streakAnswers = useRef<AnswerEntry[]>([]);
+  // A ref, not state: blocks a second answer while one is in flight.
+  const checkingRef = useRef(false);
+  // Bumped by "Try again" to start a fresh run.
+  const [runKey, setRunKey] = useState(0);
 
-  const currentQuestion = pool[questionIndex] ?? pool[pool.length - 1];
+  const required = quiz?.required ?? 5;
+  const questions = quiz?.questions ?? [];
+  const currentQuestion = questions[questionIndex] ?? questions[questions.length - 1];
+  const wasCorrect = graded ? graded.correct : null;
 
-  function handleAnswer(choice: "true" | "false") {
-    if (answered !== null || !currentQuestion) return;
-    const correct = choice === currentQuestion.answer;
-    setAnswered(choice);
-    setWasCorrect(correct);
-
-    if (correct) {
-      const newStreak = consecutiveCorrect + 1;
-      setConsecutiveCorrect(newStreak);
-      streakAnswers.current = [
-        ...streakAnswers.current,
-        { id: `${moduleId}-${currentQuestion.index}`, answer: choice },
-      ].slice(-CONSECUTIVE_REQUIRED);
-    } else {
-      setConsecutiveCorrect(0);
-      streakAnswers.current = [];
+  useEffect(() => {
+    let cancelled = false;
+    async function begin() {
+      try {
+        const started = await startVerifyQuiz(session.token, moduleId);
+        if (cancelled) return;
+        setQuiz(started);
+        setQuestionIndex(0);
+        setConsecutiveCorrect(0);
+        setAnswered(null);
+        setGraded(null);
+        setStatus("playing");
+      } catch (err) {
+        if (cancelled) return;
+        setError(err instanceof Error ? err.message : "Could not start the quiz.");
+        setStatus("error");
+      }
     }
+    void begin();
+    return () => {
+      cancelled = true;
+    };
+  }, [session.token, moduleId, runKey]);
+
+  function restart() {
+    setStatus("loading");
+    setError(null);
+    setRunKey((k) => k + 1);
   }
 
-  async function finishQuiz() {
-    setStatus("saving");
-    setError(null);
+  async function handleAnswer(choice: "true" | "false") {
+    if (answered !== null || checkingRef.current || !currentQuestion || !quiz) return;
+    checkingRef.current = true;
+    setAnswered(choice);
     try {
-      const res = await fetch("/api/training/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.token}`,
-        },
-        body: JSON.stringify({
-          moduleId,
-          verifyPassed: true,
-          answers: streakAnswers.current,
-        }),
-      });
-
-      if (!res.ok) {
-        const body = (await res.json().catch(() => null)) as { error?: string } | null;
-        // Defensive parity with ModuleVerify's own dead "score < threshold"
-        // branch — can't happen honestly (completion requires a streak of 5,
-        // above the server's 4-correct threshold) but the server re-checks
-        // every answer itself, so a stale/tampered payload still fails here.
-        throw new Error(body?.error ?? `Save failed (${res.status})`);
-      }
-
-      setStatus("mastered");
-      // Perf fix (Phase 1a): shared TrainingProgressProvider no longer
-      // refetches on every screen mount, so a successful save must
-      // explicitly refresh it — otherwise Home/Learn/Me would keep showing
-      // pre-quiz progress until a full page reload.
-      refetch();
+      const result = await submitVerifyAnswer(session.token, quiz.attemptId, currentQuestion.position, choice);
+      setGraded(result);
+      setConsecutiveCorrect(result.streak);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to record mastery.");
+      setError(err instanceof Error ? err.message : "Could not check that answer.");
       setStatus("error");
+    } finally {
+      checkingRef.current = false;
     }
   }
 
   function handleNext() {
-    if (consecutiveCorrect >= CONSECUTIVE_REQUIRED) {
-      void finishQuiz();
+    if (!graded) return;
+    if (graded.status === "passed") {
+      setStatus("mastered");
+      // Perf fix (Phase 1a): shared TrainingProgressProvider no longer
+      // refetches on every screen mount, so a new mastery must explicitly
+      // refresh it — otherwise Home/Learn/Me would keep showing pre-quiz
+      // progress until a full page reload.
+      refetch();
+      return;
+    }
+    if (graded.status === "exhausted") {
+      setStatus("exhausted");
       return;
     }
     setQuestionIndex((i) => i + 1);
     setAnswered(null);
-    setWasCorrect(null);
-  }
-
-  function handleRetry() {
-    setAttemptKey((k) => k + 1);
-    setQuestionIndex(0);
-    setConsecutiveCorrect(0);
-    setAnswered(null);
-    setWasCorrect(null);
-    setError(null);
-    streakAnswers.current = [];
-    setStatus("playing");
+    setGraded(null);
   }
 
   const shellStyle: React.CSSProperties = { justifyContent: "space-between" };
 
-  if (pool.length === 0) {
-    return (
-      <MobileScreenShell style={shellStyle}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60dvh", padding: 20, textAlign: "center" }}>
-          <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>
-            This module doesn&apos;t have verification questions yet. Please check back soon.
-          </p>
-        </div>
-        <BottomNav active="learn" />
-      </MobileScreenShell>
-    );
-  }
-
-  if (status === "saving") {
+  if (status === "loading") {
     return (
       <MobileScreenShell style={shellStyle}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60dvh" }}>
-          <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>Recording your mastery…</p>
+          <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>Loading quiz…</p>
         </div>
         <BottomNav active="learn" />
       </MobileScreenShell>
     );
   }
 
-  if (status === "error") {
+  if (status === "error" || status === "exhausted") {
     return (
       <MobileScreenShell style={shellStyle}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center", justifyContent: "center", minHeight: "60dvh", padding: 20, textAlign: "center" }}>
-          <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>{error ?? "Something went wrong."}</p>
+          <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>{status === "exhausted"
+              ? "Not quite. Let's run the verification quiz again."
+              : (error ?? "Something went wrong.")}
+          </p>
           <button
             type="button"
-            onClick={handleRetry}
+            onClick={restart}
             style={{
               padding: "10px 20px",
               borderRadius: "var(--radius-pill)",
@@ -333,7 +281,7 @@ export default function QuizScreen() {
     );
   }
 
-  const completedByThisAnswer = wasCorrect === true && consecutiveCorrect >= CONSECUTIVE_REQUIRED;
+  const completedByThisAnswer = graded !== null && graded.status !== "active";
 
   return (
     <MobileScreenShell style={shellStyle}>
@@ -345,7 +293,7 @@ export default function QuizScreen() {
             <div style={{ flex: 1, height: 6, borderRadius: 3, background: "var(--surface-mobile-alt)", overflow: "hidden" }}>
               <div
                 style={{
-                  width: `${Math.min((consecutiveCorrect / CONSECUTIVE_REQUIRED) * 100, 100)}%`,
+                  width: `${Math.min((consecutiveCorrect / required) * 100, 100)}%`,
                   height: "100%",
                   background: "var(--gold-mobile)",
                   transition: "width 200ms ease",
@@ -353,11 +301,11 @@ export default function QuizScreen() {
               />
             </div>
             <span style={{ fontSize: 12, fontWeight: 700, color: "var(--gold-mobile)", whiteSpace: "nowrap" }}>
-              {consecutiveCorrect}/{CONSECUTIVE_REQUIRED} in a row
+              {consecutiveCorrect}/{required} in a row
             </span>
           </div>
           <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>
-            Get {PASS_THRESHOLD}+ correct in a row to master this module.
+            Get {required} correct in a row to master this module.
           </p>
         </div>
 
@@ -382,7 +330,7 @@ export default function QuizScreen() {
             <div style={{ display: "flex", gap: 10 }}>
               {(["true", "false"] as const).map((choice) => {
                 const isChosen = answered === choice;
-                const revealCorrect = answered !== null && !isChosen && currentQuestion?.answer === choice;
+                const revealCorrect = graded !== null && !isChosen && graded.correctAnswer === choice;
                 const isCorrectChoice = isChosen && wasCorrect;
                 const isWrongChoice = isChosen && wasCorrect === false;
                 return (
@@ -390,7 +338,7 @@ export default function QuizScreen() {
                     key={choice}
                     type="button"
                     disabled={answered !== null}
-                    onClick={() => handleAnswer(choice)}
+                    onClick={() => void handleAnswer(choice)}
                     style={{
                       flex: 1,
                       display: "flex",
@@ -429,7 +377,11 @@ export default function QuizScreen() {
               })}
             </div>
 
-            {answered !== null && (
+            {answered !== null && !graded && (
+              <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>Checking…</p>
+            )}
+
+            {graded && (
               <div
                 style={{
                   padding: 12,
@@ -438,12 +390,12 @@ export default function QuizScreen() {
                 }}
               >
                 <p style={{ margin: 0, fontSize: 12, lineHeight: "18px", color: "var(--text-mobile-muted)" }}>
-                  {currentQuestion?.explanation}
+                  {graded.explanation}
                 </p>
               </div>
             )}
 
-            {answered !== null && (
+            {graded && (
               <button
                 type="button"
                 onClick={handleNext}
@@ -463,7 +415,7 @@ export default function QuizScreen() {
                   cursor: "pointer",
                 }}
               >
-                {completedByThisAnswer ? "Finish quiz →" : "Next question →"}
+                {completedByThisAnswer ? (graded.status === "passed" ? "Finish quiz →" : "See result →") : "Next question →"}
               </button>
             )}
           </div>

@@ -45,11 +45,12 @@
   --status-error-bg: #fbeae5;
   --status-error-text: #84291b;
 
-  /* ELO/mastery status indicators — 4-tier system */
-  --status-critical: #dc2626;           /* ELO < 1100: Needs Work (red) */
-  --status-warning: #d97706;            /* ELO 1100–1199: Building (orange) */
-  --status-info: #2563eb;               /* ELO 1200–1299: Solid (blue) */
-  --status-success: #16a34a;            /* ELO 1300+: Strong (green) */
+  /* Mastery status indicators — 4-tier system (the old Elo bands in these
+     comments were retired with Elo in audit Phase 5) */
+  --status-critical: #dc2626;           /* Needs Work (red) */
+  --status-warning: #d97706;            /* Building (orange) */
+  --status-info: #2563eb;               /* Solid (blue) */
+  --status-success: #16a34a;            /* Strong (green) */
 
   /* Status feedback colour families — used for insight cards, badges, banners */
   --status-success-bg: #f0fdf4;         /* Light green card/banner background */

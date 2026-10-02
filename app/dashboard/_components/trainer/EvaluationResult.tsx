@@ -6,7 +6,7 @@ import { SCORE_DIMENSIONS } from "./trainer-data";
 
 type MasteryFeedback = {
   level: number; previousLevel: number; levelChanged: boolean;
-  spamGuarded: boolean; eloRating: number; eloDelta: number;
+  spamGuarded: boolean;
   isBridge: boolean; consecutiveFails: number;
   confidenceAccuracy: string;
 } | null;

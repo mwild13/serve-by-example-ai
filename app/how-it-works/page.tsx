@@ -208,8 +208,8 @@ export default function HowItWorksPage() {
                 {[
                   { n: "01", title: "Score every response", desc: "Rated across 5 dimensions: communication, hospitality, problem-solving, professionalism and guest experience." },
                   { n: "02", title: "Identify weak areas", desc: "The system flags dimensions where your score drops consistently, not just one-off mistakes." },
-                  { n: "03", title: "Resurface weak areas automatically", desc: "Spaced repetition brings back scenarios in those areas at the right intervals: 1, 4, 9 and 16 days." },
-                  { n: "04", title: "Adjust difficulty to your level", desc: "The ELO rating system matches you to harder scenarios as you improve, always training at your current edge." },
+                  { n: "03", title: "Resurface weak areas automatically", desc: "Spaced repetition brings back scenarios in those areas at widening intervals: 1, 4, then 9 days." },
+                  { n: "04", title: "Master it, then move on", desc: "A scenario counts as mastered after three passes in a row, at least an hour apart. A miss drops it back a level, so mastery means you can repeat it, not that you got lucky once." },
                 ].map(({ n, title, desc }) => (
                   <div key={n} style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
                     <span style={{ flexShrink: 0, width: "32px", height: "32px", borderRadius: "var(--radius-sm)", background: "var(--green-gradient-mid)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 800 }}>{n}</span>

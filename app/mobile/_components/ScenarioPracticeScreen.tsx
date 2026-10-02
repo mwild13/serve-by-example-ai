@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createAttemptIdKeeper } from "@/lib/attempt-id";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, AlertTriangle, XCircle, ArrowRight } from "lucide-react";
 import BottomNav from "./BottomNav";
@@ -53,6 +54,7 @@ export default function ScenarioPracticeScreen() {
   const [result, setResult] = useState<EvalResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const [attemptIds] = useState(createAttemptIdKeeper);
 
   const scenario = SCENARIOS[moduleName][index];
 
@@ -76,7 +78,13 @@ export default function ScenarioPracticeScreen() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.token}`,
         },
-        body: JSON.stringify({ module: moduleName, scenarioIndex: index, userResponse: trimmed, confidence: "medium" }),
+        body: JSON.stringify({
+          module: moduleName,
+          scenarioIndex: index,
+          userResponse: trimmed,
+          confidence: "medium",
+          attemptId: attemptIds.idFor(`${moduleName}:${index}:${trimmed}`),
+        }),
       });
 
       if (res.status === 429) {
@@ -90,6 +98,7 @@ export default function ScenarioPracticeScreen() {
       }
 
       const data = (await res.json()) as EvalResult & { saved?: boolean };
+      attemptIds.settle();
       setResult(data);
       setStatus("result");
 

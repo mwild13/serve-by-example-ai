@@ -13,12 +13,6 @@ type NavItem =
 
 type ModuleKey = "bartending" | "sales" | "management";
 
-type LevelProgress = {
-  level1_completed: boolean; level2_completed: boolean;
-  level3_completed: boolean; level4_unlocked: boolean;
-  level1_score: number; level2_score: number; level3_score: number;
-};
-
 type DbModule = {
   id: number;
   title: string;
@@ -30,7 +24,6 @@ type DbModule = {
 type DbModuleProgress = {
   scenariosAttempted: number;
   scenariosMastered: number;
-  avgElo: number;
   completion: number;
   mastery: number;
 };
@@ -41,7 +34,6 @@ type ProgressData = {
   scores: Record<ModuleKey, number>;
   sessions: Record<ModuleKey, number>;
   reviewDue: number;
-  levelProgress: Record<ModuleKey, LevelProgress>;
   lastAttemptAt: string | null;
   allModules: DbModule[];
   moduleProgress: Record<number, DbModuleProgress>;
@@ -50,19 +42,12 @@ type ProgressData = {
   sbeEliteNumber: number;
 };
 
-const EMPTY_LP: LevelProgress = {
-  level1_completed: false, level2_completed: false,
-  level3_completed: false, level4_unlocked: false,
-  level1_score: 0, level2_score: 0, level3_score: 0,
-};
-
 const EMPTY: ProgressData = {
   modules: { bartending: 0, sales: 0, management: 0 },
   mastery: { bartending: 0, sales: 0, management: 0 },
   scores: { bartending: 0, sales: 0, management: 0 },
   sessions: { bartending: 0, sales: 0, management: 0 },
   reviewDue: 0,
-  levelProgress: { bartending: EMPTY_LP, sales: EMPTY_LP, management: EMPTY_LP },
   lastAttemptAt: null,
   allModules: [],
   moduleProgress: {},
@@ -505,18 +490,12 @@ export default function MobileDashboardV3({
   const data: ProgressData = useMemo(() => {
     if (!progressData?.modules) return EMPTY;
     const res = progressData;
-    const lp = res.levelProgress as Record<string, LevelProgress> | undefined;
     return {
       modules: res.modules as ProgressData["modules"],
       mastery: (res.mastery as ProgressData["mastery"]) ?? EMPTY.mastery,
       scores: (res.scores as ProgressData["scores"]) ?? EMPTY.scores,
       sessions: (res.sessions as ProgressData["sessions"]) ?? EMPTY.sessions,
       reviewDue: Array.isArray(res.reviewQueue) ? (res.reviewQueue as unknown[]).length : 0,
-      levelProgress: {
-        bartending: (lp?.bartending as LevelProgress) ?? EMPTY_LP,
-        sales: (lp?.sales as LevelProgress) ?? EMPTY_LP,
-        management: (lp?.management as LevelProgress) ?? EMPTY_LP,
-      },
       lastAttemptAt: (res.lastAttemptAt as string | null) ?? null,
       allModules: Array.isArray(res.allModules) ? res.allModules as ProgressData["allModules"] : [],
       moduleProgress: (res.moduleProgress as ProgressData["moduleProgress"]) ?? {},

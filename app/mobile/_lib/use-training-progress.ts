@@ -10,8 +10,6 @@ import type { ScenarioType } from "@/lib/mastery";
 // instead of each independently re-deriving mastery state from raw attempt
 // rows. See v4-migration-plan/02-mastery-engine-harvest.md.
 //
-// Field names below are canonical per CLAUDE.md: `elo_rating`, `mastery`.
-//
 // Perf fix (Phase 1a, mobile bug-fix plan, 2026-08-24): this hook used to own
 // its own fetch effect, independently re-run on every mount of every
 // consuming screen — meaning navigating Home -> Learn -> Home re-fetched
@@ -32,9 +30,9 @@ export type TrainingModule = {
 export type ModuleProgress = {
   scenariosAttempted: number;
   scenariosMastered: number;
-  avgElo: number;
   completion: number;
   mastery: number;
+  lastAttemptAt: string | null;
 };
 
 export type ReviewQueueItem = {
