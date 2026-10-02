@@ -1,17 +1,12 @@
 // Priority-3 offline resilience (2026-08-22) — a small localStorage retry
 // queue, scoped to exactly one write path: POST /api/training/challenges/save.
 //
-// Why only this endpoint: v4-migration-plan/10-error-handling-offline-
-// resilience.md originally specced both training/save and challenges/save as
-// "safe to replay upserts." Direct verification of the actual write logic
-// before building this showed that's only true for challenges/save (a pure
-// upsert on `(user_id, challenge_index)` — replaying it is a harmless no-op).
-// training/save's recordAttempt() (lib/mastery.ts) is a read-then-accumulate
-// write (total_attempts + 1, cumulative Elo, streak increments) — a blind
-// retry of an ambiguous failure (server actually processed it, client just
-// didn't see the response) would double-count the attempt. training/save
-// intentionally keeps its existing direct try/catch-with-retry-button UX
-// instead (ScenarioPracticeScreen.tsx, QuizScreen.tsx) — no queue for it.
+// Why only this endpoint: it's a pure upsert on `(user_id, challenge_index)`,
+// so replaying it is a harmless no-op. Graded submissions (/api/evaluate,
+// /api/arena/evaluate) aren't queued: they need the user on screen for the
+// feedback, and a retry is made safe by the attempt id instead (lib/attempt-id.ts,
+// record_attempt() records each id once). The verify quiz is graded one
+// answer at a time by /api/training/verify/answer and isn't retried blindly.
 //
 // Storage key follows the house "sbe-" hyphenated convention (lib/streak.ts,
 // AiProfilePhotoScreen.tsx's draft key) — not the one legacy underscore

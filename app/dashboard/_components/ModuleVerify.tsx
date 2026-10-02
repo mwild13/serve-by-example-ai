@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import RapidFireQuiz from "@/app/dashboard/_components/RapidFireQuiz";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
-import { VERIFY_QUESTIONS } from "@/lib/verify-questions";
-
-const PASS_THRESHOLD = 4; // out of 5 consecutive correct
-const MIN_QUIZ_SCENARIOS = 5;
+import {
+  startVerifyQuiz,
+  submitVerifyAnswer,
+  type VerifyQuizStart,
+} from "@/lib/verify-quiz-client";
 
 // Shortened 2026-08-24 (docs/Module-Title-Renames-Proposal.md) — 2-3 word
 // titles so the Learn Hub's 2-column module grid and the Practice &
@@ -54,116 +55,77 @@ const MODULE_TITLES: Record<number, string> = {
   40: "Natural Upselling",
 };
 
-type Scenario = {
-  id: string;
-  module_id: number;
-  scenario_index: number;
-  scenario_type: string;
-  prompt: string;
-  content: Record<string, unknown>;
-  difficulty: number;
-};
-
-type Status = "loading" | "ready" | "error" | "mastered" | "retry" | "saving";
+type Status = "loading" | "ready" | "error" | "mastered" | "retry";
 
 type Props = {
   moduleId: number;
-  userId: string;
   onArena?: () => void;
   onComplete?: () => void;
   nextModuleId?: number;
 };
 
-// Pure derivation from moduleId — both call sites key ModuleVerify by
-// moduleId, so a fresh instance (and fresh initial state below) is mounted
-// whenever it changes; no effect is needed to "reset" on prop change.
-function buildInitialVerifyState(moduleId: number): { scenarios: Scenario[]; status: Status; error: string | null } {
-  const questions = VERIFY_QUESTIONS[moduleId] ?? [];
-
-  if (questions.length < MIN_QUIZ_SCENARIOS) {
-    return {
-      scenarios: [],
-      status: "error",
-      error: "This module does not yet have enough verification questions. Please check back soon.",
-    };
-  }
-
-  const mapped: Scenario[] = questions.map((q, i) => ({
-    id: `${moduleId}-${i}`,
-    module_id: moduleId,
-    scenario_index: i,
-    scenario_type: "quiz",
-    prompt: q.prompt,
-    content: {
-      question: q.prompt,
-      answer: q.answer,
-      explanation: q.explanation,
-      option_type: "truefalse",
-    },
-    difficulty: 2,
-  }));
-
-  return { scenarios: mapped, status: "ready", error: null };
+async function accessToken(): Promise<string> {
+  const supabase = createSupabaseBrowserClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) throw new Error("Session expired. Please sign in again.");
+  return session.access_token;
 }
 
-export default function ModuleVerify({ moduleId, userId, onArena, onComplete, nextModuleId }: Props) {
-  const [initialState] = useState(() => buildInitialVerifyState(moduleId));
-  const [scenarios] = useState<Scenario[]>(initialState.scenarios);
-  const [moduleTitle] = useState<string>(() => MODULE_TITLES[moduleId] ?? `Module ${moduleId}`);
-  const [status, setStatus] = useState<Status>(initialState.status);
-  const [error, setError] = useState<string | null>(initialState.error);
-  const [attemptKey, setAttemptKey] = useState(0);
+// The quiz is graded on the server (lib/verify-quiz.ts): this starts a run,
+// RapidFireQuiz sends each answer, and the server records mastery itself
+// when the streak is reached — there is no separate "save" step.
+export default function ModuleVerify({ moduleId, onArena, onComplete, nextModuleId }: Props) {
+  const moduleTitle = MODULE_TITLES[moduleId] ?? `Module ${moduleId}`;
+  const [status, setStatus] = useState<Status>("loading");
+  const [error, setError] = useState<string | null>(null);
+  const [quiz, setQuiz] = useState<VerifyQuizStart | null>(null);
   const [finalScore, setFinalScore] = useState(0);
+  // Bumped by "Start again" to start a fresh run.
+  const [runKey, setRunKey] = useState(0);
 
-  async function handleQuizComplete(score: number, answers: Array<{id: string; answer: string}>) {
-    if (score < PASS_THRESHOLD) {
-      setStatus("retry");
-      return;
-    }
-
-    setFinalScore(score);
-    setStatus("saving");
-    try {
-      const supabase = createSupabaseBrowserClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) {
-        setError("Session expired. Please sign in again.");
+  useEffect(() => {
+    let cancelled = false;
+    async function begin() {
+      try {
+        const started = await startVerifyQuiz(await accessToken(), moduleId);
+        if (cancelled) return;
+        setQuiz(started);
+        setStatus("ready");
+      } catch (err) {
+        if (cancelled) return;
+        setError(err instanceof Error ? err.message : "Could not start the quiz.");
         setStatus("error");
-        return;
       }
-
-      const res = await fetch("/api/training/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          moduleId,
-          userId,
-          verifyPassed: true,
-          consecutiveCorrect: score,
-          answers,
-        }),
-      });
-
-      if (!res.ok) {
-        const payload = await res.json().catch(() => ({}));
-        throw new Error(payload.error ?? `Save failed (${res.status}).`);
-      }
-
-      setStatus("mastered");
-    } catch (err) {
-      console.error("Mastery save failed:", err);
-      setError(err instanceof Error ? err.message : "Failed to record mastery.");
-      setStatus("error");
     }
+    void begin();
+    return () => {
+      cancelled = true;
+    };
+  }, [moduleId, runKey]);
+
+  function restart() {
+    setStatus("loading");
+    setError(null);
+    setRunKey((k) => k + 1);
   }
 
-  function handleRetry() {
-    setAttemptKey((k) => k + 1);
-    setStatus("ready");
-  }
+  const handleAnswer = useCallback(
+    async (position: number, answer: "true" | "false") => {
+      if (!quiz) throw new Error("The quiz hasn't started.");
+      return submitVerifyAnswer(await accessToken(), quiz.attemptId, position, answer);
+    },
+    [quiz],
+  );
+
+  const handleQuizComplete = useCallback((passed: boolean, streak: number) => {
+    setFinalScore(streak);
+    setStatus(passed ? "mastered" : "retry");
+  }, []);
+
+  const handleQuizError = useCallback((message: string) => {
+    setError(message);
+    setStatus("error");
+  }, []);
 
   if (status === "loading") {
     return (
@@ -186,7 +148,10 @@ export default function ModuleVerify({ moduleId, userId, onArena, onComplete, ne
             color: "var(--text-soft)",
           }}
         >
-          <p>{error ?? "Something went wrong."}</p>
+          <p style={{ marginBottom: 16 }}>{error ?? "Something went wrong."}</p>
+          <button className="btn btn-primary" onClick={restart}>
+            Start again
+          </button>
         </div>
       </div>
     );
@@ -202,7 +167,7 @@ export default function ModuleVerify({ moduleId, userId, onArena, onComplete, ne
             {nextTitle ? "Module Mastered" : "All Modules Complete!"}
           </h2>
           <p style={{ color: "var(--text-soft)", marginBottom: 0, fontSize: "0.9rem" }}>{moduleTitle}</p>
-          <span className="module-mastered-score">{finalScore} / 5 correct</span>
+          <span className="module-mastered-score">{finalScore} in a row</span>
 
           {nextTitle && onComplete && (
             <div className="module-mastered-next-card">
@@ -236,20 +201,9 @@ export default function ModuleVerify({ moduleId, userId, onArena, onComplete, ne
           <p style={{ marginBottom: 16 }}>
             Not quite. Let&apos;s run the verification quiz again.
           </p>
-          <button className="btn btn-primary" onClick={handleRetry}>
+          <button className="btn btn-primary" onClick={restart}>
             Retry verification
           </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (status === "saving") {
-    return (
-      <div className="stage-container">
-        <div style={{ padding: "48px 24px", textAlign: "center" }}>
-          <div className="spinner" style={{ marginBottom: "16px" }} />
-          <p>Recording your mastery…</p>
         </div>
       </div>
     );
@@ -260,16 +214,20 @@ export default function ModuleVerify({ moduleId, userId, onArena, onComplete, ne
       <div className="stage-header">
         <h2 style={{ marginBottom: 8 }}>{moduleTitle}</h2>
         <p className="stage-subtitle">
-          Get {PASS_THRESHOLD} of 5 consecutive correct to master this module.
+          Get {quiz?.required ?? 5} correct in a row to master this module.
         </p>
       </div>
 
-      <RapidFireQuiz
-        key={`verify-${moduleId}-${attemptKey}`}
-        scenarios={scenarios}
-        moduleId={moduleId}
-        onComplete={handleQuizComplete}
-      />
+      {quiz && (
+        <RapidFireQuiz
+          key={quiz.attemptId}
+          questions={quiz.questions}
+          required={quiz.required}
+          onAnswer={handleAnswer}
+          onComplete={handleQuizComplete}
+          onError={handleQuizError}
+        />
+      )}
     </div>
   );
 }

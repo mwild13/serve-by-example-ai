@@ -1,7 +1,7 @@
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { moduleIdToString, recordAttempt, syncMasteryToVenueStaff } from "@/lib/mastery";
+import { AttemptIdConflictError, findRecordedAttempt, moduleIdToString, recordAttempt, resolveAttemptId, syncMasteryToVenueStaff } from "@/lib/mastery";
 import { getOpenAIClient } from "@/lib/openai";
 import { capText, cleanUserText, fenceUntrusted, parseModelJson } from "@/lib/ai-guard";
 import { ARENA_SEED_SCENARIOS, formatArenaScenario } from "@/lib/arena-scenarios";
@@ -70,8 +70,11 @@ export async function POST(req: Request) {
       moduleId?: number;
       moduleTitle?: string;
       response?: string;
+      attemptId?: string;
     };
     const { action, moduleId, moduleTitle, response } = body;
+    // One id per submission, reused on retry: see resolveAttemptId().
+    const attemptId = resolveAttemptId(body.attemptId);
 
     if (!action || !moduleId) {
       return Response.json({ error: "Missing action or moduleId" }, { status: 400 });
@@ -121,6 +124,13 @@ export async function POST(req: Request) {
       );
     }
 
+    if (attemptId.fromClient) {
+      const prior = await findRecordedAttempt(admin, user.id, attemptId.id);
+      if (prior && prior.evaluation && typeof prior.evaluation === "object") {
+        return Response.json({ assessment: prior.evaluation, saved: true, replayed: true });
+      }
+    }
+
     const title = typeof moduleTitle === "string" && moduleTitle.trim()
       ? moduleTitle.trim().slice(0, MAX_TITLE_CHARS)
       : `Module ${moduleId}`;
@@ -163,27 +173,42 @@ export async function POST(req: Request) {
     // v4-migration-plan/04. Score is normalized 0-100 → 0-25 to match
     // recordAttempt()'s expected scale; `passed` carries Arena's own 75 pass
     // mark, since PASS_SCORE (15/25) alone would count 60-74 as a pass.
-    await recordAttempt(admin, {
-      userId: user.id,
-      module: moduleIdToString(moduleId),
-      moduleId,
-      scenarioType: "roleplay",
-      scenarioIndex: ARENA_SCENARIO_INDEX,
-      overallScore: score / 4,
-      confidence: "medium",
+    const assessment = {
+      score,
+      what_you_did_well: capText(parsed.what_you_did_well, MAX_FEEDBACK_CHARS),
+      room_for_improvement: capText(parsed.room_for_improvement, MAX_FEEDBACK_CHARS),
       passed,
-    });
+    };
 
-    await syncMasteryToVenueStaff(admin, user.id);
-
-    return Response.json({
-      assessment: {
-        score,
-        what_you_did_well: capText(parsed.what_you_did_well, MAX_FEEDBACK_CHARS),
-        room_for_improvement: capText(parsed.room_for_improvement, MAX_FEEDBACK_CHARS),
+    // The assessment is still returned if recording fails, flagged
+    // saved:false. Before Phase 4 a failed write went unnoticed: score/4 is
+    // fractional unless the score is a multiple of 4, it didn't fit
+    // scenario_mastery's integer columns, and the upsert error was never
+    // checked. record_attempt() now rounds the score.
+    try {
+      const attempt = await recordAttempt(admin, {
+        userId: user.id,
+        module: moduleIdToString(moduleId),
+        moduleId,
+        scenarioType: "roleplay",
+        scenarioIndex: ARENA_SCENARIO_INDEX,
+        overallScore: score / 4,
+        confidence: "medium",
         passed,
-      },
-    });
+        attemptId: attemptId.id,
+        evaluation: assessment,
+      });
+      if (!attempt.replayed) await syncMasteryToVenueStaff(admin, user.id);
+      const stored = attempt.replayed && attempt.evaluation && typeof attempt.evaluation === "object"
+        ? attempt.evaluation
+        : assessment;
+      return Response.json({ assessment: stored, saved: true, replayed: attempt.replayed });
+    } catch (saveError) {
+      if (!(saveError instanceof AttemptIdConflictError)) {
+        console.error("Arena evaluate: failed to record attempt:", saveError);
+      }
+      return Response.json({ assessment, saved: false });
+    }
   } catch (error) {
     console.error("Arena evaluate error:", error);
     return Response.json({ error: "Something went wrong." }, { status: 500 });

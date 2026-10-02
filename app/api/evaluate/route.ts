@@ -5,7 +5,7 @@ import { readJsonBody } from "@/lib/ai-guard";
 import { evaluateScenarioResponse, validateScenarioInput } from "@/lib/scenario-evaluator";
 import { resolveAccess, validateSession } from "@/lib/session";
 import { getCookieValue, recordScenarioAttempt } from "@/lib/training-attempt";
-import type { ConfidenceLevel } from "@/lib/mastery";
+import { AttemptIdConflictError, findRecordedAttempt, resolveAttemptId, type ConfidenceLevel, type RecordAttemptResult } from "@/lib/mastery";
 import { SCENARIOS, type Module } from "@/app/dashboard/_components/trainer/trainer-data";
 
 // Prevent static generation for this route (requires API credentials at runtime)
@@ -15,6 +15,21 @@ export const dynamic = "force-dynamic";
 // LEGACY_MODULE_NAMES).
 const MODULE_IDS: Record<Module, number> = { bartending: 1, sales: 2, management: 3 };
 const VALID_CONFIDENCE: readonly ConfidenceLevel[] = ["low", "medium", "high"];
+
+function masteryPayload(attempt: RecordAttemptResult) {
+  return {
+    level: attempt.masteryLevel,
+    previousLevel: attempt.previousLevel,
+    levelChanged: attempt.levelChanged,
+    spamGuarded: attempt.spamGuarded,
+    eloRating: attempt.eloRating,
+    eloDelta: attempt.eloDelta,
+    isBridge: attempt.isBridge,
+    consecutiveFails: attempt.consecutiveFails,
+    confidenceAccuracy: attempt.confidenceAccuracy,
+    nextReviewAt: attempt.nextReviewAt,
+  };
+}
 
 /**
  * Grades a Scenario Training response and records the attempt.
@@ -40,6 +55,9 @@ export async function POST(req: Request) {
     const read = await readJsonBody(req);
     if (!read.ok) return read.response;
     const { module, scenarioIndex, userResponse } = read.body;
+    // One id per submission, reused by the client on retry, so a retried or
+    // double-clicked submit is recorded once (audit 2026-09-30, M1).
+    const attemptId = resolveAttemptId(read.body.attemptId);
     const confidence = (read.body.confidence ?? "medium") as ConfidenceLevel;
 
     if (typeof module !== "string" || !Object.hasOwn(MODULE_IDS, module)) {
@@ -86,6 +104,15 @@ export async function POST(req: Request) {
     const access = await resolveAccess(admin, user.id, user.email ?? "");
     const canRecord = access.allowedModules.includes(moduleId);
 
+    // Already recorded under this id (a retry after a lost response): return
+    // the stored result instead of grading and paying for it again.
+    if (canRecord && attemptId.fromClient) {
+      const prior = await findRecordedAttempt(admin, user.id, attemptId.id);
+      if (prior && prior.evaluation && typeof prior.evaluation === "object") {
+        return Response.json({ ...prior.evaluation, saved: true, replayed: true, mastery: masteryPayload(prior.result) });
+      }
+    }
+
     // No req.signal here: once the response is graded it should be recorded
     // even if the client has gone (e.g. a phone switched apps mid-request).
     const result = await evaluateScenarioResponse(scenario.text, userResponse as string, "evaluate");
@@ -109,24 +136,19 @@ export async function POST(req: Request) {
         scenarioIndex: scenarioIndex as number,
         overallScore: result.overallScore,
         confidence,
+        attemptId: attemptId.id,
+        evaluation: result,
       });
-      return Response.json({
-        ...result,
-        saved: true,
-        mastery: {
-          level: attempt.masteryLevel,
-          previousLevel: attempt.previousLevel,
-          levelChanged: attempt.levelChanged,
-          spamGuarded: attempt.spamGuarded,
-          eloRating: attempt.eloRating,
-          eloDelta: attempt.eloDelta,
-          isBridge: attempt.isBridge,
-          consecutiveFails: attempt.consecutiveFails,
-          confidenceAccuracy: attempt.confidenceAccuracy,
-          nextReviewAt: attempt.nextReviewAt,
-        },
-      });
+      // On a concurrent duplicate the database kept the first grading; return
+      // that one so both responses agree with what was recorded.
+      const evaluation = attempt.replayed && attempt.evaluation && typeof attempt.evaluation === "object"
+        ? attempt.evaluation
+        : result;
+      return Response.json({ ...evaluation, saved: true, replayed: attempt.replayed, mastery: masteryPayload(attempt) });
     } catch (saveError) {
+      if (saveError instanceof AttemptIdConflictError) {
+        return Response.json({ ...result, saved: false, saveCode: "ATTEMPT_ID_CONFLICT" });
+      }
       console.error("Evaluate: failed to record attempt:", saveError);
       return Response.json({ ...result, saved: false, saveCode: "TRAINING_SAVE_FAILED" });
     }

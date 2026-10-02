@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createAttemptIdKeeper } from "@/lib/attempt-id";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import SharedTrainingCard from "@/app/dashboard/_components/common/SharedTrainingCard";
 import { ARENA_SEED_SCENARIOS } from "@/lib/arena-scenarios";
@@ -54,6 +55,7 @@ export default function ArenaPage({ userId: _userId }: Props) {
   const [response, setResponse] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [attemptIds] = useState(createAttemptIdKeeper);
   const [result, setResult] = useState<AssessmentResult | null>(null);
   const [arenaProgress, setArenaProgress] = useState<Record<number, ArenaProgressEntry>>({});
 
@@ -113,10 +115,12 @@ export default function ArenaPage({ userId: _userId }: Props) {
           moduleId: selectedId,
           moduleTitle: MODULE_META[selectedId]?.title,
           response: response.trim(),
+          attemptId: attemptIds.idFor(`${selectedId}:${response.trim()}`),
         }),
       });
       const data = await res.json() as Record<string, unknown>;
       if (!res.ok) throw new Error((data.error as string | undefined) ?? `Request failed (${res.status})`);
+      attemptIds.settle();
       const assessment = data.assessment as AssessmentResult;
       setArenaProgress(prev => ({
         ...prev,

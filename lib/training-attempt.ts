@@ -16,9 +16,6 @@ import { recordAttempt, syncMasteryToVenueStaff, type ConfidenceLevel, type Reco
 
 type AdminClient = ReturnType<typeof createSupabaseAdminClient>;
 
-/** Pass mark for the Pro-badge streak, on the 0-25 Scenario Training scale. */
-const STREAK_PASS_SCORE = 15;
-
 /** Reads one cookie from a request's Cookie header. */
 export function getCookieValue(req: Request, cookieName: string): string | null {
   const cookieHeader = req.headers.get("cookie");
@@ -71,19 +68,26 @@ export type ScenarioAttemptInput = {
   /** Must come from the server's own evaluation, never from the request body. */
   overallScore: number;
   confidence: ConfidenceLevel;
+  /** Client-generated idempotency key; see recordAttempt(). */
+  attemptId: string;
+  /** The grader's feedback, stored with the attempt for retries. */
+  evaluation: unknown;
 };
 
 /**
- * Records a graded Scenario Training (descriptor) attempt: mastery engine,
- * legacy per-module progress, the Pro-badge streak, and the manager-facing
- * venue_staff sync.
+ * Records a graded Scenario Training (descriptor) attempt: mastery engine and
+ * Pro-badge streak (one transaction, in record_attempt()), then the
+ * manager-facing venue_staff sync.
+ *
+ * The legacy _legacy_user_training_progress write is gone: nothing reads
+ * that table (audit 2026-09-30, L1), and it double-counted on retries.
  */
 export async function recordScenarioAttempt(
   admin: AdminClient,
   user: User,
   input: ScenarioAttemptInput,
 ): Promise<RecordAttemptResult> {
-  const { moduleName, moduleId, scenarioIndex, overallScore, confidence } = input;
+  const { moduleName, moduleId, scenarioIndex, overallScore, confidence, attemptId, evaluation } = input;
 
   const result = await recordAttempt(admin, {
     userId: user.id,
@@ -93,53 +97,13 @@ export async function recordScenarioAttempt(
     scenarioIndex,
     overallScore,
     confidence,
+    attemptId,
+    evaluation,
   });
 
-  // ── Legacy user_training_progress for backward compat (modules 1-3) ──
-  if (moduleId <= 3) {
-    const now = new Date().toISOString();
-    const { data: existing } = await admin
-      .from("_legacy_user_training_progress")
-      .select("scenarios_completed, total_score_points")
-      .eq("user_id", user.id)
-      .eq("module", moduleName)
-      .maybeSingle();
+  // A replay changed nothing, so there's nothing new to sync.
+  if (result.replayed) return result;
 
-    await admin.from("_legacy_user_training_progress").upsert(
-      {
-        user_id: user.id,
-        module: moduleName,
-        scenarios_completed: (existing?.scenarios_completed ?? 0) + 1,
-        total_score_points: (existing?.total_score_points ?? 0) + overallScore,
-        last_active_at: now,
-        updated_at: now,
-      },
-      { onConflict: "user_id,module" },
-    );
-  }
-
-  // ── Consecutive-correct streak tracking (for Pro badge) ──────
-  // On pass: increment running streak and update best if higher. On fail:
-  // reset to 0. Skipped for spam-guarded (non-genuine) attempts.
-  if (!result.spamGuarded) {
-    const passed = overallScore >= STREAK_PASS_SCORE;
-    const { data: profile } = await admin
-      .from("profiles")
-      .select("current_correct_streak, best_correct_streak")
-      .eq("id", user.id)
-      .single();
-
-    if (profile) {
-      const newCurrent = passed ? (profile.current_correct_streak ?? 0) + 1 : 0;
-      const newBest = Math.max(profile.best_correct_streak ?? 0, newCurrent);
-      await admin
-        .from("profiles")
-        .update({ current_correct_streak: newCurrent, best_correct_streak: newBest })
-        .eq("id", user.id);
-    }
-  }
-
-  // ── Sync mastery data to venue_staff for management dashboard ──
   await syncMasteryToVenueStaff(admin, user.id);
   if (user.email) {
     await maybeMarkTrialActivated(admin, user.email);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createAttemptIdKeeper } from "@/lib/attempt-id";
 import { useSearchParams } from "next/navigation";
 import { Sparkles, Send } from "lucide-react";
 import BottomNav from "./BottomNav";
@@ -49,6 +50,7 @@ export default function ArenaScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [attemptIds] = useState(createAttemptIdKeeper);
 
   async function submit(text: string) {
     const trimmed = text.trim();
@@ -68,6 +70,7 @@ export default function ArenaScreen() {
           moduleId,
           moduleTitle,
           response: trimmed,
+          attemptId: attemptIds.idFor(`${moduleId}:${trimmed}`),
         }),
       });
 
@@ -81,6 +84,7 @@ export default function ArenaScreen() {
       }
 
       const data = (await res.json()) as { assessment: Assessment };
+      attemptIds.settle();
       setAssessment(data.assessment);
       // Perf fix (Phase 1a): shared TrainingProgressProvider no longer
       // refetches on every screen mount, so a successful save must

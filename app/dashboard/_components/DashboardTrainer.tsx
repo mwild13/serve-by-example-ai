@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
+import { createAttemptIdKeeper } from "@/lib/attempt-id";
 import TrainerCommandBar from "./trainer/TrainerCommandBar";
 import HelpModal from "./trainer/HelpModal";
 import ModuleSelectGrid from "./trainer/ModuleSelectGrid";
@@ -33,6 +34,8 @@ export default function DashboardTrainer({
   const [response, setResponse] = useState("");
   const [bubbleText, setBubbleText] = useState("");
   const [loading, setLoading] = useState(false);
+  const submittingRef = useRef(false);
+  const [attemptIds] = useState(createAttemptIdKeeper);
   const [result, setResult] = useState<EvalResult | null>(null);
   const [lastScore, setLastScore] = useState<number | null>(null);
   const [error, setError] = useState("");
@@ -185,6 +188,10 @@ export default function DashboardTrainer({
   async function handleSubmit() {
     const fullResponse = response || bubbleText;
     if (!currentScenario || !fullResponse.trim()) return;
+    // A ref, not the loading state: a fast double-click fires twice before
+    // React re-renders with loading=true.
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setLoading(true);
     setError("");
     setResult(null);
@@ -203,10 +210,17 @@ export default function DashboardTrainer({
           "Content-Type": "application/json",
           ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
         },
-        body: JSON.stringify({ module: mod, scenarioIndex: idx, userResponse: fullResponse, confidence: "medium" }),
+        body: JSON.stringify({
+          module: mod,
+          scenarioIndex: idx,
+          userResponse: fullResponse,
+          confidence: "medium",
+          attemptId: attemptIds.idFor(`${mod}:${idx}:${fullResponse}`),
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Evaluation failed.");
+      attemptIds.settle();
       setResult(data);
 
       if (mod && data.mastery) {
@@ -234,6 +248,7 @@ export default function DashboardTrainer({
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
+      submittingRef.current = false;
       setLoading(false);
     }
   }

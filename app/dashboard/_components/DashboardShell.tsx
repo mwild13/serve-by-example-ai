@@ -832,7 +832,6 @@ export default function DashboardShell({
                 <ModuleVerify
                   key={`module-${selectedModuleId}`}
                   moduleId={selectedModuleId}
-                  userId={userId}
                   onArena={() => handleNavClick("scenarios")}
                   nextModuleId={selectedModuleId < 40 ? selectedModuleId + 1 : undefined}
                   onComplete={() => setSelectedModuleId(selectedModuleId < 40 ? selectedModuleId + 1 : null)}
@@ -852,7 +851,7 @@ export default function DashboardShell({
           </div>
         ) : activeNav === "rapid-fire" ? (
           <div key="rapid-fire">
-            <RapidFirePage userId={userId} />
+            <RapidFirePage />
           </div>
         ) : activeNav === "stage4" ? (
           <DashboardTrainer
