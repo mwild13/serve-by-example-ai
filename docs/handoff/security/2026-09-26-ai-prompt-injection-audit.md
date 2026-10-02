@@ -181,6 +181,8 @@ Response shapes for all four routes are unchanged for existing clients. The only
 
 ## Next steps
 
+> **Status 2026-10-02:** merged and live. Item 4 is answered — `lib/rate-limit.ts` is in-memory per Worker isolate, which is why the audit remediation added database-backed limits where it mattered (verify quiz starts) and still recommends a Cloudflare WAF rule. Item 5 is done: Vitest is set up (`npm test`). Arena now also records attempts idempotently and rounds its score (it was silently failing to save fractional scores). See `2026-10-02-audit-remediation-handoff.md`.
+
 1. **Push to a preview branch and smoke test.** Ask which branch before pushing; don't assume `main`. On preview:
    - Arena (desktop and mobile) grades a normal answer and saves progress.
    - Mobile Arena opened from Learn Hub shows the right module's scenario; opened directly it shows module 11 (late parmy order).

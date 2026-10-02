@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { brandedEmailHtml } from "@/lib/email-template";
+import { readJsonBody } from "@/lib/ai-guard";
 
 // Mobile bug-fix plan, Phase 3a — notification toggles on the new
 // /mobile/settings page. A profiles table write, so it goes through an API
@@ -101,7 +102,9 @@ export async function PATCH(req: Request) {
     const { user } = await getUserFromRequest(req);
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const body = (await req.json()) as {
+    const read = await readJsonBody(req, undefined, { requireJsonContentType: false });
+    if (!read.ok) return read.response;
+    const body = read.body as {
       notifReminders?: unknown;
       notifWeeklyDigest?: unknown;
     };

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireManager } from "@/lib/management/auth";
 import { escapeHtml } from "@/lib/email-template";
+import { readJsonBody } from "@/lib/ai-guard";
 
 const MAX_MESSAGE_CHARS = 1000;
 
@@ -10,7 +11,9 @@ export async function POST(req: Request) {
   if (!gate.ok) return gate.response;
   const { user, admin } = gate.ctx;
 
-  const body = await req.json() as Record<string, unknown>;
+  const read = await readJsonBody(req, undefined, { requireJsonContentType: false });
+  if (!read.ok) return read.response;
+  const body = read.body as Record<string, unknown>;
   const staffId = typeof body.staffId === "string" ? body.staffId.trim() : null;
   const message = typeof body.message === "string" ? body.message.trim() : null;
 

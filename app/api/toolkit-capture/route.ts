@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { readJsonBody } from "@/lib/ai-guard";
+import { formText } from "@/lib/email-template";
 
 export async function POST(request: Request) {
   // Public, unauthenticated and sends email, so it's capped per IP
@@ -12,8 +14,13 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body = await request.json();
-    const { first_name, email, role, utm_campaign } = body;
+    const read = await readJsonBody(request);
+    if (!read.ok) return read.response;
+    const body = read.body;
+    const first_name = formText(body.first_name, 80);
+    const email = formText(body.email, 254);
+    const role = formText(body.role, 40);
+    const utm_campaign = formText(body.utm_campaign, 120);
 
     // 1. Strict Validation Guardrails
     if (!first_name || !email || !role) {

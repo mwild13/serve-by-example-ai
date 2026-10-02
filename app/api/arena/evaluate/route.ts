@@ -7,6 +7,7 @@ import { capText, cleanUserText, fenceUntrusted, parseModelJson } from "@/lib/ai
 import { ARENA_SEED_SCENARIOS, formatArenaScenario } from "@/lib/arena-scenarios";
 import { resolveAccess, validateSession } from "@/lib/session";
 import { getCookieValue } from "@/lib/training-attempt";
+import { readJsonBody } from "@/lib/ai-guard";
 
 export const dynamic = "force-dynamic";
 
@@ -65,7 +66,9 @@ export async function POST(req: Request) {
     // `scenario` is still sent by older clients but deliberately ignored —
     // the graded scenario is looked up server-side by moduleId so a direct
     // POST can't swap in an easier scenario and record a pass.
-    const body = await req.json() as {
+    const read = await readJsonBody(req, undefined, { requireJsonContentType: false });
+    if (!read.ok) return read.response;
+    const body = read.body as {
       action?: string;
       moduleId?: number;
       moduleTitle?: string;

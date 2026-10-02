@@ -25,13 +25,26 @@ export type JsonBodyResult =
  * another site can't make its visitors' browsers spend our rate limits with a
  * text/plain "simple" request.
  */
-export async function readJsonBody(req: Request, maxBytes = DEFAULT_MAX_BODY_BYTES): Promise<JsonBodyResult> {
+export type ReadJsonBodyOptions = {
+  /**
+   * Default true. Set false only on signed-in routes whose callers don't all
+   * send a JSON Content-Type: their Authorization header already forces a
+   * CORS preflight, so the size cap is the part that matters there.
+   */
+  requireJsonContentType?: boolean;
+};
+
+export async function readJsonBody(
+  req: Request,
+  maxBytes = DEFAULT_MAX_BODY_BYTES,
+  options: ReadJsonBodyOptions = {},
+): Promise<JsonBodyResult> {
   const fail = (error: string, status: number): JsonBodyResult => ({
     ok: false,
     response: Response.json({ error }, { status }),
   });
 
-  if (!(req.headers.get("content-type") ?? "").toLowerCase().includes("application/json")) {
+  if (options.requireJsonContentType !== false && !(req.headers.get("content-type") ?? "").toLowerCase().includes("application/json")) {
     return fail("Content-Type must be application/json.", 415);
   }
   const declared = Number(req.headers.get("content-length"));

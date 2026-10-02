@@ -1,4 +1,6 @@
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { readJsonBody } from "@/lib/ai-guard";
+import { escapeHtml, formText } from "@/lib/email-template";
 
 export async function POST(req: Request) {
   // Public, unauthenticated and sends email, so it's capped per IP
@@ -11,13 +13,21 @@ export async function POST(req: Request) {
   }
 
   try {
-    const body = await req.json();
-    const {
-      firstName, lastName, email, phone, company,
-      teamSize, usesTraining, platformName, decisionMaker, intent,
-    } = body;
+    const read = await readJsonBody(req);
+    if (!read.ok) return read.response;
+    const body = read.body;
+    const firstName = formText(body.firstName, 80);
+    const lastName = formText(body.lastName, 80);
+    const email = formText(body.email, 254);
+    const phone = formText(body.phone, 40);
+    const company = formText(body.company, 160);
+    const teamSize = formText(body.teamSize, 40);
+    const usesTraining = formText(body.usesTraining, 10);
+    const platformName = formText(body.platformName, 120);
+    const decisionMaker = formText(body.decisionMaker, 40);
+    const intent = formText(body.intent, 3000);
 
-    if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !phone?.trim() || !company?.trim()) {
+    if (!firstName || !lastName || !email || !phone || !company) {
       return Response.json({ error: "Required fields missing." }, { status: 400 });
     }
 
@@ -39,6 +49,9 @@ export async function POST(req: Request) {
       );
     }
 
+    // Values are escaped here, once: this email goes to our own inbox, and a
+    // form field used to be able to inject markup (links, fake buttons) into it.
+    const e = escapeHtml;
     const row = (label: string, value: string) =>
       `<tr><td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-weight:600;width:160px;vertical-align:top">${label}</td><td style="padding:10px 0;border-bottom:1px solid #e5e7eb">${value}</td></tr>`;
 
@@ -47,19 +60,19 @@ export async function POST(req: Request) {
         <h2 style="margin-bottom:8px;color:#0B2B1E">New Book-a-Call Request</h2>
         <p style="color:#6b7280;margin-top:0">Submitted from the Serve By Example hero booking form.</p>
         <table style="width:100%;border-collapse:collapse;margin-top:24px">
-          ${row("Name", `${firstName.trim()} ${lastName.trim()}`)}
-          ${row("Email", `<a href="mailto:${email.trim()}">${email.trim()}</a>`)}
-          ${row("Phone", phone.trim())}
-          ${row("Company", company.trim())}
-          ${row("Team size", teamSize || "–")}
-          ${row("Uses training?", usesTraining === "yes" ? `Yes${platformName?.trim() ? ` – ${platformName.trim()}` : ""}` : usesTraining === "no" ? "No" : "–")}
-          ${row("Decision maker?", decisionMaker || "–")}
+          ${row("Name", `${e(firstName)} ${e(lastName)}`)}
+          ${row("Email", `<a href="mailto:${e(email)}">${e(email)}</a>`)}
+          ${row("Phone", e(phone))}
+          ${row("Company", e(company))}
+          ${row("Team size", e(teamSize) || "–")}
+          ${row("Uses training?", usesTraining === "yes" ? `Yes${platformName ? ` – ${e(platformName)}` : ""}` : usesTraining === "no" ? "No" : "–")}
+          ${row("Decision maker?", e(decisionMaker) || "–")}
         </table>
         <div style="margin-top:24px;padding:20px;background:#f9fafb;border-radius:8px;border-left:4px solid #0B2B1E">
           <p style="margin:0;font-weight:600;margin-bottom:8px">What made them book a call</p>
-          <p style="margin:0;line-height:1.65;white-space:pre-wrap">${intent?.trim() || "–"}</p>
+          <p style="margin:0;line-height:1.65;white-space:pre-wrap">${e(intent) || "–"}</p>
         </div>
-        <p style="margin-top:24px;font-size:13px;color:#9ca3af">Reply directly to this email to respond to ${firstName.trim()}.</p>
+        <p style="margin-top:24px;font-size:13px;color:#9ca3af">Reply directly to this email to respond to ${e(firstName)}.</p>
       </div>
     `;
 
@@ -73,8 +86,8 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         sender: { name: fromName, email: fromEmail },
         to: [{ email: toEmail }],
-        replyTo: { email: email.trim(), name: `${firstName.trim()} ${lastName.trim()}` },
-        subject: `Book-a-call request from ${firstName.trim()} ${lastName.trim()} – ${company.trim()}`,
+        replyTo: { email, name: `${firstName} ${lastName}` },
+        subject: `Book-a-call request from ${firstName} ${lastName} – ${company}`,
         htmlContent,
       }),
     });

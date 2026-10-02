@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { managementErrorResponse, requireManager } from "@/lib/management/auth";
+import { readJsonBody } from "@/lib/ai-guard";
 
 const MAX_MESSAGES_PER_SAVE = 10;
 const MAX_CONTENT_CHARS = 8000;
@@ -44,7 +45,9 @@ export async function POST(req: Request) {
   const { user, admin, assertOwnsVenue } = gate.ctx;
 
   try {
-    const body = await req.json() as Record<string, unknown>;
+    const read = await readJsonBody(req, 128 * 1024, { requireJsonContentType: false });
+    if (!read.ok) return read.response;
+    const body = read.body as Record<string, unknown>;
     const venueId = typeof body.venueId === "string" && body.venueId.trim() ? body.venueId.trim() : null;
     const messages = Array.isArray(body.messages) ? body.messages : [];
 

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { readJsonBody } from "@/lib/ai-guard";
 
 // Persists the flattened composite (background + cutout, canvas-rendered
 // client-side — see lib/photo-composite.ts) into Supabase Storage and
@@ -44,7 +45,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
     }
 
-    const body = await req.json().catch(() => null);
+    const read = await readJsonBody(req, 4_500_000, { requireJsonContentType: false });
+    if (!read.ok) return read.response;
+    const body = read.body;
     if (body === null || typeof body !== "object") {
       return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
     }

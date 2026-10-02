@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { managementErrorResponse, requireManager } from "@/lib/management/auth";
 import { createVenue, deleteVenue, renameVenue, getManagementSnapshot } from "@/lib/management/service";
 import type { NewVenuePayload } from "@/lib/management/types";
+import { readJsonBody } from "@/lib/ai-guard";
 
 // Venue setup is owner-level only (duty managers excluded), matching the
 // console's Settings gate. Writes run on the admin client behind
@@ -14,7 +15,9 @@ export async function POST(req: Request) {
   const { user, admin, entitlement } = gate.ctx;
 
   try {
-    const body = (await req.json()) as Partial<NewVenuePayload>;
+    const read = await readJsonBody(req, undefined, { requireJsonContentType: false });
+    if (!read.ok) return read.response;
+    const body = read.body as Partial<NewVenuePayload>;
     const name = body.name?.trim();
 
     if (!name) {
@@ -50,7 +53,9 @@ export async function PATCH(req: Request) {
   const { user, admin, assertOwnsVenue } = gate.ctx;
 
   try {
-    const body = await req.json() as { venueId?: string; name?: string; reportSchedule?: { enabled: boolean; dayOfWeek: number } };
+    const read2 = await readJsonBody(req, undefined, { requireJsonContentType: false });
+    if (!read2.ok) return read2.response;
+    const body = read2.body as { venueId?: string; name?: string; reportSchedule?: { enabled: boolean; dayOfWeek: number } };
     const { venueId, name, reportSchedule } = body;
 
     if (!venueId) {

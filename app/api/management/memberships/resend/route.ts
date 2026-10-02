@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
 import { requireManager } from "@/lib/management/auth";
 import { escapeHtml } from "@/lib/email-template";
+import { readJsonBody } from "@/lib/ai-guard";
 
 export async function POST(req: Request) {
   const gate = await requireManager(req, { rateKey: "invite-resend", limit: 10 });
   if (!gate.ok) return gate.response;
   const { user, admin } = gate.ctx;
 
-  const body = await req.json() as Record<string, unknown>;
+  const read = await readJsonBody(req, undefined, { requireJsonContentType: false });
+  if (!read.ok) return read.response;
+  const body = read.body as Record<string, unknown>;
   const membershipId = typeof body.membershipId === "string" ? body.membershipId.trim() : null;
   if (!membershipId) {
     return NextResponse.json({ error: "membershipId is required" }, { status: 400 });

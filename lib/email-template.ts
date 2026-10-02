@@ -24,6 +24,15 @@ export function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
+/**
+ * A form field as trimmed text, capped at `maxLength`; anything that isn't a
+ * string becomes "". For public form routes, where a JSON body can carry a
+ * number or object in any field.
+ */
+export function formText(value: unknown, maxLength: number): string {
+  return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
+}
+
 const SITE_URL = "https://servebyexample.co";
 const LOGO_URL = `${SITE_URL}/logo.png`;
 

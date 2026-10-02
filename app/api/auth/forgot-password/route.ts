@@ -3,6 +3,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { brandedEmailHtml } from "@/lib/email-template";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { readJsonBody } from "@/lib/ai-guard";
 
 // Password-reset branding + deliverability fix (2026-09-02) — this used to
 // be a bare client-side supabase.auth.resetPasswordForEmail() call
@@ -32,7 +33,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Too many requests. Please try again shortly." }, { status: 429 });
   }
 
-  const body = await req.json().catch(() => null);
+  const read = await readJsonBody(req, 1024);
+  if (!read.ok) return read.response;
+  const body = read.body;
   const email = typeof body?.email === "string" ? body.email.trim() : "";
 
   if (!email || !EMAIL_REGEX.test(email)) {

@@ -145,6 +145,8 @@ If a real streaming chat is ever built, this same shape carries over: abort on u
 - Browser (Playwright, API mocked with a 3 s delay): `/demo` double-submit and Skip-mid-request; Complaint Master navigate-away abort.
 - **Not tested:** real OpenAI calls, and whether Cloudflare/OpenNext fires `req.signal` on client disconnect. Local has no OpenAI or Supabase env; the browser test used dummy public Supabase values passed on the command line, with no `.env` file read.
 
+> **Status 2026-10-02:** the follow-ups below were picked up by the 2026-09-30 audit remediation (see `2026-10-02-audit-remediation-handoff.md`). Resolved: review item 8 / next step 3 (the quiz is now graded server-side and the answer key is server-only — Phase 4, plus the `scenarios` table lock in Phase 5) and next step 4 (Vitest is set up, `npm test`). Rate limits were added to the public email routes and `join-venue` (Phase 1). **Still open:** the two dashboard actions (OpenAI budget/alert, Cloudflare WAF rule), review items 2, 5 and 7 (product calls).
+
 ## Needs your action (dashboards, no code)
 
 These are the only hard ceilings. Every limit in `lib/rate-limit.ts` is in memory per isolate, so a distributed flood gets roughly (limit × live isolates).

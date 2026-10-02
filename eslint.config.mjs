@@ -77,7 +77,7 @@ export default defineConfig([
   // Next.js + TypeScript rules via native flat config (no FlatCompat)
   ...nextConfig,
 
-  globalIgnores([".next/**", ".open-next/**", "out/**", "build/**", "next-env.d.ts", ".claude/**"]),
+  globalIgnores([".next/**", ".open-next/**", "out/**", "build/**", "next-env.d.ts", ".claude/**", ".agents/**"]),
 
   {
     plugins: { "@typescript-eslint": tsPlugin },

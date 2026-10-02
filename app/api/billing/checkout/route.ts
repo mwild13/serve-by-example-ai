@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getUserFromRequest } from "@/lib/supabase-server";
+import { readJsonBody } from "@/lib/ai-guard";
 
 export const dynamic = "force-dynamic";
 
@@ -57,8 +58,11 @@ export async function POST(req: Request) {
   }
 
   try {
-    const body = await req.json();
-    const { plan, email: emailFromBody } = body;
+    const read = await readJsonBody(req, undefined, { requireJsonContentType: false });
+    if (!read.ok) return read.response;
+    const body = read.body;
+    const plan = typeof body.plan === "string" ? body.plan : "";
+    const emailFromBody = typeof body.email === "string" && body.email.trim() ? body.email.trim().slice(0, 254) : undefined;
 
     const PRICE_IDS = getPriceIds();
     const priceId = PRICE_IDS[plan];

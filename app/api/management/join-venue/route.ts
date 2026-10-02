@@ -4,6 +4,7 @@ import { getUserFromRequest } from "@/lib/supabase-server";
 import { syncMasteryToVenueStaff } from "@/lib/mastery";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { normalizeVenueCode } from "@/lib/venue-code";
+import { readJsonBody } from "@/lib/ai-guard";
 
 // The one /api/management route without requireManager(): the caller is the
 // staff member joining, not a manager.
@@ -39,7 +40,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Too many attempts. Please wait and try again." }, { status: 429 });
     }
 
-    const body = await req.json() as { venueCode?: unknown };
+    const read = await readJsonBody(req, undefined, { requireJsonContentType: false });
+    if (!read.ok) return read.response;
+    const body = read.body as { venueCode?: unknown };
     const venueCode = normalizeVenueCode(body.venueCode);
 
     if (!venueCode) {

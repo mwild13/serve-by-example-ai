@@ -4,6 +4,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { DAILY_GENERATION_LIMIT, generationsUsedToday } from "@/lib/profile-photo-cap";
 import { getFalClient, BG_REMOVE_MODEL, classifyFalError } from "@/lib/fal";
+import { readJsonBody } from "@/lib/ai-guard";
 
 // Replaces app/api/profile-photo/generate/route.ts (face-swap, deleted).
 // The client sends its own auto-cropped 1:1 selfie; this route strips its
@@ -43,7 +44,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
     }
 
-    const body = await req.json().catch(() => null);
+    const read = await readJsonBody(req, 8_500_000, { requireJsonContentType: false });
+    if (!read.ok) return read.response;
+    const body = read.body;
     if (body === null || typeof body !== "object") {
       return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
     }

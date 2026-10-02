@@ -1,4 +1,6 @@
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { readJsonBody } from "@/lib/ai-guard";
+import { escapeHtml, formText } from "@/lib/email-template";
 
 function fmt(n: number) {
   return n.toLocaleString("en-AU", { maximumFractionDigits: 0 });
@@ -11,29 +13,28 @@ export async function POST(req: Request) {
   }
 
   try {
-    const body = await req.json();
-    const {
-      email,
-      headcount,
-      managerHours,
-      avgTicket,
-      turnoverSavings,
-      managerSavings,
-      upsellProfit,
-      totalSavings,
-    } = body as {
-      email: string;
-      headcount: number;
-      managerHours: number;
-      avgTicket: number;
-      turnoverSavings: number;
-      managerSavings: number;
-      upsellProfit: number;
-      totalSavings: number;
+    const read = await readJsonBody(req);
+    if (!read.ok) return read.response;
+    const body = read.body;
+    // Numbers are forced to real finite numbers: this email goes to whatever
+    // address was submitted, from our domain, and these fields used to be
+    // interpolated raw, so a string field could inject arbitrary HTML.
+    const num = (v: unknown) => {
+      const n = typeof v === "number" ? v : Number(v);
+      return Number.isFinite(n) ? Math.min(Math.max(Math.round(n), 0), 1_000_000_000) : 0;
     };
+    const email = formText(body.email, 254);
+    const headcount = num(body.headcount);
+    const managerHours = num(body.managerHours);
+    const avgTicket = num(body.avgTicket);
+    const turnoverSavings = num(body.turnoverSavings);
+    const managerSavings = num(body.managerSavings);
+    const upsellProfit = num(body.upsellProfit);
+    const totalSavings = num(body.totalSavings);
+    const safeEmail = escapeHtml(email);
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email?.trim() || !emailRegex.test(email)) {
+    if (!email || !emailRegex.test(email)) {
       return Response.json({ error: "Please enter a valid email address." }, { status: 400 });
     }
 
@@ -143,7 +144,7 @@ export async function POST(req: Request) {
             <tr>
               <td style="padding:14px 0;border-bottom:1px solid #ece5d5;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#7a9185;width:42%">Email</td>
               <td style="padding:14px 0;border-bottom:1px solid #ece5d5;font-size:0.95rem;font-weight:700;color:#172f22">
-                <a href="mailto:${email.trim()}" style="color:#1f4e37;text-decoration:none">${email.trim()}</a>
+                <a href="mailto:${safeEmail}" style="color:#1f4e37;text-decoration:none">${safeEmail}</a>
               </td>
             </tr>
             <tr>
@@ -176,7 +177,7 @@ export async function POST(req: Request) {
             </tr>
           </table>
 
-          <a href="mailto:${email.trim()}?subject=${mailtoSubject}&body=${mailtoBody}" style="display:inline-block;background:#1f4e37;color:#ffffff;padding:13px 28px;border-radius:10px;font-weight:700;font-size:0.9rem;text-decoration:none">
+          <a href="mailto:${encodeURIComponent(email)}?subject=${mailtoSubject}&body=${mailtoBody}" style="display:inline-block;background:#1f4e37;color:#ffffff;padding:13px 28px;border-radius:10px;font-weight:700;font-size:0.9rem;text-decoration:none">
             Reply to Lead
           </a>
 
@@ -195,7 +196,7 @@ export async function POST(req: Request) {
         headers: { "api-key": brevoApiKey, "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
           sender: { name: fromName, email: fromEmail },
-          to: [{ email: email.trim() }],
+          to: [{ email }],
           subject: `Your $${fmt(totalSavings)} annual profit projection – Serve By Example`,
           htmlContent: projectionHtml,
         }),
@@ -206,7 +207,7 @@ export async function POST(req: Request) {
         body: JSON.stringify({
           sender: { name: fromName, email: fromEmail },
           to: [{ email: toEmail }],
-          subject: `New ROI lead: ${email.trim()} – $${fmt(totalSavings)} annual lift`,
+          subject: `New ROI lead: ${email} – $${fmt(totalSavings)} annual lift`,
           htmlContent: notificationHtml,
         }),
       }),
