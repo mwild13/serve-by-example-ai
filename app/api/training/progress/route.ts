@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { linkStaffAccountByEmail } from "@/lib/staff-link";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { getMasteryProgress, getReviewQueue, getScenarioMasteryDetails, categoryMasteryAverage, moduleMasteryByType, SCENARIO_COUNTS } from "@/lib/mastery";
@@ -94,7 +95,7 @@ export async function GET(req: Request) {
       getReviewQueue(admin, user.id),
       resolveAccess(admin, user.id, user.email ?? ""),
       user.email
-        ? admin.from("venue_staff").select("id, role, staff_user_id").ilike("email", user.email)
+        ? admin.from("venue_staff").select("id, role, staff_user_id").eq("email", user.email.toLowerCase())
         : Promise.resolve({ data: null as { id: string; role: string; staff_user_id: string | null }[] | null }),
       detailModule && LEGACY_MODULES.includes(detailModule as typeof LEGACY_MODULES[number])
         ? getScenarioMasteryDetails(admin, user.id, detailModule)
@@ -274,14 +275,9 @@ export async function GET(req: Request) {
     if (staffRows && staffRows.length > 0) {
       staffRole = staffRows[0].role as string;
 
-      const unlinked = staffRows.filter((r) => !r.staff_user_id);
-      if (unlinked.length > 0) {
-        await admin
-          .from("venue_staff")
-          .update({ staff_user_id: user.id })
-          .ilike("email", user.email!)
-          .is("staff_user_id", null)
-          .then();
+      // Fallback for sign-in paths that never call /api/session/stamp.
+      if (staffRows.some((r) => !r.staff_user_id)) {
+        await linkStaffAccountByEmail(admin, user.id, user.email);
       }
 
       // Only auto-unlock management for users with their own paid plan.

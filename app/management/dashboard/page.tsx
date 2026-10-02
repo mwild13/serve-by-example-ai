@@ -85,7 +85,8 @@ export default async function ManagementDashboardPage({
       });
       const stripeSession = await stripe.checkout.sessions.retrieve(stripeSessionId);
 
-      if (stripeSession.payment_status === "paid") {
+      // Only a checkout started by this account upgrades it (audit M7).
+      if (stripeSession.payment_status === "paid" && stripeSession.metadata?.userId === user.id) {
         // Checkout metadata carries the canonical tier directly (see
         // app/api/billing/checkout/route.ts) — same source the webhook reads,
         // so this immediate sync can never drift from the async webhook path.

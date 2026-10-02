@@ -39,6 +39,7 @@ import MobileLearnHub from "@/app/dashboard/_components/MobileLearnHub";
 import SessionRefresher from "@/components/ui/SessionRefresher";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
+import { normalizeVenueCode } from "@/lib/venue-code";
 
 type NavItem = "home" | "mobile-learn" | "module" | "rapid-fire" | "stage4" | "scenarios" | "challenges" | "cocktails" | "knowledge" | "progress" | "badges" | "settings";
 
@@ -203,7 +204,7 @@ function StaffSettingsPanel({
     }
   }
 
-  async function submitJoinVenue(code: number) {
+  async function submitJoinVenue(code: string) {
     setJoinVenueStatus("loading");
     setJoinVenueMessage("");
     try {
@@ -234,8 +235,8 @@ function StaffSettingsPanel({
 
   async function handleJoinVenue(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const code = parseInt(venueCode.trim(), 10);
-    if (isNaN(code)) {
+    const code = normalizeVenueCode(venueCode);
+    if (!code) {
       setJoinVenueStatus("error");
       setJoinVenueMessage("Please enter a valid venue code.");
       return;
@@ -254,8 +255,8 @@ function StaffSettingsPanel({
   const hasAutoJoined = useRef(false);
   useEffect(() => {
     if (!initialJoinCode || hasAutoJoined.current) return;
-    const code = parseInt(initialJoinCode.trim(), 10);
-    if (isNaN(code)) return;
+    const code = normalizeVenueCode(initialJoinCode);
+    if (!code) return;
     hasAutoJoined.current = true;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- deliberately kicking off the join request as soon as this one-time deep-link condition is met, not syncing from an external source.
     submitJoinVenue(code);
@@ -407,11 +408,13 @@ function StaffSettingsPanel({
                 id="venue-code-input"
                 className="input"
                 type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
+                autoCapitalize="characters"
+                autoComplete="off"
+                spellCheck={false}
+                maxLength={8}
                 value={venueCode}
-                onChange={(e) => setVenueCode(e.target.value)}
-                placeholder="e.g. 4821"
+                onChange={(e) => setVenueCode(e.target.value.toUpperCase())}
+                placeholder="e.g. K7P3QX"
                 required
               />
             </label>

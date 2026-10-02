@@ -19,6 +19,7 @@ import InstallPrompt from "./InstallPrompt";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
+import { normalizeVenueCode } from "@/lib/venue-code";
 
 // Mobile bug-fix plan, Phase 3a — the Me page's settings icon used to be a
 // dead button with no route. This is that route's real content.
@@ -335,8 +336,12 @@ export default function SettingsScreen() {
   }
 
   async function handleJoinVenue() {
-    const trimmed = venueCode.trim();
-    if (!trimmed) return;
+    const trimmed = normalizeVenueCode(venueCode);
+    if (!trimmed) {
+      setVenueStatus("error");
+      setVenueMessage("Please enter a valid venue code.");
+      return;
+    }
     setVenueStatus("saving");
     setVenueMessage(null);
     try {
@@ -522,7 +527,7 @@ export default function SettingsScreen() {
           <>
             <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-mobile-muted)" }}>Join a venue by code</label>
             <div style={{ display: "flex", gap: 8 }}>
-              <input value={venueCode} onChange={(e) => setVenueCode(e.target.value)} placeholder="e.g. 4821" style={{ ...inputStyle, flex: 1 }} />
+              <input value={venueCode} onChange={(e) => setVenueCode(e.target.value.toUpperCase())} autoCapitalize="characters" autoComplete="off" spellCheck={false} maxLength={8} placeholder="e.g. K7P3QX" style={{ ...inputStyle, flex: 1 }} />
               <button type="button" onClick={handleJoinVenue} disabled={venueStatus === "saving"} style={primaryButtonStyle}>
                 {venueStatus === "saving" ? "Joining…" : "Join"}
               </button>

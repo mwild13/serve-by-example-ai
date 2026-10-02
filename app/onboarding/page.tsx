@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
+import { normalizeVenueCode } from "@/lib/venue-code";
 
 type Step = 1 | 2 | 3;
 
@@ -47,10 +48,10 @@ export default function OnboardingPage() {
   const [error, setError] = useState("");
 
   async function handleConnectVenue() {
-    const code = parseInt(venueCode.trim(), 10);
-    if (isNaN(code)) {
+    const code = normalizeVenueCode(venueCode);
+    if (!code) {
       setVenueCodeStatus("error");
-      setVenueCodeMessage("Please enter a valid numeric venue code.");
+      setVenueCodeMessage("Please enter a valid venue code.");
       return;
     }
     setVenueCodeStatus("loading");
@@ -169,11 +170,13 @@ export default function OnboardingPage() {
                   id="onboarding-venue-code"
                   className="input"
                   type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
+                  autoCapitalize="characters"
+                  autoComplete="off"
+                  spellCheck={false}
+                  maxLength={8}
                   value={venueCode}
-                  onChange={(e) => { setVenueCode(e.target.value); setVenueCodeStatus("idle"); setVenueCodeMessage(""); }}
-                  placeholder="e.g. 4821"
+                  onChange={(e) => { setVenueCode(e.target.value.toUpperCase()); setVenueCodeStatus("idle"); setVenueCodeMessage(""); }}
+                  placeholder="e.g. K7P3QX"
                 />
               </label>
               {venueCodeStatus === "success" && (

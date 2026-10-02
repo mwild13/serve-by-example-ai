@@ -1,18 +1,11 @@
 import { NextResponse } from "next/server";
-import { getUserFromRequest } from "@/lib/supabase-server";
-import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { requireManager } from "@/lib/management/auth";
 import { escapeHtml } from "@/lib/email-template";
 
 export async function POST(req: Request) {
-  const { user } = await getUserFromRequest(req);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const ip = getClientIp(req);
-  if (!rateLimit(`invite-resend:user:${user.id}`, 10) || !rateLimit(`invite-resend:ip:${ip}`, 20)) {
-    console.warn(JSON.stringify({ event: "invite_resend_rejected", reason: "rate_limited", userId: user.id, ip }));
-    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
-  }
+  const gate = await requireManager(req, { rateKey: "invite-resend", limit: 10 });
+  if (!gate.ok) return gate.response;
+  const { user, admin } = gate.ctx;
 
   const body = await req.json() as Record<string, unknown>;
   const membershipId = typeof body.membershipId === "string" ? body.membershipId.trim() : null;
@@ -20,14 +13,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "membershipId is required" }, { status: 400 });
   }
 
-  const admin = createSupabaseAdminClient();
-
   const { data: membership, error: lookupError } = await admin
     .from("organization_members")
     .select("id, staff_email, manager_id")
     .eq("id", membershipId)
     .eq("manager_id", user.id)
-    .single();
+    .not("status", "eq", "removed")
+    .maybeSingle();
 
   if (lookupError || !membership) {
     return NextResponse.json({ error: "Membership not found" }, { status: 404 });
@@ -54,7 +46,8 @@ export async function POST(req: Request) {
       linkError.message?.toLowerCase().includes("already been registered"));
 
   if (linkError && !isExistingUser) {
-    return NextResponse.json({ error: linkError.message }, { status: 422 });
+    console.error("[memberships/resend] generateLink failed:", linkError.message);
+    return NextResponse.json({ error: "Could not generate an invite link." }, { status: 422 });
   }
 
   // The action link signs whoever opens it in as `email`, so it only goes

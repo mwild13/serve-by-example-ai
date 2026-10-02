@@ -148,7 +148,7 @@ async function handleCheckoutComplete(
       .schema("auth")
       .from("users")
       .select("id")
-      .ilike("email", customerEmail)
+      .eq("email", customerEmail.trim().toLowerCase())
       .limit(1);
     resolvedUserId = (authRows?.[0] as { id: string } | undefined)?.id;
 

@@ -140,8 +140,8 @@ export async function recordScenarioAttempt(
   }
 
   // ── Sync mastery data to venue_staff for management dashboard ──
+  await syncMasteryToVenueStaff(admin, user.id);
   if (user.email) {
-    await syncMasteryToVenueStaff(admin, user.id, user.email);
     await maybeMarkTrialActivated(admin, user.email);
   }
 

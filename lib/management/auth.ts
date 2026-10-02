@@ -18,7 +18,16 @@
 import type { User } from "@supabase/supabase-js";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
-import { hasManagerConsoleAccess, isB2BTier, isOwnerLevelRole, validateSession } from "@/lib/session";
+import {
+  hasManagerConsoleAccess,
+  isB2BTier,
+  isMultiVenueTier,
+  isOwnerLevelRole,
+  normalizeTier,
+  tierSeatLimit,
+  validateSession,
+  type Tier,
+} from "@/lib/session";
 import { getTrialStatus } from "@/lib/trial";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { getCookieValue } from "@/lib/training-attempt";
@@ -45,11 +54,20 @@ export type ManagerProfile = {
   orgId: string | null;
 };
 
+export type ManagerEntitlement = {
+  /** Paid B2B tier, else active trial tier; null when neither applies. */
+  tier: Tier | null;
+  seatLimit: number;
+  /** Infinity for multi-venue tiers and admins. */
+  venueLimit: number;
+};
+
 export type ManagerContext = {
   user: User;
   admin: AdminClient;
   profile: ManagerProfile;
   isOwnerLevel: boolean;
+  entitlement: ManagerEntitlement;
   /** Throws 404 unless `venueId` is a venue this caller owns. */
   assertOwnsVenue: (venueId: string) => Promise<void>;
   /** Throws 404 unless `staffId` is a venue_staff row this caller manages. */
@@ -126,13 +144,15 @@ export async function requireManager(req: Request, opts: RequireManagerOptions):
   const isOwnerLevel = isOwnerLevelRole(platformRole) || isAdmin;
 
   let hasTrialAccess = false;
-  if (!isAdmin && !hasVenueAccess && !hasManagerRole && orgId) {
+  let trialTier: string | null = null;
+  if (!isAdmin && !hasVenueAccess && orgId) {
     const { data: org } = await admin
       .from("organizations")
       .select("trial_tier, trial_ends_at, trial_converted")
       .eq("id", orgId)
       .maybeSingle();
     hasTrialAccess = getTrialStatus(org) === "active" && !!org?.trial_tier;
+    if (hasTrialAccess) trialTier = org?.trial_tier as string;
   }
 
   if (!isAdmin && !hasVenueAccess && !hasManagerRole && !hasTrialAccess) {
@@ -169,10 +189,20 @@ export async function requireManager(req: Request, opts: RequireManagerOptions):
       admin,
       profile: { platformRole, tier, orgId },
       isOwnerLevel,
+      entitlement: resolveEntitlement(isAdmin, hasVenueAccess ? tier : trialTier),
       assertOwnsVenue,
       assertOwnsStaff,
     },
   };
+}
+
+// Single-venue tiers (Boutique / legacy venue_single) are one venue by product
+// design (pricing page, TrialBillingSection); multi-venue tiers are uncapped.
+export function resolveEntitlement(isAdmin: boolean, rawTier: string | null): ManagerEntitlement {
+  if (isAdmin) return { tier: "enterprise", seatLimit: tierSeatLimit("enterprise"), venueLimit: Infinity };
+  if (!rawTier || !isB2BTier(rawTier)) return { tier: null, seatLimit: 0, venueLimit: 0 };
+  const tier = normalizeTier(rawTier);
+  return { tier, seatLimit: tierSeatLimit(tier), venueLimit: isMultiVenueTier(tier) ? Infinity : 1 };
 }
 
 /**

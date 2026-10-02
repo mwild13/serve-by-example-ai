@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
-import { getUserFromRequest } from "@/lib/supabase-server";
-import { createSupabaseAdminClient } from "@/lib/supabase-admin";
+import { requireManager } from "@/lib/management/auth";
+import { escapeHtml } from "@/lib/email-template";
+
+const MAX_MESSAGE_CHARS = 1000;
 
 export async function POST(req: Request) {
-  const { user } = await getUserFromRequest(req);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // Each call can email a staff member from our domain.
+  const gate = await requireManager(req, { rateKey: "mgmt-recognitions", limit: 10 });
+  if (!gate.ok) return gate.response;
+  const { user, admin } = gate.ctx;
 
   const body = await req.json() as Record<string, unknown>;
   const staffId = typeof body.staffId === "string" ? body.staffId.trim() : null;
@@ -12,8 +16,9 @@ export async function POST(req: Request) {
 
   if (!staffId) return NextResponse.json({ error: "staffId is required" }, { status: 400 });
   if (!message) return NextResponse.json({ error: "message is required" }, { status: 400 });
-
-  const admin = createSupabaseAdminClient();
+  if (message.length > MAX_MESSAGE_CHARS) {
+    return NextResponse.json({ error: `Keep recognitions under ${MAX_MESSAGE_CHARS} characters.` }, { status: 400 });
+  }
 
   // Verify staff belongs to this manager and fetch email
   const { data: staffRow } = await admin
@@ -30,7 +35,10 @@ export async function POST(req: Request) {
     .from("staff_recognitions")
     .insert({ staff_id: staffId, from_manager_id: user.id, message });
 
-  if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 });
+  if (insertError) {
+    console.error("[recognitions POST]", insertError);
+    return NextResponse.json({ error: "Could not save recognition." }, { status: 500 });
+  }
 
   // Send recognition email if staff member has an email
   const staffEmail = typeof staffRow.email === "string" ? staffRow.email : null;
@@ -53,10 +61,10 @@ export async function POST(req: Request) {
         htmlContent: `
           <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px">
             <h2 style="margin-bottom:8px;color:#1f4e37">You've been recognised!</h2>
-            <p style="color:#555">Hi ${staffName},</p>
+            <p style="color:#555">Hi ${escapeHtml(staffName)},</p>
             <p style="color:#555">Your manager has sent you a recognition message:</p>
             <blockquote style="border-left:4px solid #1f4e37;margin:20px 0;padding:12px 20px;background:#f5f2e9;color:#172f22;font-style:italic;border-radius:0 8px 8px 0">
-              "${message}"
+              "${escapeHtml(message)}"
             </blockquote>
             <p style="color:#555">Keep up the great work. Log in to see your training progress and achievements.</p>
             <p style="margin-top:24px">

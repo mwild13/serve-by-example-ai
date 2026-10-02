@@ -606,29 +606,17 @@ export function moduleMasteryByType(
 
 // ── Sync mastery data to venue_staff for management dashboard ──
 
+// Follows the linked account only (see lib/staff-link.ts). Matching by email
+// here used to push a user's progress onto any roster row carrying their
+// address, linked to them or not.
 export async function syncMasteryToVenueStaff(
   admin: SupabaseClient,
   userId: string,
-  userEmail: string,
 ): Promise<void> {
-  // Try to find staff row by email first, then fall back to staff_user_id
-  let staffRows: Array<{ id: string }> | null = null;
-
-  if (userEmail) {
-    const { data } = await admin
-      .from("venue_staff")
-      .select("id")
-      .ilike("email", userEmail);
-    staffRows = data ?? null;
-  }
-
-  if (!staffRows || staffRows.length === 0) {
-    const { data } = await admin
-      .from("venue_staff")
-      .select("id")
-      .eq("staff_user_id", userId);
-    staffRows = data ?? null;
-  }
+  const { data: staffRows } = await admin
+    .from("venue_staff")
+    .select("id")
+    .eq("staff_user_id", userId);
 
   if (!staffRows || staffRows.length === 0) return;
 
@@ -743,18 +731,8 @@ export async function syncMasteryToVenueStaff(
     ...(highConfidenceIncorrectRatio !== undefined ? { high_confidence_incorrect_ratio: highConfidenceIncorrectRatio } : {}),
   };
 
-  for (const staffRow of staffRows) {
-    await admin
-      .from("venue_staff")
-      .update(updatePayload)
-      .eq("id", staffRow.id);
-  }
-
-  // Link staff_user_id if not already set
   await admin
     .from("venue_staff")
-    .update({ staff_user_id: userId })
-    .ilike("email", userEmail)
-    .is("staff_user_id", null)
-    .then();
+    .update(updatePayload)
+    .eq("staff_user_id", userId);
 }

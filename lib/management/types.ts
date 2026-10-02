@@ -69,7 +69,7 @@ export type StaffMember = {
 export type Venue = {
   id: string;
   name: string;
-  venueCode?: number;
+  venueCode?: string;
   completionRate: number;
   avgScenarioScore: number;
   upsellRate: number;

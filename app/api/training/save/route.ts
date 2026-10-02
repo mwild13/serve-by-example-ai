@@ -183,8 +183,8 @@ export async function POST(req: Request) {
       moduleId,
       consecutiveCorrect: validatedCount,
     });
+    await syncMasteryToVenueStaff(admin, user.id);
     if (user.email) {
-      await syncMasteryToVenueStaff(admin, user.id, user.email);
       await maybeMarkTrialActivated(admin, user.email);
     }
 

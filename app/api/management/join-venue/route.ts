@@ -3,12 +3,15 @@ import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { syncMasteryToVenueStaff } from "@/lib/mastery";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { normalizeVenueCode } from "@/lib/venue-code";
 
-// Venue codes are 4 digits (9,000 possibilities), so without a limit the
-// whole space can be walked in minutes to join any venue and get its
-// sponsored training access (audit 2026-09-30, H2). Longer codes and manager
-// approval follow in a later phase; this caps guessing now. In-memory per
-// isolate, so the daily cap is a soft ceiling.
+// The one /api/management route without requireManager(): the caller is the
+// staff member joining, not a manager.
+//
+// New venues get 6-character codes (lib/venue-code.ts); venues created before
+// 2026-10-01 keep their 4-digit codes, and those 9,000 are walkable without
+// a limit (audit 2026-09-30, H2). In-memory per isolate, so the daily cap is
+// a soft ceiling.
 const JOIN_PER_MINUTE_USER = 5;
 const JOIN_PER_MINUTE_IP = 20;
 const JOIN_PER_DAY_USER = 20;
@@ -37,13 +40,9 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json() as { venueCode?: unknown };
-    const venueCode = typeof body.venueCode === "number"
-      ? body.venueCode
-      : typeof body.venueCode === "string"
-        ? parseInt(body.venueCode, 10)
-        : null;
+    const venueCode = normalizeVenueCode(body.venueCode);
 
-    if (!venueCode || isNaN(venueCode)) {
+    if (!venueCode) {
       return NextResponse.json({ error: "Invalid venue code." }, { status: 400 });
     }
 
@@ -77,7 +76,7 @@ export async function POST(req: Request) {
       const { data: byEmail } = await admin
         .from("venue_staff")
         .select("id")
-        .ilike("email", user.email)
+        .eq("email", user.email.toLowerCase())
         .eq("venue_id", venue.id)
         .maybeSingle();
 
@@ -109,7 +108,7 @@ export async function POST(req: Request) {
         .from("venue_staff")
         .update({
           staff_user_id: user.id,
-          ...(user.email ? { email: user.email } : {}),
+          ...(user.email ? { email: user.email.toLowerCase() } : {}),
           updated_at: new Date().toISOString(),
         })
         .eq("id", existingRow.id);
@@ -124,7 +123,7 @@ export async function POST(req: Request) {
           manager_user_id: (venue as { owner_user_id?: string }).owner_user_id ?? user.id,
           staff_user_id: user.id,
           name: staffName,
-          email: user.email ?? null,
+          email: user.email?.toLowerCase() ?? null,
           role: "New Staff",
           progress: 0,
           service_score: 0,
@@ -144,7 +143,7 @@ export async function POST(req: Request) {
         .from("organization_members")
         .select("id")
         .eq("manager_id", venue.owner_user_id)
-        .ilike("staff_email", user.email.toLowerCase())
+        .eq("staff_email", user.email.toLowerCase())
         .eq("venue_id", venue.id)
         .not("status", "eq", "removed")
         .maybeSingle();
@@ -183,9 +182,7 @@ export async function POST(req: Request) {
     }
 
     // Sync any existing training data to the manager dashboard immediately
-    if (user.email) {
-      await syncMasteryToVenueStaff(admin, user.id, user.email);
-    }
+    await syncMasteryToVenueStaff(admin, user.id);
 
     return NextResponse.json({
       success: true,

@@ -11,7 +11,7 @@ import type { NewVenuePayload } from "@/lib/management/types";
 export async function POST(req: Request) {
   const gate = await requireManager(req, { rateKey: "mgmt-venues", ownerOnly: true, limit: 10 });
   if (!gate.ok) return gate.response;
-  const { user, admin } = gate.ctx;
+  const { user, admin, entitlement } = gate.ctx;
 
   try {
     const body = (await req.json()) as Partial<NewVenuePayload>;
@@ -19,6 +19,20 @@ export async function POST(req: Request) {
 
     if (!name) {
       return NextResponse.json({ error: "Provide a venue name." }, { status: 400 });
+    }
+
+    const { count: ownedVenues, error: countError } = await admin
+      .from("venues")
+      .select("id", { count: "exact", head: true })
+      .eq("owner_user_id", user.id);
+    if (countError) throw countError;
+
+    if ((ownedVenues ?? 0) >= entitlement.venueLimit) {
+      console.warn(JSON.stringify({ event: "venue_create_rejected", reason: "venue_limit", userId: user.id, tier: entitlement.tier, ownedVenues }));
+      const error = entitlement.venueLimit === 0
+        ? "Your plan doesn't include venues. Start a trial or upgrade to add one."
+        : "Your plan includes one venue. Upgrade to Group to add more locations.";
+      return NextResponse.json({ error, code: "VENUE_LIMIT_REACHED" }, { status: 403 });
     }
 
     await createVenue(admin, user.id, { name });

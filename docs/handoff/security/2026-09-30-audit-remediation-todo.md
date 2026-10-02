@@ -8,12 +8,13 @@ Tick an item only once it has been **tested**, not just once it's written.
 
 | Phase | Branch | State |
 |---|---|---|
-| 1. Same-day API hotfixes | `fix/audit-phase1-hotfixes` (commit `950b5be`) | Deployed to preview; **signed-in smoke tests below still open**; not merged |
-| 2. RLS lockdown | `audit-remediation` (commit `47af0a5`, branched from phase 1) | Code deployed to preview. Migration **dry-run passed (rolled back)**; **not applied**. Next: signed-in smoke test on preview → merge → apply |
-| 3. Server-side gating & identity | `audit-remediation` | Not started |
-| 4. Atomic attempts, idempotency, server-graded quiz | `audit-remediation` | Not started |
-| 5. ELO retirement & dead code | `audit-remediation` | Not started |
-| 6. Polish & docs | `audit-remediation` | Not started |
+| 1. Same-day API hotfixes | merged to `main` 2026-10-01 (`3f316ef`) | **Live in production.** Signed-in smoke tests below still open |
+| 2. RLS lockdown | merged to `main` 2026-10-01 (`3f316ef`) | Code live. `20260930_rls_lockdown.sql` **applied to production 2026-10-01** (confirmed: zero client write grants on the core tables). Smoke tests still open |
+| 2.5 Legacy org backfill + seat trigger | `main` | **Applied to production 2026-10-01** (confirmed: 3 org rows at 35/35/15 seats, 0 owners without an org, trigger tightened) |
+| 3. Server-side gating & identity | merged to `main` 2026-10-02 | **Live.** Preview smoke test passed 2026-10-02; `20261001b_venue_code_alphanumeric.sql` applied first (confirmed: text column, no sequence default, format check) |
+| 4. Atomic attempts, idempotency, server-graded quiz | — | Not started |
+| 5. ELO retirement & dead code | — | Not started |
+| 6. Polish & docs | — | Not started |
 
 Phase 1 preview: https://fix-audit-phase1-hotfixes.serve-by-example-ai.pages.dev
 Phase 1 + 2 preview: https://audit-remediation.serve-by-example-ai.pages.dev
@@ -139,21 +140,63 @@ Preview check (unauthenticated): `snapshot`, `group-summary`, `venues`, `staff`,
 
 ## Phase 3 — Server-side gating & identity (H2 rest, H3, H4, H5 rest, M3, M7)
 
-- [ ] `requireManager()` on the remaining `/api/management/*` handlers (Phase 2 covered inventory, training-programs, venues, staff, snapshot, group-summary and coach). Still to do: `memberships`, `memberships/resend`, `recognitions`, `compliance/certifications`, `coach/history`. Grep check: every route calls it, or `join-venue` (staff-facing) is the documented exception.
-- [ ] Duty-manager data scope: they own no venues, so they see an empty console and get a "Primary Venue" auto-created on first write. Design the real scope (their inviting owner's venues).
-- [x] Seat trigger NULL/0 handling — narrow fix written and dry-run verified 2026-10-01, **not yet applied to production** (see below). Per-tier caps on venue/staff *creation* server-side (H3) are still open.
-- [ ] Venue cap per tier (confirm numbers against the pricing page) + seat check before any `venue_staff`/`organization_members` insert; `memberships` verifies `venueId` ownership.
-- [ ] Identity linked at acceptance only; `syncMasteryToVenueStaff` by `staff_user_id` only; all email `ilike` → `eq` on lowercase; lowercase-email migration.
-- [ ] Webhook and dashboard checkout-success resolve the user from Stripe metadata only (M7).
-- [ ] 8-character join codes (rotation migration) + pending/approved membership.
-- [ ] Single access resolver (lapsed subscription, paused sponsor, exact email).
+Branch `audit-phase3` (from `main` after the Phase 1+2 merge). No DB migration needed.
 
-Tests:
-- [ ] Free user POSTs to `venues`/`staff` → 403; boutique owner's second venue → 403; seat cap enforced.
-- [ ] A roster row with a stranger's email gets no progress until they accept.
-- [ ] `j_smith@` does not match `jxsmith@` anywhere (access, sync, webhook).
-- [ ] A reused Stripe `session_id` from another account does not upgrade tier.
-- [ ] A duty manager can't reach billing or settings routes.
+### What changed from the plan (found while building)
+
+- **Venue caps come from the pricing page, not the plan's guess.** Boutique / `venue_single` = 1 venue; Commercial / `venue_multi` / Enterprise = unlimited. The plan's "commercial = 5" was invented, and `SettingsPanel.tsx` already notes the old "5 Venues Maximum" was fabricated. Live data fits: the largest boutique owner has 1 venue, the largest commercial owner has 3.
+- **No lowercase-email migration needed.** Live check: 0 mixed-case emails in `venue_staff`, `organization_members` or `profiles`. Exact `eq` on the lowercased value matches everything `ilike` matched, minus the wildcard false positives.
+- **The roster row isn't a seat.** `staff` POST creates a `venue_staff` roster entry (no access granted); seats are `organization_members` rows (`memberships` POST, `join-venue`), which the seat trigger and `entitlement.seatLimit` cap. No cap was added to roster entries — the starter seed creates placeholder rows too.
+- **Trial managers couldn't invite through `memberships`.** It read `profiles.tier` (`free` during a trial) and returned "your plan does not include staff seats". Seat and venue limits now come from `requireManager()`'s `entitlement` (paid B2B tier, else active trial tier).
+- **New finding: cross-org duty-manager demotion.** `memberships` PATCH/POST changed `profiles.platform_role` matched **by email, globally**. An owner could list another org's duty manager as their own member, then demote them, removing their access to the other org. Role changes now apply only to the linked `organization_members.user_id`, and a demotion is skipped while another active duty-manager grant exists. Removing a duty manager's membership now also revokes their console access (it previously persisted forever).
+- **New finding: `recognitions`** put the manager's message and the staff name into email HTML unescaped, with no rate limit and no length cap. All three fixed.
+- **`session/stamp`** built a PostgREST `.or()` filter by string-interpolating the user's email; it now links first and queries by `user_id` only.
+- **`/management/dashboard` had the same M7 flaw** as `/dashboard` (any paid `session_id` upgraded the signed-in user). Both fixed.
+
+### Build — done 2026-10-01
+
+- [x] `requireManager()` on `memberships` (GET/POST/PATCH/DELETE; PATCH owner-only), `memberships/resend`, `recognitions`, `compliance/certifications`, `coach/history`. Grep check passes: `join-venue` is the only route without it, documented in the file.
+- [x] `lib/management/auth.ts`: `entitlement { tier, seatLimit, venueLimit }` on the context; `resolveEntitlement()` exported and unit-tested.
+- [x] `venues` POST: 403 `VENUE_LIMIT_REACHED` at the tier's venue cap.
+- [x] `memberships` POST: `venueId` ownership-checked (404), email validated, seat limit from entitlement, CTA link escaped.
+- [x] `coach/history`: `venueId` ownership on POST, ≤10 messages per save, roles limited to `user`/`coach`, content capped at 8,000 chars, sane `limit` parsing.
+- [x] `compliance/certifications`: field length caps, date format check, foreign cert → 404 (was 403, which confirmed it existed), generic errors.
+- [x] `lib/staff-link.ts`: the only email→account link. Exact lowercase match, fills empty links only. Called from `session/stamp` (sign-in) and `training/progress` (fallback for sign-in paths that skip the stamp).
+- [x] `syncMasteryToVenueStaff(admin, userId)`: syncs by `staff_user_id` only, no email lookup, no linking side effect. All 4 callers updated.
+- [x] Every `ilike` email match → exact `eq` (join-venue, memberships, progress, webhook, `resolveAccess`, session/stamp). `grep ilike app lib components` is now empty.
+- [x] M3: `resolveAccess()` (API routes) now delegates to `resolveTierAccess()` (pages). API routes now apply the lapsed-subscription downgrade and the paused-sponsor rule too.
+- [x] M7: `/dashboard` and `/management/dashboard` only apply a checkout-success upgrade when `metadata.userId` matches the signed-in user. Guest checkouts are left to the webhook.
+- [x] 19 Vitest tests pass; `tsc`, ESLint and `next build` clean.
+
+### Open — your decision
+
+- [x] **Join codes (H2 rest) — decided 2026-10-01: 6-character letters + numbers for new venues; existing 4-digit codes stay.** No manager approval step. Built:
+  - `lib/venue-code.ts`: alphabet `ABCDEFGHJKMNPQRSTUVWXYZ23456789` (no 0/O, 1/I/L), crypto-random with rejection sampling, ~887M codes. `normalizeVenueCode()` accepts lower case, spaces and dashes, and old 4-digit codes. 5 Vitest tests.
+  - `createVenue` / `ensureManagerVenue` generate the new codes; `join-venue` looks up by normalised string; desktop, onboarding and mobile join forms accept letters (no numeric keypad, upper-cased as typed, `e.g. K7P3QX`).
+  - `supabase/migrations/20261001b_venue_code_alphanumeric.sql`: `venue_code` integer → text (existing values carry over), drops the sequential `nextval` default, adds a format CHECK. Rollback in `supabase/rollbacks/`.
+  - **Dry run on production (rolled back, then confirmed untouched):** type became text; the current production code's numeric insert still stores and looks up correctly; a new `K7P3QX` inserts; lower case, look-alike characters and duplicates are rejected.
+  - Remaining risk: the 12 existing venues keep guessable 4-digit codes (still rate-limited). Accepted 2026-10-02: those venues are expected to be deleted in the coming weeks.
+- [ ] **Consent for email linking (H4 rest).** Linking now happens only at sign-in, with exact matching, but still without the staff member agreeing: a manager who adds someone's real email to their roster sees that person's training progress once they sign in. A real fix is an "Accept invitation from <venue>" prompt. Live data: 0 unlinked roster rows currently match an existing account, so nothing is exposed today.
+- [x] **Duty managers — decided 2026-10-02:** keep Manager Console access when an owner grants it. No "inviting owner's venues" scope for now.
+
+### Deploy order (Phase 3)
+
+1. [x] Apply `supabase/migrations/20261001b_venue_code_alphanumeric.sql` (current production code works with it).
+2. [x] Smoke test the `audit-phase3` preview — passed 2026-10-02.
+3. [x] Merge `audit-phase3` → `main` (2026-10-02, on request).
+
+### Tests (preview, then production)
+
+- [ ] Free / pro user POSTs to `venues` → 403; boutique owner's second venue → 403 `VENUE_LIMIT_REACHED`; commercial owner can add a 2nd and 3rd venue.
+- [ ] Trial manager (free tier + active org trial) can invite through Team → Invite; seat count shows the trial tier's seats.
+- [ ] `memberships` POST with another org's `venueId` → 404. Seat cap → 403 at the limit.
+- [ ] Duty-manager flow: invite an existing linked account as duty manager → console access immediately; change to staff → access removed; a second org's duty-manager grant survives the first org demoting them.
+- [ ] Recognition with `<b>hi</b>` arrives as literal text; 11th recognition in a minute → 429.
+- [ ] A new invitee signs up with the invited email → their roster row links and the roster updates after their first attempt.
+- [ ] A canceled subscriber gets 403 from `/api/evaluate` (same as the page now shows).
+- [ ] A reused Stripe `session_id` from another account does not upgrade the tier.
+- [ ] A duty manager gets 403 on `venues` and `memberships` PATCH.
+- [ ] Join codes: a new venue shows a 6-character code; joining with it typed in lower case works; an existing 4-digit code still joins; the `?join=` sign-up link auto-joins with both kinds.
 
 ---
 
