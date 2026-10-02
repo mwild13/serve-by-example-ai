@@ -11,7 +11,7 @@ Tick an item only once it has been **tested**, not just once it's written.
 | 1. Same-day API hotfixes | merged to `main` 2026-10-01 (`3f316ef`) | **Live in production.** Signed-in smoke tests below still open |
 | 2. RLS lockdown | merged to `main` 2026-10-01 (`3f316ef`) | Code live. `20260930_rls_lockdown.sql` **applied to production 2026-10-01** (confirmed: zero client write grants on the core tables). Smoke tests still open |
 | 2.5 Legacy org backfill + seat trigger | `main` | **Applied to production 2026-10-01** (confirmed: 3 org rows at 35/35/15 seats, 0 owners without an org, trigger tightened) |
-| 3. Server-side gating & identity | `audit-phase3` | **Code done 2026-10-01**, preview only. Needs `20261001b_venue_code_alphanumeric.sql` applied **before** merging |
+| 3. Server-side gating & identity | merged to `main` 2026-10-02 | **Live.** Preview smoke test passed 2026-10-02; `20261001b_venue_code_alphanumeric.sql` applied first (confirmed: text column, no sequence default, format check) |
 | 4. Atomic attempts, idempotency, server-graded quiz | — | Not started |
 | 5. ELO retirement & dead code | — | Not started |
 | 6. Polish & docs | — | Not started |
@@ -175,15 +175,15 @@ Branch `audit-phase3` (from `main` after the Phase 1+2 merge). No DB migration n
   - `createVenue` / `ensureManagerVenue` generate the new codes; `join-venue` looks up by normalised string; desktop, onboarding and mobile join forms accept letters (no numeric keypad, upper-cased as typed, `e.g. K7P3QX`).
   - `supabase/migrations/20261001b_venue_code_alphanumeric.sql`: `venue_code` integer → text (existing values carry over), drops the sequential `nextval` default, adds a format CHECK. Rollback in `supabase/rollbacks/`.
   - **Dry run on production (rolled back, then confirmed untouched):** type became text; the current production code's numeric insert still stores and looks up correctly; a new `K7P3QX` inserts; lower case, look-alike characters and duplicates are rejected.
-  - Remaining risk: the 12 existing venues keep guessable 4-digit codes (still rate-limited). A manager can be given a "regenerate code" button later if you want those rotated.
+  - Remaining risk: the 12 existing venues keep guessable 4-digit codes (still rate-limited). Accepted 2026-10-02: those venues are expected to be deleted in the coming weeks.
 - [ ] **Consent for email linking (H4 rest).** Linking now happens only at sign-in, with exact matching, but still without the staff member agreeing: a manager who adds someone's real email to their roster sees that person's training progress once they sign in. A real fix is an "Accept invitation from <venue>" prompt. Live data: 0 unlinked roster rows currently match an existing account, so nothing is exposed today.
-- [x] **Duty-manager data scope — decided 2026-10-01: not building it.** Duty managers keep their current access; no "inviting owner's venues" scope.
+- [x] **Duty managers — decided 2026-10-02:** keep Manager Console access when an owner grants it. No "inviting owner's venues" scope for now.
 
 ### Deploy order (Phase 3)
 
-1. [ ] Apply `supabase/migrations/20261001b_venue_code_alphanumeric.sql` (current production code works with it).
-2. [ ] Smoke test the `audit-phase3` preview.
-3. [ ] Merge `audit-phase3` → `main` (**confirm before pushing to main**). Merging before step 1 breaks venue creation.
+1. [x] Apply `supabase/migrations/20261001b_venue_code_alphanumeric.sql` (current production code works with it).
+2. [x] Smoke test the `audit-phase3` preview — passed 2026-10-02.
+3. [x] Merge `audit-phase3` → `main` (2026-10-02, on request).
 
 ### Tests (preview, then production)
 
