@@ -10,13 +10,14 @@ import { chromium, type FullConfig } from "@playwright/test";
 // The QA account must have `onboarding_completed = true` and real module
 // access in Supabase — app/mobile/layout.tsx redirects to /onboarding
 // otherwise, which would make every screenshot a false "failure" against
-// the wrong page.
+// the wrong page. scripts/e2e/provision-qa-account.mjs creates the account in
+// exactly that state (and repairs it if it drifts).
 export default async function globalSetup(config: FullConfig) {
   const email = process.env.E2E_TEST_EMAIL;
   const password = process.env.E2E_TEST_PASSWORD;
   if (!email || !password) {
     throw new Error(
-      "E2E_TEST_EMAIL and E2E_TEST_PASSWORD must be set (a dedicated QA staff account with onboarding_completed = true) before running `npm run e2e`."
+      "E2E_TEST_EMAIL and E2E_TEST_PASSWORD must be set before running `npm run e2e`. Create the account with: node --env-file=.env.local scripts/e2e/provision-qa-account.mjs"
     );
   }
 
@@ -37,7 +38,7 @@ export default async function globalSetup(config: FullConfig) {
   if (page.url().includes("/onboarding")) {
     await browser.close();
     throw new Error(
-      "E2E_TEST_EMAIL account has not completed onboarding — set onboarding_completed = true for this account in Supabase before running the suite."
+      "E2E_TEST_EMAIL account has not completed onboarding. Repair it with: node --env-file=.env.local scripts/e2e/provision-qa-account.mjs"
     );
   }
 

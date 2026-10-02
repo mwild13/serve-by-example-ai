@@ -73,7 +73,7 @@ export default async function DashboardPage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, tier, org_id, stripe_customer_id, management_unlocked, notif_reminders, notif_weekly_digest, notif_achievement_alerts, subscription_status, onboarding_completed")
+    .select("display_name, tier, org_id, stripe_customer_id, management_unlocked, notif_reminders, notif_weekly_digest, subscription_status, onboarding_completed")
     .eq("id", user.id)
     .single();
 
@@ -112,9 +112,11 @@ export default async function DashboardPage({
       checkoutSuccess={checkoutSuccess}
       userEmail={user.email ?? ""}
       managementUnlockedInitial={managementUnlocked}
-      notifReminders={profile?.notif_reminders ?? true}
-      notifWeeklyDigest={profile?.notif_weekly_digest ?? true}
-      notifAchievementAlerts={profile?.notif_achievement_alerts ?? true}
+      // Opt-in (2026-08-25): an unset flag means off, matching
+      // /api/profile/notifications. Defaulting to true here pre-ticked the
+      // boxes, so one Save opted the user in without them choosing it.
+      notifReminders={profile?.notif_reminders ?? false}
+      notifWeeklyDigest={profile?.notif_weekly_digest ?? false}
       hasVenueMembership={hasVenueMembership}
       venueMembershipPaused={venueMembershipPaused}
       initialToken={session?.access_token ?? ""}

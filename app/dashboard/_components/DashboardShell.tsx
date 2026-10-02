@@ -61,16 +61,15 @@ function StaffSettingsPanel({
   userEmail,
   notifReminders,
   notifWeeklyDigest,
-  notifAchievementAlerts,
   initialJoinCode,
 }: {
   displayName: string;
   userEmail: string;
   notifReminders: boolean;
   notifWeeklyDigest: boolean;
-  notifAchievementAlerts: boolean;
   initialJoinCode?: string;
 }) {
+  const router = useRouter();
   const [profileName, setProfileName] = useState(displayName);
   const [email, setEmail] = useState(userEmail);
   const [password, setPassword] = useState("");
@@ -87,10 +86,17 @@ function StaffSettingsPanel({
 
   const [enableReminders, setEnableReminders] = useState(notifReminders);
   const [enableWeeklyDigest, setEnableWeeklyDigest] = useState(notifWeeklyDigest);
-  const [enableAchievementAlerts, setEnableAchievementAlerts] = useState(notifAchievementAlerts);
   const [isSavingNotifications, setIsSavingNotifications] = useState(false);
   const [notifMessage, setNotifMessage] = useState("");
   const [notifError, setNotifError] = useState("");
+
+  // ── Delete account ── same route and DELETE phrase as mobile Settings
+  // (app/mobile/_components/SettingsScreen.tsx). See
+  // app/api/profile/delete/route.ts for what is deleted vs kept.
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   async function handleDisplayNameUpdate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -178,6 +184,38 @@ function StaffSettingsPanel({
       setNotifError(err instanceof Error ? err.message : "Could not save preferences.");
     } finally {
       setIsSavingNotifications(false);
+    }
+  }
+
+  async function handleDeleteAccount(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (deleteConfirmText !== "DELETE") return;
+    setIsDeleting(true);
+    setDeleteError("");
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not signed in.");
+      const res = await fetch("/api/profile/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ confirm: deleteConfirmText }),
+      });
+      if (!res.ok) {
+        // 409s carry a user-facing reason (active subscription, venue owner).
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(res.status === 409 && data.error ? data.error : "Could not delete your account. Please try again.");
+      }
+      // The auth user no longer exists; clear the local session too.
+      await supabase.auth.signOut();
+      router.push("/");
+      router.refresh();
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : "Could not delete your account. Please try again.");
+      setIsDeleting(false);
     }
   }
 
@@ -341,20 +379,16 @@ function StaffSettingsPanel({
 
         <div className="card">
           <h3>Training notifications</h3>
-          <p>Control reminder style and achievement updates.</p>
+          <p>Choose which training emails you get. Both are off until you turn them on.</p>
           <form className="staff-settings-form" onSubmit={handleNotificationsSave}>
             <div className="staff-toggle-list">
               <label>
                 <input type="checkbox" checked={enableReminders} onChange={(event) => setEnableReminders(event.target.checked)} />
-                <span>Daily training reminders</span>
+                <span>Sunday night training reminders</span>
               </label>
               <label>
                 <input type="checkbox" checked={enableWeeklyDigest} onChange={(event) => setEnableWeeklyDigest(event.target.checked)} />
-                <span>Weekly progress digest</span>
-              </label>
-              <label>
-                <input type="checkbox" checked={enableAchievementAlerts} onChange={(event) => setEnableAchievementAlerts(event.target.checked)} />
-                <span>Badge and streak alerts</span>
+                <span>Monday weekly progress digest</span>
               </label>
             </div>
             {notifError ? <div className="auth-status auth-status-error">{notifError}</div> : null}
@@ -424,6 +458,51 @@ function StaffSettingsPanel({
             {joinVenueStatus === "error" && (
               <div className="auth-status auth-status-error">{joinVenueMessage}</div>
             )}
+          </form>
+        )}
+      </div>
+
+      <div className="card">
+        <h3>Delete account</h3>
+        <p>Permanently delete your account, sign-in and training history. Your venue keeps its roster record of you, without your progress.</p>
+        {!deleteOpen ? (
+          <button type="button" className="btn btn-secondary" style={{ color: "var(--red-text)" }} onClick={() => setDeleteOpen(true)}>
+            Delete account
+          </button>
+        ) : (
+          <form className="staff-settings-form" onSubmit={handleDeleteAccount}>
+            <label className="label" htmlFor="delete-account-confirm">
+              This can&apos;t be undone. Type DELETE to confirm.
+              <input
+                id="delete-account-confirm"
+                className="input"
+                type="text"
+                autoComplete="off"
+                spellCheck={false}
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="DELETE"
+              />
+            </label>
+            {deleteError ? <div className="auth-status auth-status-error">{deleteError}</div> : null}
+            <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                style={{ background: "var(--red-text)", borderColor: "var(--red-text)" }}
+                disabled={deleteConfirmText !== "DELETE" || isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Permanently delete"}
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => { setDeleteOpen(false); setDeleteConfirmText(""); setDeleteError(""); }}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+            </div>
           </form>
         )}
       </div>
@@ -510,7 +589,6 @@ export default function DashboardShell({
   managementUnlockedInitial,
   notifReminders,
   notifWeeklyDigest,
-  notifAchievementAlerts,
   hasVenueMembership = false,
   venueMembershipPaused = false,
   initialToken = "",
@@ -523,7 +601,6 @@ export default function DashboardShell({
   managementUnlockedInitial: boolean;
   notifReminders: boolean;
   notifWeeklyDigest: boolean;
-  notifAchievementAlerts: boolean;
   hasVenueMembership?: boolean;
   venueMembershipPaused?: boolean;
   initialToken?: string;
@@ -920,7 +997,6 @@ export default function DashboardShell({
             userEmail={userEmail}
             notifReminders={notifReminders}
             notifWeeklyDigest={notifWeeklyDigest}
-            notifAchievementAlerts={notifAchievementAlerts}
             initialJoinCode={joinCodeFromUrl}
           />
         ) : (

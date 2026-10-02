@@ -19,10 +19,14 @@ import { readJsonBody } from "@/lib/ai-guard";
 // - Turning a flag ON (client only calls this after the user confirms the
 //   Monday-morning / Sunday-night dialog in SettingsScreen.tsx) now also
 //   best-effort adds the user to a Brevo list and sends a branded
-//   confirmation email, mirroring the "so it's got our logo etc" ask. Both
-//   are non-blocking — a Brevo failure never fails the underlying DB save,
-//   same "best-effort, don't block the primary action" pattern as
-//   app/api/toolkit-capture/route.ts's non-awaited email send.
+//   confirmation email, mirroring the "so it's got our logo etc" ask.
+// - Phase 1 follow-up (2026-10-03): Brevo calls are now awaited with a
+//   timeout. Un-awaited, a Worker can cancel them once the response returns,
+//   so confirmations could be dropped silently. They are still best effort:
+//   a Brevo failure is logged and never fails the DB save. Turning a flag
+//   OFF now also sets its Brevo attribute to false. Before this, the contact
+//   kept the attribute at true, so any Brevo automation keyed on it would
+//   have kept emailing people who had opted out.
 // - BREVO_NOTIFICATIONS_LIST_ID is optional. If unset, the list-add step is
 //   skipped (logged, not thrown) — the confirmation email still sends as
 //   long as BREVO_API_KEY is set. Add a "SBE Mobile Notifications" list in
@@ -30,29 +34,27 @@ import { readJsonBody } from "@/lib/ai-guard";
 //   Pages to enable list capture (needed for any future scheduled send —
 //   see the Brevo Automation note in the mobile plan).
 
-async function notifyBrevo(email: string, which: "reminders" | "digest") {
-  const brevoApiKey = process.env.BREVO_API_KEY;
-  if (!brevoApiKey) {
-    console.warn("[profile/notifications] BREVO_API_KEY not set — skipping list add + confirmation email");
-    return;
+type NotifFlag = "reminders" | "digest";
+
+const BREVO_TIMEOUT_MS = 8_000;
+
+async function brevoPost(path: string, apiKey: string, payload: unknown, label: string): Promise<void> {
+  try {
+    const res = await fetch(`https://api.brevo.com/v3/${path}`, {
+      method: "POST",
+      headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(BREVO_TIMEOUT_MS),
+    });
+    if (!res.ok) {
+      console.error(JSON.stringify({ event: "notif_brevo_failed", step: label, status: res.status }));
+    }
+  } catch (err) {
+    console.error(JSON.stringify({ event: "notif_brevo_failed", step: label, message: err instanceof Error ? err.message : String(err) }));
   }
+}
 
-  const listId = process.env.BREVO_NOTIFICATIONS_LIST_ID;
-  const attributeKey = which === "digest" ? "WEEKLY_DIGEST" : "SUNDAY_REMINDER";
-
-  // Add/update the contact — non-blocking, errors are logged only.
-  fetch("https://api.brevo.com/v3/contacts", {
-    method: "POST",
-    headers: { "api-key": brevoApiKey, "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({
-      email,
-      attributes: { [attributeKey]: true },
-      ...(listId ? { listIds: [Number(listId)] } : {}),
-      updateEnabled: true,
-    }),
-  }).catch((err) => console.error("[profile/notifications] Brevo contact upsert failed:", err));
-
-  // Branded confirmation email — same non-blocking treatment.
+function confirmationEmail(which: NotifFlag): { heading: string; bodyHtml: string } {
   const heading = which === "digest" ? "You're subscribed to the weekly progress digest" : "You're subscribed to training reminders";
   const bodyHtml =
     which === "digest"
@@ -60,17 +62,50 @@ async function notifyBrevo(email: string, which: "reminders" | "digest") {
          <p style="margin:0;line-height:1.65;color:#172f22">You can turn this off any time from Settings &gt; Notifications in the app.</p>`
       : `<p style="margin:0 0 12px;line-height:1.65;color:#172f22">You'll get a training reminder every <strong>Sunday night</strong> to help you get ready for the week ahead.</p>
          <p style="margin:0;line-height:1.65;color:#172f22">You can turn this off any time from Settings &gt; Notifications in the app.</p>`;
+  return { heading, bodyHtml };
+}
 
-  fetch("https://api.brevo.com/v3/smtp/email", {
-    method: "POST",
-    headers: { "api-key": brevoApiKey, "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({
-      sender: { name: process.env.BREVO_FROM_NAME ?? "Serve By Example", email: "info@servebyexample.co" },
-      to: [{ email }],
-      subject: heading,
-      htmlContent: brandedEmailHtml({ heading, bodyHtml }),
+/**
+ * Mirrors real flag changes to Brevo: one contact upsert carrying every
+ * changed attribute (true on opt-in, false on opt-out), plus a confirmation
+ * email per opt-in. All calls run in parallel and are awaited; failures are
+ * logged only.
+ */
+async function syncBrevo(email: string, changes: Partial<Record<NotifFlag, boolean>>): Promise<void> {
+  const brevoApiKey = process.env.BREVO_API_KEY;
+  if (!brevoApiKey) {
+    console.warn("[profile/notifications] BREVO_API_KEY not set — skipping Brevo sync + confirmation email");
+    return;
+  }
+
+  const listId = process.env.BREVO_NOTIFICATIONS_LIST_ID;
+  const attributes: Record<string, boolean> = {};
+  if (changes.reminders !== undefined) attributes.SUNDAY_REMINDER = changes.reminders;
+  if (changes.digest !== undefined) attributes.WEEKLY_DIGEST = changes.digest;
+  const optedIn = (Object.keys(changes) as NotifFlag[]).filter((k) => changes[k] === true);
+
+  const calls: Promise<void>[] = [
+    brevoPost("contacts", brevoApiKey, {
+      email,
+      attributes,
+      // List membership is only added, never removed: an opted-out contact
+      // stays on the list with its attribute false, so sends must filter on
+      // the attribute, not on list membership.
+      ...(listId && optedIn.length > 0 ? { listIds: [Number(listId)] } : {}),
+      updateEnabled: true,
+    }, "contact_upsert"),
+    ...optedIn.map((which) => {
+      const { heading, bodyHtml } = confirmationEmail(which);
+      return brevoPost("smtp/email", brevoApiKey, {
+        sender: { name: process.env.BREVO_FROM_NAME ?? "Serve By Example", email: "info@servebyexample.co" },
+        to: [{ email }],
+        subject: heading,
+        htmlContent: brandedEmailHtml({ heading, bodyHtml }),
+      }, `confirmation_${which}`);
     }),
-  }).catch((err) => console.error("[profile/notifications] Brevo confirmation email failed:", err));
+  ];
+
+  await Promise.all(calls);
 }
 
 export async function GET(req: Request) {
@@ -130,9 +165,17 @@ export async function PATCH(req: Request) {
     const { error } = await admin.from("profiles").update(update).eq("id", user.id);
     if (error) throw error;
 
-    if (user.email) {
-      if (body.notifReminders === true && !current?.notif_reminders) void notifyBrevo(user.email, "reminders");
-      if (body.notifWeeklyDigest === true && !current?.notif_weekly_digest) void notifyBrevo(user.email, "digest");
+    // Only real transitions reach Brevo: desktop saves both flags on every
+    // submit, and an unchanged flag must not re-send a confirmation.
+    const changes: Partial<Record<NotifFlag, boolean>> = {};
+    if (typeof update.notif_reminders === "boolean" && update.notif_reminders !== !!current?.notif_reminders) {
+      changes.reminders = update.notif_reminders;
+    }
+    if (typeof update.notif_weekly_digest === "boolean" && update.notif_weekly_digest !== !!current?.notif_weekly_digest) {
+      changes.digest = update.notif_weekly_digest;
+    }
+    if (user.email && Object.keys(changes).length > 0) {
+      await syncBrevo(user.email, changes);
     }
 
     return NextResponse.json({ success: true });
