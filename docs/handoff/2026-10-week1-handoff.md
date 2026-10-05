@@ -108,7 +108,7 @@
 **After production deploys**
 - [ ] Confirm the production build of `4f1ec8f` went green in Cloudflare.
 - [x] Unsubscribe re-tested on production 2026-10-05: `unsubscribed_at` recorded.
-- [ ] Open tracking on production: not clicked yet. Next signup, click the toolkit link and check `opened_at`.
+- [x] Open tracking verified on production 2026-10-05: `opened_at` recorded.
 - [ ] Prove the roster part of deletion the first time it happens for real (see "Smoke test" above).
 - **Testing email links on a preview:** they always point at production, so test tracking and unsubscribe after the merge, or edit the link host by hand.
 - [x] QA account provisioned 2026-10-05: `mitch+qa@servebyexample.co`, checked in the DB (pro, onboarding done, no memberships). The service role key must be the `sb_secret_...` key, because the legacy JWT keys are disabled on this project.
@@ -163,3 +163,7 @@
   - New no-horizontal-scroll check on all 22 `/mobile` routes.
 - **Mobile px lint rule:** deferred with reasons in `To_do_list.md` (tokens unused, ~860 raw values).
 - **Checks:** lint clean, `tsc` clean, vitest 38/38, `npm run build` passes. The new e2e tests haven't been run yet.
+
+**Follow-up decisions (2026-10-05):**
+- **Mobile px lint rule: dropped.** The `--fs-mobile-*` / `--space-mobile-*` tokens were never adopted (~860 raw values). Migrating them all would restyle every mobile screen for little gain. The real risk, overflow at 360px, is covered by the no-horizontal-scroll e2e check.
+- **Opt-in prompt: held back.** No digest or reminder sender exists yet, so a prompt would sign people up for emails that never arrive. Building the sender comes first (see `To_do_list.md`).
