@@ -1,8 +1,8 @@
 # Handoff: October 2026, Week 1 — To-do Phase 1 + follow-ups
 
-- **Dates:** 2026-10-02 to 2026-10-03
-- **Branch:** `preview/oct-w1-phase1` (not merged to `main` yet)
-- **Covers:** Phase 1 of the `To_do_list.md` plan (account deletion, SOP toolkit lead capture, Playwright QA account) and two follow-ups found along the way (notification emails, desktop delete account).
+- **Dates:** 2026-10-02 to 2026-10-05
+- **Branch:** `preview/oct-w1-phase1`, **merged to `main` 2026-10-05** (merge `4f1ec8f`). All three migrations are applied to production.
+- **Covers:** Phase 1 of the `To_do_list.md` plan (account deletion, SOP toolkit lead capture, Playwright QA account), the follow-ups found along the way (notification emails, desktop delete account), and the bugs found while getting the e2e suite running (a build-breaking font fetch, stale text on screen, opt-out notification defaults).
 - **Still to come:** Phase 2 (staff invites card, "How it works" claims) and Phase 3 (mobile hardening). One combined handoff will follow once all three phases are done.
 - **Related:** `docs/handoff/security/2026-10-02-audit-remediation-handoff.md` (the audit this follows), `docs/DATABASE_SCHEMA.md` (updated).
 
@@ -14,7 +14,9 @@
 2. **Toolkit signups are saved.** Every `/toolkit` signup since 2026-07-19 existed only in Brevo's send log. Leads are now written to `toolkit_leads` before the email is sent, and opens and unsubscribes are recorded.
 3. **Emails no longer get dropped.** Two routes sent Brevo email without waiting for it. On Cloudflare Workers that work can be cancelled once the response returns. Both now wait for the send, with a timeout.
 4. **Opt-outs reach Brevo.** Turning a notification off now sets the Brevo attribute to false. Before, opted-out contacts stayed `true`.
-5. **The Playwright QA account has a provisioning script.** It hasn't been run yet (see "Open items").
+5. **The Playwright suite runs.** There's a QA account, 24 reviewed baseline screenshots, and 29 tests passing against the preview.
+6. **Staff no longer see stale text.** The language translator was putting old text back on screen, such as "Loading your next module..." on mobile Home. Fixed site-wide.
+7. **Notifications are genuinely opt-in.** The database had every account opted in. All accounts have been reset to off, and new ones start off.
 
 ---
 
@@ -80,7 +82,7 @@
 
 ---
 
-## Database state (checked 2026-10-03 against production)
+## Database state (checked against production 2026-10-03, re-checked 2026-10-05)
 
 | Check | Result |
 |---|---|
@@ -89,16 +91,25 @@
 | `toolkit_leads` columns | All 11 present |
 | `toolkit_leads` access | RLS on, 0 policies. `anon` SELECT = false, `authenticated` INSERT = false |
 | `toolkit_leads_email_lowercase` | Present |
-| `toolkit_leads` rows | 0 (nothing captured until this branch is deployed) |
+| `toolkit_leads` rows | 1 on 2026-10-05: the smoke-test signup, `toolkit_delivered = true` |
+| `profiles.notif_*` defaults | `false`; 0 accounts opted in (`20261005` applied) |
 
-**Not verified:** the deletion cascade's actual behaviour (that a deleted staff member's seat is freed and their roster row unlinked). The rolled-back production test was declined twice. Test it on the preview instead: sign up a throwaway staff account, join a test venue with its code, delete the account from Settings, then check that the `organization_members` row is `removed` and the `venue_staff` row has `staff_user_id` null and `status = 'inactive'`.
+**Smoke test on the preview (2026-10-05):**
+- **Toolkit signup:** passed. The lead was saved and the email delivered.
+- **Account deletion:** passed. The throwaway account (`info@servebyexample.co`) has no login or profile left.
+- **Not yet proven:**
+  - **Open tracking and unsubscribe.** They were clicked, but no `opened_at` or `unsubscribed_at` was recorded. The email links are hard-coded to `servebyexample.co`, which is production, and production ran the old code until this merge. Re-test once production is live: a new signup, click the toolkit link, unsubscribe, then check the row.
+  - **The roster part of deletion.** The throwaway account never had an `organization_members` or `venue_staff` row, so freeing the seat and unlinking the roster row haven't been exercised. Next time a real staff member deletes their account, or with a test staff member who has properly joined a venue, check that their `organization_members` row is `removed` and their `venue_staff` row has `staff_user_id` null and `status = 'inactive'`.
 
 ---
 
 ## Open items
 
-**Deploy blockers**
-- [ ] Smoke-test the preview: a toolkit signup should create a row with `toolkit_delivered = true`; the email's toolkit link should set `opened_at`; unsubscribe should set `unsubscribed_at`; and the deletion test above.
+**After production deploys**
+- [ ] Confirm the production build of `4f1ec8f` went green in Cloudflare.
+- [ ] Re-test toolkit open tracking and unsubscribe against production (see "Smoke test" above).
+- [ ] Prove the roster part of deletion the first time it happens for real (see "Smoke test" above).
+- **Testing email links on a preview:** they always point at production, so test tracking and unsubscribe after the merge, or edit the link host by hand.
 - [x] QA account provisioned 2026-10-05: `mitch+qa@servebyexample.co`, checked in the DB (pro, onboarding done, no memberships). The service role key must be the `sb_secret_...` key, because the legacy JWT keys are disabled on this project.
 - [x] Baselines committed 2026-10-05: 24 screenshots (4 screens × 6 sizes), taken from the `preview/oct-w1-phase1` preview and reviewed. Full suite: 29 passed, 13 skipped by design (each test only runs on the screen sizes it applies to).
 - **Re-taking baselines:** use `--update-snapshots=all`. Plain `--update-snapshots` only rewrites screenshots that fail.
@@ -111,6 +122,7 @@
 **Notes**
 - Any nurture sequence built on `toolkit_leads` must skip `unsubscribed_at IS NOT NULL` (Spam Act 2003).
 - The QA account's activity will show up in any platform-wide usage numbers. Filter on display name `QA Playwright` if that matters.
+- **Running the e2e suite:** `E2E_TEST_EMAIL` and `E2E_TEST_PASSWORD` must be exported in the same terminal window (they don't carry over to new windows). Then run `PLAYWRIGHT_BASE_URL='<preview url>' npx playwright test`. Local `npm run dev` doesn't work, because the repo has no `.env.local`.
 - One-device enforcement: signing into the QA account by hand elsewhere invalidates the Playwright session saved in `tests/e2e/.auth/state.json`. Re-run `npm run e2e` and `global-setup` will sign in again.
 
 ---

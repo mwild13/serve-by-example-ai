@@ -4,7 +4,7 @@ Deferred items from the Phase 6 mobile-responsive workstream (`preview/mobile-re
 
 ## Blocking — needed to actually run the new test suite
 
-- [x] **Create a dedicated QA staff test account** in Supabase for Playwright: *(Phase 1, 2026-10-02: `scripts/e2e/provision-qa-account.mjs`, idempotent. Run it once with `node --env-file=.env.local scripts/e2e/provision-qa-account.mjs` after setting `E2E_TEST_EMAIL` / `E2E_TEST_PASSWORD`. It's a script, not `seed.sql`, because there's no local Supabase stack.)*
+- [x] **Create a dedicated QA staff test account** in Supabase for Playwright: *(Done 2026-10-05: `mitch+qa@servebyexample.co`, made by `scripts/e2e/provision-qa-account.mjs`. 24 baselines are committed and the suite passes against the preview. How to run it: `docs/handoff/2026-10-week1-handoff.md`.)*
   - Must have `onboarding_completed = true` and real module access (`allowedModules`), so `/mobile/*` screens render actual content instead of empty states or an `/onboarding` redirect.
   - Set `E2E_TEST_EMAIL` / `E2E_TEST_PASSWORD` as env vars, then run `npm run e2e`.
   - `tests/e2e/global-setup.ts` will throw a clear error naming what's missing if either the env vars or the onboarding flag aren't set.
@@ -22,7 +22,7 @@ Deferred items from the Phase 6 mobile-responsive workstream (`preview/mobile-re
 
 Found 2026-09-29 while fixing stale docs (`docs/DATABASE_SCHEMA.md`). Not part of the mobile-responsive workstream above.
 
-- [x] *(Phase 1, 2026-10-02: the table existed and was dropped as dead on 2026-07-19. `20261004b_toolkit_leads.sql` re-creates it. The route now saves the lead, then awaits the email and marks it delivered. Open-tracking and unsubscribe now write to the table, and unsubscribe has a confirm step plus one-click support. Apply the migration before deploying.)* **Wire up `app/api/toolkit-capture/route.ts` to actually persist leads.** It currently generates `targetLeadId` via `crypto.randomUUID()`, sends the delivery email, and discards the id — no lead is written to any table. Every `/toolkit` signup today is invisible outside the sent email.
+- [x] *(Phase 1, 2026-10-02: the table existed and was dropped as dead on 2026-07-19. `20261004b_toolkit_leads.sql` re-creates it. The route now saves the lead, then awaits the email and marks it delivered. Open-tracking and unsubscribe now write to the table, and unsubscribe has a confirm step plus one-click support. Live in production 2026-10-05. Open tracking and unsubscribe still need re-testing on production; see the Week 1 handoff.)* **Wire up `app/api/toolkit-capture/route.ts` to actually persist leads.** It currently generates `targetLeadId` via `crypto.randomUUID()`, sends the delivery email, and discards the id — no lead is written to any table. Every `/toolkit` signup today is invisible outside the sent email.
   - A migration for this already exists (`supabase/migrations/20260610_toolkit_leads.sql`, `public.toolkit_leads`: `email`, `first_name`, `role`, `utm_campaign`, `toolkit_delivered`) but the table isn't present in the live Supabase project — confirm whether that migration was ever applied, or needs reapplying, before wiring the insert.
   - `app/api/toolkit-open/route.ts` and `app/api/unsubscribe/route.ts` both take a `lead_id` param that currently resolves to nothing real — worth checking whether they should look the id up in `toolkit_leads` once it's live.
 
@@ -41,7 +41,7 @@ Found 2026-10-02 during the Phase 3 smoke test. Layout and scaling, not security
 
 Found 2026-10-02 during audit Phase 5. No button in the app calls this route, but any signed-in user can call it directly.
 
-**Fixed in Phase 1 (2026-10-02)** rather than switched to a 410: the route now makes one `auth.admin.deleteUser()` call, and the DB's FK cascades do the rest. `20261004_account_deletion_cascade.sql` must be applied first. It requires typing DELETE (also checked server-side), and refuses (409) subscribers and venue/org owners. Entry point: Me > Settings > Delete Account (mobile). Roster rows a manager owns are kept but unlinked. Billing history is kept, since Stripe holds it. Deletion is immediate, which meets the policy's "within 30 days". The boxes below are all handled by that design.
+**Fixed in Phase 1 (2026-10-02), live 2026-10-05,** rather than switched to a 410: the route now makes one `auth.admin.deleteUser()` call, and the DB's FK cascades do the rest. `20261004_account_deletion_cascade.sql` must be applied first. It requires typing DELETE (also checked server-side), and refuses (409) subscribers and venue/org owners. Entry points: Settings > Delete Account, on mobile and desktop. Smoke-tested on the preview. The roster unlink hasn't been exercised yet (see the handoff). Roster rows a manager owns are kept but unlinked. Billing history is kept, since Stripe holds it. Deletion is immediate, which meets the policy's "within 30 days". The boxes below are all handled by that design.
 
 - [x] **It deletes progress, then fails before deleting the account.** It deletes from a fixed list of tables in order. `scenario_mastery` is deleted (the user's training progress is gone), then `mastery_rows` fails because that table doesn't exist, the route throws, and the account, profile and login all remain.
 - [x] **Two tables in its list have no `user_id` column:** `diagnostic_questions` (shared question bank, not user data) and `venue_staff` (links via `staff_user_id`). Both would fail even after `mastery_rows` is removed.
@@ -64,3 +64,11 @@ Found 2026-10-02 during audit Phase 5 (the Elo and "16 days" claims on the same 
 - [ ] **Self-service deletion for venue owners** gets a 409 ("contact support") today. Before offering it in the product, decide what happens to the venue, its roster and the Stripe subscription.
 - [ ] **Re-send for failed toolkit emails:** `select * from toolkit_leads where toolkit_delivered = false`. There's no automated retry yet. Do it manually or add a small admin action if the count grows.
 - [ ] **Brevo list membership is add-only.** Opting out sets the contact's attribute to false but leaves them on `BREVO_NOTIFICATIONS_LIST_ID`. Any scheduled digest or reminder send must filter on `WEEKLY_DIGEST` / `SUNDAY_REMINDER = true`, not on list membership alone.
+
+# To Do — Found while setting up the e2e suite (2026-10-05)
+
+- [x] **Stale text on screen (site-wide):** the runtime translator put old text back, such as "Loading your next module..." on mobile Home. Fixed in `components/LanguageRuntimeTranslator.tsx`.
+- [x] **Notifications were opt-out in the database:** fixed by `20261005_notification_defaults_opt_in.sql` (applied); all accounts were reset to off.
+- [x] **Cloudflare build broke on the Google Fonts fetch:** the Manager Console fonts are now self-hosted in `app/fonts/`.
+- [ ] **Opt-in announcement (optional):** every account was reset to notifications off. If digest or reminder emails launch, consider a one-off in-app prompt inviting people to turn them on. Don't email them about it, since they haven't consented.
+- [ ] **A `preview` env for email links:** toolkit emails hard-code `https://servebyexample.co`, so tracking and unsubscribe can't be tested on a preview. Low priority.
