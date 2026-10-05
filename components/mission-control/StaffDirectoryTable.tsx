@@ -10,7 +10,6 @@ import type { ManagementSnapshot, StaffRole } from "@/lib/management/types";
 type MembershipRow = {
   id: string;
   staff_email: string;
-  staff_name?: string;
   venue_id: string | null;
   status: string;
   role?: string;
@@ -34,6 +33,12 @@ export type StaffDirectoryTableProps = {
   onAddStaff: () => void;
   handleExportStaff: () => void;
 };
+
+type InviteTab = "pending" | "joined";
+
+// Invites shown before "Show more". A group's full invite history can run
+// to hundreds of rows, so the card pages instead of rendering them all.
+const INVITE_PAGE_SIZE = 10;
 
 const STAFF_ROLE_OPTIONS: StaffRole[] = [
   "Bartender",
@@ -67,9 +72,13 @@ export default function StaffDirectoryTable({
   const [staffRoleFilter, setStaffRoleFilter] = useState<string>("all");
   const [openRosterSections, setOpenRosterSections] = useState<Set<string>>(new Set(["Bar Team"]));
   const [memberships, setMemberships] = useState<MembershipRow[]>([]);
-  const [membershipSeats, setMembershipSeats] = useState<{ used: number; max: number }>({ used: 0, max: 0 });
+  const [membershipSeats, setMembershipSeats] = useState<{ used: number; max: number; unlimited: boolean }>({ used: 0, max: 0, unlimited: false });
   const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteName, setInviteName] = useState("");
+  const [inviteTab, setInviteTab] = useState<InviteTab>("pending");
+  const [inviteSearch, setInviteSearch] = useState("");
+  // Paging resets whenever the venue, tab or search changes: the count only
+  // applies to the view it was raised in.
+  const [invitePage, setInvitePage] = useState<{ key: string; count: number }>({ key: "", count: INVITE_PAGE_SIZE });
   const [inviteRole, setInviteRole] = useState<"staff" | "duty_manager">("staff");
   const [inviteLoading, setInviteLoading] = useState(false);
   const [inviteError, setInviteError] = useState("");
@@ -102,6 +111,24 @@ export default function StaffDirectoryTable({
     [memberships],
   );
 
+  // The API returns every invite the owner has sent, across all venues.
+  // Scope the card to the selected venue; invites with no venue (sent before
+  // a venue was selected) belong to the whole group, so show them everywhere.
+  const venueInvites = useMemo(
+    () => memberships.filter((m) => m.venue_id === selectedVenueId || m.venue_id === null),
+    [memberships, selectedVenueId],
+  );
+  const pendingInvites = useMemo(() => venueInvites.filter((m) => m.status !== "active"), [venueInvites]);
+  const joinedInvites = useMemo(() => venueInvites.filter((m) => m.status === "active"), [venueInvites]);
+  const inviteQuery = inviteSearch.trim().toLowerCase();
+  const tabInvites = inviteTab === "pending" ? pendingInvites : joinedInvites;
+  const filteredInvites = inviteQuery
+    ? tabInvites.filter((m) => m.staff_email.toLowerCase().includes(inviteQuery))
+    : tabInvites;
+  const invitePageKey = `${selectedVenueId}|${inviteTab}|${inviteQuery}`;
+  const inviteVisibleCount = invitePage.key === invitePageKey ? invitePage.count : INVITE_PAGE_SIZE;
+  const visibleInvites = filteredInvites.slice(0, inviteVisibleCount);
+
   const apiFetch = useCallback((url: string, options: RequestInit = {}) => {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -122,7 +149,11 @@ export default function StaffDirectoryTable({
       }
       const data = await res.json();
       setMemberships(data.memberships ?? []);
-      setMembershipSeats({ used: data.seatUsage?.used ?? 0, max: data.seatUsage?.max ?? 0 });
+      setMembershipSeats({
+        used: data.seatUsage?.used ?? 0,
+        max: data.seatUsage?.max ?? 0,
+        unlimited: data.seatUsage?.unlimited === true,
+      });
     } catch (err) {
       console.error("Failed to load memberships:", err);
     } finally {
@@ -160,7 +191,6 @@ export default function StaffDirectoryTable({
         method: "POST",
         body: JSON.stringify({
           staffEmail: inviteEmail.trim(),
-          staffName: inviteName.trim() || undefined,
           venueId: selectedVenueId || undefined,
           // Only ever sent as "duty_manager" when the selector below is
           // visible (isOwnerLevel), but the API route re-checks the
@@ -172,8 +202,10 @@ export default function StaffDirectoryTable({
       const data = await res.json();
       if (!res.ok) { setInviteError(data.error ?? "Failed to invite"); return; }
       setInviteEmail("");
-      setInviteName("");
       setInviteRole("staff");
+      // Show the new invite: it lands in Pending.
+      setInviteTab("pending");
+      setInviteSearch("");
       // The membership record can be created successfully while the Brevo
       // send itself silently fails (bad sender, missing API key, etc.) — the
       // old code only checked res.ok and reported "sent" either way.
@@ -733,118 +765,132 @@ export default function StaffDirectoryTable({
         <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
           <div className="ops-card-head">
             <h3>Staff invites &amp; seat management</h3>
-            {/* Was a flash of "0 / ∞ seats used" every load until
-                loadMemberships resolved — membershipSeats starts at
-                { used: 0, max: 0 } and max:0 reads as unlimited via the
-                `|| "∞"` fallback below, so the placeholder briefly looked
-                like a real (wrong) answer instead of a loading state. */}
+            {/* Skeleton until loadMemberships resolves: the initial
+                { used: 0, max: 0 } would otherwise flash as a real answer. */}
             {membershipsLoaded ? (
-              <span>{membershipSeats.used} / {membershipSeats.max || "∞"} seats used</span>
+              <span>
+                {membershipSeats.unlimited
+                  ? `${membershipSeats.used} seats used · Unlimited`
+                  : membershipSeats.max === 0
+                    ? "No staff seats on this plan"
+                    : `${membershipSeats.used} / ${membershipSeats.max} seats used`}
+              </span>
             ) : (
               <span className="skeleton-line skeleton-line-badge" style={{ marginBottom: 0 }} />
             )}
           </div>
 
-          <form className="ops-action-form" onSubmit={handleInviteStaff} style={{ marginBottom: 16 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          {/* No Name field: organization_members has no name column, so a
+              typed name was dropped. Staff set their own name at sign-up. */}
+          <form
+            className={`ops-invite-form${isOwnerLevel ? "" : " ops-invite-form-no-role"}`}
+            onSubmit={handleInviteStaff}
+            style={{ marginTop: 14 }}
+          >
+            <label className="label">
+              Staff email
+              <input
+                ref={inviteEmailRef}
+                className="input"
+                type="email"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                placeholder="staff@venue.com"
+                required
+              />
+            </label>
+            {/* Only the venue owner can grant duty-manager access — a duty
+                manager inviting someone else only ever sends role: "staff"
+                (enforced server-side too, see memberships/route.ts). */}
+            {isOwnerLevel && (
               <label className="label">
-                Name
-                <input
+                Access level
+                <select
                   className="input"
-                  type="text"
-                  value={inviteName}
-                  onChange={(e) => setInviteName(e.target.value)}
-                  placeholder="Jane Smith"
-                />
+                  value={inviteRole}
+                  onChange={(e) => setInviteRole(e.target.value as "staff" | "duty_manager")}
+                >
+                  <option value="staff">Staff — training only</option>
+                  <option value="duty_manager">Duty Manager — Mission Control (no Billing)</option>
+                </select>
               </label>
-              <label className="label">
-                Staff email
-                <input
-                  ref={inviteEmailRef}
-                  className="input"
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  placeholder="staff@venue.com"
-                  required
-                />
-              </label>
-              {/* Only the venue owner can grant duty-manager access — a duty
-                  manager inviting someone else only ever sends role: "staff"
-                  (enforced server-side too, see memberships/route.ts). */}
-              {isOwnerLevel && (
-                <label className="label">
-                  Access level
-                  <select
-                    className="input"
-                    value={inviteRole}
-                    onChange={(e) => setInviteRole(e.target.value as "staff" | "duty_manager")}
-                  >
-                    <option value="staff">Staff — training only</option>
-                    <option value="duty_manager">Duty Manager — Mission Control (no Billing)</option>
-                  </select>
-                </label>
-              )}
-            </div>
-            <button className="btn btn-primary" type="submit" disabled={inviteLoading} style={{ marginTop: 4 }}>
+            )}
+            <button className="btn btn-primary" type="submit" disabled={inviteLoading}>
               {inviteLoading ? "Inviting..." : inviteRole === "duty_manager" ? "Invite duty manager" : "Invite staff member"}
             </button>
           </form>
           {/* .ops-notice was never defined in globals.css — the manager
               never actually saw this text. auth-status-error is a real,
               styled class used elsewhere for the same purpose. */}
-          {inviteError && <p className="auth-status auth-status-error" style={{ marginTop: 12 }}>{inviteError}</p>}
+          {inviteError && <p className="auth-status auth-status-error" style={{ marginBottom: 12 }}>{inviteError}</p>}
 
           {!membershipsLoaded ? (
             <MissionControlTableRowSkeleton rows={3} columns={4} />
-          ) : memberships.length > 0 ? (
-            <div className="ops-table-wrap">
-              <table className="ops-table">
-                <thead>
-                  <tr>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Invited</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {memberships.map((m) => {
-                    const steps = [
-                      { label: "Invited", done: true },
-                      { label: "Registered", done: m.status === "active" || m.status === "connected" },
-                      { label: "Training active", done: m.status === "active" },
-                    ];
-                    return (
-                      <tr key={m.id}>
-                        <td>
-                          {m.staff_email}
-                          <br />
-                          <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 4 }}>
-                            {steps.map((step, si) => (
-                              <span key={step.label} style={{ display: "flex", alignItems: "center", gap: 3 }}>
-                                <span style={{ fontSize: "0.65rem", fontWeight: 600, padding: "1px 6px", borderRadius: 999, background: step.done ? "var(--status-success-subtle)" : "var(--border-subtle)", color: step.done ? "var(--status-success-strong)" : "var(--color-text-faint)" }}>{step.label}</span>
-                                {si < steps.length - 1 && <span style={{ color: "var(--viz-neutral-light)", fontSize: "0.65rem" }}>→</span>}
-                              </span>
-                            ))}
-                          </div>
-                        </td>
-                        <td><span className={`ops-badge ops-badge-${m.status}`}>{m.status}</span></td>
-                        <td>{new Date(m.created_at).toLocaleDateString()}</td>
-                        <td>
-                          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                            {m.status !== "active" && m.status !== "removed" && (
-                              <button
-                                type="button"
-                                className="btn btn-secondary"
-                                style={{ fontSize: "0.75rem", padding: "3px 10px", opacity: resendingIds.has(m.id) ? 0.6 : 1 }}
-                                disabled={resendingIds.has(m.id)}
-                                onClick={() => handleResendInvite(m.id)}
-                              >
-                                {resentIds.has(m.id) ? "Sent!" : resendingIds.has(m.id) ? "Sending..." : "Resend"}
-                              </button>
-                            )}
-                            {m.status !== "removed" && (
+          ) : venueInvites.length > 0 ? (
+            <>
+              <div className="ops-invite-toolbar">
+                <div className="ops-invite-tabs" role="tablist" aria-label="Invite status">
+                  <button
+                    type="button"
+                    role="tab"
+                    className="ops-invite-tab"
+                    aria-selected={inviteTab === "pending"}
+                    onClick={() => setInviteTab("pending")}
+                  >
+                    Pending ({pendingInvites.length})
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    className="ops-invite-tab"
+                    aria-selected={inviteTab === "joined"}
+                    onClick={() => setInviteTab("joined")}
+                  >
+                    Joined ({joinedInvites.length})
+                  </button>
+                </div>
+                {tabInvites.length > INVITE_PAGE_SIZE && (
+                  <input
+                    className="ops-search-input"
+                    type="search"
+                    value={inviteSearch}
+                    onChange={(e) => setInviteSearch(e.target.value)}
+                    placeholder="Search by email"
+                    aria-label="Search invites by email"
+                  />
+                )}
+              </div>
+
+              {visibleInvites.length > 0 ? (
+                <div className="ops-table-wrap">
+                  <table className="ops-table">
+                    <thead>
+                      <tr>
+                        <th>Email</th>
+                        <th>Access</th>
+                        <th>{inviteTab === "pending" ? "Invited" : "Since"}</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {visibleInvites.map((m) => (
+                        <tr key={m.id}>
+                          <td>{m.staff_email}</td>
+                          <td>{m.role === "duty_manager" ? "Duty Manager" : "Staff"}</td>
+                          <td>{new Date(m.created_at).toLocaleDateString()}</td>
+                          <td>
+                            <div style={{ display: "flex", gap: 6, alignItems: "center", justifyContent: "flex-end" }}>
+                              {m.status !== "active" && (
+                                <button
+                                  type="button"
+                                  className="btn btn-secondary"
+                                  style={{ fontSize: "0.75rem", padding: "3px 10px", opacity: resendingIds.has(m.id) ? 0.6 : 1 }}
+                                  disabled={resendingIds.has(m.id)}
+                                  onClick={() => handleResendInvite(m.id)}
+                                >
+                                  {resentIds.has(m.id) ? "Sent!" : resendingIds.has(m.id) ? "Sending..." : "Resend"}
+                                </button>
+                              )}
                               <button
                                 type="button"
                                 className="ops-table-delete-btn"
@@ -853,18 +899,38 @@ export default function StaffDirectoryTable({
                               >
                                 &times;
                               </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p style={{ margin: "8px 0", fontSize: "0.88rem", color: "var(--text-muted)" }}>
+                  {inviteQuery
+                    ? "No invites match that email."
+                    : inviteTab === "pending"
+                      ? "No pending invites for this venue. Everyone you've invited has joined."
+                      : "No one has joined from an invite at this venue yet."}
+                </p>
+              )}
+
+              {filteredInvites.length > visibleInvites.length && (
+                <div className="ops-invite-more">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setInvitePage({ key: invitePageKey, count: inviteVisibleCount + INVITE_PAGE_SIZE })}
+                  >
+                    Show more ({filteredInvites.length - visibleInvites.length} left)
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
             <EmptyState
-              copy="No staff invites yet. Invite team members by email to give them sponsored access to training modules."
+              copy="No staff invites for this venue yet. Invite team members by email to give them sponsored access to training modules."
               ctaLabel="Invite by email"
               onCtaClick={() => inviteEmailRef.current?.focus()}
             />

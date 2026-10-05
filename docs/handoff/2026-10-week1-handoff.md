@@ -107,7 +107,8 @@
 
 **After production deploys**
 - [ ] Confirm the production build of `4f1ec8f` went green in Cloudflare.
-- [ ] Re-test toolkit open tracking and unsubscribe against production (see "Smoke test" above).
+- [x] Unsubscribe re-tested on production 2026-10-05: `unsubscribed_at` recorded.
+- [ ] Open tracking on production: not clicked yet. Next signup, click the toolkit link and check `opened_at`.
 - [ ] Prove the roster part of deletion the first time it happens for real (see "Smoke test" above).
 - **Testing email links on a preview:** they always point at production, so test tracking and unsubscribe after the merge, or edit the link host by hand.
 - [x] QA account provisioned 2026-10-05: `mitch+qa@servebyexample.co`, checked in the DB (pro, onboarding done, no memberships). The service role key must be the `sb_secret_...` key, because the legacy JWT keys are disabled on this project.
@@ -115,8 +116,8 @@
 - **Re-taking baselines:** use `--update-snapshots=all`. Plain `--update-snapshots` only rewrites screenshots that fail.
 
 **Product decisions**
-- [ ] How venue owners delete their accounts. They get a 409 "contact support" today. Decide what happens to the venue, roster and Stripe subscription first.
-- [ ] Brevo list membership is add-only. Any future digest or reminder send must filter on `WEEKLY_DIGEST` / `SUNDAY_REMINDER = true`, not on list membership.
+- [x] How venue owners delete their accounts: decided 2026-10-05 to keep the 409 "contact support"; handled manually.
+- [x] Brevo list membership: fixed 2026-10-05, a contact with both emails off is now removed from the list.
 - [ ] Re-sending failed toolkit emails is manual: `select * from toolkit_leads where toolkit_delivered = false`.
 
 **Notes**
@@ -143,3 +144,22 @@
 - `npx vitest run`: 38/38 passed
 - `npm run lint:css`: reports its existing hex baseline only (it doesn't fail the build yet). Nothing new from this work
 - `npx playwright test` against the preview: 29 passed, 13 skipped (2026-10-05)
+
+---
+
+## Phase 2 addendum (merged 2026-10-05, branch `preview/oct-w2-phase2`)
+
+- **Staff invites card** (`components/mission-control/StaffDirectoryTable.tsx`):
+  - The form is now one aligned row that stacks under 980px.
+  - The Name field is removed: `organization_members` has no name column, so it was discarded.
+  - The list is scoped to the selected venue, with Pending/Joined tabs. Search appears above 10 rows, plus "Show more" paging.
+  - Seats read "Unlimited" for Enterprise.
+- **How it works:** claims 02 and 03 now match the per-scenario engine. Dimension scores are stored but never aggregated, so "flags dimensions" was untrue.
+- **Toolkit email** is branded through `brandedEmailHtml`; the plain-text part is kept.
+- **Notifications:** turning both emails off removes the contact from the Brevo list.
+- **`next.config.ts`:** `deviceSizes` now includes 360 and 375.
+- **e2e:**
+  - New screenshots for Help, Report a bug, Privacy and Terms. Their baselines aren't captured yet: run once with `--update-snapshots=all`.
+  - New no-horizontal-scroll check on all 22 `/mobile` routes.
+- **Mobile px lint rule:** deferred with reasons in `To_do_list.md` (tokens unused, ~860 raw values).
+- **Checks:** lint clean, `tsc` clean, vitest 38/38, `npm run build` passes. The new e2e tests haven't been run yet.

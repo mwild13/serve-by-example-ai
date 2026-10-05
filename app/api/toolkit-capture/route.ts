@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { readJsonBody } from "@/lib/ai-guard";
-import { formText } from "@/lib/email-template";
+import { brandedEmailHtml, escapeHtml, formText } from "@/lib/email-template";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 
 const SITE_URL = 'https://servebyexample.co';
@@ -27,6 +27,29 @@ async function sendToolkitEmail({ email, firstName, role, leadId }: {
   }
 
   const unsubscribeUrl = `${SITE_URL}/api/unsubscribe?id=${leadId}`;
+  const toolkitUrl = `${SITE_URL}/api/toolkit-open?id=${leadId}`;
+  const name = escapeHtml(firstName);
+  const textStyle = 'margin:0 0 14px;line-height:1.65;color:#172f22;font-size:15px';
+  // Branded like the other Brevo sends (lib/email-template.ts). It used to be
+  // text only, so it arrived with no logo or colours. textContent stays as
+  // the plain-text part for clients that don't render HTML.
+  const htmlContent = brandedEmailHtml({
+    preheader: 'Your editable Notion SOP toolkit is ready.',
+    heading: 'Your onboarding toolkit is ready',
+    bodyHtml: `
+      <p style="${textStyle}">Hi ${name},</p>
+      <p style="${textStyle}">Thank you for downloading the Serve By Example Onboarding Framework.</p>
+      <p style="${textStyle}">${escapeHtml(emailHookText)}</p>
+      <p style="margin:24px 0">
+        <a href="${toolkitUrl}" style="background:#1f4e37;color:#fffef9;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;display:inline-block">Open the Notion toolkit</a>
+      </p>
+      <p style="${textStyle}">Cheers,<br />Mitch<br />Serve By Example</p>
+      <p style="margin:24px 0 0;font-size:12px;line-height:1.6;color:#7a9185">
+        You're receiving this because you requested the free toolkit at
+        <a href="${SITE_URL}/toolkit" style="color:#a9812a">servebyexample.co/toolkit</a>.
+        <a href="${unsubscribeUrl}" style="color:#a9812a">Unsubscribe</a>
+      </p>`,
+  });
 
   try {
     // Brevo v3 Transactional Email Endpoint
@@ -50,7 +73,8 @@ async function sendToolkitEmail({ email, firstName, role, leadId }: {
           'List-Unsubscribe': `<${unsubscribeUrl}>`,
           'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
         },
-        textContent: `Hi ${firstName},\n\nThank you for downloading the Serve By Example Onboarding Framework.\n\n${emailHookText}\n\nAccess your complete editable Notion SOP toolkit here:\n${SITE_URL}/api/toolkit-open?id=${leadId}\n\nCheers,\n\nMitch\nServe By Example\nservebyexample.co\n\n---\nYou're receiving this because you requested the free toolkit at servebyexample.co/toolkit.\nUnsubscribe: ${unsubscribeUrl}`,
+        htmlContent,
+        textContent: `Hi ${firstName},\n\nThank you for downloading the Serve By Example Onboarding Framework.\n\n${emailHookText}\n\nAccess your complete editable Notion SOP toolkit here:\n${toolkitUrl}\n\nCheers,\n\nMitch\nServe By Example\nservebyexample.co\n\n---\nYou're receiving this because you requested the free toolkit at servebyexample.co/toolkit.\nUnsubscribe: ${unsubscribeUrl}`,
       }),
       signal: AbortSignal.timeout(8_000),
     });

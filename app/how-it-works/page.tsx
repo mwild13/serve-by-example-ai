@@ -189,7 +189,7 @@ export default function HowItWorksPage() {
             <SectionHeading
               eyebrow="Example Scenario"
               title="How a scored scenario response works"
-              copy="Every response is scored instantly. Over time, the platform tracks your weak areas and resurfaces them, so improvement isn’t left to chance."
+              copy="Every response is scored instantly. The platform tracks each scenario you miss and brings it back, so improvement isn’t left to chance."
             />
             <FeatureGrid items={scenarioItems} columns={3} />
 
@@ -207,8 +207,8 @@ export default function HowItWorksPage() {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.25rem" }}>
                 {[
                   { n: "01", title: "Score every response", desc: "Rated across 5 dimensions: communication, hospitality, problem-solving, professionalism and guest experience." },
-                  { n: "02", title: "Identify weak areas", desc: "The system flags dimensions where your score drops consistently, not just one-off mistakes." },
-                  { n: "03", title: "Resurface weak areas automatically", desc: "Spaced repetition brings back scenarios in those areas at widening intervals: 1, 4, then 9 days." },
+                  { n: "02", title: "Track every scenario", desc: "Each scenario keeps its own record. A miss drops it back a level, so the scenarios you struggle with stay visible instead of getting lost in an average." },
+                  { n: "03", title: "Bring them back automatically", desc: "A missed scenario is due for review straight away. Ones you pass come back at widening intervals: 1, 4, then 9 days." },
                   { n: "04", title: "Master it, then move on", desc: "A scenario counts as mastered after three passes in a row, at least an hour apart. A miss drops it back a level, so mastery means you can repeat it, not that you got lucky once." },
                 ].map(({ n, title, desc }) => (
                   <div key={n} style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>

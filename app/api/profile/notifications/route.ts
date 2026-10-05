@@ -33,6 +33,9 @@ import { readJsonBody } from "@/lib/ai-guard";
 //   Brevo and set that list's numeric id as this env var in Cloudflare
 //   Pages to enable list capture (needed for any future scheduled send —
 //   see the Brevo Automation note in the mobile plan).
+// - 2026-10-05: list membership now follows consent. Once both flags are
+//   off, the contact is also removed from the list, so a send aimed at the
+//   list alone can't reach someone who opted out.
 
 type NotifFlag = "reminders" | "digest";
 
@@ -71,7 +74,11 @@ function confirmationEmail(which: NotifFlag): { heading: string; bodyHtml: strin
  * email per opt-in. All calls run in parallel and are awaited; failures are
  * logged only.
  */
-async function syncBrevo(email: string, changes: Partial<Record<NotifFlag, boolean>>): Promise<void> {
+async function syncBrevo(
+  email: string,
+  changes: Partial<Record<NotifFlag, boolean>>,
+  subscribedAfter: boolean,
+): Promise<void> {
   const brevoApiKey = process.env.BREVO_API_KEY;
   if (!brevoApiKey) {
     console.warn("[profile/notifications] BREVO_API_KEY not set — skipping Brevo sync + confirmation email");
@@ -88,9 +95,6 @@ async function syncBrevo(email: string, changes: Partial<Record<NotifFlag, boole
     brevoPost("contacts", brevoApiKey, {
       email,
       attributes,
-      // List membership is only added, never removed: an opted-out contact
-      // stays on the list with its attribute false, so sends must filter on
-      // the attribute, not on list membership.
       ...(listId && optedIn.length > 0 ? { listIds: [Number(listId)] } : {}),
       updateEnabled: true,
     }, "contact_upsert"),
@@ -104,6 +108,11 @@ async function syncBrevo(email: string, changes: Partial<Record<NotifFlag, boole
       }, `confirmation_${which}`);
     }),
   ];
+  // Off for both emails now: take the contact off the list too. Brevo
+  // returns 400 if they weren't on it, which is logged and harmless.
+  if (listId && !subscribedAfter) {
+    calls.push(brevoPost(`contacts/lists/${Number(listId)}/contacts/remove`, brevoApiKey, { emails: [email] }, "list_remove"));
+  }
 
   await Promise.all(calls);
 }
@@ -175,7 +184,10 @@ export async function PATCH(req: Request) {
       changes.digest = update.notif_weekly_digest;
     }
     if (user.email && Object.keys(changes).length > 0) {
-      await syncBrevo(user.email, changes);
+      const subscribedAfter =
+        (update.notif_reminders ?? !!current?.notif_reminders) ||
+        (update.notif_weekly_digest ?? !!current?.notif_weekly_digest);
+      await syncBrevo(user.email, changes, subscribedAfter);
     }
 
     return NextResponse.json({ success: true });
