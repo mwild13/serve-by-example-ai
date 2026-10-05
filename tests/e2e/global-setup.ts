@@ -29,7 +29,9 @@ export default async function globalSetup(config: FullConfig) {
   await page.goto(`${baseURL}/login`);
   await page.locator("#email").fill(email);
   await page.locator("#password").fill(password);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  // Scoped to the form: the Sign in / Create account tab toggle above it is
+  // also a button named "Sign in".
+  await page.locator("form").getByRole("button", { name: "Sign in" }).click();
 
   // Successful staff sign-in redirects to /dashboard (or /onboarding if
   // onboarding isn't complete — treated as a setup error, not a valid
