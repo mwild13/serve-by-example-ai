@@ -136,7 +136,6 @@ async function handleCheckoutComplete(
   const profileUpdate: Record<string, unknown> = {
     tier,
     stripe_customer_id: stripeCustomerId,
-    ...(isFounder && { is_founders_user: true }),
   };
 
   // Resolve user ID — prefer the explicit userId from metadata (logged-in checkout),

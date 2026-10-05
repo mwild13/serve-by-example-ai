@@ -108,11 +108,7 @@ export async function POST(request: NextRequest) {
     // Update profiles to mark diagnostic as completed
     const { error: profileError } = await supabase
       .from("profiles")
-      .update({
-        diagnostic_completed: true,
-        diagnostic_completed_at: new Date().toISOString(),
-        platform_version: 2, // Auto-migrate to v2 on diagnostic completion
-      })
+      .update({ diagnostic_completed: true })
       .eq("id", user.id);
 
     if (profileError) {

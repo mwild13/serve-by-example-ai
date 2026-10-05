@@ -164,20 +164,6 @@ export async function POST(req: Request) {
               inviteMessage = `Staff member added. Share the signup link below and ask ${name} to sign up with ${email}.`;
             }
           }
-
-          // Record the pending invite so managers can retrieve it later. Stores
-          // the plain signup link, never the action link (see above).
-          try {
-            await admin.from("pending_invites").insert({
-              manager_user_id: user.id,
-              staff_name: name,
-              email,
-              invite_link: redirectTo,
-              expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-            });
-          } catch {
-            // Non-blocking — pending_invites table may not exist yet.
-          }
         }
       } catch (linkSetupError) {
         console.error("[staff/invite] Unexpected error in invite setup:", linkSetupError);
