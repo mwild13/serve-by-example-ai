@@ -31,7 +31,11 @@ for (const screen of SCREENS) {
 
     await page.goto(screen.path);
     await page.waitForLoadState("networkidle");
-    await expect(page).toHaveScreenshot(`${screen.name}.png`);
+    // Elements tagged data-e2e-mask change day to day (streak count, daily
+    // warm-up module, Hot Picks), so they're masked out of the comparison.
+    await expect(page).toHaveScreenshot(`${screen.name}.png`, {
+      mask: [page.locator("[data-e2e-mask]")],
+    });
   });
 }
 

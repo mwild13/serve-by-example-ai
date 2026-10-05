@@ -144,7 +144,8 @@ export default function HomeScreen() {
             }}
           >
             <Flame size={16} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
-            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text-mobile)" }}>
+            {/* data-e2e-mask: changes day to day; masked in the Playwright baselines. */}
+            <span data-e2e-mask style={{ fontSize: 13, fontWeight: 700, color: "var(--text-mobile)" }}>
               {/* Phase 6 fix (v4-migration-plan/00-bug-batch-plan.md item 12):
                   this was reading TrainingProgress.bestCorrectStreak — the
                   server-tracked *quiz-answer-accuracy* streak, not a daily
@@ -193,7 +194,7 @@ export default function HomeScreen() {
                 <p style={{ margin: 0, fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--gold-mobile)" }}>
                   Pre-Shift Warmup
                 </p>
-                <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile)" }}>{warmupModule.title}: Warm-up quiz ready.</p>
+                <p data-e2e-mask style={{ margin: 0, fontSize: 13, color: "var(--text-mobile)" }}>{warmupModule.title}: Warm-up quiz ready.</p>
               </div>
             </Link>
           ) : (
@@ -257,7 +258,7 @@ export default function HomeScreen() {
               />
             </Link>
           </div>
-          <div style={{ display: "flex", gap: 12, overflowX: "auto" }}>
+          <div data-e2e-mask style={{ display: "flex", gap: 12, overflowX: "auto" }}>
             {hotPicks.map((cocktail) => (
               <Link
                 key={cocktail.name}
