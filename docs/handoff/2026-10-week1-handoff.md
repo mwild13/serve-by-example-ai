@@ -61,6 +61,10 @@
   - The dead "Badge and streak alerts" checkbox is gone. It hasn't saved anything since 2026-08-25.
   - The labels now say Sunday (reminders) and Monday (digest), matching what's sent.
 
+### Build fix: self-hosted Manager Console fonts
+
+- The first preview build failed in `next/font/google` while downloading Outfit for `app/management/layout.tsx`. It's the same "Cannot read properties of null (reading '1')" failure that moved the root layout's fonts to local files. Lora, Outfit and DM Mono are now served from `app/fonts/` with `next/font/local`, so no layout fetches fonts from Google at build time any more. **Keep it that way: don't add `next/font/google` imports.**
+
 ### Playwright QA account
 
 - **Script** `scripts/e2e/provision-qa-account.mjs`: creates the user or resets its password, and sets `tier = 'pro'`, `subscription_status = null`, `org_id = null`, and onboarding plus placement check complete. Re-running it is safe.
@@ -88,7 +92,8 @@
 
 **Deploy blockers**
 - [ ] Smoke-test the preview: a toolkit signup should create a row with `toolkit_delivered = true`; the email's toolkit link should set `opened_at`; unsubscribe should set `unsubscribed_at`; and the deletion test above.
-- [ ] Run the QA script. There's no `.env*` file in the repo, so export `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `E2E_TEST_EMAIL` and `E2E_TEST_PASSWORD` in your shell first, then run `node scripts/e2e/provision-qa-account.mjs` and `npm run e2e`.
+- [x] QA account provisioned 2026-10-05: `mitch+qa@servebyexample.co`, checked in the DB (pro, onboarding done, no memberships). The service role key must be the `sb_secret_...` key, because the legacy JWT keys are disabled on this project.
+- [ ] First e2e run against the preview with `npx playwright test --update-snapshots` to create the baselines (none exist yet). Review them, then commit them.
 
 **Product decisions**
 - [ ] How venue owners delete their accounts. They get a 409 "contact support" today. Decide what happens to the venue, roster and Stripe subscription first.
