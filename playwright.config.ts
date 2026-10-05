@@ -34,8 +34,13 @@ export default defineConfig({
     // Baselines are generated locally on macOS. If this ever runs on a
     // different OS (e.g. Linux CI), sub-pixel font anti-aliasing
     // differences alone can otherwise fail an unchanged layout.
+    // 0.2%, not 2% (2026-10-05): at 2%, two notification toggles flipping
+    // from on to off in Settings still passed. That's ~1,800px against an
+    // allowance of ~6,600 on a 390x844 screen. Sub-pixel anti-aliasing
+    // noise is absorbed by `threshold` (per-pixel colour tolerance), not by
+    // this ratio.
     toHaveScreenshot: {
-      maxDiffPixelRatio: 0.02,
+      maxDiffPixelRatio: 0.002,
       threshold: 0.2,
     },
   },

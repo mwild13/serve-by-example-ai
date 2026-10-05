@@ -50,12 +50,11 @@ import { normalizeVenueCode } from "@/lib/venue-code";
 // Deliberately NOT included: a dark-mode toggle. The entire /mobile app
 // already renders unconditionally on --bg-mobile-dark with no light theme
 // implemented anywhere in this tree — a toggle here would have nothing to
-// switch to. Also not included: full account deletion — the user asked for
-// "reset progress," not account deletion; that stays out of scope for this
-// pass (see the mobile bug-fix plan's Phase 3a note on
-// app/api/profile/delete/route.ts, which already exists unwired to any UI
-// but deletes the account outright with no grace period — a separate,
-// bigger piece of work than what was asked here).
+// switch to.
+// - Delete account (to-do 2026-10-02, Phase 1): same type-to-confirm shape
+//   as Reset progress, with the phrase also checked server-side. See
+//   app/api/profile/delete/route.ts for what is deleted vs kept and why
+//   subscribers and venue owners get a 409 message instead.
 
 function SectionCard({ title, icon: Icon, children }: { title: string; icon: React.ElementType; children: React.ReactNode }) {
   return (
@@ -282,6 +281,12 @@ export default function SettingsScreen() {
   const [resetConfirmText, setResetConfirmText] = useState("");
   const [resetStatus, setResetStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
 
+  // ── Delete account ──
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deleteStatus, setDeleteStatus] = useState<"idle" | "saving" | "error">("idle");
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
   async function handleSaveName() {
     const trimmed = displayName.trim();
     if (!trimmed) return;
@@ -372,6 +377,30 @@ export default function SettingsScreen() {
       setResetStatus("done");
     } catch {
       setResetStatus("error");
+    }
+  }
+
+  async function handleDeleteAccount() {
+    setDeleteStatus("saving");
+    setDeleteError(null);
+    try {
+      const res = await fetch("/api/profile/delete", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ confirm: deleteConfirmText }),
+      });
+      if (!res.ok) {
+        // 409s carry a user-facing reason (active subscription, venue owner).
+        const data: { error?: string } = await res.json().catch(() => ({}));
+        throw new Error(res.status === 409 && data.error ? data.error : "Something went wrong — try again.");
+      }
+      // The auth user no longer exists; clear the local session too.
+      await supabase.auth.signOut();
+      router.push("/");
+      router.refresh();
+    } catch (err) {
+      setDeleteStatus("error");
+      setDeleteError(err instanceof Error ? err.message : "Something went wrong — try again.");
     }
   }
 
@@ -622,6 +651,75 @@ export default function SettingsScreen() {
                 <button
                   type="button"
                   onClick={() => { setResetOpen(false); setResetConfirmText(""); }}
+                  style={{ padding: "10px 16px", borderRadius: "var(--radius-pill)", border: "1px solid var(--border-mobile)", background: "none", color: "var(--text-mobile)", fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Delete account — destructive */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "0 20px 20px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <AlertTriangle size={16} strokeWidth={2} color="var(--red-mobile)" aria-hidden="true" />
+          <p style={{ margin: 0, fontSize: 13, fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--red-mobile)" }}>
+            Delete Account
+          </p>
+        </div>
+        <div style={{ padding: 16, borderRadius: "var(--radius-lg)", background: "var(--surface-mobile)", border: "1px solid var(--red-mobile)" }}>
+          {!deleteOpen ? (
+            <>
+              <p style={{ margin: "0 0 12px", fontSize: 13, color: "var(--text-mobile-muted)" }}>
+                Permanently delete your account, sign-in and training history. Your venue keeps its roster record of you, without your progress.
+              </p>
+              <button
+                type="button"
+                onClick={() => setDeleteOpen(true)}
+                style={{ padding: "10px 16px", borderRadius: "var(--radius-pill)", border: "1px solid var(--red-mobile)", background: "none", color: "var(--red-mobile)", fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+              >
+                Delete account
+              </button>
+            </>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--red-mobile)" }}>This can&apos;t be undone.</p>
+              <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>
+                Type DELETE to confirm you want to permanently delete your account.
+              </p>
+              <input
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="DELETE"
+                style={inputStyle}
+              />
+              {deleteStatus === "error" && deleteError && <p style={{ margin: 0, fontSize: 12, color: "var(--red-mobile)" }}>{deleteError}</p>}
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  type="button"
+                  onClick={handleDeleteAccount}
+                  disabled={deleteConfirmText !== "DELETE" || deleteStatus === "saving"}
+                  style={{
+                    flex: 1,
+                    padding: "10px 16px",
+                    borderRadius: "var(--radius-pill)",
+                    border: "none",
+                    background: "var(--red-mobile)",
+                    color: "var(--bg-mobile-dark)",
+                    fontFamily: "var(--font-body)",
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: deleteConfirmText !== "DELETE" ? "default" : "pointer",
+                    opacity: deleteConfirmText !== "DELETE" ? 0.5 : 1,
+                  }}
+                >
+                  {deleteStatus === "saving" ? "Deleting…" : "Permanently delete"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setDeleteOpen(false); setDeleteConfirmText(""); setDeleteStatus("idle"); setDeleteError(null); }}
                   style={{ padding: "10px 16px", borderRadius: "var(--radius-pill)", border: "1px solid var(--border-mobile)", background: "none", color: "var(--text-mobile)", fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
                 >
                   Cancel

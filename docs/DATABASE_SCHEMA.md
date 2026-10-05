@@ -23,11 +23,11 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 | `training_attempts` | `20261002_atomic_attempts_and_verify_quiz.sql` | Idempotency ledger for Scenario Training / Arena attempts: `id` (client attempt id), `user_id`, scenario key, `score`, `result JSONB`, `evaluation JSONB` (stored feedback for retries). Written only by `record_attempt()`. No client access. |
 | `verify_attempts` | `20261002_atomic_attempts_and_verify_quiz.sql` | One row per verify-quiz run: `question_order INT[]`, `position`, `streak`, `status` (`active`/`passed`/`exhausted`), `expires_at` (+20 min). Advanced only by `advance_verify_attempt()`. No client access. |
 
-**Migration file exists but table is not live** (verified 2026-09-29 against the production Supabase project via `list_tables` — 21 public tables present, this one isn't among them):
+**Re-created 2026-10-02 (pending apply):**
 
 | Table | Migration | Status |
 |---|---|---|
-| `toolkit_leads` | `20260610_toolkit_leads.sql` | Well-formed `CREATE TABLE IF NOT EXISTS` + RLS policy, but zero code references anywhere (`app/`, `lib/`). `app/api/toolkit-capture/route.ts` — the actual SOP-toolkit lead-capture endpoint — never calls Supabase at all: it generates `targetLeadId` via `crypto.randomUUID()`, sends the delivery email, and discards the id. No lead is ever persisted to a queryable table. Either this migration was never applied, or lead storage here was never wired up to it. Worth a product decision, not something this doc fixes. |
+| `toolkit_leads` | `20260610_toolkit_leads.sql`, then `20261004b_toolkit_leads.sql` | SOP-toolkit signups from `/toolkit`. The 2026-06-10 table was dropped as dead by `phase4_drop_dead_tables` (2026-07-19) because nothing wrote to it at the time. `20261004b` brings it back with `delivered_at`, `opened_at`, `unsubscribed_at`. Written by `app/api/toolkit-capture` (upsert on lowercased `email`, before the email is sent), `app/api/toolkit-open` (first `opened_at`), and `app/api/unsubscribe` (`unsubscribed_at`). `toolkit_delivered = false` marks a signup whose delivery email failed. Service role only: RLS with no policies, and `anon`/`authenticated` revoked. Any future nurture send must skip `unsubscribed_at IS NOT NULL`. |
 
 **Not `CREATE TABLE`'d anywhere in the captured migration history** — these tables predate the migration set (base schema was created outside these files) and only ever appear as `ALTER TABLE IF EXISTS`:
 
@@ -37,7 +37,7 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 | `venue_staff` | `venue_id`, `manager_user_id`, `module_completion_pct REAL`, `module_mastery_pct REAL`, `manager_notes` (`20260718_staff_manager_notes.sql`), RSA-state + Australian-state compliance columns (`20260629_compliance_tracking.sql`). |
 | `profiles` | `id` (== `auth.users.id`, 1:1), `platform_version`, `platform_role`, `diagnostic_completed`, `org_id` FK → `organizations` (`ON DELETE SET NULL`, added `20260621`), badge/streak columns, `trial_grace_modal_shown`, `profile_photo_url` (`20260818_profile_photo_url.sql`) — points at a `profile-photos` Storage bucket object (`20260923_profile_photos_bucket.sql`), not a static/fal.media URL — plus `profile_photo_generations_today`/`_reset_at` (`20260825_profile_photo_daily_cap.sql`), `sbe_elite_number` (assigned once from `sbe_elite_number_seq` by `award_sbe_elite()`), `all_modules_completed`, `current_session_id` (one-device session enforcement — see `/session-conflict` in `CLAUDE.md`'s App Pages table). |
 | `scenario_mastery` | The canonical mastery table — see §3. |
-| `pending_invites` | Not documented anywhere before this. Live, in active use (`app/api/management/staff/route.ts`, `app/api/profile/delete/route.ts`): `manager_user_id`, `venue_id`, `staff_name`, `email`, `invite_link`, `expires_at` (default `now() + 7 days`), `used_at`. Looks like the current staff-invite mechanism — verify against `lib/management/service.ts` before assuming `organization_members`'s `invited` status is the only invite path. |
+| `pending_invites` | Not documented anywhere before this. Live, in active use (`app/api/management/staff/route.ts`): `manager_user_id`, `venue_id`, `staff_name`, `email`, `invite_link`, `expires_at` (default `now() + 7 days`), `used_at`. Looks like the current staff-invite mechanism — verify against `lib/management/service.ts` before assuming `organization_members`'s `invited` status is the only invite path. |
 
 **Retired — zero code references, kept here only so it isn't rediscovered and assumed live**:
 
@@ -115,7 +115,8 @@ The seat trigger `check_org_seat_limit()` treats a NULL/0 `seat_limit` as **zero
 ## Known Gaps / Drift
 
 - **`venue_memberships` is retired** (§1, §4) — no live table, no code references. Don't resurrect it as an assumption when reading older docs, commits, or comments that mention it.
-- **`toolkit_leads` migration exists but the table isn't live**, and the SOP-toolkit capture route doesn't persist leads anywhere (§1) — a product gap worth flagging, not a doc-accuracy issue.
+- **`toolkit_leads` is re-created by `20261004b`** (§1). Until that migration is applied, `/api/toolkit-capture` returns 500.
+- **Account deletion relies on the FK graph** (`20261004_account_deletion_cascade.sql`). `app/api/profile/delete` calls `auth.admin.deleteUser()` and nothing else: every per-user table cascades from `auth.users`, and a `BEFORE DELETE` trigger on `profiles` marks the user's `organization_members` rows `removed` and unlinks (keeps) their `venue_staff` row. **A new per-user table needs `REFERENCES auth.users(id) ON DELETE CASCADE`**, or deletion will either fail (NO ACTION) or leave the data behind.
 - **`pending_invites` was previously undocumented** (§1) despite being a live, actively-used table — confirm this is still the current invite mechanism before assuming `organization_members.status = 'invited'` is the only one.
 - **RLS coverage was historically incomplete** (§5) — verify grants and policies per table rather than assuming.
 - **`module_elo_baseline` keeps its old name** although it now stores placement-check percentages (§1).

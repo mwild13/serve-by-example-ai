@@ -2,6 +2,68 @@ import { NextResponse } from 'next/server';
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { readJsonBody } from "@/lib/ai-guard";
 import { formText } from "@/lib/email-template";
+import { createSupabaseAdminClient } from "@/lib/supabase-admin";
+
+const SITE_URL = 'https://servebyexample.co';
+
+/** Sends the toolkit delivery email. Returns true only if Brevo accepted it. */
+async function sendToolkitEmail({ email, firstName, role, leadId }: {
+  email: string;
+  firstName: string;
+  role: string;
+  leadId: string;
+}): Promise<boolean> {
+  const brevoApiKey = process.env.BREVO_API_KEY;
+  if (!brevoApiKey) {
+    console.warn('[toolkit-capture] BREVO_API_KEY not configured — email skipped.');
+    return false;
+  }
+
+  let emailHookText = 'Optimize your operational staff onboarding checklists.';
+  if (role === 'venue_manager') {
+    emailHookText = 'Protect your site licensing framework and streamline your casual rosters floor execution.';
+  } else if (role === 'owner_operator') {
+    emailHookText = 'Isolate your labour expenditure risks and protect your bottom line operating standards.';
+  }
+
+  const unsubscribeUrl = `${SITE_URL}/api/unsubscribe?id=${leadId}`;
+
+  try {
+    // Brevo v3 Transactional Email Endpoint
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': brevoApiKey,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        sender: {
+          name: 'Serve By Example Resources',
+          email: 'info@servebyexample.co',
+        },
+        to: [{ email, name: firstName }],
+        subject: `${firstName}, your onboarding compliance template is ready`,
+        // RFC 8058 one-click unsubscribe: mail clients POST to this URL
+        // directly, which app/api/unsubscribe handles.
+        headers: {
+          'List-Unsubscribe': `<${unsubscribeUrl}>`,
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        },
+        textContent: `Hi ${firstName},\n\nThank you for downloading the Serve By Example Onboarding Framework.\n\n${emailHookText}\n\nAccess your complete editable Notion SOP toolkit here:\n${SITE_URL}/api/toolkit-open?id=${leadId}\n\nCheers,\n\nMitch\nServe By Example\nservebyexample.co\n\n---\nYou're receiving this because you requested the free toolkit at servebyexample.co/toolkit.\nUnsubscribe: ${unsubscribeUrl}`,
+      }),
+      signal: AbortSignal.timeout(8_000),
+    });
+    if (!res.ok) {
+      console.error(JSON.stringify({ event: 'toolkit_capture_failed', stage: 'deliver', lead_id: leadId, status: res.status }));
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error(JSON.stringify({ event: 'toolkit_capture_failed', stage: 'deliver', lead_id: leadId, message: err instanceof Error ? err.message : String(err) }));
+    return false;
+  }
+}
 
 export async function POST(request: Request) {
   // Public, unauthenticated and sends email, so it's capped per IP
@@ -46,48 +108,60 @@ export async function POST(request: Request) {
       );
     }
 
-    void utm_campaign; // captured for future use
+    const normalizedEmail = email.toLowerCase().trim();
+    const firstName = first_name.trim();
+    const admin = createSupabaseAdminClient();
 
-    // Use a session-scoped ID for email link personalisation (no DB persistence)
-    const targetLeadId = crypto.randomUUID();
-
-    // 4. Fire Non-Blocking Verification Email Sequence via Brevo
-    if (process.env.BREVO_API_KEY) {
-      const brevoApiKey = process.env.BREVO_API_KEY;
-
-      let emailHookText = 'Optimize your operational staff onboarding checklists.';
-      if (role === 'venue_manager') {
-        emailHookText = 'Protect your site licensing framework and streamline your casual rosters floor execution.';
-      } else if (role === 'owner_operator') {
-        emailHookText = 'Isolate your labour expenditure risks and protect your bottom line operating standards.';
-      }
-
-      // Brevo v3 Transactional Email Endpoint
-      fetch('https://api.brevo.com/v3/smtp/email', {
-        method: 'POST',
-        headers: {
-          'accept': 'application/json',
-          'api-key': brevoApiKey,
-          'content-type': 'application/json',
+    // 2. Persist first. The lead row is the record of the signup; the email
+    //    is delivery on top of it. If the insert fails nothing is sent, so a
+    //    lead can never exist only in Brevo's send log again (to-do
+    //    2026-10-02). Re-submitting the same email updates the existing row;
+    //    unsubscribed_at is deliberately left as the person set it.
+    const { data: lead, error: leadError } = await admin
+      .from('toolkit_leads')
+      .upsert(
+        {
+          email: normalizedEmail,
+          first_name: firstName,
+          role,
+          utm_campaign: utm_campaign || null,
+          updated_at: new Date().toISOString(),
         },
-        body: JSON.stringify({
-          sender: {
-            name: 'Serve By Example Resources',
-            email: 'info@servebyexample.co',
-          },
-          to: [{ email: email.toLowerCase().trim(), name: first_name.trim() }],
-          subject: `${first_name}, your onboarding compliance template is ready`,
-          textContent: `Hi ${first_name},\n\nThank you for downloading the Serve By Example Onboarding Framework.\n\n${emailHookText}\n\nAccess your complete editable Notion SOP toolkit here:\nhttps://servebyexample.co/api/toolkit-open?id=${targetLeadId}\n\nCheers,\n\nMitch\nServe By Example\nservebyexample.co\n\n---\nYou're receiving this because you requested the free toolkit at servebyexample.co/toolkit.\nUnsubscribe: https://servebyexample.co/api/unsubscribe?id=${targetLeadId}`,
-        }),
-      }).catch((err: unknown) => console.error('[toolkit-capture] Brevo delivery failed:', err));
-    } else {
-      console.warn('[toolkit-capture] BREVO_API_KEY not configured — email skipped.');
+        { onConflict: 'email' }
+      )
+      .select('id')
+      .single();
+
+    if (leadError || !lead) {
+      console.error(JSON.stringify({ event: 'toolkit_capture_failed', stage: 'persist', message: leadError?.message }));
+      return NextResponse.json({ error: 'Could not save your request. Please try again.' }, { status: 500 });
     }
 
-    // 5. Clean success payload response routing back to interface layer
+    // 3. Deliver. Awaited, not fire-and-forget: on Cloudflare Workers a
+    //    promise still pending when the response returns can be cancelled,
+    //    so the old un-awaited fetch could drop emails silently. A failed
+    //    send still returns success (the lead is saved and the success page
+    //    links the toolkit directly); toolkit_delivered = false marks it for
+    //    a re-send.
+    const delivered = await sendToolkitEmail({ email: normalizedEmail, firstName, role, leadId: lead.id });
+    if (delivered) {
+      const now = new Date().toISOString();
+      const { error: markError } = await admin
+        .from('toolkit_leads')
+        .update({ toolkit_delivered: true, delivered_at: now, updated_at: now })
+        .eq('id', lead.id);
+      if (markError) {
+        console.error(JSON.stringify({ event: 'toolkit_capture_failed', stage: 'mark_delivered', lead_id: lead.id, message: markError.message }));
+      }
+    }
+
+    // The lead id is NOT echoed here. It is the only credential the
+    // unsubscribe link carries, so it goes to the inbox and nowhere else —
+    // otherwise anyone could submit someone else's email and get back the
+    // id that unsubscribes them.
     return NextResponse.json({
       success: true,
-      redirect: `/toolkit/success?role=${role}&lead_id=${targetLeadId}`
+      redirect: `/toolkit/success?role=${role}`
     });
 
   } catch (error) {

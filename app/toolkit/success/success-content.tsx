@@ -39,12 +39,11 @@ function CheckIcon() {
 export function SuccessContent() {
   const params = useSearchParams();
   const role = params.get('role') ?? '';
-  const leadId = params.get('lead_id') ?? '';
 
   const hint = ROLE_HINTS[role];
-  const notionHref = leadId
-    ? `/api/toolkit-open?id=${leadId}`
-    : '/api/toolkit-open';
+  // No lead id here on purpose: it is the unsubscribe credential and only
+  // goes out in the delivery email (see app/api/toolkit-capture/route.ts).
+  const notionHref = '/api/toolkit-open';
 
   return (
     <div

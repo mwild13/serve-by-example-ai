@@ -75,7 +75,17 @@ function getTargetLanguage() {
 }
 
 export default function LanguageRuntimeTranslator() {
-  const originals = useRef(new WeakMap<Text, string>());
+  // Per text node: the source text, and the translation this component last
+  // wrote into it (null when it holds the source). Tracking what we wrote
+  // means React's own in-place text updates (e.g. "Loading your next
+  // module…" -> the module title) are picked up as new source text instead
+  // of being "restored" back to the first value ever seen. That restore bug
+  // froze stale text on screen for English users (found 2026-10-05 via the
+  // Playwright Home baseline).
+  const records = useRef(new WeakMap<Text, { source: string; applied: string | null }>());
+  // Nothing to restore until a translation has been applied at least once,
+  // so English sessions skip the full-document text walk on every mutation.
+  const hasTranslated = useRef(false);
   const observer = useRef<MutationObserver | null>(null);
   const translating = useRef(false);
 
@@ -109,22 +119,39 @@ export default function LanguageRuntimeTranslator() {
       return nodes;
     };
 
+    // Records the node's current text as its source unless it still holds
+    // exactly what we last wrote (the source or our translation).
+    const syncRecord = (node: Text) => {
+      const current = node.nodeValue ?? "";
+      const record = records.current.get(node);
+      if (!record || (current !== record.source && current !== record.applied)) {
+        records.current.set(node, { source: current, applied: null });
+      }
+    };
+
     const restoreEnglish = (nodes: Text[]) => {
       for (const node of nodes) {
-        const original = originals.current.get(node);
-        if (typeof original === "string" && node.nodeValue !== original) {
-          node.nodeValue = original;
+        const record = records.current.get(node);
+        // Only undo our own translation; anything else is the app's text.
+        if (record?.applied && node.nodeValue === record.applied) {
+          node.nodeValue = record.source;
+          record.applied = null;
         }
       }
     };
 
     const applyCachedTranslations = (nodes: Text[], cache: CacheMap, targetLanguage: string) => {
       for (const node of nodes) {
-        const original = originals.current.get(node) ?? node.nodeValue ?? "";
-        const normalized = normalizeWhitespace(original);
-        const translated = cache[`${targetLanguage}::${normalized}`];
+        const record = records.current.get(node);
+        if (!record) continue;
+        // Skip nodes React changed while a translation request was in flight;
+        // the next mutation pass picks up their new text.
+        if (node.nodeValue !== record.source && node.nodeValue !== record.applied) continue;
+        const translated = cache[`${targetLanguage}::${normalizeWhitespace(record.source)}`];
         if (translated && node.nodeValue !== translated) {
           node.nodeValue = translated;
+          record.applied = translated;
+          hasTranslated.current = true;
         }
       }
     };
@@ -138,15 +165,17 @@ export default function LanguageRuntimeTranslator() {
 
       try {
         const targetLanguage = getTargetLanguage();
-        const nodes = collectNodes();
-
-        for (const node of nodes) {
-          if (!originals.current.has(node)) {
-            originals.current.set(node, node.nodeValue ?? "");
-          }
+        const isEnglish = targetLanguage.toLowerCase().startsWith("en");
+        if (isEnglish && !hasTranslated.current) {
+          return;
         }
 
-        if (targetLanguage.toLowerCase().startsWith("en")) {
+        const nodes = collectNodes();
+        for (const node of nodes) {
+          syncRecord(node);
+        }
+
+        if (isEnglish) {
           restoreEnglish(nodes);
           return;
         }
@@ -155,7 +184,7 @@ export default function LanguageRuntimeTranslator() {
         const uniqueOriginals = Array.from(
           new Set(
             nodes
-              .map((node) => originals.current.get(node) ?? node.nodeValue ?? "")
+              .map((node) => records.current.get(node)?.source ?? node.nodeValue ?? "")
               .map((value) => normalizeWhitespace(value))
               .filter(Boolean),
           ),
