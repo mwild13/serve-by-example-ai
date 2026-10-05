@@ -6,11 +6,10 @@ import { test, expect } from "@playwright/test";
 // responsive-sizing plan's Phase 5 QA table), using the authenticated
 // session global-setup.ts already saved.
 //
-// Deliberately not all ~24 screens yet — these four (Home, LearnHub,
-// Settings, Contact) plus the landscape overlay are the proven pattern.
-// Extending coverage to the rest is a straight copy-paste of one of the
-// `test(...)` blocks below with a different route/name — a fast-follow,
-// not part of this pass.
+// Screenshots cover the screens whose content is stable for the QA
+// account. Games and practice screens draw random questions, so a
+// screenshot of them would fail on content, not layout. Every route
+// instead gets the no-horizontal-scroll check further down.
 
 const SCREENS: Array<{ name: string; path: string }> = [
   { name: "home", path: "/mobile/home" },
@@ -20,6 +19,20 @@ const SCREENS: Array<{ name: string; path: string }> = [
   // ContactSupportScreen.tsx's honeypot field used to widen the document
   // past the viewport on this route only.
   { name: "contact-support", path: "/mobile/contact" },
+  // Added 2026-10-05: static screens.
+  { name: "help", path: "/mobile/help" },
+  { name: "report-bug", path: "/mobile/report-bug" },
+  { name: "privacy", path: "/mobile/privacy" },
+  { name: "terms", path: "/mobile/terms" },
+];
+
+// Every /mobile route except onboarding (the QA account has finished it, so
+// it redirects) and ai-photo (asks for the camera).
+const ALL_ROUTES = [
+  "arena", "badges", "challenges", "cocktails", "contact", "help", "home",
+  "knowledge", "learn", "match-pairs", "memory-test", "menu-audit", "privacy",
+  "progress", "quiz", "recipe-order", "report-bug", "scenario-practice",
+  "scenarios", "settings", "speed-round", "terms",
 ];
 
 for (const screen of SCREENS) {
@@ -57,3 +70,20 @@ test("portrait phones never show the rotate overlay", async ({ page }, testInfo)
   await page.waitForLoadState("networkidle");
   await expect(page.locator(".mobile-landscape-guard")).toBeHidden();
 });
+
+// The most common mobile regression is something wider than the screen
+// (a fixed-width table, a long word, a hidden field), which lets the whole
+// page scroll sideways. Checked on every route without a baseline.
+for (const route of ALL_ROUTES) {
+  test(`${route} has no horizontal scroll`, async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name.includes("landscape"), "Landscape shows the rotate overlay");
+
+    await page.goto(`/mobile/${route}`);
+    await page.waitForLoadState("networkidle");
+    const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+    }));
+    expect(scrollWidth, `/mobile/${route} is ${scrollWidth - clientWidth}px wider than the screen`).toBeLessThanOrEqual(clientWidth);
+  });
+}
