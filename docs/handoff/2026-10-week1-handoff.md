@@ -65,6 +65,13 @@
 
 - The first preview build failed in `next/font/google` while downloading Outfit for `app/management/layout.tsx`. It's the same "Cannot read properties of null (reading '1')" failure that moved the root layout's fonts to local files. Lora, Outfit and DM Mono are now served from `app/fonts/` with `next/font/local`, so no layout fetches fonts from Google at build time any more. **Keep it that way: don't add `next/font/google` imports.**
 
+### Found while creating the e2e baselines (2026-10-05)
+
+- **Runtime translator froze stale text (site-wide).** `components/LanguageRuntimeTranslator.tsx` remembered the first text it saw in each text node and "restored" it on every DOM change, even in English. When React updated text in place, the old text came back: Home showed "Loading your next module..." instead of the module name. It now only reverts translations it wrote itself, and skips the document walk in English until something has been translated.
+- **Notifications were opt-out at the database level.** The `profiles.notif_*` columns defaulted to `true`, so 88 of 90 accounts were opted in without choosing it. `20261005_notification_defaults_opt_in.sql` (applied 2026-10-05) sets the defaults to false and resets every account to off. No digest or reminder sender existed yet, so no unconsented email went out. Its header mentions a rollback file that doesn't exist; there isn't one, and the reset can't be undone.
+- **Screenshot tolerance was too loose.** At 2%, flipping both Settings toggles still passed. It's now 0.2% (`playwright.config.ts`).
+- **Daily-changing Home content is masked:** elements tagged `data-e2e-mask` (streak, warm-up module, Hot Picks). Tag new dynamic content the same way.
+
 ### Playwright QA account
 
 - **Script** `scripts/e2e/provision-qa-account.mjs`: creates the user or resets its password, and sets `tier = 'pro'`, `subscription_status = null`, `org_id = null`, and onboarding plus placement check complete. Re-running it is safe.
@@ -93,7 +100,8 @@
 **Deploy blockers**
 - [ ] Smoke-test the preview: a toolkit signup should create a row with `toolkit_delivered = true`; the email's toolkit link should set `opened_at`; unsubscribe should set `unsubscribed_at`; and the deletion test above.
 - [x] QA account provisioned 2026-10-05: `mitch+qa@servebyexample.co`, checked in the DB (pro, onboarding done, no memberships). The service role key must be the `sb_secret_...` key, because the legacy JWT keys are disabled on this project.
-- [ ] First e2e run against the preview with `npx playwright test --update-snapshots` to create the baselines (none exist yet). Review them, then commit them.
+- [x] Baselines committed 2026-10-05: 24 screenshots (4 screens × 6 sizes), taken from the `preview/oct-w1-phase1` preview and reviewed. Full suite: 29 passed, 13 skipped by design (each test only runs on the screen sizes it applies to).
+- **Re-taking baselines:** use `--update-snapshots=all`. Plain `--update-snapshots` only rewrites screenshots that fail.
 
 **Product decisions**
 - [ ] How venue owners delete their accounts. They get a 409 "contact support" today. Decide what happens to the venue, roster and Stripe subscription first.
@@ -122,4 +130,4 @@
 - `npx tsc --noEmit`: clean
 - `npx vitest run`: 38/38 passed
 - `npm run lint:css`: reports its existing hex baseline only (it doesn't fail the build yet). Nothing new from this work
-- `npm run e2e`: **not run**, because the QA account isn't provisioned yet
+- `npx playwright test` against the preview: 29 passed, 13 skipped (2026-10-05)
