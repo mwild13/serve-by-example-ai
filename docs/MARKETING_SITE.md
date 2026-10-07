@@ -95,6 +95,15 @@ These are not interchangeable — don't use "14-day" copy from one context to ju
 
 **Note**: `components/ui/` does not contain `BrowserMockup.tsx`, `DashboardMockup.tsx`, or `WaitlistSection.tsx` — if you've seen these referenced elsewhere, they no longer exist; don't import them.
 
+## `/advisory` — LAUNCH-CHECKLIST
+
+The page is live on its URL but held back from search until these are done:
+
+- [ ] Confirm pricing, then remove `robots: { index: false }` from `app/advisory/page.tsx` and re-add `/advisory` to `app/sitemap.ts`. Update the noindex assertion in `tests/e2e-marketing/advisory.spec.ts` at the same time.
+- [ ] Replace the hero image (`public/images/advisory/advisory-hero.jpg`) with a real photo.
+- [ ] Add an About photo. `public/images/advisory/advisory-about.jpg` is in the repo but unused; the About section is currently text-only.
+- [ ] Review the supplier disclosure FAQ ("Do you have ties to any suppliers?") so it matches Mitch's current role and supplier relationships.
+
 ## Cookie Consent & Analytics
 
 Google Analytics (`G-EF9YRFXKBG`) is **not** in `app/layout.tsx`. It loads only after the visitor opts in.
