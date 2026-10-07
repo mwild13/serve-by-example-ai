@@ -86,13 +86,13 @@ Use the QA account, not a personal one. One-device enforcement would log the per
 
 ## AI model switch to `gpt-6-luna` (2026-10-08)
 
-- **Branch:** `preview/gpt-6-luna`, cut from `main`. **Not merged.** Not yet tested against the live OpenAI API.
+- **Branch:** `preview/gpt-6-luna`, cut from `main`, **merged to `main` 2026-10-08**.
 - **Why:** `gpt-4o-mini` ($0.15 in / $0.60 out per 1M tokens) is two generations old. `gpt-6-luna` is the current budget model and is cheaper ($0.10 in / $0.50 out). `gpt-4o-mini` is not on OpenAI's deprecation list, so this was a choice, not a forced move.
 - **One shared setting:** `CHAT_MODEL_PARAMS` in `lib/openai.ts` holds the model and `reasoning_effort: "none"`. The five call sites spread it in: `app/api/translate`, `app/api/coach`, `app/api/management/coach`, `app/api/arena/evaluate` and `lib/scenario-evaluator.ts`.
 - **Reasoning is off on purpose.** Luna is a reasoning model. With reasoning on it rejects `temperature`, and reasoning tokens would eat into the small output caps and the 15 to 25 second timeouts.
 - **`max_tokens` became `max_completion_tokens`** in all five calls, same limits.
 - **No Cloudflare change.** The existing `OPENAI_API_KEY` is used. The OpenAI project allows all models.
-- **Checks:** typecheck, lint and 38 of 38 unit tests passed. None of these call OpenAI.
+- **Checks:** typecheck, lint and 38 of 38 unit tests passed. Manual pass on the preview by Mitchell, all working: AI Arena answer, training scenario, staff coach, manager coach and translation.
 - **Rollback:** set `CHAT_MODEL_PARAMS` back to `{ model: "gpt-4o-mini" }` (drop `reasoning_effort`, which that model rejects).
 
 ---
@@ -102,7 +102,6 @@ Use the QA account, not a personal one. One-device enforcement would log the per
 - **LAUNCH-CHECKLIST** in `docs/MARKETING_SITE.md`: confirm pricing, then remove noindex and re-add to the sitemap (and update the noindex assertion in the marketing spec); replace the hero image with a real photo; add an About photo; review the supplier disclosure FAQ.
 - **Cloudflare Error 1102, "Worker exceeded resource limits".** Seen on the preview while running the suites repeatedly with five parallel browsers. Not investigated: the plan and limits the project is on have not been checked, so it is unknown whether production would do the same. A single stray e2e failure is worth one re-run before treating it as real.
 - **Copy to review:** the sticky bar label still reads "Free 15 min discovery call" and one FAQ answer says "the discovery call", while the buttons now say "free 15 min call". The `strategy-session` slug is carried by a link on the words "Strategy Sessions" in the add-ons footnote.
-- **`gpt-6-luna` needs a manual pass on the preview before merge:** one AI Arena answer, one training scenario, one staff coach question, one manager coach question and one translation. Compare arena and scenario scores on answers with a known result; a different model can grade harder or softer, and those scores feed mastery.
 - **Phone mockup text** in the Venue Hub band ("3 new deals", "8 of 11 on track" and so on) is placeholder sample content.
 
 ---
