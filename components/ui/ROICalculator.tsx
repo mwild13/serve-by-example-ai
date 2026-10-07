@@ -127,37 +127,66 @@ export default function ROICalculator() {
 
         <div className="sbe-mkt-roi-grid">
 
-          {/* ── Sliders ── */}
-          <div className="sbe-mkt-roi-controls">
-            {fields.map((field) => (
-              <div key={field.id}>
-                <div className="sbe-mkt-roi-field-head">
-                  <label htmlFor={field.id} className="sbe-mkt-roi-label">{field.label}</label>
-                  <output htmlFor={field.id} className="sbe-mkt-roi-value">
-                    {field.prefix ? <small>{field.prefix}</small> : null}
-                    {field.prefix ? "$" : ""}{field.value}{field.suffix}
-                  </output>
+          {/* ── Sliders, with the email capture under them so it stays in view ── */}
+          <div className="sbe-mkt-roi-inputs">
+            <div className="sbe-mkt-roi-controls">
+              {fields.map((field) => (
+                <div key={field.id}>
+                  <div className="sbe-mkt-roi-field-head">
+                    <label htmlFor={field.id} className="sbe-mkt-roi-label">{field.label}</label>
+                    <output htmlFor={field.id} className="sbe-mkt-roi-value">
+                      {field.prefix ? <small>{field.prefix}</small> : null}
+                      {field.prefix ? "$" : ""}{field.value}{field.suffix}
+                    </output>
+                  </div>
+                  <div className="sbe-mkt-roi-rail">
+                    <input
+                      id={field.id}
+                      type="range"
+                      min={field.min}
+                      max={field.max}
+                      step={field.step}
+                      value={field.value}
+                      onChange={(e) => field.set(Number(e.target.value))}
+                      className="sbe-mkt-roi-range"
+                      aria-label={field.ariaLabel}
+                      style={{ "--sbe-fill": `${fillPct(field.value, field.min, field.max)}%` } as CSSProperties}
+                    />
+                  </div>
+                  <div className="sbe-mkt-roi-bounds">
+                    <span>{field.prefix ? `${field.prefix} $` : ""}{field.min}{field.suffix}</span>
+                    <span>{field.prefix ? `${field.prefix} $` : ""}{field.max}{field.suffix}</span>
+                  </div>
                 </div>
-                <div className="sbe-mkt-roi-rail">
-                  <input
-                    id={field.id}
-                    type="range"
-                    min={field.min}
-                    max={field.max}
-                    step={field.step}
-                    value={field.value}
-                    onChange={(e) => field.set(Number(e.target.value))}
-                    className="sbe-mkt-roi-range"
-                    aria-label={field.ariaLabel}
-                    style={{ "--sbe-fill": `${fillPct(field.value, field.min, field.max)}%` } as CSSProperties}
-                  />
-                </div>
-                <div className="sbe-mkt-roi-bounds">
-                  <span>{field.prefix ? `${field.prefix} $` : ""}{field.min}{field.suffix}</span>
-                  <span>{field.prefix ? `${field.prefix} $` : ""}{field.max}{field.suffix}</span>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            <div className="sbe-mkt-roi-email">
+              {emailSent ? (
+                <p className="sbe-mkt-roi-sent">Thanks — we&apos;ll email your projection shortly.</p>
+              ) : (
+                <>
+                  <form onSubmit={handleEmailSubmit} className="sbe-mkt-roi-form" noValidate>
+                    <div className="sbe-mkt-roi-form-field">
+                      <label htmlFor="roi-email">Want these numbers in your inbox?</label>
+                      <input
+                        id="roi-email"
+                        type="email"
+                        placeholder="you@yourvenue.com.au"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="sbe-mkt-roi-input"
+                      />
+                    </div>
+                    <button type="submit" disabled={sending} className="sbe-mkt-btn-primary sbe-mkt-roi-submit">
+                      {sending ? "Sending…" : "Send my projection"}
+                    </button>
+                  </form>
+                  <p className="sbe-mkt-roi-fineprint">No spam. One click to unsubscribe.</p>
+                </>
+              )}
+            </div>
           </div>
 
           {/* ── Readout ── */}
@@ -182,34 +211,6 @@ export default function ROICalculator() {
               Indicative modelling only. Based on published AU hospitality benchmarks (74% turnover rate, $2,490 average replacement cost). Actual results vary by venue type, team size, and service context.
             </p>
           </div>
-        </div>
-
-        {/* ── Email capture ── */}
-        <div className="sbe-mkt-roi-email">
-          {emailSent ? (
-            <p className="sbe-mkt-roi-sent">Thanks — we&apos;ll email your projection shortly.</p>
-          ) : (
-            <>
-              <form onSubmit={handleEmailSubmit} className="sbe-mkt-roi-form" noValidate>
-                <div className="sbe-mkt-roi-form-field">
-                  <label htmlFor="roi-email">Want these numbers in your inbox?</label>
-                  <input
-                    id="roi-email"
-                    type="email"
-                    placeholder="you@yourvenue.com.au"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="sbe-mkt-roi-input"
-                  />
-                </div>
-                <button type="submit" disabled={sending} className="sbe-mkt-btn-primary sbe-mkt-roi-submit">
-                  {sending ? "Sending…" : "Send my projection"}
-                </button>
-              </form>
-              <p className="sbe-mkt-roi-fineprint">No spam. One click to unsubscribe.</p>
-            </>
-          )}
         </div>
 
       </div>

@@ -107,7 +107,7 @@
   --fs-body-lg: clamp(1.05rem, 1.5vw, 1.2rem);  /* Manrope 400, lh 1.6 — hero subhead */
   --fs-body:    1rem;                            /* Manrope 400, lh 1.65 */
   --fs-caption: 0.8rem;                          /* Manrope 600, caps, ls 0.08em — eyebrows */
-  --fs-display: clamp(2.25rem, 4.6vw, 3.75rem); /* Fraunces 500, section display heading */
+  --fs-display: clamp(2rem, 3.6vw, 3.25rem);   /* Fraunces 500, section display heading */
   --fs-numeral: clamp(3.5rem, 8vw, 6.5rem);     /* Fraunces 400, oversized step/metric numerals */
 
   /* ── Marketing tracking and leading — pair with the --fs-* steps above ── */
@@ -20386,6 +20386,7 @@ h1, h2, h3 {
   font-size: var(--fs-body-lg);
   line-height: 1.6;
   color: var(--text-soft);
+  text-wrap: pretty;
 }
 
 .sbe-mkt-head {
@@ -20556,12 +20557,12 @@ h1, h2, h3 {
 
 .sbe-mkt-pullquote p {
   margin: 0;
-  max-width: 26ch;
+  max-width: 32ch;
   font-family: var(--font-heading);
-  font-size: var(--fs-display);
+  font-size: clamp(1.5rem, 2.4vw, 2.25rem);
   font-style: italic;
   font-weight: 400;
-  line-height: 1.12;
+  line-height: 1.2;
   letter-spacing: var(--tracking-heading);
   color: var(--green-deep);
   text-wrap: balance;
@@ -20580,7 +20581,7 @@ h1, h2, h3 {
   .sbe-mkt-founder-grid {
     grid-template-columns: 140px minmax(0, 1fr);
     column-gap: clamp(2rem, 5vw, 4.5rem);
-    row-gap: clamp(2.5rem, 5vw, 4rem);
+    row-gap: clamp(2rem, 4vw, 3rem);
   }
 
   .sbe-mkt-pullquote {
@@ -20665,25 +20666,25 @@ h1, h2, h3 {
 
 @media (min-width: 900px) {
   .sbe-mkt-show-row {
-    grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     gap: clamp(2.5rem, 5vw, 5rem);
   }
 
   .sbe-mkt-show-row-flip {
-    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
   }
 
   .sbe-mkt-show-row-flip .sbe-mkt-show-text {
     order: 2;
   }
 
-  /* Break out to the viewport edge (capped at 120px past the container) */
+  /* Break out toward the viewport edge (capped at 72px past the container) */
   .sbe-mkt-show-media-end {
-    margin-right: calc(-1 * min(var(--page-gutter), 120px));
+    margin-right: calc(-1 * min(var(--page-gutter), 72px));
   }
 
   .sbe-mkt-show-media-start {
-    margin-left: calc(-1 * min(var(--page-gutter), 120px));
+    margin-left: calc(-1 * min(var(--page-gutter), 72px));
   }
 
   .sbe-mkt-show-stack .sbe-mkt-show-phone {
@@ -21089,9 +21090,20 @@ h1, h2, h3 {
 }
 
 /* ── Revenue Impact Calculator: full-bleed dark band, instrument-style rails ── */
+/* Sized to fit one desktop viewport (900px tall) with the email form in view */
 .sbe-mkt-roi {
   background: linear-gradient(160deg, var(--bg-dark) 0%, var(--bg-dark-soft) 100%);
-  padding: var(--section-spacing-md) 0;
+  padding: var(--section-spacing-sm) 0;
+}
+
+.sbe-mkt-roi .sbe-mkt-head {
+  margin-bottom: 2.5rem;
+}
+
+.sbe-mkt-roi .sbe-mkt-display {
+  font-size: var(--fs-h2);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
 }
 
 .sbe-mkt-roi-grid {
@@ -21103,7 +21115,7 @@ h1, h2, h3 {
 .sbe-mkt-roi-controls {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: 1.75rem;
 }
 
 .sbe-mkt-roi-field-head {
@@ -21170,7 +21182,7 @@ h1, h2, h3 {
   appearance: none;
   display: block;
   width: 100%;
-  height: 32px;
+  height: 28px;
   margin: 0;
   background: transparent;
   cursor: pointer;
@@ -21262,9 +21274,9 @@ h1, h2, h3 {
 }
 
 .sbe-mkt-roi-total {
-  margin: 0 0 2rem;
+  margin: 0 0 1.5rem;
   font-family: var(--font-heading);
-  font-size: var(--fs-numeral);
+  font-size: clamp(3rem, 5.5vw, 4.75rem);
   font-weight: 400;
   line-height: 0.95;
   letter-spacing: var(--tracking-display);
@@ -21290,8 +21302,8 @@ h1, h2, h3 {
 .sbe-mkt-roi-line {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.2rem 1.5rem;
-  padding: 1rem 0;
+  gap: 0.1rem 1.5rem;
+  padding: 0.8rem 0;
   border-top: 1px solid var(--border-light-on-dark);
 }
 
@@ -21325,9 +21337,15 @@ h1, h2, h3 {
   color: var(--text-light-muted-on-dark);
 }
 
+/* Stacked layout: sliders, readout, then the email form. Side by side, the
+   form sits under the sliders so it stays in the first viewport. */
+.sbe-mkt-roi-inputs {
+  display: contents;
+}
+
 .sbe-mkt-roi-email {
-  margin-top: 3rem;
-  padding-top: 2rem;
+  order: 3;
+  padding-top: 1.5rem;
   border-top: 1px solid var(--border-light-on-dark);
 }
 
@@ -21397,6 +21415,14 @@ h1, h2, h3 {
     grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
     gap: clamp(3rem, 7vw, 7rem);
     align-items: start;
+  }
+
+  .sbe-mkt-roi-inputs {
+    display: block;
+  }
+
+  .sbe-mkt-roi-email {
+    margin-top: 2.25rem;
   }
 }
 
