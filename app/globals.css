@@ -19597,13 +19597,6 @@ h1, h2, h3 {
   margin-top: 0;
 }
 
-/* The homepage hides the trust row on phones; here it is the credibility strip */
-.sbe-adv-hero .sbe-mkt-hero-trust {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
 .sbe-adv-anchor {
   scroll-margin-top: var(--nav-h);
 }
@@ -19791,14 +19784,6 @@ h1, h2, h3 {
   margin-top: 1.25rem;
 }
 
-.sbe-adv-pkg-note {
-  font-family: var(--font-body);
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  margin: 0 0 0.6rem;
-}
-
 .sbe-adv-remote {
   font-family: var(--font-body);
   font-size: 0.92rem;
@@ -19862,39 +19847,6 @@ h1, h2, h3 {
   margin: 0;
 }
 
-.sbe-adv-module-grid {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
-}
-
-.sbe-adv-module {
-  background: var(--bg-warm);
-  border: 1px solid var(--line-light);
-  border-radius: var(--radius-md);
-  padding: 0.9rem 1rem;
-}
-
-.sbe-adv-module-title {
-  display: block;
-  font-family: var(--font-body);
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.sbe-adv-module-body {
-  display: block;
-  font-family: var(--font-body);
-  font-size: 0.82rem;
-  line-height: 1.5;
-  color: var(--text-soft);
-  margin-top: 2px;
-}
-
 /* ── Venue Hub band ── */
 .sbe-adv-hub {
   background: var(--green-deep);
@@ -19925,52 +19877,6 @@ h1, h2, h3 {
   color: var(--text-light-muted-on-dark);
   margin: 1rem 0 0;
   max-width: 52ch;
-}
-
-.sbe-adv-hub-tiles {
-  list-style: none;
-  margin: 1.75rem 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
-}
-
-.sbe-adv-hub-tile {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  column-gap: 0.85rem;
-  align-items: center;
-  align-content: center;
-  background: var(--surface-tint-on-dark);
-  border: 1px solid var(--border-light-faint-on-dark);
-  border-radius: var(--radius-md);
-  padding: 0.9rem 1rem;
-}
-
-.sbe-adv-hub-tile-icon {
-  grid-row: span 2;
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-sm);
-  background: var(--gold-tint-on-dark);
-  color: var(--gold-warm);
-}
-
-.sbe-adv-hub-tile-title {
-  font-family: var(--font-body);
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--text-light-on-dark);
-}
-
-.sbe-adv-hub-tile-body {
-  font-family: var(--font-body);
-  font-size: 0.82rem;
-  line-height: 1.45;
-  color: var(--text-light-muted-on-dark);
 }
 
 .sbe-adv-hub-visual {
@@ -20104,58 +20010,150 @@ h1, h2, h3 {
   white-space: nowrap;
 }
 
-.sbe-adv-section-cta {
-  margin-top: 2rem;
+/* ── Hero: buttons and trust strip ── */
+/* Trust strip is a 2x2 grid by default and a single row on wide screens,
+   so no item is ever left alone on a line. */
+.sbe-adv-hero .sbe-mkt-hero-trust {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem 1.5rem;
+  margin: 0;
 }
 
-/* ── Service area ── */
-.sbe-adv-areas {
+.sbe-adv-hero .sbe-mkt-hero-trust li {
+  white-space: normal;
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+/* ── Sound familiar? Heading beside three ruled lines, no cards ── */
+.sbe-adv-problem {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
-.sbe-adv-area {
-  background: var(--surface);
-  border: 1px solid var(--line-light);
-  border-left: 4px solid var(--green);
-  border-radius: var(--radius-md);
-  padding: 1.25rem 1.5rem;
+.sbe-adv-problem .section-header {
+  margin-bottom: 0;
 }
 
-.sbe-adv-area-title {
-  font-family: var(--font-heading);
-  font-size: var(--fs-h3);
-  font-weight: 600;
+.sbe-adv-problem-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-adv-problem-list li {
+  padding: 1.1rem 0;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-body);
+  font-size: var(--fs-body-lg);
+  line-height: 1.5;
+  color: var(--text-soft);
+}
+
+.sbe-adv-problem-list strong {
+  font-weight: 700;
   color: var(--green-deep);
-  margin: 0 0 0.35rem;
 }
 
-.sbe-adv-area-body {
+/* ── Package card details ── */
+.sbe-adv-pkg-note {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: -0.45rem 0 0.75rem;
+}
+
+/* Quieter ticks: smaller and in the body text colour */
+.sbe-adv-pkg-list .sbe-mkt-pricefeature {
+  padding-left: 20px;
+}
+
+.sbe-adv-pkg-list .sbe-mkt-pricefeature::before {
+  top: 10px;
+  width: 11px;
+  height: 11px;
+  background-color: var(--text);
+}
+
+.sbe-adv-pkg .sbe-mkt-pricecard-btn {
+  white-space: normal;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+/* ── Plain ruled list: bold name with its line below (modules) ── */
+.sbe-adv-deflist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  column-gap: 3rem;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-adv-deflist li {
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-body);
+}
+
+.sbe-adv-deflist strong {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sbe-adv-deflist span {
+  display: block;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--text-soft);
+}
+
+/* ── Venue Hub modules: text only ── */
+.sbe-adv-hub-list {
+  list-style: none;
+  margin: 1.75rem 0 2rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem 2.5rem;
+  font-family: var(--font-body);
+}
+
+.sbe-adv-hub-list strong {
+  display: block;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-light-on-dark);
+}
+
+.sbe-adv-hub-list span {
+  display: block;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-adv-addons-note {
   font-family: var(--font-body);
   font-size: 0.95rem;
   line-height: 1.6;
   color: var(--text-soft);
-  margin: 0;
+  margin: 1.5rem 0 0;
 }
 
-/* ── About ── */
+/* ── About: copy with a pull quote ── */
 .sbe-adv-about {
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;
-  align-items: center;
-}
-
-.sbe-adv-about-photo img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  object-position: center 20%;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
 }
 
 .sbe-adv-about-copy .section-header {
@@ -20173,23 +20171,60 @@ h1, h2, h3 {
 
 .sbe-adv-about-copy > p:last-child {
   margin-bottom: 0;
-  color: var(--text);
-  font-weight: 600;
 }
 
-.sbe-adv-faq {
+.sbe-adv-pullquote {
+  font-family: var(--font-heading);
+  font-size: clamp(1.7rem, 4.2vw, 2.9rem);
+  font-weight: 500;
+  line-height: 1.14;
+  letter-spacing: -0.015em;
+  color: var(--green);
+  margin: 0;
+  padding-left: 1.25rem;
+  border-left: 3px solid var(--gold);
+  max-width: 16ch;
+}
+
+/* ── FAQ: intro beside the accordion ── */
+.sbe-adv-faq-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.75rem;
+}
+
+.sbe-adv-faq-intro .section-header {
+  margin-bottom: 0.5rem;
+}
+
+.sbe-adv-faq-intro > p {
+  font-family: var(--font-body);
+  font-size: 1.02rem;
+  line-height: 1.6;
+  color: var(--text-soft);
+  margin: 0 0 1.25rem;
+}
+
+.faq-list.sbe-adv-faq {
+  max-width: none;
   margin: 0;
 }
 
-@media (min-width: 601px) {
-  .sbe-adv-hero .sbe-mkt-hero-trust {
-    flex-direction: row;
-    gap: 0.5rem 1.75rem;
+@media (max-width: 600px) {
+  /* Full-width stacked buttons: the longer primary label does not fit beside the secondary */
+  .sbe-adv-hero .sbe-mkt-hero-btn-row {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .sbe-adv-module-grid,
-  .sbe-adv-hub-tiles,
-  .sbe-adv-areas {
+  .sbe-adv-hero .sbe-mkt-hero-btn-row .sbe-mkt-hero-cta,
+  .sbe-adv-hero .sbe-mkt-hero-btn-row .sbe-mkt-hero-secondary {
+    flex: 0 0 auto;
+  }
+}
+
+@media (min-width: 601px) {
+  .sbe-adv-hub-list {
     grid-template-columns: repeat(2, 1fr);
   }
 }
@@ -20219,32 +20254,61 @@ h1, h2, h3 {
     border-top: 1px solid var(--line-light);
   }
 
-  .sbe-adv-addons {
+  .sbe-adv-addons,
+  .sbe-adv-deflist {
     grid-template-columns: repeat(2, 1fr);
-  }
-
-  .sbe-adv-about {
-    grid-template-columns: minmax(0, 360px) 1fr;
-    gap: clamp(2rem, 5vw, 4.5rem);
   }
 }
 
 @media (min-width: 901px) {
+  .sbe-adv-hero .sbe-mkt-hero-grid {
+    grid-template-areas: "heading teaser" "details teaser" "trust trust";
+  }
+
   .sbe-adv-hero .sbe-mkt-hero-teaser img {
     aspect-ratio: 4 / 3;
   }
 
-  .sbe-adv-module-grid {
-    grid-template-columns: repeat(4, 1fr);
+  .sbe-adv-problem {
+    grid-template-columns: 2fr 3fr;
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: start;
   }
 
   .sbe-adv-hub-grid {
     grid-template-columns: 3fr 2fr;
     gap: clamp(2rem, 5vw, 5rem);
   }
+
+  .sbe-adv-about {
+    grid-template-columns: 5fr 6fr;
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: center;
+  }
+
+  .sbe-adv-pullquote {
+    order: -1;
+  }
+
+  .sbe-adv-faq-grid {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: start;
+  }
 }
 
 @media (min-width: 1100px) {
+  .sbe-adv-hero .sbe-mkt-hero-trust {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .sbe-adv-hero .sbe-mkt-hero-trust li {
+    white-space: nowrap;
+  }
+
   .sbe-adv-pkg-grid {
     grid-template-columns: repeat(4, 1fr);
     gap: 1rem;

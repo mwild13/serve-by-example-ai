@@ -16,7 +16,9 @@ export type AdvisoryPackage = {
   priceSuffix?: string;
   audience: string;
   inclusions: string[];
+  /** Short condition shown directly under the price (e.g. a minimum term). */
   note?: string;
+  cta: string;
   popular?: boolean;
 };
 
@@ -40,6 +42,7 @@ export default function PackageCard({ pkg, href }: Props) {
         <span className="sbe-adv-pkg-figure">{pkg.price}</span>
         {pkg.priceSuffix ? <span className="sbe-adv-pkg-suffix">{pkg.priceSuffix}</span> : null}
       </p>
+      {pkg.note ? <p className="sbe-adv-pkg-note">{pkg.note}</p> : null}
 
       <p className="sbe-adv-pkg-audience">{pkg.audience}</p>
 
@@ -77,13 +80,11 @@ export default function PackageCard({ pkg, href }: Props) {
       </div>
 
       <div className="sbe-adv-pkg-foot">
-        {pkg.note ? <p className="sbe-adv-pkg-note">{pkg.note}</p> : null}
         <Link
           href={href}
           className={`btn ${pkg.popular ? "btn-primary" : "btn-secondary"} sbe-mkt-pricecard-btn`}
-          aria-label={`Talk to us about ${pkg.name}`}
         >
-          Talk to us
+          {pkg.cta}
         </Link>
       </div>
     </article>

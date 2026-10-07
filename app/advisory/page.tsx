@@ -1,29 +1,18 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HeroStickyBar from "@/components/HeroStickyBar";
 import CTABand from "@/components/marketing/CTABand";
-import FeatureGrid, { type FeatureGridItem } from "@/components/marketing/FeatureGrid";
 import SectionHeading from "@/components/ui/SectionHeading";
 import PackageCard, { type AdvisoryPackage } from "@/components/advisory/PackageCard";
 import AdvisoryCtaTracker from "@/components/advisory/AdvisoryCtaTracker";
-import {
-  IconUsers,
-  IconClock,
-  IconGlass,
-  IconMessage,
-  IconLayers,
-  IconChart,
-  IconBook,
-} from "@/components/icons/MarketingIcons";
 
 export const metadata: Metadata = {
   title: "Hospitality Consulting | By Example Advisory | Serve By Example",
   description:
-    "Hands-on hospitality consulting for venues in SEQ and Northern NSW. Venue health checks, bar profit reviews, service training and systems setup from an operator with 15+ years on the floor.",
+    "Hands-on hospitality consulting for venues in SEQ and Northern NSW. Venue health checks, bar profit reviews, service training and systems setup from an operator with 20 years on the floor.",
   alternates: { canonical: "/advisory" },
   robots: { index: false },
 };
@@ -45,28 +34,19 @@ const talkHref = (pkg: AdvisorySlug) => `/contact?source=advisory&package=${pkg}
 
 const HERO_ALT = "Mitch, founder of Serve By Example, behind a venue bar";
 
+const BOOK_CALL = "Book a free 15 min call";
+
 const TRUST_ITEMS = [
-  "15+ years in hospitality operations",
+  "20 years in hospitality",
+  "6 years venue management",
   "7 years in bottleshops",
-  "Ex liquor sales rep",
+  "Liquor sales across QLD and Northern NSW",
 ];
 
-const PROBLEMS: FeatureGridItem[] = [
-  {
-    icon: <IconUsers />,
-    title: "Staff come and go.",
-    body: "Service changes with every new face on the floor.",
-  },
-  {
-    icon: <IconClock />,
-    title: "Wages keep creeping.",
-    body: "Rosters built on habit, not sales.",
-  },
-  {
-    icon: <IconGlass />,
-    title: "The bar leaks money.",
-    body: "Over-pours, waste and stock that never moves.",
-  },
+const PROBLEMS = [
+  { title: "Staff come and go.", body: "Service changes with every new face on the floor." },
+  { title: "Wages keep creeping.", body: "Rosters built on habit, not sales." },
+  { title: "The bar leaks money.", body: "Over-pours, waste and stock that never moves." },
 ];
 
 const STEPS = [
@@ -81,6 +61,7 @@ const PACKAGES: (AdvisoryPackage & { id: AdvisorySlug })[] = [
     id: "health-check",
     name: "Venue Health Check",
     price: "$990",
+    cta: "Book a Health Check",
     audience: "For any venue that knows something's off.",
     inclusions: [
       "On-site walk-through and live service observation",
@@ -95,6 +76,7 @@ const PACKAGES: (AdvisoryPackage & { id: AdvisorySlug })[] = [
     id: "bar-profit",
     name: "Bar Profit Review",
     price: "$1,200",
+    cta: "Book a Bar Profit Review",
     audience: "For pubs, bars and venues with bottleshops.",
     inclusions: [
       "Pour cost and margin analysis per drink",
@@ -110,6 +92,7 @@ const PACKAGES: (AdvisoryPackage & { id: AdvisorySlug })[] = [
     id: "service-reset",
     name: "Service Reset",
     price: "$3,500",
+    cta: "Start a Service Reset",
     audience: "For venues battling turnover or inconsistent service.",
     popular: true,
     inclusions: [
@@ -126,8 +109,9 @@ const PACKAGES: (AdvisoryPackage & { id: AdvisorySlug })[] = [
     name: "Ongoing Advisory",
     price: "$500",
     priceSuffix: "/month",
+    cta: "Ask about Ongoing Advisory",
     audience: "For venues that want an operator in their corner.",
-    note: "3 month minimum.",
+    note: "3 month minimum",
     inclusions: [
       "Monthly check-in visit",
       "Monthly KPI review",
@@ -148,15 +132,15 @@ const MODULES = [
   { title: "Menu engineering", body: "Profit versus popularity across food and drinks" },
 ];
 
-const HUB_TILES: { icon: ReactNode; title: string; body: string }[] = [
-  { icon: <IconMessage />, title: "Supplier inbox", body: "Deals and price lists sorted automatically" },
-  { icon: <IconLayers />, title: "Stock", body: "On-hand numbers and reorder alerts" },
-  { icon: <IconChart />, title: "F&B KPIs", body: "Sales, margin and pour cost" },
-  { icon: <IconUsers />, title: "Team learning", body: "Serve By Example progress for managers" },
-  { icon: <IconBook size={22} />, title: "Teaching area", body: "Your SOPs, specs and recipes" },
+const HUB_MODULES = [
+  { title: "Supplier inbox", body: "Deals and price lists sorted automatically" },
+  { title: "Stock", body: "On-hand numbers and reorder alerts" },
+  { title: "F&B KPIs", body: "Sales, margin and pour cost" },
+  { title: "Team learning", body: "Serve By Example progress for managers" },
+  { title: "Teaching area", body: "Your SOPs, specs and recipes" },
 ];
 
-// Rows shown inside the coded phone mockup — sample content only.
+// Rows shown inside the coded phone mockup. Sample content only.
 const HUB_MOCK_ROWS = [
   { label: "Supplier inbox", value: "3 new deals" },
   { label: "Stock", value: "2 reorder alerts" },
@@ -173,35 +157,6 @@ const ADD_ONS = [
   { name: "Supplier renewal negotiation prep", price: "from $500" },
   { name: "No and low alcohol or cocktail program", price: "from $600" },
   { name: "AI phone answering setup", price: "from $600" },
-];
-
-const WAYS: FeatureGridItem[] = [
-  {
-    eyebrow: "15 min",
-    title: "Free discovery call",
-    body: "Your venue, your biggest problem and whether we're a fit.",
-  },
-  {
-    eyebrow: "From $295",
-    title: "Strategy Session",
-    body: "A 90 min remote deep dive on one problem, with a written action summary. Credited to any package booked within 30 days.",
-  },
-  {
-    eyebrow: "From $150/hr",
-    title: "Extra hours",
-    body: "Only once a package's included time is used, and always quoted first.",
-  },
-];
-
-const SERVICE_AREAS = [
-  {
-    title: "SEQ and Northern NSW",
-    body: "In person, with travel included from Brisbane to Byron Bay.",
-  },
-  {
-    title: "Interstate",
-    body: "Remote via video call, or in person on request with travel at cost.",
-  },
 ];
 
 const FAQS = [
@@ -253,7 +208,7 @@ export default function AdvisoryPage() {
           }}
         />
 
-        {/* ── 1. Hero — same classes as the homepage hero ── */}
+        {/* ── 1. Hero: same classes as the homepage hero ── */}
         <section className="sbe-mkt-hero sbe-adv-hero">
           <div className="container sbe-mkt-hero-grid">
             <div className="sbe-mkt-hero-heading">
@@ -274,37 +229,44 @@ export default function AdvisoryPage() {
 
             <div className="sbe-mkt-hero-details">
               <p className="sbe-mkt-hero-sub">
-                Advice from an operator, not a tech company. Hands-on hospitality consulting from
-                the team behind Serve By Example.
+                Hands-on hospitality consulting from 20 years on the floor, behind the bar and on
+                the road.
               </p>
 
               <div className="sbe-mkt-hero-actions">
                 <div className="sbe-mkt-hero-btn-row">
                   <Link href={talkHref("general")} className="sbe-mkt-hero-cta">
-                    Talk to us
+                    {BOOK_CALL}
                   </Link>
                   <a href="#packages" className="sbe-mkt-hero-secondary">
                     See packages
                   </a>
                 </div>
               </div>
-
-              <ul className="sbe-mkt-hero-trust" aria-label="Founder experience">
-                {TRUST_ITEMS.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
             </div>
+
+            {/* Direct grid child (not inside details) so it can span the full hero width */}
+            <ul className="sbe-mkt-hero-trust" aria-label="Founder experience">
+              {TRUST_ITEMS.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
           </div>
 
-          <HeroStickyBar label="Free 15 min discovery call" cta="Talk to us" href={talkHref("general")} />
+          <HeroStickyBar label="Free 15 min discovery call" cta="Book a free call" href={talkHref("general")} />
         </section>
 
         {/* ── 2. The problem ── */}
         <section className="section">
-          <div className="container">
+          <div className="container sbe-adv-problem">
             <SectionHeading title="Sound familiar?" />
-            <FeatureGrid items={PROBLEMS} columns={3} />
+            <ul className="sbe-adv-problem-list">
+              {PROBLEMS.map((item) => (
+                <li key={item.title}>
+                  <strong>{item.title}</strong> {item.body}
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 
@@ -329,7 +291,11 @@ export default function AdvisoryPage() {
         {/* ── 4. Packages ── */}
         <section className="section sbe-adv-anchor" id="packages">
           <div className="container">
-            <SectionHeading title="Pick your starting point" copy="All prices AUD ex GST." />
+            <div className="section-header">
+              <h2>Pick your starting point</h2>
+              <p>All prices AUD ex GST.</p>
+              <p>In person across SEQ and Northern NSW. Remote across Australia.</p>
+            </div>
 
             <div className="sbe-adv-pkg-grid">
               {PACKAGES.map((pkg) => (
@@ -342,7 +308,7 @@ export default function AdvisoryPage() {
               covers the same data review and written report via video walk-through and a 45 min
               debrief.{" "}
               <Link href={talkHref("remote-review")} className="sbe-adv-inline-link">
-                Talk to us about a Remote Review
+                Ask about a Remote Review
               </Link>
             </p>
 
@@ -351,24 +317,24 @@ export default function AdvisoryPage() {
                 <h3 className="sbe-adv-subhead">Systems Upgrade modules</h3>
                 <p className="sbe-adv-modules-price">From $1,500 per module</p>
               </div>
-              <ul className="sbe-adv-module-grid">
+              <ul className="sbe-adv-deflist">
                 {MODULES.map((m) => (
-                  <li key={m.title} className="sbe-adv-module">
-                    <span className="sbe-adv-module-title">{m.title}</span>
-                    <span className="sbe-adv-module-body">{m.body}</span>
+                  <li key={m.title}>
+                    <strong>{m.title}</strong>
+                    <span>{m.body}</span>
                   </li>
                 ))}
               </ul>
               <p className="sbe-adv-modules-cta">
                 <Link href={talkHref("systems-upgrade")} className="sbe-adv-inline-link">
-                  Talk to us about a module
+                  Ask about a module
                 </Link>
               </p>
             </div>
           </div>
         </section>
 
-        {/* ── 5. Your Venue Hub — darker band ── */}
+        {/* ── 5. Your Venue Hub: darker band ── */}
         <section className="sbe-adv-hub">
           <div className="container sbe-adv-hub-grid">
             <div className="sbe-adv-hub-copy">
@@ -380,14 +346,11 @@ export default function AdvisoryPage() {
                 through 100 supplier emails.
               </p>
 
-              <ul className="sbe-adv-hub-tiles">
-                {HUB_TILES.map((tile) => (
-                  <li key={tile.title} className="sbe-adv-hub-tile">
-                    <span className="sbe-adv-hub-tile-icon" aria-hidden="true">
-                      {tile.icon}
-                    </span>
-                    <span className="sbe-adv-hub-tile-title">{tile.title}</span>
-                    <span className="sbe-adv-hub-tile-body">{tile.body}</span>
+              <ul className="sbe-adv-hub-list">
+                {HUB_MODULES.map((m) => (
+                  <li key={m.title}>
+                    <strong>{m.title}</strong>
+                    <span>{m.body}</span>
                   </li>
                 ))}
               </ul>
@@ -436,72 +399,53 @@ export default function AdvisoryPage() {
                 </li>
               ))}
             </ul>
+            <p className="sbe-adv-addons-note">
+              Need a one-off session?{" "}
+              <Link href={talkHref("strategy-session")} className="sbe-adv-inline-link">
+                Strategy Sessions
+              </Link>{" "}
+              from $295 (90 min, remote). Extra hours from $150/hr, always quoted first.
+            </p>
           </div>
         </section>
 
-        {/* ── 7. Ways to work with us ── */}
-        <section className="section section-alt">
-          <div className="container">
-            <SectionHeading title="Ways to work with us" />
-            <FeatureGrid items={WAYS} columns={3} />
-            <div className="sbe-adv-section-cta">
-              <Link href={talkHref("strategy-session")} className="btn btn-primary btn-lg">
-                Talk to us
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ── 8. Service area ── */}
-        <section className="section">
-          <div className="container">
-            <SectionHeading title="Where we work" />
-            <div className="sbe-adv-areas">
-              {SERVICE_AREAS.map((area) => (
-                <div key={area.title} className="sbe-adv-area">
-                  <h3 className="sbe-adv-area-title">{area.title}</h3>
-                  <p className="sbe-adv-area-body">{area.body}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── 9. About Mitch ── */}
+        {/* ── 7. About Mitch: text-led, pull quote beside the copy ── */}
         <section className="section section-alt">
           <div className="container sbe-adv-about">
-            <div className="sbe-adv-about-photo">
-              <Image
-                src="/images/advisory/advisory-about.jpg"
-                alt={HERO_ALT}
-                width={896}
-                height={1200}
-                sizes="(max-width: 900px) 92vw, 400px"
-              />
-            </div>
             <div className="sbe-adv-about-copy">
-              <SectionHeading title="Built on the floor" />
+              <SectionHeading title="Built from the sink up." />
               <p>
-                Mitch has spent 15+ years in hospitality operations, from running floors to fixing
-                venues that had lost their way. Before that came 7 years in bottleshops and years
-                on the road as a liquor sales rep across QLD and Northern NSW.
+                Mitch started at 13, washing dishes in a busy restaurant kitchen. Twenty years on,
+                he&apos;s worked almost every role a venue has: chain operations, high-end cocktail
+                bars, seven years in bottleshops, six years in venue management and years on the
+                road selling liquor across QLD and Northern NSW.
               </p>
               <p>
-                He&apos;s seen every side of a venue: the pass, the bar, the cool room and the
-                supplier meeting. By Example Advisory brings all of it to your business.
+                That path taught him one thing. Good venues don&apos;t run on luck. They run on
+                structure.
               </p>
               <p>
-                He built Serve By Example because good service shouldn&apos;t walk out the door
-                every time a staff member does.
+                Through By Example Advisory, Mitch helps owners fix the problems underneath the
+                busy nights and build a culture that holds when staff move on.
               </p>
             </div>
+            {/* Repeats a line from the copy, so it is hidden from screen readers */}
+            <p className="sbe-adv-pullquote" aria-hidden="true">
+              Good venues don&apos;t run on luck. They run on structure.
+            </p>
           </div>
         </section>
 
-        {/* ── 10. FAQ ── */}
+        {/* ── 8. FAQ ── */}
         <section className="section">
-          <div className="container">
-            <SectionHeading title="FAQ" />
+          <div className="container sbe-adv-faq-grid">
+            <div className="sbe-adv-faq-intro">
+              <SectionHeading title="FAQ" />
+              <p>Still unsure? Book a free 15 min call.</p>
+              <Link href={talkHref("general")} className="btn btn-primary">
+                {BOOK_CALL}
+              </Link>
+            </div>
             <div className="faq-list sbe-adv-faq">
               {FAQS.map((f) => (
                 <details key={f.q} className="faq-item">
@@ -513,11 +457,11 @@ export default function AdvisoryPage() {
           </div>
         </section>
 
-        {/* ── 11. Final CTA ── */}
+        {/* ── 9. Final CTA ── */}
         <CTABand
           title="Let's make your venue run better."
-          copy="Start with a free 15 minute call."
-          primary={{ label: "Talk to us", href: talkHref("general") }}
+          copy="Start with a free 15 min call. No hard pitch."
+          primary={{ label: BOOK_CALL, href: talkHref("general") }}
         />
       </main>
 

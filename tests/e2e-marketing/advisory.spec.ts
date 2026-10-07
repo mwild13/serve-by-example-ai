@@ -45,7 +45,7 @@ test("advisory sticky bar links to contact with the general slug", async ({ page
   await scrollPastFold(page);
   const bar = page.locator(".sbe-mkt-hero-sticky");
   await expect(bar).toBeVisible();
-  await expect(bar.getByRole("link", { name: "Talk to us" })).toHaveAttribute(
+  await expect(bar.getByRole("link", { name: "Book a free call" })).toHaveAttribute(
     "href",
     "/contact?source=advisory&package=general",
   );
@@ -57,7 +57,7 @@ test("every advisory contact link carries source and a known package slug", asyn
     .locator("main a[href^='/contact']")
     .evaluateAll((links) => links.map((a) => a.getAttribute("href") ?? ""));
 
-  expect(hrefs.length).toBeGreaterThanOrEqual(11);
+  expect(hrefs.length).toBeGreaterThanOrEqual(12);
   const seen = new Set<string>();
   for (const href of hrefs) {
     const params = new URL(href, "http://x").searchParams;
