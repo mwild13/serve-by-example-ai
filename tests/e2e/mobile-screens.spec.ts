@@ -46,6 +46,16 @@ for (const screen of SCREENS) {
     await page.waitForLoadState("networkidle");
     // Elements tagged data-e2e-mask change day to day (streak count, daily
     // warm-up module, Hot Picks), so they're masked out of the comparison.
+    // The mask only paints over them, though: a longer warm-up title wraps to
+    // a second line and pushes everything below it down. So masked text is
+    // swapped for a fixed placeholder, and text inside a masked block is
+    // held to one line, before the screenshot.
+    await page.locator("p[data-e2e-mask], span[data-e2e-mask]").evaluateAll((els) => {
+      for (const el of els) el.textContent = "masked";
+    });
+    await page.addStyleTag({
+      content: "div[data-e2e-mask] p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }",
+    });
     await expect(page).toHaveScreenshot(`${screen.name}.png`, {
       mask: [page.locator("[data-e2e-mask]")],
     });

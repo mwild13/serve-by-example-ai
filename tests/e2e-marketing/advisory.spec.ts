@@ -17,8 +17,12 @@ async function setConsent(page: Page, analytics: boolean) {
   }, analytics);
 }
 
+// On a deployed build the page can still be one screen tall when `goto`
+// resolves, so a scroll fired straight away goes nowhere. Wait until the
+// page is tall enough, and jump (the site sets scroll-behavior: smooth).
 async function scrollPastFold(page: Page) {
-  await page.evaluate(() => window.scrollTo(0, window.innerHeight * 2));
+  await page.waitForFunction(() => document.documentElement.scrollHeight > window.innerHeight * 3);
+  await page.evaluate(() => window.scrollTo({ top: window.innerHeight * 2, behavior: "instant" }));
 }
 
 test("homepage sticky bar appears after the fold on phones only", async ({ page }, testInfo) => {
