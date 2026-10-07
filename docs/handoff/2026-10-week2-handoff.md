@@ -1,4 +1,6 @@
-# Handoff: October 2026, Week 2 — By Example Advisory page
+# Handoff: October 2026, Week 2 — By Example Advisory page and homepage UI overhaul
+
+> **Two pieces of work this week.** Part 1 (below) is the Advisory page, merged to `main`. Part 2, at the end of this file, is the homepage UI overhaul, on a preview branch and **not yet merged**.
 
 - **Dates:** 2026-10-07 to 2026-10-08
 - **Branch:** `preview/advisory-page`, **merged to `main` 2026-10-08** (merge `b0e1de1`). Preview: https://preview-advisory-page.serve-by-example-ai.pages.dev/advisory
@@ -99,3 +101,109 @@ Use the QA account, not a personal one. One-device enforcement would log the per
 - **Links into `/contact` can carry `?source=<slug>&package=<slug>`.** Lowercase letters, digits and hyphens only, 40 characters at most. Anything else is dropped silently.
 - **Public-page e2e tests go in `tests/e2e-marketing/`.** In those tests, wait for the page to reach full height before scrolling. On a deployed build the page can still be one screen tall when `goto` resolves.
 - **Dynamic text in a screenshot test needs a stable size, not only a mask.** Tag it `data-e2e-mask` as before; the Home test shows how to pin its content.
+
+---
+
+# Part 2: Homepage UI overhaul
+
+- **Date:** 2026-10-08
+- **Branch:** `preview/homepage-ui-overhaul`, **not merged**. Preview: https://preview-homepage-ui-overhaul.serve-by-example-ai.pages.dev/
+- **Covers:** a rebuild of every homepage section below the hero, a new type scale, a rebuilt FAQ and Revenue Impact Calculator, rewritten homepage microcopy, and a full rewrite of `docs/Pages-Redesign.md`.
+- **Related:** `docs/Pages-Redesign.md` is now the standard for all marketing pages and uses the homepage as its reference.
+
+## The short version
+
+1. **The homepage no longer uses card grids.** Sections are separated by background shifts, hairlines and whitespace. Layouts are asymmetric, and some elements break out of the container.
+2. **The hero is untouched.** Its copy is locked by the July marketing audit, and the e2e suite asserts the sticky bar label.
+3. **No new dependencies.** No Tailwind, Shadcn or motion library. The FAQ and slider animation are CSS only.
+4. **The calculator changed on three pages.** `ROICalculator` is shared, so `/membership` and `/roi` show the new version too.
+5. **Homepage copy was rewritten** for kickers, section intros and buttons. The claims themselves were not changed.
+6. **`docs/Pages-Redesign.md` was replaced.** The August version described a component set the homepage no longer uses.
+
+## What changed
+
+### Layout (`app/page.tsx`, `app/globals.css`)
+
+| Section | Before | After |
+|---|---|---|
+| Built for High-Performance Venues | Two cards | Parchment heading left; dark panel bleeds off the right edge and overhangs the founder section |
+| Founder | Boxed quote with a green side border | Portrait, statement, italic pull quote under a hairline |
+| Two roles, library, mobile | Two rows of equal columns with icon tiles | Alternating text and screenshot rows; screenshots run past the container; the phone overlaps the library screenshot |
+| Mastery Path | Three boxed steps with icons and arrows | Three staggered steps with large gold numerals |
+| Benefits | Three stat cards | Ledger rows |
+| Plans & Pricing | Four mini-cards and a tinted guarantee box | Sticky intro and CTA left, ruled plan list right, one guarantee statement |
+| FAQ | Boxed accordion, centred heading | Sticky heading left, hairline accordion right, one answer open at a time |
+| Final CTA | Rounded gradient box | Shared `CTABand` |
+
+- **Page structure:** content moved into constants at the top of `app/page.tsx`. The FAQ list now feeds both the accordion and the FAQPage JSON-LD.
+- **Styles:** one new block at the end of `app/globals.css`, all under the `sbe-mkt-` prefix. No new colours.
+
+### Type scale (`app/globals.css`, `:root`)
+
+- **New tokens:** `--fs-display`, `--fs-numeral`, `--tracking-display`, `--tracking-heading`, `--tracking-caps`, `--lh-display`, `--lh-heading`, `--lh-body`, `--page-gutter`, `--ease-spring-soft`.
+- **New primitives:** `.sbe-mkt-kicker` (replaces the pill eyebrow), `.sbe-mkt-display`, `.sbe-mkt-lede`, `.sbe-mkt-head`.
+
+### Revenue Impact Calculator (`components/ui/ROICalculator.tsx`)
+
+- **Look:** a full-bleed dark band instead of a rounded card. Thin slider rails with tick marks and a tall handle. The total is the largest element.
+- **Code:** the three sliders render from one array. The fill is a CSS variable, which removed the refs, the effect and the hydration workaround. The calculation is unchanged.
+- **Fits one screen:** the first build was 1,136px tall and the email form sat below the fold on a full-screen desktop. It is now 828px, with the form under the sliders. On phones the order is sliders, readout, form.
+
+### Sizing pass after review at 1920px
+
+- **Display headings:** maximum cut from 3.75rem to 3.25rem.
+- **Founder quote:** cut from display size to a 2.25rem maximum.
+- **Screenshots:** media column narrowed from 7/11 to 7/12 of the row, and the break-out capped at 72px instead of 120px.
+
+### Copy
+
+| Where | Before | After |
+|---|---|---|
+| Pillars kicker | Two Systems, One Platform | Staff side. Manager side. |
+| Founder kicker | Built From Experience | Who built this |
+| Platform heading | Built for two different roles. | Two views of the same shift. |
+| Benefits heading | Training that actually measures performance. | Training that measures performance, not attendance. |
+| SOP band | Download your free Venue SOP template before you go. | Take a venue SOP template with you. |
+| SOP button | Build Your Custom SOP | Build my venue SOP |
+| Pricing heading | Plans & Pricing | Priced by the size of your roster. ("Plans & Pricing" is now the kicker) |
+| Pricing buttons | View full pricing / or explore the demo free | Compare plans and prices / Or try the demo first, no card needed |
+| Calculator heading | See what better training is worth | Put a dollar figure on better training. |
+| Calculator button | Email me this projection | Send my projection |
+| FAQ heading | Everything you need to know before starting. | The questions worth asking first. |
+| Final CTA | Ready to train your team faster? / Start My Free Trial – No CC Needed | Get your next hire floor-ready sooner. / Start my 14-day trial |
+
+The two pillar descriptions were also rewritten and no longer name the AI model.
+
+## Checks run
+
+| Check | Result |
+|---|---|
+| Typecheck and lint | Passed |
+| CSS token lint | 10 reported values, the same as `main` |
+| Unit tests (vitest) | 38 of 38 passed |
+| Marketing e2e, against the preview | 15 passed, 1 skipped by design. Run against the first commit, before the sizing pass |
+| Layout at 375, 1200, 1440, 1800 and 1920px | No horizontal overflow |
+| Calculator at 1440×900 | Whole section and email form visible without scrolling |
+| FAQ and sliders | Open, close and update the total, checked in a browser |
+| Mobile e2e | Not run. It covers `/mobile`, which this work does not touch |
+| `npm run build` and `build:cloudflare` | Not run locally. The Cloudflare preview built and served the first commit |
+
+## Open items
+
+- **Merge decision.** Review the preview, then merge `preview/homepage-ui-overhaul` to `main`.
+- **Look at `/membership` and `/roi`.** The new calculator sits inside their old layout as a square dark panel.
+- **Copy sign-off.** The table above went live on the preview without a separate approval round.
+- **Trial button alternatives** offered and not used: "Train my team free for 14 days", "Open my venue's trial", "Put my roster through it".
+- **Unused CSS to delete after merge:** `.solution-grid`, `.solution-col*`, `.mastery-step*`, `.benefit-*`, `.cta-box`, `.zero-risk-block`, `.section-band-green`, `.sbe-slider-input`.
+- **Other marketing pages** are still on the August card-grid standard. `docs/Pages-Redesign.md` section 7 has the order and the steps.
+- **`docs/HOMEPAGE.md`** describes an older homepage and is out of date.
+- **No homepage screenshot baseline exists.** The marketing suite checks the sticky bar only.
+
+## Rules for new code (added in Part 2)
+
+- **Marketing sections are not built from cards.** Use the patterns in `docs/Pages-Redesign.md` section 4.2.
+- **Section headings use `.sbe-mkt-head` with `.sbe-mkt-kicker`,** not the pill `.eyebrow`.
+- **Type sizes, tracking and line heights come from the `:root` tokens.** No inline `clamp()`.
+- **Anything that bleeds out of `.container` uses `--page-gutter`** and is added to the three gutter media queries.
+- **A section the visitor operates must fit a 1440×900 window** with its submit control visible.
+- **To run public pages locally,** start the dev server with placeholder Supabase values. The command is in `docs/Pages-Redesign.md` section 8.
