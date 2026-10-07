@@ -10,7 +10,7 @@
  * See docs/handoff/security/2026-09-26-ai-prompt-injection-audit.md.
  */
 
-import { getOpenAIClient } from "@/lib/openai";
+import { CHAT_MODEL_PARAMS, getOpenAIClient } from "@/lib/openai";
 import { capText, cleanUserText, fenceUntrusted, linkAbortSignal, parseModelJson } from "@/lib/ai-guard";
 
 export const MAX_SCENARIO_CHARS = 1500;
@@ -103,9 +103,9 @@ export async function evaluateScenarioResponse(
   try {
     completion = await openai.chat.completions.create(
       {
-        model: "gpt-4o-mini",
+        ...CHAT_MODEL_PARAMS,
         temperature: 0.3,
-        max_tokens: MAX_OUTPUT_TOKENS,
+        max_completion_tokens: MAX_OUTPUT_TOKENS,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: EVALUATOR_SYSTEM_PROMPT },

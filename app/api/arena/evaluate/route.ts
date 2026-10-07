@@ -2,7 +2,7 @@ import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { AttemptIdConflictError, findRecordedAttempt, moduleIdToString, recordAttempt, resolveAttemptId, syncMasteryToVenueStaff } from "@/lib/mastery";
-import { getOpenAIClient } from "@/lib/openai";
+import { CHAT_MODEL_PARAMS, getOpenAIClient } from "@/lib/openai";
 import { capText, cleanUserText, fenceUntrusted, parseModelJson } from "@/lib/ai-guard";
 import { ARENA_SEED_SCENARIOS, formatArenaScenario } from "@/lib/arena-scenarios";
 import { resolveAccess, validateSession } from "@/lib/session";
@@ -145,9 +145,9 @@ export async function POST(req: Request) {
     try {
       completion = await openai.chat.completions.create(
         {
-          model: "gpt-4o-mini",
+          ...CHAT_MODEL_PARAMS,
           temperature: 0.3,
-          max_tokens: MAX_OUTPUT_TOKENS,
+          max_completion_tokens: MAX_OUTPUT_TOKENS,
           response_format: { type: "json_object" },
           messages: [
             { role: "system", content: ASSESSOR_SYSTEM_PROMPT },

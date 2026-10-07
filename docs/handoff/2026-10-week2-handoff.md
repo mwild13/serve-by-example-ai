@@ -84,6 +84,19 @@ Use the QA account, not a personal one. One-device enforcement would log the per
 
 ---
 
+## AI model switch to `gpt-6-luna` (2026-10-08)
+
+- **Branch:** `preview/gpt-6-luna`, cut from `main`, **merged to `main` 2026-10-08**.
+- **Why:** `gpt-4o-mini` ($0.15 in / $0.60 out per 1M tokens) is two generations old. `gpt-6-luna` is the current budget model and is cheaper ($0.10 in / $0.50 out). `gpt-4o-mini` is not on OpenAI's deprecation list, so this was a choice, not a forced move.
+- **One shared setting:** `CHAT_MODEL_PARAMS` in `lib/openai.ts` holds the model and `reasoning_effort: "none"`. The five call sites spread it in: `app/api/translate`, `app/api/coach`, `app/api/management/coach`, `app/api/arena/evaluate` and `lib/scenario-evaluator.ts`.
+- **Reasoning is off on purpose.** Luna is a reasoning model. With reasoning on it rejects `temperature`, and reasoning tokens would eat into the small output caps and the 15 to 25 second timeouts.
+- **`max_tokens` became `max_completion_tokens`** in all five calls, same limits.
+- **No Cloudflare change.** The existing `OPENAI_API_KEY` is used. The OpenAI project allows all models.
+- **Checks:** typecheck, lint and 38 of 38 unit tests passed. Manual pass on the preview by Mitchell, all working: AI Arena answer, training scenario, staff coach, manager coach and translation.
+- **Rollback:** set `CHAT_MODEL_PARAMS` back to `{ model: "gpt-4o-mini" }` (drop `reasoning_effort`, which that model rejects).
+
+---
+
 ## Open items
 
 - **LAUNCH-CHECKLIST** in `docs/MARKETING_SITE.md`: confirm pricing, then remove noindex and re-add to the sitemap (and update the noindex assertion in the marketing spec); replace the hero image with a real photo; add an About photo; review the supplier disclosure FAQ.
@@ -97,5 +110,6 @@ Use the QA account, not a personal one. One-device enforcement would log the per
 
 - **Click or conversion tracking goes through `trackEvent` in `lib/consent.ts`.** Do not call `gtag` directly; the helper is what keeps tracking behind cookie consent.
 - **Links into `/contact` can carry `?source=<slug>&package=<slug>`.** Lowercase letters, digits and hyphens only, 40 characters at most. Anything else is dropped silently.
+- **OpenAI calls spread `CHAT_MODEL_PARAMS` from `lib/openai.ts`.** Do not hardcode a model name, and use `max_completion_tokens`, not `max_tokens`.
 - **Public-page e2e tests go in `tests/e2e-marketing/`.** In those tests, wait for the page to reach full height before scrolling. On a deployed build the page can still be one screen tall when `goto` resolves.
 - **Dynamic text in a screenshot test needs a stable size, not only a mask.** Tag it `data-e2e-mask` as before; the Home test shows how to pin its content.

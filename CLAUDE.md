@@ -21,7 +21,7 @@ Serve By Example is an AI-powered hospitality staff training platform that repla
 
 - **Framework:** Next.js (App Router) deployed on Cloudflare Pages via OpenNext
 - **Database:** Supabase (Postgres + Row Level Security + Auth)
-- **AI:** OpenAI GPT-4o-mini (scenario evaluation, manager coaching, translation)
+- **AI:** OpenAI `gpt-6-luna` with reasoning off (scenario evaluation, manager coaching, translation). The model is set once in `CHAT_MODEL_PARAMS` in `lib/openai.ts` — never hardcode a model name in a route
 - **Payments:** Stripe — 3 tiers: `free` → `pro` → `venue_single` → `venue_multi`
 - **Language:** TypeScript throughout — no `any` types
 

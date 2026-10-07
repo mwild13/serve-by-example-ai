@@ -1,5 +1,5 @@
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
-import { getOpenAIClient } from "@/lib/openai";
+import { CHAT_MODEL_PARAMS, getOpenAIClient } from "@/lib/openai";
 import { linkAbortSignal, parseModelJson, readJsonBody } from "@/lib/ai-guard";
 
 export const dynamic = "force-dynamic";
@@ -57,9 +57,9 @@ export async function POST(req: Request) {
     try {
       completion = await openai.chat.completions.create(
         {
-          model: "gpt-4o-mini",
+          ...CHAT_MODEL_PARAMS,
           temperature: 0.1,
-          max_tokens: MAX_OUTPUT_TOKENS,
+          max_completion_tokens: MAX_OUTPUT_TOKENS,
           response_format: { type: "json_object" },
           messages: [
             {

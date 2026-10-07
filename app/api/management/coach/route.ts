@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireManager } from "@/lib/management/auth";
 import { getManagementSnapshot } from "@/lib/management/service";
-import { getOpenAIClient } from "@/lib/openai";
+import { CHAT_MODEL_PARAMS, getOpenAIClient } from "@/lib/openai";
 import { cleanUserText, linkAbortSignal, readJsonBody } from "@/lib/ai-guard";
 
 export const dynamic = "force-dynamic";
@@ -91,12 +91,12 @@ Your role:
     try {
       completion = await openai.chat.completions.create(
         {
-          model: "gpt-4o-mini",
+          ...CHAT_MODEL_PARAMS,
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: question },
           ],
-          max_tokens: 300,
+          max_completion_tokens: 300,
           temperature: 0.5,
         },
         { signal: controller.signal }
