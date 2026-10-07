@@ -1,13 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { lazy, Suspense } from "react";
+import type { ReactNode } from "react";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import LogoMarquee from "@/components/marketing/LogoMarquee";
-import FeatureGrid from "@/components/marketing/FeatureGrid";
-import SectionHeading from "@/components/ui/SectionHeading";
-import { IconUsers, IconBuilding, IconBook, IconZap, IconLayers, IconPhone } from "@/components/icons/MarketingIcons";
+import CTABand from "@/components/marketing/CTABand";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -19,6 +18,107 @@ export const metadata: Metadata = {
 
 // Lazy-load heavy interactive components
 const ROICalculator = lazy(() => import("@/components/ui/ROICalculator"));
+
+// ── Content ───────────────────────────────────────────────────────────────────
+
+// Single source for the FAQ accordion and its FAQPage structured data.
+const FAQS = [
+  {
+    q: "How long does setup take?",
+    a: "Most venues are fully set up within a day. We provide starter templates, onboarding support, and pre-built training modules. No content creation required from your side.",
+  },
+  {
+    q: "Is it mobile-friendly?",
+    a: "Yes. The entire platform is built mobile-first. Staff can complete training between shifts, on the way to work, or at the bar.",
+  },
+  {
+    q: "What happens if a staff member leaves?",
+    a: "Their account is deactivated and their seat is freed up for a new hire. Their training history stays on record for compliance and reporting purposes.",
+  },
+  {
+    q: "Do you offer compliance or RSA certificates?",
+    a: "Our modules cover responsible service content and service standards. Formal RSA certification requires an accredited provider. We integrate training around compliance knowledge, not replace licensed certification.",
+  },
+  {
+    q: "Can I try it before committing?",
+    a: "Yes. The free demo gives you access to the scenario engine and a sample of the training content. No credit card required. Venue plans include a walkthrough call before any commitment.",
+  },
+  {
+    q: "How is this different from a generic LMS?",
+    a: "Generic LMS platforms are built for corporate compliance training: long videos, passive quizzes, and no real skill measurement. Serve By Example is built for hospitality: scenario roleplay, live scoring, and skill ratings designed around shift-by-shift operations.",
+  },
+];
+
+const SYSTEMS = [
+  {
+    audience: "For frontline staff",
+    title: "AI Scenario Simulators",
+    body: "Staff talk their way through a difficult guest, a slow upsell or a complaint. Every answer is scored on five service dimensions before their next shift starts.",
+  },
+  {
+    audience: "For general managers",
+    title: "Manager Console",
+    body: "Every module, quiz and scenario lands in your console as it happens. You can see who is ready for Friday night without asking anyone.",
+  },
+];
+
+const STEPS: { num: string; title: string; body: ReactNode }[] = [
+  {
+    num: "01",
+    title: "Know Your Product Cold.",
+    body: (
+      <>
+        Structured modules, tap-based mini-games, and rapid-fire quizzes. Staff build real knowledge through active recall, not passive reading. Short enough to complete before a shift, structured enough to build <em className="step-highlight">real capability</em> over weeks.
+      </>
+    ),
+  },
+  {
+    num: "02",
+    title: "Apply It Under Real Pressure.",
+    body: (
+      <>
+        Scenario roleplay puts staff in live service situations: awkward guests, difficult upsells, and service recovery moments. Every session scored across <em className="step-highlight">5 service dimensions</em>. Instant feedback. No manager required.
+      </>
+    ),
+  },
+  {
+    num: "03",
+    title: "Managers See Everything, in Real Time.",
+    body: (
+      <>
+        Every module completion, quiz score, and scenario session syncs to the Manager Console automatically. No chasing staff for updates. <em className="step-highlight">No guessing</em> who&rsquo;s been trained and who hasn&rsquo;t.
+      </>
+    ),
+  },
+];
+
+const MEASURES = [
+  {
+    metric: "5",
+    unit: "×",
+    title: "Dimensions scored per response",
+    body: "Communication, hospitality, problem-solving, professionalism, and guest experience, scored automatically on every answer. Not just a pass/fail.",
+  },
+  {
+    metric: "24",
+    unit: "/7",
+    title: "AI coach, always on",
+    body: "Instant personalised feedback on every scenario response. No manager required. No waiting until next week’s check-in.",
+  },
+  {
+    metric: "0",
+    unit: "",
+    title: "Hours of manager admin",
+    body: "Progress, compliance, and performance sync automatically to the manager console. No chasing staff for updates. No spreadsheets.",
+  },
+];
+
+const PLANS = [
+  { tier: "Starter", name: "Pro", desc: "Full access to all 40 modules, scenario training, and progress analytics. For staff investing in their craft." },
+  { tier: "Venue Pro", name: "Boutique", desc: "Full manager console, team analytics, compliance tracking, and up to 15 staff seats for one venue." },
+  { tier: "Group", name: "Commercial", desc: "Up to 35 staff across your team, multi-venue health scores, and group-wide performance analytics." },
+  { tier: "Enterprise", name: "Enterprise", desc: "Unlimited seats, dedicated account management, custom modules, and white-label options for venue groups." },
+];
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
@@ -34,56 +134,11 @@ export default function Home() {
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "FAQPage",
-              "mainEntity": [
-                {
-                  "@type": "Question",
-                  "name": "How long does setup take?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Most venues are fully set up within a day. We provide starter templates, onboarding support, and pre-built training modules. No content creation required from your side.",
-                  },
-                },
-                {
-                  "@type": "Question",
-                  "name": "Is it mobile-friendly?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes. The entire platform is built mobile-first. Staff can complete training between shifts, on the way to work, or at the bar.",
-                  },
-                },
-                {
-                  "@type": "Question",
-                  "name": "What happens if a staff member leaves?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Their account is deactivated and their seat is freed up for a new hire. Their training history stays on record for compliance and reporting purposes.",
-                  },
-                },
-                {
-                  "@type": "Question",
-                  "name": "Do you offer compliance or RSA certificates?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Our modules cover responsible service content and service standards. Formal RSA certification requires an accredited provider. We integrate training around compliance knowledge, not replace licensed certification.",
-                  },
-                },
-                {
-                  "@type": "Question",
-                  "name": "Can I try it before committing?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes. The free demo gives you access to the scenario engine and a sample of the training content. No credit card required. Venue plans include a walkthrough call before any commitment.",
-                  },
-                },
-                {
-                  "@type": "Question",
-                  "name": "How is this different from a generic LMS?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Generic LMS platforms are built for corporate compliance training: long videos, passive quizzes, and no real skill measurement. Serve By Example is built for hospitality: scenario roleplay, live scoring, and skill ratings designed around shift-by-shift operations.",
-                  },
-                },
-              ],
+              "mainEntity": FAQS.map(({ q, a }) => ({
+                "@type": "Question",
+                "name": q,
+                "acceptedAnswer": { "@type": "Answer", "text": a },
+              })),
             }),
           }}
         />
@@ -103,281 +158,201 @@ export default function Home() {
             directly below was numbers-as-decoration (§6.3). */}
 
         {/* ── Core Pillars ─────────────────────────── */}
-        <section className="section">
-          <div className="container">
-            <SectionHeading
-              eyebrow="Two Systems, One Platform"
-              title="Built for High-Performance Venues"
-              copy="Everything your venue needs to train staff confidently, built for real hospitality operations."
-            />
-            <FeatureGrid
-              columns={2}
-              items={[
-                {
-                  icon: <IconZap size={22} />,
-                  eyebrow: "For Frontline Staff",
-                  title: "AI Scenario Simulators",
-                  body: "GPT-4o-mini scores every roleplay response across 5 service dimensions. Real pressure, real feedback and no manager required.",
-                  variant: "dark",
-                },
-                {
-                  icon: <IconBuilding size={22} />,
-                  eyebrow: "For General Managers",
-                  title: "Manager Console",
-                  body: "Every module completion, quiz score, and scenario session syncs to the manager console automatically. Full visibility, zero admin overhead.",
-                },
-              ]}
-            />
+        {/* Parchment lead on the left; the dark panel bleeds off the right edge
+            and hangs into the founder section below. */}
+        <section className="sbe-mkt-duo">
+          <div className="sbe-mkt-duo-lead">
+            <p className="sbe-mkt-kicker">Staff side. Manager side.</p>
+            <h2 className="sbe-mkt-display">Built for High-Performance Venues</h2>
+            <p className="sbe-mkt-lede">
+              One side drills your staff on real service moments. The other shows you who is ready for the floor.
+            </p>
+          </div>
+          <div className="sbe-mkt-duo-panel">
+            {SYSTEMS.map((system) => (
+              <div key={system.title} className="sbe-mkt-duo-item">
+                <p className="sbe-mkt-duo-for">{system.audience}</p>
+                <h3>{system.title}</h3>
+                <p>{system.body}</p>
+              </div>
+            ))}
           </div>
         </section>
 
         {/* ── Founder Story ────────────────────────── */}
-        <section className="section section-alt" style={{ border: "1px solid var(--line)" }}>
-          <div className="container">
-            <div style={{ maxWidth: "880px", margin: "0 auto" }}>
-              {/* Photo + text row */}
-              <div className="founder-row">
-                {/* Left: photo + name */}
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-                  <Image
-                    src="/24 May Jpg's/Founder.webp"
-                    alt="Mitch, Founder of Serve By Example"
-                    width={140}
-                    height={140}
-                    loading="lazy"
-                    quality={60}
-                    style={{ borderRadius: "4px", objectFit: "cover", width: "140px", height: "140px", display: "block" }}
-                  />
-                  <span style={{ marginTop: "0.625rem", fontSize: "0.875rem", fontWeight: 700, color: "var(--text-soft)", textAlign: "center" }}>Mitch</span>
-                </div>
-                {/* Right: eyebrow + heading + text */}
-                <div className="founder-text">
-                  <span className="eyebrow">Built From Experience</span>
-                  <h2 style={{ marginBottom: "1rem" }}>Built by a 15-year hospitality veteran.</h2>
-                  <p style={{ fontSize: "1.125rem", color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
-                    Serve By Example was created and is managed by a real hospitality professional with over 15 years of experience across Australian bars, pubs and venues. Not built in a boardroom, built behind the bar.
-                  </p>
-                </div>
-              </div>
-              {/* Stat row (15+/100s/40+) removed per §6.3 — the photo and
-                  quote are the trust asset, not the digits. */}
-              <blockquote style={{
-                margin: "2rem 0 0",
-                maxWidth: "600px",
-                padding: "1.5rem 2rem",
-                background: "var(--surface-raised)",
-                border: "1.5px solid var(--divider-light)",
-                borderLeft: "4px solid var(--green-mid)",
-                borderRadius: "var(--radius-md)",
-                textAlign: "left",
-              }}>
-                <p style={{ margin: 0, fontSize: "1.05rem", fontStyle: "italic", color: "var(--green-deep)", lineHeight: 1.65, fontWeight: 500 }}>
-                  &ldquo;I built the training tool I always wished I had, one that works for real venues, real staff, and the real pressure of a busy service.&rdquo;
-                </p>
-                <footer style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: "var(--color-text-muted)", fontStyle: "normal", fontWeight: 600 }}>
-                  Mitch, Serve By Example, Australia
-                </footer>
-              </blockquote>
+        {/* Stat row (15+/100s/40+) removed per §6.3 — the photo and quote are
+            the trust asset, not the digits. */}
+        <section className="sbe-mkt-founder">
+          <div className="container sbe-mkt-founder-grid">
+            <figure className="sbe-mkt-founder-portrait">
+              <Image
+                src="/24 May Jpg's/Founder.webp"
+                alt="Mitch, Founder of Serve By Example"
+                width={140}
+                height={140}
+                loading="lazy"
+                quality={60}
+              />
+              <figcaption>Mitch, founder</figcaption>
+            </figure>
+            <div className="sbe-mkt-founder-body">
+              <p className="sbe-mkt-kicker">Who built this</p>
+              <h2 className="sbe-mkt-display">Built by a 15-year hospitality veteran.</h2>
+              <p className="sbe-mkt-lede">
+                Serve By Example was created and is managed by a real hospitality professional with over 15 years of experience across Australian bars, pubs and venues. Not built in a boardroom, built behind the bar.
+              </p>
             </div>
+            <blockquote className="sbe-mkt-pullquote">
+              <p>
+                &ldquo;I built the training tool I always wished I had, one that works for real venues, real staff, and the real pressure of a busy service.&rdquo;
+              </p>
+              <footer>Mitch, Serve By Example, Australia</footer>
+            </blockquote>
           </div>
         </section>
 
         {/* ── One platform. Two outcomes. ───────────── */}
-        <section className="section section-ecosystem">
+        <section className="sbe-mkt-showcase">
           <div className="container">
-            <div className="section-header">
-              <span className="eyebrow">One Platform</span>
-              <h2>Built for two different roles.</h2>
-              <p>Staff train and improve. Managers see everything. One platform, no duplication of effort.</p>
-            </div>
+            <header className="sbe-mkt-head">
+              <p className="sbe-mkt-kicker">Inside the platform</p>
+              <h2 className="sbe-mkt-display">Two views of the same shift.</h2>
+              <p className="sbe-mkt-lede">Staff train and improve. Managers see everything. Nobody enters anything twice.</p>
+            </header>
 
-            <div className="solution-grid">
-
-              {/* Manager outcome */}
-              <div className="solution-col">
-                <div className="solution-col-header">
-                  <span className="solution-col-icon"><IconBuilding size={20} /></span>
-                  <div>
-                    <h3>Run a tighter venue</h3>
-                    <p>Real-time visibility across your whole team (compliance, progress, and performance) without chasing anyone.</p>
-                  </div>
-                </div>
+            {/* Manager outcome */}
+            <div className="sbe-mkt-show-row">
+              <div className="sbe-mkt-show-text">
+                <p className="sbe-mkt-show-tag">Manager view</p>
+                <h3>Run a tighter venue</h3>
+                <p>Real-time visibility across your whole team (compliance, progress, and performance) without chasing anyone.</p>
+              </div>
+              <div className="sbe-mkt-show-media sbe-mkt-show-media-end">
                 <Image
                   src="/shots/Overview Console Wide.png"
                   alt="Serve By Example management console – venue overview with training completion, compliance status, and staff needing attention"
                   width={3004}
                   height={1654}
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
+                  sizes="(max-width: 900px) 100vw, 760px"
                   loading="lazy"
                   className="sbe-shot"
-                  style={{ width: "100%", height: "auto", display: "block" }}
                 />
               </div>
+            </div>
 
-              {/* Staff outcome */}
-              <div className="solution-col">
-                <div className="solution-col-header">
-                  <span className="solution-col-icon"><IconUsers size={20} /></span>
-                  <div>
-                    <h3>Train confident staff</h3>
-                    <p>Floor-ready in six weeks, not six months, guided by scenario training and immediate scored feedback.</p>
-                  </div>
-                </div>
+            {/* Staff outcome */}
+            <div className="sbe-mkt-show-row sbe-mkt-show-row-flip">
+              <div className="sbe-mkt-show-text">
+                <p className="sbe-mkt-show-tag">Staff view</p>
+                <h3>Train confident staff</h3>
+                <p>Floor-ready in six weeks, not six months, guided by scenario training and immediate scored feedback.</p>
+              </div>
+              <div className="sbe-mkt-show-media sbe-mkt-show-media-start">
                 <Image
                   src="/shots/Mastery Grid.png"
                   alt="Staff training progress view – certification hub and module mastery by category"
                   width={3024}
                   height={1654}
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
+                  sizes="(max-width: 900px) 100vw, 760px"
                   loading="lazy"
                   className="sbe-shot"
-                  style={{ width: "100%", height: "auto", display: "block" }}
                 />
               </div>
-
             </div>
           </div>
         </section>
 
         {/* ── Product Preview (Modules + Mobile) ─── */}
-        <section id="feature-preview" className="section section-warm">
+        <section id="feature-preview" className="sbe-mkt-showcase sbe-mkt-showcase-warm">
           <div className="container">
-            <div className="solution-grid">
-
-              {/* Full training library */}
-              <div className="solution-col">
-                <div className="solution-col-header">
-                  <span className="solution-col-icon"><IconLayers size={20} /></span>
-                  <div>
-                    <h3>The full training library</h3>
-                    <p>All 40 modules across Bartending, Sales, and Management. Filter by role, track progress, and certify by topic.</p>
-                  </div>
+            <div className="sbe-mkt-show-row">
+              <div className="sbe-mkt-show-text">
+                <div className="sbe-mkt-show-block">
+                  <p className="sbe-mkt-show-tag">40 modules</p>
+                  <h3>The full training library</h3>
+                  <p>All 40 modules across Bartending, Sales, and Management. Filter by role, track progress, and certify by topic.</p>
                 </div>
+                <div className="sbe-mkt-show-block">
+                  <p className="sbe-mkt-show-tag">On their phone</p>
+                  <h3>Train anywhere, on any shift</h3>
+                  <p>The full platform on mobile. Staff complete scenarios, quizzes, and modules between shifts without needing a desk or desktop.</p>
+                </div>
+              </div>
+              <div className="sbe-mkt-show-media sbe-mkt-show-media-end sbe-mkt-show-stack">
                 <Image
                   src="/shots/Modules View.png"
                   alt="Staff training modules view – full course library"
                   width={1400}
                   height={875}
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
+                  sizes="(max-width: 900px) 100vw, 760px"
+                  loading="lazy"
                   className="sbe-shot"
-                  style={{ width: "100%", height: "auto", display: "block" }}
+                />
+                <Image
+                  src="/shots/Mobile-home.png"
+                  alt="Serve By Example staff training app on mobile – home screen with streak, pre-shift brief, and quick access training"
+                  width={912}
+                  height={1844}
+                  sizes="(max-width: 900px) 30vw, 200px"
+                  loading="lazy"
+                  className="sbe-mkt-show-phone"
                 />
               </div>
-
-              {/* Mobile – train anywhere */}
-              <div className="solution-col" style={{ display: "flex", flexDirection: "column" }}>
-                <div className="solution-col-header">
-                  <span className="solution-col-icon"><IconPhone size={20} /></span>
-                  <div>
-                    <h3>Train anywhere, on any shift</h3>
-                    <p>The full platform on mobile. Staff complete scenarios, quizzes, and modules between shifts without needing a desk or desktop.</p>
-                  </div>
-                </div>
-                <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Image
-                    src="/shots/Mobile-home.png"
-                    alt="Serve By Example staff training app on mobile – home screen with streak, pre-shift brief, and quick access training"
-                    width={912}
-                    height={1844}
-                    sizes="(max-width: 768px) 80vw, 240px"
-                    style={{ width: "100%", maxWidth: "240px", height: "auto", display: "block", margin: "0 auto" }}
-                  />
-                </div>
-              </div>
-
             </div>
           </div>
         </section>
 
         {/* ── How It Works – 3-Step Process ─────── */}
-        <section id="mastery-path" className="section section-band-green">
+        <section id="mastery-path" className="sbe-mkt-path sbe-mkt-on-dark">
           <div className="container">
-            <div className="section-header">
-              <span className="eyebrow">The Mastery Path</span>
-              <h2>Know it. Apply it. Managers see it.</h2>
-              <p>Three stages that take staff from day one to floor-confident, every step tracked and visible without chasing anyone.</p>
-            </div>
-
-            <div className="mastery-steps-flow">
-              <div className="mastery-step-item">
-                <div className="mastery-step-icon-wrap">
-                  <IconBook size={28} />
-                </div>
-                <div className="mastery-step-num">Step 1</div>
-                <h3>Know Your Product Cold.</h3>
-                <p>Structured modules, tap-based mini-games, and rapid-fire quizzes. Staff build real knowledge through active recall, not passive reading. Short enough to complete before a shift, structured enough to build <em className="step-highlight">real capability</em> over weeks.</p>
+            <header className="sbe-mkt-head sbe-mkt-head-split">
+              <div>
+                <p className="sbe-mkt-kicker">The Mastery Path</p>
+                <h2 className="sbe-mkt-display">Know it. Apply it. Managers see it.</h2>
               </div>
+              <p className="sbe-mkt-lede">Three stages that take staff from day one to floor-confident, every step tracked and visible without chasing anyone.</p>
+            </header>
 
-              <div className="mastery-step-connector" aria-hidden="true">
-                <svg width="40" height="16" viewBox="0 0 40 16" fill="none">
-                  <path d="M0 8h32M26 2l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-
-              <div className="mastery-step-item">
-                <div className="mastery-step-icon-wrap">
-                  <IconZap size={28} />
-                </div>
-                <div className="mastery-step-num">Step 2</div>
-                <h3>Apply It Under Real Pressure.</h3>
-                <p>Scenario roleplay puts staff in live service situations: awkward guests, difficult upsells, and service recovery moments. Every session scored across <em className="step-highlight">5 service dimensions</em>. Instant feedback. No manager required.</p>
-              </div>
-
-              <div className="mastery-step-connector" aria-hidden="true">
-                <svg width="40" height="16" viewBox="0 0 40 16" fill="none">
-                  <path d="M0 8h32M26 2l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-
-              <div className="mastery-step-item">
-                <div className="mastery-step-icon-wrap">
-                  <IconBuilding size={28} />
-                </div>
-                <div className="mastery-step-num">Step 3</div>
-                <h3>Managers See Everything, in Real Time.</h3>
-                <p>Every module completion, quiz score, and scenario session syncs to the Manager Console automatically. No chasing staff for updates. <em className="step-highlight">No guessing</em> who&rsquo;s been trained and who hasn&rsquo;t.</p>
-              </div>
-            </div>
+            <ol className="sbe-mkt-path-steps">
+              {STEPS.map((step) => (
+                <li key={step.num} className="sbe-mkt-path-step">
+                  <span className="sbe-mkt-path-num" aria-hidden="true">{step.num}</span>
+                  <h3>{step.title}</h3>
+                  <p>{step.body}</p>
+                </li>
+              ))}
+            </ol>
           </div>
         </section>
 
         {/* ── Quantified Benefits ─────────────────────── */}
-        <section className="section">
+        <section className="sbe-mkt-measures">
           <div className="container">
-            <div className="section-header">
-              <span className="eyebrow">What makes it different</span>
-              <h2>Training that actually measures performance.</h2>
-            </div>
-            <div className="benefit-grid">
-              <div className="benefit-card">
-                <div className="benefit-metric">
-                  5<span className="benefit-metric-unit">×</span>
+            <header className="sbe-mkt-head">
+              <p className="sbe-mkt-kicker">What gets measured</p>
+              <h2 className="sbe-mkt-display">Training that measures performance, not attendance.</h2>
+            </header>
+            <dl className="sbe-mkt-ledger">
+              {MEASURES.map((measure) => (
+                <div key={measure.title} className="sbe-mkt-ledger-row">
+                  <dt>
+                    <span className="sbe-mkt-ledger-metric">
+                      {measure.metric}
+                      {measure.unit ? <span className="sbe-mkt-ledger-unit">{measure.unit}</span> : null}
+                    </span>
+                    <span className="sbe-mkt-ledger-title">{measure.title}</span>
+                  </dt>
+                  <dd>{measure.body}</dd>
                 </div>
-                <h3 className="benefit-title">Dimensions Scored Per Response</h3>
-                <p className="benefit-desc">Communication, hospitality, problem-solving, professionalism, and guest experience, scored automatically on every answer. Not just a pass/fail.</p>
-              </div>
-              <div className="benefit-card">
-                <div className="benefit-metric">
-                  24<span className="benefit-metric-unit">/7</span>
-                </div>
-                <h3 className="benefit-title">AI Coach, Always On</h3>
-                <p className="benefit-desc">Instant personalised feedback on every scenario response. No manager required. No waiting until next week&rsquo;s check-in.</p>
-              </div>
-              <div className="benefit-card">
-                <div className="benefit-metric">
-                  0
-                </div>
-                <h3 className="benefit-title">Hours of Manager Admin</h3>
-                <p className="benefit-desc">Progress, compliance, and performance sync automatically to the manager console. No chasing staff for updates. No spreadsheets.</p>
-              </div>
-            </div>
+              ))}
+            </dl>
           </div>
         </section>
 
         {/* ── SOP Lead Magnet Banner ───────────────── */}
         <section className="sbe-mkt-leadband">
           <div className="sbe-mkt-leadband-inner">
-            <span className="sbe-mkt-leadband-eyebrow">Free resource</span>
+            <span className="sbe-mkt-leadband-eyebrow">Free SOP builder</span>
             <h2 className="sbe-mkt-leadband-title">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -385,92 +360,68 @@ export default function Home() {
                 <line x1="12" y1="18" x2="12" y2="12"/>
                 <line x1="9" y1="15" x2="15" y2="15"/>
               </svg>
-              <span>Download your free Venue SOP template before you go.</span>
+              <span>Take a venue SOP template with you.</span>
             </h2>
             <p className="sbe-mkt-leadband-copy">
               Customised to your venue type and biggest compliance pain point in under 60 seconds.
             </p>
             <Link href="/toolkit" className="sbe-mkt-btn-primary">
-              Build Your Custom SOP &rarr;
+              Build my venue SOP
             </Link>
           </div>
         </section>
 
         {/* ── Pricing Teaser ───────────────────────── */}
-        <section className="section">
-          <div className="container">
-            <div className="section-header">
-              <span className="eyebrow">Pricing</span>
-              <h2>Plans &amp; Pricing</h2>
-              <p>From individual staff to multi-site venue groups, one platform that grows with you.</p>
+        <section className="sbe-mkt-plans">
+          <div className="container sbe-mkt-plans-grid">
+            <div className="sbe-mkt-plans-intro">
+              <p className="sbe-mkt-kicker">Plans &amp; Pricing</p>
+              <h2 className="sbe-mkt-display">Priced by the size of your roster.</h2>
+              <p className="sbe-mkt-lede">From one bartender to a multi-site group. Start on the plan that fits and move up when the team grows.</p>
+              <div className="sbe-mkt-plans-actions">
+                <Link href="/membership" className="sbe-mkt-btn-primary">Compare plans and prices</Link>
+                <Link href="/demo" className="sbe-mkt-btn-text">Or try the demo first, no card needed</Link>
+              </div>
             </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", justifyContent: "center", maxWidth: 860, margin: "2rem auto 0" }}>
-              {[
-                { tier: "Starter", name: "Pro", desc: "Full access to all 40 modules, scenario training, and progress analytics. For staff investing in their craft." },
-                { tier: "Venue Pro", name: "Boutique", desc: "Full manager console, team analytics, compliance tracking, and up to 15 staff seats for one venue." },
-                { tier: "Group", name: "Commercial", desc: "Up to 35 staff across your team, multi-venue health scores, and group-wide performance analytics." },
-                { tier: "Enterprise", name: "Enterprise", desc: "Unlimited seats, dedicated account management, custom modules, and white-label options for venue groups." },
-              ].map((plan) => (
-                <div key={plan.name} style={{ flex: "1 1 180px", maxWidth: 220, background: "var(--surface)", border: "1.5px solid var(--line)", borderRadius: "14px", padding: "1.25rem 1.1rem", display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                  <div style={{ fontSize: "0.75rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--text-muted)" }}>{plan.tier}</div>
-                  <div style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text)" }}>{plan.name}</div>
-                  <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--text-soft)", lineHeight: 1.5 }}>{plan.desc}</p>
-                </div>
+            <ul className="sbe-mkt-plans-list">
+              {PLANS.map((plan) => (
+                <li key={plan.name} className="sbe-mkt-plan">
+                  <span className="sbe-mkt-plan-tier">{plan.tier}</span>
+                  <h3>{plan.name}</h3>
+                  <p>{plan.desc}</p>
+                </li>
               ))}
-            </div>
-            <div className="zero-risk-block" style={{ maxWidth: 860, margin: "1.75rem auto 0" }}>
+            </ul>
+            {/* One consolidated risk-reversal moment (Pages-Redesign.md §5.4) */}
+            <p className="sbe-mkt-guarantee">
               <strong>14-Day Performance Guarantee. Zero risk to your floor operations.</strong>
-              <p style={{ margin: "0.4rem 0 0" }}>If your team&rsquo;s training engagement doesn&rsquo;t noticeably increase in the first 14 days, you won&rsquo;t be charged. No questions asked.</p>
-            </div>
-            <div style={{ textAlign: "center", marginTop: "1.75rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem" }}>
-              <Link href="/membership" className="btn btn-primary">View full pricing</Link>
-              <Link href="/demo" style={{ fontSize: "0.8rem", color: "var(--text-soft)", textDecoration: "underline", textUnderlineOffset: "3px" }}>or explore the demo free</Link>
-            </div>
+              If your team&rsquo;s training engagement doesn&rsquo;t noticeably increase in the first 14 days, you won&rsquo;t be charged. No questions asked.
+            </p>
           </div>
         </section>
 
         {/* ── ROI Calculator ───────────────────────── */}
-        <Suspense fallback={<div style={{ height: "400px", background: "var(--bg-alt)" }} />}>
+        <Suspense fallback={<div style={{ height: "400px", background: "var(--bg-dark)" }} />}>
           <ROICalculator />
         </Suspense>
 
         {/* ── FAQ ──────────────────────────────────── */}
-        <section className="section">
-          <div className="container">
-            <div className="section-header">
-              <span className="eyebrow">Common Questions</span>
-              <h2>Everything you need to know before starting.</h2>
-            </div>
-            <div className="faq-list">
-              {[
-                {
-                  q: "How long does setup take?",
-                  a: "Most venues are fully set up within a day. We provide starter templates, onboarding support, and pre-built training modules. No content creation required from your side.",
-                },
-                {
-                  q: "Is it mobile-friendly?",
-                  a: "Yes. The entire platform is built mobile-first. Staff can complete training between shifts, on the way to work, or at the bar.",
-                },
-                {
-                  q: "What happens if a staff member leaves?",
-                  a: "Their account is deactivated and their seat is freed up for a new hire. Their training history stays on record for compliance and reporting purposes.",
-                },
-                {
-                  q: "Do you offer compliance or RSA certificates?",
-                  a: "Our modules cover responsible service content and service standards. Formal RSA certification requires an accredited provider. We integrate training around compliance knowledge, not replace licensed certification.",
-                },
-                {
-                  q: "Can I try it before committing?",
-                  a: "Yes. The free demo gives you access to the scenario engine and a sample of the training content. No credit card required. Venue plans include a walkthrough call before any commitment.",
-                },
-                {
-                  q: "How is this different from a generic LMS?",
-                  a: "Generic LMS platforms are built for corporate compliance training: long videos, passive quizzes, and no real skill measurement. Serve By Example is built for hospitality: scenario roleplay, live scoring, and skill ratings designed around shift-by-shift operations.",
-                },
-              ].map(({ q, a }) => (
-                <details key={q} className="faq-item">
-                  <summary className="faq-question">{q}</summary>
-                  <p className="faq-answer">{a}</p>
+        <section className="sbe-mkt-faq">
+          <div className="container sbe-mkt-faq-grid">
+            <header className="sbe-mkt-head">
+              <p className="sbe-mkt-kicker">Before you start</p>
+              <h2 className="sbe-mkt-display">The questions worth asking first.</h2>
+            </header>
+            <div className="sbe-mkt-faq-list">
+              {FAQS.map(({ q, a }) => (
+                <details key={q} className="sbe-mkt-faq-item" name="home-faq">
+                  <summary className="sbe-mkt-faq-q">
+                    <span>{q}</span>
+                    <span className="sbe-mkt-faq-icon" aria-hidden="true" />
+                  </summary>
+                  <div className="sbe-mkt-faq-a">
+                    <p>{a}</p>
+                  </div>
                 </details>
               ))}
             </div>
@@ -478,19 +429,11 @@ export default function Home() {
         </section>
 
         {/* ── Final CTA ────────────────────────────── */}
-        <section className="section section-cta">
-          <div className="container cta-box">
-            <div>
-              <h2>Ready to train your team faster?</h2>
-              <p className="cta-proof">No credit card required.</p>
-            </div>
-            <div className="cta-actions cta-actions-single">
-              <Link href="/login?intent=trial&tier=boutique" className="btn btn-gold btn-lg">
-                Start My Free Trial – No CC Needed
-              </Link>
-            </div>
-          </div>
-        </section>
+        <CTABand
+          title="Get your next hire floor-ready sooner."
+          copy="14-day free trial. No credit card required."
+          primary={{ label: "Start my 14-day trial", href: "/login?intent=trial&tier=boutique" }}
+        />
 
       </main>
 

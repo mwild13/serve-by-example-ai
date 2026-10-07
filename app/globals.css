@@ -107,6 +107,23 @@
   --fs-body-lg: clamp(1.05rem, 1.5vw, 1.2rem);  /* Manrope 400, lh 1.6 — hero subhead */
   --fs-body:    1rem;                            /* Manrope 400, lh 1.65 */
   --fs-caption: 0.8rem;                          /* Manrope 600, caps, ls 0.08em — eyebrows */
+  --fs-display: clamp(2rem, 3.6vw, 3.25rem);   /* Fraunces 500, section display heading */
+  --fs-numeral: clamp(3.5rem, 8vw, 6.5rem);     /* Fraunces 400, oversized step/metric numerals */
+
+  /* ── Marketing tracking and leading — pair with the --fs-* steps above ── */
+  --tracking-display: -0.035em;  /* --fs-display, --fs-numeral */
+  --tracking-heading: -0.02em;   /* --fs-h2, --fs-h3 */
+  --tracking-caps: 0.14em;       /* --fs-caption kickers and labels */
+  --lh-display: 1.02;
+  --lh-heading: 1.18;
+  --lh-body: 1.65;
+
+  /* Distance from the viewport edge to the .container edge — lets a panel or
+     screenshot bleed out of the container while its text stays aligned. */
+  --page-gutter: max(24px, calc((100vw - 1200px) / 2));
+
+  /* Soft spring (about 6% overshoot) for small UI parts: icons, slider thumbs */
+  --ease-spring-soft: linear(0, 0.36 9%, 0.69 18%, 0.9 27%, 1.02 36%, 1.06 45%, 1.05 54%, 1.02 66%, 1 80%, 1);
 
   /* ── Marketing section vertical rhythm (Pages-Redesign.md §6.4) ── */
   /* Replace inline section padding values with these. */
@@ -2273,6 +2290,7 @@ ul {
   line-height: 1.2;
   letter-spacing: -0.01em;
   color: var(--nav-cream);
+  text-wrap: balance;
 }
 
 .sbe-mkt-leadband-title svg {
@@ -17975,6 +17993,7 @@ h1, h2, h3 {
   line-height: 1.15;
   color: var(--text);
   margin: 0;
+  text-wrap: balance;
 }
 
 .sbe-mkt-ctaband-navy .sbe-mkt-ctaband-title,
@@ -20316,5 +20335,1109 @@ h1, h2, h3 {
 
   .sbe-adv-pkg {
     padding: 1.35rem;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Homepage editorial layout (October 2026)
+   Replaces the card grids on `/` with full-bleed bands, ruled lists and
+   screenshots that break out of the container. Separation comes from
+   background shifts, hairlines and whitespace — no boxed cards.
+   Single sbe-mkt- prefix. All values reference tokens.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Shared type primitives ── */
+.sbe-mkt-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1.25rem;
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.sbe-mkt-kicker::before {
+  content: "";
+  width: 2rem;
+  height: 1px;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.sbe-mkt-display {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--fs-display);
+  font-weight: 500;
+  line-height: var(--lh-display);
+  letter-spacing: var(--tracking-display);
+  color: var(--green-deep);
+  text-wrap: balance;
+}
+
+.sbe-mkt-lede {
+  margin: 0;
+  max-width: 34rem;
+  font-family: var(--font-body);
+  font-size: var(--fs-body-lg);
+  line-height: 1.6;
+  color: var(--text-soft);
+  text-wrap: pretty;
+}
+
+.sbe-mkt-head {
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+}
+
+.sbe-mkt-head .sbe-mkt-lede {
+  margin-top: 1.25rem;
+}
+
+.sbe-mkt-on-dark .sbe-mkt-kicker {
+  color: var(--gold-warm);
+}
+
+.sbe-mkt-on-dark .sbe-mkt-display {
+  color: var(--nav-cream);
+}
+
+.sbe-mkt-on-dark .sbe-mkt-lede {
+  color: var(--text-light-muted-on-dark);
+}
+
+/* --page-gutter follows .container, which changes width at these breakpoints */
+@media (max-width: 600px) {
+  .sbe-mkt-duo,
+  .sbe-mkt-showcase {
+    --page-gutter: 16px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .sbe-mkt-duo,
+  .sbe-mkt-showcase {
+    --page-gutter: max(40px, calc((100vw - 1360px) / 2));
+  }
+}
+
+@media (min-width: 1700px) {
+  .sbe-mkt-duo,
+  .sbe-mkt-showcase {
+    --page-gutter: max(60px, calc((100vw - 1560px) / 2));
+  }
+}
+
+/* ── Two systems: parchment lead + dark panel that bleeds off the right edge ── */
+.sbe-mkt-duo {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.sbe-mkt-duo-lead {
+  padding: var(--section-spacing-md) var(--page-gutter) var(--section-spacing-sm);
+}
+
+.sbe-mkt-duo-lead .sbe-mkt-lede {
+  margin-top: 1.5rem;
+}
+
+.sbe-mkt-duo-panel {
+  background: linear-gradient(160deg, var(--bg-dark) 0%, var(--bg-dark-soft) 100%);
+  padding: var(--section-spacing-sm) var(--page-gutter);
+}
+
+.sbe-mkt-duo-item {
+  padding: 2rem 0;
+  border-top: 1px solid var(--border-light-on-dark);
+}
+
+.sbe-mkt-duo-item:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.sbe-mkt-duo-item:last-child {
+  padding-bottom: 0;
+}
+
+.sbe-mkt-duo-for {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--gold-warm);
+}
+
+.sbe-mkt-duo-item h3 {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  font-weight: 500;
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--nav-cream);
+}
+
+.sbe-mkt-duo-item p:last-child {
+  margin: 0;
+  max-width: 32rem;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-light-on-dark);
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-duo {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: start;
+  }
+
+  .sbe-mkt-duo-lead {
+    padding: var(--section-spacing-md) clamp(2rem, 4vw, 4rem) var(--section-spacing-md) var(--page-gutter);
+  }
+
+  /* The panel is taller than its row and hangs into the next section */
+  .sbe-mkt-duo-panel {
+    padding: var(--section-spacing-md) var(--page-gutter) var(--section-spacing-md) clamp(2.5rem, 5vw, 5rem);
+    margin-bottom: -4rem;
+  }
+}
+
+/* ── Founder: portrait, statement, hanging pull quote ── */
+.sbe-mkt-founder {
+  background: var(--bg-alt);
+  padding: var(--section-spacing-md) 0;
+}
+
+.sbe-mkt-founder-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.sbe-mkt-founder-portrait {
+  margin: 0;
+}
+
+.sbe-mkt-founder-portrait img {
+  display: block;
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.sbe-mkt-founder-portrait figcaption {
+  margin-top: 0.75rem;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+
+.sbe-mkt-founder-body .sbe-mkt-lede {
+  margin-top: 1.25rem;
+  max-width: 38rem;
+}
+
+.sbe-mkt-pullquote {
+  margin: 0;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-pullquote p {
+  margin: 0;
+  max-width: 32ch;
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 2.4vw, 2.25rem);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+  text-wrap: balance;
+}
+
+.sbe-mkt-pullquote footer {
+  margin-top: 1.5rem;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-founder-grid {
+    grid-template-columns: 140px minmax(0, 1fr);
+    column-gap: clamp(2rem, 5vw, 4.5rem);
+    row-gap: clamp(2rem, 4vw, 3rem);
+  }
+
+  .sbe-mkt-pullquote {
+    grid-column: 2;
+  }
+}
+
+/* ── Product showcase: alternating rows, screenshots bleed past the container ── */
+.sbe-mkt-showcase {
+  padding: var(--section-spacing-md) 0;
+  overflow-x: clip;
+}
+
+.sbe-mkt-showcase-warm {
+  background: var(--bg-warm);
+}
+
+.sbe-mkt-show-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+.sbe-mkt-show-row + .sbe-mkt-show-row {
+  margin-top: var(--section-spacing-sm);
+}
+
+.sbe-mkt-show-tag {
+  margin: 0 0 0.75rem;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.sbe-mkt-show-text h3 {
+  margin: 0 0 0.85rem;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  font-weight: 500;
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+  text-wrap: balance;
+}
+
+.sbe-mkt-show-text p:last-child {
+  margin: 0;
+  max-width: 30rem;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-soft);
+}
+
+.sbe-mkt-show-block + .sbe-mkt-show-block {
+  margin-top: 2.5rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-show-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Library screenshot with the phone standing over its lower corner */
+.sbe-mkt-show-stack {
+  position: relative;
+  padding-bottom: 14%;
+}
+
+.sbe-mkt-show-stack .sbe-mkt-show-phone {
+  position: absolute;
+  right: 6%;
+  bottom: 0;
+  width: 27%;
+  filter: drop-shadow(0 18px 28px rgba(15, 45, 29, 0.22));
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-show-row {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(2.5rem, 5vw, 5rem);
+  }
+
+  .sbe-mkt-show-row-flip {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  }
+
+  .sbe-mkt-show-row-flip .sbe-mkt-show-text {
+    order: 2;
+  }
+
+  /* Break out toward the viewport edge (capped at 72px past the container) */
+  .sbe-mkt-show-media-end {
+    margin-right: calc(-1 * min(var(--page-gutter), 72px));
+  }
+
+  .sbe-mkt-show-media-start {
+    margin-left: calc(-1 * min(var(--page-gutter), 72px));
+  }
+
+  .sbe-mkt-show-stack .sbe-mkt-show-phone {
+    right: auto;
+    left: -9%;
+    width: 25%;
+  }
+}
+
+/* ── Mastery Path: numbered sequence on the dark band, staggered ── */
+.sbe-mkt-path {
+  background: linear-gradient(160deg, var(--bg-dark) 0%, var(--bg-dark-soft) 100%);
+  padding: var(--section-spacing-md) 0;
+}
+
+.sbe-mkt-path-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+
+.sbe-mkt-path-step {
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-light-on-dark);
+}
+
+.sbe-mkt-path-num {
+  display: block;
+  margin-bottom: 1.25rem;
+  font-family: var(--font-heading);
+  font-size: var(--fs-numeral);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: var(--tracking-display);
+  font-variant-numeric: lining-nums;
+  color: var(--gold-warm);
+}
+
+.sbe-mkt-path-step h3 {
+  margin: 0 0 0.85rem;
+  font-family: var(--font-heading);
+  font-size: clamp(1.35rem, 2.2vw, 1.7rem);
+  font-weight: 500;
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--nav-cream);
+  text-wrap: balance;
+}
+
+.sbe-mkt-path-step p {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-light-on-dark);
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-head-split {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: end;
+  }
+
+  .sbe-mkt-head-split .sbe-mkt-lede {
+    margin-top: 0;
+    padding-bottom: 0.4rem;
+  }
+
+  .sbe-mkt-path-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(2rem, 4vw, 4rem);
+    align-items: start;
+  }
+
+  .sbe-mkt-path-step:nth-child(2) {
+    margin-top: 3.5rem;
+  }
+
+  .sbe-mkt-path-step:nth-child(3) {
+    margin-top: 7rem;
+  }
+}
+
+/* ── What gets measured: ledger rows, not stat cards ── */
+.sbe-mkt-measures {
+  padding: var(--section-spacing-md) 0;
+}
+
+.sbe-mkt-ledger {
+  margin: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.sbe-mkt-ledger-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  padding: 1.75rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-ledger-row dt {
+  display: flex;
+  align-items: baseline;
+  gap: 1.25rem;
+}
+
+.sbe-mkt-ledger-metric {
+  min-width: 2.2em;
+  font-family: var(--font-heading);
+  font-size: var(--fs-display);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: var(--tracking-display);
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--green);
+}
+
+.sbe-mkt-ledger-unit {
+  font-size: 0.5em;
+  letter-spacing: 0;
+  color: var(--gold-deep);
+}
+
+.sbe-mkt-ledger-title {
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+.sbe-mkt-ledger-row dd {
+  margin: 0;
+  max-width: 36rem;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-soft);
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-ledger-row {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: baseline;
+    padding: 2.25rem 0;
+  }
+}
+
+/* ── Plans: intro on the left, ruled plan list on the right ── */
+.sbe-mkt-plans {
+  padding: var(--section-spacing-md) 0;
+}
+
+.sbe-mkt-plans-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+
+.sbe-mkt-plans-intro .sbe-mkt-lede {
+  margin-top: 1.25rem;
+}
+
+.sbe-mkt-plans-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.sbe-mkt-plans-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.sbe-mkt-plan {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.35rem 2rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--line);
+  transition: padding-left 0.3s var(--ease-out);
+}
+
+.sbe-mkt-plan-tier {
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.sbe-mkt-plan h3 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(1.4rem, 2.4vw, 1.8rem);
+  font-weight: 500;
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+}
+
+.sbe-mkt-plan p {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  color: var(--text-soft);
+}
+
+.sbe-mkt-guarantee {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-soft);
+}
+
+.sbe-mkt-guarantee strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-plans-grid {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(2.5rem, 5vw, 5rem);
+    align-items: start;
+  }
+
+  .sbe-mkt-plans-intro {
+    position: sticky;
+    top: calc(var(--nav-h) + 2rem);
+  }
+
+  .sbe-mkt-plan {
+    grid-template-columns: 9rem minmax(0, 1fr);
+    align-items: baseline;
+  }
+
+  .sbe-mkt-plan-tier {
+    grid-row: span 2;
+  }
+
+  .sbe-mkt-plan:hover {
+    padding-left: 0.75rem;
+  }
+
+  .sbe-mkt-guarantee {
+    grid-column: 2;
+  }
+}
+
+/* ── FAQ: sticky heading left, hairline accordion right ── */
+.sbe-mkt-faq {
+  padding: var(--section-spacing-md) 0;
+}
+
+.sbe-mkt-faq-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.sbe-mkt-faq-list {
+  border-bottom: 1px solid var(--line);
+}
+
+.sbe-mkt-faq-item {
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.4rem 0;
+  list-style: none;
+  cursor: pointer;
+  font-family: var(--font-heading);
+  font-size: clamp(1.15rem, 1.8vw, 1.4rem);
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+  transition: color 0.2s var(--ease-out), padding-left 0.3s var(--ease-out);
+}
+
+.sbe-mkt-faq-q::-webkit-details-marker {
+  display: none;
+}
+
+.sbe-mkt-faq-q:hover {
+  color: var(--green-mid);
+  padding-left: 0.5rem;
+}
+
+.sbe-mkt-faq-q:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 4px;
+}
+
+/* Plus drawn from two bars; the upright bar swings flat when open */
+.sbe-mkt-faq-icon {
+  position: relative;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: var(--gold-deep);
+}
+
+.sbe-mkt-faq-icon::before,
+.sbe-mkt-faq-icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  margin-top: -1px;
+  background: currentColor;
+  transition: transform 0.45s var(--ease-spring-soft);
+}
+
+.sbe-mkt-faq-icon::after {
+  transform: rotate(90deg);
+}
+
+.sbe-mkt-faq-item[open] .sbe-mkt-faq-icon::after {
+  transform: rotate(0deg);
+}
+
+.sbe-mkt-faq-item[open] .sbe-mkt-faq-icon::before {
+  transform: rotate(180deg);
+}
+
+.sbe-mkt-faq-a p {
+  margin: 0;
+  padding: 0 2.5rem 1.6rem 0;
+  max-width: 40rem;
+  font-size: var(--fs-body);
+  line-height: 1.7;
+  color: var(--text-soft);
+}
+
+/* Height animation where the browser can interpolate to auto; elsewhere the
+   panel opens instantly and the answer still eases in below. */
+@supports (interpolate-size: allow-keywords) {
+  .sbe-mkt-faq-item {
+    interpolate-size: allow-keywords;
+  }
+
+  .sbe-mkt-faq-item::details-content {
+    block-size: 0;
+    overflow-y: clip;
+    transition: block-size 0.45s cubic-bezier(0.16, 1, 0.3, 1), content-visibility 0.45s allow-discrete;
+  }
+
+  .sbe-mkt-faq-item[open]::details-content {
+    block-size: auto;
+  }
+}
+
+.sbe-mkt-faq-item[open] .sbe-mkt-faq-a {
+  animation: sbe-mkt-faq-in 0.4s var(--ease-out) both;
+}
+
+@keyframes sbe-mkt-faq-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-faq-grid {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+    gap: clamp(2.5rem, 5vw, 5rem);
+    align-items: start;
+  }
+
+  .sbe-mkt-faq-grid .sbe-mkt-head {
+    position: sticky;
+    top: calc(var(--nav-h) + 2rem);
+    margin-bottom: 0;
+  }
+}
+
+/* ── Revenue Impact Calculator: full-bleed dark band, instrument-style rails ── */
+/* Sized to fit one desktop viewport (900px tall) with the email form in view */
+.sbe-mkt-roi {
+  background: linear-gradient(160deg, var(--bg-dark) 0%, var(--bg-dark-soft) 100%);
+  padding: var(--section-spacing-sm) 0;
+}
+
+.sbe-mkt-roi .sbe-mkt-head {
+  margin-bottom: 2.5rem;
+}
+
+.sbe-mkt-roi .sbe-mkt-display {
+  font-size: var(--fs-h2);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+}
+
+.sbe-mkt-roi-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+}
+
+.sbe-mkt-roi-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.sbe-mkt-roi-field-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.sbe-mkt-roi-label {
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-mkt-roi-value {
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: var(--tracking-heading);
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--nav-cream);
+}
+
+.sbe-mkt-roi-value small {
+  margin-right: 0.35em;
+  font-family: var(--font-body);
+  font-size: 0.45em;
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  color: var(--gold-warm);
+}
+
+/* Rail: 2px line with a gold fill, a ruler of ticks beneath, and a tall handle */
+.sbe-mkt-roi-rail {
+  position: relative;
+  margin-top: 0.5rem;
+  padding-bottom: 12px;
+}
+
+.sbe-mkt-roi-rail::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 7px;
+  background: repeating-linear-gradient(
+    to right,
+    var(--border-light-on-dark) 0,
+    var(--border-light-on-dark) 1px,
+    transparent 1px,
+    transparent calc((100% - 1px) / 20)
+  );
+  pointer-events: none;
+}
+
+.sbe-mkt-roi-range {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.sbe-mkt-roi-range:focus {
+  outline: none;
+}
+
+.sbe-mkt-roi-range::-webkit-slider-runnable-track {
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    var(--gold-warm) var(--sbe-fill, 0%),
+    var(--border-light-on-dark) var(--sbe-fill, 0%)
+  );
+}
+
+.sbe-mkt-roi-range::-moz-range-track {
+  height: 2px;
+  background: var(--border-light-on-dark);
+}
+
+.sbe-mkt-roi-range::-moz-range-progress {
+  height: 2px;
+  background: var(--gold-warm);
+}
+
+.sbe-mkt-roi-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 28px;
+  margin-top: -13px;
+  border: 0;
+  border-radius: 2px;
+  background: var(--nav-cream);
+  box-shadow: inset 0 0 0 1px var(--bg-dark), inset 5px 0 0 0 var(--nav-cream), inset 7px 0 0 0 var(--gold);
+  transition: transform 0.35s var(--ease-spring-soft);
+}
+
+.sbe-mkt-roi-range::-moz-range-thumb {
+  width: 12px;
+  height: 28px;
+  border: 0;
+  border-radius: 2px;
+  background: var(--nav-cream);
+  box-shadow: inset 0 0 0 1px var(--bg-dark), inset 5px 0 0 0 var(--nav-cream), inset 7px 0 0 0 var(--gold);
+  transition: transform 0.35s var(--ease-spring-soft);
+}
+
+.sbe-mkt-roi-range:hover::-webkit-slider-thumb,
+.sbe-mkt-roi-range:active::-webkit-slider-thumb {
+  transform: scaleY(1.18);
+}
+
+.sbe-mkt-roi-range:hover::-moz-range-thumb,
+.sbe-mkt-roi-range:active::-moz-range-thumb {
+  transform: scaleY(1.18);
+}
+
+.sbe-mkt-roi-range:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--gold-warm);
+  outline-offset: 3px;
+}
+
+.sbe-mkt-roi-range:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--gold-warm);
+  outline-offset: 3px;
+}
+
+.sbe-mkt-roi-bounds {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-light-muted-on-dark);
+}
+
+/* Readout: the total leads, the three line items sit under it as a ledger */
+.sbe-mkt-roi-total-label {
+  margin: 0 0 0.75rem;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--gold-warm);
+}
+
+.sbe-mkt-roi-total {
+  margin: 0 0 1.5rem;
+  font-family: var(--font-heading);
+  font-size: clamp(3rem, 5.5vw, 4.75rem);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: var(--tracking-display);
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--nav-cream);
+}
+
+.sbe-mkt-roi-total small {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-mkt-roi-lines {
+  margin: 0;
+  border-bottom: 1px solid var(--border-light-on-dark);
+}
+
+.sbe-mkt-roi-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.1rem 1.5rem;
+  padding: 0.8rem 0;
+  border-top: 1px solid var(--border-light-on-dark);
+}
+
+.sbe-mkt-roi-line dt {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--text-light-on-dark);
+}
+
+.sbe-mkt-roi-line dd {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--nav-cream);
+}
+
+.sbe-mkt-roi-line dd.sbe-mkt-roi-note {
+  grid-column: 1 / -1;
+  font-size: 0.8rem;
+  font-weight: 400;
+  white-space: normal;
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-mkt-roi-fineprint {
+  margin: 1.25rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--text-light-muted-on-dark);
+}
+
+/* Stacked layout: sliders, readout, then the email form. Side by side, the
+   form sits under the sliders so it stays in the first viewport. */
+.sbe-mkt-roi-inputs {
+  display: contents;
+}
+
+.sbe-mkt-roi-email {
+  order: 3;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-light-on-dark);
+}
+
+.sbe-mkt-roi-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem 1.5rem;
+}
+
+.sbe-mkt-roi-form label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-mkt-roi-form-field {
+  flex: 1 1 260px;
+  max-width: 420px;
+}
+
+/* Underlined field, no box */
+.sbe-mkt-roi-input {
+  width: 100%;
+  padding: 0.6rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--border-light-on-dark);
+  border-radius: 0;
+  background: transparent;
+  color: var(--nav-cream);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  transition: border-color 0.2s var(--ease-out);
+}
+
+.sbe-mkt-roi-input::placeholder {
+  color: var(--text-light-faint-on-dark);
+}
+
+.sbe-mkt-roi-input:focus {
+  outline: none;
+  border-bottom-color: var(--gold-warm);
+}
+
+.sbe-mkt-roi-submit {
+  border: 0;
+  cursor: pointer;
+}
+
+.sbe-mkt-roi-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.sbe-mkt-roi-sent {
+  margin: 0;
+  font-size: var(--fs-body);
+  color: var(--gold-warm);
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-roi-grid {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: clamp(3rem, 7vw, 7rem);
+    align-items: start;
+  }
+
+  .sbe-mkt-roi-inputs {
+    display: block;
+  }
+
+  .sbe-mkt-roi-email {
+    margin-top: 2.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sbe-mkt-faq-item::details-content,
+  .sbe-mkt-faq-icon::before,
+  .sbe-mkt-faq-icon::after,
+  .sbe-mkt-faq-q,
+  .sbe-mkt-plan,
+  .sbe-mkt-roi-range::-webkit-slider-thumb,
+  .sbe-mkt-roi-range::-moz-range-thumb {
+    transition: none;
+  }
+
+  .sbe-mkt-faq-item[open] .sbe-mkt-faq-a {
+    animation: none;
   }
 }
