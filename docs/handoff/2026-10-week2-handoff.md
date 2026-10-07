@@ -1,7 +1,7 @@
 # Handoff: October 2026, Week 2 — By Example Advisory page
 
 - **Dates:** 2026-10-07 to 2026-10-08
-- **Branch:** `preview/advisory-page` (6 commits on top of `main` at `9026d94`). Preview: https://preview-advisory-page.serve-by-example-ai.pages.dev/advisory
+- **Branch:** `preview/advisory-page`, **merged to `main` 2026-10-08** (merge `b0e1de1`). Preview: https://preview-advisory-page.serve-by-example-ai.pages.dev/advisory
 - **Covers:** the new `/advisory` consulting page, attribution from its CTAs through the `/contact` form, consent-gated click tracking, a no-login Playwright suite for marketing pages, and fixes to the existing mobile e2e suite.
 - **Related:** `docs/MARKETING_SITE.md` (route table and the `/advisory` LAUNCH-CHECKLIST), `docs/handoff/2026-10-week1-handoff.md` (QA account and e2e background).
 
