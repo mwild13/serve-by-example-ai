@@ -1,6 +1,6 @@
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
-import { getOpenAIClient } from "@/lib/openai";
+import { CHAT_MODEL_PARAMS, getOpenAIClient } from "@/lib/openai";
 import { cleanUserText, linkAbortSignal, readJsonBody } from "@/lib/ai-guard";
 
 export const dynamic = "force-dynamic";
@@ -88,9 +88,9 @@ Rules:
     try {
       completion = await openai.chat.completions.create(
         {
-          model: "gpt-4o-mini",
+          ...CHAT_MODEL_PARAMS,
           temperature: 0.25,
-          max_tokens: MAX_OUTPUT_TOKENS,
+          max_completion_tokens: MAX_OUTPUT_TOKENS,
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: question },
