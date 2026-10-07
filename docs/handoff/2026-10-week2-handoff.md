@@ -1,6 +1,6 @@
 # Handoff: October 2026, Week 2 — By Example Advisory page and homepage UI overhaul
 
-> **Two pieces of work this week.** Part 1 (below) is the Advisory page, merged to `main`. Part 2, at the end of this file, is the homepage UI overhaul, on a preview branch and **not yet merged**.
+> **Two pieces of work this week.** Part 1 (below) is the Advisory page, merged to `main`. Part 2, at the end of this file, is the homepage UI overhaul, also merged to `main`. The AI model switch to `gpt-6-luna` is recorded in Part 1 and is merged too.
 
 - **Dates:** 2026-10-07 to 2026-10-08
 - **Branch:** `preview/advisory-page`, **merged to `main` 2026-10-08** (merge `b0e1de1`). Preview: https://preview-advisory-page.serve-by-example-ai.pages.dev/advisory
@@ -121,7 +121,7 @@ Use the QA account, not a personal one. One-device enforcement would log the per
 # Part 2: Homepage UI overhaul
 
 - **Date:** 2026-10-08
-- **Branch:** `preview/homepage-ui-overhaul`, **not merged**. Preview: https://preview-homepage-ui-overhaul.serve-by-example-ai.pages.dev/
+- **Branch:** `preview/homepage-ui-overhaul`, **merged to `main` 2026-10-08**. Preview: https://preview-homepage-ui-overhaul.serve-by-example-ai.pages.dev/
 - **Covers:** a rebuild of every homepage section below the hero, a new type scale, a rebuilt FAQ and Revenue Impact Calculator, rewritten homepage microcopy, and a full rewrite of `docs/Pages-Redesign.md`.
 - **Related:** `docs/Pages-Redesign.md` is now the standard for all marketing pages and uses the homepage as its reference.
 
@@ -204,7 +204,6 @@ The two pillar descriptions were also rewritten and no longer name the AI model.
 
 ## Open items
 
-- **Merge decision.** Review the preview, then merge `preview/homepage-ui-overhaul` to `main`.
 - **Look at `/membership` and `/roi`.** The new calculator sits inside their old layout as a square dark panel.
 - **Copy sign-off.** The table above went live on the preview without a separate approval round.
 - **Trial button alternatives** offered and not used: "Train my team free for 14 days", "Open my venue's trial", "Put my roster through it".
