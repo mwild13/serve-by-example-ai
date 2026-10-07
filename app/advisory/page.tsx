@@ -9,6 +9,7 @@ import CTABand from "@/components/marketing/CTABand";
 import FeatureGrid, { type FeatureGridItem } from "@/components/marketing/FeatureGrid";
 import SectionHeading from "@/components/ui/SectionHeading";
 import PackageCard, { type AdvisoryPackage } from "@/components/advisory/PackageCard";
+import AdvisoryCtaTracker from "@/components/advisory/AdvisoryCtaTracker";
 import {
   IconUsers,
   IconClock,
@@ -24,10 +25,23 @@ export const metadata: Metadata = {
   description:
     "Hands-on hospitality consulting for venues in SEQ and Northern NSW. Venue health checks, bar profit reviews, service training and systems setup from an operator with 15+ years on the floor.",
   alternates: { canonical: "/advisory" },
+  robots: { index: false },
 };
 
-// Same destination as the enterprise "Talk to us" action on /pricing.
-const TALK_HREF = "/contact";
+// Same destination as the enterprise "Talk to us" action on /pricing, tagged
+// so the contact form (and AdvisoryCtaTracker) know which CTA was used.
+type AdvisorySlug =
+  | "general"
+  | "health-check"
+  | "bar-profit"
+  | "service-reset"
+  | "ongoing"
+  | "remote-review"
+  | "systems-upgrade"
+  | "strategy-session"
+  | "hub-pilot";
+
+const talkHref = (pkg: AdvisorySlug) => `/contact?source=advisory&package=${pkg}`;
 
 const HERO_ALT = "Mitch, founder of Serve By Example, behind a venue bar";
 
@@ -61,7 +75,8 @@ const STEPS = [
   { title: "Sustain", body: "Serve By Example keeps your standards in place after we leave." },
 ];
 
-const PACKAGES: AdvisoryPackage[] = [
+// `id` doubles as the ?package= slug on the card's CTA.
+const PACKAGES: (AdvisoryPackage & { id: AdvisorySlug })[] = [
   {
     id: "health-check",
     name: "Venue Health Check",
@@ -222,6 +237,7 @@ export default function AdvisoryPage() {
       <Navbar />
 
       <main id="main-content">
+        <AdvisoryCtaTracker />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -264,7 +280,7 @@ export default function AdvisoryPage() {
 
               <div className="sbe-mkt-hero-actions">
                 <div className="sbe-mkt-hero-btn-row">
-                  <Link href={TALK_HREF} className="sbe-mkt-hero-cta">
+                  <Link href={talkHref("general")} className="sbe-mkt-hero-cta">
                     Talk to us
                   </Link>
                   <a href="#packages" className="sbe-mkt-hero-secondary">
@@ -281,7 +297,7 @@ export default function AdvisoryPage() {
             </div>
           </div>
 
-          <HeroStickyBar label="Free 15 min discovery call" cta="Talk to us" href={TALK_HREF} />
+          <HeroStickyBar label="Free 15 min discovery call" cta="Talk to us" href={talkHref("general")} />
         </section>
 
         {/* ── 2. The problem ── */}
@@ -317,14 +333,17 @@ export default function AdvisoryPage() {
 
             <div className="sbe-adv-pkg-grid">
               {PACKAGES.map((pkg) => (
-                <PackageCard key={pkg.id} pkg={pkg} href={TALK_HREF} />
+                <PackageCard key={pkg.id} pkg={pkg} href={talkHref(pkg.id)} />
               ))}
             </div>
 
             <p className="sbe-adv-remote">
               <strong>Remote Review: From $690.</strong> Interstate or regional? Our Remote Review
               covers the same data review and written report via video walk-through and a 45 min
-              debrief.
+              debrief.{" "}
+              <Link href={talkHref("remote-review")} className="sbe-adv-inline-link">
+                Talk to us about a Remote Review
+              </Link>
             </p>
 
             <div className="sbe-adv-modules">
@@ -340,6 +359,11 @@ export default function AdvisoryPage() {
                   </li>
                 ))}
               </ul>
+              <p className="sbe-adv-modules-cta">
+                <Link href={talkHref("systems-upgrade")} className="sbe-adv-inline-link">
+                  Talk to us about a module
+                </Link>
+              </p>
             </div>
           </div>
         </section>
@@ -368,7 +392,7 @@ export default function AdvisoryPage() {
                 ))}
               </ul>
 
-              <Link href={TALK_HREF} className="sbe-mkt-btn-primary">
+              <Link href={talkHref("hub-pilot")} className="sbe-mkt-btn-primary">
                 Join the founding pilot
               </Link>
             </div>
@@ -421,7 +445,7 @@ export default function AdvisoryPage() {
             <SectionHeading title="Ways to work with us" />
             <FeatureGrid items={WAYS} columns={3} />
             <div className="sbe-adv-section-cta">
-              <Link href={TALK_HREF} className="btn btn-primary btn-lg">
+              <Link href={talkHref("strategy-session")} className="btn btn-primary btn-lg">
                 Talk to us
               </Link>
             </div>
@@ -493,7 +517,7 @@ export default function AdvisoryPage() {
         <CTABand
           title="Let's make your venue run better."
           copy="Start with a free 15 minute call."
-          primary={{ label: "Talk to us", href: TALK_HREF }}
+          primary={{ label: "Talk to us", href: talkHref("general") }}
         />
       </main>
 

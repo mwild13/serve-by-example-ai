@@ -24,7 +24,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: "/resources", priority: 0.7 },
     { url: "/resources/sop-toolkit", priority: 0.7 },
     { url: "/about", priority: 0.7 },
-    { url: "/advisory", priority: 0.7 },
     { url: "/contact", priority: 0.7 },
     { url: "/roadmap", priority: 0.6 },
     { url: "/security", priority: 0.5 },

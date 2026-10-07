@@ -19812,6 +19812,24 @@ h1, h2, h3 {
   color: var(--text);
 }
 
+.sbe-adv-inline-link {
+  font-weight: 700;
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+.sbe-adv-inline-link:hover {
+  color: var(--green-deep);
+}
+
+.sbe-adv-modules-cta {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  margin: 1.25rem 0 0;
+}
+
 /* Systems Upgrade modules */
 .sbe-adv-modules {
   margin-top: 3rem;
