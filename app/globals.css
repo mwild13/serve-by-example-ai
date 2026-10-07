@@ -19565,3 +19565,674 @@ h1, h2, h3 {
   .cookie-banner__switch,
   .cookie-banner__switch::after { transition: none; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   /advisory — By Example Advisory
+   Mobile-first. Hero reuses the homepage `sbe-mkt-hero-*` classes; the
+   rules below only adapt it to a photo. Single sbe-adv- prefix, tokens only.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Hero overrides ── */
+.sbe-adv-hero {
+  padding: clamp(1.5rem, 6vw, 4.5rem) 0;
+}
+
+.sbe-adv-hero .sbe-mkt-hero-teaser {
+  max-width: none;
+}
+
+.sbe-adv-hero .sbe-mkt-hero-teaser img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  object-position: 75% center;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+}
+
+.sbe-adv-hero .sbe-mkt-hero-secondary {
+  margin-top: 0;
+}
+
+/* The homepage hides the trust row on phones; here it is the credibility strip */
+.sbe-adv-hero .sbe-mkt-hero-trust {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sbe-adv-anchor {
+  scroll-margin-top: var(--nav-h);
+}
+
+/* ── How it works ── */
+.sbe-adv-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+.sbe-adv-step {
+  border-top: 2px solid var(--gold);
+  padding-top: 1rem;
+}
+
+.sbe-adv-step-num {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--gold-deep);
+  margin-bottom: 0.4rem;
+}
+
+.sbe-adv-step-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.4rem, 3vw, 1.75rem);
+  font-weight: 600;
+  color: var(--green-deep);
+  margin: 0 0 0.4rem;
+}
+
+.sbe-adv-step-body {
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  color: var(--text-soft);
+  margin: 0;
+  max-width: 34ch;
+}
+
+/* ── Packages ── */
+.sbe-adv-pkg-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.sbe-adv-pkg {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  padding: 1.5rem;
+}
+
+.sbe-adv-pkg-popular {
+  border: 2px solid var(--green);
+  box-shadow: var(--shadow-lg);
+  background: var(--surface-raised);
+}
+
+.sbe-adv-pkg-tag {
+  position: absolute;
+  top: 0;
+  left: 1.5rem;
+  transform: translateY(-50%);
+  background: var(--green);
+  color: var(--surface-raised);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+  white-space: nowrap;
+}
+
+.sbe-adv-pkg-name {
+  font-family: var(--font-heading);
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  color: var(--green-deep);
+  margin: 0 0 0.6rem;
+}
+
+.sbe-adv-pkg-price {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 0.75rem;
+}
+
+.sbe-adv-pkg-from {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.sbe-adv-pkg-figure {
+  font-family: var(--font-heading);
+  font-size: 2.1rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.sbe-adv-pkg-suffix {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.sbe-adv-pkg-audience {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-soft);
+  margin: 0 0 1rem;
+}
+
+.sbe-adv-pkg-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--line-light);
+  border-bottom: 1px solid var(--line-light);
+  padding: 0.75rem 0;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--green);
+  cursor: pointer;
+}
+
+.sbe-adv-pkg-toggle svg {
+  transition: transform 0.2s var(--ease-out);
+}
+
+.sbe-adv-pkg-toggle[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.sbe-adv-pkg-toggle:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+.sbe-adv-pkg-body {
+  flex-grow: 1;
+}
+
+.sbe-adv-pkg-body[data-open="false"] {
+  display: none;
+}
+
+.sbe-adv-pkg-list {
+  list-style: none;
+  margin: 0;
+  padding: 0.75rem 0 0;
+}
+
+.sbe-adv-pkg-list .sbe-mkt-pricefeature-name {
+  font-weight: 500;
+}
+
+.sbe-adv-pkg-foot {
+  margin-top: 1.25rem;
+}
+
+.sbe-adv-pkg-note {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 0 0 0.6rem;
+}
+
+.sbe-adv-remote {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--text-soft);
+  margin: 1.5rem 0 0;
+  max-width: 72ch;
+}
+
+.sbe-adv-remote strong {
+  color: var(--text);
+}
+
+/* Systems Upgrade modules */
+.sbe-adv-modules {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-adv-modules-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.sbe-adv-subhead {
+  font-family: var(--font-heading);
+  font-size: clamp(1.3rem, 2.5vw, 1.6rem);
+  font-weight: 600;
+  color: var(--green-deep);
+  margin: 0;
+}
+
+.sbe-adv-modules-price {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--gold-deep);
+  margin: 0;
+}
+
+.sbe-adv-module-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.sbe-adv-module {
+  background: var(--bg-warm);
+  border: 1px solid var(--line-light);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1rem;
+}
+
+.sbe-adv-module-title {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sbe-adv-module-body {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-soft);
+  margin-top: 2px;
+}
+
+/* ── Venue Hub band ── */
+.sbe-adv-hub {
+  background: var(--green-deep);
+  padding: var(--section-spacing-md) 0;
+}
+
+.sbe-adv-hub-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+.sbe-adv-hub-title {
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  color: var(--text-light-on-dark);
+  margin: 0;
+}
+
+.sbe-adv-hub-body {
+  font-family: var(--font-body);
+  font-size: var(--fs-body-lg);
+  line-height: 1.6;
+  color: var(--text-light-muted-on-dark);
+  margin: 1rem 0 0;
+  max-width: 52ch;
+}
+
+.sbe-adv-hub-tiles {
+  list-style: none;
+  margin: 1.75rem 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.sbe-adv-hub-tile {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 0.85rem;
+  align-items: center;
+  align-content: center;
+  background: var(--surface-tint-on-dark);
+  border: 1px solid var(--border-light-faint-on-dark);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1rem;
+}
+
+.sbe-adv-hub-tile-icon {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--gold-tint-on-dark);
+  color: var(--gold-warm);
+}
+
+.sbe-adv-hub-tile-title {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-light-on-dark);
+}
+
+.sbe-adv-hub-tile-body {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-adv-hub-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.sbe-adv-hub-caption {
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  color: var(--text-light-faint-on-dark);
+  margin: 0;
+}
+
+/* Phone mockup — built in CSS, no image */
+.sbe-adv-phone {
+  width: min(260px, 72vw);
+  aspect-ratio: 9 / 18;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-light-on-dark);
+  border-radius: 38px;
+  padding: 10px;
+  box-shadow: var(--shadow-xl);
+}
+
+.sbe-adv-phone-screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  border-radius: 29px;
+  overflow: hidden;
+}
+
+.sbe-adv-phone-head {
+  background: var(--green);
+  padding: 1.6rem 1rem 1rem;
+}
+
+.sbe-adv-phone-venue {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--surface);
+}
+
+.sbe-adv-phone-sub {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  color: var(--gold-light);
+  margin-top: 3px;
+}
+
+.sbe-adv-phone-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-grow: 1;
+}
+
+.sbe-adv-phone-row {
+  background: var(--surface-raised);
+  border: 1px solid var(--line-light);
+  border-left: 3px solid var(--gold);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.65rem;
+}
+
+.sbe-adv-phone-row-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sbe-adv-phone-row-value {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.66rem;
+  color: var(--text-soft);
+}
+
+.sbe-adv-phone-bar {
+  width: 34%;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--line);
+  margin: 0 auto 8px;
+}
+
+/* ── Add-ons ── */
+.sbe-adv-addons {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  column-gap: 3rem;
+}
+
+.sbe-adv-addon {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.sbe-adv-addon-name {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.sbe-adv-addon-price {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--gold-deep);
+  white-space: nowrap;
+}
+
+.sbe-adv-section-cta {
+  margin-top: 2rem;
+}
+
+/* ── Service area ── */
+.sbe-adv-areas {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.sbe-adv-area {
+  background: var(--surface);
+  border: 1px solid var(--line-light);
+  border-left: 4px solid var(--green);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+}
+
+.sbe-adv-area-title {
+  font-family: var(--font-heading);
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  color: var(--green-deep);
+  margin: 0 0 0.35rem;
+}
+
+.sbe-adv-area-body {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-soft);
+  margin: 0;
+}
+
+/* ── About ── */
+.sbe-adv-about {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+.sbe-adv-about-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: center 20%;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.sbe-adv-about-copy .section-header {
+  margin-bottom: 1.25rem;
+}
+
+.sbe-adv-about-copy > p {
+  font-family: var(--font-body);
+  font-size: 1.02rem;
+  line-height: 1.72;
+  color: var(--text-soft);
+  margin: 0 0 1rem;
+  max-width: 60ch;
+}
+
+.sbe-adv-about-copy > p:last-child {
+  margin-bottom: 0;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.sbe-adv-faq {
+  margin: 0;
+}
+
+@media (min-width: 601px) {
+  .sbe-adv-hero .sbe-mkt-hero-trust {
+    flex-direction: row;
+    gap: 0.5rem 1.75rem;
+  }
+
+  .sbe-adv-module-grid,
+  .sbe-adv-hub-tiles,
+  .sbe-adv-areas {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 701px) {
+  .sbe-adv-steps {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  .sbe-adv-pkg-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem 1.25rem;
+  }
+
+  /* Inclusions are always open from tablet up; the toggle is mobile-only */
+  .sbe-adv-pkg-toggle {
+    display: none;
+  }
+
+  .sbe-adv-pkg-body[data-open="false"] {
+    display: block;
+  }
+
+  .sbe-adv-pkg-list {
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--line-light);
+  }
+
+  .sbe-adv-addons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .sbe-adv-about {
+    grid-template-columns: minmax(0, 360px) 1fr;
+    gap: clamp(2rem, 5vw, 4.5rem);
+  }
+}
+
+@media (min-width: 901px) {
+  .sbe-adv-hero .sbe-mkt-hero-teaser img {
+    aspect-ratio: 4 / 3;
+  }
+
+  .sbe-adv-module-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .sbe-adv-hub-grid {
+    grid-template-columns: 3fr 2fr;
+    gap: clamp(2rem, 5vw, 5rem);
+  }
+}
+
+@media (min-width: 1100px) {
+  .sbe-adv-pkg-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+
+  .sbe-adv-pkg {
+    padding: 1.35rem;
+  }
+}

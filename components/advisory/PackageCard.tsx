@@ -1,0 +1,91 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+
+/*
+ * Advisory package card. Inclusions are always visible on desktop; on mobile
+ * they sit behind a "What's included" toggle (the list stays in the DOM and
+ * is hidden by CSS, so the copy is still crawlable).
+ */
+
+export type AdvisoryPackage = {
+  id: string;
+  name: string;
+  price: string;
+  priceSuffix?: string;
+  audience: string;
+  inclusions: string[];
+  note?: string;
+  popular?: boolean;
+};
+
+type Props = {
+  pkg: AdvisoryPackage;
+  href: string;
+};
+
+export default function PackageCard({ pkg, href }: Props) {
+  const [open, setOpen] = useState(false);
+  const listId = `advisory-pkg-${pkg.id}`;
+
+  return (
+    <article className={`sbe-adv-pkg${pkg.popular ? " sbe-adv-pkg-popular" : ""}`}>
+      {pkg.popular ? <span className="sbe-adv-pkg-tag">Most popular</span> : null}
+
+      <h3 className="sbe-adv-pkg-name">{pkg.name}</h3>
+
+      <p className="sbe-adv-pkg-price">
+        <span className="sbe-adv-pkg-from">From</span>
+        <span className="sbe-adv-pkg-figure">{pkg.price}</span>
+        {pkg.priceSuffix ? <span className="sbe-adv-pkg-suffix">{pkg.priceSuffix}</span> : null}
+      </p>
+
+      <p className="sbe-adv-pkg-audience">{pkg.audience}</p>
+
+      <button
+        type="button"
+        className="sbe-adv-pkg-toggle"
+        aria-expanded={open}
+        aria-controls={listId}
+        onClick={() => setOpen((v) => !v)}
+      >
+        What&apos;s included
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M4 6l4 4 4-4" />
+        </svg>
+      </button>
+
+      <div id={listId} className="sbe-adv-pkg-body" data-open={open}>
+        <ul className="sbe-adv-pkg-list">
+          {pkg.inclusions.map((item) => (
+            <li key={item} className="sbe-mkt-pricefeature">
+              <span className="sbe-mkt-pricefeature-name">{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="sbe-adv-pkg-foot">
+        {pkg.note ? <p className="sbe-adv-pkg-note">{pkg.note}</p> : null}
+        <Link
+          href={href}
+          className={`btn ${pkg.popular ? "btn-primary" : "btn-secondary"} sbe-mkt-pricecard-btn`}
+          aria-label={`Talk to us about ${pkg.name}`}
+        >
+          Talk to us
+        </Link>
+      </div>
+    </article>
+  );
+}

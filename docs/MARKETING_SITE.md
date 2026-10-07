@@ -30,6 +30,7 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 | `/roadmap` | Public product roadmap |
 | `/security` | Security & Safety |
 | `/about` | About |
+| `/advisory` | By Example Advisory — hospitality consulting packages. Footer link only (not in the navbar). All CTAs go to `/contact`. Styles use the `sbe-adv-` prefix in `app/globals.css`; hero reuses the homepage `sbe-mkt-hero-*` classes |
 | `/contact` | Contact |
 | `/privacy` | Privacy Policy |
 | `/terms` | Terms of Service |
