@@ -99,3 +99,12 @@ export function applyAnalyticsConsent(analytics: boolean): void {
   script.async = true;
   document.head.appendChild(script);
 }
+
+// Sends a GA event only when the visitor has opted in and gtag.js is loaded;
+// otherwise a no-op. Use this for any click/conversion tracking.
+export function trackEvent(name: string, params: Record<string, string> = {}): void {
+  if (typeof window === "undefined") return;
+  const w = window as GaWindow;
+  if (!w._sbeGaLoaded || w[`ga-disable-${GA_ID}`] || !w.gtag) return;
+  w.gtag("event", name, params);
+}

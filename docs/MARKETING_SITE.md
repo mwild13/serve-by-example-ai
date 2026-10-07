@@ -30,6 +30,7 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 | `/roadmap` | Public product roadmap |
 | `/security` | Security & Safety |
 | `/about` | About |
+| `/advisory` | By Example Advisory — hospitality consulting packages. Footer link only (not in the navbar). `robots: noindex` and deliberately absent from `app/sitemap.ts`. All CTAs go to `/contact?source=advisory&package=<slug>` (the contact form forwards both to the enquiry email) and fire the GA event `advisory_cta_click` via `components/advisory/AdvisoryCtaTracker.tsx`. Styles use the `sbe-adv-` prefix in `app/globals.css`; hero reuses the homepage `sbe-mkt-hero-*` classes |
 | `/contact` | Contact |
 | `/privacy` | Privacy Policy |
 | `/terms` | Terms of Service |
@@ -93,6 +94,15 @@ These are not interchangeable — don't use "14-day" copy from one context to ju
 | `PricingIcons.tsx` | SVG icon set (`IncludedIcon`, `ExcludedIcon`, `TreeConnector`) for the pricing/membership matrix | `CompareMatrix.tsx` |
 
 **Note**: `components/ui/` does not contain `BrowserMockup.tsx`, `DashboardMockup.tsx`, or `WaitlistSection.tsx` — if you've seen these referenced elsewhere, they no longer exist; don't import them.
+
+## `/advisory` — LAUNCH-CHECKLIST
+
+The page is live on its URL but held back from search until these are done:
+
+- [ ] Confirm pricing, then remove `robots: { index: false }` from `app/advisory/page.tsx` and re-add `/advisory` to `app/sitemap.ts`. Update the noindex assertion in `tests/e2e-marketing/advisory.spec.ts` at the same time.
+- [ ] Replace the hero image (`public/images/advisory/advisory-hero.jpg`) with a real photo.
+- [ ] Add an About photo. `public/images/advisory/advisory-about.jpg` is in the repo but unused; the About section is currently text-only.
+- [ ] Review the supplier disclosure FAQ ("Do you have ties to any suppliers?") so it matches Mitch's current role and supplier relationships.
 
 ## Cookie Consent & Analytics
 

@@ -21,6 +21,14 @@ export async function POST(req: Request) {
     const venueName = formText(body.venueName, 160);
     const venueType = formText(body.venueType, 80);
     const message = formText(body.message, 5000);
+    // Optional attribution from the linking page (?source=&package= on
+    // /contact). Slug-shaped only; anything else is dropped, not rejected.
+    const slug = (value: unknown) => {
+      const text = formText(value, 40);
+      return /^[a-z0-9-]+$/.test(text) ? text : "";
+    };
+    const source = slug(body.source);
+    const enquiryPackage = slug(body.package);
 
     // Honeypot – bots fill this invisible field
     if (body.website) {
@@ -60,6 +68,8 @@ export async function POST(req: Request) {
       venueName: escapeHtml(venueName),
       venueType: escapeHtml(venueType),
       message: escapeHtml(message),
+      source: escapeHtml(source),
+      enquiryPackage: escapeHtml(enquiryPackage),
     };
     const htmlContent = `
       <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:32px 24px">
@@ -70,6 +80,8 @@ export async function POST(req: Request) {
           <tr><td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-weight:600">Email</td><td style="padding:10px 0;border-bottom:1px solid #e5e7eb"><a href="mailto:${h.email}">${h.email}</a></td></tr>
           ${venueName ? `<tr><td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-weight:600">Venue</td><td style="padding:10px 0;border-bottom:1px solid #e5e7eb">${h.venueName}</td></tr>` : ""}
           ${venueType ? `<tr><td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-weight:600">Type</td><td style="padding:10px 0;border-bottom:1px solid #e5e7eb">${h.venueType}</td></tr>` : ""}
+          ${source ? `<tr><td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-weight:600">Source</td><td style="padding:10px 0;border-bottom:1px solid #e5e7eb">${h.source}</td></tr>` : ""}
+          ${enquiryPackage ? `<tr><td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-weight:600">Package</td><td style="padding:10px 0;border-bottom:1px solid #e5e7eb">${h.enquiryPackage}</td></tr>` : ""}
         </table>
         <div style="margin-top:24px;padding:20px;background:#f9fafb;border-radius:8px;border-left:4px solid #0B2B1E">
           <p style="margin:0;font-weight:600;margin-bottom:8px">Message</p>

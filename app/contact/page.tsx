@@ -1,12 +1,16 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/marketing/PageHero";
 import CTABand from "@/components/marketing/CTABand";
 
 const VENUE_TYPES = ["Bar / Pub", "Restaurant", "Hotel F&B", "Events venue", "Other"];
+
+// Attribution params set by linking pages (e.g. /advisory CTAs):
+// /contact?source=advisory&package=service-reset. Slug-shaped values only.
+const ATTRIBUTION_RE = /^[a-z0-9-]{1,40}$/;
 
 export default function ContactPage() {
   const [name, setName] = useState("");
@@ -15,9 +19,23 @@ export default function ContactPage() {
   const [venueType, setVenueType] = useState("");
   const [message, setMessage] = useState("");
   const [website, setWebsite] = useState("");
+  const [source, setSource] = useState("");
+  const [enquiryPackage, setEnquiryPackage] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+
+  // Read once on mount (not useSearchParams) so the page stays statically
+  // rendered and is unchanged when no params are present.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const s = params.get("source") ?? "";
+    const p = params.get("package") ?? "";
+    // Mount-only URL read, deferred so SSR hydrates with empty values first.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (ATTRIBUTION_RE.test(s)) setSource(s);
+    if (ATTRIBUTION_RE.test(p)) setEnquiryPackage(p);
+  }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -29,7 +47,16 @@ export default function ContactPage() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, venueName, venueType, message, website }),
+        body: JSON.stringify({
+          name,
+          email,
+          venueName,
+          venueType,
+          message,
+          website,
+          ...(source ? { source } : {}),
+          ...(enquiryPackage ? { package: enquiryPackage } : {}),
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong.");
@@ -72,6 +99,8 @@ export default function ContactPage() {
                 </div>
               )}
               <form className="contact-form" onSubmit={handleSubmit}>
+                {source ? <input type="hidden" name="source" value={source} /> : null}
+                {enquiryPackage ? <input type="hidden" name="package" value={enquiryPackage} /> : null}
                 <div className="sr-only-hp" aria-hidden="true">
                   <label htmlFor="contact-website">Website</label>
                   <input
