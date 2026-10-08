@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import localFont from "next/font/local";
+import { PRODUCT_FONT_CLASS } from "@/app/fonts/product-fonts";
 
 // Scoped to /management only — the Mission Control redesign (Figma: Venue
 // Manager Dashboard) uses a 3-font system: Lora for section headings/page
@@ -47,7 +48,7 @@ const dmMono = localFont({
 
 export default function ManagementLayout({ children }: { children: ReactNode }) {
   return (
-    <div className={`${lora.variable} ${outfit.variable} ${dmMono.variable}`} style={{ display: "contents" }}>
+    <div className={`${PRODUCT_FONT_CLASS} ${lora.variable} ${outfit.variable} ${dmMono.variable}`} style={{ display: "contents" }}>
       {children}
     </div>
   );

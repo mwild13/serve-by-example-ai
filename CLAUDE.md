@@ -72,8 +72,10 @@ All styling uses CSS custom properties defined in `app/globals.css`. **Do not in
 ```
 
 **Fonts:**
-- Headings: `var(--font-fraunces)` — serif, elegant
-- Body: `var(--font-manrope)` — clean sans-serif
+- Always reference `var(--font-heading)` and `var(--font-body)`. Never name a font family or a `--font-<family>` variable in a rule or inline style.
+- Marketing site and auth pages: Newsreader (headings, weight 600) and Inter (body), loaded in `app/layout.tsx`.
+- Logged-in product (`/dashboard`, `/mobile`): Fraunces and Manrope, loaded in `app/fonts/product-fonts.ts` and applied by the `.sbe-app-type` wrapper in each product layout. `/management` adds Lora, Outfit and DM Mono on top.
+- All font files are self-hosted in `app/fonts/` through `next/font/local`. Do not use `next/font/google`.
 
 **No emojis anywhere.** Use SVG icons or text labels instead.
 

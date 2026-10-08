@@ -85,7 +85,7 @@ export default function ChallengesMarketingPage() {
               </p>
               <h2
                 style={{
-                  fontFamily: "var(--font-fraunces)",
+                  fontFamily: "var(--font-heading)",
                   fontSize: "clamp(1.6rem, 3.5vw, 2.25rem)",
                   fontWeight: 700,
                   color: "var(--text)",
@@ -167,7 +167,7 @@ export default function ChallengesMarketingPage() {
               <div key={m.label}>
                 <div
                   style={{
-                    fontFamily: "var(--font-fraunces)",
+                    fontFamily: "var(--font-heading)",
                     fontSize: "2.25rem",
                     fontWeight: 700,
                     color: "white",
@@ -191,7 +191,7 @@ export default function ChallengesMarketingPage() {
             <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
               <h2
                 style={{
-                  fontFamily: "var(--font-fraunces)",
+                  fontFamily: "var(--font-heading)",
                   fontSize: "clamp(1.8rem, 4vw, 2.5rem)",
                   fontWeight: 700,
                   color: "var(--text)",
@@ -232,7 +232,7 @@ export default function ChallengesMarketingPage() {
                   >
                     <span
                       style={{
-                        fontFamily: "var(--font-fraunces)",
+                        fontFamily: "var(--font-heading)",
                         fontSize: "2rem",
                         fontWeight: 700,
                         color: "var(--line)",
@@ -259,7 +259,7 @@ export default function ChallengesMarketingPage() {
                   </div>
                   <h3
                     style={{
-                      fontFamily: "var(--font-fraunces)",
+                      fontFamily: "var(--font-heading)",
                       fontSize: "1.2rem",
                       fontWeight: 700,
                       color: "var(--text)",
@@ -285,7 +285,7 @@ export default function ChallengesMarketingPage() {
             <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
               <h2
                 style={{
-                  fontFamily: "var(--font-fraunces)",
+                  fontFamily: "var(--font-heading)",
                   fontSize: "clamp(1.8rem, 4vw, 2.5rem)",
                   fontWeight: 700,
                   color: "var(--text)",
@@ -320,7 +320,7 @@ export default function ChallengesMarketingPage() {
               >
                 <h3
                   style={{
-                    fontFamily: "var(--font-fraunces)",
+                    fontFamily: "var(--font-heading)",
                     fontSize: "1.25rem",
                     fontWeight: 700,
                     color: "var(--text)",
@@ -414,7 +414,7 @@ export default function ChallengesMarketingPage() {
               <div style={{ paddingTop: "0.5rem" }}>
                 <h2
                   style={{
-                    fontFamily: "var(--font-fraunces)",
+                    fontFamily: "var(--font-heading)",
                     fontSize: "clamp(1.5rem, 3vw, 2rem)",
                     fontWeight: 700,
                     color: "var(--text)",

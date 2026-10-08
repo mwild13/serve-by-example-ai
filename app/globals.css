@@ -95,28 +95,34 @@
   --shadow-md: 0 6px 24px rgba(15, 45, 29, 0.07), 0 2px 6px rgba(15, 45, 29, 0.04);
   --shadow-lg: 0 12px 40px rgba(15, 45, 29, 0.10), 0 4px 12px rgba(15, 45, 29, 0.05);
   --shadow-xl: 0 20px 60px rgba(15, 45, 29, 0.14), 0 6px 16px rgba(15, 45, 29, 0.06);
-  --font-heading: var(--font-fraunces), Georgia, serif;
-  --font-body: var(--font-manrope), "Segoe UI", system-ui, sans-serif;
+  --font-heading: var(--font-newsreader), Georgia, serif;
+  --font-body: var(--font-inter), "Segoe UI", system-ui, sans-serif;
+  /* Marketing headings are one weight. Newsreader is pinned to a low optical
+     size (on html, below) so large headings stay sturdy, not high-contrast. */
+  --fw-heading: 600;
+  --font-heading-opsz: 24;
   --font-mono: "SFMono-Regular", "JetBrains Mono", "Fira Mono", monospace;
 
   /* ── Marketing type scale (Pages-Redesign.md §6.4) ── */
   /* Six fluid steps, defined once. Do not re-invent clamp() per section. */
-  --fs-hero:    clamp(2.4rem, 5.5vw, 4.2rem);   /* Fraunces 600, lh 1.05, ls -0.015em */
-  --fs-h2:      clamp(1.8rem, 3.5vw, 2.6rem);   /* Fraunces 600, lh 1.15 */
-  --fs-h3:      clamp(1.15rem, 2vw, 1.35rem);   /* Fraunces 500 or Manrope 700 */
-  --fs-body-lg: clamp(1.05rem, 1.5vw, 1.2rem);  /* Manrope 400, lh 1.6 — hero subhead */
-  --fs-body:    1rem;                            /* Manrope 400, lh 1.65 */
-  --fs-caption: 0.8rem;                          /* Manrope 600, caps, ls 0.08em — eyebrows */
-  --fs-display: clamp(2rem, 3.6vw, 3.25rem);   /* Fraunces 500, section display heading */
-  --fs-numeral: clamp(3.5rem, 8vw, 6.5rem);     /* Fraunces 400, oversized step/metric numerals */
+  --fs-hero:    clamp(2.4rem, 5.5vw, 4.2rem);   /* Newsreader 600, lh 1.05, ls -0.015em */
+  --fs-h2:      clamp(1.8rem, 3.5vw, 2.6rem);   /* Newsreader 600, lh 1.12 */
+  --fs-h3:      clamp(1.15rem, 2vw, 1.35rem);   /* Newsreader 600 or Inter 600 */
+  --fs-body-lg: clamp(1.05rem, 1.5vw, 1.2rem);  /* Inter 400, lh 1.45 — ledes and hero subhead */
+  --fs-body:    1rem;                            /* Inter 400, lh 1.55 */
+  --fs-caption: 0.8rem;                          /* Inter 600, caps, ls 0.08em — kickers */
+  --fs-display: clamp(2rem, 3.6vw, 3.25rem);   /* Newsreader 600, section display heading */
+  --fs-numeral: clamp(3.5rem, 8vw, 6.5rem);     /* Newsreader 400, oversized step/metric numerals */
 
   /* ── Marketing tracking and leading — pair with the --fs-* steps above ── */
-  --tracking-display: -0.035em;  /* --fs-display, --fs-numeral */
-  --tracking-heading: -0.02em;   /* --fs-h2, --fs-h3 */
-  --tracking-caps: 0.14em;       /* --fs-caption kickers and labels */
+  --tracking-display: -0.025em;  /* --fs-display, --fs-numeral */
+  --tracking-heading: -0.015em;  /* --fs-h2, --fs-h3 */
+  --tracking-caps: 0.08em;       /* --fs-caption kickers and labels */
   --lh-display: 1.02;
-  --lh-heading: 1.18;
-  --lh-body: 1.65;
+  --lh-heading: 1.12;
+  --lh-body: 1.55;
+  --lh-lede: 1.45;
+  --tracking-body: -0.01em;      /* Inter body copy */
 
   /* Distance from the viewport edge to the .container edge — lets a panel or
      screenshot bleed out of the container while its text stays aligned. */
@@ -369,6 +375,7 @@
 }
 
 html {
+  font-variation-settings: "opsz" var(--font-heading-opsz);
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -381,7 +388,8 @@ body {
   color: var(--text);
   font-family: var(--font-body);
   font-size: 16px;
-  line-height: 1.65;
+  line-height: var(--lh-body);
+  letter-spacing: var(--tracking-body);
   overflow-x: clip;
   /* `pan-x pan-y` omitted pinch-zoom from the allowed gesture list, which could
      leave a pinched-in viewport stuck (unable to zoom back out). `manipulation`
@@ -14970,7 +14978,23 @@ body {
   }
 }
 
-/* ── Update 8: Fraunces variable axes ────────── */
+/* ── Product type scope ──────────────────────────────────────────────
+   /dashboard, /mobile and /management wrap their tree in .sbe-app-type
+   (app/fonts/product-fonts.ts) and stay on Fraunces/Manrope with the leading
+   and tracking they were built with. Everything outside it — the marketing
+   site and auth pages — uses Newsreader/Inter from :root. */
+.sbe-app-type {
+  --font-heading: var(--font-fraunces), Georgia, serif;
+  --font-body: var(--font-manrope), "Segoe UI", system-ui, sans-serif;
+  --lh-body: 1.65;
+  --tracking-body: normal;
+  font-family: var(--font-body);
+  font-variation-settings: normal;
+  line-height: 1.65;
+  letter-spacing: normal;
+}
+
+/* ── Update 8: variable-font optical sizing ────────── */
 h1, h2, h3 {
   font-optical-sizing: auto;
 }
@@ -16093,7 +16117,7 @@ h1, h2, h3 {
 }
 
 .geo-block-brand-name {
-  font-family: var(--font-fraunces);
+  font-family: var(--font-heading);
   font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: 0.16em;
@@ -16138,7 +16162,7 @@ h1, h2, h3 {
 
 /* Heading */
 .geo-block-heading {
-  font-family: var(--font-fraunces);
+  font-family: var(--font-heading);
   font-size: clamp(2.2rem, 6vw, 3.2rem);
   font-weight: 800;
   color: var(--surface-raised);
@@ -16515,7 +16539,7 @@ h1, h2, h3 {
   box-shadow: var(--shadow-lg);
   padding: clamp(1.25rem, 3vw, 2.5rem);
   color: var(--text-light-on-dark);
-  font-family: var(--font-manrope);
+  font-family: var(--font-body);
 }
 
 .sbe-compare-head {
@@ -16533,7 +16557,7 @@ h1, h2, h3 {
 }
 
 .sbe-compare-title {
-  font-family: var(--font-fraunces);
+  font-family: var(--font-heading);
   font-size: clamp(1.6rem, 3vw, 2rem);
   color: var(--nav-cream);
   margin: 0.5rem 0;
@@ -16584,7 +16608,7 @@ h1, h2, h3 {
 }
 
 .sbe-compare-tier {
-  font-family: var(--font-fraunces);
+  font-family: var(--font-heading);
   font-size: 1rem;
   font-weight: 700;
   color: var(--nav-cream);
@@ -16665,7 +16689,7 @@ h1, h2, h3 {
 }
 
 .sbe-compare-included-title {
-  font-family: var(--font-fraunces);
+  font-family: var(--font-heading);
   font-size: 1.25rem;
   color: var(--nav-cream);
   margin: 0 0 1.25rem;
@@ -19190,7 +19214,7 @@ h1, h2, h3 {
 
 .cookie-banner__title {
   margin: 0 0 0.4rem;
-  font-family: var(--font-fraunces), Georgia, serif;
+  font-family: var(--font-heading);
   font-size: 1.05rem;
   font-weight: 600;
   color: var(--text);
@@ -20143,7 +20167,7 @@ h1, h2, h3 {
   margin: 0;
   font-family: var(--font-heading);
   font-size: var(--fs-display);
-  font-weight: 500;
+  font-weight: var(--fw-heading);
   line-height: var(--lh-display);
   letter-spacing: var(--tracking-display);
   color: var(--green-deep);
@@ -20155,7 +20179,7 @@ h1, h2, h3 {
   max-width: 34rem;
   font-family: var(--font-body);
   font-size: var(--fs-body-lg);
-  line-height: 1.6;
+  line-height: var(--lh-lede);
   color: var(--text-soft);
   text-wrap: pretty;
 }
@@ -20251,7 +20275,7 @@ h1, h2, h3 {
   margin: 0 0 0.75rem;
   font-family: var(--font-heading);
   font-size: var(--fs-h2);
-  font-weight: 500;
+  font-weight: var(--fw-heading);
   line-height: var(--lh-heading);
   letter-spacing: var(--tracking-heading);
   color: var(--nav-cream);
@@ -20394,7 +20418,7 @@ h1, h2, h3 {
   margin: 0 0 0.85rem;
   font-family: var(--font-heading);
   font-size: var(--fs-h2);
-  font-weight: 500;
+  font-weight: var(--fw-heading);
   line-height: var(--lh-heading);
   letter-spacing: var(--tracking-heading);
   color: var(--green-deep);
@@ -20495,13 +20519,14 @@ h1, h2, h3 {
   letter-spacing: var(--tracking-display);
   font-variant-numeric: lining-nums;
   color: var(--gold-warm);
+  font-variant-numeric: lining-nums;
 }
 
 .sbe-mkt-path-step h3 {
   margin: 0 0 0.85rem;
   font-family: var(--font-heading);
   font-size: clamp(1.35rem, 2.2vw, 1.7rem);
-  font-weight: 500;
+  font-weight: var(--fw-heading);
   line-height: var(--lh-heading);
   letter-spacing: var(--tracking-heading);
   color: var(--nav-cream);
@@ -20576,6 +20601,7 @@ h1, h2, h3 {
   letter-spacing: var(--tracking-display);
   font-variant-numeric: lining-nums tabular-nums;
   color: var(--green);
+  font-variant-numeric: lining-nums;
 }
 
 .sbe-mkt-ledger-unit {
@@ -20660,7 +20686,7 @@ h1, h2, h3 {
   margin: 0;
   font-family: var(--font-heading);
   font-size: clamp(1.4rem, 2.4vw, 1.8rem);
-  font-weight: 500;
+  font-weight: var(--fw-heading);
   line-height: var(--lh-heading);
   letter-spacing: var(--tracking-heading);
   color: var(--green-deep);
@@ -20749,7 +20775,7 @@ h1, h2, h3 {
   cursor: pointer;
   font-family: var(--font-heading);
   font-size: clamp(1.15rem, 1.8vw, 1.4rem);
-  font-weight: 500;
+  font-weight: var(--fw-heading);
   line-height: 1.3;
   letter-spacing: var(--tracking-heading);
   color: var(--green-deep);
@@ -20908,11 +20934,12 @@ h1, h2, h3 {
 .sbe-mkt-roi-value {
   font-family: var(--font-heading);
   font-size: clamp(1.5rem, 2.6vw, 2rem);
-  font-weight: 500;
+  font-weight: var(--fw-heading);
   line-height: 1;
   letter-spacing: var(--tracking-heading);
   font-variant-numeric: lining-nums tabular-nums;
   color: var(--nav-cream);
+  font-variant-numeric: lining-nums;
 }
 
 .sbe-mkt-roi-value small {
@@ -21053,6 +21080,7 @@ h1, h2, h3 {
   letter-spacing: var(--tracking-display);
   font-variant-numeric: lining-nums tabular-nums;
   color: var(--nav-cream);
+  font-variant-numeric: lining-nums;
 }
 
 .sbe-mkt-roi-total small {
@@ -21245,7 +21273,7 @@ h1, h2, h3 {
   margin: 0;
   font-family: var(--font-heading);
   font-size: var(--fs-h2);
-  font-weight: 500;
+  font-weight: var(--fw-heading);
   line-height: var(--lh-heading);
   letter-spacing: var(--tracking-heading);
   color: var(--green-deep);
@@ -21302,7 +21330,7 @@ h1, h2, h3 {
   margin: 0;
   font-family: var(--font-heading);
   font-size: 1.5rem;
-  font-weight: 500;
+  font-weight: var(--fw-heading);
   line-height: var(--lh-heading);
   letter-spacing: var(--tracking-heading);
   color: var(--green-deep);
@@ -21344,6 +21372,7 @@ h1, h2, h3 {
   letter-spacing: var(--tracking-display);
   font-variant-numeric: lining-nums tabular-nums;
   color: var(--green-deep);
+  font-variant-numeric: lining-nums;
 }
 
 .sbe-mkt-price-note {
@@ -21520,7 +21549,7 @@ h1, h2, h3 {
   margin: 0;
   font-family: var(--font-heading);
   font-size: var(--fs-h2);
-  font-weight: 500;
+  font-weight: var(--fw-heading);
   line-height: 1.1;
   letter-spacing: var(--tracking-heading);
   color: var(--green-deep);
@@ -21551,7 +21580,7 @@ h1, h2, h3 {
   margin: 0 0 0.6rem;
   font-family: var(--font-heading);
   font-size: var(--fs-h3);
-  font-weight: 500;
+  font-weight: var(--fw-heading);
   line-height: var(--lh-heading);
   letter-spacing: var(--tracking-heading);
   color: var(--green-deep);

@@ -51,7 +51,9 @@ No two neighbouring sections use the same layout. The homepage runs: split panel
 
 ### 2.4 Type does the hierarchy
 
-Fraunces at display size with tight tracking sits against small, widely tracked Manrope capitals. That contrast replaces icons, pills and coloured tiles as the way to signal structure. Oversized Fraunces numerals (`01`, `24/7`, the calculator total) are used where a number is the content.
+Newsreader at display size, one weight (600), sits against small Inter capitals. That contrast replaces icons, pills and coloured tiles as the way to signal structure. Oversized Newsreader numerals (`01`, `24/7`, the calculator total) are used where a number is the content.
+
+The pairing was chosen in October 2026 as the closest freely licensed match to ABC Marist and Antique Legacy. Section 5.2 has the detail.
 
 ### 2.5 Real product over decoration
 
@@ -106,7 +108,7 @@ All of this is in the "Homepage editorial layout" block at the end of `app/globa
 | Class | Use |
 |---|---|
 | `.sbe-mkt-kicker` | Small caps label with a short rule before it. Replaces the pill eyebrow. |
-| `.sbe-mkt-display` | Section heading. Fraunces 500 at `--fs-display`. |
+| `.sbe-mkt-display` | Section heading. Newsreader 600 at `--fs-display`. |
 | `.sbe-mkt-lede` | Intro paragraph at `--fs-body-lg`, capped at 34rem wide. |
 | `.sbe-mkt-head` | Wrapper for kicker, heading and lede. |
 | `.sbe-mkt-head-split` | Puts the heading left and the lede right from 900px up. |
@@ -177,14 +179,23 @@ Defined once in `:root`. Do not write a new `clamp()` in a page file.
 
 | Token | Value | Pairs with |
 |---|---|---|
-| `--tracking-display` | `-0.035em` | `--fs-display`, `--fs-numeral` |
-| `--tracking-heading` | `-0.02em` | `--fs-h2`, `--fs-h3` |
-| `--tracking-caps` | `0.14em` | `--fs-caption` in capitals |
+| `--tracking-display` | `-0.025em` | `--fs-display`, `--fs-numeral` |
+| `--tracking-heading` | `-0.015em` | `--fs-h2`, `--fs-h3` |
+| `--tracking-caps` | `0.08em` | `--fs-caption` in capitals |
+| `--tracking-body` | `-0.01em` | Body copy, set on `body` |
 | `--lh-display` | `1.02` | Display headings |
-| `--lh-heading` | `1.18` | Sub-headings |
-| `--lh-body` | `1.65` | Body |
+| `--lh-heading` | `1.12` | Sub-headings |
+| `--lh-lede` | `1.45` | Ledes |
+| `--lh-body` | `1.55` | Body |
+| `--fw-heading` | `600` | Every heading |
 
-Fraunces is loaded at weights 400 to 600 only. Display headings use 500, numerals and the pull quote use 400. Do not ask for 700.
+**Fonts.** Headings are Newsreader and body is Inter, both SIL Open Font Licence and self-hosted from `app/fonts/` (loaded in `app/layout.tsx`). They were chosen to match the type on blinq.me, which uses ABC Marist (Dinamo) and Antique Legacy (Optimo). Both of those are commercial; if they are ever licensed, the swap is the two loaders in `app/layout.tsx` and nothing else.
+
+- **Reference `--font-heading` and `--font-body` only.** Never name a family in a rule.
+- **One heading weight.** Headings use `--fw-heading`. Numerals and the pull quote use 400. Newsreader is loaded from 400 to 700, roman and italic; Inter from 400 to 600.
+- **Optical size is pinned.** `html` sets `font-variation-settings: "opsz" 24` so large headings keep a sturdy, low-contrast shape. Do not override it on a heading.
+- **Numerals that carry content** (prices, ledger figures, totals) set `font-variant-numeric: lining-nums`.
+- **The logged-in product is not on these fonts.** `/dashboard`, `/mobile` and `/management` wrap their tree in `.sbe-app-type`, which points the same two tokens back at Fraunces and Manrope and restores their leading. Do not remove that wrapper as part of marketing work.
 
 `--fs-display` was first set at 3.75rem and was cut to 3.25rem after review at 1920px. Do not raise it again without checking the page at that width.
 
