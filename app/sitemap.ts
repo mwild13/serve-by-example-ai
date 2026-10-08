@@ -17,7 +17,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: "/solutions/fine-dining", priority: 0.7 },
     { url: "/solutions/franchise-systems", priority: 0.7 },
     { url: "/solutions/hotel-fb", priority: 0.7 },
-    { url: "/solutions/multi-venue", priority: 0.7 },
     { url: "/solutions/pub-groups", priority: 0.7 },
     { url: "/vs-generic-lms", priority: 0.7 },
     { url: "/roi", priority: 0.7 },

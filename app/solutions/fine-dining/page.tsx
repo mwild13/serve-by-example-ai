@@ -1,16 +1,4 @@
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import PageHero from "@/components/marketing/PageHero";
-import CTABand from "@/components/marketing/CTABand";
-import MetricsStrip from "@/components/marketing/MetricsStrip";
-import FeatureGrid, { type FeatureGridItem } from "@/components/marketing/FeatureGrid";
-import SectionHeading from "@/components/ui/SectionHeading";
-import {
-  IconGlass,
-  IconMessage,
-  IconChart,
-  IconStar,
-} from "@/components/icons/MarketingIcons";
+import SolutionPage, { type SolutionContent } from "@/components/marketing/SolutionPage";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -20,93 +8,73 @@ export const metadata: Metadata = {
   alternates: { canonical: "/solutions/fine-dining" },
 };
 
-const features: FeatureGridItem[] = [
-  {
-    icon: <IconGlass />,
+// Facts and claims are carried over from the previous page unchanged; the ones
+// that need a source are listed in To_do_list.md.
+const CONTENT: SolutionContent = {
+  slug: "fine-dining",
+  crumb: "Fine Dining & Bars",
+  schemaName: "Fine Dining & Cocktail Bars",
+  eyebrow: "Fine Dining & Cocktail Bars",
+  title: "Spec sheets memorised. Service elevated. Guests impressed.",
+  subtitle: "Premium venues live and die by the detail. A staff member who can’t describe a cocktail’s ingredients or explain a dish’s provenance isn’t just uninformed. They damage the experience. Serve By Example trains your team on the precise knowledge that earns loyalty.",
+  facts: {
+    kicker: "In the library",
+    title: "What your team trains on.",
+    rows: [
+      {
+        metric: "38",
+        title: "Cocktail and spirit specs",
+        body: "Embedded in the training library.",
+      },
+      {
+        metric: "65",
+        unit: "+",
+        title: "Bartending and service scenarios",
+        body: "To practise before the next big service.",
+      },
+      {
+        metric: "5",
+        title: "Service dimensions",
+        body: "Every response is evaluated across all five.",
+      },
+    ],
+  },
+  shot: {
+    tag: "In the product",
     title: "Cocktail and wine knowledge drilled daily",
     body: "Staff practise recipes, spirit profiles, and provenance stories through scenario repetition until they can describe them fluently under pressure.",
+    image: {
+      src: "/shots/Cocktail-mobile.png",
+      alt: "Serve By Example staff training app on mobile – 38-cocktail drink library",
+      width: 912,
+      height: 1844,
+    },
+    bare: true,
   },
-  {
-    icon: <IconMessage />,
-    title: "Premium guest recovery training",
-    body: "Handle complaints, special requests, and high-expectation guests with the composure and language that protects your reputation and earns repeat visits.",
+  features: {
+    kicker: "Premium training tools",
+    title: "Training as precise as your menu",
+    items: [
+      {
+        title: "Premium guest recovery training",
+        body: "Handle complaints, special requests, and high-expectation guests with the composure and language that protects your reputation and earns repeat visits.",
+      },
+      {
+        title: "Upsell confidence scored and tracked",
+        body: "The platform tracks every staff member’s upsell scenario performance and flags who needs targeted coaching before the next big service.",
+      },
+      {
+        title: "High-pressure simulation before Friday night",
+        body: "Staff rehearse service timing, course pacing, and multi-table management in scenario practice, before the stakes are real.",
+      },
+    ],
   },
-  {
-    icon: <IconChart />,
-    title: "Upsell confidence scored and tracked",
-    body: "The platform tracks every staff member’s upsell scenario performance and flags who needs targeted coaching before the next big service.",
+  cta: {
+    title: "Ready to elevate your service standards?",
+    copy: "Try a live bartending or upsell scenario now. No sign-up required.",
   },
-  {
-    icon: <IconStar />,
-    title: "High-pressure simulation before Friday night",
-    body: "Staff rehearse service timing, course pacing, and multi-table management in scenario practice, before the stakes are real.",
-  },
-];
-
-const breadcrumbSchema = {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://servebyexample.co" },
-    { "@type": "ListItem", "position": 2, "name": "Solutions", "item": "https://servebyexample.co/solutions" },
-    { "@type": "ListItem", "position": 3, "name": "Fine Dining & Cocktail Bars", "item": "https://servebyexample.co/solutions/fine-dining" },
-  ],
 };
 
 export default function FineDiningPage() {
-  return (
-    <div className="page-shell">
-      <Navbar />
-      <main>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-
-        {/* ── Hero ── */}
-        <PageHero
-          variant="solution"
-          breadcrumb={[
-            { label: "Solutions", href: "/solutions" },
-            { label: "Fine Dining & Bars" },
-          ]}
-          eyebrow="Fine Dining & Cocktail Bars"
-          title="Spec sheets memorised. Service elevated. Guests impressed."
-          subtitle="Premium venues live and die by the detail. A staff member who can’t describe a cocktail’s ingredients or explain a dish’s provenance isn’t just uninformed. They damage the experience. Serve By Example trains your team on the precise knowledge that earns loyalty."
-          actions={[
-            { label: "Request Venue Access", href: "/contact", variant: "primary" },
-            { label: "View Pricing", href: "/membership", variant: "secondary" },
-          ]}
-        />
-
-        {/* ── Metrics strip ── */}
-        <MetricsStrip
-          metrics={[
-            { value: "38", label: "cocktail and spirit specs embedded in the training library" },
-            { value: "65+", label: "bartending and service scenarios to practise" },
-            { value: "5 dims", label: "every response evaluated across 5 service dimensions" },
-          ]}
-        />
-
-        {/* ── Feature grid ── */}
-        <section className="section section-alt">
-          <div className="container">
-            <SectionHeading
-              eyebrow="Premium training tools"
-              title="Training as precise as your menu"
-            />
-            <FeatureGrid items={features} columns={2} />
-          </div>
-        </section>
-
-        {/* ── CTA ── */}
-        <CTABand
-          background="green"
-          eyebrow="Get started"
-          title="Ready to elevate your service standards?"
-          copy="Try a live bartending or upsell scenario now. No sign-up required."
-          primary={{ label: "Try the Demo", href: "/demo" }}
-          secondary={{ label: "Talk to Us", href: "/contact" }}
-        />
-      </main>
-      <Footer />
-    </div>
-  );
+  return <SolutionPage content={CONTENT} />;
 }

@@ -21881,6 +21881,10 @@ h1, h2, h3 {
     grid-column: 2;
   }
 
+  .sbe-mkt-plan:has(.sbe-mkt-plan-link) .sbe-mkt-plan-tier {
+    grid-row: span 3;
+  }
+
   /* Four numbered steps: tighter stagger than the three-step path */
   .sbe-mkt-path-steps.sbe-mkt-path-steps-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
