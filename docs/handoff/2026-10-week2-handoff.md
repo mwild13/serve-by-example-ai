@@ -1,6 +1,6 @@
-# Handoff: October 2026, Week 2 — By Example Advisory page and homepage UI overhaul
+# Handoff: October 2026, Week 2 — By Example Advisory page, homepage UI overhaul and pricing page redesign
 
-> **Two pieces of work this week.** Part 1 (below) is the Advisory page, merged to `main`. Part 2, at the end of this file, is the homepage UI overhaul, also merged to `main`. The AI model switch to `gpt-6-luna` is recorded in Part 1 and is merged too.
+> **Three pieces of work this week.** Part 1 (below) is the Advisory page, merged to `main`. Part 2 is the homepage UI overhaul, also merged to `main`. Part 3, at the end of this file, is the pricing page redesign, which is on a preview branch and **not merged**. The AI model switch to `gpt-6-luna` is recorded in Part 1 and is merged too.
 
 - **Dates:** 2026-10-07 to 2026-10-08
 - **Branch:** `preview/advisory-page`, **merged to `main` 2026-10-08** (merge `b0e1de1`). Preview: https://preview-advisory-page.serve-by-example-ai.pages.dev/advisory
@@ -204,7 +204,7 @@ The two pillar descriptions were also rewritten and no longer name the AI model.
 
 ## Open items
 
-- **Look at `/membership` and `/roi`.** The new calculator sits inside their old layout as a square dark panel.
+- **Look at `/roi`.** The new calculator sits inside its old layout as a square dark panel. (`/membership` is covered by Part 3, which removes the calculator from that page.)
 - **Copy sign-off.** The table above went live on the preview without a separate approval round.
 - **Trial button alternatives** offered and not used: "Train my team free for 14 days", "Open my venue's trial", "Put my roster through it".
 - **Unused CSS to delete after merge:** `.solution-grid`, `.solution-col*`, `.mastery-step*`, `.benefit-*`, `.cta-box`, `.zero-risk-block`, `.section-band-green`, `.sbe-slider-input`.
@@ -220,3 +220,101 @@ The two pillar descriptions were also rewritten and no longer name the AI model.
 - **Anything that bleeds out of `.container` uses `--page-gutter`** and is added to the three gutter media queries.
 - **A section the visitor operates must fit a 1440×900 window** with its submit control visible.
 - **To run public pages locally,** start the dev server with placeholder Supabase values. The command is in `docs/Pages-Redesign.md` section 8.
+
+---
+
+# Part 3: Pricing page redesign
+
+- **Date:** 2026-10-08
+- **Branch:** `preview/pricing-redesign`, cut from `main` after the Part 2 merge. **Not merged.** One commit, `db570a1`.
+- **Covers:** a rebuild of `/pricing` (also served at `/membership`) to the Part 2 standard, a "buy now" path beside the trial, the calculator removed from the page, and changes to the shared comparison table.
+- **Related:** `docs/Pages-Redesign.md` (section 4.2 has the new price board and aligned strip patterns; section 7 marks `/pricing` as migrated).
+
+## The short version
+
+1. **Price and button are on the first screen.** The plans sit in a board that overlaps the hero. Before, the buttons were about 1,030px down the page.
+2. **Three priced plans, not four cards.** Staff, Venue and Group are columns divided by hairlines, with Venue as a dark column. Franchise is a "Talk to us" row at the foot of the board.
+3. **Plans, founding points and comparison table share column edges.** All three use the same four equal tracks.
+4. **"Buy now" replaces "No credit card required".** Venue and Group show "Start my 14-day trial" with "or buy now" beneath. Staff has no trial, so its button is "Buy now".
+5. **The calculator is gone from this page.** The founding strip links to `/roi`. The calculator stays on `/` and `/roi`.
+6. **The page is shorter.** 7,038px to about 3,600px at 1440px wide; 11,983px to 6,710px on a phone.
+7. **No API change.** The checkout route already accepted logged-out buyers.
+
+## What changed
+
+### Page structure
+
+- **`app/pricing/page.tsx`** is now a server component: content constants, FAQ JSON-LD and markup. It was a 590-line client component.
+- **`components/marketing/PricingPlans.tsx`** (new) is the only client part: tier data, billing toggle, trial start and checkout. The handlers were moved across unchanged.
+- **Plan keys** are derived from the tier id: `pro`, `boutique`, `commercial`, with `_yearly` added for annual billing.
+
+### Comparison table (`components/ui/CompareMatrix.tsx`, shared with `/for-venues`)
+
+- **Rows identical across the visible plans are dropped at render time.** Three learning rows left the table on both pages and moved to the "On every plan" list.
+- **Three optional props:** `flush` (no panel, four 25% columns), `collapsible` (native `<details>`, closed by default) and `hideFranchise`. `/pricing` passes all three; `/for-venues` passes none and keeps its dark panel.
+- **One badge.** Venue is "Recommended". "Most Popular" and "Best Value" were removed.
+
+### Copy
+
+| Where | Before | After |
+|---|---|---|
+| Annual toggle | Save $298 | Pay annually and get 2 months free. |
+| Venue badge | Most Popular | Recommended |
+| Staff button and note | Subscribe now / No credit card required for trial. Billed annually. Cancel anytime. | Buy now / Billed monthly. Cancel anytime. |
+| Venue and Group button and note | Try Free for 14 Days / 14-day free trial. No credit card required. Pick a plan when you're ready. | Start my 14-day trial / or buy now |
+| Plan sublabels | Pro, Boutique, Commercial | One person, one seat / One venue, up to 15 staff / Multi-site, up to 35 staff |
+| Plan features | Neural Scenario Forge, Command & Compliance Centre and similar | The comparison table's existing names (AI Arena, Manager Console and so on) |
+| Founding heading | Lock In Founding Member Rates — Before Prices Rise | The price you start on is the price you keep. |
+| Founding button | Secure Founding Member Rate (to `/contact`), "Strictly limited spots" | Removed. The plan buttons above are the action. |
+| FAQ heading | Common questions. | Billing, trials and cancelling. |
+| Final CTA | Start Free Trial / 14-day free trial. No credit card required. Set up in under 10 minutes. | Start my 14-day trial / 14-day free trial. Set up in under 10 minutes. |
+
+- **Why "2 months free":** "Save $298" was true only for Group. Every annual price is exactly ten times the monthly price, so the new line is true for all three plans.
+- **Why "Recommended":** there are no customers yet, so "Most Popular" could not be backed.
+- **Staff note fixed:** the old line promised a trial the Staff plan does not have and said "Billed annually" on monthly billing.
+- **Guarantee:** the board carries the homepage's 14-Day Performance Guarantee wording as the page's one risk-reversal statement.
+- **New FAQ entry:** "Can I skip the trial and buy straight away?"
+- **Hero copy was not changed.**
+
+### Styles (`app/globals.css`)
+
+- **Added:** one block for the price board, founding strip and flush table, before the reduced-motion block at the end of the file. Tokens only.
+- **Deleted:** `.founding-*`, the old tier-card rules (`.sbe-mkt-pricing-grid`, `.sbe-mkt-pricecard*` except `-btn`, `.sbe-mkt-priceblock*`) and the pricing support footer rules.
+- **Kept:** `.sbe-mkt-pricefeature*` and `.sbe-mkt-pricecard-btn`, which `/advisory` also uses.
+
+## Checks run
+
+| Check | Result |
+|---|---|
+| Typecheck and lint | Passed |
+| CSS token lint | 10 reported values, the same as `main` |
+| Unit tests (vitest) | 38 of 38 passed |
+| Layout at 375, 1280, 1440 and 1920px | No horizontal overflow |
+| Column edges at 1280, 1440 and 1920px | Plans, founding points and table columns match, by measurement |
+| Buttons at 1440×900 | All three plan buttons visible without scrolling |
+| Buy now | Sends `pro`, `boutique`, `commercial` or the `_yearly` key to `/api/billing/checkout`, checked with the route stubbed |
+| Trial button, logged out | Redirects to `/login?intent=trial&tier=boutique` |
+| `/for-venues` | Table renders with four plan columns and 15 rows |
+| Real Stripe checkout | Not tested. Needs the deployed preview |
+| Marketing e2e | Not run. Needs the deployed preview |
+| `npm run build` and `build:cloudflare` | Not run locally. The Cloudflare preview build was not checked |
+
+## Open items
+
+- **Check the preview build and run the marketing e2e suite against it** before merging.
+- **Make one real purchase path test on the preview:** "or buy now" as a logged-out visitor, through Stripe and back to `/login?checkout=success`.
+- **Copy sign-off.** The table above went to the preview without a separate approval round. The old tier data was marked as locked pending a pricing review; prices are unchanged, feature names are not.
+- **Hero copy.** "Priced for founders" reads as if the customer is a startup founder. Suggested and not applied: "Pick a plan. Keep the price."
+- **Cost per staff member.** Venue is AUD $5.27 per seat per month and Group $4.26. Suggested as a line under the price and not applied, because it is a new claim.
+- **Phones.** The first plan's price is on the first screen at 375×812 but its button sits just below it.
+- **`/for-venues`** still shows the comparison table in the old dark panel inside a card-grid page.
+- **No pricing e2e test exists.** The marketing suite does not cover `/pricing`.
+
+## Rules for new code (added in Part 3)
+
+- **Tier prices and plan keys live in `components/marketing/PricingPlans.tsx`.** They match live Stripe prices; do not change them without a pricing review.
+- **A plan with a trial offers both paths:** the trial as the button and "buy now" as the link beneath. A plan without a trial uses "Buy now" as the button.
+- **Do not claim popularity.** Use "Recommended" until there is customer data.
+- **Savings copy must be true for every plan it sits beside.**
+- **`CompareMatrix` rows that are the same on every visible plan belong in the "On every plan" list,** not the table. The component drops them from the table automatically.
+- **Check the current branch before committing.** The checkout was moved to `main` by another session while this work was in progress, and the commit landed there first.
