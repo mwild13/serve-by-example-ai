@@ -1,10 +1,8 @@
-import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/marketing/PageHero";
 import CTABand from "@/components/marketing/CTABand";
-import FeatureGrid, { type FeatureGridItem } from "@/components/marketing/FeatureGrid";
-import SectionHeading from "@/components/ui/SectionHeading";
+import { RuledList, SplitPanel, Strip, type RuledItem, type StripItem } from "@/components/marketing/sections";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -14,22 +12,24 @@ export const metadata: Metadata = {
   alternates: { canonical: "/security" },
 };
 
-const weStore = [
+const WE_STORE = [
   { label: "Name", note: "Used for personalised training progress." },
   { label: "Email address", note: "For account access and notifications." },
   { label: "Training progress & scores", note: "Scenario results, mastery levels, module completions." },
   { label: "Venue association", note: "Which venue a staff member belongs to." },
 ];
 
-const weNeverStore = [
-  { label: "Government-issued ID or date of birth" },
-  { label: "Home address or personal contact details" },
-  { label: "Payment card numbers (handled entirely by Stripe)" },
-  { label: "Tax file numbers or employment contracts" },
-  { label: "Medical or personal records of any kind" },
+const WE_NEVER_STORE = [
+  "Government-issued ID or date of birth",
+  "Home address or personal contact details",
+  "Payment card numbers (handled entirely by Stripe)",
+  "Tax file numbers or employment contracts",
+  "Medical or personal records of any kind",
 ];
 
-const aiPrinciples: FeatureGridItem[] = [
+// This page names the AI provider on purpose: it is a data-handling disclosure,
+// not marketing copy (see the note in To_do_list.md).
+const AI_PRINCIPLES: RuledItem[] = [
   {
     title: "Only the scenario context is sent",
     body: "When staff practice a roleplay, only the training prompt and their response text is sent to OpenAI for evaluation. No venue names, staff names, or operational data is transmitted.",
@@ -52,110 +52,71 @@ const aiPrinciples: FeatureGridItem[] = [
   },
 ];
 
+const PAYMENTS: StripItem[] = [
+  {
+    title: "Processed by Stripe",
+    body: "All billing is processed by Stripe, a PCI-DSS Level 1 certified payment processor.",
+  },
+  {
+    title: "No card details held",
+    body: "Serve By Example never sees, stores, or has access to your card details.",
+  },
+  {
+    title: "A confirmation token only",
+    body: "Stripe handles the entire payment flow. We receive only a confirmation token.",
+  },
+];
+
 export default function SecurityPage() {
   return (
     <div className="page-shell">
       <Navbar />
-
       <main>
-        {/* ── Hero ── */}
         <PageHero
           eyebrow="Trust & Security"
           title="Your team’s data stays yours."
           subtitle="Serve By Example is a training platform, not a data platform. We collect the minimum required to run an effective training experience, nothing more."
         />
 
-        {/* ── What we store vs what we don't ── */}
-        <section className="section section-alt">
-          <div className="container">
-            <SectionHeading
-              eyebrow="Data transparency"
-              title="Exactly what we collect, and what we never touch."
-            />
-            <div className="sbe-mkt-security-data-grid">
-              <div className="sbe-mkt-security-data-card">
-                <div className="sbe-mkt-security-data-card-header">
-                  <div className="sbe-mkt-security-data-badge sbe-mkt-security-data-badge--yes">What we store</div>
-                  <p className="sbe-mkt-security-data-card-sub">
-                    Only the minimum needed to run personalised training for your staff.
-                  </p>
-                </div>
-                <ul className="sbe-mkt-security-data-list">
-                  {weStore.map((item) => (
-                    <li key={item.label} className="sbe-mkt-security-data-item sbe-mkt-security-data-item--yes">
-                      <div className="sbe-mkt-security-data-item-label">{item.label}</div>
-                      <div className="sbe-mkt-security-data-item-note">{item.note}</div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+        <SplitPanel
+          kicker="Data transparency"
+          title="Exactly what we collect, and what we never touch."
+          items={[
+            {
+              label: "What we never store",
+              title: "No sensitive personal data",
+              points: WE_NEVER_STORE,
+              body: "We are a training tool. We have no reason to collect sensitive personal data.",
+            },
+          ]}
+        >
+          <p className="sbe-mkt-show-tag sbe-mkt-duo-sub">What we store</p>
+          <p className="sbe-mkt-lede">Only the minimum needed to run personalised training for your staff.</p>
+          <ul className="sbe-mkt-points">
+            {WE_STORE.map((item) => (
+              <li key={item.label}>
+                <strong>{item.label}.</strong> {item.note}
+              </li>
+            ))}
+          </ul>
+        </SplitPanel>
 
-              <div className="sbe-mkt-security-data-card">
-                <div className="sbe-mkt-security-data-card-header">
-                  <div className="sbe-mkt-security-data-badge sbe-mkt-security-data-badge--no">What we never store</div>
-                  <p className="sbe-mkt-security-data-card-sub">
-                    We are a training tool. We have no reason to collect sensitive personal data.
-                  </p>
-                </div>
-                <ul className="sbe-mkt-security-data-list">
-                  {weNeverStore.map((item) => (
-                    <li key={item.label} className="sbe-mkt-security-data-item sbe-mkt-security-data-item--no">
-                      <div className="sbe-mkt-security-data-item-label">{item.label}</div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
+        <RuledList
+          tone="alt"
+          kicker="Platform transparency"
+          title="How the platform handles your data."
+          lede="We use OpenAI’s API for scenario evaluation. Here is exactly how it interacts with your content."
+          items={AI_PRINCIPLES}
+        />
 
-        {/* ── AI transparency ── */}
-        <section className="section">
-          <div className="container">
-            <SectionHeading
-              eyebrow="Platform transparency"
-              title="How the platform handles your data."
-              copy="We use OpenAI’s API for scenario evaluation. Here is exactly how it interacts with your content."
-            />
-            <FeatureGrid items={aiPrinciples} columns={2} />
-          </div>
-        </section>
+        <Strip
+          kicker="Payments"
+          title="Payment data never touches our servers."
+          items={PAYMENTS}
+          action={{ label: "Stripe’s security documentation", href: "https://stripe.com/docs/security" }}
+        />
 
-        {/* ── Payments ── */}
-        <section className="section section-alt">
-          <div className="container">
-            <div className="sbe-mkt-security-payments">
-              <div className="sbe-mkt-security-payments-text">
-                <span className="eyebrow">Payments</span>
-                <h2>Payment data never touches our servers.</h2>
-                <p>
-                  All billing is processed by Stripe, a PCI-DSS Level 1 certified payment processor.
-                  Serve By Example never sees, stores, or has access to your card details. Stripe
-                  handles the entire payment flow. We receive only a confirmation token.
-                </p>
-                <Link href="https://stripe.com/docs/security" className="btn btn-secondary" target="_blank" rel="noopener noreferrer">
-                  Stripe&rsquo;s security documentation
-                </Link>
-              </div>
-              <div className="sbe-mkt-security-payments-badge">
-                <div className="sbe-mkt-security-badge-card">
-                  <div className="sbe-mkt-security-badge-icon">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                    </svg>
-                  </div>
-                  <div className="sbe-mkt-security-badge-label">PCI-DSS compliant</div>
-                  <div className="sbe-mkt-security-badge-sub">via Stripe</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── CTA ── */}
         <CTABand
-          background="green"
           eyebrow="Still have questions?"
           title="We’re happy to go deeper."
           copy="If your organisation has specific data requirements, compliance questions, or a security review process, contact us directly."
@@ -163,7 +124,6 @@ export default function SecurityPage() {
           secondary={{ label: "Privacy Policy", href: "/privacy" }}
         />
       </main>
-
       <Footer />
     </div>
   );

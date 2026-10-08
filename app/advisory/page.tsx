@@ -5,7 +5,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HeroStickyBar from "@/components/HeroStickyBar";
 import CTABand from "@/components/marketing/CTABand";
-import SectionHeading from "@/components/ui/SectionHeading";
 import PackageCard, { type AdvisoryPackage } from "@/components/advisory/PackageCard";
 import AdvisoryCtaTracker from "@/components/advisory/AdvisoryCtaTracker";
 
@@ -94,7 +93,7 @@ const PACKAGES: (AdvisoryPackage & { id: AdvisorySlug })[] = [
     price: "$3,500",
     cta: "Start a Service Reset",
     audience: "For venues battling turnover or inconsistent service.",
-    popular: true,
+    recommended: true,
     inclusions: [
       "Everything in the Venue Health Check",
       "Service standards, SOPs and pre-shift checklists",
@@ -259,7 +258,9 @@ export default function AdvisoryPage() {
         {/* ── 2. The problem ── */}
         <section className="section">
           <div className="container sbe-adv-problem">
-            <SectionHeading title="Sound familiar?" />
+            <header className="sbe-mkt-head">
+              <h2 className="sbe-mkt-display">Sound familiar?</h2>
+            </header>
             <ul className="sbe-adv-problem-list">
               {PROBLEMS.map((item) => (
                 <li key={item.title}>
@@ -273,7 +274,9 @@ export default function AdvisoryPage() {
         {/* ── 3. How it works ── */}
         <section className="section section-alt">
           <div className="container">
-            <SectionHeading title="Audit. Fix. Sustain." />
+            <header className="sbe-mkt-head">
+              <h2 className="sbe-mkt-display">Audit. Fix. Sustain.</h2>
+            </header>
             <ol className="sbe-adv-steps">
               {STEPS.map((step, i) => (
                 <li key={step.title} className="sbe-adv-step">
@@ -291,11 +294,12 @@ export default function AdvisoryPage() {
         {/* ── 4. Packages ── */}
         <section className="section sbe-adv-anchor" id="packages">
           <div className="container">
-            <div className="section-header">
-              <h2>Pick your starting point</h2>
-              <p>All prices AUD ex GST.</p>
-              <p>In person across SEQ and Northern NSW. Remote across Australia.</p>
-            </div>
+            <header className="sbe-mkt-head">
+              <h2 className="sbe-mkt-display">Pick your starting point</h2>
+              <p className="sbe-mkt-lede">
+                All prices AUD ex GST. In person across SEQ and Northern NSW. Remote across Australia.
+              </p>
+            </header>
 
             <div className="sbe-adv-pkg-grid">
               {PACKAGES.map((pkg) => (
@@ -390,7 +394,9 @@ export default function AdvisoryPage() {
         {/* ── 6. Add-ons ── */}
         <section className="section">
           <div className="container">
-            <SectionHeading title="Add-ons" />
+            <header className="sbe-mkt-head">
+              <h2 className="sbe-mkt-display">Add-ons</h2>
+            </header>
             <ul className="sbe-adv-addons">
               {ADD_ONS.map((a) => (
                 <li key={a.name} className="sbe-adv-addon">
@@ -413,7 +419,9 @@ export default function AdvisoryPage() {
         <section className="section section-alt">
           <div className="container sbe-adv-about">
             <div className="sbe-adv-about-copy">
-              <SectionHeading title="Built from the sink up." />
+              <header className="sbe-mkt-head">
+                <h2 className="sbe-mkt-display">Built from the sink up.</h2>
+              </header>
               <p>
                 Mitch started at 13, washing dishes in a busy restaurant kitchen. Twenty years on,
                 he&apos;s worked almost every role a venue has: chain operations, high-end cocktail
@@ -437,20 +445,27 @@ export default function AdvisoryPage() {
         </section>
 
         {/* ── 8. FAQ ── */}
-        <section className="section">
-          <div className="container sbe-adv-faq-grid">
+        <section className="sbe-mkt-faq">
+          <div className="container sbe-mkt-faq-grid">
             <div className="sbe-adv-faq-intro">
-              <SectionHeading title="FAQ" />
+              <header className="sbe-mkt-head">
+                <h2 className="sbe-mkt-display">FAQ</h2>
+              </header>
               <p>Still unsure? Book a free 15 min call.</p>
-              <Link href={talkHref("general")} className="btn btn-primary">
+              <Link href={talkHref("general")} className="sbe-mkt-btn-primary">
                 {BOOK_CALL}
               </Link>
             </div>
-            <div className="faq-list sbe-adv-faq">
+            <div className="sbe-mkt-faq-list">
               {FAQS.map((f) => (
-                <details key={f.q} className="faq-item">
-                  <summary>{f.q}</summary>
-                  <p>{f.a}</p>
+                <details key={f.q} className="sbe-mkt-faq-item" name="advisory-faq">
+                  <summary className="sbe-mkt-faq-q">
+                    <span>{f.q}</span>
+                    <span className="sbe-mkt-faq-icon" aria-hidden="true" />
+                  </summary>
+                  <div className="sbe-mkt-faq-a">
+                    <p>{f.a}</p>
+                  </div>
                 </details>
               ))}
             </div>

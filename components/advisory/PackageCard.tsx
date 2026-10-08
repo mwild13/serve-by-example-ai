@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 
 /*
- * Advisory package card. Inclusions are always visible on desktop; on mobile
+ * Advisory package column. Inclusions are always visible on desktop; on mobile
  * they sit behind a "What's included" toggle (the list stays in the DOM and
  * is hidden by CSS, so the copy is still crawlable).
  */
@@ -19,7 +19,8 @@ export type AdvisoryPackage = {
   /** Short condition shown directly under the price (e.g. a minimum term). */
   note?: string;
   cta: string;
-  popular?: boolean;
+  /** One package may be marked as the suggested starting point. No popularity claims. */
+  recommended?: boolean;
 };
 
 type Props = {
@@ -32,8 +33,8 @@ export default function PackageCard({ pkg, href }: Props) {
   const listId = `advisory-pkg-${pkg.id}`;
 
   return (
-    <article className={`sbe-adv-pkg${pkg.popular ? " sbe-adv-pkg-popular" : ""}`}>
-      {pkg.popular ? <span className="sbe-adv-pkg-tag">Most popular</span> : null}
+    <article className={`sbe-adv-pkg${pkg.recommended ? " sbe-adv-pkg-popular" : ""}`}>
+      {pkg.recommended ? <span className="sbe-adv-pkg-tag">Recommended</span> : null}
 
       <h3 className="sbe-adv-pkg-name">{pkg.name}</h3>
 
@@ -82,7 +83,7 @@ export default function PackageCard({ pkg, href }: Props) {
       <div className="sbe-adv-pkg-foot">
         <Link
           href={href}
-          className={`btn ${pkg.popular ? "btn-primary" : "btn-secondary"} sbe-mkt-pricecard-btn`}
+          className={`btn ${pkg.recommended ? "btn-primary" : "btn-secondary"} sbe-mkt-pricecard-btn`}
         >
           {pkg.cta}
         </Link>

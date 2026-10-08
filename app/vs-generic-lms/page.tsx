@@ -2,8 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/marketing/PageHero";
 import CTABand from "@/components/marketing/CTABand";
-import FeatureGrid, { type FeatureGridItem } from "@/components/marketing/FeatureGrid";
-import SectionHeading from "@/components/ui/SectionHeading";
+import { Ledger, RuledList, SectionHead, type LedgerRow, type RuledItem } from "@/components/marketing/sections";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -13,7 +12,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/vs-generic-lms" },
 };
 
-const comparisonRows = [
+const COMPARISON = [
   {
     topic: "Training format",
     generic: "Long videos and passive click-through modules. Staff watch, answer a quiz, move on. No pressure, no real skill measurement.",
@@ -65,34 +64,41 @@ const breadcrumbSchema = {
   ],
 };
 
-// SVG check icon — no emojis
-function CheckIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0, marginTop: "2px" }}>
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
+// Figures carried over from the previous page. "90%+" and the figures in the
+// business case are flagged in To_do_list.md ("Marketing copy to source or remove").
+const DIFFERENCES: LedgerRow[] = [
+  { metric: "5", title: "Service dimensions scored", body: "Per AI scenario response — not just pass/fail." },
+  { metric: "40", unit: "+", title: "Hospitality-specific modules", body: "Across bartending, sales, and management." },
+  { metric: "1", unit: "day", title: "Average setup time", body: "No content creation or SCORM uploads required." },
+  { metric: "90", unit: "%+", title: "Mobile completion rates", body: "When staff train between shifts on their phone." },
+];
 
-// SVG X icon
-function XIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0, marginTop: "2px" }}>
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
-  );
-}
+const BUSINESS_CASE: RuledItem[] = [
+  {
+    title: "Poor training is a direct revenue problem",
+    body: "When frontline staff cannot upsell menu options confidently, recommend pairings, or manage guest complaints under pressure, every single shift costs you in missed sales and lost repeat customers.",
+  },
+  {
+    title: "Attrition starts with weak onboarding",
+    body: "Up to 39% of FOH and 42% of BOH staff quit within their first 90 days. Structured, AI-guided scenario training builds confidence early and directly reduces turnover by 20–23%.",
+  },
+  {
+    title: "Manager hours are your most expensive resource",
+    body: "Every hour a senior manager repeats the same onboarding basics is an hour lost from active floor support, venue operations, and coaching your best staff.",
+  },
+  {
+    title: "Training only works if staff actually do it",
+    body: "Long videos and physical training binders are ignored by younger staff. Interactive mobile modules built for between-shift use see 90%+ completion rates vs. 20–30% for video-based LMS courses.",
+  },
+];
 
 export default function VsGenericLmsPage() {
   return (
     <div className="page-shell">
       <Navbar />
-
       <main>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
 
-        {/* ── Hero ── */}
         <PageHero
           eyebrow="Serve By Example vs Generic LMS"
           title="Why a generic LMS won’t work for hospitality."
@@ -103,127 +109,57 @@ export default function VsGenericLmsPage() {
           ]}
         />
 
-        {/* ── Core differentiator callout ── */}
-        <section className="section" style={{ background: "var(--surface-raised)", padding: "2.5rem 0" }}>
-          <div className="container">
-            <FeatureGrid
-              columns={4}
-              items={[
-                { variant: "stat", title: "5", body: "Service dimensions scored per AI scenario response — not just pass/fail" },
-                { variant: "stat", title: "40+", body: "Hospitality-specific modules across bartending, sales, and management" },
-                { variant: "stat", title: "1 day", body: "Average setup time — no content creation or SCORM uploads required" },
-                { variant: "stat", title: "90%+", body: "Mobile completion rates when staff train between shifts on their phone" },
-              ] satisfies FeatureGridItem[]}
-            />
-          </div>
-        </section>
+        <Ledger
+          tone="alt"
+          kicker="The short version"
+          title="Four differences you feel on a shift."
+          rows={DIFFERENCES}
+        />
 
-        {/* ── Head-to-head comparison table ── */}
-        <section className="section section-alt">
+        {/* ── Head-to-head: a hairline table, stacked per area on phones ── */}
+        <section className="sbe-mkt-versus">
           <div className="container">
-            <SectionHeading
-              eyebrow="Head-to-head"
+            <SectionHead
+              kicker="Head-to-head"
               title="What generic LMS platforms get wrong for hospitality."
-              copy="Eight dimensions where the platform design fundamentally differs."
+              lede="Eight dimensions where the platform design fundamentally differs."
             />
-
-            <div style={{ marginTop: "2.5rem", display: "flex", flexDirection: "column", gap: "0", border: "1px solid var(--line)", borderRadius: "var(--radius-lg)", overflow: "hidden" }}>
-              {/* Table header */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", background: "var(--bg-dark)", color: "var(--surface-raised)", padding: "1rem 1.5rem", gap: "1.5rem" }}>
-                <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.08em", textTransform: "uppercase", opacity: 0.7 }}>Area</div>
-                <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: "0.875rem" }}>Generic LMS</div>
-                <div style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: "0.975rem", color: "var(--gold-warm)" }}>Serve By Example</div>
-              </div>
-
-              {comparisonRows.map((row, i) => (
-                <div
-                  key={row.topic}
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr 1fr",
-                    gap: "1.5rem",
-                    padding: "1.25rem 1.5rem",
-                    borderTop: i === 0 ? "none" : "1px solid var(--line-light)",
-                    background: i % 2 === 0 ? "var(--surface)" : "var(--bg-alt)",
-                    alignItems: "start",
-                  }}
-                >
-                  <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: "0.875rem", color: "var(--text)", paddingTop: "2px" }}>
-                    {row.topic}
-                  </div>
-                  <div style={{ display: "flex", gap: "0.625rem", alignItems: "flex-start" }}>
-                    <XIcon />
-                    <p style={{ margin: 0, fontFamily: "var(--font-body)", fontSize: "0.85rem", color: "var(--text-soft)", lineHeight: 1.6 }}>
-                      {row.generic}
-                    </p>
-                  </div>
-                  <div style={{ display: "flex", gap: "0.625rem", alignItems: "flex-start" }}>
-                    <CheckIcon />
-                    <p style={{ margin: 0, fontFamily: "var(--font-body)", fontSize: "0.85rem", color: "var(--text)", lineHeight: 1.6, fontWeight: 500 }}>
-                      {row.sbe}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <table className="sbe-mkt-versus-table">
+              <thead>
+                <tr>
+                  <th scope="col">Area</th>
+                  <th scope="col">Generic LMS</th>
+                  <th scope="col">Serve By Example</th>
+                </tr>
+              </thead>
+              <tbody>
+                {COMPARISON.map((row) => (
+                  <tr key={row.topic}>
+                    <th scope="row">{row.topic}</th>
+                    <td data-label="Generic LMS">{row.generic}</td>
+                    <td data-label="Serve By Example">{row.sbe}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </section>
 
-        {/* ── Why structured training matters ── */}
-        <section style={{ padding: "64px 24px", width: "100%", backgroundColor: "var(--bg-alt)", borderTop: "1px solid var(--line)" }}>
-          <div className="container">
-            <div style={{ marginBottom: "48px", maxWidth: "650px" }}>
-              <span className="eyebrow">The Business Case</span>
-              <h2 style={{ marginTop: "0.5rem", marginBottom: "1rem" }}>Why the training format actually matters for your bottom line.</h2>
-              <p style={{ fontSize: "0.975rem", color: "var(--text-soft)", lineHeight: 1.7 }}>
-                Australia&rsquo;s hospitality sector operates on 3–9% net profit margins. The cost
-                of weak training isn&rsquo;t just recruitment — it&rsquo;s the revenue drain of
-                inconsistent floor shifts compounding week after week.
-              </p>
-            </div>
+        <RuledList
+          tone="alt"
+          kicker="The business case"
+          title="Why the training format actually matters for your bottom line."
+          lede="Australia’s hospitality sector operates on 3–9% net profit margins. The cost of weak training isn’t just recruitment — it’s the revenue drain of inconsistent floor shifts compounding week after week."
+          items={BUSINESS_CASE}
+        />
 
-            <div className="why-grid-2x2">
-              <div className="why-grid-item">
-                <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "0.5rem", color: "var(--text)" }}>Poor training is a direct revenue problem</h3>
-                <p style={{ color: "var(--text-soft)", fontSize: "0.9rem", lineHeight: 1.65 }}>
-                  When frontline staff cannot upsell menu options confidently, recommend pairings, or manage guest complaints under pressure, every single shift costs you in missed sales and lost repeat customers.
-                </p>
-              </div>
-
-              <div className="why-grid-item">
-                <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "0.5rem", color: "var(--text)" }}>Attrition starts with weak onboarding</h3>
-                <p style={{ color: "var(--text-soft)", fontSize: "0.9rem", lineHeight: 1.65 }}>
-                  Up to 39% of FOH and 42% of BOH staff quit within their first 90 days. Structured, AI-guided scenario training builds confidence early and directly reduces turnover by 20–23%.
-                </p>
-              </div>
-
-              <div className="why-grid-item" style={{ borderBottom: "none" }}>
-                <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "0.5rem", color: "var(--text)" }}>Manager hours are your most expensive resource</h3>
-                <p style={{ color: "var(--text-soft)", fontSize: "0.9rem", lineHeight: 1.65 }}>
-                  Every hour a senior manager repeats the same onboarding basics is an hour lost from active floor support, venue operations, and coaching your best staff.
-                </p>
-              </div>
-
-              <div style={{ borderBottom: "none" }}>
-                <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "0.5rem", color: "var(--text)" }}>Training only works if staff actually do it</h3>
-                <p style={{ color: "var(--text-soft)", fontSize: "0.9rem", lineHeight: 1.65 }}>
-                  Long videos and physical training binders are ignored by younger staff. Interactive mobile modules built for between-shift use see 90%+ completion rates vs. 20–30% for video-based LMS courses.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── CTA ── */}
         <CTABand
-          background="green"
           title="See what hospitality training looks like when it’s built for hospitality."
           copy="No credit card required. Full platform access in the demo."
           primary={{ label: "Try the Free Demo", href: "/demo" }}
           secondary={{ label: "Talk to Us", href: "/contact" }}
         />
       </main>
-
       <Footer />
     </div>
   );
