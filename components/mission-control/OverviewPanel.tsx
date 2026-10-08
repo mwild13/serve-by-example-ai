@@ -1,35 +1,26 @@
 "use client";
 
 import type { ManagementSnapshot, ManagerSection } from "@/lib/management/types";
-import { rsaStatus } from "./compliance/helpers";
+import { buildOverviewNotices } from "@/lib/management/notices";
+import { fssStatus, rsaStatus } from "./compliance/helpers";
 import { OverviewKpiStrip, type OverviewKpi } from "./OverviewKpiStrip";
-import { LearningActivityChart } from "./LearningActivityChart";
+import { OverviewNoticeReel } from "./OverviewNoticeReel";
+import { TeamActivityCard } from "./TeamActivityCard";
 import { NeedsAttentionCard } from "./NeedsAttentionCard";
 import { SkillGapsSummaryCard } from "./SkillGapsSummaryCard";
 import { RoleQualificationCard } from "./RoleQualificationCard";
 
-// Extracted from ManagerControlCenter.tsx (Phase 5 — component extraction
-// roadmap). Covers the Overview tab — the Figma "Venue Manager Dashboard"
-// port: strictly the compliance banners, the 4-card KPI strip, and the
-// 60/40 grid (Learning Activity + Needs Attention on the left; Predictive
-// Skill Gaps + Role Qualification Progress on the right).
+// The Overview tab, top to bottom: the notice reel, the four-figure strip,
+// then a 60/40 grid (Team activity and Needs attention on the left; Training
+// gaps and Qualifications on the right).
 //
-// The page-level "{venue} · {date} · N things need attention" sub-header
-// and its "View roster →" / "Export →" actions have been removed — the
-// venue name + switcher already lives permanently in the sticky
-// ManagementTopbar above this panel, so repeating it here was a duplicate
-// title bar. The attention count is still surfaced honestly via the
-// NeedsAttentionCard's "N flagged" badge and the Confidence Mismatch KPI
-// card, not fabricated a second time. "Export →" moved to the Staff
-// Directory tab's own header, next to the role filter, since that's where
-// staff records actually live.
+// The venue name is not repeated here: it lives in the sticky
+// ManagementTopbar above this panel. Compliance warnings are no longer
+// banners: they are the first items in the notice reel, and the RSA and FSS
+// figure carries the count.
 //
-// The RSA compliance banners are kept: they're live legal/safety alerts
-// (7-day and 30-day expiry warnings), not a duplicate "overview" card.
-//
-// Pure presentational — every value here is already computed by the parent
-// (metrics, needsAttention, venueStaff) and passed down as props; no new
-// data-fetching, no hardcoded identities.
+// Pure presentational — every value is computed from props the parent
+// already holds (metrics, needsAttention, venueStaff); no data-fetching.
 
 interface OverviewMetrics {
   venueHealthScore: number;
@@ -57,98 +48,55 @@ export function OverviewPanel({
   handleSectionChange,
   onOpenCoachingDrawer,
 }: OverviewPanelProps) {
-  // ── KPI strip data (Figma: Shift Readiness / RSA·FSS / Confidence / Mastery) ──
+  const total = venueStaff.length;
   const clearedCount = venueStaff.filter((s) => rsaStatus(s.compliance).level !== 3 && s.status !== "inactive").length;
   const rsaExpiredCount = venueStaff.filter((s) => rsaStatus(s.compliance).level === 3).length;
   const rsaExpiringCount = venueStaff.filter((s) => {
     const level = rsaStatus(s.compliance).level;
     return level === 1 || level === 2;
   }).length;
-  const confidenceMismatchCount = venueStaff.filter(
-    (s) => s.highConfidenceIncorrectRatio != null && s.highConfidenceIncorrectRatio > 0.3,
-  ).length;
+  const fssOnFile = venueStaff.filter((s) => s.compliance?.fssExpiryDate).length;
+  const fssExpiredCount = venueStaff.filter((s) => fssStatus(s.compliance).level >= 1).length;
+  const fssNote = fssOnFile === 0 ? "no FSS on file" : fssExpiredCount > 0 ? `${fssExpiredCount} FSS expired` : "FSS current";
 
   const kpis: OverviewKpi[] = [
     {
-      label: "Shift Readiness Score",
-      abbr: "Rf",
-      abbrColor: metrics.rfScore >= 75 ? "var(--mc-green)" : "var(--mc-terracotta)",
-      abbrBg: metrics.rfScore >= 75 ? "var(--mc-green-bg)" : "var(--mc-terracotta-bg)",
+      label: "Shift readiness",
       value: `${metrics.rfScore}%`,
-      valueColor: metrics.rfScore >= 75 ? "var(--mc-green)" : "var(--mc-terracotta)",
-      sub: `${clearedCount}/${venueStaff.length || 0} rostered staff cleared for tonight`,
-      section: "staff",
-    },
-    {
-      label: "Legal RSA / FSS Status",
-      abbr: "RSA",
-      abbrColor: "var(--mc-terracotta)",
-      abbrBg: "var(--mc-amber-bg)",
-      pills: [
-        { label: `${rsaExpiredCount} Expired`, color: rsaExpiredCount > 0 ? "var(--mc-terracotta)" : "var(--mc-green-text)", bg: rsaExpiredCount > 0 ? "var(--mc-terracotta-bg)" : "var(--mc-green-bg)" },
-        { label: `${rsaExpiringCount} Expiring <30d`, color: "var(--mc-amber-text)", bg: "var(--mc-amber-bg)" },
-      ],
-      sub: "Responsible Service of Alcohol",
-      section: "compliance",
-    },
-    {
-      label: "Confidence Mismatch Alert",
-      abbr: "CM",
-      abbrColor: "var(--mc-terracotta)",
-      abbrBg: "var(--mc-terracotta-bg)",
-      value: `${confidenceMismatchCount}`,
-      valueColor: confidenceMismatchCount > 0 ? "var(--mc-terracotta)" : "var(--mc-text)",
-      sub: "Staff confident & incorrect",
+      sub: `${clearedCount} of ${total} staff cleared to work`,
       section: "predictive",
     },
     {
-      label: "Average Mastery Score",
-      abbr: "Ms",
-      abbrColor: "var(--mc-green-text)",
-      abbrBg: "var(--mc-green-bg)",
+      label: "Average mastery",
       value: `${metrics.avgScenarioScore}%`,
-      valueColor: "var(--mc-green)",
-      sub: "Across all active assessments",
+      sub: "Across service, sales and product",
       section: "analytics",
+    },
+    {
+      label: "Trained this week",
+      value: `${metrics.activeThisWeek} of ${total}`,
+      sub: "Staff active in the last 7 days",
+      section: "staff",
+    },
+    {
+      label: "RSA and FSS",
+      value: `${rsaExpiredCount} expired`,
+      alert: rsaExpiredCount > 0,
+      sub: `${rsaExpiringCount} RSA expiring within 30 days, ${fssNote}`,
+      section: "compliance",
     },
   ];
 
   return (
     <div className="mcc-overview-shell">
-      <div className="mcc-overview-main" style={{ display: "flex", flexDirection: "column", gap: 12, padding: 16 }}>
+      <div className="mcc-overview-main mc-overview">
+        <OverviewNoticeReel notices={buildOverviewNotices(venueStaff)} onNav={handleSectionChange} />
 
-        {/* ── Level 1 Compliance Banner (30-day warning) ── */}
-        {venueStaff.some(s => rsaStatus(s.compliance).level === 1) && (
-          <div style={{ background: 'var(--gold-light)', border: '1px solid var(--gold)', color: 'var(--text)', borderRadius: 'var(--radius-md)', padding: '10px 14px', fontSize: '0.85rem' }}>
-            Compliance reminder: {venueStaff.filter(s => rsaStatus(s.compliance).level === 1).length} staff member{venueStaff.filter(s => rsaStatus(s.compliance).level === 1).length > 1 ? 's have' : ' has'} RSA certifications expiring within 30 days. Plan renewals early.
-          </div>
-        )}
-
-        {/* ── Level 2 Compliance Banner (7-day alert) ── */}
-        {venueStaff.some(s => rsaStatus(s.compliance).level >= 2) && (
-          <div style={{ background: 'var(--status-error-bg)', border: '1px solid var(--status-error)', color: 'var(--status-error-text)', borderRadius: 'var(--radius-md)', padding: '10px 14px', fontWeight: 600, fontSize: '0.92rem' }}>
-            Compliance alert: one or more staff have certifications expiring within 7 days. Review the Compliance tab immediately.
-          </div>
-        )}
-
-        {/* ── KPI strip (Figma: Shift Readiness / RSA·FSS / Confidence / Mastery) ── */}
         <OverviewKpiStrip items={kpis} onNav={handleSectionChange} />
 
-        {/* ── 60/40 grid: Learning Activity + Needs Attention | Skill Gaps + Role Qualification ── */}
         <div className="mc-overview-grid">
           <div className="mc-col">
-            <div className="mc-panel">
-              <div className="mc-panel-head">
-                <div>
-                  <p className="mc-panel-title">Learning Activity</p>
-                  <p className="mc-panel-desc">Training completion trend, last 7 days</p>
-                </div>
-              </div>
-              <div className="mc-panel-body">
-                <LearningActivityChart trainingValue={metrics.avgCompletion} />
-              </div>
-            </div>
-
+            <TeamActivityCard venueStaff={venueStaff} />
             <NeedsAttentionCard
               staff={needsAttention}
               onCoach={(member) => onOpenCoachingDrawer(member.id)}
@@ -160,7 +108,6 @@ export function OverviewPanel({
             <RoleQualificationCard venueStaff={venueStaff} avgCompletion={metrics.avgCompletion} />
           </div>
         </div>
-
       </div>
     </div>
   );

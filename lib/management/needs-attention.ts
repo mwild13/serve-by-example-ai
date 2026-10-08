@@ -17,6 +17,16 @@ export function parseLastActiveDays(lastActive: string): number | null {
   return null;
 }
 
+// "Active in the last N days" — shared by the Overview tile, the notice reel
+// and the venue health score so all three count the same people. A staff
+// member with an unreadable timestamp ("Recently") counts as active, which is
+// how formatLastActive() in service.ts intends that label.
+export function wasActiveWithinDays(lastActive: string, days: number): boolean {
+  if (lastActive === "Not started") return false;
+  const daysAgo = parseLastActiveDays(lastActive);
+  return daysAgo === null ? true : daysAgo < days;
+}
+
 export function needsAttention(member: StaffMember): boolean {
   // Onboarding Stagnation: never started training
   if (member.lastActive === "Not started") return true;

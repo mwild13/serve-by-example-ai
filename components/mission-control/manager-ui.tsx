@@ -26,8 +26,8 @@ export function MissionControlSkeleton() {
           </div>
         </div>
         <div style={{ padding: 16 }}>
-          <div style={{ background: "var(--mc-line)", height: 40, borderRadius: 8 }} />
-          <div style={{ background: "var(--mc-line)", height: 200, borderRadius: 8, marginTop: 12 }} />
+          <div style={{ background: "var(--line-light)", height: 40, borderRadius: 8 }} />
+          <div style={{ background: "var(--line-light)", height: 200, borderRadius: 8, marginTop: 12 }} />
         </div>
       </aside>
       <section className="ops-workspace" style={{ opacity: 0.4, pointerEvents: "none" }}>

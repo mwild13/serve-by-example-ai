@@ -1,24 +1,9 @@
 "use client";
 
 import React, { FormEvent, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
-import SignOutButton from "@/components/ui/SignOutButton";
 import SessionRefresher from "@/components/ui/SessionRefresher";
-import {
-  LayoutDashboard,
-  Users,
-  Users2,
-  ShieldCheck,
-  FileText,
-  BarChart3,
-  FileLineChart,
-  Trophy,
-  Sparkles,
-  Settings,
-  ChevronDown,
-} from "lucide-react";
 import type {
   ManagementSnapshot,
   ManagerSection,
@@ -29,7 +14,7 @@ import type {
 } from "@/lib/management/types";
 import { ComplianceHub } from "./compliance/ComplianceHub";
 import { rsaStatus } from "./compliance/helpers";
-import type { QuickActionId, NavGroup, SearchResult } from "./manager-types";
+import type { QuickActionId, SearchResult } from "./manager-types";
 import { EmptyState, MissionControlSkeleton } from "./manager-ui";
 import { WorkspaceHeader } from "@/app/management/dashboard/_components/WorkspaceHeader";
 import { ManagementTopbar } from "@/app/management/dashboard/_components/ManagementTopbar";
@@ -45,48 +30,19 @@ import { PredictivePanel } from "./PredictivePanel";
 import { SettingsPanel } from "./SettingsPanel";
 import { LeaderboardBoard } from "./LeaderboardBoard";
 import { OverviewPanel } from "./OverviewPanel";
+import { ConsoleSidebar } from "./ConsoleSidebar";
 import { GroupAnalyticsPanel } from "./GroupAnalyticsPanel";
 import { TrialStatusPill } from "./TrialStatusPill";
 import { TrialExpiredModal } from "./TrialExpiredModal";
 import { isB2BTier, isMultiVenueTier } from "@/lib/session";
 import { groupStaffByPresentRoles } from "@/lib/management/team-grouping";
-import { filterNeedsAttention } from "@/lib/management/needs-attention";
+import { filterNeedsAttention, wasActiveWithinDays } from "@/lib/management/needs-attention";
 
 type SnapshotResponse = ManagementSnapshot & {
   inviteMessage?: string;
   inviteLink?: string;
   emailSent?: boolean;
 };
-
-const NAV_GROUPS: NavGroup[] = [
-  {
-    label: "Command",
-    collapsible: false,
-    items: [{ id: "overview", label: "Overview", icon: LayoutDashboard }],
-  },
-  {
-    label: "People",
-    collapsible: true,
-    items: [
-      { id: "staff", label: "Staff", icon: Users },
-      { id: "teams", label: "Teams", icon: Users2 },
-      { id: "roles", label: "Roles & Permissions", icon: ShieldCheck },
-      { id: "compliance", label: "Compliance", icon: FileText },
-    ],
-  },
-  {
-    label: "Performance",
-    collapsible: true,
-    items: [
-      { id: "analytics", label: "Analytics", icon: BarChart3 },
-      { id: "reports", label: "Reports", icon: FileLineChart },
-      { id: "leaderboards", label: "Leaderboards", icon: Trophy },
-      { id: "aicoach", label: "Ask AI Coach", icon: Sparkles },
-      { id: "settings", label: "Settings", icon: Settings },
-    ],
-  },
-];
-
 
 const SECTION_META: Record<ManagerSection, { cluster: string; label: string }> = {
   overview: { cluster: "Workspace", label: "Overview" },
@@ -105,7 +61,7 @@ const SECTION_META: Record<ManagerSection, { cluster: string; label: string }> =
   leaderboards: { cluster: "Performance", label: "Leaderboards" },
   notifications: { cluster: "Performance", label: "Notifications" },
   aicoach: { cluster: "AI Coach", label: "Ask AI Coach" },
-  predictive: { cluster: "AI Coach", label: "Predictive Insights" },
+  predictive: { cluster: "People", label: "Training Gaps" },
   settings: { cluster: "Admin", label: "Settings" },
 };
 
@@ -316,7 +272,6 @@ export default function ManagerControlCenter({
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [renameVenueName, setRenameVenueName] = useState(initialSnapshot?.venues[0]?.name ?? "");
   const [renameSaving, setRenameSaving] = useState(false);
-  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [sessionToken, setSessionToken] = useState<string | null>(null);
 
@@ -449,7 +404,6 @@ export default function ManagerControlCenter({
   const [reportScheduleSaving, setReportScheduleSaving] = useState(false);
   const [reportScheduleSaved, setReportScheduleSaved] = useState(false);
 
-  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (initialSnapshot) {
@@ -535,8 +489,7 @@ export default function ManagerControlCenter({
       if (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       const key = event.key.toLowerCase();
-      if (key === "s") { event.preventDefault(); searchInputRef.current?.focus(); }
-      else if (key === "a") { event.preventDefault(); setActiveSection("staff"); setActiveAction("add-staff"); setRequestError(""); setRequestSuccess(""); }
+      if (key === "a") { event.preventDefault(); setActiveSection("staff"); setActiveAction("add-staff"); setRequestError(""); setRequestSuccess(""); }
       else if (key === "t") { event.preventDefault(); setActiveSection("training"); setActiveAction("create-program"); setRequestError(""); setRequestSuccess(""); }
       else if (key === "i") { event.preventDefault(); setActiveSection("inventory"); setActiveAction("add-inventory"); setRequestError(""); setRequestSuccess(""); }
     }
@@ -631,12 +584,7 @@ export default function ManagerControlCenter({
 
   const metrics = useMemo(() => {
     const totalStaff = venueStaff.length;
-    const activeThisWeek = venueStaff.filter((member) => {
-      if (member.lastActive === "Not started") return false;
-      const match = member.lastActive.match(/^(\d+) days? ago$/);
-      if (match) return parseInt(match[1], 10) < 7;
-      return true; // "Today" or "Yesterday"
-    }).length;
+    const activeThisWeek = venueStaff.filter((member) => wasActiveWithinDays(member.lastActive, 7)).length;
 
     if (!totalStaff) {
       return {
@@ -684,14 +632,15 @@ export default function ManagerControlCenter({
 
     // ── Rf (Shift Readiness) Score ──
     const WC = 0.50, WT = 0.30, WA = 0.20; // weights: Compliance, Training, Availability
-    const shiftStaff = venueStaff.slice(0, 8); // first 8 = "tonight's shift" approximation
-    const rfScore = shiftStaff.length === 0 ? 0 : Math.round(
-      (shiftStaff.reduce((sum, s) => {
+    // Scored across the whole venue team. There is no roster in the data
+    // model, so the score cannot be narrowed to one shift.
+    const rfScore = Math.round(
+      (venueStaff.reduce((sum, s) => {
         const Ci = rsaStatus(s.compliance).level === 3 ? 0 : 1;
         const Ti = s.progress / 100;
         const Ai = s.compliance?.shiftConfirmed ? 1 : (s.status === 'on-track' ? 0.8 : 0.4);
         return sum + (WC * Ci + WT * Ti + WA * Ai);
-      }, 0) / shiftStaff.length) * 100
+      }, 0) / totalStaff) * 100
     );
 
     return {
@@ -768,15 +717,6 @@ export default function ManagerControlCenter({
 
   function handleSectionChange(nextSection: ManagerSection) {
     setActiveSection(nextSection);
-  }
-
-  function toggleGroup(label: string) {
-    setCollapsedGroups((prev) => {
-      const next = new Set(prev);
-      if (next.has(label)) next.delete(label);
-      else next.add(label);
-      return next;
-    });
   }
 
   async function handleAiCoachSubmit(event: FormEvent<HTMLFormElement>) {
@@ -1078,78 +1018,22 @@ export default function ManagerControlCenter({
       {showExpiredModal && trialTier && (
         <TrialExpiredModal trialTier={trialTier} />
       )}
-      <aside className="mc-sidebar">
-        <div className="mc-sidebar-logo">
-          <Image src="/logo.webp" alt="Serve By Example" width={36} height={36} className="mc-sidebar-logo-img" />
-          <div className="mc-sidebar-logo-text">
-            <span className="mc-sidebar-logo-brand">Serve By Example</span>
-            <span className="mc-sidebar-logo-sub">Management Console</span>
-          </div>
-        </div>
-
-        <div className="mc-sidebar-scroll">
-          <nav>
-            {NAV_GROUPS.map((group) => {
-              const isCollapsed = group.collapsible && collapsedGroups.has(group.label);
-              return (
-                <div key={group.label} className="mc-nav-group">
-                  {group.collapsible ? (
-                    <button
-                      type="button"
-                      className="mc-nav-group-toggle"
-                      onClick={() => toggleGroup(group.label)}
-                      aria-expanded={!isCollapsed}
-                    >
-                      <span>{group.label}</span>
-                      <ChevronDown size={12} strokeWidth={2} className={`mc-nav-chevron${isCollapsed ? " collapsed" : ""}`} aria-hidden="true" />
-                    </button>
-                  ) : (
-                    <div className="mc-nav-group-label">{group.label}</div>
-                  )}
-                  {!isCollapsed && (
-                    <div className="mc-nav-items">
-                      {group.items
-                        .filter((section) => section.id !== "settings" || isOwnerLevel)
-                        .map((section) => (
-                        <button
-                          key={section.id}
-                          type="button"
-                          className={`mc-nav-item${activeSection === section.id ? " active" : ""}`}
-                          onClick={() => handleSectionChange(section.id)}
-                        >
-                          <section.icon size={15} strokeWidth={1.5} aria-hidden="true" />
-                          <span className="mc-nav-item-label">{section.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </nav>
-        </div>
-
-        <div className="mc-sidebar-bottom">
-          {trialTier && trialEndsAt && typeof daysRemaining === "number" && (
+      <ConsoleSidebar
+        activeSection={activeSection}
+        onNavigate={handleSectionChange}
+        isOwnerLevel={isOwnerLevel}
+        accountName={accountDisplayName}
+        trialSlot={
+          trialTier && trialEndsAt && typeof daysRemaining === "number" ? (
             <TrialStatusPill
               trialTier={trialTier}
               trialEndsAt={trialEndsAt}
               daysRemaining={daysRemaining}
               isExpired={trialExpired}
             />
-          )}
-          <div className="mc-profile-row">
-            <div className="mc-profile-avatar">
-              {(accountDisplayName || "M").trim().slice(0, 1).toUpperCase()}
-            </div>
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <div className="mc-profile-name">{accountDisplayName || "Manager"}</div>
-              <div className="mc-profile-role">Venue Manager</div>
-            </div>
-          </div>
-          <SignOutButton className="mc-signout-btn" />
-        </div>
-      </aside>
+          ) : null
+        }
+      />
 
       <section className="ops-workspace">
         <ManagementTopbar

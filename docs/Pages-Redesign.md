@@ -18,7 +18,7 @@ This document replaces the August 2026 version in full. Code comments across the
 
 **Out of scope unless explicitly requested:**
 
-- `/dashboard` and `/management/dashboard`. These are logged-in product surfaces with their own density rules. Do not port marketing patterns into them.
+- `/dashboard` and `/management/dashboard`. These are logged-in product surfaces with their own density rules. Do not port marketing patterns into them. The Manager Console's shell and Overview tab follow this document's principles (type, hairlines, restrained colour) through their own rules in `docs/MANAGER_CONSOLE.md` section 6, not through the `sbe-mkt-` classes.
 - `ManagerControlCenter.tsx`. Per `CLAUDE.md` it must not grow.
 - Auth pages (`/login`, `/reset-password`, `/onboarding`).
 
@@ -209,7 +209,7 @@ Defined once in `:root`. Do not write a new `clamp()` in a page file.
 - **One heading weight.** Headings use `--fw-heading`. Numerals and the pull quote use 400. Newsreader is loaded from 400 to 700, roman and italic; Inter from 400 to 600.
 - **Optical size is pinned.** `html` sets `font-variation-settings: "opsz" 24` so large headings keep a sturdy, low-contrast shape. Do not override it on a heading.
 - **Numerals that carry content** (prices, ledger figures, totals) set `font-variant-numeric: lining-nums`.
-- **The logged-in product is not on these fonts.** `/dashboard`, `/mobile` and `/management` wrap their tree in `.sbe-app-type`, which points the same two tokens back at Fraunces and Manrope and restores their leading. Do not remove that wrapper as part of marketing work.
+- **The staff product is not on these fonts.** `/dashboard` and `/mobile` wrap their tree in `.sbe-app-type`, which points the same two tokens back at Fraunces and Manrope and restores their leading. Do not remove that wrapper as part of marketing work. The Manager Console (`/management`) is on Newsreader and Inter and has no wrapper.
 
 `--fs-display` was first set at 3.75rem and was cut to 3.25rem after review at 1920px. Do not raise it again without checking the page at that width.
 

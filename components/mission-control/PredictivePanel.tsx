@@ -45,7 +45,7 @@ export function PredictivePanel({ venueStaff, selectedVenueName, handleSectionCh
     <section className="ops-grid ops-grid-main">
       <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
         <WorkspaceHeader
-          title="Shift Readiness & Training Bottlenecks"
+          title="Training Gaps"
           description="Who's ready to work a shift right now, and which training gaps are big enough to need venue-wide content"
           actions={
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>

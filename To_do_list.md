@@ -7,6 +7,14 @@ Open items only. Finished work is recorded in `docs/handoff/2026-10-week1-handof
 - [ ] **New e2e baselines.** Run the suite once with `--update-snapshots=all` to capture the Help, Report a bug, Privacy and Terms screenshots. Check that the new no-horizontal-scroll test passes on all 22 `/mobile` routes.
 - [ ] **Roster unlink on account deletion.** Not exercised yet. Delete a test staff account that is on a venue roster, then confirm its `venue_staff` row is kept with `staff_user_id` null and `organization_members` is marked `removed`.
 
+## Manager Console
+
+- [ ] **Check the redesigned console behind a real login.** It was only viewed locally with sample data. Look at the Overview tab, the collapsed sidebar and every other tab for the font change.
+- [ ] **Review the Needs Attention rule.** `lib/management/needs-attention.ts` flags anyone whose status is not "on-track", which flagged 25 of 25 staff on one live venue, including a person at 100%.
+- [ ] **Store daily training activity.** Only each person's last-active date is kept, so the Overview tab cannot show a trend over time.
+- [ ] **Bring the other console tabs to the new standard.** Staff, Compliance, Analytics, Reports, Training Gaps and Settings still use the older card styles and status pills.
+- [ ] **Trial prompt in the collapsed sidebar.** The upgrade card is hidden while the sidebar is an icon rail.
+
 ## Email
 
 - [ ] **Re-send failed toolkit emails.** Manual for now: `select * from toolkit_leads where toolkit_delivered = false` (0 on 2026-10-05). Add a small admin action if the count grows.

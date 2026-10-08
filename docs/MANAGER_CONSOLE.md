@@ -5,7 +5,9 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 ## 1. Scope & Entry Points
 
 - Server entry: `app/management/dashboard/page.tsx`
-- Client shell: `components/mission-control/ManagerControlCenter.tsx` (2,111 lines as of this doc — re-verify with `wc -l` before citing, this number drifts)
+- Client shell: `components/mission-control/ManagerControlCenter.tsx` (1,995 lines on 2026-10-09 — re-verify with `wc -l` before citing, this number drifts)
+- Sidebar: `components/mission-control/ConsoleSidebar.tsx` (navigation list, collapse to an icon rail)
+- Overview tab: `OverviewPanel.tsx`, with `OverviewNoticeReel.tsx`, `OverviewKpiStrip.tsx`, `TeamActivityCard.tsx`, `NeedsAttentionCard.tsx`, `SkillGapsSummaryCard.tsx` and `RoleQualificationCard.tsx`. Notice sentences are built in `lib/management/notices.ts` (see §6)
 - Loader: `components/mission-control/ManagerControlCenterLoader.tsx`
 - Service layer: `lib/management/service.ts` (971 lines as of this doc)
 - Roster table: `components/mission-control/StaffDirectoryTable.tsx` — **this is the real component name.** A `StaffRosterPanel.tsx` referenced elsewhere in older docs does not exist in the repo.
@@ -59,9 +61,33 @@ Service functions still filter every update/delete by `manager_user_id`/`owner_u
 
 **`--mcc-*` token block — resolved.** The parallel 20-token palette (`--mcc-canvas`, `--mcc-forest-900`, `--mcc-good`, `--mcc-bad`, etc.) that used to live in `app/globals.css` has been fully migrated onto `--status-*`/`--green`/`--surface`; zero `--mcc-*` definitions or usages remain anywhere in the codebase. Do not reintroduce a parallel `--mcc-*` namespace — extend `--status-*`/`--green`/`--surface` instead.
 
-**`ManagerControlCenter.tsx` line-count target: under 3,200 lines.** Current state ~2,111 lines (verify with `wc -l` — this drifts) — target comfortably met.
+**`ManagerControlCenter.tsx` line-count target: under 3,200 lines.** Current state ~1,995 lines (verify with `wc -l` — this drifts) — target comfortably met.
 
 **Component extractions — complete.** `StaffDirectoryTable.tsx`, `TeamsPerformancePanel.tsx`, `RolesPermissionsMatrix.tsx`, and `LeaderboardBoard.tsx` are extracted and imported into `ManagerControlCenter.tsx`. `QUICK_ACTIONS` is still an inline array in `ManagerControlCenter.tsx` — a `QuickActionMenu.tsx` extraction was proposed at one point but never happened / was reverted; it does not exist in the repo.
+
+## 6. Shell and Overview tab (October 2026 redesign)
+
+The sidebar, top header and Overview tab were rebuilt to the `docs/Pages-Redesign.md` principles. Their styles are the "MANAGER CONSOLE — SHELL AND OVERVIEW TAB" block in `app/globals.css` (`.mc-*` classes). The other tabs still use the older `ops-*` card styles.
+
+**Look**
+- **Type:** Newsreader and Inter through `--font-heading` / `--font-body`. The console loads no fonts of its own.
+- **Colour:** parchment, ink and hairlines. Brand green marks the active nav item and actions. Red is used once, on an expired-certificate count. No tinted pills, chips or banners.
+- **Tokens:** `--mc-*` names are aliases of the brand tokens. Do not give one a hex value.
+- **Readability floor:** nothing below 13px, controls at least 40px tall, visible focus rings.
+
+**Shell**
+- **Header alignment:** `--mc-header-h` sets the height of both `.mc-sidebar-logo` and `.mc-topbar`. Change the token, not either rule.
+- **Sidebar collapse:** a 64px icon rail. Saved in `localStorage` (`sbe-mc-sidebar-collapsed`), toggled by the button or Cmd/Ctrl+B, and used by default below 1100px. Labels stay in the DOM so buttons keep their names.
+- **Adding a nav item:** edit `NAV_GROUPS` in `ConsoleSidebar.tsx`. "Training Gaps" is section id `predictive` (`PredictivePanel.tsx`).
+- **Search:** `/` or Cmd/Ctrl+K focuses it.
+- **Narrow screens:** the shell stays side by side at every width; it does not stack.
+
+**Overview tab**
+- **Notice reel:** `buildOverviewNotices(venueStaff)` returns sentences in priority order (expired RSA, RSA within 7 days, within 30 days, expired FSS, no RSA date on file, inactive 45+ days, not started, completed all modules, trained this week). Add a notice there and add a test in `lib/management/notices.test.ts`. The reel advances every 7 seconds, stops on hover, focus or pause, and never auto-advances under `prefers-reduced-motion`.
+- **Figure strip:** Shift readiness, Average mastery, Trained this week, RSA and FSS. Each opens a tab.
+- **"Trained this week"** uses `wasActiveWithinDays()` in `lib/management/needs-attention.ts`. The tile, the reel and the venue health score share it.
+- **Shift readiness** is scored across all venue staff. There is no roster in the data model, so it cannot describe one shift.
+- **Team activity** groups staff by last-active date. No daily activity is stored, so there is no trend chart.
 
 ## Known Gaps / Drift
 

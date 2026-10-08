@@ -64,6 +64,21 @@ export function ManagementTopbar({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [venueMenuOpen]);
 
+  // "/" or Cmd/Ctrl+K puts the cursor in search from anywhere on the page.
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      const target = event.target as HTMLElement;
+      const typing = ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) || target.isContentEditable;
+      const commandK = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k";
+      const slash = event.key === "/" && !typing && !event.metaKey && !event.ctrlKey && !event.altKey;
+      if (!commandK && !slash) return;
+      event.preventDefault();
+      searchInputRef.current?.focus();
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const handleResultClick = (result: SearchResult) => {
     onResultClick(result);
     onSearchChange("");
@@ -102,7 +117,7 @@ export function ManagementTopbar({
           aria-expanded={venueMenuOpen}
         >
           {venueName}
-          <ChevronDown size={14} strokeWidth={2} />
+          <ChevronDown size={16} strokeWidth={2} aria-hidden="true" />
         </button>
 
         {venueMenuOpen && (
@@ -144,16 +159,18 @@ export function ManagementTopbar({
       {/* Right: search + AI coach + notifications + create + avatar */}
       <div className="mc-topbar-right">
         <div className="mc-search-wrap" style={{ position: "relative" }}>
-          <Search size={14} strokeWidth={2} />
+          <Search size={16} strokeWidth={2} aria-hidden="true" />
           <input
             ref={searchInputRef}
             className="mc-search-input"
             type="search"
-            placeholder="Search staff, scenarios… (Cmd+K)"
+            placeholder="Search staff, programs, reports"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            aria-label="Global search"
+            aria-label="Search the console"
+            aria-keyshortcuts="/"
           />
+          {!searchQuery && <kbd className="mc-search-kbd" aria-hidden="true">/</kbd>}
           {searchResults.length > 0 && (
             <ul className="ops-search-results" role="listbox" style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, zIndex: 210 }}>
               {searchResults.map((result) => (
@@ -178,7 +195,7 @@ export function ManagementTopbar({
         </div>
 
         <button type="button" className="mc-ai-btn" onClick={onAICoach}>
-          <Sparkles size={15} strokeWidth={1.75} />
+          <Sparkles size={16} strokeWidth={1.75} aria-hidden="true" />
           Ask AI Coach
         </button>
 

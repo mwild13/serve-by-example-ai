@@ -1,22 +1,22 @@
 "use client";
 
+import { ChevronRight } from "lucide-react";
 import type { ManagerSection } from "@/lib/management/types";
 
-// Figma "Venue Manager Dashboard" KPI strip — 4 cards: Shift Readiness, Legal
-// RSA/FSS status, Confidence Mismatch, Average Mastery. Every value here is
-// computed by OverviewPanel from the same real venueStaff/metrics data the
-// rest of the console already uses — no mock numbers.
+// The four figures at the top of the Overview tab, set as one ruled strip
+// rather than four cards. Each column is a button that opens the tab behind
+// the figure. Every value is computed by OverviewPanel from the same
+// venueStaff/metrics data the rest of the console uses.
+//
+// `alert` is the only colour here: it turns the figure red, and is reserved
+// for a count that is a legal problem (expired certificates).
 
 export interface OverviewKpi {
   label: string;
-  abbr: string;
-  abbrColor: string;
-  abbrBg: string;
-  value?: string;
-  valueColor?: string;
-  pills?: { label: string; color: string; bg: string }[];
+  value: string;
   sub: string;
   section: ManagerSection;
+  alert?: boolean;
 }
 
 export function OverviewKpiStrip({ items, onNav }: { items: OverviewKpi[]; onNav: (section: ManagerSection) => void }) {
@@ -24,26 +24,12 @@ export function OverviewKpiStrip({ items, onNav }: { items: OverviewKpi[]; onNav
     <div className="mc-kpi-strip">
       {items.map((item) => (
         <button key={item.label} type="button" className="mc-kpi-card" onClick={() => onNav(item.section)}>
-          <div className="mc-kpi-card-head">
+          <span className="mc-kpi-card-head">
             <span className="mc-kpi-label">{item.label}</span>
-            <span className="mc-kpi-abbr" style={{ background: item.abbrBg, color: item.abbrColor }}>{item.abbr}</span>
-          </div>
-
-          <div style={{ marginTop: "auto" }}>
-            {item.value && (
-              <div className="mc-kpi-value-row">
-                <span className="mc-kpi-value" style={{ color: item.valueColor ?? "var(--mc-text)" }}>{item.value}</span>
-              </div>
-            )}
-            {item.pills && (
-              <div className="mc-kpi-pills">
-                {item.pills.map((p) => (
-                  <span key={p.label} className="mc-kpi-pill" style={{ background: p.bg, color: p.color }}>{p.label}</span>
-                ))}
-              </div>
-            )}
-            <div className="mc-kpi-sub">{item.sub}</div>
-          </div>
+            <ChevronRight size={16} strokeWidth={1.75} className="mc-kpi-chevron" aria-hidden="true" />
+          </span>
+          <span className={`mc-kpi-value${item.alert ? " is-alert" : ""}`}>{item.value}</span>
+          <span className="mc-kpi-sub">{item.sub}</span>
         </button>
       ))}
     </div>

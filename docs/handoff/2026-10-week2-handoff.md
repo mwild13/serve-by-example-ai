@@ -1,6 +1,6 @@
 # Handoff: October 2026, Week 2 — By Example Advisory page, homepage UI overhaul and pricing page redesign
 
-> **Four pieces of work this week.** Part 1 (below) is the Advisory page, merged to `main`. Part 2 is the homepage UI overhaul, also merged to `main`. Part 3 is the pricing page redesign, also merged to `main`. Part 4, at the end of this file, is the new typography and the redesign of every remaining marketing page, **merged to `main` 2026-10-08**. The AI model switch to `gpt-6-luna` is recorded in Part 1 and is merged too.
+> **Five pieces of work this week.** Part 5, at the end of this file, is the Manager Console shell and home page redesign, on branch `preview/console-home-redesign` and **not yet pushed or merged**. The first four: Part 1 (below) is the Advisory page, merged to `main`. Part 2 is the homepage UI overhaul, also merged to `main`. Part 3 is the pricing page redesign, also merged to `main`. Part 4, at the end of this file, is the new typography and the redesign of every remaining marketing page, **merged to `main` 2026-10-08**. The AI model switch to `gpt-6-luna` is recorded in Part 1 and is merged too.
 
 - **Dates:** 2026-10-07 to 2026-10-08
 - **Branch:** `preview/advisory-page`, **merged to `main` 2026-10-08** (merge `b0e1de1`). Preview: https://preview-advisory-page.serve-by-example-ai.pages.dev/advisory
@@ -466,4 +466,90 @@ Type sizes were not changed.
 - **Add every new marketing route to `ROUTES`** in `tests/e2e-marketing/pages.spec.ts`.
 - **Do not use `.eyebrow`, `.faq-list` or `.faq-item` on a marketing page.** The e2e spec fails on them.
 - **In the local dev server, a screenshot that stays blank** can be a stuck image-optimiser entry. Restart the server before debugging the page.
+
+---
+
+# Part 5: Manager Console shell and home page redesign
+
+- **Date:** 2026-10-09
+- **Branch:** `preview/console-home-redesign`, cut from `main`. **Not pushed, not merged.**
+- **Covers:** the console sidebar and top header (every tab), the Overview tab, the console's move to Newsreader and Inter, and a new "Training Gaps" nav item.
+- **Related:** `docs/MANAGER_CONSOLE.md` section 6 (rules for this area), `docs/Pages-Redesign.md` (the principles applied), `To_do_list.md` (open items under "Manager Console").
+
+## The short version
+
+1. **The console is on the site fonts.** Newsreader and Inter replace Lora, Outfit and DM Mono on every console tab. The six font files were deleted.
+2. **Colour is restrained.** Parchment, ink, hairlines and brand green. Terracotta, amber and all tinted pills are gone from the shell and the Overview tab. Red appears only on an expired-certificate count.
+3. **The sidebar collapses to an icon rail.** The choice is remembered. Cmd/Ctrl+B toggles it.
+4. **A notice reel replaces the compliance banners.** One bar steps through named, specific notices, most urgent first.
+5. **The four tiles were reordered and cleaned.** Shift readiness, Average mastery, Trained this week, RSA and FSS. The Rf, RSA, CM and Ms chips are gone.
+6. **The Learning Activity chart was removed.** It was a formula, not data. A real "Team activity" breakdown took its place.
+7. **Other console tabs changed font only.** Their layouts are untouched.
+
+## What changed
+
+### Shell
+
+- **Sidebar** moved to `components/mission-control/ConsoleSidebar.tsx`. `ManagerControlCenter.tsx` went from 2,111 to 1,995 lines.
+- **Collapse:** 64px rail, saved in `localStorage`, default below 1100px.
+- **Icons:** Staff is one person; Teams is two.
+- **New nav item:** "Training Gaps" under Teams. It opens the page that was only reachable from a home page tile. That page's heading changed from "Shift Readiness & Training Bottlenecks" to "Training Gaps".
+- **Header alignment:** the logo block and the top header share one height token (68px), and the header now runs the full width of the workspace. Their bottom rules meet.
+- **Search:** grows up to 440px, 15px text, placeholder "Search staff, programs, reports". `/` or Cmd/Ctrl+K focuses it. The old placeholder advertised Cmd+K, which did nothing.
+- **Narrow screens:** the shell no longer stacks the sidebar above the page.
+
+### Overview tab
+
+| Area | Before | After |
+|---|---|---|
+| Top of page | Two coloured compliance banners | One notice reel |
+| Tile 1 | Shift Readiness, first 8 staff, "rostered for tonight" | Shift readiness, all staff, "cleared to work", opens Training Gaps |
+| Tile 2 | Legal RSA / FSS (RSA only) | Average mastery |
+| Tile 3 | Confidence Mismatch | Trained this week |
+| Tile 4 | Average Mastery | RSA and FSS, now including FSS |
+| Left column | Learning Activity chart | Team activity by last-active date |
+| Cards | "Training Bottlenecks", "Role Qualification Progress" | "Training gaps", "Qualifications" |
+
+- **Notices** are built in `lib/management/notices.ts`: expired RSA, RSA within 7 and 30 days, expired FSS, no RSA date on file, inactive 45+ days, not started, completed all modules, trained this week. Up to three first names, then "and N others".
+- **Reel behaviour:** advances every 7 seconds; stops on hover, focus or pause; never auto-advances for reduced-motion users.
+
+### Behaviour changes to know about
+
+- **Shift readiness will show a different number.** It now averages every staff member in the venue, not the first eight.
+- **Qualifications, RSA row:** staff with no RSA date on file are no longer counted as certified.
+- **Needs attention** labels its bar "Training", because it shows training completion.
+- **`SignOutButton`** accepts `children` and `title`. Existing uses are unaffected.
+
+## Checks run
+
+| Check | Result |
+|---|---|
+| Typecheck | Passed |
+| Lint on changed files | Passed |
+| CSS token lint | 0 raw hex values, down from 10 on `main` |
+| Unit tests (vitest) | 45 of 45 passed, including 7 new tests for the notices |
+| Layout at 800, 1440 and 1920px, Overview tab | No horizontal overflow; header rules level at 68px |
+| Sidebar collapsed and expanded | Checked at 1440 and 800px |
+| Reel | Advances after 7 seconds, holds while paused, steps with previous and next |
+| Every console tab at 1440px | Renders in the new fonts, no horizontal overflow |
+| Behind a real login, with live data | Not checked. Viewed locally through a temporary route with sample staff, since the console needs a login |
+| `npm run build` and `build:cloudflare` | Not run |
+| e2e suites | Not run. Neither suite covers the console |
+
+## Open items
+
+- **Push and preview.** Confirm the branch name, push, and check the console on the preview deploy with a real account.
+- **Trial prompt.** The upgrade card is hidden while the sidebar is collapsed.
+- **Other tabs** keep their older cards and status pills. See `To_do_list.md`.
+- **Needs Attention rule** over-flags. See `To_do_list.md`.
+- **Dark mode.** The shell now uses the brand tokens, so it follows `.sbe-dark` like the other console tabs. Not checked.
+
+## Rules for new code (added in Part 5)
+
+- **Console nav items go in `NAV_GROUPS`** in `ConsoleSidebar.tsx`, not in `ManagerControlCenter.tsx`.
+- **A new Overview notice goes in `buildOverviewNotices()`** with a test. Do not add a banner to the page.
+- **No tinted pills, chips or abbreviation tiles** on the console shell or Overview tab.
+- **`--mc-*` tokens alias brand tokens.** Never give one a hex value.
+- **Use `wasActiveWithinDays()`** for any "active in the last N days" count.
+- **Do not caption a figure with something the data cannot show,** such as a roster or a daily trend.
 
