@@ -1,11 +1,16 @@
-import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CompareMatrix from "@/components/ui/CompareMatrix";
 import PageHero from "@/components/marketing/PageHero";
 import CTABand from "@/components/marketing/CTABand";
-import FeatureGrid, { type FeatureGridItem } from "@/components/marketing/FeatureGrid";
-import SectionHeading from "@/components/ui/SectionHeading";
+import {
+  Ledger,
+  MediaRows,
+  SplitPanel,
+  Strip,
+  type LedgerRow,
+  type StripItem,
+} from "@/components/marketing/sections";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -25,14 +30,32 @@ const venueServiceSchema = {
   "serviceType": "Hospitality Staff Training",
 };
 
-const outcomes = [
-  "Reduce time spent repeating the same training basics",
-  "Support junior staff with more confidence before service",
-  "Improve consistency across bartenders, floor staff and leaders",
-  "Identify weak points in communication, sales and service standards",
+// The figures in rows 02 and the lede are carried over unchanged and flagged in
+// To_do_list.md ("Marketing copy to source or remove").
+const BUSINESS_CASE: LedgerRow[] = [
+  {
+    metric: "01",
+    title: "Poor training is a direct revenue problem",
+    body: "When frontline floor teams cannot upsell menu options confidently, recommend pairings, or manage guest complaints under pressure, every single shift costs you in missed sales and lost repeat customers.",
+  },
+  {
+    metric: "02",
+    title: "Attrition starts with weak onboarding",
+    body: "Up to 39% of FOH and 42% of BOH staff quit within their first 90 days of work. Providing structured, AI-guided scenario training builds confidence early, which directly reduces turnover by 20–23%.",
+  },
+  {
+    metric: "03",
+    title: "Manager hours are your most expensive resource",
+    body: "Every hour a senior manager spends repeating the same onboarding and menu basics is an hour lost from active floor support, venue operations, and developing your team.",
+  },
+  {
+    metric: "04",
+    title: "Training only works if staff actually do it",
+    body: "Long videos and physical training binders are ignored by younger staff. Interactive active-recall mobile modules are short, relevant, and engaging — built to fit seamlessly between shifts.",
+  },
 ];
 
-const useCases: FeatureGridItem[] = [
+const USE_CASES: StripItem[] = [
   {
     title: "New starter onboarding",
     body: "Help junior staff build confidence in greetings, drink orders and guest interaction before peak service.",
@@ -51,11 +74,9 @@ export default function ForVenuesPage() {
   return (
     <div className="page-shell">
       <Navbar />
-
       <main>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(venueServiceSchema) }} />
 
-        {/* ── Hero — dark variant, reserved for /for-venues and /pricing ── */}
         <PageHero
           variant="dark"
           eyebrow="For Venues"
@@ -67,119 +88,65 @@ export default function ForVenuesPage() {
           ]}
         />
 
-        {/* ── Platform Screenshot ── */}
-        <section className="section" style={{ paddingTop: "2.5rem", paddingBottom: "2.5rem" }}>
+        <MediaRows
+          rows={[
+            {
+              tag: "The platform",
+              title: "Everything you need to manage and measure your team’s training.",
+              body: "Training completion, compliance status and the staff who need attention, in one view.",
+              image: {
+                src: "/shots/Overview Console Wide.png",
+                alt: "Serve By Example manager console – venue overview with training completion, compliance status, and staff needing attention",
+                width: 3004,
+                height: 1654,
+              },
+            },
+          ]}
+        />
+
+        <Ledger
+          tone="alt"
+          kicker="The business case"
+          title="Why structured training matters"
+          lede="Australia’s hospitality sector operates on thin 3–9% net profit margins. The cost isn’t just recruiting and placing staff — it’s the massive revenue drain of inconsistent floor shifts in between."
+          rows={BUSINESS_CASE}
+        />
+
+        <SplitPanel
+          kicker="The approach"
+          title="Training that supports service, not slows it down."
+          lede="Venue teams are often trained in rushed moments, inconsistently across shifts and without a clear way to measure growth. Serve By Example gives operators a more scalable, structured way to train."
+          items={[
+            {
+              label: "In practice",
+              title: "What venues get",
+              points: [
+                "Reduce time spent repeating the same training basics",
+                "Support junior staff with more confidence before service",
+                "Improve consistency across bartenders, floor staff and leaders",
+                "Identify weak points in communication, sales and service standards",
+              ],
+            },
+          ]}
+        />
+
+        <Strip
+          tone="warm"
+          kicker="Example use cases"
+          title="Real ways venues use the platform"
+          items={USE_CASES}
+        />
+
+        {/* Same flush, collapsible table as /pricing */}
+        <section className="sbe-mkt-compare-band">
           <div className="container">
-            <SectionHeading
-              eyebrow="The Platform"
-              title="Everything you need to manage and measure your team’s training."
-            />
-            <div style={{ maxWidth: "1000px" }}>
-              <Image
-                src="/shots/Overview Console Wide.png"
-                alt="Serve By Example manager console – venue overview with training completion, compliance status, and staff needing attention"
-                width={3004}
-                height={1654}
-                sizes="(max-width: 1000px) 100vw, 1000px"
-                style={{ width: "100%", height: "auto", display: "block", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-lg)" }}
-              />
-            </div>
+            <CompareMatrix flush collapsible hideFranchise />
           </div>
         </section>
 
-        {/* ── Why It Matters — 2×2 editorial grid, kept ── */}
-        <section className="sbe-mkt-scope" style={{ padding: "64px 24px", width: "100%", borderTop: "1px solid var(--line)", backgroundColor: "var(--surface)" }}>
-          <div className="container">
-            <div style={{ marginBottom: "48px", maxWidth: "650px" }}>
-              <span className="sbe-eyebrow">The Business Case</span>
-              <h2 className="sbe-serif-title" style={{ fontSize: "36px", marginTop: "8px" }}>Why Structured Training Matters</h2>
-              <p className="sbe-sans-body" style={{ color: "var(--text-soft)", fontSize: "14px", marginTop: "16px" }}>
-                Australia&rsquo;s hospitality sector operates on thin 3&ndash;9% net profit margins. The cost isn&rsquo;t just recruiting and placing staff &mdash; it&rsquo;s the massive revenue drain of inconsistent floor shifts in between.
-              </p>
-            </div>
-
-            <div className="why-grid-2x2">
-              <div className="why-grid-item">
-                <h3 className="sbe-serif-title" style={{ fontSize: "20px", marginBottom: "8px" }}>1. Poor training is a direct revenue problem</h3>
-                <p className="sbe-sans-body" style={{ color: "var(--text-soft)", fontSize: "14px" }}>
-                  When frontline floor teams cannot upsell menu options confidently, recommend pairings, or manage guest complaints under pressure, every single shift costs you in missed sales and lost repeat customers.
-                </p>
-              </div>
-
-              <div className="why-grid-item">
-                <h3 className="sbe-serif-title" style={{ fontSize: "20px", marginBottom: "8px" }}>2. Attrition starts with weak onboarding</h3>
-                <p className="sbe-sans-body" style={{ color: "var(--text-soft)", fontSize: "14px" }}>
-                  Up to 39% of FOH and 42% of BOH staff quit within their first 90 days of work. Providing structured, AI-guided scenario training builds confidence early, which directly reduces turnover by 20&ndash;23%.
-                </p>
-              </div>
-
-              <div className="why-grid-item" style={{ borderBottom: "none" }}>
-                <h3 className="sbe-serif-title" style={{ fontSize: "20px", marginBottom: "8px" }}>3. Manager hours are your most expensive resource</h3>
-                <p className="sbe-sans-body" style={{ color: "var(--text-soft)", fontSize: "14px" }}>
-                  Every hour a senior manager spends repeating the same onboarding and menu basics is an hour lost from active floor support, venue operations, and developing your team.
-                </p>
-              </div>
-
-              <div style={{ borderBottom: "none" }}>
-                <h3 className="sbe-serif-title" style={{ fontSize: "20px", marginBottom: "8px" }}>4. Training only works if staff actually do it</h3>
-                <p className="sbe-sans-body" style={{ color: "var(--text-soft)", fontSize: "14px" }}>
-                  Long videos and physical training binders are ignored by younger staff. Interactive active-recall mobile modules are short, relevant, and engaging &mdash; built to fit seamlessly between shifts.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── The Approach — asymmetric split, kept ── */}
-        <section className="section">
-          <div className="container">
-            <div className="split-grid">
-              <div>
-                <span className="eyebrow">The Approach</span>
-                <h2 className="split-heading">
-                  Training that supports service, not slows it down.
-                </h2>
-                <p className="split-sub">
-                  Venue teams are often trained in rushed moments,
-                  inconsistently across shifts and without a clear way to
-                  measure growth. Serve By Example gives operators a more
-                  scalable, structured way to train.
-                </p>
-              </div>
-              <article className="info-card">
-                <h3>What venues get</h3>
-                <ul className="check-list">
-                  {outcomes.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Use Cases ── */}
-        <section className="section section-alt">
-          <div className="container">
-            <SectionHeading
-              eyebrow="Example Use Cases"
-              title="Real ways venues use the platform"
-            />
-            <FeatureGrid items={useCases} columns={3} />
-          </div>
-        </section>
-
-        {/* ── Comparison Matrix ── */}
-        <section className="section section-alt">
-          <div className="container">
-            <CompareMatrix />
-          </div>
-        </section>
-
-        {/* ── CTA ── */}
         <div id="venue-enquiry">
           <CTABand
-            background="green"
+            background="neutral"
             title="Train your team with more consistency."
             copy="Whether you run one venue or multiple locations, Serve By Example gives your team a clearer path to better service and stronger performance."
             primary={{ label: "Request Venue Access", href: "/contact" }}
@@ -187,7 +154,6 @@ export default function ForVenuesPage() {
           />
         </div>
       </main>
-
       <Footer />
     </div>
   );

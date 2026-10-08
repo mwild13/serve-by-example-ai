@@ -1,10 +1,10 @@
+import { Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ROICalculator from "@/components/ui/ROICalculator";
 import PageHero from "@/components/marketing/PageHero";
 import CTABand from "@/components/marketing/CTABand";
-import FeatureGrid, { type FeatureGridItem } from "@/components/marketing/FeatureGrid";
-import SectionHeading from "@/components/ui/SectionHeading";
+import { Ledger, type LedgerRow } from "@/components/marketing/sections";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -14,23 +14,22 @@ export const metadata: Metadata = {
   alternates: { canonical: "/roi" },
 };
 
-const supportingStats: FeatureGridItem[] = [
+const GAINS: LedgerRow[] = [
   {
-    variant: "stat",
-    eyebrow: "faster onboarding",
-    title: "3×",
+    metric: "3",
+    unit: "×",
+    title: "Faster onboarding",
     body: "Average time to full service confidence drops from 6 months to under 6 weeks.",
   },
   {
-    variant: "stat",
-    eyebrow: "self-serve modules",
-    title: "40+",
+    metric: "40",
+    unit: "+",
+    title: "Self-serve modules",
     body: "Staff work through structured modules on their own device — without a manager running induction sessions or shadowing new starters.",
   },
   {
-    variant: "stat",
-    eyebrow: "service dimensions scored",
-    title: "5",
+    metric: "5",
+    title: "Service dimensions scored",
     body: "Every scenario response is scored on communication, hospitality, problem-solving, professionalism and guest experience — including upsell technique.",
   },
 ];
@@ -39,37 +38,28 @@ export default function ROIPage() {
   return (
     <div className="page-shell">
       <Navbar />
-
       <main>
-        {/* ── Hero — compact so the calculator stays near the fold ── */}
+        {/* Light, compact hero so the dark calculator band starts near the fold */}
         <PageHero
           compact
+          variant="light"
           eyebrow="ROI Calculator"
           title="Calculate your training return on investment."
         />
 
-        {/* ── Calculator ── */}
-        <section className="section section-alt" style={{ paddingTop: 0 }}>
-          <div className="container">
-            <ROICalculator />
-          </div>
-        </section>
+        {/* ROICalculator renders its own full-bleed band (shared with the homepage) */}
+        <Suspense fallback={<div style={{ height: "400px", background: "var(--bg-dark)" }} />}>
+          <ROICalculator />
+        </Suspense>
 
-        {/* ── Supporting stats ── */}
-        <section className="section">
-          <div className="container">
-            <SectionHeading
-              eyebrow="The numbers behind the calculator"
-              title="Where the gains come from."
-              copy="How the platform is built to move these numbers: structured scenario practice and scored feedback in place of one-off inductions."
-            />
-            <FeatureGrid items={supportingStats} columns={3} />
-          </div>
-        </section>
+        <Ledger
+          kicker="The numbers behind the calculator"
+          title="Where the gains come from."
+          lede="How the platform is built to move these numbers: structured scenario practice and scored feedback in place of one-off inductions."
+          rows={GAINS}
+        />
 
-        {/* ── CTA ── */}
         <CTABand
-          background="green"
           eyebrow="Ready to see it live?"
           title="Put the numbers into practice."
           copy="The calculator gives you the estimate. A demo shows you how it actually works for your team."
@@ -77,7 +67,6 @@ export default function ROIPage() {
           secondary={{ label: "View Pricing", href: "/membership" }}
         />
       </main>
-
       <Footer />
     </div>
   );
