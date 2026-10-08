@@ -20517,7 +20517,6 @@ h1, h2, h3 {
   font-weight: 400;
   line-height: 0.9;
   letter-spacing: var(--tracking-display);
-  font-variant-numeric: lining-nums;
   color: var(--gold-warm);
   font-variant-numeric: lining-nums;
 }
@@ -21797,6 +21796,217 @@ h1, h2, h3 {
 
   .sbe-compare--flush .sbe-compare-th.sbe-compare-col--featured {
     background: var(--bg-dark-soft);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Sub-page section patterns (components/marketing/sections.tsx)
+   Variants of the homepage layouts above, shared by every marketing sub-page.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Background shift for a section that reuses a homepage pattern class */
+.sbe-mkt-tone-alt {
+  background: var(--bg-alt);
+}
+
+.sbe-mkt-tone-warm {
+  background: var(--bg-warm);
+}
+
+/* Short hairline list of points, in place of a ticked checklist */
+.sbe-mkt-points {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  max-width: 32rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.sbe-mkt-points li {
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--line);
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.sbe-mkt-duo-panel .sbe-mkt-points {
+  margin-top: 1rem;
+  border-bottom-color: var(--border-light-on-dark);
+}
+
+.sbe-mkt-duo-panel .sbe-mkt-points li {
+  border-top-color: var(--border-light-on-dark);
+  color: var(--text-light-on-dark);
+}
+
+.sbe-mkt-show-action {
+  margin-top: 1.5rem;
+}
+
+/* A phone screenshot shown on its own in a media row */
+.sbe-mkt-show-bare img {
+  width: min(100%, 280px);
+  margin-inline: auto;
+  filter: drop-shadow(0 18px 28px rgba(15, 45, 29, 0.22));
+}
+
+.sbe-mkt-footnote {
+  margin: 1.5rem 0 0;
+  max-width: 44rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* Ruled list rows without a label column, and with a link */
+.sbe-mkt-plan-link {
+  justify-self: start;
+  margin-top: 0.35rem;
+  color: var(--green);
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-plan.sbe-mkt-plan-nolabel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sbe-mkt-plan.sbe-mkt-plan-nolabel h3,
+  .sbe-mkt-plan.sbe-mkt-plan-nolabel p,
+  .sbe-mkt-plan.sbe-mkt-plan-nolabel .sbe-mkt-plan-link {
+    grid-column: 1;
+  }
+
+  .sbe-mkt-plan-link {
+    grid-column: 2;
+  }
+
+  /* Four numbered steps: tighter stagger than the three-step path */
+  .sbe-mkt-path-steps.sbe-mkt-path-steps-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(1.5rem, 2.5vw, 2.5rem);
+  }
+
+  .sbe-mkt-path-steps-4 .sbe-mkt-path-step:nth-child(2) {
+    margin-top: 2.25rem;
+  }
+
+  .sbe-mkt-path-steps-4 .sbe-mkt-path-step:nth-child(3) {
+    margin-top: 4.5rem;
+  }
+
+  .sbe-mkt-path-steps-4 .sbe-mkt-path-step:nth-child(4) {
+    margin-top: 6.75rem;
+  }
+}
+
+.sbe-mkt-path-steps-4 .sbe-mkt-path-num {
+  font-size: clamp(3rem, 5.5vw, 4.75rem);
+}
+
+.sbe-mkt-path-step p {
+  max-width: 30rem;
+}
+
+/* ── Aligned strip: intro in the first track, points on the tracks beside it ── */
+.sbe-mkt-strip {
+  padding: var(--section-spacing-md) 0;
+}
+
+.sbe-mkt-strip-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.5rem;
+}
+
+.sbe-mkt-strip-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+  text-wrap: balance;
+}
+
+.sbe-mkt-strip-lede {
+  margin: 1rem 0 1.25rem;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-soft);
+}
+
+.sbe-mkt-strip-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sbe-mkt-strip-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-strip-item h3 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+}
+
+.sbe-mkt-strip-item p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: var(--lh-body);
+  color: var(--text-soft);
+}
+
+.sbe-mkt-strip-img {
+  width: min(100%, 220px);
+  height: auto;
+  margin-bottom: 0.75rem;
+  filter: drop-shadow(0 14px 22px rgba(15, 45, 29, 0.2));
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-strip-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .sbe-mkt-strip-intro {
+    padding-right: clamp(1.5rem, 3vw, 3rem);
+  }
+
+  .sbe-mkt-strip-list {
+    grid-column: 2 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .sbe-mkt-strip-list-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sbe-mkt-strip-item {
+    padding: 1.5rem clamp(1rem, 2vw, 1.75rem) 0;
+    border-top: 0;
+    border-left: 1px solid var(--line);
+  }
+
+  /* A second row of points sits under a rule that continues the tracks */
+  .sbe-mkt-strip-item:nth-child(n + 4) {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
   }
 }
 

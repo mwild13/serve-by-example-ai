@@ -1,21 +1,18 @@
-import Link from "next/link";
-import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SectionSubNav from "@/components/SectionSubNav";
 import PageHero from "@/components/marketing/PageHero";
 import CTABand from "@/components/marketing/CTABand";
-import FeatureGrid, { type FeatureGridItem } from "@/components/marketing/FeatureGrid";
-import SectionHeading from "@/components/ui/SectionHeading";
 import {
-  IconUsers,
-  IconBuilding,
-  IconLayers,
-  IconZap,
-  IconMessage,
-  IconChart,
-  IconAward,
-} from "@/components/icons/MarketingIcons";
+  Ledger,
+  MediaRows,
+  RuledList,
+  SplitPanel,
+  type LedgerRow,
+  type MediaRow,
+  type RuledItem,
+  type SplitPanelItem,
+} from "@/components/marketing/sections";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -25,87 +22,116 @@ export const metadata: Metadata = {
   alternates: { canonical: "/platform" },
 };
 
-const features: FeatureGridItem[] = [
+// Figures carried over from the previous page. They are flagged in To_do_list.md
+// ("Marketing copy to source or remove") — do not add to them.
+const STATS: LedgerRow[] = [
+  { metric: "90", unit: "%", title: "Mobile completion rate", body: "Training is built for the phone staff already carry, so it gets finished between shifts." },
+  { metric: "3", unit: "×", title: "Faster onboarding", body: "Compared with traditional on-the-job training." },
+  { metric: "+15", unit: "%", title: "Avg upsell improvement", body: "Sales scenarios are practised and scored before staff try them on a guest." },
+  { metric: "40", unit: "+", title: "Training modules", body: "Across bartending, sales and management." },
+];
+
+const CONSOLE_ROWS: MediaRow[] = [
   {
-    icon: <IconMessage />,
+    tag: "Overview",
+    title: "Who is ready for tonight",
+    body: "A live dashboard that shows staff performance, training completion, upsell trends, and venue health, all in one view.",
+    image: {
+      src: "/shots/Overview Console Wide.png",
+      alt: "Serve By Example manager console – venue overview with training completion, compliance status, and staff needing attention",
+      width: 3004,
+      height: 1654,
+    },
+  },
+  {
+    tag: "AI Coach",
+    title: "Ask about your team in plain language",
+    body: "The AI Coach answers management questions in plain language. Ask who needs training this week and get an instant answer.",
+    image: {
+      src: "/shots/AI Coach Chat.png",
+      alt: "Serve By Example AI Coach – answering a manager's question about staff training progress with real venue data",
+      width: 1800,
+      height: 1654,
+    },
+  },
+];
+
+const FEATURES: RuledItem[] = [
+  {
     title: "Scenario Training",
     body: "Staff practice real hospitality situations through guided scenario roleplay: upselling, de-escalation, cocktail knowledge, service recovery.",
   },
   {
-    icon: <IconLayers />,
     title: "Role-Based Learning Paths",
     body: "Tailor training to bartenders, floor staff, sales-focused team members and managers. Each role gets a targeted pathway.",
   },
   {
-    icon: <IconChart />,
     title: "Live Performance Tracking",
     body: "Track progress across service, product knowledge, and sales skills. Real data shows you who is on-track and who needs support.",
   },
   {
-    icon: <IconZap size={22} />,
-    title: "AI Coach (Ask Anything)",
-    body: "The AI Coach answers management questions in plain language. Ask who needs training this week and get an instant answer.",
-  },
-  {
-    icon: <IconAward />,
     title: "Gamification & Badges",
     body: "Staff earn milestone badges for completion, skill mastery, and top performance. Portable digital credentials boost engagement.",
   },
   {
-    icon: <IconBuilding />,
     title: "Multi-Venue Management",
     body: "Manage multiple sites from a single console. Compare venue health scores, spot group-wide skill gaps, and standardise training.",
   },
 ];
 
-const staffPoints = [
-  "Short, mobile-first learning modules",
-  "Realistic scenario-based practice",
-  "Instant scored feedback on every response",
-  "Earn badges and track your own progress",
-];
-
-const managerPoints = [
-  "Full staff roster with skill analytics",
-  "Ask the AI Coach about your team instantly",
-  "Assign targeted training by role or gap",
-  "Multi-venue health score comparison",
-];
-
-const stats: FeatureGridItem[] = [
-  { title: "90%", body: "Mobile completion rate", variant: "stat" },
-  { title: "3×", body: "Faster onboarding vs. traditional training", variant: "stat" },
-  { title: "+15%", body: "Avg upsell improvement", variant: "stat" },
-  { title: "40+", body: "Training modules across bartending, sales and management", variant: "stat" },
-];
-
-const audienceBlocks: FeatureGridItem[] = [
+const AUDIENCES: SplitPanelItem[] = [
   {
-    icon: <IconUsers />,
-    eyebrow: "For Frontline Staff",
+    label: "For frontline staff",
     title: "For staff",
-    variant: "dark",
-    body: (
-      <ul className="sbe-mkt-checklist">
-        {staffPoints.map((point) => (
-          <li key={point}>{point}</li>
-        ))}
-      </ul>
-    ),
+    points: [
+      "Short, mobile-first learning modules",
+      "Realistic scenario-based practice",
+      "Instant scored feedback on every response",
+      "Earn badges and track your own progress",
+    ],
   },
   {
-    icon: <IconChart />,
-    eyebrow: "For General Managers",
+    label: "For general managers",
     title: "For managers",
-    body: (
-      <ul className="sbe-mkt-checklist">
-        {managerPoints.map((point) => (
-          <li key={point}>{point}</li>
-        ))}
-      </ul>
-    ),
+    points: [
+      "Full staff roster with skill analytics",
+      "Ask the AI Coach about your team instantly",
+      "Assign targeted training by role or gap",
+      "Multi-venue health score comparison",
+    ],
   },
 ];
+
+const MOBILE_ROW: MediaRow = {
+  tag: "Mobile-first training",
+  title: "Your staff live on their phones. Your training should too.",
+  body: (
+    <>
+      Every scenario, coaching interaction, and progress dashboard is fully optimised for mobile. Staff can complete
+      training between shifts, at the bar, or on the way to work. Platforms built this way achieve{" "}
+      <strong>90%+ completion rates</strong> with frontline teams.
+    </>
+  ),
+  points: [
+    "Scenarios fully functional on a 6-inch screen",
+    "AI Coach accessible with a single tap",
+    "Progress badges shareable to LinkedIn",
+    "Managers get push alerts for team milestones",
+  ],
+  action: { label: "View pricing", href: "/membership" },
+  image: {
+    src: "/shots/Modules View.png",
+    alt: "Staff training modules view – full course library",
+    width: 1400,
+    height: 875,
+  },
+  phone: {
+    src: "/shots/Cocktail-mobile.png",
+    alt: "Serve By Example staff training app on mobile – 38-cocktail drink library",
+    width: 912,
+    height: 1844,
+  },
+};
 
 const platformSchema = {
   "@context": "https://schema.org",
@@ -122,7 +148,6 @@ export default function PlatformPage() {
   return (
     <div className="page-shell">
       <Navbar />
-
       <main>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(platformSchema) }} />
         <div className="section-subnav-sentinel" aria-hidden="true" />
@@ -133,7 +158,6 @@ export default function PlatformPage() {
           { id: "mobile", label: "Mobile" },
         ]} />
 
-        {/* ── Hero ── */}
         <div id="overview">
           <PageHero
             eyebrow="Platform tour"
@@ -146,118 +170,39 @@ export default function PlatformPage() {
           />
         </div>
 
-        {/* ── Stats bar ── */}
-        <section className="section-tight section-alt">
-          <div className="container">
-            <FeatureGrid items={stats} columns={4} />
-          </div>
-        </section>
+        <Ledger tone="alt" kicker="In numbers" title="What the platform is built to move." rows={STATS} />
 
-        {/* ── Dashboard Preview ── */}
-        <section id="insights" className="section">
-          <div className="platform-mission-wrap" style={{ margin: "0 auto" }}>
-            <SectionHeading
-              eyebrow="Management console"
-              title="Your venue’s mission control."
-              copy="A live dashboard that shows staff performance, training completion, upsell trends, and venue health, all in one view."
-            />
-            <div className="platform-mission-grid">
-              <Image
-                src="/shots/Overview Console Wide.png"
-                alt="Serve By Example manager console – venue overview with training completion, compliance status, and staff needing attention"
-                width={3004}
-                height={1654}
-                sizes="(max-width: 900px) 100vw, 60vw"
-                className="sbe-shot"
-                style={{ width: "100%", height: "auto", display: "block" }}
-              />
-              <Image
-                src="/shots/AI Coach Chat.png"
-                alt="Serve By Example AI Coach – answering a manager's question about staff training progress with real venue data"
-                width={1800}
-                height={1654}
-                sizes="(max-width: 900px) 100vw, 40vw"
-                className="sbe-shot"
-                style={{ width: "100%", height: "auto", display: "block" }}
-              />
-            </div>
-          </div>
-        </section>
+        <MediaRows
+          id="insights"
+          head={{ kicker: "Manager Console", title: "Your whole venue on one screen." }}
+          rows={CONSOLE_ROWS}
+        />
 
-        {/* ── Feature Grid ── */}
-        <section id="arena" className="section section-alt">
-          <div className="container">
-            <SectionHeading
-              eyebrow="What’s inside"
-              title="Everything your team needs to perform at their best."
-            />
-            <FeatureGrid items={features} columns={3} />
-          </div>
-        </section>
+        <RuledList
+          id="arena"
+          tone="alt"
+          kicker="What’s inside"
+          title="Everything your team needs to perform at their best."
+          items={FEATURES}
+          primary={{ label: "Try a live scenario", href: "/demo" }}
+        />
 
-        {/* ── Two Systems ── */}
-        <section id="features" className="section">
-          <div className="container">
-            <SectionHeading
-              eyebrow="Two Systems, One Platform"
-              title="What each layer actually does."
-            />
-            <FeatureGrid items={audienceBlocks} columns={2} />
-          </div>
-        </section>
+        <SplitPanel
+          id="features"
+          kicker="Two systems, one platform"
+          title="What each layer actually does."
+          items={AUDIENCES}
+        />
 
-        {/* ── Mobile-first ── */}
-        <section id="mobile" className="section section-alt">
-          <div className="container platform-mobile-section">
-            <div className="platform-mobile-text">
-              <span className="eyebrow">Mobile-first training</span>
-              <h2>Your staff live on their phones. Your training should too.</h2>
-              <p>
-                Every scenario, coaching interaction, and progress dashboard is fully optimised for mobile.
-                Staff can complete training between shifts, at the bar, or on the way to work.
-                Platforms built this way achieve <strong>90%+ completion rates</strong> with frontline teams.
-              </p>
-              <ul className="check-list" style={{ marginTop: 16 }}>
-                <li>Scenarios fully functional on a 6-inch screen</li>
-                <li>AI Coach accessible with a single tap</li>
-                <li>Progress badges shareable to LinkedIn</li>
-                <li>Managers get push alerts for team milestones</li>
-              </ul>
-              <div style={{ marginTop: 24 }}>
-                <Link href="/membership" className="btn btn-secondary">View Pricing →</Link>
-              </div>
-            </div>
-            <div className="platform-mobile-visual" style={{ gap: "1rem" }}>
-              <Image
-                src="/shots/Mobile-home.png"
-                alt="Serve By Example staff training app on mobile – home screen with streak, pre-shift brief, and quick access training"
-                width={912}
-                height={1844}
-                sizes="(max-width: 768px) 42vw, 240px"
-                style={{ width: "100%", maxWidth: "240px", height: "auto", display: "block" }}
-              />
-              <Image
-                src="/shots/Cocktail-mobile.png"
-                alt="Serve By Example staff training app on mobile – 38-cocktail drink library"
-                width={912}
-                height={1844}
-                sizes="(max-width: 768px) 42vw, 240px"
-                style={{ width: "100%", maxWidth: "240px", height: "auto", display: "block", marginTop: "2.5rem" }}
-              />
-            </div>
-          </div>
-        </section>
+        <MediaRows id="mobile" tone="warm" rows={[MOBILE_ROW]} />
 
-        {/* ── CTA ── */}
         <CTABand
-          background="green"
           title="The market is shifting to interactive, scenario-based training. You’re already there."
           copy="Major hospitality platforms are just now beginning to build what Serve By Example already has. Your window of competitive advantage is now, while the incumbents are still in the planning phase."
           primary={{ label: "Start Free Trial", href: "/login?intent=trial&tier=boutique" }}
           secondary={{ label: "Try the Demo", href: "/demo" }}
         />
       </main>
-
       <Footer />
     </div>
   );

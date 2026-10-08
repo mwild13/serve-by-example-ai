@@ -1,10 +1,19 @@
-import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/marketing/PageHero";
 import CTABand from "@/components/marketing/CTABand";
-import FeatureGrid, { type FeatureGridItem } from "@/components/marketing/FeatureGrid";
-import SectionHeading from "@/components/ui/SectionHeading";
+import {
+  Ledger,
+  MediaRows,
+  RuledList,
+  SplitPanel,
+  Steps,
+  Strip,
+  type RuledItem,
+  type SplitPanelItem,
+  type Step,
+  type StripItem,
+} from "@/components/marketing/sections";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -13,7 +22,23 @@ export const metadata: Metadata = {
   alternates: { canonical: "/how-it-works" },
 };
 
-const steps = [
+const PROBLEM: SplitPanelItem[] = [
+  {
+    title: "Trained on the job",
+    body: "New staff are often trained on the job, under pressure and with limited manager time.",
+  },
+  {
+    title: "Passive and one-size-fits-all",
+    body: "Traditional training is usually passive, one-size-fits-all and difficult to apply during real service.",
+  },
+  {
+    title: "Practice before the floor",
+    body: "Serve By Example bridges that gap by letting staff practice realistic service situations before they face them in venue.",
+  },
+];
+
+// Feeds both the ledger and the HowTo JSON-LD, so the two cannot drift apart.
+const LOOP = [
   {
     number: "01",
     title: "Choose a pathway",
@@ -46,13 +71,7 @@ const steps = [
   },
 ];
 
-const stepItems: FeatureGridItem[] = steps.map((s) => ({
-  eyebrow: s.number,
-  title: s.title,
-  body: s.description,
-}));
-
-const pillarItems: FeatureGridItem[] = [
+const FRAMEWORK: RuledItem[] = [
   {
     title: "Beginner Training",
     body: "Build confidence with guest greetings, taking drink orders and basic drink knowledge.",
@@ -79,21 +98,44 @@ const pillarItems: FeatureGridItem[] = [
   },
 ];
 
-const scenarioItems: FeatureGridItem[] = [
+const EXAMPLE: StripItem[] = [
   {
-    eyebrow: "Scenario",
+    label: "Scenario",
     title: "A guest approaches the bar",
     body: "A guest approaches the bar while you’re finishing another drink. How do you acknowledge them?",
   },
   {
-    eyebrow: "Staff response",
+    label: "Staff response",
     title: "The reply",
     body: "“Hi there, I’ll be with you in just a moment.”",
   },
   {
-    eyebrow: "Scored feedback",
+    label: "Scored feedback",
     title: "Score: 22/25",
     body: "Clear acknowledgement, friendly tone and good guest awareness. A strong service response.",
+  },
+];
+
+const SCORING: Step[] = [
+  {
+    num: "01",
+    title: "Score every response",
+    body: "Rated across 5 dimensions: communication, hospitality, problem-solving, professionalism and guest experience.",
+  },
+  {
+    num: "02",
+    title: "Track every scenario",
+    body: "Each scenario keeps its own record. A miss drops it back a level, so the scenarios you struggle with stay visible instead of getting lost in an average.",
+  },
+  {
+    num: "03",
+    title: "Bring them back automatically",
+    body: "A missed scenario is due for review straight away. Ones you pass come back at widening intervals: 1, 4, then 9 days.",
+  },
+  {
+    num: "04",
+    title: "Master it, then move on",
+    body: "A scenario counts as mastered after three passes in a row, at least an hour apart. A miss drops it back a level, so mastery means you can repeat it, not that you got lucky once.",
   },
 ];
 
@@ -103,7 +145,7 @@ const howToSchema = {
   "name": "How Serve By Example Works",
   "description":
     "Serve By Example's three-stage training loop takes hospitality staff from onboarding through to real-world confidence — with scenario practice, scoring, and performance tracking.",
-  "step": steps.map((s, i) => ({
+  "step": LOOP.map((s, i) => ({
     "@type": "HowToStep",
     "position": i + 1,
     "name": s.title,
@@ -115,14 +157,12 @@ export default function HowItWorksPage() {
   return (
     <div className="page-shell">
       <Navbar />
-
       <main>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
         />
 
-        {/* ── Hero ── */}
         <PageHero
           eyebrow="How It Works"
           title="From onboarding to real-world confidence."
@@ -133,150 +173,68 @@ export default function HowItWorksPage() {
           ]}
         />
 
-        {/* ── The Problem — asymmetric split, kept ── */}
-        <section className="section section-alt">
-          <div className="container">
-            <div className="split-grid">
-              <div>
-                <span className="eyebrow">The Problem</span>
-                <h2 className="split-heading">
-                  Most hospitality training is inconsistent and hard to scale.
-                </h2>
-              </div>
-              <div className="split-body">
-                <p>
-                  New staff are often trained on the job, under pressure and
-                  with limited manager time.
-                </p>
-                <p>
-                  Traditional training is usually passive, one-size-fits-all
-                  and difficult to apply during real service.
-                </p>
-                <p>
-                  Serve By Example bridges that gap by letting staff practice
-                  realistic service situations before they face them in venue.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+        <SplitPanel
+          kicker="The problem"
+          title="Most hospitality training is inconsistent and hard to scale."
+          items={PROBLEM}
+        />
 
-        {/* ── The System (5 Steps) ── */}
-        <section className="section">
-          <div className="container">
-            <SectionHeading
-              eyebrow="The System"
-              title="A simple training loop that improves with every session."
-            />
-            <FeatureGrid items={stepItems} columns={3} />
-          </div>
-        </section>
+        <Ledger
+          kicker="The system"
+          title="A simple training loop that improves with every session."
+          rows={LOOP.map((s) => ({ metric: s.number, title: s.title, body: s.description }))}
+        />
 
-        {/* ── Training Framework (6 Pillars) ── */}
-        <section className="section section-alt">
-          <div className="container">
-            <SectionHeading
-              eyebrow="The Training Framework"
-              title="Built around six core parts of hospitality performance."
-            />
-            <FeatureGrid items={pillarItems} columns={3} />
-          </div>
-        </section>
+        <RuledList
+          tone="alt"
+          kicker="The training framework"
+          title="Built around six core parts of hospitality performance."
+          items={FRAMEWORK}
+          primary={{ label: "See the platform", href: "/platform" }}
+        />
 
-        {/* ── Example Scenario ── */}
-        <section className="section">
-          <div className="container">
-            <SectionHeading
-              eyebrow="Example Scenario"
-              title="How a scored scenario response works"
-              copy="Every response is scored instantly. The platform tracks each scenario you miss and brings it back, so improvement isn’t left to chance."
-            />
-            <FeatureGrid items={scenarioItems} columns={3} />
+        <Strip
+          kicker="Example scenario"
+          title="How a scored scenario response works"
+          lede="Every response is scored instantly. The platform tracks each scenario you miss and brings it back, so improvement isn’t left to chance."
+          items={EXAMPLE}
+        />
 
-            {/* How AI improves your score */}
-            <div style={{
-              marginTop: "2.5rem",
-              background: "var(--status-success-bg)",
-              border: "1.5px solid var(--status-success-light)",
-              borderRadius: "var(--radius-lg)",
-              padding: "2rem 2.5rem",
-            }}>
-              <h3 style={{ margin: "0 0 1.25rem", fontSize: "1.1rem", fontWeight: 700, color: "var(--green-gradient-stop)" }}>
-                How the system improves your score over time
-              </h3>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.25rem" }}>
-                {[
-                  { n: "01", title: "Score every response", desc: "Rated across 5 dimensions: communication, hospitality, problem-solving, professionalism and guest experience." },
-                  { n: "02", title: "Track every scenario", desc: "Each scenario keeps its own record. A miss drops it back a level, so the scenarios you struggle with stay visible instead of getting lost in an average." },
-                  { n: "03", title: "Bring them back automatically", desc: "A missed scenario is due for review straight away. Ones you pass come back at widening intervals: 1, 4, then 9 days." },
-                  { n: "04", title: "Master it, then move on", desc: "A scenario counts as mastered after three passes in a row, at least an hour apart. A miss drops it back a level, so mastery means you can repeat it, not that you got lucky once." },
-                ].map(({ n, title, desc }) => (
-                  <div key={n} style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
-                    <span style={{ flexShrink: 0, width: "32px", height: "32px", borderRadius: "var(--radius-sm)", background: "var(--green-gradient-mid)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 800 }}>{n}</span>
-                    <div>
-                      <p style={{ margin: "0 0 4px", fontWeight: 700, fontSize: "0.875rem", color: "var(--green-gradient-stop)" }}>{title}</p>
-                      <p style={{ margin: 0, fontSize: "0.825rem", color: "var(--text-secondary)", lineHeight: 1.5 }}>{desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+        <Steps
+          kicker="After the score"
+          title="How the system improves your score over time"
+          steps={SCORING}
+        />
 
-          </div>
-        </section>
+        <MediaRows
+          tone="warm"
+          rows={[
+            {
+              tag: "Consoles",
+              title: "The manager and staff consoles, side by side",
+              body: "Two powerful tools working together: one for managers, one for staff.",
+              image: {
+                src: "/shots/Overview Console Compact.png",
+                alt: "Serve By Example manager console – venue overview with training completion, compliance status, and staff needing attention",
+                width: 2416,
+                height: 1558,
+              },
+              phone: {
+                src: "/shots/Progress Skill Rings.png",
+                alt: "Serve By Example staff mobile app – mastery breakdown by category with modules mastered and skill level",
+                width: 912,
+                height: 1844,
+              },
+            },
+          ]}
+        />
 
-        {/* ── Consoles ── */}
-        <section className="section" style={{ background: "var(--bg-dark)" }}>
-          <div className="container">
-            <div className="section-header">
-              <span className="eyebrow" style={{ color: "var(--status-success-border)" }}>Consoles</span>
-              <h2 style={{ color: "white", marginBottom: "0.5rem" }}>The manager and staff consoles, side by side</h2>
-              <p style={{ color: "var(--color-text-faint)", maxWidth: "560px" }}>
-                Two powerful tools working together: one for managers, one for staff.
-              </p>
-            </div>
-            <div className="hiw-consoles-grid">
-
-              {/* Management Console */}
-              <div>
-                <p style={{ color: "var(--divider-light)", fontWeight: 700, fontSize: "0.8125rem", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "1rem" }}>Manager Console</p>
-                <Image
-                  src="/shots/Overview Console Compact.png"
-                  alt="Serve By Example manager console – venue overview with training completion, compliance status, and staff needing attention"
-                  width={2416}
-                  height={1558}
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="sbe-shot"
-                  style={{ width: "100%", height: "auto", display: "block" }}
-                />
-              </div>
-
-              {/* Staff Mobile Console */}
-              <div>
-                <p style={{ color: "var(--divider-light)", fontWeight: 700, fontSize: "0.8125rem", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "1rem" }}>Staff Mobile Console</p>
-                <Image
-                  src="/shots/Progress Skill Rings.png"
-                  alt="Serve By Example staff mobile app – mastery breakdown by category with modules mastered and skill level"
-                  width={912}
-                  height={1844}
-                  sizes="(max-width: 768px) 45vw, 200px"
-                  style={{ width: "100%", maxWidth: "200px", height: "auto", display: "block", margin: "0 auto" }}
-                />
-              </div>
-
-            </div>
-          </div>
-        </section>
-
-        {/* ── CTA ── */}
         <CTABand
-          background="navy"
           title="Ready to train smarter?"
           copy="Give every staff member a clearer path to confidence, consistency and better service."
           primary={{ label: "Try the Demo", href: "/demo" }}
         />
       </main>
-
       <Footer />
     </div>
   );
