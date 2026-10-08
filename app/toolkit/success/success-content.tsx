@@ -18,24 +18,6 @@ const ROLE_HINTS: Record<string, { heading: string; body: string }> = {
   },
 };
 
-function CheckIcon() {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M5 13l4 4L19 7" />
-    </svg>
-  );
-}
-
 export function SuccessContent() {
   const params = useSearchParams();
   const role = params.get('role') ?? '';
@@ -46,122 +28,26 @@ export function SuccessContent() {
   const notionHref = '/api/toolkit-open';
 
   return (
-    <div
-      style={{
-        maxWidth: '480px',
-        width: '100%',
-        margin: '0 auto',
-        textAlign: 'center',
-        fontFamily: 'var(--font-body)',
-      }}
-    >
-      <div
-        style={{
-          width: '48px',
-          height: '48px',
-          borderRadius: '50%',
-          backgroundColor: 'var(--green-light)',
-          color: 'var(--green)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          margin: '0 auto 2rem auto',
-        }}
-      >
-        <CheckIcon />
-      </div>
-
-      <h1
-        style={{
-          fontFamily: 'var(--font-heading)',
-          fontSize: '2rem',
-          lineHeight: '1.2',
-          color: 'var(--text)',
-          marginBottom: '0.75rem',
-          letterSpacing: '-0.02em',
-        }}
-      >
-        Your toolkit is ready.
-      </h1>
-
-      <p
-        style={{
-          color: 'var(--text-soft)',
-          fontSize: '1rem',
-          lineHeight: '1.6',
-          marginBottom: '2rem',
-        }}
-      >
-        We&rsquo;ve also sent it to your inbox. Look for an email from Mitch
-        at Serve By Example.
+    <div className="sbe-mkt-confirm">
+      <p className="sbe-mkt-kicker">Sent to your inbox</p>
+      <h1 className="sbe-mkt-display">Your toolkit is ready.</h1>
+      <p className="sbe-mkt-lede">
+        We&rsquo;ve also sent it to your inbox. Look for an email from Mitch at Serve By Example.
       </p>
-
-      <a
-        href={notionHref}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="btn btn-primary btn-block"
-        style={{ display: 'block', marginBottom: '1.5rem' }}
-      >
+      <a href={notionHref} target="_blank" rel="noopener noreferrer" className="sbe-mkt-btn-primary">
         Open the Notion toolkit
       </a>
 
       {hint && (
-        <div
-          style={{
-            border: '1px solid var(--line)',
-            borderRadius: 'var(--radius-md)',
-            padding: '1.5rem',
-            backgroundColor: 'var(--surface)',
-            textAlign: 'left',
-          }}
-        >
-          <p
-            style={{
-              fontSize: '0.75rem',
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              color: 'var(--text-muted)',
-              marginBottom: '0.5rem',
-            }}
-          >
-            One thing to look for
-          </p>
-          <p
-            style={{
-              fontSize: '0.9rem',
-              fontWeight: '600',
-              color: 'var(--text)',
-              marginBottom: '0.4rem',
-            }}
-          >
-            {hint.heading}
-          </p>
-          <p
-            style={{
-              fontSize: '0.9rem',
-              color: 'var(--text-soft)',
-              lineHeight: '1.55',
-            }}
-          >
-            {hint.body}
-          </p>
+        <div className="sbe-mkt-confirm-hint">
+          <p className="sbe-mkt-plan-tier">One thing to look for</p>
+          <h2>{hint.heading}</h2>
+          <p>{hint.body}</p>
         </div>
       )}
 
-      <p
-        style={{
-          marginTop: '3rem',
-          fontSize: '0.8rem',
-          color: 'var(--text-muted)',
-        }}
-      >
-        <Link
-          href="/"
-          style={{ color: 'var(--text-muted)', textDecoration: 'none' }}
-        >
-          servebyexample.co
-        </Link>
+      <p className="sbe-mkt-footnote">
+        <Link href="/">servebyexample.co</Link>
       </p>
     </div>
   );

@@ -22014,6 +22014,192 @@ h1, h2, h3 {
   }
 }
 
+/* A sample line quoted under a ruled-list row */
+.sbe-mkt-plan-quote {
+  display: block;
+  margin-top: 0.6rem;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+/* ── Contact: form left, other routes as a ruled list right ── */
+.sbe-mkt-contact {
+  padding: 2.5rem 0 var(--section-spacing-md);
+}
+
+.sbe-mkt-contact-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3rem;
+}
+
+.sbe-mkt-contact-main .contact-form {
+  margin-top: 1.25rem;
+}
+
+/* Keep the required mark and "(optional)" on the label's own line */
+.sbe-mkt-contact-main .label {
+  display: block;
+}
+
+.sbe-mkt-contact-main .contact-textarea {
+  min-height: 96px;
+}
+
+.sbe-mkt-contact-submit {
+  border: 0;
+  cursor: pointer;
+}
+
+.sbe-mkt-contact-submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.sbe-mkt-contact-aside {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.sbe-mkt-contact-aside li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-contact-aside p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: var(--lh-body);
+  color: var(--text-soft);
+}
+
+.sbe-mkt-contact-email {
+  font-family: var(--font-heading);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 700px) {
+  .sbe-mkt-contact-pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-contact-grid {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    gap: clamp(2.5rem, 6vw, 6rem);
+    align-items: start;
+  }
+
+  .sbe-mkt-contact-aside {
+    position: sticky;
+    top: calc(var(--nav-h) + 2rem);
+  }
+}
+
+/* ── /toolkit: chrome-less lead-magnet page around the SOP generator ── */
+.sbe-mkt-toolkit {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.sbe-mkt-toolkit-bar {
+  padding: 1rem var(--page-gutter);
+  background: var(--bg-dark);
+}
+
+.sbe-mkt-toolkit-bar a {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--nav-cream);
+  text-decoration: none;
+}
+
+.sbe-mkt-toolkit-tool {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: var(--section-spacing-sm) 1.5rem 0;
+}
+
+.sbe-mkt-toolkit-foot {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: var(--section-spacing-sm) 1.5rem;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.sbe-mkt-toolkit-foot p {
+  margin: 0 0 0.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-toolkit-foot p + p {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.sbe-mkt-toolkit-foot a {
+  color: inherit;
+}
+
+/* ── Confirmation page (toolkit sent) ── */
+.sbe-mkt-confirm-page {
+  flex: 1;
+  background: var(--bg);
+  padding: var(--section-spacing-md) 0;
+}
+
+.sbe-mkt-confirm {
+  max-width: 40rem;
+}
+
+.sbe-mkt-confirm .sbe-mkt-lede {
+  margin: 1.25rem 0 2rem;
+}
+
+.sbe-mkt-confirm-hint {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-confirm-hint h2 {
+  margin: 0.6rem 0 0.5rem;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+}
+
+.sbe-mkt-confirm-hint p:last-child {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.sbe-mkt-confirm .sbe-mkt-footnote a {
+  color: inherit;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sbe-mkt-faq-item::details-content,
   .sbe-mkt-price-btn,
