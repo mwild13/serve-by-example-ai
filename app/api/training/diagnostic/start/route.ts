@@ -19,6 +19,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
+import { PLACEMENT_QUESTION_KEYS } from "@/lib/diagnostic-engine";
 
 export const dynamic = "force-dynamic";
 
@@ -53,17 +54,21 @@ export async function POST(request: NextRequest) {
 
     const supabase = getSupabaseClient();
 
-    // Fetch diagnostic questions from database. sort_order (1-10) is what
+    // Fetch the asked questions from the bank. sort_order (1-10) is what
     // lib/diagnostic-engine.ts's DIAGNOSTIC_ANSWER_KEY/QUESTION_CATEGORY_MAP
     // are actually keyed by ("q1".."q10") — diagnostic_questions.id is a
     // real UUID and was never a valid key into those maps (see
-    // formattedQuestions below).
-    const { data: questions, error } = await supabase
+    // formattedQuestions below). PLACEMENT_QUESTION_KEYS picks which of the
+    // ten are asked and in what order.
+    const askedOrder: number[] = PLACEMENT_QUESTION_KEYS.map((key) => Number(key.slice(1)));
+    const { data: bankQuestions, error } = await supabase
       .from("diagnostic_questions")
       .select("id, question_text, options, sort_order")
       .eq("is_active", true)
-      .order("sort_order", { ascending: true })
-      .limit(10);
+      .in("sort_order", askedOrder);
+    const questions = bankQuestions
+      ? [...bankQuestions].sort((a, b) => askedOrder.indexOf(a.sort_order) - askedOrder.indexOf(b.sort_order))
+      : bankQuestions;
 
     if (error) {
       console.error("Error fetching diagnostic questions:", error);
@@ -83,12 +88,10 @@ export async function POST(request: NextRequest) {
     // Format response. Real UUID kept as `id` (a stable per-question
     // identity for the client's answers state/keys), but `answer_key` is
     // the "q1".."q10" form the scoring engine actually understands —
-    // derived from sort_order (falls back to array position if sort_order
-    // is ever missing, so a submission still scores rather than silently
-    // dropping the answer).
-    const formattedQuestions = questions.map((q, index) => ({
+    // derived from sort_order.
+    const formattedQuestions = questions.map((q) => ({
       id: q.id,
-      answer_key: `q${q.sort_order ?? index + 1}`,
+      answer_key: `q${q.sort_order}`,
       question_text: q.question_text,
       options: q.options, // Already in format [{text, isCorrect}, ...]
     }));

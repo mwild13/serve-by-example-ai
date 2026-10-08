@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
 
-// Phase C file 08, Half A — the real 10-question diagnostic, replacing the
+// Phase C file 08, Half A — the real placement-check diagnostic, replacing the
 // self-report 3-level picker. Confirmed (v4-migration-plan/08, step 1)
 // app/api/training/diagnostic/start + .../submit already implement
 // lib/diagnostic-engine.ts's real scoring logic end to end —
@@ -108,7 +108,7 @@ export default function OnboardingDiagnosticScreen() {
                 textDecoration: "none",
               }}
             >
-              Skip Assessment
+              Skip for now
             </Link>
           </div>
         </StatusMessage>
@@ -122,7 +122,7 @@ export default function OnboardingDiagnosticScreen() {
         <StatusMessage>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
             <Loader2 size={24} className="mobile-spin" color="var(--gold-mobile)" aria-hidden="true" />
-            <span>Loading your assessment…</span>
+            <span>Loading your placement check…</span>
           </div>
         </StatusMessage>
       </MobileScreenShell>
@@ -185,7 +185,7 @@ export default function OnboardingDiagnosticScreen() {
             <div style={{ width: `${progressPct}%`, height: "100%", background: "var(--gold-mobile)", transition: "width 0.2s ease" }} />
           </div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>Placement Assessment</p>
+            <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>Placement check</p>
             <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--gold-mobile)" }}>
               Question {currentIndex + 1} of {questions.length}
             </p>
@@ -201,7 +201,7 @@ export default function OnboardingDiagnosticScreen() {
             {currentQuestion.question_text}
           </p>
           <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>
-            We&apos;ll use your answers to set up your personal training path.
+            No pass mark. Your answers decide which modules we suggest first.
           </p>
         </div>
 
@@ -296,7 +296,7 @@ export default function OnboardingDiagnosticScreen() {
               }}
             >
               <span style={{ fontSize: 15, fontWeight: 700, color: "var(--bg-mobile-dark)" }}>
-                {submitting ? "Submitting…" : "Complete Assessment"}
+                {submitting ? "Saving…" : "See my modules"}
               </span>
             </button>
           ) : (
@@ -317,7 +317,7 @@ export default function OnboardingDiagnosticScreen() {
                 cursor: isAnswered ? "pointer" : "default",
               }}
             >
-              <span style={{ fontSize: 15, fontWeight: 700, color: "var(--bg-mobile-dark)" }}>Next Question</span>
+              <span style={{ fontSize: 15, fontWeight: 700, color: "var(--bg-mobile-dark)" }}>Next</span>
             </button>
           )}
         </div>
@@ -333,7 +333,7 @@ export default function OnboardingDiagnosticScreen() {
             textDecoration: "underline",
           }}
         >
-          Skip Assessment
+          Skip for now
         </Link>
       </div>
     </MobileScreenShell>

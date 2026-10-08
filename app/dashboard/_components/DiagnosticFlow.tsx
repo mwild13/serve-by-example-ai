@@ -197,7 +197,7 @@ export default function DiagnosticFlow({
               animation: "drill-spin 0.8s linear infinite",
             }}
           />
-          <p style={{ margin: 0, color: "var(--text-soft)", fontSize: "0.95rem" }}>Loading assessment…</p>
+          <p style={{ margin: 0, color: "var(--text-soft)", fontSize: "0.95rem" }}>Loading your placement check…</p>
         </div>
       </div>
     );
@@ -207,7 +207,7 @@ export default function DiagnosticFlow({
     return (
       <div style={backdropStyle}>
         <div style={{ ...cardStyle, maxWidth: 400, padding: "32px" }}>
-          <h2 style={{ margin: "0 0 12px", fontFamily: "var(--font-fraunces)", fontSize: "1.3rem", color: "var(--status-critical-text)" }}>Something went wrong</h2>
+          <h2 style={{ margin: "0 0 12px", fontFamily: "var(--font-heading)", fontSize: "1.3rem", color: "var(--status-critical-text)" }}>Something went wrong</h2>
           <p style={{ margin: "0 0 20px", color: "var(--text-soft)", fontSize: "0.9rem", lineHeight: 1.5 }}>{error}</p>
           <button
             type="button"
@@ -225,7 +225,7 @@ export default function DiagnosticFlow({
     return (
       <div style={backdropStyle}>
         <div style={{ ...cardStyle, maxWidth: 400, padding: "32px", textAlign: "center" }}>
-          <p style={{ margin: 0, color: "var(--text-soft)" }}>No diagnostic questions available.</p>
+          <p style={{ margin: 0, color: "var(--text-soft)" }}>No placement questions available.</p>
         </div>
       </div>
     );
@@ -241,9 +241,9 @@ export default function DiagnosticFlow({
       <div style={cardStyle}>
         {/* Header */}
         <div style={{ background: "var(--green-deep)", color: "var(--surface-raised)", padding: "24px 28px", borderRadius: "var(--radius-lg) var(--radius-lg) 0 0" }}>
-          <h2 style={{ margin: "0 0 6px", fontFamily: "var(--font-fraunces)", fontSize: "1.4rem", fontWeight: 600 }}>Diagnostic Assessment</h2>
+          <h2 style={{ margin: "0 0 6px", fontFamily: "var(--font-heading)", fontSize: "1.4rem", fontWeight: 600 }}>Quick placement check</h2>
           <p style={{ margin: 0, color: "var(--green-light)", fontSize: "0.9rem" }}>
-            Answer 10 questions to personalise your learning path.
+            {questions.length} short scenarios, about a minute. There&apos;s no pass mark. Your answers decide which modules we suggest first.
           </p>
         </div>
 
@@ -342,7 +342,7 @@ export default function DiagnosticFlow({
               className="btn btn-primary"
               style={{ flex: 1, opacity: allAnswered && !submitting ? 1 : 0.5, cursor: allAnswered && !submitting ? "pointer" : "not-allowed" }}
             >
-              {submitting ? "Submitting…" : "Complete assessment"}
+              {submitting ? "Saving…" : "See my modules"}
             </button>
           )}
         </div>

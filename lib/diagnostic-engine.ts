@@ -1,10 +1,19 @@
 /**
  * Diagnostic Assessment Engine
- * Scores the 10-question placement check per category (percent correct).
+ * Scores the placement check per category (percent correct).
  * The result only orders recommendations (lib/module-navigator.ts); it is
  * not a compliance or mastery signal. It used to be converted to Elo-style
  * ratings and seeded into scenario_mastery (audit Phase 5 retired both).
  */
+
+/**
+ * The questions the placement check asks, in the order they are shown.
+ * Two per category, so each category scores 0, 50 or 100 and none outweighs
+ * the others. The bank (diagnostic_questions) still holds all ten: q1, q3
+ * and q7 only suit bar staff and q2 was the weakest of the service three.
+ * Opens with the easiest question and ends on the two compliance ones.
+ */
+export const PLACEMENT_QUESTION_KEYS = ["q6", "q5", "q10", "q9", "q4", "q8"] as const;
 
 export interface DiagnosticAnswer {
   questionId: string;
@@ -58,7 +67,8 @@ const MODULE_CATEGORY_MAP: Record<number, string> = {
 
 /**
  * Diagnostic Question Answers (hardcoded for mapping)
- * Maps question IDs to correct answers for scoring
+ * Maps question IDs to correct answers for scoring. Each string must match
+ * the option text stored in diagnostic_questions character for character.
  */
 const DIAGNOSTIC_ANSWER_KEY: Record<string, string[] | string> = {
   // Q1: Beer pouring (Technical)
@@ -74,7 +84,7 @@ const DIAGNOSTIC_ANSWER_KEY: Record<string, string[] | string> = {
   "q4": "Assess their intoxication level and refuse service if impaired; offer water/food instead",
 
   // Q5: Complaint handling (Service)
-  "q5": "Apologise, ask what's wrong, offer to remake it or suggest an alternative",
+  "q5": "Apologize, ask what's wrong, offer to remake it or suggest an alternative",
 
   // Q6: Food safety - dropped item (Technical)
   "q6": "Discard it immediately and use a fresh one",
@@ -89,7 +99,7 @@ const DIAGNOSTIC_ANSWER_KEY: Record<string, string[] | string> = {
   "q9": "Ask about their taste preferences, suggest a beer they might enjoy, mention food pairings",
 
   // Q10: Wine recommendation (Technical)
-  "q10": "Ask clarifying questions (dry vs. fruity?), offer to show options, suggest a few light options",
+  "q10": "Ask clarifying questions (dry vs. fruity? Any preferences?), offer to show options, suggest a few light options",
 };
 
 /**
@@ -146,10 +156,13 @@ function calculateCategoryScores(
     compliance: { correct: 0, total: 0 },
   };
 
-  // Score each answer and tally by category
-  Object.entries(answers).forEach(([questionId, selectedAnswer]) => {
+  // Score each asked question and tally by category. Anything else in the
+  // payload is ignored (a tab still open on the old ten-question build
+  // submits all ten).
+  PLACEMENT_QUESTION_KEYS.forEach((questionId) => {
+    const selectedAnswer = answers[questionId];
     const category = QUESTION_CATEGORY_MAP[questionId];
-    if (!category) return;
+    if (!category || selectedAnswer === undefined) return;
 
     categories[category].total += 1;
 
@@ -177,16 +190,15 @@ export async function processDiagnosticAnswers(
   answers: Record<string, string | boolean>
 ): Promise<DiagnosticResult> {
   try {
-    // Validate we have all 10 answers
-    const questionIds = Object.keys(DIAGNOSTIC_ANSWER_KEY);
-    const providedIds = Object.keys(answers);
+    // Validate every asked question has an answer
+    const answeredCount = PLACEMENT_QUESTION_KEYS.filter((id) => answers[id] !== undefined).length;
 
-    if (providedIds.length !== questionIds.length) {
+    if (answeredCount !== PLACEMENT_QUESTION_KEYS.length) {
       return {
         category_scores: {},
         detailed_scores: [],
         success: false,
-        message: `Incomplete diagnostic: expected ${questionIds.length} answers, got ${providedIds.length}`,
+        message: `Incomplete diagnostic: expected ${PLACEMENT_QUESTION_KEYS.length} answers, got ${answeredCount}`,
       };
     }
 

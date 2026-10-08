@@ -27,7 +27,7 @@ import { getUserFromRequest } from "@/lib/supabase-server";
 import { processDiagnosticAnswers, getRecommendedModules } from "@/lib/diagnostic-engine";
 import { readJsonBody } from "@/lib/ai-guard";
 
-// Ten short answers; anything larger isn't a real submission.
+// A handful of short answers; anything larger isn't a real submission.
 const MAX_BODY_BYTES = 4 * 1024;
 
 export const dynamic = "force-dynamic";

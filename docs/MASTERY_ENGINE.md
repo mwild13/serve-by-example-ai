@@ -80,7 +80,7 @@ Nothing else writes `scenario_mastery`. Clients can't write it at all (Phase 2 R
 3. Lowest `difficulty_level`.
 4. Lowest id.
 
-The placement check (`/api/training/diagnostic/*`, scored in `lib/diagnostic-engine.ts`) stores per-category **percentages** in `module_elo_baseline`. The table name predates the Elo retirement. Only the order of the three categories is used, so older rows saved on the Elo scale still work.
+The placement check (`/api/training/diagnostic/*`, scored in `lib/diagnostic-engine.ts`) stores per-category **percentages** in `module_elo_baseline`. The table name predates the Elo retirement. Only the order of the three categories is used, so older rows saved on the Elo scale still work. It asks six of the ten questions in `diagnostic_questions`, two per category; `PLACEMENT_QUESTION_KEYS` in `lib/diagnostic-engine.ts` sets which ones and their order.
 
 Mobile "Continue Learning" (`HomeScreen.tsx`) picks the in-progress module with the lowest mastery, breaking ties by the one used most recently. If nothing is in progress, it picks the most basic untouched module.
 
