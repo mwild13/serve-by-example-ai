@@ -425,7 +425,7 @@ Type sizes were not changed.
 - **New closing bands** on the two demo pages: "Put your own roster through it." and "Give your whole team this practice."
 - **Vertical pages gained the trial button and the 14-Day Performance Guarantee line,** using the homepage wording.
 - **Dropped from the `/solutions` hub:** the bullet lists and stat cards under each venue type. The same points are on the vertical pages.
-- **Founder age of experience** stays at 15 years on `/about`, as decided. `/advisory` still says 20 years.
+- **Founder experience** stays at 15 years on `/about`, as decided. `/advisory` still says 20 years.
 
 ## Checks run
 
