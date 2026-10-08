@@ -1,6 +1,6 @@
 # Handoff: October 2026, Week 2 — By Example Advisory page, homepage UI overhaul and pricing page redesign
 
-> **Four pieces of work this week.** Part 1 (below) is the Advisory page, merged to `main`. Part 2 is the homepage UI overhaul, also merged to `main`. Part 3 is the pricing page redesign, also merged to `main`. Part 4, at the end of this file, is the new typography and the redesign of every remaining marketing page, on `preview/marketing-redesign` and **not yet pushed or merged**. The AI model switch to `gpt-6-luna` is recorded in Part 1 and is merged too.
+> **Four pieces of work this week.** Part 1 (below) is the Advisory page, merged to `main`. Part 2 is the homepage UI overhaul, also merged to `main`. Part 3 is the pricing page redesign, also merged to `main`. Part 4, at the end of this file, is the new typography and the redesign of every remaining marketing page, **merged to `main` 2026-10-08**. The AI model switch to `gpt-6-luna` is recorded in Part 1 and is merged too.
 
 - **Dates:** 2026-10-07 to 2026-10-08
 - **Branch:** `preview/advisory-page`, **merged to `main` 2026-10-08** (merge `b0e1de1`). Preview: https://preview-advisory-page.serve-by-example-ai.pages.dev/advisory
@@ -324,7 +324,7 @@ The two pillar descriptions were also rewritten and no longer name the AI model.
 # Part 4: New typography and the remaining marketing pages
 
 - **Date:** 2026-10-08
-- **Branch:** `preview/marketing-redesign`, cut from `main` after the Part 3 merge. Seven commits, local only: **not pushed, not merged**.
+- **Branch:** `preview/marketing-redesign`, cut from `main` after the Part 3 merge, **merged to `main` 2026-10-08**. Preview: https://preview-marketing-redesign.serve-by-example-ai.pages.dev/
 - **Covers:** the marketing site's move to Newsreader and Inter, the rebuild of all 24 remaining marketing routes to the Part 2 standard, a shared set of section components, removal of the August component set, and a page-standard e2e spec.
 - **Related:** `docs/Pages-Redesign.md` (section 4.3 documents the new components; section 5.2 the fonts and tokens; section 7 the final state). `To_do_list.md` has the copy flags.
 
@@ -423,6 +423,7 @@ Type sizes were not changed.
 - **New headings.** Sections that had no heading, or that changed pattern, needed a kicker and title. Examples: "What the platform is built to move.", "Pick the operation closest to yours.", "What is coming, and when.", "Four differences you feel on a shift.", and the per-vertical ledger headings.
 - **New row titles** on `/platform`, `/platform/challenges`, `/how-it-works`, `/about` and `/security`, where a paragraph became a titled row.
 - **New closing bands** on the two demo pages: "Put your own roster through it." and "Give your whole team this practice."
+- **Price figures on `/pricing` are set in Inter 600,** not Newsreader. The serif dollar sign looked decorative at that size. Changed after review on the preview.
 - **Vertical pages gained the trial button and the 14-Day Performance Guarantee line,** using the homepage wording.
 - **Dropped from the `/solutions` hub:** the bullet lists and stat cards under each venue type. The same points are on the vertical pages.
 - **Founder experience** stays at 15 years on `/about`, as decided. `/advisory` still says 20 years.
@@ -439,14 +440,14 @@ Type sizes were not changed.
 | Layout at 375 and 1440px, all 31 public routes | No horizontal overflow |
 | Layout at 1280 and 1920px, every rebuilt page | No horizontal overflow |
 | Homepage and `/pricing` heights after the CSS deletions | Unchanged, so nothing they use was removed |
-| Marketing e2e, against a deployed preview | Not run. The branch is not pushed |
+| Marketing e2e, against the deployed preview | 71 passed, 1 skipped by design (run by Mitchell) |
 | `/dashboard`, `/mobile`, `/management` in a browser | Not checked. They need a login, which the local server does not have |
 | `npm run build` and `build:cloudflare` | Not run |
-| Mobile e2e | Not run |
+| Mobile e2e | Did not start. The login step in `global-setup.ts` timed out waiting for `/dashboard`, so no test ran. Cause not established |
 
 ## Open items
 
-- **Push and preview.** Mitchell to name the branch to push to; then run the marketing e2e suite once against the preview.
+- **Mobile e2e did not start.** The sign-in step timed out before any test ran. The usual cause is a wrong or placeholder `E2E_TEST_PASSWORD`; the other possibility is that sign-in itself is failing. Sign in by hand with the QA account first, then re-run.
 - **Confirm the product fonts in a browser.** The scoping is in place but untested behind a login. If anything in `/dashboard`, `/mobile` or `/management` shows Newsreader or Inter, the wrapper is missing on that route.
 - **Run the mobile e2e suite once** against the preview. Its baselines should still match, because `/mobile` kept its fonts.
 - **Copy sign-off.** The new headings and row titles went in without a separate approval round.
