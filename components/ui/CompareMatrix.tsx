@@ -7,9 +7,17 @@
  * Columns: Staff | Venue | Group | Franchise
  * Sections: A — Learning Engine | B — Venue Operations | C — Support
  *
- * The table only carries rows that differ between tiers or carry a number.
+ * The table only carries rows that differ between the tiers shown: a row
+ * whose value is the same in every visible column is dropped at render time.
  * Features that are identical on every plan, plus the manager / franchise /
  * security detail, live in the "What's included" block below the table.
+ *
+ * Props (all off by default, which is how /for-venues renders it):
+ *   flush         — no panel chrome; four equal 25% columns that line up with
+ *                   the /pricing price board. The page supplies the dark band.
+ *   collapsible   — wraps the table in a native <details>, closed by default.
+ *   hideFranchise — drops the Franchise column (on /pricing Franchise is a
+ *                   contact row, not a priced plan).
  *
  * Binary Icon Rule:
  *   - Simple Yes/No states: render <IncludedIcon/> or <ExcludedIcon/> only.
@@ -208,6 +216,9 @@ const includedGroups: IncludedGroup[] = [
   {
     heading: "On every plan",
     items: [
+      { label: "40 modules across Bartending, Sales and Management" },
+      { label: "AI Arena: unlimited live scenarios with written feedback" },
+      { label: "Mastery levels, spaced repetition, badges and streaks" },
       { label: "Rapid-fire knowledge drills" },
       { label: "Interactive challenges" },
       { label: "Cocktail library (38 recipes)" },
@@ -243,7 +254,20 @@ const includedGroups: IncludedGroup[] = [
   },
 ];
 
-const TIER_LABELS = ["Staff", "Venue", "Group", "Franchise"] as const;
+type TierKey = "staff" | "venue" | "group" | "franchise";
+
+const TIER_COLUMNS: { key: TierKey; label: string }[] = [
+  { key: "staff", label: "Staff" },
+  { key: "venue", label: "Venue" },
+  { key: "group", label: "Group" },
+  { key: "franchise", label: "Franchise" },
+];
+
+interface CompareMatrixProps {
+  flush?: boolean;
+  collapsible?: boolean;
+  hideFranchise?: boolean;
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -299,18 +323,39 @@ function SectionIcon({ path }: { path: string }) {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export default function CompareMatrix() {
-  return (
-    <div className="sbe-compare">
-      {/* ── Header ── */}
-      <div className="sbe-compare-head">
-        <span className="sbe-compare-eyebrow">Full Comparison</span>
-        <h2 className="sbe-compare-title">Everything, side by side.</h2>
-        <p className="sbe-compare-sub">
-          Every limit that changes between plans. No asterisks.
-        </p>
-      </div>
+export default function CompareMatrix({
+  flush = false,
+  collapsible = false,
+  hideFranchise = false,
+}: CompareMatrixProps) {
+  const columns = hideFranchise
+    ? TIER_COLUMNS.filter((col) => col.key !== "franchise")
+    : TIER_COLUMNS;
 
+  // Keep only rows that actually differ across the visible columns.
+  const visibleSections = sections
+    .map((section) => ({
+      ...section,
+      rows: section.rows.filter(
+        (row) => new Set(columns.map((col) => row[col.key])).size > 1,
+      ),
+    }))
+    .filter((section) => section.rows.length > 0);
+
+  const head = (
+    <div className="sbe-compare-head">
+      <span className="sbe-compare-eyebrow">Full Comparison</span>
+      <h2 className="sbe-compare-title">
+        {collapsible ? "Compare every plan." : "Everything, side by side."}
+      </h2>
+      <p className="sbe-compare-sub">
+        Every limit that changes between plans. No asterisks.
+      </p>
+    </div>
+  );
+
+  const body = (
+    <>
       {/* ── Table wrapper — horizontal scroll on small screens ── */}
       <div className="sbe-compare-scroll">
         <table className="sbe-compare-table">
@@ -319,21 +364,19 @@ export default function CompareMatrix() {
               <th className="sbe-compare-th sbe-compare-th--label" scope="col">
                 Feature
               </th>
-              {TIER_LABELS.map((label) => (
+              {columns.map((col) => (
                 <th
-                  key={label}
+                  key={col.key}
                   scope="col"
                   className={
                     "sbe-compare-th" +
-                    (label === "Venue" ? " sbe-compare-col--featured" : "")
+                    (col.key === "venue" ? " sbe-compare-col--featured" : "")
                   }
                 >
                   <div className="sbe-compare-th-inner">
-                    <span className="sbe-compare-tier">{label}</span>
-                    {(label === "Venue" || label === "Group") && (
-                      <span className="sbe-compare-pill">
-                        {label === "Venue" ? "Most Popular" : "Best Value"}
-                      </span>
+                    <span className="sbe-compare-tier">{col.label}</span>
+                    {col.key === "venue" && (
+                      <span className="sbe-compare-pill">Recommended</span>
                     )}
                   </div>
                 </th>
@@ -342,10 +385,10 @@ export default function CompareMatrix() {
           </thead>
 
           <tbody>
-            {sections.map((section, sIdx) => (
+            {visibleSections.map((section, sIdx) => (
               <React.Fragment key={section.title}>
                 <tr>
-                  <td colSpan={5} className="sbe-compare-section">
+                  <td colSpan={columns.length + 1} className="sbe-compare-section">
                     <div className="sbe-compare-section-inner">
                       <SectionIcon path={section.iconPath} />
                       <span>
@@ -360,22 +403,15 @@ export default function CompareMatrix() {
                     <th scope="row" className="sbe-compare-label">
                       {row.label}
                     </th>
-                    {(
-                      [
-                        row.staff,
-                        row.venue,
-                        row.group,
-                        row.franchise,
-                      ] as CellValue[]
-                    ).map((val, colIdx) => (
+                    {columns.map((col) => (
                       <td
-                        key={colIdx}
+                        key={col.key}
                         className={
                           "sbe-compare-td" +
-                          (colIdx === 1 ? " sbe-compare-col--featured" : "")
+                          (col.key === "venue" ? " sbe-compare-col--featured" : "")
                         }
                       >
-                        <Cell value={val} />
+                        <Cell value={row[col.key]} />
                       </td>
                     ))}
                   </tr>
@@ -412,6 +448,25 @@ export default function CompareMatrix() {
           ))}
         </div>
       </div>
+    </>
+  );
+
+  return (
+    <div className={"sbe-compare" + (flush ? " sbe-compare--flush" : "")}>
+      {collapsible ? (
+        <details className="sbe-compare-details">
+          <summary className="sbe-compare-summary">
+            {head}
+            <span className="sbe-mkt-faq-icon" aria-hidden="true" />
+          </summary>
+          {body}
+        </details>
+      ) : (
+        <>
+          {head}
+          {body}
+        </>
+      )}
     </div>
   );
 }

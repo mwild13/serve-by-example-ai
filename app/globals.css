@@ -12894,95 +12894,6 @@ body {
   line-height: 1.65;
 }
 
-/* ── Founding section ───────────────────────────── */
-.founding-section {
-  background: linear-gradient(160deg, var(--bg-dark) 0%, var(--bg-dark-soft) 100%);
-  color: var(--surface-raised);
-}
-
-.founding-inner {
-  max-width: 900px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.founding-header {
-  margin-bottom: 48px;
-}
-
-.founding-header h2 {
-  font-family: var(--font-heading);
-  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
-  font-weight: 700;
-  color: var(--surface-raised);
-  margin-bottom: 16px;
-  line-height: 1.2;
-}
-
-.founding-header p {
-  color: var(--text-light-muted-on-dark);
-  font-size: 1rem;
-  line-height: 1.7;
-  max-width: 640px;
-  margin: 0 auto;
-}
-
-.founding-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  margin-bottom: 40px;
-  text-align: left;
-}
-
-.founding-card {
-  background: var(--surface-tint-on-dark);
-  border: 1px solid var(--border-light-faint-on-dark);
-  border-radius: var(--radius-lg);
-  padding: 28px 24px;
-}
-
-.founding-card-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: var(--radius-md);
-  background: var(--gold-tint-on-dark);
-  color: var(--gold-warm);
-  display: grid;
-  place-items: center;
-  margin-bottom: 16px;
-}
-
-.founding-card h3 {
-  font-family: var(--font-heading);
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--surface-raised);
-  margin-bottom: 10px;
-}
-
-.founding-card p {
-  font-size: 0.875rem;
-  color: var(--text-light-muted-on-dark);
-  line-height: 1.65;
-}
-
-.founding-card strong {
-  color: var(--gold-warm);
-}
-
-.founding-cta {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.founding-cta-note {
-  font-size: 0.82rem;
-  color: var(--text-light-muted-on-dark);
-}
-
 .eyebrow-gold {
   color: var(--gold-warm);
   background: rgba(169, 129, 42, 0.15);
@@ -13070,9 +12981,6 @@ body {
     width: 40px;
   }
 
-  .founding-cards {
-    grid-template-columns: 1fr;
-  }
 
   .pricing-grid-3 {
     grid-template-columns: 1fr;
@@ -18153,12 +18061,6 @@ h1, h2, h3 {
 }
 
 /* ── /pricing — billing toggle ── */
-.sbe-mkt-billing-toggle-wrap {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 2.5rem;
-}
-
 .sbe-mkt-billing-toggle {
   display: inline-flex;
   background: var(--bg-alt);
@@ -18190,106 +18092,7 @@ h1, h2, h3 {
   box-shadow: var(--shadow-sm);
 }
 
-.sbe-mkt-billing-save {
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: var(--green);
-  background: var(--green-light);
-  border-radius: var(--radius-pill);
-  padding: 2px 8px;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-}
-
-/* ── /pricing — tier cards ── */
-.sbe-mkt-pricing-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 12px;
-  align-items: stretch;
-}
-
-.sbe-mkt-pricecard {
-  display: flex;
-  flex-direction: column;
-  background: var(--surface);
-  border: 1px solid var(--line-light);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xs);
-  padding: 1.5rem;
-}
-
-.sbe-mkt-pricecard-highlight {
-  border-top: 4px solid var(--green);
-}
-
-.sbe-mkt-pricecard-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.5rem;
-}
-
-.sbe-mkt-pricecard-name {
-  font-family: var(--font-heading);
-  margin: 0 0 2px;
-}
-
-.sbe-mkt-pricecard-sublabel {
-  font-family: var(--font-body);
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  font-weight: 500;
-}
-
-.sbe-mkt-pricecard-badge {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--green);
-  background: var(--green-light);
-  border-radius: var(--radius-pill);
-  padding: 3px 10px;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  margin-top: 2px;
-}
-
-.sbe-mkt-priceblock {
-  margin-bottom: 1.25rem;
-  min-height: 4rem;
-}
-
-.sbe-mkt-priceblock-figure {
-  font-family: var(--font-heading);
-  font-size: 2.25rem;
-  font-weight: 700;
-  color: var(--text);
-  line-height: 1.1;
-}
-
-.sbe-mkt-priceblock-note {
-  font-family: var(--font-body);
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin-top: 4px;
-  min-height: 1.2em;
-}
-
-.sbe-mkt-pricecard-desc {
-  font-family: var(--font-body);
-  font-size: 0.8125rem;
-  color: var(--text-soft);
-  margin: 0 0 1.25rem;
-}
-
-.sbe-mkt-pricecard-features {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1.5rem;
-  flex-grow: 1;
-}
-
+/* ── Tier feature list and full-width button, shared by /pricing and /advisory ── */
 .sbe-mkt-pricefeature {
   position: relative;
   padding: 4px 0 4px 26px;
@@ -18328,38 +18131,6 @@ h1, h2, h3 {
   width: 100%;
   display: block;
   text-align: center;
-}
-
-.sbe-mkt-pricecard-microcopy {
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin: 8px 0 0;
-  text-align: center;
-}
-
-/* ── /pricing — FAQ support footer ── */
-.sbe-mkt-pricing-support {
-  text-align: center;
-  margin-top: 2.5rem;
-}
-
-.sbe-mkt-pricing-support-lead {
-  color: var(--text-soft);
-  margin-bottom: 1rem;
-  font-size: 0.95rem;
-}
-
-.sbe-mkt-pricing-roadmap {
-  color: var(--text-muted);
-  font-size: 0.875rem;
-  margin-top: 1.5rem;
-}
-
-.sbe-mkt-pricing-roadmap a {
-  color: var(--green);
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 
 /* ── /security — data transparency + payments (moved from inline <style>) ── */
@@ -21426,8 +21197,583 @@ h1, h2, h3 {
   }
 }
 
+/* ==========================================================================
+   /pricing: price board, founding strip, flush comparison (October 2026)
+   One four-track grid runs through the board, the founding strip and the
+   comparison table, so plan columns share edges all the way down the page.
+   ========================================================================== */
+
+.sbe-mkt-pricing-page {
+  --price-overlap: 2.5rem;
+  --price-pad: 1.5rem;
+}
+
+/* Short hero with room underneath for the board to overlap */
+.sbe-mkt-pricing-hero .sbe-mkt-pagehero {
+  padding: 2.5rem 0 calc(2.5rem + var(--price-overlap));
+}
+
+.sbe-mkt-pricing {
+  position: relative;
+  z-index: 1;
+  margin-top: calc(var(--price-overlap) * -1);
+  padding-bottom: var(--section-spacing-sm);
+}
+
+.sbe-mkt-price-error {
+  max-width: 480px;
+  margin: 0 auto 16px;
+}
+
+.sbe-mkt-price-board {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── Track 1: heading, billing toggle ── */
+.sbe-mkt-price-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: var(--price-pad);
+}
+
+.sbe-mkt-price-intro-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  font-weight: 500;
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+}
+
+.sbe-mkt-price-intro-note {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gold-deep);
+}
+
+.sbe-mkt-price-guarantee {
+  padding: var(--price-pad);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  border-top: 1px solid var(--line);
+}
+
+/* ── Tracks 2 to 4: the three priced plans ── */
+.sbe-mkt-price-plans {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sbe-mkt-price-col {
+  display: flex;
+  flex-direction: column;
+  padding: var(--price-pad);
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-price-audience {
+  margin: 0 0 0.5rem;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.sbe-mkt-price-namerow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.sbe-mkt-price-name {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+}
+
+.sbe-mkt-price-flag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--gold-warm);
+}
+
+.sbe-mkt-price-figure {
+  display: flex;
+  flex-direction: column;
+  margin: 1.5rem 0 0;
+}
+
+.sbe-mkt-price-currency,
+.sbe-mkt-price-unit {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.sbe-mkt-price-currency {
+  text-transform: uppercase;
+}
+
+.sbe-mkt-price-amount {
+  margin: 0.15rem 0 0.35rem;
+  font-family: var(--font-heading);
+  font-size: calc(var(--fs-display) * 1.3);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: var(--tracking-display);
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--green-deep);
+}
+
+.sbe-mkt-price-note {
+  margin: 0.6rem 0 1.25rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--text-soft);
+}
+
+.sbe-mkt-price-btn {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid var(--green);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--green);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.18s var(--ease-out), color 0.18s var(--ease-out), transform 0.18s var(--ease-out);
+}
+
+.sbe-mkt-price-btn:hover {
+  background: var(--green);
+  color: var(--surface-raised);
+}
+
+.sbe-mkt-price-btn:active {
+  transform: scale(0.98);
+}
+
+.sbe-mkt-price-btn:focus-visible,
+.sbe-mkt-price-buynow:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.sbe-mkt-price-btn:disabled,
+.sbe-mkt-price-buynow:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.sbe-mkt-price-btn-featured {
+  border-color: var(--gold-warm);
+  background: var(--gold-warm);
+  color: var(--green-deep);
+}
+
+.sbe-mkt-price-btn-featured:hover {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: var(--green-deep);
+}
+
+.sbe-mkt-price-alt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  min-height: 2.25rem;
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+}
+
+.sbe-mkt-price-buynow {
+  padding: 0.35rem 0.15rem;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.sbe-mkt-price-buynow:hover {
+  color: var(--green-deep);
+}
+
+.sbe-mkt-price-features {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 1.25rem 0 0;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-price-features .sbe-mkt-pricefeature-name {
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+/* ── Featured plan: dark column ── */
+.sbe-mkt-price-col-featured {
+  background: var(--bg-dark);
+  border-top-color: transparent;
+}
+
+.sbe-mkt-price-col-featured .sbe-mkt-price-audience,
+.sbe-mkt-price-col-featured .sbe-mkt-price-buynow {
+  color: var(--gold-warm);
+}
+
+.sbe-mkt-price-col-featured .sbe-mkt-price-name,
+.sbe-mkt-price-col-featured .sbe-mkt-price-amount,
+.sbe-mkt-price-col-featured .sbe-mkt-price-buynow:hover {
+  color: var(--nav-cream);
+}
+
+.sbe-mkt-price-col-featured .sbe-mkt-price-currency,
+.sbe-mkt-price-col-featured .sbe-mkt-price-unit,
+.sbe-mkt-price-col-featured .sbe-mkt-price-note,
+.sbe-mkt-price-col-featured .sbe-mkt-price-alt {
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-mkt-price-col-featured .sbe-mkt-price-features {
+  border-top-color: var(--border-light-on-dark);
+}
+
+.sbe-mkt-price-col-featured .sbe-mkt-pricefeature-name {
+  color: var(--text-light-on-dark);
+}
+
+.sbe-mkt-price-col-featured .sbe-mkt-pricefeature::before {
+  background-color: var(--gold-warm);
+}
+
+/* ── Franchise: a contact row, not a fourth price ── */
+.sbe-mkt-price-franchise {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-price-franchise > * {
+  padding: var(--price-pad);
+}
+
+.sbe-mkt-price-franchise > * + * {
+  padding-top: 0;
+}
+
+.sbe-mkt-price-franchise-copy {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-soft);
+}
+
+/* ── Founding strip ── */
+.sbe-mkt-founding {
+  padding-bottom: var(--section-spacing-md);
+}
+
+.sbe-mkt-founding-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.sbe-mkt-founding-intro {
+  padding: 0 var(--price-pad) 2rem;
+}
+
+.sbe-mkt-founding-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+  text-wrap: balance;
+}
+
+.sbe-mkt-founding-lede {
+  margin: 1rem 0 1.25rem;
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  color: var(--text-soft);
+}
+
+.sbe-mkt-founding-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sbe-mkt-founding-item {
+  padding: 1.5rem var(--price-pad);
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-founding-item h3 {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h3);
+  font-weight: 500;
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+}
+
+.sbe-mkt-founding-item p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-soft);
+}
+
+.sbe-mkt-faq-link {
+  font-weight: 600;
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sbe-mkt-faq-link:hover {
+  color: var(--green-deep);
+}
+
+/* ── Comparison band: CompareMatrix with flush + collapsible ── */
+.sbe-mkt-compare-band {
+  padding: var(--section-spacing-sm) 0;
+  background: linear-gradient(160deg, var(--bg-dark) 0%, var(--bg-dark-soft) 100%);
+}
+
+.sbe-compare--flush {
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.sbe-compare-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 0 var(--price-pad, 0);
+  list-style: none;
+  cursor: pointer;
+}
+
+.sbe-compare-summary::-webkit-details-marker {
+  display: none;
+}
+
+.sbe-compare-summary:focus-visible {
+  outline: 2px solid var(--gold-warm);
+  outline-offset: 6px;
+}
+
+.sbe-compare-summary .sbe-compare-head {
+  margin: 0;
+  text-align: left;
+}
+
+.sbe-compare-summary .sbe-compare-title {
+  font-size: var(--fs-display);
+  font-weight: 500;
+  line-height: var(--lh-display);
+  letter-spacing: var(--tracking-display);
+}
+
+.sbe-compare-summary .sbe-compare-sub {
+  margin: 0;
+}
+
+.sbe-compare-summary .sbe-mkt-faq-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--gold-warm);
+}
+
+.sbe-compare-details[open] .sbe-mkt-faq-icon::after {
+  transform: rotate(0deg);
+}
+
+.sbe-compare-details[open] .sbe-mkt-faq-icon::before {
+  transform: rotate(180deg);
+}
+
+.sbe-compare-details[open] .sbe-compare-summary {
+  margin-bottom: 2rem;
+}
+
+.sbe-compare--flush .sbe-compare-scroll {
+  border-left: 0;
+  border-right: 0;
+  border-radius: 0;
+}
+
+/* Four equal columns: the same tracks as .sbe-mkt-price-board */
+.sbe-compare--flush .sbe-compare-table {
+  table-layout: fixed;
+}
+
+.sbe-compare--flush .sbe-compare-th,
+.sbe-compare--flush .sbe-compare-th--label {
+  width: 25%;
+}
+
+.sbe-compare--flush .sbe-compare-th--label,
+.sbe-compare--flush .sbe-compare-label,
+.sbe-compare--flush .sbe-compare-section {
+  padding-left: var(--price-pad, 20px);
+}
+
+.sbe-compare--flush .sbe-compare-included {
+  padding: 0 var(--price-pad, 0);
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-pricing-page {
+    --price-overlap: 5rem;
+    --price-pad: 1.75rem;
+  }
+
+  .sbe-mkt-price-board,
+  .sbe-mkt-founding-grid,
+  .sbe-mkt-price-franchise {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .sbe-mkt-price-board {
+    grid-template-rows: auto 1fr auto;
+  }
+
+  .sbe-mkt-price-intro {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .sbe-mkt-price-guarantee {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: end;
+    border-top: 0;
+  }
+
+  .sbe-mkt-price-plans {
+    grid-column: 2 / -1;
+    grid-row: 1 / 3;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .sbe-mkt-price-col {
+    border-top: 0;
+    border-left: 1px solid var(--line);
+  }
+
+  /* Keeps price and button on one line across the three columns */
+  .sbe-mkt-price-audience {
+    min-height: 2.7em;
+  }
+
+  .sbe-mkt-price-note {
+    min-height: 2.9em;
+  }
+
+  /* The featured column stands above the board's top edge */
+  .sbe-mkt-price-col-featured {
+    margin-top: -1.25rem;
+    padding-top: calc(var(--price-pad) + 1.25rem);
+    border-left-color: transparent;
+    box-shadow: var(--shadow-md);
+  }
+
+  .sbe-mkt-price-franchise {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    align-items: center;
+  }
+
+  .sbe-mkt-price-franchise > * + * {
+    padding-top: var(--price-pad);
+  }
+
+  .sbe-mkt-price-franchise-copy {
+    grid-column: 2 / 4;
+  }
+
+  .sbe-mkt-founding-intro {
+    padding-bottom: 0;
+  }
+
+  .sbe-mkt-founding-list {
+    grid-column: 2 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .sbe-mkt-founding-item {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    border-top: 0;
+    border-left: 1px solid var(--line);
+  }
+
+  /* Plan names stay in view while the open table scrolls */
+  .sbe-compare--flush .sbe-compare-scroll {
+    overflow: visible;
+  }
+
+  .sbe-compare--flush .sbe-compare-th {
+    position: sticky;
+    top: var(--nav-h);
+    z-index: 2;
+    background: var(--bg-dark);
+  }
+
+  .sbe-compare--flush .sbe-compare-th.sbe-compare-col--featured {
+    background: var(--bg-dark-soft);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sbe-mkt-faq-item::details-content,
+  .sbe-mkt-price-btn,
   .sbe-mkt-faq-icon::before,
   .sbe-mkt-faq-icon::after,
   .sbe-mkt-faq-q,

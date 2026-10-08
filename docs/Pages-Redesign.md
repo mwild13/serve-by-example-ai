@@ -2,7 +2,7 @@
 
 The visual and structural standard for the marketing site. It is a companion to `CLAUDE.md`, not a replacement: `CLAUDE.md` governs security, auth and app architecture, and wins wherever the two conflict on styling rules (design tokens, fonts, no Tailwind).
 
-**Status, October 2026.** The homepage was rebuilt on branch `preview/homepage-ui-overhaul` and is now the reference implementation. Every other marketing page still uses the August 2026 component set (`PageHero`, `FeatureGrid` cards, `MetricsStrip`). Those pages work and are consistent with each other, but they are the previous standard. Section 7 covers how to bring them across.
+**Status, October 2026.** The homepage was rebuilt on branch `preview/homepage-ui-overhaul` and is now the reference implementation. `/pricing` (also served at `/membership`) followed on the same branch. Every other marketing page still uses the August 2026 component set (`PageHero`, `FeatureGrid` cards, `MetricsStrip`). Those pages work and are consistent with each other, but they are the previous standard. Section 7 covers how to bring them across.
 
 This document replaces the August 2026 version in full. Code comments across the repo still cite the old section numbers; section 9 maps them to this version.
 
@@ -122,6 +122,8 @@ All of this is in the "Homepage editorial layout" block at the end of `app/globa
 | Numbered steps | `.sbe-mkt-path-steps`, `-step`, `-num` | A sequence of three. Dark band only. |
 | Ledger rows | `.sbe-mkt-ledger`, `-row`, `-metric`, `-title` | Facts where a number leads. |
 | Ruled list with sticky intro | `.sbe-mkt-plans-grid`, `-intro`, `-list`, `.sbe-mkt-plan` | A short list of options beside the heading and CTA that apply to all of them. |
+| Price board | `.sbe-mkt-price-board`, `-intro`, `-plans`, `-col`, `-col-featured`, `-franchise` | Priced plans. Four equal tracks: intro and billing toggle, then three plans divided by hairlines, the recommended one a dark column standing above the board. Overlaps the hero so price and button sit above the fold. Lives in `components/marketing/PricingPlans.tsx`. |
+| Aligned strip | `.sbe-mkt-founding-grid`, `-intro`, `-list`, `-item` | Three supporting points on the same four tracks as the price board, so their rules continue the plan columns. |
 | Hairline accordion | `.sbe-mkt-faq-grid`, `-list`, `-item`, `-q`, `-icon`, `-a` | Questions and answers. Uses native `<details name="…">`, so one answer is open at a time. |
 | Pull quote | `.sbe-mkt-pullquote` | A first-person statement from a named, real person. |
 
@@ -136,7 +138,9 @@ All of this is in the "Homepage editorial layout" block at the end of `app/globa
 | `FeatureGrid` | Previous standard. Card grid. Do not use for new sections; replace it page by page (section 7). |
 | `MetricsStrip` | Previous standard. Stat row. Prefer ledger rows. |
 
-`ROICalculator` (`components/ui/`) is shared by `/`, `/membership` and `/roi`. A change to it changes all three.
+`ROICalculator` (`components/ui/`) is shared by `/` and `/roi`. A change to it changes both. It was removed from `/pricing` in October; the founding strip links to `/roi` instead.
+
+`CompareMatrix` (`components/ui/`) is shared by `/pricing` and `/for-venues`. It drops any row whose value is the same in every visible column. `/pricing` passes `flush collapsible hideFranchise`; `/for-venues` passes nothing and keeps the dark panel.
 
 ### 4.4 Composition rules
 
@@ -251,19 +255,19 @@ A section the visitor operates (the calculator, a form) must fit in a 1440×900 
 | Area | State |
 |---|---|
 | Homepage | New standard. |
+| `/pricing` and `/membership` | New standard. Server page with one client island (`PricingPlans`). |
 | `/advisory` | Close. Already uses ruled lists and a pull quote, with its own `sbe-adv-` classes and the old FAQ classes. |
 | Pages using `FeatureGrid` (14 files) | Previous standard. Card grids. |
 | Pages using `MetricsStrip` (5 files) | Previous standard. Stat rows. |
-| Pages using the old `.faq-*` classes | `/pricing`, `/advisory`, `/resources/sop-toolkit`. |
-| `/membership` and `/roi` | Already show the new calculator, inside their old page layout. |
+| Pages using the old `.faq-*` classes | `/advisory`, `/resources/sop-toolkit`. |
+| `/roi` | Already shows the new calculator, inside its old page layout. |
 
 ### 7.2 Suggested order
 
-1. **`/pricing` and `/membership`.** The commitment page, and the largest page file. Highest value.
-2. **`/platform` and `/how-it-works`.** Where the product is explained; the media-row pattern fits directly.
-3. **`/solutions/*`.** Five near-identical pages; do one, then apply it to the rest.
-4. **`/about`, `/for-venues`, `/roi`.**
-5. **Everything else.**
+1. **`/platform` and `/how-it-works`.** Where the product is explained; the media-row pattern fits directly.
+2. **`/solutions/*`.** Five near-identical pages; do one, then apply it to the rest.
+3. **`/about`, `/for-venues`, `/roi`.**
+4. **Everything else.**
 
 ### 7.3 How to migrate a page
 
