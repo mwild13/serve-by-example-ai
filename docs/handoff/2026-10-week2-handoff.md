@@ -1,6 +1,6 @@
 # Handoff: October 2026, Week 2 — By Example Advisory page, homepage UI overhaul and pricing page redesign
 
-> **Three pieces of work this week.** Part 1 (below) is the Advisory page, merged to `main`. Part 2 is the homepage UI overhaul, also merged to `main`. Part 3, at the end of this file, is the pricing page redesign, also merged to `main`. The AI model switch to `gpt-6-luna` is recorded in Part 1 and is merged too.
+> **Four pieces of work this week.** Part 1 (below) is the Advisory page, merged to `main`. Part 2 is the homepage UI overhaul, also merged to `main`. Part 3 is the pricing page redesign, also merged to `main`. Part 4, at the end of this file, is the new typography and the redesign of every remaining marketing page, on `preview/marketing-redesign` and **not yet pushed or merged**. The AI model switch to `gpt-6-luna` is recorded in Part 1 and is merged too.
 
 - **Dates:** 2026-10-07 to 2026-10-08
 - **Branch:** `preview/advisory-page`, **merged to `main` 2026-10-08** (merge `b0e1de1`). Preview: https://preview-advisory-page.serve-by-example-ai.pages.dev/advisory
@@ -318,3 +318,151 @@ The two pillar descriptions were also rewritten and no longer name the AI model.
 - **Savings copy must be true for every plan it sits beside.**
 - **`CompareMatrix` rows that are the same on every visible plan belong in the "On every plan" list,** not the table. The component drops them from the table automatically.
 - **Check the current branch before committing.** The checkout was moved to `main` by another session while this work was in progress, and the commit landed there first.
+
+---
+
+# Part 4: New typography and the remaining marketing pages
+
+- **Date:** 2026-10-08
+- **Branch:** `preview/marketing-redesign`, cut from `main` after the Part 3 merge. Seven commits, local only: **not pushed, not merged**.
+- **Covers:** the marketing site's move to Newsreader and Inter, the rebuild of all 24 remaining marketing routes to the Part 2 standard, a shared set of section components, removal of the August component set, and a page-standard e2e spec.
+- **Related:** `docs/Pages-Redesign.md` (section 4.3 documents the new components; section 5.2 the fonts and tokens; section 7 the final state). `To_do_list.md` has the copy flags.
+
+## The short version
+
+1. **New fonts on the marketing site.** Headings are Newsreader, body is Inter. They are the closest free match to the type on blinq.me, which uses two commercial fonts.
+2. **The logged-in product did not change.** `/dashboard`, `/mobile` and `/management` stay on Fraunces and Manrope.
+3. **Every marketing page is on the standard.** No card grids, pill eyebrows or centred section openings remain.
+4. **Pages are now assembled from shared sections.** `components/marketing/sections.tsx` holds the layouts; a page file is content plus a list of sections.
+5. **The old component set is gone.** `FeatureGrid`, `MetricsStrip`, `SectionHeading`, the marketing icon set and about 200 CSS rules were deleted.
+6. **Claims were not rewritten.** Unsourced figures were carried across as they were and listed in `To_do_list.md`.
+
+## Fonts
+
+### What blinq.me uses
+
+| Role | Font | Foundry | Licence |
+|---|---|---|---|
+| Headings | Inq Marist SemiBold, a custom cut of ABC Marist | Dinamo | Commercial. One-off web licence priced by company size, per domain |
+| Body, buttons, labels | Antique Legacy | Optimo | Commercial. One-off web licence priced by domain and monthly visitors |
+
+- **How this was confirmed:** from the page's computed styles and the name tables inside the font files. Nothing was copied.
+- **Not licensed.** Mitchell chose the free match. If the commercial fonts are bought later, only the two loaders in `app/layout.tsx` change.
+
+### What we use
+
+| Role | Font | Settings |
+|---|---|---|
+| Headings | Newsreader (SIL OFL) | Weight 600, optical size pinned at 24, roman and italic |
+| Body | Inter (SIL OFL) | Weights 400 to 600, tracking -0.01em |
+
+- **Files:** three self-hosted latin-subset variable files in `app/fonts/`, loaded through `next/font/local`.
+- **Optical size:** pinned on `html` so large headings keep a sturdy shape close to Marist. Left on automatic, Newsreader turns high-contrast at display sizes.
+
+### Token changes (`app/globals.css`, `:root`)
+
+| Token | Before | After |
+|---|---|---|
+| Heading weight | 500, with 600 on heroes | `--fw-heading: 600` everywhere |
+| `--tracking-display` | -0.035em | -0.025em |
+| `--tracking-heading` | -0.02em | -0.015em |
+| `--tracking-caps` | 0.14em | 0.08em |
+| `--lh-heading` | 1.18 | 1.12 |
+| `--lh-body` | 1.65 | 1.55 |
+| `--lh-lede`, `--tracking-body` | none | 1.45 and -0.01em (new) |
+
+Type sizes were not changed.
+
+### How the product is kept on its old fonts
+
+- **`app/fonts/product-fonts.ts`** loads Fraunces and Manrope and exports one class string.
+- **`app/dashboard/layout.tsx` (new), `app/mobile/layout.tsx` and `app/management/layout.tsx`** wrap their tree in it.
+- **`.sbe-app-type`** in `app/globals.css` points `--font-heading` and `--font-body` back at the old pair inside that wrapper and restores their leading and tracking.
+- **Auth pages** (`/login`, `/onboarding`, `/reset-password`) take the new fonts, as agreed.
+
+## Pages
+
+| Page | Section order after the hero |
+|---|---|
+| `/platform` | Ledger, media rows, ruled list, split panel, overlapping media |
+| `/platform/challenges` | Media rows, ledger, ruled list, split panel |
+| `/how-it-works` | Split panel, numbered ledger, ruled list, aligned strip, four numbered steps, overlapping media |
+| `/solutions` | One ruled index of the four verticals |
+| `/solutions/*` (four pages) | Ledger of three facts, one screenshot, ruled feature list with trial action and guarantee |
+| `/about` | Founder portrait with pull quote, ruled list |
+| `/for-venues` | Media row, numbered ledger, split panel, aligned strip, the `/pricing` comparison table |
+| `/roi` | Calculator as its own dark band under a light hero, ledger |
+| `/resources` | Split panel |
+| `/resources/sop-toolkit` | Ruled list, three numbered steps, ruled list, aligned strip, split panel, accordion |
+| `/toolkit`, `/toolkit/success` | Same tool and flow; inline styles replaced with classes; success page left-aligned |
+| `/contact` | Form beside a ruled list |
+| `/security` | Split panel, ruled list, aligned strip |
+| `/roadmap` | One ruled list ordered by timeframe |
+| `/vs-generic-lms` | Ledger, hairline comparison table, ruled list |
+| `/advisory` | Shared headings and accordion; packages as a hairline board |
+| `/demo`, `/demo/complaint-master` | Tool unchanged; a closing band added; pills removed |
+| Legal pages | Body leading and heading weight tuned for the new fonts |
+
+### Structural changes worth knowing
+
+- **`components/marketing/SolutionPage.tsx`** is the single layout for the vertical pages. Each page file is metadata plus one content constant.
+- **`/contact` is a server page.** The form moved to `components/marketing/ContactForm.tsx`. Field ids, the `contact-form` class and the hidden `source` / `package` inputs are unchanged.
+- **`/contact` fits one screen.** The submit button's lower edge is at 885px in a 1440×900 window. It was at 1,323px.
+- **`app/solutions/multi-venue/page.tsx` was deleted.** The route has redirected to `/solutions/pub-groups` since July. It was also removed from the sitemap.
+- **`/for-venues` uses the `/pricing` comparison table** (`flush collapsible hideFranchise`), so the Franchise column no longer shows there.
+- **`docs/HOMEPAGE.md` was deleted** and its link removed from `README.md`.
+
+### Copy changes
+
+| Where | Before | After |
+|---|---|---|
+| `/platform` console heading | Your venue's mission control. | Your whole venue on one screen. |
+| `/advisory` package tag | Most popular | Recommended |
+| `/solutions` hub | Five rows, one for "Multi-Venue Groups" | Four rows; multi-venue is part of the pub groups row |
+
+- **New headings.** Sections that had no heading, or that changed pattern, needed a kicker and title. Examples: "What the platform is built to move.", "Pick the operation closest to yours.", "What is coming, and when.", "Four differences you feel on a shift.", and the per-vertical ledger headings.
+- **New row titles** on `/platform`, `/platform/challenges`, `/how-it-works`, `/about` and `/security`, where a paragraph became a titled row.
+- **New closing bands** on the two demo pages: "Put your own roster through it." and "Give your whole team this practice."
+- **Vertical pages gained the trial button and the 14-Day Performance Guarantee line,** using the homepage wording.
+- **Dropped from the `/solutions` hub:** the bullet lists and stat cards under each venue type. The same points are on the vertical pages.
+- **Founder age of experience** stays at 15 years on `/about`, as decided. `/advisory` still says 20 years.
+
+## Checks run
+
+| Check | Result |
+|---|---|
+| Typecheck | Passed |
+| Lint on changed files | Passed |
+| CSS token lint | 10 reported values, the same as `main` |
+| Unit tests (vitest) | 38 of 38 passed |
+| Marketing e2e, against the local dev server | 71 passed, 1 skipped by design |
+| Layout at 375 and 1440px, all 31 public routes | No horizontal overflow |
+| Layout at 1280 and 1920px, every rebuilt page | No horizontal overflow |
+| Homepage and `/pricing` heights after the CSS deletions | Unchanged, so nothing they use was removed |
+| Marketing e2e, against a deployed preview | Not run. The branch is not pushed |
+| `/dashboard`, `/mobile`, `/management` in a browser | Not checked. They need a login, which the local server does not have |
+| `npm run build` and `build:cloudflare` | Not run |
+| Mobile e2e | Not run |
+
+## Open items
+
+- **Push and preview.** Mitchell to name the branch to push to; then run the marketing e2e suite once against the preview.
+- **Confirm the product fonts in a browser.** The scoping is in place but untested behind a login. If anything in `/dashboard`, `/mobile` or `/management` shows Newsreader or Inter, the wrapper is missing on that route.
+- **Run the mobile e2e suite once** against the preview. Its baselines should still match, because `/mobile` kept its fonts.
+- **Copy sign-off.** The new headings and row titles went in without a separate approval round.
+- **Unsourced figures:** see `To_do_list.md`.
+- **15 or 20 years.** `/about` and the homepage say 15; `/advisory` says 20.
+- **Hero buttons on the vertical pages** still say "Request Venue Access", while the ruled list below offers the trial. One of them should be the page's single primary action.
+- **`/roi` on first load.** The calculator's send button sits 144px below the fold at 1440×900, because the hero is above it. The calculator itself fits one screen once scrolled to.
+- **Font licence.** Revisit ABC Marist and Antique Legacy if the free match is not close enough.
+
+## Rules for new code (added in Part 4)
+
+- **Reference `--font-heading` and `--font-body`.** Never name a font family or a `--font-<family>` variable in a rule or an inline style.
+- **Build sub-page sections from `components/marketing/sections.tsx`.** Add a pattern there before hand-building one in a page file.
+- **A new `/solutions/<vertical>` page is a `SolutionContent` constant** passed to `SolutionPage`.
+- **A product layout must wrap its tree in `PRODUCT_FONT_CLASS`** from `app/fonts/product-fonts.ts`.
+- **Add every new marketing route to `ROUTES`** in `tests/e2e-marketing/pages.spec.ts`.
+- **Do not use `.eyebrow`, `.faq-list` or `.faq-item` on a marketing page.** The e2e spec fails on them.
+- **In the local dev server, a screenshot that stays blank** can be a stuck image-optimiser entry. Restart the server before debugging the page.
+

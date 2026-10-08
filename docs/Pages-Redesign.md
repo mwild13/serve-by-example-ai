@@ -2,7 +2,7 @@
 
 The visual and structural standard for the marketing site. It is a companion to `CLAUDE.md`, not a replacement: `CLAUDE.md` governs security, auth and app architecture, and wins wherever the two conflict on styling rules (design tokens, fonts, no Tailwind).
 
-**Status, October 2026.** The homepage was rebuilt on branch `preview/homepage-ui-overhaul` and is now the reference implementation. `/pricing` (also served at `/membership`) followed on the same branch. Every other marketing page still uses the August 2026 component set (`PageHero`, `FeatureGrid` cards, `MetricsStrip`). Those pages work and are consistent with each other, but they are the previous standard. Section 7 covers how to bring them across.
+**Status, October 2026.** Every marketing page is on this standard. The homepage was rebuilt first and is the reference implementation; `/pricing` (served at `/membership`) followed; the remaining pages were rebuilt on branch `preview/marketing-redesign`, which also moved the site to Newsreader and Inter. The August 2026 component set (`FeatureGrid`, `MetricsStrip`, `SectionHeading`) has been deleted. Section 7 records how the pages were brought across and how to build a new one.
 
 This document replaces the August 2026 version in full. Code comments across the repo still cite the old section numbers; section 9 maps them to this version.
 
@@ -128,17 +128,31 @@ All of this is in the "Homepage editorial layout" block at the end of `app/globa
 | Aligned strip | `.sbe-mkt-founding-grid`, `-intro`, `-list`, `-item` | Three supporting points on the same four tracks as the price board, so their rules continue the plan columns. |
 | Hairline accordion | `.sbe-mkt-faq-grid`, `-list`, `-item`, `-q`, `-icon`, `-a` | Questions and answers. Uses native `<details name="…">`, so one answer is open at a time. |
 | Pull quote | `.sbe-mkt-pullquote` | A first-person statement from a named, real person. |
+| Versus table | `.sbe-mkt-versus`, `-table` | A three-column hairline comparison in a real `<table>`. Stacks per row on phones. Used on `/vs-generic-lms`. |
 
 ### 4.3 Shared components (`components/marketing/`)
 
-| Component | Status |
+| Component | Use |
 |---|---|
-| `CTABand` | Current. Every marketing page ends with exactly one. One primary action; the optional secondary is a text link. |
-| `PageHero` | Current. Every sub-page hero renders through it. |
-| `LogoMarquee` | Current. Shows venue category text until real customer logos exist. |
-| `SectionHeading` (`components/ui/`) | Previous standard. Still used on sub-pages. New sections use `.sbe-mkt-head` with a kicker. |
-| `FeatureGrid` | Previous standard. Card grid. Do not use for new sections; replace it page by page (section 7). |
-| `MetricsStrip` | Previous standard. Stat row. Prefer ledger rows. |
+| `CTABand` | Every marketing page ends with exactly one. One primary action; the optional secondary is a text link. The exceptions are `/toolkit`, where the generator is the action, and the legal pages. |
+| `PageHero` | Every sub-page hero renders through it. |
+| `LogoMarquee` | Shows venue category text until real customer logos exist. |
+| `sections.tsx` | The section 4.2 patterns as server components that take content: `SectionHead`, `SplitPanel`, `MediaRows`, `Ledger`, `RuledList`, `Steps`, `Strip`, `Faq`, `FounderStory`. Sub-pages are built from these. |
+| `SolutionPage` | The one layout behind every `/solutions/<vertical>` page. A vertical's page file is metadata plus a `SolutionContent` constant. |
+| `ContactForm` | The client island on `/contact`. |
+| `PricingPlans` | The client island on `/pricing`. |
+
+**Building a sub-page.** Import the patterns from `sections.tsx`, put the content in constants at the top of the file, and list the sections in order. Each pattern takes `tone` (`plain`, `alt` or `warm`) for its background. Check that no two neighbours use the same pattern (section 2.3).
+
+| Component | Pattern | Notes |
+|---|---|---|
+| `SplitPanel` | Split panel | The dark panel hangs 4rem into the next section, so the next section needs normal top padding. Items take `body`, `points`, or both. |
+| `MediaRows` | Media rows, overlapping media | Rows alternate side automatically. `phone` adds the overlapping phone; `bare` shows a phone screenshot on its own. |
+| `Ledger` | Ledger rows | `metric` is a figure or a numeral such as `01`. |
+| `RuledList` | Ruled list with sticky intro | Optional `label` column, link per row, action buttons and a closing `note` for the page's one guarantee statement. |
+| `Steps` | Numbered steps | Three or four steps. Dark band only. |
+| `Strip` | Aligned strip | Intro in the first of four tracks; three points beside it, with further points in a second row. |
+| `Faq` | Hairline accordion | Pass a unique `name` so one answer is open at a time. Feed the same constant to the FAQPage JSON-LD. |
 
 `ROICalculator` (`components/ui/`) is shared by `/` and `/roi`. A change to it changes both. It was removed from `/pricing` in October; the founding strip links to `/roi` instead.
 
@@ -263,37 +277,29 @@ A section the visitor operates (the calculator, a form) must fit in a 1440×900 
 
 ### 7.1 Where things stand
 
+Every marketing page is on the standard.
+
 | Area | State |
 |---|---|
-| Homepage | New standard. |
-| `/pricing` and `/membership` | New standard. Server page with one client island (`PricingPlans`). |
-| `/advisory` | Close. Already uses ruled lists and a pull quote, with its own `sbe-adv-` classes and the old FAQ classes. |
-| Pages using `FeatureGrid` (14 files) | Previous standard. Card grids. |
-| Pages using `MetricsStrip` (5 files) | Previous standard. Stat rows. |
-| Pages using the old `.faq-*` classes | `/advisory`, `/resources/sop-toolkit`. |
-| `/roi` | Already shows the new calculator, inside its old page layout. |
+| Homepage, `/pricing` and `/membership` | Reference implementations. |
+| `/platform`, `/platform/challenges`, `/how-it-works`, `/about`, `/for-venues`, `/roi`, `/resources`, `/resources/sop-toolkit`, `/roadmap`, `/security`, `/vs-generic-lms` | Built from `components/marketing/sections.tsx`. |
+| `/solutions` and the four vertical pages | Hub is one ruled index. Verticals share `SolutionPage`. `/solutions/multi-venue` redirects to `/solutions/pub-groups` and has no page file. |
+| `/contact` | Server page with the `ContactForm` client island. |
+| `/advisory` | Shared headings and accordion; its own `sbe-adv-` classes for the hero, hub band and package board. |
+| `/demo`, `/demo/complaint-master`, `/toolkit` | The interactive tool keeps its frame, because it is an object. The page around it follows the standard. |
+| Legal pages | Reading pages on `PageHero` (light) and `.legal-prose`. |
 
-### 7.2 Suggested order
+### 7.2 What was retired
 
-1. **`/platform` and `/how-it-works`.** Where the product is explained; the media-row pattern fits directly.
-2. **`/solutions/*`.** Five near-identical pages; do one, then apply it to the rest.
-3. **`/about`, `/for-venues`, `/roi`.**
-4. **Everything else.**
+- **Components:** `FeatureGrid`, `MetricsStrip`, `SectionHeading` and `components/icons/MarketingIcons.tsx`.
+- **CSS:** about 200 rules for the card grids, stat strips, pill eyebrows on marketing pages, both `.faq-list` / `.faq-item` blocks and the pre-October homepage sections.
+- **`.eyebrow` is still in `app/globals.css`.** The logged-in product and the auth pages use it. Do not use it on a marketing page; `tests/e2e-marketing/pages.spec.ts` fails if it appears inside `<main>`.
 
-### 7.3 How to migrate a page
+### 7.3 Still owed
 
-1. Replace each `FeatureGrid` with the pattern from section 4.2 that suits the content. Do not swap every grid for the same pattern.
-2. Replace `SectionHeading` with `.sbe-mkt-head` and a kicker.
-3. Move the FAQ to the `.sbe-mkt-faq-*` classes.
-4. Keep `PageHero` and `CTABand`.
-5. Check the page against section 8.
-
-### 7.4 Cleanup owed
-
-- **Unused homepage CSS** still in `app/globals.css`: `.solution-grid` and `.solution-col*`, `.mastery-step*`, `.benefit-*`, `.cta-box`, `.zero-risk-block`, `.section-band-green`, and `.sbe-slider-input`. Safe to delete once the new homepage is merged.
-- **Two competing `.faq-list` / `.faq-item` blocks** in `app/globals.css`. Delete both when the last page moves to `.sbe-mkt-faq-*`.
-- **`FeatureGrid`, `MetricsStrip` and `SectionHeading`** can be deleted when no page imports them.
-- **`docs/HOMEPAGE.md`** describes the pre-August homepage and is out of date.
+- **Unsourced figures.** Several outcome and industry figures were carried into the new layouts unchanged. They are listed in `To_do_list.md` under "Marketing copy to source or remove".
+- **`/advisory` prefix.** Sections that are unique to that page keep `sbe-adv-`. Move them to `sbe-mkt-` only if another page needs them.
+- **No screenshot baselines** exist for marketing pages. The e2e suite checks structure, not appearance.
 
 ---
 
@@ -304,7 +310,7 @@ A section the visitor operates (the calculator, a form) must fit in a 1440×900 
 - **Neighbouring sections** do not share a layout (section 2.3).
 - **No item from section 2.7** has been introduced.
 - **Commands:** `npx tsc --noEmit`, `npx eslint <changed files>`, `npm run lint:css` (count unchanged), `npm test`.
-- **Marketing e2e** against the deployed preview: `PLAYWRIGHT_BASE_URL='<preview url>' npx playwright test -c playwright.marketing.config.ts`.
+- **Marketing e2e** against the deployed preview: `PLAYWRIGHT_BASE_URL='<preview url>' npx playwright test -c playwright.marketing.config.ts`. It also runs against the local dev server below (one test skips there by design). A new marketing route goes in the `ROUTES` list in `tests/e2e-marketing/pages.spec.ts`.
 
 **Running the homepage locally.** There is no env file in the repo, and the navbar's Supabase client throws without its two public variables, which blanks the page. For layout work, start the dev server with placeholders:
 

@@ -13,8 +13,7 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 | `/solutions/fine-dining` | Fine dining vertical |
 | `/solutions/franchise-systems` | Franchise systems vertical |
 | `/solutions/hotel-fb` | Hotel F&B vertical |
-| `/solutions/multi-venue` | Multi-venue groups vertical |
-| `/solutions/pub-groups` | Pub groups vertical |
+| `/solutions/pub-groups` | Pub groups and multi-venue groups vertical. `/solutions/multi-venue` redirects here (`next.config.ts`) and has no page file |
 | `/for-venues` | Venue operator landing |
 | `/pricing` | Pricing (Stripe checkout) — see §2, same page component as `/membership` |
 | `/membership` | Re-exports `/pricing`'s page component with its own metadata (title "Membership Plans", "Founding Member" framing) — **missing from prior docs entirely** despite being the link target most marketing CTAs actually point to |
@@ -74,22 +73,25 @@ These are not interchangeable — don't use "14-day" copy from one context to ju
 
 ## 4. Component Usage
 
-**`components/marketing/`** — an entire directory not previously documented anywhere, and the real answer to "which component for feature cards / metric strips / CTA bands":
+**`components/marketing/`** — what every marketing page is built from. `docs/Pages-Redesign.md` section 4.3 is the full reference.
 
 | Component | Role | Used in |
 |---|---|---|
-| `PageHero.tsx` | Replaces every hand-coded `.inner-hero` block | ~24 pages: `/demo`, `/demo/complaint-master`, `/contact`, `/roi`, `/vs-generic-lms`, `/privacy`, `/security`, `/roadmap`, `/resources`, `/resources/sop-toolkit`, `/platform`, `/terms`, `/solutions` + all 5 verticals, `/for-venues`, `/about`, `/how-it-works`, `/pricing`, `/toolkit`, `/cookies` |
-| `FeatureGrid.tsx` | Feature/benefit grid; variants `'default' \| 'dark' \| 'stat'`; replaces `bento-grid`/`sol-feature-grid`/`benefit-grid` markup; icons from `components/icons/MarketingIcons.tsx` | Homepage, `/vs-generic-lms`, `/roi`, `/security`, `/roadmap`, `/resources/sop-toolkit`, `/platform`, all `/solutions/*`, `/for-venues`, `/about`, `/how-it-works` |
-| `MetricsStrip.tsx` | Horizontal stat-row band; enforces an "honesty rule" — no fabricated outcome numbers | Individual marketing pages — check usage before assuming a page has one |
-| `CTABand.tsx` | End-of-page CTA band: one primary action + optional secondary text link | Across marketing pages per `docs/Pages-Redesign.md` §6.3 |
+| `PageHero.tsx` | The single sub-page hero | Every sub-page |
+| `CTABand.tsx` | End-of-page CTA band: one primary action + optional secondary text link | Every page except `/toolkit` and the legal pages |
+| `sections.tsx` | The editorial section patterns as server components: `SplitPanel`, `MediaRows`, `Ledger`, `RuledList`, `Steps`, `Strip`, `Faq`, `FounderStory`, `SectionHead` | Every sub-page |
+| `SolutionPage.tsx` | Shared layout for the four `/solutions/<vertical>` pages | `/solutions/*` |
+| `ContactForm.tsx` | Client island holding the contact form and its `source` / `package` attribution | `/contact` |
+| `PricingPlans.tsx` | Client island holding tier data, billing toggle, trial start and checkout | `/pricing` |
 | `LogoMarquee.tsx` | Logo marquee (blocked on real customer logos) | Homepage |
+
+`FeatureGrid`, `MetricsStrip`, `SectionHeading` and `components/icons/MarketingIcons.tsx` were deleted in October 2026. Do not recreate them.
 
 **`components/ui/`** — for pricing-table and comparison content specifically:
 
 | Component | Purpose |
 |---|---|
 | `CompareMatrix.tsx` | Full feature-comparison matrix (Staff/Venue/Group/Franchise columns); docstring targets the `/membership` page | `app/pricing/page.tsx`, `app/for-venues/page.tsx` |
-| `SectionHeading.tsx` | `eyebrow`/`title`/`copy`/`align` props, **defaults to `align: 'left'`** per `docs/Pages-Redesign.md` §2.2's rule against centering every section | ~13 pages |
 | `ROICalculator.tsx` | Interactive ROI calculator widget | Homepage, `/roi`, `/pricing` |
 | `PricingIcons.tsx` | SVG icon set (`IncludedIcon`, `ExcludedIcon`, `TreeConnector`) for the pricing/membership matrix | `CompareMatrix.tsx` |
 

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Navbar from "@/components/Navbar";
 import PageHero from "@/components/marketing/PageHero";
+import CTABand from "@/components/marketing/CTABand";
 import ScenarioSimulatorPane, {
   type ModuleId,
   type DemoScenario,
@@ -229,6 +230,14 @@ export default function DemoPage() {
           />
           <LeadCapturePane pulseKey={submitCount} hasResult={!!result} />
         </section>
+
+        <CTABand
+          background="neutral"
+          title="Put your own roster through it."
+          copy="14-day free trial. Set up in under 10 minutes."
+          primary={{ label: "Start my 14-day trial", href: "/login?intent=trial&tier=boutique" }}
+          secondary={{ label: "Compare plans and prices", href: "/membership" }}
+        />
       </main>
 
       <DemoMinimalFooter />
