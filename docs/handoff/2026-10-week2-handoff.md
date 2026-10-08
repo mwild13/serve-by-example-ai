@@ -1,6 +1,6 @@
 # Handoff: October 2026, Week 2 — By Example Advisory page, homepage UI overhaul and pricing page redesign
 
-> **Three pieces of work this week.** Part 1 (below) is the Advisory page, merged to `main`. Part 2 is the homepage UI overhaul, also merged to `main`. Part 3, at the end of this file, is the pricing page redesign, which is on a preview branch and **not merged**. The AI model switch to `gpt-6-luna` is recorded in Part 1 and is merged too.
+> **Three pieces of work this week.** Part 1 (below) is the Advisory page, merged to `main`. Part 2 is the homepage UI overhaul, also merged to `main`. Part 3, at the end of this file, is the pricing page redesign, also merged to `main`. The AI model switch to `gpt-6-luna` is recorded in Part 1 and is merged too.
 
 - **Dates:** 2026-10-07 to 2026-10-08
 - **Branch:** `preview/advisory-page`, **merged to `main` 2026-10-08** (merge `b0e1de1`). Preview: https://preview-advisory-page.serve-by-example-ai.pages.dev/advisory
@@ -226,7 +226,7 @@ The two pillar descriptions were also rewritten and no longer name the AI model.
 # Part 3: Pricing page redesign
 
 - **Date:** 2026-10-08
-- **Branch:** `preview/pricing-redesign`, cut from `main` after the Part 2 merge. **Not merged.** One commit, `db570a1`.
+- **Branch:** `preview/pricing-redesign`, cut from `main` after the Part 2 merge, **merged to `main` 2026-10-08** (fast-forward, `db570a1`).
 - **Covers:** a rebuild of `/pricing` (also served at `/membership`) to the Part 2 standard, a "buy now" path beside the trial, the calculator removed from the page, and changes to the shared comparison table.
 - **Related:** `docs/Pages-Redesign.md` (section 4.2 has the new price board and aligned strip patterns; section 7 marks `/pricing` as migrated).
 
@@ -295,15 +295,15 @@ The two pillar descriptions were also rewritten and no longer name the AI model.
 | Buy now | Sends `pro`, `boutique`, `commercial` or the `_yearly` key to `/api/billing/checkout`, checked with the route stubbed |
 | Trial button, logged out | Redirects to `/login?intent=trial&tier=boutique` |
 | `/for-venues` | Table renders with four plan columns and 15 rows |
-| Real Stripe checkout | Not tested. Needs the deployed preview |
-| Marketing e2e | Not run. Needs the deployed preview |
-| `npm run build` and `build:cloudflare` | Not run locally. The Cloudflare preview build was not checked |
+| Real Stripe checkout | Not tested before the merge |
+| Marketing e2e | Not run before the merge |
+| `npm run build` and `build:cloudflare` | Not run locally. The Cloudflare Pages preview build passed |
 
 ## Open items
 
-- **Check the preview build and run the marketing e2e suite against it** before merging.
-- **Make one real purchase path test on the preview:** "or buy now" as a logged-out visitor, through Stripe and back to `/login?checkout=success`.
-- **Copy sign-off.** The table above went to the preview without a separate approval round. The old tier data was marked as locked pending a pricing review; prices are unchanged, feature names are not.
+- **Run the marketing e2e suite against production.** It was not run before the merge.
+- **Make one real purchase path test on production:** "or buy now" as a logged-out visitor, through Stripe and back to `/login?checkout=success`.
+- **Copy sign-off.** The table above went live without a separate approval round. The old tier data was marked as locked pending a pricing review; prices are unchanged, feature names are not.
 - **Hero copy.** "Priced for founders" reads as if the customer is a startup founder. Suggested and not applied: "Pick a plan. Keep the price."
 - **Cost per staff member.** Venue is AUD $5.27 per seat per month and Group $4.26. Suggested as a line under the price and not applied, because it is a new claim.
 - **Phones.** The first plan's price is on the first screen at 375×812 but its button sits just below it.
