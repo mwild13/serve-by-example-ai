@@ -65,5 +65,5 @@ Fast-forward merges from `dev` into `main` only. Never commit directly to `main`
 
 - [CLAUDE.md](CLAUDE.md) — Full architecture, coding conventions, auth patterns, design system
 - [EXECUTIVE_SUMMARY.md](EXECUTIVE_SUMMARY.md) — Product overview for stakeholders and venue operators
-- [docs/MOBILE_VIEW.md](docs/MOBILE_VIEW.md) — Mobile UX architecture and component guide
+- [docs/MOBILE_BUILD.md](docs/MOBILE_BUILD.md) — Mobile staff app (`/mobile`) architecture
 - [docs/v3-architecture.md](docs/v3-architecture.md) — V3 learning pipeline architecture

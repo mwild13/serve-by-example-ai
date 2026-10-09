@@ -4,6 +4,9 @@ Open items only. Finished work is recorded in `docs/handoff/2026-10-week1-handof
 
 ## Checks to finish
 
+- [ ] **Check the legacy mobile removal on the preview.** Branch `preview/remove-legacy-mobile` deleted the old mobile view inside `/dashboard`; nothing was checked in a browser. On a computer, narrow the `/dashboard` window to about 700px and 375px: the nav should sit on top as a wrapped row, every item should open, Sign out should be reachable, and nothing should scroll sideways. On a phone, signed in, open `/dashboard?join=<venue code>`: it should land on Settings, join once and drop the code from the URL.
+- [ ] **Join link is lost at sign-in.** A signed-out person who opens the staff sign-up link (`/dashboard?join=CODE`) is sent to `/login`, and after sign-in the code is dropped (`app/login/page.tsx`, `app/auth/callback/route.ts`), on desktop and phone. They only join if they type the code in onboarding or Settings. Carry `join` through login and the OAuth callback.
+- [ ] **Phone checkout return skips the instant upgrade.** `/dashboard?checkout=success&session_id=...` on a phone is redirected to `/mobile/home` by `middleware.ts` before `app/dashboard/page.tsx` verifies the Stripe session, so the plan only updates when the webhook lands. Run the same check for the phone path, or exempt that URL from the redirect.
 - [ ] **New e2e baselines.** Run the suite once with `--update-snapshots=all` to capture the Help, Report a bug, Privacy and Terms screenshots. Check that the new no-horizontal-scroll test passes on all 22 `/mobile` routes.
 - [ ] **Roster unlink on account deletion.** Not exercised yet. Delete a test staff account that is on a venue roster, then confirm its `venue_staff` row is kept with `staff_user_id` null and `organization_members` is marked `removed`.
 
