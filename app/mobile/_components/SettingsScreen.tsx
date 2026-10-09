@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -340,8 +340,8 @@ export default function SettingsScreen() {
     }
   }
 
-  async function handleJoinVenue() {
-    const trimmed = normalizeVenueCode(venueCode);
+  async function handleJoinVenue(code: string = venueCode) {
+    const trimmed = normalizeVenueCode(code);
     if (!trimmed) {
       setVenueStatus("error");
       setVenueMessage("Please enter a valid venue code.");
@@ -355,16 +355,38 @@ export default function SettingsScreen() {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.token}` },
         body: JSON.stringify({ venueCode: trimmed }),
       });
-      const body = (await res.json().catch(() => null)) as { error?: string; venueName?: string } | null;
+      const body = (await res.json().catch(() => null)) as { error?: string; venueName?: string; alreadyLinked?: boolean } | null;
       if (!res.ok) throw new Error(body?.error ?? "Could not join venue.");
       setVenueStatus("saved");
-      setVenueMessage(`Joined ${body?.venueName ?? "venue"}. Restart the app to see your new access.`);
+      setVenueMessage(
+        body?.alreadyLinked
+          ? `Already connected to ${body?.venueName ?? "this venue"}.`
+          : `Joined ${body?.venueName ?? "venue"}. Restart the app to see your new access.`,
+      );
       setVenueCode("");
     } catch (err) {
       setVenueStatus("error");
       setVenueMessage(err instanceof Error ? err.message : "Could not join venue.");
     }
   }
+
+  // The manager's staff sign-up link is /dashboard?join=CODE. On a phone,
+  // middleware.ts forwards it here, so join once on arrival the same way
+  // desktop Settings does (StaffSettingsPanel in DashboardShell.tsx) instead
+  // of leaving the code unused. Ref-guarded so it fires once per mount.
+  const hasAutoJoined = useRef(false);
+  useEffect(() => {
+    if (hasAutoJoined.current) return;
+    const url = new URL(window.location.href);
+    const joinCode = url.searchParams.get("join");
+    if (!joinCode) return;
+    hasAutoJoined.current = true;
+    url.searchParams.delete("join");
+    window.history.replaceState({}, "", url.toString());
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time join kicked off by the deep link, not state synced from an external source.
+    void handleJoinVenue(joinCode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only: the join code comes from the URL, not from props or state.
+  }, []);
 
   async function handleResetProgress() {
     setResetStatus("saving");
@@ -557,14 +579,14 @@ export default function SettingsScreen() {
             <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-mobile-muted)" }}>Join a venue by code</label>
             <div style={{ display: "flex", gap: 8 }}>
               <input value={venueCode} onChange={(e) => setVenueCode(e.target.value.toUpperCase())} autoCapitalize="characters" autoComplete="off" spellCheck={false} maxLength={8} placeholder="e.g. K7P3QX" style={{ ...inputStyle, flex: 1 }} />
-              <button type="button" onClick={handleJoinVenue} disabled={venueStatus === "saving"} style={primaryButtonStyle}>
+              <button type="button" onClick={() => handleJoinVenue()} disabled={venueStatus === "saving"} style={primaryButtonStyle}>
                 {venueStatus === "saving" ? "Joining…" : "Join"}
               </button>
             </div>
-            {venueMessage && (
-              <p style={{ margin: 0, fontSize: 12, color: venueStatus === "error" ? "var(--red-mobile)" : "var(--green-mobile)" }}>{venueMessage}</p>
-            )}
           </>
+        )}
+        {venueMessage && (
+          <p style={{ margin: 0, fontSize: 12, color: venueStatus === "error" ? "var(--red-mobile)" : "var(--green-mobile)" }}>{venueMessage}</p>
         )}
       </SectionCard>
 

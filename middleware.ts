@@ -158,7 +158,9 @@ export async function middleware(request: NextRequest) {
   // on /management/dashboard, a different route entirely.
   if (isDashboard && user && isMobilePhoneUserAgent(request.headers.get("user-agent") ?? "")) {
     const mobileHomeUrl = request.nextUrl.clone();
-    mobileHomeUrl.pathname = "/mobile/home";
+    // The staff sign-up link (/dashboard?join=CODE) goes to mobile Settings,
+    // which joins the venue on arrival. The query string is kept by clone().
+    mobileHomeUrl.pathname = mobileHomeUrl.searchParams.has("join") ? "/mobile/settings" : "/mobile/home";
     return syncRedirect(mobileHomeUrl);
   }
 
