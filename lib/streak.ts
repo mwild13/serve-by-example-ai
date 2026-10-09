@@ -17,12 +17,6 @@
 // double-increment if the user opens both surfaces the same day" — the
 // lastDate === today check IS the dedupe; no separate cross-surface
 // coordination is needed as long as both surfaces call this exact function.
-//
-// NOTE: app/dashboard/_components/MobileDashboardV3.tsx has its own,
-// user-namespaced variant (`sbe-streak-last-${userId}` /
-// `sbe-streak-count-${userId}`) that predates this file — a pre-existing,
-// separate inconsistency in V3's legacy mobile-responsive shell. Out of
-// scope for the V4 migration plan; not touched here.
 export function computeStreak(): number {
   try {
     const today = new Date().toISOString().slice(0, 10);

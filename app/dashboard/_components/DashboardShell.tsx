@@ -5,21 +5,6 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAuthSessionGuard } from "@/lib/use-auth-session-guard";
 import { isB2BTier } from "@/lib/session";
-
-// Hydration-safe viewport detection hook (no CSS-based hiding to avoid blank screens on slow networks)
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    // One-time client read of window size, deliberately deferred to an effect
-    // (not a lazy initializer) so SSR/hydration always starts from `false`.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsMobile(window.innerWidth <= 720);
-    const handleResize = () => setIsMobile(window.innerWidth <= 720);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-  return isMobile;
-}
 import SignOutButton from "@/components/ui/SignOutButton";
 import DashboardTrainer from "@/app/dashboard/_components/DashboardTrainer";
 import ModuleVerify from "@/app/dashboard/_components/ModuleVerify";
@@ -34,14 +19,12 @@ const KnowledgeBase = lazy(() => import("@/app/dashboard/_components/knowledge-b
 const BadgesView = lazy(() => import("@/app/dashboard/_components/BadgesView"));
 import ProgressOverview from "@/app/dashboard/_components/ProgressOverview";
 import PreShiftHome from "@/app/dashboard/_components/PreShiftHome";
-import MobileDashboardV3 from "@/app/dashboard/_components/MobileDashboardV3";
-import MobileLearnHub from "@/app/dashboard/_components/MobileLearnHub";
 import SessionRefresher from "@/components/ui/SessionRefresher";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { normalizeVenueCode } from "@/lib/venue-code";
 
-type NavItem = "home" | "mobile-learn" | "module" | "rapid-fire" | "stage4" | "scenarios" | "challenges" | "cocktails" | "knowledge" | "progress" | "badges" | "settings";
+type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "challenges" | "cocktails" | "knowledge" | "progress" | "badges" | "settings";
 
 const NAV_ITEMS: { id: NavItem; label: string }[] = [
   { id: "home", label: "Home" },
@@ -523,65 +506,6 @@ function ComingSoon({ label }: { label: string }) {
   );
 }
 
-// Persistent bottom nav rendered on all mobile screens (z-index: 45, below V3 home overlay at 50)
-function MobileBottomNavBar({
-  activeNav,
-  onNavigate,
-}: {
-  activeNav: NavItem;
-  onNavigate: (id: NavItem) => void;
-}) {
-  const tabs = [
-    { id: "home" as NavItem,         label: "Home",      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1v-9z"/></svg> },
-    { id: "mobile-learn" as NavItem, label: "Learn",     icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2V5z"/><path d="M4 19h15"/></svg> },
-    { id: "scenarios" as NavItem,    label: "Scenarios", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/></svg> },
-    { id: "progress" as NavItem,     label: "Me",        icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> },
-  ];
-  // Map activeNav to which tab is highlighted
-  const activeTab =
-    activeNav === "mobile-learn" || activeNav === "module" || activeNav === "rapid-fire" || activeNav === "stage4" || activeNav === "challenges" ? "mobile-learn" :
-    activeNav === "scenarios" ? "scenarios" :
-    activeNav === "progress" || activeNav === "settings" ? "progress" :
-    "home";
-
-  return (
-    <nav
-      className="mobile-bottom-nav"
-      style={{
-        boxSizing: "border-box",
-      }}
-    >
-      {tabs.map(({ id, label, icon }) => {
-        const on = activeTab === id;
-        return (
-          <button
-            key={id}
-            onClick={() => onNavigate(id)}
-            style={{
-              background: "none", border: "none", cursor: "pointer",
-              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
-              padding: 0, color: on ? "var(--ip-parchment)" : "rgba(255,255,255,0.55)",
-              flex: 1, position: "relative", flexShrink: 0,
-              fontFamily: "var(--font-manrope, system-ui, sans-serif)",
-            }}
-          >
-            {on && (
-              <div style={{
-                position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
-                width: 18, height: 2, background: "var(--ip-amber)",
-              }} />
-            )}
-            {icon}
-            <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" }}>
-              {label}
-            </span>
-          </button>
-        );
-      })}
-    </nav>
-  );
-}
-
 export default function DashboardShell({
   displayName,
   plan,
@@ -608,13 +532,12 @@ export default function DashboardShell({
   initialNav?: string;
 }) {
   const router = useRouter();
-  const isMobile = useIsMobile();
 
   // Auth safety guard: detect and recover from cookie/localStorage desync
   const [authErrorMessage, setAuthErrorMessage] = useState("");
   const authGuard = useAuthSessionGuard((msg) => setAuthErrorMessage(msg));
 
-  const NAV_IDS = new Set<NavItem>(["home","mobile-learn","module","rapid-fire","stage4","scenarios","challenges","cocktails","knowledge","progress","badges","settings"]);
+  const NAV_IDS = new Set<NavItem>(["home","module","rapid-fire","stage4","scenarios","challenges","cocktails","knowledge","progress","badges","settings"]);
   const [activeNav, setActiveNav] = useState<NavItem>(
     NAV_IDS.has(initialNav as NavItem) ? (initialNav as NavItem) : "home"
   );
@@ -935,35 +858,18 @@ export default function DashboardShell({
             key="stage4"
             managementUnlocked={managementUnlocked}
           />
-        ) : activeNav === "mobile-learn" ? (
-          <MobileLearnHub setActiveNav={handleNavClick} isPremium={isPremium} progressData={progressData} />
         ) : activeNav === "home" ? (
-          isMobile ? (
-            <MobileDashboardV3
-              key="home-mobile"
-              displayName={displayName}
-              setActiveNav={handleNavClick}
-              plan={hasVenueMembership && plan === "free" ? "venue_member" : plan}
-              onSelectModule={(moduleId) => {
-                setSelectedModuleId(moduleId);
-                handleNavClick("module");
-              }}
-              progressData={progressData}
-              onSyncProgress={fetchProgress}
-            />
-          ) : (
-            <PreShiftHome
-              key="home"
-              displayName={displayName}
-              setActiveNav={handleNavClick}
-              managementUnlocked={managementUnlocked}
-              onNavigateToCategory={handleNavigateToCategory}
-              isPremium={isPremium}
-              onBadgesNav={() => handleNavClick("badges")}
-              progressData={progressData}
-              onSyncProgress={fetchProgress}
-            />
-          )
+          <PreShiftHome
+            key="home"
+            displayName={displayName}
+            setActiveNav={handleNavClick}
+            managementUnlocked={managementUnlocked}
+            onNavigateToCategory={handleNavigateToCategory}
+            isPremium={isPremium}
+            onBadgesNav={() => handleNavClick("badges")}
+            progressData={progressData}
+            onSyncProgress={fetchProgress}
+          />
         ) : activeNav === "scenarios" ? (
           <ArenaPage userId={userId} />
         ) : activeNav === "challenges" ? (
@@ -1004,9 +910,6 @@ export default function DashboardShell({
         )}
 
       </section>
-
-      {/* Persistent mobile bottom nav – sits at z-index 45, below V3 home overlay (50) */}
-      {isMobile && <MobileBottomNavBar activeNav={activeNav} onNavigate={handleNavClick} />}
     </main>
   );
 }
