@@ -288,6 +288,8 @@ Every marketing page is on the standard.
 | `/advisory` | Shared headings and accordion; its own `sbe-adv-` classes for the hero, hub band and package board. |
 | `/demo`, `/demo/complaint-master`, `/toolkit` | The interactive tool keeps its frame, because it is an object. The page around it follows the standard. |
 | Legal pages | Reading pages on `PageHero` (light) and `.legal-prose`. |
+| `/login` | Out of scope as an auth page, but brought onto the standard's type, buttons and dark band on request: form on parchment, value statement and console screenshot on the dark panel. `/auth` and `/reset-password` still use the older `.login-shell` card. |
+| `not-found` and `error` | The confirmation layout (`.sbe-mkt-confirm`), shared with `/toolkit/success`. |
 
 ### 7.2 What was retired
 

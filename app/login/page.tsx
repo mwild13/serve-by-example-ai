@@ -9,23 +9,6 @@ import { createSupabaseBrowserClient } from "@/lib/supabase";
 type AuthMode = "sign-in" | "sign-up" | "forgot-password";
 type Portal = "staff" | "management";
 
-const CheckIcon = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    style={{ color: "var(--gold-warm)", flexShrink: 0 }}
-    aria-hidden="true"
-  >
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-);
-
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="var(--google-blue)" />
@@ -36,10 +19,10 @@ const GoogleIcon = () => (
 );
 
 const BrandMark = () => (
-  <div className="login-brand">
-    <Image src="/logo.webp" alt="Serve By Example" width={36} height={36} className="login-brand-mark" />
+  <Link href="/" className="login-brand">
+    <Image src="/logo.webp" alt="" width={36} height={36} className="login-brand-mark" />
     <span className="login-brand-name">Serve By Example</span>
-  </div>
+  </Link>
 );
 
 const LoginTypeSwitcher = ({
@@ -55,10 +38,6 @@ const LoginTypeSwitcher = ({
       className={`login-type-tab${portal === "staff" ? " login-type-tab--active" : ""}`}
       onClick={() => onSwitch("staff")}
     >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-        <circle cx="12" cy="7" r="4" />
-      </svg>
       Staff Login
     </button>
     <button
@@ -66,38 +45,42 @@ const LoginTypeSwitcher = ({
       className={`login-type-tab${portal === "management" ? " login-type-tab--active" : ""}`}
       onClick={() => onSwitch("management")}
     >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <rect x="2" y="7" width="20" height="14" rx="2" />
-        <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
-      </svg>
       Management Login
     </button>
   </div>
 );
 
+const VALUE_POINTS = [
+  "Consistent standards across every venue",
+  "Track readiness before problems show up",
+  "Manage every site from one console",
+];
+
 const RightPanel = () => (
-  <div className="login-split-right">
-    <div className="login-visual-img-wrap">
-      <Image
-        src="/images/login-value-prop.png"
-        alt="Serve By Example, hospitality staff training network"
-        width={520}
-        height={420}
-        priority
-        style={{ objectFit: "contain" }}
-      />
-    </div>
+  <aside className="login-split-right">
     <div className="login-visual-text">
+      <p className="sbe-mkt-kicker">Hospitality staff training</p>
       <p className="login-visual-headline">
-        Floor-ready staff in 6 weeks,<br />not 6 months.
+        Floor-ready staff in 6 weeks, not 6 months.
       </p>
-      <ul className="login-visual-bullets">
-        <li><CheckIcon />Consistent standards across every venue</li>
-        <li><CheckIcon />Track readiness before problems show up</li>
-        <li><CheckIcon />Manage every site from one console</li>
+      <ul className="login-visual-points">
+        {VALUE_POINTS.map((point) => (
+          <li key={point}>{point}</li>
+        ))}
       </ul>
     </div>
-  </div>
+    <div className="login-visual-shot">
+      <Image
+        src="/shots/Overview Console Wide.png"
+        alt="Serve By Example management console: venue overview with training completion, compliance status, and staff needing attention"
+        width={3004}
+        height={1654}
+        sizes="(max-width: 900px) 0px, 900px"
+        priority
+        className="sbe-shot"
+      />
+    </div>
+  </aside>
 );
 
 function LoginPageContent() {
@@ -373,12 +356,12 @@ function LoginPageContent() {
           {/* ── Forgot password (shared) ── */}
           {isForgotPassword ? (
             <>
-              <div className="eyebrow">Account recovery</div>
+              <p className="sbe-mkt-kicker">Account recovery</p>
               <h1>Reset your password</h1>
               <p className="login-sub">
                 Enter your email address and we&apos;ll send you a link to set a new password.
               </p>
-              <form className="form-grid" onSubmit={handleForgotPassword} style={{ marginTop: 24 }}>
+              <form className="form-grid" onSubmit={handleForgotPassword}>
                 <label className="label" htmlFor="email-forgot">
                   Email address
                   <input
@@ -395,7 +378,7 @@ function LoginPageContent() {
                 {error ? <div className="auth-status auth-status-error">{error}</div> : null}
                 {success ? <div className="auth-status auth-status-success">{success}</div> : null}
                 <div className="auth-actions">
-                  <button className="btn btn-primary btn-block" type="submit" disabled={loading}>
+                  <button className="sbe-mkt-btn-primary login-submit" type="submit" disabled={loading}>
                     {loading ? "Sending..." : "Send reset link"}
                   </button>
                   <p className="auth-help">
@@ -416,7 +399,6 @@ function LoginPageContent() {
                 type="button"
                 onClick={handleManagementGoogleSignIn}
                 disabled={googleLoading || loading}
-                style={{ marginTop: 20 }}
               >
                 <GoogleIcon />
                 {googleLoading ? "Redirecting..." : "Continue with Google"}
@@ -457,7 +439,7 @@ function LoginPageContent() {
                 {error ? <div className="auth-status auth-status-error">{error}</div> : null}
                 {success ? <div className="auth-status auth-status-success">{success}</div> : null}
                 <div className="auth-actions">
-                  <button className="btn btn-primary btn-block" type="submit" disabled={loading}>
+                  <button className="sbe-mkt-btn-primary login-submit" type="submit" disabled={loading}>
                     {loading ? "Signing in..." : "Enter Manager Portal"}
                   </button>
                   <p className="auth-help">
@@ -477,28 +459,15 @@ function LoginPageContent() {
               )}
               <h1>{isSignUp ? "Create your account." : "Welcome back."}</h1>
               <p className="login-sub">
-                {isSignUp
-                  ? "Already have an account? Sign in below."
-                  : "New here? Create an account to get started."}
+                {isSignUp ? "Already have an account?" : "New here?"}{" "}
+                <button
+                  type="button"
+                  className="auth-link-btn"
+                  onClick={() => switchMode(isSignUp ? "sign-in" : "sign-up")}
+                >
+                  {isSignUp ? "Sign in" : "Create an account"}
+                </button>
               </p>
-              <div className="auth-toggle" role="tablist" aria-label="Authentication mode" style={{ marginTop: 20, marginBottom: 24 }}>
-                <button
-                  type="button"
-                  className={`auth-toggle-button${!isSignUp ? " active" : ""}`}
-                  onClick={() => switchMode("sign-in")}
-                  aria-pressed={!isSignUp}
-                >
-                  Sign in
-                </button>
-                <button
-                  type="button"
-                  className={`auth-toggle-button${isSignUp ? " active" : ""}`}
-                  onClick={() => switchMode("sign-up")}
-                  aria-pressed={isSignUp}
-                >
-                  Create account
-                </button>
-              </div>
               <button
                 className="login-google-btn"
                 type="button"
@@ -547,7 +516,7 @@ function LoginPageContent() {
                 {error ? <div className="auth-status auth-status-error">{error}</div> : null}
                 {success ? <div className="auth-status auth-status-success">{success}</div> : null}
                 <div className="auth-actions">
-                  <button className="btn btn-primary btn-block" type="submit" disabled={loading || googleLoading}>
+                  <button className="sbe-mkt-btn-primary login-submit" type="submit" disabled={loading || googleLoading}>
                     {loading
                       ? isSignUp ? "Creating account..." : "Signing in..."
                       : isSignUp ? "Create account" : "Sign in"}

@@ -3824,9 +3824,12 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   gap: 18px;
 }
 
-/* ── Login Split-Screen ──────────────────────────────── */
+/* ── Login split screen ──────────────────────────────────
+   Form on parchment, value statement on the dark band with the console
+   screenshot running off the right edge (Pages-Redesign.md 2.1, 2.2, 2.5). */
 .login-split {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr;
   min-height: 100svh;
   background: var(--bg);
 }
@@ -3834,97 +3837,151 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 .login-split-left {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  width: 500px;
-  min-width: 500px;
-  padding: 40px 44px;
-  overflow-y: auto;
+  padding: 2.25rem 1.5rem;
   background: var(--bg);
 }
 
-/* vertically center the card when there's room, push to top when it overflows */
+/* Centre the form when there is room; sit at the top when it overflows */
 .login-split-left > .login-card {
-  margin-top: auto;
-  margin-bottom: auto;
+  margin: auto;
 }
 
-/* Strip card box in split context — form IS the panel */
 .login-split .login-card {
   background: transparent;
   border: none;
   box-shadow: none;
   padding: 0;
   width: 100%;
-  max-width: 400px;
+  max-width: 25rem;
   border-radius: 0;
 }
 
+.login-split .login-card h1 {
+  margin: 0;
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+}
+
+.login-split .login-sub {
+  margin: 0.6rem 0 1.75rem;
+  font-size: var(--fs-body);
+  color: var(--text-soft);
+}
+
+.login-split .sbe-mkt-kicker {
+  margin-bottom: 0.9rem;
+}
+
+.login-split .input,
+.login-split .login-google-btn {
+  border-radius: var(--radius-sm);
+}
+
+.login-split .auth-actions {
+  margin-top: 0.25rem;
+}
+
+.login-submit {
+  width: 100%;
+  text-align: center;
+}
+
+.login-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .login-split-right {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-  background: var(--roi-forest);
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: flex-end;
+  display: none;
 }
 
-.login-visual-img-wrap {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 48px 40px 24px;
-}
+@media (min-width: 900px) {
+  .login-split {
+    grid-template-columns: minmax(26rem, 5fr) minmax(0, 7fr);
+  }
 
-.login-visual-img-wrap img {
-  max-width: 100%;
-  max-height: 420px;
-  object-fit: contain;
-  border-radius: var(--radius-lg);
+  .login-split-left {
+    padding: 2.5rem clamp(2rem, 4vw, 4rem);
+  }
+
+  .login-split-right {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 5vh, 3.5rem);
+    /* One screen tall and pinned, so the form column alone sets the page
+       height and the screenshot runs off the bottom edge as well. */
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100svh;
+    padding: clamp(2.5rem, 8vh, 5rem) 0 0 clamp(2.5rem, 5vw, 5rem);
+    background: linear-gradient(160deg, var(--bg-dark) 0%, var(--bg-dark-soft) 100%);
+    overflow: hidden;
+  }
 }
 
 .login-visual-text {
-  padding: 28px 44px 48px;
+  max-width: 34rem;
+  padding-right: clamp(2rem, 4vw, 4rem);
+}
+
+.login-visual-text .sbe-mkt-kicker {
+  color: var(--gold-warm);
 }
 
 .login-visual-headline {
-  font-family: var(--font-heading);
-  font-size: clamp(2rem, 3vw, 3rem);
-  color: var(--gold-warm);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  margin-bottom: 18px;
-}
-
-.login-visual-bullets {
-  list-style: none;
-  padding: 0;
   margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  font-family: var(--font-heading);
+  font-size: var(--fs-display);
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-display);
+  letter-spacing: var(--tracking-display);
+  color: var(--nav-cream);
+  text-wrap: balance;
 }
 
-.login-visual-bullets li {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 0.95rem;
-  font-weight: 500;
+.login-visual-points {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  border-top: 1px solid var(--border-light-on-dark);
+}
+
+.login-visual-points li {
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--border-light-on-dark);
+  font-size: var(--fs-body);
   line-height: 1.45;
+  color: var(--text-light-muted-on-dark);
+}
+
+/* Wider than its column on purpose: the right edge is clipped by the panel */
+.login-visual-shot {
+  width: 125%;
+}
+
+.login-visual-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 /* Brand mark at top of form */
 .login-brand {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 32px;
+  margin-bottom: 2rem;
+  text-decoration: none;
+}
+
+.login-brand:focus-visible {
+  outline: 2px solid var(--gold-warm);
+  outline-offset: 4px;
+  border-radius: 3px;
 }
 
 .login-brand-mark {
@@ -3936,10 +3993,10 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 
 .login-brand-name {
   font-family: var(--font-heading);
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: 1.05rem;
+  font-weight: var(--fw-heading);
   color: var(--green-deep);
-  letter-spacing: -0.01em;
+  letter-spacing: var(--tracking-heading);
 }
 
 /* Staff / Management tab switcher */
@@ -4040,11 +4097,6 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   flex: 1;
   height: 1px;
   background: var(--line-light);
-}
-@media (max-width: 768px) {
-  .login-split { flex-direction: column; }
-  .login-split-left { width: 100%; min-width: unset; padding: 36px 24px; }
-  .login-split-right { display: none; }
 }
 /* ─────────────────────────────────────────────────────── */
 
