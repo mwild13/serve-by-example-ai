@@ -5,14 +5,16 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 ## 1. Scope & Entry Points
 
 - Server entry: `app/management/dashboard/page.tsx`
-- Client shell: `components/mission-control/ManagerControlCenter.tsx` (1,995 lines on 2026-10-09 — re-verify with `wc -l` before citing, this number drifts)
+- Client shell: `components/mission-control/ManagerControlCenter.tsx` (1,717 lines on 2026-10-09 — re-verify with `wc -l` before citing, this number drifts)
 - Sidebar: `components/mission-control/ConsoleSidebar.tsx` (navigation list, collapse to an icon rail)
+- Shared page parts: `components/mission-control/console-ui.tsx` (`PageHead`, `StatRow`, `Panel`, `StatusText`, `BarCell`, `ExportButton`, `downloadCsv`). Every tab other than Overview is built from these (see §6)
 - Overview tab: `OverviewPanel.tsx`, with `OverviewNoticeReel.tsx`, `OverviewKpiStrip.tsx`, `TeamActivityCard.tsx`, `NeedsAttentionCard.tsx`, `SkillGapsSummaryCard.tsx` and `RoleQualificationCard.tsx`. Notice sentences are built in `lib/management/notices.ts` (see §6)
 - Loader: `components/mission-control/ManagerControlCenterLoader.tsx`
 - Service layer: `lib/management/service.ts` (971 lines as of this doc)
 - Roster table: `components/mission-control/StaffDirectoryTable.tsx` — **this is the real component name.** A `StaffRosterPanel.tsx` referenced elsewhere in older docs does not exist in the repo.
-- Other panels in `components/mission-control/`: `TeamsPerformancePanel.tsx`, `RolesPermissionsMatrix.tsx`, `LeaderboardBoard.tsx`, `TrialBillingSection.tsx`, `manager-ui.tsx` (shared primitives)
-- `CoachingDrawer.tsx` and `WorkspaceHeader.tsx` live in `app/management/dashboard/_components/`, not `components/mission-control/` — verified 2026-09-29, don't assume they moved
+- Other panels in `components/mission-control/`: `TeamsPerformancePanel.tsx`, `AnalyticsPanel.tsx`, `AICoachPanel.tsx`, `ReportsPanel.tsx`, `PredictivePanel.tsx` (Training Gaps), `GroupAnalyticsPanel.tsx` (All venues), `LeaderboardBoard.tsx`, `SettingsPanel.tsx`, `TrialBillingSection.tsx`, `manager-ui.tsx` (empty state, skeleton, mastery badges)
+- `CoachingDrawer.tsx`, `ActionDrawer.tsx` and `ManagementTopbar.tsx` live in `app/management/dashboard/_components/`, not `components/mission-control/`
+- Removed in October 2026: `RolesPermissionsMatrix.tsx` (its role table moved into Teams) and `WorkspaceHeader.tsx` (replaced by `PageHead`)
 
 ## 2. Data Fetching Pattern
 
@@ -47,7 +49,7 @@ Service functions still filter every update/delete by `manager_user_id`/`owner_u
 
 **Adding a route:** copy the pattern — `const gate = await requireManager(req, { rateKey, ownerOnly?, limit? }); if (!gate.ok) return gate.response;`, assert ownership of every id in the body, read the body with `readJsonBody()`, and escape anything that goes into an email with `escapeHtml()`. The one exception is `join-venue`, which staff must be able to call (documented in that file).
 
-**`RolesPermissionsMatrix.tsx` is purely presentational — it does not gate or enforce anything.** It renders a hardcoded `PERMISSIONS` array (e.g. `{ label: "Staff management", manager: true, supervisor: true, staff: false }`) as a static reference table, plus a training-compliance ring per role. **Never mistake this component for an ACL** — it has no connection to the real authorization logic described above.
+**Nothing in the console UI gates or enforces access.** The old Roles & Permissions tab (`RolesPermissionsMatrix.tsx`) showed a hardcoded access table that looked like an ACL and was not one; it was removed in October 2026. The "By role" table on the Teams tab lists the modules each role is expected to complete (`REQUIRED_MODULES` in `TeamsPerformancePanel.tsx`). That list is display only too.
 
 ## 4. State Management for Complex UI (Filtering, Tabs)
 
@@ -61,26 +63,43 @@ Service functions still filter every update/delete by `manager_user_id`/`owner_u
 
 **`--mcc-*` token block — resolved.** The parallel 20-token palette (`--mcc-canvas`, `--mcc-forest-900`, `--mcc-good`, `--mcc-bad`, etc.) that used to live in `app/globals.css` has been fully migrated onto `--status-*`/`--green`/`--surface`; zero `--mcc-*` definitions or usages remain anywhere in the codebase. Do not reintroduce a parallel `--mcc-*` namespace — extend `--status-*`/`--green`/`--surface` instead.
 
-**`ManagerControlCenter.tsx` line-count target: under 3,200 lines.** Current state ~1,995 lines (verify with `wc -l` — this drifts) — target comfortably met.
+**`ManagerControlCenter.tsx` line-count target: under 3,200 lines.** Current state ~1,717 lines (verify with `wc -l` — this drifts) — target comfortably met.
 
-**Component extractions — complete.** `StaffDirectoryTable.tsx`, `TeamsPerformancePanel.tsx`, `RolesPermissionsMatrix.tsx`, and `LeaderboardBoard.tsx` are extracted and imported into `ManagerControlCenter.tsx`. `QUICK_ACTIONS` is still an inline array in `ManagerControlCenter.tsx` — a `QuickActionMenu.tsx` extraction was proposed at one point but never happened / was reverted; it does not exist in the repo.
+**Component extractions — complete.** `StaffDirectoryTable.tsx`, `TeamsPerformancePanel.tsx`, `LeaderboardBoard.tsx`, `AnalyticsPanel.tsx` and `AICoachPanel.tsx` are extracted and imported into `ManagerControlCenter.tsx`. `QUICK_ACTIONS` is still an inline array in `ManagerControlCenter.tsx` — a `QuickActionMenu.tsx` extraction was proposed at one point but never happened / was reverted; it does not exist in the repo.
 
-## 6. Shell and Overview tab (October 2026 redesign)
+## 6. Console design (October 2026 redesign)
 
-The sidebar, top header and Overview tab were rebuilt to the `docs/Pages-Redesign.md` principles. Their styles are the "MANAGER CONSOLE — SHELL AND OVERVIEW TAB" block in `app/globals.css` (`.mc-*` classes). The other tabs still use the older `ops-*` card styles.
+The whole console was rebuilt to the `docs/Pages-Redesign.md` principles. Styles are two blocks in `app/globals.css`, both `.mc-*` classes: "MANAGER CONSOLE — SHELL AND OVERVIEW TAB" and "MANAGER CONSOLE — PAGES".
 
 **Look**
 - **Type:** Newsreader and Inter through `--font-heading` / `--font-body`. The console loads no fonts of its own.
-- **Colour:** parchment, ink and hairlines. Brand green marks the active nav item and actions. Red is used once, on an expired-certificate count. No tinted pills, chips or banners.
+- **Colour:** parchment, ink and hairlines. Brand green marks the active nav item and actions. Red means an expired certificate or a person blocked from service, and nothing else. A small gold dot marks "due soon" or "needs follow-up". No tinted pills, chips or banners.
+- **Figures:** the body face with tabular lining numerals (`.mc-figure`, `.mc-kpi-value`). Never the heading serif.
 - **Tokens:** `--mc-*` names are aliases of the brand tokens. Do not give one a hex value.
 - **Readability floor:** nothing below 13px, controls at least 40px tall, visible focus rings.
 
 **Shell**
 - **Header alignment:** `--mc-header-h` sets the height of both `.mc-sidebar-logo` and `.mc-topbar`. Change the token, not either rule.
-- **Sidebar collapse:** a 64px icon rail. Saved in `localStorage` (`sbe-mc-sidebar-collapsed`), toggled by the button or Cmd/Ctrl+B, and used by default below 1100px. Labels stay in the DOM so buttons keep their names.
-- **Adding a nav item:** edit `NAV_GROUPS` in `ConsoleSidebar.tsx`. "Training Gaps" is section id `predictive` (`PredictivePanel.tsx`).
+- **Sidebar collapse:** a 64px icon rail. The control is an icon button to the right of the logo; in the rail it takes the logo's place. Saved in `localStorage` (`sbe-mc-sidebar-collapsed`), toggled by the button or Cmd/Ctrl+B, and used by default below 1100px. Labels stay in the DOM so buttons keep their names.
+- **Sidebar contents:** Overview (no group heading), People, Performance, then Settings alone at the foot (owners only). There is no profile row or Sign out in the sidebar.
+- **Account menu:** the avatar in the top header opens a menu with the manager's name, Account settings (owners only) and Sign out.
+- **Adding a nav item:** edit `NAV_GROUPS` in `ConsoleSidebar.tsx`. "Training Gaps" is section id `predictive` (`PredictivePanel.tsx`). `?tab=roles` redirects to Teams.
 - **Search:** `/` or Cmd/Ctrl+K focuses it.
-- **Narrow screens:** the shell stays side by side at every width; it does not stack.
+- **Narrow screens:** the shell stays side by side at every width; it does not stack. The workspace is one grid track of `minmax(0, 1fr)`, so a wide child cannot cause sideways scroll.
+
+**Every tab other than Overview**
+- **Structure:** a `.mc-page` wrapper, one `PageHead` (title, one sentence, the tab's actions), then `StatRow` and `Panel`s. Do not wrap a tab in `ops-grid` / `ops-card`.
+- **Tables:** `.mc-table` inside `.mc-table-wrap`, in a `Panel` with `flush`. Numbers are right-aligned with `.is-num`.
+- **Status:** `StatusText` with a tone (`ok`, `warn`, `alert`, or none). No filled pills.
+- **Buttons:** `.mc-btn` (outline), `.mc-btn-primary`, `.mc-btn-quiet`, `.mc-btn-danger`, `.mc-btn-sm`, `.mc-icon-btn`. One primary button per tab.
+- **Settings:** `.mc-setting` rows (heading and note left, controls right) in a narrow column. No cards.
+- **Dialogs:** `.mc-dialog-backdrop` and `.mc-dialog`.
+- **Older markup:** the Staff tab's tables and the profile drawer still use some `ops-*` classes. Rules scoped to `.mc-shell` at the end of the PAGES block restyle them; new work should use the `.mc-*` parts.
+
+**Ask AI Coach**
+- **Layout:** the page is exactly as tall as the window, so the question box is always in view. Conversation on the left, starting points on the right.
+- **Each question stands alone.** `/api/management/coach` is not sent earlier messages. Saved history is for reading back only.
+- **New chat** calls `DELETE /api/management/coach/history?venueId=…`, which permanently removes that manager's saved messages for the venue, after one confirmation.
 
 **Overview tab**
 - **Notice reel:** `buildOverviewNotices(venueStaff)` returns sentences in priority order (expired RSA, RSA within 7 days, within 30 days, expired FSS, no RSA date on file, inactive 45+ days, not started, completed all modules, trained this week). Add a notice there and add a test in `lib/management/notices.test.ts`. The reel advances every 7 seconds, stops on hover, focus or pause, and never auto-advances under `prefers-reduced-motion`.
@@ -91,7 +110,8 @@ The sidebar, top header and Overview tab were rebuilt to the `docs/Pages-Redesig
 
 ## Known Gaps / Drift
 
-- **`RolesPermissionsMatrix.tsx` is decorative only** (§3) — the single most important gotcha in this doc. Repeated here deliberately.
+- **No console screen enforces access** (§3). The role table on Teams is display only.
+- **Not yet on the new parts:** `TrialBillingSection.tsx` (Settings, Billing, during a trial), `NotificationsPanel.tsx` and the Training programs section. None has a nav item; the last two are reached from search or a shortcut.
 - **No date-range filter exists** (§4).
 - **The API route is the security boundary** (§3): the admin client bypasses RLS, so a new `/api/management/*` route without `requireManager()` and ownership assertions is an open door. Clients have read-only access to these tables.
 - **Duty-manager data scope:** duty managers own no venues, so their first write auto-creates a "Primary Venue" for them (pre-existing behaviour, not yet redesigned).

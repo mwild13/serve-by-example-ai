@@ -81,3 +81,22 @@ export async function POST(req: Request) {
     return managementErrorResponse(error, "Could not save coach history.", "coach/history POST", 500);
   }
 }
+
+// "New chat" in the console: removes the caller's saved conversation. With a
+// venueId only that venue's messages go; without one, all of the caller's.
+// Scoped to manager_user_id = caller, so a foreign venueId deletes nothing.
+export async function DELETE(req: Request) {
+  const gate = await requireManager(req, { rateKey: "mgmt-coach-history" });
+  if (!gate.ok) return gate.response;
+  const { user, admin } = gate.ctx;
+
+  const venueId = new URL(req.url).searchParams.get("venueId")?.trim();
+
+  const query = admin.from("manager_coach_sessions").delete().eq("manager_user_id", user.id);
+  if (venueId) query.eq("venue_id", venueId);
+
+  const { error } = await query;
+  if (error) return managementErrorResponse(error, "Could not delete coach history.", "coach/history DELETE", 500);
+
+  return NextResponse.json({ ok: true });
+}

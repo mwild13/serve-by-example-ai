@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Search, Sparkles } from "lucide-react";
+import { ChevronDown, LogOut, Search, Settings, Sparkles } from "lucide-react";
+import SignOutButton from "@/components/ui/SignOutButton";
 import type { SearchResult } from "@/components/mission-control/manager-types";
 
 interface VenueOption {
@@ -31,6 +32,8 @@ interface ManagementTopbarProps {
   isGroupAnalyticsActive?: boolean;
   onAICoach: () => void;
   displayName?: string;
+  /** Opens Settings on the Account tab. Omitted for duty managers, who have no Settings. */
+  onAccountSettings?: () => void;
 }
 
 export function ManagementTopbar({
@@ -48,10 +51,30 @@ export function ManagementTopbar({
   isGroupAnalyticsActive = false,
   onAICoach,
   displayName,
+  onAccountSettings,
 }: ManagementTopbarProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [venueMenuOpen, setVenueMenuOpen] = useState(false);
   const venueMenuRef = useRef<HTMLDivElement>(null);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement>(null);
+
+  // The account menu closes on a click elsewhere or on Escape.
+  useEffect(() => {
+    if (!accountMenuOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(e.target as Node)) setAccountMenuOpen(false);
+    }
+    function handleEscape(e: KeyboardEvent) {
+      if (e.key === "Escape") setAccountMenuOpen(false);
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [accountMenuOpen]);
 
   useEffect(() => {
     if (!venueMenuOpen) return;
@@ -156,7 +179,7 @@ export function ManagementTopbar({
         )}
       </div>
 
-      {/* Right: search + AI coach + notifications + create + avatar */}
+      {/* Right: search, AI coach, account menu */}
       <div className="mc-topbar-right">
         <div className="mc-search-wrap" style={{ position: "relative" }}>
           <Search size={16} strokeWidth={2} aria-hidden="true" />
@@ -199,7 +222,44 @@ export function ManagementTopbar({
           Ask AI Coach
         </button>
 
-        <div className="mc-topbar-avatar" title={displayName ?? undefined}>{initials || "M"}</div>
+        <div className="mc-account" ref={accountMenuRef}>
+          <button
+            type="button"
+            className="mc-topbar-avatar"
+            onClick={() => setAccountMenuOpen((open) => !open)}
+            aria-haspopup="menu"
+            aria-expanded={accountMenuOpen}
+            aria-label="Account menu"
+          >
+            {initials || "M"}
+          </button>
+          {accountMenuOpen && (
+            <div className="mc-venue-menu mc-account-menu" role="menu">
+              <div className="mc-account-who">
+                <div className="mc-account-name">{displayName || "Manager"}</div>
+                <div className="mc-account-role">Venue manager</div>
+              </div>
+              {onAccountSettings && (
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="mc-venue-menu-item"
+                  onClick={() => {
+                    onAccountSettings();
+                    setAccountMenuOpen(false);
+                  }}
+                >
+                  <Settings size={16} strokeWidth={1.75} aria-hidden="true" />
+                  Account settings
+                </button>
+              )}
+              <SignOutButton className="mc-venue-menu-item">
+                <LogOut size={16} strokeWidth={1.75} aria-hidden="true" />
+                Sign out
+              </SignOutButton>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

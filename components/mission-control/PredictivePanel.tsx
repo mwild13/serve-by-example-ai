@@ -1,8 +1,8 @@
 "use client";
 
 import type { ManagementSnapshot, ManagerSection } from "@/lib/management/types";
-import { WorkspaceHeader } from "@/app/management/dashboard/_components/WorkspaceHeader";
 import { EmptyState } from "@/components/mission-control/manager-ui";
+import { ExportButton, PageHead, Panel, StatRow, StatusText, downloadCsv, type Stat } from "./console-ui";
 import { computeSkillGapFlags, groupSkillGapsByCategory, countShiftReadyStaff, countUrgentBottlenecks } from "@/lib/management/skill-gaps";
 
 // Extracted from ManagerControlCenter.tsx (Phase 5 — component extraction
@@ -41,153 +41,99 @@ export function PredictivePanel({ venueStaff, selectedVenueName, handleSectionCh
   }
   const hasMasteryData = venueStaff.some((m) => m.masteryStatus != null);
 
+  const flaggedNames = [...new Set(predictions.map((p) => p.staffName))];
+
+  const stats: Stat[] = [
+    { label: "Cleared to work", value: `${shiftReadyCount} of ${venueStaff.length}`, sub: "No high-priority gaps right now" },
+    {
+      label: "Venue-wide gaps",
+      value: String(urgentBottleneckCount),
+      sub: urgentBottleneckCount === 0 ? "No gap is shared by two or more staff" : "High-priority gaps shared by two or more staff",
+    },
+    { label: "Staff with a gap", value: `${flaggedNames.length} of ${venueStaff.length}` },
+  ];
+  if (hasMasteryData) {
+    stats.push(
+      { label: "At mastery", value: String(masteryStats.mastered), sub: `${masteryStats.inProgress} still training` },
+      { label: "Reviews overdue", value: String(masteryStats.atRisk), sub: "Knowledge at risk of fading" },
+    );
+  }
+
+  function handleExport() {
+    downloadCsv(`training-plan-${selectedVenueName ?? "venue"}.csv`, [
+      ["Staff", "Role", "Gap", "Priority", "Reason", "Action"],
+      ...predictions.map((p) => [p.staffName, p.role, p.gap, p.risk, p.reason, p.action]),
+    ]);
+  }
+
   return (
-    <section className="ops-grid ops-grid-main">
-      <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
-        <WorkspaceHeader
-          title="Training Gaps"
-          description="Who's ready to work a shift right now, and which training gaps are big enough to need venue-wide content"
-          actions={
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>{selectedVenueName ?? "All venues"}</span>
-              {predictions.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const rows = [["Staff", "Role", "Gap", "Risk", "Reason", "Action"], ...predictions.map((p) => [p.staffName, p.role, p.gap, p.risk, p.reason, p.action])];
-                    const csv = rows.map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
-                    const blob = new Blob([csv], { type: "text/csv" });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement("a"); a.href = url; a.download = `training-plan-${selectedVenueName ?? "venue"}.csv`; a.click(); URL.revokeObjectURL(url);
-                  }}
-                  style={{ padding: "5px 12px", borderRadius: 8, border: "1.5px solid var(--line)", background: "var(--bg)", color: "var(--text-soft)", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}
-                >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                  Export training plan
-                </button>
-              )}
-            </div>
-          }
-        />
+    <div className="mc-page">
+      <PageHead
+        title="Training Gaps"
+        description="Who is ready to work a shift, and which gaps are wide enough to need training for the whole venue."
+        actions={predictions.length > 0 ? <ExportButton label="Export training plan" onClick={handleExport} /> : undefined}
+      />
 
-        {hasMasteryData && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 16 }}>
-            <div className="ops-kpi-card" style={{ background: "var(--surface)", borderLeft: "4px solid var(--green)" }}>
-              <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>Mastered</span>
-              <strong style={{ fontSize: "1.8rem", color: "var(--green)" }}>{masteryStats.mastered}</strong>
-              <small>staff at mastery level</small>
-            </div>
-            <div className="ops-kpi-card" style={{ background: "var(--surface)", borderLeft: "4px solid var(--gold-warm)" }}>
-              <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>In Progress</span>
-              <strong style={{ fontSize: "1.8rem", color: "var(--gold-warm)" }}>{masteryStats.inProgress}</strong>
-              <small>actively training</small>
-            </div>
-            <div className="ops-kpi-card" style={{ background: "var(--surface)", borderLeft: "4px solid var(--status-critical-text)" }}>
-              <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>At Risk (Decay)</span>
-              <strong style={{ fontSize: "1.8rem", color: "var(--status-critical-text)" }}>{masteryStats.atRisk}</strong>
-              <small>overdue reviews</small>
-            </div>
-          </div>
-        )}
+      <StatRow items={stats} />
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 24 }}>
-          <div className="ops-kpi-card" style={{ background: "var(--surface)", borderLeft: "4px solid var(--green)" }}>
-            <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>Shift-Ready Staff</span>
-            <strong style={{ fontSize: "1.8rem", color: "var(--green)" }}>{shiftReadyCount} / {venueStaff.length}</strong>
-            <small>no high-risk flags right now</small>
-          </div>
-          <div className="ops-kpi-card" style={{ background: "var(--surface)", borderLeft: urgentBottleneckCount > 0 ? "4px solid var(--status-critical-text)" : "4px solid var(--line)" }}>
-            <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>Urgent Training Bottlenecks</span>
-            <strong style={{ fontSize: "1.8rem", color: urgentBottleneckCount > 0 ? "var(--status-critical-text)" : "var(--text)" }}>{urgentBottleneckCount}</strong>
-            <small>{urgentBottleneckCount === 0 ? "no systemic gaps" : "gap areas hitting 2+ staff, high-risk"}</small>
-          </div>
-          <div className="ops-kpi-card">
-            <span style={{ color: "var(--text-soft)", fontSize: ".8rem" }}>Staff flagged</span>
-            <strong style={{ fontSize: "1.8rem" }}>{new Set(predictions.map((p) => p.staffName)).size}</strong>
-            <small>of {venueStaff.length} total</small>
-          </div>
-        </div>
-        {predictions.length === 0 ? (
-          <EmptyState copy="No skill gaps detected. All staff are tracking above performance thresholds — keep monitoring as new staff join." />
-        ) : (
-          <>
-            {(() => {
-              // Group all predictions by staffName for cleaner employee cards
-              const staffNames = [...new Set(predictions.map((p) => p.staffName))];
-              return (
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  {staffNames.map((name) => {
-                    const staffFlags = predictions.filter((p) => p.staffName === name);
-                    const staffMember = venueStaff.find((s) => s.name === name);
-                    const hasHigh = staffFlags.some((p) => p.risk === "high");
-                    return (
-                      <div key={name} style={{
-                        border: "1.5px solid var(--line)",
-                        borderLeft: "4px solid var(--line)",
-                        borderRadius: 10,
-                        overflow: "hidden",
-                        background: "var(--surface)",
-                      }}>
-                        {/* Staff header */}
-                        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderBottom: "1px solid var(--line-light)" }}>
-                          <div style={{ width: 32, height: 32, borderRadius: "50%", background: "var(--green-light)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "0.875rem", color: "var(--green-deep)", flexShrink: 0 }}>
-                            {name[0].toUpperCase()}
-                          </div>
-                          <div>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "var(--text)" }}>{name}</div>
-                              {hasHigh ? (
-                                <span style={{ padding: "2px 8px", borderRadius: "var(--radius-sm)", fontSize: "0.68rem", fontWeight: 700, background: "var(--status-critical-light)", color: "var(--status-critical-text)", border: "1px solid var(--status-critical-border)", flexShrink: 0 }}>
-                                  High priority
-                                </span>
-                              ) : (
-                                <span style={{ padding: "2px 8px", borderRadius: "var(--radius-sm)", fontSize: "0.68rem", fontWeight: 700, background: "var(--bg-alt)", color: "var(--text-soft)", border: "1px solid var(--line)", flexShrink: 0 }}>
-                                  Watch
-                                </span>
-                              )}
-                            </div>
-                            <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{staffMember?.role ?? "Staff"} · {staffFlags.length} flag{staffFlags.length !== 1 ? "s" : ""}</div>
-                          </div>
-                        </div>
-                        {/* Individual flags */}
-                        <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                          {staffFlags.map((p, fi) => (
-                            <div key={p.id} style={{ padding: "10px 16px", borderBottom: fi < staffFlags.length - 1 ? "1px solid var(--line-light)" : "none" }}>
-                              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
-                                <span style={{ fontWeight: 700, fontSize: "0.8rem", color: "var(--text)" }}>{p.gap}</span>
-                              </div>
-                              <div style={{ fontSize: "0.8rem", color: "var(--text-soft)", marginBottom: 6 }}>{p.reason}</div>
-                              <button
-                                type="button"
-                                onClick={() => handleSectionChange("staff")}
-                                style={{ padding: "5px 12px", borderRadius: 6, background: "var(--color-mastery-technical)", color: "white", border: "none", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer" }}
-                              >
-                                {p.action}
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              );
-            })()}
-            {topGaps.length > 0 && (
-              <div style={{ marginTop: 28, padding: "16px", background: "var(--surface)", borderRadius: 10, border: "1px solid var(--line)" }}>
-                <strong style={{ fontSize: ".9rem", display: "block", marginBottom: 10 }}>Systemic gap analysis</strong>
+      {predictions.length === 0 ? (
+        <Panel>
+          <EmptyState copy="No training gaps found." subCopy="Every staff member is above the thresholds. This page updates as new staff join and scores change." />
+        </Panel>
+      ) : (
+        <>
+          {topGaps.length > 0 && (
+            <Panel title="Shared by several staff" description="A gap that shows up across the team usually needs a venue-wide session, not one-to-one coaching." flush>
+              <ul className="mc-rows">
                 {topGaps.map(([gap, info]) => (
-                  <div key={gap} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px solid var(--line)" }}>
-                    <span style={{ fontSize: ".9rem" }}>{gap}</span>
-                    <span style={{ fontWeight: 700, color: "var(--text)" }}>{info.count} staff affected</span>
-                  </div>
+                  <li key={gap} className="mc-row">
+                    <span className="mc-row-main mc-row-title">{gap}</span>
+                    <span className="mc-row-value">{info.count} staff</span>
+                  </li>
                 ))}
-                <p style={{ marginTop: 10, fontSize: ".82rem", color: "var(--text-soft)" }}>Patterns across multiple staff suggest a systemic gap. Consider creating venue-wide training content for these areas.</p>
-              </div>
-            )}
-          </>
-        )}
-      </article>
-    </section>
+              </ul>
+            </Panel>
+          )}
+
+          <Panel title="By person" aside={<span className="mc-panel-count">{flaggedNames.length} {flaggedNames.length === 1 ? "person" : "people"}</span>} flush>
+            <div className="mc-table-wrap">
+              <table className="mc-table">
+                <thead>
+                  <tr>
+                    <th>Staff member</th>
+                    <th>Gap</th>
+                    <th>Why it was flagged</th>
+                    <th>Priority</th>
+                    <th><span className="sr-only">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {flaggedNames.flatMap((name) => {
+                    const flags = predictions.filter((p) => p.staffName === name);
+                    const member = venueStaff.find((s) => s.name === name);
+                    return flags.map((flag, index) => (
+                      <tr key={flag.id}>
+                        {index === 0 && (
+                          <td rowSpan={flags.length} style={{ verticalAlign: "top" }}>
+                            <div className="mc-row-title">{name}</div>
+                            <div className="mc-row-meta">{member?.role ?? "Staff"}</div>
+                          </td>
+                        )}
+                        <td className="is-main" style={index === 0 ? undefined : { paddingLeft: 16 }}>{flag.gap}</td>
+                        <td className="is-soft" style={{ minWidth: 240 }}>{flag.reason}</td>
+                        <td>{flag.risk === "high" ? <StatusText tone="warn">High</StatusText> : <StatusText>Watch</StatusText>}</td>
+                        <td className="is-num">
+                          <button type="button" className="mc-link" onClick={() => handleSectionChange("staff")}>{flag.action}</button>
+                        </td>
+                      </tr>
+                    ));
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </Panel>
+        </>
+      )}
+    </div>
   );
 }

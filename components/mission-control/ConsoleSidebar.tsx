@@ -7,7 +7,6 @@ import {
   User,
   Users,
   Target,
-  ShieldCheck,
   FileText,
   BarChart3,
   FileLineChart,
@@ -15,11 +14,9 @@ import {
   Sparkles,
   Settings,
   ChevronDown,
-  LogOut,
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
-import SignOutButton from "@/components/ui/SignOutButton";
 import type { ManagerSection } from "@/lib/management/types";
 import type { NavGroup } from "./manager-types";
 
@@ -27,15 +24,20 @@ import type { NavGroup } from "./manager-types";
 // ManagerControlCenter.tsx so the shell could gain a collapsed state without
 // that file growing.
 //
-// Collapsed, it is a 64px rail of icons. Labels stay in the DOM (visually
-// hidden) so each button keeps its accessible name, and `title` gives a
-// tooltip. The choice is remembered per browser; Cmd/Ctrl+B toggles it. With
-// no saved choice the rail is used below 1100px, where the full sidebar
-// would crowd the workspace.
+// The collapse control is an icon button to the right of the logo. Collapsed,
+// the sidebar is a 64px rail of icons and that button (now "expand") takes
+// the logo's place. Labels stay in the DOM (visually hidden) so each button
+// keeps its accessible name, and `title` gives a tooltip. The choice is
+// remembered per browser; Cmd/Ctrl+B toggles it. With no saved choice the
+// rail is used below 1100px, where the full sidebar would crowd the workspace.
+//
+// Settings sits alone at the foot. The account name and Sign out are in the
+// top header's account menu (ManagementTopbar.tsx), not here.
 
 const NAV_GROUPS: NavGroup[] = [
   {
-    label: "Command",
+    // No heading: Overview stands alone at the top.
+    label: "",
     collapsible: false,
     items: [{ id: "overview", label: "Overview", icon: LayoutDashboard }],
   },
@@ -46,7 +48,6 @@ const NAV_GROUPS: NavGroup[] = [
       { id: "staff", label: "Staff", icon: User },
       { id: "teams", label: "Teams", icon: Users },
       { id: "predictive", label: "Training Gaps", icon: Target },
-      { id: "roles", label: "Roles & Permissions", icon: ShieldCheck },
       { id: "compliance", label: "Compliance", icon: FileText },
     ],
   },
@@ -58,7 +59,6 @@ const NAV_GROUPS: NavGroup[] = [
       { id: "reports", label: "Reports", icon: FileLineChart },
       { id: "leaderboards", label: "Leaderboards", icon: Trophy },
       { id: "aicoach", label: "Ask AI Coach", icon: Sparkles },
-      { id: "settings", label: "Settings", icon: Settings },
     ],
   },
 ];
@@ -71,12 +71,11 @@ export interface ConsoleSidebarProps {
   onNavigate: (section: ManagerSection) => void;
   /** False for duty managers: hides Settings. */
   isOwnerLevel: boolean;
-  accountName: string;
-  /** Trial prompt, shown above the profile row while the sidebar is expanded. */
+  /** Trial prompt, shown above Settings while the sidebar is expanded. */
   trialSlot?: ReactNode;
 }
 
-export function ConsoleSidebar({ activeSection, onNavigate, isOwnerLevel, accountName, trialSlot }: ConsoleSidebarProps) {
+export function ConsoleSidebar({ activeSection, onNavigate, isOwnerLevel, trialSlot }: ConsoleSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   // Width only animates after the saved choice has been applied, so a
   // manager who keeps the rail does not watch it fold on every page load.
@@ -130,6 +129,7 @@ export function ConsoleSidebar({ activeSection, onNavigate, isOwnerLevel, accoun
 
   const ToggleIcon = collapsed ? PanelLeftOpen : PanelLeftClose;
   const toggleLabel = collapsed ? "Expand menu" : "Collapse menu";
+  const showBottom = isOwnerLevel || (!collapsed && Boolean(trialSlot));
 
   return (
     <aside className={`mc-sidebar${collapsed ? " collapsed" : ""}${ready ? " ready" : ""}`}>
@@ -139,26 +139,25 @@ export function ConsoleSidebar({ activeSection, onNavigate, isOwnerLevel, accoun
           <span className="mc-sidebar-logo-brand">Serve By Example</span>
           <span className="mc-sidebar-logo-sub">Management Console</span>
         </div>
-      </div>
-
-      <div className="mc-sidebar-scroll">
         <button
           type="button"
-          className="mc-nav-item mc-sidebar-toggle"
+          className="mc-sidebar-collapse"
           onClick={toggle}
           aria-expanded={!collapsed}
+          aria-label={toggleLabel}
           title={`${toggleLabel} (Ctrl or Cmd + B)`}
         >
           <ToggleIcon size={18} strokeWidth={1.5} aria-hidden="true" />
-          <span className="mc-nav-item-label">{toggleLabel}</span>
         </button>
+      </div>
 
+      <div className="mc-sidebar-scroll">
         <nav aria-label="Console sections">
           {NAV_GROUPS.map((group, groupIndex) => {
             // Group folding only applies to the full sidebar; the rail always shows every icon.
             const isClosed = !collapsed && group.collapsible && closedGroups.has(group.label);
             return (
-              <div key={group.label} className="mc-nav-group">
+              <div key={group.label || "top"} className="mc-nav-group">
                 {collapsed ? (
                   groupIndex > 0 && <div className="mc-nav-rule" />
                 ) : group.collapsible ? (
@@ -171,26 +170,22 @@ export function ConsoleSidebar({ activeSection, onNavigate, isOwnerLevel, accoun
                     <span>{group.label}</span>
                     <ChevronDown size={14} strokeWidth={2} className={`mc-nav-chevron${isClosed ? " collapsed" : ""}`} aria-hidden="true" />
                   </button>
-                ) : (
-                  <div className="mc-nav-group-label">{group.label}</div>
-                )}
+                ) : null}
                 {!isClosed && (
                   <div className="mc-nav-items">
-                    {group.items
-                      .filter((item) => item.id !== "settings" || isOwnerLevel)
-                      .map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          className={`mc-nav-item${activeSection === item.id ? " active" : ""}`}
-                          onClick={() => onNavigate(item.id)}
-                          aria-current={activeSection === item.id ? "page" : undefined}
-                          title={collapsed ? item.label : undefined}
-                        >
-                          <item.icon size={18} strokeWidth={1.5} aria-hidden="true" />
-                          <span className="mc-nav-item-label">{item.label}</span>
-                        </button>
-                      ))}
+                    {group.items.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        className={`mc-nav-item${activeSection === item.id ? " active" : ""}`}
+                        onClick={() => onNavigate(item.id)}
+                        aria-current={activeSection === item.id ? "page" : undefined}
+                        title={collapsed ? item.label : undefined}
+                      >
+                        <item.icon size={18} strokeWidth={1.5} aria-hidden="true" />
+                        <span className="mc-nav-item-label">{item.label}</span>
+                      </button>
+                    ))}
                   </div>
                 )}
               </div>
@@ -199,20 +194,23 @@ export function ConsoleSidebar({ activeSection, onNavigate, isOwnerLevel, accoun
         </nav>
       </div>
 
-      <div className="mc-sidebar-bottom">
-        {!collapsed && trialSlot}
-        <div className="mc-profile-row" title={collapsed ? accountName || "Manager" : undefined}>
-          <div className="mc-profile-avatar">{(accountName || "M").trim().slice(0, 1).toUpperCase()}</div>
-          <div className="mc-profile-text">
-            <div className="mc-profile-name">{accountName || "Manager"}</div>
-            <div className="mc-profile-role">Venue Manager</div>
-          </div>
+      {showBottom && (
+        <div className="mc-sidebar-bottom">
+          {!collapsed && trialSlot}
+          {isOwnerLevel && (
+            <button
+              type="button"
+              className={`mc-nav-item${activeSection === "settings" ? " active" : ""}`}
+              onClick={() => onNavigate("settings")}
+              aria-current={activeSection === "settings" ? "page" : undefined}
+              title={collapsed ? "Settings" : undefined}
+            >
+              <Settings size={18} strokeWidth={1.5} aria-hidden="true" />
+              <span className="mc-nav-item-label">Settings</span>
+            </button>
+          )}
         </div>
-        <SignOutButton className="mc-nav-item mc-signout-btn" title={collapsed ? "Sign out" : undefined}>
-          <LogOut size={18} strokeWidth={1.5} aria-hidden="true" />
-          <span className="mc-nav-item-label">Sign out</span>
-        </SignOutButton>
-      </div>
+      )}
     </aside>
   );
 }

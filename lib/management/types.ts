@@ -1,7 +1,6 @@
 export type ManagerSection =
   | "overview"
   | "staff"
-  | "roles"
   | "teams"
   | "training"
   | "scenarios"

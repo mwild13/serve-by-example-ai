@@ -2,8 +2,9 @@
 
 import { useState, type FormEvent, type MutableRefObject } from "react";
 import type { ManagementSnapshot } from "@/lib/management/types";
+import { Check, Circle } from "lucide-react";
 import { TrialBillingSection } from "./TrialBillingSection";
-import { EmptyState } from "@/components/mission-control/manager-ui";
+import { PageHead } from "./console-ui";
 import { tierDisplayName } from "@/lib/session";
 
 // Extracted from ManagerControlCenter.tsx (Phase 5, Task — line-count
@@ -21,6 +22,10 @@ import { tierDisplayName } from "@/lib/session";
 // All state and callbacks are kept in the parent and passed down as props,
 // per the "keep existing state hooks/callbacks intact as props from the
 // parent" instruction — this component is purely presentational.
+//
+// Layout (October 2026): one narrow column. Each setting is a row with its
+// heading and a one-line note on the left and its controls on the right,
+// divided by hairlines. No cards.
 
 type SettingsTab = "setup" | "billing" | "account";
 
@@ -124,426 +129,319 @@ export function SettingsPanel({
     }
   }
 
+  // The same origin on server and client would differ, so the link is built
+  // from the code alone and the origin is added when it is copied or shown.
+  const joinCode = selectedVenue?.venueCode;
+  const joinPath = joinCode ? `/dashboard?join=${joinCode}` : null;
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://servebyexample.co";
+
+  function copyWithFeedback(text: string, key: string) {
+    navigator.clipboard.writeText(text);
+    setCopiedVenueId(key);
+    if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    copyTimeoutRef.current = setTimeout(() => setCopiedVenueId(null), 2000);
+  }
+
+  async function handleSaveName(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const name = accountDisplayName.trim();
+    if (!name) return;
+    setAccountSaving(true);
+    setAccountSaved(false);
+    try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (sessionToken) headers["Authorization"] = `Bearer ${sessionToken}`;
+      // /api/profile/update-name reads body.displayName (not `name`).
+      const res = await fetch("/api/profile/update-name", { method: "POST", headers, body: JSON.stringify({ displayName: name }) });
+      if (res.ok) {
+        // accountDisplayName feeds the top header's account menu, so this
+        // alone updates it; no refetch needed.
+        setAccountDisplayName(name);
+        setAccountSaved(true);
+      } else {
+        console.error("Account name save failed:", res.status, await res.text().catch(() => ""));
+      }
+    } catch (err) {
+      console.error("Account name save failed:", err);
+    } finally {
+      setAccountSaving(false);
+    }
+  }
+
+  const setupSteps = [
+    { label: "Add a venue", done: snapshot.venues.length > 0 },
+    { label: "Staff join code ready", done: Boolean(joinCode) },
+    { label: "Invite staff members", done: venueStaff.length > 0 },
+    { label: "First staff member trained", done: venueStaff.some((s) => s.progress > 0) },
+  ];
+  const stepsDone = setupSteps.filter((step) => step.done).length;
+
+  // Org-wide seat usage (tierSeatLimit()/countActiveSeats()), not the stale
+  // per-venue venues.staff_limit column. seatUsage may briefly be null while
+  // it loads; fall back to this venue's staff count so it never reads "0".
+  const seatsUsed = seatUsage?.used ?? venueStaff.length;
+  const seatsUnlimited = seatUsage?.unlimited ?? false;
+  const seatLimit = seatUsage?.max ?? null;
+  const seatPct = !seatsUnlimited && seatLimit && seatLimit > 0 ? Math.min(100, Math.round((seatsUsed / seatLimit) * 100)) : 0;
+  const seatsFull = !seatsUnlimited && seatLimit != null && seatsUsed >= seatLimit;
+  const seatsNearlyFull = !seatsUnlimited && seatPct >= 90;
+
+  const tabs: { key: SettingsTab; label: string }[] = [
+    { key: "setup", label: "Venue" },
+    { key: "billing", label: "Billing" },
+    { key: "account", label: "Account" },
+  ];
+
   return (
-    <section className="ops-grid ops-grid-main">
-      <div className="mcc-tab-bar" style={{ gridColumn: "1 / -1", marginBottom: 4 }}>
-        <button type="button" className={`mcc-tab${settingsTab === "setup" ? " mcc-tab-active" : ""}`} onClick={() => setSettingsTab("setup")}>Venue setup</button>
-        <button type="button" className={`mcc-tab${settingsTab === "billing" ? " mcc-tab-active" : ""}`} onClick={() => setSettingsTab("billing")}>Billing</button>
-        <button type="button" className={`mcc-tab${settingsTab === "account" ? " mcc-tab-active" : ""}`} onClick={() => setSettingsTab("account")}>Account</button>
+    <div className="mc-page mc-page-narrow">
+      <PageHead title="Settings" />
+
+      <div className="mc-tabs" role="tablist" aria-label="Settings">
+        {tabs.map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            role="tab"
+            aria-selected={settingsTab === tab.key}
+            className={`mc-tab${settingsTab === tab.key ? " active" : ""}`}
+            onClick={() => setSettingsTab(tab.key)}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
-      {settingsTab === "setup" && (<>
-      {/* ── Setup progress tracker ── */}
-      {(() => {
-        const steps = [
-          { label: "Add a venue", done: snapshot.venues.length > 0 },
-          { label: "Staff join code ready", done: !!selectedVenue?.venueCode },
-          { label: "Invite staff members", done: venueStaff.length > 0 },
-          { label: "First staff member trained", done: venueStaff.some((s) => s.progress > 0) },
-        ];
-        const completedCount = steps.filter((s) => s.done).length;
-        const allDone = completedCount === steps.length;
-        return (
-          <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
-            <div className="ops-card-head">
-              <h3>Setup checklist</h3>
-              <span style={{ color: allDone ? "var(--status-success-strong)" : "var(--text-muted)" }}>{completedCount}/{steps.length} complete</span>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
-              {steps.map((step) => (
-                <div key={step.label} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 8, background: step.done ? "var(--status-success-bg)" : "var(--bg-alt)", border: `1.5px solid ${step.done ? "var(--status-success-border)" : "var(--line)"}` }}>
-                  <div style={{ width: 22, height: 22, borderRadius: "50%", background: step.done ? "var(--status-success)" : "var(--line)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    {step.done
-                      ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      : <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><circle cx="12" cy="12" r="2" fill="white"/></svg>
-                    }
-                  </div>
-                  <span style={{ fontSize: "0.82rem", fontWeight: 600, color: step.done ? "var(--status-success-strong)" : "var(--text-soft)" }}>{step.label}</span>
-                </div>
-              ))}
-            </div>
-            {allDone && (
-              <div style={{ marginTop: 12, padding: "10px 14px", background: "var(--status-success-subtle)", borderRadius: 8, fontSize: "0.82rem", color: "var(--status-success-strong)", fontWeight: 600 }}>
-                Venue setup complete. Your team is ready to train.
+
+      {settingsTab === "setup" && (
+        <div>
+          {stepsDone < setupSteps.length && (
+            <section className="mc-setting">
+              <div>
+                <h2 className="mc-setting-title">Getting set up</h2>
+                <p className="mc-setting-desc">{stepsDone} of {setupSteps.length} steps done.</p>
               </div>
-            )}
-          </article>
-        );
-      })()}
-      <article className="ops-card">
-        <div className="ops-card-head">
-          <h3>Venue setup</h3>
-        </div>
-        <div className="ops-venue-manager">
+              <ul className="mc-check-list">
+                {setupSteps.map((step) => (
+                  <li key={step.label} className={step.done ? "is-done" : undefined}>
+                    {step.done ? <Check size={18} strokeWidth={2.25} aria-hidden="true" /> : <Circle size={18} strokeWidth={1.75} aria-hidden="true" />}
+                    {step.label}
+                    <span className="sr-only">{step.done ? " (done)" : " (to do)"}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
           {isMultiVenue ? (
-            <>
-              <label className="label">
-                Active venue
-                <select
-                  className="input"
-                  value={selectedVenueId}
-                  onChange={(event) => setSelectedVenueId(event.target.value)}
-                >
-                  {snapshot.venues.map((venue) => (
-                    <option key={venue.id} value={venue.id}>
-                      {venue.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <form className="ops-venue-form" onSubmit={handleAddVenue}>
-                <label className="label">
-                  Add new venue
-                  <input
-                    className="input"
-                    value={newVenueName}
-                    onChange={(event) => setNewVenueName(event.target.value)}
-                    placeholder="New Venue Name"
-                    required
-                  />
+            <section className="mc-setting">
+              <div>
+                <h2 className="mc-setting-title">Venues</h2>
+                <p className="mc-setting-desc">Add a venue, copy its staff sign-up link, or remove one you no longer run.</p>
+              </div>
+              <div className="mc-setting-body">
+                <label className="mc-field">
+                  Venue shown in the console
+                  <select className="mc-input" value={selectedVenueId} onChange={(event) => setSelectedVenueId(event.target.value)}>
+                    {snapshot.venues.map((venue) => (
+                      <option key={venue.id} value={venue.id}>{venue.name}</option>
+                    ))}
+                  </select>
                 </label>
-                <button type="submit" className="btn btn-primary" disabled={isSaving}>
-                  {isSaving ? "Saving..." : "Add venue"}
-                </button>
-              </form>
-              <div className="ops-venue-list">
-                {snapshot.venues.length === 0 ? (
-                  // .ops-venue-row-empty (the class this used to render with)
-                  // was never defined in globals.css — this text rendered
-                  // completely unstyled, easy to miss next to the styled
-                  // "Add venue" form above it. EmptyState is an improvement,
-                  // not just a consolidation, here.
-                  <EmptyState copy="No venues found. Create your first venue to get started." />
-                ) : (
-                  snapshot.venues.map((venue) => (
-                    <div key={venue.id} className="ops-venue-row">
-                      <strong>{venue.name}</strong>
-                      <div style={{ display: "flex", gap: 8 }}>
+                {snapshot.venues.length > 0 && (
+                  <ul className="mc-rows" style={{ borderTop: "1px solid var(--mc-line-soft)", borderBottom: "1px solid var(--mc-line-soft)" }}>
+                    {snapshot.venues.map((venue) => (
+                      <li key={venue.id} className="mc-row" style={{ paddingLeft: 0, paddingRight: 0 }}>
+                        <span className="mc-row-main mc-row-title">{venue.name}</span>
                         {venue.venueCode && (
                           <button
                             type="button"
-                            className="btn btn-secondary"
-                            onClick={() => {
-                              const url = `${window.location.origin}/dashboard?join=${venue.venueCode}`;
-                              navigator.clipboard.writeText(url);
-                              setCopiedVenueId(venue.id);
-                              if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
-                              copyTimeoutRef.current = setTimeout(() => setCopiedVenueId(null), 2000);
-                            }}
+                            className="mc-btn mc-btn-quiet mc-btn-sm"
+                            onClick={() => copyWithFeedback(`${window.location.origin}/dashboard?join=${venue.venueCode}`, venue.id)}
                           >
-                            {copiedVenueId === venue.id ? "Copied!" : "Share link"}
+                            {copiedVenueId === venue.id ? "Copied" : "Copy sign-up link"}
                           </button>
                         )}
                         <button
                           type="button"
-                          className="btn btn-secondary"
+                          className="mc-btn mc-btn-danger mc-btn-sm"
                           onClick={() => setVenueDeleteConfirm({ venueId: venue.id, venueName: venue.name })}
                           disabled={isSaving}
                         >
                           Delete
                         </button>
-                      </div>
-                    </div>
-                  ))
+                      </li>
+                    ))}
+                  </ul>
                 )}
+                <form className="mc-inline-form" onSubmit={handleAddVenue}>
+                  <label className="mc-field">
+                    Add a venue
+                    <input className="mc-input" value={newVenueName} onChange={(event) => setNewVenueName(event.target.value)} placeholder="Venue name" required />
+                  </label>
+                  <button type="submit" className="mc-btn mc-btn-primary" disabled={isSaving}>{isSaving ? "Saving…" : "Add venue"}</button>
+                </form>
               </div>
-            </>
+            </section>
           ) : (
-            <form onSubmit={handleRenameVenue}>
-              <label className="label">
-                Venue name
+            <section className="mc-setting">
+              <div>
+                <h2 className="mc-setting-title">Venue name</h2>
+                <p className="mc-setting-desc">Shown to your staff and at the top of this console.</p>
+              </div>
+              <form className="mc-inline-form" onSubmit={handleRenameVenue}>
+                <label className="mc-field">
+                  Venue name
+                  <input className="mc-input" value={renameVenueName} onChange={(event) => setRenameVenueName(event.target.value)} placeholder="Your venue name" required />
+                </label>
+                <button type="submit" className="mc-btn mc-btn-primary" disabled={renameSaving}>{renameSaving ? "Saving…" : "Save"}</button>
+              </form>
+            </section>
+          )}
+
+          <section className="mc-setting">
+            <div>
+              <h2 className="mc-setting-title">Staff sign-up</h2>
+              <p className="mc-setting-desc">
+                Two ways for staff to join {selectedVenue?.name ?? "your venue"}. Once someone joins, their training shows in your staff list.
+              </p>
+            </div>
+            {joinCode && joinPath ? (
+              <div className="mc-setting-body">
+                <div>
+                  <span className="mc-caps">Sign-up link</span>
+                  <div className="mc-inline-form" style={{ marginTop: 6 }}>
+                    <input className="mc-input" style={{ flex: "1 1 260px" }} readOnly value={`${origin}${joinPath}`} aria-label="Staff sign-up link" suppressHydrationWarning />
+                    <button type="button" className="mc-btn mc-btn-primary" onClick={() => copyWithFeedback(`${window.location.origin}${joinPath}`, `signup-${selectedVenue?.id}`)}>
+                      {copiedVenueId === `signup-${selectedVenue?.id}` ? "Copied" : "Copy link"}
+                    </button>
+                  </div>
+                  <p className="mc-setting-desc" style={{ marginTop: 8 }}>Send this to new staff. It signs them up and links them to this venue in one step.</p>
+                </div>
+                <div>
+                  <span className="mc-caps">Join code</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap", marginTop: 6 }}>
+                    <span className="mc-code">{joinCode}</span>
+                    <button type="button" className="mc-btn mc-btn-quiet mc-btn-sm" onClick={() => copyWithFeedback(String(joinCode), `code-${selectedVenue?.id}`)}>
+                      {copiedVenueId === `code-${selectedVenue?.id}` ? "Copied" : "Copy code"}
+                    </button>
+                  </div>
+                  <p className="mc-setting-desc" style={{ marginTop: 8 }}>For staff who already have an account: in their training app they open Settings, choose Join Venue and enter this code.</p>
+                </div>
+              </div>
+            ) : (
+              <p className="mc-setting-desc">No join code was found for this venue. Refresh the page to try again.</p>
+            )}
+          </section>
+
+          <section className="mc-setting">
+            <div>
+              <h2 className="mc-setting-title">Plan limits</h2>
+              <p className="mc-setting-desc">What your current plan includes.</p>
+            </div>
+            <div className="mc-setting-body">
+              <dl className="mc-dl">
+                <div>
+                  <dt>Staff seats</dt>
+                  <dd>{seatsUnlimited ? `${seatsUsed} used, unlimited` : `${seatsUsed} of ${seatLimit ?? "…"} used`}</dd>
+                </div>
+                <div>
+                  {/* No tier has an enforced venue cap: multi-venue tiers are
+                      unlimited and single-venue tiers are exactly one. */}
+                  <dt>Venues</dt>
+                  <dd>{isMultiVenue ? "Unlimited" : "1"}</dd>
+                </div>
+              </dl>
+              {!seatsUnlimited && seatLimit != null && (
+                <span className="mc-progress-track" aria-hidden="true">
+                  <span className="mc-progress-fill" style={{ width: `${seatPct}%` }} />
+                </span>
+              )}
+              {seatsNearlyFull && (
+                <p className="mc-setting-desc" style={{ color: "var(--mc-text)" }}>
+                  {seatsFull ? "Every staff seat is in use." : `${seatPct}% of your staff seats are in use.`}{" "}
+                  <a href="/pricing" className="mc-link">Upgrade your plan</a> to add more.
+                </p>
+              )}
+            </div>
+          </section>
+        </div>
+      )}
+
+      {settingsTab === "account" && (
+        <div>
+          <section className="mc-setting">
+            <div>
+              <h2 className="mc-setting-title">Your name</h2>
+              <p className="mc-setting-desc">Shown in the account menu at the top right.</p>
+            </div>
+            <form className="mc-inline-form" onSubmit={handleSaveName}>
+              <label className="mc-field">
+                Display name
                 <input
-                  className="input"
-                  value={renameVenueName}
-                  onChange={(event) => setRenameVenueName(event.target.value)}
-                  placeholder="Your venue name"
+                  className="mc-input"
+                  value={accountDisplayName}
+                  onChange={(event) => { setAccountDisplayName(event.target.value); setAccountSaved(false); }}
+                  placeholder="Your name"
                   required
                 />
               </label>
-              <button type="submit" className="btn btn-primary" disabled={renameSaving} style={{ marginTop: 8 }}>
-                {renameSaving ? "Saving..." : "Save changes"}
-              </button>
+              <button className="mc-btn mc-btn-primary" type="submit" disabled={accountSaving}>{accountSaving ? "Saving…" : "Save"}</button>
+              {accountSaved && <span className="mc-saved" role="status" style={{ alignSelf: "center" }}>Saved</span>}
             </form>
-          )}
-        </div>
-      </article>
-
-      <article className="ops-card">
-        <div className="ops-card-head">
-          <h3>Manager limits</h3>
-        </div>
-        {(() => {
-          // Real org-wide seat usage (tierSeatLimit()/countActiveSeats(),
-          // the same helper the "Staff invites & seat management" card
-          // uses) — not the stale, per-venue `venues.staff_limit` column,
-          // which never updated after a tier change (an Enterprise upgrade
-          // kept showing whatever cap was true the day a venue was first
-          // created). seatUsage is fetched once on mount and may briefly be
-          // null; fall back to the current venue's staff count so the card
-          // never flashes "0 / …" while it loads.
-          const staffUsed = seatUsage?.used ?? venueStaff.length;
-          const isUnlimited = seatUsage?.unlimited ?? false;
-          const staffLimit = seatUsage?.max ?? null;
-          const pct = !isUnlimited && staffLimit && staffLimit > 0 ? Math.min(100, Math.round((staffUsed / staffLimit) * 100)) : 0;
-          const isWarning = !isUnlimited && pct >= 90;
-          const isFull = !isUnlimited && staffLimit != null && staffUsed >= staffLimit;
-          return (
-            <>
-              <dl className="ops-settings-list">
-                <div>
-                  <dt>Staff limit</dt>
-                  <dd>
-                    <span style={{ fontWeight: 700 }}>
-                      {staffUsed} / {isUnlimited ? "Unlimited" : staffLimit ?? "…"}
-                    </span>
-                    {!isUnlimited && <span style={{ color: "var(--text-muted)", fontWeight: 400, marginLeft: 4 }}>seats used</span>}
-                    {!isUnlimited && staffLimit != null && (
-                      <div style={{ marginTop: 6, height: 6, background: "var(--bg-alt)", borderRadius: 999, overflow: "hidden", maxWidth: 180, border: "none", padding: 0 }}>
-                        <div style={{ height: "100%", width: `${pct}%`, background: isFull ? "var(--status-critical)" : isWarning ? "var(--status-warning)" : "var(--color-mastery-technical)", borderRadius: 999, transition: "width 0.3s ease", border: "none", padding: 0 }} />
-                      </div>
-                    )}
-                  </dd>
-                </div>
-                <div>
-                  <dt>Venue Limit</dt>
-                  {/* No tier in this codebase has a documented/enforced venue
-                      cap — the old "5 Venues Maximum" was fabricated with no
-                      backing config anywhere. Multi-venue tiers (commercial,
-                      enterprise, venue_multi) are honestly unlimited; single-
-                      venue tiers are exactly 1 by product design. */}
-                  <dd>{isMultiVenue ? "Unlimited venues" : "1 Venue"}</dd>
-                </div>
-              </dl>
-              {isWarning && (
-                <div style={{ marginTop: 12, padding: "10px 14px", borderRadius: 8, background: isFull ? "var(--status-critical-light)" : "var(--status-yellow-bg)", border: `1px solid ${isFull ? "var(--status-critical-border)" : "var(--color-amber-badge)"}`, fontSize: "0.82rem", color: isFull ? "var(--status-critical-badge)" : "var(--status-amber-text)" }}>
-                  {isFull ? "Staff limit reached." : `Approaching your staff limit (${pct}% used).`}{" "}
-                  <a href="/pricing" style={{ color: "inherit", fontWeight: 700, textDecoration: "underline" }}>Upgrade your plan</a> to add more seats.
-                </div>
-              )}
-            </>
-          );
-        })()}
-      </article>
-
-      {selectedVenue?.venueCode && (
-        <article className="ops-card">
-          <div className="ops-card-head">
-            <h3>Staff join code</h3>
-          </div>
-          <p className="ops-settings-hint" style={{ marginTop: 0, marginBottom: "1rem" }}>
-            Share this code with your staff. They enter it in their training dashboard under <strong>Settings → Join Venue</strong> to link their account and sync their training data here.
-          </p>
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
-            <div style={{
-              fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
-              fontSize: "2.5rem",
-              fontWeight: 800,
-              letterSpacing: "0.15em",
-              color: "var(--ip-green)",
-              background: "var(--status-success-bg)",
-              border: "2px solid var(--status-success-border)",
-              borderRadius: "12px",
-              padding: "0.5rem 1.5rem",
-              userSelect: "all",
-            }}>
-              {selectedVenue.venueCode}
+          </section>
+          <section className="mc-setting">
+            <div>
+              <h2 className="mc-setting-title">Password</h2>
+              <p className="mc-setting-desc">You will be taken to the password reset page.</p>
             </div>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={() => navigator.clipboard.writeText(String(selectedVenue.venueCode))}
-            >
-              Copy code
-            </button>
-          </div>
-          <p style={{ marginTop: "0.75rem", fontSize: "0.8rem", color: "var(--ops-text-soft, var(--color-text-faint))" }}>
-            Once a staff member joins, their training progress will appear in real time in your staff directory.
-          </p>
-          <div style={{ marginTop: 16, padding: "12px 14px", borderRadius: 8, background: "var(--bg-alt)", border: "1px solid var(--line)" }}>
-            <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>What your staff will see</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.8rem", color: "var(--text-soft)" }}>
-              <span style={{ padding: "3px 10px", borderRadius: 6, background: "var(--status-success-bg)", border: "1px solid var(--status-success-border)", fontWeight: 600, color: "var(--status-success-strong)" }}>Settings</span>
-              <span style={{ color: "var(--text-muted)" }}>→</span>
-              <span style={{ padding: "3px 10px", borderRadius: 6, background: "var(--status-success-bg)", border: "1px solid var(--status-success-border)", fontWeight: 600, color: "var(--status-success-strong)" }}>Join Venue</span>
-              <span style={{ color: "var(--text-muted)" }}>→ Enter code</span>
-              <span style={{ fontFamily: "ui-monospace, monospace", fontWeight: 800, color: "var(--ip-green)", background: "var(--bg-green-pale)", padding: "2px 8px", borderRadius: 4 }}>{selectedVenue?.venueCode}</span>
+            <div>
+              <a href="/reset-password" className="mc-btn mc-btn-quiet">Change password</a>
             </div>
-          </div>
-        </article>
+          </section>
+        </div>
       )}
 
-      <article className="ops-card">
-        <div className="ops-card-head">
-          <h3>Staff sign-up link</h3>
-        </div>
-        <p className="ops-settings-hint">
-          Share this link with staff to let them sign up and join your venue directly. No email setup required.
-        </p>
-        {selectedVenue?.venueCode ? (
-          <div style={{ marginTop: 16 }}>
-            <input
-              className="input"
-              readOnly
-              value={`${typeof window !== "undefined" ? window.location.origin : "https://servebyexample.co"}/dashboard?join=${selectedVenue.venueCode}`}
-              style={{ fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace", fontSize: "0.8rem", marginBottom: 8 }}
-            />
-            <button
-              type="button"
-              className="btn btn-primary"
-              style={{ width: "100%" }}
-              onClick={() => {
-                const url = `${window.location.origin}/dashboard?join=${selectedVenue.venueCode}`;
-                navigator.clipboard.writeText(url);
-                setCopiedVenueId(`signup-${selectedVenue.id}`);
-                if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
-                copyTimeoutRef.current = setTimeout(() => setCopiedVenueId(null), 2000);
-              }}
-            >
-              {copiedVenueId === `signup-${selectedVenue.id}` ? "Copied!" : "Copy sign-up link"}
-            </button>
-          </div>
-        ) : (
-          <p style={{ color: "var(--ops-text-soft, var(--color-text-faint))", fontSize: 13, marginTop: 12 }}>
-            No join code found for this venue. Try refreshing the page.
-          </p>
-        )}
-      </article>
-      </>)}
-      {settingsTab === "account" && (
-        <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
-          <div className="ops-card-head">
-            <h3>Account settings</h3>
-          </div>
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const name = accountDisplayName.trim();
-              if (!name) return;
-              setAccountSaving(true);
-              setAccountSaved(false);
-              try {
-                const headers: Record<string, string> = { "Content-Type": "application/json" };
-                if (sessionToken) headers["Authorization"] = `Bearer ${sessionToken}`;
-                const res = await fetch("/api/profile/update-name", {
-                  method: "POST",
-                  headers,
-                  // Bug fix (2026-10-01): this sent { name }, but
-                  // /api/profile/update-name reads body.displayName — every
-                  // save silently 400'd ("Name cannot be empty") and never
-                  // reached the database, which is why nothing persisted and
-                  // a refresh showed the old name (there was never a
-                  // successful write to revert from). Not a Phase 2
-                  // regression — that route already used the admin client
-                  // and was never touched.
-                  body: JSON.stringify({ displayName: name }),
-                });
-                if (res.ok) {
-                  // accountDisplayName already feeds ManagementTopbar and
-                  // the mc-profile-name badge reactively (both read this
-                  // state, not a static prop), so this alone updates them
-                  // immediately — no remount/refetch needed. It was never
-                  // called here before, so even a successful save wouldn't
-                  // have shown up until a full reload re-seeded this state
-                  // from the server.
-                  setAccountDisplayName(name);
-                  setAccountSaved(true);
-                } else {
-                  console.error("Account name save failed:", res.status, await res.text().catch(() => ""));
-                }
-              } catch (err) {
-                console.error("Account name save failed:", err);
-              } finally {
-                setAccountSaving(false);
-              }
-            }}
-            style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 400 }}
-          >
-            <label className="label">
-              Display name
-              <input
-                className="input"
-                value={accountDisplayName}
-                onChange={(e) => { setAccountDisplayName(e.target.value); setAccountSaved(false); }}
-                placeholder="Your name"
-                required
-              />
-            </label>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <button className="btn btn-primary" type="submit" disabled={accountSaving}>
-                {accountSaving ? "Saving..." : "Save name"}
-              </button>
-              {accountSaved && (
-                <span style={{ fontSize: "0.82rem", color: "var(--green)", fontWeight: 600 }}>Saved</span>
-              )}
-            </div>
-          </form>
-          <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid var(--line-light)" }}>
-            <p style={{ fontSize: "0.85rem", color: "var(--text-soft)", marginBottom: 10 }}>
-              Need to update your password?
-            </p>
-            <a
-              href="/reset-password"
-              style={{ fontSize: "0.875rem", color: "var(--green)", fontWeight: 600, textDecoration: "none" }}
-            >
-              Change password →
-            </a>
-          </div>
-        </article>
-      )}
       {settingsTab === "billing" && (
-        <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
-          {trialTier && trialEndsAt && typeof daysRemaining === "number" ? (
-            <TrialBillingSection
-              trialTier={trialTier}
-              trialEndsAt={trialEndsAt}
-              daysRemaining={daysRemaining}
-              staffCount={venueStaff.length}
-              scenariosRun={snapshot.staff.reduce((sum, m) => sum + (m.scenariosAttempted ?? 0), 0)}
-            />
-          ) : (
-            <>
-              <div className="ops-card-head">
-                <h3>Billing overview</h3>
+        trialTier && trialEndsAt && typeof daysRemaining === "number" ? (
+          <section className="mc-panel">
+            <div className="mc-panel-body" style={{ paddingTop: 20 }}>
+              <TrialBillingSection
+                trialTier={trialTier}
+                trialEndsAt={trialEndsAt}
+                daysRemaining={daysRemaining}
+                staffCount={venueStaff.length}
+                scenariosRun={snapshot.staff.reduce((sum, m) => sum + (m.scenariosAttempted ?? 0), 0)}
+              />
+            </div>
+          </section>
+        ) : (
+          <div>
+            <section className="mc-setting">
+              <div>
+                <h2 className="mc-setting-title">Your plan</h2>
+                <p className="mc-setting-desc">Invoices, payment method and plan changes are handled in Stripe.</p>
               </div>
-              <dl className="ops-settings-list">
-                <div>
-                  <dt>Current plan</dt>
-                  <dd>{tierDisplayName(plan)} Plan</dd>
-                </div>
-                <div>
-                  <dt>Seats used</dt>
-                  <dd>{venueStaff.length} active staff seats</dd>
-                </div>
-                <div>
-                  <dt>Next invoice</dt>
-                  <dd>Managed via Stripe</dd>
-                </div>
-              </dl>
-              <div style={{ marginTop: "20px" }}>
-                <button
-                  className="btn"
-                  style={{ fontSize: "0.875rem", opacity: portalLoading ? 0.7 : 1, cursor: portalLoading ? "wait" : "pointer" }}
-                  disabled={portalLoading}
-                  onClick={handleManageBilling}
-                >
-                  {portalLoading ? "Opening Stripe…" : "Manage billing in Stripe"}
-                </button>
-                {portalError && (
-                  <div
-                    role="alert"
-                    style={{
-                      marginTop: 10, padding: "10px 14px", borderRadius: 8,
-                      background: "var(--status-critical-bg)", border: "1.5px solid var(--status-critical-border)",
-                      color: "var(--status-critical-text)", fontSize: "0.82rem", maxWidth: 480,
-                    }}
-                  >
-                    {portalError}
+              <div className="mc-setting-body">
+                <dl className="mc-dl">
+                  <div>
+                    <dt>Current plan</dt>
+                    <dd>{tierDisplayName(plan)}</dd>
                   </div>
-                )}
+                  <div>
+                    <dt>Staff seats in use</dt>
+                    <dd>{seatsUsed}</dd>
+                  </div>
+                </dl>
+                <div>
+                  <button type="button" className="mc-btn mc-btn-primary" disabled={portalLoading} onClick={handleManageBilling}>
+                    {portalLoading ? "Opening Stripe…" : "Manage billing in Stripe"}
+                  </button>
+                </div>
+                {portalError && <p className="mc-error" role="alert">{portalError}</p>}
               </div>
-            </>
-          )}
-        </article>
+            </section>
+          </div>
+        )
       )}
-    </section>
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 # Handoff: October 2026, Week 2 — By Example Advisory page, homepage UI overhaul and pricing page redesign
 
-> **Five pieces of work this week.** Part 5, at the end of this file, is the Manager Console shell and home page redesign, on branch `preview/console-home-redesign` and **not yet pushed or merged**. The first four: Part 1 (below) is the Advisory page, merged to `main`. Part 2 is the homepage UI overhaul, also merged to `main`. Part 3 is the pricing page redesign, also merged to `main`. Part 4, at the end of this file, is the new typography and the redesign of every remaining marketing page, **merged to `main` 2026-10-08**. The AI model switch to `gpt-6-luna` is recorded in Part 1 and is merged too.
+> **Six pieces of work this week.** Parts 5 and 6, at the end of this file, are the Manager Console redesign: Part 5 is the shell and home page, Part 6 is every other tab. Both are on branch `preview/console-home-redesign`, **pushed for preview, not merged**. The first four: Part 1 (below) is the Advisory page, merged to `main`. Part 2 is the homepage UI overhaul, also merged to `main`. Part 3 is the pricing page redesign, also merged to `main`. Part 4, at the end of this file, is the new typography and the redesign of every remaining marketing page, **merged to `main` 2026-10-08**. The AI model switch to `gpt-6-luna` is recorded in Part 1 and is merged too.
 
 - **Dates:** 2026-10-07 to 2026-10-08
 - **Branch:** `preview/advisory-page`, **merged to `main` 2026-10-08** (merge `b0e1de1`). Preview: https://preview-advisory-page.serve-by-example-ai.pages.dev/advisory
@@ -472,7 +472,7 @@ Type sizes were not changed.
 # Part 5: Manager Console shell and home page redesign
 
 - **Date:** 2026-10-09
-- **Branch:** `preview/console-home-redesign`, cut from `main`. **Not pushed, not merged.**
+- **Branch:** `preview/console-home-redesign`, cut from `main`. **Pushed for preview, not merged.** Part 6 is on the same branch.
 - **Covers:** the console sidebar and top header (every tab), the Overview tab, the console's move to Newsreader and Inter, and a new "Training Gaps" nav item.
 - **Related:** `docs/MANAGER_CONSOLE.md` section 6 (rules for this area), `docs/Pages-Redesign.md` (the principles applied), `To_do_list.md` (open items under "Manager Console").
 
@@ -538,9 +538,9 @@ Type sizes were not changed.
 
 ## Open items
 
-- **Push and preview.** Confirm the branch name, push, and check the console on the preview deploy with a real account.
+- **Preview.** Pushed. Check the console on the preview deploy with a real account.
 - **Trial prompt.** The upgrade card is hidden while the sidebar is collapsed.
-- **Other tabs** keep their older cards and status pills. See `To_do_list.md`.
+- **Other tabs:** done in Part 6.
 - **Needs Attention rule** over-flags. See `To_do_list.md`.
 - **Dark mode.** The shell now uses the brand tokens, so it follows `.sbe-dark` like the other console tabs. Not checked.
 
@@ -553,3 +553,96 @@ Type sizes were not changed.
 - **Use `wasActiveWithinDays()`** for any "active in the last N days" count.
 - **Do not caption a figure with something the data cannot show,** such as a roster or a daily trend.
 
+---
+
+# Part 6: Manager Console, every other tab
+
+- **Date:** 2026-10-09
+- **Branch:** `preview/console-home-redesign`, the same branch as Part 5. **Pushed for preview, not merged.**
+- **Scope:** every console tab other than Overview, plus changes to the shell that Mitchell asked for after seeing Part 5.
+
+## The short version
+
+- **Every tab now uses one set of parts:** a page heading, a strip of figures, panels, hairline tables, underline tabs and status as text beside a dot. They are in `components/mission-control/console-ui.tsx`.
+- **Figures are in Inter,** not the heading serif, on the home page tiles and everywhere else.
+- **Sidebar:** no "Command" heading, the collapse control is an icon beside the logo, Settings sits alone at the foot, and the profile row and Sign out are gone.
+- **Sign out moved** to a menu on the account circle in the top header.
+- **Roles & Permissions was removed.** Its role table is now on Teams. Its access table was dropped.
+- **Ask AI Coach fills the window** and has a New chat button that deletes the saved conversation.
+- **`ManagerControlCenter.tsx` fell from 1,995 to 1,717 lines.**
+
+## What changed
+
+### Shell
+
+| Area | Before | After |
+|---|---|---|
+| Sidebar top | "Collapse menu" row, then a "Command" heading | Icon button beside the logo; Overview with no heading |
+| Sidebar foot | Profile row and Sign out | Settings (owners only) |
+| Collapsed rail | Logo, then an expand row | Expand button in the logo's place |
+| Account circle | Not clickable | Menu: name, Account settings, Sign out |
+| Settings in the menu | Last item under Performance | Alone at the foot |
+
+### Tabs
+
+| Tab | What it is now |
+|---|---|
+| Staff | Page heading with role filter, Export and Add staff. Training bar and readiness as text. Column headings corrected (they were swapped). |
+| Teams | One table by team, one by role (from the removed Roles tab), one follow-up list. |
+| Training Gaps | Figure strip, gaps shared by several staff, one table by person. |
+| Compliance | Figure strip with an "RSA expired" count, certificate table, on-site copy list, other certificates, rules by state as a table. |
+| Analytics | Figure strip, table by role (every role present, not the largest three), revenue estimate. |
+| Reports | Figure strip, sortable table, two lists, skill bars, email schedule. |
+| Leaderboards | One ranked table with points and their make-up. The gold, silver and bronze podium is gone. |
+| Ask AI Coach | Conversation fills the window; suggested questions and people on the right. |
+| Settings | One narrow column of rows: heading and note left, controls right. Sign-up link and join code are one section. |
+| All venues | Was "Group Analytics". Figure strip and two tables. |
+
+### Behaviour changes to know about
+
+- **Certificate expiry was a day late.** `daysUntilExpiry()` rounded up, so a certificate that expired yesterday read as 0 days left and was not treated as expired until the following midnight. It now rounds down. Day counts for future dates read one lower than before (a certificate expiring tomorrow is "1", not "2"). The all-venues summary uses the same helper, so it is corrected too.
+- **New chat deletes for good.** `DELETE /api/management/coach/history` removes that manager's saved messages for the venue. There is one confirmation and no undo.
+- **AI Coach thumbs up and down were removed.** They changed colour and recorded nothing.
+- **`?tab=roles`** now opens Teams.
+- **Readiness wording on Staff:** "Caution" reads "Needs follow-up". "Blocked" still means an expired RSA.
+- **Analytics lost one sentence** under the revenue estimate that described it as based on coaching outcomes. There was no source for it.
+- **Billing shows org-wide seats in use,** not the selected venue's staff count.
+- **Top header on narrow windows:** the Ask AI Coach button shows its icon only below 1000px.
+
+### Removed
+
+- `RolesPermissionsMatrix.tsx`, `WorkspaceHeader.tsx`, `OpsKpiCard` and its trend badge.
+- 49 CSS rules for classes no component uses any more (`ops-ai-coach-*`, `ops-revenue-*`, `ops-compare-*`, `mcc-tab*`, `ops-module-*`, `ops-settings-list`, `ops-venue-*`).
+
+## Checks run
+
+| Check | Result |
+|---|---|
+| Typecheck | Passed |
+| Lint on console files | Passed |
+| CSS token lint | 0 raw hex values |
+| Unit tests (vitest) | 46 of 46 passed, including a new test for expiry on the day before and the day of |
+| Every tab at 1440px | No sideways scroll; no text under 13px |
+| Every tab at 800px, sidebar open and collapsed | No sideways scroll |
+| AI Coach at 1440 by 900 | Fits the window with the question box visible, no page scroll |
+| Account menu | Opens, lists name, Account settings and Sign out, closes on Escape |
+| Staff profile drawer and certificate form | Open and render in the new style |
+| AI Coach answers, New chat delete, Sign out, saving a setting | Not checked. They need a login; locally the API returned "Unauthorized", which the page showed correctly |
+| `npm run build` and `build:cloudflare` | Not run |
+| e2e suites | Not run. Neither suite covers the console |
+| Dark mode | Not checked |
+
+## Open items
+
+- **Check on the preview with a real account,** especially the four items marked not checked above.
+- **Three screens are not on the new parts:** trial billing, Notifications and Training programs. See `To_do_list.md`.
+- **AI Coach has no memory of the conversation.** See `To_do_list.md`.
+
+## Rules for new code (added in Part 6)
+
+- **Build a console tab from `console-ui.tsx`:** `.mc-page`, one `PageHead`, then `StatRow` and `Panel`. No `ops-grid` or `ops-card`.
+- **Figures use `.mc-figure`** (Inter, tabular numerals). Never the heading serif.
+- **Status is `StatusText`.** Red is for an expired certificate or a blocked person only.
+- **One primary button per tab.**
+- **Do not add a control that records nothing.**
+- **Account actions go in the top header's account menu,** not the sidebar.

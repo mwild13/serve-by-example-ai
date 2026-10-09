@@ -2,8 +2,12 @@ import { describe, expect, it } from "vitest";
 import type { StaffMember } from "@/lib/management/types";
 import { buildOverviewNotices, formatNameList } from "@/lib/management/notices";
 
+// A calendar date in local time, as a manager would enter it. (Slicing a UTC
+// ISO string gives yesterday's date for part of each day in Australia.)
 function isoDaysFromNow(days: number): string {
-  return new Date(Date.now() + days * 86400000).toISOString().slice(0, 10);
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
 function member(name: string, over: Partial<StaffMember> = {}, rsaInDays: number | null = 200): StaffMember {
@@ -33,6 +37,13 @@ function member(name: string, over: Partial<StaffMember> = {}, rsaInDays: number
 }
 
 const byId = (staff: StaffMember[]) => Object.fromEntries(buildOverviewNotices(staff).map((n) => [n.id, n.text]));
+
+describe("certificate expiry", () => {
+  it("treats a certificate that expired yesterday as expired, and one expiring today as current", () => {
+    expect(byId([member("Mia Murphy", {}, -1)])["rsa-expired"]).toBeDefined();
+    expect(byId([member("Mia Murphy", {}, 0)])["rsa-expired"]).toBeUndefined();
+  });
+});
 
 describe("formatNameList", () => {
   it("joins up to three names and counts the rest", () => {

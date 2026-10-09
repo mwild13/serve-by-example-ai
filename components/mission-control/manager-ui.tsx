@@ -4,6 +4,7 @@
 // Extracted to keep ManagerControlCenter.tsx focused on logic and layout.
 
 import Image from "next/image";
+import { Check, Circle } from "lucide-react";
 import type { StaffMember } from "@/lib/management/types";
 
 // Shell-shaped loading skeleton, shown two ways:
@@ -110,35 +111,6 @@ export function EmptyState({
     </div>
   );
 }
-
-function TrendBadge({ dir, delta }: { dir: "up" | "down" | "steady"; delta: number }) {
-  const fmt = parseFloat(delta.toFixed(2));
-  if (dir === "steady" || delta === 0) return <span className="ops-trend-badge ops-trend-steady">~ steady</span>;
-  if (dir === "up") return <span className="ops-trend-badge ops-trend-up">↑ {fmt}% this week</span>;
-  return <span className="ops-trend-badge ops-trend-down">↓ {fmt}% this week</span>;
-}
-
-export function OpsKpiCard({
-  label,
-  value,
-  note,
-  trend,
-}: {
-  label: string;
-  value: string;
-  note?: string;
-  trend?: { dir: "up" | "down" | "steady"; delta: number };
-}) {
-  return (
-    <div className="ops-kpi-card">
-      <span>{label}</span>
-      <strong>{value}</strong>
-      {trend && trend.delta > 0 ? <TrendBadge dir={trend.dir} delta={trend.delta} /> : null}
-      {note ? <small>{note}</small> : null}
-    </div>
-  );
-}
-
 
 // ── Module metadata for pip tooltips ────────────────────────
 // Matches supabase/migrations/20260421_1_create_modules.sql
@@ -309,16 +281,11 @@ export function StaffBadges({ staff }: { staff: StaffMember }) {
             key={badge.label}
             className={`ops-badge${badge.earned ? " ops-badge-earned" : " ops-badge-locked"}`}
             title={badge.earned ? badge.label : `${badge.label} (not yet earned)`}
-            style={badge.earned ? { borderColor: badge.accent } : undefined}
           >
-            <span style={badge.earned ? { color: badge.accent } : undefined}>
-              {badge.earned ? "◆" : "◇"}
-            </span>
+            {badge.earned ? <Check size={16} strokeWidth={2.25} aria-hidden="true" /> : <Circle size={16} strokeWidth={1.75} aria-hidden="true" />}
             <div>
-              <div style={{ fontWeight: 700 }}>{badge.label}</div>
-              <div style={{ fontSize: "0.68rem", color: "var(--text-muted)", marginTop: 1 }}>
-                {badge.sublabel}
-              </div>
+              <div className="ops-badge-label">{badge.label}</div>
+              <div className="ops-badge-sub">{badge.sublabel}</div>
             </div>
           </div>
         ))}

@@ -22,7 +22,11 @@ export function daysUntilExpiry(isoDateString: string | null): number {
   if (!expiryDate) return 0;
   const now = new Date();
   const millisecondsDiff = expiryDate.getTime() - now.getTime();
-  return Math.ceil(millisecondsDiff / 86400000);
+  // Floor, not ceil: a certificate is valid to the end of its expiry date, so
+  // "expires today" is 0 and "expired yesterday" is -1. Rounding up reported
+  // yesterday's expiry as 0 days left, so it did not count as expired until a
+  // full day late.
+  return Math.floor(millisecondsDiff / 86400000);
 }
 
 /**

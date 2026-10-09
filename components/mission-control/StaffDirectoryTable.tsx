@@ -3,7 +3,8 @@
 import { FormEvent, Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components/mission-control/manager-ui";
 import { MissionControlTableRowSkeleton } from "@/components/ui/Skeletons";
-import { WorkspaceHeader } from "@/app/management/dashboard/_components/WorkspaceHeader";
+import { ChevronDown, Pencil, Trash2 } from "lucide-react";
+import { ExportButton, PageHead, StatusText } from "@/components/mission-control/console-ui";
 import { rsaStatus, readinessPill } from "@/components/mission-control/compliance/helpers";
 import type { ManagementSnapshot, StaffRole } from "@/lib/management/types";
 
@@ -377,37 +378,30 @@ export default function StaffDirectoryTable({
   const filteredStaff = venueStaff.filter((m) => staffRoleFilter === "all" || m.role === staffRoleFilter);
 
   return (
-    <>
+    <div className="mc-page">
       {/* ── Staff Directory ── */}
+      <PageHead
+        title="Staff"
+        description={`${filteredStaff.length} ${filteredStaff.length === 1 ? "person" : "people"} at ${selectedVenue?.name ?? "this venue"}. Select a row to open that person's coaching profile.`}
+        actions={
+          <>
+            <select
+              className="mc-input"
+              style={{ width: "auto", minHeight: 42 }}
+              value={staffRoleFilter}
+              onChange={(e) => setStaffRoleFilter(e.target.value)}
+              aria-label="Filter by role"
+            >
+              <option value="all">All roles</option>
+              {STAFF_ROLE_OPTIONS.map((r) => <option key={r} value={r}>{r}</option>)}
+            </select>
+            <ExportButton label="Export" onClick={handleExportStaff} />
+            <button type="button" className="mc-btn mc-btn-primary" onClick={onAddStaff}>Add staff</button>
+          </>
+        }
+      />
       <section className="ops-grid ops-grid-main">
         <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
-          <WorkspaceHeader
-            title="Staff directory"
-            description="Click any row to open the coaching profile"
-            actions={
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <button
-                  type="button"
-                  className="sbe-button-outline sbe-button-outline--sm"
-                  onClick={handleExportStaff}
-                >
-                  Export →
-                </button>
-                <select
-                  value={staffRoleFilter}
-                  onChange={(e) => setStaffRoleFilter(e.target.value)}
-                  style={{ padding: "5px 10px", borderRadius: 8, border: "1.5px solid var(--line)", background: "var(--bg)", color: "var(--text-soft)", fontSize: "0.82rem", cursor: "pointer" }}
-                  aria-label="Filter by role"
-                >
-                  <option value="all">All roles</option>
-                  {STAFF_ROLE_OPTIONS.map((r) => <option key={r} value={r}>{r}</option>)}
-                </select>
-                <span style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
-                  {filteredStaff.length} {filteredStaff.length === 1 ? "person" : "people"} · {selectedVenue?.name}
-                </span>
-              </div>
-            }
-          />
           {venueStaff.length ? (
             <div className="ops-table-wrap">
               <table className="ops-table ops-staff-table">
@@ -417,21 +411,19 @@ export default function StaffDirectoryTable({
                     Module mastery, and Last active moved into the coaching
                     drawer that already opens on row click — this table is
                     the glance view, the drawer is the detail view. */}
-                <thead style={{ position: "sticky", top: 0, zIndex: 1, background: "var(--surface-raised)" }}>
+                <thead>
                   <tr>
                     <th style={{ width: 40 }}></th>
                     <th>Staff</th>
+                    <th>Training</th>
                     <th>Readiness</th>
-                    <th>Progress</th>
-                    <th style={{ textAlign: "right" }}>Action</th>
+                    <th style={{ textAlign: "right" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredStaff.map((member) => {
                     const initials = member.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
                     const email = member.email;
-                    const isReady = member.progress >= 70;
-                    const barColor = member.progress >= 70 ? "var(--status-success)" : member.progress >= 40 ? "var(--status-amber)" : "var(--status-critical)";
                     const isEditing = editingStaffId === member.id;
                     const isCertOpen = complianceOpen.has(member.id);
                     const draft = complianceDraft[member.id];
@@ -483,49 +475,40 @@ export default function StaffDirectoryTable({
                               <div>
                                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                                   <strong>{member.name}</strong>
-                                  {isReady && <span style={{ padding: "1px 7px", borderRadius: 999, fontSize: "0.65rem", fontWeight: 700, background: "var(--status-success-subtle)", color: "var(--status-success-strong)", flexShrink: 0 }}>Ready</span>}
-                                  {email && dutyManagerEmails.has(email.toLowerCase()) && (
-                                    <span style={{ padding: "1px 7px", borderRadius: 999, fontSize: "0.65rem", fontWeight: 700, background: "var(--gold-light)", color: "var(--gold-warm)", flexShrink: 0 }}>Duty Manager</span>
-                                  )}
                                   <button
                                     type="button"
                                     onClick={e => { e.stopPropagation(); startEditStaff(member); }}
-                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '0 2px', lineHeight: 1, flexShrink: 0 }}
+                                    className="mc-icon-btn"
                                     aria-label={`Edit ${member.name}`}
+                                    title="Edit name and role"
                                   >
-                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                    </svg>
+                                    <Pencil size={15} strokeWidth={1.75} aria-hidden="true" />
                                   </button>
                                 </div>
-                                <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
-                                  {member.role}{email ? ` · ${email}` : ""}
+                                <div className="mc-row-meta">
+                                  {member.role}
+                                  {email && dutyManagerEmails.has(email.toLowerCase()) ? " · Duty manager" : ""}
+                                  {email ? ` · ${email}` : ""}
                                 </div>
                               </div>
                             )}
                           </td>
-                          <td style={{ minWidth: 90 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                              <div style={{ flex: 1, height: 5, background: "var(--viz-neutral-light)", borderRadius: 999 }}>
-                                <div style={{ height: "100%", width: `${member.progress}%`, background: barColor, borderRadius: 999, transition: "width 0.3s" }} />
-                              </div>
-                              <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-soft)", width: 30, textAlign: "right" }}>{Math.round(member.progress)}%</span>
-                            </div>
+                          <td style={{ minWidth: 200 }}>
+                            <span className="mc-cell-bar">
+                              <span className="mc-progress-track" aria-hidden="true">
+                                <span className="mc-progress-fill" style={{ width: `${Math.max(0, Math.min(100, member.progress))}%` }} />
+                              </span>
+                              <span className="mc-cell-bar-value">{Math.round(member.progress)}%</span>
+                            </span>
                           </td>
                           <td>
                             {(() => {
-                              const rsaStat = rsaStatus(member.compliance);
-                              const isBlocked = rsaStat.level === 3;
+                              // An expired RSA blocks the person from service whatever their training says.
+                              if (rsaStatus(member.compliance).level === 3) {
+                                return <StatusText tone="alert" title="RSA expired">Blocked</StatusText>;
+                              }
                               const pill = readinessPill(member.compliance, member.status, member.progress);
-                              const label = isBlocked ? "Blocked" : pill.label;
-                              const bg = isBlocked ? "var(--status-error-bg)" : pill.bg;
-                              const color = isBlocked ? "var(--status-error)" : pill.color;
-                              return (
-                                <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: "0.72rem", fontWeight: 700, background: bg, color }}>
-                                  {pill.dot} {label}
-                                </span>
-                              );
+                              return <StatusText tone={pill.label === "Ready" ? "ok" : "warn"}>{pill.label === "Caution" ? "Needs follow-up" : pill.label}</StatusText>;
                             })()}
                           </td>
                           <td>
@@ -534,7 +517,7 @@ export default function StaffDirectoryTable({
                                 <>
                                   <button
                                     type="button"
-                                    className="btn btn-sm"
+                                    className="mc-btn mc-btn-primary mc-btn-sm"
                                     onClick={e => {
                                       e.stopPropagation();
                                       const wasDutyManager = !!member.email && dutyManagerEmails.has(member.email.toLowerCase());
@@ -542,15 +525,13 @@ export default function StaffDirectoryTable({
                                       saveEditStaff(member.id, member.email, wasDutyManager !== isNowDutyManager);
                                     }}
                                     disabled={editSaving}
-                                    style={{ fontSize: '0.7rem', padding: '2px 8px', background: 'var(--green)', color: 'var(--surface-raised)', border: 'none' }}
                                   >
-                                    {editSaving ? '…' : 'Save'}
+                                    {editSaving ? 'Saving…' : 'Save'}
                                   </button>
                                   <button
                                     type="button"
-                                    className="btn btn-sm"
+                                    className="mc-btn mc-btn-quiet mc-btn-sm"
                                     onClick={e => { e.stopPropagation(); setEditingStaffId(null); }}
-                                    style={{ fontSize: '0.7rem', padding: '2px 8px' }}
                                   >
                                     Cancel
                                   </button>
@@ -560,28 +541,20 @@ export default function StaffDirectoryTable({
                                   <button
                                     type="button"
                                     onClick={e => { e.stopPropagation(); toggleComplianceForm(member); }}
-                                    title={isCertOpen ? 'Close cert form' : (member.compliance?.rsaExpiryDate ? 'Edit cert' : 'Add cert')}
-                                    style={{
-                                      background: isCertOpen ? 'var(--green-light)' : 'none',
-                                      border: '1px solid var(--line)',
-                                      borderRadius: 'var(--radius-sm)',
-                                      cursor: 'pointer',
-                                      padding: '2px 5px',
-                                      fontSize: '0.65rem',
-                                      color: isCertOpen ? 'var(--green)' : (member.compliance?.rsaExpiryDate ? 'var(--text-soft)' : 'var(--text-muted)'),
-                                      fontWeight: 600,
-                                    }}
+                                    className="mc-btn mc-btn-quiet mc-btn-sm"
+                                    aria-expanded={isCertOpen}
                                   >
-                                    {member.compliance?.rsaExpiryDate ? 'RSA' : '+ Cert'}
+                                    {isCertOpen ? 'Close' : member.compliance?.rsaExpiryDate ? 'Certificates' : 'Add certificate'}
                                   </button>
                                   <button
                                     type="button"
-                                    className="ops-table-delete-btn"
+                                    className="mc-icon-btn"
                                     onClick={(e) => { e.stopPropagation(); handleDeleteStaff(member.id, member.name); }}
                                     disabled={isSaving}
                                     aria-label={`Remove ${member.name}`}
+                                    title="Remove from venue"
                                   >
-                                    &times;
+                                    <Trash2 size={16} strokeWidth={1.75} aria-hidden="true" />
                                   </button>
                                 </>
                               )}
@@ -679,11 +652,10 @@ export default function StaffDirectoryTable({
       </section>
 
       {/* ── Roster Overview ── */}
-      <section style={{ marginTop: 12 }}>
+      <section>
         <article className="ops-card">
           <div className="ops-card-head">
-            <h3>Roster overview</h3>
-            <span>by team</span>
+            <h3>By team</h3>
           </div>
           {[
             { label: "Bar Team", roles: ["Bartender"] },
@@ -703,7 +675,7 @@ export default function StaffDirectoryTable({
                 >
                   <span className="ops-roster-label">{group.label}</span>
                   <span className="ops-roster-count">{groupMembers.length} {groupMembers.length === 1 ? "member" : "members"}</span>
-                  <span className="ops-roster-toggle">{isOpen ? "▲" : "▼"}</span>
+                  <ChevronDown size={16} strokeWidth={2} aria-hidden="true" style={{ transform: isOpen ? "rotate(180deg)" : undefined, color: "var(--mc-text-muted)" }} />
                 </button>
                 {isOpen && (
                   <div className="ops-roster-body">
@@ -730,14 +702,15 @@ export default function StaffDirectoryTable({
                                   <div className="ops-progress-inline-bar">
                                     <div className="ops-progress-inline-fill" style={{ width: `${Math.max(0, Math.min(100, m.progress))}%` }} />
                                   </div>
-                                  <span>{parseFloat(m.progress.toFixed(2))}%</span>
+                                  <span>{Math.round(m.progress)}%</span>
                                 </div>
                               </td>
                               <td>
                                 {(() => {
-                                  const lbl = m.status === "on-track" && m.progress === 0 ? "Not started" : m.status === "on-track" ? "On track" : m.status === "attention" ? "Attention" : "Inactive";
-                                  const sty = m.status === "on-track" && m.progress === 0 ? { background: "var(--border-subtle)", color: "var(--color-text-muted)" } : m.status === "on-track" ? { background: "var(--status-success-subtle)", color: "var(--status-success)" } : m.status === "attention" ? { background: "var(--status-amber-bg)", color: "var(--status-orange)" } : { background: "var(--status-critical-bg)", color: "var(--status-critical-text)" };
-                                  return <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: "0.72rem", fontWeight: 700, ...sty }}>{lbl}</span>;
+                                  if (m.status === "on-track" && m.progress === 0) return <StatusText>Not started</StatusText>;
+                                  if (m.status === "on-track") return <StatusText tone="ok">On track</StatusText>;
+                                  if (m.status === "attention") return <StatusText tone="warn">Needs follow-up</StatusText>;
+                                  return <StatusText>Inactive</StatusText>;
                                 })()}
                               </td>
                             </tr>
@@ -761,7 +734,7 @@ export default function StaffDirectoryTable({
       </section>
 
       {/* ── Staff invites & seat management ── */}
-      <section className="ops-grid ops-grid-main" style={{ marginTop: 16 }}>
+      <section className="ops-grid ops-grid-main">
         <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
           <div className="ops-card-head">
             <h3>Staff invites &amp; seat management</h3>
@@ -989,6 +962,6 @@ export default function StaffDirectoryTable({
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

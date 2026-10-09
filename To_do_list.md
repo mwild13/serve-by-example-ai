@@ -9,10 +9,11 @@ Open items only. Finished work is recorded in `docs/handoff/2026-10-week1-handof
 
 ## Manager Console
 
-- [ ] **Check the redesigned console behind a real login.** It was only viewed locally with sample data. Look at the Overview tab, the collapsed sidebar and every other tab for the font change.
+- [ ] **Check the redesigned console behind a real login.** It was only viewed locally with sample data. Go through every tab, the collapsed sidebar, the account menu and Sign out, and ask the AI Coach a question then use New chat.
 - [ ] **Review the Needs Attention rule.** `lib/management/needs-attention.ts` flags anyone whose status is not "on-track", which flagged 25 of 25 staff on one live venue, including a person at 100%.
 - [ ] **Store daily training activity.** Only each person's last-active date is kept, so the Overview tab cannot show a trend over time.
-- [ ] **Bring the other console tabs to the new standard.** Staff, Compliance, Analytics, Reports, Training Gaps and Settings still use the older card styles and status pills.
+- [ ] **Finish the last console screens.** The trial billing screen (Settings, Billing, during a trial), Notifications and Training programs still use the older cards. None is in the menu.
+- [ ] **Decide whether the AI Coach should remember the conversation.** Each question is answered on its own; a follow-up such as "and what about Mia?" has no context.
 - [ ] **Trial prompt in the collapsed sidebar.** The upgrade card is hidden while the sidebar is an icon rail.
 
 ## Email

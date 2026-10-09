@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { WorkspaceHeader } from "@/app/management/dashboard/_components/WorkspaceHeader";
-import { EmptyState, OpsKpiCard } from "./manager-ui";
+import { EmptyState } from "./manager-ui";
+import { PageHead, Panel, StatRow } from "./console-ui";
 import { MissionControlKpiSkeleton, MissionControlTableRowSkeleton } from "@/components/ui/Skeletons";
 import type { OrgGroupSummary } from "@/lib/management/group-summary";
 
@@ -62,164 +62,125 @@ export function GroupAnalyticsPanel({
     load().finally(() => setRetrying(false));
   }, [load]);
 
+  const hasVenues = Boolean(summary && summary.totalVenues > 0);
+
   return (
-    <section className="ops-grid ops-grid-main">
-      <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
-        <WorkspaceHeader
-          title="Group Analytics"
-          description="Cross-venue rollup, computed org-wide"
-          meta={summary ? `${summary.totalVenues} venues` : undefined}
-        />
+    <div className="mc-page">
+      <PageHead
+        title="All venues"
+        description={summary ? `Training and compliance across your ${summary.totalVenues} venues. Select a venue to open it.` : "Training and compliance across every venue."}
+      />
 
-        {error && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 12,
-              padding: "12px 16px",
-              background: "var(--status-error-bg)",
-              border: "1.5px solid var(--status-error)",
-              borderRadius: "var(--radius-md)",
-              marginBottom: 16,
-              fontSize: "0.85rem",
-              color: "var(--status-error-text)",
-              fontWeight: 600,
-            }}
-          >
-            <span>{error}</span>
-            <button
-              type="button"
-              className="sbe-button-outline sbe-button-outline--sm"
-              onClick={handleRetry}
-              disabled={retrying}
-              style={{ flexShrink: 0 }}
-            >
-              {retrying ? "Retrying…" : "Retry"}
-            </button>
-          </div>
-        )}
+      {error && (
+        <div className="mc-error" role="alert" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+          <span>{error}</span>
+          <button type="button" className="mc-btn mc-btn-quiet mc-btn-sm" onClick={handleRetry} disabled={retrying}>
+            {retrying ? "Retrying…" : "Retry"}
+          </button>
+        </div>
+      )}
 
-        {!loaded ? (
-          <MissionControlKpiSkeleton count={4} />
-        ) : !summary || summary.totalVenues === 0 ? (
+      {!loaded ? (
+        <MissionControlKpiSkeleton count={4} />
+      ) : !summary || !hasVenues ? (
+        <Panel>
           <EmptyState
             copy="No venues yet."
-            subCopy="Group Analytics populates once your organisation has more than one venue."
+            subCopy="This page fills in once your organisation has more than one venue."
             ctaLabel="+ Add venue"
             onCtaClick={onAddVenue}
           />
-        ) : (
-          <div className="ops-kpi-grid">
-            <OpsKpiCard label="Total org headcount" value={String(summary.totalHeadcount)} note={`Across ${summary.totalVenues} venues`} />
-            <OpsKpiCard label="Cross-venue avg completion" value={`${summary.avgCompletion}%`} />
-            <OpsKpiCard label="Average mastery" value={`${summary.avgMastery}%`} note="Service, sales & product average" />
-            <OpsKpiCard
-              label="Overall shift-readiness"
-              value={`${summary.shiftReadyPct}%`}
-              note={`${summary.shiftReadyCount} / ${summary.totalHeadcount} staff shift-ready`}
-            />
-          </div>
-        )}
-      </article>
+        </Panel>
+      ) : (
+        <StatRow
+          items={[
+            { label: "Staff", value: String(summary.totalHeadcount), sub: `Across ${summary.totalVenues} venues` },
+            { label: "Training completed", value: `${summary.avgCompletion}%`, sub: "Average across all venues" },
+            { label: "Average mastery", value: `${summary.avgMastery}%`, sub: "Service, sales and product" },
+            { label: "Shift readiness", value: `${summary.shiftReadyPct}%`, sub: `${summary.shiftReadyCount} of ${summary.totalHeadcount} staff cleared to work` },
+          ]}
+        />
+      )}
 
-      <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
-        <div className="ops-card-head">
-          <h3>Per-venue breakdown</h3>
-          <span>All venues</span>
-        </div>
-        {!loaded ? (
-          <MissionControlTableRowSkeleton rows={4} columns={6} />
-        ) : !summary || summary.venues.length === 0 ? (
-          <EmptyState copy="No venues yet." ctaLabel="+ Add venue" onCtaClick={onAddVenue} />
-        ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table className="mgmt-table">
-              <thead>
-                <tr>
-                  <th>Venue</th>
-                  <th style={{ textAlign: "center" }}>Staff</th>
-                  <th style={{ textAlign: "center" }}>Avg completion</th>
-                  <th style={{ textAlign: "center" }}>Avg scenario score</th>
-                  <th style={{ textAlign: "center" }}>Avg sales score</th>
-                  <th style={{ textAlign: "center" }}>Shift-ready</th>
-                </tr>
-              </thead>
-              <tbody>
-                {summary.venues.map((venue) => (
-                  <tr key={venue.venueId}>
-                    <td>
-                      <button
-                        type="button"
-                        onClick={() => onSelectVenue(venue.venueId)}
-                        style={{ background: "none", border: "none", padding: 0, color: "var(--green-deep)", fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}
-                      >
-                        {venue.venueName}
-                      </button>
-                    </td>
-                    <td style={{ textAlign: "center" }}>{venue.headcount}</td>
-                    <td style={{ textAlign: "center" }}>{venue.headcount ? `${venue.avgCompletion}%` : "–"}</td>
-                    <td style={{ textAlign: "center" }}>{venue.headcount ? `${venue.avgScenarioScore}%` : "–"}</td>
-                    <td style={{ textAlign: "center" }}>{venue.headcount ? `${venue.avgSalesScore}%` : "–"}</td>
-                    <td style={{ textAlign: "center" }}>
-                      {venue.headcount ? `${venue.shiftReadyCount}/${venue.headcount} (${venue.shiftReadyPct}%)` : "–"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </article>
+      {(!loaded || hasVenues) && (
+        <>
+          <Panel title="By venue" flush>
+            {!loaded || !summary ? (
+              <div className="mc-panel-body"><MissionControlTableRowSkeleton rows={4} columns={6} /></div>
+            ) : (
+              <div className="mc-table-wrap">
+                <table className="mc-table">
+                  <thead>
+                    <tr>
+                      <th>Venue</th>
+                      <th className="is-num">Staff</th>
+                      <th className="is-num">Training completed</th>
+                      <th className="is-num">Scenario score</th>
+                      <th className="is-num">Sales score</th>
+                      <th className="is-num">Cleared to work</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {summary.venues.map((venue) => (
+                      <tr key={venue.venueId}>
+                        <td className="is-main">
+                          <button type="button" className="mc-link" onClick={() => onSelectVenue(venue.venueId)}>{venue.venueName}</button>
+                        </td>
+                        <td className="is-num">{venue.headcount}</td>
+                        <td className="is-num">{venue.headcount ? `${venue.avgCompletion}%` : "–"}</td>
+                        <td className="is-num">{venue.headcount ? `${venue.avgScenarioScore}%` : "–"}</td>
+                        <td className="is-num">{venue.headcount ? `${venue.avgSalesScore}%` : "–"}</td>
+                        <td className="is-num">{venue.headcount ? `${venue.shiftReadyCount} of ${venue.headcount}` : "–"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Panel>
 
-      <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
-        <div className="ops-card-head">
-          <h3>Cross-venue compliance risk matrix</h3>
-          <span>RSA &amp; FSS expirations</span>
-        </div>
-        {!loaded ? (
-          <MissionControlTableRowSkeleton rows={4} columns={5} />
-        ) : !summary || summary.complianceRisk.length === 0 ? (
-          <EmptyState copy="No venues yet." ctaLabel="+ Add venue" onCtaClick={onAddVenue} />
-        ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table className="mgmt-table">
-              <thead>
-                <tr>
-                  <th>Venue</th>
-                  <th style={{ textAlign: "center" }}>RSA expiring soon</th>
-                  <th style={{ textAlign: "center" }}>RSA expired</th>
-                  <th style={{ textAlign: "center" }}>FSS grace closing</th>
-                  <th style={{ textAlign: "center" }}>FSS expired</th>
-                </tr>
-              </thead>
-              <tbody>
-                {summary.complianceRisk.map((row) => (
-                  <tr key={row.venueId}>
-                    <td style={{ fontWeight: 700, color: "var(--text)" }}>{row.venueName}</td>
-                    <RiskCell count={row.rsaPending} tone="caution" />
-                    <RiskCell count={row.rsaExpired} tone="risk" />
-                    <RiskCell count={row.fssPending} tone="caution" />
-                    <RiskCell count={row.fssExpired} tone="risk" />
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </article>
-    </section>
+          <Panel title="Certificates by venue" description="RSA and food safety supervisor certificates that are expired or close to it." flush>
+            {!loaded || !summary ? (
+              <div className="mc-panel-body"><MissionControlTableRowSkeleton rows={4} columns={5} /></div>
+            ) : (
+              <div className="mc-table-wrap">
+                <table className="mc-table">
+                  <thead>
+                    <tr>
+                      <th>Venue</th>
+                      <th className="is-num">RSA expiring soon</th>
+                      <th className="is-num">RSA expired</th>
+                      <th className="is-num">FSS grace period ending</th>
+                      <th className="is-num">FSS expired</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {summary.complianceRisk.map((row) => (
+                      <tr key={row.venueId}>
+                        <td className="is-main">{row.venueName}</td>
+                        <RiskCell count={row.rsaPending} />
+                        <RiskCell count={row.rsaExpired} expired />
+                        <RiskCell count={row.fssPending} />
+                        <RiskCell count={row.fssExpired} expired />
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Panel>
+        </>
+      )}
+    </div>
   );
 }
 
-function RiskCell({ count, tone }: { count: number; tone: "caution" | "risk" }) {
-  if (count === 0) {
-    return <td style={{ textAlign: "center", color: "var(--text-muted)" }}>–</td>;
-  }
+// A zero is a dash. An expired count is the one place this page uses red.
+function RiskCell({ count, expired = false }: { count: number; expired?: boolean }) {
+  if (count === 0) return <td className="is-num is-soft">–</td>;
   return (
-    <td style={{ textAlign: "center" }}>
-      <span className={`mgmt-badge ${tone === "risk" ? "mgmt-badge-risk" : "mgmt-badge-caution"}`}>{count}</span>
+    <td className="is-num is-main" style={expired ? { color: "var(--status-error-text)" } : undefined}>
+      {count}
     </td>
   );
 }

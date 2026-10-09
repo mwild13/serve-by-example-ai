@@ -156,6 +156,8 @@ Compiled directly from source (components, `lib/mastery.ts`, `lib/badges.ts`, `l
 ---
 
 ### Roles & Permissions (`RolesPermissionsMatrix.tsx`)
+> **Removed 2026-10-09.** The role training table moved to the Teams tab (`TeamsPerformancePanel.tsx`, without the Required/Optional pills or the ring). The static permission matrix was dropped. The description below is kept as a record.
+
 **What it does:** Two linked tables. (1) A **role training matrix**: for each of the 5 roles, shows which of the 3 modules (Bartending/Sales/Management) are Required vs. Optional for that role, average progress, and a compliance ring (staff at ≥80% progress / total in that role). (2) A **static permission matrix**: read-only reference table of what Manager / Supervisor / Staff can access (Manager dashboard, Staff management, Training programs, Inventory & menu, Reports & analytics, Complete training, View own progress).
 
 **Data tracked:** Per-role headcount, avg progress, ≥80%-progress compliance ratio per role.

@@ -16,14 +16,14 @@ import { ComplianceHub } from "./compliance/ComplianceHub";
 import { rsaStatus } from "./compliance/helpers";
 import type { QuickActionId, SearchResult } from "./manager-types";
 import { EmptyState, MissionControlSkeleton } from "./manager-ui";
-import { WorkspaceHeader } from "@/app/management/dashboard/_components/WorkspaceHeader";
 import { ManagementTopbar } from "@/app/management/dashboard/_components/ManagementTopbar";
 import { ActionDrawer } from "@/app/management/dashboard/_components/ActionDrawer";
 
 const CoachingDrawer = lazy(() => import("@/app/management/dashboard/_components/CoachingDrawer"));
 import StaffDirectoryTable from "./StaffDirectoryTable";
 import { TeamsPerformancePanel } from "./TeamsPerformancePanel";
-import { RolesPermissionsMatrix } from "./RolesPermissionsMatrix";
+import { AnalyticsPanel } from "./AnalyticsPanel";
+import { AICoachPanel } from "./AICoachPanel";
 import { ReportsPanel } from "./ReportsPanel";
 import { NotificationsPanel } from "./NotificationsPanel";
 import { PredictivePanel } from "./PredictivePanel";
@@ -35,7 +35,6 @@ import { GroupAnalyticsPanel } from "./GroupAnalyticsPanel";
 import { TrialStatusPill } from "./TrialStatusPill";
 import { TrialExpiredModal } from "./TrialExpiredModal";
 import { isB2BTier, isMultiVenueTier } from "@/lib/session";
-import { groupStaffByPresentRoles } from "@/lib/management/team-grouping";
 import { filterNeedsAttention, wasActiveWithinDays } from "@/lib/management/needs-attention";
 
 type SnapshotResponse = ManagementSnapshot & {
@@ -51,7 +50,6 @@ const SECTION_META: Record<ManagerSection, { cluster: string; label: string }> =
 
   staff: { cluster: "People", label: "Staff" },
   teams: { cluster: "People", label: "Teams" },
-  roles: { cluster: "People", label: "Roles & Permissions" },
   inventory: { cluster: "Operations", label: "Inventory" },
   menu: { cluster: "Operations", label: "Menu Items" },
   compliance: { cluster: "Operations", label: "Compliance" },
@@ -165,9 +163,12 @@ export default function ManagerControlCenter({
   // and the Stripe return_url flow all keep working — without going through
   // Next's router, so an in-app tab click never triggers a server re-render
   // or a new snapshot promise again.
-  const [activeSection, setActiveSectionState] = useState<ManagerSection>(
-    () => (searchParams.get("tab") as ManagerSection | null) ?? "overview",
-  );
+  const [activeSection, setActiveSectionState] = useState<ManagerSection>(() => {
+    const tab = searchParams.get("tab");
+    // Roles & Permissions was folded into Teams; old links still land somewhere useful.
+    if (tab === "roles") return "teams";
+    return (tab as ManagerSection | null) ?? "overview";
+  });
   const [settingsTab, setSettingsTabState] = useState<"setup" | "billing" | "account">(
     () => (searchParams.get("subtab") as "setup" | "billing" | "account" | null) ?? "setup",
   );
@@ -363,17 +364,6 @@ export default function ManagerControlCenter({
     })();
   }, [apiFetch]);
 
-  const [revenueTransactionValue, setRevenueTransactionValue] = useState(() => {
-    if (typeof window === 'undefined') return 45;
-    try {
-      const v = localStorage.getItem('sbe_revenue_slider');
-      return v ? Math.max(5, Math.min(300, Number(v))) : 45;
-    } catch { return 45; }
-  });
-  useEffect(() => {
-    try { localStorage.setItem('sbe_revenue_slider', String(revenueTransactionValue)); } catch { /* storage unavailable */ }
-  }, [revenueTransactionValue]);
-
   const [aiCoachInput, setAiCoachInput] = useState("");
   const [aiCoachMessages, setAiCoachMessages] = useState<Array<{ role: "user" | "coach"; content: string }>>([]);
   const [aiCoachLoading, setAiCoachLoading] = useState(false);
@@ -382,7 +372,6 @@ export default function ManagerControlCenter({
   // NotificationsPanel.tsx — local UI-only state.
   // reportSearch/reportSortKey/reportSortDir moved into ReportsPanel.tsx —
   // local UI-only state, nothing outside that tab ever read them.
-  const [aiCoachFeedback, setAiCoachFeedback] = useState<Record<number, "up" | "down">>({});
   // settingsTab is now derived from URL via setSettingsTab shim above
   const [venueDeleteConfirm, setVenueDeleteConfirm] = useState<{ venueId: string; venueName: string } | null>(null);
   const [accountDisplayName, setAccountDisplayName] = useState(displayName ?? "");
@@ -757,6 +746,22 @@ export default function ManagerControlCenter({
     }
   }
 
+  // "New chat" on the AI Coach tab: deletes the saved conversation for this
+  // venue, then empties the screen. Resolves false if the delete failed, so
+  // the tab can say so and leave the messages in place.
+  async function handleNewCoachChat(): Promise<boolean> {
+    try {
+      const qs = selectedVenueId ? `?venueId=${encodeURIComponent(selectedVenueId)}` : "";
+      const response = await apiFetch(`/api/management/coach/history${qs}`, { method: "DELETE" });
+      if (!response.ok) return false;
+      setAiCoachMessages([]);
+      setAiCoachInput("");
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   // A30 — Send staff recognition
   async function handleSendRecognition() {
     if (!recogniseTarget || !recogniseMessage.trim() || recogniseSaving) return;
@@ -1022,7 +1027,6 @@ export default function ManagerControlCenter({
         activeSection={activeSection}
         onNavigate={handleSectionChange}
         isOwnerLevel={isOwnerLevel}
-        accountName={accountDisplayName}
         trialSlot={
           trialTier && trialEndsAt && typeof daysRemaining === "number" ? (
             <TrialStatusPill
@@ -1070,6 +1074,7 @@ export default function ManagerControlCenter({
           isGroupAnalyticsActive={activeSection === "group-analytics"}
           onAICoach={() => handleSectionChange("aicoach")}
           displayName={accountDisplayName || displayName}
+          onAccountSettings={isOwnerLevel ? () => setSettingsTab("account") : undefined}
         />
 
         {/* Snapshot load-failure banner — persists across tab navigation
@@ -1451,10 +1456,6 @@ export default function ManagerControlCenter({
           />
         )}
 
-        {activeSection === "roles" && (
-          <RolesPermissionsMatrix venueStaff={venueStaff} selectedVenueName={selectedVenue?.name} />
-        )}
-
         {activeSection === "training" && (
           <section className="ops-grid ops-grid-main">
             <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
@@ -1526,166 +1527,13 @@ export default function ManagerControlCenter({
         )}
 
         {activeSection === "analytics" && (
-          <>
-            <section className="ops-grid ops-grid-main">
-              {/* The old per-venue "Multi-venue comparison" card that used to
-                  live here has been promoted into its own dedicated Group
-                  Analytics view (see GroupAnalyticsPanel.tsx) as a proper
-                  cross-venue rollup with org-wide KPIs and a compliance risk
-                  matrix, rather than staying a relabeled slice of this
-                  single-venue Analytics tab. This card is just the pointer
-                  to it now. */}
-              {isMultiVenue && (
-                <article className="ops-card">
-                  <div className="ops-card-head">
-                    <h3>Cross-venue view</h3>
-                  </div>
-                  <p style={{ fontSize: "0.85rem", color: "var(--text-soft)", margin: "4px 0 12px" }}>
-                    Compare headcount, completion, mastery and shift-readiness across every venue in one place.
-                  </p>
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    style={{ fontSize: "0.78rem", padding: "6px 14px" }}
-                    onClick={() => handleSectionChange("group-analytics")}
-                  >
-                    Open Group Analytics →
-                  </button>
-                </article>
-              )}
-
-              <article className="ops-card">
-                <WorkspaceHeader
-                  title="This week"
-                  description="Current-period snapshot"
-                  meta={selectedVenue?.name}
-                />
-                {/* Prior-week column intentionally omitted: no historical
-                    snapshot table exists yet to compare against, so a "vs
-                    last week" figure would be fabricated. Re-add once
-                    historical tracking is wired up (see feature-data-audit). */}
-                <div className="ops-compare-grid" style={{ gridTemplateColumns: "1fr auto" }}>
-                  <div className="ops-compare-row ops-compare-head" style={{ gridTemplateColumns: "1fr auto" }}>
-                    <span>Metric</span><span>Current</span>
-                  </div>
-                  {[
-                    { label: "Training completion", current: metrics.avgCompletion, suffix: "%" },
-                    { label: "Scenario score", current: metrics.avgScenarioScore, suffix: "%" },
-                    { label: "Upsell rate", current: metrics.salesSkill, suffix: "%" },
-                    { label: "Active staff", current: metrics.activeThisWeek, suffix: "" },
-                  ].map((row) => (
-                    <div key={row.label} className="ops-compare-row" style={{ gridTemplateColumns: "1fr auto" }}>
-                      <span>{row.label}</span>
-                      <span>{row.current > 0 ? `${row.current}${row.suffix}` : "–"}</span>
-                    </div>
-                  ))}
-                </div>
-                <p style={{ fontSize: "0.72rem", color: "var(--text-muted)", margin: "10px 0 0", fontStyle: "italic" }}>
-                  Week-on-week trend comparison will appear once historical tracking is live.
-                </p>
-              </article>
-            </section>
-
-            <section className="ops-grid ops-grid-main">
-              <article className="ops-card">
-                <div className="ops-card-head">
-                  <h3>Team comparison by role</h3>
-                  <span>{selectedVenue?.name}</span>
-                </div>
-                {(() => {
-                  // Derives columns from whichever roles are actually
-                  // present at this venue (lib/management/team-grouping.ts)
-                  // instead of hardcoding Bartender/Floor as the only two
-                  // possible teams — a venue staffed mostly with
-                  // Supervisors/Managers used to render "No bar or floor
-                  // staff yet" here even with a fully staffed roster.
-                  // Capped to 3 columns to match .ops-compare-grid's CSS
-                  // (app/globals.css — .ops-compare-row's fixed-width rules
-                  // only go up to 3 value columns).
-                  const roleGroups = groupStaffByPresentRoles(venueStaff, 3);
-                  if (roleGroups.length === 0) {
-                    return (
-                      <EmptyState
-                        copy="No staff assigned yet."
-                        ctaLabel="+ Add staff"
-                        onCtaClick={() => { handleSectionChange("staff"); openAction("add-staff"); }}
-                      />
-                    );
-                  }
-                  const avg = (arr: typeof venueStaff, key: keyof typeof venueStaff[0]) =>
-                    arr.length ? Math.round(arr.reduce((s, m) => s + (m[key] as number), 0) / arr.length) : 0;
-                  const metrics: Array<{ label: string; key: keyof typeof venueStaff[0] }> = [
-                    { label: "Avg completion", key: "progress" },
-                    { label: "Service score", key: "serviceScore" },
-                    { label: "Sales score", key: "salesScore" },
-                    { label: "Product score", key: "productScore" },
-                  ];
-                  return (
-                    <div className="ops-compare-grid">
-                      <div className="ops-compare-row ops-compare-head">
-                        <span>Metric</span>
-                        {roleGroups.map((g) => <span key={g.role}>{g.role} ({g.members.length})</span>)}
-                      </div>
-                      {metrics.map((m) => (
-                        <div key={m.label} className="ops-compare-row">
-                          <span>{m.label}</span>
-                          {roleGroups.map((g) => {
-                            const val = avg(g.members, m.key);
-                            return <span key={g.role}>{val > 0 ? `${val}%` : "–"}</span>;
-                          })}
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })()}
-              </article>
-
-              <article className="ops-card ops-revenue-model">
-                <div className="ops-card-head">
-                  <h3>Revenue Impact Simulator</h3>
-                  <span>Formula projection, not live POS data</span>
-                </div>
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
-                    <span style={{ fontSize: "0.82rem", color: "var(--text-soft)", fontWeight: 600 }}>Avg transaction value</span>
-                    <strong style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--text)" }}>${revenueTransactionValue}</strong>
-                  </div>
-                  <input
-                    type="range"
-                    min={5}
-                    max={300}
-                    step={5}
-                    value={revenueTransactionValue}
-                    onChange={(e) => setRevenueTransactionValue(Number(e.target.value))}
-                    className="ops-revenue-slider"
-                    style={{ "--slider-pct": `${((revenueTransactionValue - 5) / 295) * 100}%` } as React.CSSProperties}
-                  />
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.7rem", color: "var(--text-muted)", marginTop: 2 }}>
-                    <span>$5</span><span>$300</span>
-                  </div>
-                </div>
-                <div className="ops-revenue-rows">
-                  {[5, 10, 15, 20].map((improvement) => {
-                    const weeklyTransactions = Math.max(venueStaff.length, 3) * 40 * 3;
-                    const uplift = Math.round(weeklyTransactions * revenueTransactionValue * (improvement / 100));
-                    return (
-                      <div key={improvement} className="ops-revenue-row">
-                        <span>+{improvement}% upsell improvement</span>
-                        <strong>+${uplift.toLocaleString()}/week</strong>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div style={{ marginTop: 14, padding: "10px 14px", borderRadius: 8, border: "1px solid var(--line)", background: "var(--bg-alt)" }}>
-                  <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>How this is calculated</div>
-                  <div style={{ fontSize: "0.78rem", color: "var(--text-soft)", lineHeight: 1.5 }}>
-                    {Math.max(venueStaff.length, 3)} staff × 40 transactions/shift × 3 shifts/week × ${revenueTransactionValue} avg order value × upsell improvement %
-                  </div>
-                  <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginTop: 4 }}>Training-driven upsell improvement is a conservative estimate based on Serve By Example scenario coaching outcomes.</div>
-                </div>
-              </article>
-            </section>
-          </>
+          <AnalyticsPanel
+            venueStaff={venueStaff}
+            metrics={metrics}
+            isMultiVenue={isMultiVenue}
+            onOpenGroupAnalytics={() => handleSectionChange("group-analytics")}
+            onAddStaff={() => { handleSectionChange("staff"); openAction("add-staff"); }}
+          />
         )}
 
         {activeSection === "reports" && (
@@ -1730,142 +1578,16 @@ export default function ManagerControlCenter({
         )}
 
         {activeSection === "aicoach" && (
-          <section className="ops-grid ops-grid-main">
-            <article className="ops-card ops-ai-coach-card">
-              <WorkspaceHeader
-                title="Ask AI Coach"
-                description="Live access to your team's training data and scores"
-                meta={selectedVenue?.name ?? "Your venue"}
-              />
-              <div className="ops-ai-coach-suggestions">
-                {[
-                  "Who needs the most attention this week?",
-                  "Which staff are falling behind on training?",
-                  "What are my top upselling risks?",
-                  "Who is close to full mastery?",
-                  "Summarise this venue's performance.",
-                ].map((suggestion) => (
-                  <button
-                    key={suggestion}
-                    type="button"
-                    className="ops-ai-suggestion-chip"
-                    onClick={() => setAiCoachInput(suggestion)}
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-                {needsAttention.slice(0, 5).map((s) => (
-                  <button
-                    key={`staff-${s.id}`}
-                    type="button"
-                    className="ops-ai-suggestion-chip"
-                    style={{ borderColor: "var(--gold)", color: "var(--gold-warm)" }}
-                    onClick={() => setAiCoachInput(`${s.name} (${s.role}, ${Math.round(s.progress)}% training, last active ${s.lastActive}): `)}
-                  >
-                    Coach: {s.name}
-                  </button>
-                ))}
-              </div>
-              <div className="ops-ai-coach-messages">
-                {aiCoachMessages.length === 0 && (
-                  <div className="ops-ai-coach-empty">
-                    <div style={{ width: "100%", marginBottom: 16 }}>
-                      <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-muted)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, textAlign: "center" }}>
-                        Your venue at a glance – {selectedVenue?.name}
-                      </div>
-                      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}>
-                        {[
-                          { label: "Staff", value: venueStaff.length > 0 ? String(venueStaff.length) : "–", sub: "active members" },
-                          { label: "Avg score", value: metrics.avgScenarioScore > 0 ? `${metrics.avgScenarioScore}%` : "–", sub: "scenario average" },
-                          { label: "Training", value: metrics.avgCompletion > 0 ? `${metrics.avgCompletion}%` : "–", sub: "completion rate" },
-                          { label: "Attention", value: String(needsAttention.length), sub: needsAttention.length === 1 ? "needs follow-up" : "need follow-up" },
-                        ].map((stat) => (
-                          <div key={stat.label} style={{ background: "var(--bg-alt)", borderRadius: 8, padding: "10px 14px" }}>
-                            <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--text)" }}>{stat.value}</div>
-                            <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginTop: 1 }}>{stat.label} · {stat.sub}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <p style={{ fontSize: "0.875rem", color: "var(--text-muted)", textAlign: "center", margin: 0 }}>Ask anything about your team, training progress, or venue performance.</p>
-                  </div>
-                )}
-                {aiCoachMessages.map((msg, index) => (
-                  <div key={index} className={`ops-ai-message ops-ai-message-${msg.role}`}>
-                    <span className="ops-ai-message-label">{msg.role === "user" ? "You" : "AI Coach"}</span>
-                    <p style={{ whiteSpace: "pre-wrap" }}>{msg.content}</p>
-                    {msg.role === "coach" && (
-                      <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
-                        {(["up", "down"] as const).map((dir) => (
-                          <button
-                            key={dir}
-                            type="button"
-                            onClick={() => setAiCoachFeedback((prev) => ({ ...prev, [index]: dir }))}
-                            style={{ padding: "3px 8px", borderRadius: 6, border: `1.5px solid ${aiCoachFeedback[index] === dir ? (dir === "up" ? "var(--status-success-border)" : "var(--status-critical-border)") : "var(--line)"}`, background: aiCoachFeedback[index] === dir ? (dir === "up" ? "var(--status-success-bg)" : "var(--status-critical-light)") : "transparent", cursor: "pointer", fontSize: "0.82rem", color: aiCoachFeedback[index] === dir ? (dir === "up" ? "var(--status-success)" : "var(--status-critical)") : "var(--text-muted)", transition: "all 0.15s" }}
-                            aria-label={dir === "up" ? "Helpful" : "Not helpful"}
-                          >
-                            {dir === "up" ? (
-                              <svg width="13" height="13" viewBox="0 0 24 24" fill={aiCoachFeedback[index] === "up" ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
-                            ) : (
-                              <svg width="13" height="13" viewBox="0 0 24 24" fill={aiCoachFeedback[index] === "down" ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-                {aiCoachLoading && (
-                  <div className="ops-ai-message ops-ai-message-coach">
-                    <span className="ops-ai-message-label">AI Coach</span>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 4 }}>
-                      {[90, 75, 55].map((w) => (
-                        <div key={w} style={{ height: 10, width: `${w}%`, borderRadius: 999, background: "var(--line)", animation: "pulse 1.5s ease-in-out infinite" }} />
-                      ))}
-                    </div>
-                    <style>{`@keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: 0.4 } }`}</style>
-                  </div>
-                )}
-              </div>
-              <form className="ops-ai-coach-form" onSubmit={handleAiCoachSubmit} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                <textarea
-                  className="input"
-                  value={aiCoachInput}
-                  onChange={(e) => setAiCoachInput(e.target.value)}
-                  placeholder="Ask about your staff, training, or venue performance…"
-                  disabled={aiCoachLoading}
-                  rows={3}
-                  style={{ resize: "vertical", minHeight: 72, fontFamily: "inherit", fontSize: "0.9rem", lineHeight: 1.5 }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      if (aiCoachInput.trim() && !aiCoachLoading) {
-                        (e.currentTarget.form as HTMLFormElement)?.requestSubmit();
-                      }
-                    }
-                  }}
-                />
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Press Enter to send · Shift+Enter for new line</span>
-                  <button
-                    type="submit"
-                    disabled={aiCoachLoading || !aiCoachInput.trim()}
-                    style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 20px", borderRadius: 8, border: "none", background: aiCoachLoading || !aiCoachInput.trim() ? "var(--viz-neutral-light)" : "var(--color-mastery-technical)", color: aiCoachLoading || !aiCoachInput.trim() ? "var(--color-text-faint)" : "white", fontWeight: 700, fontSize: "0.85rem", cursor: aiCoachLoading || !aiCoachInput.trim() ? "not-allowed" : "pointer", transition: "background 0.15s" }}
-                  >
-                    {aiCoachLoading ? "Thinking…" : (
-                      <>
-                        Send
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
-              <small style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginTop: 8, textAlign: "center", display: "block" }}>
-                Do not share sensitive staff salary or financial details with AI Coach.
-              </small>
-            </article>
-          </section>
+          <AICoachPanel
+            venueName={selectedVenue?.name}
+            messages={aiCoachMessages}
+            input={aiCoachInput}
+            setInput={setAiCoachInput}
+            loading={aiCoachLoading}
+            onSubmit={handleAiCoachSubmit}
+            onNewChat={handleNewCoachChat}
+            needsAttention={needsAttention}
+          />
         )}
 
         {activeSection === "predictive" && (

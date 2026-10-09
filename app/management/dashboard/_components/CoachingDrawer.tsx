@@ -2,7 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
-import { OpsKpiCard, StaffBadges, MasteryMicroGrid } from "@/components/mission-control/manager-ui";
+import { StaffBadges, MasteryMicroGrid } from "@/components/mission-control/manager-ui";
+import { StatRow } from "@/components/mission-control/console-ui";
 import type { StaffMember } from "@/lib/management/types";
 
 interface CoachingDrawerProps {
@@ -104,12 +105,14 @@ export default function CoachingDrawer({ isOpen, staff, onClose }: CoachingDrawe
         </div>
 
         <div className="ops-coaching-drawer-body" key={isOpen && staff ? staff.id : "closed"}>
-          <div className="ops-profile-metrics">
-            <OpsKpiCard label="Completion" value={`${parseFloat(staff.progress.toFixed(2))}%`} />
-            <OpsKpiCard label="Service" value={`${parseFloat(staff.serviceScore.toFixed(2))}%`} />
-            <OpsKpiCard label="Sales" value={`${parseFloat(staff.salesScore.toFixed(2))}%`} />
-            <OpsKpiCard label="Product" value={`${parseFloat(staff.productScore.toFixed(2))}%`} />
-          </div>
+          <StatRow
+            items={[
+              { label: "Training", value: `${Math.round(staff.progress)}%` },
+              { label: "Service", value: `${Math.round(staff.serviceScore)}%` },
+              { label: "Sales", value: `${Math.round(staff.salesScore)}%` },
+              { label: "Product", value: `${Math.round(staff.productScore)}%` },
+            ]}
+          />
 
           {/* Contact / connection metadata — moved here from the Staff
               Directory table (Phase 5 UX Refinement Pass, streamlined to 4
