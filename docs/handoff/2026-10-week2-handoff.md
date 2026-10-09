@@ -1,6 +1,6 @@
 # Handoff: October 2026, Week 2 — By Example Advisory page, homepage UI overhaul and pricing page redesign
 
-> **Seven pieces of work this week. All of it is on `main` as of 2026-10-09 (`9b80080`).** Part 7, at the end of this file, is the em dash sweep, the demo and login page redesigns, the production release and the review of old branches. Parts 5 and 6 are the Manager Console redesign: Part 5 is the shell and home page, Part 6 is every other tab. Parts 5, 6 and 7 were built on branch `preview/console-home-redesign` and **fast-forwarded into `main` on 2026-10-09**. The first four: Part 1 (below) is the Advisory page, merged to `main`. Part 2 is the homepage UI overhaul, also merged to `main`. Part 3 is the pricing page redesign, also merged to `main`. Part 4, at the end of this file, is the new typography and the redesign of every remaining marketing page, **merged to `main` 2026-10-08**. The AI model switch to `gpt-6-luna` is recorded in Part 1 and is merged too.
+> **Eight pieces of work this week. Parts 1 to 7 are on `main` as of 2026-10-09 (`9b80080`).** Part 8, at the end of this file, is the removal of the old mobile view inside `/dashboard`; it is on branch `preview/remove-legacy-mobile`, **pushed for preview, not merged**. Part 7 is the em dash sweep, the demo and login page redesigns, the production release and the review of old branches. Parts 5 and 6 are the Manager Console redesign: Part 5 is the shell and home page, Part 6 is every other tab. Parts 5, 6 and 7 were built on branch `preview/console-home-redesign` and **fast-forwarded into `main` on 2026-10-09**. The first four: Part 1 (below) is the Advisory page, merged to `main`. Part 2 is the homepage UI overhaul, also merged to `main`. Part 3 is the pricing page redesign, also merged to `main`. Part 4 is the new typography and the redesign of every remaining marketing page, **merged to `main` 2026-10-08**. The AI model switch to `gpt-6-luna` is recorded in Part 1 and is merged too.
 
 - **Dates:** 2026-10-07 to 2026-10-08
 - **Branch:** `preview/advisory-page`, **merged to `main` 2026-10-08** (merge `b0e1de1`). Preview: https://preview-advisory-page.serve-by-example-ai.pages.dev/advisory
@@ -768,3 +768,102 @@ All of these are in `To_do_list.md`.
 - **No unicode characters as icons** (ticks, crosses, arrows). Use `lucide-react` for interface chrome, or nothing.
 - **A standalone page with one message** (confirmation, not found, error) uses `.sbe-mkt-confirm` inside `.sbe-mkt-confirm-page`.
 - **`sbe-mkt-btn-primary` works on a `<button>`.** Do not add a per-page border reset.
+
+---
+
+# Part 8: Legacy mobile dashboard removed
+
+- **Date:** 2026-10-09
+- **Branch:** `preview/remove-legacy-mobile`, off `main` at `ae91db9`. **Pushed for preview, not merged.** Preview: https://preview-remove-legacy-mobile.serve-by-example-ai.pages.dev
+- **Why:** the owner asked for the old mobile staff dashboard to be deleted cleanly, and asked whether the new `/mobile` app should move back into `/dashboard`.
+
+## The short version
+
+1. **The old mobile view inside `/dashboard` is deleted.** About 1,500 lines: two components, the bottom nav bar, their CSS, twelve colour tokens and one doc.
+2. **`/mobile` stays a separate route tree.** It was not merged back into `/dashboard`. The reasons are under "The decision".
+3. **No phone user sees a change.** `middleware.ts` was already sending every phone from `/dashboard` to `/mobile/home`, so the old view only appeared in a non-phone window narrower than 720px.
+4. **A narrow `/dashboard` window now shows the desktop dashboard in one column,** with the nav as a wrapped row on top.
+5. **The staff sign-up link now works on a phone** for someone who is already signed in.
+6. **Nothing was checked in a browser.** There is no local environment to sign in with. The checks are in `To_do_list.md`.
+
+## The decision
+
+The owner's question was whether to delete the old view and then merge `/mobile` into `/dashboard`, or simply delete. Simply delete was chosen.
+
+- **Different layouts.** `/mobile` needs a locked viewport, a dark body, the orientation guard and its session and progress providers (`app/mobile/layout.tsx`). `/dashboard` is one client shell that swaps views in state. Putting both behind one URL is the arrangement that was just removed.
+- **Real routes.** `/mobile` has 22 of them, which gives it a working back button, deep links and per-screen code splitting. The dashboard shell has none of these.
+- **The shared code is already shared:** `resolveTierAccess()`, `lib/streak.ts`, `lib/badges.ts`, `trainer-data.ts` and the API routes. Nothing in `/dashboard` imports from `/mobile`.
+- **The e2e suite and its snapshots** are keyed to `/mobile/*` paths.
+
+The owner also chose that a narrow non-phone window keeps the desktop dashboard, reflowed, and is not redirected to `/mobile`.
+
+## What changed
+
+### Removed
+
+- **`app/dashboard/_components/MobileDashboardV3.tsx`** (862 lines) and **`MobileLearnHub.tsx`** (289 lines).
+- **In `DashboardShell.tsx`:** the `useIsMobile()` width check, `MobileBottomNavBar`, the `mobile-learn` nav id and its view. Home always renders `PreShiftHome`. An old `/dashboard?nav=mobile-learn` link opens Home.
+- **CSS (`app/globals.css`):** the `.mobile-bottom-nav` block, including the rule that hid the sidebar below 720px with `!important`; `.dashboard-mobile-footer-actions` and `.dashboard-plan-card-mobile`, which nothing rendered.
+- **Tokens:** every `--ip-*` token except `--ip-green`, which the console sidebar, the selected chips and the Cocktail Library still use.
+- **`docs/MOBILE_VIEW.md`.** It documented only the removed view.
+
+### `/dashboard` below 720px
+
+- **Layout:** the one-column rules that were already in `app/globals.css` (the `max-width: 720px` block after `.management-unlock-form`) now apply, because the block that overrode them is gone. The sidebar becomes a wrapped row of nav items above the content.
+- **Sign out** is no longer hidden at that width. Its intended replacement was never rendered, so it would have been unreachable.
+- **No redesign.** This is a fallback for a squeezed desktop window or iPad split view, not a mobile product.
+
+### Staff sign-up link on phones
+
+- **Before:** `/dashboard?join=CODE` on a phone was redirected to `/mobile/home`, which ignored the code. The staff member never joined the venue.
+- **`middleware.ts`:** a phone request to `/dashboard` with a `join` parameter goes to `/mobile/settings`. Every other phone request still goes to `/mobile/home`.
+- **`app/mobile/_components/SettingsScreen.tsx`:** reads the code once on arrival, removes it from the URL and submits it through the same function as the Join button. The result message now also shows for someone already linked to a venue, and reads "Already connected to ..." when the API reports that.
+
+### Docs
+
+- **`docs/STAFF_APP.md`** section 2, **`docs/MOBILE_BUILD.md`** section 1 and **`docs/CHALLENGES.md`** now describe one mobile app and two surfaces. The README links to `MOBILE_BUILD.md`.
+- **Not edited:** the older audits and plans that mention the removed files (`docs/archive/`, `v4-migration-plan/`, `docs/STAFF_DASHBOARD_AUDIT_REPORT.md`, `docs/staff-dashboard-a11y-audit.md`, `docs/ARCHITECTURE_CLEANUP_BLUEPRINT.md`, `docs/Staff Dash Directory.md`). They are records of their date.
+
+### Left in place
+
+- **`/api/coach`, `lib/badges.ts` and `lib/streak.ts`** are still used by `/mobile` or the desktop dashboard.
+- **`.dashboard-plan-card*` and `.mockup-logo`** in `app/globals.css` have no users either, but were not part of the mobile view and were left.
+- **Old streak keys** (`sbe-streak-last-<user id>`, `sbe-streak-count-<user id>`) stay in the local storage of browsers that used the old view. Nothing reads them.
+
+## Commits
+
+| Commit | What |
+|---|---|
+| `66221d6` | Remove the legacy view, its CSS and tokens |
+| `6c8fc51` | Staff sign-up link on phones |
+| `75d7843` | Docs and three to-do items |
+| `03e6987` | Part 7 of this file and its to-do items, which were written after the release and had not been committed |
+
+## Checks run
+
+| Check | Result |
+|---|---|
+| Typecheck | Passed |
+| Lint | Passed |
+| CSS token lint | 0 raw hex values |
+| Unit tests (vitest) | 46 of 46 passed |
+| Production build (`next build`) | Passed |
+| Search for the removed names in `app`, `lib` and `components` | None left |
+| `/dashboard` at 700px and 375px | Not checked |
+| Staff sign-up link on a phone | Not checked |
+| Mobile e2e suite | Not run. It needs the preview URL and the QA login |
+| Unused-code check (`knip`) | Not run. It is not installed |
+
+## Open items
+
+All of these are in `To_do_list.md`, under "Checks to finish".
+
+- **Check the preview** before merging: the narrow `/dashboard` layout on a computer, and the sign-up link on a phone.
+- **The sign-up link is lost at sign-in.** A signed-out person who opens it is sent to `/login`, and the code is dropped afterwards, on desktop and phone. Most new staff are signed out when they first open the link, so the fix in this part only helps people who already have a session.
+- **Phone checkout return skips the instant upgrade.** `/dashboard?checkout=success&session_id=...` is redirected to `/mobile/home` before the Stripe session is verified, so the plan only updates when the webhook lands.
+
+## Rules for new code (added in Part 8)
+
+- **There is one mobile staff app, at `/mobile`.** Do not add a width check or a second UI to `DashboardShell.tsx`.
+- **`/dashboard` is desktop.** Below 720px it reflows with CSS only.
+- **A link that must work for staff on a phone** has to be handled in `middleware.ts`, because phones never reach `/dashboard`.
