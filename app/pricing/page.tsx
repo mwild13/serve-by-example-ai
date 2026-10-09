@@ -91,7 +91,7 @@ export default function PricingPage() {
           <PageHero
             variant="dark"
             compact
-            eyebrow="Founding Member Rates — Locked In For Life"
+            eyebrow="Founding Member Rates: Locked In For Life"
             title="Your Membership Starts Here."
             subtitle="Built for hospitality operators. Priced for founders. Lock in your rate before the industry catches up."
           />

@@ -92,7 +92,6 @@ export default function ScenarioSimulatorPane({
                   className={`sbe-intent-pill${response === pill.text ? " sbe-intent-pill-active" : ""}${!pill.positive ? " sbe-intent-pill-negative" : ""}`}
                   onClick={() => onApplyPill(pill.text)}
                 >
-                  <span className="sbe-intent-icon">{pill.positive ? "+" : "–"}</span>
                   {pill.intent}
                 </button>
               ))}
@@ -120,7 +119,7 @@ export default function ScenarioSimulatorPane({
                 {loading ? "Evaluating…" : "Check my response"}
               </button>
               <button className="btn btn-secondary" onClick={onSkip} type="button">
-                Skip →
+                Skip
               </button>
             </div>
           </div>
@@ -141,7 +140,7 @@ export default function ScenarioSimulatorPane({
 
           {isMobile && (
             <div className="demo-cta-inline-mount">
-              <CtaGuaranteeBlock variant="light" />
+              <CtaGuaranteeBlock />
             </div>
           )}
 
@@ -154,7 +153,7 @@ export default function ScenarioSimulatorPane({
 
           <div className="trainer-after">
             <button className="btn btn-secondary" onClick={onSkip} type="button">
-              Try another module →
+              Try another module
             </button>
             <button className="btn btn-secondary" onClick={onRetry} type="button">
               Try again

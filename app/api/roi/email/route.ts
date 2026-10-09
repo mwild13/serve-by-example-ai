@@ -105,7 +105,7 @@ export async function POST(req: Request) {
 
           <div style="border-left:3px solid #1f4e37;padding:14px 18px;margin-bottom:28px;background:#e4efea;border-radius:0 8px 8px 0">
             <p style="margin:0;color:#172f22;font-size:0.875rem;line-height:1.65">
-              <strong>How this model works:</strong> The three pillars capture where poor training costs hospitality venues the most &mdash; staff who leave early, managers spending hours on repeated onboarding, and service teams who can&rsquo;t upsell confidently. Serve By Example addresses all three through structured scenario-based practice and real-time performance tracking.
+              <strong>How this model works:</strong> The three pillars capture where poor training costs hospitality venues the most: staff who leave early, managers spending hours on repeated onboarding, and service teams who can&rsquo;t upsell confidently. Serve By Example addresses all three through structured scenario-based practice and real-time performance tracking.
             </p>
           </div>
 
@@ -123,7 +123,7 @@ export async function POST(req: Request) {
         </div>
 
         <div style="background:#f5f2e9;padding:22px 32px;border-radius:0 0 16px 16px;border:1px solid #ddd2ba;border-top:none;text-align:center">
-          <p style="margin:0 0 4px;font-size:0.75rem;color:#7a9185">Serve By Example &mdash; AI-powered hospitality staff training</p>
+          <p style="margin:0 0 4px;font-size:0.75rem;color:#7a9185">Serve By Example | AI-powered hospitality staff training</p>
           <p style="margin:0;font-size:0.72rem;color:#9ca3af">Indicative modelling based on published AU hospitality benchmarks. You received this because you requested your projection at servebyexample.co</p>
         </div>
 
@@ -184,7 +184,7 @@ export async function POST(req: Request) {
         </div>
 
         <div style="background:#f5f2e9;padding:16px 28px;border-radius:0 0 16px 16px;border:1px solid #ddd2ba;border-top:none;text-align:center">
-          <p style="margin:0;font-size:0.72rem;color:#9ca3af">Serve By Example &mdash; ROI Lead Notification</p>
+          <p style="margin:0;font-size:0.72rem;color:#9ca3af">Serve By Example | ROI Lead Notification</p>
         </div>
 
       </div>

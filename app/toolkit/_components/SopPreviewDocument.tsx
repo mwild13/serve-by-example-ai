@@ -10,7 +10,7 @@ interface SopPreviewDocumentProps {
 
 const SOP_CONTENT_DATABASE: Record<string, { title: string; risk: string; visible: string[]; realHidden: string[] }> = {
   'rsa': {
-    title: 'Staff Onboarding SOP — Responsible Service Protocol',
+    title: 'Staff Onboarding SOP: Responsible Service Protocol',
     risk: 'REGULATORY RISK NOTICE: Non-compliance with state-specific shift registry laws results in baseline venue site infringement notices.',
     visible: [
       'Verify valid state-issued competency cards prior to shift commencement.',
@@ -24,7 +24,7 @@ const SOP_CONTENT_DATABASE: Record<string, { title: string; risk: string; visibl
     ]
   },
   'allergen': {
-    title: 'Staff Onboarding SOP — Allergen Communication Protocol',
+    title: 'Staff Onboarding SOP: Allergen Communication Protocol',
     risk: 'OPERATIONAL RISK NOTICE: Cross-contamination reporting failure creates immediate public liability and duty of care exposures.',
     visible: [
       'Isolate docket processing parameters for verified allergen-sensitive patron seating profiles.',
@@ -38,7 +38,7 @@ const SOP_CONTENT_DATABASE: Record<string, { title: string; risk: string; visibl
     ]
   },
   'opening-closing': {
-    title: 'Staff Onboarding SOP — Opening & Closing Compliance Log',
+    title: 'Staff Onboarding SOP: Opening & Closing Compliance Log',
     risk: 'SECURITY RISK NOTICE: Failure to execute structural lockouts triggers insurance validation and local zoning non-compliance hazards.',
     visible: [
       'Confirm physical perimeter structural locks align with local operational regulations.',
@@ -52,7 +52,7 @@ const SOP_CONTENT_DATABASE: Record<string, { title: string; risk: string; visibl
     ]
   },
   'paperwork': {
-    title: 'Staff Onboarding SOP — Pre-Start Compliance Framework',
+    title: 'Staff Onboarding SOP: Pre-Start Compliance Framework',
     risk: 'COMPLIANCE RISK NOTICE: Unlogged shift histories expose the corporate footprint to systemic fair work audit reviews.',
     visible: [
       'Verify verified identity components and core structural details before scheduling.',

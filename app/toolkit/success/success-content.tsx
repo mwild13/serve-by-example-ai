@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 
 const ROLE_HINTS: Record<string, { heading: string; body: string }> = {
   owner_operator: {
-    heading: 'Start with Section 7 — Annual Cost Summary',
+    heading: 'Start with Section 7: Annual Cost Summary',
     body: 'Fill in the friction counters as you work through each section and carry the totals forward. The final number is always larger than people expect.',
   },
   venue_manager: {
@@ -14,7 +14,7 @@ const ROLE_HINTS: Record<string, { heading: string; body: string }> = {
   },
   ops_manager: {
     heading: 'Run the checklist across each site separately',
-    body: 'The variation between venues is the finding. Where one site has a signed process and another relies on memory — that is the exposure.',
+    body: 'The variation between venues is the finding. Where one site has a signed process and another relies on memory, that is the exposure.',
   },
 };
 

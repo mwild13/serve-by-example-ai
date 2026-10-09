@@ -27,7 +27,7 @@ const SCREENS: MediaRow[] = [
     body: "Three drinks land at once. Staff arrange the steps to build them in the right order.",
     image: {
       src: "/shots/Challenge Sequence Sort.png",
-      alt: "Serve By Example Sequence Sort challenge – ordering the steps to build three drinks that arrive at once",
+      alt: "Serve By Example Sequence Sort challenge: ordering the steps to build three drinks that arrive at once",
       width: 3024,
       height: 1654,
     },
@@ -38,7 +38,7 @@ const SCREENS: MediaRow[] = [
     body: "A guest complaint plays out and staff choose the best immediate response.",
     image: {
       src: "/shots/Challenge Multiple Choice.png",
-      alt: "Serve By Example Multiple Choice challenge – choosing the best immediate response to a guest complaint",
+      alt: "Serve By Example Multiple Choice challenge: choosing the best immediate response to a guest complaint",
       width: 3024,
       height: 1654,
     },
@@ -49,7 +49,7 @@ const SCREENS: MediaRow[] = [
     body: "Cocktails on one side, glassware on the other. Tap to link them.",
     image: {
       src: "/shots/Challenge Match Pair.png",
-      alt: "Serve By Example Match Pair challenge – matching cocktails to their correct glassware",
+      alt: "Serve By Example Match Pair challenge: matching cocktails to their correct glassware",
       width: 3024,
       height: 1654,
     },
@@ -135,7 +135,7 @@ export default function ChallengesMarketingPage() {
           tone="alt"
           kicker="The data behind the shift"
           title="Why tap-based beats typing"
-          lede="Every challenge, module, and scenario is scored the moment staff finish it — no separate reporting step, no manager chasing a paper checklist."
+          lede="Every challenge, module, and scenario is scored the moment staff finish it. No separate reporting step, no manager chasing a paper checklist."
           rows={RATIONALE}
         />
 

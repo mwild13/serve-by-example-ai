@@ -4,7 +4,7 @@ import SopGeneratorPreview from "@/app/toolkit/_components/SopGeneratorPreview";
 import PageHero from "@/components/marketing/PageHero";
 
 export const metadata: Metadata = {
-  title: "Free Staff Onboarding SOP Templates — Serve By Example",
+  title: "Free Staff Onboarding SOP Templates | Serve By Example",
   description:
     "Customisable FOH and BOH onboarding SOP templates for Australian hospitality venues. Covers RSA compliance, Day 1 orientation, food safety, and progress review.",
   robots: "noindex",

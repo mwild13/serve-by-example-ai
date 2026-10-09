@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Serve By Example vs Generic LMS | Hospitality Training Built for Real Venues",
   description:
-    "Generic LMS platforms were built for corporate compliance training — not hospitality. See exactly how Serve By Example compares: scenario scoring, shift-ready modules, and real-time manager visibility vs. passive video courses.",
+    "Generic LMS platforms were built for corporate compliance training, not hospitality. See exactly how Serve By Example compares: scenario scoring, shift-ready modules, and real-time manager visibility vs. passive video courses.",
   alternates: { canonical: "/vs-generic-lms" },
 };
 
@@ -41,7 +41,7 @@ const COMPARISON = [
   {
     topic: "Setup time",
     generic: "Weeks of content creation, SCORM uploads, user provisioning, and course mapping before a single staff member trains.",
-    sbe: "Most venues are fully set up within a day. Pre-built hospitality modules, starter templates, and venue code invites — no content creation required.",
+    sbe: "Most venues are fully set up within a day. Pre-built hospitality modules, starter templates, and venue code invites mean no content creation is required.",
   },
   {
     topic: "Multi-venue support",
@@ -67,7 +67,7 @@ const breadcrumbSchema = {
 // Figures carried over from the previous page. "90%+" and the figures in the
 // business case are flagged in To_do_list.md ("Marketing copy to source or remove").
 const DIFFERENCES: LedgerRow[] = [
-  { metric: "5", title: "Service dimensions scored", body: "Per AI scenario response — not just pass/fail." },
+  { metric: "5", title: "Service dimensions scored", body: "Per AI scenario response, not just pass/fail." },
   { metric: "40", unit: "+", title: "Hospitality-specific modules", body: "Across bartending, sales, and management." },
   { metric: "1", unit: "day", title: "Average setup time", body: "No content creation or SCORM uploads required." },
   { metric: "90", unit: "%+", title: "Mobile completion rates", body: "When staff train between shifts on their phone." },
@@ -102,7 +102,7 @@ export default function VsGenericLmsPage() {
         <PageHero
           eyebrow="Serve By Example vs Generic LMS"
           title="Why a generic LMS won’t work for hospitality."
-          subtitle="Generic LMS platforms were built for corporate compliance training: long videos, passive click-through modules, and no real skill measurement. Hospitality training requires something built for the reality of a busy service — not a boardroom."
+          subtitle="Generic LMS platforms were built for corporate compliance training: long videos, passive click-through modules, and no real skill measurement. Hospitality training requires something built for the reality of a busy service, not a boardroom."
           actions={[
             { label: "Try the Free Demo", href: "/demo", variant: "primary" },
             { label: "View Pricing", href: "/membership", variant: "secondary" },
@@ -149,7 +149,7 @@ export default function VsGenericLmsPage() {
           tone="alt"
           kicker="The business case"
           title="Why the training format actually matters for your bottom line."
-          lede="Australia’s hospitality sector operates on 3–9% net profit margins. The cost of weak training isn’t just recruitment — it’s the revenue drain of inconsistent floor shifts compounding week after week."
+          lede="Australia’s hospitality sector operates on 3–9% net profit margins. The cost of weak training isn’t just recruitment. It’s the revenue drain of inconsistent floor shifts compounding week after week."
           items={BUSINESS_CASE}
         />
 

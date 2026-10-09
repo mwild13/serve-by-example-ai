@@ -25,12 +25,12 @@ const GAINS: LedgerRow[] = [
     metric: "40",
     unit: "+",
     title: "Self-serve modules",
-    body: "Staff work through structured modules on their own device — without a manager running induction sessions or shadowing new starters.",
+    body: "Staff work through structured modules on their own device, without a manager running induction sessions or shadowing new starters.",
   },
   {
     metric: "5",
     title: "Service dimensions scored",
-    body: "Every scenario response is scored on communication, hospitality, problem-solving, professionalism and guest experience — including upsell technique.",
+    body: "Every scenario response is scored on communication, hospitality, problem-solving, professionalism and guest experience, including upsell technique.",
   },
 ];
 

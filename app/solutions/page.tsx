@@ -39,7 +39,7 @@ const SEGMENTS: RuledItem[] = [
   {
     label: "Hotel F&B",
     title: "Consistent service standards across every outlet, every shift.",
-    body: "Hotel F&B teams face a unique training challenge: multiple outlets, rotating staff, and guests with elevated expectations. Serve By Example gives every team member — whether they’re on room service or behind the rooftop bar — the same quality training experience.",
+    body: "Hotel F&B teams face a unique training challenge: multiple outlets, rotating staff, and guests with elevated expectations. Serve By Example gives every team member, whether they’re on room service or behind the rooftop bar, the same quality training experience.",
     href: "/solutions/hotel-fb",
     linkLabel: "See hotel F&B features",
   },

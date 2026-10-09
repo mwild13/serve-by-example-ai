@@ -21,7 +21,7 @@ const platformLinks: Array<{ href: string; title: string; desc: string; badge?: 
   {
     href: "/platform#features",
     title: "Features",
-    desc: "Scenario simulators, rapid-fire quizzes, tap-based challenges, and AI coaching — all in one platform.",
+    desc: "Scenario simulators, rapid-fire quizzes, tap-based challenges, and AI coaching, all in one platform.",
   },
   {
     href: "/platform#insights",

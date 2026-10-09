@@ -22,6 +22,24 @@ type EvalResult = {
 
 const SCENARIOS = COMPLAINT_SCENARIOS;
 
+const INTRO_FACTS = [
+  {
+    metric: "3",
+    title: "Scenarios",
+    body: "A wrong order, a long wait at the bar and a disruptive table nearby.",
+  },
+  {
+    metric: "5",
+    title: "Minutes",
+    body: "Type each reply the way you would say it to the guest. There is no script to follow.",
+  },
+  {
+    metric: "25",
+    title: "Points per scenario",
+    body: "Five dimensions, each scored out of 5: communication, hospitality behaviour, problem solving, professionalism and guest experience.",
+  },
+];
+
 // The server gives OpenAI 20 seconds; this leaves room for the round trip
 // so the spinner can never hang if the connection stalls.
 const REQUEST_TIMEOUT_MS = 30_000;
@@ -129,49 +147,43 @@ export default function ComplaintMasterPage() {
         {/* ── Hero ── */}
         <PageHero
           compact
-          eyebrow="Free Training Tool"
+          eyebrow="Free practice tool"
           title="Complaint Master"
           subtitle="Practice turning unhappy guests into loyal ones. Three real hospitality complaint scenarios, scored instantly, in Australian English, the way it happens on the floor."
         />
 
         <section className="section cm-section">
-          <div className="container cm-container">
+          <div className={stage === "intro" ? "container" : "container cm-container"}>
             {/* ── Intro ── */}
             {stage === "intro" && (
-              <div className="cm-intro-card">
-                <div className="cm-intro-meta">
-                  <div className="cm-intro-badge">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                    </svg>
-                    3 scenarios
-                  </div>
-                  <div className="cm-intro-badge">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <circle cx="12" cy="12" r="10"/>
-                      <polyline points="12 6 12 12 16 14"/>
-                    </svg>
-                    5 minutes
-                  </div>
-                  <div className="cm-intro-badge">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                    Scored instantly
-                  </div>
+              <div className="cm-intro">
+                <div className="cm-intro-lead">
+                  <p className="sbe-mkt-kicker">Before you start</p>
+                  <h2 className="sbe-mkt-display">Three complaints. Five minutes.</h2>
+                  <p className="sbe-mkt-lede">
+                    Each scenario puts you in a real service moment. Write your response as you
+                    would say it on the floor.
+                  </p>
+                  <button
+                    type="button"
+                    className="sbe-mkt-btn-primary"
+                    onClick={() => setStage("practice")}
+                  >
+                    Start practising
+                  </button>
+                  <p className="cm-intro-note">No sign-up required. Free, forever.</p>
                 </div>
-                <p className="cm-intro-body">
-                  Each scenario puts you in a real service moment. Write your response as you would
-                  say it on the floor. The system evaluates you across five dimensions: communication,
-                  hospitality behaviour, problem solving, professionalism, and guest experience.
-                </p>
-                <p className="cm-intro-note">No sign-up required. Free, forever.</p>
-                <button
-                  className="btn btn-primary btn-lg"
-                  onClick={() => setStage("practice")}
-                >
-                  Start practising
-                </button>
+                <dl className="sbe-mkt-ledger cm-intro-facts">
+                  {INTRO_FACTS.map((fact) => (
+                    <div key={fact.title} className="sbe-mkt-ledger-row">
+                      <dt>
+                        <span className="sbe-mkt-ledger-metric">{fact.metric}</span>
+                        <span className="sbe-mkt-ledger-title">{fact.title}</span>
+                      </dt>
+                      <dd>{fact.body}</dd>
+                    </div>
+                  ))}
+                </dl>
               </div>
             )}
 
@@ -313,11 +325,11 @@ export default function ComplaintMasterPage() {
                 </p>
 
                 <div className="cm-complete-cta-group">
-                  <Link href="/demo" className="btn btn-primary btn-lg">
-                    Try more scenarios on the full platform
+                  <Link href="/demo" className="sbe-mkt-btn-primary">
+                    Try three more scenarios
                   </Link>
-                  <Link href="/membership" className="btn btn-secondary btn-lg">
-                    Get full access
+                  <Link href="/membership" className="sbe-mkt-btn-text">
+                    Compare plans and prices
                   </Link>
                 </div>
               </div>

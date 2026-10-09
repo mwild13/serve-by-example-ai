@@ -163,7 +163,7 @@ export default function ROICalculator() {
 
             <div className="sbe-mkt-roi-email">
               {emailSent ? (
-                <p className="sbe-mkt-roi-sent">Thanks — we&apos;ll email your projection shortly.</p>
+                <p className="sbe-mkt-roi-sent">Thanks. We&apos;ll email your projection shortly.</p>
               ) : (
                 <>
                   <form onSubmit={handleEmailSubmit} className="sbe-mkt-roi-form" noValidate>

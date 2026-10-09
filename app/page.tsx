@@ -230,7 +230,7 @@ export default function Home() {
               <div className="sbe-mkt-show-media sbe-mkt-show-media-end">
                 <Image
                   src="/shots/Overview Console Wide.png"
-                  alt="Serve By Example management console – venue overview with training completion, compliance status, and staff needing attention"
+                  alt="Serve By Example management console: venue overview with training completion, compliance status, and staff needing attention"
                   width={3004}
                   height={1654}
                   sizes="(max-width: 900px) 100vw, 760px"
@@ -250,7 +250,7 @@ export default function Home() {
               <div className="sbe-mkt-show-media sbe-mkt-show-media-start">
                 <Image
                   src="/shots/Mastery Grid.png"
-                  alt="Staff training progress view – certification hub and module mastery by category"
+                  alt="Staff training progress view: certification hub and module mastery by category"
                   width={3024}
                   height={1654}
                   sizes="(max-width: 900px) 100vw, 760px"
@@ -281,7 +281,7 @@ export default function Home() {
               <div className="sbe-mkt-show-media sbe-mkt-show-media-end sbe-mkt-show-stack">
                 <Image
                   src="/shots/Modules View.png"
-                  alt="Staff training modules view – full course library"
+                  alt="Staff training modules view: full course library"
                   width={1400}
                   height={875}
                   sizes="(max-width: 900px) 100vw, 760px"
@@ -290,7 +290,7 @@ export default function Home() {
                 />
                 <Image
                   src="/shots/Mobile-home.png"
-                  alt="Serve By Example staff training app on mobile – home screen with streak, pre-shift brief, and quick access training"
+                  alt="Serve By Example staff training app on mobile: home screen with streak, pre-shift brief, and quick access training"
                   width={912}
                   height={1844}
                   sizes="(max-width: 900px) 30vw, 200px"

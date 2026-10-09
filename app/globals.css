@@ -14169,46 +14169,27 @@ h1, h2, h3 {
 }
 
 /* ── Update 20A: Complaint Master ───────────── */
-.cm-hero { background: var(--green-deep); }
-.cm-hero h1,
-.cm-hero .eyebrow { color: var(--surface-raised); }
-.cm-hero .eyebrow {
-  background: rgba(255,255,255,0.12);
-  color: rgba(255,255,255,0.85);
-  border-color: transparent;
-}
 .cm-section { background: var(--bg); }
 .cm-container { max-width: 680px; margin: 0 auto; }
-.cm-intro-card {
-  background: var(--surface-raised);
-  border: 1.5px solid var(--line);
-  border-radius: var(--radius-xl);
-  padding: 40px 36px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  align-items: flex-start;
+.cm-intro {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
 }
-.cm-intro-meta { display: flex; gap: 12px; flex-wrap: wrap; }
-.cm-intro-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--green-mid);
-}
-.cm-intro-body {
-  font-size: 0.9rem;
-  color: var(--text-soft);
-  line-height: 1.65;
-  margin: 0;
+.cm-intro-lead .sbe-mkt-lede { margin: 1.25rem 0 2rem; }
+@media (min-width: 900px) {
+  .cm-intro {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(3rem, 6vw, 6rem);
+    align-items: start;
+  }
+  /* Stacked rows: the facts column is too narrow for the ledger's own split */
+  .cm-intro-facts .sbe-mkt-ledger-row { grid-template-columns: 1fr; gap: 0.75rem; padding: 1.75rem 0; }
 }
 .cm-intro-note {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin: 0;
-  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  margin: 1rem 0 0;
 }
 .cm-progress {
   display: flex;
@@ -14377,12 +14358,11 @@ h1, h2, h3 {
 .cm-complete-score-label { font-size: 0.9rem; color: var(--text-soft); }
 .cm-complete-score-grade { font-size: 1rem; font-weight: 700; color: var(--green); }
 .cm-complete-body { font-size: 0.95rem; color: var(--text-soft); line-height: 1.65; max-width: 540px; }
-.cm-complete-cta-group { display: flex; gap: 12px; flex-wrap: wrap; }
+.cm-complete-cta-group { display: flex; gap: 1rem 1.5rem; flex-wrap: wrap; align-items: center; }
 
 @media (max-width: 500px) {
   .cm-result-dim { grid-template-columns: 1fr 1fr; }
   .cm-result-dim-bar-track { display: none; }
-  .cm-intro-card { padding: 28px 20px; }
 }
 
 /* ── Update 15: Solutions sub-pages ─────────── */
@@ -15033,19 +15013,6 @@ h1, h2, h3 {
 }
 
 /* Globe icon wrapper */
-.geo-block-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 32px;
-  border-radius: 50%;
-  background: rgba(196, 154, 47, 0.1);
-  border: 1.5px solid rgba(196, 154, 47, 0.25);
-  color: var(--gold-warm);
-}
-
 /* Divider */
 .geo-block-divider {
   width: 40px;
@@ -15727,49 +15694,37 @@ h1, h2, h3 {
 .demo-left-pane { display: flex; flex-direction: column; min-height: 0; }
 
 .demo-right-pane {
-  border-radius: var(--radius-xl);
-  padding: 32px 28px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 1.25rem;
+  padding-left: clamp(1.5rem, 3vw, 2.5rem);
+  border-left: 1px solid var(--line);
 }
 @media (min-width: 721px) { .demo-right-pane { position: sticky; top: calc(var(--nav-height) + 24px); } }
 @media (max-width: 720px) { .demo-right-pane { display: none; } }
 
-.sbe-mkt-scope .demo-right-pane {
-  background: var(--bg-dark);
-  color: var(--text-light-on-dark);
+.demo-right-pane .sbe-mkt-kicker { margin: 0; }
+.demo-right-pane h2 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
 }
-.demo-right-pane h2 { font-family: var(--font-heading); color: var(--text-light-on-dark); font-size: 1.5rem; margin: 0 0 4px; }
-.demo-right-pane p { color: var(--text-light-muted-on-dark); font-size: 0.95rem; line-height: 1.55; }
+.demo-right-pane > p { margin: 0; color: var(--text-soft); line-height: var(--lh-body); }
 
-/* Guarantee badge (two variants) + CTA stack */
-.demo-cta-stack { display: flex; flex-direction: column; gap: 10px; }
-
-.demo-guarantee-badge {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  background: rgba(212, 175, 55, 0.12);
-  border: 1px solid var(--gold-warm);
-  border-radius: var(--radius-md);
-  padding: 12px 14px;
-  font-size: 0.8rem;
-  line-height: 1.45;
-  color: var(--text-light-on-dark);
+/* One action, a text link and the page's guarantee statement */
+.demo-cta-stack { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.5rem; }
+.demo-guarantee {
+  flex-basis: 100%;
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-soft);
 }
-.demo-guarantee-badge strong { color: var(--gold-warm); font-weight: 700; }
-
-.demo-guarantee-badge-light {
-  background: var(--gold-light);
-  border: 1px solid var(--gold);
-  border-radius: var(--radius-md);
-  padding: 12px 14px;
-  font-size: 0.8rem;
-  line-height: 1.45;
-  color: var(--text);
-}
-.demo-guarantee-badge-light strong { color: var(--gold-warm); font-weight: 700; }
+.demo-guarantee strong { color: var(--text); font-weight: 700; }
 
 /* Score-reveal animations */
 @keyframes demo-cta-highlight {
@@ -15829,12 +15784,13 @@ h1, h2, h3 {
 .demo-minimal-footer { padding: 20px 0 32px; text-align: center; font-size: 0.8rem; color: var(--text-muted); }
 .demo-minimal-footer a { color: var(--text-soft); text-decoration: underline; text-underline-offset: 3px; }
 
-/* Solutions links (relocated into LeadCapturePane) */
-.demo-solutions-links-wrap { margin-top: 12px; padding-top: 16px; border-top: 1px solid rgba(250, 249, 246, 0.16); }
-.demo-solutions-links-label { font-size: 0.75rem; font-weight: 700; color: var(--text-light-on-dark); opacity: 0.85; margin: 0 0 8px; }
-.demo-solutions-links { display: flex; gap: 6px; flex-wrap: wrap; font-size: 0.75rem; }
-.demo-solutions-links a { color: var(--gold-warm); text-decoration: underline; text-underline-offset: 3px; }
-.demo-solutions-links .sep { color: rgba(250, 249, 246, 0.4); }
+/* Solutions links: a ruled list under the lead-capture copy */
+.demo-solutions { margin-top: 0.75rem; }
+.demo-solutions p { margin: 0 0 0.75rem; }
+.demo-solutions ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.demo-solutions li { border-bottom: 1px solid var(--line); }
+.demo-solutions a { display: block; padding: 0.7rem 0; font-weight: 600; color: var(--text); text-decoration: none; }
+.demo-solutions a:hover { color: var(--green); text-decoration: underline; text-underline-offset: 3px; }
 
 /* Mobile-only layout overrides */
 @media (max-width: 720px) {
@@ -15842,11 +15798,7 @@ h1, h2, h3 {
   .demo-inner-hero { padding: 20px 0 12px; }
   .demo-inner-hero::before { display: none; }
 
-  /* Mobile CTA compact layout — keep EvaluationTabs from being pushed off-screen */
-  .demo-guarantee-badge-light { padding: 10px 12px; font-size: 0.75rem; }
-  .demo-cta-stack { flex-direction: row; flex-wrap: wrap; gap: 8px; }
-  .demo-cta-stack .btn { flex: 1 1 auto; min-width: 140px; }
-  .demo-cta-inline-mount.demo-cta-inline-mount { margin: 12px 0; gap: 8px; }
+  .demo-cta-inline-mount.demo-cta-inline-mount { margin: 12px 0 20px; }
 }
 
 /* ── Floating Book-a-Call Button ──────────────────────────── */
@@ -16529,6 +16481,11 @@ h1, h2, h3 {
   text-decoration: none;
   min-height: 48px;
   transition: background 0.18s var(--ease-out), transform 0.18s var(--ease-out);
+}
+
+button.sbe-mkt-btn-primary {
+  border: 0;
+  cursor: pointer;
 }
 
 .sbe-mkt-btn-primary:hover {
@@ -21288,6 +21245,13 @@ button.mc-topbar-avatar:focus-visible { outline: 2px solid var(--green); outline
 
 .sbe-mkt-confirm .sbe-mkt-lede {
   margin: 1.25rem 0 2rem;
+}
+
+.sbe-mkt-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
 }
 
 .sbe-mkt-confirm-hint {

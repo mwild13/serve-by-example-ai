@@ -36,8 +36,8 @@ const inter = localFont({
 
 const siteUrl = "https://servebyexample.co";
 
-const ogTitle       = "Serve By Example — Staff Training for Bars, Restaurants & Hotels";
-const ogDescription = "Real-time team analytics, Scenario coaching, cocktail spec libraries, and compliance tracking — built for Australian venue operators.";
+const ogTitle       = "Serve By Example | Staff Training for Bars, Restaurants & Hotels";
+const ogDescription = "Real-time team analytics, Scenario coaching, cocktail spec libraries, and compliance tracking. Built for Australian venue operators.";
 const ogImage       = "/og-image.png"; 
 
 export const metadata: Metadata = {

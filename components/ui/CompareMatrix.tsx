@@ -392,7 +392,7 @@ export default function CompareMatrix({
                     <div className="sbe-compare-section-inner">
                       <SectionIcon path={section.iconPath} />
                       <span>
-                        {String.fromCharCode(65 + sIdx)} — {section.title}
+                        {String.fromCharCode(65 + sIdx)}. {section.title}
                       </span>
                     </div>
                   </td>

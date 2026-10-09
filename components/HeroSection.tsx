@@ -31,7 +31,7 @@ export default function HeroSection() {
         <div className="sbe-mkt-hero-teaser">
           <Image
             src="/shots/HERO SHOT1.png"
-            alt="Serve By Example on desktop and mobile — manager console, pre-shift home screen, and cocktail drink library"
+            alt="Serve By Example on desktop and mobile: manager console, pre-shift home screen, and cocktail drink library"
             width={2123}
             height={1258}
             priority

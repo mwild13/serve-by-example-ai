@@ -16,7 +16,7 @@ const CONTENT: SolutionContent = {
   schemaName: "Pubs & Multi-Venue Groups",
   eyebrow: "Pubs & Multi-Venue Groups",
   title: "Train every venue. Manage from one place.",
-  subtitle: "Inconsistent training is the silent killer of multi-site operations. One venue nails upselling; three others improvise. Serve By Example gives every staff member the same quality training experience, regardless of location, manager, or roster — and gives operators a single view across their entire group.",
+  subtitle: "Inconsistent training is the silent killer of multi-site operations. One venue nails upselling; three others improvise. Serve By Example gives every staff member the same quality training experience, regardless of location, manager, or roster, and gives operators a single view across their entire group.",
   facts: {
     kicker: "Across the group",
     title: "What one console covers.",
@@ -44,7 +44,7 @@ const CONTENT: SolutionContent = {
     body: "Compare readiness scores across venues, spot skill gaps before they become service issues, and direct coaching where it matters most. Manage up to 125 staff across 5 venues from a single dashboard.",
     image: {
       src: "/shots/Overview Console Wide.png",
-      alt: "Serve By Example manager console – venue overview with training completion, compliance status, and staff needing attention",
+      alt: "Serve By Example manager console: venue overview with training completion, compliance status, and staff needing attention",
       width: 3004,
       height: 1654,
     },

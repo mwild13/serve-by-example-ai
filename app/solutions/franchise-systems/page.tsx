@@ -46,7 +46,7 @@ const CONTENT: SolutionContent = {
     body: "Franchise support managers see training completion, compliance status, and readiness scores across all locations, without visiting every site.",
     image: {
       src: "/shots/Overview Console Wide.png",
-      alt: "Serve By Example manager console – venue overview with training completion, compliance status, and staff needing attention",
+      alt: "Serve By Example manager console: venue overview with training completion, compliance status, and staff needing attention",
       width: 3004,
       height: 1654,
     },

@@ -19,14 +19,26 @@ export default function Error({
   }, [error]);
 
   return (
-    <div style={{ minHeight: "60vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "2rem" }}>
-      <h2 style={{ marginBottom: "1rem" }}>Something went wrong</h2>
-      <p style={{ marginBottom: "2rem", color: "var(--text-soft)", maxWidth: 420 }}>
-        An unexpected error occurred. Please try again or return to the home page.
-      </p>
-      <button type="button" className="btn btn-primary" onClick={reset}>
-        Try again
-      </button>
-    </div>
+    <main className="sbe-mkt-confirm-page">
+      <div className="container">
+        <div className="sbe-mkt-confirm">
+          <p className="sbe-mkt-kicker">Something broke</p>
+          <h1 className="sbe-mkt-display">Something went wrong.</h1>
+          <p className="sbe-mkt-lede">
+            An unexpected error occurred. Please try again or return to the home page.
+          </p>
+          <div className="sbe-mkt-confirm-actions">
+            <button type="button" className="sbe-mkt-btn-primary" onClick={reset}>
+              Try again
+            </button>
+            {/* A plain anchor: a full page load is the safest way out of a broken tree. */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+            <a href="/" className="sbe-mkt-btn-text">
+              Back to home
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
   );
 }

@@ -51,7 +51,7 @@ export default function ContactPage() {
         <CTABand
           background="neutral"
           title="Not ready to talk yet?"
-          copy="Try the demo first — no account needed, no sales conversation required."
+          copy="Try the demo first. No account needed, no sales conversation required."
           primary={{ label: "Try the Demo", href: "/demo" }}
         />
       </main>

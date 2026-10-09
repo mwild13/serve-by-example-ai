@@ -18,7 +18,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "How It Works | Serve By Example",
-  description: "See how Serve By Example's three-stage training loop takes hospitality staff from onboarding through to real-world confidence — with scenario practice, scoring, and performance tracking.",
+  description: "See how Serve By Example's three-stage training loop takes hospitality staff from onboarding through to real-world confidence, with scenario practice, scoring, and performance tracking.",
   alternates: { canonical: "/how-it-works" },
 };
 
@@ -144,7 +144,7 @@ const howToSchema = {
   "@type": "HowTo",
   "name": "How Serve By Example Works",
   "description":
-    "Serve By Example's three-stage training loop takes hospitality staff from onboarding through to real-world confidence — with scenario practice, scoring, and performance tracking.",
+    "Serve By Example's three-stage training loop takes hospitality staff from onboarding through to real-world confidence, with scenario practice, scoring, and performance tracking.",
   "step": LOOP.map((s, i) => ({
     "@type": "HowToStep",
     "position": i + 1,
@@ -215,13 +215,13 @@ export default function HowItWorksPage() {
               body: "Two powerful tools working together: one for managers, one for staff.",
               image: {
                 src: "/shots/Overview Console Compact.png",
-                alt: "Serve By Example manager console – venue overview with training completion, compliance status, and staff needing attention",
+                alt: "Serve By Example manager console: venue overview with training completion, compliance status, and staff needing attention",
                 width: 2416,
                 height: 1558,
               },
               phone: {
                 src: "/shots/Progress Skill Rings.png",
-                alt: "Serve By Example staff mobile app – mastery breakdown by category with modules mastered and skill level",
+                alt: "Serve By Example staff mobile app: mastery breakdown by category with modules mastered and skill level",
                 width: 912,
                 height: 1844,
               },

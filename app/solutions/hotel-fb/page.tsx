@@ -45,7 +45,7 @@ const CONTENT: SolutionContent = {
     body: "RSA modules, allergen awareness, and brand standards are tracked automatically. F&B managers receive alerts before any certification lapses.",
     image: {
       src: "/shots/Overview Console Compact.png",
-      alt: "Serve By Example manager console – venue overview with training completion, compliance status, and staff needing attention",
+      alt: "Serve By Example manager console: venue overview with training completion, compliance status, and staff needing attention",
       width: 2416,
       height: 1558,
     },

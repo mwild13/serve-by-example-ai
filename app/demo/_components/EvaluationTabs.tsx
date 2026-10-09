@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { Check, TriangleAlert, X } from "lucide-react";
 
 export type EvaluationResult = {
   communication: number;
@@ -38,7 +39,7 @@ export default function EvaluationTabs({
 
   // This component only ever mounts immediately after a fresh score arrives
   // (the parent unmounts it via `result === null` before every re-submit), so
-  // focusing once on mount is exactly "focus on score reveal" — no extra prop needed.
+  // focusing once on mount is exactly "focus on score reveal", so no extra prop is needed.
   useEffect(() => {
     focusRef.current?.focus();
   }, []);
@@ -87,12 +88,14 @@ export default function EvaluationTabs({
           <div className="sbe-dimension-list">
             {dimensions.map(({ key, label }) => {
               const val = result[key] as number;
-              const icon = val >= 4 ? "✔" : val === 3 ? "⚠" : "✖";
+              const Icon = val >= 4 ? Check : val === 3 ? TriangleAlert : X;
               const cls =
                 val >= 4 ? "sbe-dim-good" : val === 3 ? "sbe-dim-warn" : "sbe-dim-miss";
               return (
                 <div key={key} className={`sbe-dimension-row ${cls}`}>
-                  <span className="sbe-dim-icon">{icon}</span>
+                  <span className="sbe-dim-icon" aria-hidden="true">
+                    <Icon size={16} strokeWidth={2.25} />
+                  </span>
                   <span className="sbe-dim-label">{label}</span>
                   <span className="sbe-dim-score">{val}/5</span>
                 </div>
@@ -109,15 +112,15 @@ export default function EvaluationTabs({
         >
           <div className="sbe-coach-tip">
             <strong>Coach focus for your next attempt</strong>
-            <p>→ {result.improvement}</p>
+            <p>{result.improvement}</p>
           </div>
           <div className="trainer-feedback">
             <div className="trainer-feedback-block trainer-feedback-good">
-              <strong>✔ {strongest.label} – strength</strong>
+              <strong>Strength: {strongest.label}</strong>
               <p>{result.strengths}</p>
             </div>
             <div className="trainer-feedback-block trainer-feedback-improve">
-              <strong>✖ {weakest.label} – missed opportunity</strong>
+              <strong>Missed opportunity: {weakest.label}</strong>
               <p>{result.improvement}</p>
             </div>
             <div className="trainer-feedback-block trainer-feedback-example">

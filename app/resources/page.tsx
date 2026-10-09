@@ -9,7 +9,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Free Hospitality Operator Resources | Serve By Example",
   description:
-    "Free SOP templates for Australian hospitality venues — select your venue type and get a structured, copy-pasteable onboarding SOP in under 60 seconds.",
+    "Free SOP templates for Australian hospitality venues. Select your venue type and get a structured, copy-pasteable onboarding SOP in under 60 seconds.",
   alternates: { canonical: "/resources" },
 };
 

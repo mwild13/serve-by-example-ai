@@ -78,14 +78,14 @@ export async function POST(req: Request) {
             bodyHtml: `
               <p style="margin:0 0 20px;color:#496155;font-size:15px;line-height:1.6">
                 We received a request to reset the password for <strong>${email}</strong>. Click the button below
-                to choose a new one — this link expires in 1 hour and can only be used once.
+                to choose a new one. This link expires in 1 hour and can only be used once.
               </p>
               <p style="margin:0 0 24px">
                 <a href="${proxiedLink}" style="background:#1f4e37;color:#fffef9;padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:700;display:inline-block;font-size:15px">Reset password</a>
               </p>
               <p style="margin:0 0 8px;color:#7a9185;font-size:13px">If the button doesn&rsquo;t work, copy and paste this link into your browser:</p>
               <p style="margin:0 0 20px;color:#7a9185;font-size:12px;word-break:break-all">${proxiedLink}</p>
-              <p style="margin:0;color:#7a9185;font-size:13px">Didn&rsquo;t request this? You can safely ignore this email — your password won&rsquo;t be changed.</p>
+              <p style="margin:0;color:#7a9185;font-size:13px">Didn&rsquo;t request this? You can safely ignore this email. Your password won&rsquo;t be changed.</p>
             `,
           }),
         }),

@@ -51,7 +51,7 @@ const BUSINESS_CASE: LedgerRow[] = [
   {
     metric: "04",
     title: "Training only works if staff actually do it",
-    body: "Long videos and physical training binders are ignored by younger staff. Interactive active-recall mobile modules are short, relevant, and engaging — built to fit seamlessly between shifts.",
+    body: "Long videos and physical training binders are ignored by younger staff. Interactive active-recall mobile modules are short, relevant, and engaging, and they are built to fit seamlessly between shifts.",
   },
 ];
 
@@ -96,7 +96,7 @@ export default function ForVenuesPage() {
               body: "Training completion, compliance status and the staff who need attention, in one view.",
               image: {
                 src: "/shots/Overview Console Wide.png",
-                alt: "Serve By Example manager console – venue overview with training completion, compliance status, and staff needing attention",
+                alt: "Serve By Example manager console: venue overview with training completion, compliance status, and staff needing attention",
                 width: 3004,
                 height: 1654,
               },
@@ -108,7 +108,7 @@ export default function ForVenuesPage() {
           tone="alt"
           kicker="The business case"
           title="Why structured training matters"
-          lede="Australia’s hospitality sector operates on thin 3–9% net profit margins. The cost isn’t just recruiting and placing staff — it’s the massive revenue drain of inconsistent floor shifts in between."
+          lede="Australia’s hospitality sector operates on thin 3–9% net profit margins. The cost isn’t just recruiting and placing staff. It’s the massive revenue drain of inconsistent floor shifts in between."
           rows={BUSINESS_CASE}
         />
 

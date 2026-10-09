@@ -1,16 +1,31 @@
 import Link from "next/link";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export default function NotFound() {
   return (
-    <div style={{ minHeight: "80vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "2rem" }}>
-      <h1 style={{ fontSize: "4rem", marginBottom: "0.5rem" }}>404</h1>
-      <h2 style={{ marginBottom: "1rem", color: "var(--text-soft)" }}>Page not found</h2>
-      <p style={{ marginBottom: "2rem", maxWidth: 420, color: "var(--text-soft)" }}>
-        The page you&apos;re looking for doesn&apos;t exist or has been moved.
-      </p>
-      <Link href="/" className="btn btn-primary">
-        Back to home
-      </Link>
+    <div className="page-shell">
+      <Navbar />
+      <main className="sbe-mkt-confirm-page">
+        <div className="container">
+          <div className="sbe-mkt-confirm">
+            <p className="sbe-mkt-kicker">Error 404</p>
+            <h1 className="sbe-mkt-display">Page not found.</h1>
+            <p className="sbe-mkt-lede">
+              The page you&apos;re looking for doesn&apos;t exist or has been moved.
+            </p>
+            <div className="sbe-mkt-confirm-actions">
+              <Link href="/" className="sbe-mkt-btn-primary">
+                Back to home
+              </Link>
+              <Link href="/demo" className="sbe-mkt-btn-text">
+                Try the demo
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }

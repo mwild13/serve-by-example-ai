@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import { SuccessContent } from "./success-content";
 
 export const metadata: Metadata = {
-  title: "Toolkit Ready — Serve By Example",
+  title: "Toolkit Ready | Serve By Example",
   robots: "noindex",
 };
 
