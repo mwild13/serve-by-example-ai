@@ -142,7 +142,7 @@ Compiled directly from source (components, `lib/mastery.ts`, `lib/badges.ts`, `l
 
 **Data tracked:** Points = `progress×1.2 + avgScenarioScore×0.8`, per-person breakdown of which component dominates their score.
 
-**Manager value:** Turns training data into a visible, low-cost recognition/competition mechanism a manager can point to on the floor (the "Recognise" action was removed 2026-10-09) — cheap morale lever that doesn't require budget, just visibility.
+**Manager value:** Turns training data into a visible, low-cost competition mechanism a manager can point to on the floor — cheap morale lever that doesn't require budget, just visibility.
 
 ---
 

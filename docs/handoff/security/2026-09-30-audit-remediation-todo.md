@@ -62,7 +62,7 @@ Still to test while signed in on the preview:
 ### What changed from the plan (found while building)
 
 - **A Supabase branch isn't possible as-is.** Production's migration history (`list_migrations`) starts at `20260518_badge_tracking`, which is an `ALTER`. `profiles`, `scenario_mastery`, `venues` and `venue_staff` were created in the dashboard and are in no migration, so a branch replay fails on its first migration. **Decision needed:** how to test the lockdown SQL before production (see "Open decision" below).
-- **More tables were client-writable than the audit listed:** `training_programs`, `venue_inventory_items`, `staff_recognitions`, `manager_coach_sessions`, `pending_invites`, `venue_staff_certifications`, `user_challenges`. All are now in the lockdown. `modules`, `scenarios`, `diagnostic_questions`, `billing_events` and `user_access_allowlist` had write *grants* (RLS already blocked the writes); those are revoked too.
+- **More tables were client-writable than the audit listed:** `training_programs`, `venue_inventory_items`, `manager_coach_sessions`, `pending_invites`, `venue_staff_certifications`, `user_challenges`. All are now in the lockdown. `modules`, `scenarios`, `diagnostic_questions`, `billing_events` and `user_access_allowlist` had write *grants* (RLS already blocked the writes); those are revoked too.
 - **`diagnostic/submit` already used a service-role client.** The audit was wrong there, and no change was needed. Its dead seed upsert stays on the Phase 5 list.
 - **The browser signup `profiles.upsert` calls were already failing** (profiles has no INSERT policy; the `on_auth_user_created` trigger makes the row). They were removed, with no behaviour change.
 - **`getManagementSnapshot()` auto-creates a venue on read.** `snapshot`, `group-summary` and `coach` called it with the user client, which let *any* signed-in account create a venue just by calling `/api/management/snapshot`. All three are now behind `requireManager()` on the admin client.
@@ -149,13 +149,12 @@ Branch `audit-phase3` (from `main` after the Phase 1+2 merge). No DB migration n
 - **The roster row isn't a seat.** `staff` POST creates a `venue_staff` roster entry (no access granted); seats are `organization_members` rows (`memberships` POST, `join-venue`), which the seat trigger and `entitlement.seatLimit` cap. No cap was added to roster entries — the starter seed creates placeholder rows too.
 - **Trial managers couldn't invite through `memberships`.** It read `profiles.tier` (`free` during a trial) and returned "your plan does not include staff seats". Seat and venue limits now come from `requireManager()`'s `entitlement` (paid B2B tier, else active trial tier).
 - **New finding: cross-org duty-manager demotion.** `memberships` PATCH/POST changed `profiles.platform_role` matched **by email, globally**. An owner could list another org's duty manager as their own member, then demote them, removing their access to the other org. Role changes now apply only to the linked `organization_members.user_id`, and a demotion is skipped while another active duty-manager grant exists. Removing a duty manager's membership now also revokes their console access (it previously persisted forever).
-- **New finding: `recognitions`** put the manager's message and the staff name into email HTML unescaped, with no rate limit and no length cap. All three fixed.
 - **`session/stamp`** built a PostgREST `.or()` filter by string-interpolating the user's email; it now links first and queries by `user_id` only.
 - **`/management/dashboard` had the same M7 flaw** as `/dashboard` (any paid `session_id` upgraded the signed-in user). Both fixed.
 
 ### Build — done 2026-10-01
 
-- [x] `requireManager()` on `memberships` (GET/POST/PATCH/DELETE; PATCH owner-only), `memberships/resend`, `recognitions`, `compliance/certifications`, `coach/history`. Grep check passes: `join-venue` is the only route without it, documented in the file.
+- [x] `requireManager()` on `memberships` (GET/POST/PATCH/DELETE; PATCH owner-only), `memberships/resend`, `compliance/certifications`, `coach/history`. Grep check passes: `join-venue` is the only route without it, documented in the file.
 - [x] `lib/management/auth.ts`: `entitlement { tier, seatLimit, venueLimit }` on the context; `resolveEntitlement()` exported and unit-tested.
 - [x] `venues` POST: 403 `VENUE_LIMIT_REACHED` at the tier's venue cap.
 - [x] `memberships` POST: `venueId` ownership-checked (404), email validated, seat limit from entitlement, CTA link escaped.
@@ -191,7 +190,6 @@ Branch `audit-phase3` (from `main` after the Phase 1+2 merge). No DB migration n
 - [ ] Trial manager (free tier + active org trial) can invite through Team → Invite; seat count shows the trial tier's seats.
 - [ ] `memberships` POST with another org's `venueId` → 404. Seat cap → 403 at the limit.
 - [ ] Duty-manager flow: invite an existing linked account as duty manager → console access immediately; change to staff → access removed; a second org's duty-manager grant survives the first org demoting them.
-- [ ] Recognition with `<b>hi</b>` arrives as literal text; 11th recognition in a minute → 429.
 - [ ] A new invitee signs up with the invited email → their roster row links and the roster updates after their first attempt.
 - [ ] A canceled subscriber gets 403 from `/api/evaluate` (same as the page now shows).
 - [ ] A reused Stripe `session_id` from another account does not upgrade the tier.

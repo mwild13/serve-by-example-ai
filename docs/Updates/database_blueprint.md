@@ -152,8 +152,6 @@ public.user_challenges                — 5 interactive challenge completions
 public.user_level_progress            — level gating per module (v1 legacy)
 public.diagnostic_questions           — question bank (no user FK)
 
-── SOCIAL / RECOGNITION ───────────────────────────────────────────────────
-public.staff_recognitions             — staff_id → venue_staff
 
 ── INVITE / ACCESS CONTROL ────────────────────────────────────────────────
 public.pending_invites                — manager_user_id → auth.users

@@ -103,7 +103,7 @@ Fixes C1 (client writes to `scenario_mastery`), C2 (`profiles` self-update on ev
 **Found while building**
 - `getManagementSnapshot()` **creates a venue on read.** `snapshot`, `group-summary` and `coach` called it with the user client, so any signed-in account could create a venue just by calling `/api/management/snapshot`. All three are now behind `requireManager()`.
 - `venues` PATCH `reportSchedule` filtered on a column that doesn't exist (`manager_user_id`), so the weekly report toggle never saved (L2). Fixed to `owner_user_id`.
-- The audit missed some client-writable tables, which are now in the lockdown: `training_programs`, `venue_inventory_items`, `staff_recognitions`, `manager_coach_sessions`, `pending_invites`, `venue_staff_certifications` and `user_challenges`.
+- The audit missed some client-writable tables, which are now in the lockdown: `training_programs`, `venue_inventory_items`, `manager_coach_sessions`, `pending_invites`, `venue_staff_certifications` and `user_challenges`.
 
 **Unrelated bug fixed on the same branch (`9404f2d`).** The Manager Console "Save name" sent `{ name }` while the route reads `displayName`, so it never saved. It also never updated the topbar state. Both are fixed. The staff dashboard's greeting has a similar display-only staleness (it shows the old name until reload); that one isn't fixed.
 
@@ -129,7 +129,7 @@ The migration does two things in one transaction:
 No new migration apart from the join-code change.
 
 **Gating (finishing H3)**
-- `requireManager()` is now on every `/api/management/*` handler, reads included: `memberships` (GET/POST/DELETE, with PATCH owner-only), `memberships/resend`, `recognitions`, `compliance/certifications` and `coach/history`.
+- `requireManager()` is now on every `/api/management/*` handler, reads included: `memberships` (GET/POST/DELETE, with PATCH owner-only), `memberships/resend`, `compliance/certifications` and `coach/history`.
 - The only exception is `join-venue`, which staff must be able to call. A comment in the file says so.
 - **Check:** `grep -n "requireManager(" app/api/management/join-venue/route.ts` should match only the comment. Every other `app/api/management/**/route.ts` should call it in each handler.
 
@@ -153,7 +153,6 @@ No new migration apart from the join-code change.
 
 **Other fixes**
 - **Cross-org duty-manager demotion (new finding).** `memberships` changed `profiles.platform_role` matched by email, across all orgs, so one owner could demote another org's duty manager. Role changes now go only through the linked `user_id`. A demotion is skipped while the person holds another active duty-manager grant. Removing a duty manager now actually revokes their console access.
-- **`recognitions` (new finding):** the manager's message and the staff name went unescaped into email HTML. Now escaped, rate limited and capped at 1,000 characters.
 - **`compliance/certifications`:** length caps and date validation. A foreign cert now returns 404 instead of 403, so its existence isn't confirmed.
 - **`coach/history`:** checks the caller owns `venueId`; at most 10 messages per save; roles limited to `user` and `coach`; 8,000 characters per message.
 - **M3:** `resolveAccess()` (API routes) now delegates to `resolveTierAccess()` (pages), so the lapsed-subscription downgrade and the paused-sponsor rule apply to the API too.
@@ -268,7 +267,7 @@ Fixes C4 properly, M1 (replays and double-submits double-counted), M2 (concurren
 ## Still open
 
 **Testing**
-- [ ] **Phase 6 smoke test** after merging `audit-phase6`: the contact, book-call, ROI and toolkit forms still send (and a `<b>` in a field arrives as literal text); manager console add/edit/remove staff, invites, venues, inventory, programs, recognitions and AI coach still work; profile photo upload still works (largest bodies).
+- [ ] **Phase 6 smoke test** after merging `audit-phase6`: the contact, book-call, ROI and toolkit forms still send (and a `<b>` in a field arrives as literal text); manager console add/edit/remove staff, invites, venues, inventory, programs and AI coach still work; profile photo upload still works (largest bodies).
 - [ ] **Phase 5 in production:** mobile Home "Continue Learning" and module recommendations look sensible; the manager roster's completion % moves past 10% for an active staff member.
 - [ ] **Signed-in smoke tests for Phases 1 and 2 in production** were never fully run (lists in the checklist doc).
 

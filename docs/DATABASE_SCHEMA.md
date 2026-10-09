@@ -18,7 +18,6 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 | `user_challenges` | `20260630_user_challenges.sql` | Tap-based mini-game completion. `user_id` FK, `challenge_index` (0–4), `completed_at` — replaced a prior `localStorage`-only implementation. |
 | `venue_staff_certifications` | `20260719_venue_staff_certifications.sql` | Custom staff certs (First Aid, Barista, RSA, etc.). `venue_staff_id` FK → `venue_staff`, `cert_name`, `cert_number`, `expiry_date`. |
 | `manager_coach_sessions` | `20260719_manager_coach_sessions.sql` | AI coach chat history per manager, auto-expiring. `manager_user_id`, `venue_id` FK, `role` (`user`/`coach`), `content`. |
-| `staff_recognitions` | `20260719_staff_recognitions.sql` | Manager praise messages to staff. `staff_id` FK → `venue_staff`, `from_manager_id`, `message`. **Unused since 2026-10-09:** the Recognise dialog and `/api/management/recognitions` were deleted. The table is still in the database and can be dropped once that code is live. |
 | `user_access_allowlist` | `20260716_create_user_access_allowlist.sql` | Access-gating allowlist. |
 | `training_attempts` | `20261002_atomic_attempts_and_verify_quiz.sql` | Idempotency ledger for Scenario Training / Arena attempts: `id` (client attempt id), `user_id`, scenario key, `score`, `result JSONB`, `evaluation JSONB` (stored feedback for retries). Written only by `record_attempt()`. No client access. |
 | `verify_attempts` | `20261002_atomic_attempts_and_verify_quiz.sql` | One row per verify-quiz run: `question_order INT[]`, `position`, `streak`, `status` (`active`/`passed`/`exhausted`), `expires_at` (+20 min). Advanced only by `advance_verify_attempt()`. No client access. |
@@ -96,7 +95,7 @@ ON CONFLICT (org_id, staff_email) DO NOTHING;
 
 Since the audit Phase 2 lockdown (`20260930_rls_lockdown.sql`, applied 2026-10-01), **browsers can read their own rows but cannot write any application table.** Every insert, update and delete goes through an API route on the service-role client (`createSupabaseAdminClient()`), which bypasses RLS — so the API route's own checks (`requireManager()` for management routes, `getUserFromRequest()` + explicit ownership filters elsewhere) are the real authorization. See `docs/MANAGER_CONSOLE.md` §3.
 
-What the lockdown did, on 21 tables (including `profiles`, `scenario_mastery`, `organizations`, `organization_members`, `venues`, `venue_staff`, `training_programs`, `venue_inventory_items`, `staff_recognitions`, `manager_coach_sessions`, `venue_staff_certifications`, `user_challenges`, `pending_invites`):
+What the lockdown did, on 21 tables (including `profiles`, `scenario_mastery`, `organizations`, `organization_members`, `venues`, `venue_staff`, `training_programs`, `venue_inventory_items`, `manager_coach_sessions`, `venue_staff_certifications`, `user_challenges`, `pending_invites`):
 
 - dropped every client INSERT/UPDATE/DELETE/ALL policy;
 - recreated SELECT-only policies with the same row scoping, `TO authenticated` (none on `pending_invites`);

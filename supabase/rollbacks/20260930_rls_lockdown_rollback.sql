@@ -15,7 +15,6 @@ DROP POLICY IF EXISTS "venues_owner_read" ON public.venues;
 DROP POLICY IF EXISTS "inventory_manager_read" ON public.venue_inventory_items;
 DROP POLICY IF EXISTS "training_programs_manager_read" ON public.training_programs;
 DROP POLICY IF EXISTS "coach_sessions_manager_read" ON public.manager_coach_sessions;
-DROP POLICY IF EXISTS "recognitions_manager_read" ON public.staff_recognitions;
 DROP POLICY IF EXISTS "custom_certs_manager_read" ON public.venue_staff_certifications;
 
 -- ── 2. Recreate the original policies (definitions as captured live) ───────
@@ -51,8 +50,6 @@ CREATE POLICY "Managers manage their pending invites" ON public.pending_invites
   FOR ALL TO public USING (auth.uid() = manager_user_id) WITH CHECK (auth.uid() = manager_user_id);
 CREATE POLICY "manager_access_own_coach_sessions" ON public.manager_coach_sessions
   FOR ALL TO public USING (manager_user_id = auth.uid()) WITH CHECK (manager_user_id = auth.uid());
-CREATE POLICY "manager_manage_recognitions" ON public.staff_recognitions
-  FOR ALL TO public USING (from_manager_id = auth.uid()) WITH CHECK (from_manager_id = auth.uid());
 CREATE POLICY "manager_access_custom_certs" ON public.venue_staff_certifications
   FOR ALL TO public
   USING (venue_staff_id IN (SELECT venue_staff.id FROM public.venue_staff WHERE venue_staff.manager_user_id = auth.uid()))
@@ -74,7 +71,6 @@ GRANT INSERT, UPDATE, DELETE, TRUNCATE, TRIGGER, REFERENCES ON TABLE
   public.training_programs,
   public.pending_invites,
   public.manager_coach_sessions,
-  public.staff_recognitions,
   public.venue_staff_certifications,
   public.billing_events,
   public.user_access_allowlist,
