@@ -378,12 +378,6 @@ export default function ManagerControlCenter({
   const [accountSaving, setAccountSaving] = useState(false);
   const [accountSaved, setAccountSaved] = useState(false);
 
-  // A30 — Staff recognition
-  const [recogniseTarget, setRecogniseTarget] = useState<{ id: string; name: string } | null>(null);
-  const [recogniseMessage, setRecogniseMessage] = useState("");
-  const [recogniseSaving, setRecogniseSaving] = useState(false);
-  const [recogniseSent, setRecogniseSent] = useState(false);
-
   // A31 — AI Coach history
   const [aiCoachHistoryLoaded, setAiCoachHistoryLoaded] = useState(false);
 
@@ -759,26 +753,6 @@ export default function ManagerControlCenter({
       return true;
     } catch {
       return false;
-    }
-  }
-
-  // A30 — Send staff recognition
-  async function handleSendRecognition() {
-    if (!recogniseTarget || !recogniseMessage.trim() || recogniseSaving) return;
-    setRecogniseSaving(true);
-    try {
-      await apiFetch("/api/management/recognitions", {
-        method: "POST",
-        body: JSON.stringify({ staffId: recogniseTarget.id, message: recogniseMessage.trim() }),
-      });
-      setRecogniseSent(true);
-      setTimeout(() => {
-        setRecogniseTarget(null);
-        setRecogniseMessage("");
-        setRecogniseSent(false);
-      }, 2000);
-    } catch { /* silent */ } finally {
-      setRecogniseSaving(false);
     }
   }
 
@@ -1559,7 +1533,6 @@ export default function ManagerControlCenter({
             venueStaff={venueStaff}
             selectedVenueName={selectedVenue?.name}
             onSelectStaff={(staffId) => { setSelectedStaffId(staffId); handleSectionChange("staff"); }}
-            onRecognise={(member) => { setRecogniseTarget(member); setRecogniseMessage(""); setRecogniseSent(false); }}
             onAddStaff={() => { handleSectionChange("staff"); openAction("add-staff"); }}
           />
         )}
@@ -1648,43 +1621,6 @@ export default function ManagerControlCenter({
       </Suspense>
 
       {/* ── Venue delete confirmation modal ── */}
-      {/* A30 — Staff recognition modal */}
-      {recogniseTarget && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.45)" }} onClick={() => setRecogniseTarget(null)}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--surface-raised, var(--surface-raised))", borderRadius: "var(--radius-lg)", padding: "28px 32px", maxWidth: 460, width: "calc(100% - 48px)", boxShadow: "var(--shadow-xl)" }}>
-            <h3 style={{ margin: "0 0 6px", fontFamily: "var(--font-fraunces)", color: "var(--text)" }}>Recognise {recogniseTarget.name}</h3>
-            <p style={{ margin: "0 0 16px", fontSize: "0.85rem", color: "var(--text-soft)" }}>Your message will be saved and emailed to the staff member if they have a linked account.</p>
-            <textarea
-              rows={4}
-              value={recogniseMessage}
-              onChange={(e) => setRecogniseMessage(e.target.value)}
-              placeholder={`E.g. "${recogniseTarget.name} crushed it during Friday service — best upsell numbers of the month."`}
-              style={{ width: "100%", padding: "10px 12px", borderRadius: "var(--radius-sm)", border: "1px solid var(--line)", background: "var(--surface)", fontSize: "0.875rem", resize: "vertical", minHeight: 90, boxSizing: "border-box" }}
-              autoFocus
-            />
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 16 }}>
-              <button type="button" onClick={() => setRecogniseTarget(null)} style={{ padding: "9px 20px", borderRadius: 8, border: "1.5px solid var(--line)", background: "var(--surface)", fontWeight: 600, fontSize: "0.875rem", cursor: "pointer", color: "var(--text-soft)" }}>
-                Cancel
-              </button>
-              {recogniseSent ? (
-                <button type="button" disabled style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: "var(--green)", color: "white", fontWeight: 700, fontSize: "0.875rem" }}>
-                  Sent!
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  disabled={recogniseSaving || !recogniseMessage.trim()}
-                  onClick={handleSendRecognition}
-                  style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: recogniseSaving || !recogniseMessage.trim() ? "var(--viz-neutral-light)" : "var(--green)", color: recogniseSaving || !recogniseMessage.trim() ? "var(--color-text-faint)" : "white", fontWeight: 700, fontSize: "0.875rem", cursor: recogniseSaving || !recogniseMessage.trim() ? "not-allowed" : "pointer" }}
-                >
-                  {recogniseSaving ? "Sending…" : "Send recognition"}
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
       {venueDeleteConfirm && (
         <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.45)" }} onClick={() => setVenueDeleteConfirm(null)}>
           <div onClick={(e) => e.stopPropagation()} style={{ background: "white", borderRadius: 12, padding: "28px 32px", maxWidth: 420, width: "calc(100% - 48px)", boxShadow: "0 8px 32px rgba(0,0,0,0.2)" }}>

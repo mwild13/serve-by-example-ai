@@ -24,11 +24,10 @@ export interface LeaderboardBoardProps {
   venueStaff: ManagementSnapshot["staff"];
   selectedVenueName: string | undefined;
   onSelectStaff: (staffId: string) => void;
-  onRecognise: (member: { id: string; name: string }) => void;
   onAddStaff: () => void;
 }
 
-export function LeaderboardBoard({ venueStaff, selectedVenueName, onSelectStaff, onRecognise, onAddStaff }: LeaderboardBoardProps) {
+export function LeaderboardBoard({ venueStaff, selectedVenueName, onSelectStaff, onAddStaff }: LeaderboardBoardProps) {
   const [leaderboardTab, setLeaderboardTab] = useState<LeaderboardTab>("progress");
 
   const sorted = {
@@ -105,7 +104,6 @@ export function LeaderboardBoard({ venueStaff, selectedVenueName, onSelectStaff,
                       <th>Staff member</th>
                       <th className="is-num">{leaderboardTab === "progress" ? "Training completed" : leaderboardTab === "score" ? "Scenario score" : "Last active"}</th>
                       <th className="is-num">Points</th>
-                      <th><span className="sr-only">Actions</span></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -122,18 +120,6 @@ export function LeaderboardBoard({ venueStaff, selectedVenueName, onSelectStaff,
                           <td className="is-num">
                             <div>{points.total}</div>
                             <div className="mc-row-meta">{points.trainingPts} training + {points.scenarioPts} scenario</div>
-                          </td>
-                          <td className="is-num">
-                            <button
-                              type="button"
-                              className="mc-btn mc-btn-quiet mc-btn-sm"
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                onRecognise({ id: member.id, name: member.name });
-                              }}
-                            >
-                              Recognise
-                            </button>
                           </td>
                         </tr>
                       );
