@@ -146,26 +146,6 @@ export function moduleIdToString(moduleId: number): string {
   return LEGACY_MODULE_NAMES[moduleId] ?? `module_${moduleId}`;
 }
 
-// Reverse of moduleIdToString() — resolves a scenario_mastery `module`
-// string back to its numeric catalog id. Used by consumers (Phase 5,
-// v4-migration-plan/00-bug-batch-plan.md item 11) that need to look up real
-// module metadata (title, category) from the `modules` table/allModules for
-// Quiz and Arena roleplay rows, where the numeric id genuinely identifies
-// matching catalog content. NOT safe to use for resolving a title for
-// "descriptor" (Scenario Training) rows on modules 1-3 — LEGACY_MODULE_NAMES
-// only exists so those legacy string rows can reuse the numeric catalog's
-// access-gate plumbing (see LEGACY_MODULE_ID in training/save/route.ts); the
-// catalog content actually sitting at ids 1/2/3 ("Beer Pouring",
-// "Wine Service", "Cocktail Fundamentals") is unrelated to the
-// Scenario Training content shown under the "sales"/"management" labels.
-const LEGACY_MODULE_IDS: Record<string, number> = { bartending: 1, sales: 2, management: 3 };
-
-export function moduleStringToId(moduleStr: string): number | null {
-  if (moduleStr in LEGACY_MODULE_IDS) return LEGACY_MODULE_IDS[moduleStr];
-  const match = /^module_(\d+)$/.exec(moduleStr);
-  return match ? Number(match[1]) : null;
-}
-
 export type RecordAttemptResult = {
   masteryLevel: number;
   previousLevel: number;
@@ -262,13 +242,8 @@ export function resolveAttemptId(raw: unknown): { id: string; fromClient: boolea
 //
 // Called once per verify quiz run that reaches the required streak — by the
 // advance_verify_attempt() Postgres function, in the same transaction that
-// closes the run. Sets is_mastered = true and never reverses it.
-
-export type MarkMasteredResult = {
-  isMastered: true;
-  alreadyMastered: boolean;
-};
-
+// closes the run. Sets is_mastered = true and never reverses it. There is
+// no TypeScript write path.
 
 // ── Get mastery progress for a module ────────────────────────
 

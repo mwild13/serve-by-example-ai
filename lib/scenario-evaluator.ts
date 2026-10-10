@@ -13,8 +13,8 @@
 import { CHAT_MODEL_PARAMS, getOpenAIClient } from "@/lib/openai";
 import { capText, cleanUserText, fenceUntrusted, linkAbortSignal, parseModelJson } from "@/lib/ai-guard";
 
-export const MAX_SCENARIO_CHARS = 1500;
-export const MAX_USER_RESPONSE_CHARS = 3000;
+const MAX_SCENARIO_CHARS = 1500;
+const MAX_USER_RESPONSE_CHARS = 3000;
 // The JSON reply is ~1,400 characters at most (300 + 300 + 800 plus scores),
 // roughly 400 tokens. The cap stops a runaway reply (e.g. JSON-mode whitespace
 // loops) billing up to the model's 16k output limit; a truncated reply fails

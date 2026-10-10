@@ -15,11 +15,6 @@
  */
 export const PLACEMENT_QUESTION_KEYS = ["q6", "q5", "q10", "q9", "q4", "q8"] as const;
 
-export interface DiagnosticAnswer {
-  questionId: string;
-  selected: string | boolean;
-}
-
 interface CategoryScore {
   category: string;
   score: number; // 0-100 % correct (same value as percentage; kept for response compatibility)

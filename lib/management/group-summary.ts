@@ -9,7 +9,7 @@ import { rsaStatus, fssStatus } from "@/components/mission-control/compliance/he
 // only knows how to turn an already-fetched venues/staff array into the
 // small aggregate shape the client renders.
 
-export type VenueGroupStat = {
+type VenueGroupStat = {
   venueId: string;
   venueName: string;
   headcount: number;
@@ -20,7 +20,7 @@ export type VenueGroupStat = {
   shiftReadyPct: number;
 };
 
-export type VenueComplianceRisk = {
+type VenueComplianceRisk = {
   venueId: string;
   venueName: string;
   rsaPending: number; // recorded, expiring within 30 days but not yet expired
@@ -51,7 +51,7 @@ function masteryOf(member: StaffMember): number {
   return (member.serviceScore + member.salesScore + member.productScore) / 3;
 }
 
-export function computeComplianceRiskMatrix(
+function computeComplianceRiskMatrix(
   venues: Array<Pick<Venue, "id" | "name">>,
   staff: StaffMember[],
 ): VenueComplianceRisk[] {

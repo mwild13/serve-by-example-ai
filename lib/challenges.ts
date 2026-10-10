@@ -10,7 +10,7 @@
 // of that checklist, not a replacement for the rest of it.
 
 export const TOTAL_CHALLENGES = 5;
-export const MIN_CHALLENGE_INDEX = 0;
+const MIN_CHALLENGE_INDEX = 0;
 export const MAX_CHALLENGE_INDEX = TOTAL_CHALLENGES - 1;
 
 /** Bounds-checks a challenge index against the current valid range. */

@@ -5,7 +5,7 @@
 // enforced by the venues_venue_code_format CHECK constraint.
 
 export const VENUE_CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
-export const VENUE_CODE_LENGTH = 6;
+const VENUE_CODE_LENGTH = 6;
 
 const NEW_CODE = new RegExp(`^[${VENUE_CODE_ALPHABET}]{${VENUE_CODE_LENGTH}}$`);
 const LEGACY_CODE = /^[0-9]{4}$/;

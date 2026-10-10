@@ -19,7 +19,7 @@ import type { ScenarioType } from "@/lib/mastery";
 // ({status, data, error, refetch}) is unchanged, so no consumer needed to
 // change its import or usage.
 
-export type TrainingModule = {
+type TrainingModule = {
   id: number;
   title: string;
   category: "technical" | "service" | "compliance";
@@ -27,7 +27,7 @@ export type TrainingModule = {
   difficulty_level: number;
 };
 
-export type ModuleProgress = {
+type ModuleProgress = {
   scenariosAttempted: number;
   scenariosMastered: number;
   completion: number;
@@ -35,7 +35,7 @@ export type ModuleProgress = {
   lastAttemptAt: string | null;
 };
 
-export type ReviewQueueItem = {
+type ReviewQueueItem = {
   module: string;
   /**
    * Which write path produced this row — Quiz, Scenario Training
@@ -55,7 +55,7 @@ export type ReviewQueueItem = {
 /** Phase 3c (mobile bug-fix plan) — Modules (quiz) / Scenarios (Category
  * Simulations, descriptor) / AI Scenarios (Live Arena, roleplay) mastery %,
  * per legacy category label. See moduleMasteryByType() in lib/mastery.ts. */
-export type CategoryTypeBreakdown = { modules: number; scenarios: number; aiScenarios: number };
+type CategoryTypeBreakdown = { modules: number; scenarios: number; aiScenarios: number };
 
 export type TrainingProgress = {
   // Legacy 3-category breakdown (bartending/sales/management ~= technical/service/compliance)

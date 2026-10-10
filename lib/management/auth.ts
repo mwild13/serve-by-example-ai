@@ -48,7 +48,7 @@ export class ManagementAccessError extends Error {
   }
 }
 
-export type ManagerProfile = {
+type ManagerProfile = {
   platformRole: string;
   tier: string;
   orgId: string | null;
@@ -62,7 +62,7 @@ export type ManagerEntitlement = {
   venueLimit: number;
 };
 
-export type ManagerContext = {
+type ManagerContext = {
   user: User;
   admin: AdminClient;
   profile: ManagerProfile;

@@ -146,13 +146,3 @@ export type NewTrainingProgramPayload = {
 export type NewVenuePayload = {
   name: string;
 };
-
-export type StaffInvitePayload = {
-  email: string;
-  name?: string;
-};
-
-export type InviteResult = {
-  invited: boolean;
-  message: string;
-};
