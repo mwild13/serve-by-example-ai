@@ -9317,6 +9317,7 @@ button.sbe-mkt-btn-primary {
 .mc-table .is-soft { color: var(--mc-text-soft); }
 .mc-table tr.is-clickable { cursor: pointer; transition: background 0.15s ease; }
 .mc-table tr.is-clickable:hover { background: var(--bg-alt); }
+tr.is-clickable:focus-visible { outline: 2px solid var(--green); outline-offset: -2px; }
 .mc-th-sort {
   display: inline-flex;
   align-items: center;
@@ -12890,5 +12891,21 @@ button.mc-topbar-avatar:focus-visible { outline: 2px solid var(--green); outline
 
   .sbe-mkt-faq-item[open] .sbe-mkt-faq-a {
     animation: none;
+  }
+}
+
+/* ── Reduced motion: site-wide floor ───────────────
+   Anyone who asks their device for less motion gets none of the decorative
+   kind. Durations are near-zero, not removed, so an animation that ends on a
+   visible state (fill-mode forwards) still lands there. The narrower
+   prefers-reduced-motion blocks above stay as they are. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
