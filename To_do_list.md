@@ -2,6 +2,15 @@
 
 Open items only. Finished work is recorded in `docs/handoff/2026-10-week1-handoff.md` and git history.
 
+## Pre-launch
+
+The audit, the launch gate and the cleanup plan are in `docs/handoff/2026-10-pre-launch-handoff.md`. Branch `chore/pre-launch-cleanup`, local only.
+
+- [ ] **Cleanup steps 3 to 5.** Security quick wins, the dead CSS and image purge, and the accessibility pass. Steps 1 and 2 (the handoff and CI) are done.
+- [ ] **Owner dashboard actions.** Supabase leaked-password protection; the Cloudflare WAF rate-limit rule; an OpenAI monthly budget and alert; check the Stripe live webhook; confirm Supabase backups. The list is under "The launch gate".
+- [ ] **Push the branch and watch the first CI run.** `.github/workflows/ci.yml` has never run on GitHub. Once it is green, make the `checks` job required on `main`.
+- [ ] **An e2e test from sign-up through checkout.** Nothing tests the payment path.
+
 ## Checks to finish
 
 - [ ] **Check the legacy mobile removal on the preview.** Branch `preview/remove-legacy-mobile` deleted the old mobile view inside `/dashboard`; nothing was checked in a browser. On a computer, narrow the `/dashboard` window to about 700px and 375px: the nav should sit on top as a wrapped row, every item should open, Sign out should be reachable, and nothing should scroll sideways. On a phone, signed in, open `/dashboard?join=<venue code>`: it should land on Settings, join once and drop the code from the URL.
