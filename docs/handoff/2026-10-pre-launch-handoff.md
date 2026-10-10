@@ -1,7 +1,7 @@
 # Handoff: Pre-launch audit and cleanup
 
 - **Date:** 2026-10-10
-- **Branch:** `chore/pre-launch-cleanup`, cut from `preview/remove-legacy-mobile` at `98105bb`. Eleven commits. **Local only, not pushed, not merged.**
+- **Branch:** `chore/pre-launch-cleanup`, cut from `preview/remove-legacy-mobile` at `98105bb`. **Pushed 2026-10-10, pull request #2 into `main`, not merged.** Because of where it was cut, merging it also merges the legacy mobile removal (week 2 handoff, Part 8).
 - **Why:** the owner asked what a whole-build cleanup before launch should cover, where the most value is, and for a pre-launch record separate from the weekly handoffs.
 - **Covers:** an audit of the code, the live database advisors and production responses; a ranked list of findings; the launch gate; and a progress log for the cleanup steps.
 - **Related:** `To_do_list.md` (product items, which stay there), `docs/handoff/security/2026-10-02-audit-remediation-handoff.md` (security history), `docs/handoff/2026-10-week2-handoff.md` (the redesigns that left most of the dead CSS).
@@ -16,7 +16,7 @@
 4. **Security is a short list of specific items,** most of them small: five database functions open to signed-out callers, three high `npm audit` findings, and two owner dashboard actions still open from the September audit.
 5. **The biggest speed problem was images, and it was found late.** Production does not resize or convert images, so the homepage hero went out as a 2 MB PNG. The oversized files are now right-sized WebP. The server itself responds in about 110 ms.
 6. **Accessibility on public pages is clean.** An automated scan of 38 public pages at two widths found one fault, now fixed. Signed-in screens could not be scanned.
-7. **All five steps are done on the branch.** What is left needs the owner: run one migration, do the dashboard actions, check the signed-in screens, and push.
+7. **All five steps are done, the branch is pushed and the migration has been run.** What is left needs the owner: check the signed-in screens on the preview, do the dashboard actions, and merge.
 
 ---
 
@@ -117,9 +117,9 @@ Launch when every line here is true. Items marked "owner" need a dashboard only 
 
 - [ ] The three product blockers in Findings 1 are fixed and checked on a preview.
 - [ ] `npm audit --omit=dev` reports no high findings. One remains (`postcss`) and needs the Next 16 upgrade; decide whether launch waits for it. The affected code runs at build time on our own CSS, not on visitor input.
-- [ ] The database migration from Step 3 is applied and the Supabase security advisor shows no warnings for callable `SECURITY DEFINER` functions.
+- [x] The database migration from Step 3 is applied (2026-10-10). The security advisor shows one remaining warning, `get_user_org_id()` for signed-in users, which is intended.
 - [ ] Signed-in pages are not sent with a shared cache header. Done in code; confirm on the preview with the browser's network panel.
-- [ ] CI is green on `main`.
+- [ ] CI is green on `main`. It is green on pull request #2; `main` follows the merge.
 - [ ] A decision on error tracking is made, and if yes, it is live.
 
 **Owner dashboard actions**
@@ -147,7 +147,7 @@ Launch when every line here is true. Items marked "owner" need a dashboard only 
 |---|---|---|
 | 1 | This document | Done |
 | 2 | CI, and `typecheck` and `knip` scripts | Done |
-| 3 | Security quick wins | Done in code. The migration is written and **not yet run** |
+| 3 | Security quick wins | Done. The migration was run on production on 2026-10-10 and checked |
 | 4 | Dead code: CSS, exports, images, docs | Done |
 | 5 | Accessibility | Done for public pages and the mechanical fixes. Signed-in screens not scanned |
 
@@ -182,7 +182,7 @@ Left for their own branches: the product blockers, error tracking, an e2e test f
 - **`npm audit fix`.** `sharp` 0.35.4 to 0.35.5 and `source-map-js` 1.2.1 to 1.2.2 clear two of the three high findings. It also moved `next` 15.5.25 to 15.5.27 and `wrangler` 4.129.0 to 4.149.0, both within their existing ranges.
 - **`postcss` is not fixed.** The remaining high finding needs `next@16`, as the earlier note said. The audit's first report that everything was fixable was wrong.
 - **Four new lint warnings** arrived with the newer Next lint rules: `window.location.href` used for an internal page in `app/onboarding/page.tsx`, `TrialBillingSection.tsx`, `TrialExpiredModal.tsx` and `lib/use-auth-session-guard.ts`. They are warnings, not errors, and each is a deliberate full reload after a sign-in or billing change. Left as they are.
-- **Migration `supabase/migrations/20261010_prelaunch_function_grants_and_rls_tuning.sql`,** with a rollback in `supabase/rollbacks/`. Written against the live definitions read on 2026-10-10. It has not been run. In one transaction it:
+- **Migration `supabase/migrations/20261010_prelaunch_function_grants_and_rls_tuning.sql`,** with a rollback in `supabase/rollbacks/`. Written against the live definitions read on 2026-10-10. **The owner ran it the same day.** Checked afterwards against the live database: the security advisor no longer lists the four trigger functions and reports nothing callable by signed-out visitors; the merged `organization_members` policy, the `modules` policy for signed-out callers, the rewritten conditions and both indexes are in place. One advisor warning remains on purpose: `get_user_org_id()` is callable by signed-in users, which the `orgs_member_read` policy needs. In one transaction it:
   - revokes `EXECUTE` on the four trigger functions from everyone, and on `get_user_org_id()` from signed-out callers (signed-in users keep it, because the `orgs_member_read` policy calls it);
   - rewrites 11 policies so `auth.uid()` is evaluated once per query, with the same conditions;
   - merges the two SELECT policies on `organization_members` into one, and scopes the active-only `modules` policy to signed-out callers, with no change to who can read which rows;
@@ -211,10 +211,9 @@ Left for their own branches: the product blockers, error tracking, an e2e test f
 
 ## What the owner needs to do
 
-1. **Run the migration** in the Supabase SQL editor: `supabase/migrations/20261010_prelaunch_function_grants_and_rls_tuning.sql`. It can run before or after this branch is live. Then check that a staff member and a manager can still sign in and see their data.
-2. **Push the branch and open a pull request.** That gives CI its first run and Cloudflare a preview.
-3. **Look at the signed-in screens on the preview:** `/dashboard`, `/mobile/home`, a training scenario, the profile photo screen, and every Manager Console tab. The CSS purge and the image swap were only verified on public pages.
-4. **The dashboard actions** under "The launch gate".
+1. **Look at the signed-in screens on the preview** for pull request #2: `/dashboard`, `/mobile/home`, a training scenario, the profile photo screen, and every Manager Console tab. The CSS purge and the image swap were only verified on public pages. Since the migration changed access rules, also confirm a staff member and a manager each still see their own data.
+2. **The dashboard actions** under "The launch gate". Leaked-password protection was still off when checked on 2026-10-10.
+3. **Merge the pull request** once the preview looks right and CI is green, then make the `checks` job required on `main`.
 
 ## Checks run
 
@@ -234,9 +233,10 @@ Left for their own branches: the product blockers, error tracking, an e2e test f
 | Accessibility scan | 0 faults on 38 public pages at two widths |
 | Signed-in screens after the CSS purge and image swap | Not checked. There is no local sign-in |
 | The cache header under Cloudflare | Not checked. Verified on plain Next only |
-| The migration | Not run. Statements were written from the live definitions but have not been executed anywhere |
+| The migration | Run by the owner on production, 2026-10-10. Advisor, policies and indexes checked afterwards and correct. Not checked: signing in as staff and as a manager |
 | Keyboard and dialog fixes in the console | Not checked in a browser. Typecheck and lint only |
-| The CI workflow on GitHub | Not run. The branch is not pushed |
+| The CI workflow on GitHub | Passed on its first run (pull request #2, 1 min 9 s), including typecheck with no environment variables |
+| Cloudflare Pages preview build | Passed |
 | Mobile and marketing e2e suites | Not run. Both need a deployed URL. The mobile screenshot baselines will need re-capturing, because the placeholder images were re-encoded |
 
 ## Open items

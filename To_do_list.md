@@ -4,12 +4,11 @@ Open items only. Finished work is recorded in `docs/handoff/2026-10-week1-handof
 
 ## Pre-launch
 
-The audit, the launch gate and what the cleanup changed are in `docs/handoff/2026-10-pre-launch-handoff.md`. Branch `chore/pre-launch-cleanup`, local only, all five steps done.
+The audit, the launch gate and what the cleanup changed are in `docs/handoff/2026-10-pre-launch-handoff.md`. Branch `chore/pre-launch-cleanup`, pull request #2, all five steps done and the migration run. Merging it also merges `preview/remove-legacy-mobile`.
 
-- [ ] **Run the pre-launch migration.** `supabase/migrations/20261010_prelaunch_function_grants_and_rls_tuning.sql` in the Supabase SQL editor. It can run before or after the branch is live. Afterwards confirm a staff member and a manager can still sign in and see their data.
-- [ ] **Push the branch and watch the first CI run.** `.github/workflows/ci.yml` has never run on GitHub. Once it is green, make the `checks` job required on `main`.
-- [ ] **Check the signed-in screens on the preview.** The CSS purge (8,510 lines) and the image conversion were only verified on public pages. Look at `/dashboard`, `/mobile/home`, a training scenario, the profile photo screen and every Manager Console tab. In the console, Tab to a leaderboard row and press Enter, and press Escape on the venue delete confirmation.
+- [ ] **Check the signed-in screens on the preview.** The CSS purge (8,510 lines) and the image conversion were only verified on public pages. The migration changed access rules, so also confirm a staff member and a manager each still see their own data. Look at `/dashboard`, `/mobile/home`, a training scenario, the profile photo screen and every Manager Console tab. In the console, Tab to a leaderboard row and press Enter, and press Escape on the venue delete confirmation.
 - [ ] **Owner dashboard actions.** Supabase leaked-password protection; the Cloudflare WAF rate-limit rule; an OpenAI monthly budget and alert; check the Stripe live webhook; confirm Supabase backups. The list is under "The launch gate".
+- [ ] **Merge pull request #2,** once the preview is checked and CI is green. Then make the `checks` job required on `main`.
 - [ ] **Re-capture the mobile e2e baselines** after this branch deploys. The placeholder images were re-encoded, so the screenshots will differ slightly.
 - [ ] **Split `app/globals.css` by surface.** Still one 216 KB file on every page.
 - [ ] **An e2e test from sign-up through checkout.** Nothing tests the payment path.
