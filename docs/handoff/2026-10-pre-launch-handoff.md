@@ -1,7 +1,7 @@
 # Handoff: Pre-launch audit and cleanup
 
 - **Date:** 2026-10-10
-- **Branch:** `chore/pre-launch-cleanup`, cut from `preview/remove-legacy-mobile` at `98105bb`. **Pushed 2026-10-10, pull request #2 into `main`, not merged.** Because of where it was cut, merging it also merges the legacy mobile removal (week 2 handoff, Part 8).
+- **Branch:** `chore/pre-launch-cleanup`, cut from `preview/remove-legacy-mobile` at `98105bb`. **Merged to `main` on 2026-10-10 through pull request #2,** after the owner checked the preview. Because of where it was cut, the merge also brought in the legacy mobile removal (week 2 handoff, Part 8).
 - **Why:** the owner asked what a whole-build cleanup before launch should cover, where the most value is, and for a pre-launch record separate from the weekly handoffs.
 - **Covers:** an audit of the code, the live database advisors and production responses; a ranked list of findings; the launch gate; and a progress log for the cleanup steps.
 - **Related:** `To_do_list.md` (product items, which stay there), `docs/handoff/security/2026-10-02-audit-remediation-handoff.md` (security history), `docs/handoff/2026-10-week2-handoff.md` (the redesigns that left most of the dead CSS).
@@ -16,7 +16,7 @@
 4. **Security is a short list of specific items,** most of them small: five database functions open to signed-out callers, three high `npm audit` findings, and two owner dashboard actions still open from the September audit.
 5. **The biggest speed problem was images, and it was found late.** Production does not resize or convert images, so the homepage hero went out as a 2 MB PNG. The oversized files are now right-sized WebP. The server itself responds in about 110 ms.
 6. **Accessibility on public pages is clean.** An automated scan of 38 public pages at two widths found one fault, now fixed. Signed-in screens could not be scanned.
-7. **All five steps are done, the branch is pushed and the migration has been run.** What is left needs the owner: check the signed-in screens on the preview, do the dashboard actions, and merge.
+7. **All five steps are done, the migration has been run and the branch is merged.** The owner approved the signed-in screens on the preview. What is left is the remaining dashboard actions and the open items below.
 
 ---
 
@@ -119,12 +119,12 @@ Launch when every line here is true. Items marked "owner" need a dashboard only 
 - [ ] `npm audit --omit=dev` reports no high findings. One remains (`postcss`) and needs the Next 16 upgrade; decide whether launch waits for it. The affected code runs at build time on our own CSS, not on visitor input.
 - [x] The database migration from Step 3 is applied (2026-10-10). The security advisor shows one remaining warning, `get_user_org_id()` for signed-in users, which is intended.
 - [ ] Signed-in pages are not sent with a shared cache header. Done in code; confirm on the preview with the browser's network panel.
-- [ ] CI is green on `main`. It is green on pull request #2; `main` follows the merge.
+- [ ] CI is green on `main`. It was green on pull request #2 before the merge; confirm the run on `main`.
 - [ ] A decision on error tracking is made, and if yes, it is live.
 
 **Owner dashboard actions**
 
-- [ ] Supabase: Authentication, turn on leaked-password protection.
+- [ ] Supabase: Authentication, turn on leaked-password protection. **Not available: it needs the Supabase Pro plan and the project is on the free plan.** Turn it on if the plan changes. Until then the advisor warning stays, and the password rules in Supabase Auth settings (minimum length, required characters) are the only control.
 - [ ] Cloudflare: the WAF rate-limit rule on the public form and AI routes (the route list is in the 2026-10-02 security handoff).
 - [ ] OpenAI: a monthly budget and an alert.
 - [ ] Stripe: the live-mode webhook points at production and its last deliveries succeeded.
@@ -209,11 +209,10 @@ Left for their own branches: the product blockers, error tracking, an e2e test f
 - **Reduced motion.** A site-wide rule at the end of `app/globals.css` cuts animations and transitions to near zero for anyone whose device asks for less motion.
 - **Focus rings.** All 14 rules that remove the outline were checked. Each has a visible replacement or applies to a container that only receives focus from script. No change.
 
-## What the owner needs to do
+## What the owner did, and what is left
 
-1. **Look at the signed-in screens on the preview** for pull request #2: `/dashboard`, `/mobile/home`, a training scenario, the profile photo screen, and every Manager Console tab. The CSS purge and the image swap were only verified on public pages. Since the migration changed access rules, also confirm a staff member and a manager each still see their own data.
-2. **The dashboard actions** under "The launch gate". Leaked-password protection was still off when checked on 2026-10-10.
-3. **Merge the pull request** once the preview looks right and CI is green, then make the `checks` job required on `main`.
+- **Done 2026-10-10:** ran the migration; checked the signed-in screens and the staff and manager data on the preview and approved them; approved the merge.
+- **Left:** the dashboard actions under "The launch gate" other than leaked-password protection, which the free Supabase plan does not offer; and making the `checks` job required on `main` in the GitHub branch settings.
 
 ## Checks run
 
@@ -231,9 +230,9 @@ Left for their own branches: the product blockers, error tracking, an e2e test f
 | Image swap | 35 public pages loaded and scrolled, 82 images, none broken or missing |
 | Cache header | On a local production server, `/session-conflict` returned `private, no-store` and `/login` was unchanged |
 | Accessibility scan | 0 faults on 38 public pages at two widths |
-| Signed-in screens after the CSS purge and image swap | Not checked. There is no local sign-in |
+| Signed-in screens after the CSS purge and image swap | Checked and approved by the owner on the preview. Not checked by the author: there is no local sign-in |
 | The cache header under Cloudflare | Not checked. Verified on plain Next only |
-| The migration | Run by the owner on production, 2026-10-10. Advisor, policies and indexes checked afterwards and correct. Not checked: signing in as staff and as a manager |
+| The migration | Run by the owner on production, 2026-10-10. Advisor, policies and indexes checked afterwards and correct. Staff and manager sign-in approved by the owner on the preview |
 | Keyboard and dialog fixes in the console | Not checked in a browser. Typecheck and lint only |
 | The CI workflow on GitHub | Passed on its first run (pull request #2, 1 min 9 s), including typecheck with no environment variables |
 | Cloudflare Pages preview build | Passed |
