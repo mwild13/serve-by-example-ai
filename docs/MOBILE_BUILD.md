@@ -1,16 +1,15 @@
 # Mobile Build (V4) — `app/mobile/`
 
-Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.md` wins. This is the architecture reference for the **new standalone Mobile build** — internally referred to in code comments as "V4" — a separate route tree at `app/mobile/`. It is one of two mobile systems in this codebase; see §1 for how it differs from the legacy embedded one, and `STAFF_APP.md` §2 for the broader staff-app framing of that split.
+Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.md` wins. This is the architecture reference for the **standalone Mobile build** — internally referred to in code comments as "V4" — a separate route tree at `app/mobile/`. It is the only mobile staff experience: the legacy view embedded in `/dashboard` was removed on 2026-10-09 (see `STAFF_APP.md` §2).
 
 ## 1. What This Is, and What It Isn't
 
-`app/mobile/` is a purpose-built, app-shell-style mobile web experience (native-tab-app feel, not a responsive shrink of the desktop dashboard) — 12+ independent routes under a shared layout, rather than one client-side shell component (`DashboardShell.tsx`) swapping views via state, which is how both other surfaces work.
+`app/mobile/` is a purpose-built, app-shell-style mobile web experience (native-tab-app feel, not a responsive shrink of the desktop dashboard) — 12+ independent routes under a shared layout, rather than one client-side shell component (`DashboardShell.tsx`) swapping views via state, which is how the desktop dashboard works.
 
-- **Legacy embedded mobile** (`MobileDashboardV3.tsx`, `MobileLearnHub.tsx` inside `app/dashboard/_components/`): the older mobile UI, still live, rendered as a responsive branch *inside* `DashboardShell.tsx`. 4 bottom-nav tabs (Home, Learn, Scenarios, Me). Do not confuse this with the build documented here.
-- **This build** (`app/mobile/`): the newer, standalone route tree. 3 bottom-nav tabs (Home, Learn, Me — "Scenarios" was deliberately folded into "Learn", see §3). This is the build referenced when the user says "the new Mobile build" or "V4."
-- Desktop dashboard (`app/dashboard/`) is the third surface, unrelated route tree entirely.
+- **This build** (`app/mobile/`): 3 bottom-nav tabs (Home, Learn, Me — "Scenarios" was deliberately folded into "Learn", see §3). This is the build referenced when the user says "the Mobile build" or "V4."
+- **Desktop dashboard** (`app/dashboard/`): the other staff surface, a separate route tree. It has no mobile UI of its own; below 720px it only reflows.
 
-**Routing into this build**: `middleware.ts` auto-redirects phone user agents hitting `/dashboard` to `/mobile/home` (`isMobilePhoneUserAgent()` — narrow match: iPhone/iPod, or Android + "Mobile" token; a tablet-class Android UA falls through to desktop deliberately). A desktop browser can still visit `/mobile/*` directly and isn't blocked.
+**Routing into this build**: `middleware.ts` auto-redirects phone user agents hitting `/dashboard` to `/mobile/home` (`isMobilePhoneUserAgent()` — narrow match: iPhone/iPod, or Android + "Mobile" token; a tablet-class Android UA falls through to desktop deliberately). A `/dashboard?join=CODE` staff sign-up link is sent to `/mobile/settings` instead, which joins the venue on arrival. A desktop browser can still visit `/mobile/*` directly and isn't blocked.
 
 ## 2. Route Map
 
@@ -118,11 +117,10 @@ These apply to this build specifically and are restated here so this doc is self
 - **Touch targets**: WCAG 2.5.5 (44×44px) is the intended standard but enforced **ad hoc via inline styles** per element, not a shared helper/CSS variable. Add the inline minimum yourself on any new tappable element.
 - **Safe-area handling**: `env(safe-area-inset-bottom, 0px)` is used throughout this tree (fixed `BottomNav`, challenge screens). `app/mobile/layout.tsx`'s locked viewport sets `viewportFit: "cover"`, which is what makes these insets meaningful here — confirm that's still true before relying on it elsewhere.
 - **PWA/offline**: no service worker, manifest, or `next-pwa`/workbox infrastructure exists anywhere in the repo (confirmed via repo-wide search) — the retry queue in §4 is the *only* offline-resilience mechanism in this build, not a general PWA capability. Don't assume install-to-homescreen or background sync exist.
-- **`docs/MOBILE_VIEW.md`** documents `MobileDashboardV3.tsx` (the legacy embedded system, §1) and predates this build entirely — don't use it as a reference for `app/mobile/`.
 
 ## Related Docs
 
 - `CHALLENGES.md` — full detail on the Challenges feature, which lives primarily on this build.
-- `STAFF_APP.md` — parent doc covering the full staff training platform, including the legacy mobile system and the desktop dashboard this build parallels.
+- `STAFF_APP.md` — parent doc covering the full staff training platform, including the desktop dashboard this build parallels.
 - `docs/MASTERY_ENGINE.md` — the mastery formula behind `useTrainingProgress()`'s data.
 - `DATABASE_SCHEMA.md` — table map for `user_challenges`, `scenario_mastery`, and the other tables this build reads/writes.

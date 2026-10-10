@@ -23,7 +23,7 @@ export type VerifyAnswerResult = {
   status: "active" | "passed" | "exhausted";
 };
 
-export class VerifyQuizError extends Error {
+class VerifyQuizError extends Error {
   constructor(message: string, readonly code: string | null, readonly status: number) {
     super(message);
     this.name = "VerifyQuizError";

@@ -44,7 +44,7 @@ const CONTENT: SolutionContent = {
     title: "Cocktail and wine knowledge drilled daily",
     body: "Staff practise recipes, spirit profiles, and provenance stories through scenario repetition until they can describe them fluently under pressure.",
     image: {
-      src: "/shots/Cocktail-mobile.png",
+      src: "/shots/Cocktail-mobile.webp",
       alt: "Serve By Example staff training app on mobile: 38-cocktail drink library",
       width: 912,
       height: 1844,

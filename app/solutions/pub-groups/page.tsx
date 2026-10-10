@@ -43,7 +43,7 @@ const CONTENT: SolutionContent = {
     title: "Group-wide visibility in one console",
     body: "Compare readiness scores across venues, spot skill gaps before they become service issues, and direct coaching where it matters most. Manage up to 125 staff across 5 venues from a single dashboard.",
     image: {
-      src: "/shots/Overview Console Wide.png",
+      src: "/shots/Overview Console Wide.webp",
       alt: "Serve By Example manager console: venue overview with training completion, compliance status, and staff needing attention",
       width: 3004,
       height: 1654,

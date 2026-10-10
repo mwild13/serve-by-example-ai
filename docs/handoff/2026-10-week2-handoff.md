@@ -1,6 +1,6 @@
 # Handoff: October 2026, Week 2 — By Example Advisory page, homepage UI overhaul and pricing page redesign
 
-> **Six pieces of work this week.** Parts 5 and 6, at the end of this file, are the Manager Console redesign: Part 5 is the shell and home page, Part 6 is every other tab. Both are on branch `preview/console-home-redesign`, **pushed for preview, not merged**. The first four: Part 1 (below) is the Advisory page, merged to `main`. Part 2 is the homepage UI overhaul, also merged to `main`. Part 3 is the pricing page redesign, also merged to `main`. Part 4, at the end of this file, is the new typography and the redesign of every remaining marketing page, **merged to `main` 2026-10-08**. The AI model switch to `gpt-6-luna` is recorded in Part 1 and is merged too.
+> **Eight pieces of work this week. Parts 1 to 7 are on `main` as of 2026-10-09 (`9b80080`).** Part 8, at the end of this file, is the removal of the old mobile view inside `/dashboard`; it is on branch `preview/remove-legacy-mobile`, **pushed for preview, not merged**. Part 7 is the em dash sweep, the demo and login page redesigns, the production release and the review of old branches. Parts 5 and 6 are the Manager Console redesign: Part 5 is the shell and home page, Part 6 is every other tab. Parts 5, 6 and 7 were built on branch `preview/console-home-redesign` and **fast-forwarded into `main` on 2026-10-09**. The first four: Part 1 (below) is the Advisory page, merged to `main`. Part 2 is the homepage UI overhaul, also merged to `main`. Part 3 is the pricing page redesign, also merged to `main`. Part 4 is the new typography and the redesign of every remaining marketing page, **merged to `main` 2026-10-08**. The AI model switch to `gpt-6-luna` is recorded in Part 1 and is merged too.
 
 - **Dates:** 2026-10-07 to 2026-10-08
 - **Branch:** `preview/advisory-page`, **merged to `main` 2026-10-08** (merge `b0e1de1`). Preview: https://preview-advisory-page.serve-by-example-ai.pages.dev/advisory
@@ -646,3 +646,224 @@ Type sizes were not changed.
 - **One primary button per tab.**
 - **Do not add a control that records nothing.**
 - **Account actions go in the top header's account menu,** not the sidebar.
+
+---
+
+# Part 7: Em dash sweep, demo and login redesign, production release
+
+- **Date:** 2026-10-09
+- **Branch:** `preview/console-home-redesign`, fast-forwarded into `main` (`9b80080`). Parts 5 and 6 went to production in the same push.
+- **Why:** a customer said the site's text "looks AI". The owner asked for the em dashes to go, then for the demo, any missed pages and the login page to be brought onto `docs/Pages-Redesign.md`.
+
+## The short version
+
+1. **Em dashes are gone from the marketing side.** About 30 in visible copy, plus page titles, meta descriptions, two emails and around 20 image alt texts that used a spaced en dash the same way.
+2. **The demo's AI feedback should no longer add them.** The scenario evaluator prompt now asks for plain punctuation. That prompt is shared with the staff trainer.
+3. **`/demo` and `/demo/complaint-master` are on the standard.** No boxed text cards, no glyph icons, one primary button each.
+4. **The 404 and error pages have a real layout.** They share the confirmation layout used by `/toolkit/success`.
+5. **`/login` is redesigned.** Navy panel with the real console screenshot, one text switch between sign in and create account, gold submit button.
+6. **Everything on the preview branch is in production.** Five commits, a clean fast-forward.
+7. **Six old branches were reviewed.** None should be merged. Four are dead, two hold work to rebuild.
+
+## What changed
+
+### Copy
+
+- **Marketing pages:** `/roi`, `/contact`, `/vs-generic-lms`, `/resources`, `/platform/challenges`, `/solutions`, `/solutions/pub-groups`, `/for-venues`, `/how-it-works`, `/pricing`, `/toolkit` and `/toolkit/success`. Each em dash became a comma, a colon or a new sentence. No claim was reworded.
+- **Shared parts:** the navbar's Platform description, the ROI calculator's thank-you line, the pricing comparison table's section labels ("A. Title", was "A — Title") and the four SOP preview titles.
+- **Metadata:** the root Open Graph title and description, and the titles for `/demo/complaint-master`, `/toolkit`, `/toolkit/success` and `/geo-block`. Titles now use `|` as the separator throughout.
+- **Emails:** the ROI projection email and its internal lead notification (`app/api/roi/email/route.ts`) and the password reset email (`app/api/auth/forgot-password/route.ts`).
+- **Evaluator prompt** (`lib/scenario-evaluator.ts`): one line added to the OUTPUT rules, asking for commas and full stops and no em or en dashes in every text field. Nothing else in the hardened prompt changed. It applies to `/api/demo/evaluate` and `/api/evaluate`.
+- **Not touched:** code comments, and the staff product (`/dashboard`, `/mobile`), which still has about 50 em dashes in visible text.
+
+### `/demo`
+
+- **Lead pane** (`app/demo/_components/LeadCapturePane.tsx`): was a dark rounded card with two equal pill buttons and a bordered guarantee badge. Now an unboxed column behind a hairline: kicker, heading, one gold button, a text link, the guarantee as plain text, and the solutions as a ruled list.
+- **`CtaGuaranteeBlock`** lost its `variant` prop. The same block is used in the pane and inline on phones after a score.
+- **Score highlight:** the pulse after a result now lands on the primary button, not the guarantee text.
+- **Glyphs removed** (`EvaluationTabs.tsx`, `ScenarioSimulatorPane.tsx`): the tick, warning and cross characters are `lucide-react` icons; the arrows on Skip and "Try another module" and the hidden plus and minus spans are gone. Coach headings read "Strength: Communication" and "Missed opportunity: Problem solving".
+- **Duplicate link removed:** "Multi-Venue Groups" pointed at the same page as "Pub Groups" and gave two list items the same React key.
+
+### `/demo/complaint-master`
+
+- **Intro:** the bordered card with three icon badges is a left-aligned heading beside three ledger rows (3 scenarios, 5 minutes, 25 points per scenario). The intro uses the full container; the practice, result and complete stages keep the 680px column.
+- **Finish screen:** one primary button ("Try three more scenarios", to `/demo`) and one text link ("Compare plans and prices"). It had two equal buttons.
+- **Kicker:** "Free practice tool", was "Free Training Tool".
+
+### 404, error, geo-block
+
+- **`app/not-found.tsx`:** navbar, footer and the `.sbe-mkt-confirm` layout, with "Back to home" and a text link to the demo.
+- **`app/error.tsx`:** same layout without navbar or footer, since either could be what failed. "Back to home" is a plain anchor so it forces a full page load.
+- **`/geo-block` and `/restricted`:** the globe icon tile is removed and the heading reads "Australia Only. For Now."
+
+### `/login`
+
+- **Right panel:** `--bg-dark` to `--bg-dark-soft`, was `--roi-forest`. Kicker, the six-weeks headline in the standard heading style, three points as a ruled list, and `public/shots/Overview Console Wide.png` running off the right and bottom edges. The panel is pinned to one screen tall, so the form column alone sets the page height. It is hidden below 900px.
+- **Sign in or create account:** the two pill buttons are replaced by one line under the heading ("New here? Create an account", or "Already have an account? Sign in").
+- **Submit buttons** use `sbe-mkt-btn-primary` with a new `.login-submit` class. Inputs and the Google button use `--radius-sm` inside `.login-split`.
+- **Portal tabs** keep "Staff Login" and "Management Login" without their icons. The logo links to `/`.
+- **e2e:** `tests/e2e/global-setup.ts` still clicks the form's "Sign in" button; only its comment changed. `#email` and `#password` are unchanged.
+- **Not changed:** `/auth` and `/reset-password`, which still use `.login-shell` and the older card. `public/images/login-value-prop.png` is now unused.
+
+### CSS (`app/globals.css`)
+
+- **Added:** `.cm-intro`, `.demo-guarantee`, `.demo-solutions`, `.sbe-mkt-confirm-actions`, `.login-submit`, `.login-visual-points`, `.login-visual-shot`, and `button.sbe-mkt-btn-primary` (border and cursor reset, so the class works on a `<button>`).
+- **Removed:** `.cm-hero`, `.cm-intro-card`, `.cm-intro-meta`, `.cm-intro-badge`, `.demo-guarantee-badge` and its light variant, `.demo-solutions-links*`, `.geo-block-icon`, `.login-visual-img-wrap`, `.login-visual-bullets`.
+
+## Release
+
+- **Production:** `main` moved from `856bc99` to `9b80080` on 2026-10-09 by fast-forward. Commits: `8712860` and `4671c56` (Parts 5 and 6), `768ac4a` (sweep and demo), `279148f` (empty, see below), `9b80080` (login).
+- **One failed preview deploy.** The build for `768ac4a` compiled and uploaded, then failed at the last step with "Failed to publish your Function. Got error: Unknown internal error occurred." Nothing on the Cloudflare status page matched. An empty commit (`279148f`) retriggered it and it deployed. If it happens again, retry before investigating.
+- **The production build after the fast-forward was not watched.**
+
+## Old branches
+
+Reviewed on 2026-10-09 with a trial merge against `main`. None was merged, and all six are still on the remote.
+
+| Branch | Tip | State | Recommendation |
+|---|---|---|---|
+| `preview/navy-tokens-rollout` | `4633cae` | Merges clean and changes nothing; its icons and manifest fix are already on `main` | Dead |
+| `cloudflare/workers-autoconfig` | `47eaef0` | March, auto-generated config; conflicts in 7 files with the working OpenNext setup | Dead |
+| `feature/manager-console-ux-overhaul` | `9bc2f6c` | July; superseded by Parts 5 and 6, and grows `ManagerControlCenter.tsx` | Dead |
+| `fix/misc-ui-polish` | `1d537d6` | Compliance table overflow is already fixed on `main` (`.mc-table-wrap`). What is left is a cosmetic colour change to the Arena text box | Dead |
+| `preview/staff-billing-portal` | `6d0d06d` | Conflicts in `DashboardShell.tsx`; covers `/dashboard` only | Keep as reference, rebuild |
+| `preview/sentry-error-tracking` | `55f0960` | Conflicts in 4 files; carries a cookie banner and analytics setup that `main` replaced | Keep as reference, rebuild if wanted |
+
+Removing the four dead branches is the owner's to do; it was not done in this session.
+
+## Checks run
+
+| Check | Result |
+|---|---|
+| Typecheck | Passed |
+| Lint on changed files | Passed |
+| CSS token lint | 0 raw hex values |
+| Unit tests (vitest) | 46 of 46 passed |
+| `/demo`, `/demo/complaint-master`, `/login` at 375, 1280, 1440 and 1920px | No sideways scroll |
+| `/login` at 1440 by 900 | Fits the window with the submit button visible |
+| Demo result and coach tabs, Complaint Master through to the finish screen | Checked with a mocked `/api/demo/evaluate` response |
+| Preview deploy of `9b80080` | Succeeded |
+| Live evaluator output | Not checked. No real answer was submitted, so the new punctuation rule is untested against the model |
+| Signing in, creating an account, Google sign-in, password reset on the new `/login` | Not checked. They need Supabase |
+| Marketing and mobile e2e suites | Not run |
+| Dark mode | Not checked |
+
+## Open items
+
+All of these are in `To_do_list.md`.
+
+- **Staff on Pro cannot manage or cancel their subscription.** The most important item here. See "Staff billing".
+- **Sentry:** decide, then build fresh. See "Error tracking".
+- **Sign in on the new `/login`** and submit one real answer on each demo.
+- **Two guarantees:** `/demo` promises "$0 if staff don't complete a scenario within 7 days"; the rest of the site says 14 days. The wording was left as it was.
+- **New copy to approve:** the Complaint Master heading "Three complaints. Five minutes." and its three ledger descriptions; the kickers "After the demo", "Before you start" and "Hospitality staff training"; the button labels "Create my free account" and "Try three more scenarios".
+- **Em dashes in the staff product,** and `/auth` and `/reset-password` on the old card.
+- **Four dead branches** are still on the remote.
+
+## Rules for new code (added in Part 7)
+
+- **No em dashes, and no spaced en dashes, in anything a visitor or customer reads:** page copy, titles, meta descriptions, alt text and emails. Use a comma, a colon or a new sentence. An en dash in a number range ("3–9%") is fine.
+- **Page titles separate with `|`.**
+- **Any prompt whose output is shown to a person** asks for plain punctuation, as `lib/scenario-evaluator.ts` does.
+- **No unicode characters as icons** (ticks, crosses, arrows). Use `lucide-react` for interface chrome, or nothing.
+- **A standalone page with one message** (confirmation, not found, error) uses `.sbe-mkt-confirm` inside `.sbe-mkt-confirm-page`.
+- **`sbe-mkt-btn-primary` works on a `<button>`.** Do not add a per-page border reset.
+
+---
+
+# Part 8: Legacy mobile dashboard removed
+
+- **Date:** 2026-10-09
+- **Branch:** `preview/remove-legacy-mobile`, off `main` at `ae91db9`. **Pushed for preview, not merged.** Preview: https://preview-remove-legacy-mobile.serve-by-example-ai.pages.dev
+- **Why:** the owner asked for the old mobile staff dashboard to be deleted cleanly, and asked whether the new `/mobile` app should move back into `/dashboard`.
+
+## The short version
+
+1. **The old mobile view inside `/dashboard` is deleted.** About 1,500 lines: two components, the bottom nav bar, their CSS, twelve colour tokens and one doc.
+2. **`/mobile` stays a separate route tree.** It was not merged back into `/dashboard`. The reasons are under "The decision".
+3. **No phone user sees a change.** `middleware.ts` was already sending every phone from `/dashboard` to `/mobile/home`, so the old view only appeared in a non-phone window narrower than 720px.
+4. **A narrow `/dashboard` window now shows the desktop dashboard in one column,** with the nav as a wrapped row on top.
+5. **The staff sign-up link now works on a phone** for someone who is already signed in.
+6. **Nothing was checked in a browser.** There is no local environment to sign in with. The checks are in `To_do_list.md`.
+
+## The decision
+
+The owner's question was whether to delete the old view and then merge `/mobile` into `/dashboard`, or simply delete. Simply delete was chosen.
+
+- **Different layouts.** `/mobile` needs a locked viewport, a dark body, the orientation guard and its session and progress providers (`app/mobile/layout.tsx`). `/dashboard` is one client shell that swaps views in state. Putting both behind one URL is the arrangement that was just removed.
+- **Real routes.** `/mobile` has 22 of them, which gives it a working back button, deep links and per-screen code splitting. The dashboard shell has none of these.
+- **The shared code is already shared:** `resolveTierAccess()`, `lib/streak.ts`, `lib/badges.ts`, `trainer-data.ts` and the API routes. Nothing in `/dashboard` imports from `/mobile`.
+- **The e2e suite and its snapshots** are keyed to `/mobile/*` paths.
+
+The owner also chose that a narrow non-phone window keeps the desktop dashboard, reflowed, and is not redirected to `/mobile`.
+
+## What changed
+
+### Removed
+
+- **`app/dashboard/_components/MobileDashboardV3.tsx`** (862 lines) and **`MobileLearnHub.tsx`** (289 lines).
+- **In `DashboardShell.tsx`:** the `useIsMobile()` width check, `MobileBottomNavBar`, the `mobile-learn` nav id and its view. Home always renders `PreShiftHome`. An old `/dashboard?nav=mobile-learn` link opens Home.
+- **CSS (`app/globals.css`):** the `.mobile-bottom-nav` block, including the rule that hid the sidebar below 720px with `!important`; `.dashboard-mobile-footer-actions` and `.dashboard-plan-card-mobile`, which nothing rendered.
+- **Tokens:** every `--ip-*` token except `--ip-green`, which the console sidebar, the selected chips and the Cocktail Library still use.
+- **`docs/MOBILE_VIEW.md`.** It documented only the removed view.
+
+### `/dashboard` below 720px
+
+- **Layout:** the one-column rules that were already in `app/globals.css` (the `max-width: 720px` block after `.management-unlock-form`) now apply, because the block that overrode them is gone. The sidebar becomes a wrapped row of nav items above the content.
+- **Sign out** is no longer hidden at that width. Its intended replacement was never rendered, so it would have been unreachable.
+- **No redesign.** This is a fallback for a squeezed desktop window or iPad split view, not a mobile product.
+
+### Staff sign-up link on phones
+
+- **Before:** `/dashboard?join=CODE` on a phone was redirected to `/mobile/home`, which ignored the code. The staff member never joined the venue.
+- **`middleware.ts`:** a phone request to `/dashboard` with a `join` parameter goes to `/mobile/settings`. Every other phone request still goes to `/mobile/home`.
+- **`app/mobile/_components/SettingsScreen.tsx`:** reads the code once on arrival, removes it from the URL and submits it through the same function as the Join button. The result message now also shows for someone already linked to a venue, and reads "Already connected to ..." when the API reports that.
+
+### Docs
+
+- **`docs/STAFF_APP.md`** section 2, **`docs/MOBILE_BUILD.md`** section 1 and **`docs/CHALLENGES.md`** now describe one mobile app and two surfaces. The README links to `MOBILE_BUILD.md`.
+- **Not edited:** the older audits and plans that mention the removed files (`docs/archive/`, `v4-migration-plan/`, `docs/STAFF_DASHBOARD_AUDIT_REPORT.md`, `docs/staff-dashboard-a11y-audit.md`, `docs/ARCHITECTURE_CLEANUP_BLUEPRINT.md`, `docs/Staff Dash Directory.md`). They are records of their date.
+
+### Left in place
+
+- **`/api/coach`, `lib/badges.ts` and `lib/streak.ts`** are still used by `/mobile` or the desktop dashboard.
+- **`.dashboard-plan-card*` and `.mockup-logo`** in `app/globals.css` have no users either, but were not part of the mobile view and were left.
+- **Old streak keys** (`sbe-streak-last-<user id>`, `sbe-streak-count-<user id>`) stay in the local storage of browsers that used the old view. Nothing reads them.
+
+## Commits
+
+| Commit | What |
+|---|---|
+| `66221d6` | Remove the legacy view, its CSS and tokens |
+| `6c8fc51` | Staff sign-up link on phones |
+| `75d7843` | Docs and three to-do items |
+| `03e6987` | Part 7 of this file and its to-do items, which were written after the release and had not been committed |
+
+## Checks run
+
+| Check | Result |
+|---|---|
+| Typecheck | Passed |
+| Lint | Passed |
+| CSS token lint | 0 raw hex values |
+| Unit tests (vitest) | 46 of 46 passed |
+| Production build (`next build`) | Passed |
+| Search for the removed names in `app`, `lib` and `components` | None left |
+| `/dashboard` at 700px and 375px | Not checked |
+| Staff sign-up link on a phone | Not checked |
+| Mobile e2e suite | Not run. It needs the preview URL and the QA login |
+| Unused-code check (`knip`) | Not run. It is not installed |
+
+## Open items
+
+All of these are in `To_do_list.md`, under "Checks to finish".
+
+- **Check the preview** before merging: the narrow `/dashboard` layout on a computer, and the sign-up link on a phone.
+- **The sign-up link is lost at sign-in.** A signed-out person who opens it is sent to `/login`, and the code is dropped afterwards, on desktop and phone. Most new staff are signed out when they first open the link, so the fix in this part only helps people who already have a session.
+- **Phone checkout return skips the instant upgrade.** `/dashboard?checkout=success&session_id=...` is redirected to `/mobile/home` before the Stripe session is verified, so the plan only updates when the webhook lands.
+
+## Rules for new code (added in Part 8)
+
+- **There is one mobile staff app, at `/mobile`.** Do not add a width check or a second UI to `DashboardShell.tsx`.
+- **`/dashboard` is desktop.** Below 720px it reflows with CSS only.
+- **A link that must work for staff on a phone** has to be handled in `middleware.ts`, because phones never reach `/dashboard`.

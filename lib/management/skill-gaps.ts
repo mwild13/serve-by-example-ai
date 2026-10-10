@@ -7,7 +7,7 @@ import type { StaffMember } from "@/lib/management/types";
 // tweak had to be made twice or the two views silently disagreed. Both now
 // call this and derive whatever shape they need from the result.
 
-export type SkillGapId = "sales" | "service" | "product" | "progress" | "decay" | "confidence";
+type SkillGapId = "sales" | "service" | "product" | "progress" | "decay" | "confidence";
 export type SkillGapRisk = "high" | "medium";
 
 export type SkillGapFlag = {

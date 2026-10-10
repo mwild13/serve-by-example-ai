@@ -1,6 +1,6 @@
 # Challenges — One-Stop Reference
 
-Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.md` wins. This is the single source of truth for the "Challenges" mini-game feature across **all three** surfaces it exists on: the new standalone Mobile build (`app/mobile/`), the desktop staff dashboard (`app/dashboard/_components/`), and the legacy embedded mobile view (`MobileDashboardV3.tsx`). Written so a future session can add new challenge types without re-deriving this from scratch.
+Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.md` wins. This is the single source of truth for the "Challenges" mini-game feature across **both** surfaces it exists on: the standalone Mobile build (`app/mobile/`) and the desktop staff dashboard (`app/dashboard/_components/`). Written so a future session can add new challenge types without re-deriving this from scratch.
 
 **Primary intent of this doc**: you (Mitchell) want to build additional challenges soon. Read §5 ("Adding a New Challenge") before writing any code — the app-layer count is now centralized in `lib/challenges.ts` (2026-09-11), but a hard DB constraint will still silently reject a 6th challenge unless migrated first, and the new game itself still needs building on both surfaces.
 
@@ -93,13 +93,12 @@ To add a 6th challenge type (or beyond):
 4. **Desktop wiring**: add the new game component under `app/dashboard/_components/challenges/`, following the existing pattern (`ChallengeGameProps` from `challenge-types.ts`, wrap in `ChallengeCard`, call `onComplete?.()` / `onIncorrect?.()`). Add its label to `STEP_LABELS` in `challenge-types.ts` (keep its length equal to `TOTAL_CHALLENGES`). Wire it into `ChallengesPage.tsx`'s phase/step switch (both the `quiz` render and the `reviewMode` review-all block) and the lobby's game-preview grid.
 5. **Mobile wiring**: add the new screen under `app/mobile/_components/`, using `useMarkChallengeComplete(index, isComplete)` and the shared `MobileChallengeChrome.tsx` exports for visual consistency. Add a route folder (`app/mobile/<slug>/page.tsx`) that just renders it, following the existing one-liner page pattern (see any of `recipe-order/page.tsx`, `speed-round/page.tsx`, etc.). Add an entry to the `CHALLENGES` array in `ChallengesScreen.tsx` — this single array is the shared source of truth also consumed by `MiniGamesSection.tsx`'s Learn Hub teaser (the "+N more" count is now derived automatically, per the update note above — no separate edit needed there).
 6. **Decide whether content is shared or mobile-only**. The existing 5 are content-identical across desktop/mobile by deliberate choice (ported "verbatim"). If new challenges are mobile-only (plausible, given the desktop dashboard is the older surface — see `MOBILE_BUILD.md`), that's a valid deviation from precedent, but write it down here once decided so a future session doesn't assume drift is a bug.
-7. **Legacy embedded mobile** (`MobileDashboardV3.tsx` / `MobileLearnHub.tsx`): renders `ChallengesPage.tsx` (the *desktop* component) directly inside the legacy mobile shell — see §6. A new challenge added to desktop's `ChallengesPage.tsx` automatically appears there for free; nothing extra to do unless the new challenge is mobile-only.
 
 ## 6. How Each Surface Actually Renders Challenges
 
-Three surfaces exist; they are **not** the same code path. Full mobile-vs-mobile detail (why there are two mobile systems at all) is in `STAFF_APP.md` §2 and `MOBILE_BUILD.md` §1 — this section is the Challenges-specific slice of that split.
+Two surfaces exist; they are **not** the same code path. See `STAFF_APP.md` §2 and `MOBILE_BUILD.md` §1 for how the two relate.
 
-### a) New standalone Mobile build (`app/mobile/`) — primary target for future work
+### a) Standalone Mobile build (`app/mobile/`) — primary target for future work
 - Entry: `/mobile/challenges` → `ChallengesScreen.tsx` — a lobby/hub screen listing all 5 games as rows (icon, title, marketing description, completion badge, Play/Replay button), reading completion counts from the shared `useTrainingProgress()` context.
 - Each game is its **own route** (`/mobile/recipe-order`, `/mobile/memory-test`, etc.) rendering a single screen component — not a wizard/stepper like desktop. No "start all 5 in sequence" flow exists on mobile; each is independently entered and exited (back to `/mobile/challenges` via `CompletionCard`'s "Back to Challenges" link).
 - A teaser of the first 3 games (`MiniGamesSection.tsx`) appears on the Learn Hub (`/mobile/learn`) with a "+N more" tile (count derived from `CHALLENGES.length`, not hardcoded) and "See all" link to the full hub.
@@ -110,10 +109,6 @@ Three surfaces exist; they are **not** the same code path. Full mobile-vs-mobile
 - Presented as a **single wizard**: lobby (preview grid of all 5 + "Start Challenges") → 5-step quiz (one `Stepper.tsx` dot per game, in fixed index order 0→4) → summary (`ChallengeScoreBoard.tsx` showing score out of 5, with a "Review all answers" mode that re-renders all 5 games read-only-ish with `onComplete={() => {}}`).
 - Tracks a client-only "personal best" score (`localStorage["sbe-challenges-best-score"]`) — **this is desktop-only**, mobile has no equivalent personal-best/score concept (mobile only tracks per-game completion, not a combined score run). Don't assume feature parity here.
 - Always available to every tier (not in `PREMIUM_NAV_ITEMS` — see `STAFF_APP.md` §1).
-
-### c) Legacy embedded mobile (`MobileDashboardV3.tsx` / `MobileLearnHub.tsx`)
-- Does **not** have its own Challenges implementation. `DashboardShell.tsx` renders the same desktop `ChallengesPage.tsx` component regardless of which mobile/desktop nav shell is active — the "legacy mobile" distinction only affects the surrounding chrome (bottom nav, header), not the Challenges content itself. So the legacy mobile experience of Challenges is literally the desktop wizard flow, just inside the legacy mobile frame.
-- No action needed here when adding new challenges unless the legacy frame's styling needs updating to accommodate a new game — which, per the point above, it inherits automatically.
 
 ## 7. Known Gaps / Things to Decide Before Building More
 

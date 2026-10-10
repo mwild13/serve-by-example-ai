@@ -95,7 +95,7 @@ export default function ForVenuesPage() {
               title: "Everything you need to manage and measure your team’s training.",
               body: "Training completion, compliance status and the staff who need attention, in one view.",
               image: {
-                src: "/shots/Overview Console Wide.png",
+                src: "/shots/Overview Console Wide.webp",
                 alt: "Serve By Example manager console: venue overview with training completion, compliance status, and staff needing attention",
                 width: 3004,
                 height: 1654,

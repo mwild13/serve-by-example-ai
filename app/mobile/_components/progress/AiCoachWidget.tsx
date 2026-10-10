@@ -7,8 +7,8 @@ import { useMobileSession } from "../../_lib/mobile-session-context";
 // Mobile bug-fix plan, Phase 3d — AI chat widget for the Me page's lower
 // third, above BottomNav. Chat mechanics (message list, loading state,
 // POST /api/coach with {question, language}) are ported from the legacy
-// desktop AICoachSheet (app/dashboard/_components/MobileDashboardV3.tsx:325
-// -463) — same endpoint, same stateless-per-request contract (confirmed
+// embedded mobile dashboard's AICoachSheet (removed 2026-10-09) — same
+// endpoint, same stateless-per-request contract (confirmed
 // with the user: v1 ships stateless, no persisted history).
 //
 // NOT reusing the existing .coach-float-wrap/.coach-float-panel CSS in

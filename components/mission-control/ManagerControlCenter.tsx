@@ -1622,9 +1622,9 @@ export default function ManagerControlCenter({
 
       {/* ── Venue delete confirmation modal ── */}
       {venueDeleteConfirm && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.45)" }} onClick={() => setVenueDeleteConfirm(null)}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: "white", borderRadius: 12, padding: "28px 32px", maxWidth: 420, width: "calc(100% - 48px)", boxShadow: "0 8px 32px rgba(0,0,0,0.2)" }}>
-            <h3 style={{ margin: "0 0 8px", fontSize: "1rem", fontWeight: 700, color: "var(--color-ink)" }}>Delete venue?</h3>
+        <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.45)" }} onClick={() => setVenueDeleteConfirm(null)} onKeyDown={(e) => { if (e.key === "Escape") setVenueDeleteConfirm(null); }}>
+          <div role="alertdialog" aria-modal="true" aria-labelledby="venue-delete-title" onClick={(e) => e.stopPropagation()} style={{ background: "white", borderRadius: 12, padding: "28px 32px", maxWidth: 420, width: "calc(100% - 48px)", boxShadow: "0 8px 32px rgba(0,0,0,0.2)" }}>
+            <h3 id="venue-delete-title" style={{ margin: "0 0 8px", fontSize: "1rem", fontWeight: 700, color: "var(--color-ink)" }}>Delete venue?</h3>
             <p style={{ margin: "0 0 8px", fontSize: "0.9rem", color: "var(--color-text-muted)", lineHeight: 1.55 }}>
               You are about to permanently delete <strong>{venueDeleteConfirm.venueName}</strong>.
             </p>
@@ -1632,7 +1632,7 @@ export default function ManagerControlCenter({
               <p style={{ margin: 0, fontSize: "0.82rem", color: "var(--status-critical-text)", fontWeight: 600 }}>This will remove all staff assignments and training data linked to this venue. This cannot be undone.</p>
             </div>
             <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button type="button" onClick={() => setVenueDeleteConfirm(null)} style={{ padding: "9px 20px", borderRadius: 8, border: "1.5px solid var(--viz-neutral-light)", background: "white", fontWeight: 600, fontSize: "0.875rem", cursor: "pointer", color: "var(--text-secondary)" }}>
+              <button type="button" autoFocus onClick={() => setVenueDeleteConfirm(null)} style={{ padding: "9px 20px", borderRadius: 8, border: "1.5px solid var(--viz-neutral-light)", background: "white", fontWeight: 600, fontSize: "0.875rem", cursor: "pointer", color: "var(--text-secondary)" }}>
                 No, keep it
               </button>
               <button

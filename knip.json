@@ -1,3 +1,5 @@
 {
-  "ignore": [".claude/**", "supabase/**", "docs/**", "content/**", "open-next.config.ts"]
+  "entry": ["scripts/**/*.mjs", "playwright.marketing.config.ts", "tests/e2e-marketing/**/*.ts"],
+  "ignore": [".agents/**", "open-next.config.ts"],
+  "ignoreDependencies": ["postcss", "sharp"]
 }

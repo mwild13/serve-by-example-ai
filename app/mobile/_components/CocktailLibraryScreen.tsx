@@ -38,7 +38,7 @@ import { COCKTAILS, CATEGORIES, COCKTAIL_IMAGES, type Category, type Cocktail } 
 
 const CATEGORY_KEYS = Object.keys(CATEGORIES) as Category[];
 
-const FALLBACK_IMAGE = "/mobile/thumb-cocktail.png";
+const FALLBACK_IMAGE = "/mobile/thumb-cocktail.webp";
 
 /** Stable, URL-safe identifier for a cocktail — lib/cocktails.ts has no id
  * field, `name` is the unique key (same assumption CocktailLibraryScreen

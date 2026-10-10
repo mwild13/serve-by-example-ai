@@ -58,6 +58,8 @@ function buildCSP(nonce: string): string {
   ].join("; ");
 }
 
+const SIGNED_IN_PREFIXES = ["/dashboard", "/mobile", "/management", "/onboarding", "/session-conflict", "/payment-success"];
+
 export async function middleware(request: NextRequest) {
   // Generate a unique nonce per request — replaces unsafe-inline in script-src
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
@@ -75,6 +77,14 @@ export async function middleware(request: NextRequest) {
   response.headers.set("Content-Security-Policy", csp);
 
   const path = request.nextUrl.pathname;
+
+  // Signed-in surfaces must never sit in a shared cache. The server-rendered
+  // ones already send no-store, but the client shells (/onboarding,
+  // /dashboard/badges, /session-conflict) are prerendered and would otherwise
+  // go out with Next's default one-year s-maxage.
+  if (SIGNED_IN_PREFIXES.some((prefix) => path === prefix || path.startsWith(`${prefix}/`))) {
+    response.headers.set("Cache-Control", "private, no-store");
+  }
 
   // Helper function to safely redirect while transferring modified Supabase cookies
   const syncRedirect = (url: URL) => {
@@ -158,7 +168,9 @@ export async function middleware(request: NextRequest) {
   // on /management/dashboard, a different route entirely.
   if (isDashboard && user && isMobilePhoneUserAgent(request.headers.get("user-agent") ?? "")) {
     const mobileHomeUrl = request.nextUrl.clone();
-    mobileHomeUrl.pathname = "/mobile/home";
+    // The staff sign-up link (/dashboard?join=CODE) goes to mobile Settings,
+    // which joins the venue on arrival. The query string is kept by clone().
+    mobileHomeUrl.pathname = mobileHomeUrl.searchParams.has("join") ? "/mobile/settings" : "/mobile/home";
     return syncRedirect(mobileHomeUrl);
   }
 

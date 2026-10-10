@@ -7,7 +7,7 @@
 // out of sync with each other.
 export const DAILY_GENERATION_LIMIT = 2;
 
-export function isSameUtcDay(a: Date, b: Date): boolean {
+function isSameUtcDay(a: Date, b: Date): boolean {
   return (
     a.getUTCFullYear() === b.getUTCFullYear() &&
     a.getUTCMonth() === b.getUTCMonth() &&

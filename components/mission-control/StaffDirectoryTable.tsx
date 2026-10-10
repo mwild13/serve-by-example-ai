@@ -693,7 +693,21 @@ export default function StaffDirectoryTable({
                         {groupMembers.map((m) => {
                           const initials = m.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
                           return (
-                            <tr key={`roster-${m.id}`} onClick={() => onOpenCoachingDrawer(m.id)} style={{ cursor: "pointer" }}>
+                            <tr
+                              key={`roster-${m.id}`}
+                              className="is-clickable"
+                              tabIndex={0}
+                              aria-label={`Open ${m.name}`}
+                              onClick={() => onOpenCoachingDrawer(m.id)}
+                              onKeyDown={(e) => {
+                                if (e.target !== e.currentTarget) return;
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.preventDefault();
+                                  onOpenCoachingDrawer(m.id);
+                                }
+                              }}
+                              style={{ cursor: "pointer" }}
+                            >
                               <td><div className="ops-staff-avatar ops-staff-avatar-sm">{initials}</div></td>
                               <td><strong>{m.name}</strong></td>
                               <td>{m.role}</td>

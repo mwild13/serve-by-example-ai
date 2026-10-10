@@ -26,7 +26,7 @@ const SCREENS: MediaRow[] = [
     title: "Put the steps in order",
     body: "Three drinks land at once. Staff arrange the steps to build them in the right order.",
     image: {
-      src: "/shots/Challenge Sequence Sort.png",
+      src: "/shots/Challenge Sequence Sort.webp",
       alt: "Serve By Example Sequence Sort challenge: ordering the steps to build three drinks that arrive at once",
       width: 3024,
       height: 1654,
@@ -37,7 +37,7 @@ const SCREENS: MediaRow[] = [
     title: "Pick the best response",
     body: "A guest complaint plays out and staff choose the best immediate response.",
     image: {
-      src: "/shots/Challenge Multiple Choice.png",
+      src: "/shots/Challenge Multiple Choice.webp",
       alt: "Serve By Example Multiple Choice challenge: choosing the best immediate response to a guest complaint",
       width: 3024,
       height: 1654,
@@ -48,7 +48,7 @@ const SCREENS: MediaRow[] = [
     title: "Match the pairs",
     body: "Cocktails on one side, glassware on the other. Tap to link them.",
     image: {
-      src: "/shots/Challenge Match Pair.png",
+      src: "/shots/Challenge Match Pair.webp",
       alt: "Serve By Example Match Pair challenge: matching cocktails to their correct glassware",
       width: 3024,
       height: 1654,

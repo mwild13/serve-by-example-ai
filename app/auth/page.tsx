@@ -202,7 +202,7 @@ function AuthCard() {
               : "Pick up where you left off."}
           </p>
 
-          <div className="auth-toggle" role="tablist" aria-label="Authentication mode">
+          <div className="auth-toggle" role="group" aria-label="Authentication mode">
             <button
               type="button"
               className={`auth-toggle-button ${!isSignUp ? "active" : ""}`}

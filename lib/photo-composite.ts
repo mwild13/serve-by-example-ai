@@ -15,10 +15,10 @@ export const COMPOSITE_SIZE = 1024;
 export type BackgroundStyleId = "cocktail-lounge" | "hotel-lobby" | "wine-cellar" | "rooftop-bar";
 
 export const BACKGROUND_STYLES: { id: BackgroundStyleId; label: string; src: string }[] = [
-  { id: "cocktail-lounge", label: "Cocktail Lounge", src: "/mobile/Backgrounds-ai/ai-style-cocktail-lounge.png" },
-  { id: "hotel-lobby", label: "Hotel Lobby", src: "/mobile/Backgrounds-ai/ai-style-hotel-lobby.png" },
-  { id: "wine-cellar", label: "Wine Cellar", src: "/mobile/Backgrounds-ai/ai-style-wine-cellar.png" },
-  { id: "rooftop-bar", label: "Rooftop Bar", src: "/mobile/Backgrounds-ai/ai-style-rooftop-bar.png" },
+  { id: "cocktail-lounge", label: "Cocktail Lounge", src: "/mobile/Backgrounds-ai/ai-style-cocktail-lounge.webp" },
+  { id: "hotel-lobby", label: "Hotel Lobby", src: "/mobile/Backgrounds-ai/ai-style-hotel-lobby.webp" },
+  { id: "wine-cellar", label: "Wine Cellar", src: "/mobile/Backgrounds-ai/ai-style-wine-cellar.webp" },
+  { id: "rooftop-bar", label: "Rooftop Bar", src: "/mobile/Backgrounds-ai/ai-style-rooftop-bar.webp" },
 ];
 
 /** Decodes an image URL (same-origin static asset or a data: URI) into an

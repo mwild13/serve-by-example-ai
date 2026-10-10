@@ -125,4 +125,4 @@ Google Analytics (`G-EF9YRFXKBG`) is **not** in `app/layout.tsx`. It loads only 
 
 - `docs/Pages-Redesign.md` — full visual/structural marketing redesign spec (default left-aligned headers, no generic gradients, vary feature-list presentation, scope-limited to marketing pages) — this doc does not duplicate it
 - `docs/SBE-Marketing-Audit-July2026.md` — historical point-in-time audit
-- `docs/pricing-membership-overhaul.md` — historical background on the `/pricing` vs `/membership` split
+- `docs/archive/pricing-membership-overhaul.md` — historical background on the `/pricing` vs `/membership` split

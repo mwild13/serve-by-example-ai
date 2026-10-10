@@ -120,7 +120,7 @@ The whole console was rebuilt to the `docs/Pages-Redesign.md` principles. Styles
 
 ## Related Docs
 
-- `docs/Phase5-Mission-Control-Execution-Brief.md` — component-extraction history and original acceptance criteria (historical; the extractions it called for are done)
+- `docs/archive/Phase5-Mission-Control-Execution-Brief.md` — component-extraction history and original acceptance criteria (historical; the extractions it called for are done)
 - `docs/ManagmentConsoleUpgradeV5.md` — visual upgrade proposal (historical; note the filename's own spelling — "Managment" — is not a typo to fix, it's the real file)
 - `docs/DATABASE_SCHEMA.md` — RLS model (clients read-only) and the `organizations` model referenced in §2–3 above
 - `docs/handoff/security/2026-10-02-audit-remediation-handoff.md` — why the API guard exists and the rules for new code

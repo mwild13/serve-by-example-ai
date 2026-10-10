@@ -120,7 +120,7 @@ export default function HomeScreen() {
           <Link href="/mobile/progress" style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none" }}>
             <div style={{ width: 48, height: 48, borderRadius: 24, overflow: "hidden", flexShrink: 0 }}>
               <Image
-                src={session.profilePhotoUrl ?? "/mobile/avatar.png"}
+                src={session.profilePhotoUrl ?? "/mobile/avatar.webp"}
                 alt=""
                 width={48}
                 height={48}
@@ -278,7 +278,7 @@ export default function HomeScreen() {
               >
                 <div style={{ width: "100%", height: 76, borderRadius: "var(--radius-sm)", overflow: "hidden" }}>
                   <Image
-                    src={COCKTAIL_IMAGES[cocktail.name] ?? "/mobile/thumb-cocktail.png"}
+                    src={COCKTAIL_IMAGES[cocktail.name] ?? "/mobile/thumb-cocktail.webp"}
                     alt=""
                     width={188}
                     height={76}
@@ -313,7 +313,7 @@ export default function HomeScreen() {
             }}
           >
             <div style={{ width: 48, height: 48, borderRadius: "var(--radius-sm)", overflow: "hidden", flexShrink: 0 }}>
-              <Image src="/mobile/module-cover.png" alt="" width={48} height={48} style={{ objectFit: "cover", width: "100%", height: "100%" }} />
+              <Image src="/mobile/module-cover.webp" alt="" width={48} height={48} style={{ objectFit: "cover", width: "100%", height: "100%" }} />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, minWidth: 0 }}>
               {status === "ready" && continueModule ? (

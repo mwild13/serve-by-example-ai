@@ -2,9 +2,9 @@
 // Consent lives in localStorage (per-browser convenience, not a secret). Bump
 // CONSENT_VERSION to re-prompt every visitor after a material policy change.
 
-export const CONSENT_KEY = "sbe-cookie-consent";
-export const CONSENT_VERSION = 1;
-export const CONSENT_EVENT = "sbe:consent";
+const CONSENT_KEY = "sbe-cookie-consent";
+const CONSENT_VERSION = 1;
+const CONSENT_EVENT = "sbe:consent";
 export const OPEN_SETTINGS_EVENT = "sbe:open-cookie-settings";
 
 const GA_ID = "G-EF9YRFXKBG";

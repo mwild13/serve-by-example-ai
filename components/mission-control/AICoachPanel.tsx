@@ -16,7 +16,7 @@ import { PageHead } from "./console-ui";
 // earlier messages. Saved history exists so the manager can read back, and
 // "New chat" deletes it for this venue after one confirmation.
 
-export type CoachMessage = { role: "user" | "coach"; content: string };
+type CoachMessage = { role: "user" | "coach"; content: string };
 
 const SUGGESTIONS = [
   "Who needs the most attention this week?",

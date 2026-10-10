@@ -71,7 +71,7 @@ const RightPanel = () => (
     </div>
     <div className="login-visual-shot">
       <Image
-        src="/shots/Overview Console Wide.png"
+        src="/shots/Overview Console Wide.webp"
         alt="Serve By Example management console: venue overview with training completion, compliance status, and staff needing attention"
         width={3004}
         height={1654}

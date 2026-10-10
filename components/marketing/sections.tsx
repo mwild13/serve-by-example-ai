@@ -92,7 +92,7 @@ export function SplitPanel({
 
 /* ── Media rows: text beside a product screenshot, alternating side row to row ── */
 
-export type Shot = { src: string; alt: string; width: number; height: number };
+type Shot = { src: string; alt: string; width: number; height: number };
 
 export type MediaRow = {
   tag?: string;

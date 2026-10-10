@@ -214,13 +214,13 @@ export default function HowItWorksPage() {
               title: "The manager and staff consoles, side by side",
               body: "Two powerful tools working together: one for managers, one for staff.",
               image: {
-                src: "/shots/Overview Console Compact.png",
+                src: "/shots/Overview Console Compact.webp",
                 alt: "Serve By Example manager console: venue overview with training completion, compliance status, and staff needing attention",
                 width: 2416,
                 height: 1558,
               },
               phone: {
-                src: "/shots/Progress Skill Rings.png",
+                src: "/shots/Progress Skill Rings.webp",
                 alt: "Serve By Example staff mobile app: mastery breakdown by category with modules mastered and skill level",
                 width: 912,
                 height: 1844,

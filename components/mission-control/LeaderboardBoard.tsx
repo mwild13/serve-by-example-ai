@@ -110,7 +110,19 @@ export function LeaderboardBoard({ venueStaff, selectedVenueName, onSelectStaff,
                     {shown.map((member, index) => {
                       const points = getPointsBreakdown(member);
                       return (
-                        <tr key={member.id} className="is-clickable" onClick={() => onSelectStaff(member.id)}>
+                        <tr
+                          key={member.id}
+                          className="is-clickable"
+                          tabIndex={0}
+                          aria-label={`Open ${member.name}`}
+                          onClick={() => onSelectStaff(member.id)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              onSelectStaff(member.id);
+                            }
+                          }}
+                        >
                           <td className="mc-rank">{index + 1}</td>
                           <td>
                             <div className="mc-row-title">{member.name}</div>

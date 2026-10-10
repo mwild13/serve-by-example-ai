@@ -1,6 +1,6 @@
 # Staff App — Serve By Example
 
-Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.md` wins. Covers `app/dashboard/_components/` (the core training loop/simulator, web + embedded mobile) and the standalone `app/mobile/` route tree.
+Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.md` wins. Covers `app/dashboard/_components/` (the core training loop/simulator on desktop) and the standalone `app/mobile/` route tree.
 
 ## 1. Scope — Learning Engine Structure
 
@@ -35,18 +35,15 @@ One resolver serves pages and API routes: `resolveTierAccess()`, with `resolveAc
 
 ## 2. Mobile-First Rules
 
-**There are two separate mobile systems — do not assume a unified implementation:**
+**There is one mobile system: the standalone route tree at `app/mobile/`** (`BottomNav.tsx`, `HomeScreen.tsx`, `SettingsScreen.tsx` and the rest, using `next/link` routing). Bottom nav has 3 tabs: **Home, Learn, Me**. Full reference: `MOBILE_BUILD.md`.
 
-1. **Legacy, embedded**: `Mobile*.tsx` components colocated inside `app/dashboard/_components/` (`MobileDashboardV3.tsx`, `MobileLearnHub.tsx`). Bottom nav shows 4 tabs: **Home, Learn, Scenarios, Me** (`MobileBottomNavBar`, per `DashboardShell.tsx`).
-2. **Newer, standalone**: a separate route tree at `app/mobile/_components/` with its own `BottomNav.tsx`, `HomeScreen.tsx`, `SettingsScreen.tsx`, `KnowledgeBaseScreen.tsx`, `CocktailLibraryScreen.tsx`, `progress/AiCoachWidget.tsx`, using `next/link` routing. Bottom nav shows only **3 tabs: Home, Learn, Me** — note it drops "Scenarios" relative to the legacy system.
+`middleware.ts` redirects phone user agents from `/dashboard` to `/mobile/home`, or to `/mobile/settings` when the URL carries a `?join=CODE` staff sign-up link, which Settings then submits once on arrival.
 
-Before touching "the mobile dashboard," confirm which of these two trees the request is actually about — they have different tab counts, different component names, and are not kept in sync automatically.
+The legacy mobile view that used to be embedded in `/dashboard` (`MobileDashboardV3.tsx`, `MobileLearnHub.tsx`, `MobileBottomNavBar`) was removed on 2026-10-09. `/dashboard` is desktop only. In a non-phone window narrower than 720px it reflows to one column with the sidebar as a wrapped nav row on top (`app/globals.css`, the `max-width: 720px` block after `.management-unlock-form`). It does not switch to a different UI.
 
-**Touch targets**: WCAG 2.5.5 (44×44px minimum) is the intended standard for staff-facing UI, but it's enforced **ad hoc via inline styles per element** — e.g. `MobileDashboardV3.tsx` sets `minHeight: 44, minWidth: 44` directly on a close button. There is no shared `--touch-target` CSS variable or helper; when adding a new tappable element, add the inline minimum yourself rather than assuming a global rule catches it.
+**Touch targets**: WCAG 2.5.5 (44×44px minimum) is the intended standard for staff-facing UI, but it's enforced **ad hoc via inline styles per element**. There is no shared `--touch-target` CSS variable or helper; when adding a new tappable element, add the inline minimum yourself rather than assuming a global rule catches it.
 
-**Safe-area handling**: real and widespread. `env(safe-area-inset-bottom, 0px)` appears throughout `app/globals.css` and across both mobile trees (`MobileDashboardV3.tsx`, `CocktailLibrary.tsx`, and nearly every file under `app/mobile/_components/`). No `viewport-fit=cover` meta tag was confirmed present in `app/layout.tsx` — check there before relying on safe-area insets actually being active in a given build.
-
-**`docs/MOBILE_VIEW.md` predates the `app/mobile/_components/` tree** — it only documents `MobileDashboardV3.tsx` in detail. Treat it as a legacy/partial reference; this doc (`STAFF_APP.md`) is the current combined reference across both systems. Don't edit or delete `MOBILE_VIEW.md` as part of using this doc.
+**Safe-area handling**: real and widespread. `env(safe-area-inset-bottom, 0px)` appears throughout `app/globals.css`, in `CocktailLibrary.tsx`, and in nearly every file under `app/mobile/_components/`. `app/mobile/layout.tsx` sets `viewportFit: "cover"` for the `/mobile` tree; no `viewport-fit=cover` was confirmed in `app/layout.tsx`, so check there before relying on safe-area insets outside `/mobile`.
 
 ## 3. AI Simulator (Arena) State
 
@@ -69,15 +66,12 @@ The desktop quiz (`ModuleVerify.tsx` → `RapidFireQuiz.tsx`) and the mobile one
 
 ## Known Gaps / Drift
 
-- **Two parallel mobile systems** with different tab counts (§2) — the top thing a future agent must not assume is unified.
-- **`docs/MOBILE_VIEW.md` is now a partial/legacy reference**, superseded in scope (not deleted) by this doc.
 - **AI Arena has no chat history** (§3) — guard against assuming streaming or multi-turn conversation when extending it.
 - **PWA is greenfield** (§5).
 
 ## Related Docs
 
-- `MOBILE_BUILD.md` — full architecture reference for the newer, standalone `app/mobile/` build (V4): route map, auth/session/progress data layer, offline retry queue, dark-theme design tokens
-- `CHALLENGES.md` — one-stop reference for the "Challenges" mini-game feature across all three surfaces (desktop, legacy embedded mobile, new mobile build), including a checklist for adding new challenge types
-- `docs/MOBILE_VIEW.md` — legacy mobile-dashboard detail (superseded in scope, not deleted)
+- `MOBILE_BUILD.md` — full architecture reference for the standalone `app/mobile/` build (V4): route map, auth/session/progress data layer, offline retry queue, dark-theme design tokens
+- `CHALLENGES.md` — one-stop reference for the "Challenges" mini-game feature across both surfaces (desktop and the mobile build), including a checklist for adding new challenge types
 - `docs/MASTERY_ENGINE.md` — mastery scoring source of truth; this doc only describes how Arena and the quiz call into it, not the formula itself
-- `docs/staff-dashboard-a11y-audit.md`, `docs/STAFF_DASHBOARD_AUDIT_REPORT.md` — historical UI/accessibility audits
+- `docs/staff-dashboard-a11y-audit.md`, `docs/archive/STAFF_DASHBOARD_AUDIT_REPORT.md` — historical UI/accessibility audits
