@@ -229,7 +229,7 @@ export default function Home() {
               </div>
               <div className="sbe-mkt-show-media sbe-mkt-show-media-end">
                 <Image
-                  src="/shots/Overview Console Wide.png"
+                  src="/shots/Overview Console Wide.webp"
                   alt="Serve By Example management console: venue overview with training completion, compliance status, and staff needing attention"
                   width={3004}
                   height={1654}
@@ -249,7 +249,7 @@ export default function Home() {
               </div>
               <div className="sbe-mkt-show-media sbe-mkt-show-media-start">
                 <Image
-                  src="/shots/Mastery Grid.png"
+                  src="/shots/Mastery Grid.webp"
                   alt="Staff training progress view: certification hub and module mastery by category"
                   width={3024}
                   height={1654}
@@ -280,7 +280,7 @@ export default function Home() {
               </div>
               <div className="sbe-mkt-show-media sbe-mkt-show-media-end sbe-mkt-show-stack">
                 <Image
-                  src="/shots/Modules View.png"
+                  src="/shots/Modules View.webp"
                   alt="Staff training modules view: full course library"
                   width={1400}
                   height={875}
@@ -289,7 +289,7 @@ export default function Home() {
                   className="sbe-shot"
                 />
                 <Image
-                  src="/shots/Mobile-home.png"
+                  src="/shots/Mobile-home.webp"
                   alt="Serve By Example staff training app on mobile: home screen with streak, pre-shift brief, and quick access training"
                   width={912}
                   height={1844}

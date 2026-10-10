@@ -159,7 +159,7 @@ export default function ProgressScreen() {
             <Link href="/mobile/ai-photo" aria-label="Change profile photo" style={{ position: "relative", width: 64, height: 64, flexShrink: 0 }}>
               <div style={{ width: 64, height: 64, borderRadius: 32, overflow: "hidden" }}>
                 <Image
-                  src={session.profilePhotoUrl ?? "/mobile/avatar-large.png"}
+                  src={session.profilePhotoUrl ?? "/mobile/avatar-large.webp"}
                   alt=""
                   width={64}
                   height={64}
