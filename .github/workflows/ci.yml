@@ -1,7 +1,7 @@
 name: CI
 
 # Runs the same checks a handoff lists under "Checks run": lint, CSS token
-# lint, typecheck and unit tests. Needs no secrets and never deploys;
+# lint, typecheck, unit tests and the unused-code scan. Needs no secrets and never deploys;
 # Cloudflare Pages builds and deploys separately.
 on:
   pull_request:
@@ -30,3 +30,4 @@ jobs:
       - run: npm run lint:css
       - run: npm run typecheck
       - run: npm test
+      - run: npm run knip
