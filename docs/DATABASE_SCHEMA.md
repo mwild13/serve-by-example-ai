@@ -124,6 +124,6 @@ The seat trigger `check_org_seat_limit()` treats a NULL/0 `seat_limit` as **zero
 
 ## Related Docs
 
-- `docs/SCHEMA_BLUEPRINT.md` — `profiles` table column-layout blueprint (historical, do not duplicate here)
+- `docs/archive/SCHEMA_BLUEPRINT.md` — `profiles` table column-layout blueprint (historical, do not duplicate here)
 - `docs/Updates/database_blueprint.md` — broader schema blueprint (historical)
 - `lib/mastery.ts` + `docs/MASTERY_ENGINE.md` — mastery scoring logic; this doc only covers the table shape, not the formula

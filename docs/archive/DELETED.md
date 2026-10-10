@@ -157,3 +157,22 @@ follow-up item in the site-wide dead-code/efficiency audit plan (`docs/DEAD-CODE
 - `app/globals.css` — removed `.ops-create-dropdown-wrapper/-trigger/-trigger:hover/-trigger:focus/-menu/-item/-item:hover/-item:focus`
 
 **Result:** One less redundant, inconsistently-wired UI element; a previously-silent bug (broken "Assign Training" button in the Coaching Drawer) fixed as a side effect of the cleanup.
+
+## Superseded documents moved here (2026-10-10)
+
+Moved from `docs/` during the pre-launch cleanup (`docs/handoff/2026-10-pre-launch-handoff.md`). Nothing was deleted or edited. Each is a record of its date and no code refers to it.
+
+- `ARCHITECTURE_CLEANUP_BLUEPRINT.md` (July)
+- `DEAD-CODE-AUDIT-PLAN.md` (August). Replaced by the pre-launch handoff, which did the CSS and unused-export work it planned.
+- `Phase5-Mission-Control-Execution-Brief.md` (August)
+- `SBE-Execution-Checklist-July2026.md`
+- `SBE-Staff-Dashboard-UI-Audit.md` (August)
+- `SCHEMA_BLUEPRINT.md` (June)
+- `STAGE_4_SUMMARY.md` (July)
+- `STAFF_DASHBOARD_AUDIT_REPORT.md` (July)
+- `Staff Dash Directory.md` (June)
+- `UX_UPGRADE_RECOMMENDATIONS.md` (July)
+- `design-plugin-customization-report.md` (August)
+- `pricing-membership-overhaul.md` (July)
+
+Left in `docs/` on purpose: `v4-migration-plan/` at the repo root and `docs/Pages-Redesign.md`, `docs/Module-Title-Renames-Proposal.md` and `docs/v3-architecture.md`, because code comments point at them.

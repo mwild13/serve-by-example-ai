@@ -74,4 +74,4 @@ The desktop quiz (`ModuleVerify.tsx` → `RapidFireQuiz.tsx`) and the mobile one
 - `MOBILE_BUILD.md` — full architecture reference for the standalone `app/mobile/` build (V4): route map, auth/session/progress data layer, offline retry queue, dark-theme design tokens
 - `CHALLENGES.md` — one-stop reference for the "Challenges" mini-game feature across both surfaces (desktop and the mobile build), including a checklist for adding new challenge types
 - `docs/MASTERY_ENGINE.md` — mastery scoring source of truth; this doc only describes how Arena and the quiz call into it, not the formula itself
-- `docs/staff-dashboard-a11y-audit.md`, `docs/STAFF_DASHBOARD_AUDIT_REPORT.md` — historical UI/accessibility audits
+- `docs/staff-dashboard-a11y-audit.md`, `docs/archive/STAFF_DASHBOARD_AUDIT_REPORT.md` — historical UI/accessibility audits
