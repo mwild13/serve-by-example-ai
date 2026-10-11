@@ -2,8 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import { BrandMark, RightPanel } from "@/components/LoginSplitParts";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
 export default function ResetPasswordPage() {
@@ -42,14 +41,13 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="page-shell">
-      <Navbar />
-
-      <main className="login-shell">
+    <div className="login-split">
+      <div className="login-split-left">
         <div className="login-card">
-          <div className="eyebrow">Account recovery</div>
+          <BrandMark />
+          <p className="sbe-mkt-kicker">Account recovery</p>
           <h1>Set a new password</h1>
-          <p className="login-copy">
+          <p className="login-sub">
             Choose a strong password for your Serve By Example account. At least 6 characters.
           </p>
 
@@ -88,15 +86,14 @@ export default function ResetPasswordPage() {
             {success ? <div className="auth-status auth-status-success">{success}</div> : null}
 
             <div className="auth-actions">
-              <button className="btn btn-primary btn-block" type="submit" disabled={loading}>
+              <button className="sbe-mkt-btn-primary login-submit" type="submit" disabled={loading}>
                 {loading ? "Updating…" : "Update password"}
               </button>
             </div>
           </form>
         </div>
-      </main>
-
-      <Footer />
+      </div>
+      <RightPanel />
     </div>
   );
 }

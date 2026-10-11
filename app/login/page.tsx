@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { FormEvent, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
+import { BrandMark, RightPanel } from "@/components/LoginSplitParts";
 import TurnstileWidget, { CAPTCHA_FAILED_MESSAGE, isCaptchaError, type TurnstileHandle } from "@/components/TurnstileWidget";
 
 type AuthMode = "sign-in" | "sign-up" | "forgot-password";
@@ -17,13 +17,6 @@ const GoogleIcon = () => (
     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="var(--google-yellow)" />
     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="var(--google-red)" />
   </svg>
-);
-
-const BrandMark = () => (
-  <Link href="/" className="login-brand">
-    <Image src="/logo.webp" alt="" width={36} height={36} className="login-brand-mark" />
-    <span className="login-brand-name">Serve By Example</span>
-  </Link>
 );
 
 const LoginTypeSwitcher = ({
@@ -49,39 +42,6 @@ const LoginTypeSwitcher = ({
       Management Login
     </button>
   </div>
-);
-
-const VALUE_POINTS = [
-  "Consistent standards across every venue",
-  "Track readiness before problems show up",
-  "Manage every site from one console",
-];
-
-const RightPanel = () => (
-  <aside className="login-split-right">
-    <div className="login-visual-text">
-      <p className="sbe-mkt-kicker">Hospitality staff training</p>
-      <p className="login-visual-headline">
-        Floor-ready staff in 6 weeks, not 6 months.
-      </p>
-      <ul className="login-visual-points">
-        {VALUE_POINTS.map((point) => (
-          <li key={point}>{point}</li>
-        ))}
-      </ul>
-    </div>
-    <div className="login-visual-shot">
-      <Image
-        src="/shots/Overview Console Wide.webp"
-        alt="Serve By Example management console: venue overview with training completion, compliance status, and staff needing attention"
-        width={3004}
-        height={1654}
-        sizes="(max-width: 900px) 0px, 900px"
-        priority
-        className="sbe-shot"
-      />
-    </div>
-  </aside>
 );
 
 function LoginPageContent() {
