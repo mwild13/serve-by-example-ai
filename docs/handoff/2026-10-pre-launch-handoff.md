@@ -240,7 +240,7 @@ Left for their own branches: the product blockers, error tracking, an e2e test f
 
 ## Follow-up fixes, 2026-10-11
 
-Two problems the owner found on a phone the day after the merge.
+Problems the owner found on a phone the day after the merge. All of them went to `main` on 2026-10-11 through pull request #3 (`dda3a3b`). After the deploy, production served the photo backgrounds, a cocktail JPG and the homepage hero WebP directly, and CI passed on `main`.
 
 - **AI photo backgrounds returned 404.** Step 4 converted the four backgrounds in `public/mobile/Backgrounds-ai/` from PNG to WebP. The files were never deleted. The cause is `_routes.json`, written by the `build:cloudflare` script in `package.json`: it listed `/*.png` and `/*.svg` as files Cloudflare serves directly, and not `.webp` or `.jpg`, so those requests went to the worker and came back 404. Images drawn through `next/image` kept working because the worker fetches them itself; the photo screen loads its backgrounds directly onto a canvas, so it failed. `/*.webp`, `/*.jpg` and `/*.jpeg` are now in the list. The local check in Step 4 used `next start`, which serves every file in `public/`, so it could not catch this.
 - **The staff mobile screens had a strip down both sides.** `--mobile-frame-max` was `clamp(360px, 92vw, 520px)` since 2026-09-21, so on a phone the frame was 92% of the screen width and the Home carousel was cut off before the edge. It is now `520px`: phones use the full width and tablets keep a centred 520px column. This affects every `/mobile` screen.
@@ -250,7 +250,7 @@ Two problems the owner found on a phone the day after the merge.
 - **The framing guide was an oval labelled "head and shoulders".** A head-and-shoulders outline was tried and dropped as harder to fit. It is now a face-only oval, with the line "Fit your face inside the oval".
 - **A saved photo did not show on Home until a reload.** The save screen now puts the new URL into the shared mobile session (`setProfilePhotoUrl` in `app/mobile/_lib/mobile-session-context.tsx`) before it navigates, so Home and Me show it at once.
 
-Not verified: the face oval and the instant photo update on Home were not run on a phone, and the mobile screens at the new width were not seen behind a login.
+Not verified: the face oval and the instant photo update on Home were not run on a phone before the release, and the mobile screens at the new width were not seen behind a login.
 
 ## Open items
 
