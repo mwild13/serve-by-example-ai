@@ -82,7 +82,7 @@ export async function POST(req: Request) {
     // file shouldn't block the deletion itself.
     const { error: photoError } = await admin.storage
       .from("profile-photos")
-      .remove([`${user.id}/profile-photo.webp`]);
+      .remove([`${user.id}/profile-photo.webp`, `${user.id}/profile-photo.jpg`]);
     if (photoError) {
       console.warn(JSON.stringify({ event: "account_delete_photo_failed", user_id: user.id, message: photoError.message }));
     }

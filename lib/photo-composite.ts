@@ -102,17 +102,25 @@ export function drawComposite(
   ctx.globalCompositeOperation = "source-over";
 }
 
-/** Exports the canvas as a WebP blob at 0.8 quality — not higher. A
- *  1024×1024 WebP at 0.8 typically lands ~150-300KB raw; base64 (Step 5's
- *  save-route payload) inflates that by ~33%, and this quality setting is
- *  what keeps that comfortably under serverless request-body limits. Do not
- *  raise it without re-checking payload size. */
-export function exportCompositeBlob(canvas: HTMLCanvasElement): Promise<Blob> {
+function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality: number): Promise<Blob> {
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => (blob ? resolve(blob) : reject(new Error("Failed to export composite image."))),
-      "image/webp",
-      0.8,
+      type,
+      quality,
     );
   });
+}
+
+/** Exports the canvas as a WebP blob at 0.8 quality, or a JPEG where the
+ *  browser cannot encode WebP. Every iOS browser is WebKit, and WebKit's
+ *  canvas.toBlob() silently returns a PNG when asked for WebP; the save
+ *  route rejected that PNG as "Invalid photo.", so saving never worked on
+ *  an iPhone. A 1024x1024 WebP at 0.8 typically lands ~150-300KB raw;
+ *  base64 (the save route's payload) inflates that by ~33%. Do not raise
+ *  either quality without re-checking payload size. */
+export async function exportCompositeBlob(canvas: HTMLCanvasElement): Promise<Blob> {
+  const webp = await canvasToBlob(canvas, "image/webp", 0.8);
+  if (webp.type === "image/webp") return webp;
+  return canvasToBlob(canvas, "image/jpeg", 0.85);
 }

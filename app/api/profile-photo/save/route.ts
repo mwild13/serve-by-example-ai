@@ -19,18 +19,36 @@ import { readJsonBody } from "@/lib/ai-guard";
 
 export const dynamic = "force-dynamic";
 
-const COMPOSITE_DATA_URL_RE = /^data:image\/webp;base64,([A-Za-z0-9+/=]+)$/;
+// WebP from most browsers; JPEG from iOS, whose canvas cannot encode WebP
+// (see exportCompositeBlob).
+const COMPOSITE_DATA_URL_RE = /^data:image\/(webp|jpeg);base64,([A-Za-z0-9+/=]+)$/;
+const PHOTO_EXTENSIONS = { webp: "webp", jpeg: "jpg" } as const;
+type PhotoFormat = keyof typeof PHOTO_EXTENSIONS;
 // exportCompositeBlob (lib/photo-composite.ts) targets ~150-300KB raw at
 // COMPOSITE_SIZE (1024x1024) WebP/0.8 quality; base64 inflates that by
 // ~33%. This cap is a generous backstop against a modified client, not the
 // normal path.
 const MAX_COMPOSITE_BASE64_CHARS = 4_000_000;
 
-function parseCompositeDataUrl(value: unknown): Buffer | null {
+/** The bytes must be what the data URL claims, since the file is public. */
+function hasImageSignature(buffer: Buffer, format: PhotoFormat): boolean {
+  if (format === "jpeg") {
+    return buffer.length > 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff;
+  }
+  return (
+    buffer.length > 12 &&
+    buffer.toString("ascii", 0, 4) === "RIFF" &&
+    buffer.toString("ascii", 8, 12) === "WEBP"
+  );
+}
+
+function parseCompositeDataUrl(value: unknown): { buffer: Buffer; format: PhotoFormat } | null {
   if (typeof value !== "string" || value.length > MAX_COMPOSITE_BASE64_CHARS) return null;
   const match = COMPOSITE_DATA_URL_RE.exec(value);
   if (!match) return null;
-  return Buffer.from(match[1], "base64");
+  const format = match[1] as PhotoFormat;
+  const buffer = Buffer.from(match[2], "base64");
+  return hasImageSignature(buffer, format) ? { buffer, format } : null;
 }
 
 export async function POST(req: Request) {
@@ -52,22 +70,30 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
     }
 
-    const buffer = parseCompositeDataUrl(body.image);
-    if (!buffer) {
+    const parsed = parseCompositeDataUrl(body.image);
+    if (!parsed) {
       return NextResponse.json({ error: "Invalid photo." }, { status: 400 });
     }
 
     const admin = createSupabaseAdminClient();
-    const path = `${user.id}/profile-photo.webp`;
+    const { buffer, format } = parsed;
+    const path = `${user.id}/profile-photo.${PHOTO_EXTENSIONS[format]}`;
 
     const { error: uploadError } = await admin.storage
       .from("profile-photos")
-      .upload(path, buffer, { contentType: "image/webp", upsert: true });
+      .upload(path, buffer, { contentType: `image/${format}`, upsert: true });
 
     if (uploadError) {
       console.error("[profile-photo/save] Storage upload error:", uploadError);
       return NextResponse.json({ error: "Failed to save your photo" }, { status: 500 });
     }
+
+    // One photo per user: drop the copy in the other format, if any, so a
+    // stale public file is not left behind. Best effort.
+    const otherFormat: PhotoFormat = format === "webp" ? "jpeg" : "webp";
+    await admin.storage
+      .from("profile-photos")
+      .remove([`${user.id}/profile-photo.${PHOTO_EXTENSIONS[otherFormat]}`]);
 
     const { data: publicUrlData } = admin.storage.from("profile-photos").getPublicUrl(path);
     // The storage path is fixed per user, so its public URL never changes

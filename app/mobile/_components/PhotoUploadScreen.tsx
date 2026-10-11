@@ -39,8 +39,14 @@ function stopStream(stream: MediaStream | null) {
 
 /** Center-square crop of any drawImage-able source, scaled to
  *  COMPOSITE_SIZE — the automatic 1:1 crop-lock shared by both the
- *  live-camera and gallery-upload paths. */
-function cropToSquareDataUrl(source: CanvasImageSource, sourceWidth: number, sourceHeight: number): string {
+ *  live-camera and gallery-upload paths. `mirror` flips the result
+ *  left-to-right so a selfie matches the mirrored camera preview. */
+function cropToSquareDataUrl(
+  source: CanvasImageSource,
+  sourceWidth: number,
+  sourceHeight: number,
+  mirror = false,
+): string {
   const canvas = document.createElement("canvas");
   canvas.width = COMPOSITE_SIZE;
   canvas.height = COMPOSITE_SIZE;
@@ -49,6 +55,10 @@ function cropToSquareDataUrl(source: CanvasImageSource, sourceWidth: number, sou
   const side = Math.min(sourceWidth, sourceHeight);
   const sx = (sourceWidth - side) / 2;
   const sy = (sourceHeight - side) / 2;
+  if (mirror) {
+    ctx.translate(COMPOSITE_SIZE, 0);
+    ctx.scale(-1, 1);
+  }
   ctx.drawImage(source, sx, sy, side, side, 0, 0, COMPOSITE_SIZE, COMPOSITE_SIZE);
   return canvas.toDataURL("image/jpeg", 0.92);
 }
@@ -61,6 +71,11 @@ function blobToDataUrl(blob: Blob): Promise<string> {
     reader.readAsDataURL(blob);
   });
 }
+
+// Head-and-shoulders outline for the camera guide, in a 100x100 box: up the
+// left shoulder and neck, over the head, down the right side.
+const PORTRAIT_GUIDE_PATH =
+  "M10 100C10 80 24 71 40 67L41 56A18 22 0 1 1 59 56L60 67C76 71 90 80 90 100Z";
 
 type CropCenter = { x: number; y: number };
 
@@ -285,7 +300,8 @@ export default function PhotoUploadScreen() {
   const handleShutter = () => {
     const video = videoRef.current;
     if (!video || video.videoWidth === 0) return;
-    const dataUrl = cropToSquareDataUrl(video, video.videoWidth, video.videoHeight);
+    // Mirrored to match the preview, so the saved photo is what was framed.
+    const dataUrl = cropToSquareDataUrl(video, video.videoWidth, video.videoHeight, true);
     stopCamera();
     void removeBackground(dataUrl);
   };
@@ -649,27 +665,39 @@ export default function PhotoUploadScreen() {
         {stage === "capturing" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "0 24px", gap: 16 }}>
             <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", borderRadius: "var(--radius-lg)", overflow: "hidden", background: "var(--bg-mobile-dark)" }}>
-              <video ref={videoRef} autoPlay playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              {/* Oval "spotlight" framing mask — a CSS box-shadow large
-                  enough to blanket the rest of the frame, cut out by
-                  border-radius, rather than a canvas/SVG mask layered on
-                  top of a live <video>. */}
-              <div
-                aria-hidden="true"
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  margin: "auto",
-                  width: "68%",
-                  height: "82%",
-                  borderRadius: "50% / 60%",
-                  boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.6)",
-                  border: "2px solid rgba(255,255,255,0.85)",
-                  pointerEvents: "none",
-                }}
+              {/* Mirrored like a phone's own selfie camera: moving left
+                  moves the picture left. Unmirrored, the front camera
+                  feels reversed. handleShutter mirrors the capture to
+                  match. */}
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                style={{ width: "100%", height: "100%", objectFit: "cover", transform: "scaleX(-1)" }}
               />
+              {/* Head-and-shoulders framing guide. One evenodd path dims
+                  everything outside the outline; the second draws it. */}
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+              >
+                <path fillRule="evenodd" fill="rgba(0, 0, 0, 0.6)" d={`M0 0H100V100H0Z ${PORTRAIT_GUIDE_PATH}`} />
+                <path
+                  d={PORTRAIT_GUIDE_PATH}
+                  fill="none"
+                  stroke="rgba(255, 255, 255, 0.85)"
+                  strokeWidth={2}
+                  strokeLinejoin="round"
+                  vectorEffect="non-scaling-stroke"
+                />
+              </svg>
             </div>
-            <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>Align head and shoulders here</p>
+            <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)", textAlign: "center" }}>
+              Fit your head and shoulders inside the outline
+            </p>
             <button
               type="button"
               aria-label="Take photo"
