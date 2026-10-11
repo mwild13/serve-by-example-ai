@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { siteOrigin } from "@/lib/site-url";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
-import { brandedEmailHtml } from "@/lib/email-template";
+import { EMAIL_SMALL_STYLE, EMAIL_TEXT_STYLE, brandedEmailHtml, emailButtonHtml, emailFallbackLinkHtml, escapeHtml } from "@/lib/email-template";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { readJsonBody } from "@/lib/ai-guard";
 import { verifyTurnstileToken } from "@/lib/turnstile";
@@ -71,6 +71,8 @@ export async function POST(req: Request) {
   }
 
   const proxiedLink = `${appOrigin}/api/auth/verify-redirect?link=${encodeURIComponent(linkData.properties.action_link)}`;
+  // The address passed a loose format check only, so escape it before it goes into HTML.
+  const safeEmail = escapeHtml(email);
   const brevoApiKey = process.env.BREVO_API_KEY;
   const fromEmail = "info@servebyexample.co";
   const fromName = process.env.BREVO_FROM_NAME ?? "Serve By Example";
@@ -88,16 +90,15 @@ export async function POST(req: Request) {
             preheader: "Use this link to reset your password. It expires in 1 hour.",
             heading: "Reset your password",
             bodyHtml: `
-              <p style="margin:0 0 20px;color:#496155;font-size:15px;line-height:1.6">
-                We received a request to reset the password for <strong>${email}</strong>. Click the button below
-                to choose a new one. This link expires in 1 hour and can only be used once.
+              <p style="${EMAIL_TEXT_STYLE}">
+                We received a request to reset the password for
+                <a href="mailto:${safeEmail}" style="color:#172f22;font-weight:700;text-decoration:none">${safeEmail}</a>.
+                Choose a new one with the button below.
               </p>
-              <p style="margin:0 0 24px">
-                <a href="${proxiedLink}" style="background:#1f4e37;color:#fffef9;padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:700;display:inline-block;font-size:15px">Reset password</a>
-              </p>
-              <p style="margin:0 0 8px;color:#7a9185;font-size:13px">If the button doesn&rsquo;t work, copy and paste this link into your browser:</p>
-              <p style="margin:0 0 20px;color:#7a9185;font-size:12px;word-break:break-all">${proxiedLink}</p>
-              <p style="margin:0;color:#7a9185;font-size:13px">Didn&rsquo;t request this? You can safely ignore this email. Your password won&rsquo;t be changed.</p>
+              ${emailButtonHtml(proxiedLink, "Reset password")}
+              <p style="${EMAIL_SMALL_STYLE}">This link works once and expires in 1 hour.</p>
+              ${emailFallbackLinkHtml(proxiedLink)}
+              <p style="${EMAIL_SMALL_STYLE}">Did not ask for this? You can ignore this email and your password will stay the same.</p>
             `,
           }),
         }),

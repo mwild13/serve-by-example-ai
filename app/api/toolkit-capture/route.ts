@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { readJsonBody } from "@/lib/ai-guard";
-import { brandedEmailHtml, escapeHtml, formText } from "@/lib/email-template";
+import { EMAIL_TEXT_STYLE, brandedEmailHtml, emailButtonHtml, escapeHtml, formText } from "@/lib/email-template";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 
 const SITE_URL = 'https://servebyexample.co';
@@ -29,7 +29,7 @@ async function sendToolkitEmail({ email, firstName, role, leadId }: {
   const unsubscribeUrl = `${SITE_URL}/api/unsubscribe?id=${leadId}`;
   const toolkitUrl = `${SITE_URL}/api/toolkit-open?id=${leadId}`;
   const name = escapeHtml(firstName);
-  const textStyle = 'margin:0 0 14px;line-height:1.65;color:#172f22;font-size:15px';
+  const textStyle = EMAIL_TEXT_STYLE;
   // Branded like the other Brevo sends (lib/email-template.ts). It used to be
   // text only, so it arrived with no logo or colours. textContent stays as
   // the plain-text part for clients that don't render HTML.
@@ -40,9 +40,7 @@ async function sendToolkitEmail({ email, firstName, role, leadId }: {
       <p style="${textStyle}">Hi ${name},</p>
       <p style="${textStyle}">Thank you for downloading the Serve By Example Onboarding Framework.</p>
       <p style="${textStyle}">${escapeHtml(emailHookText)}</p>
-      <p style="margin:24px 0">
-        <a href="${toolkitUrl}" style="background:#1f4e37;color:#fffef9;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;display:inline-block">Open the Notion toolkit</a>
-      </p>
+      ${emailButtonHtml(toolkitUrl, 'Open the Notion toolkit')}
       <p style="${textStyle}">Cheers,<br />Mitch<br />Serve By Example</p>
       <p style="margin:24px 0 0;font-size:12px;line-height:1.6;color:#7a9185">
         You're receiving this because you requested the free toolkit at
