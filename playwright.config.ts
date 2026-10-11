@@ -5,14 +5,17 @@ import { defineConfig, devices } from "@playwright/test";
 // Viewport-only projects (not full device descriptors) so we control the
 // exact pixel matrix from the original responsive-sizing plan, rather than
 // inheriting whatever touch/UA emulation a named device preset happens to
-// carry. Auth is handled once in tests/e2e/global-setup.ts (a real /login
-// flow against a dedicated QA test account) and reused via storageState
-// across every project below, so tests never re-authenticate per run.
+// carry. Auth is handled once in tests/e2e/global-setup.ts (a session minted
+// for a dedicated QA test account through the Supabase Admin API, because the
+// /login form is behind a captcha) and reused via storageState across every
+// project below, so tests never re-authenticate per run.
 //
 // Requires env vars before running `npm run e2e`:
-//   E2E_TEST_EMAIL / E2E_TEST_PASSWORD — a staff account with
-//     onboarding_completed = true and real module access, so /mobile/*
-//     screens render actual content instead of empty/redirect states.
+//   E2E_TEST_EMAIL — a staff account with onboarding_completed = true and
+//     real module access, so /mobile/* screens render actual content instead
+//     of empty/redirect states.
+//   NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY /
+//     SUPABASE_SERVICE_ROLE_KEY — the project the tested build signs in to.
 //   PLAYWRIGHT_BASE_URL — optional, defaults to http://localhost:3000
 //     (against the local `npm run dev` server, auto-started below). Point
 //     it at a Cloudflare Pages preview URL to test a deployed build instead

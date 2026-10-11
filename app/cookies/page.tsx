@@ -15,7 +15,7 @@ export default function CookiesPage() {
       <Navbar />
 
       <main>
-        <PageHero compact variant="light" eyebrow="Legal" title="Cookies Policy" subtitle="Last updated: 27 September 2026" />
+        <PageHero compact variant="light" eyebrow="Legal" title="Cookies Policy" subtitle="Last updated: 11 October 2026" />
 
         <section className="section">
           <div className="container">
@@ -61,6 +61,17 @@ export default function CookiesPage() {
                 platform, for example, remembering your selected training scenario or display
                 settings.
               </p>
+              <ul>
+                <li>
+                  <strong>Campaign source (sbe_attr)</strong>: A first-party cookie set by us when
+                  you arrive through a link that carries campaign details, such as an advertisement
+                  or an email. It records which campaign and page brought you to the Service so we
+                  can tell how new accounts and subscriptions found us. If you create an account or
+                  subscribe, those details are saved with your account and your payment record. It
+                  is set whichever cookie settings you choose, lasts 90 days, cannot be read by
+                  other websites, and is not shared with advertising networks.
+                </li>
+              </ul>
 
               <h3>Analytics cookies</h3>
               <p>
@@ -72,8 +83,10 @@ export default function CookiesPage() {
               <h3>Infrastructure cookies</h3>
               <p>
                 Cloudflare, our hosting and security provider, may set cookies related to DDoS
-                protection, bot detection, and traffic routing. These are essential for the security
-                and reliability of the Service.
+                protection, bot detection, and traffic routing. This includes Cloudflare Turnstile,
+                the check on our sign-in and sign-up forms that confirms a visitor is a person and
+                not an automated program. These are essential for the security and reliability of
+                the Service.
               </p>
 
               <h2>3. Third-Party Cookies</h2>

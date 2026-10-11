@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { FormEvent, useState, Suspense } from "react";
+import { FormEvent, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
+import TurnstileWidget, { CAPTCHA_FAILED_MESSAGE, isCaptchaError, type TurnstileHandle } from "@/components/TurnstileWidget";
 
 type AuthMode = "sign-in" | "sign-up" | "forgot-password";
 type Portal = "staff" | "management";
@@ -98,9 +99,18 @@ function LoginPageContent() {
   // redirect-based flow (/auth/callback) not covered by this fix.
   const trialIntent = searchParams.get("intent") === "trial";
   const trialTier = searchParams.get("tier");
+  // A signed-out visitor who chose a paid plan on /pricing is sent here first
+  // (checkout needs an account). Once signed in, by any route below, they go
+  // back to /membership (the live address of the price board; /pricing
+  // redirects to it), which starts checkout for the plan they picked.
+  const checkoutPlan = searchParams.get("plan") ?? "";
+  const resumeCheckoutPath =
+    searchParams.get("intent") === "checkout" && /^[a-z_]{1,40}$/.test(checkoutPlan)
+      ? `/membership?checkout_plan=${checkoutPlan}`
+      : null;
 
   const [portal, setPortal] = useState<Portal>("staff");
-  const [mode, setMode] = useState<AuthMode>(checkoutSuccess ? "sign-up" : "sign-in");
+  const [mode, setMode] = useState<AuthMode>(checkoutSuccess || resumeCheckoutPath ? "sign-up" : "sign-in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -112,6 +122,14 @@ function LoginPageContent() {
 
   const isSignUp = mode === "sign-up";
   const isForgotPassword = mode === "forgot-password";
+
+  // Supabase Auth refuses password sign-in and sign-up without a Turnstile
+  // token. Each call takes a fresh one: a token only works once.
+  const turnstileRef = useRef<TurnstileHandle>(null);
+  async function captchaOptions(): Promise<{ captchaToken?: string }> {
+    const captchaToken = await turnstileRef.current?.takeToken();
+    return captchaToken ? { captchaToken } : {};
+  }
 
   function switchPortal(next: Portal) {
     setPortal(next);
@@ -130,7 +148,7 @@ function LoginPageContent() {
     setGoogleLoading(true);
     setError("");
     const supabase = createSupabaseBrowserClient();
-    const callbackParams = new URLSearchParams({ next: "/onboarding" });
+    const callbackParams = new URLSearchParams({ next: resumeCheckoutPath ?? "/onboarding" });
     if (stripeSessionId) callbackParams.set("session_id", stripeSessionId);
     const { error: oauthErr } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -209,7 +227,9 @@ function LoginPageContent() {
     const { error: oauthErr } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/management/dashboard`,
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
+          resumeCheckoutPath ?? "/management/dashboard"
+        )}`,
       },
     });
     if (oauthErr) {
@@ -225,7 +245,11 @@ function LoginPageContent() {
     setSuccess("");
     try {
       const supabase = createSupabaseBrowserClient();
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+        options: await captchaOptions(),
+      });
       if (signInError) throw signInError;
       const { data: { session: authSession } } = await supabase.auth.getSession();
       const canContinue = await maybeStartTrial(authSession?.access_token);
@@ -233,10 +257,14 @@ function LoginPageContent() {
         setLoading(false);
         return;
       }
-      router.push("/management/dashboard");
+      router.push(resumeCheckoutPath ?? "/management/dashboard");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to sign in to the management portal right now.");
+      setError(
+        isCaptchaError(err)
+          ? CAPTCHA_FAILED_MESSAGE
+          : err instanceof Error ? err.message : "Unable to sign in to the management portal right now."
+      );
     } finally {
       setLoading(false);
     }
@@ -258,8 +286,9 @@ function LoginPageContent() {
             emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
               stripeSessionId
                 ? `/onboarding?checkout=success&session_id=${stripeSessionId}`
-                : "/onboarding"
+                : resumeCheckoutPath ?? "/onboarding"
             )}`,
+            ...(await captchaOptions()),
           },
         });
 
@@ -304,7 +333,7 @@ function LoginPageContent() {
               ? "/management/dashboard"
               : stripeSessionId
               ? `/onboarding?checkout=success&session_id=${stripeSessionId}`
-              : "/onboarding"
+              : resumeCheckoutPath ?? "/onboarding"
           );
           router.refresh();
           return;
@@ -313,7 +342,11 @@ function LoginPageContent() {
         setSuccess("Account created. Check your email to confirm your address, then sign in.");
         setMode("sign-in");
       } else {
-        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+          options: await captchaOptions(),
+        });
         if (signInError) throw signInError;
 
         const { data: { session: authSession } } = await supabase.auth.getSession();
@@ -332,11 +365,15 @@ function LoginPageContent() {
           setLoading(false);
           return;
         }
-        router.push(trialIntent ? "/management/dashboard" : "/dashboard");
+        router.push(trialIntent ? "/management/dashboard" : resumeCheckoutPath ?? "/dashboard");
         router.refresh();
       }
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : "Unable to complete authentication right now.");
+      setError(
+        isCaptchaError(submitError)
+          ? CAPTCHA_FAILED_MESSAGE
+          : submitError instanceof Error ? submitError.message : "Unable to complete authentication right now."
+      );
     } finally {
       setLoading(false);
     }
@@ -438,6 +475,7 @@ function LoginPageContent() {
                 </div>
                 {error ? <div className="auth-status auth-status-error">{error}</div> : null}
                 {success ? <div className="auth-status auth-status-success">{success}</div> : null}
+                <TurnstileWidget ref={turnstileRef} />
                 <div className="auth-actions">
                   <button className="sbe-mkt-btn-primary login-submit" type="submit" disabled={loading}>
                     {loading ? "Signing in..." : "Enter Manager Portal"}
@@ -455,6 +493,11 @@ function LoginPageContent() {
               {checkoutSuccess && (
                 <div className="auth-status auth-status-success" style={{ marginBottom: 16 }}>
                   Payment successful. Create your account or sign in below to access your plan.
+                </div>
+              )}
+              {resumeCheckoutPath && !checkoutSuccess && (
+                <div className="auth-status auth-status-success" style={{ marginBottom: 16 }}>
+                  Create a free account or sign in, and we will take you straight to checkout.
                 </div>
               )}
               <h1>{isSignUp ? "Create your account." : "Welcome back."}</h1>
@@ -515,6 +558,7 @@ function LoginPageContent() {
                 )}
                 {error ? <div className="auth-status auth-status-error">{error}</div> : null}
                 {success ? <div className="auth-status auth-status-success">{success}</div> : null}
+                <TurnstileWidget ref={turnstileRef} />
                 <div className="auth-actions">
                   <button className="sbe-mkt-btn-primary login-submit" type="submit" disabled={loading || googleLoading}>
                     {loading
