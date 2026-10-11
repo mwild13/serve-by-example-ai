@@ -8,7 +8,8 @@ The audit, the launch gate and what the cleanup changed are in `docs/handoff/202
 
 - [ ] **Owner dashboard actions.** The Cloudflare WAF rate-limit rule; an OpenAI monthly budget and alert; check the Stripe live webhook; confirm Supabase backups. The list is under "The launch gate". Leaked-password protection needs Supabase Pro, so it waits for a plan change.
 - [ ] **Make the `checks` job required on `main`** in the GitHub branch settings, now that CI has run.
-- [ ] **Re-capture the mobile e2e baselines** against production. The placeholder images were re-encoded, so the screenshots will differ slightly.
+- [ ] **Retest the AI photo on a phone.** The background 404 was fixed on 2026-10-11. It was reported as failing for weeks before that, so if it still fails, note the message shown.
+- [ ] **Re-capture the mobile e2e baselines** against production. The placeholder images were re-encoded and the mobile frame now uses the full phone width (2026-10-11), so every screenshot will differ.
 - [ ] **Split `app/globals.css` by surface.** Still one 216 KB file on every page.
 - [ ] **An e2e test from sign-up through checkout.** Nothing tests the payment path.
 

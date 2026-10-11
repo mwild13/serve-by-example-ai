@@ -11,7 +11,7 @@ import type { CSSProperties, ReactNode } from "react";
 // real viewport edge; the inner div is the centered, width-capped content
 // frame. Before this split, background lived on the same div as maxWidth,
 // so any gap between the frame and the true viewport (true at nearly every
-// width once --mobile-frame-max became a clamp() for tablets) showed the
+// width once --mobile-frame-max stopped tracking the viewport) showed the
 // light marketing `body` background bleeding through the sides. This div
 // split only covers the normal-paint case, not iOS rubber-band overscroll
 // or the safe-area strip — see the body.mobile-dark-shell class
