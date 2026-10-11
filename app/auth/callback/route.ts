@@ -60,6 +60,14 @@ export async function GET(request: NextRequest) {
         redirectTo += `${sep}checkout=success&session_id=${finalSessionId}`;
       }
 
+      // An account made in the last two minutes is a sign-up, not a sign-in.
+      // components/ConversionEvents.tsx reads this and removes it from the URL.
+      const createdMs = Date.parse(data.user.created_at ?? "");
+      const isGoogle = data.user.app_metadata?.provider === "google";
+      if (isGoogle && Number.isFinite(createdMs) && Date.now() - createdMs < 120_000) {
+        redirectTo += `${redirectTo.includes("?") ? "&" : "?"}signup=google`;
+      }
+
       return NextResponse.redirect(`${origin}${redirectTo}`);
     }
   }

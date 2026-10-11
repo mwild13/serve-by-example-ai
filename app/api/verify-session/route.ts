@@ -45,6 +45,9 @@ export async function GET(req: Request) {
       verified: true,
       customer_email: session.customer_details?.email ?? "",
       metadata: session.metadata ?? {},
+      // For the purchase analytics event (components/ConversionEvents.tsx).
+      value: (session.amount_total ?? 0) / 100,
+      currency: (session.currency ?? "aud").toUpperCase(),
     });
   } catch (error) {
     console.error("Verify session error:", error);

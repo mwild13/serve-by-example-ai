@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FormEvent, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
+import { trackEvent } from "@/lib/consent";
 import { BrandMark, RightPanel } from "@/components/LoginSplitParts";
 import TurnstileWidget, { CAPTCHA_FAILED_MESSAGE, isCaptchaError, type TurnstileHandle } from "@/components/TurnstileWidget";
 
@@ -143,7 +144,10 @@ function LoginPageContent() {
         },
         body: JSON.stringify({ tier: trialTier }),
       });
-      if (res.ok) return true;
+      if (res.ok) {
+        trackEvent("trial_start", { plan: trialTier });
+        return true;
+      }
       const data = await res.json().catch(() => ({}));
       setError(
         data.error === "This organisation has already used its free trial"
@@ -267,6 +271,10 @@ function LoginPageContent() {
           }
           throw signUpError;
         }
+
+        // An address that is already registered comes back as a user with no
+        // identities when email confirmation is on, so it is not counted.
+        if (data.user?.identities?.length) trackEvent("sign_up", { method: "Email" });
 
         // No client-side profiles write: the on_auth_user_created trigger
         // creates the row, and readers fall back to the email prefix for a

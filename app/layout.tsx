@@ -5,6 +5,7 @@ import LanguageRuntimeTranslator from "@/components/LanguageRuntimeTranslator";
 import ErrorLogger from "@/components/ErrorLogger";
 import FloatingBookCallButton from "@/components/FloatingBookCallButton";
 import CookieBanner from "@/components/CookieBanner";
+import ConversionEvents from "@/components/ConversionEvents";
 
 // Self-hosted, not next/font/google — the Cloudflare Pages build fetches
 // font files from Google's CDN at build time with next/font/google, and
@@ -148,6 +149,7 @@ export default async function RootLayout({
         {children}
         <FloatingBookCallButton />
         <CookieBanner />
+        <ConversionEvents />
         <ErrorLogger />
         <LanguageRuntimeTranslator />
       </body>

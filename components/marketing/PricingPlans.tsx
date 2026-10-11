@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { trackEvent } from "@/lib/consent";
 
 /*
  * PricingPlans — the /pricing price board (Pages-Redesign.md 2.1, 5.4).
@@ -128,6 +129,7 @@ export default function PricingPlans() {
       }
       const data = await res.json();
       if (data.url) {
+        trackEvent("begin_checkout", { plan });
         // Stripe Checkout is on an external domain. router.push only handles
         // internal app routes, so a full browser navigation is required here.
         window.location.href = data.url;
@@ -171,6 +173,7 @@ export default function PricingPlans() {
       }
       const data = await res.json();
       if (res.ok) {
+        trackEvent("trial_start", { plan: tier });
         router.push("/management/dashboard");
       } else {
         setLoading(null);

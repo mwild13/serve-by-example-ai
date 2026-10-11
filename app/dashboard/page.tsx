@@ -92,7 +92,11 @@ export default async function DashboardPage({
   // on to the mobile app, where staff on a phone always work.
   if (checkoutSuccess && stripeSessionId) {
     const userAgent = (await headers()).get("user-agent") ?? "";
-    if (isMobilePhoneUserAgent(userAgent)) redirect("/mobile/home");
+    // The parameters go along so the purchase analytics event still fires
+    // there (components/ConversionEvents.tsx); nothing on /mobile acts on them.
+    if (isMobilePhoneUserAgent(userAgent)) {
+      redirect(`/mobile/home?checkout=success&session_id=${encodeURIComponent(stripeSessionId)}`);
+    }
   }
 
   const displayName =
