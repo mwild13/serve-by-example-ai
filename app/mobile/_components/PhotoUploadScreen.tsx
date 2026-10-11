@@ -72,13 +72,6 @@ function blobToDataUrl(blob: Blob): Promise<string> {
   });
 }
 
-// Head-and-shoulders outline for the camera guide, in a 100x100 box: up the
-// left shoulder, over an egg-shaped head, down the right side. All curves,
-// with matching tangents where they join, so the neck is a soft dip and not
-// a notch.
-const PORTRAIT_GUIDE_PATH =
-  "M8 100C8 86 20 79 32 75C38 73 41 69 39 65C35 57 33 47 33 36C33 22 41 14 50 14C59 14 67 22 67 36C67 47 65 57 61 65C59 69 62 73 68 75C80 79 92 86 92 100Z";
-
 type CropCenter = { x: number; y: number };
 
 const CROP_MIN_ZOOM = 1;
@@ -451,11 +444,10 @@ export default function PhotoUploadScreen() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Couldn't save your photo.");
 
-      // profilePhotoUrl is seeded once by the shared server layout into
-      // MobileSessionContext, which has no client setter for it —
-      // router.refresh() forces that layout to re-fetch before navigating
-      // so Home/Progress show the new photo immediately instead of after a
-      // hard reload. Same fix the old screen's handleSave used.
+      // Put the new photo into the shared session first so Home and Me
+      // show it the moment they render. router.refresh() then re-seeds the
+      // server layout in the background.
+      if (typeof data.url === "string") session.setProfilePhotoUrl(data.url);
       router.refresh();
       router.push("/mobile/home");
     } catch (err) {
@@ -678,27 +670,25 @@ export default function PhotoUploadScreen() {
                 muted
                 style={{ width: "100%", height: "100%", objectFit: "cover", transform: "scaleX(-1)" }}
               />
-              {/* Head-and-shoulders framing guide. One evenodd path dims
-                  everything outside the outline; the second draws it. */}
-              <svg
+              {/* Face framing guide: an oval about 1 : 1.3. The box-shadow
+                  dims everything outside it. */}
+              <div
                 aria-hidden="true"
-                viewBox="0 0 100 100"
-                preserveAspectRatio="none"
-                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
-              >
-                <path fillRule="evenodd" fill="rgba(0, 0, 0, 0.6)" d={`M0 0H100V100H0Z ${PORTRAIT_GUIDE_PATH}`} />
-                <path
-                  d={PORTRAIT_GUIDE_PATH}
-                  fill="none"
-                  stroke="rgba(255, 255, 255, 0.85)"
-                  strokeWidth={2}
-                  strokeLinejoin="round"
-                  vectorEffect="non-scaling-stroke"
-                />
-              </svg>
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  margin: "auto",
+                  width: "56%",
+                  height: "74%",
+                  borderRadius: "50%",
+                  boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.6)",
+                  border: "2px solid rgba(255, 255, 255, 0.85)",
+                  pointerEvents: "none",
+                }}
+              />
             </div>
             <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)", textAlign: "center" }}>
-              Fit your head and shoulders inside the outline
+              Fit your face inside the oval
             </p>
             <button
               type="button"

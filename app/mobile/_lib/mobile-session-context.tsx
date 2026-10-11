@@ -25,6 +25,11 @@ export type MobileSession = {
   venueMembershipPaused: boolean;
   /** Saved AI portrait URL (profiles.profile_photo_url), or null if the user has never saved one. */
   profilePhotoUrl: string | null;
+  /** Shows a just-saved photo on every screen straight away. The server
+   *  layout only seeds profilePhotoUrl when it re-renders, which lands after
+   *  the navigation back to Home, so without this the old photo showed
+   *  until a reload. */
+  setProfilePhotoUrl: (url: string) => void;
   /** AI portraits left today (0–2) per the durable daily cap — see
    *  lib/profile-photo-cap.ts. Seeded once here like profilePhotoUrl above;
    *  AiProfilePhotoScreen.tsx keeps its own local state updated from each
@@ -57,7 +62,10 @@ export type MobileSession = {
 
 /** What app/mobile/layout.tsx (server) actually seeds — everything except
  * the client-computed fields this provider fills in itself. */
-type MobileSessionSeed = Omit<MobileSession, "streakCount" | "isOnline" | "pendingSyncCount">;
+type MobileSessionSeed = Omit<
+  MobileSession,
+  "streakCount" | "isOnline" | "pendingSyncCount" | "setProfilePhotoUrl"
+>;
 
 const MobileSessionContext = createContext<MobileSession | null>(null);
 
@@ -71,6 +79,9 @@ export function MobileSessionProvider({
   const [streakCount, setStreakCount] = useState<number | null>(null);
   const [isOnline, setIsOnline] = useState(true);
   const [pendingSyncCount, setPendingSyncCount] = useState(0);
+  // A photo saved in this visit. It wins over the seeded value, which is
+  // older until the server layout re-renders and then the same.
+  const [savedPhotoUrl, setSavedPhotoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -118,8 +129,15 @@ export function MobileSessionProvider({
   }, []);
 
   const merged = useMemo<MobileSession>(
-    () => ({ ...value, streakCount, isOnline, pendingSyncCount }),
-    [value, streakCount, isOnline, pendingSyncCount],
+    () => ({
+      ...value,
+      profilePhotoUrl: savedPhotoUrl ?? value.profilePhotoUrl,
+      setProfilePhotoUrl: setSavedPhotoUrl,
+      streakCount,
+      isOnline,
+      pendingSyncCount,
+    }),
+    [value, savedPhotoUrl, streakCount, isOnline, pendingSyncCount],
   );
 
   return (
