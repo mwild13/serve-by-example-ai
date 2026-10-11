@@ -30,7 +30,7 @@ Work from 2026-10-12 onward is recorded here. Earlier work is in `docs/handoff/2
 
 ### What changed
 
-- **`app/auth/page.tsx`** is a server redirect to `/login` that carries the query string over. `app/auth/layout.tsx` was deleted. `/auth/callback` is a separate route and was not touched. Nothing in the code linked to `/auth`.
+- **`/auth`** redirects to `/login` from `next.config.js` (a 307 that carries the query string over). `app/auth/page.tsx` and `app/auth/layout.tsx` were deleted. It was first built as a page that redirected, which answered 200 and redirected a moment later in the browser; Part 4 replaced that. `/auth/callback` is a separate route and was not touched. Nothing in the code linked to `/auth`.
 - **`app/dashboard/error.tsx` and `app/mobile/error.tsx`** are new. Each shows a short message and a "Try again" button in that surface's own colours. Before, a render error fell through to `app/error.tsx`.
 - **`lib/management/needs-attention.ts`:** `needsAttention()` returns false for anyone at 100% progress. The reported case (25 of 25 flagged on one venue, including a person at 100%) came from the 14-day inactivity rule, not the status fallback as the to-do item said: every person on the three 25-person venues was last active more than 14 days ago. On those venues the count now drops by the 10, 12 and 2 people who have finished. `lib/management/needs-attention.test.ts` is new.
 - **`lib/openai.ts`:** `maxRetries: 2` is now stated on the client. It is the SDK default, so behaviour is unchanged: a 429 or 5xx was already retried twice with backoff inside each route's timeout.
@@ -100,7 +100,7 @@ The error screens only appear when a screen fails, so they cannot be seen on dem
 ### The short version
 
 1. **`/refunds` exists.** A Refund and Cancellation Policy page, to link from Stripe.
-2. **The dead-schema migration is written, not run.**
+2. **The dead schema is dropped.** The migration was written here and run by the owner.
 3. **The owner has Stripe payment links.** They do not work with the webhook on this branch. This has to be settled before the merge.
 
 ### `/refunds`
@@ -114,8 +114,31 @@ The error screens only appear when a screen fails, so they cannot be seen on dem
 
 - `supabase/migrations/20261012b_drop_dead_schema.sql` with `supabase/rollbacks/20261012b_drop_dead_schema_rollback.sql`. One transaction: it replaces `award_sbe_elite()` so it no longer sets `all_modules_completed`, drops `pending_invites`, then drops the eight `profiles` columns.
 - Checked against production first: the only things that depend on them are that function, the indexes `idx_profiles_platform_version` and `idx_profiles_manager_id`, and the `profiles_manager_id_fkey` foreign key. No view, policy or trigger does, and no code on `main` or this branch reads or writes them.
-- **Not run.** The owner runs it. It does not depend on this branch, so it can run before or after the merge. The "pending drop" notes in `docs/DATABASE_SCHEMA.md` stay until it has run.
+- **Run by the owner on 2026-10-12 and confirmed:** the table and all eight columns are gone, and `award_sbe_elite()` no longer mentions `all_modules_completed`. `docs/DATABASE_SCHEMA.md` is updated.
 
 ### Payment links
 
 Part 2 removed the guest-purchase path on the understanding that nothing was sold outside the site's own checkout. The owner has since said a few payment links exist. On `main` today such a purchase half works: a new email is invited and given the plan, an existing account gets the plan at next sign-in but no organisation. On this branch it is logged and ignored. Either the links are deactivated, or the webhook is changed to handle them properly. Do not merge until one of those is done.
+
+## Part 4: trial chip, `/reset-password` and the `/auth` redirect
+
+- **Date:** 2026-10-12
+- **Branch:** `preview/oct-w3-todo-sweep`. Not merged to `main`.
+
+### What changed
+
+- **Trial prompt on the collapsed sidebar.** `TrialStatusPill` now carries a small chip (the days left, or "Trial ended") that is the only part shown while the Manager Console sidebar is an icon rail. It links to Billing like the full card. `ConsoleSidebar` no longer hides the trial slot when collapsed. Styles are next to `.mc-upgrade-card` in `app/globals.css`. The card's description also lost its em dash.
+- **`/reset-password` matches `/login`.** Same split layout, brand mark and right-hand panel. The brand mark and panel moved out of `app/login/page.tsx` into `components/LoginSplitParts.tsx` so both pages share them. The form and its behaviour are unchanged.
+- **`/auth` is a real redirect now**, set in `next.config.js`.
+- **Database.** The dead-schema migration from Part 3 was run by the owner and confirmed.
+
+### Checked
+
+- Locally: `/auth?checkout=success` answers 307 to `/login?checkout=success`; `/auth/callback` is not caught by it; `/?code=...` answers 307 to `/auth/callback`; `/reset-password` was viewed at 1280px and matches `/login`.
+- `/refunds` returns its content from the server, but the page could not be viewed locally: this machine has no Supabase settings, and the Navbar fails without them on every marketing page. Look at it on the preview.
+- Not seen: the trial chip (needs a trial account), and `/reset-password` at phone width.
+- `npm run typecheck`, `eslint` and `vitest` (57 tests) pass.
+
+### Found on the way
+
+The site's default page title reads "Train Hospitality Staff 3x Faster" (`app/layout.tsx`, `app/page.tsx`). "3x faster" was one of the unsourced figures thought to be gone. It is in the to-do list under Marketing copy.
