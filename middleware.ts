@@ -96,6 +96,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(canonicalUrl, 308);
   }
 
+  // A sign-in that came back to the home page. When Supabase does not accept
+  // the address a sign-in asked to return to, it sends the visitor to the
+  // Site URL with the one-time code still attached, and the home page ignored
+  // it: they looked signed out. /auth/callback finishes the sign-in, or shows
+  // the sign-in error on /login when the code was issued for another host.
+  if (request.nextUrl.pathname === "/" && request.nextUrl.searchParams.has("code")) {
+    const callbackUrl = request.nextUrl.clone();
+    callbackUrl.pathname = "/auth/callback";
+    return NextResponse.redirect(callbackUrl);
+  }
+
   // Generate a unique nonce per request — replaces unsafe-inline in script-src
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const csp = buildCSP(nonce);
