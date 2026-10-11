@@ -317,10 +317,6 @@ function LoginPageContent() {
         if (data.session) {
           const { data: { session: authSession } } = await supabase.auth.getSession();
           if (authSession?.access_token) {
-            await fetch("/api/billing/link-pending", {
-              method: "POST",
-              headers: { "Authorization": `Bearer ${authSession.access_token}` },
-            });
             await fetch("/api/session/stamp", {
               method: "POST",
               headers: { "Authorization": `Bearer ${authSession.access_token}` },
@@ -354,10 +350,6 @@ function LoginPageContent() {
 
         const { data: { session: authSession } } = await supabase.auth.getSession();
         if (authSession?.access_token) {
-          await fetch("/api/billing/link-pending", {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${authSession.access_token}` },
-          });
           await fetch("/api/session/stamp", {
             method: "POST",
             headers: { "Authorization": `Bearer ${authSession.access_token}` },

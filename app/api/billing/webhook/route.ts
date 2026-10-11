@@ -129,7 +129,6 @@ async function handleCheckoutComplete(
 ) {
   const userId = session.metadata?.userId;
   const priceId = session.metadata?.priceId;
-  const isFounder = session.metadata?.is_founder_purchase === "true";
   const stripeCustomerId = session.customer as string;
   const customerEmail = session.customer_details?.email ?? undefined;
 
@@ -159,37 +158,15 @@ async function handleCheckoutComplete(
     }
   }
 
-  // Resolve user ID — prefer the explicit userId from metadata (logged-in checkout),
-  // then fall back to email lookup (guest checkout)
-  let resolvedUserId: string | undefined = userId;
-
-  if (!resolvedUserId && customerEmail) {
-    const { data: authRows } = await supabase
-      .schema("auth")
-      .from("users")
-      .select("id")
-      .eq("email", customerEmail.trim().toLowerCase())
-      .limit(1);
-    resolvedUserId = (authRows?.[0] as { id: string } | undefined)?.id;
-
-    if (!resolvedUserId) {
-      // No account — invite user and create profile so they can set a password
-      const { data: invite, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(
-        customerEmail,
-        { data: { is_founders_user: isFounder } },
-      );
-      if (!inviteError && invite?.user) {
-        resolvedUserId = invite.user.id;
-        assertWritten(await supabase.from("profiles").upsert({ id: resolvedUserId, ...profileUpdate }), "profiles upsert");
-      } else {
-        console.error("Webhook: failed to invite new user:", inviteError?.message);
-        await stripe.customers.update(stripeCustomerId, { metadata: { pending_plan: tier } });
-        return;
-      }
-    }
+  // Checkout needs a signed-in account (app/api/billing/checkout/route.ts),
+  // so every session carries the buyer's id. One without it was not started
+  // by this site, for example a payment link made in the Stripe dashboard.
+  // It is logged, not guessed at by email.
+  if (!userId) {
+    console.error(`Webhook: checkout session ${session.id} has no userId in its metadata; no plan was applied.`);
+    return;
   }
-
-  if (!resolvedUserId) return;
+  const resolvedUserId = userId;
 
   assertWritten(await supabase.from("profiles").update(profileUpdate).eq("id", resolvedUserId), "profiles update");
 
