@@ -142,3 +142,24 @@ Part 2 removed the guest-purchase path on the understanding that nothing was sol
 ### Found on the way
 
 The site's default page title reads "Train Hospitality Staff 3x Faster" (`app/layout.tsx`, `app/page.tsx`). "3x faster" was one of the unsourced figures thought to be gone. It is in the to-do list under Marketing copy.
+
+## Part 5: the last Brevo emails on the shared shell
+
+- **Date:** 2026-10-12
+- **Branch:** `preview/oct-w3-todo-sweep`. Not merged to `main`.
+
+### What changed
+
+- **Every email the app sends through Brevo now uses `brandedEmailHtml()`.** Moved in this part: the staff invite (`app/api/management/staff`), the membership invite and its resend (`app/api/management/memberships`, `memberships/resend`), the contact enquiry, the book-a-call request, and both ROI emails (the projection sent to the visitor and the lead alert sent to us).
+- **Two new helpers in `lib/email-template.ts`:** `emailFieldTableHtml()` for label and value rows, which leaves out empty rows, and `emailNoteHtml()` for a boxed block of longer text. `lib/email-template.test.ts` covers both.
+- **Wording.** The invites lost "You've been invited!" for "You have been invited", and the green button is now the shell's button. Subjects, recipients, reply-to addresses and the links themselves are unchanged. Empty fields in the book-a-call email read "Not given".
+- **Still not on the shell:** the emails Supabase Auth sends itself (sign-up confirmation, email change). Those are edited in the Supabase dashboard and are in the to-do list.
+
+### Checked
+
+- `npm run typecheck`, `eslint` and `vitest` (59 tests) pass.
+- Not checked: no email was sent, so none was seen in a mail client. That is in the to-do list under testing.
+
+### Found on the way
+
+The ROI projection email and the calculator state their assumptions as facts ("23% of replacement costs recovered", "published AU hospitality benchmarks"). The wording was kept as it was and added to the to-do list under Marketing copy.
