@@ -49,7 +49,12 @@ export async function POST(req: Request) {
     httpClient: Stripe.createFetchHttpClient(),
   });
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? process.env.NEXT_PUBLIC_BASE_URL ?? "";
+  // Falls back to the request's own origin: Stripe rejects a relative return URL.
+  const baseUrl = (
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    new URL(req.url).origin
+  ).replace(/\/$/, "");
 
   try {
     const session = await stripe.billingPortal.sessions.create({
@@ -61,6 +66,9 @@ export async function POST(req: Request) {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("Stripe billing portal error:", message);
-    return NextResponse.json({ error: message }, { status: 502 });
+    // 400, not 502: a 5xx body can be replaced by the proxy's own error page
+    // before it reaches the browser, which left the button showing a generic
+    // failure with no reason.
+    return NextResponse.json({ error: `Billing could not be opened: ${message}` }, { status: 400 });
   }
 }

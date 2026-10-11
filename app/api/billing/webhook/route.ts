@@ -146,6 +146,19 @@ async function handleCheckoutComplete(
     stripe_customer_id: stripeCustomerId,
   };
 
+  // The subscription's own events usually arrive before this one, while no
+  // profile carries the Stripe customer id yet, so their update matches no
+  // row and the renewal date was never stored. Read it here, where the
+  // account is known.
+  if (typeof session.subscription === "string") {
+    const subscription = await stripe.subscriptions.retrieve(session.subscription);
+    if (subscription.status === "active" || subscription.status === "trialing") {
+      const rawPeriodEnd = subscription.items.data[0]?.current_period_end;
+      profileUpdate.subscription_status = subscription.status;
+      profileUpdate.subscription_period_end = rawPeriodEnd ? new Date(rawPeriodEnd * 1000).toISOString() : null;
+    }
+  }
+
   // Resolve user ID — prefer the explicit userId from metadata (logged-in checkout),
   // then fall back to email lookup (guest checkout)
   let resolvedUserId: string | undefined = userId;
