@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { siteOrigin } from "@/lib/site-url";
 import { requireManager } from "@/lib/management/auth";
-import { escapeHtml } from "@/lib/email-template";
+import { EMAIL_SMALL_STYLE, EMAIL_TEXT_STYLE, brandedEmailHtml, emailButtonHtml, emailFallbackLinkHtml, escapeHtml } from "@/lib/email-template";
 import { readJsonBody } from "@/lib/ai-guard";
 
 export async function POST(req: Request) {
@@ -85,18 +85,17 @@ export async function POST(req: Request) {
         sender: { name: fromName, email: fromEmail },
         to: [{ email, name }],
         subject: `Reminder: you've been invited to join ${fromName}`,
-        htmlContent: `
-          <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px">
-            <h2 style="margin-bottom:8px">Reminder invitation</h2>
-            <p style="color:#555">Hi ${escapeHtml(name)},</p>
-            <p style="color:#555">${bodyText}</p>
-            <p style="margin:32px 0">
-              <a href="${escapeHtml(ctaHref)}" style="background:#22c55e;color:#fff;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-block">${ctaLabel}</a>
-            </p>
-            <p style="color:#aaa;font-size:13px">If the button doesn't work, copy and paste this link into your browser:<br>${escapeHtml(ctaHref)}</p>
-            ${inviteLink ? '<p style="color:#aaa;font-size:13px">This link expires in 7 days.</p>' : ""}
-          </div>
-        `,
+        htmlContent: brandedEmailHtml({
+          preheader: "A reminder that your invitation is waiting.",
+          heading: "A reminder of your invitation",
+          bodyHtml: `
+            <p style="${EMAIL_TEXT_STYLE}">Hi ${escapeHtml(name)},</p>
+            <p style="${EMAIL_TEXT_STYLE}">${bodyText}</p>
+            ${emailButtonHtml(escapeHtml(ctaHref), ctaLabel)}
+            ${inviteLink ? `<p style="${EMAIL_SMALL_STYLE}">This link expires in 7 days.</p>` : ""}
+            ${emailFallbackLinkHtml(escapeHtml(ctaHref))}
+          `,
+        }),
       }),
     });
 

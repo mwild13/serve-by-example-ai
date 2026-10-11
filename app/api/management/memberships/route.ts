@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { siteOrigin } from "@/lib/site-url";
 import { managementErrorResponse, requireManager, type AdminClient } from "@/lib/management/auth";
 import { countActiveSeats, TIER_SEATS } from "@/lib/session";
-import { escapeHtml } from "@/lib/email-template";
+import { EMAIL_SMALL_STYLE, EMAIL_TEXT_STYLE, brandedEmailHtml, emailButtonHtml, emailFallbackLinkHtml, escapeHtml } from "@/lib/email-template";
 import { readJsonBody } from "@/lib/ai-guard";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -245,17 +245,16 @@ export async function POST(req: Request) {
               sender: { name: fromName, email: fromEmail },
               to: [{ email }],
               subject: `You've been invited to join ${fromName}`,
-              htmlContent: `
-                <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px">
-                  <h2 style="margin-bottom:8px">You've been invited!</h2>
-                  <p style="color:#555">${bodyText}</p>
-                  <p style="margin:32px 0">
-                    <a href="${escapeHtml(ctaHref)}" style="background:#22c55e;color:#fff;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-block">${ctaLabel}</a>
-                  </p>
-                  <p style="color:#aaa;font-size:13px">If the button doesn't work, copy and paste this link:<br>${escapeHtml(ctaHref)}</p>
-                  ${inviteLink ? '<p style="color:#aaa;font-size:13px">This link expires in 7 days.</p>' : ""}
-                </div>
-              `,
+              htmlContent: brandedEmailHtml({
+                preheader: inviteLink ? "Set up your account and start your training." : "Log in to see your venue's training.",
+                heading: "You have been invited",
+                bodyHtml: `
+                  <p style="${EMAIL_TEXT_STYLE}">${bodyText}</p>
+                  ${emailButtonHtml(escapeHtml(ctaHref), ctaLabel)}
+                  ${inviteLink ? `<p style="${EMAIL_SMALL_STYLE}">This link expires in 7 days.</p>` : ""}
+                  ${emailFallbackLinkHtml(escapeHtml(ctaHref))}
+                `,
+              }),
             }),
           });
           inviteSent = emailRes.ok;

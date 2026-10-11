@@ -76,6 +76,36 @@ export function emailFallbackLinkHtml(href: string): string {
 }
 
 /**
+ * Label and value rows, for the enquiry emails sent to our own inbox.
+ * Each value must already be safe for HTML. Rows with an empty value are left out.
+ */
+export function emailFieldTableHtml(rows: Array<[label: string, valueHtml: string]>): string {
+  const cell = `padding:11px 0;border-bottom:1px solid #ece5d5;font-family:${BODY_FONT};font-size:15px;line-height:1.5;vertical-align:top`;
+  return `
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 24px;border-collapse:collapse">
+      ${rows
+        .filter(([, valueHtml]) => valueHtml)
+        .map(
+          ([label, valueHtml]) =>
+            `<tr><td style="${cell};width:38%;padding-right:12px;font-size:13px;font-weight:700;color:#7a9185">${label}</td><td style="${cell};color:#172f22">${valueHtml}</td></tr>`,
+        )
+        .join("")}
+    </table>`;
+}
+
+/**
+ * A boxed block for a longer piece of text, such as the message someone
+ * typed into a form. `textHtml` must already be safe for HTML.
+ */
+export function emailNoteHtml(label: string, textHtml: string): string {
+  return `
+    <div style="margin:0 0 24px;padding:16px 18px;background:#f5f2e9;border:1px solid #ece5d5;border-left:3px solid #a9812a;border-radius:10px">
+      <p style="margin:0 0 6px;font-family:${BODY_FONT};font-size:13px;font-weight:700;color:#7a9185">${label}</p>
+      <p style="margin:0;font-family:${BODY_FONT};font-size:15px;line-height:1.65;color:#172f22;white-space:pre-wrap">${textHtml}</p>
+    </div>`;
+}
+
+/**
  * Wraps a block of already-built HTML body content in a branded email
  * shell: the logo and name on parchment, a gold rule, a serif heading, and a
  * footer with the contact links. `bodyHtml` should be plain inline-styled

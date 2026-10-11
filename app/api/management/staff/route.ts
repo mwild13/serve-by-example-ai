@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { siteOrigin } from "@/lib/site-url";
 import { ManagementAccessError, requireManager } from "@/lib/management/auth";
 import { createStaffMember, updateStaffMember, getManagementSnapshot } from "@/lib/management/service";
-import { escapeHtml } from "@/lib/email-template";
+import { EMAIL_SMALL_STYLE, EMAIL_TEXT_STYLE, brandedEmailHtml, emailButtonHtml, emailFallbackLinkHtml, escapeHtml } from "@/lib/email-template";
 import type { NewStaffPayload, StaffRole, AustralianState } from "@/lib/management/types";
 import { readJsonBody } from "@/lib/ai-guard";
 
@@ -118,18 +118,17 @@ export async function POST(req: Request) {
                   sender: { name: fromName, email: fromEmail },
                   to: [{ email, name }],
                   subject: `You've been invited to join ${fromName}`,
-                  htmlContent: `
-                    <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px">
-                      <h2 style="margin-bottom:8px">You&apos;ve been invited!</h2>
-                      <p style="color:#555">Hi ${escapeHtml(name)},</p>
-                      <p style="color:#555">You&apos;ve been added as a staff member on <strong>Serve By Example</strong>. Click the button below to set up your account and start your training.</p>
-                      <p style="margin:32px 0">
-                        <a href="${escapeHtml(actionLink)}" style="background:#22c55e;color:#fff;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-block">Accept invitation</a>
-                      </p>
-                      <p style="color:#aaa;font-size:13px">If the button doesn&apos;t work, copy and paste this link into your browser:<br>${escapeHtml(actionLink)}</p>
-                      <p style="color:#aaa;font-size:13px">This link expires in 7 days.</p>
-                    </div>
-                  `,
+                  htmlContent: brandedEmailHtml({
+                    preheader: "Set up your account and start your training.",
+                    heading: "You have been invited",
+                    bodyHtml: `
+                      <p style="${EMAIL_TEXT_STYLE}">Hi ${escapeHtml(name)},</p>
+                      <p style="${EMAIL_TEXT_STYLE}">You have been added as a staff member on Serve By Example. Set up your account with the button below and start your training.</p>
+                      ${emailButtonHtml(escapeHtml(actionLink), "Accept invitation")}
+                      <p style="${EMAIL_SMALL_STYLE}">This link expires in 7 days.</p>
+                      ${emailFallbackLinkHtml(escapeHtml(actionLink))}
+                    `,
+                  }),
                 }),
               });
 

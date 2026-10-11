@@ -1,6 +1,6 @@
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { readJsonBody } from "@/lib/ai-guard";
-import { escapeHtml, formText } from "@/lib/email-template";
+import { EMAIL_SMALL_STYLE, EMAIL_TEXT_STYLE, brandedEmailHtml, emailFieldTableHtml, emailNoteHtml, escapeHtml, formText } from "@/lib/email-template";
 
 export async function POST(req: Request) {
   // Public, unauthenticated and sends email, so it's capped per IP
@@ -52,29 +52,24 @@ export async function POST(req: Request) {
     // Values are escaped here, once: this email goes to our own inbox, and a
     // form field used to be able to inject markup (links, fake buttons) into it.
     const e = escapeHtml;
-    const row = (label: string, value: string) =>
-      `<tr><td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-weight:600;width:160px;vertical-align:top">${label}</td><td style="padding:10px 0;border-bottom:1px solid #e5e7eb">${value}</td></tr>`;
-
-    const htmlContent = `
-      <div style="font-family:sans-serif;max-width:640px;margin:0 auto;padding:32px 24px">
-        <h2 style="margin-bottom:8px;color:#0B2B1E">New Book-a-Call Request</h2>
-        <p style="color:#6b7280;margin-top:0">Submitted from the Serve By Example hero booking form.</p>
-        <table style="width:100%;border-collapse:collapse;margin-top:24px">
-          ${row("Name", `${e(firstName)} ${e(lastName)}`)}
-          ${row("Email", `<a href="mailto:${e(email)}">${e(email)}</a>`)}
-          ${row("Phone", e(phone))}
-          ${row("Company", e(company))}
-          ${row("Team size", e(teamSize) || "–")}
-          ${row("Uses training?", usesTraining === "yes" ? `Yes${platformName ? ` – ${e(platformName)}` : ""}` : usesTraining === "no" ? "No" : "–")}
-          ${row("Decision maker?", e(decisionMaker) || "–")}
-        </table>
-        <div style="margin-top:24px;padding:20px;background:#f9fafb;border-radius:8px;border-left:4px solid #0B2B1E">
-          <p style="margin:0;font-weight:600;margin-bottom:8px">What made them book a call</p>
-          <p style="margin:0;line-height:1.65;white-space:pre-wrap">${e(intent) || "–"}</p>
-        </div>
-        <p style="margin-top:24px;font-size:13px;color:#9ca3af">Reply directly to this email to respond to ${e(firstName)}.</p>
-      </div>
-    `;
+    const htmlContent = brandedEmailHtml({
+      preheader: `From ${e(firstName)} ${e(lastName)}, ${e(company)}`,
+      heading: "New book-a-call request",
+      bodyHtml: `
+        <p style="${EMAIL_TEXT_STYLE}">Submitted from the Serve By Example booking form.</p>
+        ${emailFieldTableHtml([
+          ["Name", `${e(firstName)} ${e(lastName)}`],
+          ["Email", `<a href="mailto:${e(email)}" style="color:#1f4e37">${e(email)}</a>`],
+          ["Phone", e(phone)],
+          ["Company", e(company)],
+          ["Team size", e(teamSize) || "Not given"],
+          ["Uses training?", usesTraining === "yes" ? `Yes${platformName ? `: ${e(platformName)}` : ""}` : usesTraining === "no" ? "No" : "Not given"],
+          ["Decision maker?", e(decisionMaker) || "Not given"],
+        ])}
+        ${emailNoteHtml("What made them book a call", e(intent) || "Not given")}
+        <p style="${EMAIL_SMALL_STYLE}">Reply to this email to respond to ${e(firstName)}.</p>
+      `,
+    });
 
     const brevoRes = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
