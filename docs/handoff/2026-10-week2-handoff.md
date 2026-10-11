@@ -1,6 +1,6 @@
 # Handoff: October 2026, Week 2 — By Example Advisory page, homepage UI overhaul and pricing page redesign
 
-> **Eight pieces of work this week. Parts 1 to 7 are on `main` as of 2026-10-09 (`9b80080`).** Part 8, at the end of this file, is the removal of the old mobile view inside `/dashboard`; it is on branch `preview/remove-legacy-mobile`, **pushed for preview, not merged**. Part 7 is the em dash sweep, the demo and login page redesigns, the production release and the review of old branches. Parts 5 and 6 are the Manager Console redesign: Part 5 is the shell and home page, Part 6 is every other tab. Parts 5, 6 and 7 were built on branch `preview/console-home-redesign` and **fast-forwarded into `main` on 2026-10-09**. The first four: Part 1 (below) is the Advisory page, merged to `main`. Part 2 is the homepage UI overhaul, also merged to `main`. Part 3 is the pricing page redesign, also merged to `main`. Part 4 is the new typography and the redesign of every remaining marketing page, **merged to `main` 2026-10-08**. The AI model switch to `gpt-6-luna` is recorded in Part 1 and is merged too.
+> **Eight pieces of work this week, all on `main`.** Parts 1 to 7 were on `main` as of 2026-10-09 (`9b80080`). Part 8, at the end of this file, is the removal of the old mobile view inside `/dashboard`; it was **merged to `main` on 2026-10-10** with the pre-launch cleanup (pull request #2, `dd65a89`). The work after this file is in `docs/handoff/2026-10-pre-launch-handoff.md`. Part 7 is the em dash sweep, the demo and login page redesigns, the production release and the review of old branches. Parts 5 and 6 are the Manager Console redesign: Part 5 is the shell and home page, Part 6 is every other tab. Parts 5, 6 and 7 were built on branch `preview/console-home-redesign` and **fast-forwarded into `main` on 2026-10-09**. The first four: Part 1 (below) is the Advisory page, merged to `main`. Part 2 is the homepage UI overhaul, also merged to `main`. Part 3 is the pricing page redesign, also merged to `main`. Part 4 is the new typography and the redesign of every remaining marketing page, **merged to `main` 2026-10-08**. The AI model switch to `gpt-6-luna` is recorded in Part 1 and is merged too.
 
 - **Dates:** 2026-10-07 to 2026-10-08
 - **Branch:** `preview/advisory-page`, **merged to `main` 2026-10-08** (merge `b0e1de1`). Preview: https://preview-advisory-page.serve-by-example-ai.pages.dev/advisory
@@ -774,7 +774,7 @@ All of these are in `To_do_list.md`.
 # Part 8: Legacy mobile dashboard removed
 
 - **Date:** 2026-10-09
-- **Branch:** `preview/remove-legacy-mobile`, off `main` at `ae91db9`. **Pushed for preview, not merged.** Preview: https://preview-remove-legacy-mobile.serve-by-example-ai.pages.dev
+- **Branch:** `preview/remove-legacy-mobile`, off `main` at `ae91db9`. **Merged to `main` on 2026-10-10** through pull request #2 (`dd65a89`). The pre-launch cleanup branch was cut from this one, so the two went in together.
 - **Why:** the owner asked for the old mobile staff dashboard to be deleted cleanly, and asked whether the new `/mobile` app should move back into `/dashboard`.
 
 ## The short version
@@ -784,7 +784,7 @@ All of these are in `To_do_list.md`.
 3. **No phone user sees a change.** `middleware.ts` was already sending every phone from `/dashboard` to `/mobile/home`, so the old view only appeared in a non-phone window narrower than 720px.
 4. **A narrow `/dashboard` window now shows the desktop dashboard in one column,** with the nav as a wrapped row on top.
 5. **The staff sign-up link now works on a phone** for someone who is already signed in.
-6. **Nothing was checked in a browser.** There is no local environment to sign in with. The checks are in `To_do_list.md`.
+6. **The two specific checks were not done.** The owner looked over the signed-in screens on the preview before the merge and reported on 2026-10-11 that the old mobile view is gone. The narrow `/dashboard` layout and the sign-up link on a phone are still in `To_do_list.md`.
 
 ## The decision
 
@@ -858,7 +858,7 @@ The owner also chose that a narrow non-phone window keeps the desktop dashboard,
 
 All of these are in `To_do_list.md`, under "Checks to finish".
 
-- **Check the preview** before merging: the narrow `/dashboard` layout on a computer, and the sign-up link on a phone.
+- **Two checks, now on production:** the narrow `/dashboard` layout on a computer, and the sign-up link on a phone.
 - **The sign-up link is lost at sign-in.** A signed-out person who opens it is sent to `/login`, and the code is dropped afterwards, on desktop and phone. Most new staff are signed out when they first open the link, so the fix in this part only helps people who already have a session.
 - **Phone checkout return skips the instant upgrade.** `/dashboard?checkout=success&session_id=...` is redirected to `/mobile/home` before the Stripe session is verified, so the plan only updates when the webhook lands.
 
