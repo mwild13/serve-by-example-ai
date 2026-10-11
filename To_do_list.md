@@ -8,7 +8,6 @@ Regrouped on 2026-10-12 by who does the work and where. Background for the launc
 
 Small changes, in the order they will be done. Each goes to a preview branch first.
 
-- [ ] **Drop the dead schema.** Write one migration plus a rollback file that drops the `pending_invites` table and the `profiles` columns `avatar`, `role`, `manager_id`, `notif_achievement_alerts`, `platform_version`, `diagnostic_completed_at`, `is_founders_user` and `all_modules_completed`. The SQL was drafted on 2026-10-12 and the file could not be saved without the owner's approval, so it is not in the repo yet. Checked that day: the only things that depend on them are `award_sbe_elite()` (still sets `all_modules_completed`; replace it in the same file), the indexes `idx_profiles_platform_version` and `idx_profiles_manager_id`, and the `profiles_manager_id_fkey` foreign key. No view, policy or trigger does. Lost for good: `role` (4 rows, all "manager") and `notif_achievement_alerts`. Afterwards remove the "pending drop" notes from `docs/DATABASE_SCHEMA.md`.
 - [ ] **Trial prompt in the collapsed sidebar.** The upgrade card is hidden while the Manager Console sidebar is an icon rail.
 - [ ] **Restyle `/reset-password`.** It still uses the old login card. `/login` was redesigned on 2026-10-09.
 - [ ] **Move the last Brevo emails onto the shared shell** (`brandedEmailHtml()`, `emailButtonHtml()` and `emailFallbackLinkHtml()` in `lib/email-template.ts`). Still building their own HTML: staff invite and resend (`app/api/management/staff`, `memberships`, `memberships/resend`), contact, book-a-call and the ROI email.
@@ -25,7 +24,7 @@ There is no customer data behind any of these. Each needs a source or should be 
 - [ ] **Product counts to confirm.** "5 dimensions" (`/vs-generic-lms`, `/how-it-works`), "125 staff across 5 venues" (`/vs-generic-lms`, `/solutions/pub-groups`), and "Scalable from 5 to 500 staff" on `/solutions/franchise-systems`, which is above the 125 limit.
 - [ ] **"No credit card" lines.** On the home page (`app/page.tsx`, twice), `components/HeroSection.tsx`, `/vs-generic-lms`, `/solutions/pub-groups` and still in `app/pricing/page.tsx`. The toolkit page's line is about the free download and is fine. Owner: is it still true for the 14-day trial?
 - [ ] **Competitor claim.** The `/platform` closing band says incumbents are "still in the planning phase". Default: remove.
-- [ ] **Two different guarantees.** `/demo` says "Our No-Brainer Guarantee: ... within 7 days, you pay $0" (`app/demo/_components/LeadCapturePane.tsx`). The rest of the site states a 14-day guarantee. Owner: pick one.
+- [ ] **Two different guarantees.** `/demo` says "Our No-Brainer Guarantee: ... within 7 days, you pay $0" (`app/demo/_components/LeadCapturePane.tsx`). The rest of the site states a 14-day guarantee. Owner: pick one. `/refunds` (2026-10-12) states the 14-day one.
 - [ ] **`/security` names OpenAI.** `docs/Pages-Redesign.md` 6.2 says not to name the AI model. Kept as a provider disclosure. Owner: confirm that reading.
 
 ## 3. Owner: dashboards
@@ -40,6 +39,7 @@ Grouped by where you sign in. None of these can be done from the code.
 
 ### Supabase
 
+- [ ] **Run `supabase/migrations/20261012b_drop_dead_schema.sql`** in the SQL Editor. It drops the `pending_invites` table and the `profiles` columns `avatar`, `role`, `manager_id`, `notif_achievement_alerts`, `platform_version`, `diagnostic_completed_at`, `is_founders_user` and `all_modules_completed`, and replaces `award_sbe_elite()`. Safe to run before or after the branch merges. Lost for good: `role` (4 rows, all "manager") and `notif_achievement_alerts`. The rollback is in `supabase/rollbacks/`. Afterwards tell Claude, so the "pending drop" notes come out of `docs/DATABASE_SCHEMA.md`.
 - [ ] **Let previews sign in with Google.** Authentication, URL Configuration, Redirect URLs: add `https://*.serve-by-example-ai.pages.dev/**`. Without it, Google sign-in started on a preview lands on the production site and fails.
 - [ ] **Auth email.** Confirm Auth sends through Brevo, not the built-in mailer, and raise the hourly email limit under Authentication, Rate Limits.
 - [ ] **Auth email templates.** Sign-up confirmation and email change still use Supabase's own templates. Edit them under Authentication, Emails to match the shared shell.
@@ -53,7 +53,8 @@ Grouped by where you sign in. None of these can be done from the code.
 
 ### Stripe
 
-- [ ] **Check for payment links.** Payments, Payment Links: there should be none in use. Since 2026-10-12 the webhook applies a plan only to a checkout started on the site by a signed-in account; anything else is logged and ignored.
+- [ ] **Decide what the payment links are for, before `preview/oct-w3-todo-sweep` merges.** The owner has made a few in the Stripe dashboard. On that branch the webhook applies a plan only to a checkout started on the site by a signed-in account, so a payment link would charge the buyer and apply nothing. Either deactivate them (Payments, Payment Links) and send people to `/membership`, or say where they are used and the webhook is changed to handle them properly.
+- [ ] **Link the refund policy.** Settings, Business, Public details (and the Checkout settings): set the refund and return policy to `https://servebyexample.co/refunds`, and the terms to `https://servebyexample.co/terms`. `/refunds` is live once the branch merges.
 - [ ] **Failed-webhook emails.** Developers, Webhooks, the endpoint's settings. Until error tracking exists this is the only alert.
 - [ ] **Branding.** Settings, Branding: logo, icon, brand and accent colours. Settings, Emails: support address and reply-to. Settings, Billing, Invoices: footer and business details. Set the statement descriptor so the card charge reads as Serve By Example.
 

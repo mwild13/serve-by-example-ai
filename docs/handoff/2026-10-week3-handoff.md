@@ -65,7 +65,6 @@ The error screens only appear when a screen fails, so they cannot be seen on dem
 1. **Google sign-in "went to the home page the first time" because it was started on the preview.** It is a Supabase setting, not a fault in production sign-in. One line of safety net was added in `middleware.ts`.
 2. **The old guest-purchase path is gone** from the Stripe webhook, with the `link-pending` route and its two calls at sign-in.
 3. **Twelve more routes have a rate limit.**
-4. **The dead-schema migration is not written.** Saving the file was blocked and needs the owner's approval.
 
 ### Google sign-in
 
@@ -88,11 +87,35 @@ The error screens only appear when a screen fails, so they cannot be seen on dem
 - `training/save` was left alone: it is a retired route that only answers 410.
 - The limiter is in memory on each Cloudflare node (`lib/rate-limit.ts`), as before, so these are a brake on a runaway client, not a hard cap. The WAF rule is still wanted.
 
-### Dead schema
-
-The migration and rollback were drafted and checked against production. Dependencies found: `award_sbe_elite()`, two indexes and one foreign key, all named in the to-do item. The migration file could not be saved in this session, so nothing was added to `supabase/`.
-
 ### Checked
 
 - `npm run typecheck`, `eslint` on `app/api`, `app/login` and `middleware.ts`, and `vitest` all pass.
 - Not checked: no checkout was run against the changed webhook, and no route was pushed past its limit.
+
+## Part 3: refund policy page and the dead-schema migration
+
+- **Date:** 2026-10-12
+- **Branch:** `preview/oct-w3-todo-sweep`. Not merged to `main`.
+
+### The short version
+
+1. **`/refunds` exists.** A Refund and Cancellation Policy page, to link from Stripe.
+2. **The dead-schema migration is written, not run.**
+3. **The owner has Stripe payment links.** They do not work with the webhook on this branch. This has to be settled before the merge.
+
+### `/refunds`
+
+- `app/refunds/page.tsx` restates section 5 of `/terms` and adds nothing to it: a refund of the first subscription payment within 14 days, cancel any time with access to the end of the paid period, the Australian Consumer Law rights, and how to ask (email `info@servebyexample.co`). If the refund terms change, both pages change.
+- It is in the footer, the sitemap and the marketing e2e page list, and on `publicRoutes` in `lib/geo-config.ts` so Stripe's reviewers and overseas card holders can open it.
+- `/demo` still states a different guarantee (7 days). That decision is still open in the to-do list.
+- Not checked: the page was not viewed in a browser.
+
+### Dead-schema migration
+
+- `supabase/migrations/20261012b_drop_dead_schema.sql` with `supabase/rollbacks/20261012b_drop_dead_schema_rollback.sql`. One transaction: it replaces `award_sbe_elite()` so it no longer sets `all_modules_completed`, drops `pending_invites`, then drops the eight `profiles` columns.
+- Checked against production first: the only things that depend on them are that function, the indexes `idx_profiles_platform_version` and `idx_profiles_manager_id`, and the `profiles_manager_id_fkey` foreign key. No view, policy or trigger does, and no code on `main` or this branch reads or writes them.
+- **Not run.** The owner runs it. It does not depend on this branch, so it can run before or after the merge. The "pending drop" notes in `docs/DATABASE_SCHEMA.md` stay until it has run.
+
+### Payment links
+
+Part 2 removed the guest-purchase path on the understanding that nothing was sold outside the site's own checkout. The owner has since said a few payment links exist. On `main` today such a purchase half works: a new email is invited and given the plan, an existing account gets the plan at next sign-in but no organisation. On this branch it is logged and ignored. Either the links are deactivated, or the webhook is changed to handle them properly. Do not merge until one of those is done.
