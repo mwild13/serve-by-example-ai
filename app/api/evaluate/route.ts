@@ -1,7 +1,8 @@
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimit } from "@/lib/rate-limit";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { readJsonBody } from "@/lib/ai-guard";
+import { aiDailyLimitForTier, aiDailyLimitResponse, consumeAiAllowance } from "@/lib/ai-usage";
 import { evaluateScenarioResponse, validateScenarioInput } from "@/lib/scenario-evaluator";
 import { resolveAccess, validateSession } from "@/lib/session";
 import { getCookieValue, recordScenarioAttempt } from "@/lib/training-attempt";
@@ -45,8 +46,9 @@ export async function POST(req: Request) {
       return Response.json({ error: "Unauthorized", code: "UNAUTHORIZED" }, { status: 401 });
     }
 
-    const ip = getClientIp(req);
-    if (!rateLimit(`evaluate:user:${user.id}`, 20) || !rateLimit(`evaluate:ip:${ip}`, 20)) {
+    // Per user only: a venue's staff share one IP on the venue Wi-Fi, so an
+    // IP limit locks a whole team out during a group session.
+    if (!rateLimit(`evaluate:user:${user.id}`, 20)) {
       return Response.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
     }
 
@@ -109,6 +111,10 @@ export async function POST(req: Request) {
       if (prior && prior.evaluation && typeof prior.evaluation === "object") {
         return Response.json({ ...prior.evaluation, saved: true, replayed: true, mastery: masteryPayload(prior.result) });
       }
+    }
+
+    if (!(await consumeAiAllowance(admin, user.id, aiDailyLimitForTier(access.tier)))) {
+      return aiDailyLimitResponse();
     }
 
     // No req.signal here: once the response is graded it should be recorded

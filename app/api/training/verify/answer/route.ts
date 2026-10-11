@@ -43,7 +43,7 @@ export async function POST(req: Request) {
 
     // A quick human answers one T/F question every second or two at most.
     const ip = getClientIp(req);
-    if (!rateLimit(`verify-answer:user:${user.id}`, 60) || !rateLimit(`verify-answer:ip:${ip}`, 120)) {
+    if (!rateLimit(`verify-answer:user:${user.id}`, 60)) {
       logVerifyRejection("verify_answer_rejected", "rate_limited", user.id, null, ip);
       return NextResponse.json({ error: "Too many requests. Try again in a minute.", code: "RATE_LIMITED" }, { status: 429 });
     }

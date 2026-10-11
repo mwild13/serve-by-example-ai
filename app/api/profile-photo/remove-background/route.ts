@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimit } from "@/lib/rate-limit";
 import { DAILY_GENERATION_LIMIT, generationsUsedToday } from "@/lib/profile-photo-cap";
 import { getFalClient, BG_REMOVE_MODEL, classifyFalError } from "@/lib/fal";
 import { readJsonBody } from "@/lib/ai-guard";
@@ -37,10 +37,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const ip = getClientIp(req);
     // Burst-abuse throttle, layered underneath the durable daily cap below —
     // not a replacement for it (see header comment).
-    if (!rateLimit(`remove-bg:user:${user.id}`, 5) || !rateLimit(`remove-bg:ip:${ip}`, 5)) {
+    if (!rateLimit(`remove-bg:user:${user.id}`, 5)) {
       return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
     }
 

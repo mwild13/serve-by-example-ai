@@ -4,7 +4,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { getMasteryProgress, getReviewQueue, getScenarioMasteryDetails, categoryMasteryAverage, moduleMasteryByType, SCENARIO_COUNTS } from "@/lib/mastery";
 import { resolveAccess } from "@/lib/session";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimit } from "@/lib/rate-limit";
 import { TOTAL_CHALLENGES } from "@/lib/challenges";
 
 const MANAGEMENT_ROLES = ["Manager", "Supervisor"];
@@ -22,8 +22,7 @@ export async function GET(req: Request) {
     // Scenario Training) plus its desktop equivalents, so the limit is set
     // much higher than the 20/min write-route norm to absorb normal rapid
     // screen-to-screen navigation without false-positiving real users.
-    const ip = getClientIp(req);
-    if (!rateLimit(`training-progress:user:${user.id}`, 60) || !rateLimit(`training-progress:ip:${ip}`, 60)) {
+    if (!rateLimit(`training-progress:user:${user.id}`, 60)) {
       return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
     }
 

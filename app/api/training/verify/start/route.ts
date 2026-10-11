@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     }
 
     const ip = getClientIp(req);
-    if (!rateLimit(`verify-start:user:${user.id}`, 10) || !rateLimit(`verify-start:ip:${ip}`, 20)) {
+    if (!rateLimit(`verify-start:user:${user.id}`, 10)) {
       logVerifyRejection("verify_start_rejected", "rate_limited", user.id, null, ip);
       return NextResponse.json({ error: "Too many requests. Try again in a minute.", code: "RATE_LIMITED" }, { status: 429 });
     }

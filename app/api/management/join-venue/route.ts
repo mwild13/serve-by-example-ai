@@ -14,7 +14,6 @@ import { readJsonBody } from "@/lib/ai-guard";
 // a limit (audit 2026-09-30, H2). In-memory per isolate, so the daily cap is
 // a soft ceiling.
 const JOIN_PER_MINUTE_USER = 5;
-const JOIN_PER_MINUTE_IP = 20;
 const JOIN_PER_DAY_USER = 20;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -33,7 +32,6 @@ export async function POST(req: Request) {
     const ip = getClientIp(req);
     if (
       !rateLimit(`join-venue:user:${user.id}`, JOIN_PER_MINUTE_USER) ||
-      !rateLimit(`join-venue:ip:${ip}`, JOIN_PER_MINUTE_IP) ||
       !rateLimit(`join-venue:user-day:${user.id}`, JOIN_PER_DAY_USER, DAY_MS)
     ) {
       logJoinRejection("rate_limited", user.id, ip);

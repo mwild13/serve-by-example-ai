@@ -120,11 +120,16 @@ export default function PricingPlans() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan }),
       });
+      // Checkout needs an account. /login brings the visitor back here with
+      // ?checkout_plan=, which the effect below picks up.
+      if (res.status === 401) {
+        router.push(`/login?intent=checkout&plan=${encodeURIComponent(plan)}`);
+        return;
+      }
       const data = await res.json();
       if (data.url) {
         // Stripe Checkout is on an external domain. router.push only handles
         // internal app routes, so a full browser navigation is required here.
-        // eslint-disable-next-line react-hooks/immutability
         window.location.href = data.url;
       } else {
         setLoading(null);
@@ -135,6 +140,21 @@ export default function PricingPlans() {
       setCheckoutError("Network error. Please try again.");
     }
   }
+
+  // Back from /login with the plan chosen while signed out: start checkout
+  // once and drop the parameter, so a reload or the back button from Stripe
+  // does not start it again.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const plan = params.get("checkout_plan");
+    if (!plan || !/^[a-z_]{1,40}$/.test(plan)) return;
+    params.delete("checkout_plan");
+    const query = params.toString();
+    window.history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void handleCheckout(plan);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleTrialStart(tier: string) {
     setLoading(`trial-${tier}`);
