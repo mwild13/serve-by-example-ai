@@ -64,6 +64,7 @@ export default function Footer() {
         <div>Built for bartenders, venue teams and future managers.</div>
         <div className="footer-legal-links">
           <Link href="/terms">Terms</Link>
+          <Link href="/refunds">Refunds</Link>
           <Link href="/cookies">Cookies</Link>
           <Link href="/privacy">Privacy</Link>
           <CookieSettingsLink />

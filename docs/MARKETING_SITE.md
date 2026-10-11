@@ -33,6 +33,7 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 | `/contact` | Contact |
 | `/privacy` | Privacy Policy |
 | `/terms` | Terms of Service |
+| `/refunds` | Refund and Cancellation Policy. Restates section 5 of `/terms`; the link given to Stripe |
 | `/cookies` | Cookie Policy |
 
 ## 2. Canonical URLs & Routing Rules
@@ -53,7 +54,7 @@ Both are listed separately in `app/sitemap.ts`. This is a duplicate-content SEO 
 - Country resolved from Cloudflare's `cf.country` / the `cf-ipcountry` header. Unknown, missing, or `XX` is **denied by default** (`isCountryAllowed` strict default-deny).
 - `restrictedRoutes`: `/login`, `/signup`, `/onboarding`, `/dashboard`, `/management`.
 - `marketingRoutes` is **deliberately empty** — all marketing/hero content is AU-only too. A comment in the config explains why: this list used to include `/pricing`, `/for-venues`, `/demo`, `/platform`, which created a bypass (`/restricted` → `/privacy` (public) → Navbar → `/pricing` (then-allowed) → full site). That bypass was closed by emptying this list.
-- `publicRoutes` (accessible to all countries): `/restricted`, `/geo-block`, `/privacy`, `/terms`, `/cookies`, `/contact`.
+- `publicRoutes` (accessible to all countries): `/restricted`, `/geo-block`, `/privacy`, `/terms`, `/refunds`, `/cookies`, `/contact`.
 - `geoBlockPath` is `/restricted` — **this is the actual redirect target**, not `/geo-block`. `/geo-block` is a real, separate page (own `"Australia Only – For Now"` messaging, `robots: noindex`) that sits in `publicRoutes` (so it's reachable if linked to directly) but the middleware's redirect never routes there — it always sends blocked visitors to `/restricted` instead.
 
 ## 3. Brand Voice & Copy Rules

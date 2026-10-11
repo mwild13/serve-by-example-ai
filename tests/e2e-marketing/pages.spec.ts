@@ -33,6 +33,7 @@ const ROUTES: Route[] = [
   { path: "/toolkit", band: false },
   { path: "/privacy", band: false },
   { path: "/terms", band: false },
+  { path: "/refunds", band: false },
   { path: "/cookies", band: false },
 ];
 

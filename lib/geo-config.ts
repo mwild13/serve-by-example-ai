@@ -14,6 +14,7 @@ const GEO_CONFIG = {
     '/geo-block',
     '/privacy',
     '/terms',
+    '/refunds', // linked from Stripe checkout and receipts
     '/cookies',
     '/contact', // linked from /restricted footer — kept accessible for enquiries
   ],
