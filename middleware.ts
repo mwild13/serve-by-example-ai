@@ -84,6 +84,18 @@ function buildCSP(nonce: string): string {
 const SIGNED_IN_PREFIXES = ["/dashboard", "/mobile", "/management", "/onboarding", "/session-conflict", "/payment-success"];
 
 export async function middleware(request: NextRequest) {
+  // One address for the site. www.servebyexample.co answered as well, and
+  // host-only cookies (the one-device session id, sbe_session_id) do not
+  // carry between the two, so a visitor who arrived on www, as the password
+  // reset email sends them, was half signed in on the other.
+  // The host is read from the headers, the same way lib/supabase-server.ts
+  // does: request.nextUrl does not reliably carry the public hostname.
+  const requestHost = (request.headers.get("x-forwarded-host") || request.headers.get("host") || "").split(":")[0];
+  if (requestHost.toLowerCase() === "www.servebyexample.co") {
+    const canonicalUrl = new URL(`${request.nextUrl.pathname}${request.nextUrl.search}`, "https://servebyexample.co");
+    return NextResponse.redirect(canonicalUrl, 308);
+  }
+
   // Generate a unique nonce per request — replaces unsafe-inline in script-src
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const csp = buildCSP(nonce);
