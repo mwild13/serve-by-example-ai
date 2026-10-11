@@ -14,6 +14,29 @@ const JOIN_COOKIE = "sbe_join";
 const JOIN_COOKIE_MAX_AGE = 60 * 60 * 24; // 1 day in seconds
 const JOIN_CODE = /^[A-Za-z0-9]{4,8}$/;
 
+// Names of Supabase auth cookies the browser sent more than once. That only
+// happens when a host-only copy sits beside the real one (which is scoped to
+// .servebyexample.co): syncRedirect() used to copy cookies onto a redirect
+// without their domain, so a token refreshed during the phone redirect to
+// /mobile was written as a second, host-only cookie. The stale copy then won
+// on every later request and the server saw nobody signed in, even straight
+// after a fresh sign-in.
+function staleAuthCookieNames(cookieHeader: string | null): string[] {
+  const seen = new Set<string>();
+  let hasDuplicate = false;
+  for (const pair of (cookieHeader ?? "").split(";")) {
+    const name = pair.split("=")[0]?.trim();
+    if (!name || !name.startsWith("sb-") || !name.includes("-auth-token")) continue;
+    if (seen.has(name)) hasDuplicate = true;
+    seen.add(name);
+  }
+  // Once one name is doubled, clear the host-only copy of every auth cookie:
+  // a session is split across numbered chunks, and a stale chunk left beside
+  // fresh ones corrupts it just the same. Expiring a host-only cookie that
+  // does not exist does nothing.
+  return hasDuplicate ? [...seen] : [];
+}
+
 function buildCSP(nonce: string): string {
   // `next dev`'s webpack devtool wraps every module in eval() for Fast
   // Refresh/HMR — with no 'unsafe-eval', that eval is blocked entirely,
@@ -86,12 +109,24 @@ export async function middleware(request: NextRequest) {
     response.headers.set("Cache-Control", "private, no-store");
   }
 
+  // Expires the host-only copy of any auth cookie that arrived twice, leaving
+  // the real one. Appended as raw headers, and last, because the cookie API
+  // keeps one entry per name and would drop these when it rewrites the header.
+  const staleAuthCookies = staleAuthCookieNames(request.headers.get("cookie"));
+  const clearStaleAuthCookies = <T extends NextResponse>(res: T): T => {
+    for (const name of staleAuthCookies) {
+      res.headers.append("Set-Cookie", `${name}=; Path=/; Max-Age=0; Secure; SameSite=Lax`);
+    }
+    return res;
+  };
+
   // Helper function to safely redirect while transferring modified Supabase cookies
   const syncRedirect = (url: URL) => {
     const redirectResponse = NextResponse.redirect(url);
-    // Copy all cookies over from our mutated response object
+    // Copy every cookie over whole, with its domain, path and expiry. Copying
+    // only the name and value turned each one into a host-only session cookie.
     response.cookies.getAll().forEach((cookie) => {
-      redirectResponse.cookies.set(cookie.name, cookie.value);
+      redirectResponse.cookies.set(cookie);
     });
     // Preserve CSP headers on the redirect response
     redirectResponse.headers.set("Content-Security-Policy", csp);
@@ -117,7 +152,7 @@ export async function middleware(request: NextRequest) {
     // Prevent any edge or browser caching of this redirect
     geoRedirect.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
     geoRedirect.headers.set("Vary", "CF-IPCountry");
-    return geoRedirect;
+    return clearStaleAuthCookies(geoRedirect);
   }
 
   // First-touch attribution: keep the campaign parameters from the first
@@ -166,7 +201,7 @@ export async function middleware(request: NextRequest) {
 
   // Allow session-conflict page without redirect loops
   if (isSessionConflict) {
-    return response;
+    return clearStaleAuthCookies(response);
   }
 
   if ((isDashboard || isMobile || isOnboarding) && !user) {
@@ -183,7 +218,7 @@ export async function middleware(request: NextRequest) {
         secure: process.env.NODE_ENV === "production",
       });
     }
-    return loginRedirect;
+    return clearStaleAuthCookies(loginRedirect);
   }
 
   const isPhone = isMobilePhoneUserAgent(request.headers.get("user-agent") ?? "");
@@ -209,7 +244,7 @@ export async function middleware(request: NextRequest) {
       joinUrl.searchParams.set("join", pendingJoin);
       const joinRedirect = syncRedirect(joinUrl);
       joinRedirect.cookies.delete(JOIN_COOKIE);
-      return joinRedirect;
+      return clearStaleAuthCookies(joinRedirect);
     }
   }
 
@@ -225,20 +260,20 @@ export async function middleware(request: NextRequest) {
     // The staff sign-up link (/dashboard?join=CODE) goes to mobile Settings,
     // which joins the venue on arrival. The query string is kept by clone().
     mobileHomeUrl.pathname = mobileHomeUrl.searchParams.has("join") ? "/mobile/settings" : "/mobile/home";
-    return syncRedirect(mobileHomeUrl);
+    return clearStaleAuthCookies(syncRedirect(mobileHomeUrl));
   }
 
   if (isManagementDashboard && !user) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
-    return syncRedirect(loginUrl);
+    return clearStaleAuthCookies(syncRedirect(loginUrl));
   }
 
   // If already signed in and visiting login, send straight to dashboard.
   if (path === "/login" && user) {
     const dashboardUrl = request.nextUrl.clone();
     dashboardUrl.pathname = "/dashboard";
-    return syncRedirect(dashboardUrl);
+    return clearStaleAuthCookies(syncRedirect(dashboardUrl));
   }
 
   // ── Session displacement check for protected routes ────────
@@ -264,12 +299,12 @@ export async function middleware(request: NextRequest) {
         const conflictUrl = request.nextUrl.clone();
         conflictUrl.pathname = "/session-conflict";
         conflictUrl.searchParams.set("returnTo", path);
-        return syncRedirect(conflictUrl);
+        return clearStaleAuthCookies(syncRedirect(conflictUrl));
       }
     }
   }
 
-  return response;
+  return clearStaleAuthCookies(response);
 }
 
 export const config = {
