@@ -238,6 +238,20 @@ Left for their own branches: the product blockers, error tracking, an e2e test f
 | Cloudflare Pages preview build | Passed |
 | Mobile and marketing e2e suites | Not run. Both need a deployed URL. The mobile screenshot baselines will need re-capturing, because the placeholder images were re-encoded |
 
+## Follow-up fixes, 2026-10-11
+
+Two problems the owner found on a phone the day after the merge.
+
+- **AI photo backgrounds returned 404.** Step 4 converted the four backgrounds in `public/mobile/Backgrounds-ai/` from PNG to WebP. The files were never deleted. The cause is `_routes.json`, written by the `build:cloudflare` script in `package.json`: it listed `/*.png` and `/*.svg` as files Cloudflare serves directly, and not `.webp` or `.jpg`, so those requests went to the worker and came back 404. Images drawn through `next/image` kept working because the worker fetches them itself; the photo screen loads its backgrounds directly onto a canvas, so it failed. `/*.webp`, `/*.jpg` and `/*.jpeg` are now in the list. The local check in Step 4 used `next start`, which serves every file in `public/`, so it could not catch this.
+- **The staff mobile screens had a strip down both sides.** `--mobile-frame-max` was `clamp(360px, 92vw, 520px)` since 2026-09-21, so on a phone the frame was 92% of the screen width and the Home carousel was cut off before the edge. It is now `520px`: phones use the full width and tablets keep a centred 520px column. This affects every `/mobile` screen.
+
+- **Saving a profile photo failed on every iPhone with "Invalid photo."** This is the failure the owner had seen for weeks. Every iOS browser is WebKit, and its canvas returns a PNG when asked for WebP. The save route only accepted WebP. `exportCompositeBlob` in `lib/photo-composite.ts` now falls back to JPEG, and `app/api/profile-photo/save/route.ts` accepts WebP or JPEG, checks the file's first bytes match, and stores it as `profile-photo.webp` or `profile-photo.jpg`. It removes the copy in the other format, and account deletion removes both. The `profile-photos` bucket only allowed `image/webp`, so the first test of this still failed with "Failed to save your photo"; `supabase/migrations/20261011_profile_photos_allow_jpeg.sql` adds `image/jpeg`. The owner ran it on 2026-10-11 and then saved a photo from an iPhone on the preview.
+- **The selfie camera felt reversed.** The preview was not mirrored. It now is, like a phone's own camera, and the captured photo is mirrored to match what was framed.
+- **The framing guide was an oval labelled "head and shoulders".** A head-and-shoulders outline was tried and dropped as harder to fit. It is now a face-only oval, with the line "Fit your face inside the oval".
+- **A saved photo did not show on Home until a reload.** The save screen now puts the new URL into the shared mobile session (`setProfilePhotoUrl` in `app/mobile/_lib/mobile-session-context.tsx`) before it navigates, so Home and Me show it at once.
+
+Not verified: the face oval and the instant photo update on Home were not run on a phone, and the mobile screens at the new width were not seen behind a login.
+
 ## Open items
 
 - **The 8 classes the CSS script still reports,** and anything the signed-in check turns up.
@@ -252,6 +266,7 @@ Left for their own branches: the product blockers, error tracking, an e2e test f
 - **CI must be green before merging to `main`.** If a check is wrong, fix the check in the same pull request; do not merge past it.
 - **Run `npm run typecheck`, not bare `tsc`,** on a fresh checkout.
 - **Images in `public/` are served as they are.** Nothing resizes them in production. Run `scripts/optimize-images.mjs` on any new PNG or JPG and commit the WebP, sized to about twice the widest it is shown.
+- **A new file type in `public/` must be added to the `_routes.json` exclude list** in the `build:cloudflare` script, or production returns 404 for it. Check a direct URL on the Cloudflare preview, not on `next start`.
 - **When markup is replaced, delete its CSS in the same change.** `npm run lint:css:unused` lists what is left behind.
 - **A table with RLS on and no policy is deliberate.** Reach it through an API route with the admin client. Do not add an open policy to silence the advisor.
 - **A clickable row or card needs a keyboard path:** `tabIndex={0}`, Enter and Space, and a visible focus style.
