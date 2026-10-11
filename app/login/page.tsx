@@ -208,7 +208,7 @@ function LoginPageContent() {
       const res = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, ...(await captchaOptions()) }),
       });
       const data = (await res.json()) as { message?: string; error?: string };
       if (!res.ok) throw new Error(data.error || "Could not send reset email.");
@@ -414,6 +414,7 @@ function LoginPageContent() {
                 </label>
                 {error ? <div className="auth-status auth-status-error">{error}</div> : null}
                 {success ? <div className="auth-status auth-status-success">{success}</div> : null}
+                <TurnstileWidget ref={turnstileRef} />
                 <div className="auth-actions">
                   <button className="sbe-mkt-btn-primary login-submit" type="submit" disabled={loading}>
                     {loading ? "Sending..." : "Send reset link"}
