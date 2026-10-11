@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { trackEvent } from "@/lib/consent";
+import { StatRow, StatusText } from "./console-ui";
 
 interface TrialBillingSectionProps {
   trialTier: string;
@@ -61,6 +63,7 @@ export function TrialBillingSection({
       });
       const data = await res.json();
       if (data.url) {
+        trackEvent("begin_checkout", { plan: checkoutPlan });
         window.location.href = data.url;
       } else {
         setCheckoutLoading(false);
@@ -81,306 +84,123 @@ export function TrialBillingSection({
     year: "numeric",
   });
 
-  const urgentColor   = "var(--gold-warm)";
-  const healthyColor  = "var(--green)";
-  const accentColor   = isUrgent ? urgentColor : healthyColor;
+  const consequences: Array<{ good: boolean; text: string }> = [
+    { good: false, text: "Your manager dashboard access is paused" },
+    { good: false, text: "Staff training sessions are suspended" },
+    { good: true, text: "All your data is saved for 30 days" },
+    { good: true, text: "Add billing now and nothing changes" },
+  ];
+  const included = [
+    `Up to ${config.seats} staff seats`,
+    config.venues,
+    "Full 40-module training library",
+    "AI Arena and scenario training",
+    "Manager Console",
+    "Cancel any time",
+  ];
+  const sectionGap = { marginTop: 24, paddingTop: 24, borderTop: "1px solid var(--mc-line-soft)" };
+  const plainList = { margin: "12px 0 0", padding: 0, listStyle: "none", display: "flex", flexDirection: "column" as const, gap: 10 };
 
   return (
     <div>
-      {/* ── Trial countdown header ── */}
-      <div
-        style={{
-          padding: "22px 24px 16px",
-          background: isUrgent ? "var(--gold-light)" : "var(--surface)",
-          borderBottom: "1px solid var(--line)",
-          borderRadius: "var(--radius-lg) var(--radius-lg) 0 0",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 14 }}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-              <span
-                style={{
-                  fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.08em",
-                  textTransform: "uppercase", color: "white",
-                  background: accentColor,
-                  padding: "3px 10px", borderRadius: "999px",
-                }}
-              >
-                {config.label} Trial
-              </span>
-              {isUrgent && (
-                <span style={{ fontSize: "0.78rem", fontWeight: 700, color: urgentColor }}>
-                  Action needed
-                </span>
-              )}
-            </div>
-            <div
-              style={{
-                fontSize: "1.5rem", fontWeight: 700, color: "var(--text)",
-                fontFamily: "var(--font-fraunces)", lineHeight: 1.1,
-              }}
-            >
-              {daysRemaining === 0
-                ? "Your trial ends today"
-                : `${daysRemaining} day${daysRemaining === 1 ? "" : "s"} remaining`}
-            </div>
-          </div>
-          <div style={{ textAlign: "right", flexShrink: 0 }}>
-            <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginBottom: 2 }}>Trial ends</div>
-            <div style={{ fontSize: "0.88rem", fontWeight: 600, color: "var(--text-soft)" }}>{expiryDate}</div>
-          </div>
-        </div>
-
-        {/* Progress bar */}
-        <div style={{ height: 6, borderRadius: 999, background: "var(--line-light)", overflow: "hidden" }}>
-          <div
-            style={{
-              height: "100%",
-              width: `${progressPct}%`,
-              borderRadius: 999,
-              background: accentColor,
-              transition: "width 0.4s ease",
-            }}
-          />
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 5 }}>
-          <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>Trial started</span>
-          <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>{daysElapsed} of 14 days used</span>
-        </div>
-      </div>
-
-      {/* ── Trial activity stats ── */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          borderBottom: "1px solid var(--line)",
-        }}
-      >
-        {[
-          {
-            value: daysRemaining === 0 ? "Today" : String(daysRemaining),
-            label: "Days left",
-            sub: "in your trial",
-          },
-          {
-            value: String(staffCount),
-            label: "Staff added",
-            sub: "during trial",
-          },
-          {
-            value: String(scenariosRun),
-            label: "Scenarios run",
-            sub: "by your team",
-          },
-        ].map((stat, i) => (
-          <div
-            key={i}
-            style={{
-              padding: "16px 12px",
-              textAlign: "center",
-              borderRight: i < 2 ? "1px solid var(--line)" : undefined,
-            }}
-          >
-            <div
-              style={{
-                fontSize: "1.6rem", fontWeight: 700, color: "var(--text)",
-                fontFamily: "var(--font-fraunces)", lineHeight: 1,
-              }}
-            >
-              {stat.value}
-            </div>
-            <div
-              style={{
-                fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase",
-                letterSpacing: "0.05em", color: "var(--text-muted)", marginTop: 4,
-              }}
-            >
-              {stat.label}
-            </div>
-            <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: 1 }}>
-              {stat.sub}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* ── Two-column body: consequences + pricing ── */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          borderBottom: "1px solid var(--line)",
-        }}
-      >
-        {/* When your trial ends */}
-        <div style={{ padding: "20px 24px", borderRight: "1px solid var(--line)" }}>
-          <div
-            style={{
-              fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase",
-              letterSpacing: "0.07em", color: "var(--text-muted)", marginBottom: 14,
-            }}
-          >
-            When your trial ends
-          </div>
-          <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 10 }}>
-            {[
-              { good: false, text: "Your manager dashboard access is paused" },
-              { good: false, text: "Staff training sessions are suspended" },
-              { good: true,  text: "All your data is saved for 30 days" },
-              { good: true,  text: "Add billing now and nothing changes" },
-            ].map((item, i) => (
-              <li key={i} style={{ display: "flex", gap: 9, alignItems: "flex-start" }}>
-                <span
-                  style={{
-                    flexShrink: 0,
-                    width: 17, height: 17,
-                    borderRadius: "50%",
-                    background: item.good ? "var(--green-light)" : (isUrgent ? "rgba(169,129,42,0.12)" : "var(--bg-alt)"),
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    marginTop: 1,
-                  }}
-                >
-                  <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-                    {item.good ? (
-                      <path d="M1.5 4l1.8 1.8 3.2-3.6" stroke="var(--green)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-                    ) : (
-                      <path d="M2 2l4 4M6 2l-4 4" stroke={isUrgent ? "var(--gold-warm)" : "var(--text-muted)"} strokeWidth="1.3" strokeLinecap="round"/>
-                    )}
-                  </svg>
-                </span>
-                <span style={{ fontSize: "0.85rem", color: "var(--text-soft)", lineHeight: 1.45 }}>
-                  {item.text}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Pricing cards */}
-        <div style={{ padding: "20px 24px" }}>
-          <div
-            style={{
-              fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase",
-              letterSpacing: "0.07em", color: "var(--text-muted)", marginBottom: 14,
-            }}
-          >
-            Continue with {config.label}
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 16 }}>
-            {/* Monthly */}
-            <div
-              style={{
-                padding: "12px 14px",
-                borderRadius: "var(--radius-sm)",
-                border: "1.5px solid var(--line)",
-                background: "var(--surface)",
-              }}
-            >
-              <div style={{ fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase", color: "var(--text-muted)", marginBottom: 4 }}>
-                Monthly
-              </div>
-              <div style={{ fontSize: "1.3rem", fontWeight: 700, color: "var(--text)", fontFamily: "var(--font-fraunces)", lineHeight: 1 }}>
-                AUD ${config.monthly}
-              </div>
-              <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: 3 }}>per month</div>
-            </div>
-
-            {/* Annual — recommended */}
-            <div
-              style={{
-                padding: "12px 14px",
-                borderRadius: "var(--radius-sm)",
-                border: "1.5px solid var(--green)",
-                background: "var(--green-light)",
-              }}
-            >
-              <div style={{ fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase", color: "var(--green)", marginBottom: 4 }}>
-                Annual — save 17%
-              </div>
-              <div style={{ fontSize: "1.3rem", fontWeight: 700, color: "var(--green)", fontFamily: "var(--font-fraunces)", lineHeight: 1 }}>
-                AUD ${config.yearly}
-              </div>
-              <div style={{ fontSize: "0.7rem", color: "var(--green)", marginTop: 3 }}>per year</div>
-            </div>
-          </div>
-
-          {/* Features included */}
-          <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 6 }}>
-            {[
-              `Up to ${config.seats} staff seats`,
-              config.venues,
-              "Full 40-module training library",
-              "AI Arena + Scenario Training",
-              "Manager Mission Control",
-              "Cancel anytime",
-            ].map((feat, i) => (
-              <li key={i} style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <svg width="11" height="11" viewBox="0 0 11 11" fill="none" style={{ flexShrink: 0 }}>
-                  <circle cx="5.5" cy="5.5" r="5" fill="var(--green-light)" stroke="var(--green)" strokeWidth="0.75"/>
-                  <path d="M3 5.5l1.7 1.7 3-3" stroke="var(--green)" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <span style={{ fontSize: "0.82rem", color: "var(--text-soft)" }}>{feat}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
-      {/* ── CTA footer ── */}
-      <div
-        style={{
-          padding: "18px 24px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: 12,
-        }}
-      >
+      {/* Countdown */}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
         <div>
-          <div style={{ fontSize: "0.9rem", fontWeight: 600, color: "var(--text)" }}>
-            Keep your team&apos;s training running
-          </div>
-          <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: 3 }}>
-            Add your billing details now to keep your team&apos;s training running without interruption.
-          </div>
+          <StatusText tone={isUrgent ? "warn" : "ok"}>
+            {config.label} trial{isUrgent ? ", action needed" : ""}
+          </StatusText>
+          <h2 className="mc-page-title" style={{ marginTop: 6 }}>
+            {daysRemaining === 0
+              ? "Your trial ends today"
+              : `${daysRemaining} day${daysRemaining === 1 ? "" : "s"} remaining`}
+          </h2>
+        </div>
+        <p className="mc-row-meta" style={{ margin: 0, textAlign: "right" }}>
+          Trial ends
+          <br />
+          <strong style={{ color: "var(--mc-text)" }}>{expiryDate}</strong>
+        </p>
+      </div>
+      <div
+        className="mc-progress-track"
+        style={{ marginTop: 16 }}
+        role="progressbar"
+        aria-label="Trial days used"
+        aria-valuemin={0}
+        aria-valuemax={14}
+        aria-valuenow={daysElapsed}
+      >
+        <div className="mc-progress-fill" style={{ width: `${progressPct}%`, background: isUrgent ? "var(--gold)" : undefined }} />
+      </div>
+      <p className="mc-row-meta" style={{ margin: "6px 0 0" }}>{daysElapsed} of 14 days used</p>
+
+      {/* What the trial has been used for */}
+      <div style={{ marginTop: 24 }}>
+        <StatRow
+          items={[
+            { label: "Days left", value: daysRemaining === 0 ? "Today" : String(daysRemaining), sub: "in your trial" },
+            { label: "Staff added", value: String(staffCount), sub: "during trial" },
+            { label: "Scenarios run", value: String(scenariosRun), sub: "by your team" },
+          ]}
+        />
+      </div>
+
+      {/* Consequences and pricing */}
+      <div className="mc-two-col" style={sectionGap}>
+        <div>
+          <h3 className="mc-panel-title" style={{ margin: 0 }}>When your trial ends</h3>
+          <ul style={plainList}>
+            {consequences.map((item) => (
+              <li key={item.text}>
+                <StatusText tone={item.good ? "ok" : "warn"}>
+                  <span style={{ whiteSpace: "normal" }}>{item.text}</span>
+                </StatusText>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="mc-panel-title" style={{ margin: 0 }}>Continue with {config.label}</h3>
+          <ul className="mc-rows" style={{ marginTop: 4 }}>
+            <li className="mc-row" style={{ paddingLeft: 0, paddingRight: 0 }}>
+              <div className="mc-row-main">
+                <div className="mc-row-title">Monthly</div>
+                <div className="mc-row-meta">Billed each month</div>
+              </div>
+              <span className="mc-row-value">AUD ${config.monthly}</span>
+            </li>
+            <li className="mc-row" style={{ paddingLeft: 0, paddingRight: 0 }}>
+              <div className="mc-row-main">
+                <div className="mc-row-title">Annual</div>
+                <div className="mc-row-meta">Billed once a year, 2 months free</div>
+              </div>
+              <span className="mc-row-value">AUD ${config.yearly.toLocaleString("en-AU")}</span>
+            </li>
+          </ul>
+          <ul style={{ ...plainList, gap: 6 }}>
+            {included.map((feat) => (
+              <li key={feat} className="mc-row-meta">{feat}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {/* Call to action */}
+      <div style={{ ...sectionGap, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
+        <div style={{ flex: "1 1 260px" }}>
+          <div className="mc-row-title">Keep your team&apos;s training running</div>
+          <div className="mc-row-meta">Add your billing details now and nothing is interrupted when the trial ends.</div>
           {checkoutError && (
-            <div style={{ fontSize: "0.78rem", color: "var(--status-error-text)", marginTop: 6 }}>
+            <div className="mc-row-meta" role="alert" style={{ color: "var(--status-error-text)", marginTop: 6 }}>
               {checkoutError}
             </div>
           )}
         </div>
-        <div style={{ display: "flex", gap: 10, alignItems: "center", flexShrink: 0 }}>
-          <a
-            href="/contact"
-            style={{
-              fontSize: "0.85rem", fontWeight: 600, color: "var(--text-soft)",
-              textDecoration: "underline", textDecorationColor: "var(--line)",
-            }}
-          >
-            Talk to us first
-          </a>
-          <button
-            type="button"
-            onClick={handleReactivate}
-            disabled={checkoutLoading}
-            style={{
-              display: "inline-block",
-              padding: "10px 22px",
-              borderRadius: "var(--radius-sm)",
-              border: "none",
-              background: isUrgent ? "var(--gold-warm)" : "var(--green)",
-              color: "white",
-              fontWeight: 700,
-              fontSize: "0.9rem",
-              cursor: checkoutLoading ? "default" : "pointer",
-              opacity: checkoutLoading ? 0.7 : 1,
-            }}
-          >
-            {checkoutLoading ? "Redirecting…" : "Add billing details"}
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <a href="/contact" className="mc-btn mc-btn-quiet">Talk to us first</a>
+          <button type="button" className="mc-btn mc-btn-primary" onClick={handleReactivate} disabled={checkoutLoading}>
+            {checkoutLoading ? "Redirecting..." : "Add billing details"}
           </button>
         </div>
       </div>

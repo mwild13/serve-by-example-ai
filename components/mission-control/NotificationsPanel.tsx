@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { ManagementSnapshot, ManagerSection } from "@/lib/management/types";
 import { EmptyState } from "@/components/mission-control/manager-ui";
+import { PageHead, Panel, StatusText, type StatusTone } from "./console-ui";
 
 // Extracted from ManagerControlCenter.tsx (Phase 5 — component extraction
 // roadmap, line-count reduction). Covers the Notifications tab: category
@@ -66,14 +67,21 @@ export function NotificationsPanel({ venueStaff, needsAttention, venueInventory,
       category: "training" as const,
       urgency: "critical" as const,
       title: "Staff inactive",
-      body: `${s.name} (${s.role}) has not completed any training and is inactive.`,
+      body: `${s.name} (${s.role}) has not trained in 30 days or more.`,
     }))),
     ...(needsAttention.filter((s) => s.status === "attention").map((s) => ({
       id: `attention-${s.id}`,
       category: "training" as const,
       urgency: "warning" as const,
       title: "Training overdue",
-      body: `${s.name} needs attention, currently at ${parseFloat(s.progress.toFixed(0))}% completion.`,
+      body: `${s.name} has not trained in 14 days or more and is at ${Math.round(s.progress)}% completion.`,
+    }))),
+    ...(needsAttention.filter((s) => s.lastActive === "Not started").map((s) => ({
+      id: `notstarted-${s.id}`,
+      category: "training" as const,
+      urgency: "warning" as const,
+      title: "Yet to start",
+      body: `${s.name} (${s.role}) has been added but has not started training.`,
     }))),
     ...(venueStaff.filter((s) => s.salesScore > 0 && s.salesScore < 50).map((s) => ({
       id: `lowsales-${s.id}`,
@@ -111,10 +119,10 @@ export function NotificationsPanel({ venueStaff, needsAttention, venueInventory,
     }] : []),
   ];
   const urgencyOrder = { critical: 0, warning: 1, info: 2 };
-  const urgencyStyle: Record<string, { bg: string; border: string; dot: string; label: string }> = {
-    critical: { bg: "var(--status-critical-bg)", border: "var(--status-critical-border)", dot: "var(--status-critical)", label: "Critical" },
-    warning:  { bg: "var(--status-amber-bg)", border: "var(--status-amber-border)", dot: "var(--status-amber)", label: "Warning" },
-    info:     { bg: "var(--bg-alt)", border: "var(--line)", dot: "var(--color-link-dark)", label: "Info" },
+  const urgencyTone: Record<NotifItem["urgency"], { tone: StatusTone; label: string }> = {
+    critical: { tone: "alert", label: "Critical" },
+    warning: { tone: "warn", label: "Warning" },
+    info: { tone: "neutral", label: "Info" },
   };
   const filterTabs: { key: "all" | "training" | "performance" | "inventory"; label: string }[] = [
     { key: "all", label: "All" },
@@ -122,133 +130,111 @@ export function NotificationsPanel({ venueStaff, needsAttention, venueInventory,
     { key: "performance", label: "Performance" },
     { key: "inventory", label: "Inventory" },
   ];
-  const visible = allNotifs
+  const active = allNotifs.filter((n) => !dismissedNotifs.has(n.id));
+  const archived = allNotifs.filter((n) => dismissedNotifs.has(n.id));
+  const visible = active
     .filter((n) => notifFilter === "all" || n.category === notifFilter)
-    .filter((n) => !dismissedNotifs.has(n.id))
     .sort((a, b) => urgencyOrder[a.urgency] - urgencyOrder[b.urgency]);
 
   return (
-    <section className="ops-grid ops-grid-main">
-      <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
-        <div className="ops-card-head">
-          <h3>Notifications</h3>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>{selectedVenueName}</span>
-            {dismissedNotifs.size > 0 && (
-              <button
-                type="button"
-                onClick={() => setShowArchivedNotifs((v) => !v)}
-                style={{ padding: "4px 10px", borderRadius: 6, border: "1.5px solid var(--line)", background: showArchivedNotifs ? "var(--line-light, var(--border-subtle))" : "transparent", color: "var(--text-soft)", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer" }}
-              >
-                {showArchivedNotifs ? "Hide archived" : `Show archived (${dismissedNotifs.size})`}
+    <div className="mc-page mc-page-narrow">
+      <PageHead
+        title="Notifications"
+        description={`What needs a look${selectedVenueName ? ` at ${selectedVenueName}` : ""}, worked out from your team's training right now.`}
+        actions={
+          <>
+            {archived.length > 0 && (
+              <button type="button" className="mc-btn mc-btn-quiet" onClick={() => setShowArchivedNotifs((v) => !v)}>
+                {showArchivedNotifs ? "Hide archived" : `Show archived (${archived.length})`}
               </button>
             )}
-            <button
-              type="button"
-              onClick={() => handleSectionChange("settings")}
-              style={{ padding: "4px 8px", borderRadius: 6, border: "1.5px solid var(--line)", background: "transparent", color: "var(--text-muted)", fontSize: "0.75rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
-              aria-label="Notification settings"
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <button type="button" className="mc-btn mc-btn-quiet" onClick={() => handleSectionChange("settings")}>
               Settings
             </button>
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: 8, marginBottom: "1.25rem", flexWrap: "wrap" }}>
-          {filterTabs.map((t) => {
-            const count = allNotifs.filter((n) => (t.key === "all" || n.category === t.key) && !dismissedNotifs.has(n.id)).length;
-            return (
-              <button
-                key={t.key}
-                type="button"
-                onClick={() => setNotifFilter(t.key)}
-                style={{
-                  padding: "6px 14px", borderRadius: 999, border: "1.5px solid",
-                  borderColor: notifFilter === t.key ? "var(--color-mastery-technical)" : "var(--line)",
-                  background: notifFilter === t.key ? "var(--color-mastery-technical)" : "transparent",
-                  color: notifFilter === t.key ? "white" : "var(--text-soft)",
-                  fontWeight: 600, fontSize: "0.8rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
-                }}
-              >
-                {t.label}
-                {count > 0 && (
-                  <span style={{
-                    background: notifFilter === t.key ? "rgba(255,255,255,0.25)" : "var(--viz-neutral-light)",
-                    color: notifFilter === t.key ? "white" : "var(--text-soft)",
-                    borderRadius: 999, padding: "1px 7px", fontSize: "0.72rem", fontWeight: 700,
-                  }}>{count}</span>
-                )}
-              </button>
-            );
-          })}
-        </div>
+          </>
+        }
+      />
+
+      <div className="mc-tabs" role="tablist" aria-label="Notification category">
+        {filterTabs.map((t) => {
+          const count = active.filter((n) => t.key === "all" || n.category === t.key).length;
+          return (
+            <button
+              key={t.key}
+              type="button"
+              role="tab"
+              aria-selected={notifFilter === t.key}
+              className={`mc-tab${notifFilter === t.key ? " active" : ""}`}
+              onClick={() => setNotifFilter(t.key)}
+            >
+              {t.label}{count > 0 ? ` (${count})` : ""}
+            </button>
+          );
+        })}
+      </div>
+
+      <Panel flush={visible.length > 0}>
         {visible.length === 0 ? (
           <EmptyState tone="success" copy="All clear in this category." subCopy="No active alerts to action right now." />
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <ul className="mc-rows">
             {visible.map((notif) => {
-              const style = notif.id === "inventory-ok" ? { bg: "var(--status-success-bg)", border: "var(--status-success-border)", dot: "var(--status-success)", label: "Connected" } : urgencyStyle[notif.urgency];
-              // "scenarios" (Scenario Builder) and "inventory" (Inventory
-              // management) are unbuilt EmptyState placeholders — no CTA
-              // entry for those categories so the alert doesn't click
-              // through to a dead end. Only "training" routes to a real,
-              // built section (Staff).
-              const ctaMap: Partial<Record<string, { label: string; section: ManagerSection }>> = {
-                "training": { label: "Review staff", section: "staff" },
-              };
-              const inlineCta = notif.urgency !== "info" ? ctaMap[notif.category] : null;
+              const status = notif.id === "inventory-ok" ? { tone: "ok" as const, label: "Connected" } : urgencyTone[notif.urgency];
+              // Only "training" leads to a built section (Staff). The
+              // inventory and scenario builders are placeholders, so those
+              // alerts carry no button.
+              const showReview = notif.urgency !== "info" && notif.category === "training";
               return (
-                <div key={notif.id} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "12px 16px", borderRadius: 10, background: style.bg, border: `1.5px solid ${style.border}`, borderLeft: `4px solid ${style.dot}` }}>
-                  <span style={{ marginTop: 3, flexShrink: 0, width: 10, height: 10, borderRadius: "50%", background: style.dot, display: "inline-block" }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700, fontSize: "0.88rem", color: "var(--text)", marginBottom: 2 }}>{notif.title}</div>
-                    <div style={{ fontSize: "0.82rem", color: "var(--text-soft)", lineHeight: 1.45 }}>{notif.body}</div>
-                    {inlineCta && (
-                      <button
-                        type="button"
-                        onClick={() => handleSectionChange(inlineCta.section)}
-                        style={{ marginTop: 8, padding: "5px 12px", borderRadius: 6, background: "var(--green-mid)", color: "white", border: "none", fontSize: "0.78rem", fontWeight: 700, cursor: "pointer" }}
-                      >
-                        {inlineCta.label} →
+                <li key={notif.id} className="mc-row" style={{ alignItems: "flex-start" }}>
+                  <div className="mc-row-main">
+                    <div className="mc-row-title">{notif.title}</div>
+                    <div className="mc-row-meta">{notif.body}</div>
+                    <div style={{ marginTop: 6 }}>
+                      <StatusText tone={status.tone}>{status.label}</StatusText>
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: 8, flexShrink: 0, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                    {showReview && (
+                      <button type="button" className="mc-btn mc-btn-sm mc-btn-primary" onClick={() => handleSectionChange("staff")}>
+                        Review staff
                       </button>
                     )}
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0 }}>
-                    <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Now</span>
                     <button
                       type="button"
+                      className="mc-btn mc-btn-sm mc-btn-quiet"
                       onClick={() => persistDismissed(new Set([...dismissedNotifs, notif.id]))}
-                      style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", fontSize: "0.75rem", fontWeight: 600, padding: "2px 6px", borderRadius: 4, lineHeight: 1 }}
-                      aria-label="Dismiss"
-                    >Archive</button>
+                    >
+                      Archive
+                    </button>
                   </div>
-                </div>
+                </li>
               );
             })}
-          </div>
+          </ul>
         )}
-        {showArchivedNotifs && dismissedNotifs.size > 0 && (
-          <div style={{ marginTop: 16 }}>
-            <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>Archived</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, opacity: 0.55 }}>
-              {allNotifs.filter((n) => dismissedNotifs.has(n.id)).map((notif) => (
-                <div key={notif.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 8, background: "var(--bg-alt)", border: "1px solid var(--line)" }}>
-                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--border-neutral)", flexShrink: 0, display: "inline-block" }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600, fontSize: "0.82rem", color: "var(--text-soft)" }}>{notif.title}</div>
-                    <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>{notif.body}</div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => { const next = new Set(dismissedNotifs); next.delete(notif.id); persistDismissed(next); }}
-                    style={{ background: "none", border: "1px solid var(--line)", borderRadius: 4, cursor: "pointer", color: "var(--text-muted)", fontSize: "0.72rem", padding: "2px 7px" }}
-                  >Restore</button>
+      </Panel>
+
+      {showArchivedNotifs && archived.length > 0 && (
+        <Panel title="Archived" flush>
+          <ul className="mc-rows">
+            {archived.map((notif) => (
+              <li key={notif.id} className="mc-row">
+                <div className="mc-row-main">
+                  <div className="mc-row-title">{notif.title}</div>
+                  <div className="mc-row-meta">{notif.body}</div>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </article>
-    </section>
+                <button
+                  type="button"
+                  className="mc-btn mc-btn-sm mc-btn-quiet"
+                  onClick={() => { const next = new Set(dismissedNotifs); next.delete(notif.id); persistDismissed(next); }}
+                >
+                  Restore
+                </button>
+              </li>
+            ))}
+          </ul>
+        </Panel>
+      )}
+    </div>
   );
 }

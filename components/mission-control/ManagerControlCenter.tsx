@@ -16,6 +16,7 @@ import { ComplianceHub } from "./compliance/ComplianceHub";
 import { rsaStatus } from "./compliance/helpers";
 import type { QuickActionId, SearchResult } from "./manager-types";
 import { EmptyState, MissionControlSkeleton } from "./manager-ui";
+import { BarCell, PageHead, Panel } from "./console-ui";
 import { ManagementTopbar } from "@/app/management/dashboard/_components/ManagementTopbar";
 import { ActionDrawer } from "@/app/management/dashboard/_components/ActionDrawer";
 
@@ -1431,14 +1432,17 @@ export default function ManagerControlCenter({
         )}
 
         {activeSection === "training" && (
-          <section className="ops-grid ops-grid-main">
-            <article className="ops-card" style={{ gridColumn: "1 / -1" }}>
-              <div className="ops-card-head">
-                <h3>Training programs</h3>
-                <button type="button" className="btn btn-primary" style={{ fontSize: "0.78rem", padding: "6px 14px" }} onClick={() => openAction("create-program")}>
-                  + Create program
+          <div className="mc-page mc-page-narrow">
+            <PageHead
+              title="Training programs"
+              description="Structured onboarding plans for a role, and how far your team is through each."
+              actions={
+                <button type="button" className="mc-btn mc-btn-primary" onClick={() => openAction("create-program")}>
+                  Create program
                 </button>
-              </div>
+              }
+            />
+            <Panel flush={venuePrograms.length > 0}>
               {venuePrograms.length === 0 ? (
                 <EmptyState
                   copy="No training programs yet."
@@ -1446,26 +1450,22 @@ export default function ManagerControlCenter({
                   onCtaClick={() => openAction("create-program")}
                 />
               ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <ul className="mc-rows">
                   {venuePrograms.map((program) => (
-                    <div key={program.id} style={{ padding: "12px 16px", borderRadius: 10, border: "1px solid var(--line-light)", background: "var(--bg-warm)" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
-                        <strong style={{ color: "var(--green-deep)" }}>{program.name}</strong>
-                        <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>{program.roleTarget}</span>
+                    <li key={program.id} className="mc-row">
+                      <div className="mc-row-main">
+                        <div className="mc-row-title">{program.name}</div>
+                        <div className="mc-row-meta">
+                          {program.roleTarget}{program.description ? ` · ${program.description}` : ""}
+                        </div>
                       </div>
-                      {program.description && (
-                        <p style={{ margin: "4px 0 8px", fontSize: "0.82rem", color: "var(--text-soft)" }}>{program.description}</p>
-                      )}
-                      <div className="mc-progress-track">
-                        <div className="mc-progress-fill" style={{ width: `${Math.round(program.completion)}%`, background: "var(--color-mastery-technical)" }} />
-                      </div>
-                      <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{Math.round(program.completion)}% complete</span>
-                    </div>
+                      <BarCell value={program.completion} />
+                    </li>
                   ))}
-                </div>
+                </ul>
               )}
-            </article>
-          </section>
+            </Panel>
+          </div>
         )}
 
         {activeSection === "scenarios" && (
