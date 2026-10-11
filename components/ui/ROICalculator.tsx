@@ -106,9 +106,9 @@ export default function ROICalculator() {
   ];
 
   const lines = [
-    { label: "Turnover cost reduction", value: turnoverSavings, note: "23% of replacement costs recovered" },
-    { label: "Reclaimed manager time", value: managerSavings, note: "60% of manual training hours saved" },
-    { label: "Upsell profit lift", value: upsellProfit, note: "15% of check · 15% conversion gain · 75% margin" },
+    { label: "Turnover cost reduction", value: turnoverSavings, note: "Assumes 23% of replacement costs recovered" },
+    { label: "Reclaimed manager time", value: managerSavings, note: "Assumes 60% of manual training hours saved" },
+    { label: "Upsell profit lift", value: upsellProfit, note: "Assumes 15% of check · 15% conversion gain · 75% margin" },
   ];
 
   return (
@@ -208,7 +208,7 @@ export default function ROICalculator() {
             </dl>
 
             <p className="sbe-mkt-roi-fineprint">
-              Indicative modelling only. Based on published AU hospitality benchmarks (74% turnover rate, $2,490 average replacement cost). Actual results vary by venue type, team size, and service context.
+              An estimate, not a promise. The model assumes a 74% annual staff turnover rate and a $2,490 cost to replace each employee, along with the percentages shown above. These are our assumptions, not measured results from Serve By Example customers. Actual results vary by venue type, team size, and service context.
             </p>
           </div>
         </div>

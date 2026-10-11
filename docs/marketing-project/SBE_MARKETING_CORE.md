@@ -123,7 +123,7 @@ If your team's training engagement doesn't noticeably increase in the first 14 d
   - Reclaimed manager time: 60% of manual training hours saved
   - Upsell profit lift: 15% of check · 15% conversion gain · 75% margin
   - Total Annual Profit Lift
-- **Disclaimer:** Indicative modelling only. Based on published AU hospitality benchmarks (74% turnover rate, $2,490 average replacement cost). Actual results vary by venue type, team size, and service context.
+- **Disclaimer:** An estimate, not a promise. The model assumes a 74% annual staff turnover rate and a $2,490 cost to replace each employee. These are our assumptions, not measured results from Serve By Example customers. Actual results vary by venue type, team size, and service context.
 - **Email capture:** Email me this projection
 
 ## FAQ

@@ -61,9 +61,9 @@ export async function POST(req: Request) {
         </p>
         ${emailNoteHtml("Your inputs", `${headcount} staff, ${managerHours} hours of manager training a week, $${avgTicket} average check`)}
         ${emailFieldTableHtml([
-          ["Turnover cost reduction", `<span style="${amount}">$${fmt(turnoverSavings)}</span><br /><span style="font-size:13px;color:#7a9185">23% of replacement costs recovered through better onboarding</span>`],
-          ["Reclaimed manager time", `<span style="${amount}">$${fmt(managerSavings)}</span><br /><span style="font-size:13px;color:#7a9185">60% of weekly manual training hours returned to operations</span>`],
-          ["Upsell profit lift", `<span style="${amount}">$${fmt(upsellProfit)}</span><br /><span style="font-size:13px;color:#7a9185">15% upsell conversion gain at 75% gross margin on upsold items</span>`],
+          ["Turnover cost reduction", `<span style="${amount}">$${fmt(turnoverSavings)}</span><br /><span style="font-size:13px;color:#7a9185">Assumes 23% of replacement costs recovered through better onboarding</span>`],
+          ["Reclaimed manager time", `<span style="${amount}">$${fmt(managerSavings)}</span><br /><span style="font-size:13px;color:#7a9185">Assumes 60% of weekly manual training hours returned to operations</span>`],
+          ["Upsell profit lift", `<span style="${amount}">$${fmt(upsellProfit)}</span><br /><span style="font-size:13px;color:#7a9185">Assumes a 15% upsell conversion gain at 75% gross margin on upsold items</span>`],
           ["Total annual profit lift", `<span style="${amount};font-size:26px">$${fmt(totalSavings)}</span>`],
         ])}
         <p style="${EMAIL_TEXT_STYLE}">
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
         <p style="${EMAIL_TEXT_STYLE}">
           Or <a href="https://servebyexample.co/contact" style="color:#1f4e37;font-weight:700">book a 15-minute call with our team</a>.
         </p>
-        <p style="${EMAIL_SMALL_STYLE}">Indicative modelling based on published AU hospitality benchmarks. You received this because you requested your projection at servebyexample.co.</p>
+        <p style="${EMAIL_SMALL_STYLE}">An estimate, not a promise. The percentages above are our modelling assumptions, not measured results from Serve By Example customers. You received this because you requested your projection at servebyexample.co.</p>
       `,
     });
 

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/marketing/PageHero";
@@ -15,7 +16,7 @@ export default function TermsPage() {
       <Navbar />
 
       <main>
-        <PageHero compact variant="light" eyebrow="Legal" title="Terms of Service" subtitle="Last updated: 26 April 2026" />
+        <PageHero compact variant="light" eyebrow="Legal" title="Terms of Service" subtitle="Last updated: 12 October 2026" />
 
         <section className="section">
           <div className="container">
@@ -75,6 +76,11 @@ export default function TermsPage() {
                   subscribing, you authorise recurring charges on your chosen billing cycle.
                 </li>
                 <li>
+                  <strong>Free trials</strong>: Where we offer a free trial, it runs for 14 days
+                  and does not require payment details. You are not charged when it ends. Access
+                  to paid features stops at the end of the trial unless you subscribe.
+                </li>
+                <li>
                   <strong>Australian Consumer Law (ACL)</strong>: Our services come with
                   guarantees that cannot be excluded under the ACL. For major failures, you are
                   entitled to cancel your contract and receive a refund for the unused portion.
@@ -86,7 +92,9 @@ export default function TermsPage() {
                 <li>
                   <strong>Refunds</strong>: Beyond your statutory rights under the ACL, we offer a
                   14-day &ldquo;cooling-off&rdquo; period for your first subscription payment if you
-                  are dissatisfied.
+                  are dissatisfied. Our{" "}
+                  <Link href="/refunds">Refund and Cancellation Policy</Link> explains how to ask
+                  for one.
                 </li>
                 <li>
                   <strong>Price Changes</strong>: We will provide at least 30 days&apos; advance
