@@ -48,6 +48,13 @@ module.exports = withBundleAnalyzer({
         destination: "/membership",
         permanent: true,
       },
+      // /auth was a second sign-in page (retired 2026-10-12). The query
+      // string carries over. /auth/callback is a different path and is not matched.
+      {
+        source: "/auth",
+        destination: "/login",
+        permanent: false,
+      },
       // /solutions/multi-venue consolidated into /solutions/pub-groups (2026-07-28)
       {
         source: "/solutions/multi-venue",
