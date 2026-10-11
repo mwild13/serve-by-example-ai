@@ -8,9 +8,7 @@ Regrouped on 2026-10-12 by who does the work and where. Background for the launc
 
 Small changes, in the order they will be done. Each goes to a preview branch first.
 
-- [ ] **Remove the old guest-purchase path in the webhook.** Checkout has needed an account since 2026-10-11 and a Stripe checkout session expires within 24 hours, so no guest session can still complete. Delete the buyer lookup and invite in `handleCheckoutComplete` (it reads the `auth` schema, which the API does not expose) and `app/api/billing/link-pending/route.ts`, which sets a tier without creating an organisation.
-- [ ] **Drop the dead schema.** Write one migration plus a rollback file that drops the `pending_invites` table and the `profiles` columns `avatar`, `role`, `manager_id`, `notif_achievement_alerts`, `platform_version`, `diagnostic_completed_at`, `is_founders_user` and `all_modules_completed` (their indexes and the `manager_id` foreign key go with them). All were still in the database on 2026-10-12. Replace `award_sbe_elite()` first so it no longer sets `all_modules_completed`. Lost for good: `role` (4 rows, all "manager") and `notif_achievement_alerts`. Afterwards remove the "pending drop" notes from `docs/DATABASE_SCHEMA.md`.
-- [ ] **Rate limits on 13 signed-in routes.** None has a limiter: `training/save`, `training/modules`, `training/modules/[moduleId]`, `training/diagnostic/start` and `submit`, `profile/update-name`, `profile/notifications`, `billing/trial/start`, `status` and `mark-modal-shown`, `onboarding/complete`, `verify-session` and `auth/verify-redirect`. The Stripe webhook is signed and needs none.
+- [ ] **Drop the dead schema.** Write one migration plus a rollback file that drops the `pending_invites` table and the `profiles` columns `avatar`, `role`, `manager_id`, `notif_achievement_alerts`, `platform_version`, `diagnostic_completed_at`, `is_founders_user` and `all_modules_completed`. The SQL was drafted on 2026-10-12 and the file could not be saved without the owner's approval, so it is not in the repo yet. Checked that day: the only things that depend on them are `award_sbe_elite()` (still sets `all_modules_completed`; replace it in the same file), the indexes `idx_profiles_platform_version` and `idx_profiles_manager_id`, and the `profiles_manager_id_fkey` foreign key. No view, policy or trigger does. Lost for good: `role` (4 rows, all "manager") and `notif_achievement_alerts`. Afterwards remove the "pending drop" notes from `docs/DATABASE_SCHEMA.md`.
 - [ ] **Trial prompt in the collapsed sidebar.** The upgrade card is hidden while the Manager Console sidebar is an icon rail.
 - [ ] **Restyle `/reset-password`.** It still uses the old login card. `/login` was redesigned on 2026-10-09.
 - [ ] **Move the last Brevo emails onto the shared shell** (`brandedEmailHtml()`, `emailButtonHtml()` and `emailFallbackLinkHtml()` in `lib/email-template.ts`). Still building their own HTML: staff invite and resend (`app/api/management/staff`, `memberships`, `memberships/resend`), contact, book-a-call and the ROI email.
@@ -42,6 +40,7 @@ Grouped by where you sign in. None of these can be done from the code.
 
 ### Supabase
 
+- [ ] **Let previews sign in with Google.** Authentication, URL Configuration, Redirect URLs: add `https://*.serve-by-example-ai.pages.dev/**`. Without it, Google sign-in started on a preview lands on the production site and fails.
 - [ ] **Auth email.** Confirm Auth sends through Brevo, not the built-in mailer, and raise the hourly email limit under Authentication, Rate Limits.
 - [ ] **Auth email templates.** Sign-up confirmation and email change still use Supabase's own templates. Edit them under Authentication, Emails to match the shared shell.
 - [ ] **Backups.** The free plan has none. Upgrade to Pro or schedule a `pg_dump`. Pro also unlocks leaked-password protection.
@@ -54,6 +53,7 @@ Grouped by where you sign in. None of these can be done from the code.
 
 ### Stripe
 
+- [ ] **Check for payment links.** Payments, Payment Links: there should be none in use. Since 2026-10-12 the webhook applies a plan only to a checkout started on the site by a signed-in account; anything else is logged and ignored.
 - [ ] **Failed-webhook emails.** Developers, Webhooks, the endpoint's settings. Until error tracking exists this is the only alert.
 - [ ] **Branding.** Settings, Branding: logo, icon, brand and accent colours. Settings, Emails: support address and reply-to. Settings, Billing, Invoices: footer and business details. Set the statement descriptor so the card charge reads as Serve By Example.
 

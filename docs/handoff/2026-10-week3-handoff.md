@@ -54,3 +54,45 @@ The error screens only appear when a screen fails, so they cannot be seen on dem
 
 - `venue_staff.status` is written when a person is added and never recalculated, but the rule and the status pill still read it. It is in the to-do list under "Needs Attention, second half".
 - `app/management/dashboard/error.tsx` names `--font-fraunces` directly, against the font rule in `CLAUDE.md`. Not changed here.
+
+## Part 2: Google sign-in from a preview, the guest-purchase path and rate limits
+
+- **Date:** 2026-10-12
+- **Branch:** `preview/oct-w3-todo-sweep`. Not merged to `main`.
+
+### The short version
+
+1. **Google sign-in "went to the home page the first time" because it was started on the preview.** It is a Supabase setting, not a fault in production sign-in. One line of safety net was added in `middleware.ts`.
+2. **The old guest-purchase path is gone** from the Stripe webhook, with the `link-pending` route and its two calls at sign-in.
+3. **Twelve more routes have a rate limit.**
+4. **The dead-schema migration is not written.** Saving the file was blocked and needs the owner's approval.
+
+### Google sign-in
+
+- **What happened.** The Supabase Auth log for 2026-10-11 15:38 to 15:41 UTC shows each first attempt asking to return to an address Supabase did not accept, so it fell back to the Site URL, `https://servebyexample.co`, and sent the visitor to the production home page with the one-time code still in the address. Nothing exchanged the code, so they looked signed out. The second attempt started on production, returned to `https://servebyexample.co/auth/callback` and worked.
+- **Why.** The preview address is not on the Redirect URLs list. Only `https://servebyexample.co/**` is.
+- **The setting to change.** Supabase, Authentication, URL Configuration, Redirect URLs: add `https://*.serve-by-example-ai.pages.dev/**`. It is in the to-do list. Until then Google sign-in cannot work on any preview.
+- **The code change.** `middleware.ts` now sends `/?code=...` to `/auth/callback`. If the sign-in was started on the same host it completes. If it was started on another host, as from a preview, the visitor lands on `/login` with the sign-in error shown, not on a home page that says nothing.
+- **Not checked.** Neither case was run in a browser.
+
+### Guest purchases
+
+- `handleCheckoutComplete` in `app/api/billing/webhook/route.ts` no longer looks a buyer up by email or invites them. A session with no `userId` in its metadata is logged and ignored. The site's own checkout has needed a signed-in account since 2026-10-11, and nothing in the code links to a Stripe payment link.
+- `app/api/billing/link-pending/route.ts` is deleted, and `app/login/page.tsx` no longer calls it after sign-in and sign-up. That call listed Stripe customers on every sign-in.
+- **Not checked.** Stripe was not reachable from this session, so whether a payment link exists in the Stripe dashboard is unknown. One would now charge the buyer without applying a plan. It is in the to-do list under Stripe.
+
+### Rate limits
+
+- Per signed-in user, per minute: `verify-session` 10, `onboarding/complete` 10, `profile/update-name` 10, `profile/notifications` 60 to read and 10 to change, `billing/trial/start` 5, `billing/trial/status` 60, `billing/trial/mark-modal-shown` 20, `training/diagnostic/start` and `submit` 10 each, `training/modules` 60, `training/modules/[moduleId]` 120.
+- `auth/verify-redirect` is reached before sign-in, so it is limited by IP at 30 a minute.
+- `training/save` was left alone: it is a retired route that only answers 410.
+- The limiter is in memory on each Cloudflare node (`lib/rate-limit.ts`), as before, so these are a brake on a runaway client, not a hard cap. The WAF rule is still wanted.
+
+### Dead schema
+
+The migration and rollback were drafted and checked against production. Dependencies found: `award_sbe_elite()`, two indexes and one foreign key, all named in the to-do item. The migration file could not be saved in this session, so nothing was added to `supabase/`.
+
+### Checked
+
+- `npm run typecheck`, `eslint` on `app/api`, `app/login` and `middleware.ts`, and `vitest` all pass.
+- Not checked: no checkout was run against the changed webhook, and no route was pushed past its limit.
