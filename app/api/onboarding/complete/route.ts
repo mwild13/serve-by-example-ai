@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
+import { rateLimit } from "@/lib/rate-limit";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 
 export async function POST(req: NextRequest) {
   const { user } = await getUserFromRequest(req);
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (!rateLimit(`onboarding-complete:user:${user.id}`, 10)) {
+    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
   }
 
   let venueType: string | null = null;

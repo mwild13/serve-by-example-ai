@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
+import { rateLimit } from "@/lib/rate-limit";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { TRIAL_ELIGIBLE_TIERS, isTrialEligibleTier, getDaysRemaining } from "@/lib/trial";
 import { TIER_SEATS } from "@/lib/session";
@@ -22,6 +23,9 @@ export async function POST(req: Request) {
   const { user } = await getUserFromRequest(req);
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (!rateLimit(`trial-start:user:${user.id}`, 5)) {
+    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
   }
 
   let body: { tier?: string };

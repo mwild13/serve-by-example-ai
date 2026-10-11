@@ -35,6 +35,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
+import { rateLimit } from "@/lib/rate-limit";
 import { getAvailableModules } from "@/lib/module-navigator";
 
 export async function GET(request: NextRequest) {
@@ -46,6 +47,9 @@ export async function GET(request: NextRequest) {
         { success: false, message: "Unauthorized" },
         { status: 401 }
       );
+    }
+    if (!rateLimit(`training-modules:user:${user.id}`, 60)) {
+      return NextResponse.json({ success: false, message: "Too many requests. Try again in a minute." }, { status: 429 });
     }
 
     // Get query parameters

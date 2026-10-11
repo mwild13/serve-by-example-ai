@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getUserFromRequest } from "@/lib/supabase-server";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,9 @@ export async function GET(req: Request) {
   const { user } = await getUserFromRequest(req);
   if (!user) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+  if (!rateLimit(`verify-session:user:${user.id}`, 10)) {
+    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
   }
 
   const { searchParams } = new URL(req.url);

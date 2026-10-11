@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
 // Password-reset deliverability fix (2026-09-02) — Gmail was flagging our
 // reset-password emails as "This message might be dangerous". The email is
@@ -11,6 +12,12 @@ import { NextResponse } from "next/server";
 // nothing else, so it can't be abused as an open redirect. See
 // app/api/auth/forgot-password/route.ts, the only caller.
 export async function GET(req: Request) {
+  // Reached from the reset email before sign-in, so the key is the IP. The
+  // limit is loose: a whole venue can sit behind one address.
+  if (!rateLimit(`verify-redirect:ip:${getClientIp(req)}`, 30)) {
+    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!supabaseUrl) {
     return NextResponse.json({ error: "Not configured." }, { status: 500 });

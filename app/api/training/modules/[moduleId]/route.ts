@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
+import { rateLimit } from "@/lib/rate-limit";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 
 export async function GET(
@@ -19,6 +20,9 @@ export async function GET(
         { success: false, message: "Unauthorized" },
         { status: 401 }
       );
+    }
+    if (!rateLimit(`training-module:user:${user.id}`, 120)) {
+      return NextResponse.json({ success: false, message: "Too many requests. Try again in a minute." }, { status: 429 });
     }
 
     const resolvedParams = await params;

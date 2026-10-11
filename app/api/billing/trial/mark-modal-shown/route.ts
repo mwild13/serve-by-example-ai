@@ -1,4 +1,5 @@
 import { getUserFromRequest } from "@/lib/supabase-server";
+import { rateLimit } from "@/lib/rate-limit";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 
 export async function POST(req: Request) {
@@ -8,6 +9,9 @@ export async function POST(req: Request) {
       status: 401,
       headers: { "Content-Type": "application/json" },
     });
+  }
+  if (!rateLimit(`trial-modal-shown:user:${user.id}`, 20)) {
+    return new Response(JSON.stringify({ error: "Too many requests. Try again in a minute." }), { status: 429, headers: { "Content-Type": "application/json" } });
   }
 
   const admin = createSupabaseAdminClient();

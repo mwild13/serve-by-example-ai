@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
+import { rateLimit } from "@/lib/rate-limit";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { readJsonBody } from "@/lib/ai-guard";
 
@@ -8,6 +9,9 @@ export async function POST(req: Request) {
     const { user } = await getUserFromRequest(req);
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    if (!rateLimit(`profile-update-name:user:${user.id}`, 10)) {
+      return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
     }
 
     const read = await readJsonBody(req, undefined, { requireJsonContentType: false });

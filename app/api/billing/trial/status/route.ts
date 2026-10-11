@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
+import { rateLimit } from "@/lib/rate-limit";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getTrialStatus } from "@/lib/trial";
 
@@ -15,6 +16,9 @@ export async function GET(req: Request) {
   const { user } = await getUserFromRequest(req);
   if (!user) {
     return NextResponse.json({ authenticated: false, subscriptionActive: false, trialStatus: "none", trialTier: null });
+  }
+  if (!rateLimit(`trial-status:user:${user.id}`, 60)) {
+    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
   }
 
   const admin = createSupabaseAdminClient();

@@ -19,6 +19,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
+import { rateLimit } from "@/lib/rate-limit";
 import { PLACEMENT_QUESTION_KEYS } from "@/lib/diagnostic-engine";
 
 export const dynamic = "force-dynamic";
@@ -50,6 +51,9 @@ export async function POST(request: NextRequest) {
         { success: false, message: "Unauthorized", code: "UNAUTHORIZED" },
         { status: 401, headers: NO_STORE_HEADERS }
       );
+    }
+    if (!rateLimit(`diagnostic-start:user:${user.id}`, 10)) {
+      return NextResponse.json({ success: false, message: "Too many requests. Try again in a minute." }, { status: 429 });
     }
 
     const supabase = getSupabaseClient();

@@ -24,6 +24,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
+import { rateLimit } from "@/lib/rate-limit";
 import { processDiagnosticAnswers, getRecommendedModules } from "@/lib/diagnostic-engine";
 import { readJsonBody } from "@/lib/ai-guard";
 
@@ -51,6 +52,9 @@ export async function POST(request: NextRequest) {
         { success: false, message: "Unauthorized", code: "UNAUTHORIZED" },
         { status: 401 }
       );
+    }
+    if (!rateLimit(`diagnostic-submit:user:${user.id}`, 10)) {
+      return NextResponse.json({ success: false, message: "Too many requests. Try again in a minute." }, { status: 429 });
     }
 
     const read = await readJsonBody(request, MAX_BODY_BYTES);

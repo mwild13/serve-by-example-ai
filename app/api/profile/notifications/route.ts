@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
+import { rateLimit } from "@/lib/rate-limit";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { brandedEmailHtml } from "@/lib/email-template";
 import { readJsonBody } from "@/lib/ai-guard";
@@ -121,6 +122,9 @@ export async function GET(req: Request) {
   try {
     const { user } = await getUserFromRequest(req);
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!rateLimit(`profile-notifications-read:user:${user.id}`, 60)) {
+      return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    }
 
     const admin = createSupabaseAdminClient();
     const { data, error } = await admin
@@ -145,6 +149,9 @@ export async function PATCH(req: Request) {
   try {
     const { user } = await getUserFromRequest(req);
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!rateLimit(`profile-notifications-write:user:${user.id}`, 10)) {
+      return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    }
 
     const read = await readJsonBody(req, undefined, { requireJsonContentType: false });
     if (!read.ok) return read.response;
