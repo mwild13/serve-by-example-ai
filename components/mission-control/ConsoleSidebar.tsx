@@ -71,7 +71,7 @@ export interface ConsoleSidebarProps {
   onNavigate: (section: ManagerSection) => void;
   /** False for duty managers: hides Settings. */
   isOwnerLevel: boolean;
-  /** Trial prompt, shown above Settings while the sidebar is expanded. */
+  /** Trial prompt, shown above Settings. It shrinks to a days-left chip on the icon rail. */
   trialSlot?: ReactNode;
 }
 
@@ -129,7 +129,7 @@ export function ConsoleSidebar({ activeSection, onNavigate, isOwnerLevel, trialS
 
   const ToggleIcon = collapsed ? PanelLeftOpen : PanelLeftClose;
   const toggleLabel = collapsed ? "Expand menu" : "Collapse menu";
-  const showBottom = isOwnerLevel || (!collapsed && Boolean(trialSlot));
+  const showBottom = isOwnerLevel || Boolean(trialSlot);
 
   return (
     <aside className={`mc-sidebar${collapsed ? " collapsed" : ""}${ready ? " ready" : ""}`}>
@@ -196,7 +196,7 @@ export function ConsoleSidebar({ activeSection, onNavigate, isOwnerLevel, trialS
 
       {showBottom && (
         <div className="mc-sidebar-bottom">
-          {!collapsed && trialSlot}
+          {trialSlot}
           {isOwnerLevel && (
             <button
               type="button"
