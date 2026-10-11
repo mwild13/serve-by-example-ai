@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { siteOrigin } from "@/lib/site-url";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { brandedEmailHtml } from "@/lib/email-template";
@@ -53,7 +54,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const appOrigin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? new URL(req.url).origin;
+  const appOrigin = siteOrigin(req);
   const redirectTo = `${appOrigin}/reset-password`;
 
   const admin = createSupabaseAdminClient();

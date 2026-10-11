@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { siteOrigin } from "@/lib/site-url";
 import { requireManager } from "@/lib/management/auth";
 import { escapeHtml } from "@/lib/email-template";
 import { readJsonBody } from "@/lib/ai-guard";
@@ -30,7 +31,7 @@ export async function POST(req: Request) {
 
   const email = membership.staff_email as string;
   const name = email.split("@")[0];
-  const appOrigin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? new URL(req.url).origin;
+  const appOrigin = siteOrigin(req);
   const redirectTo = `${appOrigin}/login`;
 
   const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({

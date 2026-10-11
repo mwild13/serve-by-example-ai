@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { siteOrigin } from "@/lib/site-url";
 import { managementErrorResponse, requireManager, type AdminClient } from "@/lib/management/auth";
 import { countActiveSeats, TIER_SEATS } from "@/lib/session";
 import { escapeHtml } from "@/lib/email-template";
@@ -201,7 +202,7 @@ export async function POST(req: Request) {
 
     // Send invite email via Brevo. For new users: generate a signup link.
     // For existing users: send a login notification instead.
-    const appOrigin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? new URL(req.url).origin;
+    const appOrigin = siteOrigin(req);
     const brevoApiKey = process.env.BREVO_API_KEY;
     const fromEmail = "info@servebyexample.co";
     const fromName = process.env.BREVO_FROM_NAME ?? "Serve By Example";

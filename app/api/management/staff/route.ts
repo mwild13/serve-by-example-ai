@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { siteOrigin } from "@/lib/site-url";
 import { ManagementAccessError, requireManager } from "@/lib/management/auth";
 import { createStaffMember, updateStaffMember, getManagementSnapshot } from "@/lib/management/service";
 import { escapeHtml } from "@/lib/email-template";
@@ -63,7 +64,7 @@ export async function POST(req: Request) {
       // Prefer NEXT_PUBLIC_SITE_URL so the redirectTo is always the real public
       // domain. Falling back to req.url origin can produce an internal Cloudflare
       // worker address that isn't in Supabase's Redirect URLs allowlist.
-      const appOrigin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? new URL(req.url).origin;
+      const appOrigin = siteOrigin(req);
       const redirectTo = `${appOrigin}/login`;
       // The Supabase invite action link signs whoever opens it in as `email`,
       // so it only ever goes into the email itself (which proves the

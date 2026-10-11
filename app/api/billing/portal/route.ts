@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { rateLimit } from "@/lib/rate-limit";
+import { siteOrigin } from "@/lib/site-url";
 
 // Where Stripe sends the customer back to. The caller names one of these; it
 // never supplies a URL.
@@ -49,12 +50,7 @@ export async function POST(req: Request) {
     httpClient: Stripe.createFetchHttpClient(),
   });
 
-  // Falls back to the request's own origin: Stripe rejects a relative return URL.
-  const baseUrl = (
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    new URL(req.url).origin
-  ).replace(/\/$/, "");
+  const baseUrl = siteOrigin(req);
 
   try {
     const session = await stripe.billingPortal.sessions.create({
