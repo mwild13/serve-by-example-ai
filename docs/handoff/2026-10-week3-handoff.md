@@ -163,3 +163,36 @@ The site's default page title reads "Train Hospitality Staff 3x Faster" (`app/la
 ### Found on the way
 
 The ROI projection email and the calculator state their assumptions as facts ("23% of replacement costs recovered", "published AU hospitality benchmarks"). The wording was kept as it was and added to the to-do list under Marketing copy.
+
+## Part 6: terms, ROI wording, and the last three code items
+
+- **Date:** 2026-10-12
+- **Branch:** `preview/oct-w3-todo-sweep`. Not merged to `main`.
+
+### Owner decisions recorded
+
+- `/refunds` was checked by the owner on the preview.
+- "Train Hospitality Staff 3x Faster" stays in the page title. Removed from the to-do list.
+- The ROI calculator keeps its numbers. Its wording changed (below).
+
+### What changed
+
+- **Terms of Service (`app/terms/page.tsx`).** Dated 12 October 2026. Section 5 gained a free trial clause (14 days, no payment details, no charge when it ends, paid features stop unless you subscribe) and a link to `/refunds`. Nothing else was reworded. This has not had legal review.
+- **ROI calculator and its email.** The figures and the sums are unchanged. Each line now starts "Assumes", and "Based on published AU hospitality benchmarks" became a plain statement that these are our modelling assumptions, not measured customer results. Reason: no published source could be named for them, and a claim of a source that cannot be produced is the risk, under the Australian Consumer Law more than with Google.
+- **Conversion events (Google Analytics, only for visitors who accepted analytics cookies).**
+  - `sign_up`: email sign-up in `app/login/page.tsx`; Google sign-up through `app/auth/callback`, which adds `?signup=google` for an account under two minutes old.
+  - `trial_start`: the pricing board and the login page's trial path.
+  - `begin_checkout`: the pricing board and the trial billing screen.
+  - `purchase`: `components/ConversionEvents.tsx` (mounted in `app/layout.tsx`) sees the return from Stripe, asks `/api/verify-session` for the amount, and sends it once per checkout session. `/api/verify-session` now returns `value` and `currency`. A phone returning from Stripe keeps the checkout parameters when it is sent on to `/mobile/home`, so the event fires there too.
+- **Staff status is now calculated, not stored.** `deriveStaffStatus()` in `lib/management/needs-attention.ts`: finished or yet to start is on track, 14 quiet days is attention, 30 is inactive. `mapStaff()` uses it and no longer reads `venue_staff.status`. The column is left in place; it can be dropped later.
+- **Notifications, Training programs and the trial billing screen** are rebuilt on the shared console parts (`console-ui.tsx`). The trial billing screen keeps its four sections: countdown, real stats, consequences and pricing, call to action. It no longer names a font family, and "Annual, save 17%" now reads "2 months free" to match the pricing page. Notifications gained a "Yet to start" alert, and its wording now matches the calculated status.
+
+### Checked
+
+- `npm run typecheck`, `eslint` and `vitest` (61 tests) pass.
+- Not checked: none of the three console screens was seen in a browser (the console needs Supabase settings this machine does not have). No conversion event was seen in Google Analytics. Both are in the to-do list under testing.
+
+### Still blocking the merge
+
+The four Stripe payment links (Enterprise, Commercial, Boutique, Pro Model) are active and have taken no payments. On this branch a purchase through one charges the buyer and applies no plan.
+

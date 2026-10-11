@@ -8,17 +8,14 @@ Regrouped on 2026-10-12 by who does the work and where. Background for the launc
 
 Small changes, in the order they will be done. Each goes to a preview branch first.
 
-- [ ] **Conversion events.** Only `advisory_cta_click` is tracked. Add sign-up, trial started, checkout started and purchase. A purchase event needs a real payment to test.
-- [ ] **Needs Attention, second half.** People who have finished training are no longer flagged (2026-10-12). Still open: `venue_staff.status` is set when a person is added and never recalculated, yet the rule and the status pill both read it. Either calculate it from progress and activity, or stop using it.
-- [ ] **Finish the last console screens.** The trial billing screen (Settings, Billing, during a trial), Notifications and Training programs still use the older cards. None is in the menu.
+Nothing open. The last three were done on 2026-10-12 and are waiting on the checks in section 4.
+
 
 ## 2. Marketing copy
 
 There is no customer data behind any of these. Each needs a source or should be removed. Decisions needed from the owner are marked.
 
 - [ ] **Outcome figures with no source.** "90%+ completion rates" (`/platform`, `/vs-generic-lms`); "reduces turnover by 20–23%" (`/for-venues`, `/vs-generic-lms`); "20–30% for video-based LMS courses" (`/vs-generic-lms`). Default: remove.
-- [ ] **"3x Faster" in the page title.** The default title in `app/layout.tsx` and the home page title in `app/page.tsx` read "Train Hospitality Staff 3x Faster". It shows in every search result and browser tab. Default: remove.
-- [ ] **ROI calculator assumptions.** `components/ui/ROICalculator.tsx` and the projection email (`app/api/roi/email/route.ts`) state "23% of replacement costs recovered", "60% of weekly manual training hours", "15% upsell conversion gain" and "published AU hospitality benchmarks (74% turnover rate ...)". Owner: supply the sources, or the wording is softened to "assumes".
 - [ ] **Industry figures that need a citation.** "3–9% net profit margins" and "39% of FOH and 42% of BOH staff quit within 90 days" (`/for-venues`, `/vs-generic-lms`). Owner: supply the source, or these are removed.
 - [ ] **Product counts to confirm.** "5 dimensions" (`/vs-generic-lms`, `/how-it-works`), "125 staff across 5 venues" (`/vs-generic-lms`, `/solutions/pub-groups`), and "Scalable from 5 to 500 staff" on `/solutions/franchise-systems`, which is above the 125 limit.
 - [ ] **"No credit card" lines.** On the home page (`app/page.tsx`, twice), `components/HeroSection.tsx`, `/vs-generic-lms`, `/solutions/pub-groups` and still in `app/pricing/page.tsx`. The toolkit page's line is about the free download and is fine. Owner: is it still true for the 14-day trial?
@@ -51,7 +48,7 @@ Grouped by where you sign in. None of these can be done from the code.
 
 ### Stripe
 
-- [ ] **Decide what the payment links are for, before `preview/oct-w3-todo-sweep` merges.** The owner has made a few in the Stripe dashboard. On that branch the webhook applies a plan only to a checkout started on the site by a signed-in account, so a payment link would charge the buyer and apply nothing. Either deactivate them (Payments, Payment Links) and send people to `/membership`, or say where they are used and the webhook is changed to handle them properly.
+- [ ] **Deactivate the four payment links, or say where they are used, before `preview/oct-w3-todo-sweep` merges.** Enterprise Plan, Commercial Plan, Boutique Plan and Pro Model, all made 2026-10-12, all active, none has taken a payment. On that branch the webhook applies a plan only to a checkout started on the site by a signed-in account, so a payment link would charge the buyer and apply nothing. The site does not use them. To deactivate: Payments, Payment Links, the three dots on each row, Deactivate.
 - [ ] **Link the refund policy.** Settings, Business, Public details (and the Checkout settings): set the refund and return policy to `https://servebyexample.co/refunds`, and the terms to `https://servebyexample.co/terms`. `/refunds` is live once the branch merges.
 - [ ] **Failed-webhook emails.** Developers, Webhooks, the endpoint's settings. Until error tracking exists this is the only alert.
 - [ ] **Branding.** Settings, Branding: logo, icon, brand and accent colours. Settings, Emails: support address and reply-to. Settings, Billing, Invoices: footer and business details. Set the statement descriptor so the card charge reads as Serve By Example.
@@ -81,6 +78,7 @@ Three sittings cover every unconfirmed fix.
 ### On a computer, as staff
 
 - [ ] **The restyled emails.** Changed 2026-10-12, not seen in an inbox. Send yourself one of each: a staff invite and a resend from the Manager Console, the contact form, the book-a-call form, and the ROI calculator's "email me this". Check them in Gmail and on a phone.
+- [ ] **Conversion events.** Added 2026-10-12, not seen in Google Analytics. Accept analytics cookies, open Analytics, Reports, Realtime, then: make a new account by email and one with Google (`sign_up`), start a trial (`trial_start`), press a paid plan button (`begin_checkout`), and finish one real payment (`purchase`, with the amount). Once they show, mark `sign_up`, `trial_start` and `purchase` as key events under Admin, Events.
 - [ ] **`/login`.** Only its layout was checked. Sign in, create an account, and use Google (that return trip may pass through `www`).
 - [ ] **Password reset.** Request a reset and follow the link: it should open the new-password screen. That screen was restyled on 2026-10-12 to match `/login`; set a new password on it once. The 2026-10-12 email pointed at the Site URL; the URL Configuration was changed the same day.
 - [ ] **`/dashboard` when narrow.** At about 700px and 375px: the nav sits on top as a wrapped row, every item opens, Sign out is reachable, nothing scrolls sideways.
@@ -92,6 +90,8 @@ Three sittings cover every unconfirmed fix.
 ### On a computer, as a manager
 
 - [ ] **Trial chip on the collapsed sidebar.** Added 2026-10-12, not seen. On a trial account, collapse the sidebar: a small chip with the days left should sit above Settings and open Billing.
+- [ ] **The three restyled console screens.** Changed 2026-10-12, not seen. On a trial account open Settings, Billing. Notifications and Training programs are not in the menu, so they need a link or a decision on whether they stay.
+- [ ] **Status after the recalculation.** Changed 2026-10-12. On the Staff tab, someone quiet for 14 days should read "Needs follow-up", and someone who trained this week "On track", whatever they showed before.
 - [ ] **The redesigned console.** It went to production on 2026-10-09 having only been viewed with sample data. Go through every tab, the collapsed sidebar, the account menu and Sign out, and ask the AI Coach a question then use New chat.
 
 ## 5. Owner: decisions
