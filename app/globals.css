@@ -316,7 +316,11 @@
   display: none;
 }
 
-@media (orientation: landscape) and (max-width: 900px) {
+/* min-width: 500px (2026-10-12): "landscape" only means wider than tall, and
+   an open keyboard shrinks the height enough for an upright phone to qualify,
+   so tapping a Settings field covered the screen with this guard. No phone is
+   500px wide upright; every phone is at least 568px wide on its side. */
+@media (orientation: landscape) and (min-width: 500px) and (max-width: 900px) {
   .mobile-landscape-guard {
     display: flex;
     position: fixed;
@@ -406,6 +410,22 @@ body {
    dark app. */
 body.mobile-dark-shell {
   background: var(--bg-mobile-dark);
+}
+
+/* Never cover a field someone is typing in, whatever the keyboard does to
+   the viewport (small tablets and foldables pass the width test above). */
+body.mobile-dark-shell:has(input:focus, textarea:focus, select:focus) .mobile-landscape-guard {
+  display: none;
+}
+
+/* iOS Safari zooms the page when a focused field's text is under 16px, and
+   leaves it zoomed afterwards: the next screen can then be dragged sideways
+   until the user pinches back out. 16px stops the zoom at its cause.
+   !important because the mobile screens set their input font size inline. */
+body.mobile-dark-shell input,
+body.mobile-dark-shell textarea,
+body.mobile-dark-shell select {
+  font-size: 16px !important;
 }
 
 a {
