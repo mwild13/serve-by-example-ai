@@ -73,9 +73,11 @@ function blobToDataUrl(blob: Blob): Promise<string> {
 }
 
 // Head-and-shoulders outline for the camera guide, in a 100x100 box: up the
-// left shoulder and neck, over the head, down the right side.
+// left shoulder, over an egg-shaped head, down the right side. All curves,
+// with matching tangents where they join, so the neck is a soft dip and not
+// a notch.
 const PORTRAIT_GUIDE_PATH =
-  "M10 100C10 80 24 71 40 67L41 56A18 22 0 1 1 59 56L60 67C76 71 90 80 90 100Z";
+  "M8 100C8 86 20 79 32 75C38 73 41 69 39 65C35 57 33 47 33 36C33 22 41 14 50 14C59 14 67 22 67 36C67 47 65 57 61 65C59 69 62 73 68 75C80 79 92 86 92 100Z";
 
 type CropCenter = { x: number; y: number };
 
