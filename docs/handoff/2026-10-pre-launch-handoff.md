@@ -270,6 +270,8 @@ The owner asked for an audit of what would break under paid traffic, then for th
 - **Phone checkout return.** `middleware.ts` no longer redirects `/dashboard?checkout=success` to the mobile app before the payment is verified. `app/dashboard/page.tsx` verifies, then sends a phone to `/mobile/home`.
 - **Site address.** `NEXT_PUBLIC_SITE_URL` was set without `https://`, so Stripe refused the billing portal's return address for staff and managers alike. `lib/site-url.ts` adds the scheme, and the reset, invite and portal links all use it. The owner has since corrected the variable.
 - **Mobile fields.** The "rotate your device" screen appeared when the keyboard opened, and iOS zoomed the page on focus and left the next screen draggable sideways. The guard now needs 500px of width and never shows over a focused field; fields on `/mobile` use 16px text.
+- **Phone sign-in lost.** Found by the owner on an iPhone after the test purchase: sign-in went nowhere on that phone for any account, while a computer was fine. `syncRedirect()` in `middleware.ts` copied cookies onto a redirect by name and value only, so a token refreshed during the phone redirect from `/dashboard` to `/mobile` became a second, host-only cookie beside the real one on `.servebyexample.co`, and the stale copy won on every request. Redirects now carry each cookie whole, and a request that arrives with a doubled auth cookie has the host-only copies expired. The owner confirmed the phone signs in again.
+- **One address.** `www.servebyexample.co` now redirects to `servebyexample.co` in `middleware.ts` (pages only; the matcher skips API routes and files). The one-device session cookie is host-only and did not carry between the two.
 - **Email shell.** `brandedEmailHtml()` in `lib/email-template.ts` was redesigned: logo and name on parchment, a gold rule, a serif heading, one button style and a boxed fallback link. The reset email was rebuilt on it and now escapes the address.
 - **e2e sign-in.** Turnstile does not issue tokens to an automated browser, so `tests/e2e/global-setup.ts` mints a session for the QA account through the Supabase Admin API. The login form is no longer covered by e2e.
 
@@ -300,6 +302,7 @@ Not checked: the join link behind a login, the phone checkout return, the two mo
 - **Build outside links with `siteOrigin()`** (`lib/site-url.ts`), not from the environment variable directly.
 - **Build emails on `brandedEmailHtml()`** with `emailButtonHtml()` and `emailFallbackLinkHtml()`, and escape anything a person typed.
 - **Fields on `/mobile` are 16px.** Smaller text makes iOS zoom the page.
+- **Copy a cookie whole.** `response.cookies.set(cookie)`, never `set(cookie.name, cookie.value)`, which drops its domain and expiry and makes a second cookie.
 - **Do not answer the browser with a 502.** Its body may not arrive. Use a 4xx with the reason.
 
 ## Open items
