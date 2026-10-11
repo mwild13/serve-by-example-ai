@@ -144,7 +144,7 @@ export default function SequenceSortScreen() {
         )}
 
         {checked && correct && (
-          <CompletionCard title="Order verified!" subtitle="Nice work — that's the right build sequence." onReplay={reset} />
+          <CompletionCard title="Order verified!" subtitle="Nice work. That's the right build sequence." onReplay={reset} />
         )}
       </div>
 

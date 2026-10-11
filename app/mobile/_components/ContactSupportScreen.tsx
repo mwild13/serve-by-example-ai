@@ -82,7 +82,7 @@ export default function ContactSupportScreen() {
           <CheckCircle2 size={48} strokeWidth={1.5} color="var(--gold-mobile)" aria-hidden="true" />
           <p style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "var(--text-mobile)" }}>Message sent</p>
           <p style={{ margin: 0, fontSize: 14, lineHeight: "22px", color: "var(--text-mobile-muted)" }}>
-            Thanks — we&apos;ll be in touch within one business day. You can also reach us any time at{" "}
+            Thanks. We&apos;ll be in touch within one business day. You can also reach us any time at{" "}
             <a href="mailto:info@servebyexample.co" style={{ color: "var(--gold-mobile)", fontWeight: 600 }}>
               info@servebyexample.co
             </a>
@@ -117,7 +117,7 @@ export default function ContactSupportScreen() {
         <BackHeader onBack={() => router.back()} />
         <p style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "var(--text-mobile)" }}>Contact support</p>
         <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>
-          Questions, partnership enquiries, or just want to see if we&apos;re a fit — we&apos;d love to hear from
+          Questions, partnership enquiries, or just want to see if we&apos;re a fit, we&apos;d love to hear from
           you.
         </p>
       </div>

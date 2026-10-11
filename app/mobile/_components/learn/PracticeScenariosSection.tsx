@@ -61,7 +61,7 @@ export default function PracticeScenariosSection({ data }: { data: TrainingProgr
       {/* live-arena-picker — replaces the old single hardcoded scenario */}
       <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "0 0 20px" }}>
         <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--text-mobile-muted)", padding: "0 20px" }}>
-          LIVE ARENA — PICK A MODULE
+          LIVE ARENA: PICK A MODULE
         </p>
         <div
           style={{

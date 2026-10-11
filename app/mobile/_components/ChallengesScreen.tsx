@@ -120,7 +120,7 @@ export default function ChallengesScreen() {
                 {completedCount} of {totalCount} completed
               </p>
               <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>
-                Interactive mini-games — tap-based, no typing required
+                Interactive mini-games. Tap-based, no typing required
               </p>
             </div>
           </div>

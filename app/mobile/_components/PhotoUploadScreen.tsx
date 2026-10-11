@@ -498,7 +498,7 @@ export default function PhotoUploadScreen() {
           <p style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "var(--text-mobile)" }}>Your Profile Photo</p>
           <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>
             {stage === "previewingComposite" || stage === "saving"
-              ? "Pick a background — you can switch anytime before saving"
+              ? "Pick a background. You can switch anytime before saving"
               : stage === "cropping"
                 ? "Crop to head and shoulders, with your face centered"
                 : "Take a photo or choose one from your gallery"}

@@ -181,7 +181,7 @@ function SyncStatusBanner({ isOnline, pendingSyncCount }: { isOnline: boolean; p
       )}
       <span style={{ fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 700, color: "var(--bg-mobile-dark)" }}>
         {offline
-          ? "You're offline — changes will sync when you reconnect."
+          ? "You're offline. Changes will sync when you reconnect."
           : `Syncing ${pendingSyncCount} pending change${pendingSyncCount === 1 ? "" : "s"}…`}
       </span>
     </div>

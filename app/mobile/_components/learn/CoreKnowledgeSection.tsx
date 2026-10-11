@@ -154,7 +154,7 @@ export default function CoreKnowledgeSection({ data, search = "" }: { data: Trai
                 key={mod.id}
                 type="button"
                 onClick={() => handleModuleClick(mod)}
-                aria-label={mod.locked ? `${mod.title} (locked — upgrade to unlock)` : `Start ${mod.title} scenario`}
+                aria-label={mod.locked ? `${mod.title} (locked, upgrade to unlock)` : `Start ${mod.title} scenario`}
                 style={{
                   display: "flex",
                   flexDirection: "column",

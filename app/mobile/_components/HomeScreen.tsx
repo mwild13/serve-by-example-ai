@@ -154,7 +154,7 @@ export default function HomeScreen() {
                   streak (lib/streak.ts), incremented once per mobile session
                   by MobileSessionProvider — same value BadgesGalleryScreen
                   shows as "Active Streak: N Days". */}
-              {session.streakCount !== null ? `${session.streakCount} Streak` : "—"}
+              {session.streakCount !== null ? `${session.streakCount} Streak` : "-"}
             </span>
           </div>
         </div>
@@ -334,10 +334,10 @@ export default function HomeScreen() {
                 </>
               ) : status === "ready" && data.access.allowedModules.length === 0 ? (
                 <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>
-                  No modules unlocked yet — join a venue or upgrade to start training.
+                  No modules unlocked yet. Join a venue or upgrade to start training.
                 </p>
               ) : status === "ready" ? (
-                <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>All accessible modules mastered — nice work.</p>
+                <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>All accessible modules mastered. Nice work.</p>
               ) : status === "error" ? (
                 <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>Couldn&apos;t load your progress.</p>
               ) : (

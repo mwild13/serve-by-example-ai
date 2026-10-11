@@ -21,7 +21,7 @@ const FILL_PARTS = [
 const FILL_CORRECT = ["60ml", "25ml", "15ml", "chilled coupe"];
 const FILL_WORD_BANK = ["25ml", "60ml", "30ml", "15ml", "highball", "chilled coupe", "rocks glass", "20ml"];
 const FILL_EXPLANATION =
-  "The Classic Daiquiri spec is 60ml White Rum / 25ml Fresh Lime Juice / 15ml Sugar Syrup, served in a chilled coupe. Always use fresh lime — bottled juice alters the acidity balance.";
+  "The Classic Daiquiri spec is 60ml White Rum / 25ml Fresh Lime Juice / 15ml Sugar Syrup, served in a chilled coupe. Always use fresh lime. Bottled juice alters the acidity balance.";
 
 export default function FillBlankScreen() {
   const [selected, setSelected] = useState<Record<number, string>>({});

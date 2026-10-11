@@ -208,7 +208,7 @@ export default function QuizScreen() {
           {isFinalModule ? (
             <>
               <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "var(--gold-mobile)" }}>
-                All modules completed — start again
+                All modules completed. Start again
               </p>
               <button
                 type="button"
@@ -257,7 +257,7 @@ export default function QuizScreen() {
               <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
             </button>
           ) : (
-            <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>Nice work — check back soon for more.</p>
+            <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>Nice work. Check back soon for more.</p>
           )}
           <button
             type="button"

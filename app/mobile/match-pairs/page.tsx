@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Match Pairs | Serve By Example",
-  description: "Match Pairs challenge — hospitality knowledge mini-game.",
+  description: "Match Pairs challenge, a hospitality knowledge mini-game.",
   robots: { index: false, follow: false },
 };
 

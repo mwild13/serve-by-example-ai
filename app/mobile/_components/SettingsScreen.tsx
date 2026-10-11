@@ -430,7 +430,7 @@ export default function SettingsScreen() {
       if (!res.ok) {
         // 409s carry a user-facing reason (active subscription, venue owner).
         const data: { error?: string } = await res.json().catch(() => ({}));
-        throw new Error(res.status === 409 && data.error ? data.error : "Something went wrong — try again.");
+        throw new Error(res.status === 409 && data.error ? data.error : "Something went wrong. Try again.");
       }
       // The auth user no longer exists; clear the local session too.
       await supabase.auth.signOut();
@@ -438,7 +438,7 @@ export default function SettingsScreen() {
       router.refresh();
     } catch (err) {
       setDeleteStatus("error");
-      setDeleteError(err instanceof Error ? err.message : "Something went wrong — try again.");
+      setDeleteError(err instanceof Error ? err.message : "Something went wrong. Try again.");
     }
   }
 
@@ -683,7 +683,7 @@ export default function SettingsScreen() {
                 placeholder="RESET"
                 style={inputStyle}
               />
-              {resetStatus === "error" && <p style={{ margin: 0, fontSize: 12, color: "var(--red-mobile)" }}>Something went wrong — try again.</p>}
+              {resetStatus === "error" && <p style={{ margin: 0, fontSize: 12, color: "var(--red-mobile)" }}>Something went wrong. Try again.</p>}
               <div style={{ display: "flex", gap: 8 }}>
                 <button
                   type="button"

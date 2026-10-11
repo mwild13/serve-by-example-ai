@@ -18,7 +18,7 @@ const MC_OPTIONS = [
   { id: "c", text: "“That must have been there before. I'll just wipe it.”", correct: false },
 ];
 const MC_EXPLANATION =
-  "Always own the problem immediately and replace the glass. Deflecting to another team member or wiping a soiled glass both undermine guest trust — a quick apology and immediate replacement is the professional standard.";
+  "Always own the problem immediately and replace the glass. Deflecting to another team member or wiping a soiled glass both undermine guest trust. A quick apology and immediate replacement is the professional standard.";
 
 export default function MultipleChoiceScreen() {
   const [selected, setSelected] = useState<string | null>(null);

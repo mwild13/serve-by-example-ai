@@ -18,7 +18,7 @@ const SPOT_ITEMS = [
   { id: "method", text: "Shake with ice", correct: true },
 ];
 const SPOT_EXPLANATION =
-  "The error is \"Bottled Lime Juice.\" A Classic Daiquiri always uses fresh lime juice — bottled juice contains preservatives and citric acid that flatten the flavour and alter the acidity balance.";
+  "The error is \"Bottled Lime Juice.\" A Classic Daiquiri always uses fresh lime juice. Bottled juice contains preservatives and citric acid that flatten the flavour and alter the acidity balance.";
 
 export default function SpotErrorScreen() {
   const [tapped, setTapped] = useState<string | null>(null);
@@ -117,7 +117,7 @@ export default function SpotErrorScreen() {
         )}
 
         {checked && answeredCorrect && (
-          <CompletionCard title="Error spotted!" subtitle="Nice eye — that recipe card is fixed." onReplay={reset} />
+          <CompletionCard title="Error spotted!" subtitle="Nice eye. That recipe card is fixed." onReplay={reset} />
         )}
       </div>
 

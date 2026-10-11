@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Dashboard | Serve By Example",
-  description: "Your staff training dashboard — modules, scenario practice, and progress tracking.",
+  description: "Your staff training dashboard: modules, scenario practice, and progress tracking.",
   robots: { index: false, follow: false },
 };
 

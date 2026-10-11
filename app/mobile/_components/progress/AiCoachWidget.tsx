@@ -188,7 +188,7 @@ export default function AiCoachWidget() {
         ) : (
           <div style={{ padding: "12px 16px 4px" }}>
             <p style={{ margin: "0 0 10px", fontSize: 12, color: "var(--text-mobile-muted)" }}>
-              Ask anything — specs, service scenarios, or a quick quiz.
+              Ask anything: specs, service scenarios, or a quick quiz.
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
               {PRESET_QUESTIONS.map((q) => (
