@@ -1,4 +1,5 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
+import { deriveStaffStatus } from "@/lib/management/needs-attention";
 import { generateVenueCode } from "@/lib/venue-code";
 import { ManagementAccessError } from "@/lib/management/auth";
 import { buildSeedManagementSnapshot } from "@/lib/management/seed";
@@ -14,7 +15,6 @@ import type {
   ScenarioCategory,
   StaffMember,
   StaffRole,
-  StaffStatus,
   TrainingProgram,
   Venue,
 } from "@/lib/management/types";
@@ -214,18 +214,20 @@ function mapVenue(row: Record<string, unknown>, staff: StaffMember[]): Venue {
 }
 
 function mapStaff(row: Record<string, unknown>): StaffMember {
+  const progress = asNumber(row.progress);
+  const lastActive = formatLastActive(asString(row.last_active_at, null as never));
   return {
     id: asString(row.id, crypto.randomUUID()),
     venueId: asString(row.venue_id),
     name: asString(row.name, "Unnamed staff"),
     email: asString(row.email, "") || undefined,
     role: asString(row.role, "New Staff") as StaffRole,
-    progress: asNumber(row.progress),
+    progress,
     serviceScore: asNumber(row.service_score),
     salesScore: asNumber(row.sales_score),
     productScore: asNumber(row.product_score),
-    lastActive: formatLastActive(asString(row.last_active_at, null as never)),
-    status: asString(row.status, "on-track") as StaffStatus,
+    lastActive,
+    status: deriveStaffStatus(progress, lastActive),
     strengths: asStringArray(row.strengths),
     improvements: asStringArray(row.improvements),
     // Mastery engine fields (graceful – undefined if columns don't exist yet)

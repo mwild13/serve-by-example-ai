@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { StaffMember } from "@/lib/management/types";
-import { needsAttention } from "@/lib/management/needs-attention";
+import { deriveStaffStatus, needsAttention } from "@/lib/management/needs-attention";
 
 function member(over: Partial<StaffMember> = {}): StaffMember {
   return {
@@ -35,5 +35,20 @@ describe("needsAttention", () => {
   it("does not flag someone who has finished training, even after a long gap", () => {
     expect(needsAttention(member({ progress: 100, lastActive: "30 days ago" }))).toBe(false);
     expect(needsAttention(member({ progress: 100, status: "inactive" }))).toBe(false);
+  });
+});
+
+describe("deriveStaffStatus", () => {
+  it("is on track while a person is active, finished or yet to start", () => {
+    expect(deriveStaffStatus(50, "Today")).toBe("on-track");
+    expect(deriveStaffStatus(50, "13 days ago")).toBe("on-track");
+    expect(deriveStaffStatus(100, "90 days ago")).toBe("on-track");
+    expect(deriveStaffStatus(0, "Not started")).toBe("on-track");
+  });
+
+  it("moves to attention at 14 quiet days and inactive at 30", () => {
+    expect(deriveStaffStatus(50, "14 days ago")).toBe("attention");
+    expect(deriveStaffStatus(50, "29 days ago")).toBe("attention");
+    expect(deriveStaffStatus(50, "30 days ago")).toBe("inactive");
   });
 });

@@ -1,4 +1,4 @@
-import type { StaffMember } from "@/lib/management/types";
+import type { StaffMember, StaffStatus } from "@/lib/management/types";
 
 // Single source of truth for "which staff need attention" — used to live
 // as two independently-defined rules: ManagerControlCenter.tsx's Overview
@@ -27,6 +27,20 @@ export function wasActiveWithinDays(lastActive: string, days: number): boolean {
   return daysAgo === null ? true : daysAgo < days;
 }
 
+// The status shown across the console, worked out from progress and
+// activity every time staff are loaded. venue_staff.status is written once,
+// when a person is added, and never updated, so it is no longer read.
+// Someone who has not started stays "on-track" here: the tables label them
+// "Not started", and needsAttention() below flags them on its own rule.
+export function deriveStaffStatus(progress: number, lastActive: string): StaffStatus {
+  if (progress >= 100) return "on-track";
+  const daysInactive = parseLastActiveDays(lastActive);
+  if (daysInactive === null) return "on-track";
+  if (daysInactive >= 30) return "inactive";
+  if (daysInactive >= 14) return "attention";
+  return "on-track";
+}
+
 export function needsAttention(member: StaffMember): boolean {
   // Finished training: nothing for a manager to chase, however long ago the
   // last session was. Without this, a venue whose team had all finished and
@@ -43,7 +57,8 @@ export function needsAttention(member: StaffMember): boolean {
   // Zero-Progress Alert: 0% completion on active staff
   if (member.progress === 0 && member.lastActive !== "Not started") return true;
 
-  // Fallback to status-based flagging for other issues
+  // Covered by the rules above for real staff, whose status comes from
+  // deriveStaffStatus(). Kept for the demo data, which sets status by hand.
   return member.status !== "on-track";
 }
 
