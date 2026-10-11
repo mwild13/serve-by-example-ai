@@ -252,6 +252,56 @@ Problems the owner found on a phone the day after the merge. All of them went to
 
 Not verified: the face oval and the instant photo update on Home were not run on a phone before the release, and the mobile screens at the new width were not seen behind a login.
 
+## Pre-marketing blockers, 2026-10-11 and 12
+
+The owner asked for an audit of what would break under paid traffic, then for the blockers to be fixed. All of this is on `main`. Open work from it is in `To_do_list.md` under "Before any marketing spend".
+
+### What changed
+
+- **Daily AI cap.** `lib/ai-usage.ts` counts each account's AI requests in Postgres (`ai_usage_daily`, bumped by `bump_ai_usage()`): 30 a day on the free tier, 300 on paid, shared by scenario grading, Arena and both coaches. It fails open if the count cannot be read. Migration `20261012_ai_usage_and_acquisition.sql`, run by the owner on 2026-10-11.
+- **No IP limits on signed-in routes.** A venue's staff share one IP on the venue Wi-Fi. Sign-in (`/api/session/stamp`, 10 a minute per IP), grading, joining a venue and saving a photo all limited by IP and would have locked a team out. They now limit by user only.
+- **Stripe webhook.** Every database write in `app/api/billing/webhook/route.ts` throws on failure, so Stripe gets a 500 and retries. Before, a failed write answered 200 and a paying customer stayed on the free tier. `checkout.session.completed` also stores the subscription status and renewal date, which were never saved because the subscription's own events arrive before the profile is linked to the Stripe customer.
+- **Checkout needs an account.** `/api/billing/checkout` answers 401 when signed out. `/membership` sends the visitor to `/login?intent=checkout&plan=...`, and after sign-in by password, email confirmation or Google they return to `/membership?checkout_plan=...`, which starts checkout. A second checkout is refused while a subscription is live.
+- **Crawlers through the geo-block.** `lib/geo-config.ts` lets search, ad-review and link-preview crawlers read marketing pages from outside Australia, by user-agent. It never opens the product or account screens, because a user-agent can be faked.
+- **Campaign attribution.** `middleware.ts` keeps the first `utm_*`, `gclid` or `fbclid` a visitor arrives with in the `sbe_attr` cookie (first-party, HttpOnly, 90 days, set without consent by the owner's decision and declared on `/cookies`). It is saved to `profiles.acquisition` at first sign-in and to Stripe metadata at checkout.
+- **Captcha.** Cloudflare Turnstile on password sign-in and sign-up (`components/TurnstileWidget.tsx`), invisible unless Cloudflare asks for a tick. Supabase Auth enforces it. The password-reset request is checked by our own route (`lib/turnstile.ts`, `TURNSTILE_SECRET_KEY`). Google sign-in is not behind it.
+- **Staff billing.** Staff with their own Stripe customer get "Manage billing" in Settings on `/dashboard` and `/mobile`. The portal route returns them to the screen they came from.
+- **Join link.** A code on `/dashboard?join=CODE` is parked in the `sbe_join` cookie when the visitor is signed out and put back on the URL at their first signed-in request, so it survives sign-in and onboarding.
+- **Phone checkout return.** `middleware.ts` no longer redirects `/dashboard?checkout=success` to the mobile app before the payment is verified. `app/dashboard/page.tsx` verifies, then sends a phone to `/mobile/home`.
+- **Site address.** `NEXT_PUBLIC_SITE_URL` was set without `https://`, so Stripe refused the billing portal's return address for staff and managers alike. `lib/site-url.ts` adds the scheme, and the reset, invite and portal links all use it. The owner has since corrected the variable.
+- **Mobile fields.** The "rotate your device" screen appeared when the keyboard opened, and iOS zoomed the page on focus and left the next screen draggable sideways. The guard now needs 500px of width and never shows over a focused field; fields on `/mobile` use 16px text.
+- **Email shell.** `brandedEmailHtml()` in `lib/email-template.ts` was redesigned: logo and name on parchment, a gold rule, a serif heading, one button style and a boxed fallback link. The reset email was rebuilt on it and now escapes the address.
+- **e2e sign-in.** Turnstile does not issue tokens to an automated browser, so `tests/e2e/global-setup.ts` mints a session for the QA account through the Supabase Admin API. The login form is no longer covered by e2e.
+
+### Checked on production by the owner, 2026-10-12
+
+A real Pro purchase with a new account, started from `/membership?utm_source=test&utm_campaign=launchcheck`:
+
+| Check | Result |
+|---|---|
+| Signed out, pick a plan, create an account, reach Stripe | Passed |
+| Plan applied after payment | Passed. Database: `tier = pro`, status active |
+| Attribution saved | Passed. `profiles.acquisition` held the test campaign and landing page |
+| AI counter | Passed. One scenario graded, `ai_usage_daily` at 1 |
+| Second checkout refused | Passed |
+| Stripe receipt to the customer, payment notice to the owner, webhook deliveries | Passed |
+| Account deletion refused while subscribed | Passed |
+| Manage billing | Failed twice, then passed on two devices after the site address fix |
+| Renewal date | Empty after purchase (bought before the fix). Filled when the plan was cancelled: 2026-11-11 |
+| Sign-in with captcha protection on | Passed. Supabase refuses a sign-in with no token |
+| Password reset email | Arrived. Its link pointed at the Site URL, not `/reset-password`; see `To_do_list.md` |
+
+Not checked: the join link behind a login, the phone checkout return, the two mobile field fixes on a phone, the e2e suite, and crawler access from outside Australia.
+
+### Rules for new code (added here)
+
+- **Check `error` on every supabase-js write that matters.** It returns the error; it does not throw.
+- **Limit signed-in routes by user, not by IP.** A whole venue can sit behind one address.
+- **Build outside links with `siteOrigin()`** (`lib/site-url.ts`), not from the environment variable directly.
+- **Build emails on `brandedEmailHtml()`** with `emailButtonHtml()` and `emailFallbackLinkHtml()`, and escape anything a person typed.
+- **Fields on `/mobile` are 16px.** Smaller text makes iOS zoom the page.
+- **Do not answer the browser with a 502.** Its body may not arrive. Use a 4xx with the reason.
+
 ## Open items
 
 - **The 8 classes the CSS script still reports,** and anything the signed-in check turns up.

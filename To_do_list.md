@@ -14,21 +14,39 @@ The audit, the launch gate and what the cleanup changed are in `docs/handoff/202
 - [ ] **Split `app/globals.css` by surface.** Still one 216 KB file on every page.
 - [ ] **An e2e test from sign-up through checkout.** Nothing tests the payment path.
 
+## Before any marketing spend
+
+The audit, what was fixed on 2026-10-11 and 12, and what was checked on production are in `docs/handoff/2026-10-pre-launch-handoff.md` under "Pre-marketing blockers". What is left:
+
+- [ ] **Supabase redirect list.** The reset email of 2026-10-12 carried `redirect_to=https://www.servebyexample.co`, the Site URL, not `/reset-password`. Supabase falls back to the Site URL when the requested address is not on its list. In Authentication, URL Configuration, add `https://servebyexample.co/**` to the redirect URLs, then request a reset and confirm the link opens the new-password screen.
+- [ ] **Error tracking.** Nothing reports production errors. See "Error tracking" below.
+- [ ] **Conversion events.** Only `advisory_cta_click` is tracked. Add sign-up, trial started, checkout started and purchase. A purchase event needs a real payment to test.
+- [ ] **Visit counts.** Google Analytics loads only after opt-in. Cloudflare Web Analytics is not set up; its script needs a CSP allowance in `middleware.ts`.
+- [ ] **Ad pixels.** Add each platform's hosts to `connect-src` in `middleware.ts` before installing its pixel.
+- [ ] **Supabase Auth email.** Confirm Auth sends through Brevo, not the built-in mailer, and raise the hourly email limit under Authentication, Rate Limits.
+- [ ] **Cloudflare plan.** Confirm Workers Paid. The free tier allows 10 ms of CPU per request.
+- [ ] **Backups.** The Supabase free plan has none. Upgrade to Pro or schedule a `pg_dump`.
+- [ ] **Confirm crawlers get through.** Search Console URL Inspection on `/` and `/membership`, and Meta's Sharing Debugger. Both should show the page, not `/restricted`.
+- [ ] **Decide the AI limits.** 30 requests a day on the free tier and 300 on paid (`lib/ai-usage.ts`), shared across grading, Arena and both coaches. The count was seen to work; what staff see at the limit was not.
+- [ ] **OpenAI rate-limit tier.** Check it covers a busy session, and add one retry on a 429 in `lib/scenario-evaluator.ts`.
+- [ ] **Error boundaries** for `/dashboard` and `/mobile`. Only `/management/dashboard` has its own.
+- [ ] **Retire `/auth`.** A second sign-up page with the old card. Redirect it to `/login`.
+- [ ] **Turnstile on previews.** The widget's hostname list could not take the `pages.dev` address, so captcha protection has to be switched off in Supabase to sign in on a preview.
+- [ ] **Signed-in routes with no rate limit.** Recount them: the management routes are limited through `requireManager()`.
+
 ## Checks to finish
 
 - [ ] **Check the legacy mobile removal.** The old mobile view inside `/dashboard` is gone from production (merged 2026-10-10); these two checks were not done. On a computer, narrow the `/dashboard` window to about 700px and 375px: the nav should sit on top as a wrapped row, every item should open, Sign out should be reachable, and nothing should scroll sideways. On a phone, signed in, open `/dashboard?join=<venue code>`: it should land on Settings, join once and drop the code from the URL.
-- [ ] **Join link is lost at sign-in.** A signed-out person who opens the staff sign-up link (`/dashboard?join=CODE`) is sent to `/login`, and after sign-in the code is dropped (`app/login/page.tsx`, `app/auth/callback/route.ts`), on desktop and phone. They only join if they type the code in onboarding or Settings. Carry `join` through login and the OAuth callback.
-- [ ] **Phone checkout return skips the instant upgrade.** `/dashboard?checkout=success&session_id=...` on a phone is redirected to `/mobile/home` by `middleware.ts` before `app/dashboard/page.tsx` verifies the Stripe session, so the plan only updates when the webhook lands. Run the same check for the phone path, or exempt that URL from the redirect.
+- [ ] **Join link through sign-in, behind a real login.** Fixed 2026-10-12 and checked signed out only. Signed out, open a venue's staff sign-up link on a computer and on a phone, create an account, finish onboarding, and confirm the account ends up connected to the venue. Not covered: confirming the email on a different device from the one the link was opened on.
+- [ ] **Phone checkout return.** Fixed 2026-10-12, not confirmed on a phone. Buy Pro on a phone and confirm the plan shows on mobile Home at once.
+- [ ] **Mobile text fields on an iPhone.** Fixed 2026-10-12, not confirmed. In Settings, tap each field: no "rotate your device" screen. Go back to Me: the screen does not move sideways. Turn the phone on its side: the rotate screen still appears.
+- [ ] **Run the e2e suite with the new sign-in.** `tests/e2e/global-setup.ts` no longer uses the login form; it has never been run. It needs `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` and `E2E_TEST_EMAIL`.
 - [ ] **New e2e baselines.** Run the suite once with `--update-snapshots=all` to capture the Help, Report a bug, Privacy and Terms screenshots. Check that the new no-horizontal-scroll test passes on all 22 `/mobile` routes.
 - [ ] **Roster unlink on account deletion.** Not exercised yet. Delete a test staff account that is on a venue roster, then confirm its `venue_staff` row is kept with `staff_user_id` null and `organization_members` is marked `removed`.
 
 - [ ] **Sign in on the redesigned `/login`.** Only its layout was checked. Sign in as staff and as a manager, create an account, use Google, and send a password reset.
 - [ ] **Run the demo against the live evaluator.** `/demo` and `/demo/complaint-master` were checked with a mocked score. Submit one real answer on each and confirm the feedback text has no em dashes.
 - [ ] **Run the marketing e2e suite** against production. It was not run after the 2026-10-09 changes.
-
-## Staff billing
-
-- [ ] **Staff on Pro cannot manage or cancel their subscription.** Only the Manager Console opens the Stripe billing portal (`components/mission-control/SettingsPanel.tsx`). Account deletion is refused while a subscription is active, so a paying staff member is stuck. Add a "Manage billing" row to Settings on both `/dashboard` and `/mobile`, and let `app/api/billing/portal/route.ts` return to the screen the person came from. Branch `preview/staff-billing-portal` (`6d0d06d`) has an August attempt for `/dashboard` only; it no longer merges, so use it as a reference and rebuild. Test with a real paying Pro account before production.
 
 ## Error tracking
 
@@ -44,6 +62,9 @@ The audit, the launch gate and what the cleanup changed are in `docs/handoff/202
 - [ ] **Trial prompt in the collapsed sidebar.** The upgrade card is hidden while the sidebar is an icon rail.
 
 ## Email
+
+- [ ] **Brand the Stripe emails and invoices.** Receipts, invoices and the billing portal still use Stripe's defaults. In Stripe, Settings, Branding: logo, icon, brand and accent colours. Settings, Emails: the support address and reply-to. Settings, Billing, Invoices: the invoice footer and business details. Set the statement descriptor so the card charge reads as Serve By Example.
+- [ ] **Move every Brevo email onto the shared shell.** The shell was redesigned on 2026-10-12 (`brandedEmailHtml()`, `emailButtonHtml()` and `emailFallbackLinkHtml()` in `lib/email-template.ts`). Password reset, toolkit delivery, bug report and the notification confirmation use it. Still building their own HTML: staff invite and resend (`app/api/management/staff`, `memberships`), contact, book-a-call and the ROI email. Also the emails Supabase Auth sends itself (sign-up confirmation, email change), which use Supabase's templates until they are edited in Authentication, Emails.
 
 - [ ] **Re-send failed toolkit emails.** Manual for now: `select * from toolkit_leads where toolkit_delivered = false` (0 on 2026-10-05). Add a small admin action if the count grows.
 - [ ] **Build the weekly digest and Sunday reminder sender.** Settings lets staff opt in, and the confirmation email promises "every Monday morning" / "every Sunday night", but nothing sends them yet (0 opted in on 2026-10-05, so no one is waiting). Cloudflare Pages has no cron, so this needs Supabase `pg_cron` plus an Edge Function, or a separate scheduled Worker. Send only to profiles with the flag true. Once it works, add a one-off, dismissible opt-in card on mobile Home linking to Settings > Notifications. Don't email people about it, since they haven't consented.
