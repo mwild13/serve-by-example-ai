@@ -6,7 +6,7 @@ Open items only. Finished work is recorded in `docs/handoff/2026-10-week1-handof
 
 The audit, the launch gate and what the cleanup changed are in `docs/handoff/2026-10-pre-launch-handoff.md`. Merged to `main` on 2026-10-10 (pull request #2), together with `preview/remove-legacy-mobile`. The follow-up photo and mobile layout fixes went in on 2026-10-11 (pull request #3).
 
-- [ ] **Owner dashboard actions.** The Cloudflare WAF rate-limit rule; an OpenAI monthly budget and alert; check the Stripe live webhook; confirm Supabase backups. The list is under "The launch gate". Leaked-password protection needs Supabase Pro, so it waits for a plan change.
+- [ ] **Owner dashboard actions.** The Cloudflare WAF rate-limit rule on the public form and AI routes, with a threshold high enough for a whole venue behind one IP; an OpenAI monthly budget and alert. Leaked-password protection needs Supabase Pro, so it waits for a plan change.
 - [ ] **Make the `checks` job required on `main`** in the GitHub branch settings, now that CI has run.
 - [ ] **Check the AI photo on production.** Released 2026-10-11. On an iPhone, confirm the face oval and that a saved photo shows on Home without a reload. Android was not tried at all: take a photo, save it, and check it on Home.
 - [ ] **Look over the `/mobile` screens at full width.** The frame no longer leaves a strip down each side; no screen was seen behind a login after the change.
@@ -18,13 +18,14 @@ The audit, the launch gate and what the cleanup changed are in `docs/handoff/202
 
 The audit, what was fixed on 2026-10-11 and 12, and what was checked on production are in `docs/handoff/2026-10-pre-launch-handoff.md` under "Pre-marketing blockers". What is left:
 
-- [ ] **Supabase redirect list.** The reset email of 2026-10-12 carried `redirect_to=https://www.servebyexample.co`, the Site URL, not `/reset-password`. Supabase falls back to the Site URL when the requested address is not on its list. In Authentication, URL Configuration, set the Site URL to `https://servebyexample.co` (no `www`, which now redirects there) and add `https://servebyexample.co/**` to the redirect URLs, then request a reset and confirm the link opens the new-password screen.
+- [ ] **Confirm the reset link opens the new-password screen.** The reset email of 2026-10-12 carried `redirect_to=https://www.servebyexample.co`, the Site URL, not `/reset-password`. The owner changed Authentication, URL Configuration the same day (Site URL without `www`, and `https://servebyexample.co/**` on the redirect list). Request a reset and follow the link to confirm.
 - [ ] **Google sign-in screen.** The Google app was switched from Internal to External and published on 2026-10-12, so any Google account can now sign in. Still to do in Google Cloud Console (project number `971763423157`), Google Auth Platform, Branding: app name, support email, the home page, privacy policy and terms links, and `servebyexample.co` as an authorised domain. Adding a logo starts Google's brand verification, which needs the domain verified in Search Console. Then check Clients: the only authorised redirect URI should be the Supabase callback.
 - [ ] **Protect the Google account that owns that project.** Turn on 2-step verification and add a second owner under IAM. If that one account is lost, Google sign-in cannot be changed or repaired.
-- [ ] **Error tracking.** Nothing reports production errors. See "Error tracking" below.
+- [ ] **Error tracking and alerts.** Nothing reports production errors. See "Error tracking" below. At the least, be told about Stripe webhook failures and OpenAI failures. Until then, turn on Stripe's own email for failed webhook deliveries (Developers, Webhooks, the endpoint's settings).
 - [ ] **Conversion events.** Only `advisory_cta_click` is tracked. Add sign-up, trial started, checkout started and purchase. A purchase event needs a real payment to test.
 - [ ] **Visit counts.** Google Analytics loads only after opt-in. Cloudflare Web Analytics is not set up; its script needs a CSP allowance in `middleware.ts`.
-- [ ] **Ad pixels.** Add each platform's hosts to `connect-src` in `middleware.ts` before installing its pixel.
+- [ ] **Ad pixels and the CSP.** Add each platform's hosts to `connect-src` in `middleware.ts` before installing its pixel. Also accept cookies on the live site and check the browser console: `connect-src` lists only `www.google-analytics.com`, and Google Analytics sometimes sends to a regional host.
+- [ ] **Define the funnel numbers before spending.** Visit to sign-up, sign-up to first scenario completed, trial to paid, and cost per paying venue. Attribution is stored (`profiles.acquisition` and Stripe metadata), so these can be SQL queries.
 - [ ] **Supabase Auth email.** Confirm Auth sends through Brevo, not the built-in mailer, and raise the hourly email limit under Authentication, Rate Limits.
 - [ ] **Cloudflare plan.** Confirm Workers Paid. The free tier allows 10 ms of CPU per request.
 - [ ] **Backups.** The Supabase free plan has none. Upgrade to Pro or schedule a `pg_dump`.
@@ -35,6 +36,8 @@ The audit, what was fixed on 2026-10-11 and 12, and what was checked on producti
 - [ ] **Retire `/auth`.** A second sign-up page with the old card. Redirect it to `/login`.
 - [ ] **Turnstile on previews.** The widget's hostname list could not take the `pages.dev` address, so captcha protection has to be switched off in Supabase to sign in on a preview.
 - [ ] **Signed-in routes with no rate limit.** Recount them: the management routes are limited through `requireManager()`.
+- [ ] **A Pro member cannot move to a venue plan.** Checkout refuses anyone with a live subscription (`app/api/billing/checkout/route.ts`), and tells them to change it from Billing. The Stripe portal only lets them cancel or change card unless plan switching is switched on there. Decide the upgrade path: plan switching in the portal, or an upgrade that replaces the Pro subscription.
+- [ ] **Remove or repair the old guest-purchase path in the webhook.** New checkouts need an account, so `handleCheckoutComplete` no longer needs to find or invite a buyer by email. That branch looks the buyer up in the `auth` schema, which the API does not expose, and its fallback (`app/api/billing/link-pending/route.ts`) sets a tier without creating an organisation. Delete both once no guest checkout session can still complete, or fix the lookup to read `profiles`.
 
 ## Checks to finish
 
