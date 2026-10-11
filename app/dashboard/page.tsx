@@ -1,9 +1,11 @@
 ﻿import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import Stripe from "stripe";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { normalizeTier, resolveTierAccess } from "@/lib/session";
+import { isMobilePhoneUserAgent } from "@/lib/user-agent";
 import DashboardShell from "@/app/dashboard/_components/DashboardShell";
 
 // Prevent static generation – this page requires auth at runtime
@@ -85,6 +87,14 @@ export default async function DashboardPage({
     );
   }
 
+  // A phone returning from Stripe is let through to this page by
+  // middleware.ts so the payment is verified above. With that done, send it
+  // on to the mobile app, where staff on a phone always work.
+  if (checkoutSuccess && stripeSessionId) {
+    const userAgent = (await headers()).get("user-agent") ?? "";
+    if (isMobilePhoneUserAgent(userAgent)) redirect("/mobile/home");
+  }
+
   const displayName =
     profile?.display_name ||
     (user.user_metadata?.full_name as string | undefined) ||
@@ -119,6 +129,7 @@ export default async function DashboardPage({
       notifWeeklyDigest={profile?.notif_weekly_digest ?? false}
       hasVenueMembership={hasVenueMembership}
       venueMembershipPaused={venueMembershipPaused}
+      hasBillingAccount={!!profile?.stripe_customer_id}
       initialToken={session?.access_token ?? ""}
       initialNav={initialNav}
     />

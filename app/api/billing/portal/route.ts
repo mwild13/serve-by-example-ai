@@ -1,6 +1,15 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getUserFromRequest } from "@/lib/supabase-server";
+import { rateLimit } from "@/lib/rate-limit";
+
+// Where Stripe sends the customer back to. The caller names one of these; it
+// never supplies a URL.
+const RETURN_PATHS: Record<string, string> = {
+  management: "/management/dashboard?tab=settings&subtab=billing",
+  dashboard: "/dashboard?nav=settings",
+  mobile: "/mobile/settings",
+};
 
 export async function POST(req: Request) {
   if (!process.env.STRIPE_SECRET_KEY) {
@@ -16,6 +25,14 @@ export async function POST(req: Request) {
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  if (!rateLimit(`billing-portal:user:${user.id}`, 10)) {
+    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+  }
+
+  // The Manager Console sends no body, so it keeps the management return.
+  const body: unknown = await req.json().catch(() => null);
+  const requested = body && typeof body === "object" ? (body as { returnTo?: unknown }).returnTo : undefined;
+  const returnPath = (typeof requested === "string" && RETURN_PATHS[requested]) || RETURN_PATHS.management;
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -37,7 +54,7 @@ export async function POST(req: Request) {
   try {
     const session = await stripe.billingPortal.sessions.create({
       customer: profile.stripe_customer_id,
-      return_url: `${baseUrl}/management/dashboard?tab=settings&subtab=billing`,
+      return_url: `${baseUrl}${returnPath}`,
     });
 
     return NextResponse.json({ url: session.url });

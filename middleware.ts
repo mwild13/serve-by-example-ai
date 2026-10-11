@@ -2,19 +2,17 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseMiddlewareClient } from "@/lib/supabase-server";
 import { shouldApplyGeoBlock } from "@/lib/geo-config";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { isMobilePhoneUserAgent } from "@/lib/user-agent";
 import { ATTRIBUTION_COOKIE, ATTRIBUTION_MAX_AGE, attributionFromUrl, encodeAttribution } from "@/lib/attribution";
 
-// Phone-only detection for the /dashboard -> /mobile/home auto-route below.
-// Deliberately narrow: only iPhone/iPod and Android-with-"Mobile"-token match.
-// iPad is NOT special-cased — modern iPadOS reports a desktop Safari UA by
-// default (no "iPhone"/"Mobile" token), so it falls through to the desktop
-// /dashboard experience on its own, matching the product decision that
-// tablets use the desktop version. No inverse redirect exists (a desktop
-// browser hitting /mobile/* is left alone) — that's the pattern this whole
-// mobile build has been visually QA'd through all session.
-function isMobilePhoneUserAgent(ua: string): boolean {
-  return /iPhone|iPod/i.test(ua) || (/Android/i.test(ua) && /Mobile/i.test(ua));
-}
+// The staff sign-up link is /dashboard?join=CODE. Most new staff open it
+// signed out, and the code used to be lost on the way through /login, Google
+// sign-in or onboarding. It is parked in this cookie when a signed-out visitor
+// arrives with one, and put back on the URL at their first signed-in request
+// to the app, whichever way they got there.
+const JOIN_COOKIE = "sbe_join";
+const JOIN_COOKIE_MAX_AGE = 60 * 60 * 24; // 1 day in seconds
+const JOIN_CODE = /^[A-Za-z0-9]{4,8}$/;
 
 function buildCSP(nonce: string): string {
   // `next dev`'s webpack devtool wraps every module in eval() for Fast
@@ -174,7 +172,45 @@ export async function middleware(request: NextRequest) {
   if ((isDashboard || isMobile || isOnboarding) && !user) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
-    return syncRedirect(loginUrl);
+    const loginRedirect = syncRedirect(loginUrl);
+    const joinCode = request.nextUrl.searchParams.get("join") ?? "";
+    if (JOIN_CODE.test(joinCode)) {
+      loginRedirect.cookies.set(JOIN_COOKIE, joinCode.toUpperCase(), {
+        path: "/",
+        maxAge: JOIN_COOKIE_MAX_AGE,
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+      });
+    }
+    return loginRedirect;
+  }
+
+  const isPhone = isMobilePhoneUserAgent(request.headers.get("user-agent") ?? "");
+  // Back from Stripe: /dashboard verifies the payment and applies the plan
+  // (app/dashboard/page.tsx), then sends a phone on to /mobile/home itself.
+  // Redirecting here first skipped that, so on a phone the plan only changed
+  // when the webhook landed.
+  const isCheckoutReturn =
+    isDashboard &&
+    request.nextUrl.searchParams.get("checkout") === "success" &&
+    request.nextUrl.searchParams.has("session_id");
+
+  // A join code parked before sign-in: put it back on the URL once, at the
+  // first signed-in request to the app, and drop the cookie.
+  const pendingJoin = request.cookies.get(JOIN_COOKIE)?.value ?? "";
+  if (user && pendingJoin && (isDashboard || isMobile) && !isCheckoutReturn) {
+    if (request.nextUrl.searchParams.has("join") || !JOIN_CODE.test(pendingJoin)) {
+      // Already on a join link, or the cookie is not a code: just clear it.
+      response.cookies.delete(JOIN_COOKIE);
+    } else {
+      const joinUrl = request.nextUrl.clone();
+      joinUrl.pathname = isPhone ? "/mobile/settings" : "/dashboard";
+      joinUrl.searchParams.set("join", pendingJoin);
+      const joinRedirect = syncRedirect(joinUrl);
+      joinRedirect.cookies.delete(JOIN_COOKIE);
+      return joinRedirect;
+    }
   }
 
   // Staff on a phone always land on the V4 mobile app, regardless of how
@@ -184,7 +220,7 @@ export async function middleware(request: NextRequest) {
   // one place instead of patching each entry point separately). No role
   // check needed: /dashboard is staff-only by construction — managers land
   // on /management/dashboard, a different route entirely.
-  if (isDashboard && user && isMobilePhoneUserAgent(request.headers.get("user-agent") ?? "")) {
+  if (isDashboard && user && isPhone && !isCheckoutReturn) {
     const mobileHomeUrl = request.nextUrl.clone();
     // The staff sign-up link (/dashboard?join=CODE) goes to mobile Settings,
     // which joins the venue on arrival. The query string is kept by clone().

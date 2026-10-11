@@ -21,6 +21,7 @@ import ProgressOverview from "@/app/dashboard/_components/ProgressOverview";
 import PreShiftHome from "@/app/dashboard/_components/PreShiftHome";
 import SessionRefresher from "@/components/ui/SessionRefresher";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
+import { openBillingPortal } from "@/lib/billing-portal";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { normalizeVenueCode } from "@/lib/venue-code";
 
@@ -45,12 +46,14 @@ function StaffSettingsPanel({
   notifReminders,
   notifWeeklyDigest,
   initialJoinCode,
+  hasBillingAccount,
 }: {
   displayName: string;
   userEmail: string;
   notifReminders: boolean;
   notifWeeklyDigest: boolean;
   initialJoinCode?: string;
+  hasBillingAccount: boolean;
 }) {
   const router = useRouter();
   const [profileName, setProfileName] = useState(displayName);
@@ -62,6 +65,23 @@ function StaffSettingsPanel({
   const [securityMessage, setSecurityMessage] = useState("");
   const [securityError, setSecurityError] = useState("");
   const [isSavingSecurity, setIsSavingSecurity] = useState(false);
+
+  // ── Subscription and billing ── a paying staff member manages or cancels
+  // their own plan in the Stripe portal, the same one the Manager Console opens.
+  const [billingLoading, setBillingLoading] = useState(false);
+  const [billingError, setBillingError] = useState("");
+
+  async function handleManageBilling() {
+    setBillingLoading(true);
+    setBillingError("");
+    const supabase = createSupabaseBrowserClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    const failure = await openBillingPortal(session?.access_token, "dashboard");
+    if (failure) {
+      setBillingError(failure);
+      setBillingLoading(false);
+    }
+  }
 
   const [venueCode, setVenueCode] = useState(initialJoinCode ?? "");
   const [joinVenueStatus, setJoinVenueStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -445,6 +465,17 @@ function StaffSettingsPanel({
         )}
       </div>
 
+      {hasBillingAccount && (
+        <div className="card">
+          <h3>Subscription and billing</h3>
+          <p>Update your card, download invoices, or cancel your plan. This opens our secure billing page, run by Stripe.</p>
+          <button type="button" className="btn btn-primary" onClick={handleManageBilling} disabled={billingLoading}>
+            {billingLoading ? "Opening..." : "Manage billing"}
+          </button>
+          {billingError && <div className="auth-status auth-status-error">{billingError}</div>}
+        </div>
+      )}
+
       <div className="card">
         <h3>Delete account</h3>
         <p>Permanently delete your account, sign-in and training history. Your venue keeps its roster record of you, without your progress.</p>
@@ -515,6 +546,7 @@ export default function DashboardShell({
   notifWeeklyDigest,
   hasVenueMembership = false,
   venueMembershipPaused = false,
+  hasBillingAccount = false,
   initialToken = "",
   checkoutSuccess = false,
   initialNav,
@@ -527,6 +559,7 @@ export default function DashboardShell({
   notifWeeklyDigest: boolean;
   hasVenueMembership?: boolean;
   venueMembershipPaused?: boolean;
+  hasBillingAccount?: boolean;
   initialToken?: string;
   checkoutSuccess?: boolean;
   initialNav?: string;
@@ -904,6 +937,7 @@ export default function DashboardShell({
             notifReminders={notifReminders}
             notifWeeklyDigest={notifWeeklyDigest}
             initialJoinCode={joinCodeFromUrl}
+            hasBillingAccount={hasBillingAccount}
           />
         ) : (
           <ComingSoon label={NAV_ITEMS.find((n) => n.id === activeNav)?.label ?? activeNav} />

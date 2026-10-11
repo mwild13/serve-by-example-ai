@@ -23,6 +23,8 @@ export type MobileSession = {
   allowedModules: number[];
   hasVenueMembership: boolean;
   venueMembershipPaused: boolean;
+  /** True when this account has its own Stripe customer, so Settings can offer the billing portal. */
+  hasBillingAccount: boolean;
   /** Saved AI portrait URL (profiles.profile_photo_url), or null if the user has never saved one. */
   profilePhotoUrl: string | null;
   /** Shows a just-saved photo on every screen straight away. The server

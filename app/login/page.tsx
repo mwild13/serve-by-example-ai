@@ -103,6 +103,9 @@ function LoginPageContent() {
   // (checkout needs an account). Once signed in, by any route below, they go
   // back to /membership (the live address of the price board; /pricing
   // redirects to it), which starts checkout for the plan they picked.
+  // Arrived from a staff sign-up link (/dashboard?join=CODE). middleware.ts
+  // has parked the code in a cookie and joins the venue after sign-in.
+  const joiningVenue = /^[A-Za-z0-9]{4,8}$/.test(searchParams.get("join") ?? "");
   const checkoutPlan = searchParams.get("plan") ?? "";
   const resumeCheckoutPath =
     searchParams.get("intent") === "checkout" && /^[a-z_]{1,40}$/.test(checkoutPlan)
@@ -110,7 +113,7 @@ function LoginPageContent() {
       : null;
 
   const [portal, setPortal] = useState<Portal>("staff");
-  const [mode, setMode] = useState<AuthMode>(checkoutSuccess || resumeCheckoutPath ? "sign-up" : "sign-in");
+  const [mode, setMode] = useState<AuthMode>(checkoutSuccess || resumeCheckoutPath || joiningVenue ? "sign-up" : "sign-in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -494,6 +497,11 @@ function LoginPageContent() {
               {checkoutSuccess && (
                 <div className="auth-status auth-status-success" style={{ marginBottom: 16 }}>
                   Payment successful. Create your account or sign in below to access your plan.
+                </div>
+              )}
+              {joiningVenue && !checkoutSuccess && !resumeCheckoutPath && (
+                <div className="auth-status auth-status-success" style={{ marginBottom: 16 }}>
+                  Create your account or sign in, and we will connect you to your venue.
                 </div>
               )}
               {resumeCheckoutPath && !checkoutSuccess && (
