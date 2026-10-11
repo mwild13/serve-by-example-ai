@@ -38,9 +38,13 @@ export async function GET(request: NextRequest) {
       // Management portal redirects bypass the onboarding check — managers
       // don't go through the staff onboarding wizard.
       const isMgmtFlow = safePath.startsWith("/management");
+      // A visitor who picked a paid plan while signed out goes back to
+      // /membership, which starts checkout (see resumeCheckoutPath in
+      // app/login/page.tsx). Onboarding follows the payment.
+      const resumesCheckout = /^\/membership\?checkout_plan=[a-z_]{1,40}$/.test(safePath);
 
       let redirectTo: string;
-      if (isMgmtFlow) {
+      if (isMgmtFlow || resumesCheckout) {
         redirectTo = safePath;
       } else {
         const { data: profile } = await supabase

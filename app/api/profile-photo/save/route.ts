@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimit } from "@/lib/rate-limit";
 import { readJsonBody } from "@/lib/ai-guard";
 
 // Persists the flattened composite (background + cutout, canvas-rendered
@@ -58,8 +58,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const ip = getClientIp(req);
-    if (!rateLimit(`profile-photo-save:user:${user.id}`, 10) || !rateLimit(`profile-photo-save:ip:${ip}`, 10)) {
+    if (!rateLimit(`profile-photo-save:user:${user.id}`, 10)) {
       return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
     }
 

@@ -13,6 +13,14 @@ const TIER_SEAT_LIMITS: Record<string, number> = {
   enterprise: 9999,
 };
 
+// supabase-js returns a write error instead of throwing it. Unchecked, a
+// failed update still answered Stripe with 200, Stripe never retried, and a
+// paying customer stayed on the free tier. Throwing here reaches the catch in
+// POST, which answers 500 so Stripe delivers the event again.
+function assertWritten(result: { error: { message: string } | null }, what: string): void {
+  if (result.error) throw new Error(`${what} failed: ${result.error.message}`);
+}
+
 function orgNameFromEmail(email: string): string {
   const domain = email.split("@")[1] ?? "";
   return domain || "My Organisation";
@@ -159,7 +167,7 @@ async function handleCheckoutComplete(
       );
       if (!inviteError && invite?.user) {
         resolvedUserId = invite.user.id;
-        await supabase.from("profiles").upsert({ id: resolvedUserId, ...profileUpdate });
+        assertWritten(await supabase.from("profiles").upsert({ id: resolvedUserId, ...profileUpdate }), "profiles upsert");
       } else {
         console.error("Webhook: failed to invite new user:", inviteError?.message);
         await stripe.customers.update(stripeCustomerId, { metadata: { pending_plan: tier } });
@@ -170,7 +178,7 @@ async function handleCheckoutComplete(
 
   if (!resolvedUserId) return;
 
-  await supabase.from("profiles").update(profileUpdate).eq("id", resolvedUserId);
+  assertWritten(await supabase.from("profiles").update(profileUpdate).eq("id", resolvedUserId), "profiles update");
 
   if (B2B_TIERS.has(tier)) {
     await upsertOrganization(supabase, {
@@ -195,10 +203,10 @@ async function handleSubscriptionUpsert(
   // Stripe fires customer.subscription.deleted if all retries are exhausted —
   // that's when downgradeByCustomer runs. Do not downgrade here.
   if (subscription.status === "past_due") {
-    await supabase
+    assertWritten(await supabase
       .from("profiles")
       .update({ subscription_status: "past_due" })
-      .eq("stripe_customer_id", customerId);
+      .eq("stripe_customer_id", customerId), "profiles update");
     return;
   }
 
@@ -223,24 +231,24 @@ async function handleSubscriptionUpsert(
   const rawPeriodEnd = subscription.items.data[0]?.current_period_end;
   const periodEnd = rawPeriodEnd ? new Date(rawPeriodEnd * 1000).toISOString() : null;
 
-  await supabase
+  assertWritten(await supabase
     .from("profiles")
     .update({
       tier,
       subscription_status: subscription.status,
       subscription_period_end: periodEnd,
     })
-    .eq("stripe_customer_id", customerId);
+    .eq("stripe_customer_id", customerId), "profiles update");
 
   if (B2B_TIERS.has(tier)) {
-    await supabase
+    assertWritten(await supabase
       .from("organizations")
       .update({
         subscription_tier: tier,
         seat_limit: seatLimit,
         updated_at: new Date().toISOString(),
       })
-      .eq("stripe_customer_id", customerId);
+      .eq("stripe_customer_id", customerId), "organizations update");
   }
 }
 
@@ -259,23 +267,23 @@ async function downgradeByCustomer(
   customerId: string,
   supabase: ReturnType<typeof createSupabaseAdminClient>,
 ) {
-  await supabase
+  assertWritten(await supabase
     .from("profiles")
     .update({
       tier: "free",
       subscription_status: "canceled",
     })
-    .eq("stripe_customer_id", customerId);
+    .eq("stripe_customer_id", customerId), "profiles update");
 
   // B2B orgs: revoke access and zero out seats; row is kept for audit trail
-  await supabase
+  assertWritten(await supabase
     .from("organizations")
     .update({
       subscription_tier: "free",
       seat_limit: 0,
       updated_at: new Date().toISOString(),
     })
-    .eq("stripe_customer_id", customerId);
+    .eq("stripe_customer_id", customerId), "organizations update");
 }
 
 async function handleInvoicePaid(
@@ -286,10 +294,10 @@ async function handleInvoicePaid(
   if (!customerId) return;
   // Re-confirm active status on successful renewal. The accompanying
   // customer.subscription.updated event updates subscription_period_end.
-  await supabase
+  assertWritten(await supabase
     .from("profiles")
     .update({ subscription_status: "active" })
-    .eq("stripe_customer_id", customerId);
+    .eq("stripe_customer_id", customerId), "profiles update");
 }
 
 async function handleInvoicePaymentFailed(
@@ -300,10 +308,10 @@ async function handleInvoicePaymentFailed(
   if (!customerId) return;
   // Record past_due without revoking access. Stripe retries automatically;
   // customer.subscription.deleted fires only when all retries are exhausted.
-  await supabase
+  assertWritten(await supabase
     .from("profiles")
     .update({ subscription_status: "past_due" })
-    .eq("stripe_customer_id", customerId);
+    .eq("stripe_customer_id", customerId), "profiles update");
 }
 
 async function upsertOrganization(
@@ -324,16 +332,16 @@ async function upsertOrganization(
     .maybeSingle();
 
   if (existing) {
-    await supabase
+    assertWritten(await supabase
       .from("organizations")
       .update({
         subscription_tier: opts.tier,
         seat_limit: opts.seatLimit,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", existing.id);
+      .eq("id", existing.id), "organizations update");
     // Ensure profile is linked (may have been cleared on a prior downgrade)
-    await supabase.from("profiles").update({ org_id: existing.id }).eq("id", opts.ownerUserId);
+    assertWritten(await supabase.from("profiles").update({ org_id: existing.id }).eq("id", opts.ownerUserId), "profiles update");
     return;
   }
 
@@ -347,7 +355,7 @@ async function upsertOrganization(
     .single();
 
   if (profileData?.org_id) {
-    await supabase
+    assertWritten(await supabase
       .from("organizations")
       .update({
         stripe_customer_id: opts.stripeCustomerId,
@@ -356,13 +364,13 @@ async function upsertOrganization(
         trial_converted: true,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", profileData.org_id);
+      .eq("id", profileData.org_id), "organizations update");
     // Profile link already correct — no update needed
     return;
   }
 
   // No existing org — insert and link to profile
-  const { data: newOrg } = await supabase
+  const { data: newOrg, error: newOrgError } = await supabase
     .from("organizations")
     .insert({
       name: opts.name,
@@ -374,7 +382,9 @@ async function upsertOrganization(
     .select("id")
     .single();
 
+  if (newOrgError) throw new Error(`organizations insert failed: ${newOrgError.message}`);
+
   if (newOrg?.id) {
-    await supabase.from("profiles").update({ org_id: newOrg.id }).eq("id", opts.ownerUserId);
+    assertWritten(await supabase.from("profiles").update({ org_id: newOrg.id }).eq("id", opts.ownerUserId), "profiles update");
   }
 }

@@ -1,4 +1,4 @@
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimit } from "@/lib/rate-limit";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { AttemptIdConflictError, findRecordedAttempt, moduleIdToString, recordAttempt, resolveAttemptId, syncMasteryToVenueStaff } from "@/lib/mastery";
@@ -8,6 +8,7 @@ import { ARENA_SEED_SCENARIOS, formatArenaScenario } from "@/lib/arena-scenarios
 import { resolveAccess, validateSession } from "@/lib/session";
 import { getCookieValue } from "@/lib/training-attempt";
 import { readJsonBody } from "@/lib/ai-guard";
+import { aiDailyLimitForTier, aiDailyLimitResponse, consumeAiAllowance } from "@/lib/ai-usage";
 
 export const dynamic = "force-dynamic";
 
@@ -58,8 +59,8 @@ export async function POST(req: Request) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const ip = getClientIp(req);
-    if (!rateLimit(`arena:user:${user.id}`, 20) || !rateLimit(`arena:ip:${ip}`, 20)) {
+    // Per user only: staff on venue Wi-Fi share one IP.
+    if (!rateLimit(`arena:user:${user.id}`, 20)) {
       return Response.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
     }
 
@@ -132,6 +133,10 @@ export async function POST(req: Request) {
       if (prior && prior.evaluation && typeof prior.evaluation === "object") {
         return Response.json({ assessment: prior.evaluation, saved: true, replayed: true });
       }
+    }
+
+    if (!(await consumeAiAllowance(admin, user.id, aiDailyLimitForTier(access.tier)))) {
+      return aiDailyLimitResponse();
     }
 
     const title = typeof moduleTitle === "string" && moduleTitle.trim()

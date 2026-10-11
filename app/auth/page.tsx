@@ -1,8 +1,9 @@
 "use client";
 
-import { FormEvent, useState, Suspense } from "react";
+import { FormEvent, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
+import TurnstileWidget, { CAPTCHA_FAILED_MESSAGE, isCaptchaError, type TurnstileHandle } from "@/components/TurnstileWidget";
 import { isB2BTier, hasManagerConsoleAccess } from "@/lib/session";
 
 type AuthMode = "sign-in" | "sign-up" | "forgot-password";
@@ -19,6 +20,14 @@ function AuthCard() {
   const [success, setSuccess] = useState("");
 
   const isSignUp = mode === "sign-up";
+
+  // Supabase Auth refuses password sign-in and sign-up without a Turnstile
+  // token. Each call takes a fresh one: a token only works once.
+  const turnstileRef = useRef<TurnstileHandle>(null);
+  async function captchaOptions(): Promise<{ captchaToken?: string }> {
+    const captchaToken = await turnstileRef.current?.takeToken();
+    return captchaToken ? { captchaToken } : {};
+  }
   const isForgotPassword = mode === "forgot-password";
 
   async function handleForgotPassword(event: FormEvent<HTMLFormElement>) {
@@ -58,7 +67,7 @@ function AuthCard() {
         const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/dashboard` },
+          options: { emailRedirectTo: `${window.location.origin}/dashboard`, ...(await captchaOptions()) },
         });
         if (signUpError) throw signUpError;
 
@@ -88,7 +97,11 @@ function AuthCard() {
         setSuccess("Account created. Check your email to confirm, then sign in.");
         setMode("sign-in");
       } else {
-        const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+          options: await captchaOptions(),
+        });
         if (signInError) throw signInError;
 
         const { data: { session: authSession } } = await supabase.auth.getSession();
@@ -106,7 +119,11 @@ function AuthCard() {
         await routeByRole(supabase, data.user?.id);
       }
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : "Unable to complete authentication right now.");
+      setError(
+        isCaptchaError(submitError)
+          ? CAPTCHA_FAILED_MESSAGE
+          : submitError instanceof Error ? submitError.message : "Unable to complete authentication right now."
+      );
     } finally {
       setLoading(false);
     }
@@ -261,6 +278,7 @@ function AuthCard() {
             {error && <div className="auth-status auth-status-error">{error}</div>}
             {success && <div className="auth-status auth-status-success">{success}</div>}
 
+            <TurnstileWidget ref={turnstileRef} />
             <div className="auth-actions">
               <button className="btn btn-primary btn-block" type="submit" disabled={loading}>
                 {loading

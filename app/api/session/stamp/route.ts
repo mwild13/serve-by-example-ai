@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { generateSessionId, stampSession } from "@/lib/session";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimit } from "@/lib/rate-limit";
 import { linkStaffAccountByEmail } from "@/lib/staff-link";
+import { attributionFromRequest } from "@/lib/attribution";
 
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year in seconds
 
@@ -15,10 +16,10 @@ export async function POST(req: Request) {
     }
 
     // V4 priority-1 fix (2026-08-21): only called from login/session-conflict
-    // pages, not polled — 10/min per user+IP is generous headroom for
+    // pages, not polled — 10/min per user (not per IP: a team signing in on
+    // venue Wi-Fi shares one address) is generous headroom for
     // legitimate retries while closing the previously-unrated gap.
-    const ip = getClientIp(req);
-    if (!rateLimit(`session-stamp:user:${user.id}`, 10) || !rateLimit(`session-stamp:ip:${ip}`, 10)) {
+    if (!rateLimit(`session-stamp:user:${user.id}`, 10)) {
       return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
     }
 
@@ -63,6 +64,21 @@ export async function POST(req: Request) {
       // Never block login/session-stamping on this — worst case, the
       // promotion is retried on the user's next login instead.
       console.warn("Session stamp: account link / duty_manager reconciliation failed:", err);
+    }
+
+    // First sign-in from a browser that arrived through a campaign link: keep
+    // where the account came from. Written once (only while the column is
+    // empty) and never allowed to block sign-in.
+    const attribution = attributionFromRequest(req);
+    if (attribution) {
+      const { error: attributionError } = await admin
+        .from("profiles")
+        .update({ acquisition: attribution })
+        .eq("id", user.id)
+        .is("acquisition", null);
+      if (attributionError) {
+        console.warn("Session stamp: acquisition not saved:", attributionError.message);
+      }
     }
 
     const res = NextResponse.json({ success: true });

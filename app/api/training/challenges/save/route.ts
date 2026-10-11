@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimit } from "@/lib/rate-limit";
 import { isValidChallengeIndex, MAX_CHALLENGE_INDEX } from "@/lib/challenges";
 import { readJsonBody } from "@/lib/ai-guard";
 
@@ -14,9 +14,8 @@ export async function POST(req: Request) {
 
     // V4 priority-1 fix (2026-08-21): mobile's tap-based Challenges games
     // post here on completion — was unrated. 20/min matches the text-route
-    // norm (dual user+IP), same as training/save.
-    const ip = getClientIp(req);
-    if (!rateLimit(`challenges-save:user:${user.id}`, 20) || !rateLimit(`challenges-save:ip:${ip}`, 20)) {
+    // norm. Per user only: staff on venue Wi-Fi share one IP.
+    if (!rateLimit(`challenges-save:user:${user.id}`, 20)) {
       return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
     }
 

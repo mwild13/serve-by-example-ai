@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseMiddlewareClient } from "@/lib/supabase-server";
 import { shouldApplyGeoBlock } from "@/lib/geo-config";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { ATTRIBUTION_COOKIE, ATTRIBUTION_MAX_AGE, attributionFromUrl, encodeAttribution } from "@/lib/attribution";
 
 // Phone-only detection for the /dashboard -> /mobile/home auto-route below.
 // Deliberately narrow: only iPhone/iPod and Android-with-"Mobile"-token match.
@@ -27,13 +28,14 @@ function buildCSP(nonce: string): string {
   // preview keep the strict policy untouched.
   const isLocalDev = process.env.NODE_ENV === "development";
   const scriptSrc = isLocalDev
-    ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval' https://js.stripe.com`
-    : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://js.stripe.com`;
+    ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval' https://js.stripe.com https://challenges.cloudflare.com`
+    : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://js.stripe.com https://challenges.cloudflare.com`;
 
   return [
     // Deny everything not explicitly listed
     "default-src 'none'",
     // Scripts: only self + nonce-tagged scripts + scripts loaded by those (strict-dynamic) + Stripe
+    // + Cloudflare Turnstile (the sign-in captcha, components/TurnstileWidget.tsx)
     scriptSrc,
     // Styles: unsafe-inline kept — Next.js injects critical CSS inline at render time
     "style-src 'self' 'unsafe-inline'",
@@ -42,11 +44,11 @@ function buildCSP(nonce: string): string {
     // Fonts: self-hosted via next/font — no external CDN needed
     "font-src 'self'",
     // Fetch/XHR/WebSocket: own API routes + Supabase + Stripe + Google Analytics
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://www.google-analytics.com https://www.google.com",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://www.google-analytics.com https://www.google.com https://challenges.cloudflare.com",
     // Plugins/embeds: none used — explicit even though default-src already covers it
     "object-src 'none'",
-    // Iframes: Stripe payment elements only
-    "frame-src https://js.stripe.com https://*.stripe.com",
+    // Iframes: Stripe payment elements and the Turnstile challenge
+    "frame-src https://js.stripe.com https://*.stripe.com https://challenges.cloudflare.com",
     // Prevent this site being embedded in any iframe (clickjacking)
     "frame-ancestors 'none'",
     // Prevent base tag injection attacks
@@ -110,7 +112,7 @@ export async function middleware(request: NextRequest) {
     country = request.headers.get("cf-ipcountry") ?? undefined;
   }
 
-  if (shouldApplyGeoBlock(path, country)) {
+  if (shouldApplyGeoBlock(path, country, request.headers.get("user-agent"))) {
     const geoBlockUrl = request.nextUrl.clone();
     geoBlockUrl.pathname = "/restricted";
     const geoRedirect = syncRedirect(geoBlockUrl);
@@ -118,6 +120,22 @@ export async function middleware(request: NextRequest) {
     geoRedirect.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
     geoRedirect.headers.set("Vary", "CF-IPCountry");
     return geoRedirect;
+  }
+
+  // First-touch attribution: keep the campaign parameters from the first
+  // landing that carries any, so sign-up and checkout can record them later
+  // (lib/attribution.ts). Never overwritten by a later visit.
+  if (!request.cookies.has(ATTRIBUTION_COOKIE)) {
+    const attribution = attributionFromUrl(request.nextUrl);
+    if (attribution) {
+      response.cookies.set(ATTRIBUTION_COOKIE, encodeAttribution(attribution), {
+        path: "/",
+        maxAge: ATTRIBUTION_MAX_AGE,
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+      });
+    }
   }
 
   let user = null;
