@@ -14,7 +14,9 @@ let client: OpenAI | null = null;
 
 export function getOpenAIClient(): OpenAI {
   if (!client) {
-    client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    // maxRetries is the SDK default, stated so it isn't removed by accident:
+    // a 429 or 5xx is retried twice with backoff, inside each route's timeout.
+    client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, maxRetries: 2 });
   }
   return client;
 }

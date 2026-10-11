@@ -28,6 +28,11 @@ export function wasActiveWithinDays(lastActive: string, days: number): boolean {
 }
 
 export function needsAttention(member: StaffMember): boolean {
+  // Finished training: nothing for a manager to chase, however long ago the
+  // last session was. Without this, a venue whose team had all finished and
+  // gone quiet showed every person as needing attention.
+  if (member.progress >= 100) return false;
+
   // Onboarding Stagnation: never started training
   if (member.lastActive === "Not started") return true;
 
