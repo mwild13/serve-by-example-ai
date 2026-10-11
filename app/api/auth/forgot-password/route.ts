@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { brandedEmailHtml } from "@/lib/email-template";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { readJsonBody } from "@/lib/ai-guard";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 // Password-reset branding + deliverability fix (2026-09-02) — this used to
 // be a bare client-side supabase.auth.resetPasswordForEmail() call
@@ -33,13 +34,23 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Too many requests. Please try again shortly." }, { status: 429 });
   }
 
-  const read = await readJsonBody(req, 1024);
+  // 4 KB: a Turnstile token alone can be 2,048 characters.
+  const read = await readJsonBody(req, 4096);
   if (!read.ok) return read.response;
   const body = read.body;
   const email = typeof body?.email === "string" ? body.email.trim() : "";
 
   if (!email || !EMAIL_REGEX.test(email)) {
     return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
+  }
+
+  // Checked before anything is looked up or sent, so a script can't use this
+  // route to mail reset links to a list of addresses.
+  if (!(await verifyTurnstileToken(body?.captchaToken, ip))) {
+    return NextResponse.json(
+      { error: "We could not confirm you are not a robot. Reload the page and try again." },
+      { status: 400 },
+    );
   }
 
   const appOrigin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? new URL(req.url).origin;

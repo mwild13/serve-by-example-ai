@@ -10,6 +10,7 @@ import {
   Globe,
   Building2,
   AlertTriangle,
+  CreditCard,
   LogOut,
   ChevronRight,
   Check,
@@ -20,6 +21,7 @@ import { useMobileSession } from "../_lib/mobile-session-context";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { normalizeVenueCode } from "@/lib/venue-code";
+import { openBillingPortal } from "@/lib/billing-portal";
 
 // Mobile bug-fix plan, Phase 3a — the Me page's settings icon used to be a
 // dead button with no route. This is that route's real content.
@@ -280,6 +282,20 @@ export default function SettingsScreen() {
   const [resetOpen, setResetOpen] = useState(false);
   const [resetConfirmText, setResetConfirmText] = useState("");
   const [resetStatus, setResetStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
+
+  // ── Subscription and billing ── same Stripe portal as the Manager Console
+  const [billingLoading, setBillingLoading] = useState(false);
+  const [billingError, setBillingError] = useState<string | null>(null);
+
+  async function handleManageBilling() {
+    setBillingLoading(true);
+    setBillingError(null);
+    const failure = await openBillingPortal(session.token, "mobile");
+    if (failure) {
+      setBillingError(failure);
+      setBillingLoading(false);
+    }
+  }
 
   // ── Delete account ──
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -592,6 +608,25 @@ export default function SettingsScreen() {
 
       {/* Install nudge — renders nothing if already standalone, dismissed, or not a supported platform */}
       <InstallPrompt />
+
+      {session.hasBillingAccount && (
+        <SectionCard title="Subscription and billing" icon={CreditCard}>
+          <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>
+            Update your card, download invoices, or cancel your plan. This opens our secure billing page, run by Stripe.
+          </p>
+          <button
+            type="button"
+            onClick={handleManageBilling}
+            disabled={billingLoading}
+            style={{ alignSelf: "flex-start", padding: "10px 16px", borderRadius: "var(--radius-pill)", border: "1px solid var(--border-mobile)", background: "none", color: "var(--text-mobile)", fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 700, cursor: billingLoading ? "default" : "pointer" }}
+          >
+            {billingLoading ? "Opening..." : "Manage billing"}
+          </button>
+          {billingError && (
+            <p role="alert" style={{ margin: 0, fontSize: 12, color: "var(--red-mobile)" }}>{billingError}</p>
+          )}
+        </SectionCard>
+      )}
 
       {/* Support */}
       <SectionCard title="Support" icon={AlertTriangle}>
