@@ -68,7 +68,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: ogTitle,
     description: ogDescription,
-    url: siteUrl,
+    // No `url` here: every page inherits this block, so a fixed og:url made
+    // Facebook and LinkedIn treat a share of any page as a share of the home page.
+    // Without it they use the address that was actually shared.
     siteName: "Serve By Example",
     locale: "en_AU",
     type: "website",

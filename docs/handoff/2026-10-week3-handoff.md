@@ -321,3 +321,24 @@ Automatic setup works with the strict content security policy. Cloudflare insert
 ### Checked
 
 Typecheck and lint pass.
+
+## Part 11: crawlers confirmed, and two things the check turned up
+
+- **Date:** 2026-10-12
+
+### Result
+
+Crawlers get through the geo-block. Checked by the owner with tools that fetch from outside Australia:
+
+- **Google Search Console, Test live URL:** `/` and `/membership` both render the real page.
+- **Meta Sharing Debugger:** `/membership` returns 200, fetched as `/membership`, with the share image and title. Its `fb:app_id` warning can be ignored; that property is only for Facebook's own page statistics.
+
+### Blank home page in Google's render, fixed
+
+Google's first screenshot of `/` showed the navbar and then only dark background. The first section (`.sbe-mkt-fold`) had a minimum height of the full screen, and Google's renderer uses a screen many thousands of pixels tall, so the section stretched and the headline sat thousands of pixels down. Reproduced in a 9,000 pixel tall browser: the section was 8,935 pixels and the headline 4,281 pixels from the top. The minimum height is now capped at 60rem (`app/globals.css`), which puts the headline 294 pixels down in the same test. Phones and laptops are unchanged. Released at `df77e00`; the owner's re-test showed page content. This matters for Google's pending "Homepage requirements" review.
+
+Other rules in `app/globals.css` also use a full-screen height. Any page that looks empty in Search Console's screenshot has the same cause and the same fix.
+
+### Every share pointed at the home page, fixed
+
+The Meta result listed the canonical URL of `/membership` as the home page. The root layout set `og:url` to the site address and every page inherited it, so a share of any page was counted and linked as the home page. The fixed `og:url` is removed; Facebook and LinkedIn now use the address that was shared. Every page still shares with the home page's title, description and image, since no page sets its own.
