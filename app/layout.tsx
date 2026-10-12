@@ -6,7 +6,6 @@ import ErrorLogger from "@/components/ErrorLogger";
 import FloatingBookCallButton from "@/components/FloatingBookCallButton";
 import CookieBanner from "@/components/CookieBanner";
 import ConversionEvents from "@/components/ConversionEvents";
-import WebAnalytics from "@/components/WebAnalytics";
 
 // Self-hosted, not next/font/google — the Cloudflare Pages build fetches
 // font files from Google's CDN at build time with next/font/google, and
@@ -121,7 +120,8 @@ export default async function RootLayout({
       </head>
       <body>
         {/* Google Analytics is loaded by <CookieBanner /> only after the visitor opts in (lib/consent.ts).
-            Cloudflare Web Analytics sets no cookies and is loaded by <WebAnalytics /> for every visit. */}
+            Cloudflare Web Analytics is added at Cloudflare's edge, not here: it inserts its beacon script
+            with this page's CSP nonce. It is cookieless. Do not also load the beacon from code. */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -152,7 +152,6 @@ export default async function RootLayout({
         <FloatingBookCallButton />
         <CookieBanner />
         <ConversionEvents />
-        <WebAnalytics />
         <ErrorLogger />
         <LanguageRuntimeTranslator />
       </body>

@@ -22,7 +22,6 @@ Grouped by where you sign in. None of these can be done from the code.
 ### Cloudflare
 
 - [ ] **Check the rate-limit rule after the first venue session.** Created 2026-10-12 at 50 requests per 10 seconds. Look at Security, Events filtered by the rule. If staff were blocked, raise it to 80.
-- [ ] **Web Analytics: add the site and its token.** The code is ready and stays off until the token is set (built 2026-10-12, `components/WebAnalytics.tsx`). In Cloudflare: Analytics & Logs, Web Analytics, Add a site, hostname `servebyexample.co`. Choose the manual JavaScript snippet, not automatic setup, which the content security policy blocks. Copy the 32-character token from the snippet. Then Workers & Pages, `serve-by-example-ai`, Settings, Variables and Secrets: add `NEXT_PUBLIC_CF_BEACON_TOKEN` for Production with that token as plain text, and redeploy. Check: load the live site, and the visit should show in Web Analytics within a few minutes.
 
 ### Supabase
 

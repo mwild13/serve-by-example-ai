@@ -296,25 +296,28 @@ The zone had no rate limiting rule. The owner created one through Cloudflare's a
 - **Why it matters:** the app's own limiter (`lib/rate-limit.ts`) keeps counts in memory, separately on each server instance, so it does not hold against a flood. This rule is the only limit applied consistently, and it stops a flood before it reaches OpenAI.
 - **When adding a public form or AI route:** add its path to this rule's expression as well as calling `rateLimit` in the route.
 
-## Part 10: Cloudflare Web Analytics, built and waiting for a token
+## Part 10: Cloudflare Web Analytics was already running
 
 - **Date:** 2026-10-12
 - **Branch:** `preview/oct-w3-todo-sweep`.
 
-### Why
+### What was found
 
-Google Analytics loads only after a visitor accepts cookies, so there is no plain count of visits. Cloudflare Web Analytics sets no cookies and stores nothing in the browser, so it can run for every visit.
+The to-do list said Web Analytics was not set up. It is: `servebyexample.co` has been registered in Cloudflare Web Analytics with automatic setup since 2026-05-18, and recorded 457 page views across 156 visits in the week to 2026-10-12. The Pages project has no separate entry.
+
+Automatic setup works with the strict content security policy. Cloudflare inserts its beacon script at the edge and copies the page's nonce onto it, and the beacon reports to `/cdn-cgi/rum` on the site's own domain, which `connect-src 'self'` allows. Seen in the live home page HTML on 2026-10-12. The script is not inserted for a request without browser headers, so a plain `curl` does not show it.
 
 ### What changed
 
-- **`components/WebAnalytics.tsx`:** adds Cloudflare's beacon script from the client bundle, the same way `lib/consent.ts` adds Google Analytics, because the content security policy blocks any script tag without the per-request nonce. It runs only on `servebyexample.co` and `www.servebyexample.co`, so previews and localhost are not counted, and only when `NEXT_PUBLIC_CF_BEACON_TOKEN` holds a 32-character token. Mounted in `app/layout.tsx`, so it covers the marketing site and the signed-in app.
-- **`middleware.ts`:** `https://static.cloudflareinsights.com` added to `script-src` and `https://cloudflareinsights.com` to `connect-src`.
-- **Disclosure:** the cookies page now lists Cloudflare Web Analytics (no cookies, runs whatever the cookie settings) and Google Analytics (only after opt-in) under Analytics cookies. The Cloudflare line in the privacy policy, web and mobile, adds "cookieless page visit counts".
+- **No loader in the code.** A client-side loader and two CSP hosts were written on the assumption that the inserted script would be blocked, then removed the same day once the live page showed otherwise. Loading the beacon from code as well would count every visit twice. A comment in `app/layout.tsx` says so.
+- **Disclosure, kept.** Web Analytics had been running without being named. The cookies page now lists Cloudflare Web Analytics (no cookies, runs whatever the cookie settings) and Google Analytics (only after opt-in). The Cloudflare line in the privacy policy, web and mobile, adds "cookieless page visit counts".
 
-### To switch it on
+### Good to know
 
-The owner adds the site in Cloudflare with the manual snippet, copies the token, and sets `NEXT_PUBLIC_CF_BEACON_TOKEN` on the Pages project for Production. Steps are in section 3 of `To_do_list.md`. The token is public (it appears in the page HTML), and the variable is read at build time, so a redeploy is needed after setting it. Do not use Cloudflare's automatic setup: the script it inserts has no nonce and is blocked.
+- It covers the production domain only. Previews on `pages.dev` are not counted.
+- "Exclude EU visitors" is on for this site.
+- Visit counts are in the Cloudflare dashboard under Analytics & Logs, Web Analytics.
 
 ### Checked
 
-Typecheck, lint and `next build` pass. The beacon has not been seen loading, since it runs only on the production hostname with a token.
+Typecheck and lint pass.
