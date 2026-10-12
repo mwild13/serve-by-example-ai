@@ -36,7 +36,8 @@ Grouped by where you sign in. None of these can be done from the code.
 
 ### Stripe
 
-- [ ] **GST on checkout invoices.** The checkout page shows no GST line, and `app/api/billing/checkout/route.ts` sets no tax option, so subscription invoices will not show the GST amount a tax invoice needs. If the business is registered for GST: add an Australian registration under Stripe Tax, set the prices to tax-inclusive, and switch on `automatic_tax` in the checkout route. Also rename the product "Pro Model - SBE AI Training" in Stripe, since customers see it.
+- [ ] **Rename the Pro product.** Customers see "Pro Model - SBE AI Training" on the checkout page. Product catalogue in Stripe.
+- [ ] **GST, when registered.** Not registered for GST as of 2026-10-12, so checkout correctly charges none and invoices must not say "Tax invoice". Registration is compulsory once turnover reaches A$75,000 in a year. At that point: add the registration under Stripe Tax, set prices to tax-inclusive, switch on `automatic_tax` in `app/api/billing/checkout/route.ts`, and add "Tax invoice" to the invoice template. Until then `/advisory` should not say prices "exclude GST".
 
 ### OpenAI
 
