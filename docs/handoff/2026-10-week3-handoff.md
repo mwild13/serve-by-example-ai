@@ -204,3 +204,26 @@ The four Stripe payment links (Enterprise, Commercial, Boutique, Pro Model) are 
 - **"We could not confirm you are not a robot" on the preview** is not new: the Turnstile widget does not accept the `pages.dev` address, so email sign-in cannot work on any preview while captcha is on. Google sign-in does not use the captcha.
 - **The four Stripe payment links were deactivated by the owner**, and the trial billing screen passed the owner's check on the preview. Nothing known blocks the merge.
 
+## Part 7: Google sign-in brand verification
+
+- **Date:** 2026-10-12
+- **Released:** `preview/oct-w3-todo-sweep` was fast-forwarded onto `main` at `ad5c857` before this part. `/refunds` is live.
+
+### The problem
+
+Google Cloud Console refused brand verification with three findings: the privacy policy "does not have sufficient content", the home page "is behind a login page", and the home page "does not explain the purpose of your app".
+
+### Cause found
+
+`app/loading.tsx` at the root made every public page arrive as a "Loading" screen, with the real content in a hidden block that JavaScript swaps in. A reader that does not run JavaScript saw only "Loading". `/privacy` is open to every country, so the geo-block cannot explain that finding; this does.
+
+### What changed
+
+- **No root loading screen.** It moved to `components/RouteLoading.tsx` and is used by new `loading.tsx` files under `app/dashboard`, `app/management` and `app/mobile` only. Checked locally: the privacy text is now in the visible HTML of `/privacy`.
+- **Privacy policy:** new section 11, "Signing In With Google" (what Google sends, how it is used, stored and removed, and the Limited Use statement). Dated 12 October 2026.
+- **Footer:** the link reads "Privacy Policy" instead of "Privacy".
+
+### Still open
+
+Google's checker very likely requests from outside Australia. The home page is Australia-only, so it would be sent to `/restricted`. Whether to open the home page to every country is the owner's decision.
+

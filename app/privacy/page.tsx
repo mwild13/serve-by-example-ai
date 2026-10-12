@@ -16,7 +16,7 @@ export default function PrivacyPage() {
       <Navbar />
 
       <main>
-        <PageHero compact variant="light" eyebrow="Legal" title="Privacy Policy" subtitle="Last updated: 25 September 2026" />
+        <PageHero compact variant="light" eyebrow="Legal" title="Privacy Policy" subtitle="Last updated: 12 October 2026" />
 
         <section className="section">
           <div className="container">
@@ -196,6 +196,40 @@ export default function PrivacyPage() {
                 We implement industry-standard measures, including encryption and strict access
                 controls. We may update this policy periodically; continued use of the Service
                 constitutes acceptance of the updated policy.
+              </p>
+
+              <h2>11. Signing In With Google</h2>
+              <p>
+                You can create an account and sign in with your Google account instead of a
+                password. If you do:
+              </p>
+              <ul>
+                <li>
+                  <strong>What we receive from Google</strong>: Your name, your email address and
+                  your Google profile picture. We do not receive your Google password, and we do
+                  not ask for access to your Gmail, Drive, Calendar, contacts or any other Google
+                  data.
+                </li>
+                <li>
+                  <strong>How we use it</strong>: Your email address identifies your account and
+                  is where we send service emails. Your name is shown in the app and to the
+                  manager of a venue you join. We do not use your profile picture.
+                </li>
+                <li>
+                  <strong>How we store and share it</strong>: It is stored with the rest of your
+                  account information, as described in sections 3 and 4. We do not sell it, use it
+                  for advertising, or use it to train AI models.
+                </li>
+                <li>
+                  <strong>Removing it</strong>: You can ask us to delete your account and this
+                  information at any time by emailing us. You can also remove our access from your
+                  Google account under Security, Your connections to third-party apps and
+                  services.
+                </li>
+              </ul>
+              <p>
+                Our use of information received from Google APIs adheres to the Google API
+                Services User Data Policy, including the Limited Use requirements.
               </p>
 
               <h2>Contact Us</h2>
