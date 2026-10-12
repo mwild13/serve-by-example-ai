@@ -39,7 +39,9 @@ const siteUrl = "https://servebyexample.co";
 
 const ogTitle       = "Serve By Example | Staff Training for Bars, Restaurants & Hotels";
 const ogDescription = "Real-time team analytics, Scenario coaching, cocktail spec libraries, and compliance tracking. Built for Australian venue operators.";
-const ogImage       = "/og-image.png"; 
+// Bump ?v= whenever public/og-image.png changes. Facebook, LinkedIn and
+// Cloudflare each cache the image by its address and keep showing the old one.
+const ogImage       = "/og-image.png?v=2";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
