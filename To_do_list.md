@@ -33,7 +33,7 @@ Grouped by where you sign in. None of these can be done from the code.
 ### Google
 
 - [ ] **Sign-in screen branding.** Google Cloud Console (project number `971763423157`), Google Auth Platform, Branding: app name, support email, home page, privacy policy and terms links, and `servebyexample.co` as an authorised domain. Adding a logo starts Google's brand verification, which needs the domain verified in Search Console. Then check Clients: the only authorised redirect URI should be the Supabase callback.
-- [ ] **Protect the account that owns that project.** Turn on 2-step verification and add a second owner under IAM. If that one account is lost, Google sign-in cannot be changed or repaired.
+- [ ] **Add a second owner to that project.** Google Cloud Console, IAM. 2-step verification is on (2026-10-12), but if that one account is lost, Google sign-in cannot be changed or repaired.
 - [ ] **Confirm crawlers get through.** Search Console URL Inspection on `/` and `/membership`, and Meta's Sharing Debugger. Both should show the page, not `/restricted`. This cannot be checked from Australia.
 
 ### Stripe
