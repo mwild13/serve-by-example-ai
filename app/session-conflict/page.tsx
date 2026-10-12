@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -8,7 +8,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase";
 
 const SAFE_RETURN_PATHS = ["/dashboard", "/management/dashboard"];
 
-export default function SessionConflictPage() {
+function SessionConflictPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const rawReturn = searchParams.get("returnTo") ?? "/dashboard";
@@ -84,5 +84,16 @@ export default function SessionConflictPage() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+// useSearchParams() needs a Suspense boundary for the production build.
+// app/loading.tsx used to provide one for every page; it was removed on
+// 2026-10-12 so public pages are sent whole.
+export default function SessionConflictPage() {
+  return (
+    <Suspense fallback={null}>
+      <SessionConflictPageContent />
+    </Suspense>
   );
 }

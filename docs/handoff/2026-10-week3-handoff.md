@@ -227,3 +227,7 @@ Google Cloud Console refused brand verification with three findings: the privacy
 
 The owner chose to open the home page to every country (`'/'` added to `publicRoutes` in `lib/geo-config.ts`), because Google's checker very likely requests from outside Australia. Every other marketing page and the whole app stay Australia-only. The owner retries the verification in Google Cloud Console once this is live.
 
+### Build failure and fix
+
+The three pushes after `ad5c857` failed to build on Cloudflare: `useSearchParams() should be wrapped in a suspense boundary at page "/onboarding"`. The root `app/loading.tsx` had been the Suspense boundary for `/onboarding` and `/session-conflict`, and removing it was not followed by a production build. Both pages now have their own boundary, and `next build` passes locally. Production stayed on `ad5c857` throughout, so the live site was never broken. Lesson: run `next build` before releasing a change to routing or layout files; typecheck and unit tests do not catch this.
+

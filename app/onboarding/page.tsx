@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
@@ -33,7 +33,7 @@ const EXPERIENCE_LEVELS = [
   },
 ];
 
-export default function OnboardingPage() {
+function OnboardingPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const stripeSessionId = searchParams.get("session_id");
@@ -296,5 +296,16 @@ export default function OnboardingPage() {
         )}
       </div>
     </div>
+  );
+}
+
+// useSearchParams() needs a Suspense boundary for the production build.
+// app/loading.tsx used to provide one for every page; it was removed on
+// 2026-10-12 so public pages are sent whole.
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={null}>
+      <OnboardingPageContent />
+    </Suspense>
   );
 }
