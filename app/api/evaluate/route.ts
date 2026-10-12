@@ -8,6 +8,7 @@ import { resolveAccess, validateSession } from "@/lib/session";
 import { getCookieValue, recordScenarioAttempt } from "@/lib/training-attempt";
 import { AttemptIdConflictError, findRecordedAttempt, resolveAttemptId, type ConfidenceLevel, type RecordAttemptResult } from "@/lib/mastery";
 import { SCENARIOS, type Module } from "@/app/dashboard/_components/trainer/trainer-data";
+import { reportError } from "@/lib/report-error";
 
 // Prevent static generation for this route (requires API credentials at runtime)
 export const dynamic = "force-dynamic";
@@ -158,6 +159,7 @@ export async function POST(req: Request) {
     }
   } catch (error) {
     console.error("API error:", error);
+    await reportError(error, { route: "/api/evaluate", url: req.url });
     return Response.json(
       { error: "Something went wrong while evaluating the response.", code: "INTERNAL_ERROR" },
       { status: 500 }

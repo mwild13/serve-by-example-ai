@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { reportError } from "@/lib/report-error";
 
 export default function ErrorLogger() {
   useEffect(() => {
@@ -14,6 +15,7 @@ export default function ErrorLogger() {
         error: event.error?.stack || event.error,
         timestamp: new Date().toISOString(),
       });
+      void reportError(event.error ?? event.message, { handled: false });
     };
 
     // Log unhandled promise rejections
@@ -22,6 +24,7 @@ export default function ErrorLogger() {
         reason: event.reason,
         timestamp: new Date().toISOString(),
       });
+      void reportError(event.reason, { handled: false });
     };
 
     // Add listeners

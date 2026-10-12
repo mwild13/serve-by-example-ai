@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { reportError } from "@/lib/report-error";
 
 // Route-level error boundary for /mobile. Without it a render error falls
 // through to app/error.tsx, which is styled for the light marketing pages.
@@ -13,6 +14,7 @@ export default function MobileError({
 }) {
   useEffect(() => {
     console.error("Mobile screen failed to load:", error);
+    void reportError(error, { digest: error.digest });
   }, [error]);
 
   return (

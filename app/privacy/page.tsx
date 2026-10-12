@@ -78,6 +78,12 @@ export default function PrivacyPage() {
                   (Cloudflare Web Analytics).
                 </li>
                 <li>
+                  <strong>Sentry</strong>: Error monitoring. When a page or request fails, we
+                  send Sentry the technical details of the fault (the error message, where in
+                  our code it happened and the page address without its query string) so we can
+                  fix it. No cookie is set, and no name, email or IP address is attached.
+                </li>
+                <li>
                   <strong>OpenAI</strong>: Used for AI scenario evaluation, AI coaching and translation.
                   A manager&apos;s AI Coach question is sent with that venue&apos;s staff names,
                   roles and training scores (OpenAI does not use

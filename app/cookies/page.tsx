@@ -15,7 +15,7 @@ export default function CookiesPage() {
       <Navbar />
 
       <main>
-        <PageHero compact variant="light" eyebrow="Legal" title="Cookies Policy" subtitle="Last updated: 11 October 2026" />
+        <PageHero compact variant="light" eyebrow="Legal" title="Cookies Policy" subtitle="Last updated: 12 October 2026" />
 
         <section className="section">
           <div className="container">
@@ -90,6 +90,13 @@ export default function CookiesPage() {
                   analytics cookies in the cookie settings.
                 </li>
               </ul>
+
+              <h3>Error monitoring</h3>
+              <p>
+                When a page fails, a report of the fault is sent to Sentry so we can fix it. It
+                sets no cookies and stores nothing in your browser, so it runs whichever cookie
+                settings you choose.
+              </p>
 
               <h3>Infrastructure cookies</h3>
               <p>

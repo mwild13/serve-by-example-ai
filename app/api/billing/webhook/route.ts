@@ -9,6 +9,7 @@ import {
   orgNameFromEmail,
   upsertOrganization,
 } from "@/lib/billing-sync";
+import { reportError } from "@/lib/report-error";
 
 export const dynamic = "force-dynamic";
 
@@ -81,6 +82,7 @@ export async function POST(req: Request) {
     // Remove the billing_events row so Stripe can safely retry
     await supabase.from("billing_events").delete().eq("stripe_event_id", event.id);
     console.error(`Webhook: handler threw for ${event.type}:`, err);
+    await reportError(err, { route: "/api/billing/webhook", url: req.url });
     return NextResponse.json({ error: "Processing failed." }, { status: 500 });
   }
 

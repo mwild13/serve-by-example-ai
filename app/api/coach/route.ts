@@ -5,6 +5,7 @@ import { resolveAccess } from "@/lib/session";
 import { aiDailyLimitForTier, aiDailyLimitResponse, consumeAiAllowance } from "@/lib/ai-usage";
 import { CHAT_MODEL_PARAMS, getOpenAIClient } from "@/lib/openai";
 import { cleanUserText, linkAbortSignal, readJsonBody } from "@/lib/ai-guard";
+import { reportError } from "@/lib/report-error";
 
 export const dynamic = "force-dynamic";
 
@@ -120,6 +121,7 @@ Rules:
     return Response.json({ answer });
   } catch (error) {
     console.error("Coach API error:", error);
+    await reportError(error, { route: "/api/coach", url: req.url });
     return Response.json({ error: "Unable to answer right now." }, { status: 500 });
   }
 }

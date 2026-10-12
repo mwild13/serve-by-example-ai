@@ -9,6 +9,7 @@ import { resolveAccess, validateSession } from "@/lib/session";
 import { getCookieValue } from "@/lib/training-attempt";
 import { readJsonBody } from "@/lib/ai-guard";
 import { aiDailyLimitForTier, aiDailyLimitResponse, consumeAiAllowance } from "@/lib/ai-usage";
+import { reportError } from "@/lib/report-error";
 
 export const dynamic = "force-dynamic";
 
@@ -219,6 +220,7 @@ export async function POST(req: Request) {
     }
   } catch (error) {
     console.error("Arena evaluate error:", error);
+    await reportError(error, { route: "/api/arena/evaluate", url: req.url });
     return Response.json({ error: "Something went wrong." }, { status: 500 });
   }
 }

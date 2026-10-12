@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { reportError } from "@/lib/report-error";
 
 // Route-level error boundary for /management/dashboard. Needed now that the
 // snapshot fetch starts server-side and streams in via Suspense/use()
@@ -19,6 +20,7 @@ export default function ManagementDashboardError({
 }) {
   useEffect(() => {
     console.error("Mission Control failed to load:", error);
+    void reportError(error, { digest: error.digest });
   }, [error]);
 
   return (

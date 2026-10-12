@@ -6,6 +6,7 @@ import { readJsonBody } from "@/lib/ai-guard";
 import { rateLimit } from "@/lib/rate-limit";
 import { attributionFromRequest, attributionToStripeMetadata } from "@/lib/attribution";
 import { B2B_PLANS, PLAN_METADATA, getPriceIds } from "@/lib/billing-plans";
+import { reportError } from "@/lib/report-error";
 
 export const dynamic = "force-dynamic";
 
@@ -123,6 +124,7 @@ export async function POST(req: Request) {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("Stripe checkout error:", message);
+    await reportError(error, { route: "/api/billing/checkout", url: req.url });
     return NextResponse.json({ error: "Unable to start checkout. Please try again." }, { status: 500 });
   }
 }

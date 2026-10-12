@@ -3,6 +3,7 @@ import { createSupabaseMiddlewareClient } from "@/lib/supabase-server";
 import { shouldApplyGeoBlock } from "@/lib/geo-config";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { isMobilePhoneUserAgent } from "@/lib/user-agent";
+import { errorReportingOrigin } from "@/lib/report-error";
 import { ATTRIBUTION_COOKIE, ATTRIBUTION_MAX_AGE, attributionFromUrl, encodeAttribution } from "@/lib/attribution";
 
 // The staff sign-up link is /dashboard?join=CODE. Most new staff open it
@@ -52,6 +53,10 @@ function buildCSP(nonce: string): string {
     ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval' https://js.stripe.com https://challenges.cloudflare.com`
     : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://js.stripe.com https://challenges.cloudflare.com`;
 
+  // Error reports go straight from the browser to Sentry (lib/report-error.ts).
+  // The host comes from the DSN, so nothing is allowed while reporting is off.
+  const errorReporting = errorReportingOrigin();
+
   return [
     // Deny everything not explicitly listed
     "default-src 'none'",
@@ -68,7 +73,7 @@ function buildCSP(nonce: string): string {
     // The three Google wildcards are the hosts Google documents for GA4 under a
     // CSP: hits can go to a regional host (region1.google-analytics.com,
     // *.analytics.google.com), not only www.google-analytics.com.
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://www.google.com https://challenges.cloudflare.com",
+    `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://www.google.com https://challenges.cloudflare.com${errorReporting ? ` ${errorReporting}` : ""}`,
     // Plugins/embeds: none used — explicit even though default-src already covers it
     "object-src 'none'",
     // Iframes: Stripe payment elements and the Turnstile challenge

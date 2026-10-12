@@ -4,6 +4,7 @@ import { getUserFromRequest } from "@/lib/supabase-server";
 import { rateLimit } from "@/lib/rate-limit";
 import { siteOrigin } from "@/lib/site-url";
 import { getPriceIds, isUpgrade } from "@/lib/billing-plans";
+import { reportError } from "@/lib/report-error";
 
 // Where Stripe sends the customer back to. The caller names one of these; it
 // never supplies a URL.
@@ -103,6 +104,7 @@ export async function POST(req: Request) {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("Stripe billing portal error:", message);
+    await reportError(error, { route: "/api/billing/portal", url: req.url });
     // 400, not 502: a 5xx body can be replaced by the proxy's own error page
     // before it reaches the browser, which left the button showing a generic
     // failure with no reason.

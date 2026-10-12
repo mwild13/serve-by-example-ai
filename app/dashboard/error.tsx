@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { reportError } from "@/lib/report-error";
 
 // Route-level error boundary for /dashboard. Without it a render error falls
 // through to app/error.tsx and the staff member loses the dashboard shell.
@@ -13,6 +14,7 @@ export default function DashboardError({
 }) {
   useEffect(() => {
     console.error("Dashboard failed to load:", error);
+    void reportError(error, { digest: error.digest });
   }, [error]);
 
   return (

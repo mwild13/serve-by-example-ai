@@ -4,6 +4,7 @@ import { getManagementSnapshot } from "@/lib/management/service";
 import { CHAT_MODEL_PARAMS, getOpenAIClient } from "@/lib/openai";
 import { cleanUserText, linkAbortSignal, readJsonBody } from "@/lib/ai-guard";
 import { AI_DAILY_LIMIT_PAID, aiDailyLimitResponse, consumeAiAllowance } from "@/lib/ai-usage";
+import { reportError } from "@/lib/report-error";
 
 export const dynamic = "force-dynamic";
 
@@ -117,6 +118,7 @@ Your role:
     // Log the detail server-side only; upstream error messages can include
     // request IDs, model names or config details the client shouldn't see.
     console.error("Management coach error:", error);
+    await reportError(error, { route: "/api/management/coach", url: req.url });
     return NextResponse.json({ error: "AI coach unavailable. Please try again." }, { status: 500 });
   }
 }
