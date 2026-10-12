@@ -223,7 +223,7 @@ Google Cloud Console refused brand verification with three findings: the privacy
 - **Privacy policy:** new section 11, "Signing In With Google" (what Google sends, how it is used, stored and removed, and the Limited Use statement). Dated 12 October 2026.
 - **Footer:** the link reads "Privacy Policy" instead of "Privacy".
 
-### Still open
+### Home page opened to every country
 
-Google's checker very likely requests from outside Australia. The home page is Australia-only, so it would be sent to `/restricted`. Whether to open the home page to every country is the owner's decision.
+The owner chose to open the home page to every country (`'/'` added to `publicRoutes` in `lib/geo-config.ts`), because Google's checker very likely requests from outside Australia. Every other marketing page and the whole app stay Australia-only. The owner retries the verification in Google Cloud Console once this is live.
 

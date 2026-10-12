@@ -5,11 +5,14 @@ const GEO_CONFIG = {
   // Routes accessible to all countries regardless of geo (legal / compliance pages +
   // the geo-block destination itself). This list must stay minimal — adding marketing
   // pages here is the main source of geo-block bypasses.
-  // NOTE: '/' (homepage) is intentionally NOT listed here. The homepage and all
-  // marketing content (pricing, demo, platform…) are AU-only. Non-AU users that
-  // land on /privacy or /terms will see a Navbar, but clicking any non-listed link
-  // simply bounces them back to /restricted via the middleware.
+  // '/' (the home page) is listed since 2026-10-12: Google's sign-in brand
+  // check reads it from outside Australia and refused the app while it
+  // redirected to /restricted. Every other marketing page (pricing, demo,
+  // platform…) and the whole app stay AU-only. A non-AU visitor on the home
+  // page, /privacy or /terms sees a Navbar, but any link that is not listed
+  // here bounces them to /restricted via the middleware.
   publicRoutes: [
+    '/',
     '/restricted',
     '/geo-block',
     '/privacy',
