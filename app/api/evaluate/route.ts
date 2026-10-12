@@ -114,7 +114,7 @@ export async function POST(req: Request) {
     }
 
     if (!(await consumeAiAllowance(admin, user.id, aiDailyLimitForTier(access.tier)))) {
-      return aiDailyLimitResponse();
+      return aiDailyLimitResponse(access.tier);
     }
 
     // No req.signal here: once the response is graded it should be recorded

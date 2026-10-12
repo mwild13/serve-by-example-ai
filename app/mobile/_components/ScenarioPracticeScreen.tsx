@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { createAttemptIdKeeper } from "@/lib/attempt-id";
+import { readAiDailyLimit, useAiDailyLimit } from "@/lib/use-ai-daily-limit";
+import AiLimitNotice from "@/components/AiLimitNotice";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, AlertTriangle, XCircle, ArrowRight } from "lucide-react";
 import BottomNav from "./BottomNav";
@@ -53,6 +55,7 @@ export default function ScenarioPracticeScreen() {
   const [status, setStatus] = useState<Status>("answering");
   const [result, setResult] = useState<EvalResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [aiLimit, setAiLimit] = useAiDailyLimit();
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [attemptIds] = useState(createAttemptIdKeeper);
 
@@ -88,7 +91,11 @@ export default function ScenarioPracticeScreen() {
       });
 
       if (res.status === 429) {
-        setError("Too many requests. Try again in a minute.");
+        // The daily limit carries its own message and reset time; any other
+        // 429 is the short burst limit.
+        const limit = readAiDailyLimit(await res.json().catch(() => null));
+        if (limit) setAiLimit(limit);
+        else setError("Too many requests. Try again in a minute.");
         setStatus("error");
         return;
       }
@@ -356,13 +363,17 @@ export default function ScenarioPracticeScreen() {
               }}
             />
 
-            {error && <p style={{ margin: 0, fontSize: 12, color: "var(--red-mobile)" }}>{error}</p>}
+            {aiLimit ? (
+              <AiLimitNotice limit={aiLimit} linkColor="var(--green-mobile)" style={{ margin: 0, fontSize: 12, color: "var(--red-mobile)" }} />
+            ) : (
+              error && <p style={{ margin: 0, fontSize: 12, color: "var(--red-mobile)" }}>{error}</p>
+            )}
 
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={status === "loading" || !response.trim()}
+                disabled={status === "loading" || !response.trim() || !!aiLimit}
                 style={{
                   flex: 1,
                   padding: "12px 20px",

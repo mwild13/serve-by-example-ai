@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { createAttemptIdKeeper } from "@/lib/attempt-id";
+import { readAiDailyLimit, useAiDailyLimit } from "@/lib/use-ai-daily-limit";
+import AiLimitNotice from "@/components/AiLimitNotice";
 import TrainerCommandBar from "./trainer/TrainerCommandBar";
 import HelpModal from "./trainer/HelpModal";
 import ModuleSelectGrid from "./trainer/ModuleSelectGrid";
@@ -39,6 +41,7 @@ export default function DashboardTrainer({
   const [result, setResult] = useState<EvalResult | null>(null);
   const [lastScore, setLastScore] = useState<number | null>(null);
   const [error, setError] = useState("");
+  const [aiLimit, setAiLimit] = useAiDailyLimit();
   const [showHelp, setShowHelp] = useState(false);
 
   // ── Mastery engine state ───────────────────────────────────
@@ -187,7 +190,7 @@ export default function DashboardTrainer({
 
   async function handleSubmit() {
     const fullResponse = response || bubbleText;
-    if (!currentScenario || !fullResponse.trim()) return;
+    if (!currentScenario || !fullResponse.trim() || aiLimit) return;
     // A ref, not the loading state: a fast double-click fires twice before
     // React re-renders with loading=true.
     if (submittingRef.current) return;
@@ -219,7 +222,14 @@ export default function DashboardTrainer({
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Evaluation failed.");
+      if (!res.ok) {
+        const limit = res.status === 429 ? readAiDailyLimit(data) : null;
+        if (limit) {
+          setAiLimit(limit);
+          return;
+        }
+        throw new Error(data.error || "Evaluation failed.");
+      }
       attemptIds.settle();
       setResult(data);
 
@@ -307,7 +317,11 @@ export default function DashboardTrainer({
             />
           )}
 
-          {error && <div className="trainer-error">{error}</div>}
+          {aiLimit ? (
+            <AiLimitNotice limit={aiLimit} linkColor="var(--green)" style={{ color: "var(--status-red-deep)", margin: "12px 0 0" }} />
+          ) : (
+            error && <div className="trainer-error">{error}</div>
+          )}
 
           {result && (
             <EvaluationResult

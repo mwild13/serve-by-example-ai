@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { createAttemptIdKeeper } from "@/lib/attempt-id";
+import { readAiDailyLimit, useAiDailyLimit } from "@/lib/use-ai-daily-limit";
+import AiLimitNotice from "@/components/AiLimitNotice";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import SharedTrainingCard from "@/app/dashboard/_components/common/SharedTrainingCard";
 import { ARENA_SEED_SCENARIOS } from "@/lib/arena-scenarios";
@@ -55,6 +57,7 @@ export default function ArenaPage({ userId: _userId }: Props) {
   const [response, setResponse] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [aiLimit, setAiLimit] = useAiDailyLimit();
   const [attemptIds] = useState(createAttemptIdKeeper);
   const [result, setResult] = useState<AssessmentResult | null>(null);
   const [arenaProgress, setArenaProgress] = useState<Record<number, ArenaProgressEntry>>({});
@@ -119,7 +122,14 @@ export default function ArenaPage({ userId: _userId }: Props) {
         }),
       });
       const data = await res.json() as Record<string, unknown>;
-      if (!res.ok) throw new Error((data.error as string | undefined) ?? `Request failed (${res.status})`);
+      if (!res.ok) {
+        const limit = res.status === 429 ? readAiDailyLimit(data) : null;
+        if (limit) {
+          setAiLimit(limit);
+          return;
+        }
+        throw new Error((data.error as string | undefined) ?? `Request failed (${res.status})`);
+      }
       attemptIds.settle();
       const assessment = data.assessment as AssessmentResult;
       setArenaProgress(prev => ({
@@ -504,13 +514,15 @@ export default function ArenaPage({ userId: _userId }: Props) {
             }}
           />
 
-          {error && (
-            <p style={{ color: "var(--status-red-deep)", fontSize: "0.85rem", marginTop: 8 }}>{error}</p>
+          {aiLimit ? (
+            <AiLimitNotice limit={aiLimit} linkColor="var(--green)" style={{ color: "var(--status-red-deep)", fontSize: "0.85rem", marginTop: 8 }} />
+          ) : (
+            error && <p style={{ color: "var(--status-red-deep)", fontSize: "0.85rem", marginTop: 8 }}>{error}</p>
           )}
 
           <button
             onClick={() => { void submitResponse(); }}
-            disabled={submitting || !response.trim()}
+            disabled={submitting || !response.trim() || !!aiLimit}
             className="btn btn-primary"
             style={{ marginTop: 14, width: "100%", padding: "12px", fontSize: "0.95rem", fontWeight: 700 }}
           >

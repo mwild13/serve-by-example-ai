@@ -84,7 +84,7 @@ Rules:
     const admin = createSupabaseAdminClient();
     const access = await resolveAccess(admin, user.id, user.email ?? "");
     if (!(await consumeAiAllowance(admin, user.id, aiDailyLimitForTier(access.tier)))) {
-      return aiDailyLimitResponse();
+      return aiDailyLimitResponse(access.tier);
     }
 
     const question = cleanUserText(rawQuestion);

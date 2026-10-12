@@ -136,7 +136,7 @@ export async function POST(req: Request) {
     }
 
     if (!(await consumeAiAllowance(admin, user.id, aiDailyLimitForTier(access.tier)))) {
-      return aiDailyLimitResponse();
+      return aiDailyLimitResponse(access.tier);
     }
 
     const title = typeof moduleTitle === "string" && moduleTitle.trim()

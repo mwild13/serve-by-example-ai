@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { createAttemptIdKeeper } from "@/lib/attempt-id";
+import { readAiDailyLimit, useAiDailyLimit } from "@/lib/use-ai-daily-limit";
+import AiLimitNotice from "@/components/AiLimitNotice";
 import { useSearchParams } from "next/navigation";
 import { Sparkles, Send } from "lucide-react";
 import BottomNav from "./BottomNav";
@@ -50,6 +52,7 @@ export default function ArenaScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [aiLimit, setAiLimit] = useAiDailyLimit();
   const [attemptIds] = useState(createAttemptIdKeeper);
 
   async function submit(text: string) {
@@ -75,7 +78,11 @@ export default function ArenaScreen() {
       });
 
       if (res.status === 429) {
-        setError("Too many requests. Try again in a minute.");
+        // The daily limit carries its own message and reset time; any other
+        // 429 is the short burst limit.
+        const limit = readAiDailyLimit(await res.json().catch(() => null));
+        if (limit) setAiLimit(limit);
+        else setError("Too many requests. Try again in a minute.");
         return;
       }
       if (!res.ok) {
@@ -200,8 +207,10 @@ export default function ArenaScreen() {
             <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>Evaluating your response…</p>
           )}
 
-          {error && (
-            <p style={{ margin: 0, fontSize: 12, color: "var(--red-mobile)" }}>{error}</p>
+          {aiLimit ? (
+            <AiLimitNotice limit={aiLimit} linkColor="var(--green-mobile)" style={{ margin: 0, fontSize: 12, color: "var(--red-mobile)" }} />
+          ) : (
+            error && <p style={{ margin: 0, fontSize: 12, color: "var(--red-mobile)" }}>{error}</p>
           )}
 
           {assessment && (
@@ -321,7 +330,7 @@ export default function ArenaScreen() {
           <button
             type="button"
             onClick={() => submit(response)}
-            disabled={submitting || !!assessment || !response.trim()}
+            disabled={submitting || !!assessment || !response.trim() || !!aiLimit}
             style={{
               display: "flex",
               alignItems: "center",

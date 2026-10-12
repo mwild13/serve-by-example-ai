@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Sparkles, X, Send } from "lucide-react";
+import { readAiDailyLimit, useAiDailyLimit } from "@/lib/use-ai-daily-limit";
+import AiLimitNotice from "@/components/AiLimitNotice";
 import { useMobileSession } from "../../_lib/mobile-session-context";
 
 // Mobile bug-fix plan, Phase 3d — AI chat widget for the Me page's lower
@@ -39,6 +41,7 @@ export default function AiCoachWidget() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [aiLimit, setAiLimit] = useAiDailyLimit();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -47,7 +50,7 @@ export default function AiCoachWidget() {
 
   async function askCoach(question: string) {
     const trimmed = question.trim();
-    if (!trimmed || loading) return;
+    if (!trimmed || loading || aiLimit) return;
     setError("");
     setLoading(true);
     setMessages((prev) => [...prev, { role: "user", text: trimmed }]);
@@ -58,6 +61,11 @@ export default function AiCoachWidget() {
         body: JSON.stringify({ question: trimmed, language: "en-AU" }),
       });
       const data = (await res.json()) as { answer?: string; error?: string };
+      const limit = res.status === 429 ? readAiDailyLimit(data) : null;
+      if (limit) {
+        setAiLimit(limit);
+        return;
+      }
       if (!res.ok || !data.answer) throw new Error(data.error || "Could not get a response.");
       setMessages((prev) => [...prev, { role: "assistant", text: data.answer! }]);
     } catch (err) {
@@ -215,7 +223,11 @@ export default function AiCoachWidget() {
           </div>
         )}
 
-        {error && <p style={{ margin: "0 16px 8px", fontSize: 11, color: "var(--red-mobile)" }}>{error}</p>}
+        {aiLimit ? (
+          <AiLimitNotice limit={aiLimit} linkColor="var(--green-mobile)" style={{ margin: "0 16px 8px", fontSize: 11, color: "var(--red-mobile)" }} />
+        ) : (
+          error && <p style={{ margin: "0 16px 8px", fontSize: 11, color: "var(--red-mobile)" }}>{error}</p>
+        )}
 
         {/* input dock */}
         <form onSubmit={handleSubmit} style={{ display: "flex", alignItems: "center", gap: 8, padding: 10, borderTop: "1px solid var(--border-mobile)" }}>
@@ -238,7 +250,7 @@ export default function AiCoachWidget() {
           />
           <button
             type="submit"
-            disabled={loading || !input.trim()}
+            disabled={loading || !input.trim() || !!aiLimit}
             aria-label="Send"
             style={{
               display: "flex",
