@@ -7565,9 +7565,12 @@ h1, h2, h3 {
 
 .sbe-mkt-fold {
   /* Fold = navbar (sticky, sibling above) + this block = 100svh. The logo
-     marquee is the last flex child so it always sits flush at the bottom. */
-  min-height: calc(100vh - var(--nav-h));
-  min-height: calc(100svh - var(--nav-h));
+     marquee is the last flex child so it always sits flush at the bottom.
+     Capped at 75rem: Google's page renderer uses a viewport many thousands
+     of pixels tall, which stretched the fold and left the headline centred
+     far below an empty dark screen in its screenshot. */
+  min-height: min(calc(100vh - var(--nav-h)), 75rem);
+  min-height: min(calc(100svh - var(--nav-h)), 75rem);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
