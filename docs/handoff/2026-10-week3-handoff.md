@@ -231,3 +231,11 @@ The owner chose to open the home page to every country (`'/'` added to `publicRo
 
 The three pushes after `ad5c857` failed to build on Cloudflare: `useSearchParams() should be wrapped in a suspense boundary at page "/onboarding"`. The root `app/loading.tsx` had been the Suspense boundary for `/onboarding` and `/session-conflict`, and removing it was not followed by a production build. Both pages now have their own boundary, and `next build` passes locally. Production stayed on `ad5c857` throughout, so the live site was never broken. Lesson: run `next build` before releasing a change to routing or layout files; typecheck and unit tests do not catch this.
 
+### Where the verification stands (end of 2026-10-12)
+
+Read through an overseas reader service, `/` returns the real home page and `/privacy` the full policy with section 11, while `/pricing` still returns "Australia Only", so the home page opening works from outside Australia. The three Branding fields in Google Cloud Console were already correct. The owner removed two duplicate authorised domains and re-submitted. Google now shows the branding as under review: "Branding guidelines" passed, "Privacy policy requirements" still flagged, "Homepage requirements" pending. Parked in the to-do list.
+
+Note to send on Google's Trust and Safety email thread:
+
+> The home page https://servebyexample.co is public and does not require login. It describes the app (scenario-based staff training for hospitality venues) and links to the privacy policy in the footer. The privacy policy at https://servebyexample.co/privacy is public, and section 11 "Signing In With Google" explains what Google user data we receive, how we use, store and share it, and how to remove it. Until 12 October 2026 the home page redirected visitors outside Australia to a region notice; that has been removed.
+
