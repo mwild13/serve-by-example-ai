@@ -21,7 +21,7 @@ Grouped by where you sign in. None of these can be done from the code.
 
 ### Cloudflare
 
-- [ ] **Check the rate-limit rule after the first venue session.** Created 2026-10-12. Confirm the threshold reads 50 on the rule (Security, Security rules), then look at Security, Events filtered by the rule. If staff were blocked, raise it to 80.
+- [ ] **Check the rate-limit rule after the first venue session.** Created 2026-10-12 at 50 requests per 10 seconds. Look at Security, Events filtered by the rule. If staff were blocked, raise it to 80.
 - [ ] **Confirm Workers Paid.** The free tier allows 10 ms of CPU per request.
 - [ ] **Web Analytics.** Not set up. Google Analytics loads only after opt-in, so there are no plain visit counts. Its script needs a CSP allowance in `middleware.ts`; say when it is switched on and that goes in.
 
