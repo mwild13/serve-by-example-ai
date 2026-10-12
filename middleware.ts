@@ -64,8 +64,11 @@ function buildCSP(nonce: string): string {
     "img-src 'self' data: blob: https:",
     // Fonts: self-hosted via next/font — no external CDN needed
     "font-src 'self'",
-    // Fetch/XHR/WebSocket: own API routes + Supabase + Stripe + Google Analytics
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://www.google-analytics.com https://www.google.com https://challenges.cloudflare.com",
+    // Fetch/XHR/WebSocket: own API routes + Supabase + Stripe + Google Analytics.
+    // The three Google wildcards are the hosts Google documents for GA4 under a
+    // CSP: hits can go to a regional host (region1.google-analytics.com,
+    // *.analytics.google.com), not only www.google-analytics.com.
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://www.google.com https://challenges.cloudflare.com",
     // Plugins/embeds: none used — explicit even though default-src already covers it
     "object-src 'none'",
     // Iframes: Stripe payment elements and the Turnstile challenge
