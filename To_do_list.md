@@ -13,10 +13,7 @@ Nothing open. The last three were done on 2026-10-12 and are waiting on the chec
 
 ## 2. Marketing copy
 
-The unsourced figures and phrases are all gone (2026-10-12). Two owner checks are left.
-
-- [ ] **Read the new OpenAI wording.** `/security` and the privacy policy (web and mobile) now say the Manager AI Coach sends staff names, roles and scores to OpenAI, because it does. Owner: read both once. If that is not wanted, the fix is in `app/api/management/coach/route.ts`, not in the copy.
-- [ ] **Two setup times.** The hero, `/demo` and `/pricing` say "Set up in under 10 minutes"; the home page FAQ and `/vs-generic-lms` now say "set up your first venue in an afternoon". Owner: confirm both are meant (creating the account against rolling out a venue), or pick one.
+Nothing open. Closed by the owner on 2026-10-12. There is still no customer data, so no outcome figures or customer proof go on a marketing page.
 
 ## 3. Owner: dashboards
 

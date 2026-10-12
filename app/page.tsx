@@ -25,7 +25,7 @@ const ROICalculator = lazy(() => import("@/components/ui/ROICalculator"));
 const FAQS = [
   {
     q: "How long does setup take?",
-    a: "Zero complex onboarding. Set up your first venue in an afternoon. We provide starter templates, onboarding support, and pre-built training modules. No content creation required from your side.",
+    a: "Create your account in 2 minutes, launch your venue in under 10. We provide starter templates, onboarding support, and pre-built training modules. No content creation required from your side.",
   },
   {
     q: "Is it mobile-friendly?",

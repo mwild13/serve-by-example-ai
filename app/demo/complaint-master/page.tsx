@@ -340,7 +340,7 @@ export default function ComplaintMasterPage() {
         <CTABand
           background="neutral"
           title="Give your whole team this practice."
-          copy="14-day free trial. Set up in under 10 minutes."
+          copy="14-day free trial. Create your account in 2 minutes, launch your venue in under 10."
           primary={{ label: "Start my 14-day trial", href: "/login?intent=trial&tier=boutique" }}
           secondary={{ label: "Try the full demo", href: "/demo" }}
         />

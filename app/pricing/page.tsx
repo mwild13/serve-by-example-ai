@@ -171,7 +171,7 @@ export default function PricingPage() {
         {/* ── Final CTA ── */}
         <CTABand
           title="Start training your team this week."
-          copy="14-day free trial. Set up in under 10 minutes."
+          copy="14-day free trial. Create your account in 2 minutes, launch your venue in under 10."
           primary={{ label: "Start my 14-day trial", href: "/login?intent=trial&tier=boutique" }}
           secondary={{ label: "Talk to us", href: "/contact?source=pricing" }}
         />

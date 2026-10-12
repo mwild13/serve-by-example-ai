@@ -41,7 +41,7 @@ const COMPARISON = [
   {
     topic: "Setup time",
     generic: "Weeks of content creation, SCORM uploads, user provisioning, and course mapping before a single staff member trains.",
-    sbe: "Zero complex onboarding. Set up your first venue in an afternoon. Pre-built hospitality modules, starter templates, and venue code invites mean no content creation is required.",
+    sbe: "Create your account in 2 minutes, launch your venue in under 10. Pre-built hospitality modules, starter templates, and venue code invites mean no content creation is required.",
   },
   {
     topic: "Multi-venue support",
@@ -68,7 +68,7 @@ const breadcrumbSchema = {
 const DIFFERENCES: LedgerRow[] = [
   { metric: "5", title: "Service dimensions scored", body: "Per AI scenario response, not just pass/fail." },
   { metric: "40", unit: "+", title: "Hospitality-specific modules", body: "Across bartending, sales, and management." },
-  { metric: "1", unit: "afternoon", title: "To set up your first venue", body: "Zero complex onboarding. No content creation or SCORM uploads required." },
+  { metric: "10", unit: "min", title: "To launch your venue", body: "Create your account in 2 minutes. No content creation or SCORM uploads required." },
   { metric: "3", title: "Stage mastery path", body: "From knowledge to verified floor readiness." },
 ];
 

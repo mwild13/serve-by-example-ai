@@ -276,6 +276,9 @@ The owner chose wording that states intent, not results, and had the "no credit 
 - **Setup time.** "1 day average setup time" and "Most venues are fully set up within a day" are now "Zero complex onboarding. Set up your first venue in an afternoon" (`/vs-generic-lms` tile and table, home page FAQ). The owner's wording had an em dash; it is a full stop here, as the site uses none.
 - **"No credit card" removed everywhere it described the trial or demo.** The trial lines read "14-day free trial. Cancel anytime." (`app/page.tsx`, `components/HeroSection.tsx`, `app/pricing/page.tsx`). The demo lines on `/vs-generic-lms`, `/solutions/pub-groups` and the home page FAQ lost the phrase too. The toolkit page keeps its line, which is about the free download.
 
-### Left open by this part
+### Closed by the owner
 
-Two owner checks in section 2 of `To_do_list.md`: a read of the new OpenAI wording, and whether "under 10 minutes" and "an afternoon" are both meant.
+- **OpenAI disclosure stays as written** on `/security` and in the privacy policy.
+- **One setup line everywhere:** "Create your account in 2 minutes, launch your venue in under 10." It replaced "Set up in under 10 minutes" (hero, `/demo`, `/demo/complaint-master`, `/pricing`) and "set up your first venue in an afternoon" (home page FAQ, `/vs-generic-lms` table). The `/vs-generic-lms` tile reads "10 min to launch your venue". These times are the owner's and have not been timed against a real sign-up.
+
+Section 2 of `To_do_list.md` has nothing open. `preview/oct-w3-todo-sweep` was fast-forwarded to `fix/pre-marketing-blockers` and pushed.

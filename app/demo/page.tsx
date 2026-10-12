@@ -234,7 +234,7 @@ export default function DemoPage() {
         <CTABand
           background="neutral"
           title="Put your own roster through it."
-          copy="14-day free trial. Set up in under 10 minutes."
+          copy="14-day free trial. Create your account in 2 minutes, launch your venue in under 10."
           primary={{ label: "Start my 14-day trial", href: "/login?intent=trial&tier=boutique" }}
           secondary={{ label: "Compare plans and prices", href: "/membership" }}
         />
