@@ -89,7 +89,6 @@ Three sittings cover every unconfirmed fix.
 ### On a computer, as a manager
 
 - [ ] **Trial chip on the collapsed sidebar.** Added 2026-10-12, not seen. On a trial account, collapse the sidebar: a small chip with the days left should sit above Settings and open Billing.
-- [ ] **The restyled trial billing screen.** Changed 2026-10-12, not seen. On a trial account open Settings, Billing.
 - [ ] **Status after the recalculation.** Changed 2026-10-12. On the Staff tab, someone quiet for 14 days should read "Needs follow-up", and someone who trained this week "On track", whatever they showed before.
 - [ ] **The redesigned console.** It went to production on 2026-10-09 having only been viewed with sample data. Go through every tab, the collapsed sidebar, the account menu and Sign out, and ask the AI Coach a question then use New chat.
 
