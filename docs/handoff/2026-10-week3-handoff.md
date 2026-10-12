@@ -242,7 +242,7 @@ Note to send on Google's Trust and Safety email thread:
 ## Part 8: marketing claims, one guarantee, seat limits and the `/security` wording
 
 - **Date:** 2026-10-12
-- **Branch:** `preview/oct-w3-todo-sweep`, pushed at `83a686f`. Not yet on `main`.
+- **Released:** `main` was fast-forwarded to `bcebe74` on 2026-10-12.
 
 ### The short version
 
@@ -282,3 +282,16 @@ The owner chose wording that states intent, not results, and had the "no credit 
 - **One setup line everywhere:** "Create your account in 2 minutes, launch your venue in under 10." It replaced "Set up in under 10 minutes" (hero, `/demo`, `/demo/complaint-master`, `/pricing`) and "set up your first venue in an afternoon" (home page FAQ, `/vs-generic-lms` table). The `/vs-generic-lms` tile reads "10 min to launch your venue". These times are the owner's and have not been timed against a real sign-up.
 
 Section 2 of `To_do_list.md` has nothing open. The second and third commits were made on `fix/pre-marketing-blockers` at the owner's request and fast-forwarded into `preview/oct-w3-todo-sweep`. That old branch was already merged through PR #5 and held nothing else, so it was deleted locally and on the remote.
+
+## Part 9: Cloudflare rate-limit rule
+
+- **Date:** 2026-10-12
+- **Where:** Cloudflare dashboard, `servebyexample.co` zone, Security, Security rules. Nothing in the code changed.
+
+The zone had no rate limiting rule. The owner created one through Cloudflare's assistant.
+
+- **Covers:** `/api/contact`, `/api/book-call`, `/api/toolkit-capture`, `/api/roi/email`, `/api/report-bug`, `/api/auth/forgot-password`, `/api/demo/evaluate`, `/api/evaluate`, `/api/arena/evaluate`, `/api/coach`, `/api/management/coach`, `/api/translate`.
+- **Settings:** counted per IP over 10 seconds, action Block (a 429) for 10 seconds. The recommended threshold was 50; the summary sent back did not state the value entered, so it is still to be read off the dashboard.
+- **Limits of the Free plan:** one rule only, so the forms share the loose threshold the AI routes need for a venue of 35 on one Wi-Fi address. It cannot filter by method, so every request to these paths counts, not only POST. The period and block time are fixed at 10 seconds. Counts are kept per Cloudflare data centre. Separate strict limits for the forms need the Pro plan (two rules).
+- **Why it matters:** the app's own limiter (`lib/rate-limit.ts`) keeps counts in memory, separately on each server instance, so it does not hold against a flood. This rule is the only limit applied consistently, and it stops a flood before it reaches OpenAI.
+- **When adding a public form or AI route:** add its path to this rule's expression as well as calling `rateLimit` in the route.
