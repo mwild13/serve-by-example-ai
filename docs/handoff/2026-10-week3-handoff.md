@@ -342,3 +342,40 @@ Other rules in `app/globals.css` also use a full-screen height. Any page that lo
 ### Every share pointed at the home page, fixed
 
 The Meta result listed the canonical URL of `/membership` as the home page. The root layout set `og:url` to the site address and every page inherited it, so a share of any page was counted and linked as the home page. The fixed `og:url` is removed; Facebook and LinkedIn now use the address that was shared. Every page still shares with the home page's title, description and image, since no page sets its own.
+
+## Part 12: share image, Google account, Stripe and GST
+
+- **Date:** 2026-10-12
+
+### Share image redrawn
+
+The card shown when a page is shared was the old green design. It is now a navy card on the marketing standard (`docs/Pages-Redesign.md`): logo, a gold kicker, one Newsreader headline, a hairline and the site address. The source is `scripts/og-image.html`, with regeneration steps in its header; the output is `public/og-image.png`.
+
+Facebook kept showing the old card after release because it, LinkedIn and Cloudflare cache the image by its address. The address in `app/layout.tsx` is now `/og-image.png?v=2`. Bump the number whenever the image changes. The owner confirmed the new card in Meta's Sharing Debugger.
+
+### Google account
+
+Two-step verification and a second way into the Google Cloud project were set up by the owner. Only the sign-in screen branding is left under Google in the to-do list, and it waits on Google's brand verification.
+
+### Stripe dashboard, done by the owner
+
+- **Policies:** terms, privacy and refund links were already set and show under the pay button at checkout.
+- **Failed-webhook emails:** already on. The endpoint is `/api/billing/webhook`.
+- **Branding:** logo, green and gold colours, support address `info@servebyexample.co`, receipts for successful payments and refunds.
+- **Invoice template:** "Serve By Example default", set as the default. Memo, a footer with the ABN and support address, the ABN shown as a tax ID, A4.
+- **Product name:** "Pro Model - SBE AI Training" renamed.
+
+Checked by the owner by opening a real checkout from `/membership` and closing it without paying.
+
+### GST: not registered
+
+The business is not registered for GST, so none is charged. This was asked only after the invoice template had been given a "Tax Invoice" line on the assumption that it was; that line was removed again the same day.
+
+- **Checkout** sets no tax option (`app/api/billing/checkout/route.ts`) and shows no tax line. That is correct.
+- **Invoices** say "No GST has been charged" in the footer and do not say "Tax invoice". The tax rate that put a GST line on a hand-made draft invoice was switched off.
+- **`/advisory`** said prices "exclude GST" in two places, which implies GST is added on top. Both now say no GST is charged (`app/advisory/page.tsx`).
+- **Later:** registration is compulsory at A$75,000 turnover in any 12 months. The steps to switch GST on are in the new "Important" section at the bottom of `To_do_list.md`.
+
+### Checked
+
+Typecheck passes. The `/advisory` change is at `7cc2f35`.
