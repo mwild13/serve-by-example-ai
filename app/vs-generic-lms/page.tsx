@@ -36,12 +36,12 @@ const COMPARISON = [
   {
     topic: "Mobile experience",
     generic: "Responsive website at best. Not designed to be used between shifts on a phone in a noisy back-of-house.",
-    sbe: "Mobile-first from the ground up. Staff train between shifts, pre-service, or on the floor. Industry-leading completion rates on mobile.",
+    sbe: "Mobile-first from the ground up. Staff train pre-service, on a break, or on the floor. Built for fast completion between shifts.",
   },
   {
     topic: "Setup time",
     generic: "Weeks of content creation, SCORM uploads, user provisioning, and course mapping before a single staff member trains.",
-    sbe: "Most venues are fully set up within a day. Pre-built hospitality modules, starter templates, and venue code invites mean no content creation is required.",
+    sbe: "Zero complex onboarding. Set up your first venue in an afternoon. Pre-built hospitality modules, starter templates, and venue code invites mean no content creation is required.",
   },
   {
     topic: "Multi-venue support",
@@ -64,12 +64,11 @@ const breadcrumbSchema = {
   ],
 };
 
-// Product facts only. "Average setup time" is still unsourced and is listed in
-// To_do_list.md.
+// Product facts only. No outcome figures: there is no customer data yet.
 const DIFFERENCES: LedgerRow[] = [
   { metric: "5", title: "Service dimensions scored", body: "Per AI scenario response, not just pass/fail." },
   { metric: "40", unit: "+", title: "Hospitality-specific modules", body: "Across bartending, sales, and management." },
-  { metric: "1", unit: "day", title: "Average setup time", body: "No content creation or SCORM uploads required." },
+  { metric: "1", unit: "afternoon", title: "To set up your first venue", body: "Zero complex onboarding. No content creation or SCORM uploads required." },
   { metric: "3", title: "Stage mastery path", body: "From knowledge to verified floor readiness." },
 ];
 
@@ -80,7 +79,7 @@ const BUSINESS_CASE: RuledItem[] = [
   },
   {
     title: "Attrition starts with weak onboarding",
-    body: "Hospitality has high 90-day turnover. Structured, AI-guided scenario training builds confidence early and is proven to reduce early turnover.",
+    body: "Hospitality has high 90-day turnover. Structured, AI-guided scenario training builds confidence early and is designed to boost staff retention in the first 90 days.",
   },
   {
     title: "Manager hours are your most expensive resource",
@@ -88,7 +87,7 @@ const BUSINESS_CASE: RuledItem[] = [
   },
   {
     title: "Training only works if staff actually do it",
-    body: "Long videos and physical training binders are ignored by younger staff. Interactive mobile modules built for between-shift use see industry-leading completion rates compared with video-based LMS courses.",
+    body: "Long videos and physical training binders are ignored by younger staff. Interactive mobile modules are built for fast completion between shifts.",
   },
 ];
 
@@ -155,7 +154,7 @@ export default function VsGenericLmsPage() {
 
         <CTABand
           title="See what hospitality training looks like when it’s built for hospitality."
-          copy="No credit card required. Full platform access in the demo."
+          copy="Try a live scenario in the demo, then start a 14-day free trial. Cancel anytime."
           primary={{ label: "Try the Free Demo", href: "/demo" }}
           secondary={{ label: "Talk to Us", href: "/contact" }}
         />

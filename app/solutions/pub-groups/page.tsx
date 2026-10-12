@@ -77,7 +77,7 @@ const CONTENT: SolutionContent = {
   },
   cta: {
     title: "Ready to standardise training across your group?",
-    copy: "Start with a free demo. No commitment, no credit card.",
+    copy: "Start with a free demo, then a 14-day free trial. Cancel anytime.",
   },
 };
 

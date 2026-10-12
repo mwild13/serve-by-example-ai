@@ -25,7 +25,7 @@ const ROICalculator = lazy(() => import("@/components/ui/ROICalculator"));
 const FAQS = [
   {
     q: "How long does setup take?",
-    a: "Most venues are fully set up within a day. We provide starter templates, onboarding support, and pre-built training modules. No content creation required from your side.",
+    a: "Zero complex onboarding. Set up your first venue in an afternoon. We provide starter templates, onboarding support, and pre-built training modules. No content creation required from your side.",
   },
   {
     q: "Is it mobile-friendly?",
@@ -41,7 +41,7 @@ const FAQS = [
   },
   {
     q: "Can I try it before committing?",
-    a: "Yes. The free demo gives you access to the scenario engine and a sample of the training content. No credit card required. Venue plans include a walkthrough call before any commitment.",
+    a: "Yes. The free demo gives you access to the scenario engine and a sample of the training content. Venue plans include a walkthrough call before any commitment.",
   },
   {
     q: "How is this different from a generic LMS?",
@@ -431,7 +431,7 @@ export default function Home() {
         {/* ── Final CTA ────────────────────────────── */}
         <CTABand
           title="Get your next hire floor-ready sooner."
-          copy="14-day free trial. No credit card required."
+          copy="14-day free trial. Cancel anytime."
           primary={{ label: "Start my 14-day trial", href: "/login?intent=trial&tier=boutique" }}
         />
 

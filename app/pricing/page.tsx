@@ -29,7 +29,7 @@ const FOUNDING = [
 const FAQS: { q: string; a: string; link?: { label: string; href: string } }[] = [
   {
     q: "Is there a free trial?",
-    a: "Yes. Venue and Group plans include a 14-day free trial with no credit card required. Use the Manager Console and the full training library before committing to a paid plan.",
+    a: "Yes. Venue and Group plans include a 14-day free trial, and you can cancel anytime. Use the Manager Console and the full training library before committing to a paid plan.",
   },
   {
     q: "Can I skip the trial and buy straight away?",

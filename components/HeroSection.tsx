@@ -72,7 +72,7 @@ export default function HeroSection() {
               </Link>
             </div>
             <p className="sbe-mkt-hero-microcopy">
-              14-day free trial. No credit card required. Set up in under 10 minutes.
+              14-day free trial. Cancel anytime. Set up in under 10 minutes.
             </p>
           </div>
 

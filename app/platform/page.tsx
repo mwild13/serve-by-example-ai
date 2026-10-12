@@ -108,8 +108,8 @@ const MOBILE_ROW: MediaRow = {
   body: (
     <>
       Every scenario, coaching interaction, and progress dashboard is fully optimised for mobile. Staff can complete
-      training between shifts, at the bar, or on the way to work. Platforms built this way achieve{" "}
-      <strong>industry-leading completion rates</strong> with frontline teams.
+      training at the bar, on a break, or on the way to work.{" "}
+      <strong>Built for fast completion between shifts.</strong>
     </>
   ),
   points: [

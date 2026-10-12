@@ -242,7 +242,7 @@ Note to send on Google's Trust and Safety email thread:
 ## Part 8: marketing claims, one guarantee, seat limits and the `/security` wording
 
 - **Date:** 2026-10-12
-- **Branch:** `preview/oct-w3-todo-sweep`, committed, not pushed.
+- **Branch:** `fix/pre-marketing-blockers`, fast-forwarded from `preview/oct-w3-todo-sweep` and carrying one more commit. Committed, not pushed.
 
 ### The short version
 
@@ -268,6 +268,14 @@ The page was wrong in a different way. It said no venue names, staff names or op
 
 Typecheck and lint pass. No page was opened in a browser.
 
+### Second pass, same day
+
+The owner chose wording that states intent, not results, and had the "no credit card" lines replaced.
+
+- **"Proven" and "industry-leading" removed.** Now "designed to boost staff retention in the first 90 days" (`/for-venues`, `/vs-generic-lms`) and "built for fast completion between shifts" (`/platform`, `/vs-generic-lms` twice).
+- **Setup time.** "1 day average setup time" and "Most venues are fully set up within a day" are now "Zero complex onboarding. Set up your first venue in an afternoon" (`/vs-generic-lms` tile and table, home page FAQ). The owner's wording had an em dash; it is a full stop here, as the site uses none.
+- **"No credit card" removed everywhere it described the trial or demo.** The trial lines read "14-day free trial. Cancel anytime." (`app/page.tsx`, `components/HeroSection.tsx`, `app/pricing/page.tsx`). The demo lines on `/vs-generic-lms`, `/solutions/pub-groups` and the home page FAQ lost the phrase too. The toolkit page keeps its line, which is about the free download.
+
 ### Left open by this part
 
-Listed in section 2 of `To_do_list.md`: the two replacement phrases still claim a result with no source, the "1 day" setup figures, the "no credit card" lines, and an owner read of the new OpenAI wording.
+Two owner checks in section 2 of `To_do_list.md`: a read of the new OpenAI wording, and whether "under 10 minutes" and "an afternoon" are both meant.

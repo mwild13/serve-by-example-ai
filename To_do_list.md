@@ -13,12 +13,10 @@ Nothing open. The last three were done on 2026-10-12 and are waiting on the chec
 
 ## 2. Marketing copy
 
-There is no customer data behind any of these. Decisions needed from the owner are marked.
+The unsourced figures and phrases are all gone (2026-10-12). Two owner checks are left.
 
-- [ ] **Two phrases that still claim a result.** "Industry-leading completion rates" (`/platform`, `/vs-generic-lms` twice) and "proven to reduce early turnover" (`/for-venues`, `/vs-generic-lms`) replaced the percentages on 2026-10-12. Neither has a source: "proven" and "industry-leading" both say evidence exists. Owner: keep, or soften to what the product does ("built to be finished between shifts", "builds confidence in the first weeks").
-- [ ] **Setup time.** "1 day average setup time" and "Most venues are fully set up within a day" on `/vs-generic-lms`. No venues have been measured. Default: reword to "Set up in under 10 minutes", as the rest of the site says, if that is true.
-- [ ] **"No credit card" lines.** On the home page (`app/page.tsx`, twice), `components/HeroSection.tsx`, `/vs-generic-lms`, `/solutions/pub-groups` and still in `app/pricing/page.tsx`. The toolkit page's line is about the free download and is fine. Owner: is it still true for the 14-day trial?
 - [ ] **Read the new OpenAI wording.** `/security` and the privacy policy (web and mobile) now say the Manager AI Coach sends staff names, roles and scores to OpenAI, because it does. Owner: read both once. If that is not wanted, the fix is in `app/api/management/coach/route.ts`, not in the copy.
+- [ ] **Two setup times.** The hero, `/demo` and `/pricing` say "Set up in under 10 minutes"; the home page FAQ and `/vs-generic-lms` now say "set up your first venue in an afternoon". Owner: confirm both are meant (creating the account against rolling out a venue), or pick one.
 
 ## 3. Owner: dashboards
 

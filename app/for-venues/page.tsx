@@ -41,7 +41,7 @@ const BUSINESS_CASE: LedgerRow[] = [
   {
     metric: "02",
     title: "Attrition starts with weak onboarding",
-    body: "Hospitality has high 90-day turnover. Providing structured, AI-guided scenario training builds confidence early, and is proven to reduce early turnover.",
+    body: "Hospitality has high 90-day turnover. Providing structured, AI-guided scenario training builds confidence early, and is designed to boost staff retention in the first 90 days.",
   },
   {
     metric: "03",
