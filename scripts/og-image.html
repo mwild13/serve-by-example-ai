@@ -1,0 +1,138 @@
+<!doctype html>
+<!--
+  Source for public/og-image.png, the 1200 x 630 card shown when a page is
+  shared (Open Graph and Twitter, set in app/layout.tsx).
+
+  Styled to docs/Pages-Redesign.md: the dark band, a kicker, one Newsreader
+  heading, hairlines, no button and no decoration. The colours are copies of
+  the tokens in app/globals.css, named the same; keep them in step.
+
+  To regenerate: serve the repo's scripts/, app/fonts/ and public/logo.png
+  with the same relative layout, open this file in a browser at 1200 x 630
+  and screenshot the page to public/og-image.png.
+-->
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<title>Share image</title>
+<style>
+  @font-face {
+    font-family: "Newsreader";
+    src: url("../app/fonts/newsreader-latin-variable.woff2") format("woff2");
+    font-weight: 400 700;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: "Inter";
+    src: url("../app/fonts/inter-latin-variable.woff2") format("woff2");
+    font-weight: 400 600;
+    font-style: normal;
+  }
+
+  :root {
+    --bg-dark: #1B2A2F;
+    --bg-dark-soft: #2A3B40;
+    --nav-cream: #F5F5EC;
+    --gold-warm: #c49a2f;
+    --text-light-muted-on-dark: rgba(255, 255, 255, 0.65);
+    --border-light-on-dark: rgba(255, 255, 255, 0.2);
+    --font-heading: "Newsreader", Georgia, serif;
+    --font-body: "Inter", system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+
+  html {
+    font-variation-settings: "opsz" 24;
+  }
+
+  body {
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 64px 80px 56px;
+    background: linear-gradient(160deg, var(--bg-dark) 0%, var(--bg-dark-soft) 100%);
+    color: var(--nav-cream);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .brand img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+  }
+
+  .kicker {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 26px;
+    color: var(--gold-warm);
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .kicker::before {
+    content: "";
+    width: 44px;
+    height: 1px;
+    background: currentColor;
+  }
+
+  h1 {
+    max-width: 900px;
+    font-family: var(--font-heading);
+    font-size: 92px;
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+  }
+
+  .foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-top: 22px;
+    border-top: 1px solid var(--border-light-on-dark);
+    color: var(--text-light-muted-on-dark);
+    font-size: 22px;
+  }
+
+  .foot span:last-child {
+    color: var(--nav-cream);
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+  <div class="brand">
+    <img src="../public/logo.png" alt="">
+    Serve By Example
+  </div>
+
+  <div>
+    <p class="kicker">Hospitality staff training</p>
+    <h1>Training software built for hospitality.</h1>
+  </div>
+
+  <div class="foot">
+    <span>Scenario practice for staff. Live progress for managers.</span>
+    <span>servebyexample.co</span>
+  </div>
+</body>
+</html>
