@@ -1,30 +1,16 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
+import { B2B_TIERS, TIER_SEAT_LIMITS, priceToTierMap } from "@/lib/billing-plans";
+import {
+  applySubscription,
+  assertWritten,
+  downgradeByCustomer,
+  orgNameFromEmail,
+  upsertOrganization,
+} from "@/lib/billing-sync";
 
 export const dynamic = "force-dynamic";
-
-const B2B_TIERS = new Set(["boutique", "commercial", "enterprise"]);
-
-// Default seat limits for new purchases — B2B checkout passes seat_limit in metadata too
-const TIER_SEAT_LIMITS: Record<string, number> = {
-  boutique: 15,
-  commercial: 35,
-  enterprise: 9999,
-};
-
-// supabase-js returns a write error instead of throwing it. Unchecked, a
-// failed update still answered Stripe with 200, Stripe never retried, and a
-// paying customer stayed on the free tier. Throwing here reaches the catch in
-// POST, which answers 500 so Stripe delivers the event again.
-function assertWritten(result: { error: { message: string } | null }, what: string): void {
-  if (result.error) throw new Error(`${what} failed: ${result.error.message}`);
-}
-
-function orgNameFromEmail(email: string): string {
-  const domain = email.split("@")[1] ?? "";
-  return domain || "My Organisation";
-}
 
 export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature");
@@ -35,21 +21,7 @@ export async function POST(req: Request) {
     httpClient: Stripe.createFetchHttpClient(),
   });
 
-  // Map Stripe Price IDs → plan/tier names.
-  // New price IDs (boutique/commercial/enterprise) alongside legacy IDs for backward compat.
-  const PRICE_TO_TIER: Record<string, string> = {
-    [process.env.STRIPE_PRICE_PRO!]: "pro",
-    [process.env.STRIPE_PRICE_PRO_YEARLY!]: "pro",
-    [process.env.STRIPE_PRICE_SINGLE_VENUE!]: "boutique",
-    [process.env.STRIPE_PRICE_SINGLE_VENUE_YEARLY!]: "boutique",
-    [process.env.STRIPE_PRICE_MULTI_VENUE!]: "commercial",
-    [process.env.STRIPE_PRICE_MULTI_VENUE_YEARLY!]: "commercial",
-    [process.env.STRIPE_PRICE_BOUTIQUE!]: "boutique",
-    [process.env.STRIPE_PRICE_BOUTIQUE_YEARLY!]: "boutique",
-    [process.env.STRIPE_PRICE_COMMERCIAL!]: "commercial",
-    [process.env.STRIPE_PRICE_COMMERCIAL_YEARLY!]: "commercial",
-    [process.env.STRIPE_PRICE_ENTERPRISE!]: "enterprise",
-  };
+  const PRICE_TO_TIER = priceToTierMap();
 
   let event: Stripe.Event;
   try {
@@ -91,11 +63,7 @@ export async function POST(req: Request) {
       event.type === "customer.subscription.created" ||
       event.type === "customer.subscription.updated"
     ) {
-      await handleSubscriptionUpsert(
-        event.data.object as Stripe.Subscription,
-        supabase,
-        PRICE_TO_TIER,
-      );
+      await applySubscription(supabase, event.data.object as Stripe.Subscription, PRICE_TO_TIER);
     }
 
     if (event.type === "customer.subscription.deleted") {
@@ -181,67 +149,6 @@ async function handleCheckoutComplete(
   }
 }
 
-async function handleSubscriptionUpsert(
-  subscription: Stripe.Subscription,
-  supabase: ReturnType<typeof createSupabaseAdminClient>,
-  PRICE_TO_TIER: Record<string, string>,
-) {
-  const customerId = subscription.customer as string;
-  if (!customerId) return;
-
-  // past_due: keep access alive while Stripe retries payment automatically.
-  // Stripe fires customer.subscription.deleted if all retries are exhausted —
-  // that's when downgradeByCustomer runs. Do not downgrade here.
-  if (subscription.status === "past_due") {
-    assertWritten(await supabase
-      .from("profiles")
-      .update({ subscription_status: "past_due" })
-      .eq("stripe_customer_id", customerId), "profiles update");
-    return;
-  }
-
-  const HARD_REVOKE_STATUSES = ["canceled", "unpaid", "incomplete_expired"];
-  if (HARD_REVOKE_STATUSES.includes(subscription.status)) {
-    await downgradeByCustomer(customerId, supabase);
-    return;
-  }
-
-  // active or trialing
-  const priceId = subscription.items.data[0]?.price.id;
-  // Prefer metadata (set by new checkout); fall back to price map for legacy products
-  const tier =
-    subscription.metadata?.tier ?? (priceId ? PRICE_TO_TIER[priceId] : undefined);
-
-  if (!tier) return;
-
-  const seatLimit = subscription.metadata?.seat_limit
-    ? parseInt(subscription.metadata.seat_limit, 10)
-    : (TIER_SEAT_LIMITS[tier] ?? 0);
-
-  const rawPeriodEnd = subscription.items.data[0]?.current_period_end;
-  const periodEnd = rawPeriodEnd ? new Date(rawPeriodEnd * 1000).toISOString() : null;
-
-  assertWritten(await supabase
-    .from("profiles")
-    .update({
-      tier,
-      subscription_status: subscription.status,
-      subscription_period_end: periodEnd,
-    })
-    .eq("stripe_customer_id", customerId), "profiles update");
-
-  if (B2B_TIERS.has(tier)) {
-    assertWritten(await supabase
-      .from("organizations")
-      .update({
-        subscription_tier: tier,
-        seat_limit: seatLimit,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("stripe_customer_id", customerId), "organizations update");
-  }
-}
-
 async function handleSubscriptionDeleted(
   subscription: Stripe.Subscription,
   supabase: ReturnType<typeof createSupabaseAdminClient>,
@@ -249,31 +156,6 @@ async function handleSubscriptionDeleted(
   const customerId = subscription.customer as string;
   if (!customerId) return;
   await downgradeByCustomer(customerId, supabase);
-}
-
-// ── Shared helpers ────────────────────────────────────────────
-
-async function downgradeByCustomer(
-  customerId: string,
-  supabase: ReturnType<typeof createSupabaseAdminClient>,
-) {
-  assertWritten(await supabase
-    .from("profiles")
-    .update({
-      tier: "free",
-      subscription_status: "canceled",
-    })
-    .eq("stripe_customer_id", customerId), "profiles update");
-
-  // B2B orgs: revoke access and zero out seats; row is kept for audit trail
-  assertWritten(await supabase
-    .from("organizations")
-    .update({
-      subscription_tier: "free",
-      seat_limit: 0,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("stripe_customer_id", customerId), "organizations update");
 }
 
 async function handleInvoicePaid(
@@ -302,79 +184,4 @@ async function handleInvoicePaymentFailed(
     .from("profiles")
     .update({ subscription_status: "past_due" })
     .eq("stripe_customer_id", customerId), "profiles update");
-}
-
-async function upsertOrganization(
-  supabase: ReturnType<typeof createSupabaseAdminClient>,
-  opts: {
-    stripeCustomerId: string;
-    ownerUserId: string;
-    name: string;
-    tier: string;
-    seatLimit: number;
-  },
-) {
-  // Check for existing org by stripe_customer_id first (returning subscriber / upgrade)
-  const { data: existing } = await supabase
-    .from("organizations")
-    .select("id")
-    .eq("stripe_customer_id", opts.stripeCustomerId)
-    .maybeSingle();
-
-  if (existing) {
-    assertWritten(await supabase
-      .from("organizations")
-      .update({
-        subscription_tier: opts.tier,
-        seat_limit: opts.seatLimit,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", existing.id), "organizations update");
-    // Ensure profile is linked (may have been cleared on a prior downgrade)
-    assertWritten(await supabase.from("profiles").update({ org_id: existing.id }).eq("id", opts.ownerUserId), "profiles update");
-    return;
-  }
-
-  // Fall back to owner lookup — handles trial → paid conversion where the trial org
-  // was created without a Stripe customer ID. Attaches the Stripe customer ID and
-  // marks the trial as converted in a single update.
-  const { data: profileData } = await supabase
-    .from("profiles")
-    .select("org_id")
-    .eq("id", opts.ownerUserId)
-    .single();
-
-  if (profileData?.org_id) {
-    assertWritten(await supabase
-      .from("organizations")
-      .update({
-        stripe_customer_id: opts.stripeCustomerId,
-        subscription_tier: opts.tier,
-        seat_limit: opts.seatLimit,
-        trial_converted: true,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", profileData.org_id), "organizations update");
-    // Profile link already correct — no update needed
-    return;
-  }
-
-  // No existing org — insert and link to profile
-  const { data: newOrg, error: newOrgError } = await supabase
-    .from("organizations")
-    .insert({
-      name: opts.name,
-      stripe_customer_id: opts.stripeCustomerId,
-      subscription_tier: opts.tier,
-      seat_limit: opts.seatLimit,
-      owner_user_id: opts.ownerUserId,
-    })
-    .select("id")
-    .single();
-
-  if (newOrgError) throw new Error(`organizations insert failed: ${newOrgError.message}`);
-
-  if (newOrg?.id) {
-    assertWritten(await supabase.from("profiles").update({ org_id: newOrg.id }).eq("id", opts.ownerUserId), "profiles update");
-  }
 }

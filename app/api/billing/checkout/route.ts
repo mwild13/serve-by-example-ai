@@ -5,6 +5,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { readJsonBody } from "@/lib/ai-guard";
 import { rateLimit } from "@/lib/rate-limit";
 import { attributionFromRequest, attributionToStripeMetadata } from "@/lib/attribution";
+import { B2B_PLANS, PLAN_METADATA, getPriceIds } from "@/lib/billing-plans";
 
 export const dynamic = "force-dynamic";
 
@@ -12,46 +13,11 @@ export const dynamic = "force-dynamic";
 // subscription and charge the customer twice.
 const LIVE_SUBSCRIPTION_STATUSES = new Set(["active", "trialing", "past_due"]);
 
-const B2B_PLANS = new Set(["boutique", "boutique_yearly", "commercial", "commercial_yearly", "enterprise"]);
-
-// Tier + seat_limit embedded in Stripe metadata so webhooks can route without price lookups
-const PLAN_METADATA: Record<string, { tier: string; seat_limit: string }> = {
-  pro:                  { tier: "pro",        seat_limit: "1" },
-  pro_yearly:           { tier: "pro",        seat_limit: "1" },
-  boutique:             { tier: "boutique",   seat_limit: "15" },
-  boutique_yearly:      { tier: "boutique",   seat_limit: "15" },
-  commercial:           { tier: "commercial", seat_limit: "35" },
-  commercial_yearly:    { tier: "commercial", seat_limit: "35" },
-  enterprise:           { tier: "enterprise", seat_limit: "9999" },
-  // Legacy plan keys — kept so existing bookmarked links and emails still resolve
-  single_venue:         { tier: "boutique",   seat_limit: "15" },
-  single_venue_yearly:  { tier: "boutique",   seat_limit: "15" },
-  multi_venue:          { tier: "commercial", seat_limit: "35" },
-  multi_venue_yearly:   { tier: "commercial", seat_limit: "35" },
-};
-
 function getStripeClient() {
   return new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2026-02-25.clover",
     httpClient: Stripe.createFetchHttpClient(),
   });
-}
-
-function getPriceIds(): Record<string, string> {
-  return {
-    pro:                  process.env.STRIPE_PRICE_PRO!,
-    pro_yearly:           process.env.STRIPE_PRICE_PRO_YEARLY!,
-    boutique:             process.env.STRIPE_PRICE_BOUTIQUE!,
-    boutique_yearly:      process.env.STRIPE_PRICE_BOUTIQUE_YEARLY!,
-    commercial:           process.env.STRIPE_PRICE_COMMERCIAL!,
-    commercial_yearly:    process.env.STRIPE_PRICE_COMMERCIAL_YEARLY!,
-    enterprise:           process.env.STRIPE_PRICE_ENTERPRISE!,
-    // Legacy price IDs — kept for backward compat with existing subscribers
-    single_venue:         process.env.STRIPE_PRICE_SINGLE_VENUE!,
-    single_venue_yearly:  process.env.STRIPE_PRICE_SINGLE_VENUE_YEARLY!,
-    multi_venue:          process.env.STRIPE_PRICE_MULTI_VENUE!,
-    multi_venue_yearly:   process.env.STRIPE_PRICE_MULTI_VENUE_YEARLY!,
-  };
 }
 
 export async function POST(req: Request) {

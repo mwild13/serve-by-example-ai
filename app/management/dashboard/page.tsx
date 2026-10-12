@@ -9,6 +9,8 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getManagementSnapshot } from "@/lib/management/service";
 import { getTrialStatus, getDaysRemaining } from "@/lib/trial";
+import { priceToTierMap } from "@/lib/billing-plans";
+import { applySubscription } from "@/lib/billing-sync";
 import { isB2BTier, normalizeTier, hasManagerConsoleAccess, isOwnerLevelRole } from "@/lib/session";
 
 // This route is force-dynamic and reads searchParams (see below), which
@@ -59,7 +61,7 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
 export default async function ManagementDashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ checkout?: string; session_id?: string }>;
+  searchParams: Promise<{ checkout?: string; session_id?: string; upgraded?: string }>;
 }) {
   const params = await searchParams;
   const checkoutSuccess = params.checkout === "success";
@@ -102,6 +104,33 @@ export default async function ManagementDashboardPage({
       }
     } catch {
       // If Stripe verification fails, fall through — webhook is the backup
+    }
+  }
+
+  // Back from confirming an upgrade in the billing portal
+  // (app/api/billing/portal/route.ts): read the subscription from Stripe and
+  // apply it now, the same way the webhook will, so a member who has just
+  // paid for a venue plan is not shown the plan they left.
+  if (params.upgraded === "1" && process.env.STRIPE_SECRET_KEY) {
+    try {
+      const admin = createSupabaseAdminClient();
+      const { data: billing } = await admin
+        .from("profiles")
+        .select("stripe_customer_id")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (billing?.stripe_customer_id) {
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+          apiVersion: "2026-02-25.clover",
+          httpClient: Stripe.createFetchHttpClient(),
+        });
+        const subscriptions = await stripe.subscriptions.list({ customer: billing.stripe_customer_id, limit: 10 });
+        const subscription = subscriptions.data.find((s) => s.status === "active" || s.status === "trialing");
+        if (subscription) await applySubscription(admin, subscription, priceToTierMap());
+      }
+    } catch (err) {
+      // The webhook applies the same change; this only makes it immediate.
+      console.error("Manager Console: upgrade sync failed:", err instanceof Error ? err.message : String(err));
     }
   }
 

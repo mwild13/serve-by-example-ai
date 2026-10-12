@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { trackEvent } from "@/lib/consent";
+import { openBillingPortal } from "@/lib/billing-portal";
 
 /*
  * PricingPlans — the /pricing price board (Pages-Redesign.md 2.1, 5.4).
@@ -128,6 +129,18 @@ export default function PricingPlans() {
         return;
       }
       const data = await res.json();
+      // A paying member choosing a venue plan is not sent away: Stripe's
+      // portal confirms the move up and charges the difference.
+      if (res.status === 409 && data.code === "ALREADY_SUBSCRIBED" && !plan.startsWith("pro")) {
+        const failure = await openBillingPortal(undefined, "membership", plan);
+        if (failure) {
+          setLoading(null);
+          setCheckoutError(failure);
+        } else {
+          trackEvent("begin_upgrade", { plan });
+        }
+        return;
+      }
       if (data.url) {
         trackEvent("begin_checkout", { plan });
         // Stripe Checkout is on an external domain. router.push only handles
