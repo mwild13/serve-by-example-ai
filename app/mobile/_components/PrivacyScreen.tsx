@@ -93,7 +93,8 @@ export default function PrivacyScreen() {
               <strong>Supabase</strong>: Authentication and database storage.
             </>,
             <>
-              <strong>Cloudflare</strong>: Hosting and security.
+              <strong>Cloudflare</strong>: Hosting, security and cookieless page visit counts (Cloudflare Web
+              Analytics).
             </>,
             <>
               <strong>OpenAI</strong>: Used for AI scenario evaluation, AI coaching and translation. A

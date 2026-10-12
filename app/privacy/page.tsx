@@ -74,7 +74,8 @@ export default function PrivacyPage() {
                   <strong>Supabase</strong>: Authentication and database storage.
                 </li>
                 <li>
-                  <strong>Cloudflare</strong>: Hosting and security.
+                  <strong>Cloudflare</strong>: Hosting, security and cookieless page visit counts
+                  (Cloudflare Web Analytics).
                 </li>
                 <li>
                   <strong>OpenAI</strong>: Used for AI scenario evaluation, AI coaching and translation.

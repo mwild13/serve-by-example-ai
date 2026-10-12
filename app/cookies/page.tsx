@@ -79,6 +79,17 @@ export default function CookiesPage() {
                 pages are most visited, and where improvements can be made. This data is collected in
                 aggregate and does not identify you personally.
               </p>
+              <ul>
+                <li>
+                  <strong>Cloudflare Web Analytics</strong>: Counts page visits. It sets no cookies,
+                  stores nothing in your browser and does not follow you to other websites, so it
+                  runs whichever cookie settings you choose.
+                </li>
+                <li>
+                  <strong>Google Analytics</strong>: Sets cookies, and loads only if you accept
+                  analytics cookies in the cookie settings.
+                </li>
+              </ul>
 
               <h3>Infrastructure cookies</h3>
               <p>

@@ -295,3 +295,26 @@ The zone had no rate limiting rule. The owner created one through Cloudflare's a
 - **Limits of the Free plan:** one rule only, so the forms share the loose threshold the AI routes need for a venue of 35 on one Wi-Fi address. It cannot filter by method, so every request to these paths counts, not only POST. The period and block time are fixed at 10 seconds. Counts are kept per Cloudflare data centre. Separate strict limits for the forms need the Pro plan (two rules).
 - **Why it matters:** the app's own limiter (`lib/rate-limit.ts`) keeps counts in memory, separately on each server instance, so it does not hold against a flood. This rule is the only limit applied consistently, and it stops a flood before it reaches OpenAI.
 - **When adding a public form or AI route:** add its path to this rule's expression as well as calling `rateLimit` in the route.
+
+## Part 10: Cloudflare Web Analytics, built and waiting for a token
+
+- **Date:** 2026-10-12
+- **Branch:** `preview/oct-w3-todo-sweep`.
+
+### Why
+
+Google Analytics loads only after a visitor accepts cookies, so there is no plain count of visits. Cloudflare Web Analytics sets no cookies and stores nothing in the browser, so it can run for every visit.
+
+### What changed
+
+- **`components/WebAnalytics.tsx`:** adds Cloudflare's beacon script from the client bundle, the same way `lib/consent.ts` adds Google Analytics, because the content security policy blocks any script tag without the per-request nonce. It runs only on `servebyexample.co` and `www.servebyexample.co`, so previews and localhost are not counted, and only when `NEXT_PUBLIC_CF_BEACON_TOKEN` holds a 32-character token. Mounted in `app/layout.tsx`, so it covers the marketing site and the signed-in app.
+- **`middleware.ts`:** `https://static.cloudflareinsights.com` added to `script-src` and `https://cloudflareinsights.com` to `connect-src`.
+- **Disclosure:** the cookies page now lists Cloudflare Web Analytics (no cookies, runs whatever the cookie settings) and Google Analytics (only after opt-in) under Analytics cookies. The Cloudflare line in the privacy policy, web and mobile, adds "cookieless page visit counts".
+
+### To switch it on
+
+The owner adds the site in Cloudflare with the manual snippet, copies the token, and sets `NEXT_PUBLIC_CF_BEACON_TOKEN` on the Pages project for Production. Steps are in section 3 of `To_do_list.md`. The token is public (it appears in the page HTML), and the variable is read at build time, so a redeploy is needed after setting it. Do not use Cloudflare's automatic setup: the script it inserts has no nonce and is blocked.
+
+### Checked
+
+Typecheck, lint and `next build` pass. The beacon has not been seen loading, since it runs only on the production hostname with a token.

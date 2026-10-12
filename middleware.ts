@@ -49,14 +49,15 @@ function buildCSP(nonce: string): string {
   // preview keep the strict policy untouched.
   const isLocalDev = process.env.NODE_ENV === "development";
   const scriptSrc = isLocalDev
-    ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval' https://js.stripe.com https://challenges.cloudflare.com`
-    : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://js.stripe.com https://challenges.cloudflare.com`;
+    ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval' https://js.stripe.com https://challenges.cloudflare.com https://static.cloudflareinsights.com`
+    : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://js.stripe.com https://challenges.cloudflare.com https://static.cloudflareinsights.com`;
 
   return [
     // Deny everything not explicitly listed
     "default-src 'none'",
     // Scripts: only self + nonce-tagged scripts + scripts loaded by those (strict-dynamic) + Stripe
     // + Cloudflare Turnstile (the sign-in captcha, components/TurnstileWidget.tsx)
+    // + the Cloudflare Web Analytics beacon (components/WebAnalytics.tsx)
     scriptSrc,
     // Styles: unsafe-inline kept — Next.js injects critical CSS inline at render time
     "style-src 'self' 'unsafe-inline'",
@@ -65,7 +66,8 @@ function buildCSP(nonce: string): string {
     // Fonts: self-hosted via next/font — no external CDN needed
     "font-src 'self'",
     // Fetch/XHR/WebSocket: own API routes + Supabase + Stripe + Google Analytics
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://www.google-analytics.com https://www.google.com https://challenges.cloudflare.com",
+    // + Cloudflare Web Analytics (the beacon reports to cloudflareinsights.com)
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://www.google-analytics.com https://www.google.com https://challenges.cloudflare.com https://cloudflareinsights.com",
     // Plugins/embeds: none used — explicit even though default-src already covers it
     "object-src 'none'",
     // Iframes: Stripe payment elements and the Turnstile challenge
