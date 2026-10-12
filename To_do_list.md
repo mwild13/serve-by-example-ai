@@ -22,7 +22,6 @@ Grouped by where you sign in. None of these can be done from the code.
 ### Cloudflare
 
 - [ ] **Check the rate-limit rule after the first venue session.** Created 2026-10-12 at 50 requests per 10 seconds. Look at Security, Events filtered by the rule. If staff were blocked, raise it to 80.
-- [ ] **Confirm Workers Paid.** The free tier allows 10 ms of CPU per request.
 - [ ] **Web Analytics.** Not set up. Google Analytics loads only after opt-in, so there are no plain visit counts. Its script needs a CSP allowance in `middleware.ts`; say when it is switched on and that goes in.
 
 ### Supabase
@@ -117,3 +116,11 @@ Not needed before launch. Pick up when there is a reason to.
 - **Failed toolkit emails.** `select * from toolkit_leads where toolkit_delivered = false` returned 0 on 2026-10-12. Add an admin action only if that grows.
 - **`profiles.venue_type` and `experience_level`.** Onboarding writes them and nothing reads them. Use them or drop them.
 - **Second pass on other tables.** Unused by code on 2026-10-06: `venues.completion_rate`, `avg_scenario_score`, `upsell_rate` (never written), `enabled_module_ids`, `force_diagnostic_on_join`, and `report_schedule` (written, never read); `venue_staff.skill_level`, `rsa_state` and `organization_member_id` (filled on 75 rows, so check before dropping). About 20 indexes have never been used. 79 of 91 accounts have never signed in; the three 25-person venues look like seeded demo staff.
+
+## Upgrades
+
+Paid plans to decide on. None is switched on by the code; each is bought in its own dashboard. Prices are approximate, in US dollars, and should be checked before buying.
+
+- [ ] **Cloudflare Workers Paid, about $5 a month.** First find out which plan the account is on: Cloudflare dashboard, Workers & Pages, Plans. The free plan allows 10 ms of CPU time per request and 100,000 requests a day. Every page of this site is rendered by a Worker, so a busy page can run past 10 ms and fail with error 1102. Paid raises the limit to 30 seconds and includes 10 million requests a month. Buy it before sending paid traffic to the site. The site runs on the free plan today, so it is not urgent at current visitor numbers.
+- [ ] **Cloudflare Pro, about $25 a month. Optional.** Allows a second rate-limit rule, so the public forms can have a strict limit of their own, and a challenge page instead of a plain block. Not needed for launch.
+- [ ] **Supabase Pro, about $25 a month.** Covered under Supabase, Backups, in section 3: daily backups and leaked-password protection.
