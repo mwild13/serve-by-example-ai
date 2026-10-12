@@ -48,7 +48,6 @@ Grouped by where you sign in. None of these can be done from the code.
 
 ### Stripe
 
-- [ ] **Deactivate the four payment links, or say where they are used, before `preview/oct-w3-todo-sweep` merges.** Enterprise Plan, Commercial Plan, Boutique Plan and Pro Model, all made 2026-10-12, all active, none has taken a payment. On that branch the webhook applies a plan only to a checkout started on the site by a signed-in account, so a payment link would charge the buyer and apply nothing. The site does not use them. To deactivate: Payments, Payment Links, the three dots on each row, Deactivate.
 - [ ] **Link the refund policy.** Settings, Business, Public details (and the Checkout settings): set the refund and return policy to `https://servebyexample.co/refunds`, and the terms to `https://servebyexample.co/terms`. `/refunds` is live once the branch merges.
 - [ ] **Failed-webhook emails.** Developers, Webhooks, the endpoint's settings. Until error tracking exists this is the only alert.
 - [ ] **Branding.** Settings, Branding: logo, icon, brand and accent colours. Settings, Emails: support address and reply-to. Settings, Billing, Invoices: footer and business details. Set the statement descriptor so the card charge reads as Serve By Example.

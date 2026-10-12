@@ -202,4 +202,5 @@ The four Stripe payment links (Enterprise, Commercial, Boutique, Pro Model) are 
 - **Checking the conversion events in Google Analytics** is parked.
 - **Staff status** was accepted by the owner.
 - **"We could not confirm you are not a robot" on the preview** is not new: the Turnstile widget does not accept the `pages.dev` address, so email sign-in cannot work on any preview while captcha is on. Google sign-in does not use the captcha.
+- **The four Stripe payment links were deactivated by the owner**, and the trial billing screen passed the owner's check on the preview. Nothing known blocks the merge.
 
