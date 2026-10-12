@@ -239,3 +239,35 @@ Note to send on Google's Trust and Safety email thread:
 
 > The home page https://servebyexample.co is public and does not require login. It describes the app (scenario-based staff training for hospitality venues) and links to the privacy policy in the footer. The privacy policy at https://servebyexample.co/privacy is public, and section 11 "Signing In With Google" explains what Google user data we receive, how we use, store and share it, and how to remove it. Until 12 October 2026 the home page redirected visitors outside Australia to a region notice; that has been removed.
 
+## Part 8: marketing claims, one guarantee, seat limits and the `/security` wording
+
+- **Date:** 2026-10-12
+- **Branch:** `preview/oct-w3-todo-sweep`, committed, not pushed.
+
+### The short version
+
+Every unsourced percentage is off the marketing pages, the site states one guarantee, the seat numbers match what the code enforces, and `/security` now describes what is actually sent to OpenAI.
+
+### What changed
+
+- **Outcome figures removed.** "90%+ completion rates", "reduces turnover by 20–23%" and "20–30% for video-based LMS courses" are gone from `/platform`, `/for-venues` and `/vs-generic-lms`. The owner's wording replaces them: "industry-leading completion rates" and "proven to reduce early turnover".
+- **Industry figures removed.** "3–9% net profit margins" is now "razor-thin hospitality margins"; "39% of FOH and 42% of BOH staff quit" is now "high 90-day turnover".
+- **Stat tiles.** The `/platform` tiles "90% mobile completion", "3× faster onboarding" and "+15% avg upsell improvement" and the `/vs-generic-lms` tile "90%+" were the same kind of claim in large type. They now show product facts: the 3-stage path, 5 scored dimensions, the 14-day trial. The `/platform` section title changed from "What the platform is built to move" to "What is in the platform".
+- **One guarantee.** `/demo` said "No-Brainer Guarantee ... within 7 days, you pay $0". It now carries the same 14-Day Performance Guarantee wording as the home page, pricing and the solution pages.
+- **Competitor claim.** "while the incumbents are still in the planning phase" on `/platform` is now "with a platform built for hospitality, not corporate desks".
+- **Seat limits.** The code enforces 15 seats on Venue, 35 on Group and no limit on Franchise, with no venue cap on Group or Franchise (`TIER_SEATS` in `lib/session.ts`). No plan has ever had a 125-seat or 5-venue limit, so "125 staff across 5 venues" was wrong, and changing "500" to "125" would have added a third wrong number. `/solutions/franchise-systems` now reads "Scales from 5 staff to unlimited seats"; `/solutions/pub-groups` and `/vs-generic-lms` state 35 on Group and unlimited on Franchise.
+- **"5 dimensions" confirmed.** The evaluator scores exactly five categories (`lib/scenario-evaluator.ts`), so that count stays.
+
+### `/security` and OpenAI
+
+Naming OpenAI stays. `docs/Pages-Redesign.md` 6.2 is about not naming the model in marketing copy; a security page that hid the provider would be worse, and the privacy policy already names it.
+
+The page was wrong in a different way. It said no venue names, staff names or operational data are sent to OpenAI, and that menu specs are never shared with model providers. That is true of scenario evaluation. It is not true of the Manager AI Coach, which sends the venue name, every staff member's name, role and scores, and the inventory list with each question (`app/api/management/coach/route.ts`). The page now says so in its own item, and the privacy policy's OpenAI line (web and `app/mobile/_components/PrivacyScreen.tsx`) names coaching and translation and the staff data.
+
+### Checked
+
+Typecheck and lint pass. No page was opened in a browser.
+
+### Left open by this part
+
+Listed in section 2 of `To_do_list.md`: the two replacement phrases still claim a result with no source, the "1 day" setup figures, the "no credit card" lines, and an owner read of the new OpenAI wording.

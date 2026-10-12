@@ -1,7 +1,8 @@
 "use client";
 
+// Same wording as the guarantee on the home page, pricing and solution pages.
 const GUARANTEE_COPY =
-  "Onboard your team in under 5 minutes. If your staff doesn't complete their first live scenario within 7 days, you pay $0.";
+  "If your team's training engagement doesn't noticeably increase in the first 14 days, you won't be charged. No questions asked.";
 
 type CtaGuaranteeBlockProps = {
   pulse?: boolean;
@@ -15,7 +16,7 @@ export function CtaGuaranteeBlock({ pulse = false }: CtaGuaranteeBlockProps) {
       </a>
       <a href="/membership" className="sbe-mkt-btn-text">See pricing</a>
       <p className="demo-guarantee">
-        <strong>Our No-Brainer Guarantee:</strong> {GUARANTEE_COPY}
+        <strong>14-Day Performance Guarantee.</strong> {GUARANTEE_COPY}
       </p>
     </div>
   );

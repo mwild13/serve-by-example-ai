@@ -13,15 +13,12 @@ Nothing open. The last three were done on 2026-10-12 and are waiting on the chec
 
 ## 2. Marketing copy
 
-There is no customer data behind any of these. Each needs a source or should be removed. Decisions needed from the owner are marked.
+There is no customer data behind any of these. Decisions needed from the owner are marked.
 
-- [ ] **Outcome figures with no source.** "90%+ completion rates" (`/platform`, `/vs-generic-lms`); "reduces turnover by 20–23%" (`/for-venues`, `/vs-generic-lms`); "20–30% for video-based LMS courses" (`/vs-generic-lms`). Default: remove.
-- [ ] **Industry figures that need a citation.** "3–9% net profit margins" and "39% of FOH and 42% of BOH staff quit within 90 days" (`/for-venues`, `/vs-generic-lms`). Owner: supply the source, or these are removed.
-- [ ] **Product counts to confirm.** "5 dimensions" (`/vs-generic-lms`, `/how-it-works`), "125 staff across 5 venues" (`/vs-generic-lms`, `/solutions/pub-groups`), and "Scalable from 5 to 500 staff" on `/solutions/franchise-systems`, which is above the 125 limit.
+- [ ] **Two phrases that still claim a result.** "Industry-leading completion rates" (`/platform`, `/vs-generic-lms` twice) and "proven to reduce early turnover" (`/for-venues`, `/vs-generic-lms`) replaced the percentages on 2026-10-12. Neither has a source: "proven" and "industry-leading" both say evidence exists. Owner: keep, or soften to what the product does ("built to be finished between shifts", "builds confidence in the first weeks").
+- [ ] **Setup time.** "1 day average setup time" and "Most venues are fully set up within a day" on `/vs-generic-lms`. No venues have been measured. Default: reword to "Set up in under 10 minutes", as the rest of the site says, if that is true.
 - [ ] **"No credit card" lines.** On the home page (`app/page.tsx`, twice), `components/HeroSection.tsx`, `/vs-generic-lms`, `/solutions/pub-groups` and still in `app/pricing/page.tsx`. The toolkit page's line is about the free download and is fine. Owner: is it still true for the 14-day trial?
-- [ ] **Competitor claim.** The `/platform` closing band says incumbents are "still in the planning phase". Default: remove.
-- [ ] **Two different guarantees.** `/demo` says "Our No-Brainer Guarantee: ... within 7 days, you pay $0" (`app/demo/_components/LeadCapturePane.tsx`). The rest of the site states a 14-day guarantee. Owner: pick one. `/refunds` (2026-10-12) states the 14-day one.
-- [ ] **`/security` names OpenAI.** `docs/Pages-Redesign.md` 6.2 says not to name the AI model. Kept as a provider disclosure. Owner: confirm that reading.
+- [ ] **Read the new OpenAI wording.** `/security` and the privacy policy (web and mobile) now say the Manager AI Coach sends staff names, roles and scores to OpenAI, because it does. Owner: read both once. If that is not wanted, the fix is in `app/api/management/coach/route.ts`, not in the copy.
 
 ## 3. Owner: dashboards
 

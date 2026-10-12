@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Interactive Training for Pub Groups & Multi-Venue Operators | Serve By Example",
   description:
-    "Centralised staff training for pub groups and multi-venue hospitality operators. Standardise service quality, track compliance, and manage up to 125 staff from one console.",
+    "Centralised staff training for pub groups and multi-venue hospitality operators. Standardise service quality, track compliance, and manage every venue from one console.",
   alternates: { canonical: "/solutions/pub-groups" },
 };
 
@@ -27,21 +27,21 @@ const CONTENT: SolutionContent = {
         body: "From knowledge to verified floor readiness.",
       },
       {
-        metric: "5",
-        title: "Venues from a single console",
-        body: "On multi-venue plans.",
+        metric: "1",
+        title: "Console for every venue",
+        body: "No venue cap on multi-venue plans.",
       },
       {
-        metric: "125",
-        title: "Staff supported across all venues",
-        body: "On the top tier.",
+        metric: "35",
+        title: "Staff seats on the Group plan",
+        body: "Unlimited seats on Franchise.",
       },
     ],
   },
   shot: {
     tag: "In the product",
     title: "Group-wide visibility in one console",
-    body: "Compare readiness scores across venues, spot skill gaps before they become service issues, and direct coaching where it matters most. Manage up to 125 staff across 5 venues from a single dashboard.",
+    body: "Compare readiness scores across venues, spot skill gaps before they become service issues, and direct coaching where it matters most. Manage every venue in the group from a single dashboard.",
     image: {
       src: "/shots/Overview Console Wide.webp",
       alt: "Serve By Example manager console: venue overview with training completion, compliance status, and staff needing attention",

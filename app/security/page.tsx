@@ -28,19 +28,25 @@ const WE_NEVER_STORE = [
 ];
 
 // This page names the AI provider on purpose: it is a data-handling disclosure,
-// not marketing copy (see the note in To_do_list.md).
+// not marketing copy. It names the provider, never the model. Keep these items
+// in step with what the routes send: lib/scenario-evaluator.ts and
+// app/api/management/coach/route.ts.
 const AI_PRINCIPLES: RuledItem[] = [
   {
-    title: "Only the scenario context is sent",
-    body: "When staff practice a roleplay, only the training prompt and their response text is sent to OpenAI for evaluation. No venue names, staff names, or operational data is transmitted.",
+    title: "Scenario evaluation sends the answer, not the person",
+    body: "When staff practise a roleplay, only the scenario prompt and their response text are sent to OpenAI for evaluation. No venue names or staff names are included.",
+  },
+  {
+    title: "The Manager AI Coach sends your venue's data",
+    body: "When a manager asks the AI Coach a question, that venue's name, staff names, roles, training scores and inventory list are sent to OpenAI with the question, so the answer can refer to your team. Nothing is sent until a manager asks.",
   },
   {
     title: "Your recipes stay yours",
-    body: "Your menu specs, house rules, and internal policies are stored in your venue's isolated account. They are never shared with external services or model providers.",
+    body: "Your menu specs, house rules, and internal policies are stored in your venue's isolated account. They are never sold, never shown to another venue, and sent to OpenAI only as described above.",
   },
   {
     title: "No model training on your data",
-    body: "OpenAI processes evaluation requests via their API under their data usage policy for API customers, which does not use input data to train their models.",
+    body: "OpenAI processes these requests via their API under their data usage policy for API customers, which does not use input data to train their models.",
   },
   {
     title: "Isolation between venues",
@@ -105,7 +111,7 @@ export default function SecurityPage() {
           tone="alt"
           kicker="Platform transparency"
           title="How the platform handles your data."
-          lede="We use OpenAI’s API for scenario evaluation. Here is exactly how it interacts with your content."
+          lede="We use OpenAI’s API for scenario evaluation, AI coaching and translation. Here is exactly how it interacts with your content."
           items={AI_PRINCIPLES}
         />
 

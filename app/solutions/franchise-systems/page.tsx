@@ -60,7 +60,7 @@ const CONTENT: SolutionContent = {
         body: "Every franchisee’s staff trains on the same materials. Service language, upsell scripts, and compliance modules are standardised across the network.",
       },
       {
-        title: "Scalable from 5 to 500 staff",
+        title: "Scales from 5 staff to unlimited seats",
         body: "Whether you have 3 locations or 30, the platform scales without additional overhead. New franchisees are onboarded to the training system in minutes.",
       },
       {

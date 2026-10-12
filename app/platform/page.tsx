@@ -22,12 +22,12 @@ export const metadata: Metadata = {
   alternates: { canonical: "/platform" },
 };
 
-// Figures carried over from the previous page. They are flagged in To_do_list.md
-// ("Marketing copy to source or remove") — do not add to them.
+// Product facts only. There is no customer data yet, so no outcome figures
+// (completion rates, uplift, "x times faster") belong here.
 const STATS: LedgerRow[] = [
-  { metric: "90", unit: "%", title: "Mobile completion rate", body: "Training is built for the phone staff already carry, so it gets finished between shifts." },
-  { metric: "3", unit: "×", title: "Faster onboarding", body: "Compared with traditional on-the-job training." },
-  { metric: "+15", unit: "%", title: "Avg upsell improvement", body: "Sales scenarios are practised and scored before staff try them on a guest." },
+  { metric: "3", title: "Stage mastery path", body: "From knowledge to verified floor readiness." },
+  { metric: "5", title: "Service dimensions scored", body: "Every scenario answer gets written feedback, not just a pass or fail." },
+  { metric: "14", title: "Day free trial", body: "On Venue and Group plans." },
   { metric: "40", unit: "+", title: "Training modules", body: "Across bartending, sales and management." },
 ];
 
@@ -109,7 +109,7 @@ const MOBILE_ROW: MediaRow = {
     <>
       Every scenario, coaching interaction, and progress dashboard is fully optimised for mobile. Staff can complete
       training between shifts, at the bar, or on the way to work. Platforms built this way achieve{" "}
-      <strong>90%+ completion rates</strong> with frontline teams.
+      <strong>industry-leading completion rates</strong> with frontline teams.
     </>
   ),
   points: [
@@ -170,7 +170,7 @@ export default function PlatformPage() {
           />
         </div>
 
-        <Ledger tone="alt" kicker="In numbers" title="What the platform is built to move." rows={STATS} />
+        <Ledger tone="alt" kicker="In numbers" title="What is in the platform." rows={STATS} />
 
         <MediaRows
           id="insights"
@@ -198,7 +198,7 @@ export default function PlatformPage() {
 
         <CTABand
           title="The market is shifting to interactive, scenario-based training. You’re already there."
-          copy="Major hospitality platforms are just now beginning to build what Serve By Example already has. Your window of competitive advantage is now, while the incumbents are still in the planning phase."
+          copy="Major hospitality platforms are just now beginning to build what Serve By Example already has. Your window of competitive advantage is now, with a platform built for hospitality, not corporate desks."
           primary={{ label: "Start Free Trial", href: "/login?intent=trial&tier=boutique" }}
           secondary={{ label: "Try the Demo", href: "/demo" }}
         />

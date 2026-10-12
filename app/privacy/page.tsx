@@ -77,7 +77,9 @@ export default function PrivacyPage() {
                   <strong>Cloudflare</strong>: Hosting and security.
                 </li>
                 <li>
-                  <strong>OpenAI</strong>: Used for AI scenario evaluation (OpenAI does not use
+                  <strong>OpenAI</strong>: Used for AI scenario evaluation, AI coaching and translation.
+                  A manager&apos;s AI Coach question is sent with that venue&apos;s staff names,
+                  roles and training scores (OpenAI does not use
                   data submitted via the API to train their foundational models).
                 </li>
                 <li>

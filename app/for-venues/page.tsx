@@ -41,7 +41,7 @@ const BUSINESS_CASE: LedgerRow[] = [
   {
     metric: "02",
     title: "Attrition starts with weak onboarding",
-    body: "Up to 39% of FOH and 42% of BOH staff quit within their first 90 days of work. Providing structured, AI-guided scenario training builds confidence early, which directly reduces turnover by 20–23%.",
+    body: "Hospitality has high 90-day turnover. Providing structured, AI-guided scenario training builds confidence early, and is proven to reduce early turnover.",
   },
   {
     metric: "03",
@@ -108,7 +108,7 @@ export default function ForVenuesPage() {
           tone="alt"
           kicker="The business case"
           title="Why structured training matters"
-          lede="Australia’s hospitality sector operates on thin 3–9% net profit margins. The cost isn’t just recruiting and placing staff. It’s the massive revenue drain of inconsistent floor shifts in between."
+          lede="Australian venues operate on razor-thin hospitality margins. The cost isn’t just recruiting and placing staff. It’s the massive revenue drain of inconsistent floor shifts in between."
           rows={BUSINESS_CASE}
         />
 
