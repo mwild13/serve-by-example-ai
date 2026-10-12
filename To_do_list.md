@@ -36,9 +36,7 @@ Grouped by where you sign in. None of these can be done from the code.
 
 ### Stripe
 
-- [ ] **Link the refund policy.** Settings, Business, Public details (and the Checkout settings): set the refund and return policy to `https://servebyexample.co/refunds`, and the terms to `https://servebyexample.co/terms`. `/refunds` is live once the branch merges.
-- [ ] **Failed-webhook emails.** Developers, Webhooks, the endpoint's settings. Until error tracking exists this is the only alert.
-- [ ] **Branding.** Settings, Branding: logo, icon, brand and accent colours. Settings, Emails: support address and reply-to. Settings, Billing, Invoices: footer and business details. Set the statement descriptor so the card charge reads as Serve By Example.
+- [ ] **GST on checkout invoices.** The checkout page shows no GST line, and `app/api/billing/checkout/route.ts` sets no tax option, so subscription invoices will not show the GST amount a tax invoice needs. If the business is registered for GST: add an Australian registration under Stripe Tax, set the prices to tax-inclusive, and switch on `automatic_tax` in the checkout route. Also rename the product "Pro Model - SBE AI Training" in Stripe, since customers see it.
 
 ### OpenAI
 
