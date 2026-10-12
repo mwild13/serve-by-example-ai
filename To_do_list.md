@@ -34,15 +34,6 @@ Grouped by where you sign in. None of these can be done from the code.
 
 - [ ] **Sign-in screen branding.** Google Cloud Console (project number `971763423157`), Google Auth Platform, Branding: app name, support email, home page, privacy policy and terms links, and `servebyexample.co` as an authorised domain. Adding a logo starts Google's brand verification, which needs the domain verified in Search Console. Then check Clients: the only authorised redirect URI should be the Supabase callback.
 
-### OpenAI
-
-- [ ] **Monthly budget and alert.**
-- [ ] **Rate-limit tier.** Check it covers a busy session. The client already retries a 429 twice (`lib/openai.ts`).
-
-### GitHub
-
-- [ ] **Protect `main`.** It has no branch protection at all (checked 2026-10-12). Require the `checks` job. Claude can set this through `gh` on request.
-
 ## 4. Owner: testing
 
 Three sittings cover every unconfirmed fix.

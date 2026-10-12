@@ -3,10 +3,14 @@ name: CI
 # Runs the same checks a handoff lists under "Checks run": lint, CSS token
 # lint, typecheck, unit tests and the unused-code scan. Needs no secrets and never deploys;
 # Cloudflare Pages builds and deploys separately.
+#
+# `main` is protected and requires the `checks` job. Releases are a direct push
+# of a preview branch to `main`, so the job has to run on preview branches too:
+# GitHub only accepts the push once that same commit has passed here.
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, "preview/**"]
 
 permissions:
   contents: read
