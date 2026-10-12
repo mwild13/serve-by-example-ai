@@ -242,7 +242,7 @@ Note to send on Google's Trust and Safety email thread:
 ## Part 8: marketing claims, one guarantee, seat limits and the `/security` wording
 
 - **Date:** 2026-10-12
-- **Branch:** `fix/pre-marketing-blockers`, fast-forwarded from `preview/oct-w3-todo-sweep` and carrying one more commit. Committed, not pushed.
+- **Branch:** `preview/oct-w3-todo-sweep`, pushed at `83a686f`. Not yet on `main`.
 
 ### The short version
 
@@ -281,4 +281,4 @@ The owner chose wording that states intent, not results, and had the "no credit 
 - **OpenAI disclosure stays as written** on `/security` and in the privacy policy.
 - **One setup line everywhere:** "Create your account in 2 minutes, launch your venue in under 10." It replaced "Set up in under 10 minutes" (hero, `/demo`, `/demo/complaint-master`, `/pricing`) and "set up your first venue in an afternoon" (home page FAQ, `/vs-generic-lms` table). The `/vs-generic-lms` tile reads "10 min to launch your venue". These times are the owner's and have not been timed against a real sign-up.
 
-Section 2 of `To_do_list.md` has nothing open. `preview/oct-w3-todo-sweep` was fast-forwarded to `fix/pre-marketing-blockers` and pushed.
+Section 2 of `To_do_list.md` has nothing open. The second and third commits were made on `fix/pre-marketing-blockers` at the owner's request and fast-forwarded into `preview/oct-w3-todo-sweep`. That old branch was already merged through PR #5 and held nothing else, so it was deleted locally and on the remote.
