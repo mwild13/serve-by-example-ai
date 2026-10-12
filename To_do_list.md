@@ -34,11 +34,6 @@ Grouped by where you sign in. None of these can be done from the code.
 
 - [ ] **Sign-in screen branding.** Google Cloud Console (project number `971763423157`), Google Auth Platform, Branding: app name, support email, home page, privacy policy and terms links, and `servebyexample.co` as an authorised domain. Adding a logo starts Google's brand verification, which needs the domain verified in Search Console. Then check Clients: the only authorised redirect URI should be the Supabase callback.
 
-### Stripe
-
-- [ ] **Rename the Pro product.** Customers see "Pro Model - SBE AI Training" on the checkout page. Product catalogue in Stripe.
-- [ ] **GST, when registered.** Not registered for GST as of 2026-10-12, so checkout correctly charges none and invoices must not say "Tax invoice". Registration is compulsory once turnover reaches A$75,000 in a year. At that point: add the registration under Stripe Tax, set prices to tax-inclusive, switch on `automatic_tax` in `app/api/billing/checkout/route.ts`, and add "Tax invoice" to the invoice template. Until then `/advisory` should not say prices "exclude GST".
-
 ### OpenAI
 
 - [ ] **Monthly budget and alert.**
@@ -120,3 +115,9 @@ Paid plans to decide on. None is switched on by the code; each is bought in its 
 - [ ] **Cloudflare Workers Paid, about $5 a month.** First find out which plan the account is on: Cloudflare dashboard, Workers & Pages, Plans. The free plan allows 10 ms of CPU time per request and 100,000 requests a day. Every page of this site is rendered by a Worker, so a busy page can run past 10 ms and fail with error 1102. Paid raises the limit to 30 seconds and includes 10 million requests a month. If the account is on the free plan, buy it before sending paid traffic to the site. The site works today at current visitor numbers, so it is not urgent before then.
 - [ ] **Cloudflare Pro, about $25 a month. Optional.** Allows a second rate-limit rule, so the public forms can have a strict limit of their own, and a challenge page instead of a plain block. Not needed for launch.
 - [ ] **Supabase Pro, about $25 a month.** Covered under Supabase, Backups, in section 3: daily backups and leaked-password protection.
+
+## Important
+
+Not urgent today, but each has a trigger that must not be missed.
+
+- [ ] **Register for GST at A$75,000 turnover.** Not registered as of 2026-10-12, so checkout charges no GST and invoices say "No GST has been charged". Registration is compulsory once turnover reaches A$75,000 in any 12 months, within 21 days of reaching it. When that happens: register with the ATO, add the registration under Stripe Tax, set the prices to tax-inclusive, switch on `automatic_tax` in `app/api/billing/checkout/route.ts`, change the invoice template to say "Tax invoice" and drop the no-GST line, and update the GST wording on `/advisory`.

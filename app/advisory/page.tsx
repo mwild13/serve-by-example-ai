@@ -180,8 +180,8 @@ const FAQS = [
     a: "Yes. Our Remote Review and Strategy Sessions run over video call for venues anywhere in Australia.",
   },
   {
-    q: "Are prices ex GST?",
-    a: "Yes. All prices are in AUD and exclude GST.",
+    q: "Is GST added to the price?",
+    a: "No. All prices are in AUD and no GST is charged.",
   },
 ];
 
@@ -297,7 +297,7 @@ export default function AdvisoryPage() {
             <header className="sbe-mkt-head">
               <h2 className="sbe-mkt-display">Pick your starting point</h2>
               <p className="sbe-mkt-lede">
-                All prices AUD ex GST. In person across SEQ and Northern NSW. Remote across Australia.
+                All prices in AUD. No GST is charged. In person across SEQ and Northern NSW. Remote across Australia.
               </p>
             </header>
 
