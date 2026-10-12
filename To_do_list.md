@@ -78,7 +78,6 @@ Three sittings cover every unconfirmed fix.
 ### On a computer, as staff
 
 - [ ] **The restyled emails.** Changed 2026-10-12, not seen in an inbox. Send yourself one of each: a staff invite and a resend from the Manager Console, the contact form, the book-a-call form, and the ROI calculator's "email me this". Check them in Gmail and on a phone.
-- [ ] **Conversion events.** Added 2026-10-12, not seen in Google Analytics. Accept analytics cookies, open Analytics, Reports, Realtime, then: make a new account by email and one with Google (`sign_up`), start a trial (`trial_start`), press a paid plan button (`begin_checkout`), and finish one real payment (`purchase`, with the amount). Once they show, mark `sign_up`, `trial_start` and `purchase` as key events under Admin, Events.
 - [ ] **`/login`.** Only its layout was checked. Sign in, create an account, and use Google (that return trip may pass through `www`).
 - [ ] **Password reset.** Request a reset and follow the link: it should open the new-password screen. That screen was restyled on 2026-10-12 to match `/login`; set a new password on it once. The 2026-10-12 email pointed at the Site URL; the URL Configuration was changed the same day.
 - [ ] **`/dashboard` when narrow.** At about 700px and 375px: the nav sits on top as a wrapped row, every item opens, Sign out is reachable, nothing scrolls sideways.
@@ -90,7 +89,7 @@ Three sittings cover every unconfirmed fix.
 ### On a computer, as a manager
 
 - [ ] **Trial chip on the collapsed sidebar.** Added 2026-10-12, not seen. On a trial account, collapse the sidebar: a small chip with the days left should sit above Settings and open Billing.
-- [ ] **The three restyled console screens.** Changed 2026-10-12, not seen. On a trial account open Settings, Billing. Notifications and Training programs are not in the menu, so they need a link or a decision on whether they stay.
+- [ ] **The restyled trial billing screen.** Changed 2026-10-12, not seen. On a trial account open Settings, Billing.
 - [ ] **Status after the recalculation.** Changed 2026-10-12. On the Staff tab, someone quiet for 14 days should read "Needs follow-up", and someone who trained this week "On track", whatever they showed before.
 - [ ] **The redesigned console.** It went to production on 2026-10-09 having only been viewed with sample data. Go through every tab, the collapsed sidebar, the account menu and Sign out, and ask the AI Coach a question then use New chat.
 
@@ -119,6 +118,8 @@ Three sittings cover every unconfirmed fix.
 Not needed before launch. Pick up when there is a reason to.
 
 - **AI Coach memory.** Each question is answered on its own; a follow-up such as "and what about Mia?" has no context.
+- **Notifications and Training programs screens.** Both were restyled on 2026-10-12 and then hidden: no menu entry, no keyboard shortcut, and `?tab=notifications` or `?tab=training` lands on Overview. To bring them back, remove them from the hidden list in `ManagerControlCenter.tsx` and add menu entries. Neither has been seen in a browser since the restyle.
+- **Check the conversion events in Google Analytics.** Added 2026-10-12, not seen. Accept cookies, open Analytics Realtime, then sign up, start a trial and press a paid plan button. `purchase` needs one real payment. Once they show, mark `sign_up`, `trial_start` and `purchase` as key events under Admin, Events.
 - **Turnstile on previews.** The widget's hostname list could not take the `pages.dev` address, so captcha protection has to be switched off in Supabase to sign in on a preview.
 - **A `preview` env for email links.** Toolkit emails hard-code `https://servebyexample.co`, so open tracking and unsubscribe can't be tested on a preview.
 - **Failed toolkit emails.** `select * from toolkit_leads where toolkit_delivered = false` returned 0 on 2026-10-12. Add an admin action only if that grows.

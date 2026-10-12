@@ -196,3 +196,10 @@ The ROI projection email and the calculator state their assumptions as facts ("2
 
 The four Stripe payment links (Enterprise, Commercial, Boutique, Pro Model) are active and have taken no payments. On this branch a purchase through one charges the buyer and applies no plan.
 
+### After the owner's check (same day)
+
+- **Notifications and Training programs are hidden.** A `?tab=` link to either now lands on Overview and the "t" shortcut is gone. The screens stay in the code. Parked in the to-do list.
+- **Checking the conversion events in Google Analytics** is parked.
+- **Staff status** was accepted by the owner.
+- **"We could not confirm you are not a robot" on the preview** is not new: the Turnstile widget does not accept the `pages.dev` address, so email sign-in cannot work on any preview while captcha is on. Google sign-in does not use the captcha.
+

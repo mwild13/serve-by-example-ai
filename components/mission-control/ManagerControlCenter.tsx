@@ -460,8 +460,11 @@ export default function ManagerControlCenter({
 
   // Guard: redirect any stale deprecated section values to overview
   useEffect(() => {
-    if ((activeSection as string) === "billing" || (activeSection as string) === "sign-out") {
-      // Migrate deprecated URL section values to "overview" on load.
+    // Notifications and Training programs are built but hidden (parked in
+    // To_do_list.md): no menu entry, and a ?tab= link to either lands on
+    // Overview. Remove them from this list to bring them back.
+    if (["billing", "sign-out", "notifications", "training"].includes(activeSection as string)) {
+      // Migrate deprecated and hidden URL section values to "overview" on load.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveSection("overview");
     }
@@ -474,7 +477,6 @@ export default function ManagerControlCenter({
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       const key = event.key.toLowerCase();
       if (key === "a") { event.preventDefault(); setActiveSection("staff"); setActiveAction("add-staff"); setRequestError(""); setRequestSuccess(""); }
-      else if (key === "t") { event.preventDefault(); setActiveSection("training"); setActiveAction("create-program"); setRequestError(""); setRequestSuccess(""); }
       else if (key === "i") { event.preventDefault(); setActiveSection("inventory"); setActiveAction("add-inventory"); setRequestError(""); setRequestSuccess(""); }
     }
     window.addEventListener("keydown", handleKeyDown);
