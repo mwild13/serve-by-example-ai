@@ -12,7 +12,7 @@ This document replaces the August 2026 version in full. Code comments across the
 
 **In scope:**
 
-- Homepage: `app/page.tsx`, `components/HeroSection.tsx`, `components/ui/ROICalculator.tsx`
+- Homepage: `app/(marketing)/page.tsx`, `components/HeroSection.tsx`, `components/ui/ROICalculator.tsx`
 - Marketing sub-pages: `/platform`, `/pricing` and `/membership`, `/about`, `/how-it-works`, `/for-venues`, `/solutions/*`, `/roi`, `/resources/*`, `/toolkit*`, `/roadmap`, `/security`, `/contact`, `/vs-generic-lms`, `/advisory`, `/demo*`, and the legal pages
 - Shared marketing chrome: `components/Navbar.tsx`, `components/Footer.tsx`, `components/SectionSubNav.tsx`, and everything in `components/marketing/`
 
@@ -78,22 +78,21 @@ No animation library. Motion is limited to state changes the visitor causes: the
 
 ## 3. Homepage reference
 
-`app/page.tsx` is a server component. Content lives in constants at the top of the file (`FAQS`, `SYSTEMS`, `STEPS`, `MEASURES`, `PLANS`); the markup below maps over them. `FAQS` feeds both the accordion and the FAQPage JSON-LD, so the two cannot drift apart.
+`app/(marketing)/page.tsx` is a server component. Content lives in constants at the top of the file (`FAQS`, `SYSTEMS`, `STEPS`, `MEASURES`, `PLANS`); the markup below maps over them. `FAQS` feeds both the accordion and the FAQPage JSON-LD, so the two cannot drift apart.
 
 | # | Section | Root class | Pattern |
 |---|---|---|---|
 | 1 | Hero and marquee | `.sbe-mkt-fold` | Dark 60/40 hero, one primary CTA. Unchanged in October. |
 | 2 | Two systems | `.sbe-mkt-duo` | Parchment lead on the left; dark panel bleeds right and overhangs the next section. |
-| 3 | Founder | `.sbe-mkt-founder` | Portrait, statement, italic pull quote under a hairline. |
-| 4 | Two views | `.sbe-mkt-showcase` | Alternating text and screenshot rows; screenshots break out of the container. |
-| 5 | Library and mobile | `.sbe-mkt-showcase-warm` | Two text blocks beside one screenshot, with the phone overlapping its corner. |
-| 6 | Mastery Path | `.sbe-mkt-path` | Dark band, split header, three staggered numbered steps. |
-| 7 | What gets measured | `.sbe-mkt-measures` | Ledger rows: numeral, label, explanation. |
-| 8 | SOP lead band | `.sbe-mkt-leadband` | Centred dark band. |
-| 9 | Plans | `.sbe-mkt-plans` | Sticky intro and CTA on the left, ruled plan list on the right, one guarantee statement. |
-| 10 | Revenue Impact Calculator | `.sbe-mkt-roi` | Full-bleed dark band; sliders and email form left, readout right. |
-| 11 | FAQ | `.sbe-mkt-faq` | Sticky heading left, hairline accordion right. |
-| 12 | Final CTA | `CTABand` | Centred dark band, one action. |
+| 3 | Two views | `.sbe-mkt-showcase` | Alternating text and screenshot rows; screenshots break out of the container. |
+| 4 | Library and mobile | `.sbe-mkt-showcase-warm` | Two text blocks beside one screenshot, with the phone overlapping its corner. |
+| 5 | Mastery Path | `.sbe-mkt-path` | Dark band, split header, three staggered numbered steps. |
+| 6 | What gets measured | `.sbe-mkt-measures` | Ledger rows: numeral, label, explanation. |
+| 7 | SOP lead band | `.sbe-mkt-leadband` | Centred dark band. |
+| 8 | Plans | `.sbe-mkt-plans` | Sticky intro and CTA on the left, ruled plan list on the right, one guarantee statement. |
+| 9 | Revenue Impact Calculator | `.sbe-mkt-roi` | Full-bleed dark band; sliders and email form left, readout right. |
+| 10 | FAQ | `.sbe-mkt-faq` | Sticky heading left, hairline accordion right. |
+| 11 | Final CTA | `CTABand` | Centred dark band, one action. |
 
 Anchors in use: `#feature-preview`, `#mastery-path`, `#roi-calculator`. Keep them when editing.
 
@@ -101,7 +100,7 @@ Anchors in use: `#feature-preview`, `#mastery-path`, `#roi-calculator`. Keep the
 
 ## 4. Building blocks
 
-All of this is in the "Homepage editorial layout" block at the end of `app/globals.css`.
+All of this is in the "Homepage editorial layout" block in `app/styles/marketing.css`.
 
 ### 4.1 Type primitives
 
@@ -137,7 +136,7 @@ All of this is in the "Homepage editorial layout" block at the end of `app/globa
 | `CTABand` | Every marketing page ends with exactly one. One primary action; the optional secondary is a text link. The exceptions are `/toolkit`, where the generator is the action, and the legal pages. |
 | `PageHero` | Every sub-page hero renders through it. |
 | `LogoMarquee` | Shows venue category text until real customer logos exist. |
-| `sections.tsx` | The section 4.2 patterns as server components that take content: `SectionHead`, `SplitPanel`, `MediaRows`, `Ledger`, `RuledList`, `Steps`, `Strip`, `Faq`, `FounderStory`. Sub-pages are built from these. |
+| `sections.tsx` | The section 4.2 patterns as server components that take content: `SectionHead`, `SplitPanel`, `MediaRows`, `Ledger`, `RuledList`, `Steps`, `Strip`, `Faq`. Sub-pages are built from these. |
 | `SolutionPage` | The one layout behind every `/solutions/<vertical>` page. A vertical's page file is metadata plus a `SolutionContent` constant. |
 | `ContactForm` | The client island on `/contact`. |
 | `PricingPlans` | The client island on `/pricing`. |
@@ -256,7 +255,7 @@ A section the visitor operates (the calculator, a form) must fit in a 1440×900 
 
 ### 6.3 Proof
 
-- **No testimonials, customer logos, case studies or unsourced outcome figures.** None exist yet. The founder story is the only real proof on the site and is treated as such.
+- **No testimonials, customer logos, case studies or unsourced outcome figures.** None exist yet. The founder section was removed on 2026-10-13: the site names no person and shows no portrait.
 - **One risk-reversal statement per page,** placed at the pricing or CTA decision point.
 
 ### 6.4 What every page must say

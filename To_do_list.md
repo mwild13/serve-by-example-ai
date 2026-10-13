@@ -34,6 +34,20 @@ Grouped by where you sign in. None of these can be done from the code.
 
 - [ ] **Sign-in screen branding.** Google Cloud Console (project number `971763423157`), Google Auth Platform, Branding: app name, support email, home page, privacy policy and terms links, and `servebyexample.co` as an authorised domain. Adding a logo starts Google's brand verification, which needs the domain verified in Search Console. Then check Clients: the only authorised redirect URI should be the Supabase callback.
 
+- [ ] **Google Ads.** The only ad platform for now. Link the Google Ads account to the Analytics property, then import `sign_up`, `trial_start` and `purchase` as conversions. They must be marked as key events first (see Parked). No pixel goes in the code. Tag every ad link with `utm_source`, `utm_medium` and `utm_campaign`.
+
+### Stripe
+
+- [ ] **Switch on plan switching, in test mode first.** Settings, Billing, Customer portal, "Customers can switch plans". Add the Boutique and Commercial prices, monthly and yearly, and nothing else (not Pro, not Enterprise). Set proration to "Prorate and invoice immediately", not "on next invoice". Until this is done, a Pro member who presses a venue plan sees Stripe's refusal instead of the upgrade page.
+
+### Sentry
+
+- [ ] **Create the account and add the DSN.** Free plan, one project of type "Browser JavaScript". In the project's Security & Privacy settings switch on "Prevent Storing of IP Addresses". Copy the DSN into Cloudflare Pages as `NEXT_PUBLIC_SENTRY_DSN` for Production and Preview, then redeploy: the value is read at build time. Error reporting is off until then.
+
+### OpenAI
+
+- [ ] **Set a monthly budget and an alert email.** Settings, Limits. The daily limit of 30 and 300 requests bounds one account; only this bounds the bill.
+
 ## 4. Owner: testing
 
 Three sittings cover every unconfirmed fix.
@@ -55,22 +69,24 @@ Three sittings cover every unconfirmed fix.
 - [ ] **`/dashboard` when narrow.** At about 700px and 375px: the nav sits on top as a wrapped row, every item opens, Sign out is reachable, nothing scrolls sideways.
 - [ ] **Join link** on a computer, as on the phone.
 - [ ] **Demo against the live evaluator.** Submit one real answer on `/demo` and `/demo/complaint-master`, and confirm the feedback has no em dashes.
-- [ ] **AI limit.** 30 requests a day on the free tier, 300 on paid (`lib/ai-usage.ts`). See what staff are shown at the limit.
+- [ ] **AI limit.** 30 requests a day on the free tier, 300 on paid (`lib/ai-usage.ts`). Changed 2026-10-12, not seen in a browser: at the limit the screen should say how many hours until it resets, keep the submit button disabled, and on a free account link to the plans. To reach it quickly, raise a test account's `request_count` in `ai_usage_daily` to 30.
+- [ ] **Upgrade from Pro to a venue plan.** Needs the Stripe setting in section 3. In test mode, as a Pro account, press a Boutique button on `/membership`: Stripe's page should show the prorated charge. Pay, and confirm you land on the Manager Console billing tab on Boutique with 15 seats and an organisation created.
+- [ ] **Error reporting.** Needs the Sentry DSN in section 3. Open the preview, cause an error, and confirm it arrives in Sentry with a stack trace and no IP address. Also confirm one server error arrives: if none does from a page render, the `onRequestError` hook is not running under OpenNext and only the billing and AI routes report.
+- [ ] **Console after accepting cookies.** On the live site accept cookies and check the browser console for blocked requests. The Google hosts in `connect-src` were widened on 2026-10-12.
 - [ ] **Roster unlink on account deletion.** Delete a test staff account that is on a venue roster, then confirm its `venue_staff` row is kept with `staff_user_id` null and `organization_members` is marked `removed`.
+
+- [ ] **The staff app after the stylesheet split.** Done 2026-10-13, checked on every public page but not behind a login. Click through each `/dashboard` screen and each `/mobile` screen and look for anything unstyled or laid out differently. Then go from the home page to `/login` to `/dashboard` without reloading and check the same.
 
 ### On a computer, as a manager
 
 - [ ] **Trial chip on the collapsed sidebar.** Added 2026-10-12, not seen. On a trial account, collapse the sidebar: a small chip with the days left should sit above Settings and open Billing.
 - [ ] **Status after the recalculation.** Changed 2026-10-12. On the Staff tab, someone quiet for 14 days should read "Needs follow-up", and someone who trained this week "On track", whatever they showed before.
+- [ ] **The console after the stylesheet split.** Same check as the staff app: every tab, the drawers, the invite panel and Settings should look as they did.
 - [ ] **The redesigned console.** It went to production on 2026-10-09 having only been viewed with sample data. Go through every tab, the collapsed sidebar, the account menu and Sign out, and ask the AI Coach a question then use New chat.
 
 ## 5. Owner: decisions
 
-- [ ] **Error tracking: Sentry or not.** Nothing reports production errors. If yes it is built fresh: do not merge `preview/sentry-error-tracking` (`55f0960`, August), which conflicts in four files and carries an old cookie banner. A new build needs a Sentry DSN in Cloudflare Pages, a check that the SDK runs under OpenNext and keeps the worker under its size limit, a decision on whether it waits for cookie consent, and a line in the privacy policy naming Sentry.
-- [ ] **How a Pro member moves to a venue plan.** Checkout refuses anyone with a live subscription and sends them to Billing, where the Stripe portal only lets them cancel or change card. Either switch on plan switching in the portal, or build an upgrade that replaces the Pro subscription.
-- [ ] **The AI limits.** Are 30 and 300 a day right, shared across grading, Arena and both coaches?
-- [ ] **The funnel numbers, before any spend.** Visit to sign-up, sign-up to first scenario completed, trial to paid, and cost per paying venue. Attribution is stored (`profiles.acquisition` and Stripe metadata), so these can be SQL queries once defined.
-- [ ] **Ad platforms.** Name each one before its pixel goes in: its hosts must be added to `connect-src` in `middleware.ts`. Also accept cookies on the live site and check the console, since `connect-src` lists only `www.google-analytics.com` and Google Analytics sometimes sends to a regional host.
+Nothing open. The five that were here were decided on 2026-10-12 (Part 13 of the week 3 handoff). What each left for you to do is in sections 3 and 4.
 
 ## 6. Tests
 
@@ -82,7 +98,6 @@ Three sittings cover every unconfirmed fix.
 
 - [ ] **Weekly digest and Sunday reminder sender.** Settings lets staff opt in and the confirmation email promises "every Monday morning" / "every Sunday night", but nothing sends them (0 opted in on 2026-10-05). Cloudflare Pages has no cron and `pg_cron` is not installed, so this needs `pg_cron` plus an Edge Function, or a scheduled Worker. Send only to profiles with the flag true. Once it works, add a one-off, dismissible opt-in card on mobile Home linking to Settings > Notifications. Don't email people about it, since they haven't consented.
 - [ ] **Store daily training activity.** Only each person's last-active date is kept, so the Overview tab cannot show a trend.
-- [ ] **Split `app/globals.css` by surface.** One 317 KB file on every page.
 
 ## Parked
 
@@ -111,4 +126,6 @@ Paid plans to decide on. None is switched on by the code; each is bought in its 
 
 Not urgent today, but each has a trigger that must not be missed.
 
+- [ ] **Read the AI usage numbers two weeks after the first real venue starts.** Run `supabase/queries/ai-usage.sql`. If the 90th percentile sits near 30 (free) or 300 (paid), raise that limit in `lib/ai-usage.ts`. There was one row of usage when the limits were kept on 2026-10-12.
+- [ ] **Read the funnel numbers before and during any ad spend.** `docs/FUNNEL_METRICS.md` and `supabase/queries/funnel.sql`. Fix the size of the first test before it starts, and pause it if 200 paid visits produce no trial.
 - [ ] **Register for GST at A$75,000 turnover.** Not registered as of 2026-10-12, so checkout charges no GST and invoices say "No GST has been charged". Registration is compulsory once turnover reaches A$75,000 in any 12 months, within 21 days of reaching it. When that happens: register with the ATO, add the registration under Stripe Tax, set the prices to tax-inclusive, switch on `automatic_tax` in `app/api/billing/checkout/route.ts`, change the invoice template to say "Tax invoice" and drop the no-GST line, and update the GST wording on `/advisory`.

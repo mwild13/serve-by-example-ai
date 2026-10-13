@@ -69,7 +69,7 @@ Service functions still filter every update/delete by `manager_user_id`/`owner_u
 
 ## 6. Console design (October 2026 redesign)
 
-The whole console was rebuilt to the `docs/Pages-Redesign.md` principles. Styles are two blocks in `app/globals.css`, both `.mc-*` classes: "MANAGER CONSOLE — SHELL AND OVERVIEW TAB" and "MANAGER CONSOLE — PAGES".
+The whole console was rebuilt to the `docs/Pages-Redesign.md` principles. Styles are in `app/styles/management.css`, which only `/management` loads (the `--mc-*` tokens stay in the `:root` of `app/globals.css`). Two blocks, both `.mc-*` classes: "MANAGER CONSOLE — SHELL AND OVERVIEW TAB" and "MANAGER CONSOLE — PAGES".
 
 **Look**
 - **Type:** Newsreader and Inter through `--font-heading` / `--font-body`. The console loads no fonts of its own.
@@ -107,6 +107,14 @@ The whole console was rebuilt to the `docs/Pages-Redesign.md` principles. Styles
 - **"Trained this week"** uses `wasActiveWithinDays()` in `lib/management/needs-attention.ts`. The tile, the reel and the venue health score share it.
 - **Shift readiness** is scored across all venue staff. There is no roster in the data model, so it cannot describe one shift.
 - **Team activity** groups staff by last-active date. No daily activity is stored, so there is no trend chart.
+
+## 7. Billing and plan changes
+
+- **Plans and prices live in `lib/billing-plans.ts`.** Checkout, the portal route and the webhook all read it. `planForSubscription()` takes the tier from the subscription's price and uses the checkout metadata only as a fallback: metadata is written once at checkout and goes stale when a plan is changed later.
+- **`lib/billing-sync.ts` writes a subscription onto the account** (`applySubscription()`): the profile's tier and status, and for a venue tier the organisation, which it creates if the account has none. The webhook calls it for every subscription event.
+- **Moving up a plan** (Pro to a venue plan, or Boutique to Commercial): the pricing board gets `409 ALREADY_SUBSCRIBED` from checkout and calls `/api/billing/portal` with `upgradeTo`. The route checks the move is a step up (`isUpgrade()`) and opens Stripe's portal on its confirmation page, where Stripe shows the prorated charge and takes the payment. The member returns to `/management/dashboard?...&upgraded=1`, and the page applies the subscription from Stripe before rendering, so it does not wait for the webhook.
+- **This depends on a Stripe setting.** Customer portal, "Customers can switch plans", listing the Boutique and Commercial prices, with proration set to "Prorate and invoice immediately". If a price is not listed, Stripe refuses the session and the member sees the reason.
+- **Not offered:** moving down, moving between monthly and yearly on the same tier, and Enterprise. Those go through support.
 
 ## Known Gaps / Drift
 

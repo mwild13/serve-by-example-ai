@@ -29,7 +29,7 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 | `/roadmap` | Public product roadmap |
 | `/security` | Security & Safety |
 | `/about` | About |
-| `/advisory` | By Example Advisory — hospitality consulting packages. Footer link only (not in the navbar). `robots: noindex` and deliberately absent from `app/sitemap.ts`. All CTAs go to `/contact?source=advisory&package=<slug>` (the contact form forwards both to the enquiry email) and fire the GA event `advisory_cta_click` via `components/advisory/AdvisoryCtaTracker.tsx`. Styles use the `sbe-adv-` prefix in `app/globals.css`; hero reuses the homepage `sbe-mkt-hero-*` classes |
+| `/advisory` | By Example Advisory — hospitality consulting packages. Not linked from anywhere on the site (the footer link was removed on 2026-10-13); reached by direct URL only. `robots: noindex` and deliberately absent from `app/sitemap.ts`. All CTAs go to `/contact?source=advisory&package=<slug>` (the contact form forwards both to the enquiry email) and fire the GA event `advisory_cta_click` via `components/advisory/AdvisoryCtaTracker.tsx`. Styles use the `sbe-adv-` prefix in `app/globals.css`; hero reuses the homepage `sbe-mkt-hero-*` classes |
 | `/contact` | Contact |
 | `/privacy` | Privacy Policy |
 | `/terms` | Terms of Service |
@@ -38,12 +38,12 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 
 ## 2. Canonical URLs & Routing Rules
 
-**`/pricing` vs `/membership`**: `app/membership/page.tsx` is a one-line re-export — `export { default } from "@/app/pricing/page";` — same component, different `layout.tsx` metadata. Both pages set their own self-referential SEO canonical:
+**`/pricing` vs `/membership`**: `app/(marketing)/membership/page.tsx` is a one-line re-export — `export { default } from "@/app/pricing/page";` — same component, different `layout.tsx` metadata. Both pages set their own self-referential SEO canonical:
 
 ```ts
-// app/pricing/layout.tsx
+// app/(marketing)/pricing/layout.tsx
 alternates: { canonical: "/pricing" }
-// app/membership/layout.tsx
+// app/(marketing)/membership/layout.tsx
 alternates: { canonical: "/membership" }
 ```
 
@@ -62,11 +62,11 @@ Both are listed separately in `app/sitemap.ts`. This is a duplicate-content SEO 
 | Say this | Not this | Where confirmed |
 |---|---|---|
 | Manager Console | ~~Mission Control~~ | Navbar, Footer, homepage feature card, `/how-it-works`, `/solutions`, `/pricing`, `/privacy`, `/vs-generic-lms`, `components/ui/CompareMatrix.tsx` |
-| 14-Day Performance Guarantee | — | `app/page.tsx:460-486`, a dedicated section: *"If training engagement doesn't measurably increase within your first 14 days, you won't be charged. No questions asked."* |
+| 14-Day Performance Guarantee | — | `app/(marketing)/page.tsx:460-486`, a dedicated section: *"If training engagement doesn't measurably increase within your first 14 days, you won't be charged. No questions asked."* |
 
 **Be precise about which "14-day" claim is being referenced** — two distinct claims share the same number and both appear across marketing copy:
 1. **14-day free trial** (trial length) — reused on `/pricing`, `/terms`, `HeroSection.tsx`, `CompareMatrix.tsx`, `lib/trial.ts`.
-2. **14-Day Performance Guarantee** (money-back guarantee, conditional on engagement) — `app/page.tsx:460-486` only.
+2. **14-Day Performance Guarantee** (money-back guarantee, conditional on engagement) — `app/(marketing)/page.tsx:460-486` only.
 
 These are not interchangeable — don't use "14-day" copy from one context to justify wording in the other.
 
@@ -80,7 +80,7 @@ These are not interchangeable — don't use "14-day" copy from one context to ju
 |---|---|---|
 | `PageHero.tsx` | The single sub-page hero | Every sub-page |
 | `CTABand.tsx` | End-of-page CTA band: one primary action + optional secondary text link | Every page except `/toolkit` and the legal pages |
-| `sections.tsx` | The editorial section patterns as server components: `SplitPanel`, `MediaRows`, `Ledger`, `RuledList`, `Steps`, `Strip`, `Faq`, `FounderStory`, `SectionHead` | Every sub-page |
+| `sections.tsx` | The editorial section patterns as server components: `SplitPanel`, `MediaRows`, `Ledger`, `RuledList`, `Steps`, `Strip`, `Faq`, `SectionHead` | Every sub-page |
 | `SolutionPage.tsx` | Shared layout for the four `/solutions/<vertical>` pages | `/solutions/*` |
 | `ContactForm.tsx` | Client island holding the contact form and its `source` / `package` attribution | `/contact` |
 | `PricingPlans.tsx` | Client island holding tier data, billing toggle, trial start and checkout | `/pricing` |
@@ -92,7 +92,7 @@ These are not interchangeable — don't use "14-day" copy from one context to ju
 
 | Component | Purpose |
 |---|---|
-| `CompareMatrix.tsx` | Full feature-comparison matrix (Staff/Venue/Group/Franchise columns); docstring targets the `/membership` page | `app/pricing/page.tsx`, `app/for-venues/page.tsx` |
+| `CompareMatrix.tsx` | Full feature-comparison matrix (Staff/Venue/Group/Franchise columns); docstring targets the `/membership` page | `app/(marketing)/pricing/page.tsx`, `app/(marketing)/for-venues/page.tsx` |
 | `ROICalculator.tsx` | Interactive ROI calculator widget | Homepage, `/roi`, `/pricing` |
 | `PricingIcons.tsx` | SVG icon set (`IncludedIcon`, `ExcludedIcon`, `TreeConnector`) for the pricing/membership matrix | `CompareMatrix.tsx` |
 
@@ -102,7 +102,7 @@ These are not interchangeable — don't use "14-day" copy from one context to ju
 
 The page is live on its URL but held back from search until these are done:
 
-- [ ] Confirm pricing, then remove `robots: { index: false }` from `app/advisory/page.tsx` and re-add `/advisory` to `app/sitemap.ts`. Update the noindex assertion in `tests/e2e-marketing/advisory.spec.ts` at the same time.
+- [ ] Confirm pricing, then remove `robots: { index: false }` from `app/(marketing)/advisory/page.tsx` and re-add `/advisory` to `app/sitemap.ts`. Update the noindex assertion in `tests/e2e-marketing/advisory.spec.ts` at the same time.
 - [ ] Replace the hero image (`public/images/advisory/advisory-hero.jpg`) with a real photo.
 - [ ] Add an About photo. `public/images/advisory/advisory-about.jpg` is in the repo but unused; the About section is currently text-only.
 - [ ] Review the supplier disclosure FAQ ("Do you have ties to any suppliers?") so it matches Mitch's current role and supplier relationships.
@@ -115,6 +115,18 @@ Google Analytics (`G-EF9YRFXKBG`) is **not** in `app/layout.tsx`. It loads only 
 - `lib/consent.ts`: `sbe-cookie-consent` localStorage record (`{v, analytics, ts}`), `applyAnalyticsConsent()` injects gtag.js from the client bundle (no inline script, works with the strict-dynamic CSP). Bump `CONSENT_VERSION` to re-prompt everyone.
 - Footer `Cookie settings` (`components/CookieSettingsLink.tsx`) reopens the banner via the `sbe:open-cookie-settings` event.
 - Any new analytics/marketing tag must be gated through `lib/consent.ts`, not added to the layout.
+- `connect-src` in `middleware.ts` allows Google's three documented hosts for Analytics (`*.google-analytics.com`, `*.analytics.google.com`, `*.googletagmanager.com`), because hits can go to a regional host. A new ad platform's hosts must be added there before its tag goes in.
+- **Ad platforms (decided 2026-10-12):** Google Ads only, with conversions imported from the Analytics events. No ad pixel is in the code. The numbers to watch are in `docs/FUNNEL_METRICS.md`.
+
+## Error Reporting
+
+Errors go to Sentry through `lib/report-error.ts`, which posts to Sentry's envelope endpoint with `fetch`. There is no Sentry SDK in the build, on purpose: the Next.js SDK threatens the worker's size limit.
+
+- Off until `NEXT_PUBLIC_SENTRY_DSN` is set in Cloudflare Pages. With it unset, `reportError()` does nothing and the CSP allows no extra host.
+- **Browser:** `components/ErrorLogger.tsx` (uncaught errors and rejected promises) and the five `error.tsx` boundaries.
+- **Server:** `instrumentation.ts` (`onRequestError`, for anything uncaught) and the catch blocks of the billing and AI routes. On the server, `await reportError(...)`: a worker drops unfinished requests once it has responded.
+- It sets no cookie and stores nothing in the browser, so it does not wait for cookie consent. It sends the error, its stack and the path without the query string; no user id, email or IP. `/privacy` and `/cookies` both name Sentry.
+- A new route that catches its own errors should call `reportError(error, { route, url: req.url })` beside its `console.error`.
 
 ## Known Gaps / Drift
 

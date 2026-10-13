@@ -64,6 +64,14 @@ The desktop quiz (`ModuleVerify.tsx` → `RapidFireQuiz.tsx`) and the mobile one
 
 **Confirmed greenfield — no PWA/offline infrastructure exists today.** A full-repo search for `manifest.json`, `next-pwa`, `serviceWorker`, `workbox`, `sw.js`, and `<link rel="manifest">` in source files returns zero matches outside auto-generated Next.js/OpenNext build artifacts (`.next/`, `.open-next/`), which are not app-authored and don't count. There is no service worker registration anywhere in `app/` source. State this as a definitive current-state fact — this doc round is recording reality, not proposing to add PWA support.
 
+## 6. Daily AI Limit
+
+One allowance per account per day, shared by scenario grading, Arena and the AI Coach: 30 requests on the free tier, 300 on a paid one (`lib/ai-usage.ts`). The day turns over at midnight, Sydney time. Kept at these numbers on 2026-10-12 because there was no usage to tune against; `supabase/queries/ai-usage.sql` is the check.
+
+- At the limit a route answers 429 with `code: "AI_DAILY_LIMIT"`, a message that says how long until the reset, `resetsAt` and `upgrade` (true for a free account).
+- A screen that calls an AI route reads that body with `readAiDailyLimit()` and holds it with `useAiDailyLimit()` (`lib/use-ai-daily-limit.ts`). While a limit is held it shows `components/AiLimitNotice.tsx` in place of its error line and keeps its submit button disabled, so nobody retries a request that cannot succeed. Any other 429 is the short burst limit and keeps the "try again in a minute" message.
+- The per-account limit does not cap the month's bill. The budget set in the OpenAI dashboard does.
+
 ## Known Gaps / Drift
 
 - **AI Arena has no chat history** (§3) — guard against assuming streaming or multi-turn conversation when extending it.

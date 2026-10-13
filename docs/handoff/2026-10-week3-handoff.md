@@ -379,3 +379,98 @@ The business is not registered for GST, so none is charged. This was asked only 
 ### Checked
 
 Typecheck passes. The `/advisory` change is at `7cc2f35`.
+
+## Part 13: the five owner decisions, decided and built
+
+- **Date:** 2026-10-12
+- **Branch:** `preview/oct-w3-owner-decisions`, cut from `preview/oct-w3-todo-sweep`. Not merged to `main`.
+
+### The short version
+
+Section 5 of the to-do list held five decisions that blocked paid marketing. The owner asked for them to be decided and built. All five are closed; what each needs from the owner is now in sections 3 and 4 of `To_do_list.md`. Nothing here has been seen in a browser yet.
+
+| Decision | Outcome |
+|---|---|
+| Error tracking | Sentry, with no SDK. Off until the DSN is set. |
+| Pro to a venue plan | Stripe's portal confirms the upgrade. The webhook was fixed so a changed plan is applied. |
+| AI limits | Kept at 30 and 300. The screens now say when the limit resets. |
+| Funnel numbers | Four definitions and saved SQL. |
+| Ad platforms | Google Ads only, no pixel. Google's hosts widened in the CSP. |
+
+### Error tracking
+
+`lib/report-error.ts` posts errors to Sentry's envelope endpoint with `fetch`. The August branch `preview/sentry-error-tracking` was not used and can be deleted.
+
+- **A change from the plan.** The plan was to load `@sentry/browser` in the browser. It was dropped: every current release of it was under a week old, and `components/ErrorLogger.tsx` already caught browser errors, so the same small reporter serves both sides with no dependency. What is lost is Sentry's breadcrumbs (the clicks and requests before an error). The stack trace, message, page and digest are all sent.
+- **Where it reports from:** `ErrorLogger.tsx`, the five `error.tsx` boundaries, `instrumentation.ts` (`onRequestError`), and the catch blocks of the three billing routes and four AI routes.
+- **Privacy:** no cookie, nothing stored in the browser, no user id, email or IP, and the query string is cut from the page address. It does not wait for cookie consent. `/privacy` and `/cookies` name Sentry.
+- **CSP:** the host is read from the DSN and added to `connect-src` only when the DSN is set.
+- **Limits:** 20 events a minute per tab or worker instance, and the same error is sent once a minute. Errors from browser extensions are dropped.
+- **Not confirmed:** whether OpenNext calls `onRequestError`. The hook is in the build. If it does not fire, page-render errors on the server go unreported and only the billing and AI routes report.
+
+### Pro to a venue plan
+
+- **The fault found.** The webhook took the tier from the subscription's metadata before its price. Metadata is written once at checkout, so a plan changed in the portal or by hand in the Stripe dashboard would have left the account on its old tier. It also never created the organisation outside a first checkout.
+- **The fix.** `lib/billing-plans.ts` holds the plans, and `planForSubscription()` takes the tier from the price. `lib/billing-sync.ts` holds what the webhook writes; for a venue tier it now creates or links the organisation. A subscription moved down to a personal plan sets its organisation to no seats.
+- **The upgrade.** On `/membership`, a paying member who presses a venue plan is sent to Stripe's portal on its confirmation page (`/api/billing/portal` with `upgradeTo`). Only a step up is allowed. They return to the Manager Console, which applies the subscription from Stripe before it renders.
+- **One guard added.** A subscription is only attached to an organisation the paying account owns. Before, a profile linked to someone else's organisation could have attached its subscription to it.
+- **Needs the owner:** plan switching switched on in the Stripe portal, listing the Boutique and Commercial prices, proration "Prorate and invoice immediately".
+
+### AI limits
+
+Kept at 30 a day free and 300 paid, shared across grading, Arena and both coaches. `ai_usage_daily` held one row with a count of 1, so there was nothing to tune against.
+
+- The 429 now says how long until the reset and carries `resetsAt` and `upgrade`.
+- The two desktop training screens, the two mobile ones and the mobile AI Coach hold their submit button until the reset and show the message; a free account also gets a link to the plans. The mobile screens used to replace the limit message with "Too many requests. Try again in a minute", which was wrong for a daily limit.
+- The Manager Console coach shows the new message in the chat and is otherwise unchanged.
+- `supabase/queries/ai-usage.sql` is the check to run later.
+
+### Funnel numbers and ad platforms
+
+- `docs/FUNNEL_METRICS.md` defines visit to sign-up, sign-up to first scenario, trial to paid and cost per paying venue. `supabase/queries/funnel.sql` holds the queries. Visit to sign-up is a trend only, since visits and accounts are counted by different systems.
+- Run against the live database on 2026-10-12: 12 accounts have ever signed in, 1 of them trained within 7 days of signing up, 1 trial started and none converted, and no paying venue has a campaign source. The two accounts with a source are tests (`utm_source=test`).
+- Google Ads is the only ad platform for now, with conversions imported from Analytics. No pixel was added.
+- `connect-src` now allows `*.google-analytics.com`, `*.analytics.google.com` and `*.googletagmanager.com`.
+
+### Checked
+
+Typecheck and lint pass. 88 unit tests pass, 19 of them new (plan mapping, the reset time, the error envelope). `npm run build:cloudflare` succeeds; the server bundle is 1.7 MB compressed. The six saved queries were run against the live database. Not checked: anything in a browser, the upgrade against Stripe, and an error arriving in Sentry.
+
+
+## Part 14: no founder on the site, and the stylesheet split by surface
+
+- **Date:** 2026-10-13
+- **Branch:** `preview/oct-w3-owner-decisions`. Not committed, not merged to `main`.
+
+### The short version
+
+The owner is making the brand faceless. The founder section is gone from the home page and `/about`, and `/advisory` is no longer linked from the footer. The one 317 KB stylesheet is now five files, and a page loads only the shared one and its own.
+
+### Founder content
+
+- Removed the founder section (portrait, "Built by a 15-year hospitality veteran", the signed quote) from the home page and `/about`, with the `FounderStory` component, its CSS and `public/24 May Jpg's/Founder.webp`.
+- The toolkit email is signed "The Serve By Example team", and the toolkit success page says "an email from Serve By Example".
+- `/advisory` is unchanged and still names and shows the founder. The owner asked to keep it for direct use. Its footer link is removed; it was already `noindex` and absent from the sitemap, so it is reached by URL only.
+
+### Stylesheets
+
+| File | Size | Loaded on |
+|------|------|-----------|
+| `app/globals.css` | 87 KB | every page |
+| `app/styles/marketing.css` | 101 KB | the public site |
+| `app/styles/staff.css` | 63 KB | `/dashboard`, `/mobile` |
+| `app/styles/management.css` | 64 KB | `/management` |
+| `app/styles/auth.css` | 10 KB | `/login`, `/onboarding`, `/reset-password`, `/session-conflict` |
+
+Minified CSS per page, before and after: public site 217 KB to 120 KB, sign-in 217 KB to 54 KB, staff app 217 KB to 91 KB, Manager Console 217 KB to 94 KB.
+
+- The public pages moved into the `app/(marketing)/` route group so one layout can load `marketing.css`. No URL changed.
+- No rule was edited. Each rule was placed by which surfaces can produce its classes, found by following imports from every page. A rule used by two surfaces, or by the root error and not-found pages, stayed in `globals.css`.
+- The shared file now loads before the surface file, where before the rules were interleaved. 71 surface rules were kept in `globals.css` because a later shared rule of equal specificity could have applied to the same element.
+- `scripts/lint-css-tokens.mjs` and `scripts/find-unused-css.mjs` read all five files. The rules for where a new class goes are in `CLAUDE.md` under "Stylesheets".
+
+### Checked
+
+Computed styles of every element, with `::before` and `::after`, were recorded on 35 public and sign-in pages at 1366px and 390px before the split and compared after: identical on all of them. A production build links `globals.css` first and then one surface file per page. Typecheck, lint and unit tests pass.
+
+Not checked: any screen behind a login. `/dashboard`, `/mobile` and `/management` rest on the placement analysis alone, and the owner's click-through is in section 4 of `To_do_list.md`. Hover and open states were not recorded on any page.

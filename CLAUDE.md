@@ -34,6 +34,7 @@ This file is global rules only. Domain-specific architecture, component maps, an
 - Staff App — web & mobile training loop, AI Arena, PWA: `docs/STAFF_APP.md`
 - Database schema, table map, RLS rules: `docs/DATABASE_SCHEMA.md`
 - Mastery/ELO scoring engine: `docs/MASTERY_ENGINE.md`
+- Funnel numbers and the saved SQL behind them: `docs/FUNNEL_METRICS.md`
 
 ## Design System — Use These Exactly
 
@@ -79,12 +80,30 @@ All styling uses CSS custom properties defined in `app/globals.css`. **Do not in
 
 **No emojis anywhere.** Use SVG icons or text labels instead.
 
-**No Tailwind utility classes.** Use `style={{}}` inline props with CSS variables, or CSS class names defined in `app/globals.css`.
+**No Tailwind utility classes.** Use `style={{}}` inline props with CSS variables, or CSS class names defined in a stylesheet (below).
+
+### Stylesheets
+
+One shared file, then one file per surface. A page loads the shared file and its own surface file, nothing else.
+
+| File | Loaded by | Holds |
+|------|-----------|-------|
+| `app/globals.css` | `app/layout.tsx` (every page) | Tokens, reset, and every rule used on more than one surface: Navbar, Footer, cookie banner, book-a-call modal, the error and not-found pages |
+| `app/styles/marketing.css` | `app/(marketing)/layout.tsx` | The public site |
+| `app/styles/staff.css` | `app/dashboard/layout.tsx`, `app/mobile/layout.tsx` | Staff web and mobile app |
+| `app/styles/management.css` | `app/management/layout.tsx` | Manager Console |
+| `app/styles/auth.css` | the `login`, `onboarding`, `reset-password` and `session-conflict` layouts | Sign-in and onboarding |
+
+- Public pages live in the `app/(marketing)/` route group. The group adds nothing to the URL: `app/(marketing)/pricing/page.tsx` is `/pricing`.
+- A new class goes in the surface file of the one surface that uses it. If a second surface starts using it, move the rule to `app/globals.css`.
+- All tokens (`:root`) stay in `app/globals.css`.
+- The shared file always loads first. A rule in it cannot override a surface rule of the same specificity, so do not rely on source order across files.
+- `npm run lint:css` and `npm run lint:css:unused` read all five files.
 
 ## Coding Conventions
 
 - TypeScript throughout — no `any` unless truly unavoidable
-- **No Tailwind.** All styling via CSS custom properties in `app/globals.css` or inline `style={{}}` with CSS variables
+- **No Tailwind.** All styling via CSS classes in the stylesheets above (tokens in `app/globals.css`) or inline `style={{}}` with CSS variables
 - Server components fetch data and pass as props; client components handle interaction and state
 - Never fetch from the DB directly inside a client component — call an API route instead
 - API routes validate input at the boundary before any DB access
