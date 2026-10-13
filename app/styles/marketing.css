@@ -1,0 +1,4612 @@
+/* ── Layout ────────────────────────────────────── */
+
+.section-alt {
+  background: var(--bg-alt);
+}
+
+/* ── Steps / How it works ──────────────────────── */
+
+/* ── Homepage lead-magnet band (free SOP template) — navy, class-based ── */
+
+.sbe-mkt-leadband {
+  background: linear-gradient(160deg, var(--bg-dark) 0%, var(--bg-dark-soft) 100%);
+  padding: var(--section-spacing-md) 1.5rem;
+}
+
+.sbe-mkt-leadband-inner {
+  max-width: 660px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.sbe-mkt-leadband-eyebrow {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold-warm);
+  margin-bottom: 1.25rem;
+}
+
+.sbe-mkt-leadband-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 0 0 1.25rem;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--nav-cream);
+  text-wrap: balance;
+}
+
+.sbe-mkt-leadband-title svg {
+  flex-shrink: 0;
+  color: var(--gold-warm);
+}
+
+.sbe-mkt-leadband-copy {
+  font-family: var(--font-body);
+  font-size: var(--fs-body-lg);
+  line-height: 1.6;
+  color: var(--text-light-muted-on-dark);
+  max-width: 520px;
+  margin: 0 auto 2.5rem;
+}
+
+/* ── Demo page ─────────────────────────────────── */
+
+.demo-scenario-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.demo-scenario-chip {
+  display: grid;
+  gap: 4px;
+  text-align: left;
+  border: 1px solid var(--line);
+  background: var(--bg-warm);
+  color: var(--text);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out), transform 0.2s var(--ease-out);
+}
+
+.demo-scenario-chip:hover {
+  border-color: var(--green);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.demo-scenario-chip.active {
+  border-color: var(--green);
+  background: linear-gradient(180deg, rgba(228, 239, 234, 0.95), rgba(255, 254, 249, 1));
+  box-shadow: 0 0 0 3px rgba(31, 78, 55, 0.1);
+}
+
+.demo-scenario-chip-category {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* ── Legal pages ───────────────────────────────── */
+
+.legal-prose {
+  max-width: 720px;
+}
+
+.legal-prose h2 {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: var(--fw-heading);
+  color: var(--green-deep);
+  margin: 40px 0 10px;
+  letter-spacing: -0.015em;
+}
+
+.legal-prose ul {
+  padding-left: 1.4em;
+  margin-bottom: 18px;
+  color: var(--text-soft);
+  line-height: 1.8;
+}
+
+.legal-prose li {
+  margin-bottom: 8px;
+  overflow-wrap: anywhere;
+}
+
+.legal-prose a:hover {
+  color: var(--green-deep);
+}
+
+/* ── Early access section ─────────────────────── */
+
+@media (max-width: 980px) {
+
+  .demo-scenario-picker {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Contact page ────────────────────────────── */
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contact-textarea {
+  resize: vertical;
+  min-height: 120px;
+  font-family: inherit;
+}
+
+/* ── Update 18: Sticky in-page sub-nav ──────── */
+
+.section-subnav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line-light);
+  transform: translateY(-110%);
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s;
+  box-shadow: none;
+}
+
+.section-subnav-visible {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+.section-subnav-inner {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.section-subnav-inner::-webkit-scrollbar { display: none; }
+
+.section-subnav-list {
+  display: flex;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+}
+
+.section-subnav-item {
+  padding: 14px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: color 0.18s, border-color 0.18s;
+}
+
+.section-subnav-item:hover { color: var(--green); }
+
+.section-subnav-item-active {
+  color: var(--green);
+  border-bottom-color: var(--green);
+}
+
+.section-subnav-sentinel { position: absolute; top: 0; left: 0; width: 1px; height: 1px; pointer-events: none; }
+
+/* ── Update 17A: Menu Drill Generator ───────── */
+
+.drill-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: var(--surface-raised);
+  border-radius: 50%;
+  animation: drill-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+/* ── Update 20A: Complaint Master ───────────── */
+
+.cm-section { background: var(--bg); }
+
+.cm-container { max-width: 680px; margin: 0 auto; }
+
+.cm-intro {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+
+@media (min-width: 900px) {
+  .cm-intro {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(3rem, 6vw, 6rem);
+    align-items: start;
+  }
+}
+
+.cm-intro-note {
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  margin: 1rem 0 0;
+}
+
+.cm-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.cm-progress-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--line);
+  transition: background 0.2s, transform 0.2s;
+}
+
+.cm-progress-dot-done { background: var(--green); }
+
+.cm-progress-dot-active { background: var(--green); transform: scale(1.3); }
+
+.cm-progress-label { font-size: 0.8rem; color: var(--text-muted); margin-left: 4px; }
+
+.cm-practice { display: flex; flex-direction: column; gap: 20px; }
+
+.cm-scenario-card {
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cm-situation { font-size: 0.9rem; color: var(--text-soft); line-height: 1.65; margin: 0; }
+
+.cm-guest-line {
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--text);
+  border-left: 3px solid var(--gold);
+  padding-left: 14px;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.cm-response-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+  display: block;
+}
+
+.cm-response-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 120px;
+  transition: border-color 0.18s;
+  box-sizing: border-box;
+}
+
+.cm-response-input:focus { outline: none; border-color: var(--green); }
+
+.cm-char-count { font-size: 0.78rem; color: var(--text-muted); text-align: right; }
+
+.cm-error {
+  font-size: 0.875rem;
+  color: var(--status-critical-dark);
+  background: var(--status-critical-light);
+  border: 1px solid var(--status-critical-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin: 0;
+}
+
+.cm-result { display: flex; flex-direction: column; gap: 24px; }
+
+.cm-result-score-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+.cm-result-score { display: flex; align-items: baseline; gap: 2px; }
+
+.cm-result-score-num {
+  font-family: var(--font-heading);
+  font-size: clamp(3rem, 8vw, 4.5rem);
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.cm-result-score-denom {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.cm-result-score-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+}
+
+.cm-result-dims { display: flex; flex-direction: column; gap: 10px; }
+
+.cm-result-dim {
+  display: grid;
+  grid-template-columns: 160px 1fr 40px;
+  align-items: center;
+  gap: 12px;
+}
+
+.cm-result-dim-label { font-size: 0.82rem; font-weight: 600; color: var(--text-soft); }
+
+.cm-result-dim-bar-track {
+  height: 6px;
+  background: var(--line-light);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.cm-result-dim-bar-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 99px;
+  transition: width 0.5s var(--ease-out);
+}
+
+.cm-result-dim-val {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-soft);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.cm-result-feedback { display: flex; flex-direction: column; gap: 16px; }
+
+.cm-result-feedback-block {
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+}
+
+.cm-result-feedback-block h4 {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin: 0 0 8px;
+}
+
+.cm-result-model { border-color: var(--green-light); background: var(--green-light); }
+
+.cm-result-model h4 { color: var(--green-mid); }
+
+.cm-complete { display: flex; flex-direction: column; gap: 28px; align-items: flex-start; }
+
+.cm-complete-score {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cm-complete-score-num {
+  font-family: var(--font-heading);
+  font-size: clamp(4rem, 10vw, 6rem);
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.cm-complete-score-label { font-size: 0.9rem; color: var(--text-soft); }
+
+.cm-complete-score-grade { font-size: 1rem; font-weight: 700; color: var(--green); }
+
+.cm-complete-body { font-size: 0.95rem; color: var(--text-soft); line-height: 1.65; max-width: 540px; }
+
+.cm-complete-cta-group { display: flex; gap: 1rem 1.5rem; flex-wrap: wrap; align-items: center; }
+
+@media (max-width: 500px) {
+  .cm-result-dim { grid-template-columns: 1fr 1fr; }
+  .cm-result-dim-bar-track { display: none; }
+}
+
+/* ── Update 15: Solutions sub-pages ─────────── */
+
+.sol-hero { background: var(--bg); }
+
+/* ── Geo-block page ──────────────────────────────────── */
+
+.geo-block-shell {
+  min-height: 100svh;
+  background: var(--green-deep);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle radial glow behind the card */
+
+.geo-block-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(196, 154, 47, 0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.geo-block-card {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  text-align: center;
+  z-index: 1;
+}
+
+/* Logo */
+
+.geo-block-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 48px;
+}
+
+.geo-block-logo img {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+}
+
+.geo-block-brand-name {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-warm);
+}
+
+/* Globe icon wrapper */
+
+/* Divider */
+
+.geo-block-divider {
+  width: 40px;
+  height: 2px;
+  background: var(--gold-warm);
+  opacity: 0.35;
+  margin: 28px auto;
+  border-radius: 2px;
+}
+
+/* Eyebrow */
+
+.geo-block-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-warm);
+  margin-bottom: 16px;
+  display: block;
+}
+
+/* Heading */
+
+.geo-block-heading {
+  font-family: var(--font-heading);
+  font-size: clamp(2.2rem, 6vw, 3.2rem);
+  font-weight: 800;
+  color: var(--surface-raised);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 20px;
+}
+
+.geo-block-heading span {
+  color: var(--gold-warm);
+}
+
+/* Body text */
+
+.geo-block-body {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.65);
+  max-width: 440px;
+  margin: 0 auto 12px;
+}
+
+.geo-block-note {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.38);
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+/* Footer links */
+
+.geo-block-footer {
+  margin-top: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.82rem;
+}
+
+.geo-block-footer a:hover {
+  color: var(--gold-warm);
+}
+
+.geo-block-footer-dot {
+  color: rgba(255, 255, 255, 0.18);
+  font-size: 0.6rem;
+}
+
+/* ─── SBE SOP Generator ─────────────────────────────────────────────────── */
+
+.sop-preview-container {
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 2rem;
+  font-family: var(--font-body);
+}
+
+.sop-pill-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.sop-pill {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  transition: all 0.2s ease-in-out;
+  text-align: left;
+}
+
+.sop-pill:hover {
+  border-color: var(--gold);
+  background-color: rgba(169, 129, 42, 0.05);
+}
+
+.sop-pill.active {
+  border-color: var(--green);
+  background-color: rgba(31, 78, 55, 0.08);
+  font-weight: 600;
+}
+
+.sop-blur-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70%;
+  background: linear-gradient(to bottom, transparent 0%, var(--surface) 60%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 3rem 1.5rem;
+  z-index: 10;
+}
+
+/* ==========================================================================
+   Pricing / Membership — Compare Matrix (dark panel, matches navbar/hero)
+   ========================================================================== */
+
+.sbe-compare {
+  width: 100%;
+  background: linear-gradient(160deg, var(--bg-dark) 0%, var(--bg-dark-soft) 100%);
+  border: 1px solid var(--border-light-faint-on-dark);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+  color: var(--text-light-on-dark);
+  font-family: var(--font-body);
+}
+
+.sbe-compare-head {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.sbe-compare-eyebrow {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-warm);
+}
+
+.sbe-compare-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.6rem, 3vw, 2rem);
+  color: var(--nav-cream);
+  margin: 0.5rem 0;
+}
+
+.sbe-compare-sub {
+  font-size: 0.9375rem;
+  color: var(--text-light-muted-on-dark);
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.sbe-compare-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border-light-faint-on-dark);
+  border-radius: var(--radius-lg);
+}
+
+.sbe-compare-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+}
+
+.sbe-compare-th {
+  width: 18%;
+  padding: 16px 12px;
+  text-align: center;
+  vertical-align: bottom;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border-light-on-dark);
+}
+
+.sbe-compare-th--label {
+  width: 28%;
+  text-align: left;
+  padding-left: 20px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-compare-th-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.sbe-compare-tier {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--nav-cream);
+}
+
+.sbe-compare-pill {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold-warm);
+  border: 1px solid var(--gold-warm);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.sbe-compare-col--featured {
+  background: var(--border-light-faint-on-dark);
+}
+
+.sbe-compare-section {
+  padding: 14px 20px;
+  background: var(--bg-dark-soft);
+  border-top: 1px solid var(--border-light-on-dark);
+  border-bottom: 1px solid var(--border-light-faint-on-dark);
+}
+
+.sbe-compare-section-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gold-warm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sbe-compare-row:hover .sbe-compare-label,
+.sbe-compare-row:hover .sbe-compare-td {
+  background: var(--border-light-faint-on-dark);
+}
+
+.sbe-compare-label {
+  padding: 13px 20px;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--text-light-on-dark);
+  border-bottom: 1px solid var(--border-light-faint-on-dark);
+}
+
+.sbe-compare-td {
+  padding: 13px 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border-light-faint-on-dark);
+  border-left: 1px solid var(--border-light-faint-on-dark);
+}
+
+.sbe-compare-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  text-align: center;
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-compare-cell--text {
+  flex-wrap: wrap;
+}
+
+.sbe-compare-included {
+  margin-top: 2rem;
+}
+
+.sbe-compare-included-title {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  color: var(--nav-cream);
+  margin: 0 0 1.25rem;
+}
+
+.sbe-compare-included-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.sbe-compare-included-heading {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-warm);
+  margin: 0 0 0.75rem;
+}
+
+.sbe-compare-included-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.sbe-compare-included-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--text-light-on-dark);
+}
+
+.sbe-compare-included-list li svg {
+  margin-top: 2px;
+}
+
+.sbe-compare-included-tier {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-light-muted-on-dark);
+}
+
+@media (max-width: 640px) {
+  .sbe-compare-label {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--bg-dark);
+  }
+}
+
+/* ── INDUSTRIAL PREMIUM: LIGHT CANVAS UTILITIES ──────────────────────────── */
+
+.venue-marquee {
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg-dark-soft);
+  padding: 14px 0;
+  border-top: 1px solid var(--border-light-faint-on-dark);
+  border-bottom: 1px solid var(--border-light-faint-on-dark);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.venue-marquee-track {
+  display: flex;
+  white-space: nowrap;
+  animation: marquee-scroll 32s linear infinite;
+}
+
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-33.333%); }
+}
+
+/* ==========================================================================
+   DEMO PAGE — DUAL-PANE SANDBOX (DESKTOP) / ULTRA-COMPACT APP VIEW (MOBILE)
+   ========================================================================== */
+
+.demo-dual-pane {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  padding-top: 24px;
+  padding-bottom: 16px;
+}
+
+@media (min-width: 721px) {
+  .demo-dual-pane {
+    grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);
+    align-items: start;
+    gap: 32px;
+    padding-top: 40px;
+    padding-bottom: 64px;
+  }
+}
+
+.demo-left-pane { display: flex; flex-direction: column; min-height: 0; }
+
+.demo-right-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-left: clamp(1.5rem, 3vw, 2.5rem);
+  border-left: 1px solid var(--line);
+}
+
+@media (min-width: 721px) { .demo-right-pane { position: sticky; top: calc(var(--nav-height) + 24px); } }
+
+@media (max-width: 720px) { .demo-right-pane { display: none; } }
+
+.demo-right-pane h2 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+}
+
+/* One action, a text link and the page's guarantee statement */
+
+.demo-cta-stack { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.5rem; }
+
+.demo-guarantee {
+  flex-basis: 100%;
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-soft);
+}
+
+.demo-guarantee strong { color: var(--text); font-weight: 700; }
+
+/* Score-reveal animations */
+
+@keyframes demo-cta-highlight {
+  0%   { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+  30%  { box-shadow: 0 0 0 6px rgba(212, 175, 55, 0.35); }
+  100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+}
+
+.demo-cta-pulse { animation: demo-cta-highlight 900ms var(--ease-spring) 1; }
+
+@keyframes demo-cta-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.demo-cta-inline-mount { animation: demo-cta-enter 380ms var(--ease-spring) both; }
+
+/* Evaluation tabs */
+
+.eval-tabs { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+
+.eval-tabs-bar {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-alt);
+  border: 1px solid var(--line-light);
+  border-radius: var(--radius-pill);
+  padding: 4px;
+}
+
+.eval-tab-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-soft);
+  padding: 8px 12px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.eval-tab-btn:hover { color: var(--text); }
+
+.eval-tab-btn.eval-tab-active { background: var(--surface-raised); color: var(--green); box-shadow: var(--shadow-sm); }
+
+.eval-tabs-panel { min-height: 0; }
+
+.eval-tabs:focus { outline: none; }
+
+/* Hover/active polish on existing scenario chips + intent pills (additive, no renames) */
+
+.demo-scenario-chip {
+  transition: transform 200ms var(--ease-spring), border-color 200ms var(--ease-spring), box-shadow 200ms var(--ease-spring), background 200ms ease;
+}
+
+.demo-scenario-chip:active { transform: translateY(-1px) scale(0.99); }
+
+/* Mobile minimal footer */
+
+.demo-minimal-footer { padding: 20px 0 32px; text-align: center; font-size: 0.8rem; color: var(--text-muted); }
+
+/* Solutions links: a ruled list under the lead-capture copy */
+
+.demo-solutions { margin-top: 0.75rem; }
+
+.demo-solutions ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+
+.demo-solutions li { border-bottom: 1px solid var(--line); }
+
+.demo-solutions a:hover { color: var(--green); text-decoration: underline; text-underline-offset: 3px; }
+
+/* Mobile-only layout overrides */
+
+@media (max-width: 720px) {
+  .demo-scenario-picker { grid-template-columns: 1fr; }
+
+  .demo-cta-inline-mount.demo-cta-inline-mount { margin: 12px 0 20px; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Homepage hero redesign — Pages-Redesign.md §6.1 (Aug 2026)
+   Dark 60/40 asymmetric hero. All values reference existing tokens.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.sbe-mkt-fold {
+  /* Fold = navbar (sticky, sibling above) + this block = 100svh. The logo
+     marquee is the last flex child so it always sits flush at the bottom.
+     Capped at 60rem: Google's page renderer uses a viewport many thousands
+     of pixels tall, which stretched the fold and left the headline centred
+     thousands of pixels down, below an empty dark screenshot. */
+  min-height: min(calc(100vh - var(--nav-h)), 60rem);
+  min-height: min(calc(100svh - var(--nav-h)), 60rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sbe-mkt-fold .sbe-mkt-hero {
+  flex-grow: 1;
+}
+
+.sbe-mkt-hero {
+  background: linear-gradient(160deg, var(--bg-dark) 0%, var(--bg-dark-soft) 100%);
+  display: flex;
+  align-items: center;
+  padding: clamp(1.25rem, 3.5vh, 3rem) 0;
+}
+
+.sbe-mkt-hero-grid {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  grid-template-areas: "heading teaser" "details teaser";
+  gap: clamp(1.25rem, 3vh, 3rem) clamp(2rem, 4vw, 4rem);
+  align-items: center;
+}
+
+.sbe-mkt-hero-heading { grid-area: heading; }
+
+.sbe-mkt-hero-teaser { grid-area: teaser; }
+
+.sbe-mkt-hero-details { grid-area: details; }
+
+.sbe-mkt-hero-sub { grid-area: sub; }
+
+.sbe-mkt-hero-actions { grid-area: actions; }
+
+.sbe-mkt-hero-trust { grid-area: trust; }
+
+/* ── Left column ── */
+
+.sbe-mkt-hero-eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-warm);
+  margin: 0 0 0.9rem;
+}
+
+.sbe-mkt-hero-h1 {
+  font-family: var(--font-heading);
+  font-size: var(--fs-hero);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--text-light-on-dark);
+  margin: 0;
+  max-width: 20ch;
+}
+
+.sbe-mkt-hero-sub {
+  font-family: var(--font-body);
+  font-size: var(--fs-body-lg);
+  line-height: 1.55;
+  color: var(--text-light-muted-on-dark);
+  margin: 1.1rem 0 0;
+  max-width: 46ch;
+}
+
+.sbe-mkt-hero-actions {
+  margin-top: 1.5rem;
+}
+
+.sbe-mkt-hero-btn-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.sbe-mkt-hero-cta {
+  display: inline-block;
+  background: var(--gold-warm);
+  color: var(--green-deep);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  font-weight: 700;
+  padding: 0.95rem 2.1rem;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  min-height: 48px;
+  transition: background 0.18s var(--ease-out), transform 0.18s var(--ease-out);
+}
+
+.sbe-mkt-hero-cta:hover {
+  background: var(--gold);
+  transform: translateY(-1px);
+}
+
+.sbe-mkt-hero-cta:focus-visible {
+  outline: 2px solid var(--gold-light);
+  outline-offset: 3px;
+}
+
+.sbe-mkt-hero-microcopy {
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-light-muted-on-dark);
+  margin: 0.7rem 0 0;
+}
+
+.sbe-mkt-hero-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--nav-cream);
+  background: transparent;
+  border: 1px solid rgba(245, 245, 236, 0.6);
+  border-radius: var(--radius-sm);
+  padding: 0.95rem 1.6rem;
+  min-height: 48px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.18s var(--ease-out), border-color 0.18s var(--ease-out),
+    transform 0.18s var(--ease-out);
+}
+
+.sbe-mkt-hero-secondary svg {
+  transition: transform 0.18s var(--ease-out);
+}
+
+.sbe-mkt-hero-secondary:hover {
+  background: rgba(245, 245, 236, 0.1);
+  border-color: var(--nav-cream);
+  transform: translateY(-1px);
+}
+
+.sbe-mkt-hero-secondary:hover svg {
+  transform: translateX(3px);
+}
+
+.sbe-mkt-hero-secondary:focus-visible {
+  outline: 2px solid var(--gold-light);
+  outline-offset: 3px;
+}
+
+.sbe-mkt-hero-trust { grid-area: trust; }
+
+/* ── Left column ── */
+
+.sbe-mkt-hero-eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-warm);
+  margin: 0 0 0.9rem;
+}
+
+.sbe-mkt-hero-h1 {
+  font-family: var(--font-heading);
+  font-size: var(--fs-hero);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--text-light-on-dark);
+  margin: 0;
+  max-width: 20ch;
+}
+
+.sbe-mkt-hero-sub {
+  font-family: var(--font-body);
+  font-size: var(--fs-body-lg);
+  line-height: 1.55;
+  color: var(--text-light-muted-on-dark);
+  margin: 1.1rem 0 0;
+  max-width: 46ch;
+}
+
+.sbe-mkt-hero-actions {
+  margin-top: 1.5rem;
+}
+
+.sbe-mkt-hero-btn-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.sbe-mkt-hero-cta {
+  display: inline-block;
+  background: var(--gold-warm);
+  color: var(--green-deep);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  font-weight: 700;
+  padding: 0.95rem 2.1rem;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  min-height: 48px;
+  transition: background 0.18s var(--ease-out), transform 0.18s var(--ease-out);
+}
+
+.sbe-mkt-hero-cta:hover {
+  background: var(--gold);
+  transform: translateY(-1px);
+}
+
+.sbe-mkt-hero-cta:focus-visible {
+  outline: 2px solid var(--gold-light);
+  outline-offset: 3px;
+}
+
+.sbe-mkt-hero-microcopy {
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-light-muted-on-dark);
+  margin: 0.7rem 0 0;
+}
+
+.sbe-mkt-hero-secondary {
+  display: inline-block;
+  margin-top: 1rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text-light-muted-on-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sbe-mkt-hero-secondary:hover {
+  color: var(--text-light-on-dark);
+}
+
+.sbe-mkt-hero-trust {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.75rem;
+  margin: 1.5rem 0 0;
+  padding: 1rem 0 0;
+  border-top: 1px solid var(--border-light-on-dark);
+}
+
+.sbe-mkt-hero-trust li {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-light-muted-on-dark);
+  white-space: nowrap;
+}
+
+/* ── Right column: product screenshot ── */
+
+.sbe-mkt-hero-teaser {
+  width: 100%;
+}
+
+/* Entrance stagger — skipped for reduced-motion users */
+
+/* Desktop / laptop: scale the headline with viewport height too, so the
+   fold (header + hero + marquee) fits 13"/14" laptops without clipping. */
+
+@media (min-width: 901px) {
+  /* The mockup spans both rows and is taller than the copy, so the extra
+     height was being split between the heading and details rows (dead gap
+     under the headline). Pack the two against the row seam instead. */
+  .sbe-mkt-hero-grid { row-gap: 0; }
+  .sbe-mkt-hero-heading { align-self: end; }
+  .sbe-mkt-hero-details { align-self: start; }
+
+  .sbe-mkt-hero-h1 {
+    font-size: clamp(2.1rem, min(4.4vw, 7vh), 3.7rem);
+  }
+
+  .sbe-mkt-hero-sub {
+    font-size: clamp(1rem, min(1.35vw, 2.4vh), 1.15rem);
+  }
+
+  .sbe-mkt-hero-teaser img {
+    max-height: calc(100svh - var(--nav-h) - 11rem);
+    width: auto;
+    max-width: 100%;
+    margin: 0 auto;
+    object-fit: contain;
+  }
+}
+
+@media (min-width: 901px) and (max-height: 760px) {
+  .sbe-mkt-hero-eyebrow { margin-bottom: 0.6rem; }
+  .sbe-mkt-hero-sub { margin-top: 0.8rem; line-height: 1.45; }
+  .sbe-mkt-hero-actions { margin-top: 1.1rem; }
+  .sbe-mkt-hero-trust { margin-top: 1rem; padding-top: 0.75rem; }
+  .sbe-mkt-hero-cta,
+  .sbe-mkt-hero-secondary { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+}
+
+/* ── Mobile sticky CTA ── */
+
+.sbe-mkt-hero-sticky {
+  display: none;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 900px) {
+  .sbe-mkt-hero {
+    padding: var(--section-spacing-sm) 0 var(--section-spacing-md);
+  }
+
+  /* Value copy first, product visual after: eyebrow + h1, subhead, CTAs,
+     mockup, then the trust row. `display: contents` lets the details
+     children take part in the grid directly. */
+  .sbe-mkt-hero-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas: "heading" "sub" "actions" "teaser" "trust";
+    gap: 1.25rem;
+  }
+
+  .sbe-mkt-hero-details { display: contents; }
+  .sbe-mkt-hero-sub,
+  .sbe-mkt-hero-actions,
+  .sbe-mkt-hero-trust { margin-top: 0; }
+  .sbe-mkt-hero-trust { padding-top: 1rem; }
+
+  .sbe-mkt-hero-teaser {
+    min-height: 0;
+    max-width: 440px;
+  }
+}
+
+/* Phones only — tighten vertical rhythm so eyebrow + headline + hero image
+   fit in the first view without scrolling. Tablets (601–900px) keep the
+   roomier spacing above since they have more viewport height to spare. */
+
+@media (max-width: 600px) {
+  .sbe-mkt-hero {
+    padding: 0.9rem 0 1rem;
+  }
+
+  .sbe-mkt-hero-eyebrow { font-size: 0.75rem; }
+
+  .sbe-mkt-hero-h1 {
+    font-size: clamp(1.85rem, 8vw, 2.3rem);
+    line-height: 1.05;
+  }
+
+  .sbe-mkt-hero-sub {
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+
+  .sbe-mkt-hero-microcopy {
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  /* Trust facts don't fit above the marquee on a phone fold */
+  .sbe-mkt-hero-trust { display: none; }
+
+  .sbe-mkt-hero-grid {
+    gap: 1rem;
+  }
+
+  .sbe-mkt-hero-eyebrow {
+    margin: 0 0 0.75rem;
+  }
+
+  .sbe-mkt-hero-btn-row { gap: 12px; flex-wrap: nowrap; }
+  .sbe-mkt-hero-btn-row .sbe-mkt-hero-cta,
+  .sbe-mkt-hero-btn-row .sbe-mkt-hero-secondary {
+    flex: 1 1 0;
+    justify-content: center;
+    text-align: center;
+    padding: 0.85rem 0.75rem;
+    font-size: 0.92rem;
+  }
+
+  .sbe-mkt-hero-teaser {
+    max-width: 100%;
+  }
+
+  .sbe-mkt-hero-teaser img {
+    max-height: min(24svh, 200px);
+    width: auto;
+    max-width: 100%;
+    margin: 0 auto;
+    object-fit: contain;
+  }
+}
+
+@media (max-width: 768px) {
+  .sbe-mkt-hero-sticky {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    background: var(--bg-dark);
+    border-top: 1px solid var(--border-light-on-dark);
+    padding: 0.75rem 1.25rem;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+    /* Hidden (and out of the tab order) until the user scrolls past the fold */
+    transform: translateY(100%);
+    visibility: hidden;
+    pointer-events: none;
+    transition: transform 0.28s var(--ease-out), visibility 0s linear 0.28s;
+  }
+
+  .sbe-mkt-hero-sticky--visible {
+    transform: translateY(0);
+    visibility: visible;
+    pointer-events: auto;
+    transition: transform 0.28s var(--ease-out), visibility 0s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sbe-mkt-hero-sticky,
+    .sbe-mkt-hero-sticky--visible { transition: none; }
+  }
+
+  .sbe-mkt-hero-sticky-label {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    color: var(--text-light-muted-on-dark);
+  }
+
+  .sbe-mkt-hero-cta-compact {
+    padding: 0.7rem 1.4rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Shared marketing components — Pages-Redesign.md §3.1 (Phase 2)
+   PageHero / CTABand / FeatureGrid + shared button primitives.
+   All values reference tokens. Single sbe-mkt- prefix.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── PageHero ── */
+
+.sbe-mkt-pagehero {
+  padding: var(--section-spacing-md) 0;
+  min-height: 48vh;
+  display: flex;
+  align-items: center;
+}
+
+/* default, solution and dark all render navy; 'light' is the explicit opt-out (legal / reading pages) */
+
+.sbe-mkt-pagehero-default,
+.sbe-mkt-pagehero-solution,
+.sbe-mkt-pagehero-dark {
+  background: linear-gradient(160deg, var(--bg-dark) 0%, var(--bg-dark-soft) 100%);
+}
+
+.sbe-mkt-pagehero-light {
+  background: var(--bg-alt);
+}
+
+.sbe-mkt-pagehero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
+}
+
+.sbe-mkt-pagehero-grid.has-media {
+  grid-template-columns: 7fr 5fr;
+}
+
+.sbe-mkt-pagehero-crumbs ol {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.sbe-mkt-pagehero-crumbs li:not(:last-child)::after {
+  content: "/";
+  margin-left: 0.4rem;
+  color: var(--text-muted);
+}
+
+.sbe-mkt-pagehero-crumbs a {
+  color: var(--text-soft);
+  text-decoration: none;
+}
+
+.sbe-mkt-pagehero-crumbs a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sbe-mkt-pagehero-eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--green-mid);
+  margin: 0 0 1rem;
+}
+
+.sbe-mkt-pagehero-solution .sbe-mkt-pagehero-eyebrow {
+  color: var(--gold);
+}
+
+.sbe-mkt-pagehero-title {
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin: 0;
+  max-width: 24ch;
+}
+
+.sbe-mkt-pagehero-subtitle {
+  font-family: var(--font-body);
+  font-size: var(--fs-body-lg);
+  line-height: 1.6;
+  color: var(--text-soft);
+  margin: 1.25rem 0 0;
+  max-width: 52ch;
+}
+
+.sbe-mkt-pagehero-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+/* Dark variant text colors */
+
+.sbe-mkt-pagehero:not(.sbe-mkt-pagehero-light) .sbe-mkt-pagehero-title {
+  color: var(--text-light-on-dark);
+}
+
+.sbe-mkt-pagehero:not(.sbe-mkt-pagehero-light) .sbe-mkt-pagehero-subtitle {
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-mkt-pagehero:not(.sbe-mkt-pagehero-light) .sbe-mkt-pagehero-eyebrow {
+  color: var(--gold-warm);
+}
+
+.sbe-mkt-pagehero:not(.sbe-mkt-pagehero-light) .sbe-mkt-pagehero-crumbs ol,
+.sbe-mkt-pagehero:not(.sbe-mkt-pagehero-light) .sbe-mkt-pagehero-crumbs li:not(:last-child)::after {
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-mkt-pagehero:not(.sbe-mkt-pagehero-light) .sbe-mkt-pagehero-crumbs a {
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-mkt-pagehero:not(.sbe-mkt-pagehero-light) .sbe-mkt-btn-text {
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-mkt-pagehero:not(.sbe-mkt-pagehero-light) .sbe-mkt-btn-text:hover {
+  color: var(--text-light-on-dark);
+}
+
+/* ── CTABand ── */
+
+.sbe-mkt-ctaband {
+  padding: var(--section-spacing-md) 0;
+}
+
+/* navy is the default; 'green' is a deprecated alias with the same look */
+
+.sbe-mkt-ctaband-navy,
+.sbe-mkt-ctaband-green {
+  background: linear-gradient(160deg, var(--bg-dark) 0%, var(--bg-dark-soft) 100%);
+}
+
+.sbe-mkt-ctaband-gold {
+  background: var(--gold-light);
+}
+
+.sbe-mkt-ctaband-neutral {
+  background: var(--bg-alt);
+  border-top: 1px solid var(--line-light);
+}
+
+/* Centered on purpose — the final CTA is the one sanctioned climactic
+   centered moment per Pages-Redesign.md §2.2. */
+
+.sbe-mkt-ctaband-inner {
+  text-align: center;
+  max-width: 640px;
+}
+
+.sbe-mkt-ctaband-eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 1rem;
+}
+
+.sbe-mkt-ctaband-navy .sbe-mkt-ctaband-eyebrow,
+.sbe-mkt-ctaband-green .sbe-mkt-ctaband-eyebrow {
+  color: var(--gold-warm);
+}
+
+.sbe-mkt-ctaband-title {
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--text);
+  margin: 0;
+  text-wrap: balance;
+}
+
+.sbe-mkt-ctaband-navy .sbe-mkt-ctaband-title,
+.sbe-mkt-ctaband-green .sbe-mkt-ctaband-title {
+  color: var(--text-light-on-dark);
+}
+
+.sbe-mkt-ctaband-copy {
+  font-family: var(--font-body);
+  font-size: var(--fs-body-lg);
+  line-height: 1.6;
+  color: var(--text-soft);
+  margin: 1rem 0 0;
+}
+
+.sbe-mkt-ctaband-navy .sbe-mkt-ctaband-copy,
+.sbe-mkt-ctaband-green .sbe-mkt-ctaband-copy {
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-mkt-ctaband-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.sbe-mkt-ctaband-navy .sbe-mkt-ctaband-secondary,
+.sbe-mkt-ctaband-green .sbe-mkt-ctaband-secondary {
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-mkt-ctaband-navy .sbe-mkt-ctaband-secondary:hover,
+.sbe-mkt-ctaband-green .sbe-mkt-ctaband-secondary:hover {
+  color: var(--text-light-on-dark);
+}
+
+/* ── FeatureGrid ── */
+
+/* Dark emphasis card */
+
+/* Check-list used inside feature cards (SVG check via mask — no glyph chars) */
+
+/* Stat card — number is the title */
+
+/* ── PageHero compact modifier (used on /pricing) ── */
+
+.sbe-mkt-pagehero-compact {
+  min-height: 0;
+  padding: var(--section-spacing-sm) 0;
+}
+
+.sbe-mkt-pagehero-compact .sbe-mkt-pagehero-title {
+  font-size: clamp(2rem, 4.5vw, 2.75rem);
+}
+
+/* ── /pricing — billing toggle ── */
+
+.sbe-mkt-billing-toggle {
+  display: inline-flex;
+  background: var(--bg-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  padding: 4px;
+  gap: 2px;
+}
+
+.sbe-mkt-billing-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 24px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sbe-mkt-billing-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Tier feature list and full-width button, shared by /pricing and /advisory ── */
+
+.sbe-mkt-pricefeature {
+  position: relative;
+  padding: 4px 0 4px 26px;
+  line-height: 1.5;
+}
+
+.sbe-mkt-pricefeature::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 16px;
+  height: 16px;
+  background-color: var(--green);
+  -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>') no-repeat center / contain;
+  mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>') no-repeat center / contain;
+}
+
+.sbe-mkt-pricefeature-name {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.sbe-mkt-pricecard-btn {
+  width: 100%;
+  display: block;
+  text-align: center;
+}
+
+/* ── /security — data transparency + payments (moved from inline <style>) ── */
+
+/* ── /solutions overview segment splits (moved from inline <style>) ── */
+
+/* ── Responsive ── */
+
+@media (max-width: 900px) {
+  .sbe-mkt-pagehero {
+    min-height: 0;
+  }
+
+  .sbe-mkt-pagehero-grid.has-media {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   /advisory — By Example Advisory
+   Mobile-first. Hero reuses the homepage `sbe-mkt-hero-*` classes; the
+   rules below only adapt it to a photo. Single sbe-adv- prefix, tokens only.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Hero overrides ── */
+
+.sbe-adv-hero {
+  padding: clamp(1.5rem, 6vw, 4.5rem) 0;
+}
+
+.sbe-adv-hero .sbe-mkt-hero-teaser {
+  max-width: none;
+}
+
+.sbe-adv-hero .sbe-mkt-hero-teaser img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  object-position: 75% center;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+}
+
+.sbe-adv-hero .sbe-mkt-hero-secondary {
+  margin-top: 0;
+}
+
+.sbe-adv-anchor {
+  scroll-margin-top: var(--nav-h);
+}
+
+/* ── How it works ── */
+
+.sbe-adv-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+.sbe-adv-step {
+  border-top: 2px solid var(--gold);
+  padding-top: 1rem;
+}
+
+.sbe-adv-step-num {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--gold-deep);
+  margin-bottom: 0.4rem;
+}
+
+.sbe-adv-step-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.4rem, 3vw, 1.75rem);
+  font-weight: 600;
+  color: var(--green-deep);
+  margin: 0 0 0.4rem;
+}
+
+.sbe-adv-step-body {
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  color: var(--text-soft);
+  margin: 0;
+  max-width: 34ch;
+}
+
+/* ── Packages ── */
+
+.sbe-adv-pkg-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  align-items: stretch;
+}
+
+/* Packages are a hairline board, not cards (Pages-Redesign.md §2.1) */
+
+.sbe-adv-pkg {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+  padding: 1.75rem 0;
+}
+
+.sbe-adv-pkg-popular {
+  background: var(--surface);
+  padding-inline: 1.25rem;
+  margin-inline: -1.25rem;
+}
+
+.sbe-adv-pkg-tag {
+  margin-bottom: 0.6rem;
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.sbe-adv-pkg-name {
+  font-family: var(--font-heading);
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  color: var(--green-deep);
+  margin: 0 0 0.6rem;
+}
+
+.sbe-adv-pkg-price {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 0.75rem;
+}
+
+.sbe-adv-pkg-from {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.sbe-adv-pkg-figure {
+  font-family: var(--font-body);
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--text);
+}
+
+.sbe-adv-pkg-suffix {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.sbe-adv-pkg-audience {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-soft);
+  margin: 0 0 1rem;
+}
+
+.sbe-adv-pkg-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--line-light);
+  border-bottom: 1px solid var(--line-light);
+  padding: 0.75rem 0;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--green);
+  cursor: pointer;
+}
+
+.sbe-adv-pkg-toggle svg {
+  transition: transform 0.2s var(--ease-out);
+}
+
+.sbe-adv-pkg-toggle[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.sbe-adv-pkg-toggle:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+.sbe-adv-pkg-body {
+  flex-grow: 1;
+}
+
+.sbe-adv-pkg-body[data-open="false"] {
+  display: none;
+}
+
+.sbe-adv-pkg-list {
+  list-style: none;
+  margin: 0;
+  padding: 0.75rem 0 0;
+}
+
+.sbe-adv-pkg-list .sbe-mkt-pricefeature-name {
+  font-weight: 500;
+}
+
+.sbe-adv-pkg-foot {
+  margin-top: 1.25rem;
+}
+
+.sbe-adv-remote {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--text-soft);
+  margin: 1.5rem 0 0;
+  max-width: 72ch;
+}
+
+.sbe-adv-remote strong {
+  color: var(--text);
+}
+
+.sbe-adv-inline-link {
+  font-weight: 700;
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+.sbe-adv-inline-link:hover {
+  color: var(--green-deep);
+}
+
+.sbe-adv-modules-cta {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  margin: 1.25rem 0 0;
+}
+
+/* Systems Upgrade modules */
+
+.sbe-adv-modules {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-adv-modules-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.sbe-adv-subhead {
+  font-family: var(--font-heading);
+  font-size: clamp(1.3rem, 2.5vw, 1.6rem);
+  font-weight: 600;
+  color: var(--green-deep);
+  margin: 0;
+}
+
+.sbe-adv-modules-price {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--gold-deep);
+  margin: 0;
+}
+
+/* ── Venue Hub band ── */
+
+.sbe-adv-hub {
+  background: var(--green-deep);
+  padding: var(--section-spacing-md) 0;
+}
+
+.sbe-adv-hub-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+.sbe-adv-hub-title {
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  color: var(--text-light-on-dark);
+  margin: 0;
+}
+
+.sbe-adv-hub-body {
+  font-family: var(--font-body);
+  font-size: var(--fs-body-lg);
+  line-height: 1.6;
+  color: var(--text-light-muted-on-dark);
+  margin: 1rem 0 0;
+  max-width: 52ch;
+}
+
+.sbe-adv-hub-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.sbe-adv-hub-caption {
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  color: var(--text-light-faint-on-dark);
+  margin: 0;
+}
+
+/* Phone mockup — built in CSS, no image */
+
+.sbe-adv-phone {
+  width: min(260px, 72vw);
+  aspect-ratio: 9 / 18;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-light-on-dark);
+  border-radius: 38px;
+  padding: 10px;
+  box-shadow: var(--shadow-xl);
+}
+
+.sbe-adv-phone-screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  border-radius: 29px;
+  overflow: hidden;
+}
+
+.sbe-adv-phone-head {
+  background: var(--green);
+  padding: 1.6rem 1rem 1rem;
+}
+
+.sbe-adv-phone-venue {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--surface);
+}
+
+.sbe-adv-phone-sub {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  color: var(--gold-light);
+  margin-top: 3px;
+}
+
+.sbe-adv-phone-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-grow: 1;
+}
+
+.sbe-adv-phone-row {
+  background: var(--surface-raised);
+  border: 1px solid var(--line-light);
+  border-left: 3px solid var(--gold);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.65rem;
+}
+
+.sbe-adv-phone-row-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sbe-adv-phone-row-value {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.66rem;
+  color: var(--text-soft);
+}
+
+.sbe-adv-phone-bar {
+  width: 34%;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--line);
+  margin: 0 auto 8px;
+}
+
+/* ── Add-ons ── */
+
+.sbe-adv-addons {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  column-gap: 3rem;
+}
+
+.sbe-adv-addon {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.sbe-adv-addon-name {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.sbe-adv-addon-price {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--gold-deep);
+  white-space: nowrap;
+}
+
+/* ── Hero: buttons and trust strip ── */
+
+/* Trust strip is a 2x2 grid by default and a single row on wide screens,
+   so no item is ever left alone on a line. */
+
+.sbe-adv-hero .sbe-mkt-hero-trust {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem 1.5rem;
+  margin: 0;
+}
+
+.sbe-adv-hero .sbe-mkt-hero-trust li {
+  white-space: normal;
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+/* ── Sound familiar? Heading beside three ruled lines, no cards ── */
+
+.sbe-adv-problem {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.sbe-adv-problem-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-adv-problem-list li {
+  padding: 1.1rem 0;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-body);
+  font-size: var(--fs-body-lg);
+  line-height: 1.5;
+  color: var(--text-soft);
+}
+
+.sbe-adv-problem-list strong {
+  font-weight: 700;
+  color: var(--green-deep);
+}
+
+/* ── Package card details ── */
+
+.sbe-adv-pkg-note {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: -0.45rem 0 0.75rem;
+}
+
+/* Quieter ticks: smaller and in the body text colour */
+
+.sbe-adv-pkg-list .sbe-mkt-pricefeature {
+  padding-left: 20px;
+}
+
+.sbe-adv-pkg-list .sbe-mkt-pricefeature::before {
+  top: 10px;
+  width: 11px;
+  height: 11px;
+  background-color: var(--text);
+}
+
+.sbe-adv-pkg .sbe-mkt-pricecard-btn {
+  white-space: normal;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+/* ── Plain ruled list: bold name with its line below (modules) ── */
+
+.sbe-adv-deflist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  column-gap: 3rem;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-adv-deflist li {
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-body);
+}
+
+.sbe-adv-deflist strong {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sbe-adv-deflist span {
+  display: block;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--text-soft);
+}
+
+/* ── Venue Hub modules: text only ── */
+
+.sbe-adv-hub-list {
+  list-style: none;
+  margin: 1.75rem 0 2rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem 2.5rem;
+  font-family: var(--font-body);
+}
+
+.sbe-adv-hub-list strong {
+  display: block;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-light-on-dark);
+}
+
+.sbe-adv-hub-list span {
+  display: block;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-adv-addons-note {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-soft);
+  margin: 1.5rem 0 0;
+}
+
+/* ── About: copy with a pull quote ── */
+
+.sbe-adv-about {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.sbe-adv-about-copy > p:last-child {
+  margin-bottom: 0;
+}
+
+.sbe-adv-pullquote {
+  font-family: var(--font-heading);
+  font-size: clamp(1.7rem, 4.2vw, 2.9rem);
+  font-weight: 500;
+  line-height: 1.14;
+  letter-spacing: -0.015em;
+  color: var(--green);
+  margin: 0;
+  padding-left: 1.25rem;
+  border-left: 3px solid var(--gold);
+  max-width: 16ch;
+}
+
+/* ── FAQ: intro beside the accordion ── */
+
+.sbe-adv-faq-intro .sbe-mkt-head {
+  position: static;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 600px) {
+  /* Full-width stacked buttons: the longer primary label does not fit beside the secondary */
+  .sbe-adv-hero .sbe-mkt-hero-btn-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sbe-adv-hero .sbe-mkt-hero-btn-row .sbe-mkt-hero-cta,
+  .sbe-adv-hero .sbe-mkt-hero-btn-row .sbe-mkt-hero-secondary {
+    flex: 0 0 auto;
+  }
+}
+
+@media (min-width: 601px) {
+  .sbe-adv-hub-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 701px) {
+  .sbe-adv-steps {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  .sbe-adv-pkg-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0 2.5rem;
+  }
+
+  /* Inclusions are always open from tablet up; the toggle is mobile-only */
+  .sbe-adv-pkg-toggle {
+    display: none;
+  }
+
+  .sbe-adv-pkg-body[data-open="false"] {
+    display: block;
+  }
+
+  .sbe-adv-pkg-list {
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--line-light);
+  }
+
+  .sbe-adv-addons,
+  .sbe-adv-deflist {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 901px) {
+  .sbe-adv-hero .sbe-mkt-hero-grid {
+    grid-template-areas: "heading teaser" "details teaser" "trust trust";
+  }
+
+  .sbe-adv-hero .sbe-mkt-hero-teaser img {
+    aspect-ratio: 4 / 3;
+  }
+
+  .sbe-adv-problem {
+    grid-template-columns: 2fr 3fr;
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: start;
+  }
+
+  .sbe-adv-hub-grid {
+    grid-template-columns: 3fr 2fr;
+    gap: clamp(2rem, 5vw, 5rem);
+  }
+
+  .sbe-adv-about {
+    grid-template-columns: 5fr 6fr;
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: center;
+  }
+
+  .sbe-adv-pullquote {
+    order: -1;
+  }
+}
+
+@media (min-width: 1100px) {
+  .sbe-adv-hero .sbe-mkt-hero-trust {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .sbe-adv-hero .sbe-mkt-hero-trust li {
+    white-space: nowrap;
+  }
+
+  .sbe-adv-pkg-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .sbe-adv-pkg,
+  .sbe-adv-pkg-popular {
+    margin-inline: 0;
+    padding: 1.75rem 1.35rem;
+    border-left: 1px solid var(--line);
+  }
+
+  .sbe-adv-pkg:first-child {
+    border-left: 0;
+    padding-left: 0;
+  }
+
+  .sbe-adv-pkg:last-child {
+    padding-right: 0;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Homepage editorial layout (October 2026)
+   Replaces the card grids on `/` with full-bleed bands, ruled lists and
+   screenshots that break out of the container. Separation comes from
+   background shifts, hairlines and whitespace — no boxed cards.
+   Single sbe-mkt- prefix. All values reference tokens.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.sbe-mkt-head {
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+}
+
+.sbe-mkt-on-dark .sbe-mkt-kicker {
+  color: var(--gold-warm);
+}
+
+.sbe-mkt-on-dark .sbe-mkt-display {
+  color: var(--nav-cream);
+}
+
+.sbe-mkt-on-dark .sbe-mkt-lede {
+  color: var(--text-light-muted-on-dark);
+}
+
+/* --page-gutter follows .container, which changes width at these breakpoints */
+
+@media (max-width: 600px) {
+  .sbe-mkt-duo,
+  .sbe-mkt-showcase {
+    --page-gutter: 16px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .sbe-mkt-duo,
+  .sbe-mkt-showcase {
+    --page-gutter: max(40px, calc((100vw - 1360px) / 2));
+  }
+}
+
+@media (min-width: 1700px) {
+  .sbe-mkt-duo,
+  .sbe-mkt-showcase {
+    --page-gutter: max(60px, calc((100vw - 1560px) / 2));
+  }
+}
+
+/* ── Two systems: parchment lead + dark panel that bleeds off the right edge ── */
+
+.sbe-mkt-duo {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.sbe-mkt-duo-lead {
+  padding: var(--section-spacing-md) var(--page-gutter) var(--section-spacing-sm);
+}
+
+.sbe-mkt-duo-panel {
+  background: linear-gradient(160deg, var(--bg-dark) 0%, var(--bg-dark-soft) 100%);
+  padding: var(--section-spacing-sm) var(--page-gutter);
+}
+
+.sbe-mkt-duo-item {
+  padding: 2rem 0;
+  border-top: 1px solid var(--border-light-on-dark);
+}
+
+.sbe-mkt-duo-item:last-child {
+  padding-bottom: 0;
+}
+
+.sbe-mkt-duo-for {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--gold-warm);
+}
+
+.sbe-mkt-duo-item h3 {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--nav-cream);
+}
+
+.sbe-mkt-duo-item p:last-child {
+  margin: 0;
+  max-width: 32rem;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-light-on-dark);
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-duo {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: start;
+  }
+
+  .sbe-mkt-duo-lead {
+    padding: var(--section-spacing-md) clamp(2rem, 4vw, 4rem) var(--section-spacing-md) var(--page-gutter);
+  }
+
+  /* The panel is taller than its row and hangs into the next section */
+  .sbe-mkt-duo-panel {
+    padding: var(--section-spacing-md) var(--page-gutter) var(--section-spacing-md) clamp(2.5rem, 5vw, 5rem);
+    margin-bottom: -4rem;
+  }
+}
+
+/* ── Product showcase: alternating rows, screenshots bleed past the container ── */
+
+.sbe-mkt-showcase {
+  padding: var(--section-spacing-md) 0;
+  overflow-x: clip;
+}
+
+.sbe-mkt-showcase-warm {
+  background: var(--bg-warm);
+}
+
+.sbe-mkt-show-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+.sbe-mkt-show-tag {
+  margin: 0 0 0.75rem;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.sbe-mkt-show-text h3 {
+  margin: 0 0 0.85rem;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+  text-wrap: balance;
+}
+
+.sbe-mkt-show-text p:last-child {
+  margin: 0;
+  max-width: 30rem;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-soft);
+}
+
+.sbe-mkt-show-block + .sbe-mkt-show-block {
+  margin-top: 2.5rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-show-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Library screenshot with the phone standing over its lower corner */
+
+.sbe-mkt-show-stack {
+  position: relative;
+  padding-bottom: 14%;
+}
+
+.sbe-mkt-show-stack .sbe-mkt-show-phone {
+  position: absolute;
+  right: 6%;
+  bottom: 0;
+  width: 27%;
+  filter: drop-shadow(0 18px 28px rgba(15, 45, 29, 0.22));
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-show-row {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(2.5rem, 5vw, 5rem);
+  }
+
+  .sbe-mkt-show-row-flip {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  }
+
+  .sbe-mkt-show-row-flip .sbe-mkt-show-text {
+    order: 2;
+  }
+
+  /* Break out toward the viewport edge (capped at 72px past the container) */
+  .sbe-mkt-show-media-end {
+    margin-right: calc(-1 * min(var(--page-gutter), 72px));
+  }
+
+  .sbe-mkt-show-media-start {
+    margin-left: calc(-1 * min(var(--page-gutter), 72px));
+  }
+
+  .sbe-mkt-show-stack .sbe-mkt-show-phone {
+    right: auto;
+    left: -9%;
+    width: 25%;
+  }
+}
+
+/* ── Mastery Path: numbered sequence on the dark band, staggered ── */
+
+.sbe-mkt-path {
+  background: linear-gradient(160deg, var(--bg-dark) 0%, var(--bg-dark-soft) 100%);
+  padding: var(--section-spacing-md) 0;
+}
+
+.sbe-mkt-path-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+
+.sbe-mkt-path-step {
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-light-on-dark);
+}
+
+.sbe-mkt-path-num {
+  display: block;
+  margin-bottom: 1.25rem;
+  font-family: var(--font-heading);
+  font-size: var(--fs-numeral);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: var(--tracking-display);
+  color: var(--gold-warm);
+  font-variant-numeric: lining-nums;
+}
+
+.sbe-mkt-path-step h3 {
+  margin: 0 0 0.85rem;
+  font-family: var(--font-heading);
+  font-size: clamp(1.35rem, 2.2vw, 1.7rem);
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--nav-cream);
+  text-wrap: balance;
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-head-split {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: end;
+  }
+
+  .sbe-mkt-path-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(2rem, 4vw, 4rem);
+    align-items: start;
+  }
+}
+
+/* ── What gets measured: ledger rows, not stat cards ── */
+
+.sbe-mkt-measures {
+  padding: var(--section-spacing-md) 0;
+}
+
+.sbe-mkt-ledger {
+  margin: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.sbe-mkt-ledger-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  padding: 1.75rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-ledger-row dt {
+  display: flex;
+  align-items: baseline;
+  gap: 1.25rem;
+}
+
+.sbe-mkt-ledger-metric {
+  min-width: 2.2em;
+  font-family: var(--font-heading);
+  font-size: var(--fs-display);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: var(--tracking-display);
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--green);
+  font-variant-numeric: lining-nums;
+}
+
+.sbe-mkt-ledger-unit {
+  font-size: 0.5em;
+  letter-spacing: 0;
+  color: var(--gold-deep);
+}
+
+.sbe-mkt-ledger-title {
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+.sbe-mkt-ledger-row dd {
+  margin: 0;
+  max-width: 36rem;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-soft);
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-ledger-row {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: baseline;
+    padding: 2.25rem 0;
+  }
+}
+
+/* ── Plans: intro on the left, ruled plan list on the right ── */
+
+.sbe-mkt-plans {
+  padding: var(--section-spacing-md) 0;
+}
+
+.sbe-mkt-plans-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+
+.sbe-mkt-plans-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.sbe-mkt-plans-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.sbe-mkt-plan {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.35rem 2rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--line);
+  transition: padding-left 0.3s var(--ease-out);
+}
+
+.sbe-mkt-plan-tier {
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.sbe-mkt-plan h3 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(1.4rem, 2.4vw, 1.8rem);
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+}
+
+.sbe-mkt-guarantee {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-soft);
+}
+
+.sbe-mkt-guarantee strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-plans-grid {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(2.5rem, 5vw, 5rem);
+    align-items: start;
+  }
+
+  .sbe-mkt-plans-intro {
+    position: sticky;
+    top: calc(var(--nav-h) + 2rem);
+  }
+
+  .sbe-mkt-plan {
+    grid-template-columns: 9rem minmax(0, 1fr);
+    align-items: baseline;
+  }
+
+  .sbe-mkt-plan-tier {
+    grid-row: span 2;
+  }
+
+  .sbe-mkt-plan:hover {
+    padding-left: 0.75rem;
+  }
+
+  .sbe-mkt-guarantee {
+    grid-column: 2;
+  }
+}
+
+/* ── FAQ: sticky heading left, hairline accordion right ── */
+
+.sbe-mkt-faq {
+  padding: var(--section-spacing-md) 0;
+}
+
+.sbe-mkt-faq-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.sbe-mkt-faq-list {
+  border-bottom: 1px solid var(--line);
+}
+
+.sbe-mkt-faq-item {
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.4rem 0;
+  list-style: none;
+  cursor: pointer;
+  font-family: var(--font-heading);
+  font-size: clamp(1.15rem, 1.8vw, 1.4rem);
+  font-weight: var(--fw-heading);
+  line-height: 1.3;
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+  transition: color 0.2s var(--ease-out), padding-left 0.3s var(--ease-out);
+}
+
+.sbe-mkt-faq-q::-webkit-details-marker {
+  display: none;
+}
+
+.sbe-mkt-faq-q:hover {
+  color: var(--green-mid);
+  padding-left: 0.5rem;
+}
+
+.sbe-mkt-faq-q:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 4px;
+}
+
+/* Plus drawn from two bars; the upright bar swings flat when open */
+
+.sbe-mkt-faq-icon {
+  position: relative;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: var(--gold-deep);
+}
+
+.sbe-mkt-faq-icon::before,
+.sbe-mkt-faq-icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  margin-top: -1px;
+  background: currentColor;
+  transition: transform 0.45s var(--ease-spring-soft);
+}
+
+.sbe-mkt-faq-icon::after {
+  transform: rotate(90deg);
+}
+
+.sbe-mkt-faq-item[open] .sbe-mkt-faq-icon::after {
+  transform: rotate(0deg);
+}
+
+.sbe-mkt-faq-item[open] .sbe-mkt-faq-icon::before {
+  transform: rotate(180deg);
+}
+
+/* Height animation where the browser can interpolate to auto; elsewhere the
+   panel opens instantly and the answer still eases in below. */
+
+@supports (interpolate-size: allow-keywords) {
+  .sbe-mkt-faq-item {
+    interpolate-size: allow-keywords;
+  }
+
+  .sbe-mkt-faq-item::details-content {
+    block-size: 0;
+    overflow-y: clip;
+    transition: block-size 0.45s cubic-bezier(0.16, 1, 0.3, 1), content-visibility 0.45s allow-discrete;
+  }
+
+  .sbe-mkt-faq-item[open]::details-content {
+    block-size: auto;
+  }
+}
+
+.sbe-mkt-faq-item[open] .sbe-mkt-faq-a {
+  animation: sbe-mkt-faq-in 0.4s var(--ease-out) both;
+}
+
+@keyframes sbe-mkt-faq-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-faq-grid {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+    gap: clamp(2.5rem, 5vw, 5rem);
+    align-items: start;
+  }
+
+  .sbe-mkt-faq-grid .sbe-mkt-head {
+    position: sticky;
+    top: calc(var(--nav-h) + 2rem);
+    margin-bottom: 0;
+  }
+}
+
+/* ── Revenue Impact Calculator: full-bleed dark band, instrument-style rails ── */
+
+/* Sized to fit one desktop viewport (900px tall) with the email form in view */
+
+.sbe-mkt-roi {
+  background: linear-gradient(160deg, var(--bg-dark) 0%, var(--bg-dark-soft) 100%);
+  padding: var(--section-spacing-sm) 0;
+}
+
+.sbe-mkt-roi .sbe-mkt-head {
+  margin-bottom: 2.5rem;
+}
+
+.sbe-mkt-roi .sbe-mkt-display {
+  font-size: var(--fs-h2);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+}
+
+.sbe-mkt-roi-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+}
+
+.sbe-mkt-roi-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.sbe-mkt-roi-field-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.sbe-mkt-roi-label {
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-mkt-roi-value {
+  font-family: var(--font-body);
+  font-size: clamp(1.4rem, 2.4vw, 1.8rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--nav-cream);
+}
+
+.sbe-mkt-roi-value small {
+  margin-right: 0.35em;
+  font-family: var(--font-body);
+  font-size: 0.45em;
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  color: var(--gold-warm);
+}
+
+/* Rail: 2px line with a gold fill, a ruler of ticks beneath, and a tall handle */
+
+.sbe-mkt-roi-rail {
+  position: relative;
+  margin-top: 0.5rem;
+  padding-bottom: 12px;
+}
+
+.sbe-mkt-roi-rail::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 7px;
+  background: repeating-linear-gradient(
+    to right,
+    var(--border-light-on-dark) 0,
+    var(--border-light-on-dark) 1px,
+    transparent 1px,
+    transparent calc((100% - 1px) / 20)
+  );
+  pointer-events: none;
+}
+
+.sbe-mkt-roi-range {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.sbe-mkt-roi-range:focus {
+  outline: none;
+}
+
+.sbe-mkt-roi-range::-webkit-slider-runnable-track {
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    var(--gold-warm) var(--sbe-fill, 0%),
+    var(--border-light-on-dark) var(--sbe-fill, 0%)
+  );
+}
+
+.sbe-mkt-roi-range::-moz-range-track {
+  height: 2px;
+  background: var(--border-light-on-dark);
+}
+
+.sbe-mkt-roi-range::-moz-range-progress {
+  height: 2px;
+  background: var(--gold-warm);
+}
+
+.sbe-mkt-roi-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 28px;
+  margin-top: -13px;
+  border: 0;
+  border-radius: 2px;
+  background: var(--nav-cream);
+  box-shadow: inset 0 0 0 1px var(--bg-dark), inset 5px 0 0 0 var(--nav-cream), inset 7px 0 0 0 var(--gold);
+  transition: transform 0.35s var(--ease-spring-soft);
+}
+
+.sbe-mkt-roi-range::-moz-range-thumb {
+  width: 12px;
+  height: 28px;
+  border: 0;
+  border-radius: 2px;
+  background: var(--nav-cream);
+  box-shadow: inset 0 0 0 1px var(--bg-dark), inset 5px 0 0 0 var(--nav-cream), inset 7px 0 0 0 var(--gold);
+  transition: transform 0.35s var(--ease-spring-soft);
+}
+
+.sbe-mkt-roi-range:hover::-webkit-slider-thumb,
+.sbe-mkt-roi-range:active::-webkit-slider-thumb {
+  transform: scaleY(1.18);
+}
+
+.sbe-mkt-roi-range:hover::-moz-range-thumb,
+.sbe-mkt-roi-range:active::-moz-range-thumb {
+  transform: scaleY(1.18);
+}
+
+.sbe-mkt-roi-range:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--gold-warm);
+  outline-offset: 3px;
+}
+
+.sbe-mkt-roi-range:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--gold-warm);
+  outline-offset: 3px;
+}
+
+.sbe-mkt-roi-bounds {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-light-muted-on-dark);
+}
+
+/* Readout: the total leads, the three line items sit under it as a ledger */
+
+.sbe-mkt-roi-total-label {
+  margin: 0 0 0.75rem;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--gold-warm);
+}
+
+/* Dollar figures are set in the body face everywhere on the marketing site:
+   the serif dollar sign reads as decorative at display size. */
+
+.sbe-mkt-roi-total {
+  margin: 0 0 1.5rem;
+  font-family: var(--font-body);
+  font-size: clamp(2.75rem, 5vw, 4.25rem);
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--nav-cream);
+}
+
+.sbe-mkt-roi-total small {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-mkt-roi-lines {
+  margin: 0;
+  border-bottom: 1px solid var(--border-light-on-dark);
+}
+
+.sbe-mkt-roi-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.1rem 1.5rem;
+  padding: 0.8rem 0;
+  border-top: 1px solid var(--border-light-on-dark);
+}
+
+.sbe-mkt-roi-line dt {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--text-light-on-dark);
+}
+
+.sbe-mkt-roi-line dd {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--nav-cream);
+}
+
+.sbe-mkt-roi-line dd.sbe-mkt-roi-note {
+  grid-column: 1 / -1;
+  font-size: 0.8rem;
+  font-weight: 400;
+  white-space: normal;
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-mkt-roi-fineprint {
+  margin: 1.25rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--text-light-muted-on-dark);
+}
+
+/* Stacked layout: sliders, readout, then the email form. Side by side, the
+   form sits under the sliders so it stays in the first viewport. */
+
+.sbe-mkt-roi-inputs {
+  display: contents;
+}
+
+.sbe-mkt-roi-email {
+  order: 3;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-light-on-dark);
+}
+
+.sbe-mkt-roi-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem 1.5rem;
+}
+
+.sbe-mkt-roi-form label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-mkt-roi-form-field {
+  flex: 1 1 260px;
+  max-width: 420px;
+}
+
+/* Underlined field, no box */
+
+.sbe-mkt-roi-input {
+  width: 100%;
+  padding: 0.6rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--border-light-on-dark);
+  border-radius: 0;
+  background: transparent;
+  color: var(--nav-cream);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  transition: border-color 0.2s var(--ease-out);
+}
+
+.sbe-mkt-roi-input::placeholder {
+  color: var(--text-light-faint-on-dark);
+}
+
+.sbe-mkt-roi-input:focus {
+  outline: none;
+  border-bottom-color: var(--gold-warm);
+}
+
+.sbe-mkt-roi-submit {
+  border: 0;
+  cursor: pointer;
+}
+
+.sbe-mkt-roi-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.sbe-mkt-roi-sent {
+  margin: 0;
+  font-size: var(--fs-body);
+  color: var(--gold-warm);
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-roi-grid {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: clamp(3rem, 7vw, 7rem);
+    align-items: start;
+  }
+
+  .sbe-mkt-roi-inputs {
+    display: block;
+  }
+
+  .sbe-mkt-roi-email {
+    margin-top: 2.25rem;
+  }
+}
+
+/* ==========================================================================
+   /pricing: price board, founding strip, flush comparison (October 2026)
+   One four-track grid runs through the board, the founding strip and the
+   comparison table, so plan columns share edges all the way down the page.
+   ========================================================================== */
+
+.sbe-mkt-pricing-page {
+  --price-overlap: 2.5rem;
+  --price-pad: 1.5rem;
+}
+
+/* Short hero with room underneath for the board to overlap */
+
+.sbe-mkt-pricing-hero .sbe-mkt-pagehero {
+  padding: 2.5rem 0 calc(2.5rem + var(--price-overlap));
+}
+
+.sbe-mkt-pricing {
+  position: relative;
+  z-index: 1;
+  margin-top: calc(var(--price-overlap) * -1);
+  padding-bottom: var(--section-spacing-sm);
+}
+
+.sbe-mkt-price-error {
+  max-width: 480px;
+  margin: 0 auto 16px;
+}
+
+.sbe-mkt-price-board {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── Track 1: heading, billing toggle ── */
+
+.sbe-mkt-price-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: var(--price-pad);
+}
+
+.sbe-mkt-price-intro-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+}
+
+.sbe-mkt-price-intro-note {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gold-deep);
+}
+
+.sbe-mkt-price-guarantee {
+  padding: var(--price-pad);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  border-top: 1px solid var(--line);
+}
+
+/* ── Tracks 2 to 4: the three priced plans ── */
+
+.sbe-mkt-price-plans {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sbe-mkt-price-col {
+  display: flex;
+  flex-direction: column;
+  padding: var(--price-pad);
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-price-audience {
+  margin: 0 0 0.5rem;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.sbe-mkt-price-namerow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.sbe-mkt-price-name {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+}
+
+.sbe-mkt-price-flag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--gold-warm);
+}
+
+.sbe-mkt-price-figure {
+  display: flex;
+  flex-direction: column;
+  margin: 1.5rem 0 0;
+}
+
+.sbe-mkt-price-currency,
+.sbe-mkt-price-unit {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.sbe-mkt-price-currency {
+  text-transform: uppercase;
+}
+
+/* Prices are set in the body face: the serif dollar sign read as decorative
+   at this size and the figures looked thin beside the plan buttons. */
+
+.sbe-mkt-price-amount {
+  margin: 0.15rem 0 0.35rem;
+  font-family: var(--font-body);
+  font-size: calc(var(--fs-display) * 1.05);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--green-deep);
+}
+
+.sbe-mkt-price-note {
+  margin: 0.6rem 0 1.25rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--text-soft);
+}
+
+.sbe-mkt-price-btn {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid var(--green);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--green);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.18s var(--ease-out), color 0.18s var(--ease-out), transform 0.18s var(--ease-out);
+}
+
+.sbe-mkt-price-btn:hover {
+  background: var(--green);
+  color: var(--surface-raised);
+}
+
+.sbe-mkt-price-btn:active {
+  transform: scale(0.98);
+}
+
+.sbe-mkt-price-btn:focus-visible,
+.sbe-mkt-price-buynow:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.sbe-mkt-price-btn:disabled,
+.sbe-mkt-price-buynow:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.sbe-mkt-price-btn-featured {
+  border-color: var(--gold-warm);
+  background: var(--gold-warm);
+  color: var(--green-deep);
+}
+
+.sbe-mkt-price-btn-featured:hover {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: var(--green-deep);
+}
+
+.sbe-mkt-price-alt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  min-height: 2.25rem;
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+}
+
+.sbe-mkt-price-buynow {
+  padding: 0.35rem 0.15rem;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.sbe-mkt-price-buynow:hover {
+  color: var(--green-deep);
+}
+
+.sbe-mkt-price-features {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 1.25rem 0 0;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-price-features .sbe-mkt-pricefeature-name {
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+/* ── Featured plan: dark column ── */
+
+.sbe-mkt-price-col-featured {
+  background: var(--bg-dark);
+  border-top-color: transparent;
+}
+
+.sbe-mkt-price-col-featured .sbe-mkt-price-audience,
+.sbe-mkt-price-col-featured .sbe-mkt-price-buynow {
+  color: var(--gold-warm);
+}
+
+.sbe-mkt-price-col-featured .sbe-mkt-price-name,
+.sbe-mkt-price-col-featured .sbe-mkt-price-amount,
+.sbe-mkt-price-col-featured .sbe-mkt-price-buynow:hover {
+  color: var(--nav-cream);
+}
+
+.sbe-mkt-price-col-featured .sbe-mkt-price-currency,
+.sbe-mkt-price-col-featured .sbe-mkt-price-unit,
+.sbe-mkt-price-col-featured .sbe-mkt-price-note,
+.sbe-mkt-price-col-featured .sbe-mkt-price-alt {
+  color: var(--text-light-muted-on-dark);
+}
+
+.sbe-mkt-price-col-featured .sbe-mkt-price-features {
+  border-top-color: var(--border-light-on-dark);
+}
+
+.sbe-mkt-price-col-featured .sbe-mkt-pricefeature-name {
+  color: var(--text-light-on-dark);
+}
+
+.sbe-mkt-price-col-featured .sbe-mkt-pricefeature::before {
+  background-color: var(--gold-warm);
+}
+
+/* ── Franchise: a contact row, not a fourth price ── */
+
+.sbe-mkt-price-franchise {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-price-franchise > * {
+  padding: var(--price-pad);
+}
+
+.sbe-mkt-price-franchise > * + * {
+  padding-top: 0;
+}
+
+.sbe-mkt-price-franchise-copy {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-soft);
+}
+
+/* ── Founding strip ── */
+
+.sbe-mkt-founding {
+  padding-bottom: var(--section-spacing-md);
+}
+
+.sbe-mkt-founding-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.sbe-mkt-founding-intro {
+  padding: 0 var(--price-pad) 2rem;
+}
+
+.sbe-mkt-founding-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-heading);
+  line-height: 1.1;
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+  text-wrap: balance;
+}
+
+.sbe-mkt-founding-lede {
+  margin: 1rem 0 1.25rem;
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  color: var(--text-soft);
+}
+
+.sbe-mkt-founding-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sbe-mkt-founding-item {
+  padding: 1.5rem var(--price-pad);
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-founding-item h3 {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+}
+
+.sbe-mkt-founding-item p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-soft);
+}
+
+.sbe-mkt-faq-link {
+  font-weight: 600;
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sbe-mkt-faq-link:hover {
+  color: var(--green-deep);
+}
+
+/* ── Comparison band: CompareMatrix with flush + collapsible ── */
+
+.sbe-mkt-compare-band {
+  padding: var(--section-spacing-sm) 0;
+  background: linear-gradient(160deg, var(--bg-dark) 0%, var(--bg-dark-soft) 100%);
+}
+
+.sbe-compare--flush {
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.sbe-compare-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 0 var(--price-pad, 0);
+  list-style: none;
+  cursor: pointer;
+}
+
+.sbe-compare-summary::-webkit-details-marker {
+  display: none;
+}
+
+.sbe-compare-summary:focus-visible {
+  outline: 2px solid var(--gold-warm);
+  outline-offset: 6px;
+}
+
+.sbe-compare-summary .sbe-compare-head {
+  margin: 0;
+  text-align: left;
+}
+
+.sbe-compare-summary .sbe-compare-title {
+  font-size: var(--fs-display);
+  font-weight: 500;
+  line-height: var(--lh-display);
+  letter-spacing: var(--tracking-display);
+}
+
+.sbe-compare-summary .sbe-compare-sub {
+  margin: 0;
+}
+
+.sbe-compare-summary .sbe-mkt-faq-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--gold-warm);
+}
+
+.sbe-compare-details[open] .sbe-mkt-faq-icon::after {
+  transform: rotate(0deg);
+}
+
+.sbe-compare-details[open] .sbe-mkt-faq-icon::before {
+  transform: rotate(180deg);
+}
+
+.sbe-compare-details[open] .sbe-compare-summary {
+  margin-bottom: 2rem;
+}
+
+.sbe-compare--flush .sbe-compare-scroll {
+  border-left: 0;
+  border-right: 0;
+  border-radius: 0;
+}
+
+/* Four equal columns: the same tracks as .sbe-mkt-price-board */
+
+.sbe-compare--flush .sbe-compare-table {
+  table-layout: fixed;
+}
+
+.sbe-compare--flush .sbe-compare-th,
+.sbe-compare--flush .sbe-compare-th--label {
+  width: 25%;
+}
+
+.sbe-compare--flush .sbe-compare-th--label,
+.sbe-compare--flush .sbe-compare-label,
+.sbe-compare--flush .sbe-compare-section {
+  padding-left: var(--price-pad, 20px);
+}
+
+.sbe-compare--flush .sbe-compare-included {
+  padding: 0 var(--price-pad, 0);
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-pricing-page {
+    --price-overlap: 5rem;
+    --price-pad: 1.75rem;
+  }
+
+  .sbe-mkt-price-board,
+  .sbe-mkt-founding-grid,
+  .sbe-mkt-price-franchise {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .sbe-mkt-price-board {
+    grid-template-rows: auto 1fr auto;
+  }
+
+  .sbe-mkt-price-intro {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .sbe-mkt-price-guarantee {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: end;
+    border-top: 0;
+  }
+
+  .sbe-mkt-price-plans {
+    grid-column: 2 / -1;
+    grid-row: 1 / 3;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .sbe-mkt-price-col {
+    border-top: 0;
+    border-left: 1px solid var(--line);
+  }
+
+  /* Keeps price and button on one line across the three columns */
+  .sbe-mkt-price-audience {
+    min-height: 2.7em;
+  }
+
+  .sbe-mkt-price-note {
+    min-height: 2.9em;
+  }
+
+  /* The featured column stands above the board's top edge */
+  .sbe-mkt-price-col-featured {
+    margin-top: -1.25rem;
+    padding-top: calc(var(--price-pad) + 1.25rem);
+    border-left-color: transparent;
+    box-shadow: var(--shadow-md);
+  }
+
+  .sbe-mkt-price-franchise {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    align-items: center;
+  }
+
+  .sbe-mkt-price-franchise > * + * {
+    padding-top: var(--price-pad);
+  }
+
+  .sbe-mkt-price-franchise-copy {
+    grid-column: 2 / 4;
+  }
+
+  .sbe-mkt-founding-intro {
+    padding-bottom: 0;
+  }
+
+  .sbe-mkt-founding-list {
+    grid-column: 2 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .sbe-mkt-founding-item {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    border-top: 0;
+    border-left: 1px solid var(--line);
+  }
+
+  /* Plan names stay in view while the open table scrolls */
+  .sbe-compare--flush .sbe-compare-scroll {
+    overflow: visible;
+  }
+
+  .sbe-compare--flush .sbe-compare-th {
+    position: sticky;
+    top: var(--nav-h);
+    z-index: 2;
+    background: var(--bg-dark);
+  }
+
+  .sbe-compare--flush .sbe-compare-th.sbe-compare-col--featured {
+    background: var(--bg-dark-soft);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Sub-page section patterns (components/marketing/sections.tsx)
+   Variants of the homepage layouts above, shared by every marketing sub-page.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Background shift for a section that reuses a homepage pattern class */
+
+.sbe-mkt-tone-alt {
+  background: var(--bg-alt);
+}
+
+.sbe-mkt-tone-warm {
+  background: var(--bg-warm);
+}
+
+/* Short hairline list of points, in place of a ticked checklist */
+
+.sbe-mkt-points {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  max-width: 32rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.sbe-mkt-points li {
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--line);
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.sbe-mkt-duo-item .sbe-mkt-points + p {
+  margin-top: 1.25rem;
+}
+
+.sbe-mkt-duo-panel .sbe-mkt-points li {
+  border-top-color: var(--border-light-on-dark);
+  color: var(--text-light-on-dark);
+}
+
+.sbe-mkt-show-action {
+  margin-top: 1.5rem;
+}
+
+/* A phone screenshot shown on its own in a media row */
+
+.sbe-mkt-show-bare img {
+  width: min(100%, 280px);
+  margin-inline: auto;
+  filter: drop-shadow(0 18px 28px rgba(15, 45, 29, 0.22));
+}
+
+.sbe-mkt-footnote {
+  margin: 1.5rem 0 0;
+  max-width: 44rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* Ruled list rows without a label column, and with a link */
+
+.sbe-mkt-plan-link {
+  justify-self: start;
+  margin-top: 0.35rem;
+  color: var(--green);
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-plan.sbe-mkt-plan-nolabel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sbe-mkt-plan.sbe-mkt-plan-nolabel h3,
+  .sbe-mkt-plan.sbe-mkt-plan-nolabel p,
+  .sbe-mkt-plan.sbe-mkt-plan-nolabel .sbe-mkt-plan-link {
+    grid-column: 1;
+  }
+
+  .sbe-mkt-plan-link {
+    grid-column: 2;
+  }
+
+  .sbe-mkt-plan:has(.sbe-mkt-plan-link) .sbe-mkt-plan-tier {
+    grid-row: span 3;
+  }
+
+  /* Four numbered steps: tighter stagger than the three-step path */
+  .sbe-mkt-path-steps.sbe-mkt-path-steps-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(1.5rem, 2.5vw, 2.5rem);
+  }
+
+  .sbe-mkt-path-steps-4 .sbe-mkt-path-step:nth-child(2) {
+    margin-top: 2.25rem;
+  }
+
+  .sbe-mkt-path-steps-4 .sbe-mkt-path-step:nth-child(3) {
+    margin-top: 4.5rem;
+  }
+
+  .sbe-mkt-path-steps-4 .sbe-mkt-path-step:nth-child(4) {
+    margin-top: 6.75rem;
+  }
+}
+
+.sbe-mkt-path-steps-4 .sbe-mkt-path-num {
+  font-size: clamp(3rem, 5.5vw, 4.75rem);
+}
+
+.sbe-mkt-path-step p {
+  max-width: 30rem;
+}
+
+/* ── Aligned strip: intro in the first track, points on the tracks beside it ── */
+
+.sbe-mkt-strip {
+  padding: var(--section-spacing-md) 0;
+}
+
+.sbe-mkt-strip-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.5rem;
+}
+
+.sbe-mkt-strip-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+  text-wrap: balance;
+}
+
+.sbe-mkt-strip-lede {
+  margin: 1rem 0 1.25rem;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-soft);
+}
+
+.sbe-mkt-strip-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sbe-mkt-strip-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-strip-item h3 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+}
+
+.sbe-mkt-strip-item p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: var(--lh-body);
+  color: var(--text-soft);
+}
+
+.sbe-mkt-strip-img {
+  width: min(100%, 220px);
+  height: auto;
+  margin-bottom: 0.75rem;
+  filter: drop-shadow(0 14px 22px rgba(15, 45, 29, 0.2));
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-strip-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .sbe-mkt-strip-intro {
+    padding-right: clamp(1.5rem, 3vw, 3rem);
+  }
+
+  .sbe-mkt-strip-list {
+    grid-column: 2 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .sbe-mkt-strip-list-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sbe-mkt-strip-item {
+    padding: 1.5rem clamp(1rem, 2vw, 1.75rem) 0;
+    border-top: 0;
+    border-left: 1px solid var(--line);
+  }
+}
+
+/* A sample line quoted under a ruled-list row */
+
+.sbe-mkt-plan-quote {
+  display: block;
+  margin-top: 0.6rem;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+/* ── Contact: form left, other routes as a ruled list right ── */
+
+.sbe-mkt-contact {
+  padding: 2.5rem 0 var(--section-spacing-md);
+}
+
+.sbe-mkt-contact-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3rem;
+}
+
+.sbe-mkt-contact-main .contact-form {
+  margin-top: 1.25rem;
+}
+
+/* Keep the required mark and "(optional)" on the label's own line */
+
+.sbe-mkt-contact-main .label {
+  display: block;
+}
+
+.sbe-mkt-contact-main .contact-textarea {
+  min-height: 96px;
+}
+
+.sbe-mkt-contact-submit {
+  border: 0;
+  cursor: pointer;
+}
+
+.sbe-mkt-contact-submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.sbe-mkt-contact-aside {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.sbe-mkt-contact-aside li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-contact-aside p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: var(--lh-body);
+  color: var(--text-soft);
+}
+
+.sbe-mkt-contact-email {
+  font-family: var(--font-heading);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 700px) {
+  .sbe-mkt-contact-pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .sbe-mkt-contact-grid {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    gap: clamp(2.5rem, 6vw, 6rem);
+    align-items: start;
+  }
+
+  .sbe-mkt-contact-aside {
+    position: sticky;
+    top: calc(var(--nav-h) + 2rem);
+  }
+}
+
+/* ── /toolkit: chrome-less lead-magnet page around the SOP generator ── */
+
+.sbe-mkt-toolkit {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.sbe-mkt-toolkit-bar {
+  padding: 1rem var(--page-gutter);
+  background: var(--bg-dark);
+}
+
+.sbe-mkt-toolkit-bar a {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--nav-cream);
+  text-decoration: none;
+}
+
+.sbe-mkt-toolkit-tool {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: var(--section-spacing-sm) 1.5rem 0;
+}
+
+.sbe-mkt-toolkit-foot {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: var(--section-spacing-sm) 1.5rem;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.sbe-mkt-toolkit-foot p {
+  margin: 0 0 0.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-toolkit-foot p + p {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.sbe-mkt-toolkit-foot a {
+  color: inherit;
+}
+
+.sbe-mkt-confirm-hint {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+
+.sbe-mkt-confirm-hint h2 {
+  margin: 0.6rem 0 0.5rem;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+}
+
+.sbe-mkt-confirm-hint p:last-child {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.sbe-mkt-confirm .sbe-mkt-footnote a {
+  color: inherit;
+}
+
+/* A second small label inside the split panel's lead column */
+
+.sbe-mkt-duo-sub {
+  margin-top: 2.5rem;
+}
+
+.sbe-mkt-duo-lead .sbe-mkt-duo-sub + .sbe-mkt-lede {
+  margin-top: 0;
+  font-size: var(--fs-body);
+}
+
+.sbe-mkt-points strong {
+  font-weight: 600;
+  color: var(--green-deep);
+}
+
+/* ── Versus: a three-column hairline comparison table ── */
+
+.sbe-mkt-versus {
+  padding: var(--section-spacing-md) 0;
+}
+
+.sbe-mkt-versus-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+.sbe-mkt-versus-table thead th {
+  padding: 0 1.5rem 1rem 0;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sbe-mkt-versus-table thead th:last-child {
+  color: var(--gold-deep);
+}
+
+.sbe-mkt-versus-table tbody th,
+.sbe-mkt-versus-table td {
+  padding: 1.5rem 1.5rem 1.5rem 0;
+  border-top: 1px solid var(--line);
+  vertical-align: top;
+  font-size: 0.95rem;
+  line-height: var(--lh-body);
+}
+
+.sbe-mkt-versus-table tbody th {
+  width: 20%;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--green-deep);
+}
+
+.sbe-mkt-versus-table td {
+  width: 40%;
+  color: var(--text-soft);
+}
+
+.sbe-mkt-versus-table td:last-child {
+  padding-right: 0;
+  color: var(--text);
+}
+
+@media (max-width: 760px) {
+  .sbe-mkt-versus-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .sbe-mkt-versus-table,
+  .sbe-mkt-versus-table tbody,
+  .sbe-mkt-versus-table tr,
+  .sbe-mkt-versus-table tbody th,
+  .sbe-mkt-versus-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .sbe-mkt-versus-table tr {
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .sbe-mkt-versus-table tbody th,
+  .sbe-mkt-versus-table td {
+    padding: 0;
+    border-top: 0;
+  }
+
+  .sbe-mkt-versus-table td {
+    margin-top: 1rem;
+  }
+
+  .sbe-mkt-versus-table td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: var(--fs-caption);
+    font-weight: 700;
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .sbe-mkt-versus-table td:last-child::before {
+    color: var(--gold-deep);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sbe-mkt-faq-item::details-content,
+  .sbe-mkt-price-btn,
+  .sbe-mkt-faq-icon::before,
+  .sbe-mkt-faq-icon::after,
+  .sbe-mkt-faq-q,
+  .sbe-mkt-plan,
+  .sbe-mkt-roi-range::-webkit-slider-thumb,
+  .sbe-mkt-roi-range::-moz-range-thumb {
+    transition: none;
+  }
+
+  .sbe-mkt-faq-item[open] .sbe-mkt-faq-a {
+    animation: none;
+  }
+}

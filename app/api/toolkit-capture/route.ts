@@ -41,7 +41,7 @@ async function sendToolkitEmail({ email, firstName, role, leadId }: {
       <p style="${textStyle}">Thank you for downloading the Serve By Example Onboarding Framework.</p>
       <p style="${textStyle}">${escapeHtml(emailHookText)}</p>
       ${emailButtonHtml(toolkitUrl, 'Open the Notion toolkit')}
-      <p style="${textStyle}">Cheers,<br />Mitch<br />Serve By Example</p>
+      <p style="${textStyle}">Cheers,<br />The Serve By Example team</p>
       <p style="margin:24px 0 0;font-size:12px;line-height:1.6;color:#7a9185">
         You're receiving this because you requested the free toolkit at
         <a href="${SITE_URL}/toolkit" style="color:#a9812a">servebyexample.co/toolkit</a>.
@@ -72,7 +72,7 @@ async function sendToolkitEmail({ email, firstName, role, leadId }: {
           'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
         },
         htmlContent,
-        textContent: `Hi ${firstName},\n\nThank you for downloading the Serve By Example Onboarding Framework.\n\n${emailHookText}\n\nAccess your complete editable Notion SOP toolkit here:\n${toolkitUrl}\n\nCheers,\n\nMitch\nServe By Example\nservebyexample.co\n\n---\nYou're receiving this because you requested the free toolkit at servebyexample.co/toolkit.\nUnsubscribe: ${unsubscribeUrl}`,
+        textContent: `Hi ${firstName},\n\nThank you for downloading the Serve By Example Onboarding Framework.\n\n${emailHookText}\n\nAccess your complete editable Notion SOP toolkit here:\n${toolkitUrl}\n\nCheers,\n\nThe Serve By Example team\nservebyexample.co\n\n---\nYou're receiving this because you requested the free toolkit at servebyexample.co/toolkit.\nUnsubscribe: ${unsubscribeUrl}`,
       }),
       signal: AbortSignal.timeout(8_000),
     });

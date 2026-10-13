@@ -1,8 +1,8 @@
 /**
  * scripts/find-unused-css.mjs
  *
- * Finds class selectors in app/globals.css that no source file can produce,
- * and optionally deletes them.
+ * Finds class selectors in the stylesheets (app/globals.css and app/styles/*.css)
+ * that no source file can produce, and optionally deletes them.
  *
  * A class counts as USED when any of these is true:
  *   1. Its name appears as a whole token anywhere in app, components, lib or
@@ -20,7 +20,7 @@
  * Usage:
  *   node scripts/find-unused-css.mjs                 # report only
  *   node scripts/find-unused-css.mjs --list          # report plus every unused class
- *   node scripts/find-unused-css.mjs --write         # delete from app/globals.css
+ *   node scripts/find-unused-css.mjs --write         # delete from the stylesheets
  *   node scripts/find-unused-css.mjs --write --prefix=ops   # only classes named ops-* / ops
  *
  * After --write: npm run lint:css, npx next build, and look at the pages.
@@ -31,7 +31,8 @@ import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import postcss from "postcss";
 
-const CSS_FILE = resolve("app/globals.css");
+// The shared file first, then one file per surface (see "Stylesheets" in CLAUDE.md).
+const CSS_FILES = ["app/globals.css", ...readdirSync("app/styles").filter((f) => f.endsWith(".css")).sort().map((f) => join("app/styles", f))].map((f) => resolve(f));
 const SOURCE_DIRS = ["app", "components", "lib", "content"];
 const SOURCE_EXT = /\.(tsx?|mts|mjs|jsx?|mdx?|json|html)$/;
 // Classes our code never writes but the page still gets.
@@ -52,7 +53,7 @@ function readSources(dir, out) {
   for (const entry of entries) {
     const path = join(dir, entry.name);
     if (entry.isDirectory()) readSources(path, out);
-    else if (SOURCE_EXT.test(entry.name) && path !== "app/globals.css") out.push(readFileSync(path, "utf8"));
+    else if (SOURCE_EXT.test(entry.name)) out.push(readFileSync(path, "utf8"));
   }
 }
 
@@ -86,8 +87,18 @@ const CLASS_RE = /\.(-?[_a-zA-Z][\w-]*)/g;
 // Strip strings and attribute selectors so `[href$=".pdf"]` is not read as a class.
 const stripNonClass = (selector) => selector.replace(/\[[^\]]*\]/g, "").replace(/(["']).*?\1/g, "");
 
-const css = readFileSync(CSS_FILE, "utf8");
-const root = postcss.parse(css, { from: CSS_FILE });
+const sheets = CSS_FILES.map((file) => {
+  const css = readFileSync(file, "utf8");
+  return { file, css, root: postcss.parse(css, { from: file }) };
+});
+const roots = sheets.map((sheet) => sheet.root);
+// Every walk below covers all the stylesheets: a keyframes block in the shared
+// file can be used from a surface file.
+const root = {
+  walkRules: (...args) => roots.forEach((r) => r.walkRules(...args)),
+  walkAtRules: (...args) => roots.forEach((r) => r.walkAtRules(...args)),
+  walkDecls: (...args) => roots.forEach((r) => r.walkDecls(...args)),
+};
 
 const allClasses = new Set();
 root.walkRules((rule) => {
@@ -176,9 +187,9 @@ if (!prefixArg) {
   });
 }
 
-const output = root.toString().replace(/\n{4,}/g, "\n\n\n");
-const beforeLines = css.split("\n").length;
-const afterLines = output.split("\n").length;
+for (const sheet of sheets) sheet.output = sheet.root.toString().replace(/\n{4,}/g, "\n\n\n");
+const total = (key, count) => sheets.reduce((sum, sheet) => sum + count(sheet[key]), 0);
+const lineCount = (text) => text.split("\n").length;
 
 const byPrefix = {};
 for (const name of unused) {
@@ -186,14 +197,14 @@ for (const name of unused) {
   byPrefix[prefix] = (byPrefix[prefix] ?? 0) + 1;
 }
 
-console.log(`Classes in globals.css:     ${allClasses.size}`);
+console.log(`Classes in ${sheets.length} stylesheets:   ${allClasses.size}`);
 console.log(`Unused${prefixArg ? ` (${prefixArg}-*)` : ""}:                     ${unused.size}`);
 console.log(`Rules removed / trimmed:    ${removedRules} / ${trimmedRules}`);
 console.log(`Empty at-rules removed:     ${removedAtRules}`);
 console.log(`Keyframes removed:          ${removedKeyframes}`);
 console.log(`Comments removed:           ${removedComments}`);
-console.log(`Lines:                      ${beforeLines} -> ${afterLines}`);
-console.log(`Bytes:                      ${css.length} -> ${output.length}`);
+console.log(`Lines:                      ${total("css", lineCount)} -> ${total("output", lineCount)}`);
+console.log(`Bytes:                      ${total("css", (text) => text.length)} -> ${total("output", (text) => text.length)}`);
 console.log(
   `By prefix: ${Object.entries(byPrefix)
     .sort((a, b) => b[1] - a[1])
@@ -204,8 +215,11 @@ console.log(
 if (list) console.log([...unused].sort().join("\n"));
 
 if (write) {
-  writeFileSync(CSS_FILE, output);
-  console.log(`\nWrote ${CSS_FILE}`);
+  for (const sheet of sheets) {
+    if (sheet.output === sheet.css) continue;
+    writeFileSync(sheet.file, sheet.output);
+    console.log(`Wrote ${sheet.file}`);
+  }
 } else {
   console.log("\nReport only. Pass --write to delete.");
 }

@@ -5,7 +5,7 @@ import PageHero from "@/components/marketing/PageHero";
 import CTABand from "@/components/marketing/CTABand";
 import ContactForm from "@/components/marketing/ContactForm";
 
-// Metadata lives in app/contact/layout.tsx.
+// Metadata lives in app/(marketing)/contact/layout.tsx.
 export default function ContactPage() {
   return (
     <div className="page-shell">

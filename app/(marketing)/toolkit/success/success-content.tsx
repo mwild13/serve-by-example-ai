@@ -32,7 +32,7 @@ export function SuccessContent() {
       <p className="sbe-mkt-kicker">Sent to your inbox</p>
       <h1 className="sbe-mkt-display">Your toolkit is ready.</h1>
       <p className="sbe-mkt-lede">
-        We&rsquo;ve also sent it to your inbox. Look for an email from Mitch at Serve By Example.
+        We&rsquo;ve also sent it to your inbox. Look for an email from Serve By Example.
       </p>
       <a href={notionHref} target="_blank" rel="noopener noreferrer" className="sbe-mkt-btn-primary">
         Open the Notion toolkit

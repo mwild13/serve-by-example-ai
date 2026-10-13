@@ -2,7 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/marketing/PageHero";
 import CTABand from "@/components/marketing/CTABand";
-import { FounderStory, RuledList, type RuledItem } from "@/components/marketing/sections";
+import { RuledList, type RuledItem } from "@/components/marketing/sections";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -44,8 +44,6 @@ export default function AboutPage() {
           title="Built by people who know hospitality"
           subtitle="Serve By Example started from a simple frustration: great hospitality training was out of reach for most venues: too expensive, too generic, too slow. We built the platform we wished existed."
         />
-
-        <FounderStory />
 
         <RuledList
           kicker="Why it exists"

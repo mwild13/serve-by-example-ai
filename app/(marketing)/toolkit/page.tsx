@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import SopGeneratorPreview from "@/app/toolkit/_components/SopGeneratorPreview";
+import SopGeneratorPreview from "./_components/SopGeneratorPreview";
 import PageHero from "@/components/marketing/PageHero";
 
 export const metadata: Metadata = {

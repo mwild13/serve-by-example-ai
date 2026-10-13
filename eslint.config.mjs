@@ -116,8 +116,8 @@ export default defineConfig([
   // --surface-tint-on-dark, --gold-*-on-dark, --shadow-shot) instead.
   {
     files: [
-      "app/page.tsx",
-      "app/{about,contact,cookies,demo,for-venues,how-it-works,membership,platform,pricing,privacy,resources,roadmap,roi,security,solutions,terms,toolkit,vs-generic-lms}/**/*.tsx",
+      "app/(marketing)/page.tsx",
+      "app/(marketing)/{about,contact,cookies,demo,for-venues,how-it-works,membership,platform,pricing,privacy,resources,roadmap,roi,security,solutions,terms,toolkit,vs-generic-lms}/**/*.tsx",
       "components/marketing/**/*.tsx",
       "components/ui/**/*.tsx",
       "components/{Navbar,Footer,HeroSection,HeroStickyBar,LogoMarquee,FloatingBookCallButton,BookCallModal}.tsx",

@@ -8,6 +8,7 @@ import { MobileSessionProvider } from "./_lib/mobile-session-context";
 import { TrainingProgressProvider } from "./_lib/training-progress-context";
 import MobileOrientationGuard from "./_components/MobileOrientationGuard";
 import { PRODUCT_FONT_CLASS } from "@/app/fonts/product-fonts";
+import "../styles/staff.css";
 
 // Phase C file 01 — auth + tier gate for the whole /mobile route tree,
 // mirroring app/dashboard/page.tsx via the shared resolveTierAccess() helper

@@ -159,7 +159,7 @@ export default function Home() {
 
         {/* ── Core Pillars ─────────────────────────── */}
         {/* Parchment lead on the left; the dark panel bleeds off the right edge
-            and hangs into the founder section below. */}
+            and hangs into the showcase section below. */}
         <section className="sbe-mkt-duo">
           <div className="sbe-mkt-duo-lead">
             <p className="sbe-mkt-kicker">Staff side. Manager side.</p>
@@ -176,38 +176,6 @@ export default function Home() {
                 <p>{system.body}</p>
               </div>
             ))}
-          </div>
-        </section>
-
-        {/* ── Founder Story ────────────────────────── */}
-        {/* Stat row (15+/100s/40+) removed per §6.3 — the photo and quote are
-            the trust asset, not the digits. */}
-        <section className="sbe-mkt-founder">
-          <div className="container sbe-mkt-founder-grid">
-            <figure className="sbe-mkt-founder-portrait">
-              <Image
-                src="/24 May Jpg's/Founder.webp"
-                alt="Mitch, Founder of Serve By Example"
-                width={140}
-                height={140}
-                loading="lazy"
-                quality={60}
-              />
-              <figcaption>Mitch, founder</figcaption>
-            </figure>
-            <div className="sbe-mkt-founder-body">
-              <p className="sbe-mkt-kicker">Who built this</p>
-              <h2 className="sbe-mkt-display">Built by a 15-year hospitality veteran.</h2>
-              <p className="sbe-mkt-lede">
-                Serve By Example was created and is managed by a real hospitality professional with over 15 years of experience across Australian bars, pubs and venues. Not built in a boardroom, built behind the bar.
-              </p>
-            </div>
-            <blockquote className="sbe-mkt-pullquote">
-              <p>
-                &ldquo;I built the training tool I always wished I had, one that works for real venues, real staff, and the real pressure of a busy service.&rdquo;
-              </p>
-              <footer>Mitch, Serve By Example, Australia</footer>
-            </blockquote>
           </div>
         </section>
 

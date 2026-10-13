@@ -191,7 +191,7 @@ export default function ContactSupportScreen() {
             Phase 6 fix (2026-09-21): was `position: absolute; left: -9999`,
             which genuinely widened the document past the viewport on this
             route (iOS Safari could be dragged/panned) instead of just being
-            visually hidden. Reuse the same safe pattern app/contact/page.tsx
+            visually hidden. Reuse the same safe pattern app/(marketing)/contact/page.tsx
             already uses. */}
         <div className="sr-only-hp" aria-hidden="true">
           <label htmlFor="mobile-contact-website">Website</label>

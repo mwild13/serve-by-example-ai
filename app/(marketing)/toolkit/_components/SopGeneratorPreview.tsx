@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import SopPreviewDocument from '@/app/toolkit/_components/SopPreviewDocument';
+import SopPreviewDocument from './SopPreviewDocument';
 
 type Step = 'venue' | 'state' | 'pain' | 'preview';
 

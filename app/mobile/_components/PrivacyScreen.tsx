@@ -9,7 +9,7 @@ import { LegalSection, LegalSubheading, LegalParagraph, LegalList, LegalDivider,
 // used to send mobile users out to the public marketing /privacy page. This
 // is the in-app answer: the same policy content, same full-screen shell
 // pattern as HelpScreen.tsx/ReportBugScreen.tsx, so mobile users never
-// leave the app. Content copied verbatim from app/privacy/page.tsx — keep
+// leave the app. Content copied verbatim from app/(marketing)/privacy/page.tsx — keep
 // both in sync if the policy is ever updated.
 
 export default function PrivacyScreen() {

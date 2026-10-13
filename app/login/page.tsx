@@ -52,7 +52,7 @@ function LoginPageContent() {
   const stripeSessionId = searchParams.get("session_id");
   const oauthError = searchParams.get("error") === "oauth-error";
   // Carried forward from "Try Free for 14 Days" CTAs (HeroSection.tsx,
-  // app/pricing/page.tsx) for a logged-out visitor — this page previously
+  // app/(marketing)/pricing/page.tsx) for a logged-out visitor — this page previously
   // never read these, so clicking Start Trial while logged out silently
   // dropped the intent and just signed the visitor in/up with no trial
   // ever created. Password-based sign-in/sign-up handlers below call

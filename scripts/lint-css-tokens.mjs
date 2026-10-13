@@ -1,7 +1,7 @@
 /**
  * scripts/lint-css-tokens.mjs
  *
- * Scans app/globals.css for raw hex colour values that appear OUTSIDE any
+ * Scans the stylesheets (app/globals.css and app/styles/*.css) for raw hex colour values that appear OUTSIDE any
  * token-definition context (i.e. places where var(--token) should be used).
  *
  * Legitimate hex contexts — skipped automatically:
@@ -19,55 +19,59 @@
  *     2. Add `lint:css` to your CI pipeline
  */
 
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 
-const CSS_FILE = resolve("app/globals.css");
+// The shared file, then one file per surface (see "Stylesheets" in CLAUDE.md).
+const CSS_FILES = ["app/globals.css", ...readdirSync("app/styles").filter((f) => f.endsWith(".css")).sort().map((f) => join("app/styles", f))];
 const HEX_RE = /#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?\b/g;
 
-let css;
-try {
-  css = readFileSync(CSS_FILE, "utf8");
-} catch {
-  console.error(`lint-css-tokens: cannot read ${CSS_FILE}`);
-  process.exit(1);
-}
-
-// Remove all :root { } blocks — raw hex is allowed there (token definitions).
-const withoutRoot = css.replace(/:root\s*\{[^}]*\}/gs, "/* :root REMOVED */");
-
-const lines = withoutRoot.split("\n");
 const violations = [];
 
-for (let i = 0; i < lines.length; i++) {
-  const line = lines[i];
+for (const file of CSS_FILES) {
+  let css;
+  try {
+    css = readFileSync(file, "utf8");
+  } catch {
+    console.error(`lint-css-tokens: cannot read ${file}`);
+    process.exit(1);
+  }
 
-  // Skip CSS custom property definitions: --var-name: value
-  // This covers :root overrides, dark-mode selectors, and scoped theme blocks
-  // (.mcc-overview-shell, .sbe-mkt-scope, @media prefers-color-scheme, etc.)
-  if (/^\s*--[\w-]+\s*:/.test(line)) continue;
+  // Blank out all :root { } blocks — raw hex is allowed there (token definitions).
+  // Blanked, not removed, so the line numbers below stay true.
+  const withoutRoot = css.replace(/:root\s*\{[^}]*\}/gs, (block) => block.replace(/[^\n]/g, " "));
+  const lines = withoutRoot.split("\n");
 
-  // Skip lines where the hex appears only as a var() fallback: var(--token, #hex)
-  // Strip all var(…) calls and re-test for a bare hex; if none remains, skip.
-  const stripped = line.replace(/var\([^)]+\)/g, "");
-  HEX_RE.lastIndex = 0;
-  if (!HEX_RE.test(stripped)) continue;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
 
-  // Real violation: bare hex in a rule value
-  violations.push({ line: i + 1, content: line.trim() });
+    // Skip CSS custom property definitions: --var-name: value
+    // This covers :root overrides, dark-mode selectors, and scoped theme blocks
+    // (.mcc-overview-shell, .sbe-mkt-scope, @media prefers-color-scheme, etc.)
+    if (/^\s*--[\w-]+\s*:/.test(line)) continue;
+
+    // Skip lines where the hex appears only as a var() fallback: var(--token, #hex)
+    // Strip all var(…) calls and re-test for a bare hex; if none remains, skip.
+    const stripped = line.replace(/var\([^)]+\)/g, "");
+    HEX_RE.lastIndex = 0;
+    if (!HEX_RE.test(stripped)) continue;
+
+    // Real violation: bare hex in a rule value
+    violations.push({ file, line: i + 1, content: line.trim() });
+  }
 }
 
 const PREVIEW_LIMIT = 20;
 
 if (violations.length === 0) {
-  console.log("✓  globals.css — no raw hex values outside token-definition contexts.");
+  console.log(`✓  ${CSS_FILES.length} stylesheets — no raw hex values outside token-definition contexts.`);
 } else {
   console.log(
-    `\nglobals.css — ${violations.length} raw hex value(s) found outside token-definition contexts.\n` +
-    `   These should be replaced with var(--token) references from app/globals.css.\n`
+    `\n${violations.length} raw hex value(s) found outside token-definition contexts.\n` +
+    `   These should be replaced with var(--token) references to the tokens in app/globals.css.\n`
   );
-  violations.slice(0, PREVIEW_LIMIT).forEach(({ line, content }) => {
-    console.log(`  ${String(line).padStart(5)}: ${content.slice(0, 120)}`);
+  violations.slice(0, PREVIEW_LIMIT).forEach(({ file, line, content }) => {
+    console.log(`  ${file}:${line}: ${content.slice(0, 120)}`);
   });
   if (violations.length > PREVIEW_LIMIT) {
     console.log(`  ... and ${violations.length - PREVIEW_LIMIT} more\n`);

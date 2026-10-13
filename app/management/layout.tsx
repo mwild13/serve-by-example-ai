@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import "../styles/management.css";
 
 // /management runs on the site-wide type pair, Newsreader and Inter, loaded
 // in app/layout.tsx. It moved off its own three fonts (Lora, Outfit, DM Mono)

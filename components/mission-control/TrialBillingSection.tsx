@@ -44,7 +44,7 @@ export function TrialBillingSection({
   // "Reactivate" used to be a 4-hop detour: sidebar → Settings/Billing →
   // this "Add billing details" link → the generic /pricing page → manager
   // picks a tier there and clicks *its* Subscribe button. This calls the
-  // same /api/billing/checkout endpoint app/pricing/page.tsx's own
+  // same /api/billing/checkout endpoint app/(marketing)/pricing/page.tsx's own
   // handleCheckout() already uses, pre-filled with the org's existing
   // trialTier so reactivating doesn't ask the manager to re-pick a plan
   // they already chose when they started the trial.

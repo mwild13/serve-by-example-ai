@@ -9,7 +9,7 @@ import { LegalSection, LegalParagraph, LegalList, LegalDivider, LegalEmailLink }
 // used to send mobile users out to the public marketing /terms page. This
 // is the in-app answer: the same terms content, same full-screen shell
 // pattern as HelpScreen.tsx/ReportBugScreen.tsx, so mobile users never
-// leave the app. Content copied verbatim from app/terms/page.tsx — keep
+// leave the app. Content copied verbatim from app/(marketing)/terms/page.tsx — keep
 // both in sync if the terms are ever updated.
 
 export default function TermsScreen() {
