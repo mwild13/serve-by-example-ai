@@ -2,10 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Settings, Pencil } from "lucide-react";
 import BottomNav from "./BottomNav";
 import MobileScreenShell from "./MobileScreenShell";
 import AiCoachWidget from "./progress/AiCoachWidget";
+import ProfileMenu from "./progress/ProfileMenu";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 
@@ -152,67 +152,44 @@ export default function ProgressScreen() {
 
   return (
     <MobileScreenShell style={shellStyle}>
-      <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-        {/* profile-header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 20 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <Link href="/mobile/ai-photo" aria-label="Change profile photo" style={{ position: "relative", width: 64, height: 64, flexShrink: 0 }}>
-              <div style={{ width: 64, height: 64, borderRadius: 32, overflow: "hidden" }}>
-                <Image
-                  src={session.profilePhotoUrl ?? "/mobile/avatar-large.webp"}
-                  alt=""
-                  width={64}
-                  height={64}
-                  unoptimized={!!session.profilePhotoUrl}
-                  style={{ objectFit: "cover", width: "100%", height: "100%" }}
-                />
-              </div>
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: -2,
-                  right: -2,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: 22,
-                  height: 22,
-                  borderRadius: "var(--radius-pill)",
-                  background: "var(--gold-mobile)",
-                  border: "2px solid var(--bg-mobile-dark)",
-                }}
-              >
-                <Pencil size={11} strokeWidth={2.5} color="var(--bg-mobile-dark)" aria-hidden="true" />
-              </div>
+      {/* The nav is fixed, as on Home and Learn, and the AI Coach button sits
+          just above it. The bottom padding keeps the last card clear of both:
+          84px (64px tab row + 20px indicator strip), 64px for the coach
+          button, plus the safe area. */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          paddingBottom: "calc(148px + env(safe-area-inset-bottom, 0px))",
+        }}
+      >
+        {/* profile-header (2026-10-14): logo, then name and plan; the photo
+            on the right opens the account menu (Settings, Change photo,
+            Log out). */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0 }}>
+            <Link href="/mobile/home" aria-label="Go to Home" style={{ flexShrink: 0, display: "flex" }}>
+              <Image
+                src="/logo.webp"
+                alt="Serve By Example"
+                width={40}
+                height={40}
+                quality={50}
+                style={{ width: 40, height: 40, objectFit: "contain" }}
+              />
             </Link>
-            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <p style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "var(--text-mobile)" }}>{session.displayName}</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
+              <p style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "var(--text-mobile)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {session.displayName}
+              </p>
               <p style={{ margin: 0, fontSize: 13, color: "var(--gold-mobile)", textTransform: "capitalize" }}>{session.tier} plan</p>
               {session.hasVenueMembership && (
                 <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>Venue team member</p>
               )}
             </div>
           </div>
-          {/* Phase 3a fix: was a dead button with no onClick/href — now
-              routes to the new /mobile/settings page. */}
-          <Link
-            href="/mobile/settings"
-            aria-label="Settings"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 40,
-              height: 40,
-              borderRadius: "var(--radius-pill)",
-              background: "var(--surface-mobile)",
-              border: "1px solid var(--border-mobile)",
-              cursor: "pointer",
-              flexShrink: 0,
-            }}
-          >
-            <Settings size={20} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
-          </Link>
+          <ProfileMenu />
         </div>
 
         {/* stats-row */}
@@ -299,7 +276,7 @@ export default function ProgressScreen() {
           per request (v1 scope confirmed with user — no persisted history). */}
       <AiCoachWidget />
 
-      <BottomNav active="me" />
+      <BottomNav active="me" fixed />
     </MobileScreenShell>
   );
 }

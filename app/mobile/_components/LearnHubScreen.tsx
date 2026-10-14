@@ -152,7 +152,18 @@ export default function LearnHubScreen() {
 
   return (
     <MobileScreenShell style={shellStyle}>
-      <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+      {/* The nav is fixed, as on Home, so it is in reach without scrolling
+          to the end of the hub. The bottom padding keeps the last section
+          clear of it: 84px (64px tab row + 20px indicator strip) plus the
+          safe area. */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          paddingBottom: "calc(84px + env(safe-area-inset-bottom, 0px))",
+        }}
+      >
         {/* header-search-group */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: 20 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -265,7 +276,7 @@ export default function LearnHubScreen() {
         </div>
       </div>
 
-      <BottomNav active="learn" />
+      <BottomNav active="learn" fixed />
     </MobileScreenShell>
   );
 }

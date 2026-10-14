@@ -25,9 +25,10 @@ const TABS: { id: MobileNavTab; label: string; icon: typeof Home; href: string }
 // the viewport, and since this nav rendered inline at the end of that
 // column (not fixed), it only came into view once the user scrolled all
 // the way down — it should behave like a normal app tab bar, always
-// visible. `fixed` is opt-in per screen (only HomeScreen passes it for
-// now) rather than a global behavior change, so every other screen using
-// this component keeps its current inline layout untouched.
+// visible. `fixed` is opt-in per screen: the three tab screens (Home, and
+// Learn and Me since 2026-10-14) pass it; inner screens keep the inline
+// layout. A screen that passes it must reserve the nav's height as bottom
+// padding.
 export default function BottomNav({ active, fixed }: { active: MobileNavTab; fixed?: boolean }) {
   return (
     <nav

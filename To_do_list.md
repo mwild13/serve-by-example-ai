@@ -32,7 +32,7 @@ Grouped by where you sign in. None of these can be done from the code.
 
 ### Google
 
-- [ ] **Sign-in screen branding.** Google Cloud Console (project number `971763423157`), Google Auth Platform, Branding: app name, support email, home page, privacy policy and terms links, and `servebyexample.co` as an authorised domain. Adding a logo starts Google's brand verification, which needs the domain verified in Search Console. Then check Clients: the only authorised redirect URI should be the Supabase callback.
+- [ ] **Redirect URIs on the Google client.** Google Cloud Console (project number `971763423157`), Google Auth Platform, Clients: the only authorised redirect URI should be the Supabase callback.
 
 - [ ] **Google Ads.** The only ad platform for now. Link the Google Ads account to the Analytics property, then import `sign_up`, `trial_start` and `purchase` as conversions. They must be marked as key events first (see Parked). No pixel goes in the code. Tag every ad link with `utm_source`, `utm_medium` and `utm_campaign`.
 
@@ -60,6 +60,9 @@ Three sittings cover every unconfirmed fix.
 - [ ] **Join link.** Signed out, open a venue's staff sign-up link, create an account, finish onboarding, and confirm the account is connected to the venue. Then, signed in, open `/dashboard?join=<venue code>`: it should land on Settings, join once and drop the code from the URL. Not covered: confirming the email on a different device.
 - [ ] **Checkout return.** Buy Pro and confirm the plan shows on mobile Home at once. Needs a real payment.
 - [ ] **Android.** Not tried at all: take an AI photo, save it, and check it on Home.
+- [ ] **Learn and Me tab bars.** Changed 2026-10-14. On Learn and on Me the bottom nav stays on screen while scrolling, and the last section scrolls clear of it.
+- [ ] **Me header.** Changed 2026-10-14. The logo sits left of your name; tap your photo on the right: Settings, Change photo and a red Log out. Each works, and a tap outside closes the menu.
+- [ ] **AI Coach on Me.** Changed 2026-10-14. Sign out and in, open Me: the coach is closed and an "AI Coach" bubble shows beside its button for five seconds. Leave and come back: no bubble. Tapping the bubble or the button opens the coach.
 
 ### On a computer, as staff
 
@@ -75,7 +78,7 @@ Three sittings cover every unconfirmed fix.
 - [ ] **Console after accepting cookies.** On the live site accept cookies and check the browser console for blocked requests. The Google hosts in `connect-src` were widened on 2026-10-12.
 - [ ] **Roster unlink on account deletion.** Delete a test staff account that is on a venue roster, then confirm its `venue_staff` row is kept with `staff_user_id` null and `organization_members` is marked `removed`.
 
-- [ ] **The staff app after the stylesheet split.** Done 2026-10-13, checked on every public page but not behind a login. Click through each `/dashboard` screen and each `/mobile` screen and look for anything unstyled or laid out differently. Then go from the home page to `/login` to `/dashboard` without reloading and check the same.
+- [ ] **The staff app after the stylesheet split.** Live since 2026-10-14, checked on every public page but not behind a login. Click through each `/dashboard` screen and each `/mobile` screen and look for anything unstyled or laid out differently. Then go from the home page to `/login` to `/dashboard` without reloading and check the same.
 
 ### On a computer, as a manager
 
@@ -103,7 +106,6 @@ Nothing open. The five that were here were decided on 2026-10-12 (Part 13 of the
 
 Not needed before launch. Pick up when there is a reason to.
 
-- **Google sign-in brand verification.** Under review at Google since 2026-10-12. "Branding guidelines" passed; "Privacy policy requirements" still reads "does not have sufficient content"; "Homepage requirements" not yet reviewed. The site side is done: the home page is open to every country, `/privacy` is sent whole and has section 11 on Google sign-in, and both were read correctly from overseas on 2026-10-12. Next move is Google's: when the Trust and Safety email arrives, reply on that thread with the note in Part 7 of `docs/handoff/2026-10-week3-handoff.md`. Google sign-in works without verification; users see the Supabase address on the consent screen instead of the app name and logo.
 - **Support email on the Google consent screen.** It is `info@serve-by-example.com`; the site, privacy policy and terms use `info@servebyexample.co`. Confirm the `.com` mailbox exists and is read, or change it (Google Cloud Console, Google Auth Platform, Branding).
 - **AI Coach memory.** Each question is answered on its own; a follow-up such as "and what about Mia?" has no context.
 - **Notifications and Training programs screens.** Both were restyled on 2026-10-12 and then hidden: no menu entry, no keyboard shortcut, and `?tab=notifications` or `?tab=training` lands on Overview. To bring them back, remove them from the hidden list in `ManagerControlCenter.tsx` and add menu entries. Neither has been seen in a browser since the restyle.

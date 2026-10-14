@@ -34,15 +34,58 @@ const PRESET_QUESTIONS = [
 
 const WIDGET_BOTTOM = "calc(84px + env(safe-area-inset-bottom, 0px))"; // 84px = BottomNav's 64px tab row + 20px indicator strip
 
+// Starts closed (2026-10-14). On the first visit to Me after each sign-in, a
+// small "AI Coach" bubble shows beside the button for five seconds. The
+// sign-in is identified by the session_id claim in the access token, which
+// stays the same when the token refreshes and changes on the next sign-in.
+const HINT_KEY = "sbe_ai_coach_hint_session";
+const HINT_MS = 5000;
+
+function loginSessionId(token: string): string | null {
+  try {
+    const part = token.split(".")[1];
+    const json = JSON.parse(atob(part.replace(/-/g, "+").replace(/_/g, "/"))) as { session_id?: string; iat?: number };
+    return json.session_id ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export default function AiCoachWidget() {
   const session = useMobileSession();
-  const [minimized, setMinimized] = useState(false);
+  const [minimized, setMinimized] = useState(true);
+  const [showHint, setShowHint] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [aiLimit, setAiLimit] = useAiDailyLimit();
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const sessionId = loginSessionId(session.token);
+    if (!sessionId) return;
+    try {
+      if (localStorage.getItem(HINT_KEY) === sessionId) return;
+      localStorage.setItem(HINT_KEY, sessionId);
+    } catch {
+      return; // storage blocked: skip the hint rather than show it on every visit
+    }
+    setShowHint(true);
+  }, [session.token]);
+
+  // Separate from the check above, so a re-run of that effect (which finds
+  // the session already recorded) cannot cancel the timer.
+  useEffect(() => {
+    if (!showHint) return;
+    const timer = window.setTimeout(() => setShowHint(false), HINT_MS);
+    return () => window.clearTimeout(timer);
+  }, [showHint]);
+
+  function openCoach() {
+    setShowHint(false);
+    setMinimized(false);
+  }
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -84,30 +127,85 @@ export default function AiCoachWidget() {
 
   if (minimized) {
     return (
-      <button
-        type="button"
-        onClick={() => setMinimized(false)}
-        aria-label="Open AI Coach"
+      <div
         style={{
           position: "fixed",
           left: "50%",
-          transform: "translateX(calc(-50% + 155px))",
-          bottom: WIDGET_BOTTOM,
+          transform: "translateX(-50%)",
+          bottom: `calc(${WIDGET_BOTTOM} + 12px)`,
+          width: "100%",
+          maxWidth: "var(--mobile-frame-max)",
+          padding: "0 20px",
           zIndex: 40,
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
-          width: 52,
-          height: 52,
-          borderRadius: "var(--radius-pill)",
-          background: "var(--gold-mobile)",
-          border: "none",
-          boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
-          cursor: "pointer",
+          justifyContent: "flex-end",
+          gap: 10,
+          pointerEvents: "none",
         }}
       >
-        <Sparkles size={24} strokeWidth={2} color="var(--bg-mobile-dark)" aria-hidden="true" />
-      </button>
+        {showHint && (
+          <button
+            type="button"
+            onClick={openCoach}
+            className="sbe-coach-hint"
+            style={{
+              position: "relative",
+              pointerEvents: "auto",
+              padding: "9px 14px",
+              borderRadius: 14,
+              background: "var(--surface-mobile)",
+              border: "1px solid var(--gold-mobile)",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
+              color: "var(--text-mobile)",
+              fontFamily: "var(--font-body)",
+              fontSize: 13,
+              fontWeight: 700,
+              whiteSpace: "nowrap",
+              cursor: "pointer",
+            }}
+          >
+            AI Coach
+            {/* tail pointing at the button */}
+            <span
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                right: -6,
+                top: "50%",
+                width: 10,
+                height: 10,
+                marginTop: -5,
+                background: "var(--surface-mobile)",
+                borderTop: "1px solid var(--gold-mobile)",
+                borderRight: "1px solid var(--gold-mobile)",
+                transform: "rotate(45deg)",
+              }}
+            />
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={openCoach}
+          aria-label="Open AI Coach"
+          style={{
+            pointerEvents: "auto",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 52,
+            height: 52,
+            flexShrink: 0,
+            borderRadius: "var(--radius-pill)",
+            background: "var(--gold-mobile)",
+            border: "none",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
+            cursor: "pointer",
+          }}
+        >
+          <Sparkles size={24} strokeWidth={2} color="var(--bg-mobile-dark)" aria-hidden="true" />
+        </button>
+      </div>
     );
   }
 

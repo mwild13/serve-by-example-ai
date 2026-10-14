@@ -474,3 +474,22 @@ Minified CSS per page, before and after: public site 217 KB to 120 KB, sign-in 2
 Computed styles of every element, with `::before` and `::after`, were recorded on 35 public and sign-in pages at 1366px and 390px before the split and compared after: identical on all of them. A production build links `globals.css` first and then one surface file per page. Typecheck, lint and unit tests pass.
 
 Not checked: any screen behind a login. `/dashboard`, `/mobile` and `/management` rest on the placement analysis alone, and the owner's click-through is in section 4 of `To_do_list.md`. Hover and open states were not recorded on any page.
+
+## Part 15: Google branding verified, and three mobile fixes
+
+- **Date:** 2026-10-14
+- **Branch:** `preview/oct-w3-owner-decisions`, released to `main` the same day with Parts 13 and 14.
+
+### Google
+
+Google published the branding on 2026-10-14: "This branding version has been published and is shown to users on the OAuth consent screen." Users now see the app name and logo instead of the Supabase address. The Parked item and the reply note in Part 7 are no longer needed. Still open: checking the client's redirect URIs, and the `.com` support email.
+
+### Mobile
+
+- **Learn and Me tab bars are fixed.** Home already pinned its bottom nav; Learn and Me rendered it at the end of the page, so staff had to scroll to the bottom to change tab. Both now pass `fixed` to `BottomNav` and pad their content so the last section clears it. Inner screens are unchanged.
+- **Me header.** The SBE logo sits on the left, then the name and plan. The photo moved to the right, where the Settings button was, and opens a menu: Settings, Change photo, and Log out in `--red-mobile` (`app/mobile/_components/progress/ProfileMenu.tsx`). The pencil badge and the Settings button are gone. `--red-mobile` on the dark menu is about 2.7:1, below the 4.5:1 text contrast guideline; it is the colour the mobile app already uses for errors.
+- **AI Coach starts closed.** On the first visit to Me after each sign-in, an "AI Coach" bubble shows beside the coach button for five seconds. The sign-in is recognised by the `session_id` claim in the access token, kept in `localStorage` under `sbe_ai_coach_hint_session`, so a token refresh does not bring the bubble back and the next sign-in does.
+
+### Checked
+
+The Me and Learn screens were rendered locally with sample data at 390px: the header, the open menu, the bubble appearing and leaving after five seconds, no bubble on a second visit, and both tab bars pinned at the bottom of a scrolled page. Not seen on a real phone or against real data; the checks are in section 4 of `To_do_list.md`. Typecheck, lint and unit tests pass.
