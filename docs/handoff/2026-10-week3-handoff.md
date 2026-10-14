@@ -493,3 +493,27 @@ Google published the branding on 2026-10-14: "This branding version has been pub
 ### Checked
 
 The Me and Learn screens were rendered locally with sample data at 390px: the header, the open menu, the bubble appearing and leaving after five seconds, no bubble on a second visit, and both tab bars pinned at the bottom of a scrolled page. Not seen on a real phone or against real data; the checks are in section 4 of `To_do_list.md`. Typecheck, lint and unit tests pass.
+
+## Part 16: the quiz pause, and daily training activity
+
+- **Date:** 2026-10-14
+- **Branch:** `preview/oct-w3-owner-decisions`. Not committed yet.
+
+### Why True/False answers paused
+
+Each answer is graded on the server, so the next question waits for `POST /api/training/verify/answer`. Supabase's logs for one session on 2026-10-14 showed two problems. Neither was the stylesheet split, which only changes how pages load, not how fast an answer comes back.
+
+1. **Every answer sent an expired token.** `/mobile` stamped the access token into the page when it loaded and never refreshed it. After an hour every API call was first rejected by Supabase Auth ("token is expired", once taking 1.5 s), then retried with the cookie. Five calls to Supabase per answer instead of four. `mobile-session-context.tsx` now follows the browser client's token refresh, so all 25 places that read `session.token` send a live one, and `TrainingProgressProvider` reads it from there instead of its own stale copy. The desktop dashboard already fetched a fresh token per call.
+2. **Calls were made one after another.** The route checked the session, then read the quiz run, then graded. The two reads are independent and now go together. With fix 1 that is three sequential calls per answer instead of five.
+
+The queries themselves are fast (the session lookup averages 0.7 ms over 10,641 calls). The occasional one-to-five-second response comes from Supabase's connection layer on the free plan, not from a slow query. Fewer calls per answer means fewer chances to hit one. Supabase Pro's larger compute is the other lever (see Upgrades in `To_do_list.md`).
+
+### Daily training activity
+
+- `supabase/migrations/20261014_training_activity_daily.sql` adds `training_activity_daily`: one row per person per Sydney day with quiz answers, modules passed, scenarios and AI scenarios. Triggers on `verify_attempts` and `training_attempts` fill it, so no route makes an extra call; it backfills from both tables (history starts 2026-10-02). Not run yet: the owner runs it.
+- The manager snapshot carries the last 14 days (`snapshot.activity`). A missing table reads as empty, so the code is safe to ship before the migration.
+- The Overview has a new Daily training card above Team activity: one bar per day for the number of staff who trained, this week's count in the header, and this week's answers, scenarios and passes below.
+
+### Checked
+
+Typecheck and lint pass; 86 unit tests pass, 5 of them new for the day maths, including the October daylight-saving change. The card was viewed locally with sample data at 600px and 360px. Not checked: the migration against the database (a rolled-back dry run was declined), the card with real data, and the quiz speed on a phone. The checks are in sections 3 and 4 of `To_do_list.md`.

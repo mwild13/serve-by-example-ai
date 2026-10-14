@@ -119,6 +119,20 @@ export type ManagementSnapshot = {
     summary: string;
   }>;
   enabledModules: string[];
+  /** Daily training counts per staff member for the last ACTIVITY_DAYS days (Sydney dates). */
+  activity: TrainingActivityDay[];
+};
+
+/** One staff member's training on one day, from training_activity_daily. */
+export type TrainingActivityDay = {
+  /** venue_staff.id, matching StaffMember.id. */
+  staffId: string;
+  /** YYYY-MM-DD, Sydney time. */
+  day: string;
+  quizAnswers: number;
+  quizzesPassed: number;
+  scenarios: number;
+  aiScenarios: number;
 };
 
 export type NewStaffPayload = {

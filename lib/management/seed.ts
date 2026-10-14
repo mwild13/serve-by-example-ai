@@ -238,5 +238,6 @@ export function buildSeedManagementSnapshot(): ManagementSnapshot {
       "Scenario categories",
       "Mobile training mode",
     ],
+    activity: [],
   };
 }

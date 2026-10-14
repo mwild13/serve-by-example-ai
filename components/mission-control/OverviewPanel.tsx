@@ -6,13 +6,14 @@ import { fssStatus, rsaStatus } from "./compliance/helpers";
 import { OverviewKpiStrip, type OverviewKpi } from "./OverviewKpiStrip";
 import { OverviewNoticeReel } from "./OverviewNoticeReel";
 import { TeamActivityCard } from "./TeamActivityCard";
+import { DailyTrainingCard } from "./DailyTrainingCard";
 import { NeedsAttentionCard } from "./NeedsAttentionCard";
 import { SkillGapsSummaryCard } from "./SkillGapsSummaryCard";
 import { RoleQualificationCard } from "./RoleQualificationCard";
 
 // The Overview tab, top to bottom: the notice reel, the four-figure strip,
-// then a 60/40 grid (Team activity and Needs attention on the left; Training
-// gaps and Qualifications on the right).
+// then a 60/40 grid (Daily training, Team activity and Needs attention on the
+// left; Training gaps and Qualifications on the right).
 //
 // The venue name is not repeated here: it lives in the sticky
 // ManagementTopbar above this panel. Compliance warnings are no longer
@@ -36,6 +37,7 @@ interface OverviewMetrics {
 export interface OverviewPanelProps {
   metrics: OverviewMetrics;
   venueStaff: ManagementSnapshot["staff"];
+  activity: ManagementSnapshot["activity"];
   needsAttention: ManagementSnapshot["staff"];
   handleSectionChange: (section: ManagerSection) => void;
   onOpenCoachingDrawer: (staffId: string) => void;
@@ -44,6 +46,7 @@ export interface OverviewPanelProps {
 export function OverviewPanel({
   metrics,
   venueStaff,
+  activity,
   needsAttention,
   handleSectionChange,
   onOpenCoachingDrawer,
@@ -96,6 +99,7 @@ export function OverviewPanel({
 
         <div className="mc-overview-grid">
           <div className="mc-col">
+            <DailyTrainingCard venueStaff={venueStaff} activity={activity} />
             <TeamActivityCard venueStaff={venueStaff} />
             <NeedsAttentionCard
               staff={needsAttention}

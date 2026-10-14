@@ -25,6 +25,7 @@ Grouped by where you sign in. None of these can be done from the code.
 
 ### Supabase
 
+- [ ] **Run `supabase/migrations/20261014_training_activity_daily.sql`.** SQL Editor, paste the file, run. It creates the daily activity table, the two triggers that fill it, and backfills from 2026-10-02. Until it runs, the Overview's Daily training card says no training is recorded. Check with the query at the foot of the file.
 - [ ] **Let previews sign in with Google.** Authentication, URL Configuration, Redirect URLs: add `https://*.serve-by-example-ai.pages.dev/**`. Without it, Google sign-in started on a preview lands on the production site and fails.
 - [ ] **Auth email.** Confirm Auth sends through Brevo, not the built-in mailer, and raise the hourly email limit under Authentication, Rate Limits.
 - [ ] **Auth email templates.** Sign-up confirmation and email change still use Supabase's own templates. Edit them under Authentication, Emails to match the shared shell.
@@ -62,6 +63,7 @@ Three sittings cover every unconfirmed fix.
 - [ ] **Android.** Not tried at all: take an AI photo, save it, and check it on Home.
 - [ ] **Learn and Me tab bars.** Changed 2026-10-14. On Learn and on Me the bottom nav stays on screen while scrolling, and the last section scrolls clear of it.
 - [ ] **Me header.** Changed 2026-10-14. The logo sits left of your name; tap your photo on the right: Settings, Change photo and a red Log out. Each works, and a tap outside closes the menu.
+- [ ] **Quiz speed.** Changed 2026-10-14. Stay on `/mobile` for over an hour, then answer True/False questions quickly: each should check in well under a second. Before, every answer first sent an expired token.
 - [ ] **AI Coach on Me.** Changed 2026-10-14. Sign out and in, open Me: the coach is closed and an "AI Coach" bubble shows beside its button for five seconds. Leave and come back: no bubble. Tapping the bubble or the button opens the coach.
 
 ### On a computer, as staff
@@ -82,6 +84,7 @@ Three sittings cover every unconfirmed fix.
 
 ### On a computer, as a manager
 
+- [ ] **Daily training card.** Needs the migration in section 3. On Overview, the card above Team activity should show bars for days staff trained since 2026-10-02, with today in bold. Answer a quiz question on a staff account and reload: today's bar should count that person.
 - [ ] **Trial chip on the collapsed sidebar.** Added 2026-10-12, not seen. On a trial account, collapse the sidebar: a small chip with the days left should sit above Settings and open Billing.
 - [ ] **Status after the recalculation.** Changed 2026-10-12. On the Staff tab, someone quiet for 14 days should read "Needs follow-up", and someone who trained this week "On track", whatever they showed before.
 - [ ] **The console after the stylesheet split.** Same check as the staff app: every tab, the drawers, the invite panel and Settings should look as they did.
@@ -100,7 +103,6 @@ Nothing open. The five that were here were decided on 2026-10-12 (Part 13 of the
 ## 7. Larger builds
 
 - [ ] **Weekly digest and Sunday reminder sender.** Settings lets staff opt in and the confirmation email promises "every Monday morning" / "every Sunday night", but nothing sends them (0 opted in on 2026-10-05). Cloudflare Pages has no cron and `pg_cron` is not installed, so this needs `pg_cron` plus an Edge Function, or a scheduled Worker. Send only to profiles with the flag true. Once it works, add a one-off, dismissible opt-in card on mobile Home linking to Settings > Notifications. Don't email people about it, since they haven't consented.
-- [ ] **Store daily training activity.** Only each person's last-active date is kept, so the Overview tab cannot show a trend.
 
 ## Parked
 

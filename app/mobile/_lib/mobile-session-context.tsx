@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AlertTriangle, WifiOff } from "lucide-react";
+import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { computeStreak } from "@/lib/streak";
 import { flushRetryQueue, getPendingCount } from "./retry-queue";
 
@@ -84,6 +85,31 @@ export function MobileSessionProvider({
   // A photo saved in this visit. It wins over the seeded value, which is
   // older until the server layout re-renders and then the same.
   const [savedPhotoUrl, setSavedPhotoUrl] = useState<string | null>(null);
+  // The access token the server stamped into the page expires after an hour,
+  // and every API call made with it was first rejected by Supabase Auth, then
+  // retried with the cookie: an extra round trip on every quiz answer
+  // (2026-10-14). The browser client refreshes the session on its own; this
+  // follows it, so every screen reading session.token sends a live token.
+  const [liveToken, setLiveToken] = useState(value.token);
+  const tokenRef = useRef(value.token);
+  useEffect(() => {
+    tokenRef.current = liveToken;
+  }, [liveToken]);
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+    let active = true;
+    void supabase.auth.getSession().then(({ data }) => {
+      if (active && data.session?.access_token) setLiveToken(data.session.access_token);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, authSession) => {
+      if (authSession?.access_token) setLiveToken(authSession.access_token);
+    });
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -96,7 +122,7 @@ export function MobileSessionProvider({
     setPendingSyncCount(getPendingCount());
 
     async function attemptFlush() {
-      const remaining = await flushRetryQueue(value.token);
+      const remaining = await flushRetryQueue(tokenRef.current);
       setPendingSyncCount(remaining);
     }
 
@@ -127,19 +153,19 @@ export function MobileSessionProvider({
       window.removeEventListener("offline", handleOffline);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const merged = useMemo<MobileSession>(
     () => ({
       ...value,
+      token: liveToken,
       profilePhotoUrl: savedPhotoUrl ?? value.profilePhotoUrl,
       setProfilePhotoUrl: setSavedPhotoUrl,
       streakCount,
       isOnline,
       pendingSyncCount,
     }),
-    [value, savedPhotoUrl, streakCount, isOnline, pendingSyncCount],
+    [value, liveToken, savedPhotoUrl, streakCount, isOnline, pendingSyncCount],
   );
 
   return (

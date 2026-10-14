@@ -112,7 +112,7 @@ export default async function MobileLayout({
         {/* Perf fix (Phase 1a) — single shared fetch of /api/training/progress
             for the whole /mobile tree, instead of every screen independently
             re-fetching on its own mount. See training-progress-context.tsx. */}
-        <TrainingProgressProvider token={session?.access_token ?? ""}>
+        <TrainingProgressProvider>
           {children}
         </TrainingProgressProvider>
       </MobileSessionProvider>

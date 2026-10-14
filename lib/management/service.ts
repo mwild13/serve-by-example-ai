@@ -5,6 +5,7 @@ import { ManagementAccessError } from "@/lib/management/auth";
 import { buildSeedManagementSnapshot } from "@/lib/management/seed";
 import { TIER_SEATS, normalizeTier } from "@/lib/session";
 import { computeOrgGroupSummary, type OrgGroupSummary } from "@/lib/management/group-summary";
+import { ACTIVITY_DAYS, recentDays } from "@/lib/management/activity";
 import type {
   InventoryCategory,
   ManagementSnapshot,
@@ -15,6 +16,7 @@ import type {
   ScenarioCategory,
   StaffMember,
   StaffRole,
+  TrainingActivityDay,
   TrainingProgram,
   Venue,
 } from "@/lib/management/types";
@@ -406,6 +408,40 @@ async function getStaffRows(
   return { data: legacyMinimalQuery.data ?? [], missing: false };
 }
 
+// Last ACTIVITY_DAYS days of training_activity_daily for the venue's linked
+// staff. Empty, not an error, when the table is missing (migration
+// 20261014_training_activity_daily.sql not run yet).
+async function getActivityRows(
+  supabase: ManagementSupabaseClient,
+  staff: StaffMember[],
+): Promise<TrainingActivityDay[]> {
+  const staffIdByUser = new Map<string, string>();
+  for (const member of staff) if (member.staffUserId) staffIdByUser.set(member.staffUserId, member.id);
+  if (staffIdByUser.size === 0) return [];
+
+  const since = recentDays(ACTIVITY_DAYS)[0];
+  const { data, error } = await supabase
+    .from("training_activity_daily")
+    .select("user_id, day, quiz_answers, quizzes_passed, scenarios, ai_scenarios")
+    .in("user_id", [...staffIdByUser.keys()])
+    .gte("day", since);
+  if (isMissingRelation(error)) return [];
+  if (error) throw error;
+
+  return (data ?? []).flatMap((row) => {
+    const staffId = staffIdByUser.get(String(row.user_id));
+    if (!staffId) return [];
+    return [{
+      staffId,
+      day: String(row.day),
+      quizAnswers: Number(row.quiz_answers) || 0,
+      quizzesPassed: Number(row.quizzes_passed) || 0,
+      scenarios: Number(row.scenarios) || 0,
+      aiScenarios: Number(row.ai_scenarios) || 0,
+    }];
+  });
+}
+
 async function resolveManagerVenueId(
   supabase: ManagementSupabaseClient,
   userId: string,
@@ -516,6 +552,7 @@ export async function getManagementSnapshot(
   }
 
   const staff = (staffResult.data ?? []).map(mapStaff);
+  const activity = await getActivityRows(supabase, staff);
   const trainingPrograms = (programResult.data ?? []).map(mapTrainingProgram);
   const inventory = groupInventory(inventoryResult.data ?? []);
   const venues = venueRows.map((row) => {
@@ -540,6 +577,7 @@ export async function getManagementSnapshot(
     scenarioCategories: buildScenarioCategories(staff),
     reportSummaries: buildReportSummaries(staff),
     enabledModules: DEFAULT_ENABLED_MODULES,
+    activity,
   };
 }
 

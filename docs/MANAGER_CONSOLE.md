@@ -8,7 +8,7 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 - Client shell: `components/mission-control/ManagerControlCenter.tsx` (1,717 lines on 2026-10-09 — re-verify with `wc -l` before citing, this number drifts)
 - Sidebar: `components/mission-control/ConsoleSidebar.tsx` (navigation list, collapse to an icon rail)
 - Shared page parts: `components/mission-control/console-ui.tsx` (`PageHead`, `StatRow`, `Panel`, `StatusText`, `BarCell`, `ExportButton`, `downloadCsv`). Every tab other than Overview is built from these (see §6)
-- Overview tab: `OverviewPanel.tsx`, with `OverviewNoticeReel.tsx`, `OverviewKpiStrip.tsx`, `TeamActivityCard.tsx`, `NeedsAttentionCard.tsx`, `SkillGapsSummaryCard.tsx` and `RoleQualificationCard.tsx`. Notice sentences are built in `lib/management/notices.ts` (see §6)
+- Overview tab: `OverviewPanel.tsx`, with `OverviewNoticeReel.tsx`, `OverviewKpiStrip.tsx`, `DailyTrainingCard.tsx`, `TeamActivityCard.tsx`, `NeedsAttentionCard.tsx`, `SkillGapsSummaryCard.tsx` and `RoleQualificationCard.tsx`. Notice sentences are built in `lib/management/notices.ts` (see §6)
 - Loader: `components/mission-control/ManagerControlCenterLoader.tsx`
 - Service layer: `lib/management/service.ts` (971 lines as of this doc)
 - Roster table: `components/mission-control/StaffDirectoryTable.tsx` — **this is the real component name.** A `StaffRosterPanel.tsx` referenced elsewhere in older docs does not exist in the repo.
@@ -106,7 +106,8 @@ The whole console was rebuilt to the `docs/Pages-Redesign.md` principles. Styles
 - **Figure strip:** Shift readiness, Average mastery, Trained this week, RSA and FSS. Each opens a tab.
 - **"Trained this week"** uses `wasActiveWithinDays()` in `lib/management/needs-attention.ts`. The tile, the reel and the venue health score share it.
 - **Shift readiness** is scored across all venue staff. There is no roster in the data model, so it cannot describe one shift.
-- **Team activity** groups staff by last-active date. No daily activity is stored, so there is no trend chart.
+- **Daily training** shows how many staff trained on each of the last 14 days, from `training_activity_daily` (`snapshot.activity`, loaded in `lib/management/service.ts`; day maths in `lib/management/activity.ts`). Bars count people, not answers. Empty until migration `20261014_training_activity_daily.sql` is run.
+- **Team activity** groups staff by last-active date.
 
 ## 7. Billing and plan changes
 

@@ -20,6 +20,7 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 | `manager_coach_sessions` | `20260719_manager_coach_sessions.sql` | AI coach chat history per manager, auto-expiring. `manager_user_id`, `venue_id` FK, `role` (`user`/`coach`), `content`. |
 | `user_access_allowlist` | `20260716_create_user_access_allowlist.sql` | Access-gating allowlist. |
 | `training_attempts` | `20261002_atomic_attempts_and_verify_quiz.sql` | Idempotency ledger for Scenario Training / Arena attempts: `id` (client attempt id), `user_id`, scenario key, `score`, `result JSONB`, `evaluation JSONB` (stored feedback for retries). Written only by `record_attempt()`. No client access. |
+| `training_activity_daily` | `20261014_training_activity_daily.sql` | One row per person per day (Sydney date): `quiz_answers`, `quizzes_passed`, `scenarios` (descriptor), `ai_scenarios` (roleplay). Filled only by triggers on `verify_attempts` (position and status changes) and `training_attempts` (inserts), through `bump_training_activity()`; backfilled from both on creation. Read by the Manager Console's Daily training card through the service role. No client access. |
 | `verify_attempts` | `20261002_atomic_attempts_and_verify_quiz.sql` | One row per verify-quiz run: `question_order INT[]`, `position`, `streak`, `status` (`active`/`passed`/`exhausted`), `expires_at` (+20 min). Advanced only by `advance_verify_attempt()`. No client access. |
 
 **Re-created 2026-10-02 (pending apply):**
@@ -102,7 +103,7 @@ What the lockdown did, on 21 tables (including `profiles`, `scenario_mastery`, `
 
 The read policies still follow the three historical patterns: own-row `auth.uid() = user_id`; organization ownership via the `SECURITY DEFINER` helper `get_user_org_id()` (avoids recursive RLS between `organizations` ↔ `organization_members`); and manager scoping through `venue_staff.manager_user_id` or a direct `manager_user_id` column.
 
-Tables with **no client access at all**: `scenarios` (holds the quiz answer key), `training_attempts`, `verify_attempts`. Postgres functions that write (`record_attempt`, `mark_module_mastered`, `advance_verify_attempt`, `award_sbe_elite`) are `SECURITY DEFINER` with `EXECUTE` granted to `service_role` only.
+Tables with **no client access at all**: `scenarios` (holds the quiz answer key), `training_attempts`, `verify_attempts`, `training_activity_daily`. Postgres functions that write (`record_attempt`, `mark_module_mastered`, `advance_verify_attempt`, `award_sbe_elite`) are `SECURITY DEFINER` with `EXECUTE` granted to `service_role` only.
 
 The seat trigger `check_org_seat_limit()` treats a NULL/0 `seat_limit` as **zero** seats (`20261001_backfill_legacy_org_rows_and_tighten_seat_trigger.sql`); only the service role writes `seat_limit`, `subscription_tier` and `trial_*`.
 

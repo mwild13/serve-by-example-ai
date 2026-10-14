@@ -1706,6 +1706,77 @@
   transition: width 0.5s var(--ease-out);
 }
 
+/* Daily training: one column per day, bar height = staff who trained */
+
+.mc-trend {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0 0;
+  display: grid;
+  grid-template-columns: repeat(14, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.mc-trend-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.mc-trend-value {
+  height: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--mc-text-soft);
+}
+
+.mc-trend-slot {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  height: 88px;
+}
+
+.mc-trend-bar {
+  display: block;
+  width: 100%;
+  min-height: 4px;
+  border-radius: 4px 4px 2px 2px;
+  background: var(--green);
+  transition: height 0.5s var(--ease-out);
+}
+
+.mc-trend-bar-empty {
+  height: 2px;
+  min-height: 2px;
+  background: var(--mc-line-soft);
+}
+
+.mc-trend-label {
+  font-size: 0.75rem;
+  color: var(--mc-text-muted);
+}
+
+.mc-trend-label-today {
+  font-weight: 700;
+  color: var(--mc-text);
+}
+
+.mc-trend-summary {
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--mc-line-soft);
+  font-size: 0.875rem;
+  color: var(--mc-text-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mc-trend-bar { transition: none; }
+}
+
 /* Team activity */
 
 .mc-activity-list { list-style: none; margin: 0; padding: 0; }

@@ -97,6 +97,7 @@ const EMPTY_SNAPSHOT: ManagementSnapshot = {
   scenarioCategories: [],
   reportSummaries: [],
   enabledModules: [],
+  activity: [],
 };
 
 export default function ManagerControlCenter({
@@ -1394,6 +1395,7 @@ export default function ManagerControlCenter({
           <OverviewPanel
             metrics={metrics}
             venueStaff={venueStaff}
+            activity={snapshot.activity}
             needsAttention={needsAttention}
             handleSectionChange={handleSectionChange}
             onOpenCoachingDrawer={(staffId) => { setSelectedStaffId(staffId); setCoachingDrawerOpen(true); }}

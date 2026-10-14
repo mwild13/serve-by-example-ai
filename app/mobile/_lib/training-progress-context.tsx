@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { useMobileSession } from "./mobile-session-context";
 import type { TrainingProgress } from "./use-training-progress";
 
 // Perf fix (Phase 1a, mobile bug-fix plan) — useTrainingProgress() used to
@@ -33,13 +34,14 @@ type TrainingProgressContextValue = State & { refetch: () => void };
 
 const TrainingProgressContext = createContext<TrainingProgressContextValue | null>(null);
 
-export function TrainingProgressProvider({
-  token,
-  children,
-}: {
-  token: string;
-  children: ReactNode;
-}) {
+export function TrainingProgressProvider({ children }: { children: ReactNode }) {
+  // Read at fetch time, not as an effect dependency: the token refreshes
+  // about hourly and that alone should not refetch progress.
+  const { token } = useMobileSession();
+  const tokenRef = useRef(token);
+  useEffect(() => {
+    tokenRef.current = token;
+  }, [token]);
   const [state, setState] = useState<State>({ status: "loading", data: null, error: null });
   const [refetchToken, setRefetchToken] = useState(0);
 
@@ -50,7 +52,7 @@ export function TrainingProgressProvider({
       setState((prev) => (prev.status === "ready" ? prev : { status: "loading", data: null, error: null }));
       try {
         const res = await fetch("/api/training/progress", {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${tokenRef.current}` },
         });
         if (!res.ok) throw new Error(`Failed to load training progress (${res.status})`);
         const data = (await res.json()) as TrainingProgress;
@@ -70,7 +72,7 @@ export function TrainingProgressProvider({
     return () => {
       cancelled = true;
     };
-  }, [token, refetchToken]);
+  }, [refetchToken]);
 
   const refetch = useCallback(() => setRefetchToken((n) => n + 1), []);
 

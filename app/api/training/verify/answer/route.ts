@@ -66,16 +66,19 @@ export async function POST(req: Request) {
     if (!browserSessionId) {
       return NextResponse.json({ error: "Missing active session. Please sign in again.", code: "SESSION_REQUIRED" }, { status: 401 });
     }
-    const sessionValidation = await validateSession(admin, user.id, browserSessionId);
+    // Independent reads, so they go to the database together: one round trip
+    // instead of two on every answer.
+    const [sessionValidation, { data, error }] = await Promise.all([
+      validateSession(admin, user.id, browserSessionId),
+      admin
+        .from("verify_attempts")
+        .select("user_id, module_id, question_order, position, streak, status, expires_at")
+        .eq("id", attemptId)
+        .maybeSingle(),
+    ]);
     if (!sessionValidation.valid) {
       return NextResponse.json({ error: "Session conflict detected. Please resume this device.", code: "SESSION_CONFLICT" }, { status: 409 });
     }
-
-    const { data, error } = await admin
-      .from("verify_attempts")
-      .select("user_id, module_id, question_order, position, streak, status, expires_at")
-      .eq("id", attemptId)
-      .maybeSingle();
     if (error) throw error;
     const attempt = data as AttemptRow | null;
 
