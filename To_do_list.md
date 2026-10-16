@@ -8,7 +8,7 @@ Regrouped on 2026-10-12 by who does the work and where. Background for the launc
 
 Small changes, in the order they will be done. Each goes to a preview branch first.
 
-Nothing open. The last three were done on 2026-10-12 and are waiting on the checks in section 4.
+- [ ] **Quiz answers lag on desktop.** Raised by Richie (first paid tester, October 2026). Each True/False answer waits on three database calls in a row in `app/api/training/verify/answer/route.ts`: the sign-in check, then the session and quiz lookup, then the grading call. Cut it to two by running the session check alongside the sign-in check, or move the quiz lookup into the `advance_verify_attempt` database function. It is a security-sensitive route (audit C4), so it needs its own preview branch and a re-test of the quiz.
 
 
 ## 2. Marketing copy
@@ -78,6 +78,8 @@ Everything under "On a computer" below can be done on a laptop. Use a normal win
 - [ ] **Console after accepting cookies.** On the live site accept cookies and check the browser console for blocked requests. The Google hosts in `connect-src` were widened on 2026-10-12.
 - [ ] **Roster unlink on account deletion.** Delete a test staff account that is on a venue roster, then confirm its `venue_staff` row is kept with `staff_user_id` null and `organization_members` is marked `removed`.
 
+- [ ] **Richie's feedback fixes (2026-10-17).** Cocktail library: a bookmark survives a reload, the Bookmarked filter lists only bookmarks, and Remove bookmark works. Photos show on the library cards, in the open cocktail, and on Home's two "Today's cocktail" cards. "Weakest area" now reads "Focus area" on Home, Progress and the console's Teams table. A new staff member added as "jo smith" shows as "Jo Smith".
+
 - [ ] **The staff app after the stylesheet split.** Live since 2026-10-14, checked on every public page but not behind a login. Click through each `/dashboard` screen and each `/mobile` screen and look for anything unstyled or laid out differently. Then go from the home page to `/login` to `/dashboard` without reloading and check the same.
 
 ### On a computer, as a manager
@@ -118,11 +120,23 @@ Not needed before launch. Pick up when there is a reason to.
 
 ## Upgrades
 
-Paid plans to decide on. None is switched on by the code; each is bought in its own dashboard. Prices are approximate, in US dollars, and should be checked before buying.
+Paid plans to decide on, then product upgrades from tester feedback.
+
+### Paid plans
+
+None is switched on by the code; each is bought in its own dashboard. Prices are approximate, in US dollars, and should be checked before buying.
 
 - [ ] **Cloudflare Workers Paid, about $5 a month.** First find out which plan the account is on: Cloudflare dashboard, Workers & Pages, Plans. The free plan allows 10 ms of CPU time per request and 100,000 requests a day. Every page of this site is rendered by a Worker, so a busy page can run past 10 ms and fail with error 1102. Paid raises the limit to 30 seconds and includes 10 million requests a month. If the account is on the free plan, buy it before sending paid traffic to the site. The site works today at current visitor numbers, so it is not urgent before then.
 - [ ] **Cloudflare Pro, about $25 a month. Optional.** Allows a second rate-limit rule, so the public forms can have a strict limit of their own, and a challenge page instead of a plain block. Not needed for launch.
 - [ ] **Supabase Pro, about $25 a month, for backups.** The free plan has no backups. Pro adds daily backups and leaked-password protection. The free alternative is a scheduled `pg_dump`.
+
+### Product upgrades from tester feedback
+
+From Richie, a venue manager with 20 years in busy venues and the first paid tester (October 2026). One person's view, so each needs a second venue to agree before a big build.
+
+- [ ] **Venue content: the manager adds this season's drinks.** His main point: once staff finish training the app is forgotten, so it needs regular updates to justify a monthly fee. Let a manager add their own cocktail specs, new products and menu changes in the console; the app turns each into a short quiz and sends it to their staff. Builds on venue inventory linking. This keeps training fresh without us writing new content every month. Decide first: does the AI write the quiz from the spec, and does the manager approve it before staff see it?
+- [ ] **Pricing.** He suggested $10 to $20 per user per month. Today Boutique is $79 for 15 seats (about $5.27 each) and Commercial $149 for 35 (about $4.26). Typsy lists about US$12.50 per member. Do not raise prices on one opinion; once there are more trials, test a higher price on new sign-ups only.
+- [ ] **Videos in the cocktail library.** He asked for photos (done) or videos. Filming and hosting 38 drinks is a content project; leave it until a venue asks again.
 
 ## Important
 
@@ -132,22 +146,45 @@ Not urgent today, but each has a trigger that must not be missed.
 - [ ] **Read the funnel numbers before and during any ad spend.** `docs/FUNNEL_METRICS.md` and `supabase/queries/funnel.sql`. Fix the size of the first test before it starts, and pause it if 200 paid visits produce no trial.
 - [ ] **Register for GST at A$75,000 turnover.** Not registered as of 2026-10-12, so checkout charges no GST and invoices say "No GST has been charged". Registration is compulsory once turnover reaches A$75,000 in any 12 months, within 21 days of reaching it. When that happens: register with the ATO, add the registration under Stripe Tax, set the prices to tax-inclusive, switch on `automatic_tax` in `app/api/billing/checkout/route.ts`, change the invoice template to say "Tax invoice" and drop the no-GST line, and update the GST wording on `/advisory`.
 
-## Major update: three role-based learning platforms
+## Major update: role-based learning paths
 
-Separate learning paths for **Bartender**, **Chef** and **Gaming Attendant**, so staff are invited into the path that matches their role rather than only as staff or duty manager. To be weighed over the coming months; not started.
+Separate paths for **Bartender**, **Kitchen** and **Gaming Attendant**, so staff are invited into the path that matches their role. Not started. Planned in four stages; each has a check that must pass before the next starts.
 
-**Do this first:** make the current training less repetitive. The first paid tester (October 2026, week 2) found modules, scenarios and live scenarios repetitive. If one path feels repetitive, three will too, and they will cost three times as much to write.
+**Why it is on the list.** Richie (first paid tester, October 2026) wants one place for all onboarding (food, gaming and WHS as well as the bar), as the platform he used at JDA Hotels had. He also found our modules, scenarios and live scenarios repetitive. If one path feels repetitive, three will too, and they cost three times as much to write.
 
-Questions to work through each time:
+### Stage 1. Make the Bartending path less repetitive
 
-- **Is it worth doing?** Which venue types need each role? Does a buyer pay more for three paths, or is it expected at the same price? Would one strong path win more customers?
-- **Who is it for first?** Pick one new role to test against Bartender before committing to all three. Gaming Attendant may only matter to pubs and clubs with gaming rooms.
-- **What is shared and what is role-specific?** Service, sales, complaint handling and RSA could stay common; spirits, food safety and gaming compliance would be separate. Shared content keeps the work down.
-- **Compliance by state.** Gaming (RCG in NSW, RSG in Queensland and Victoria) and food safety (Food Safety Supervisor) have legal content that differs by state. Who checks it is accurate, and who keeps it current?
-- **Content cost.** How many modules, scenarios and live scenarios does a path need to feel complete? Who writes and checks chef and gaming content when the founder's expertise is bar service?
-- **Fixes for repetition apply here too.** Varied question types, branching scenarios, and fewer scenarios that repeat with only the names changed.
-- **What has to change in the product.** A role chosen at invite or onboarding, a separate mastery/ELO score for each path, Manager Console filters and reports by role, and leaderboards by role. Can one person be on two paths?
-- **Pricing and plans.** Are all paths in every plan, or are extra paths an add-on? Check against the seat limits in each plan.
-- **Marketing.** One landing page for each role, or one site that names all three? This affects ad targeting and the copy on every page.
-- **How to know it worked.** Decide the measure before building, for example completion rate per path, trial-to-paid by venue type, or a venue asking for the role unprompted.
-- **Smallest test.** Could one chef or gaming module, inside the current app, show demand before building a whole path?
+- Find where the repetition is: which questions and scenarios a learner sees more than once, from the attempt data.
+- Add question types beyond True/False: choose the right spec, put the steps in order, spot the mistake in a pour or a greeting.
+- Scenarios that change with the answer, instead of the same scenario with only the names swapped.
+- **Check before Stage 2:** Richie goes back through the same modules and no longer calls them repetitive.
+
+### Stage 2. Venue content
+
+The "Venue content" item under Upgrades. It answers his "keep it fresh" point without new paths, and the same tool later lets a venue add its own food or gaming notes.
+
+### Stage 3. Test demand with two modules, not two paths
+
+Built inside the current app, open to every staff member:
+
+- **Menu and allergens for floor staff.** Every venue needs it, it fits the staff already using the app, and it is cheaper than a chef path. Covers answering a guest's allergen question, checking with the kitchen, and never guessing.
+- **Gaming floor basics for pubs and clubs.** The day-to-day work around the certificate: signs of gambling harm, self-exclusion, minors in the room, payouts and cash handling. Not the certificate itself.
+- **Check before Stage 4:** decide the measure before building, for example how many trial venues open each module, or a venue asking for more without being prompted.
+
+### Stage 4. One full path, only if Stage 3 shows demand
+
+- Pick one: Gaming if pubs and clubs respond, Kitchen if restaurants do.
+- Shared core for every path: service, sales, complaint handling and RSA. Role-specific modules on top.
+- Product changes: a role chosen at invite, a mastery score for each path, console filters and reports by role. One person can be on two paths (a pub bartender often works the gaming room too).
+- Who writes and checks kitchen or gaming content, since the founder's expertise is bar service.
+
+### What not to build
+
+- **Certificate courses** (RSA, RSG in Queensland and Victoria, RCG in NSW, Food Safety Supervisor). Only approved training providers can issue these, and the rules differ by state. Point staff to a provider instead.
+- **Instead, a certificate tracker in the console.** Each staff member's RSA, RSG/RCG and Food Safety Supervisor numbers and expiry dates, with a reminder before one runs out. Small to build and gives the manager the compliance view across food, gaming and bar. `venue_staff.rsa_state` already exists, unused.
+- **Generic WHS training.** Widely available elsewhere. Cover it with a site induction checklist the manager ticks off, alongside the certificate tracker.
+
+### Still to decide
+
+- **Pricing.** All paths in every plan, or extra paths as an add-on? Check against the seat limits.
+- **Marketing.** One landing page per role, or one site that names all three? This affects ad targeting.

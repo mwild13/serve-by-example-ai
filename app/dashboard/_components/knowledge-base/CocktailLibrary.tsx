@@ -1,31 +1,70 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { COCKTAILS, CATEGORIES, type Category } from "@/lib/cocktails";
+import { useState, useMemo, useSyncExternalStore } from "react";
+import Image from "next/image";
+import { COCKTAILS, CATEGORIES, COCKTAIL_IMAGES, type Category } from "@/lib/cocktails";
 
 const CATEGORY_KEYS = Object.keys(CATEGORIES) as Category[];
 
-type PurposeFilter = "all" | "practice";
-
-const PURPOSE_LABELS: Record<PurposeFilter, string> = {
-  all: "Browse all",
-  practice: "Bookmarked",
-};
-
 type Cocktail = (typeof COCKTAILS)[number];
+
+// Bookmarks are kept in this browser only. They used to live in component
+// state and vanished on the next page, so a bookmark seemed to go nowhere.
+const BOOKMARKS_KEY = "sbe-cocktail-bookmarks";
+const bookmarkListeners = new Set<() => void>();
+// Used when storage is blocked (private window): bookmarks last until the page closes.
+let bookmarksFallback = "[]";
+
+function subscribeBookmarks(onChange: () => void) {
+  bookmarkListeners.add(onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    bookmarkListeners.delete(onChange);
+    window.removeEventListener("storage", onChange);
+  };
+}
+
+function bookmarksSnapshot(): string {
+  try {
+    return window.localStorage.getItem(BOOKMARKS_KEY) ?? "[]";
+  } catch {
+    return bookmarksFallback;
+  }
+}
+
+function parseBookmarks(raw: string): Set<string> {
+  try {
+    const names: unknown = JSON.parse(raw);
+    return new Set(Array.isArray(names) ? names.filter((n): n is string => typeof n === "string") : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveBookmarks(names: Set<string>) {
+  const raw = JSON.stringify([...names]);
+  bookmarksFallback = raw;
+  try {
+    window.localStorage.setItem(BOOKMARKS_KEY, raw);
+  } catch {
+    // Kept in bookmarksFallback instead.
+  }
+  bookmarkListeners.forEach((notify) => notify());
+}
 
 function DetailSheet({
   cocktail,
-  inPractice,
+  bookmarked,
   onClose,
-  onBookmark,
+  onToggleBookmark,
 }: {
   cocktail: Cocktail;
-  inPractice: boolean;
+  bookmarked: boolean;
   onClose: () => void;
-  onBookmark: () => void;
+  onToggleBookmark: () => void;
 }) {
   const catMeta = CATEGORIES[cocktail.category];
+  const photo = COCKTAIL_IMAGES[cocktail.name];
   return (
     <div
       style={{
@@ -103,6 +142,12 @@ function DetailSheet({
         {/* scrollable body */}
         <div style={{ overflowY: "auto", WebkitOverflowScrolling: "touch" as const, flex: 1, padding: "16px 20px" }}>
 
+          {photo && (
+            <div style={{ position: "relative", height: 220, borderRadius: 10, overflow: "hidden", marginBottom: 16 }}>
+              <Image src={photo} alt={cocktail.name} fill sizes="(max-width: 700px) 100vw, 640px" style={{ objectFit: "cover" }} />
+            </div>
+          )}
+
           {/* Ingredients + Method side by side on wider, stacked on narrow */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
             <div>
@@ -153,15 +198,16 @@ function DetailSheet({
             <button
               style={{
                 flex: 1, padding: "12px 0",
-                background: inPractice ? "var(--ip-green)" : "var(--ip-green)",
-                color: "var(--surface-raised)", border: "none", borderRadius: 6,
-                fontSize: 14, fontWeight: 600, cursor: inPractice ? "default" : "pointer",
-                opacity: inPractice ? 0.7 : 1,
+                background: bookmarked ? "transparent" : "var(--ip-green)",
+                color: bookmarked ? "var(--ip-green)" : "var(--surface-raised)",
+                border: bookmarked ? "1.5px solid var(--ip-green)" : "none",
+                borderRadius: 6,
+                fontSize: 14, fontWeight: 600, cursor: "pointer",
               }}
-              onClick={onBookmark}
-              disabled={inPractice}
+              onClick={onToggleBookmark}
+              aria-pressed={bookmarked}
             >
-              {inPractice ? "Bookmarked" : "Bookmark"}
+              {bookmarked ? "Remove bookmark" : "Bookmark"}
             </button>
             <button
               style={{
@@ -185,39 +231,35 @@ function DetailSheet({
 
 export default function CocktailLibrary() {
   const [activeCategory, setActiveCategory] = useState<Category | "all">("all");
-  const [purposeFilter] = useState<PurposeFilter>("all");
+  const [showBookmarked, setShowBookmarked] = useState(false);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Cocktail | null>(null);
-  const [practiceAdded, setPracticeAdded] = useState<Set<string>>(new Set());
+  // The server render has no localStorage, so it starts with no bookmarks.
+  const bookmarksRaw = useSyncExternalStore(subscribeBookmarks, bookmarksSnapshot, () => "[]");
+  const bookmarks = useMemo(() => parseBookmarks(bookmarksRaw), [bookmarksRaw]);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    let results = COCKTAILS.filter((c) => {
-      const matchesCat = activeCategory === "all" || c.category === activeCategory;
+    const results = COCKTAILS.filter((c) => {
+      const matchesCat = showBookmarked ? bookmarks.has(c.name) : activeCategory === "all" || c.category === activeCategory;
       const matchesSearch = c.name.toLowerCase().includes(q);
       return matchesCat && matchesSearch;
     });
 
-    results = [...results].sort((a, b) => {
-      if (purposeFilter === "practice") {
-        const aBook = practiceAdded.has(a.name) ? 0 : 1;
-        const bBook = practiceAdded.has(b.name) ? 0 : 1;
-        if (aBook !== bBook) return aBook - bBook;
-      }
+    return [...results].sort((a, b) => {
       if (a.featured && b.featured) return a.featuredOrder - b.featuredOrder;
       if (a.featured) return -1;
       if (b.featured) return 1;
       return a.name.localeCompare(b.name);
     });
+  }, [activeCategory, search, showBookmarked, bookmarks]);
 
-    return results;
-  }, [activeCategory, search, purposeFilter, practiceAdded]);
-
-  function addToPractice(name: string) {
-    setPracticeAdded((prev) => { const next = new Set(prev); next.add(name); return next; });
+  function toggleBookmark(name: string) {
+    const next = new Set(bookmarks);
+    if (next.has(name)) next.delete(name);
+    else next.add(name);
+    saveBookmarks(next);
   }
-
-  void PURPOSE_LABELS;
 
   return (
     <div>
@@ -250,18 +292,24 @@ export default function CocktailLibrary() {
 
       <div className="cocktail-filter-row">
         <div
-          className={`chat-pill${activeCategory === "all" ? " chat-pill-active" : ""}`}
-          onClick={() => { setActiveCategory("all"); setSelected(null); }}
+          className={`chat-pill${!showBookmarked && activeCategory === "all" ? " chat-pill-active" : ""}`}
+          onClick={() => { setShowBookmarked(false); setActiveCategory("all"); setSelected(null); }}
         >
           All ({COCKTAILS.length})
+        </div>
+        <div
+          className={`chat-pill${showBookmarked ? " chat-pill-active" : ""}`}
+          onClick={() => { setShowBookmarked(true); setSelected(null); }}
+        >
+          Bookmarked ({bookmarks.size})
         </div>
         {CATEGORY_KEYS.filter((key) => COCKTAILS.some((c) => c.category === key)).map((key) => {
           const count = COCKTAILS.filter((c) => c.category === key).length;
           return (
             <div
               key={key}
-              className={`chat-pill${activeCategory === key ? " chat-pill-active" : ""}`}
-              onClick={() => { setActiveCategory(key); setSelected(null); }}
+              className={`chat-pill${!showBookmarked && activeCategory === key ? " chat-pill-active" : ""}`}
+              onClick={() => { setShowBookmarked(false); setActiveCategory(key); setSelected(null); }}
             >
               {CATEGORIES[key].label} ({count})
             </div>
@@ -279,7 +327,8 @@ export default function CocktailLibrary() {
         <div className="cocktail-grid">
           {filtered.map((cocktail) => {
             const catMeta = CATEGORIES[cocktail.category];
-            const inPractice = practiceAdded.has(cocktail.name);
+            const bookmarked = bookmarks.has(cocktail.name);
+            const photo = COCKTAIL_IMAGES[cocktail.name];
             return (
               <div
                 key={cocktail.name}
@@ -287,6 +336,11 @@ export default function CocktailLibrary() {
                 onClick={() => setSelected(cocktail)}
                 style={{ cursor: "pointer" }}
               >
+                {photo && (
+                  <div className="cocktail-card-photo">
+                    <Image src={photo} alt="" fill sizes="(max-width: 700px) 100vw, 280px" style={{ objectFit: "cover" }} />
+                  </div>
+                )}
                 <div className="cocktail-card-header">
                   <strong className="cocktail-name">{cocktail.name}</strong>
                   <span
@@ -301,7 +355,7 @@ export default function CocktailLibrary() {
                   {cocktail.featured && (
                     <div style={{ fontSize: 10, color: "var(--color-amber-gold)", fontWeight: 700, background: "var(--status-amber-bg)", border: "1px solid var(--gold-light)", display: "inline-block", padding: "2px 7px", borderRadius: 4, letterSpacing: "0.04em", textTransform: "uppercase" }}>Most Common</div>
                   )}
-                  {inPractice && (
+                  {bookmarked && (
                     <div style={{ fontSize: 10, color: "var(--ip-green)", fontWeight: 700, background: "var(--bg-green-subtle)", border: "1px solid var(--border-green-light)", display: "inline-block", padding: "2px 7px", borderRadius: 4, letterSpacing: "0.04em", textTransform: "uppercase" }}>Bookmarked</div>
                   )}
                 </div>
@@ -311,16 +365,18 @@ export default function CocktailLibrary() {
         </div>
       ) : (
         <div style={{ padding: "40px 0", textAlign: "center", color: "var(--text-soft)" }}>
-          No cocktails found for &ldquo;{search}&rdquo;.
+          {showBookmarked && bookmarks.size === 0
+            ? "No bookmarks yet. Open a cocktail and press Bookmark to save it here."
+            : <>No cocktails found for &ldquo;{search}&rdquo;.</>}
         </div>
       )}
 
       {selected && (
         <DetailSheet
           cocktail={selected}
-          inPractice={practiceAdded.has(selected.name)}
+          bookmarked={bookmarks.has(selected.name)}
           onClose={() => setSelected(null)}
-          onBookmark={() => addToPractice(selected.name)}
+          onToggleBookmark={() => toggleBookmark(selected.name)}
         />
       )}
     </div>

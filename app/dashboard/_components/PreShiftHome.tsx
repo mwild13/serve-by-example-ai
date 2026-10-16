@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { GlassWater, TrendingUp, Users, Flame, Trophy, BookOpen, Share2, Target, Check } from "lucide-react";
 import { computeBadges, countEarned, recentEarned, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
 import { KB_ENTRIES, KB_CATEGORIES } from "@/lib/knowledge-base";
-import { COCKTAILS, type Cocktail } from "@/lib/cocktails";
+import Image from "next/image";
+import { COCKTAILS, COCKTAIL_IMAGES, type Cocktail } from "@/lib/cocktails";
 import { computeStreak } from "@/lib/streak";
 
 type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "challenges" | "cocktails" | "knowledge" | "progress" | "settings";
@@ -336,6 +337,7 @@ const CocktailCard = ({ cocktail }: { cocktail: Cocktail }) => {
   const [open, setOpen] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const hasMore = cocktail.ingredients.length > 3;
+  const photo = COCKTAIL_IMAGES[cocktail.name];
 
   useEffect(() => {
     if (!open) return;
@@ -358,11 +360,17 @@ const CocktailCard = ({ cocktail }: { cocktail: Cocktail }) => {
         background: "var(--surface)",
         borderRadius: "var(--radius-md)",
         padding: "1rem 1.1rem",
+        paddingRight: photo ? "calc(128px + 1.1rem)" : "1.1rem",
         border: "1.5px solid var(--line)",
         display: "flex",
         flexDirection: "column",
       }}
     >
+      {photo && (
+        <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: 128 }}>
+          <Image src={photo} alt="" fill sizes="128px" style={{ objectFit: "cover" }} />
+        </div>
+      )}
       <span style={{ fontSize: "0.58rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "0.375rem", display: "block" }}>
         TODAY&rsquo;S COCKTAIL
       </span>
@@ -383,7 +391,7 @@ const CocktailCard = ({ cocktail }: { cocktail: Cocktail }) => {
       {hasMore && !open && (
         <button
           onClick={() => setOpen(true)}
-          style={{ position: "absolute", bottom: "0.55rem", right: "0.75rem", background: "none", border: "none", cursor: "pointer", fontSize: "0.65rem", color: "var(--text-muted)", lineHeight: 1, padding: "2px 4px", fontFamily: "inherit" }}
+          style={{ position: "absolute", bottom: "0.55rem", right: photo ? "calc(128px + 0.75rem)" : "0.75rem", background: "none", border: "none", cursor: "pointer", fontSize: "0.65rem", color: "var(--text-muted)", lineHeight: 1, padding: "2px 4px", fontFamily: "inherit" }}
           aria-label="Show all ingredients"
         >
           +{cocktail.ingredients.length - 3} more
@@ -633,7 +641,7 @@ export default function PreShiftHome({
                     : `You've completed ${totalSessions} session${totalSessions !== 1 ? "s" : ""}. ${
                         data.reviewDue > 0
                           ? `${data.reviewDue} review${data.reviewDue !== 1 ? "s" : ""} due for spaced repetition.`
-                          : "Keep pushing your weakest area."
+                          : "Keep working on your focus area."
                       }`}
                 </p>
               )}
@@ -642,7 +650,7 @@ export default function PreShiftHome({
           <div className="psh-coach psh-coach-brief">
             <div className="psh-coach-header">
               <h2>Focus for today</h2>
-              <span>Based on your weakest area: {MODULE_META[weakest].short}</span>
+              <span>Based on your focus area: {MODULE_META[weakest].short}</span>
             </div>
             <ul className="psh-coach-list">
               {coachTips.map((tip, i) => (

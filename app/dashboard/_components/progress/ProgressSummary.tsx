@@ -167,7 +167,7 @@ export default function ProgressSummary({
           <div className="progress-hub-stat-card">
             <span className="progress-hub-stat-label">Focus Area</span>
             <span className="progress-hub-stat-value" style={{ fontSize: "1.05rem" }}>{CATEGORY_LABELS[weakestCategory]}</span>
-            <p className="progress-hub-stat-sub">weakest category · priority training</p>
+            <p className="progress-hub-stat-sub">focus area · priority training</p>
           </div>
           <div className="progress-hub-stat-card">
             <span className="progress-hub-stat-label">Sessions Completed</span>

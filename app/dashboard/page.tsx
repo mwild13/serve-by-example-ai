@@ -6,6 +6,7 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { normalizeTier, resolveTierAccess } from "@/lib/session";
 import { isMobilePhoneUserAgent } from "@/lib/user-agent";
+import { formatPersonName, nameFromEmail } from "@/lib/person-name";
 import DashboardShell from "@/app/dashboard/_components/DashboardShell";
 
 // Prevent static generation – this page requires auth at runtime
@@ -99,12 +100,13 @@ export default async function DashboardPage({
     }
   }
 
-  const displayName =
+  const displayName = formatPersonName(
     profile?.display_name ||
     (user.user_metadata?.full_name as string | undefined) ||
     (user.user_metadata?.name as string | undefined) ||
-    user.email?.split("@")[0] ||
-    "there";
+    nameFromEmail(user.email) ||
+    "there",
+  );
 
   // Tier resolution (own tier → lapsed-subscription downgrade → org trial
   // sync → sponsored venue-membership fallback) lives in resolveTierAccess()

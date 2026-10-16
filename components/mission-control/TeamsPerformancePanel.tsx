@@ -107,7 +107,7 @@ export function TeamsPerformancePanel({
                     <th className="is-num">Members</th>
                     <th>Training completed</th>
                     <th className="is-num">Average score</th>
-                    <th>Weakest area</th>
+                    <th>Focus area</th>
                     <th className="is-num">Needs follow-up</th>
                     <th><span className="sr-only">Actions</span></th>
                   </tr>

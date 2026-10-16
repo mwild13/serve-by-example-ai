@@ -3,6 +3,7 @@ import { getUserFromRequest } from "@/lib/supabase-server";
 import { rateLimit } from "@/lib/rate-limit";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { readJsonBody } from "@/lib/ai-guard";
+import { formatPersonName } from "@/lib/person-name";
 
 export async function POST(req: Request) {
   try {
@@ -17,7 +18,7 @@ export async function POST(req: Request) {
     const read = await readJsonBody(req, undefined, { requireJsonContentType: false });
     if (!read.ok) return read.response;
     const { displayName } = read.body;
-    const trimmed = typeof displayName === "string" ? displayName.trim() : "";
+    const trimmed = typeof displayName === "string" ? formatPersonName(displayName) : "";
     if (!trimmed) {
       return NextResponse.json({ error: "Name cannot be empty." }, { status: 400 });
     }

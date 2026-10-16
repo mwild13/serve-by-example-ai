@@ -5,6 +5,7 @@ import { syncMasteryToVenueStaff } from "@/lib/mastery";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { normalizeVenueCode } from "@/lib/venue-code";
 import { readJsonBody } from "@/lib/ai-guard";
+import { formatPersonName, nameFromEmail } from "@/lib/person-name";
 
 // The one /api/management route without requireManager(): the caller is the
 // staff member joining, not a manager.
@@ -95,9 +96,11 @@ export async function POST(req: Request) {
       .eq("id", user.id)
       .maybeSingle();
 
-    const staffName = (profile?.display_name as string | null | undefined)
-      ?? user.email?.split("@")[0]
-      ?? "Staff Member";
+    const staffName = formatPersonName(
+      (profile?.display_name as string | null | undefined)
+        || nameFromEmail(user.email)
+        || "Staff Member",
+    );
 
     // Id of a venue_staff row this request creates, so it can be rolled back
     // if the membership write below is refused (e.g. the seat-limit trigger).

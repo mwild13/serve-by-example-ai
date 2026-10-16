@@ -8,6 +8,7 @@ import { MobileSessionProvider } from "./_lib/mobile-session-context";
 import { TrainingProgressProvider } from "./_lib/training-progress-context";
 import MobileOrientationGuard from "./_components/MobileOrientationGuard";
 import { PRODUCT_FONT_CLASS } from "@/app/fonts/product-fonts";
+import { formatPersonName, nameFromEmail } from "@/lib/person-name";
 import "../styles/staff.css";
 
 // Phase C file 01 — auth + tier gate for the whole /mobile route tree,
@@ -81,12 +82,13 @@ export default async function MobileLayout({
       subscription_status: profile?.subscription_status ?? null,
     });
 
-  const displayName =
+  const displayName = formatPersonName(
     profile?.display_name ||
     (user.user_metadata?.full_name as string | undefined) ||
     (user.user_metadata?.name as string | undefined) ||
-    user.email?.split("@")[0] ||
-    "there";
+    nameFromEmail(user.email) ||
+    "there",
+  );
 
   return (
     // Keeps /mobile on Fraunces/Manrope (see app/fonts/product-fonts.ts).

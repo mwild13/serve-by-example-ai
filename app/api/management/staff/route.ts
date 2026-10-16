@@ -5,6 +5,7 @@ import { createStaffMember, updateStaffMember, getManagementSnapshot } from "@/l
 import { EMAIL_SMALL_STYLE, EMAIL_TEXT_STYLE, brandedEmailHtml, emailButtonHtml, emailFallbackLinkHtml, escapeHtml } from "@/lib/email-template";
 import type { NewStaffPayload, StaffRole, AustralianState } from "@/lib/management/types";
 import { readJsonBody } from "@/lib/ai-guard";
+import { formatPersonName } from "@/lib/person-name";
 
 const VALID_ROLES: StaffRole[] = ["Bartender", "Floor", "Supervisor", "Manager", "New Staff"];
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
     const read = await readJsonBody(req, undefined, { requireJsonContentType: false });
     if (!read.ok) return read.response;
     const body = read.body as Partial<NewStaffPayload>;
-    const name = body.name?.trim();
+    const name = body.name ? formatPersonName(body.name) : "";
     const role = body.role;
     const venueId = body.venueId?.trim();
     const email = body.email?.trim().toLowerCase();
@@ -208,7 +209,7 @@ export async function PATCH(req: Request) {
     const updates: Parameters<typeof updateStaffMember>[3] = {};
 
     if (typeof body.name === "string") {
-      const name = body.name.trim();
+      const name = formatPersonName(body.name);
       if (!name) return NextResponse.json({ error: "Name cannot be empty" }, { status: 400 });
       updates.name = name;
     }

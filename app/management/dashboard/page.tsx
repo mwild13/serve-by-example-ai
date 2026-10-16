@@ -9,6 +9,7 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getManagementSnapshot } from "@/lib/management/service";
 import { getTrialStatus, getDaysRemaining } from "@/lib/trial";
+import { formatPersonName, nameFromEmail } from "@/lib/person-name";
 import { priceToTierMap } from "@/lib/billing-plans";
 import { applySubscription } from "@/lib/billing-sync";
 import { isB2BTier, normalizeTier, hasManagerConsoleAccess, isOwnerLevelRole } from "@/lib/session";
@@ -141,7 +142,7 @@ export default async function ManagementDashboardPage({
     .single();
 
   const displayName =
-    profile?.display_name || user.email?.split("@")[0] || "Manager";
+    formatPersonName(profile?.display_name || nameFromEmail(user.email) || "Manager");
   const plan = profile?.tier ?? "free";
   const tier = profile?.tier ?? "free";
   const platformRole = profile?.platform_role ?? "staff";

@@ -3,6 +3,7 @@ import { siteOrigin } from "@/lib/site-url";
 import { requireManager } from "@/lib/management/auth";
 import { EMAIL_SMALL_STYLE, EMAIL_TEXT_STYLE, brandedEmailHtml, emailButtonHtml, emailFallbackLinkHtml, escapeHtml } from "@/lib/email-template";
 import { readJsonBody } from "@/lib/ai-guard";
+import { nameFromEmail } from "@/lib/person-name";
 
 export async function POST(req: Request) {
   const gate = await requireManager(req, { rateKey: "invite-resend", limit: 10 });
@@ -30,7 +31,7 @@ export async function POST(req: Request) {
   }
 
   const email = membership.staff_email as string;
-  const name = email.split("@")[0];
+  const name = nameFromEmail(email) || "there";
   const appOrigin = siteOrigin(req);
   const redirectTo = `${appOrigin}/login`;
 
