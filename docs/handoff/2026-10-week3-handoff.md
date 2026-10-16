@@ -497,7 +497,7 @@ The Me and Learn screens were rendered locally with sample data at 390px: the he
 ## Part 16: the quiz pause, and daily training activity
 
 - **Date:** 2026-10-14
-- **Branch:** `preview/oct-w3-owner-decisions`. Not committed yet.
+- **Branch:** `preview/oct-w3-owner-decisions`, committed as `75c68df` and released to `main`.
 
 ### Why True/False answers paused
 
@@ -517,3 +517,30 @@ The queries themselves are fast (the session lookup averages 0.7 ms over 10,641 
 ### Checked
 
 Typecheck and lint pass; 86 unit tests pass, 5 of them new for the day maths, including the October daylight-saving change. The card was viewed locally with sample data at 600px and 360px. Not checked: the migration against the database (a rolled-back dry run was declined), the card with real data, and the quiz speed on a phone. The checks are in sections 3 and 4 of `To_do_list.md`.
+
+## Part 17: Sentry switched on
+
+- **Date:** 2026-10-16
+- **Branch:** `preview/oct-w3-owner-decisions`. Only `To_do_list.md` changed; released to `main` as `f63a7c3`, which rebuilt production with the DSN.
+
+### Owner decisions
+
+- **Sentry's free Developer plan.** The $29 Team plan was the only price the owner had seen. Free covers one user and about 5,000 errors a month, which is ample at current traffic. Bugsink (hosted or self-hosted) and GlitchTip were compared: all three accept the same envelope, so switching later is a DSN change and no code. Self-hosting was ruled out as a server to maintain for no saving.
+- **No Sentry SDK.** Sentry's onboarding asks to install `@sentry/nextjs`. Not done, for the worker-size reason in Part 13. Only Error monitoring was ticked at sign-up; Logging, Tracing, Metrics and Session replay need the SDK, and replay would record visitors.
+- **GitHub integration removed.** It gives Sentry read access to the repo and only links errors to commits when releases are reported, which this setup does not do.
+
+### Setup, done by the owner
+
+- Organisation on sentry.io, project `javascript` (Browser JavaScript), "Prevent Storing of IP Addresses" on. The 14-day unlimited trial lapses to the free plan with no card.
+- `NEXT_PUBLIC_SENTRY_DSN` set in Cloudflare Pages for Production and Preview as plain text. Ingest host: `o4512265514713088.ingest.us.sentry.io`.
+- One alert rule on `javascript`: email the owner when a new issue is created or a resolved issue comes back, action interval 1 hour. The default "high priority issues" rule was disabled so each error emails once.
+
+### Releasing to main
+
+`main` now has branch protection: a push is refused until the `checks` CI job has passed on that commit, and admins are not exempt. Push the branch, wait for CI (about a minute), then push the same commit to `main`.
+
+### Checked
+
+- The live `connect-src` includes the Sentry ingest host.
+- Two errors thrown in a browser on servebyexample.co were sent by `components/ErrorLogger.tsx`; Sentry answered 200 to both, and the second produced an alert email at once. Nothing else in the console was blocked.
+- Not checked: a server-side error arriving (see section 4 of `To_do_list.md`), and the IP address being absent in the event view, which only the owner can see.
