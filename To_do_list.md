@@ -25,29 +25,14 @@ Grouped by where you sign in. None of these can be done from the code.
 
 ### Supabase
 
-- [ ] **Run `supabase/migrations/20261014_training_activity_daily.sql`.** SQL Editor, paste the file, run. It creates the daily activity table, the two triggers that fill it, and backfills from 2026-10-02. Until it runs, the Overview's Daily training card says no training is recorded. Check with the query at the foot of the file.
-- [ ] **Let previews sign in with Google.** Authentication, URL Configuration, Redirect URLs: add `https://*.serve-by-example-ai.pages.dev/**`. Without it, Google sign-in started on a preview lands on the production site and fails.
-- [ ] **Auth email.** Confirm Auth sends through Brevo, not the built-in mailer, and raise the hourly email limit under Authentication, Rate Limits.
-- [ ] **Auth email templates.** Sign-up confirmation and email change still use Supabase's own templates. Edit them under Authentication, Emails to match the shared shell.
-- [ ] **Backups.** The free plan has none. Upgrade to Pro or schedule a `pg_dump`. Pro also unlocks leaked-password protection.
 
 ### Google
-
-- [ ] **Redirect URIs on the Google client.** Google Cloud Console (project number `971763423157`), Google Auth Platform, Clients: the only authorised redirect URI should be the Supabase callback.
 
 - [ ] **Google Ads.** The only ad platform for now. Link the Google Ads account to the Analytics property, then import `sign_up`, `trial_start` and `purchase` as conversions. They must be marked as key events first (see Parked). No pixel goes in the code. Tag every ad link with `utm_source`, `utm_medium` and `utm_campaign`.
 
 ### Stripe
 
 - [ ] **Switch on plan switching, in test mode first.** Settings, Billing, Customer portal, "Customers can switch plans". Add the Boutique and Commercial prices, monthly and yearly, and nothing else (not Pro, not Enterprise). Set proration to "Prorate and invoice immediately", not "on next invoice". Until this is done, a Pro member who presses a venue plan sees Stripe's refusal instead of the upgrade page.
-
-### Sentry
-
-- [ ] **Create the account and add the DSN.** Free plan, one project of type "Browser JavaScript". In the project's Security & Privacy settings switch on "Prevent Storing of IP Addresses". Copy the DSN into Cloudflare Pages as `NEXT_PUBLIC_SENTRY_DSN` for Production and Preview, then redeploy: the value is read at build time. Error reporting is off until then.
-
-### OpenAI
-
-- [ ] **Set a monthly budget and an alert email.** Settings, Limits. The daily limit of 30 and 300 requests bounds one account; only this bounds the bill.
 
 ## 4. Owner: testing
 
@@ -69,6 +54,7 @@ Three sittings cover every unconfirmed fix.
 ### On a computer, as staff
 
 - [ ] **The restyled emails.** Changed 2026-10-12, not seen in an inbox. Send yourself one of each: a staff invite and a resend from the Manager Console, the contact form, the book-a-call form, and the ROI calculator's "email me this". Check them in Gmail and on a phone.
+- [ ] **Change-email confirmation.** Sign-up confirmation was checked on 2026-10-16. In Settings, change a test account's email to another address you own: the branded "Confirm your new email" should arrive there, and the button should switch the address.
 - [ ] **`/login`.** Only its layout was checked. Sign in, create an account, and use Google (that return trip may pass through `www`).
 - [ ] **Password reset.** Request a reset and follow the link: it should open the new-password screen. That screen was restyled on 2026-10-12 to match `/login`; set a new password on it once. The 2026-10-12 email pointed at the Site URL; the URL Configuration was changed the same day.
 - [ ] **`/dashboard` when narrow.** At about 700px and 375px: the nav sits on top as a wrapped row, every item opens, Sign out is reachable, nothing scrolls sideways.
@@ -76,7 +62,7 @@ Three sittings cover every unconfirmed fix.
 - [ ] **Demo against the live evaluator.** Submit one real answer on `/demo` and `/demo/complaint-master`, and confirm the feedback has no em dashes.
 - [ ] **AI limit.** 30 requests a day on the free tier, 300 on paid (`lib/ai-usage.ts`). Changed 2026-10-12, not seen in a browser: at the limit the screen should say how many hours until it resets, keep the submit button disabled, and on a free account link to the plans. To reach it quickly, raise a test account's `request_count` in `ai_usage_daily` to 30.
 - [ ] **Upgrade from Pro to a venue plan.** Needs the Stripe setting in section 3. In test mode, as a Pro account, press a Boutique button on `/membership`: Stripe's page should show the prorated charge. Pay, and confirm you land on the Manager Console billing tab on Boutique with 15 seats and an organisation created.
-- [ ] **Error reporting.** Needs the Sentry DSN in section 3. Open the preview, cause an error, and confirm it arrives in Sentry with a stack trace and no IP address. Also confirm one server error arrives: if none does from a page render, the `onRequestError` hook is not running under OpenNext and only the billing and AI routes report.
+- [ ] **Error reporting.** The Sentry DSN was added on 2026-10-16 (free plan, project "javascript"). Open the site, cause an error, and confirm it arrives in Sentry with a stack trace and no IP address. Also confirm one server error arrives: if none does from a page render, the `onRequestError` hook is not running under OpenNext and only the billing and AI routes report.
 - [ ] **Console after accepting cookies.** On the live site accept cookies and check the browser console for blocked requests. The Google hosts in `connect-src` were widened on 2026-10-12.
 - [ ] **Roster unlink on account deletion.** Delete a test staff account that is on a venue roster, then confirm its `venue_staff` row is kept with `staff_user_id` null and `organization_members` is marked `removed`.
 
@@ -84,7 +70,7 @@ Three sittings cover every unconfirmed fix.
 
 ### On a computer, as a manager
 
-- [ ] **Daily training card.** Needs the migration in section 3. On Overview, the card above Team activity should show bars for days staff trained since 2026-10-02, with today in bold. Answer a quiz question on a staff account and reload: today's bar should count that person.
+- [ ] **Daily training card.** The migration ran on 2026-10-15. On Overview, the card above Team activity should show bars for days staff trained since 2026-10-02, with today in bold. Answer a quiz question on a staff account and reload: today's bar should count that person.
 - [ ] **Trial chip on the collapsed sidebar.** Added 2026-10-12, not seen. On a trial account, collapse the sidebar: a small chip with the days left should sit above Settings and open Billing.
 - [ ] **Status after the recalculation.** Changed 2026-10-12. On the Staff tab, someone quiet for 14 days should read "Needs follow-up", and someone who trained this week "On track", whatever they showed before.
 - [ ] **The console after the stylesheet split.** Same check as the staff app: every tab, the drawers, the invite panel and Settings should look as they did.
@@ -124,7 +110,7 @@ Paid plans to decide on. None is switched on by the code; each is bought in its 
 
 - [ ] **Cloudflare Workers Paid, about $5 a month.** First find out which plan the account is on: Cloudflare dashboard, Workers & Pages, Plans. The free plan allows 10 ms of CPU time per request and 100,000 requests a day. Every page of this site is rendered by a Worker, so a busy page can run past 10 ms and fail with error 1102. Paid raises the limit to 30 seconds and includes 10 million requests a month. If the account is on the free plan, buy it before sending paid traffic to the site. The site works today at current visitor numbers, so it is not urgent before then.
 - [ ] **Cloudflare Pro, about $25 a month. Optional.** Allows a second rate-limit rule, so the public forms can have a strict limit of their own, and a challenge page instead of a plain block. Not needed for launch.
-- [ ] **Supabase Pro, about $25 a month.** Covered under Supabase, Backups, in section 3: daily backups and leaked-password protection.
+- [ ] **Supabase Pro, about $25 a month, for backups.** The free plan has no backups. Pro adds daily backups and leaked-password protection. The free alternative is a scheduled `pg_dump`.
 
 ## Important
 
