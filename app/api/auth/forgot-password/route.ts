@@ -70,10 +70,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, message: GENERIC_MESSAGE });
   }
 
-  // Flat params only. The link used to carry the whole Supabase action link
-  // as one encoded value, and click tracking decoded it on the way through,
-  // so Supabase got the token without its type and showed a blank error page.
-  const proxiedLink = `${appOrigin}/api/auth/verify-redirect?token=${encodeURIComponent(linkData.properties.hashed_token)}&type=recovery`;
+  // The link goes straight to our reset page, which calls verifyOtp with the
+  // token hash. Going through Supabase's /verify instead returns the session
+  // in the URL hash, which our PKCE browser client ignores ("Auth session
+  // missing"). Flat params only: an earlier version nested the whole Supabase
+  // link as one encoded value, and click tracking decoded it and split it.
+  const proxiedLink = `${appOrigin}/reset-password?token_hash=${encodeURIComponent(linkData.properties.hashed_token)}&type=recovery`;
   // The address passed a loose format check only, so escape it before it goes into HTML.
   const safeEmail = escapeHtml(email);
   const brevoApiKey = process.env.BREVO_API_KEY;
