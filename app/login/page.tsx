@@ -273,8 +273,14 @@ function LoginPageContent() {
         }
 
         // An address that is already registered comes back as a user with no
-        // identities when email confirmation is on, so it is not counted.
-        if (data.user?.identities?.length) trackEvent("sign_up", { method: "Email" });
+        // identities when email confirmation is on. Supabase sends no email in
+        // that case, so say so instead of "check your email".
+        if (data.user && !data.user.identities?.length) {
+          setError("An account with this email already exists. Sign in, or use Forgot password to set a password.");
+          setLoading(false);
+          return;
+        }
+        trackEvent("sign_up", { method: "Email" });
 
         // No client-side profiles write: the on_auth_user_created trigger
         // creates the row, and readers fall back to the email prefix for a
