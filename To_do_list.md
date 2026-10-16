@@ -38,6 +38,18 @@ Grouped by where you sign in. None of these can be done from the code.
 
 Three sittings cover every unconfirmed fix.
 
+### Laptop order for tonight
+
+Everything under "On a computer" below can be done on a laptop. Use a normal window for the manager account and a private window for the staff account, so both stay signed in.
+
+1. **Invite a new staff member.** Manager Console, Staff, Add staff, with a new email and the invite box ticked. In the email (private window): accept, finish onboarding, and confirm the person shows on the roster. This covers the invite email, the join link on a computer, and `/login` account creation.
+2. **Add staff drawer, after the 2026-10-17 fix.** Not live until the fix is pushed. Open Add staff and type straight away: the cursor starts in Staff name and typing an "i" no longer switches to Add inventory. Close with text typed: no "unsaved changes" pop-up, and reopening shows the text still there.
+3. **As that staff member:** answer a quiz question, then as the manager reload Overview (daily training card) and the Staff tab (status reads "On track").
+4. **Staff screens after the stylesheet split**, then `/dashboard` narrow, Password reset, Change-email confirmation, Demo, and AI limit.
+5. **Manager screens:** the redesigned console, the console after the stylesheet split, and the trial chip.
+6. **Resend the invite** from the console and check both emails in Gmail and on your phone, then send the contact, book-a-call and ROI emails.
+7. **Roster unlink** last, by deleting the test staff account.
+
 ### On an iPhone, signed in
 
 - [ ] **AI photo.** The face oval, and a saved photo showing on Home without a reload.
@@ -119,3 +131,23 @@ Not urgent today, but each has a trigger that must not be missed.
 - [ ] **Read the AI usage numbers two weeks after the first real venue starts.** Run `supabase/queries/ai-usage.sql`. If the 90th percentile sits near 30 (free) or 300 (paid), raise that limit in `lib/ai-usage.ts`. There was one row of usage when the limits were kept on 2026-10-12.
 - [ ] **Read the funnel numbers before and during any ad spend.** `docs/FUNNEL_METRICS.md` and `supabase/queries/funnel.sql`. Fix the size of the first test before it starts, and pause it if 200 paid visits produce no trial.
 - [ ] **Register for GST at A$75,000 turnover.** Not registered as of 2026-10-12, so checkout charges no GST and invoices say "No GST has been charged". Registration is compulsory once turnover reaches A$75,000 in any 12 months, within 21 days of reaching it. When that happens: register with the ATO, add the registration under Stripe Tax, set the prices to tax-inclusive, switch on `automatic_tax` in `app/api/billing/checkout/route.ts`, change the invoice template to say "Tax invoice" and drop the no-GST line, and update the GST wording on `/advisory`.
+
+## Major update: three role-based learning platforms
+
+Separate learning paths for **Bartender**, **Chef** and **Gaming Attendant**, so staff are invited into the path that matches their role rather than only as staff or duty manager. To be weighed over the coming months; not started.
+
+**Do this first:** make the current training less repetitive. The first paid tester (October 2026, week 2) found modules, scenarios and live scenarios repetitive. If one path feels repetitive, three will too, and they will cost three times as much to write.
+
+Questions to work through each time:
+
+- **Is it worth doing?** Which venue types need each role? Does a buyer pay more for three paths, or is it expected at the same price? Would one strong path win more customers?
+- **Who is it for first?** Pick one new role to test against Bartender before committing to all three. Gaming Attendant may only matter to pubs and clubs with gaming rooms.
+- **What is shared and what is role-specific?** Service, sales, complaint handling and RSA could stay common; spirits, food safety and gaming compliance would be separate. Shared content keeps the work down.
+- **Compliance by state.** Gaming (RCG in NSW, RSG in Queensland and Victoria) and food safety (Food Safety Supervisor) have legal content that differs by state. Who checks it is accurate, and who keeps it current?
+- **Content cost.** How many modules, scenarios and live scenarios does a path need to feel complete? Who writes and checks chef and gaming content when the founder's expertise is bar service?
+- **Fixes for repetition apply here too.** Varied question types, branching scenarios, and fewer scenarios that repeat with only the names changed.
+- **What has to change in the product.** A role chosen at invite or onboarding, a separate mastery/ELO score for each path, Manager Console filters and reports by role, and leaderboards by role. Can one person be on two paths?
+- **Pricing and plans.** Are all paths in every plan, or are extra paths an add-on? Check against the seat limits in each plan.
+- **Marketing.** One landing page for each role, or one site that names all three? This affects ad targeting and the copy on every page.
+- **How to know it worked.** Decide the measure before building, for example completion rate per path, trial-to-paid by venue type, or a venue asking for the role unprompted.
+- **Smallest test.** Could one chef or gaming module, inside the current app, show demand before building a whole path?
