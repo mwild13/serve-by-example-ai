@@ -27,6 +27,8 @@ type Tier = {
   monthly: number;
   yearly: number;
   yearlyPerMonth: string;
+  /** Staff seats included; the per-staff price assumes every seat is used. */
+  seats: number;
   trial: boolean;
   featured?: boolean;
   features: string[];
@@ -40,6 +42,7 @@ const TIERS: Tier[] = [
     monthly: 19,
     yearly: 190,
     yearlyPerMonth: "15.83",
+    seats: 1,
     trial: false,
     features: [
       "40 modules across Bartending, Sales and Management",
@@ -55,6 +58,7 @@ const TIERS: Tier[] = [
     monthly: 79,
     yearly: 790,
     yearlyPerMonth: "65.83",
+    seats: 15,
     trial: true,
     featured: true,
     features: [
@@ -71,6 +75,7 @@ const TIERS: Tier[] = [
     monthly: 149,
     yearly: 1490,
     yearlyPerMonth: "124.17",
+    seats: 35,
     trial: true,
     features: [
       "Everything in Venue",
@@ -82,6 +87,16 @@ const TIERS: Tier[] = [
 ];
 
 const dollars = (n: number) => `$${n.toLocaleString("en-AU")}`;
+
+// Buyers compare training tools per staff member, so each plan says what it
+// comes to per person. Assumes every seat is used, and says so.
+function perStaffLine(tier: Tier, billing: "monthly" | "yearly"): string {
+  const monthly = billing === "monthly" ? tier.monthly : tier.yearly / 12;
+  const each = (monthly / tier.seats).toFixed(2);
+  return tier.seats === 1
+    ? `AUD $${each} per person a month.`
+    : `About AUD $${each} per staff member a month, with all ${tier.seats} seats used.`;
+}
 
 export default function PricingPlans() {
   const router = useRouter();
@@ -294,6 +309,7 @@ export default function PricingPlans() {
                     {billing === "monthly" ? "per month" : "per year"}
                   </span>
                 </p>
+                <p className="sbe-mkt-price-perstaff">{perStaffLine(tier, billing)}</p>
                 <p className="sbe-mkt-price-note">
                   {billing === "monthly"
                     ? `Or AUD ${dollars(tier.yearly)} a year, 2 months free.`

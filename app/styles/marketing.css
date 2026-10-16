@@ -3657,6 +3657,14 @@
   color: var(--green-deep);
 }
 
+.sbe-mkt-price-perstaff {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--text);
+}
+
 .sbe-mkt-price-note {
   margin: 0.6rem 0 1.25rem;
   font-size: 0.8rem;
@@ -3775,6 +3783,10 @@
 
 .sbe-mkt-price-col-featured .sbe-mkt-price-currency,
 .sbe-mkt-price-col-featured .sbe-mkt-price-unit,
+.sbe-mkt-price-col-featured .sbe-mkt-price-perstaff {
+  color: var(--nav-cream);
+}
+
 .sbe-mkt-price-col-featured .sbe-mkt-price-note,
 .sbe-mkt-price-col-featured .sbe-mkt-price-alt {
   color: var(--text-light-muted-on-dark);
@@ -4028,6 +4040,7 @@
     min-height: 2.7em;
   }
 
+  .sbe-mkt-price-perstaff,
   .sbe-mkt-price-note {
     min-height: 2.9em;
   }
