@@ -64,13 +64,16 @@ export async function POST(req: Request) {
     options: { redirectTo },
   });
 
-  if (linkError || !linkData?.properties?.action_link) {
+  if (linkError || !linkData?.properties?.hashed_token) {
     if (linkError) console.error("[auth/forgot-password] generateLink failed:", linkError.message);
     // Don't leak "no such user" — respond exactly as if it succeeded.
     return NextResponse.json({ ok: true, message: GENERIC_MESSAGE });
   }
 
-  const proxiedLink = `${appOrigin}/api/auth/verify-redirect?link=${encodeURIComponent(linkData.properties.action_link)}`;
+  // Flat params only. The link used to carry the whole Supabase action link
+  // as one encoded value, and click tracking decoded it on the way through,
+  // so Supabase got the token without its type and showed a blank error page.
+  const proxiedLink = `${appOrigin}/api/auth/verify-redirect?token=${encodeURIComponent(linkData.properties.hashed_token)}&type=recovery`;
   // The address passed a loose format check only, so escape it before it goes into HTML.
   const safeEmail = escapeHtml(email);
   const brevoApiKey = process.env.BREVO_API_KEY;
