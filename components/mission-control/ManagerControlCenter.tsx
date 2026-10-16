@@ -250,7 +250,6 @@ export default function ManagerControlCenter({
   const [selectedStaffId, setSelectedStaffId] = useState("");
   const [coachingDrawerOpen, setCoachingDrawerOpen] = useState(false);
   const [activeAction, setActiveAction] = useState<QuickActionId | null>(null);
-  const [isDirty, setIsDirty] = useState(false);
   const [staffForm, setStaffForm] = useState<NewStaffPayload>({
     name: "",
     role: "New Staff",
@@ -476,13 +475,16 @@ export default function ManagerControlCenter({
       const target = event.target as HTMLElement;
       if (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
+      // A drawer is open: its close button holds focus at first, so letters
+      // typed before clicking into a field must not swap the form.
+      if (activeAction) return;
       const key = event.key.toLowerCase();
       if (key === "a") { event.preventDefault(); setActiveSection("staff"); setActiveAction("add-staff"); setRequestError(""); setRequestSuccess(""); }
       else if (key === "i") { event.preventDefault(); setActiveSection("inventory"); setActiveAction("add-inventory"); setRequestError(""); setRequestSuccess(""); }
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [setActiveSection]);
+  }, [activeAction, setActiveSection]);
 
   // Webhook race-condition guard: when Stripe redirects back with ?checkout=success,
   // the subscription webhook may not have fired yet. Poll the profile for up to 6s
@@ -871,7 +873,6 @@ export default function ManagerControlCenter({
         setRequestSuccess(requestConfig.success);
       }
       setActiveAction(null);
-      setIsDirty(false);
       setStaffForm({ name: "", role: "New Staff", email: "", sendInvite: false });
       // Note: pendingInviteLink intentionally left set so manager can copy it.
       setInventoryForm({ category: "", name: "" });
@@ -1151,7 +1152,7 @@ export default function ManagerControlCenter({
 
         <ActionDrawer
           isOpen={!!activeAction}
-          onClose={() => { setActiveAction(null); setIsDirty(false); }}
+          onClose={() => setActiveAction(null)}
           title={
             activeAction === "add-staff"
               ? "Add staff member"
@@ -1161,7 +1162,6 @@ export default function ManagerControlCenter({
                 ? "Create training program"
               : "Action"
           }
-          isDirty={isDirty}
         >
           {requestSuccess ? <div className="auth-status auth-status-success">{requestSuccess}</div> : null}
           {requestError ? <div className="auth-status auth-status-error">{requestError}</div> : null}
@@ -1220,7 +1220,6 @@ export default function ManagerControlCenter({
                   className="input"
                   value={staffForm.name}
                   onChange={(event) => {
-                    setIsDirty(true);
                     setStaffForm((current) => ({ ...current, name: event.target.value }));
                   }}
                   placeholder="Sarah"
@@ -1233,7 +1232,6 @@ export default function ManagerControlCenter({
                   className="input"
                   value={staffForm.role}
                   onChange={(event) => {
-                    setIsDirty(true);
                     setStaffForm((current) => ({ ...current, role: event.target.value as StaffRole }));
                   }}
                 >
@@ -1251,7 +1249,6 @@ export default function ManagerControlCenter({
                   type="email"
                   value={staffForm.email ?? ""}
                   onChange={(event) => {
-                    setIsDirty(true);
                     setStaffForm((current) => ({ ...current, email: event.target.value }));
                   }}
                   placeholder="staff@venue.com"
@@ -1262,7 +1259,6 @@ export default function ManagerControlCenter({
                   type="checkbox"
                   checked={Boolean(staffForm.sendInvite)}
                   onChange={(event) => {
-                    setIsDirty(true);
                     setStaffForm((current) => ({ ...current, sendInvite: event.target.checked }));
                   }}
                 />
@@ -1282,7 +1278,6 @@ export default function ManagerControlCenter({
                   className="input"
                   value={inventoryForm.category}
                   onChange={(event) => {
-                    setIsDirty(true);
                     setInventoryForm((current) => ({ ...current, category: event.target.value }));
                   }}
                   placeholder="Vodka"
@@ -1295,14 +1290,13 @@ export default function ManagerControlCenter({
                   className="input"
                   value={inventoryForm.name}
                   onChange={(event) => {
-                    setIsDirty(true);
                     setInventoryForm((current) => ({ ...current, name: event.target.value }));
                   }}
                   placeholder="Grey Goose"
                   required
                 />
               </label>
-              <button className="btn btn-primary" type="submit" disabled={isSaving}>
+              <button className="btn btn-primary ops-action-span-full" type="submit" disabled={isSaving}>
                 {isSaving ? "Saving..." : "Save inventory item"}
               </button>
             </form>
@@ -1316,7 +1310,6 @@ export default function ManagerControlCenter({
                   className="input"
                   value={programForm.name}
                   onChange={(event) => {
-                    setIsDirty(true);
                     setProgramForm((current) => ({ ...current, name: event.target.value }));
                   }}
                   placeholder="New Bartender Program"
@@ -1329,7 +1322,6 @@ export default function ManagerControlCenter({
                   className="input"
                   value={programForm.roleTarget}
                   onChange={(event) => {
-                    setIsDirty(true);
                     setProgramForm((current) => ({ ...current, roleTarget: event.target.value }));
                   }}
                   placeholder="Bartenders"
@@ -1342,7 +1334,6 @@ export default function ManagerControlCenter({
                   className="input ops-textarea"
                   value={programForm.description}
                   onChange={(event) => {
-                    setIsDirty(true);
                     setProgramForm((current) => ({ ...current, description: event.target.value }));
                   }}
                   placeholder="Structured onboarding for speed, consistency and premium recommendations."
@@ -1356,7 +1347,6 @@ export default function ManagerControlCenter({
                     className="input"
                     value={step}
                     onChange={(event) => {
-                      setIsDirty(true);
                       setProgramForm((current) => ({
                         ...current,
                         dayPlan: current.dayPlan.map((item, itemIndex) =>

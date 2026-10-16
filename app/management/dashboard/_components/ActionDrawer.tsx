@@ -8,21 +8,16 @@ interface ActionDrawerProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
-  isDirty?: boolean;
 }
 
-export function ActionDrawer({ isOpen, onClose, title, children, isDirty = false }: ActionDrawerProps) {
+export function ActionDrawer({ isOpen, onClose, title, children }: ActionDrawerProps) {
   const drawerRef = useRef<HTMLDivElement>(null);
 
+  // No discard prompt: the forms live in the parent and keep what was typed
+  // until a save succeeds, so closing loses nothing.
   const handleClose = useCallback(() => {
-    if (isDirty) {
-      const confirmed = window.confirm(
-        "You have unsaved changes. Are you sure you want to discard them?"
-      );
-      if (!confirmed) return;
-    }
     onClose();
-  }, [isDirty, onClose]);
+  }, [onClose]);
 
   useEffect(() => {
     if (isOpen) {
@@ -66,10 +61,10 @@ export function ActionDrawer({ isOpen, onClose, title, children, isDirty = false
     if (isOpen) {
       window.addEventListener("keydown", handleKeyDown);
       if (drawerRef.current) {
-        const focusableElements = drawerRef.current.querySelectorAll(
-          "button, [href], input, select, textarea, [tabindex]:not([tabindex=\"-1\"])"
-        );
-        const firstFocusable = focusableElements[0] as HTMLElement;
+        // Start in the first form field, falling back to the close button.
+        const firstFocusable = (drawerRef.current.querySelector(
+          ".ops-action-drawer-body input:not([readonly]), .ops-action-drawer-body select, .ops-action-drawer-body textarea"
+        ) ?? drawerRef.current.querySelector("button")) as HTMLElement | null;
         if (firstFocusable) {
           setTimeout(() => firstFocusable.focus(), 0);
         }
