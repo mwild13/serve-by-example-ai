@@ -131,6 +131,10 @@ function StaffSettingsPanel({
 
       setProfileName(trimmedName);
       setProfileMessage("Name updated successfully.");
+      // The panel takes its starting values from the server page, and it is
+      // remounted each time Settings opens, so refresh the page's data or
+      // the old name comes back until a full reload.
+      router.refresh();
     } catch (updateError) {
       setProfileError(updateError instanceof Error ? updateError.message : "Unable to update name.");
     } finally {
@@ -183,6 +187,8 @@ function StaffSettingsPanel({
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) throw new Error(data.error || "Could not save preferences.");
       setNotifMessage("Notification preferences saved.");
+      // Same as the name: without this, reopening Settings shows the old ticks.
+      router.refresh();
     } catch (err) {
       setNotifError(err instanceof Error ? err.message : "Could not save preferences.");
     } finally {
