@@ -17,7 +17,7 @@
  */
 
 import "server-only";
-import type { User } from "@supabase/supabase-js";
+import type { VerifiedUser } from "@/lib/supabase-server";
 import type { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { VERIFY_QUESTIONS } from "@/lib/verify-questions";
 import { syncMasteryToVenueStaff } from "@/lib/mastery";
@@ -91,7 +91,7 @@ export function gradeAnswer(moduleId: number, questionIndex: number, answer: Ver
  * Follow-up after a quiz run masters a module: manager roster sync, trial
  * activation, and the one-time SBE Elite number.
  */
-export async function afterModuleMastered(admin: AdminClient, user: User, alreadyMastered: boolean): Promise<void> {
+export async function afterModuleMastered(admin: AdminClient, user: VerifiedUser, alreadyMastered: boolean): Promise<void> {
   await syncMasteryToVenueStaff(admin, user.id);
   if (user.email) {
     await maybeMarkTrialActivated(admin, user.email);

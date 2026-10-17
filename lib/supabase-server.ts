@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 import { cookies, headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -131,6 +132,37 @@ export async function getUserFromRequest(req: Request) {
     // Session refresh failed - return null user
     return { user: null, supabase: cookieClient };
   }
+}
+
+export type VerifiedUser = { id: string; email: string | null };
+
+/**
+ * Like getUserFromRequest, but checks a Bearer token's signature in the
+ * Worker against the project's published signing key (cached for 10 minutes)
+ * instead of asking Supabase Auth, which saves a round trip on hot routes.
+ * The trade-off: a token signed out elsewhere still passes until it expires
+ * (an hour at most), so pair it with validateSession. Falls back to
+ * getUserFromRequest when there is no Bearer token, or when the token uses a
+ * shared-secret algorithm, which getClaims checks with Supabase Auth itself.
+ */
+export async function getVerifiedUserFromRequest(req: Request): Promise<VerifiedUser | null> {
+  const authHeader = req.headers.get("authorization");
+  const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+
+  if (token) {
+    const { supabaseUrl, supabaseAnonKey } = getSupabaseEnv();
+    const client = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    const { data, error } = await client.auth.getClaims(token);
+    const claims = data?.claims;
+    if (!error && claims && claims.role === "authenticated" && typeof claims.sub === "string" && claims.sub) {
+      return { id: claims.sub, email: typeof claims.email === "string" ? claims.email : null };
+    }
+  }
+
+  const { user } = await getUserFromRequest(req);
+  return user ? { id: user.id, email: user.email ?? null } : null;
 }
 
 export function createSupabaseMiddlewareClient(

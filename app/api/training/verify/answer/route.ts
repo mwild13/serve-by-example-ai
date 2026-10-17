@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { getUserFromRequest } from "@/lib/supabase-server";
+import { getVerifiedUserFromRequest } from "@/lib/supabase-server";
 import { validateSession } from "@/lib/session";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { getCookieValue } from "@/lib/training-attempt";
@@ -36,7 +36,11 @@ type AdvanceResult = { streak: number; status: "active" | "passed" | "exhausted"
  */
 export async function POST(req: Request) {
   try {
-    const { user } = await getUserFromRequest(req);
+    // Checked in the Worker, not with Supabase Auth: one round trip fewer on
+    // every answer. A signed-out token still passes until it expires (an hour
+    // at most), but only with this device's session cookie: signing in
+    // anywhere else fails the one-device check below.
+    const user = await getVerifiedUserFromRequest(req);
     if (!user) {
       return NextResponse.json({ error: "Unauthorized", code: "UNAUTHORIZED" }, { status: 401 });
     }
