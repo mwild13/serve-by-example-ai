@@ -5,10 +5,10 @@
 
 export type NotificationKind = "weekly_digest" | "sunday_reminder";
 
-export const NOTIFICATION_TIME_ZONE = "Australia/Sydney";
+const NOTIFICATION_TIME_ZONE = "Australia/Sydney";
 
 /** Sydney hours, start inclusive and end exclusive, when each email may go. */
-export const SEND_WINDOWS: Record<NotificationKind, { weekday: number; startHour: number; endHour: number }> = {
+const SEND_WINDOWS: Record<NotificationKind, { weekday: number; startHour: number; endHour: number }> = {
   // Monday 7:00 to 11:59. Missed by noon means skipped: a "Monday morning"
   // summary arriving in the afternoon is worse than none.
   weekly_digest: { weekday: 1, startHour: 7, endHour: 12 },
