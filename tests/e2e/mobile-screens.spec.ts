@@ -42,6 +42,12 @@ for (const screen of SCREENS) {
     // doesn't produce a spurious "regression" against portrait baselines.
     test.skip(testInfo.project.name.includes("landscape"), "Landscape project is for the rotate-overlay test only");
 
+    // The one-off notifications card on Home shows while the QA account has
+    // both emails off; it has its own test below, so keep it out of the
+    // baseline.
+    await page.addInitScript(() => {
+      window.localStorage.setItem("sbe-notif-optin-card-dismissed", "1");
+    });
     await page.goto(screen.path);
     await page.waitForLoadState("networkidle");
     // Elements tagged data-e2e-mask change day to day (streak count, daily
@@ -71,6 +77,25 @@ test("landscape shows the rotate overlay, not app content", async ({ page }, tes
   const overlay = page.locator(".mobile-landscape-guard");
   await expect(overlay).toBeVisible();
   await expect(overlay).toContainText("Rotate your device to continue");
+});
+
+// Assumes the QA account has both notification emails off, as every account
+// does until its owner turns one on.
+test("the notifications card on Home links to Settings and stays dismissed", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.includes("landscape"), "Landscape shows the rotate overlay");
+
+  await page.goto("/mobile/home");
+  await page.evaluate(() => window.localStorage.removeItem("sbe-notif-optin-card-dismissed"));
+  await page.reload();
+  const card = page.getByText("Want a weekly nudge?");
+  await expect(card).toBeVisible();
+  await expect(page.getByRole("link", { name: "Choose in Settings" })).toHaveAttribute("href", "/mobile/settings#notifications");
+
+  await page.getByRole("button", { name: "Dismiss" }).click();
+  await expect(card).toBeHidden();
+  await page.reload();
+  await page.waitForLoadState("networkidle");
+  await expect(card).toBeHidden();
 });
 
 test("portrait phones never show the rotate overlay", async ({ page }, testInfo) => {

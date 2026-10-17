@@ -58,9 +58,9 @@ import { openBillingPortal } from "@/lib/billing-portal";
 //   app/api/profile/delete/route.ts for what is deleted vs kept and why
 //   subscribers and venue owners get a 409 message instead.
 
-function SectionCard({ title, icon: Icon, children }: { title: string; icon: React.ElementType; children: React.ReactNode }) {
+function SectionCard({ id, title, icon: Icon, children }: { id?: string; title: string; icon: React.ElementType; children: React.ReactNode }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "0 20px 20px" }}>
+    <div id={id} style={{ display: "flex", flexDirection: "column", gap: 12, padding: "0 20px 20px", scrollMarginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <Icon size={16} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
         <p style={{ margin: 0, fontSize: 13, fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--text-mobile-muted)" }}>
@@ -233,6 +233,15 @@ export default function SettingsScreen() {
       cancelled = true;
     };
   }, [session.token]);
+
+  // Home's notifications card links to /mobile/settings#notifications. The
+  // section sits below the fold, so bring it into view once the toggles have
+  // loaded.
+  useEffect(() => {
+    if (notifLoaded && window.location.hash === "#notifications") {
+      document.getElementById("notifications")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [notifLoaded]);
 
   async function saveNotification(patch: Partial<{ notifReminders: boolean; notifWeeklyDigest: boolean }>) {
     try {
@@ -507,7 +516,7 @@ export default function SettingsScreen() {
       </SectionCard>
 
       {/* Notifications */}
-      <SectionCard title="Notifications" icon={Bell}>
+      <SectionCard id="notifications" title="Notifications" icon={Bell}>
         <ToggleRow label="Training reminders" checked={notifReminders} disabled={!notifLoaded} onChange={(next) => handleNotifToggle("reminders", next)} />
         <ToggleRow label="Weekly progress digest" checked={notifWeeklyDigest} disabled={!notifLoaded} onChange={(next) => handleNotifToggle("digest", next)} />
       </SectionCard>

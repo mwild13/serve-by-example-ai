@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Bell, Flame, Swords, BrainCircuit, Martini, Award } from "lucide-react";
 import BottomNav from "./BottomNav";
 import MobileScreenShell from "./MobileScreenShell";
+import NotificationOptInCard from "./NotificationOptInCard";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 import { COCKTAILS, COCKTAIL_IMAGES } from "@/lib/cocktails";
@@ -232,6 +233,8 @@ export default function HomeScreen() {
             </div>
           )}
         </div>
+
+        <NotificationOptInCard token={session.token} />
 
         {/* todays-picks-section — this card's 100px-tall image was the
             single biggest vertical-space consumer on the page. iPhone 13
