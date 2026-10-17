@@ -72,6 +72,22 @@ One allowance per account per day, shared by scenario grading, Arena and the AI 
 - A screen that calls an AI route reads that body with `readAiDailyLimit()` and holds it with `useAiDailyLimit()` (`lib/use-ai-daily-limit.ts`). While a limit is held it shows `components/AiLimitNotice.tsx` in place of its error line and keeps its submit button disabled, so nobody retries a request that cannot succeed. Any other 429 is the short burst limit and keeps the "try again in a minute" message.
 - The per-account limit does not cap the month's bill. The budget set in the OpenAI dashboard does.
 
+## 7. Notification Emails
+
+Two opt-in emails, both off until the person turns them on in Settings > Notifications (desktop or mobile), with a confirm dialog. Sent since 2026-10-17.
+
+| Email | When (Sydney time) | What it says |
+|---|---|---|
+| Weekly digest (`notif_weekly_digest`) | Monday, 7:00 to 11:59 | Days trained, quiz answers, modules passed and scenarios over the previous Monday to Sunday; modules mastered out of 40; scenarios due for review |
+| Sunday reminder (`notif_reminders`) | Sunday, 18:00 to 21:59 | One nudge: reviews due, else the next module, else a quick quiz; days trained in the last week |
+
+- **How it runs:** pg_cron calls `POST /api/cron/notifications` every 15 minutes on Sunday and Monday UTC through pg_net, with `x-cron-secret` from Vault (`notifications_cron_secret`). The route compares it with `NOTIFICATIONS_SECRET`, works out what is due (`lib/notifications/schedule.ts`), claims up to 40 people at a time (`claim_notification_batch()`), sends through Brevo and records the result (`finish_notification_batch()`). A send day is never sent twice; a window missed entirely is skipped, not sent late.
+- **Content:** `lib/notifications/emails.ts`, on the shared branded shell. The button opens `/dashboard`, which sends phones on to `/mobile`.
+- **Unsubscribe:** every email has a signed link to `/notifications/unsubscribe` (HMAC with `NOTIFICATIONS_SECRET`, no sign-in) and a `List-Unsubscribe` one-click header for Gmail and Apple Mail. Only a POST changes anything, so link scanners can't unsubscribe people. The page is open from any country.
+- **Opt-in card:** mobile Home shows `NotificationOptInCard` once, while both emails are off, linking to `/mobile/settings#notifications`. Dismissing or tapping it hides it on that device for good. Nobody is emailed about the feature.
+- **Manual run:** the same secret with body `{"force": "weekly_digest"}` or `{"force": "sunday_reminder"}` sends to opted-in people now; `{"dryRun": true}` reports what is due.
+- **Capacity:** 40 per call keeps a call under the Workers Free plan's 50 outbound requests; about 700 to 800 per window. Raise `BATCH_SIZE` after buying Workers Paid.
+
 ## Known Gaps / Drift
 
 - **AI Arena has no chat history** (§3) — guard against assuming streaming or multi-turn conversation when extending it.

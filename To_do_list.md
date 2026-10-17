@@ -25,6 +25,7 @@ Grouped by where you sign in. None of these can be done from the code.
 
 ### Supabase
 
+- [ ] **Switch on the digest and reminder emails (built 2026-10-17).** In this order: (1) SQL Editor, run `supabase/migrations/20261017_notification_sender.sql`. (2) Project Settings, Vault, reveal `notifications_cron_secret` and copy it. (3) Cloudflare, Workers & Pages, the project, Settings, Variables and Secrets: add `NOTIFICATIONS_SECRET` as a Secret for Production and Preview. (4) Redeploy. (5) Turn on the weekly digest on your own staff account and send one with the SQL in `docs/handoff/2026-10-week4-handoff.md` (Part 2, step 5). (6) Unsubscribe from that email and check the toggle is off. Nothing sends until steps 1 to 4 are done.
 
 ### Google
 
@@ -50,6 +51,7 @@ Everything under "On a computer" below can be done on a laptop. Use a normal win
 
 ### On an iPhone, signed in
 
+- [ ] **Notifications card on Home.** Added 2026-10-17. With both emails off, Home shows "Want a weekly nudge?" under the warm-up. "Choose in Settings" opens Settings scrolled to Notifications; the X hides it; neither brings it back after a reload.
 - [ ] **AI photo.** The face oval, and a saved photo showing on Home without a reload.
 - [ ] **`/mobile` at full width.** The frame no longer leaves a strip down each side; no screen was seen behind a login after the change.
 - [ ] **Text fields.** In Settings, tap each field: no "rotate your device" screen. Go back to Me: the screen does not move sideways. Turn the phone on its side: the rotate screen still appears.
@@ -90,7 +92,6 @@ Nothing open. The five that were here were decided on 2026-10-12 (Part 13 of the
 
 ## 7. Larger builds
 
-- [ ] **Weekly digest and Sunday reminder sender.** Settings lets staff opt in and the confirmation email promises "every Monday morning" / "every Sunday night", but nothing sends them (0 opted in on 2026-10-05). Cloudflare Pages has no cron and `pg_cron` is not installed, so this needs `pg_cron` plus an Edge Function, or a scheduled Worker. Send only to profiles with the flag true. Once it works, add a one-off, dismissible opt-in card on mobile Home linking to Settings > Notifications. Don't email people about it, since they haven't consented.
 
 ## Parked
 

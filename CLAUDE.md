@@ -142,6 +142,7 @@ Cross-cutting auth/utility routes not owned by a single domain doc:
 | `/reset-password` | Password reset |
 | `/geo-block` | Geo-restricted access page (see `docs/MARKETING_SITE.md` for a routing nuance — the geo-block middleware's actual redirect target is `/restricted`, not this page) |
 | `/restricted` | General access-denied page |
+| `/notifications/unsubscribe` | Signed unsubscribe link from the digest and reminder emails; no sign-in, open from any country |
 
 Domain-specific app pages (`/dashboard`, `/management/dashboard`, etc.) are documented in `docs/STAFF_APP.md` and `docs/MANAGER_CONSOLE.md`.
 
