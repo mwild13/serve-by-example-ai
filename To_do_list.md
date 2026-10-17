@@ -8,7 +8,7 @@ Regrouped on 2026-10-12 by who does the work and where. Background for the launc
 
 Small changes, in the order they will be done. Each goes to a preview branch first.
 
-- [ ] **Quiz answers lag on desktop.** Raised by Richie (first paid tester, October 2026). Each True/False answer waits on three database calls in a row in `app/api/training/verify/answer/route.ts`: the sign-in check, then the session and quiz lookup, then the grading call. Cut it to two by running the session check alongside the sign-in check, or move the quiz lookup into the `advance_verify_attempt` database function. It is a security-sensitive route (audit C4), so it needs its own preview branch and a re-test of the quiz.
+- [ ] **Quiz answers lag on desktop.** Raised by Richie (first paid tester, October 2026). Each True/False answer waits on three database calls in a row in `app/api/training/verify/answer/route.ts`: the sign-in check, then the session and quiz lookup, then the grading call. Cut it to two by running the session check alongside the sign-in check, or move the quiz lookup into the `advance_verify_attempt` database function. It is a security-sensitive route (audit C4), so it needs its own preview branch and a re-test of the quiz. Measured on 2026-10-17 from the Supabase logs: Postgres runs each answer in about 3 ms, but after a pause each of the three calls took 0.5 to 1.9 s at Supabase (about 3 s an answer), then dropped under 0.1 s once warm. So fewer calls helps most; Supabase Pro's dedicated compute may also cut the warm-up stalls. Checking the sign-in locally (`getClaims`, if the project uses the new JWT signing keys) would remove another call.
 
 
 ## 2. Marketing copy
@@ -42,13 +42,12 @@ Three sittings cover every unconfirmed fix.
 
 Everything under "On a computer" below can be done on a laptop. Use a normal window for the manager account and a private window for the staff account, so both stay signed in.
 
-1. **Invite a new staff member.** Manager Console, Staff, Add staff, with a new email and the invite box ticked. In the email (private window): accept, finish onboarding, and confirm the person shows on the roster. This covers the invite email, the join link on a computer, and `/login` account creation.
-2. **Add staff drawer, after the 2026-10-17 fix.** Not live until the fix is pushed. Open Add staff and type straight away: the cursor starts in Staff name and typing an "i" no longer switches to Add inventory. Close with text typed: no "unsaved changes" pop-up, and reopening shows the text still there.
-3. **As that staff member:** answer a quiz question, then as the manager reload Overview (daily training card) and the Staff tab (status reads "On track").
-4. **Staff screens after the stylesheet split**, then `/dashboard` narrow, Password reset, Change-email confirmation, Demo, and AI limit.
-5. **Manager screens:** the redesigned console, the console after the stylesheet split, and the trial chip.
-6. **Resend the invite** from the console and check both emails in Gmail and on your phone, then send the contact, book-a-call and ROI emails.
-7. **Roster unlink** last, by deleting the test staff account.
+1. **Add staff drawer, after the 2026-10-17 fix.** Open Add staff and type straight away: the cursor starts in Staff name and typing an "i" no longer switches to Add inventory. Close with text typed: no "unsaved changes" pop-up, and reopening shows the text still there.
+2. **As the invited staff member:** answer a quiz question, then as the manager reload Overview (daily training card) and the Staff tab (status reads "On track").
+3. **Staff screens after the stylesheet split**, then `/dashboard` narrow, Demo, and AI limit.
+4. **Manager screens:** the redesigned console, the console after the stylesheet split, and the trial chip.
+5. **Resend the invite** from the console and check both emails in Gmail and on your phone, then send the contact, book-a-call and ROI emails.
+6. **Roster unlink** last, by deleting the test staff account.
 
 ### On an iPhone, signed in
 
@@ -66,19 +65,14 @@ Everything under "On a computer" below can be done on a laptop. Use a normal win
 ### On a computer, as staff
 
 - [ ] **The restyled emails.** Changed 2026-10-12, not seen in an inbox. Send yourself one of each: a staff invite and a resend from the Manager Console, the contact form, the book-a-call form, and the ROI calculator's "email me this". Check them in Gmail and on a phone.
-- [ ] **Change-email confirmation.** Sign-up confirmation was checked on 2026-10-16. In Settings, change a test account's email to another address you own: the branded "Confirm your new email" should arrive there, and the button should switch the address.
-- [ ] **`/login`.** Only its layout was checked. Sign in, create an account, and use Google (that return trip may pass through `www`).
-- [ ] **Password reset.** Request a reset and follow the link: it should open the new-password screen. That screen was restyled on 2026-10-12 to match `/login`; set a new password on it once. The 2026-10-12 email pointed at the Site URL; the URL Configuration was changed the same day.
 - [ ] **`/dashboard` when narrow.** At about 700px and 375px: the nav sits on top as a wrapped row, every item opens, Sign out is reachable, nothing scrolls sideways.
 - [ ] **Join link** on a computer, as on the phone.
 - [ ] **Demo against the live evaluator.** Submit one real answer on `/demo` and `/demo/complaint-master`, and confirm the feedback has no em dashes.
 - [ ] **AI limit.** 30 requests a day on the free tier, 300 on paid (`lib/ai-usage.ts`). Changed 2026-10-12, not seen in a browser: at the limit the screen should say how many hours until it resets, keep the submit button disabled, and on a free account link to the plans. To reach it quickly, raise a test account's `request_count` in `ai_usage_daily` to 30.
 - [ ] **Upgrade from Pro to a venue plan.** Needs the Stripe setting in section 3. In test mode, as a Pro account, press a Boutique button on `/membership`: Stripe's page should show the prorated charge. Pay, and confirm you land on the Manager Console billing tab on Boutique with 15 seats and an organisation created.
 - [ ] **Server errors reach Sentry.** Browser errors and the alert email were confirmed on 2026-10-16. Open one browser test error in Sentry and confirm no IP address shows, then resolve both. When a server error first occurs, confirm it arrives tagged `runtime: server`: if none ever comes from a page render, the `onRequestError` hook is not running under OpenNext and only the billing and AI routes report.
-- [ ] **Console after accepting cookies.** On the live site accept cookies and check the browser console for blocked requests. The Google hosts in `connect-src` were widened on 2026-10-12.
 - [ ] **Roster unlink on account deletion.** Delete a test staff account that is on a venue roster, then confirm its `venue_staff` row is kept with `staff_user_id` null and `organization_members` is marked `removed`.
 
-- [ ] **Richie's feedback fixes (2026-10-17).** Cocktail library: a bookmark survives a reload, the Bookmarked filter lists only bookmarks, and Remove bookmark works. Photos show on the library cards, in the open cocktail, and on Home's two "Today's cocktail" cards. "Weakest area" now reads "Focus area" on Home, Progress and the console's Teams table. A new staff member added as "jo smith" shows as "Jo Smith".
 
 - [ ] **The staff app after the stylesheet split.** Live since 2026-10-14, checked on every public page but not behind a login. Click through each `/dashboard` screen and each `/mobile` screen and look for anything unstyled or laid out differently. Then go from the home page to `/login` to `/dashboard` without reloading and check the same.
 
@@ -137,6 +131,13 @@ From Richie, a venue manager with 20 years in busy venues and the first paid tes
 - [ ] **Venue content: the manager adds this season's drinks.** His main point: once staff finish training the app is forgotten, so it needs regular updates to justify a monthly fee. Let a manager add their own cocktail specs, new products and menu changes in the console; the app turns each into a short quiz and sends it to their staff. Builds on venue inventory linking. This keeps training fresh without us writing new content every month. Decide first: does the AI write the quiz from the spec, and does the manager approve it before staff see it?
 - [ ] **Pricing.** He suggested $10 to $20 per user per month. Today Boutique is $79 for 15 seats (about $5.27 each) and Commercial $149 for 35 (about $4.26). Typsy lists about US$12.50 per member. Do not raise prices on one opinion; once there are more trials, test a higher price on new sign-ups only.
 - [ ] **Videos in the cocktail library.** He asked for photos (done) or videos. Filming and hosting 38 drinks is a content project; leave it until a venue asks again.
+
+### Onboarding upgrades
+
+Onboarding was cut to the venue code alone on 2026-10-17: the venue type and experience questions were saved but nothing read them. Any question added back must change what the person sees.
+
+- [ ] **"When should we remind you?"** One onboarding step: pick a daily time (for example before a shift), then a reminder to do the day's training. On a phone, follow it with the "Add to home screen" prompt, since reminders on iPhone need the installed app. A daily habit is what keeps staff coming back after the first week, which is the tester's "the app is forgotten" problem. Needs push notifications (web push for the installed app) or a reminder email first, so do not ask for a time until something sends at that time. Show the manager who has reminders on.
+- [ ] **Skill check of 5 to 8 questions in place of "How much experience?".** About two minutes, drawn from the start of each module. The score sets each module's starting mastery level, so an experienced bartender skips the basics and a beginner starts at the start, which works on the repetition the tester reported. The manager sees each new hire's starting score per module on day one. Ends onboarding with the person already training. Needs a way to write a starting level into the mastery engine (`docs/MASTERY_ENGINE.md`) without counting it as practice.
 
 ## Important
 
