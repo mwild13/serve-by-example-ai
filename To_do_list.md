@@ -9,7 +9,8 @@ Regrouped on 2026-10-12 by who does the work and where. Background for the launc
 Small changes, in the order they will be done. Each goes to a preview branch first.
 
 - [ ] **Quiz answers lag on desktop.** Raised by Richie (first paid tester, October 2026). Each True/False answer waits on three database calls in a row in `app/api/training/verify/answer/route.ts`: the sign-in check, then the session and quiz lookup, then the grading call. Cut it to two by running the session check alongside the sign-in check, or move the quiz lookup into the `advance_verify_attempt` database function. It is a security-sensitive route (audit C4), so it needs its own preview branch and a re-test of the quiz. Measured on 2026-10-17 from the Supabase logs: Postgres runs each answer in about 3 ms, but after a pause each of the three calls took 0.5 to 1.9 s at Supabase (about 3 s an answer), then dropped under 0.1 s once warm. So fewer calls helps most; Supabase Pro's dedicated compute may also cut the warm-up stalls. Checking the sign-in locally (`getClaims`, if the project uses the new JWT signing keys) would remove another call.
-
+- [ ] **Bring the trial-ended modal onto the console standard.** `components/mission-control/TrialExpiredModal.tsx`, last changed 2026-07-22: all inline styles, from before the October redesign. It is the screen a manager sees when the trial runs out, so it is also a conversion screen (`/conversion-ui`).
+- [ ] **Restyle the Add staff, Add inventory and Add program drawers.** Their forms (`ops-action-form`) and the invite link panel (`ops-invite-link-*`) still use the pre-October classes, restyled only by override rules at the end of `app/styles/management.css`.
 
 ## 2. Marketing copy
 
@@ -43,10 +44,8 @@ Three sittings cover every unconfirmed fix.
 
 Everything under "On a computer" below can be done on a laptop. Use a normal window for the manager account and a private window for the staff account, so both stay signed in.
 
-1. **Staff screens after the stylesheet split**, then `/dashboard` narrow and AI limit, as info@servebyexample.co.
-2. **Digest and reminder test send** on info@ (it has a week of training to report). See the Supabase item in section 3.
-3. **Manager screens:** the trial chip.
-4. **Roster unlink** last, by deleting info@ once nothing else needs a venue-linked staff account.
+1. **Digest and reminder test send** on info@ (it has a week of training to report). See the Supabase item in section 3.
+2. **Roster unlink** last, by deleting info@ once nothing else needs a venue-linked staff account.
 
 ### On an iPhone, signed in
 
@@ -64,19 +63,12 @@ Everything under "On a computer" below can be done on a laptop. Use a normal win
 
 ### On a computer, as staff
 
-- [ ] **`/dashboard` when narrow.** At about 700px and 375px: the nav sits on top as a wrapped row, every item opens, Sign out is reachable, nothing scrolls sideways.
+- [ ] **Open cocktail, desktop.** Changed 2026-10-17. From 640px wide the photo sits left of the recipe, and Bookmark and Close stay pinned at the bottom without scrolling.
+- [ ] **Staff profile in the console.** Rebuilt 2026-10-17. Click a staff row: name and role, last trained, account state, modules passed out of 40 with a bar, scores, milestones and certificates. No Sales score, 20-square grid or boxed badges.
 - [ ] **Join link** on a computer, as on the phone.
-- [ ] **AI limit.** 30 requests a day on the free tier, 300 on paid (`lib/ai-usage.ts`). Changed 2026-10-12, not seen in a browser: at the limit the screen should say how many hours until it resets, keep the submit button disabled, and on a free account link to the plans. To reach it quickly, raise a test account's `request_count` in `ai_usage_daily` to 30.
 - [ ] **Upgrade from Pro to a venue plan.** Needs the Stripe setting in section 3. In test mode, as a Pro account, press a Boutique button on `/membership`: Stripe's page should show the prorated charge. Pay, and confirm you land on the Manager Console billing tab on Boutique with 15 seats and an organisation created.
 - [ ] **Server errors reach Sentry.** Browser errors and the alert email were confirmed on 2026-10-16. Open one browser test error in Sentry and confirm no IP address shows, then resolve both. When a server error first occurs, confirm it arrives tagged `runtime: server`: if none ever comes from a page render, the `onRequestError` hook is not running under OpenNext and only the billing and AI routes report.
 - [ ] **Roster unlink on account deletion.** Delete a test staff account that is on a venue roster, then confirm its `venue_staff` row is kept with `staff_user_id` null and `organization_members` is marked `removed`.
-
-
-- [ ] **The staff app after the stylesheet split.** Live since 2026-10-14, checked on every public page but not behind a login. Click through each `/dashboard` screen and each `/mobile` screen and look for anything unstyled or laid out differently. Then go from the home page to `/login` to `/dashboard` without reloading and check the same.
-
-### On a computer, as a manager
-
-- [ ] **Trial chip on the collapsed sidebar.** Added 2026-10-12, not seen. On a trial account, collapse the sidebar: a small chip with the days left should sit above Settings and open Billing.
 
 ## 5. Owner: decisions
 
@@ -89,7 +81,6 @@ Nothing open. The five that were here were decided on 2026-10-12 (Part 13 of the
 - [ ] **An e2e test from sign-up through checkout.** Nothing tests the payment path.
 
 ## 7. Larger builds
-
 
 ## Parked
 
