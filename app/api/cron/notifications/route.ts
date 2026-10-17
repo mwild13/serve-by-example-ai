@@ -3,6 +3,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
 import { reportError } from "@/lib/report-error";
 import { siteOrigin } from "@/lib/site-url";
+import { nameFromEmail } from "@/lib/person-name";
 import { sendScheduledEmail } from "@/lib/notifications/brevo";
 import { sundayReminderEmail, weeklyDigestEmail, type NotificationStats } from "@/lib/notifications/emails";
 import { dueSends, isNotificationKind, sendFor, sydneyTime, type DueSend } from "@/lib/notifications/schedule";
@@ -72,7 +73,8 @@ async function runSend(send: DueSend, secret: string, brevoApiKey: string, origi
     rows.map(async (row) => {
       const token = await unsubscribeToken(secret, row.user_id, flag);
       const stats: NotificationStats = {
-        displayName: row.display_name,
+        // No name set yet: use the one the app shows elsewhere (info@ reads "Info").
+        displayName: row.display_name?.trim() || nameFromEmail(row.email) || null,
         daysTrained: row.days_trained,
         quizAnswers: row.quiz_answers,
         quizzesPassed: row.quizzes_passed,
