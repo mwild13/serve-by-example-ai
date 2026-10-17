@@ -1152,6 +1152,26 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   border-radius: 15px 15px 0 0;
   overflow: hidden;
 }
+/* Open cocktail (DetailSheet in CocktailLibrary.tsx): photo above the recipe
+   on a phone, beside it from 640px so the card fits a laptop screen. */
+.cocktail-sheet-photo {
+  position: relative;
+  width: 100%;
+  max-width: 240px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto 16px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+@media (min-width: 640px) {
+  .cocktail-sheet-main {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
+  .cocktail-sheet-photo { max-width: none; margin: 0 0 14px; }
+}
 .cocktail-card-header {
   display: flex;
   align-items: flex-start;

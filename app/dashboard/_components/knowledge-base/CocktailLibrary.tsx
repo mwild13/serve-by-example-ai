@@ -147,40 +147,44 @@ function DetailSheet({
         {/* scrollable body */}
         <div style={{ overflowY: "auto", WebkitOverflowScrolling: "touch" as const, flex: 1, padding: "16px 20px" }}>
 
-          {photo && (
-            <div style={{ position: "relative", width: "100%", maxWidth: 300, aspectRatio: "1 / 1", margin: "0 auto 16px", borderRadius: 10, overflow: "hidden" }}>
-              <Image src={photo} alt={cocktail.name} fill sizes="300px" style={{ objectFit: "cover" }} />
-            </div>
-          )}
-
-          {/* Ingredients + Method side by side on wider, stacked on narrow */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
-            <div>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "var(--color-warm-tan)", textTransform: "uppercase", marginBottom: 7 }}>
-                Ingredients
+          {/* Photo beside the recipe from 640px up, so the whole card fits a
+              laptop screen; stacked above it on a phone (staff.css). */}
+          <div className={photo ? "cocktail-sheet-main" : undefined}>
+            {photo && (
+              <div className="cocktail-sheet-photo">
+                <Image src={photo} alt={cocktail.name} fill sizes="(max-width: 639px) 240px, 220px" style={{ objectFit: "cover" }} />
               </div>
-              <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 5 }}>
-                {cocktail.ingredients.map((ing) => (
-                  <li key={ing} style={{ fontSize: 13, color: "var(--color-warm-dark)", lineHeight: 1.35, display: "flex", alignItems: "flex-start", gap: 6 }}>
-                    <span style={{ color: "var(--color-warm-tan)", flexShrink: 0, marginTop: 1 }}>·</span>
-                    {ing}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {[
-                { label: "Method",  value: cocktail.method  },
-                { label: "Glass",   value: cocktail.glass   },
-                { label: "Garnish", value: cocktail.garnish },
-              ].map(({ label, value }) => (
-                <div key={label}>
-                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "var(--color-warm-mid)", textTransform: "uppercase", marginBottom: 3 }}>
-                    {label}
-                  </div>
-                  <div style={{ fontSize: 13, color: "var(--color-warm-dark)", lineHeight: 1.4 }}>{value}</div>
+            )}
+
+            {/* Ingredients + Method side by side */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+              <div>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "var(--color-warm-tan)", textTransform: "uppercase", marginBottom: 7 }}>
+                  Ingredients
                 </div>
-              ))}
+                <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 5 }}>
+                  {cocktail.ingredients.map((ing) => (
+                    <li key={ing} style={{ fontSize: 13, color: "var(--color-warm-dark)", lineHeight: 1.35, display: "flex", alignItems: "flex-start", gap: 6 }}>
+                      <span style={{ color: "var(--color-warm-tan)", flexShrink: 0, marginTop: 1 }}>·</span>
+                      {ing}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {[
+                  { label: "Method",  value: cocktail.method  },
+                  { label: "Glass",   value: cocktail.glass   },
+                  { label: "Garnish", value: cocktail.garnish },
+                ].map(({ label, value }) => (
+                  <div key={label}>
+                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "var(--color-warm-mid)", textTransform: "uppercase", marginBottom: 3 }}>
+                      {label}
+                    </div>
+                    <div style={{ fontSize: 13, color: "var(--color-warm-dark)", lineHeight: 1.4 }}>{value}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -190,44 +194,50 @@ function DetailSheet({
             border: "1px solid var(--border-green-light)",
             borderRadius: 8,
             padding: "12px 14px",
-            marginBottom: 16,
           }}>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "var(--green-gradient-mid)", textTransform: "uppercase", marginBottom: 5 }}>
               Training Tip
             </div>
             <p style={{ margin: 0, fontSize: 13, color: "var(--roi-forest)", lineHeight: 1.5 }}>{cocktail.tip}</p>
           </div>
+        </div>
 
-          {/* CTA row */}
-          <div style={{ display: "flex", gap: 10, paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
-            <button
-              style={{
-                flex: 1, padding: "12px 0",
-                background: bookmarked ? "transparent" : "var(--ip-green)",
-                color: bookmarked ? "var(--ip-green)" : "var(--surface-raised)",
-                border: bookmarked ? "1.5px solid var(--ip-green)" : "none",
-                borderRadius: 6,
-                fontSize: 14, fontWeight: 600, cursor: "pointer",
-              }}
-              onClick={onToggleBookmark}
-              aria-pressed={bookmarked}
-            >
-              {bookmarked ? "Remove bookmark" : "Bookmark"}
-            </button>
-            <button
-              style={{
-                flex: 1, padding: "12px 0",
-                background: "transparent",
-                color: "var(--color-warm-dark)",
-                border: "1.5px solid var(--border-cocktail)",
-                borderRadius: 6,
-                fontSize: 14, fontWeight: 600, cursor: "pointer",
-              }}
-              onClick={onClose}
-            >
-              Close
-            </button>
-          </div>
+        {/* Actions sit outside the scrolling body, so they are always on
+            screen however long the recipe is. */}
+        <div
+          style={{
+            display: "flex", gap: 10, flexShrink: 0,
+            padding: "12px 20px calc(12px + env(safe-area-inset-bottom, 0px))",
+            borderTop: "1px solid var(--border-warm-soft)",
+          }}
+        >
+          <button
+            style={{
+              flex: 1, padding: "12px 0",
+              background: bookmarked ? "transparent" : "var(--ip-green)",
+              color: bookmarked ? "var(--ip-green)" : "var(--surface-raised)",
+              border: bookmarked ? "1.5px solid var(--ip-green)" : "none",
+              borderRadius: 6,
+              fontSize: 14, fontWeight: 600, cursor: "pointer",
+            }}
+            onClick={onToggleBookmark}
+            aria-pressed={bookmarked}
+          >
+            {bookmarked ? "Remove bookmark" : "Bookmark"}
+          </button>
+          <button
+            style={{
+              flex: 1, padding: "12px 0",
+              background: "transparent",
+              color: "var(--color-warm-dark)",
+              border: "1.5px solid var(--border-cocktail)",
+              borderRadius: 6,
+              fontSize: 14, fontWeight: 600, cursor: "pointer",
+            }}
+            onClick={onClose}
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>
