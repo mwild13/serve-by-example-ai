@@ -43,11 +43,10 @@ Three sittings cover every unconfirmed fix.
 Everything under "On a computer" below can be done on a laptop. Use a normal window for the manager account and a private window for the staff account, so both stay signed in.
 
 1. **Add staff drawer, after the 2026-10-17 fix.** Open Add staff and type straight away: the cursor starts in Staff name and typing an "i" no longer switches to Add inventory. Close with text typed: no "unsaved changes" pop-up, and reopening shows the text still there.
-2. **As the invited staff member:** answer a quiz question, then as the manager reload Overview (daily training card) and the Staff tab (status reads "On track").
-3. **Staff screens after the stylesheet split**, then `/dashboard` narrow, Demo, and AI limit.
-4. **Manager screens:** the redesigned console, the console after the stylesheet split, and the trial chip.
-5. **Resend the invite** from the console and check both emails in Gmail and on your phone, then send the contact, book-a-call and ROI emails.
-6. **Roster unlink** last, by deleting the test staff account.
+2. **Staff screens after the stylesheet split**, then `/dashboard` narrow and AI limit.
+3. **Manager screens:** the trial chip.
+4. **Resend the invite** from the console and check both emails in Gmail and on your phone, then send the contact, book-a-call and ROI emails.
+5. **Roster unlink** last, by deleting the test staff account.
 
 ### On an iPhone, signed in
 
@@ -67,7 +66,6 @@ Everything under "On a computer" below can be done on a laptop. Use a normal win
 - [ ] **The restyled emails.** Changed 2026-10-12, not seen in an inbox. Send yourself one of each: a staff invite and a resend from the Manager Console, the contact form, the book-a-call form, and the ROI calculator's "email me this". Check them in Gmail and on a phone.
 - [ ] **`/dashboard` when narrow.** At about 700px and 375px: the nav sits on top as a wrapped row, every item opens, Sign out is reachable, nothing scrolls sideways.
 - [ ] **Join link** on a computer, as on the phone.
-- [ ] **Demo against the live evaluator.** Submit one real answer on `/demo` and `/demo/complaint-master`, and confirm the feedback has no em dashes.
 - [ ] **AI limit.** 30 requests a day on the free tier, 300 on paid (`lib/ai-usage.ts`). Changed 2026-10-12, not seen in a browser: at the limit the screen should say how many hours until it resets, keep the submit button disabled, and on a free account link to the plans. To reach it quickly, raise a test account's `request_count` in `ai_usage_daily` to 30.
 - [ ] **Upgrade from Pro to a venue plan.** Needs the Stripe setting in section 3. In test mode, as a Pro account, press a Boutique button on `/membership`: Stripe's page should show the prorated charge. Pay, and confirm you land on the Manager Console billing tab on Boutique with 15 seats and an organisation created.
 - [ ] **Server errors reach Sentry.** Browser errors and the alert email were confirmed on 2026-10-16. Open one browser test error in Sentry and confirm no IP address shows, then resolve both. When a server error first occurs, confirm it arrives tagged `runtime: server`: if none ever comes from a page render, the `onRequestError` hook is not running under OpenNext and only the billing and AI routes report.
@@ -78,11 +76,7 @@ Everything under "On a computer" below can be done on a laptop. Use a normal win
 
 ### On a computer, as a manager
 
-- [ ] **Daily training card.** The migration ran on 2026-10-15. On Overview, the card above Team activity should show bars for days staff trained since 2026-10-02, with today in bold. Answer a quiz question on a staff account and reload: today's bar should count that person.
 - [ ] **Trial chip on the collapsed sidebar.** Added 2026-10-12, not seen. On a trial account, collapse the sidebar: a small chip with the days left should sit above Settings and open Billing.
-- [ ] **Status after the recalculation.** Changed 2026-10-12. On the Staff tab, someone quiet for 14 days should read "Needs follow-up", and someone who trained this week "On track", whatever they showed before.
-- [ ] **The console after the stylesheet split.** Same check as the staff app: every tab, the drawers, the invite panel and Settings should look as they did.
-- [ ] **The redesigned console.** It went to production on 2026-10-09 having only been viewed with sample data. Go through every tab, the collapsed sidebar, the account menu and Sign out, and ask the AI Coach a question then use New chat.
 
 ## 5. Owner: decisions
 
