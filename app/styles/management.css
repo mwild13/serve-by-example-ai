@@ -408,9 +408,6 @@
   resize: vertical;
 }
 
-.ops-subhead {
-  color: var(--green-deep);
-}
 
 .ops-empty-state {
   display: flex;
@@ -558,11 +555,6 @@
 /* ── Management status badge system ─────────────────────
    Three operational states + blocked. Apply to <span> elements. */
 
-.ops-grid-two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
 
 /* ── Action & Coaching Drawers ─────────────────── */
 
@@ -595,8 +587,7 @@
   transform: translateX(0);
 }
 
-.ops-action-drawer-header,
-.ops-coaching-drawer-header {
+.ops-action-drawer-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -605,8 +596,7 @@
   flex-shrink: 0;
 }
 
-.ops-action-drawer-close,
-.ops-coaching-drawer-close {
+.ops-action-drawer-close {
   background: none;
   border: none;
   cursor: pointer;
@@ -618,35 +608,16 @@
   transition: color 0.2s;
 }
 
-.ops-action-drawer-close:hover,
-.ops-coaching-drawer-close:hover {
+.ops-action-drawer-close:hover {
   color: var(--text);
 }
 
-.ops-action-drawer-body,
-.ops-coaching-drawer-body {
+.ops-action-drawer-body {
   padding: 24px;
   flex: 1;
   overflow-y: auto;
 }
 
-.ops-coaching-list {
-  list-style: none;
-  margin: 6px 0 0;
-  padding: 0;
-  display: grid;
-  gap: 4px;
-  font-size: 0.85rem;
-  color: var(--text-soft);
-}
-
-.ops-subhead {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 0.84rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
 
 /* ── Invite link panel ─────────────────────── */
 
@@ -793,46 +764,6 @@
 
 /* ── Staff Badges / Gamification ───────────────── */
 
-.ops-badge-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 8px;
-  margin-bottom: 4px;
-}
-
-.ops-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 11px;
-  border-radius: var(--radius-pill);
-  font-size: 0.78rem;
-  font-weight: 600;
-  border: 1px solid transparent;
-  transition: opacity 0.2s;
-}
-
-.ops-badge-earned {
-  background: var(--gold-light);
-  color: var(--gold);
-  border-color: rgba(169, 129, 42, 0.25);
-}
-
-.ops-badge-locked {
-  background: var(--bg-alt);
-  color: var(--text-muted);
-  opacity: 0.45;
-  filter: grayscale(0.8);
-}
-
-/* ── Management dashboard responsive ──────────── */
-
-@media (max-width: 600px) {
-  .ops-badge-list {
-    gap: 4px;
-  }
-}
 
 /* ── Early access section ─────────────────────── */
 
@@ -857,7 +788,6 @@
   }
 
   .ops-grid-main,
-  .ops-grid-two-col,
   .ops-action-form,
   .ops-action-form-wide,
   .ops-invite-form {
@@ -2559,36 +2489,118 @@ button.mc-topbar-avatar:focus-visible { outline: 2px solid var(--green); outline
 
 .mc-shell .ops-staff-avatar { width: 36px; height: 36px; background: var(--green-light); color: var(--green-deep); font-size: var(--mc-label-size); font-weight: 600; letter-spacing: 0; }
 
-/* Staff profile drawer */
+/* Staff profile drawer (CoachingDrawer.tsx, rebuilt 2026-10-17). Sections
+   are divided by hairlines; the one large figure is modules passed. */
 
-.mc-shell .ops-coaching-drawer-body .mc-stat { padding: 14px 16px 16px; }
+.mc-profile { background: var(--mc-surface); }
 
-.mc-shell .ops-coaching-drawer-body .mc-stats { grid-template-columns: repeat(4, 1fr); margin-bottom: 4px; }
-
-.mc-shell .ops-coaching-drawer-body .mc-figure { font-size: 1.375rem; }
-
-.mc-shell .ops-badge-list .ops-badge {
+.mc-profile-head {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  padding: 10px 14px;
-  border: 1px solid var(--mc-line);
-  border-radius: var(--mc-radius-sm);
-  background: transparent;
-  font-size: 0.9375rem;
-  color: var(--mc-text-muted);
-  opacity: 1;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px 28px 22px;
+  border-bottom: 1px solid var(--mc-line);
+  flex-shrink: 0;
 }
 
-.mc-shell .ops-badge-list .ops-badge svg { flex-shrink: 0; margin-top: 2px; color: var(--mc-line); }
+.mc-profile-id { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 
-.mc-shell .ops-badge-list .ops-badge-earned { color: var(--mc-text); }
+.mc-profile-id .mc-caps { margin: 0; }
 
-.mc-shell .ops-badge-list .ops-badge-earned svg { color: var(--green); }
+.mc-profile-name {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--mc-text);
+  overflow-wrap: anywhere;
+}
 
-.ops-badge-label { font-weight: 500; }
+.mc-profile-status { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; margin-top: 4px; }
 
-.ops-badge-sub { font-size: var(--mc-label-size); color: var(--mc-text-muted); }
+.mc-profile-account { font-size: 0.875rem; color: var(--mc-text-muted); }
+
+.mc-profile-body { flex: 1; overflow-y: auto; padding: 0 28px 28px; }
+
+.mc-profile-section { padding: 22px 0; border-bottom: 1px solid var(--mc-line-soft); }
+
+.mc-profile-section:last-of-type { border-bottom: none; }
+
+.mc-profile-label { margin: 0 0 4px; }
+
+.mc-profile-figure { display: flex; align-items: baseline; gap: 10px; margin: 0 0 14px; }
+
+.mc-profile-figure-num {
+  font-size: 2.75rem;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--mc-text);
+}
+
+.mc-profile-figure-of { font-size: 0.9375rem; color: var(--mc-text-soft); }
+
+.mc-profile-bar {
+  display: flex;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--mc-line-soft);
+}
+
+.mc-profile-bar-passed { background: var(--green); }
+
+.mc-profile-bar-started { background: var(--gold); opacity: 0.55; }
+
+.mc-profile-note { margin: 10px 0 0; font-size: 0.875rem; color: var(--mc-text-muted); }
+
+.mc-profile-milestones { list-style: none; margin: 0; padding: 0; }
+
+.mc-profile-milestones li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--mc-line-soft);
+  font-size: 0.9375rem;
+  color: var(--mc-text-muted);
+}
+
+.mc-profile-milestones li:last-child { border-bottom: none; }
+
+.mc-profile-milestones li.is-done { color: var(--mc-text); }
+
+.mc-profile-tick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border: 1px solid var(--mc-line);
+  border-radius: 50%;
+}
+
+.mc-profile-milestones li.is-done .mc-profile-tick { border-color: var(--green); background: var(--green); color: var(--surface-raised); }
+
+.mc-profile-milestone { flex: 1; min-width: 0; }
+
+.mc-profile-togo { flex-shrink: 0; font-size: 0.875rem; font-variant-numeric: tabular-nums lining-nums; }
+
+.mc-profile-text { margin: 8px 0 0; font-size: 0.9375rem; line-height: 1.55; color: var(--mc-text); white-space: pre-wrap; }
+
+.mc-profile-split { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; }
+
+.mc-profile-list { margin: 8px 0 0; padding-left: 18px; font-size: 0.9375rem; line-height: 1.55; color: var(--mc-text-soft); }
+
+.mc-profile-contact { margin: 22px 0 0; font-size: 0.9375rem; }
+
+.mc-profile-contact a { color: var(--mc-text-soft); text-decoration: underline; text-underline-offset: 3px; }
+
+.mc-profile-contact a:hover { color: var(--green-deep); }
 
 .mc-icon-btn {
   display: inline-flex;

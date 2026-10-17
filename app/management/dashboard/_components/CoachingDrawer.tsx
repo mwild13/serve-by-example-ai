@@ -1,15 +1,62 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { X } from "lucide-react";
-import { StaffBadges, MasteryMicroGrid } from "@/components/mission-control/manager-ui";
-import { StatRow } from "@/components/mission-control/console-ui";
+import { Check, X } from "lucide-react";
+import { StatusText } from "@/components/mission-control/console-ui";
+import { daysUntilExpiry } from "@/components/mission-control/compliance/helpers";
+import { V3_TOTAL_MODULES } from "@/lib/mastery";
 import type { StaffMember } from "@/lib/management/types";
+
+// The staff profile drawer, opened from a row on the Staff tab. Rebuilt on
+// 2026-10-17 to the console standard (docs/MANAGER_CONSOLE.md §6): type and
+// hairlines, no boxed badges or pills, and only figures the platform
+// records. Removed from the old drawer:
+// - The Sales score. Nothing calculates it; it is 0 for every real account.
+// - Strengths and Needs improvement. Nothing writes them; they now show only
+//   for the seeded rows that carry them.
+// - The 20-square module grid and "All 20 modules" badges. The platform has
+//   40 modules, and the roster only stores how many were passed, not which,
+//   so the grid painted modules 1, 2, 3... as passed whatever was done.
 
 interface CoachingDrawerProps {
   isOpen: boolean;
   staff: StaffMember | null;
   onClose: () => void;
+}
+
+const TOTAL = V3_TOTAL_MODULES;
+// SBE Elite: quizzes passed for 80% of modules (eliteThreshold() in
+// lib/verify-quiz.ts, which is server-only).
+const ELITE = Math.ceil(TOTAL * 0.8);
+
+function activityLine(staff: StaffMember): { text: string; tone: "ok" | "warn" | "neutral" } {
+  if (staff.lastActive === "Not started") return { text: "Has not started training", tone: "neutral" };
+  const text = staff.lastActive === "Today" || staff.lastActive === "Yesterday"
+    ? `Last trained ${staff.lastActive.toLowerCase()}`
+    : `Last trained ${staff.lastActive}`;
+  return { text, tone: staff.status === "on-track" ? "ok" : staff.status === "attention" ? "warn" : "neutral" };
+}
+
+function accountLine(staff: StaffMember): string {
+  if (staff.staffUserId) return "Account connected";
+  if (staff.email) return "Invite sent, not yet joined";
+  return "No account yet";
+}
+
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime())
+    ? iso
+    : d.toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" });
+}
+
+/** One certificate's state as a sentence and a tone. */
+function certificate(expiry: string | null): { text: string; tone: "ok" | "warn" | "alert" | "neutral" } {
+  if (!expiry) return { text: "No date on file", tone: "neutral" };
+  const days = daysUntilExpiry(expiry);
+  if (days < 0) return { text: `Expired ${formatDate(expiry)}`, tone: "alert" };
+  if (days <= 30) return { text: `Expires in ${days} ${days === 1 ? "day" : "days"}`, tone: "warn" };
+  return { text: `Valid to ${formatDate(expiry)}`, tone: "ok" };
 }
 
 export default function CoachingDrawer({ isOpen, staff, onClose }: CoachingDrawerProps) {
@@ -70,6 +117,23 @@ export default function CoachingDrawer({ isOpen, staff, onClose }: CoachingDrawe
 
   if (!staff) return null;
 
+  const passed = Math.max(0, Math.min(TOTAL, staff.scenariosMastered ?? 0));
+  const started = Math.max(passed, Math.min(TOTAL, staff.scenariosAttempted ?? 0));
+  const inProgress = started - passed;
+  const activity = activityLine(staff);
+
+  const milestones = [
+    { label: "Started training", done: started > 0, togo: null },
+    { label: "Product knowledge complete", done: staff.productScore >= 100, togo: null },
+    { label: `Halfway, ${TOTAL / 2} modules`, done: passed >= TOTAL / 2, togo: TOTAL / 2 - passed },
+    { label: `SBE Elite, ${ELITE} modules`, done: passed >= ELITE, togo: ELITE - passed },
+    { label: `All ${TOTAL} modules`, done: passed >= TOTAL, togo: TOTAL - passed },
+  ];
+
+  const rsa = staff.compliance ? certificate(staff.compliance.rsaExpiryDate) : null;
+  const fss = staff.compliance?.fssExpiryDate ? certificate(staff.compliance.fssExpiryDate) : null;
+  const hasCoachingNotes = staff.strengths.length > 0 || staff.improvements.length > 0;
+
   return (
     <>
       <div
@@ -79,81 +143,127 @@ export default function CoachingDrawer({ isOpen, staff, onClose }: CoachingDrawe
       />
 
       <aside
-        className={`ops-coaching-drawer ${isOpen ? "ops-coaching-drawer-open" : ""}`}
+        className={`ops-coaching-drawer mc-profile ${isOpen ? "ops-coaching-drawer-open" : ""}`}
         role="dialog"
         aria-modal="true"
-        aria-label={`${staff.name} – coaching profile`}
+        aria-label={`${staff.name}, staff profile`}
         ref={drawerRef}
       >
-        <div className="ops-coaching-drawer-header">
-          <div>
-            <h3 style={{ fontSize: "1.1rem", fontFamily: "var(--font-heading)", color: "var(--green-deep)", margin: 0, marginBottom: 2 }}>
-              {staff.name}
-            </h3>
-            <span style={{ fontSize: "0.8rem", color: "var(--text-soft)" }}>
-              {staff.role} · Last active {staff.lastActive}
-            </span>
+        <header className="mc-profile-head">
+          <div className="mc-profile-id">
+            <p className="mc-caps">{staff.role}</p>
+            <h2 className="mc-profile-name">{staff.name}</h2>
+            <div className="mc-profile-status">
+              <StatusText tone={activity.tone}>{activity.text}</StatusText>
+              <span className="mc-profile-account">{accountLine(staff)}</span>
+            </div>
           </div>
-          <button
-            type="button"
-            className="ops-coaching-drawer-close"
-            onClick={onClose}
-            aria-label="Close drawer"
-          >
-            <X size={18} />
+          <button type="button" className="mc-icon-btn" onClick={onClose} aria-label="Close profile">
+            <X size={18} aria-hidden="true" />
           </button>
-        </div>
+        </header>
 
-        <div className="ops-coaching-drawer-body" key={isOpen && staff ? staff.id : "closed"}>
-          <StatRow
-            items={[
-              { label: "Training", value: `${Math.round(staff.progress)}%` },
-              { label: "Service", value: `${Math.round(staff.serviceScore)}%` },
-              { label: "Sales", value: `${Math.round(staff.salesScore)}%` },
-              { label: "Product", value: `${Math.round(staff.productScore)}%` },
-            ]}
-          />
+        <div className="mc-profile-body" key={isOpen ? staff.id : "closed"}>
+          <section className="mc-profile-section" aria-label="Modules">
+            <p className="mc-profile-figure">
+              <span className="mc-profile-figure-num">{passed}</span>
+              <span className="mc-profile-figure-of">of {TOTAL} modules passed</span>
+            </p>
+            <div
+              className="mc-profile-bar"
+              role="img"
+              aria-label={`${passed} passed, ${inProgress} in progress, ${TOTAL - started} not started`}
+            >
+              <span className="mc-profile-bar-passed" style={{ width: `${(passed / TOTAL) * 100}%` }} />
+              <span className="mc-profile-bar-started" style={{ width: `${(inProgress / TOTAL) * 100}%` }} />
+            </div>
+            <p className="mc-profile-note">
+              {inProgress} in progress · {TOTAL - started} not started
+            </p>
+          </section>
 
-          {/* Contact / connection metadata — moved here from the Staff
-              Directory table (Phase 5 UX Refinement Pass, streamlined to 4
-              essential columns: Name/Role, Readiness, Progress, Action).
-              Module mastery grid moved here alongside it. */}
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px 18px", padding: "10px 0", borderTop: "1px solid var(--line-light)", borderBottom: "1px solid var(--line-light)", marginBottom: 16, fontSize: "0.8rem" }}>
-            {staff.email && (
-              <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--text-soft)" }}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
-                {staff.email}
+          <section className="mc-profile-section">
+            <h3 className="mc-caps mc-profile-label">Scores</h3>
+            <dl className="mc-dl">
+              <div>
+                <dt>Training progress</dt>
+                <dd>{Math.round(staff.progress)}%</dd>
               </div>
-            )}
-            <span className={`ops-badge ${staff.staffUserId ? "ops-badge-active" : staff.email ? "ops-badge-pending" : "ops-badge-removed"}`}>
-              {staff.staffUserId ? "Connected" : staff.email ? "Invited" : "No account"}
-            </span>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ color: "var(--text-muted)", fontSize: "0.72rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em" }}>Module mastery</span>
-              <MasteryMicroGrid scenariosMastered={staff.scenariosMastered} scenariosAttempted={staff.scenariosAttempted} />
-            </div>
-          </div>
+              <div>
+                <dt>Service score</dt>
+                <dd>{Math.round(staff.serviceScore)}%</dd>
+              </div>
+              <div>
+                <dt>Product knowledge</dt>
+                <dd>{Math.round(staff.productScore)}%</dd>
+              </div>
+            </dl>
+          </section>
 
-          <StaffBadges staff={staff} />
+          <section className="mc-profile-section">
+            <h3 className="mc-caps mc-profile-label">Milestones</h3>
+            <ul className="mc-profile-milestones">
+              {milestones.map((m) => (
+                <li key={m.label} className={m.done ? "is-done" : undefined}>
+                  <span className="mc-profile-tick" aria-hidden="true">{m.done && <Check size={14} strokeWidth={2.5} />}</span>
+                  <span className="mc-profile-milestone">{m.label}</span>
+                  <span className="mc-profile-togo">
+                    {m.done ? "Done" : m.togo !== null ? `${m.togo} to go` : "Not yet"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
 
-          <div className="ops-grid-two-col">
-            <div>
-              <strong className="ops-subhead">Strengths</strong>
-              <ul className="ops-coaching-list">
-                {staff.strengths.length
-                  ? staff.strengths.map((item) => <li key={item}>{item}</li>)
-                  : <li style={{ color: "var(--text-muted)" }}>No strengths recorded yet</li>}
-              </ul>
-            </div>
-            <div>
-              <strong className="ops-subhead">Needs improvement</strong>
-              <ul className="ops-coaching-list">
-                {staff.improvements.length
-                  ? staff.improvements.map((item) => <li key={item}>{item}</li>)
-                  : <li style={{ color: "var(--text-muted)" }}>No coaching notes recorded yet</li>}
-              </ul>
-            </div>
-          </div>
+          {(rsa || fss) && (
+            <section className="mc-profile-section">
+              <h3 className="mc-caps mc-profile-label">Certificates</h3>
+              <dl className="mc-dl">
+                {rsa && (
+                  <div>
+                    <dt>RSA{staff.compliance?.rsaJurisdiction ? `, ${staff.compliance.rsaJurisdiction}` : ""}</dt>
+                    <dd><StatusText tone={rsa.tone}>{rsa.text}</StatusText></dd>
+                  </div>
+                )}
+                {fss && (
+                  <div>
+                    <dt>Food Safety Supervisor</dt>
+                    <dd><StatusText tone={fss.tone}>{fss.text}</StatusText></dd>
+                  </div>
+                )}
+              </dl>
+            </section>
+          )}
+
+          {staff.managerNotes && (
+            <section className="mc-profile-section">
+              <h3 className="mc-caps mc-profile-label">Your notes</h3>
+              <p className="mc-profile-text">{staff.managerNotes}</p>
+            </section>
+          )}
+
+          {hasCoachingNotes && (
+            <section className="mc-profile-section mc-profile-split">
+              {staff.strengths.length > 0 && (
+                <div>
+                  <h3 className="mc-caps mc-profile-label">Strengths</h3>
+                  <ul className="mc-profile-list">{staff.strengths.map((s) => <li key={s}>{s}</li>)}</ul>
+                </div>
+              )}
+              {staff.improvements.length > 0 && (
+                <div>
+                  <h3 className="mc-caps mc-profile-label">To work on</h3>
+                  <ul className="mc-profile-list">{staff.improvements.map((s) => <li key={s}>{s}</li>)}</ul>
+                </div>
+              )}
+            </section>
+          )}
+
+          {staff.email && (
+            <p className="mc-profile-contact">
+              <a href={`mailto:${staff.email}`}>{staff.email}</a>
+            </p>
+          )}
         </div>
       </aside>
     </>
