@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { siteOrigin } from "@/lib/site-url";
 import { requireManager } from "@/lib/management/auth";
-import { EMAIL_SMALL_STYLE, EMAIL_TEXT_STYLE, brandedEmailHtml, emailButtonHtml, emailFallbackLinkHtml, escapeHtml } from "@/lib/email-template";
+import { EMAIL_SMALL_STYLE, EMAIL_TEXT_STYLE, brandedEmailHtml, emailButtonHtml, emailFallbackLinkHtml, escapeHtml, staffVenueNoteHtml } from "@/lib/email-template";
 import { readJsonBody } from "@/lib/ai-guard";
 import { nameFromEmail } from "@/lib/person-name";
 
@@ -93,6 +93,7 @@ export async function POST(req: Request) {
             <p style="${EMAIL_TEXT_STYLE}">Hi ${escapeHtml(name)},</p>
             <p style="${EMAIL_TEXT_STYLE}">${bodyText}</p>
             ${emailButtonHtml(escapeHtml(ctaHref), ctaLabel)}
+            ${staffVenueNoteHtml()}
             ${inviteLink ? `<p style="${EMAIL_SMALL_STYLE}">This link expires in 7 days.</p>` : ""}
             ${emailFallbackLinkHtml(escapeHtml(ctaHref))}
           `,

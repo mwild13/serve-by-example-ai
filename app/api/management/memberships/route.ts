@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { siteOrigin } from "@/lib/site-url";
 import { managementErrorResponse, requireManager, type AdminClient } from "@/lib/management/auth";
 import { countActiveSeats, TIER_SEATS } from "@/lib/session";
-import { EMAIL_SMALL_STYLE, EMAIL_TEXT_STYLE, brandedEmailHtml, emailButtonHtml, emailFallbackLinkHtml, escapeHtml } from "@/lib/email-template";
+import { EMAIL_SMALL_STYLE, EMAIL_TEXT_STYLE, brandedEmailHtml, emailButtonHtml, emailFallbackLinkHtml, escapeHtml, staffVenueNoteHtml } from "@/lib/email-template";
 import { readJsonBody } from "@/lib/ai-guard";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -251,6 +251,7 @@ export async function POST(req: Request) {
                 bodyHtml: `
                   <p style="${EMAIL_TEXT_STYLE}">${bodyText}</p>
                   ${emailButtonHtml(escapeHtml(ctaHref), ctaLabel)}
+                  ${staffVenueNoteHtml()}
                   ${inviteLink ? `<p style="${EMAIL_SMALL_STYLE}">This link expires in 7 days.</p>` : ""}
                   ${emailFallbackLinkHtml(escapeHtml(ctaHref))}
                 `,

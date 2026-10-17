@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { siteOrigin } from "@/lib/site-url";
 import { ManagementAccessError, requireManager } from "@/lib/management/auth";
 import { createStaffMember, updateStaffMember, getManagementSnapshot } from "@/lib/management/service";
-import { EMAIL_SMALL_STYLE, EMAIL_TEXT_STYLE, brandedEmailHtml, emailButtonHtml, emailFallbackLinkHtml, escapeHtml } from "@/lib/email-template";
+import { EMAIL_SMALL_STYLE, EMAIL_TEXT_STYLE, brandedEmailHtml, emailButtonHtml, emailFallbackLinkHtml, escapeHtml, staffVenueNoteHtml } from "@/lib/email-template";
 import type { NewStaffPayload, StaffRole, AustralianState } from "@/lib/management/types";
 import { readJsonBody } from "@/lib/ai-guard";
 import { formatPersonName } from "@/lib/person-name";
@@ -126,6 +126,7 @@ export async function POST(req: Request) {
                       <p style="${EMAIL_TEXT_STYLE}">Hi ${escapeHtml(name)},</p>
                       <p style="${EMAIL_TEXT_STYLE}">You have been added as a staff member on Serve By Example. Set up your account with the button below and start your training.</p>
                       ${emailButtonHtml(escapeHtml(actionLink), "Accept invitation")}
+                      ${staffVenueNoteHtml()}
                       <p style="${EMAIL_SMALL_STYLE}">This link expires in 7 days.</p>
                       ${emailFallbackLinkHtml(escapeHtml(actionLink))}
                     `,

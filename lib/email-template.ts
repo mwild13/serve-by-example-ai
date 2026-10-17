@@ -64,6 +64,15 @@ export function emailButtonHtml(href: string, label: string): string {
 }
 
 /**
+ * How a staff invite reaches the venue, for every invite and reminder email.
+ * Signing in with the invited address links the account to the roster
+ * (lib/staff-link.ts); the venue code is the way in for any other address.
+ */
+export function staffVenueNoteHtml(): string {
+  return `<p style="${EMAIL_TEXT_STYLE}">Sign in with this email address and you join your venue's team automatically. Using a different email? Ask your manager for the venue code and enter it when you sign up, or later in Settings under "Join a venue by code".</p>`;
+}
+
+/**
  * A long link shown for copying when the button does not work. Muted and
  * boxed, so a 300-character URL does not read as the main content.
  */

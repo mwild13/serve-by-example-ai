@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { brandedEmailHtml, emailFieldTableHtml, emailNoteHtml, escapeHtml } from "@/lib/email-template";
+import { brandedEmailHtml, emailFieldTableHtml, emailNoteHtml, escapeHtml, staffVenueNoteHtml } from "@/lib/email-template";
 
 describe("emailFieldTableHtml", () => {
   it("renders a row per field and leaves out the empty ones", () => {
@@ -23,5 +23,15 @@ describe("the shared shell", () => {
     expect(html).toContain("New contact enquiry");
     expect(html).toContain("&lt;a href=");
     expect(html).not.toContain('<a href="https://example.com">');
+  });
+});
+
+describe("staffVenueNoteHtml", () => {
+  it("tells an invited person how they reach the venue, without em dashes", () => {
+    const note = staffVenueNoteHtml();
+    expect(note).toContain("join your venue's team automatically");
+    expect(note).toContain("venue code");
+    expect(note).toContain("Join a venue by code");
+    expect(note).not.toContain("\u2014");
   });
 });
