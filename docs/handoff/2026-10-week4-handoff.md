@@ -1,11 +1,11 @@
 # Handoff: October 2026, Week 4
 
-Work from 2026-10-17 onward is recorded here. Earlier work is in `docs/handoff/2026-10-week3-handoff.md`. Open items are in `To_do_list.md`.
+Work from 2026-10-17 onward is recorded here. Earlier work is in `docs/handoff/2026-10-week3-handoff.md`. Open items are in `To_do_list.md`. Everything below is on `main` as of `e7a53d7`, released 2026-10-17.
 
 ## Part 1: fixes from the owner's laptop testing
 
 - **Date:** 2026-10-17
-- **Branches:** `preview/oct-w3-owner-decisions`, then `preview/oct-w4-tester-feedback`. The fixes below up to the reset page are on `main`.
+- **Branches:** `preview/oct-w3-owner-decisions`, then `preview/oct-w4-tester-feedback`. All on `main` since 2026-10-17 (`e7a53d7`).
 
 The owner invited a new staff member and worked through the staff flow. Each fault found was fixed the same day.
 
@@ -20,7 +20,7 @@ The owner invited a new staff member and worked through the staff flow. Each fau
 ## Part 2: weekly digest and Sunday reminder sender
 
 - **Date:** 2026-10-17
-- **Branch:** `preview/oct-w4-tester-feedback`.
+- **Branch:** `preview/oct-w4-tester-feedback`, on `main` since 2026-10-17 (`e7a53d7`).
 - **Migration:** `supabase/migrations/20261017_notification_sender.sql` (rollback in `supabase/rollbacks/`). Run on production on 2026-10-17.
 - **Live:** on `main`, with `NOTIFICATIONS_SECRET` set in Cloudflare, since 2026-10-17.
 
@@ -72,10 +72,16 @@ Moved to `To_do_list.md` (Parked: notification email capacity and time zones).
 ## Part 3: fixes from the second round of testing
 
 - **Date:** 2026-10-17
-- **Branch:** `preview/oct-w4-tester-feedback`.
+- **Branch:** `preview/oct-w4-tester-feedback`, on `main` since 2026-10-17 (`e7a53d7`).
 
 - **Invite emails explain the venue link.** The first invite, the resend and the duty manager invite now say that signing in with the invited address joins the venue's team automatically, and that a different address needs the venue code at sign-up or in Settings under "Join a venue by code" (`staffVenueNoteHtml()` in `lib/email-template.ts`).
 - **Staff profile drawer rebuilt** (`CoachingDrawer.tsx`) on the console standard. It shows modules passed out of 40 with a bar, training, service and product scores, five milestones (started, product knowledge, 20, SBE Elite at 32, all 40) and RSA and Food Safety Supervisor dates. Removed: the Sales score (nothing calculates it), the 20-square grid (the roster stores how many modules were passed, not which, so it painted modules 1, 2, 3... as passed), and the "All 20 modules" badges. Strengths and Needs improvement show only when a row has them; nothing writes them for real staff. `StaffBadges` and `MasteryMicroGrid` were deleted from `manager-ui.tsx`.
 - **Open cocktail on desktop:** Bookmark and Close sit in a footer outside the scrolling area, so they are always on screen. From 640px the photo sits left of the recipe.
 - **Settings on desktop kept old values.** After saving a name or notification ticks, reopening Settings showed the old values until a full reload: the panel takes its starting values from the server page and is remounted each time. Both saves now refresh the page's data.
 - **Emails to someone with no name** now greet them by the name taken from their email address (info@ reads "Info"), as the rest of the app does.
+
+### Checked
+
+- 115 tests, `tsc`, `eslint`, `knip` and the CSS checks pass; CI passed on `e7a53d7`.
+- The preview build of `e7a53d7` served `/`, `/login`, `/membership` and `/notifications/unsubscribe`, refused `/api/cron/notifications` without the secret (401), and sent a signed-out `/dashboard` to `/login`.
+- Not seen in a browser: the staff profile drawer, the open cocktail and the desktop Settings refresh, all behind a login. They are in the to-do list under "On a computer, as staff".

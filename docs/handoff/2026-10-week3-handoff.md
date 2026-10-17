@@ -1,6 +1,6 @@
 # Handoff: October 2026, Week 3
 
-Work from 2026-10-12 onward is recorded here. Earlier work is in `docs/handoff/2026-10-pre-launch-handoff.md` and `docs/handoff/2026-10-week2-handoff.md`. Open items are in `To_do_list.md`.
+Work from 2026-10-12 to 2026-10-16 is recorded here; from 2026-10-17 it continues in `docs/handoff/2026-10-week4-handoff.md`. Earlier work is in `docs/handoff/2026-10-pre-launch-handoff.md` and `docs/handoff/2026-10-week2-handoff.md`. Open items are in `To_do_list.md`.
 
 ## Part 1: to-do list sweep and the first five fixes
 

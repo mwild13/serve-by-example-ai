@@ -1,6 +1,6 @@
 # To Do
 
-Open items only. Finished work is recorded in `docs/handoff/2026-10-week3-handoff.md` (this week), the earlier handoffs in `docs/handoff/`, and git history.
+Open items only. Finished work is recorded in `docs/handoff/2026-10-week4-handoff.md` (this week), the earlier handoffs in `docs/handoff/`, and git history.
 
 Regrouped on 2026-10-12 by who does the work and where. Background for the launch items is in `docs/handoff/2026-10-pre-launch-handoff.md`.
 
