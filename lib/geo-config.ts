@@ -20,6 +20,7 @@ const GEO_CONFIG = {
     '/refunds', // linked from Stripe checkout and receipts
     '/cookies',
     '/contact', // linked from /restricted footer — kept accessible for enquiries
+    '/notifications/unsubscribe', // the Spam Act needs unsubscribe to work from anywhere
   ],
 
   // Marketing routes visible to non-AU visitors.

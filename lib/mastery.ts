@@ -22,7 +22,7 @@ export const SCENARIO_COUNTS: Record<string, number> = {
  * Fallback only — syncMasteryToVenueStaff() prefers the live count from
  * the modules table. Platform has 40 modules (see lib/verify-questions.ts).
  */
-const V3_TOTAL_MODULES = 40;
+export const V3_TOTAL_MODULES = 40;
 
 /**
  * V3: Module category mapping. Mirrors supabase/migrations/20260421_1_create_modules.sql

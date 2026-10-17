@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { rateLimit } from "@/lib/rate-limit";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { brandedEmailHtml } from "@/lib/email-template";
 import { readJsonBody } from "@/lib/ai-guard";
+import { syncBrevo, type NotifFlag } from "@/lib/notifications/brevo";
 
 // Mobile bug-fix plan, Phase 3a — notification toggles on the new
 // /mobile/settings page. A profiles table write, so it goes through an API
@@ -37,86 +37,8 @@ import { readJsonBody } from "@/lib/ai-guard";
 // - 2026-10-05: list membership now follows consent. Once both flags are
 //   off, the contact is also removed from the list, so a send aimed at the
 //   list alone can't reach someone who opted out.
-
-type NotifFlag = "reminders" | "digest";
-
-const BREVO_TIMEOUT_MS = 8_000;
-
-async function brevoPost(path: string, apiKey: string, payload: unknown, label: string): Promise<void> {
-  try {
-    const res = await fetch(`https://api.brevo.com/v3/${path}`, {
-      method: "POST",
-      headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(BREVO_TIMEOUT_MS),
-    });
-    if (!res.ok) {
-      console.error(JSON.stringify({ event: "notif_brevo_failed", step: label, status: res.status }));
-    }
-  } catch (err) {
-    console.error(JSON.stringify({ event: "notif_brevo_failed", step: label, message: err instanceof Error ? err.message : String(err) }));
-  }
-}
-
-function confirmationEmail(which: NotifFlag): { heading: string; bodyHtml: string } {
-  const heading = which === "digest" ? "You're subscribed to the weekly progress digest" : "You're subscribed to training reminders";
-  const bodyHtml =
-    which === "digest"
-      ? `<p style="margin:0 0 12px;line-height:1.65;color:#172f22">You'll get a short summary of your training progress every <strong>Monday morning</strong>.</p>
-         <p style="margin:0;line-height:1.65;color:#172f22">You can turn this off any time from Settings &gt; Notifications in the app.</p>`
-      : `<p style="margin:0 0 12px;line-height:1.65;color:#172f22">You'll get a training reminder every <strong>Sunday night</strong> to help you get ready for the week ahead.</p>
-         <p style="margin:0;line-height:1.65;color:#172f22">You can turn this off any time from Settings &gt; Notifications in the app.</p>`;
-  return { heading, bodyHtml };
-}
-
-/**
- * Mirrors real flag changes to Brevo: one contact upsert carrying every
- * changed attribute (true on opt-in, false on opt-out), plus a confirmation
- * email per opt-in. All calls run in parallel and are awaited; failures are
- * logged only.
- */
-async function syncBrevo(
-  email: string,
-  changes: Partial<Record<NotifFlag, boolean>>,
-  subscribedAfter: boolean,
-): Promise<void> {
-  const brevoApiKey = process.env.BREVO_API_KEY;
-  if (!brevoApiKey) {
-    console.warn("[profile/notifications] BREVO_API_KEY not set — skipping Brevo sync + confirmation email");
-    return;
-  }
-
-  const listId = process.env.BREVO_NOTIFICATIONS_LIST_ID;
-  const attributes: Record<string, boolean> = {};
-  if (changes.reminders !== undefined) attributes.SUNDAY_REMINDER = changes.reminders;
-  if (changes.digest !== undefined) attributes.WEEKLY_DIGEST = changes.digest;
-  const optedIn = (Object.keys(changes) as NotifFlag[]).filter((k) => changes[k] === true);
-
-  const calls: Promise<void>[] = [
-    brevoPost("contacts", brevoApiKey, {
-      email,
-      attributes,
-      ...(listId && optedIn.length > 0 ? { listIds: [Number(listId)] } : {}),
-      updateEnabled: true,
-    }, "contact_upsert"),
-    ...optedIn.map((which) => {
-      const { heading, bodyHtml } = confirmationEmail(which);
-      return brevoPost("smtp/email", brevoApiKey, {
-        sender: { name: process.env.BREVO_FROM_NAME ?? "Serve By Example", email: "info@servebyexample.co" },
-        to: [{ email }],
-        subject: heading,
-        htmlContent: brandedEmailHtml({ heading, bodyHtml }),
-      }, `confirmation_${which}`);
-    }),
-  ];
-  // Off for both emails now: take the contact off the list too. Brevo
-  // returns 400 if they weren't on it, which is logged and harmless.
-  if (listId && !subscribedAfter) {
-    calls.push(brevoPost(`contacts/lists/${Number(listId)}/contacts/remove`, brevoApiKey, { emails: [email] }, "list_remove"));
-  }
-
-  await Promise.all(calls);
-}
+// - 2026-10-17: the Brevo calls moved to lib/notifications/brevo.ts, shared
+//   with the unsubscribe route and the scheduled sender.
 
 export async function GET(req: Request) {
   try {
