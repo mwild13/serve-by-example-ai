@@ -83,26 +83,19 @@ export function ActionDrawer({ isOpen, onClose, title, children }: ActionDrawerP
         aria-hidden="true"
       />
       <div
-        className={`ops-action-drawer ${isOpen ? "ops-action-drawer-open" : ""}`}
+        className={`ops-action-drawer mc-drawer ${isOpen ? "ops-action-drawer-open" : ""}`}
         role="dialog"
         aria-modal="true"
         aria-label={title}
         ref={drawerRef}
       >
-        <div className="ops-action-drawer-header">
-          <h2 style={{ fontSize: "1.1rem", fontFamily: "var(--font-heading)", color: "var(--green-deep)", margin: 0 }}>
-            {title}
-          </h2>
-          <button
-            type="button"
-            className="ops-action-drawer-close"
-            onClick={handleClose}
-            aria-label="Close drawer"
-          >
-            <X size={18} />
+        <header className="mc-drawer-head">
+          <h2 className="mc-drawer-title">{title}</h2>
+          <button type="button" className="mc-icon-btn" onClick={handleClose} aria-label="Close">
+            <X size={18} aria-hidden="true" />
           </button>
-        </div>
-        <div className="ops-action-drawer-body" key={isOpen ? title : "closed"}>
+        </header>
+        <div className="ops-action-drawer-body mc-drawer-body" key={isOpen ? title : "closed"}>
           {children}
         </div>
       </div>

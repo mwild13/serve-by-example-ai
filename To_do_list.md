@@ -8,9 +8,7 @@ Regrouped on 2026-10-12 by who does the work and where. Background for the launc
 
 Small changes, in the order they will be done. Each goes to a preview branch first.
 
-- [ ] **Quiz answers lag on desktop.** Raised by Richie (first paid tester, October 2026). Each True/False answer waits on three database calls in a row in `app/api/training/verify/answer/route.ts`: the sign-in check, then the session and quiz lookup, then the grading call. Cut it to two by running the session check alongside the sign-in check, or move the quiz lookup into the `advance_verify_attempt` database function. It is a security-sensitive route (audit C4), so it needs its own preview branch and a re-test of the quiz. Measured on 2026-10-17 from the Supabase logs: Postgres runs each answer in about 3 ms, but after a pause each of the three calls took 0.5 to 1.9 s at Supabase (about 3 s an answer), then dropped under 0.1 s once warm. So fewer calls helps most; Supabase Pro's dedicated compute may also cut the warm-up stalls. Checking the sign-in locally (`getClaims`, if the project uses the new JWT signing keys) would remove another call.
-- [ ] **Bring the trial-ended modal onto the console standard.** `components/mission-control/TrialExpiredModal.tsx`, last changed 2026-07-22: all inline styles, from before the October redesign. It is the screen a manager sees when the trial runs out, so it is also a conversion screen (`/conversion-ui`).
-- [ ] **Restyle the Add staff, Add inventory and Add program drawers.** Their forms (`ops-action-form`) and the invite link panel (`ops-invite-link-*`) still use the pre-October classes, restyled only by override rules at the end of `app/styles/management.css`.
+Nothing open. The quiz speed fix, the trial-ended modal and the Add drawers were done on 2026-10-17; their checks are in section 4.
 
 ## 2. Marketing copy
 
@@ -58,9 +56,9 @@ Everything under "On a computer" below can be done on a laptop. Use a normal win
 
 ### On a computer, as staff
 
-- [ ] **Open cocktail, desktop.** Changed 2026-10-17. From 640px wide the photo sits left of the recipe, and Bookmark and Close stay pinned at the bottom without scrolling.
-- [ ] **Staff profile in the console.** Rebuilt 2026-10-17. Click a staff row: name and role, last trained, account state, modules passed out of 40 with a bar, scores, milestones and certificates. No Sales score, 20-square grid or boxed badges.
-- [ ] **Join link** on a computer, as on the phone.
+- [ ] **Quiz speed, desktop.** Branch `preview/oct-w4-quiz-speed`, changed 2026-10-17. The sign-in check on each answer now runs in the Worker, so an answer makes two trips to Supabase instead of three. After a pause of a few minutes, answer True/False questions: each should check faster than before. Then pass a module's quiz and confirm it shows as mastered. Sign in on a second device and confirm the first one's next answer is refused.
+- [ ] **Trial-ended modal.** Branch `preview/oct-w4-console-restyle`. As a manager whose trial has ended: the modal uses the console dialog style, Escape or "Not now" closes it and it does not come back after a reload, and "Add billing details" opens the billing tab.
+- [ ] **Add staff, Add inventory and Add program drawers.** Same branch. Each opens with console-style fields in one column. Add a staff member with an email and the invite box shows below the title, with Copy link and Dismiss working.
 - [ ] **Upgrade from Pro to a venue plan.** Needs the Stripe setting in section 3. In test mode, as a Pro account, press a Boutique button on `/membership`: Stripe's page should show the prorated charge. Pay, and confirm you land on the Manager Console billing tab on Boutique with 15 seats and an organisation created.
 - [ ] **Server errors reach Sentry.** Browser errors and the alert email were confirmed on 2026-10-16. Open one browser test error in Sentry and confirm no IP address shows, then resolve both. When a server error first occurs, confirm it arrives tagged `runtime: server`: if none ever comes from a page render, the `onRequestError` hook is not running under OpenNext and only the billing and AI routes report.
 - [ ] **Roster unlink on account deletion.** Delete a test staff account that is on a venue roster, then confirm its `venue_staff` row is kept with `staff_user_id` null and `organization_members` is marked `removed`.
@@ -72,7 +70,6 @@ Nothing open. The five that were here were decided on 2026-10-12 (Part 13 of the
 ## 6. Tests
 
 - [ ] **Run the mobile e2e suite and re-capture every baseline.** `tests/e2e/global-setup.ts` no longer uses the login form and has never been run. The mobile frame now uses the full phone width, so every screenshot will differ: run once with `--update-snapshots=all`, and check the no-horizontal-scroll test passes on all 22 `/mobile` routes. Needs `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` and `E2E_TEST_EMAIL`.
-- [ ] **Run the marketing e2e suite** against production. Not run since the 2026-10-09 changes.
 - [ ] **An e2e test from sign-up through checkout.** Nothing tests the payment path.
 
 ## 7. Larger builds

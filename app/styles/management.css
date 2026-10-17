@@ -304,17 +304,6 @@
 
 /* ── Manager Insights panel ─── */
 
-.ops-action-form {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-  align-items: end;
-}
-
-.ops-action-form-wide {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
 /* Staff invites card: one aligned row (email, access level, button) on
    desktop, stacked under 980px with the other ops forms. */
 
@@ -385,29 +374,6 @@
   justify-content: center;
   margin-top: 12px;
 }
-
-.ops-action-span-full {
-  grid-column: 1 / -1;
-}
-
-.ops-inline-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-soft);
-  font-size: 0.9rem;
-}
-
-.ops-inline-checkbox input {
-  width: 16px;
-  height: 16px;
-}
-
-.ops-textarea {
-  min-height: 110px;
-  resize: vertical;
-}
-
 
 .ops-empty-state {
   display: flex;
@@ -587,98 +553,6 @@
   transform: translateX(0);
 }
 
-.ops-action-drawer-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 28px 24px;
-  border-bottom: 1px solid var(--line-light);
-  flex-shrink: 0;
-}
-
-.ops-action-drawer-close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-  color: var(--text-soft);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.2s;
-}
-
-.ops-action-drawer-close:hover {
-  color: var(--text);
-}
-
-.ops-action-drawer-body {
-  padding: 24px;
-  flex: 1;
-  overflow-y: auto;
-}
-
-
-/* ── Invite link panel ─────────────────────── */
-
-.ops-invite-link-panel {
-  border-radius: var(--radius-md);
-  padding: 14px 16px;
-  margin: 12px 0 0;
-  border: 1px solid var(--line-light);
-  background: var(--surface-raised);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.ops-invite-link-panel--sent {
-  border-color: var(--green-mid);
-  background: var(--green-light);
-}
-
-.ops-invite-link-panel--manual {
-  border-color: var(--gold);
-  background: var(--status-amber-bg);
-}
-
-.ops-invite-link-header {
-  font-size: 0.95rem;
-  font-weight: 500;
-}
-
-.ops-invite-link-hint {
-  font-size: 0.86rem;
-  color: var(--text-soft);
-  line-height: 1.5;
-  margin: 0;
-}
-
-.ops-invite-link-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.ops-invite-link-input {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  flex: 1;
-  min-width: 0;
-  color: var(--text-soft);
-}
-
-.ops-invite-link-dismiss {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-size: 0.82rem;
-  cursor: pointer;
-  text-decoration: underline;
-  padding: 0;
-  align-self: flex-end;
-}
-
 /* ── Search bar ─────────────────────────────────── */
 
 .ops-search-input {
@@ -788,8 +662,6 @@
   }
 
   .ops-grid-main,
-  .ops-action-form,
-  .ops-action-form-wide,
   .ops-invite-form {
     grid-template-columns: 1fr;
   }
@@ -2434,6 +2306,26 @@ button.mc-topbar-avatar:focus-visible { outline: 2px solid var(--green); outline
 
 .mc-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
 
+/* Trial-ended dialog (TrialExpiredModal) */
+
+.mc-dialog-title.mc-trial-ended-title { margin-bottom: 8px; }
+
+.mc-trial-ended-lede { margin: 0 0 22px; font-size: 0.9375rem; line-height: 1.55; color: var(--mc-text-soft); }
+
+.mc-trial-ended-list {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--mc-line);
+}
+
+.mc-trial-ended-list li {
+  padding: 11px 0;
+  border-bottom: 1px solid var(--mc-line);
+  font-size: 0.9375rem;
+  color: var(--mc-text);
+}
+
 .mc-check { display: flex; align-items: center; gap: 10px; min-height: 40px; font-size: 0.9375rem; color: var(--mc-text); cursor: pointer; }
 
 .mc-check input { width: 18px; height: 18px; accent-color: var(--green); }
@@ -2622,6 +2514,61 @@ button.mc-topbar-avatar:focus-visible { outline: 2px solid var(--green); outline
 .mc-icon-btn:focus-visible { outline: 2px solid var(--green); outline-offset: 1px; }
 
 .mc-icon-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Add staff, Add inventory and Add program drawers (ActionDrawer.tsx). */
+
+.mc-drawer { background: var(--mc-surface); }
+
+.mc-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 28px 20px;
+  border-bottom: 1px solid var(--mc-line);
+  flex-shrink: 0;
+}
+
+.mc-drawer-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.375rem;
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--mc-text);
+}
+
+.mc-drawer-body { flex: 1; overflow-y: auto; padding: 24px 28px 28px; }
+
+.mc-drawer-status { margin: 0 0 16px; }
+
+.mc-drawer-form { display: flex; flex-direction: column; gap: 16px; }
+
+.mc-drawer-submit { width: 100%; margin-top: 8px; }
+
+.mc-invite-link {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 0 24px;
+  padding: 16px;
+  border: 1px solid var(--green-mid);
+  border-radius: var(--mc-radius-sm);
+  background: var(--green-light);
+}
+
+.mc-invite-link.is-manual { border-color: var(--gold); background: var(--status-amber-bg); }
+
+.mc-invite-link-head { margin: 0; font-size: 0.9375rem; color: var(--mc-text); }
+
+.mc-invite-link-hint { margin: 0; font-size: 0.875rem; line-height: 1.5; color: var(--mc-text-soft); }
+
+.mc-invite-link-row { display: flex; gap: 8px; }
+
+.mc-invite-link-input { flex: 1; min-width: 0; font-family: var(--font-mono); font-size: 0.8125rem; color: var(--mc-text-soft); }
+
+.mc-invite-link-dismiss { align-self: flex-end; }
 
 @media (prefers-reduced-motion: reduce) {
   .mc-coach-thinking span { animation: none; }

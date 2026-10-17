@@ -1163,34 +1163,35 @@ export default function ManagerControlCenter({
               : "Action"
           }
         >
-          {requestSuccess ? <div className="auth-status auth-status-success">{requestSuccess}</div> : null}
-          {requestError ? <div className="auth-status auth-status-error">{requestError}</div> : null}
+          {requestSuccess ? <p className="mc-saved mc-drawer-status" role="status">{requestSuccess}</p> : null}
+          {requestError ? <p className="mc-error mc-drawer-status" role="alert">{requestError}</p> : null}
 
           {/* Invite link panel – shown after add-staff when an invite link was generated */}
           {pendingInviteLink && (
-            <div className={`ops-invite-link-panel${pendingInviteLink.emailSent ? " ops-invite-link-panel--sent" : " ops-invite-link-panel--manual"}`}>
-              <div className="ops-invite-link-header">
+            <section className={`mc-invite-link${pendingInviteLink.emailSent ? "" : " is-manual"}`} aria-label="Invite link">
+              <p className="mc-invite-link-head">
                 {pendingInviteLink.emailSent ? (
                   <><strong>Invite email sent</strong> to {pendingInviteLink.email}</>
                 ) : (
-                  <><strong>Email not delivered</strong> – SMTP not configured in Supabase.</>
+                  <strong>Invite email not sent</strong>
                 )}
-              </div>
+              </p>
               {!pendingInviteLink.emailSent && (
-                <p className="ops-invite-link-hint">
-                  Share this one-time invite link directly with {pendingInviteLink.name}. It expires in 7 days. To enable automatic email delivery, configure SMTP in <strong>Supabase Dashboard → Authentication → Emails</strong>.
+                <p className="mc-invite-link-hint">
+                  Share this one-time link with {pendingInviteLink.name} yourself. It expires in 7 days.
                 </p>
               )}
-              <div className="ops-invite-link-row">
+              <div className="mc-invite-link-row">
                 <input
-                  className="input ops-invite-link-input"
+                  className="mc-input mc-invite-link-input"
                   readOnly
+                  aria-label="Invite link"
                   value={pendingInviteLink.link}
                   onFocus={(e) => e.target.select()}
                 />
                 <button
                   type="button"
-                  className="btn btn-primary"
+                  className="mc-btn mc-btn-primary"
                   onClick={() => {
                     navigator.clipboard.writeText(pendingInviteLink.link).then(() => {
                       setInviteLinkCopied(true);
@@ -1199,25 +1200,25 @@ export default function ManagerControlCenter({
                     });
                   }}
                 >
-                  {inviteLinkCopied ? "Copied!" : "Copy link"}
+                  {inviteLinkCopied ? "Copied" : "Copy link"}
                 </button>
               </div>
               <button
                 type="button"
-                className="ops-invite-link-dismiss"
+                className="mc-btn mc-btn-quiet mc-btn-sm mc-invite-link-dismiss"
                 onClick={() => setPendingInviteLink(null)}
               >
                 Dismiss
               </button>
-            </div>
+            </section>
           )}
 
           {activeAction === "add-staff" && (
-            <form className="ops-action-form" onSubmit={submitAction}>
-              <label className="label">
+            <form className="mc-drawer-form" onSubmit={submitAction}>
+              <label className="mc-field">
                 Staff name
                 <input
-                  className="input"
+                  className="mc-input"
                   value={staffForm.name}
                   onChange={(event) => {
                     setStaffForm((current) => ({ ...current, name: event.target.value }));
@@ -1226,10 +1227,10 @@ export default function ManagerControlCenter({
                   required
                 />
               </label>
-              <label className="label">
+              <label className="mc-field">
                 Role
                 <select
-                  className="input"
+                  className="mc-input"
                   value={staffForm.role}
                   onChange={(event) => {
                     setStaffForm((current) => ({ ...current, role: event.target.value as StaffRole }));
@@ -1242,10 +1243,10 @@ export default function ManagerControlCenter({
                   ))}
                 </select>
               </label>
-              <label className="label">
+              <label className="mc-field">
                 Staff email (optional)
                 <input
-                  className="input"
+                  className="mc-input"
                   type="email"
                   value={staffForm.email ?? ""}
                   onChange={(event) => {
@@ -1254,7 +1255,7 @@ export default function ManagerControlCenter({
                   placeholder="staff@venue.com"
                 />
               </label>
-              <label className="ops-inline-checkbox ops-action-span-full">
+              <label className="mc-check">
                 <input
                   type="checkbox"
                   checked={Boolean(staffForm.sendInvite)}
@@ -1264,18 +1265,18 @@ export default function ManagerControlCenter({
                 />
                 Send a signup invite email to this staff member
               </label>
-              <button className="btn btn-primary ops-action-span-full" type="submit" disabled={isSaving}>
-                {isSaving ? "Saving..." : "Save staff member"}
+              <button className="mc-btn mc-btn-primary mc-drawer-submit" type="submit" disabled={isSaving}>
+                {isSaving ? "Saving…" : "Save staff member"}
               </button>
             </form>
           )}
 
           {activeAction === "add-inventory" && (
-            <form className="ops-action-form" onSubmit={submitAction}>
-              <label className="label">
+            <form className="mc-drawer-form" onSubmit={submitAction}>
+              <label className="mc-field">
                 Category
                 <input
-                  className="input"
+                  className="mc-input"
                   value={inventoryForm.category}
                   onChange={(event) => {
                     setInventoryForm((current) => ({ ...current, category: event.target.value }));
@@ -1284,10 +1285,10 @@ export default function ManagerControlCenter({
                   required
                 />
               </label>
-              <label className="label">
+              <label className="mc-field">
                 Product name
                 <input
-                  className="input"
+                  className="mc-input"
                   value={inventoryForm.name}
                   onChange={(event) => {
                     setInventoryForm((current) => ({ ...current, name: event.target.value }));
@@ -1296,18 +1297,18 @@ export default function ManagerControlCenter({
                   required
                 />
               </label>
-              <button className="btn btn-primary ops-action-span-full" type="submit" disabled={isSaving}>
-                {isSaving ? "Saving..." : "Save inventory item"}
+              <button className="mc-btn mc-btn-primary mc-drawer-submit" type="submit" disabled={isSaving}>
+                {isSaving ? "Saving…" : "Save inventory item"}
               </button>
             </form>
           )}
 
           {activeAction === "create-program" && (
-            <form className="ops-action-form ops-action-form-wide" onSubmit={submitAction}>
-              <label className="label">
+            <form className="mc-drawer-form" onSubmit={submitAction}>
+              <label className="mc-field">
                 Program name
                 <input
-                  className="input"
+                  className="mc-input"
                   value={programForm.name}
                   onChange={(event) => {
                     setProgramForm((current) => ({ ...current, name: event.target.value }));
@@ -1316,10 +1317,10 @@ export default function ManagerControlCenter({
                   required
                 />
               </label>
-              <label className="label">
+              <label className="mc-field">
                 Role target
                 <input
-                  className="input"
+                  className="mc-input"
                   value={programForm.roleTarget}
                   onChange={(event) => {
                     setProgramForm((current) => ({ ...current, roleTarget: event.target.value }));
@@ -1328,10 +1329,11 @@ export default function ManagerControlCenter({
                   required
                 />
               </label>
-              <label className="label ops-action-span-full">
+              <label className="mc-field">
                 Program description
                 <textarea
-                  className="input ops-textarea"
+                  className="mc-input"
+                  rows={4}
                   value={programForm.description}
                   onChange={(event) => {
                     setProgramForm((current) => ({ ...current, description: event.target.value }));
@@ -1341,10 +1343,10 @@ export default function ManagerControlCenter({
                 />
               </label>
               {programForm.dayPlan.map((step, index) => (
-                <label className="label" key={`step-${index + 1}`}>
+                <label className="mc-field" key={`step-${index + 1}`}>
                   Day plan step {index + 1}
                   <input
-                    className="input"
+                    className="mc-input"
                     value={step}
                     onChange={(event) => {
                       setProgramForm((current) => ({
@@ -1359,8 +1361,8 @@ export default function ManagerControlCenter({
                   />
                 </label>
               ))}
-              <button className="btn btn-primary ops-action-span-full" type="submit" disabled={isSaving}>
-                {isSaving ? "Saving..." : "Save training program"}
+              <button className="mc-btn mc-btn-primary mc-drawer-submit" type="submit" disabled={isSaving}>
+                {isSaving ? "Saving…" : "Save training program"}
               </button>
             </form>
           )}
