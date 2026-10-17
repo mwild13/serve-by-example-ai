@@ -91,6 +91,9 @@ Not needed before launch. Pick up when there is a reason to.
 - **`profiles.venue_type` and `experience_level`.** Onboarding writes them and nothing reads them. Use them or drop them.
 - **Second pass on other tables.** Unused by code on 2026-10-06: `venues.completion_rate`, `avg_scenario_score`, `upsell_rate` (never written), `enabled_module_ids`, `force_diagnostic_on_join`, and `report_schedule` (written, never read); `venue_staff.skill_level`, `rsa_state` and `organization_member_id` (filled on 75 rows, so check before dropping). About 20 indexes have never been used. 79 of 91 accounts have never signed in; the three 25-person venues look like seeded demo staff.
 
+- **Notification email capacity.** One run of `/api/cron/notifications` sends at most 40 emails (the Workers Free plan's 50 outbound requests per call), about 700 to 800 per send window. Act when opt-ins near that: buy Workers Paid (Upgrades) and raise `BATCH_SIZE` to 200.
+- **Notification emails run on Sydney time.** Kept on purpose for now. Staff in other time zones get them earlier by their own clock, up to three hours in Perth. A time zone on the profile would fix it if a venue outside the east coast signs up.
+
 ## Upgrades
 
 Paid plans to decide on, then product upgrades from tester feedback.

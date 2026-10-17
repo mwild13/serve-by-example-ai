@@ -87,6 +87,7 @@ Two opt-in emails, both off until the person turns them on in Settings > Notific
 - **Opt-in card:** mobile Home shows `NotificationOptInCard` once, while both emails are off, linking to `/mobile/settings#notifications`. Dismissing or tapping it hides it on that device for good. Nobody is emailed about the feature.
 - **Manual run:** the same secret with body `{"force": "weekly_digest"}` or `{"force": "sunday_reminder"}` sends to opted-in people now; `{"dryRun": true}` reports what is due.
 - **Capacity:** 40 per call keeps a call under the Workers Free plan's 50 outbound requests; about 700 to 800 per window. Raise `BATCH_SIZE` after buying Workers Paid.
+- **Checking a run:** `select status_code, content from net._http_response order by id desc limit 5;` within six hours (pg_net deletes older rows). Every send is kept in `notification_sends`.
 
 ## Known Gaps / Drift
 

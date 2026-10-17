@@ -67,12 +67,7 @@ Settings has let staff opt in to two emails since August, and the confirmation e
 
 ### Left open
 
-Nothing. Two limits to know about:
-
-- **Capacity.** 40 people per call, about 700 to 800 per send window, set by the Workers Free plan's 50 outbound requests per call. Nothing to do until opt-ins approach that. If Workers Paid is bought (Upgrades in the to-do list), raise `BATCH_SIZE` in `app/api/cron/notifications/route.ts` to 200.
-- **Sydney time for everyone.** Kept on purpose. Staff in other time zones get the emails a little earlier by their own clock, up to three hours in Perth.
-
-To check a run, `select status_code, content from net._http_response order by id desc limit 5;` within six hours of it (pg_net deletes older rows). Every send is kept in `notification_sends`.
+Moved to `To_do_list.md` (Parked: notification email capacity and time zones).
 
 ## Part 3: fixes from the second round of testing
 
