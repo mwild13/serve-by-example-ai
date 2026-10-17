@@ -80,6 +80,11 @@ function DetailSheet({
       <div
         style={{
           position: "relative",
+          // Full width on a phone; on a desktop a centred card, so the
+          // square photos are not cropped to a strip across the screen.
+          width: "100%",
+          maxWidth: 720,
+          alignSelf: "center",
           background: "var(--bg-cream-warm)",
           borderRadius: "14px 14px 0 0",
           maxHeight: "82vh",
@@ -143,8 +148,8 @@ function DetailSheet({
         <div style={{ overflowY: "auto", WebkitOverflowScrolling: "touch" as const, flex: 1, padding: "16px 20px" }}>
 
           {photo && (
-            <div style={{ position: "relative", height: 220, borderRadius: 10, overflow: "hidden", marginBottom: 16 }}>
-              <Image src={photo} alt={cocktail.name} fill sizes="(max-width: 700px) 100vw, 640px" style={{ objectFit: "cover" }} />
+            <div style={{ position: "relative", width: "100%", maxWidth: 300, aspectRatio: "1 / 1", margin: "0 auto 16px", borderRadius: 10, overflow: "hidden" }}>
+              <Image src={photo} alt={cocktail.name} fill sizes="300px" style={{ objectFit: "cover" }} />
             </div>
           )}
 
