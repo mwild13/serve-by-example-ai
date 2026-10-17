@@ -279,9 +279,9 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
       explanation: "Full ice wells maintain thermal mass, keeping the ice colder for longer and preventing watery cocktails.",
     },
     {
-      prompt: "Changing an empty keg requires turning the gas off first.",
+      prompt: "Changing an empty keg requires cutting the gas to that coupler first.",
       answer: "true",
-      explanation: "Removing a coupler under high pressure without shutting the valve can cause dangerous gas blowback or beer spray.",
+      explanation: "Removing a coupler under high pressure without shutting the valve (or unattaching the gas link) can cause dangerous gas blowback or beer spray. Most Australian cellars run several kegs off one regulator with no valve for each keg, so lift the coupler handle to disengage it before you twist it off.",
     },
     {
       prompt: "Bar backs are not responsible for clearing the bar top.",
@@ -1376,7 +1376,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "You should remove a keg coupler without turning off the gas first.",
       answer: "false",
-      explanation: "Releasing a coupler under full gas pressure causes a dangerous blowout of gas and beer. The gas valve must always be closed first.",
+      explanation: "Releasing a coupler under full gas pressure causes a dangerous blowout of gas and beer. Shut the valve or unattach the gas link first. Most Australian cellars have no valve for each keg, so that usually means lifting the coupler handle to disengage it.",
     },
     {
       prompt: "Air bubbles in the beer line cause the first pours to fob heavily after a keg change.",
