@@ -24,10 +24,6 @@ Grouped by where you sign in. None of these can be done from the code.
 
 - [ ] **Check the rate-limit rule after the first venue session.** Created 2026-10-12 at 50 requests per 10 seconds. Look at Security, Events filtered by the rule. If staff were blocked, raise it to 80.
 
-### Supabase
-
-- [ ] **Send yourself the digest and the reminder (built 2026-10-17).** Migration, Vault secret and Cloudflare variable were done on 2026-10-17. On a staff account, in Settings > Notifications, tick the weekly digest and press **Save preferences** (desktop) or confirm the dialog (mobile); a tick alone saves nothing. Then send one with the SQL in `docs/handoff/2026-10-week4-handoff.md` (Part 2, step 5), check it in Gmail, unsubscribe from it, and check the toggle is off.
-
 ### Google
 
 - [ ] **Google Ads.** The only ad platform for now. Link the Google Ads account to the Analytics property, then import `sign_up`, `trial_start` and `purchase` as conversions. They must be marked as key events first (see Parked). No pixel goes in the code. Tag every ad link with `utm_source`, `utm_medium` and `utm_campaign`.
@@ -44,8 +40,7 @@ Three sittings cover every unconfirmed fix.
 
 Everything under "On a computer" below can be done on a laptop. Use a normal window for the manager account and a private window for the staff account, so both stay signed in.
 
-1. **Digest and reminder test send** on info@ (it has a week of training to report). See the Supabase item in section 3.
-2. **Roster unlink** last, by deleting info@ once nothing else needs a venue-linked staff account.
+1. **Roster unlink** last, by deleting info@ once nothing else needs a venue-linked staff account.
 
 ### On an iPhone, signed in
 
@@ -104,7 +99,7 @@ Paid plans to decide on, then product upgrades from tester feedback.
 
 None is switched on by the code; each is bought in its own dashboard. Prices are approximate, in US dollars, and should be checked before buying.
 
-- [ ] **Cloudflare Workers Paid, about $5 a month.** First find out which plan the account is on: Cloudflare dashboard, Workers & Pages, Plans. The free plan allows 10 ms of CPU time per request and 100,000 requests a day. Every page of this site is rendered by a Worker, so a busy page can run past 10 ms and fail with error 1102. Paid raises the limit to 30 seconds and includes 10 million requests a month. If the account is on the free plan, buy it before sending paid traffic to the site. The site works today at current visitor numbers, so it is not urgent before then.
+- [ ] **Cloudflare Workers Paid, about $5 a month.** First find out which plan the account is on: Cloudflare dashboard, Workers & Pages, Plans. The free plan allows 10 ms of CPU time per request and 100,000 requests a day. Every page of this site is rendered by a Worker, so a busy page can run past 10 ms and fail with error 1102. Paid raises the limit to 30 seconds and includes 10 million requests a month. If the account is on the free plan, buy it before sending paid traffic to the site. The site works today at current visitor numbers, so it is not urgent before then. After buying, raise `BATCH_SIZE` in `app/api/cron/notifications/route.ts` from 40 to 200: 40 keeps each notification run under the free plan's 50 outbound requests.
 - [ ] **Cloudflare Pro, about $25 a month. Optional.** Allows a second rate-limit rule, so the public forms can have a strict limit of their own, and a challenge page instead of a plain block. Not needed for launch.
 - [ ] **Supabase Pro, about $25 a month, for backups.** The free plan has no backups. Pro adds daily backups and leaked-password protection. The free alternative is a scheduled `pg_dump`.
 
@@ -121,6 +116,7 @@ From Richie, a venue manager with 20 years in busy venues and the first paid tes
 Onboarding was cut to the venue code alone on 2026-10-17: the venue type and experience questions were saved but nothing read them. Any question added back must change what the person sees.
 
 - [ ] **"When should we remind you?"** One onboarding step: pick a daily time (for example before a shift), then a reminder to do the day's training. On a phone, follow it with the "Add to home screen" prompt, since reminders on iPhone need the installed app. A daily habit is what keeps staff coming back after the first week, which is the tester's "the app is forgotten" problem. Needs push notifications (web push for the installed app) or a reminder email first, so do not ask for a time until something sends at that time. Show the manager who has reminders on.
+- [ ] **"What should we call you?" as the first onboarding question.** Many accounts have no name, so the app and emails fall back to the email address (info@ reads "Info"). Ask for a first name at sign-up or as onboarding step one, prefilled from the email, and save it with `/api/profile/update-name`. The manager's roster shows the same name.
 - [ ] **Skill check of 5 to 8 questions in place of "How much experience?".** About two minutes, drawn from the start of each module. The score sets each module's starting mastery level, so an experienced bartender skips the basics and a beginner starts at the start, which works on the repetition the tester reported. The manager sees each new hire's starting score per module on day one. Ends onboarding with the person already training. Needs a way to write a starting level into the mastery engine (`docs/MASTERY_ENGINE.md`) without counting it as practice.
 
 ## Important

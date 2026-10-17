@@ -21,7 +21,8 @@ The owner invited a new staff member and worked through the staff flow. Each fau
 
 - **Date:** 2026-10-17
 - **Branch:** `preview/oct-w4-tester-feedback`.
-- **Migration:** `supabase/migrations/20261017_notification_sender.sql` (rollback in `supabase/rollbacks/`). Not yet run on production.
+- **Migration:** `supabase/migrations/20261017_notification_sender.sql` (rollback in `supabase/rollbacks/`). Run on production on 2026-10-17.
+- **Live:** on `main`, with `NOTIFICATIONS_SECRET` set in Cloudflare, since 2026-10-17.
 
 ### The short version
 
@@ -60,34 +61,26 @@ Settings has let staff opt in to two emails since August, and the confirmation e
 - `vitest`: 114 tests pass, 28 of them new (schedule across both daylight-saving states, tokens, email wording, escaping, no em dashes).
 - `tsc` and `eslint` pass.
 - **The migration was run on production inside a transaction that was then rolled back.** In it, the info@ test account was opted in and claimed: it returned the account's real week (1 day, 22 answers, 3 modules passed). A second claim for the same day returned nobody, the finish call marked the row sent, and the cron job and secret were created. Afterwards: no extensions, table or secret remained, and the flag was still off.
-- **Not checked:** a real send through Brevo, the one-click header in Gmail, and the Home card on a phone. These need the owner steps below.
+- **Owner test, 2026-10-17:** a forced send of both emails to info@ returned 200 and `"sent":1` each, both arrived in Gmail, and the Unsubscribe link turned each switch off. Opening the same link again shows "You are unsubscribed" again and changes nothing, which is intended.
+- **Not checked:** Gmail's own one-click unsubscribe button, and the Home card on a phone (in the to-do list).
 - **New e2e test** in `tests/e2e/mobile-screens.spec.ts` for the Home card (shows, links to Settings, stays dismissed). Not run: it needs the QA account. The Home screenshot test now dismisses the card first, so its baseline is unchanged.
-
-### Owner steps to switch it on
-
-In this order:
-
-1. **Run the migration.** Supabase, SQL Editor, paste `supabase/migrations/20261017_notification_sender.sql`, Run.
-2. **Copy the secret.** Supabase, Project Settings, Vault, `notifications_cron_secret`, reveal, copy.
-3. **Add it to Cloudflare.** Cloudflare, Workers & Pages, the project, Settings, Variables and Secrets. Add `NOTIFICATIONS_SECRET` as a Secret for both Production and Preview, paste, save.
-4. **Deploy.** Variables apply to new deployments only, so push to `main` (or retry the latest deployment) after step 3.
-5. **Send yourself one.** Turn on the weekly digest for a staff account you own in Settings > Notifications. Then in the SQL Editor:
-
-   ```sql
-   select net.http_post(
-     url := 'https://servebyexample.co/api/cron/notifications',
-     headers := jsonb_build_object('Content-Type', 'application/json',
-       'x-cron-secret', (select decrypted_secret from vault.decrypted_secrets where name = 'notifications_cron_secret')),
-     body := '{"force": "weekly_digest"}'::jsonb);
-   ```
-
-   A few seconds later, `select status_code, content from net._http_response order by id desc limit 1;` should show 200 and `"sent":1`. Use `"sunday_reminder"` for the other email. A forced run is recorded against today's date, so it does not stop Monday's real send.
-6. **Unsubscribe from the email** and confirm the toggle is off in Settings.
-
-Until steps 1 to 4 are done, nothing sends. Before step 3, the cron calls get a 503. Before step 1, nothing calls the route at all.
 
 ### Left open
 
-- **Capacity.** 40 per call, about 700 to 800 per window, set by the Workers Free plan's 50 outbound requests per call. If the account is on Workers Paid, `BATCH_SIZE` can go up.
-- **Everyone is on Sydney time.** Perth staff get each email two hours earlier by their clock (three during daylight saving), so the digest can arrive from 4:00. Profiles have no time zone yet.
-- **`net._http_response`** keeps cron responses for six hours only, so check soon after a run. Sends are recorded permanently in `notification_sends`.
+Nothing. Two limits to know about:
+
+- **Capacity.** 40 people per call, about 700 to 800 per send window, set by the Workers Free plan's 50 outbound requests per call. Nothing to do until opt-ins approach that. If Workers Paid is bought (Upgrades in the to-do list), raise `BATCH_SIZE` in `app/api/cron/notifications/route.ts` to 200.
+- **Sydney time for everyone.** Kept on purpose. Staff in other time zones get the emails a little earlier by their own clock, up to three hours in Perth.
+
+To check a run, `select status_code, content from net._http_response order by id desc limit 5;` within six hours of it (pg_net deletes older rows). Every send is kept in `notification_sends`.
+
+## Part 3: fixes from the second round of testing
+
+- **Date:** 2026-10-17
+- **Branch:** `preview/oct-w4-tester-feedback`.
+
+- **Invite emails explain the venue link.** The first invite, the resend and the duty manager invite now say that signing in with the invited address joins the venue's team automatically, and that a different address needs the venue code at sign-up or in Settings under "Join a venue by code" (`staffVenueNoteHtml()` in `lib/email-template.ts`).
+- **Staff profile drawer rebuilt** (`CoachingDrawer.tsx`) on the console standard. It shows modules passed out of 40 with a bar, training, service and product scores, five milestones (started, product knowledge, 20, SBE Elite at 32, all 40) and RSA and Food Safety Supervisor dates. Removed: the Sales score (nothing calculates it), the 20-square grid (the roster stores how many modules were passed, not which, so it painted modules 1, 2, 3... as passed), and the "All 20 modules" badges. Strengths and Needs improvement show only when a row has them; nothing writes them for real staff. `StaffBadges` and `MasteryMicroGrid` were deleted from `manager-ui.tsx`.
+- **Open cocktail on desktop:** Bookmark and Close sit in a footer outside the scrolling area, so they are always on screen. From 640px the photo sits left of the recipe.
+- **Settings on desktop kept old values.** After saving a name or notification ticks, reopening Settings showed the old values until a full reload: the panel takes its starting values from the server page and is remounted each time. Both saves now refresh the page's data.
+- **Emails to someone with no name** now greet them by the name taken from their email address (info@ reads "Info"), as the rest of the app does.
