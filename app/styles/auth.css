@@ -396,25 +396,6 @@
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
 }
 
-.onboarding-steps {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
-}
-
-.onboarding-step-dot {
-  flex: 1;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--border);
-  transition: background 0.25s;
-}
-
-.onboarding-step-dot.active,
-.onboarding-step-dot.done {
-  background: var(--green);
-}
-
 .onboarding-heading {
   font-size: 1.35rem;
   font-family: var(--font-heading);
@@ -435,70 +416,11 @@
   margin-bottom: 12px;
 }
 
-.onboarding-option-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.onboarding-option-grid--4 {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-.onboarding-option {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 5px;
-  padding: 16px;
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  background: var(--bg);
-  cursor: pointer;
-  text-align: left;
-  transition: border-color 0.15s, background 0.15s;
-}
-
-.onboarding-option:hover {
-  border-color: var(--green);
-  background: rgba(34, 139, 34, 0.03);
-}
-
-.onboarding-option.selected {
-  border-color: var(--green);
-  background: rgba(34, 139, 34, 0.07);
-}
-
-.onboarding-option-label {
-  font-weight: 600;
-  font-size: 0.93rem;
-  color: var(--text);
-}
-
-.onboarding-option-desc {
-  font-size: 0.79rem;
-  color: var(--text-muted);
-  line-height: 1.4;
-}
-
-.onboarding-nav {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 4px;
-}
-
 /* ── Wide desktop breakpoints ───────────────────────────────── */
 
 @media (max-width: 640px) {
 
   .onboarding-card {
     padding: 28px 20px;
-  }
-
-  .onboarding-option-grid,
-  .onboarding-option-grid--4 {
-    grid-template-columns: 1fr;
   }
 }

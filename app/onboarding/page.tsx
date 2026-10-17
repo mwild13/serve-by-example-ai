@@ -6,46 +6,48 @@ import Image from "next/image";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { normalizeVenueCode } from "@/lib/venue-code";
 
-type Step = 1 | 2 | 3;
-
-const VENUE_TYPES = [
-  { id: "bar", label: "Bar / Pub" },
-  { id: "restaurant", label: "Restaurant" },
-  { id: "hotel", label: "Hotel F\u0026B" },
-  { id: "events", label: "Events venue" },
-];
-
-const EXPERIENCE_LEVELS = [
-  {
-    id: "beginner",
-    label: "Just starting out",
-    description: "0\u20131 years in hospitality",
-  },
-  {
-    id: "intermediate",
-    label: "Getting confident",
-    description: "1\u20133 years experience",
-  },
-  {
-    id: "experienced",
-    label: "Seasoned pro",
-    description: "3+ years in the industry",
-  },
-];
-
+// One step since 2026-10-17. The venue type and experience questions that
+// followed were saved but never read by anything, so they were removed.
 function OnboardingPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const stripeSessionId = searchParams.get("session_id");
-  const [step, setStep] = useState<Step>(1);
   const [venueCode, setVenueCode] = useState("");
   const [venueCodeStatus, setVenueCodeStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [venueCodeMessage, setVenueCodeMessage] = useState("");
-  const [venueType, setVenueType] = useState("");
-  const [experience, setExperience] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [isSkipping, setIsSkipping] = useState(false);
+  const [finishing, setFinishing] = useState(false);
   const [error, setError] = useState("");
+
+  async function finish() {
+    if (finishing) return;
+    setFinishing(true);
+    setError("");
+    try {
+      const res = await fetch("/api/onboarding/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      if (!res.ok) {
+        // Don't redirect on failure — the dashboard gates on
+        // onboarding_completed and will just bounce the user straight back
+        // here, which looks like a silent infinite loop. Surface the error
+        // instead so the user can retry.
+        const data = await res.json().catch(() => ({} as { error?: string }));
+        setError(data.error || "Something went wrong saving your progress. Please try again.");
+        setFinishing(false);
+        return;
+      }
+      router.push(
+        stripeSessionId
+          ? `/dashboard?checkout=success&session_id=${stripeSessionId}`
+          : "/dashboard"
+      );
+    } catch {
+      setError("Could not reach the server. Check your connection and try again.");
+      setFinishing(false);
+    }
+  }
 
   async function handleConnectVenue() {
     const code = normalizeVenueCode(venueCode);
@@ -75,67 +77,11 @@ function OnboardingPageContent() {
           ? `Already connected to ${data.venueName}.`
           : `Connected to ${data.venueName}.`
       );
-      setTimeout(() => setStep(2), 1500);
+      // Long enough to read the venue name before the dashboard loads.
+      setTimeout(() => void finish(), 1200);
     } catch (err) {
       setVenueCodeStatus("error");
       setVenueCodeMessage(err instanceof Error ? err.message : "Could not connect to venue.");
-    }
-  }
-
-  async function handleAbsoluteSkip() {
-    if (isSkipping) return;
-    setIsSkipping(true);
-    setError("");
-    try {
-      const res = await fetch("/api/onboarding/complete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
-      });
-      if (!res.ok) {
-        // Don't redirect on failure — the dashboard gates on
-        // onboarding_completed and will just bounce the user straight back
-        // here, which looks like a silent infinite loop. Surface the error
-        // instead so the user can retry.
-        const data = await res.json().catch(() => ({} as { error?: string }));
-        console.error("Onboarding skip error:", data.error);
-        setError(data.error || "Something went wrong saving your progress. Please try again.");
-        setIsSkipping(false);
-        return;
-      }
-      window.location.href = "/dashboard";
-    } catch (err) {
-      console.error("Skip handler error:", err);
-      setError("Could not reach the server. Check your connection and try again.");
-      setIsSkipping(false);
-    }
-  }
-
-  async function save(skip = false) {
-    setSaving(true);
-    setError("");
-    try {
-      const res = await fetch("/api/onboarding/complete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
-          skip
-            ? {}
-            : { venueType: venueType || undefined, experienceLevel: experience || undefined }
-        ),
-      });
-      if (!res.ok) {
-        const data = await res.json() as { error?: string };
-        throw new Error(data.error ?? "Something went wrong.");
-      }
-      router.push(
-        stripeSessionId
-          ? `/dashboard?checkout=success&session_id=${stripeSessionId}`
-          : "/dashboard"
-      );
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-      setSaving(false);
     }
   }
 
@@ -149,151 +95,61 @@ function OnboardingPageContent() {
       </div>
 
       <div className="onboarding-card">
-        <div className="onboarding-steps">
-          {([1, 2, 3] as Step[]).map((s) => (
-            <div
-              key={s}
-              className={`onboarding-step-dot${step >= s ? " active" : ""}${step > s ? " done" : ""}`}
+        <h2 className="onboarding-heading">Do you have a venue code?</h2>
+        <p className="onboarding-hint">Your manager shares a venue code to link your training progress to their dashboard. You can skip this and add a code later from Settings.</p>
+        <div className="onboarding-input-group">
+          <label className="label" htmlFor="onboarding-venue-code">
+            Venue code
+            <input
+              id="onboarding-venue-code"
+              className="input"
+              type="text"
+              autoCapitalize="characters"
+              autoComplete="off"
+              spellCheck={false}
+              maxLength={8}
+              value={venueCode}
+              onChange={(e) => { setVenueCode(e.target.value.toUpperCase()); setVenueCodeStatus("idle"); setVenueCodeMessage(""); }}
+              placeholder="e.g. K7P3QX"
             />
-          ))}
+          </label>
+          {venueCodeStatus === "success" && (
+            <div className="auth-status auth-status-success">{venueCodeMessage}</div>
+          )}
+          {venueCodeStatus === "error" && (
+            <div className="auth-status auth-status-error">{venueCodeMessage}</div>
+          )}
+          <button
+            className="btn btn-primary btn-block"
+            type="button"
+            disabled={!venueCode.trim() || venueCodeStatus === "loading" || venueCodeStatus === "success" || finishing}
+            onClick={handleConnectVenue}
+          >
+            {venueCodeStatus === "loading" ? "Connecting..." : venueCodeStatus === "success" ? "Opening your dashboard…" : "Connect to venue"}
+          </button>
+          {/* After a successful connect this only shows if saving failed, as a retry. */}
+          {(venueCodeStatus !== "success" || error) && (
+            <button
+              className="btn btn-block"
+              type="button"
+              disabled={finishing}
+              onClick={() => void finish()}
+              style={{
+                marginTop: 12,
+                backgroundColor: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                color: "var(--text-muted)",
+              }}
+            >
+              {finishing ? "Loading…" : venueCodeStatus === "success" ? "Try again" : "Skip for now, I'll add this later"}
+            </button>
+          )}
+          {error && (
+            <div className="auth-status auth-status-error" style={{ marginTop: 12 }}>
+              {error}
+            </div>
+          )}
         </div>
-
-        {step === 1 && (
-          <>
-            <div className="eyebrow">Step 1 of 3</div>
-            <h2 className="onboarding-heading">Do you have a venue code?</h2>
-            <p className="onboarding-hint">Your manager shares a venue code to link your training progress to their dashboard. You can skip this and add a code later from Settings.</p>
-            <div className="onboarding-input-group">
-              <label className="label" htmlFor="onboarding-venue-code">
-                Venue code
-                <input
-                  id="onboarding-venue-code"
-                  className="input"
-                  type="text"
-                  autoCapitalize="characters"
-                  autoComplete="off"
-                  spellCheck={false}
-                  maxLength={8}
-                  value={venueCode}
-                  onChange={(e) => { setVenueCode(e.target.value.toUpperCase()); setVenueCodeStatus("idle"); setVenueCodeMessage(""); }}
-                  placeholder="e.g. K7P3QX"
-                />
-              </label>
-              {venueCodeStatus === "success" && (
-                <div className="auth-status auth-status-success">{venueCodeMessage}</div>
-              )}
-              {venueCodeStatus === "error" && (
-                <div className="auth-status auth-status-error">{venueCodeMessage}</div>
-              )}
-              <button
-                className="btn btn-primary btn-block"
-                type="button"
-                disabled={!venueCode.trim() || venueCodeStatus === "loading"}
-                onClick={handleConnectVenue}
-              >
-                {venueCodeStatus === "loading" ? "Connecting..." : venueCodeStatus === "success" ? "Connected" : "Connect to venue"}
-              </button>
-              <button
-                className="btn btn-block"
-                type="button"
-                disabled={isSkipping}
-                onClick={handleAbsoluteSkip}
-                style={{
-                  marginTop: 12,
-                  backgroundColor: "rgba(255, 255, 255, 0.05)",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
-                  color: "var(--text-muted)",
-                }}
-              >
-                {isSkipping ? "Loading…" : "Skip for now, I'll add this later"}
-              </button>
-              {venueCodeStatus === "success" && (
-                <button
-                  className="btn btn-secondary btn-block"
-                  type="button"
-                  onClick={() => setStep(2)}
-                >
-                  Continue
-                </button>
-              )}
-              {error && (
-                <div className="auth-status auth-status-error" style={{ marginTop: 12 }}>
-                  {error}
-                </div>
-              )}
-            </div>
-          </>
-        )}
-
-        {step === 2 && (
-          <>
-            <div className="eyebrow">Step 2 of 3</div>
-            <h2 className="onboarding-heading">What kind of venue?</h2>
-            <div className="onboarding-option-grid onboarding-option-grid--4">
-              {VENUE_TYPES.map((v) => (
-                <button
-                  key={v.id}
-                  className={`onboarding-option${venueType === v.id ? " selected" : ""}`}
-                  onClick={() => setVenueType(v.id)}
-                  type="button"
-                >
-                  <span className="onboarding-option-label">{v.label}</span>
-                </button>
-              ))}
-            </div>
-            <div className="onboarding-nav">
-              <button className="btn btn-secondary" onClick={() => setStep(1)} type="button">
-                Back
-              </button>
-              <button
-                className="btn btn-primary"
-                disabled={!venueType}
-                onClick={() => setStep(3)}
-                type="button"
-              >
-                Continue
-              </button>
-            </div>
-          </>
-        )}
-
-        {step === 3 && (
-          <>
-            <div className="eyebrow">Step 3 of 3</div>
-            <h2 className="onboarding-heading">How much experience do you have?</h2>
-            <div className="onboarding-option-grid">
-              {EXPERIENCE_LEVELS.map((e) => (
-                <button
-                  key={e.id}
-                  className={`onboarding-option${experience === e.id ? " selected" : ""}`}
-                  onClick={() => setExperience(e.id)}
-                  type="button"
-                >
-                  <span className="onboarding-option-label">{e.label}</span>
-                  <span className="onboarding-option-desc">{e.description}</span>
-                </button>
-              ))}
-            </div>
-            {error && (
-              <div className="auth-status auth-status-error" style={{ marginTop: 12 }}>
-                {error}
-              </div>
-            )}
-            <div className="onboarding-nav">
-              <button className="btn btn-secondary" onClick={() => setStep(2)} type="button">
-                Back
-              </button>
-              <button
-                className="btn btn-primary"
-                disabled={!experience || saving}
-                onClick={() => save()}
-                type="button"
-              >
-                {saving ? "Saving\u2026" : "Go to dashboard"}
-              </button>
-            </div>
-          </>
-        )}
       </div>
     </div>
   );
