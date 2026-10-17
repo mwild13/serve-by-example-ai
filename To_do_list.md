@@ -25,7 +25,7 @@ Grouped by where you sign in. None of these can be done from the code.
 
 ### Supabase
 
-- [ ] **Switch on the digest and reminder emails (built 2026-10-17).** In this order: (1) SQL Editor, run `supabase/migrations/20261017_notification_sender.sql`. (2) Project Settings, Vault, reveal `notifications_cron_secret` and copy it. (3) Cloudflare, Workers & Pages, the project, Settings, Variables and Secrets: add `NOTIFICATIONS_SECRET` as a Secret for Production and Preview. (4) Redeploy. (5) Turn on the weekly digest on your own staff account and send one with the SQL in `docs/handoff/2026-10-week4-handoff.md` (Part 2, step 5). (6) Unsubscribe from that email and check the toggle is off. Nothing sends until steps 1 to 4 are done.
+- [ ] **Send yourself the digest and the reminder (built 2026-10-17).** Migration, Vault secret and Cloudflare variable were done on 2026-10-17. On a staff account, in Settings > Notifications, tick the weekly digest and press **Save preferences** (desktop) or confirm the dialog (mobile); a tick alone saves nothing. Then send one with the SQL in `docs/handoff/2026-10-week4-handoff.md` (Part 2, step 5), check it in Gmail, unsubscribe from it, and check the toggle is off.
 
 ### Google
 
@@ -43,11 +43,10 @@ Three sittings cover every unconfirmed fix.
 
 Everything under "On a computer" below can be done on a laptop. Use a normal window for the manager account and a private window for the staff account, so both stay signed in.
 
-1. **Add staff drawer, after the 2026-10-17 fix.** Open Add staff and type straight away: the cursor starts in Staff name and typing an "i" no longer switches to Add inventory. Close with text typed: no "unsaved changes" pop-up, and reopening shows the text still there.
-2. **Staff screens after the stylesheet split**, then `/dashboard` narrow and AI limit.
+1. **Staff screens after the stylesheet split**, then `/dashboard` narrow and AI limit, as info@servebyexample.co.
+2. **Digest and reminder test send** on info@ (it has a week of training to report). See the Supabase item in section 3.
 3. **Manager screens:** the trial chip.
-4. **Resend the invite** from the console and check both emails in Gmail and on your phone, then send the contact, book-a-call and ROI emails.
-5. **Roster unlink** last, by deleting the test staff account.
+4. **Roster unlink** last, by deleting info@ once nothing else needs a venue-linked staff account.
 
 ### On an iPhone, signed in
 
@@ -65,7 +64,6 @@ Everything under "On a computer" below can be done on a laptop. Use a normal win
 
 ### On a computer, as staff
 
-- [ ] **The restyled emails.** Changed 2026-10-12, not seen in an inbox. Send yourself one of each: a staff invite and a resend from the Manager Console, the contact form, the book-a-call form, and the ROI calculator's "email me this". Check them in Gmail and on a phone.
 - [ ] **`/dashboard` when narrow.** At about 700px and 375px: the nav sits on top as a wrapped row, every item opens, Sign out is reachable, nothing scrolls sideways.
 - [ ] **Join link** on a computer, as on the phone.
 - [ ] **AI limit.** 30 requests a day on the free tier, 300 on paid (`lib/ai-usage.ts`). Changed 2026-10-12, not seen in a browser: at the limit the screen should say how many hours until it resets, keep the submit button disabled, and on a free account link to the plans. To reach it quickly, raise a test account's `request_count` in `ai_usage_daily` to 30.
