@@ -56,3 +56,6 @@ Please
 # Generated outputs
 graphify-out/
 supabase/.temp/
+
+# Playwright MCP screenshots and console logs
+.playwright-mcp/
