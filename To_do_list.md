@@ -18,50 +18,22 @@ Nothing open. Closed by the owner on 2026-10-12. There is still no customer data
 
 Grouped by where you sign in. None of these can be done from the code.
 
-### Cloudflare
-
-- [ ] **Check the rate-limit rule after the first venue session.** Created 2026-10-12 at 50 requests per 10 seconds. Look at Security, Events filtered by the rule. If staff were blocked, raise it to 80.
-
-### Google
-
-- [ ] **Google Ads.** The only ad platform for now. Link the Google Ads account to the Analytics property, then import `sign_up`, `trial_start` and `purchase` as conversions. They must be marked as key events first (see Parked). No pixel goes in the code. Tag every ad link with `utm_source`, `utm_medium` and `utm_campaign`.
-
 ### Stripe
 
 - [ ] **Switch on plan switching, in test mode first.** Settings, Billing, Customer portal, "Customers can switch plans". Add the Boutique and Commercial prices, monthly and yearly, and nothing else (not Pro, not Enterprise). Set proration to "Prorate and invoice immediately", not "on next invoice". Until this is done, a Pro member who presses a venue plan sees Stripe's refusal instead of the upgrade page.
 
 ## 4. Owner: testing
 
-Three sittings cover every unconfirmed fix.
-
-### Laptop order for tonight
-
-Everything under "On a computer" below can be done on a laptop. Use a normal window for the manager account and a private window for the staff account, so both stay signed in.
-
-1. **Roster unlink** last, by deleting info@ once nothing else needs a venue-linked staff account.
+Each needs something first: a real payment, an expired trial, or the Stripe setting in section 3.
 
 ### On an iPhone, signed in
 
-- [ ] **Notifications card on Home.** Added 2026-10-17. With both emails off, Home shows "Want a weekly nudge?" under the warm-up. "Choose in Settings" opens Settings scrolled to Notifications; the X hides it; neither brings it back after a reload.
-- [ ] **AI photo.** The face oval, and a saved photo showing on Home without a reload.
-- [ ] **`/mobile` at full width.** The frame no longer leaves a strip down each side; no screen was seen behind a login after the change.
-- [ ] **Text fields.** In Settings, tap each field: no "rotate your device" screen. Go back to Me: the screen does not move sideways. Turn the phone on its side: the rotate screen still appears.
-- [ ] **Join link.** Signed out, open a venue's staff sign-up link, create an account, finish onboarding, and confirm the account is connected to the venue. Then, signed in, open `/dashboard?join=<venue code>`: it should land on Settings, join once and drop the code from the URL. Not covered: confirming the email on a different device.
 - [ ] **Checkout return.** Buy Pro and confirm the plan shows on mobile Home at once. Needs a real payment.
-- [ ] **Android.** Not tried at all: take an AI photo, save it, and check it on Home.
-- [ ] **Learn and Me tab bars.** Changed 2026-10-14. On Learn and on Me the bottom nav stays on screen while scrolling, and the last section scrolls clear of it.
-- [ ] **Me header.** Changed 2026-10-14. The logo sits left of your name; tap your photo on the right: Settings, Change photo and a red Log out. Each works, and a tap outside closes the menu.
-- [ ] **Quiz speed.** Changed 2026-10-14. Stay on `/mobile` for over an hour, then answer True/False questions quickly: each should check in well under a second. Before, every answer first sent an expired token.
-- [ ] **AI Coach on Me.** Changed 2026-10-14. Sign out and in, open Me: the coach is closed and an "AI Coach" bubble shows beside its button for five seconds. Leave and come back: no bubble. Tapping the bubble or the button opens the coach.
 
 ### On a computer, as staff
 
-- [ ] **Quiz speed, desktop.** Branch `preview/oct-w4-quiz-speed`, changed 2026-10-17. The sign-in check on each answer now runs in the Worker, so an answer makes two trips to Supabase instead of three. After a pause of a few minutes, answer True/False questions: each should check faster than before. Then pass a module's quiz and confirm it shows as mastered. Sign in on a second device and confirm the first one's next answer is refused.
 - [ ] **Trial-ended modal.** Branch `preview/oct-w4-console-restyle`. As a manager whose trial has ended: the modal uses the console dialog style, Escape or "Not now" closes it and it does not come back after a reload, and "Add billing details" opens the billing tab.
-- [ ] **Add staff, Add inventory and Add program drawers.** Same branch. Each opens with console-style fields in one column. Add a staff member with an email and the invite box shows below the title, with Copy link and Dismiss working.
 - [ ] **Upgrade from Pro to a venue plan.** Needs the Stripe setting in section 3. In test mode, as a Pro account, press a Boutique button on `/membership`: Stripe's page should show the prorated charge. Pay, and confirm you land on the Manager Console billing tab on Boutique with 15 seats and an organisation created.
-- [ ] **Server errors reach Sentry.** Browser errors and the alert email were confirmed on 2026-10-16. Open one browser test error in Sentry and confirm no IP address shows, then resolve both. When a server error first occurs, confirm it arrives tagged `runtime: server`: if none ever comes from a page render, the `onRequestError` hook is not running under OpenNext and only the billing and AI routes report.
-- [ ] **Roster unlink on account deletion.** Delete a test staff account that is on a venue roster, then confirm its `venue_staff` row is kept with `staff_user_id` null and `organization_members` is marked `removed`.
 
 ## 5. Owner: decisions
 
@@ -81,7 +53,8 @@ Not needed before launch. Pick up when there is a reason to.
 - **Support email on the Google consent screen.** It is `info@serve-by-example.com`; the site, privacy policy and terms use `info@servebyexample.co`. Confirm the `.com` mailbox exists and is read, or change it (Google Cloud Console, Google Auth Platform, Branding).
 - **AI Coach memory.** Each question is answered on its own; a follow-up such as "and what about Mia?" has no context.
 - **Notifications and Training programs screens.** Both were restyled on 2026-10-12 and then hidden: no menu entry, no keyboard shortcut, and `?tab=notifications` or `?tab=training` lands on Overview. To bring them back, remove them from the hidden list in `ManagerControlCenter.tsx` and add menu entries. Neither has been seen in a browser since the restyle.
-- **Check the conversion events in Google Analytics.** Added 2026-10-12, not seen. Accept cookies, open Analytics Realtime, then sign up, start a trial and press a paid plan button. `purchase` needs one real payment. Once they show, mark `sign_up`, `trial_start` and `purchase` as key events under Admin, Events.
+- **Google Ads.** Parked on 2026-10-18 until there is a budget to advertise. The only ad platform for now; no pixel goes in the code. Done: Ads account `398-319-6350` exists under mitch@serve-by-example.com, but shows "Setup in progress" with no payment details. `sign_up` and `trial_start` are key events in Analytics (`purchase` already was, by default). It is linked to the Analytics property (confirmed 2026-10-18, personalised advertising on). Left to do: (1) finish the Ads setup with payment details, but the guided setup left a draft campaign that goes live once payment is added, so pause or delete it straight away in Campaigns, or start a new account in Expert Mode with "Create an account without a campaign"; (2) in Google Ads, Goals, Conversions, New conversion action, Import, Google Analytics 4, Web: import `trial_start` and `purchase` as Primary (purchase value from Analytics) and `sign_up` as Secondary; (3) tag every ad with `utm_source=google&utm_medium=cpc&utm_campaign=<name>` in the campaign's Final URL suffix.
+- **Check the conversion events in Google Analytics.** Added 2026-10-12, not seen. Accept cookies, open Analytics Realtime, then sign up, start a trial and press a paid plan button. `purchase` needs one real payment.
 - **Turnstile on previews.** The widget's hostname list could not take the `pages.dev` address, so captcha protection has to be switched off in Supabase to sign in on a preview.
 - **A `preview` env for email links.** Toolkit emails hard-code `https://servebyexample.co`, so open tracking and unsubscribe can't be tested on a preview.
 - **Failed toolkit emails.** `select * from toolkit_leads where toolkit_delivered = false` returned 0 on 2026-10-12. Add an admin action only if that grows.
@@ -123,6 +96,7 @@ Onboarding was cut to the venue code alone on 2026-10-17: the venue type and exp
 
 Not urgent today, but each has a trigger that must not be missed.
 
+- [ ] **Check the first server error in Sentry.** Browser errors, the alert email and IP stripping were confirmed by 2026-10-19; no server error had happened yet. When the first one arrives, confirm it is tagged `runtime: server`. If none ever comes from a page render, the `onRequestError` hook in `instrumentation.ts` is not running under OpenNext, and only the billing and AI routes report.
 - [ ] **Read the AI usage numbers two weeks after the first real venue starts.** Run `supabase/queries/ai-usage.sql`. If the 90th percentile sits near 30 (free) or 300 (paid), raise that limit in `lib/ai-usage.ts`. There was one row of usage when the limits were kept on 2026-10-12.
 - [ ] **Read the funnel numbers before and during any ad spend.** `docs/FUNNEL_METRICS.md` and `supabase/queries/funnel.sql`. Fix the size of the first test before it starts, and pause it if 200 paid visits produce no trial.
 - [ ] **Register for GST at A$75,000 turnover.** Not registered as of 2026-10-12, so checkout charges no GST and invoices say "No GST has been charged". Registration is compulsory once turnover reaches A$75,000 in any 12 months, within 21 days of reaching it. When that happens: register with the ATO, add the registration under Stripe Tax, set the prices to tax-inclusive, switch on `automatic_tax` in `app/api/billing/checkout/route.ts`, change the invoice template to say "Tax invoice" and drop the no-GST line, and update the GST wording on `/advisory`.
