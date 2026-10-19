@@ -15,6 +15,13 @@ import { MODULE_4_QUESTIONS } from "@/lib/questions/module-04";
 import { MODULE_5_QUESTIONS } from "@/lib/questions/module-05";
 import { MODULE_6_QUESTIONS } from "@/lib/questions/module-06";
 import { MODULE_7_QUESTIONS } from "@/lib/questions/module-07";
+import { MODULE_26_QUESTIONS } from "@/lib/questions/module-26";
+import { MODULE_27_QUESTIONS } from "@/lib/questions/module-27";
+import { MODULE_28_QUESTIONS } from "@/lib/questions/module-28";
+import { MODULE_32_QUESTIONS } from "@/lib/questions/module-32";
+import { MODULE_33_QUESTIONS } from "@/lib/questions/module-33";
+import { MODULE_34_QUESTIONS } from "@/lib/questions/module-34";
+import { MODULE_39_QUESTIONS } from "@/lib/questions/module-39";
 import type { QuizFormat, QuizOption } from "@/lib/verify-quiz-client";
 
 export type QuestionFormat = QuizFormat;
@@ -79,6 +86,13 @@ const EXTRA_QUESTIONS: Record<number, Question[]> = {
   5: MODULE_5_QUESTIONS,
   6: MODULE_6_QUESTIONS,
   7: MODULE_7_QUESTIONS,
+  26: MODULE_26_QUESTIONS,
+  27: MODULE_27_QUESTIONS,
+  28: MODULE_28_QUESTIONS,
+  32: MODULE_32_QUESTIONS,
+  33: MODULE_33_QUESTIONS,
+  34: MODULE_34_QUESTIONS,
+  39: MODULE_39_QUESTIONS,
 };
 
 function statementsFor(moduleId: number): TrueFalseQuestion[] {

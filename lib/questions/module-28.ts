@@ -1,0 +1,153 @@
+// Module 28, Mid-Shift Reset: questions in the new formats, written from the
+// module's True/False statements (lib/verify-questions.ts). Each `concept`
+// names the statement it comes from.
+//
+// Drafts until the owner approves them: `reviewed: false` keeps them out of
+// every run. Review copy: docs/Rich Update/batch-2-bartending-b.md.
+import "server-only";
+import type { Question } from "@/lib/question-bank";
+
+export const MODULE_28_QUESTIONS: Question[] = [
+  {
+    id: "q1",
+    concept: "s0",
+    difficulty: 1,
+    format: "multiple_choice",
+    prompt: "What does mise en place mean?",
+    options: [
+      { id: "a", text: "Everything in its correct place before service begins" },
+      { id: "b", text: "Cleaning down after service" },
+      { id: "c", text: "The order drinks are made in" },
+      { id: "d", text: "A French cocktail style" },
+    ],
+    answer: "a",
+    explanation: "This French culinary principle applies equally to the bar, floor, and kitchen. Setup determines the quality of the service.",
+    reviewed: false,
+  },
+  {
+    id: "q2",
+    concept: "s1",
+    difficulty: 1,
+    format: "multiple_choice",
+    prompt: "How often should you restock your station during a shift?",
+    options: [
+      { id: "a", text: "Once, at the start" },
+      { id: "b", text: "Continuously, in the small gaps between waves" },
+      { id: "c", text: "Only when something runs out" },
+      { id: "d", text: "At the end, ready for tomorrow" },
+    ],
+    answer: "b",
+    explanation: "Stations deplete fast under pressure. Continuous reloading in the micro-gaps between service waves is essential to maintain flow.",
+    reviewed: false,
+  },
+  {
+    id: "q3",
+    concept: "s2",
+    difficulty: 2,
+    format: "multiple_choice",
+    prompt: "What does a bartender hunting for a lime wedge mid-order tell the room?",
+    options: [
+      { id: "a", text: "That they're thorough" },
+      { id: "b", text: "That the station wasn't prepared" },
+      { id: "c", text: "That limes are in short supply" },
+      { id: "d", text: "Nothing, guests don't notice" },
+    ],
+    answer: "b",
+    explanation: "A bartender visibly searching for a lime wedge mid-order telegraphs poor preparation to the entire room.",
+    reviewed: false,
+  },
+  {
+    id: "q5",
+    concept: "s3",
+    difficulty: 3,
+    format: "order_steps",
+    prompt: "A wave of orders has just cleared. Put your reset in order.",
+    steps: [
+      { id: "a", text: "Spot the lull as the last drinks go out" },
+      { id: "b", text: "Refill citrus, ice and glassware" },
+      { id: "c", text: "Be set up before the next wave arrives" },
+    ],
+    explanation: "Expert staff identify the brief lulls between waves and use them to refill citrus, ice, and glassware before the next rush arrives.",
+    reviewed: false,
+  },
+  {
+    id: "q6",
+    concept: "s4",
+    difficulty: 1,
+    format: "multiple_choice",
+    prompt: "What does a tidy, fully stocked station say to your team and manager?",
+    options: [
+      { id: "a", text: "That you're not busy enough" },
+      { id: "b", text: "That you're in control" },
+      { id: "c", text: "That you started late" },
+      { id: "d", text: "Nothing, only speed matters" },
+    ],
+    answer: "b",
+    explanation: "How your station looks mid-service communicates your standards. A stocked, organised station says you are in control.",
+    reviewed: false,
+  },
+  {
+    id: "q7",
+    concept: "s5",
+    difficulty: 1,
+    format: "best_line",
+    prompt: "Your garnish tray is almost empty and the bar is busy. What's the best thing to say to the bartender next to you?",
+    options: [
+      { id: "a", text: "Say nothing and keep going until it runs out" },
+      { id: "b", text: "\"Can you cover me for 90 seconds while I restock garnish?\"" },
+      { id: "c", text: "\"I'm out of everything, this is a nightmare.\"" },
+      { id: "d", text: "Disappear to restock without telling anyone" },
+    ],
+    answer: "b",
+    explanation: "A quick cover request is exactly how a coordinated team operates. Silent suffering until you run out is what breaks service.",
+    reviewed: false,
+  },
+  {
+    id: "q8",
+    concept: "s6",
+    difficulty: 1,
+    format: "multiple_choice",
+    prompt: "When should you check and top up the ice?",
+    options: [
+      { id: "a", text: "In every quiet moment you get" },
+      { id: "b", text: "Only when it's nearly gone" },
+      { id: "c", text: "At the start of the shift" },
+      { id: "d", text: "When the manager asks" },
+    ],
+    answer: "a",
+    explanation: "Running low on ice mid-rush is one of the most common avoidable disasters behind a bar. Top up constantly.",
+    reviewed: false,
+  },
+  {
+    id: "q9",
+    concept: "s7",
+    difficulty: 2,
+    format: "spot_mistake",
+    prompt: "A new starter explains how they keep their station ready. Which part is wrong?",
+    options: [
+      { id: "a", text: "I top up ice whenever it's quiet" },
+      { id: "b", text: "I ask for a quick cover if I need to restock" },
+      { id: "c", text: "I wait until a wave ends and then leave my reset until later" },
+      { id: "d", text: "I keep my station tidy through service" },
+    ],
+    answer: "c",
+    explanation: "The brief quiet after a wave is the perfect window. You must be ready before the next wave arrives, not scrambling during it.",
+    reviewed: false,
+  },
+  {
+    id: "q10",
+    concept: "s1",
+    difficulty: 2,
+    format: "spot_mistake",
+    prompt: "Which line in this station checklist is wrong?",
+    options: [
+      { id: "a", text: "Everything in place before service" },
+      { id: "b", text: "Restock once at the start of the shift" },
+      { id: "c", text: "Top up ice in every quiet moment" },
+      { id: "d", text: "Reset after each wave" },
+    ],
+    answer: "b",
+    explanation: "Stations deplete fast under pressure. Continuous reloading in the micro-gaps between service waves is essential to maintain flow.",
+    reviewed: false,
+  },
+];
