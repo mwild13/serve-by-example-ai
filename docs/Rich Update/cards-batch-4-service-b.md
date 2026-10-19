@@ -314,3 +314,7 @@ From: "The best time to suggest a dessert is after the guest has already asked f
 - **Beating the Weed c1:** I've kept the module's term, "in the weed". Many people say "in the weeds". Tell me if you'd like the plural throughout.
 - **Clearing Dead Soldiers c1:** "clear it without asking", as you decided in Phase 3.
 - **Docket Reading c1:** M/R and G/F are "common" codes, and the card tells staff to learn their own venue's codes.
+
+## Decided on review (2026-10-19)
+
+- All cards approved as written, including the points above. Switched on.

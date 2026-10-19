@@ -2,7 +2,7 @@
 // written from the module's True/False statements (lib/verify-questions.ts).
 // `concepts` names the statements each card teaches.
 //
-// Draft for the owner's review (cards batch 5). Review copy:
+// Approved by the owner on 2026-10-19 (cards batch 5). Review copy:
 // docs/Rich Update/cards-batch-5-compliance-a.md.
 import type { LearnCard } from "@/lib/learn-cards";
 
@@ -13,7 +13,7 @@ export const MODULE_17_CARDS: LearnCard[] = [
     title: "Open body, safe distance",
     rule: "Keep your arms uncrossed and your body relaxed, and keep a safe distance.",
     why: "Crossed arms look defensive, and stepping in close can trigger a fight-or-flight reaction.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c2",
@@ -21,7 +21,7 @@ export const MODULE_17_CARDS: LearnCard[] = [
     title: "Calm voice, no shouting match",
     rule: "Keep your voice calm and steady. Never argue back loudly.",
     why: "People mirror tone, so calm brings their volume down. A shouting match can turn physical.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c3",
@@ -29,7 +29,7 @@ export const MODULE_17_CARDS: LearnCard[] = [
     title: "Away from the crowd",
     rule: "Move a dispute away from the main crowd where you can.",
     why: "Without an audience the guest has less reason to show off, and the room stays calm.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c4",
@@ -37,7 +37,7 @@ export const MODULE_17_CARDS: LearnCard[] = [
     title: "Address the behaviour",
     rule: "Talk about the behaviour, not the person. A simple apology often helps.",
     why: "It takes the personal sting out, so the guest has less to fight. \"I'm sorry that happened\" shows you've heard them.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c5",
@@ -45,6 +45,6 @@ export const MODULE_17_CARDS: LearnCard[] = [
     title: "Threats go to security",
     rule: "If anyone makes a threat, call security or a manager straight away.",
     why: "Threats are a hard line. Your safety comes first.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

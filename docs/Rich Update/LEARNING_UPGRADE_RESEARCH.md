@@ -266,7 +266,7 @@ There are 13 phases to launch, then 3 after marketing starts. Each phase goes ou
 - About 15 to 20 hours of your review, spread over 3 to 4 weeks.
 - **Done when** every module has its full bank of questions and you've checked all of them.
 
-### Phase 4. Learn cards
+### Phase 4. Learn cards (done 2026-10-19; record in `the-rich-update-10-26.md`)
 - 4 to 6 cards per module, written from the same content as the questions and checked by you.
 - Each card leaves space for an image, and works without one until Phase 9.
 - **Done when** every module opens with its cards on desktop and mobile.

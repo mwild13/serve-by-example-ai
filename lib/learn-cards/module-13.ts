@@ -2,7 +2,7 @@
 // written from the module's True/False statements (lib/verify-questions.ts).
 // `concepts` names the statements each card teaches.
 //
-// Draft for the owner's review (cards batch 3). Review copy:
+// Approved by the owner on 2026-10-19 (cards batch 3). Review copy:
 // docs/Rich Update/cards-batch-3-service-a.md.
 import type { LearnCard } from "@/lib/learn-cards";
 
@@ -13,7 +13,7 @@ export const MODULE_13_CARDS: LearnCard[] = [
     title: "The law applies to everyone",
     rule: "No guest can stay or drink past the venue's licensed trading hours, VIP or not.",
     why: "Licensing laws apply to everyone. Breaking them risks a fine from the liquor regulator and the venue's licence.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c2",
@@ -21,7 +21,7 @@ export const MODULE_13_CARDS: LearnCard[] = [
     title: "A short grace period",
     rule: "Hold a reserved table for your venue's grace period before you give it away.",
     why: "It allows for traffic and parking delays, without the table sitting empty all night.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c3",
@@ -29,7 +29,7 @@ export const MODULE_13_CARDS: LearnCard[] = [
     title: "Every guest counts",
     rule: "Never move seated guests for a VIP, and never ignore walk-ins because VIPs are in. Offer the VIP a drink at the bar.",
     why: "Moving seated guests causes a scene. Every guest is owed the same basic hospitality.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c4",
@@ -37,7 +37,7 @@ export const MODULE_13_CARDS: LearnCard[] = [
     title: "Use their name",
     rule: "Remember a VIP's name, and use it.",
     why: "Personal recognition is what makes VIP guests feel valued.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c5",
@@ -45,7 +45,7 @@ export const MODULE_13_CARDS: LearnCard[] = [
     title: "Don't double-seat a section",
     rule: "Don't seat several tables in one section at the same time.",
     why: "It sends the kitchen a flood of dockets at once and swamps the staff.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c6",
@@ -53,6 +53,6 @@ export const MODULE_13_CARDS: LearnCard[] = [
     title: "Look after people at the door",
     rule: "Offer water to guests waiting for a table. When you're full, turn people away politely, with a suggestion.",
     why: "Service starts before guests sit down. A friendly no makes them want to come back.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

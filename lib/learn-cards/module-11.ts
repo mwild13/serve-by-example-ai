@@ -2,7 +2,7 @@
 // written from the module's True/False statements (lib/verify-questions.ts).
 // `concepts` names the statements each card teaches.
 //
-// Draft for the owner's review (cards batch 3). Review copy:
+// Approved by the owner on 2026-10-19 (cards batch 3). Review copy:
 // docs/Rich Update/cards-batch-3-service-a.md.
 import type { LearnCard } from "@/lib/learn-cards";
 
@@ -13,7 +13,7 @@ export const MODULE_11_CARDS: LearnCard[] = [
     title: "Listen, then apologise",
     rule: "Let the guest finish without interrupting, then apologise and acknowledge their frustration.",
     why: "Most upset guests want to be heard first. Knowing you're on their side takes the heat out.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c2",
@@ -21,7 +21,7 @@ export const MODULE_11_CARDS: LearnCard[] = [
     title: "Own it, don't argue",
     rule: "Never blame the kitchen and never argue. Take ownership as a team.",
     why: "Blame makes the venue look disorganised. Win the argument and you still lose the guest.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c3",
@@ -29,7 +29,7 @@ export const MODULE_11_CARDS: LearnCard[] = [
     title: "Fix it properly",
     rule: "A cold meal goes back to the kitchen to be cooked again, never microwaved. If your venue allows it, offer a drink while they wait.",
     why: "Microwaving ruins the food. A drink gives the guest something while the new meal is made.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c4",
@@ -37,7 +37,7 @@ export const MODULE_11_CARDS: LearnCard[] = [
     title: "Follow up",
     rule: "Check back after the fix to make sure it's right.",
     why: "Following up shows you care, and it closes the loop.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c5",
@@ -45,6 +45,6 @@ export const MODULE_11_CARDS: LearnCard[] = [
     title: "Tell the manager",
     rule: "Tell your manager about every serious food complaint.",
     why: "Managers need to see patterns so they can fix them with the head chef.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

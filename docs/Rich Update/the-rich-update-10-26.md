@@ -147,16 +147,16 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
 - **The locked `scenarios` table** still holds the old wording of those statements. Nothing reads it, so it was left alone. It goes with the cleanup migration after Phase 8.
 - **Picture questions:** none were written yet. Image briefs come with the image library in Phase 9, when the picture types are switched on.
 
-## Phase 4: Learn cards (in progress)
+## Phase 4: Learn cards (done 2026-10-19)
 
 - **Built:** each module opens on 4 to 6 Learn cards, then the quiz, on desktop and mobile. One card at a time: a title, one rule and why it matters. Swipe on a phone, arrow keys or buttons on desktop, and "Skip to quiz" at any point. After a failed run, "Read the cards again" sits next to "Start a new run". The quiz run only starts once the cards are done, so the 20-minute limit doesn't run while someone reads.
 - **Rule for the cards:** written only from the module's approved statements, and the venue rule applies: anything that varies between venues is taught as a principle, never as one number. A test checks that every statement is taught by a card.
 - **Batches:** one or two at a time, in the same groups as Phase 3. Cards stay hidden until approved.
   - Cards batch 1, Bartending A (modules 1 to 7): 40 cards, `cards-batch-1-bartending-a.md`. Approved and live.
   - Cards batch 2, Bartending B (26, 27, 28, 32, 33, 34, 39): 36 cards, `cards-batch-2-bartending-b.md`. Approved and live.
-  - Cards batch 3, Service A (8 to 14): 40 cards, `cards-batch-3-service-a.md`. Waiting for review.
-  - Cards batch 4, Service B (23, 29, 30, 36, 37, 38, 40): 34 cards, `cards-batch-4-service-b.md`. Waiting for review.
-  - Cards batch 5, Compliance A (15 to 20): 32 cards, `cards-batch-5-compliance-a.md`. Waiting for review.
-  - Cards batch 6, Compliance B (21, 22, 24, 25, 31, 35): 30 cards, `cards-batch-6-compliance-b.md`. Waiting for review.
+  - Cards batch 3, Service A (8 to 14): 40 cards, `cards-batch-3-service-a.md`. Approved and live.
+  - Cards batch 4, Service B (23, 29, 30, 36, 37, 38, 40): 34 cards, `cards-batch-4-service-b.md`. Approved and live.
+  - Cards batch 5, Compliance A (15 to 20): 32 cards, `cards-batch-5-compliance-a.md`. Approved and live.
+  - Cards batch 6, Compliance B (21, 22, 24, 25, 31, 35): 30 cards, `cards-batch-6-compliance-b.md`. Approved and live.
 - **Pictures:** none yet. Each card can take one in Phase 9.
-- **Done when** every module opens with its cards on desktop and mobile.
+- **Result:** 212 cards across all 40 modules (4 to 6 each), all approved by the owner and live. A test checks every module keeps at least 4 approved cards.

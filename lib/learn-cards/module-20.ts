@@ -2,7 +2,7 @@
 // written from the module's True/False statements (lib/verify-questions.ts).
 // `concepts` names the statements each card teaches.
 //
-// Draft for the owner's review (cards batch 5). Review copy:
+// Approved by the owner on 2026-10-19 (cards batch 5). Review copy:
 // docs/Rich Update/cards-batch-5-compliance-a.md.
 import type { LearnCard } from "@/lib/learn-cards";
 
@@ -13,7 +13,7 @@ export const MODULE_20_CARDS: LearnCard[] = [
     title: "Measure every pour",
     rule: "Use a jigger for every spirit. Free-pouring is against most venues' policy.",
     why: "A few extra millilitres a drink adds up fast and eats into the bar's gross profit.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c2",
@@ -21,7 +21,7 @@ export const MODULE_20_CARDS: LearnCard[] = [
     title: "Free drinks need approval",
     rule: "Never give drinks away. Only a manager can approve a free drink, and it's logged in the POS.",
     why: "Unapproved free drinks are treated as theft of the venue's stock.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c3",
@@ -29,7 +29,7 @@ export const MODULE_20_CARDS: LearnCard[] = [
     title: "Log waste, count everything",
     rule: "Record every dropped bottle in the wastage log. A stocktake counts every item, open bottles included.",
     why: "The log explains where stock went, so the stocktake balances.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c4",
@@ -37,7 +37,7 @@ export const MODULE_20_CARDS: LearnCard[] = [
     title: "First in, first out",
     rule: "Use the oldest stock first, from milk and juice to kegs. Throwing out half-full kegs is never routine.",
     why: "FIFO stops stock expiring. Binning a half keg is a big loss and points to poor stock control.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c5",
@@ -45,6 +45,6 @@ export const MODULE_20_CARDS: LearnCard[] = [
     title: "Never pour it back",
     rule: "Never pour leftover wine from a glass back into the bottle.",
     why: "Once a drink has been in a guest's glass, it goes down the drain. Pouring it back is a serious health breach.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

@@ -2,7 +2,7 @@
 // written from the module's True/False statements (lib/verify-questions.ts).
 // `concepts` names the statements each card teaches.
 //
-// Draft for the owner's review (cards batch 3). Review copy:
+// Approved by the owner on 2026-10-19 (cards batch 3). Review copy:
 // docs/Rich Update/cards-batch-3-service-a.md.
 import type { LearnCard } from "@/lib/learn-cards";
 
@@ -13,7 +13,7 @@ export const MODULE_10_CARDS: LearnCard[] = [
     title: "Refill before they ask",
     rule: "Offer the next drink before the first is empty, and top up water without being asked.",
     why: "Guests never go without, and good service feels effortless.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c2",
@@ -21,7 +21,7 @@ export const MODULE_10_CARDS: LearnCard[] = [
     title: "Watch without hovering",
     rule: "Keep an eye on every table, so no guest has to flag you down.",
     why: "If a guest has to wave you over, you've missed the moment. Giving privacy means not hovering, not disappearing.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c3",
@@ -29,7 +29,7 @@ export const MODULE_10_CARDS: LearnCard[] = [
     title: "Solve it before it's a problem",
     rule: "Bring extra napkins or wipes with messy food like wings or ribs.",
     why: "You fix the mess before the guest has to ask.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c4",
@@ -37,7 +37,7 @@ export const MODULE_10_CARDS: LearnCard[] = [
     title: "Anticipate needs, not orders",
     rule: "Anticipate what guests will need, like water, cutlery or clearing. Don't decide their order for them.",
     why: "Anticipating needs is care. Guessing what they want to eat is pushy.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c5",
@@ -45,7 +45,7 @@ export const MODULE_10_CARDS: LearnCard[] = [
     title: "Remember your regulars",
     rule: "Learn your regulars and what they usually order.",
     why: "\"The usual?\" makes a guest feel like a VIP and keeps them coming back.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c6",
@@ -53,6 +53,6 @@ export const MODULE_10_CARDS: LearnCard[] = [
     title: "Dessert menu as plates clear",
     rule: "Offer the dessert menu as you clear the mains.",
     why: "That's when guests decide on dessert or coffee, before they settle on being too full.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

@@ -275,3 +275,7 @@ From: "A signed-off close checklist creates accountability and confirms the venu
 - **Ice Well Burn c5:** "a burn takes a while", with no time given, as fixed in Phase 3.
 - **Ice Is Food c4:** the ice machine is cleaned "on its regular schedule", with no frequency given.
 - **The Clean Close c4:** "mop the floor every night" comes from the statement. If any of your venues don't mop nightly, I'll change it to "on your venue's schedule".
+
+## Decided on review (2026-10-19)
+
+- All cards approved as written, including the points above. Switched on.

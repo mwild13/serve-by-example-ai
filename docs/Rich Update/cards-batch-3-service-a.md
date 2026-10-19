@@ -362,3 +362,7 @@ From: "Smiling while speaking makes your tone sound much warmer." (true)
 **Worth a look:**
 - **Guest Complaints c3:** the statement says a free drink is a good first recovery step. Inventory Control says only a manager can approve a free drink, so the card says "if your venue allows it".
 - **Tips and reviews:** some explanations still mention tips or Google reviews (The Greeting, Table Dynamics). The cards leave them out, as Phase 3 did.
+
+## Decided on review (2026-10-19)
+
+- All cards approved as written, including the points above. Switched on.

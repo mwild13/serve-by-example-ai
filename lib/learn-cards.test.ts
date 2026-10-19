@@ -45,4 +45,11 @@ describe("learn card coverage", () => {
       expect(LEARN_CARD_LOADERS[moduleId], `module ${moduleId}`).toBeDefined();
     }
   });
+
+  it("shows at least 4 approved cards in every module", async () => {
+    for (const moduleId of Object.keys(VERIFY_QUESTIONS).map(Number)) {
+      const live = (await LEARN_CARD_LOADERS[moduleId]!()).filter((c) => c.reviewed);
+      expect(live.length, `module ${moduleId}`).toBeGreaterThanOrEqual(4);
+    }
+  });
 });

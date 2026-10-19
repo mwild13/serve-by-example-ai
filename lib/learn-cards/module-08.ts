@@ -2,7 +2,7 @@
 // written from the module's True/False statements (lib/verify-questions.ts).
 // `concepts` names the statements each card teaches.
 //
-// Draft for the owner's review (cards batch 3). Review copy:
+// Approved by the owner on 2026-10-19 (cards batch 3). Review copy:
 // docs/Rich Update/cards-batch-3-service-a.md.
 import type { LearnCard } from "@/lib/learn-cards";
 
@@ -13,7 +13,7 @@ export const MODULE_8_CARDS: LearnCard[] = [
     title: "Acknowledge straight away",
     rule: "Acknowledge every new guest straight away. In a rush, a nod and a smile count.",
     why: "A quick acknowledgement tells guests they've been seen, and it makes the wait feel shorter.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c2",
@@ -21,7 +21,7 @@ export const MODULE_8_CARDS: LearnCard[] = [
     title: "Eyes up while you pour",
     rule: "Lift your eyes to new guests, even while you're pouring.",
     why: "You can hold a pour and still make eye contact. It shows you're in control of the bar.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c3",
@@ -29,7 +29,7 @@ export const MODULE_8_CARDS: LearnCard[] = [
     title: "Don't shout across the room",
     rule: "Never yell a greeting across a busy room. Move closer, or use a wave or a nod.",
     why: "Shouting interrupts every other guest's meal or conversation.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c4",
@@ -37,7 +37,7 @@ export const MODULE_8_CARDS: LearnCard[] = [
     title: "Smile, and say you'll be right there",
     rule: "Greet guests with a smile. If you're busy, say \"I'll be right with you.\"",
     why: "A smile sets a friendly tone, and the line tells guests they're next, which takes the stress out of the wait.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c5",
@@ -45,7 +45,7 @@ export const MODULE_8_CARDS: LearnCard[] = [
     title: "Never look past waiting guests",
     rule: "Don't ignore waiting guests to look busy.",
     why: "Ignored guests feel invisible, and a short wait turns into a complaint.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c6",
@@ -53,6 +53,6 @@ export const MODULE_8_CARDS: LearnCard[] = [
     title: "A real welcome builds regulars",
     rule: "Give every guest a genuine welcome, especially the locals.",
     why: "Pubs run on familiar faces. A warm greeting is the first step to a regular.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

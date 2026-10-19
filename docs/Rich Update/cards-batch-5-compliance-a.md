@@ -293,3 +293,7 @@ These follow the Compliance fixes you approved in Phase 3: minors by state, gove
 - **Food Safety c4:** "soap and water for at least 20 seconds". The explanation says hot water. I left out "hot", because the 20 seconds and the rubbing are what matter.
 - **Inventory Control c2:** "treated as theft of the venue's stock". The statement says "legally considered theft", which is stronger than I'd want on a card.
 - **Inventory Control c3:** the stocktake card doesn't say how often, because that varies by venue. The statement's explanation says monthly.
+
+## Decided on review (2026-10-19)
+
+- All cards approved as written, including the points above. Switched on.
