@@ -122,7 +122,7 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
 ## Phase 3: writing and reviewing the questions
 
 - **Started:** 2026-10-19. Bartending first, as recommended. The owner said to go ahead with it.
-- **Batches:** Bartending is split into two batches of 7 modules, so each review is about 70 questions. Then Service (14 modules), then Compliance (12). Compliance comes last, because RSA and Food Safety need the closest check.
+- **Batches:** Bartending is split into two batches of 7 modules, so each review is about 70 questions. Then Service in two batches of 7, then Compliance (12). Compliance comes last, because RSA and Food Safety need the closest check.
 - **How a module file works:** each module has `lib/questions/module-NN.ts`. Every question names the True/False statement it comes from (`concept`) and adds no new facts. Drafts have `reviewed: false` and are never asked.
 - **Review sheets** are made from the code with `npm run questions:review -- "<file>" "<title>" <module ids>`, so the sheet always matches what goes live. When a batch is approved, its questions are switched to `reviewed: true` and released.
 
@@ -130,9 +130,10 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
 |---|---|---|---|
 | Beer Pouring sample | 1 | 9 | Approved and live 2026-10-19 |
 | 1. Bartending, part A | 1 (3 more), 2, 3, 4, 5, 6, 7 | 72 | Approved 2026-10-19, all as written; live on `main` (`c2ad2cd`): `batch-1-bartending-a.md` |
-| 2. Bartending, part B | 26, 27, 28, 32, 33, 34, 39 | 69 | Approved 2026-10-19; two statements corrected: `batch-2-bartending-b.md` |
-| 3. Service | 8 to 14, 23, 29, 30, 36, 37, 38, 40 | — | Drafting |
-| 4. Compliance | 15 to 22, 24, 25, 31, 35 | — | — |
+| 2. Bartending, part B | 26, 27, 28, 32, 33, 34, 39 | 69 | Approved 2026-10-19; two statements corrected; live on `main` (`609d8d2`): `batch-2-bartending-b.md` |
+| 3. Service, part A | 8 to 14 | 61 | Drafted 2026-10-19, waiting on review: `batch-3-service-a.md` |
+| 4. Service, part B | 23, 29, 30, 36, 37, 38, 40 | — | Next |
+| 5. Compliance | 15 to 22, 24, 25, 31, 35 | — | — |
 
 **Venue practice rule (owner, 2026-10-19):** anything that varies between venues, such as cleaning schedules, gun layouts or house specs, is tested as a principle, never as one number or frequency.
 

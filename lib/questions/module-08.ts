@@ -1,0 +1,153 @@
+// Module 8, The Greeting: questions in the new formats, written from the
+// module's True/False statements (lib/verify-questions.ts). Each `concept`
+// names the statement it comes from.
+//
+// Drafts until the owner approves them: `reviewed: false` keeps them out of
+// every run. Review copy: docs/Rich Update/batch-3-service-a.md.
+import "server-only";
+import type { Question } from "@/lib/question-bank";
+
+export const MODULE_8_QUESTIONS: Question[] = [
+  {
+    id: "q1",
+    concept: "s0",
+    difficulty: 1,
+    format: "multiple_choice",
+    prompt: "Why acknowledge a new guest quickly, even before you can serve them?",
+    options: [
+      { id: "a", text: "It tells them they've been seen and makes the wait feel shorter" },
+      { id: "b", text: "It speeds up the bartender's pour" },
+      { id: "c", text: "It's only needed for regulars" },
+      { id: "d", text: "So they order the first thing they see" },
+    ],
+    answer: "a",
+    explanation: "A rapid greeting, even non-verbal, tells the guest they are seen and drastically reduces their perceived wait time.",
+    reviewed: false,
+  },
+  {
+    id: "q3",
+    concept: "s1",
+    difficulty: 2,
+    format: "multiple_choice",
+    prompt: "You're mid-pour when a guest walks up to the bar. What do you do?",
+    options: [
+      { id: "a", text: "Keep your eyes on the pour until it's finished" },
+      { id: "b", text: "Lift your eyes to make contact while you keep pouring" },
+      { id: "c", text: "Stop pouring and go to them" },
+      { id: "d", text: "Turn your back so they know you're busy" },
+    ],
+    answer: "b",
+    explanation: "You can easily maintain a pour while lifting your eyes to establish contact and control the bar space.",
+    reviewed: false,
+  },
+  {
+    id: "q4",
+    concept: "s2",
+    difficulty: 1,
+    format: "multiple_choice",
+    prompt: "The bar is three deep. A new guest arrives. What counts as a greeting?",
+    options: [
+      { id: "a", text: "Nothing until you're free to talk" },
+      { id: "b", text: "A nod and a smile" },
+      { id: "c", text: "Calling out \"wait your turn\"" },
+      { id: "d", text: "Pointing at the end of the queue" },
+    ],
+    answer: "b",
+    explanation: "When three-deep, a nod and a smile acknowledge the guest's presence until you are free to speak.",
+    reviewed: false,
+  },
+  {
+    id: "q5",
+    concept: "s3",
+    difficulty: 1,
+    format: "spot_mistake",
+    prompt: "Which of these greetings is wrong?",
+    options: [
+      { id: "a", text: "A nod and a smile while you're pouring" },
+      { id: "b", text: "\"I'll be right with you\"" },
+      { id: "c", text: "Yelling a hello across the dining room" },
+      { id: "d", text: "Walking over with a smile" },
+    ],
+    answer: "c",
+    explanation: "Shouting disrupts other guests' dining experience. Move closer or use polite, visible body language.",
+    reviewed: false,
+  },
+  {
+    id: "q6",
+    concept: "s4",
+    difficulty: 1,
+    format: "multiple_choice",
+    prompt: "What does a smile do when you greet a frustrated guest?",
+    options: [
+      { id: "a", text: "Disarms them and sets a hospitable tone" },
+      { id: "b", text: "Makes them think you're not taking them seriously" },
+      { id: "c", text: "Nothing, only words matter" },
+      { id: "d", text: "Makes the wait feel longer" },
+    ],
+    answer: "a",
+    explanation: "A smile disarms frustrated guests and establishes immediate hospitality, setting the stage for a great tip.",
+    reviewed: false,
+  },
+  {
+    id: "q7",
+    concept: "s5",
+    difficulty: 2,
+    format: "multiple_choice",
+    prompt: "Two guests have been waiting at the bar while you clear glasses. What happens if you ignore them?",
+    options: [
+      { id: "a", text: "They see you working hard and wait patiently" },
+      { id: "b", text: "They feel invisible, and a short wait can turn into a complaint" },
+      { id: "c", text: "Nothing, as long as you get to them eventually" },
+      { id: "d", text: "They'll order more once you get there" },
+    ],
+    answer: "b",
+    explanation: "Ignoring guests makes them feel invisible and angry, turning a minor wait into a formal complaint.",
+    reviewed: false,
+  },
+  {
+    id: "q8",
+    concept: "s6",
+    difficulty: 1,
+    format: "best_line",
+    prompt: "You're slammed and a guest catches your eye. What's the best thing to say?",
+    options: [
+      { id: "a", text: "Nothing: keep your head down" },
+      { id: "b", text: "\"I'll be right with you.\"" },
+      { id: "c", text: "\"Can't you see I'm busy?\"" },
+      { id: "d", text: "\"Someone else will get you.\"" },
+    ],
+    answer: "b",
+    explanation: "This phrase manages expectations and reassures the guest that they are next in the queue.",
+    reviewed: false,
+  },
+  {
+    id: "q9",
+    concept: "s7",
+    difficulty: 1,
+    format: "best_line",
+    prompt: "A local you've seen a few times walks in. What's the best greeting?",
+    options: [
+      { id: "a", text: "\"What do you want?\"" },
+      { id: "b", text: "\"Good to see you again! Grab a seat and I'll be right over.\"" },
+      { id: "c", text: "A nod, then back to your phone" },
+      { id: "d", text: "\"Are you eating or just drinking?\"" },
+    ],
+    answer: "b",
+    explanation: "Aussie pub culture is built on familiarity. A warm greeting is the first step in building a local client base.",
+    reviewed: false,
+  },
+  {
+    id: "q10",
+    concept: "s0",
+    difficulty: 3,
+    format: "order_steps",
+    prompt: "A guest walks up while you're making a cocktail. Put these in order.",
+    steps: [
+      { id: "a", text: "Acknowledge them within a few seconds: eye contact and a nod" },
+      { id: "b", text: "Finish the drink you're making" },
+      { id: "c", text: "Say \"Thanks for waiting, what can I get you?\"" },
+    ],
+    explanation: "A rapid greeting, even non-verbal, tells the guest they are seen. Finish the drink in hand, then thank them for waiting.",
+    reviewed: false,
+  },
+];
