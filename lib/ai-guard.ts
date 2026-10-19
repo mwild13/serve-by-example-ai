@@ -138,10 +138,35 @@ export function fenceUntrusted(blocks: Record<string, string>): string {
     .join("\n");
 }
 
-/** Coerces a model output field to a trimmed string no longer than max characters. */
+/**
+ * House style for every AI reply people read, added to each system prompt:
+ * Australian English, and no em or en dashes (the owner's rule, 2026-10-19).
+ * plainDashes() backs up the punctuation rule on the way out.
+ */
+export const AU_WRITING_RULES = `WRITING STYLE
+- Write in Australian English, never American English.
+- Australian spelling: colour, flavour, favour, behaviour, organise, recognise, apologise, realise, prioritise, centre, metre, litre, licence (the noun), cheque, travelling, enrolment.
+- Australian words: the bill (not the check), takeaway (not to go), entree means a starter and the main is the main course, soft drink (not soda, though soda water is fine), lift (not elevator), queue (not line), mobile (not cell phone), car park (not parking lot), mum (not mom), toilets or bathroom (not restroom).
+- Dates as 19 October 2026, times as 7:30pm, money in Australian dollars.
+- Punctuation: commas, full stops, colons and brackets. Never use an em dash or an en dash, not even between numbers: write "5 to 60°C" and "Monday to Friday".`;
+
+const DASH_RANGE = /(\d)\s*[–—]\s*(\d)/g;
+const DASH = /\s*[–—]+\s*/g;
+
+/** Takes em and en dashes out of model text: "5–60" becomes "5 to 60", any other dash a comma. */
+export function plainDashes(text: string): string {
+  return text
+    .replace(DASH_RANGE, "$1 to $2")
+    .replace(DASH, ", ")
+    .replace(/,\s*([,.!?;:)])/g, "$1")
+    .replace(/^,\s*/gm, "")
+    .replace(/,\s*$/gm, "");
+}
+
+/** Coerces a model output field to a trimmed string no longer than max characters, without dashes. */
 export function capText(value: unknown, max: number): string {
   if (typeof value !== "string") return "";
-  const trimmed = value.trim();
+  const trimmed = plainDashes(value.trim()).trim();
   return trimmed.length > max ? `${trimmed.slice(0, max - 1).trimEnd()}…` : trimmed;
 }
 
