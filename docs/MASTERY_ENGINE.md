@@ -10,8 +10,8 @@ The rules run **in Postgres**, inside `SECURITY DEFINER` functions that only the
 |---|---|---|
 | `record_attempt()` | `supabase/migrations/20261003b_retire_elo_and_elite_numbers.sql` (first version in `20261002_…`) | Records one Scenario Training (`descriptor`) or Arena (`roleplay`) attempt in a single transaction, with the mastery row locked |
 | `recordAttempt()` | `lib/mastery.ts` | Calls `record_attempt()`; throws `AttemptIdConflictError` when an attempt id is reused for a different scenario |
-| `mark_module_mastered()` | same migration as above | Quiz mastery write; called only by `advance_verify_attempt()` |
-| `advance_verify_attempt()` | `20261002_atomic_attempts_and_verify_quiz.sql` | Records one graded quiz answer and masters the module when the streak is reached |
+| `mark_module_mastered()` | `20261002_…` | Quiz mastery write; called only by the quiz run functions |
+| `advance_quiz_run()` | `20261020_question_engine.sql` | Saves one graded quiz answer and the run's new state, and masters the module when the run passes. Replaces `advance_verify_attempt()` from `20261002_…` |
 | `award_sbe_elite()` | `20261003b_…` | Assigns the user's SBE Elite number once, from a sequence |
 | `getMasteryProgress()`, `getReviewQueue()`, `syncMasteryToVenueStaff()` | `lib/mastery.ts` | Reads, and the only bridge into the manager-facing `venue_staff` rows |
 
@@ -41,16 +41,31 @@ Nothing else writes `scenario_mastery`. Clients can't write it at all (Phase 2 R
 - The routes (`/api/evaluate`, `/api/arena/evaluate`) check `findRecordedAttempt()` before grading. A retry gets back the stored feedback without a second OpenAI call.
 - Old clients without an id still work; they just get no retry protection.
 
-## Verify quiz (module mastery)
+## Verify quiz (module mastery): the question engine
 
+Rebuilt in the Rich update, Phase 2 (`docs/Rich Update/`).
+
+- **Question bank** (`lib/question-bank.ts`, `server-only`):
+  - Every module starts with its True/False statements from `lib/verify-questions.ts` (8 per module, 320 in all), with ids `s0`, `s1`...
+  - Questions in the other formats live in `lib/questions/module-NN.ts`: best line, multiple choice, put in order, spot the mistake, a number, and which glass.
+  - Each question has a `concept` (the statement it tests), a `difficulty` (1 to 3) and a `reviewed` flag.
+  - Only reviewed questions are asked. Picture questions (`which_glass`, or any question with an `image` brief) stay off until `PICTURE_QUESTIONS_ENABLED` is switched on in Phase 9.
+  - Question ids are stored in live runs. Never reuse an id for a different question.
 - **Flow:**
-  - `POST /api/training/verify/start` creates a `verify_attempts` row with a shuffled question order (3 passes through the module's bank) and returns **prompts only**.
-  - `POST /api/training/verify/answer` grades one answer against `lib/verify-questions.ts`, which is `server-only`, and calls `advance_verify_attempt()`.
-- **Pass rule:** 5 correct in a row (`VERIFY_STREAK_REQUIRED` in `lib/verify-quiz.ts`). A wrong answer resets the streak. If the questions run out first, the run ends as `exhausted`.
-- **The server keeps the streak.** Each answer is accepted once, at the position the server expects. Runs expire after 20 minutes (server clock).
+  - `POST /api/training/verify/start` plans a run (`planRun()` in `lib/verify-quiz.ts`), stores it in `verify_attempts.run_state` and returns the first question only, with options shuffled and no answer.
+  - `POST /api/training/verify/answer` grades one answer (`answerFits()`, `gradeAnswer()`), works out the run's next state (`advanceRun()`, a pure function) and saves it with `advance_quiz_run()`. That function re-checks status, expiry and position under a row lock, and calls `mark_module_mastered()` when the run passes. The reply carries the next question.
+- **Planning a run:** one question per fact, so a fact is asked once unless it's missed. The first picks cover every format the module has. Up to 12 questions, easier ones first.
+- **Pass rule:**
+  - 6 right answers (`PASS_CORRECT`), in at least 3 formats (`PASS_FORMATS`), or in as many as the module has.
+  - A question answered right never comes back. A wrong one brings back an unasked variant of the same fact 2 questions later, in another format when there is one. That fact must then be answered right before the run can pass.
+  - The 3rd wrong answer ends the run (`MAX_MISSES`), and so does running out of questions. Both end as `exhausted`.
+  - A module with True/False only passes on 6 right out of 8.
+- **Mastered stays mastered.** The engine only ever sets mastery. Nothing in it clears a module someone has already passed.
+- **Runs expire after 20 minutes** (server clock). Each answer is accepted once, at the position the server expects.
 - **Rate limits:** 5 starts per module per 15 minutes, held in the database, plus per-isolate limits.
-- **Answer key:** exists only in server code. The `scenarios` table holds the same 320 questions, but clients have no access to it (`20261003_lock_scenarios_answer_key.sql`).
+- **Answer key:** server code only. The `scenarios` table holds a copy of the True/False statements, but clients have no access to it (`20261003_lock_scenarios_answer_key.sql`).
 - **After a pass,** `afterModuleMastered()` syncs the roster, stamps trial activation and checks SBE Elite.
+- **Old engine:** `advance_verify_attempt()` and `verify_attempts.question_order` are no longer used. They are dropped in a later cleanup migration, once the new code has been live for a while.
 - **Known limitation:** the quiz shows the correct answer after each question. That's a product choice, and it means a script can still learn the answers over a few runs, within the rate limits.
 
 ## SBE Elite
@@ -107,6 +122,6 @@ The `modules` table (40 rows), read through `lib/module-navigator.ts` or `/api/t
 
   Each has a different shape, so they can't be collapsed mechanically.
 - **Scenario content:**
-  - Verify quiz questions: `lib/verify-questions.ts` (server-only), with a copy in the locked `scenarios` table.
+  - Verify quiz questions: `lib/verify-questions.ts` and `lib/questions/` (server-only, combined in `lib/question-bank.ts`), with a copy of the True/False statements in the locked `scenarios` table.
   - Scenario Training: `trainer/trainer-data.ts` `SCENARIOS`.
   - Arena: `lib/arena-scenarios.ts` `ARENA_SEED_SCENARIOS`.

@@ -1,27 +1,74 @@
 /**
- * Browser calls for the server-graded verify quiz (desktop ModuleVerify and
- * mobile QuizScreen). The browser gets prompts only; every answer is graded
- * by /api/training/verify/answer. See lib/verify-quiz.ts.
+ * Browser calls for the server-graded module quiz (desktop ModuleVerify and
+ * mobile QuizScreen). The browser gets one question at a time and never the
+ * answer key; every answer is graded by /api/training/verify/answer. See
+ * lib/verify-quiz.ts.
  */
 
-export type VerifyQuizQuestion = { position: number; prompt: string };
+export type QuizFormat =
+  | "true_false"
+  | "best_line"
+  | "multiple_choice"
+  | "order_steps"
+  | "spot_mistake"
+  | "number"
+  | "which_glass";
+
+export type QuizOption = { id: string; text: string };
+
+/** One question as the browser sees it. Which fields are set depends on the format. */
+export type QuizQuestionView = {
+  position: number;
+  format: QuizFormat;
+  prompt: string;
+  /** Choice formats and True/False. */
+  options?: QuizOption[];
+  /** order_steps, shuffled. */
+  steps?: QuizOption[];
+  /** number. */
+  unit?: string;
+};
+
+/** An option id, step ids in order, or a number, depending on the format. */
+export type QuizAnswer = string | string[] | number;
+export type QuizCorrectAnswer = string | string[] | number;
+
+/** What it takes to master the module in this run. */
+export type QuizGoal = { correct: number; formats: number; maxMisses: number };
+
+export type QuizProgress = {
+  correct: number;
+  formats: number;
+  misses: number;
+  /** Wrong answers still to be answered right in another form. */
+  owed: number;
+};
 
 export type VerifyQuizStart = {
   attemptId: string;
   expiresAt: string;
-  required: number;
-  questions: VerifyQuizQuestion[];
+  goal: QuizGoal;
+  progress: QuizProgress;
+  question: QuizQuestionView;
 };
 
 export type VerifyAnswerResult = {
   correct: boolean;
-  correctAnswer: "true" | "false";
+  correctAnswer: QuizCorrectAnswer;
   explanation: string;
-  streak: number;
-  required: number;
-  /** "passed": the module is now mastered. "exhausted": out of questions, start again. */
+  /** "passed": the module is now mastered. "exhausted": the run is over, start again. */
   status: "active" | "passed" | "exhausted";
+  progress: QuizProgress;
+  /** The next question while the run is active. */
+  next: QuizQuestionView | null;
 };
+
+/** "Get 6 right across 3 question types to master this module." */
+export function quizGoalText(goal: QuizGoal): string {
+  return goal.formats > 1
+    ? `Get ${goal.correct} right across ${goal.formats} question types to master this module.`
+    : `Get ${goal.correct} right to master this module.`;
+}
 
 class VerifyQuizError extends Error {
   constructor(message: string, readonly code: string | null, readonly status: number) {
@@ -51,7 +98,7 @@ export function submitVerifyAnswer(
   token: string,
   attemptId: string,
   position: number,
-  answer: "true" | "false",
+  answer: QuizAnswer,
 ): Promise<VerifyAnswerResult> {
   return post<VerifyAnswerResult>("/api/training/verify/answer", token, { attemptId, position, answer });
 }

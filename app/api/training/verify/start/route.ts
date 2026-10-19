@@ -5,24 +5,23 @@ import { resolveAccess, validateSession } from "@/lib/session";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { getCookieValue } from "@/lib/training-attempt";
 import { readJsonBody } from "@/lib/ai-guard";
+import { findQuestion, liveQuestions } from "@/lib/question-bank";
 import {
   MAX_STARTS_PER_WINDOW,
   START_WINDOW_MINUTES,
   VERIFY_ATTEMPT_TTL_MINUTES,
-  VERIFY_STREAK_REQUIRED,
-  buildQuestionOrder,
   logVerifyRejection,
-  questionCount,
-  questionPrompt,
+  planRun,
+  progressOf,
+  questionView,
 } from "@/lib/verify-quiz";
 
-const MIN_QUESTIONS = 5;
 const MAX_BODY_BYTES = 1024;
 
 /**
- * Starts a verify quiz run for one module. Returns the questions in the order
- * they'll be asked, without answers; each answer is graded by
- * /api/training/verify/answer. See lib/verify-quiz.ts.
+ * Starts a quiz run for one module and returns its first question, without
+ * the answer. Each answer is graded by /api/training/verify/answer, which
+ * sends the next question. See lib/verify-quiz.ts.
  */
 export async function POST(req: Request) {
   try {
@@ -44,8 +43,9 @@ export async function POST(req: Request) {
     if (!Number.isInteger(moduleId) || moduleId < 1 || moduleId > 100) {
       return NextResponse.json({ error: "Invalid module.", code: "INVALID_MODULE" }, { status: 400 });
     }
-    const count = questionCount(moduleId);
-    if (count < MIN_QUESTIONS) {
+    const run = planRun(liveQuestions(moduleId));
+    const first = run ? findQuestion(moduleId, run.queue[0]) : null;
+    if (!run || !first) {
       return NextResponse.json(
         { error: "This module does not yet have enough verification questions. Please check back soon.", code: "NO_QUESTIONS" },
         { status: 404 },
@@ -95,11 +95,11 @@ export async function POST(req: Request) {
       .eq("user_id", user.id)
       .lt("created_at", new Date(Date.now() - 24 * 60 * 60_000).toISOString());
 
-    const order = buildQuestionOrder(count);
     const expiresAt = new Date(Date.now() + VERIFY_ATTEMPT_TTL_MINUTES * 60_000).toISOString();
     const { data: attempt, error: insertError } = await admin
       .from("verify_attempts")
-      .insert({ user_id: user.id, module_id: moduleId, question_order: order, expires_at: expiresAt })
+      // question_order is the old engine's column; runs now live in run_state.
+      .insert({ user_id: user.id, module_id: moduleId, question_order: [], run_state: run, expires_at: expiresAt })
       .select("id")
       .single();
     if (insertError || !attempt) throw insertError ?? new Error("verify_attempts insert returned no row");
@@ -107,11 +107,9 @@ export async function POST(req: Request) {
     return NextResponse.json({
       attemptId: attempt.id,
       expiresAt,
-      required: VERIFY_STREAK_REQUIRED,
-      questions: order.map((questionIndex, position) => ({
-        position,
-        prompt: questionPrompt(moduleId, questionIndex) ?? "",
-      })),
+      goal: run.goal,
+      progress: progressOf(run),
+      question: questionView(first, 0),
     });
   } catch (error) {
     console.error("verify/start error:", error);

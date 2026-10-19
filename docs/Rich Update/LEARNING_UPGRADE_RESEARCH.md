@@ -39,7 +39,7 @@ Richie is right, and the cause is mostly mechanical. It isn't a lack of video.
 
 | Surface | What it does today | Why it repeats |
 |---|---|---|
-| **Module quiz** (`lib/verify-questions.ts`, `lib/verify-quiz.ts`) | 296 True/False statements, about 7 to 8 per module. One run cycles through the same bank **3 times**, shuffled. 5 right in a row masters the module. | You see the same sentence again within a minute, after its answer has been shown. True/False is a coin flip, so a pass can be luck. Nothing is taught before the test. |
+| **Module quiz** (`lib/verify-questions.ts`, `lib/verify-quiz.ts`) | 320 True/False statements, 8 per module. One run cycles through the same bank **3 times**, shuffled. 5 right in a row masters the module. | You see the same sentence again within a minute, after its answer has been shown. True/False is a coin flip, so a pass can be luck. Nothing is taught before the test. |
 | **Scenario Training** (`trainer/trainer-data.ts`) | 40 scenarios (10 bar, 10 sales, 20 management). Every one has 2 good options and 1 bad one. | **All 40** have the same shape, and the bad option is always an obvious wrong answer ("let service collapse", "serve the shots anyway"). After three or four, you can spot it without reading. |
 | **AI Arena** (`lib/arena-scenarios.ts`, `/api/arena/evaluate`) | One scenario per module. Type a paragraph, get a score. | The guest never answers back. Typing a paragraph on a phone is the hardest task in the app, so it feels like homework. |
 | **Challenges** (`docs/CHALLENGES.md`) | 5 games, each with **one** fixed question. | Once you've done them, there's nothing new. The database allows only 5. |
@@ -251,10 +251,10 @@ There are 13 phases to launch, then 3 after marketing starts. Each phase goes ou
 - Live Guest and venue content get their measures in the phases that build them (6 and 11), from the rows those features write.
 - **Done when** today's numbers are written down, so we can tell later whether the upgrade worked.
 
-### Phase 2. Question engine
+### Phase 2. Question engine (built 2026-10-19; record in `the-rich-update-10-26.md`)
 - The six formats, a difficulty on every question, and grading on the server one answer at a time, as today. The answer key stays in server-only code.
 - The new mastery rule: correct answers across at least three formats. A question you got right doesn't come back in the same run; one you got wrong comes back later in another form.
-- It starts with the existing 296 statements, so no module is ever empty while Phase 3 runs. The flow is the same on desktop and mobile.
+- It starts with the existing 320 statements, so no module is ever empty while Phase 3 runs. The flow is the same on desktop and mobile.
 - Modules people have already mastered stay mastered.
 - The two picture formats (which glass or garnish; spot the mistake in a photo) are built but stay switched off until Phase 9.
 - **Done when** a module can be mastered under the new rule on both desktop and mobile.

@@ -1,11 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import RapidFireQuiz from "@/app/dashboard/_components/RapidFireQuiz";
+import QuizRun from "@/components/quiz/QuizRun";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import {
   startVerifyQuiz,
+  quizGoalText,
   submitVerifyAnswer,
+  type QuizAnswer,
   type VerifyQuizStart,
 } from "@/lib/verify-quiz-client";
 
@@ -72,14 +74,13 @@ async function accessToken(): Promise<string> {
 }
 
 // The quiz is graded on the server (lib/verify-quiz.ts): this starts a run,
-// RapidFireQuiz sends each answer, and the server records mastery itself
-// when the streak is reached — there is no separate "save" step.
+// QuizRun sends each answer, and the server records mastery itself when the
+// run passes. There is no separate "save" step.
 export default function ModuleVerify({ moduleId, onArena, onComplete, nextModuleId }: Props) {
   const moduleTitle = MODULE_TITLES[moduleId] ?? `Module ${moduleId}`;
   const [status, setStatus] = useState<Status>("loading");
   const [error, setError] = useState<string | null>(null);
   const [quiz, setQuiz] = useState<VerifyQuizStart | null>(null);
-  const [finalScore, setFinalScore] = useState(0);
   // Bumped by "Start again" to start a fresh run.
   const [runKey, setRunKey] = useState(0);
 
@@ -110,15 +111,14 @@ export default function ModuleVerify({ moduleId, onArena, onComplete, nextModule
   }
 
   const handleAnswer = useCallback(
-    async (position: number, answer: "true" | "false") => {
+    async (position: number, answer: QuizAnswer) => {
       if (!quiz) throw new Error("The quiz hasn't started.");
       return submitVerifyAnswer(await accessToken(), quiz.attemptId, position, answer);
     },
     [quiz],
   );
 
-  const handleQuizComplete = useCallback((passed: boolean, streak: number) => {
-    setFinalScore(streak);
+  const handleQuizComplete = useCallback((passed: boolean) => {
     setStatus(passed ? "mastered" : "retry");
   }, []);
 
@@ -167,7 +167,6 @@ export default function ModuleVerify({ moduleId, onArena, onComplete, nextModule
             {nextTitle ? "Module Mastered" : "All Modules Complete!"}
           </h2>
           <p style={{ color: "var(--text-soft)", marginBottom: 0, fontSize: "0.9rem" }}>{moduleTitle}</p>
-          <span className="module-mastered-score">{finalScore} in a row</span>
 
           {nextTitle && onComplete && (
             <div className="module-mastered-next-card">
@@ -199,10 +198,10 @@ export default function ModuleVerify({ moduleId, onArena, onComplete, nextModule
         <div style={{ padding: "48px 24px", textAlign: "center" }}>
           <h2 style={{ marginBottom: 8 }}>{moduleTitle}</h2>
           <p style={{ marginBottom: 16 }}>
-            Not quite. Let&apos;s run the verification quiz again.
+            Not this time. Each run asks different questions, so have another go.
           </p>
           <button className="btn btn-primary" onClick={restart}>
-            Retry verification
+            Start a new run
           </button>
         </div>
       </div>
@@ -213,19 +212,17 @@ export default function ModuleVerify({ moduleId, onArena, onComplete, nextModule
     <div className="stage-container">
       <div className="stage-header">
         <h2 style={{ marginBottom: 8 }}>{moduleTitle}</h2>
-        <p className="stage-subtitle">
-          Get {quiz?.required ?? 5} correct in a row to master this module.
-        </p>
+        {quiz && <p className="stage-subtitle">{quizGoalText(quiz.goal)}</p>}
       </div>
 
       {quiz && (
-        <RapidFireQuiz
+        <QuizRun
           key={quiz.attemptId}
-          questions={quiz.questions}
-          required={quiz.required}
-          onAnswer={handleAnswer}
-          onComplete={handleQuizComplete}
+          start={quiz}
+          submit={handleAnswer}
+          onFinish={handleQuizComplete}
           onError={handleQuizError}
+          theme="light"
         />
       )}
     </div>

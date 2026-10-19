@@ -10,7 +10,7 @@ The staff training platform has a **3-stage mastery path** plus AI-powered extra
 |--------|-------|-----------|-------------|
 | `home` | Home | `PreShiftHome.tsx` | Daily dashboard with recommendations |
 | `module` | Modules | `DynamicModuleNav.tsx` + `ModuleVerify.tsx` | 40 modules across Bartending, Sales, Management |
-| `rapid-fire` | — | `RapidFirePage.tsx` | Internal sub-nav from Modules; rapid quiz mode |
+| `rapid-fire` | — | `RapidFirePage.tsx` | Internal sub-nav from Modules; lists modules and opens the same quiz (`ModuleVerify.tsx`) |
 | `stage4` | Scenario Training | `DashboardTrainer.tsx` | Written scenario practice (routed in `DashboardShell.tsx:816-821`; `DiagnosticFlow.tsx` is only the first-login onboarding modal, not this nav destination) |
 | `scenarios` | AI Arena | `ArenaPage.tsx` | GPT-4o-mini scored roleplay writing exercise — see §3, it is **not** a live chat |
 | `challenges` | Challenges | `ChallengesPage.tsx` | 5 tap-based interactive mini-games — see `CHALLENGES.md` for full detail across all surfaces |
@@ -58,7 +58,7 @@ The legacy mobile view that used to be embedded in `/dashboard` (`MobileDashboar
 
 ## 4. Verify Quiz (module mastery)
 
-The desktop quiz (`ModuleVerify.tsx` → `RapidFireQuiz.tsx`) and the mobile one (`app/mobile/_components/QuizScreen.tsx`) are graded **on the server, one answer at a time**: `/api/training/verify/start` returns prompts only, `/api/training/verify/answer` grades each answer and keeps the streak. 5 correct in a row masters the module. The answer key (`lib/verify-questions.ts`) is `server-only` — importing it into a client component fails the build. `/api/training/save` is retired (410). Details in `docs/MASTERY_ENGINE.md`.
+Desktop (`ModuleVerify.tsx`) and mobile (`app/mobile/_components/QuizScreen.tsx`) both render `components/quiz/QuizRun.tsx`, in light and dark themes (`.qz` rules in `app/styles/staff.css`). The server sends one question at a time and grades each answer: `/api/training/verify/start` returns the first question, and `/api/training/verify/answer` grades an answer and returns the next. A run passes on 6 right across 3 question types, and the 3rd miss ends it. The answer key (`lib/question-bank.ts`, `lib/verify-questions.ts`, `lib/questions/`) is `server-only`, so importing it into a client component fails the build. `/api/training/save` is retired (410). Details in `docs/MASTERY_ENGINE.md`.
 
 ## 5. PWA / Offline
 

@@ -1,90 +1,246 @@
 /**
- * verify-quiz.ts – Server-graded module verification quiz.
+ * verify-quiz.ts – Server-graded module quiz (the question engine).
  *
- * The quiz used to run entirely in the browser: the answer key shipped in the
- * bundle, and /api/training/save trusted the list of "correct" answers the
- * client posted (audit 2026-09-30, C4). Now:
+ *   POST /api/training/verify/start  → plans a run (planRun) and stores it on
+ *     a verify_attempts row; the client gets the first question only.
+ *   POST /api/training/verify/answer → grades one answer against the bank
+ *     (lib/question-bank.ts), works out the run's next state (advanceRun) and
+ *     saves it with advance_quiz_run(), which re-checks the position under a
+ *     row lock. The reply carries the next question.
  *
- *   POST /api/training/verify/start  → a verify_attempts row holding the
- *     question order; the client gets the prompts only.
- *   POST /api/training/verify/answer → grades one answer against the key
- *     below, and advance_verify_attempt() moves the streak on. The streak
- *     lives in the database, so the client can't claim one. Reaching
- *     VERIFY_STREAK_REQUIRED in a row masters the module, once per attempt.
+ * The mastery rule (Rich update, Phase 2): PASS_CORRECT right answers, in at
+ * least PASS_FORMATS different formats, with no wrong answer left unanswered
+ * in another form. A question answered right never comes back in the run; a
+ * wrong one comes back REQUEUE_GAP questions later as a variant of the same
+ * fact, when the bank has one. MAX_MISSES wrong answers end the run.
  *
- * Attempts expire after VERIFY_ATTEMPT_TTL_MINUTES (server clock only), and
- * each answer is accepted once, at the position the server expects.
+ * Runs expire after VERIFY_ATTEMPT_TTL_MINUTES (server clock only), and each
+ * answer is accepted once, at the position the server expects.
  */
 
 import "server-only";
 import type { VerifiedUser } from "@/lib/supabase-server";
 import type { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { VERIFY_QUESTIONS } from "@/lib/verify-questions";
+import type { ChoiceOption, Question, QuestionFormat } from "@/lib/question-bank";
 import { syncMasteryToVenueStaff } from "@/lib/mastery";
 import { maybeMarkTrialActivated } from "@/lib/training-attempt";
+import type { QuizAnswer, QuizCorrectAnswer, QuizGoal, QuizProgress, QuizQuestionView } from "@/lib/verify-quiz-client";
 
 type AdminClient = ReturnType<typeof createSupabaseAdminClient>;
 
-/** Correct answers in a row needed to master a module (what both clients always asked for). */
-export const VERIFY_STREAK_REQUIRED = 5;
 export const VERIFY_ATTEMPT_TTL_MINUTES = 20;
-/** Shuffled passes through the question bank per attempt. */
-const ROUNDS = 3;
 /** Starts allowed per user per module in START_WINDOW_MINUTES. */
 export const MAX_STARTS_PER_WINDOW = 5;
 export const START_WINDOW_MINUTES = 15;
 
-export type VerifyAnswer = "true" | "false";
+/** Right answers needed to master a module. */
+export const PASS_CORRECT = 6;
+/** Different formats those answers must cover, when the module has that many. */
+const PASS_FORMATS = 3;
+/** The run ends on this many wrong answers. */
+export const MAX_MISSES = 3;
+/** Questions planned for a run, before any wrong answers bring variants back. */
+const RUN_LENGTH = 12;
+/** A module needs this many different facts to run a quiz. */
+const MIN_CONCEPTS = 5;
+/** Questions between a wrong answer and its variant coming back. */
+const REQUEUE_GAP = 2;
 
-export function questionCount(moduleId: number): number {
-  return VERIFY_QUESTIONS[moduleId]?.length ?? 0;
-}
+/** Stored in verify_attempts.run_state. */
+export type RunState = {
+  /** Question ids in the order they're asked. `position` indexes into it. */
+  queue: string[];
+  correct: number;
+  misses: number;
+  /** Formats answered right at least once. */
+  formats: QuestionFormat[];
+  /** Concepts answered wrong whose variant hasn't been answered right yet. */
+  owed: string[];
+  goal: QuizGoal;
+};
 
-export function questionPrompt(moduleId: number, questionIndex: number): string | null {
-  return VERIFY_QUESTIONS[moduleId]?.[questionIndex]?.prompt ?? null;
-}
+export type RunStatus = "active" | "passed" | "exhausted";
 
-/**
- * Question indexes for one attempt: ROUNDS shuffled passes through the bank,
- * swapping so a question never appears twice in a row across a round
- * boundary (same as the old client-side RapidFireQuiz pool).
- */
-export function buildQuestionOrder(count: number, random: () => number = secureRandom): number[] {
-  if (count <= 0) return [];
-  const order: number[] = [];
-  for (let round = 0; round < ROUNDS; round++) {
-    const pass = Array.from({ length: count }, (_, i) => i);
-    for (let i = pass.length - 1; i > 0; i--) {
-      const j = Math.floor(random() * (i + 1));
-      [pass[i], pass[j]] = [pass[j], pass[i]];
-    }
-    if (order.length > 0 && pass.length > 1 && pass[0] === order[order.length - 1]) {
-      [pass[0], pass[1]] = [pass[1], pass[0]];
-    }
-    order.push(...pass);
-  }
-  return order;
-}
+type Random = () => number;
 
 function secureRandom(): number {
   return crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32;
 }
 
+function shuffle<T>(items: T[], random: Random): T[] {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+/** What a module's bank lets a run ask for. Null when it has too few questions. */
+export function goalFor(questions: Question[]): QuizGoal | null {
+  const concepts = new Set(questions.map((q) => q.concept)).size;
+  if (concepts < MIN_CONCEPTS) return null;
+  const formats = new Set(questions.map((q) => q.format)).size;
+  return {
+    correct: Math.min(PASS_CORRECT, concepts),
+    formats: Math.min(PASS_FORMATS, formats),
+    maxMisses: MAX_MISSES,
+  };
+}
+
+/**
+ * Plans one run: one question per fact, so a fact is asked once unless it's
+ * missed. The first picks cover as many formats as the goal needs; the rest
+ * are random. Easier questions come first, shuffled within each difficulty.
+ */
+export function planRun(questions: Question[], random: Random = secureRandom): RunState | null {
+  const goal = goalFor(questions);
+  if (!goal) return null;
+
+  const byConcept = new Map<string, Question[]>();
+  for (const q of shuffle(questions, random)) {
+    byConcept.set(q.concept, [...(byConcept.get(q.concept) ?? []), q]);
+  }
+
+  const picked: Question[] = [];
+  const usedConcepts = new Set<string>();
+  const pick = (q: Question) => {
+    picked.push(q);
+    usedConcepts.add(q.concept);
+  };
+
+  // One question in each format first, so the format goal is reachable.
+  const formats = shuffle([...new Set(questions.map((q) => q.format))], random);
+  for (const format of formats) {
+    const q = [...byConcept.values()].flat().find((c) => c.format === format && !usedConcepts.has(c.concept));
+    if (q) pick(q);
+  }
+  for (const [concept, variants] of byConcept) {
+    if (picked.length >= RUN_LENGTH) break;
+    if (!usedConcepts.has(concept)) pick(variants[0]);
+  }
+
+  const ordered = picked
+    .slice(0, RUN_LENGTH)
+    .map((q) => ({ q, tiebreak: random() }))
+    .sort((a, b) => a.q.difficulty - b.q.difficulty || a.tiebreak - b.tiebreak)
+    .map(({ q }) => q.id);
+
+  return { queue: ordered, correct: 0, misses: 0, formats: [], owed: [], goal };
+}
+
+function isPassed(state: RunState): boolean {
+  return state.correct >= state.goal.correct && state.formats.length >= state.goal.formats && state.owed.length === 0;
+}
+
+/**
+ * The run after one graded answer at `position`. Pure: the caller saves it.
+ * A wrong answer queues an unasked variant of the same fact, in a different
+ * format when there is one.
+ */
+export function advanceRun(
+  state: RunState,
+  position: number,
+  question: Question,
+  correct: boolean,
+  questions: Question[],
+): { state: RunState; status: RunStatus } {
+  const next: RunState = { ...state, queue: [...state.queue], formats: [...state.formats], owed: [...state.owed] };
+
+  if (correct) {
+    next.correct += 1;
+    if (!next.formats.includes(question.format)) next.formats.push(question.format);
+    next.owed = next.owed.filter((c) => c !== question.concept);
+  } else {
+    next.misses += 1;
+    const queued = new Set(next.queue);
+    const variants = questions.filter((q) => q.concept === question.concept && !queued.has(q.id));
+    const variant = variants.find((q) => q.format !== question.format) ?? variants[0];
+    if (variant) {
+      next.queue.splice(Math.min(position + 1 + REQUEUE_GAP, next.queue.length), 0, variant.id);
+      if (!next.owed.includes(question.concept)) next.owed.push(question.concept);
+    }
+  }
+
+  let status: RunStatus = "active";
+  if (isPassed(next)) status = "passed";
+  else if (next.misses >= next.goal.maxMisses || position + 1 >= next.queue.length) status = "exhausted";
+  return { state: next, status };
+}
+
+export function progressOf(state: RunState): QuizProgress {
+  return {
+    correct: state.correct,
+    formats: state.formats.length,
+    misses: state.misses,
+    owed: state.owed.length,
+  };
+}
+
+/** What the browser sees of a question: no answer, options shuffled. */
+export function questionView(question: Question, position: number, random: Random = secureRandom): QuizQuestionView {
+  const base = { position, format: question.format, prompt: question.prompt };
+  switch (question.format) {
+    case "true_false":
+      return { ...base, options: [{ id: "true", text: "True" }, { id: "false", text: "False" }] };
+    case "order_steps":
+      return { ...base, steps: shuffleNotSolved(question.steps, random) };
+    case "number":
+      return { ...base, unit: question.unit };
+    default:
+      return { ...base, options: shuffle(question.options, random) };
+  }
+}
+
+/** Shuffled steps that aren't already in the right order. */
+function shuffleNotSolved(steps: ChoiceOption[], random: Random): ChoiceOption[] {
+  if (steps.length < 2) return [...steps];
+  let out = shuffle(steps, random);
+  for (let tries = 0; tries < 5 && out.every((s, i) => s.id === steps[i].id); tries++) out = shuffle(steps, random);
+  if (out.every((s, i) => s.id === steps[i].id)) out = [...steps.slice(1), steps[0]];
+  return out;
+}
+
+/** True when the answer has the right shape for the question's format. */
+export function answerFits(question: Question, answer: QuizAnswer): boolean {
+  switch (question.format) {
+    case "true_false":
+      return answer === "true" || answer === "false";
+    case "order_steps": {
+      if (!Array.isArray(answer) || answer.length !== question.steps.length) return false;
+      const ids = new Set(question.steps.map((s) => s.id));
+      return new Set(answer).size === answer.length && answer.every((id) => ids.has(id));
+    }
+    case "number":
+      return typeof answer === "number" && Number.isFinite(answer);
+    default:
+      return typeof answer === "string" && question.options.some((o) => o.id === answer);
+  }
+}
+
 export type GradedAnswer = {
   correct: boolean;
-  correctAnswer: VerifyAnswer;
+  correctAnswer: QuizCorrectAnswer;
   explanation: string;
 };
 
-/** Null when the module or question doesn't exist. */
-export function gradeAnswer(moduleId: number, questionIndex: number, answer: VerifyAnswer): GradedAnswer | null {
-  const question = VERIFY_QUESTIONS[moduleId]?.[questionIndex];
-  if (!question) return null;
-  return {
-    correct: question.answer === answer,
-    correctAnswer: question.answer,
-    explanation: question.explanation,
-  };
+/** Grades an answer that fits the question (check answerFits first). */
+export function gradeAnswer(question: Question, answer: QuizAnswer): GradedAnswer {
+  const explanation = question.explanation;
+  switch (question.format) {
+    case "order_steps": {
+      const ids = question.steps.map((s) => s.id);
+      return { correct: Array.isArray(answer) && ids.every((id, i) => answer[i] === id), correctAnswer: ids, explanation };
+    }
+    case "number":
+      return {
+        correct: typeof answer === "number" && Math.abs(answer - question.answer) <= question.tolerance + 1e-9,
+        correctAnswer: question.answer,
+        explanation,
+      };
+    default:
+      return { correct: answer === question.answer, correctAnswer: question.answer, explanation };
+  }
 }
 
 /**

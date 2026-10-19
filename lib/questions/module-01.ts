@@ -1,0 +1,148 @@
+// Module 1, Beer Pouring: questions in the new formats, written from the
+// module's True/False statements (lib/verify-questions.ts). Each `concept`
+// names the statement it comes from, so a wrong answer can come back as
+// another form of the same fact.
+//
+// Drafts until the owner approves them: `reviewed: false` keeps them out of
+// every run. Review copy: docs/Rich Update/module-01-questions.md.
+import "server-only";
+import type { Question } from "@/lib/question-bank";
+
+export const MODULE_1_QUESTIONS: Question[] = [
+  {
+    id: "q1",
+    concept: "s0",
+    difficulty: 1,
+    format: "multiple_choice",
+    prompt: "Why does a warm glass straight from the glasswasher ruin a beer?",
+    options: [
+      { id: "a", text: "The heat drives the CO2 out, so the beer pours flat and foams" },
+      { id: "b", text: "The heat makes the beer taste sweeter" },
+      { id: "c", text: "Leftover detergent reacts with the hops" },
+      { id: "d", text: "It doesn't, as long as the glass is dry" },
+    ],
+    answer: "a",
+    explanation: "Heat kills the CO2 in draught beer, resulting in a flat pour with excessive, unmanageable foam.",
+    reviewed: false,
+  },
+  {
+    id: "q2",
+    concept: "s1",
+    difficulty: 2,
+    format: "spot_mistake",
+    prompt: "A new starter talks you through their pour. Which step breaks the health code?",
+    options: [
+      { id: "a", text: "I take a cold, clean glass from the fridge" },
+      { id: "b", text: "I hold it at 45 degrees under the tap" },
+      { id: "c", text: "I keep the nozzle in the beer so it doesn't splash" },
+      { id: "d", text: "I straighten the glass as it fills" },
+    ],
+    answer: "c",
+    explanation: "Dipping the nozzle spreads bacteria and violates health codes. The tap must never touch the glass or the beer.",
+    reviewed: false,
+  },
+  {
+    id: "q3",
+    concept: "s2",
+    difficulty: 1,
+    format: "multiple_choice",
+    prompt: "In most Australian states, how much does a schooner hold?",
+    options: [
+      { id: "a", text: "285 ml" },
+      { id: "b", text: "425 ml" },
+      { id: "c", text: "570 ml" },
+      { id: "d", text: "375 ml" },
+    ],
+    answer: "b",
+    explanation: "In most Australian states (excluding SA), a schooner is the standard 425ml draught pour.",
+    reviewed: false,
+  },
+  {
+    id: "q4",
+    concept: "s2",
+    difficulty: 2,
+    format: "number",
+    prompt: "A guest in Sydney orders a schooner. How many millilitres should they get?",
+    unit: "ml",
+    answer: 425,
+    tolerance: 0,
+    explanation: "In most Australian states (excluding SA), a schooner is the standard 425ml draught pour.",
+    reviewed: false,
+  },
+  {
+    id: "q5",
+    concept: "s3",
+    difficulty: 2,
+    format: "spot_mistake",
+    prompt: "Which part of this pour causes the most foam?",
+    options: [
+      { id: "a", text: "Starting with a cold glass" },
+      { id: "b", text: "Opening the tap slowly, a little at a time" },
+      { id: "c", text: "Tilting the glass to 45 degrees" },
+      { id: "d", text: "Closing the tap once the head reaches the line" },
+    ],
+    answer: "b",
+    explanation: "Taps are designed for flow dynamics; you must open the tap fully and sharply to prevent foaming.",
+    reviewed: false,
+  },
+  {
+    id: "q6",
+    concept: "s4",
+    difficulty: 2,
+    format: "number",
+    prompt: "How many centimetres of head should a schooner have, at most?",
+    unit: "cm",
+    answer: 1.5,
+    tolerance: 0,
+    explanation: "A 1–1.5 cm head preserves the beer's carbonation and aroma without short-changing the guest on liquid.",
+    reviewed: false,
+  },
+  {
+    id: "q7",
+    concept: "s5",
+    difficulty: 1,
+    format: "best_line",
+    prompt: "A regular says their lager tastes a bit like butter. What's the best thing to say?",
+    options: [
+      { id: "a", text: "\"That's just how this one tastes, mate.\"" },
+      { id: "b", text: "\"Thanks for telling me. Let me swap that for you, and I'll get the line checked.\"" },
+      { id: "c", text: "\"Nobody else has said anything about it.\"" },
+      { id: "d", text: "\"Want to try something else instead?\"" },
+    ],
+    answer: "b",
+    explanation: "Diacetyl buildup in uncleaned draught lines creates a distinct, unpleasant buttery flavour in the beer. Replace the drink and report the line.",
+    reviewed: false,
+  },
+  {
+    id: "q8",
+    concept: "s6",
+    difficulty: 3,
+    format: "order_steps",
+    prompt: "Put these steps for pouring a schooner in order.",
+    steps: [
+      { id: "a", text: "Check the glass is cold and clean" },
+      { id: "b", text: "Hold the glass at 45 degrees under the tap" },
+      { id: "c", text: "Open the tap fully in one movement" },
+      { id: "d", text: "Straighten the glass as it fills" },
+      { id: "e", text: "Close the tap with a 1 to 1.5 cm head" },
+    ],
+    explanation: "A cold glass, a 45-degree start and a fully open tap control the head. Straighten as it fills and stop at 1 to 1.5 cm.",
+    reviewed: false,
+  },
+  {
+    id: "q9",
+    concept: "s7",
+    difficulty: 1,
+    format: "multiple_choice",
+    prompt: "Why shouldn't beer run down the outside of the glass?",
+    options: [
+      { id: "a", text: "It wastes product, hurts the venue's GP and leaves the guest a sticky glass" },
+      { id: "b", text: "It's fine, as long as you wipe the glass after" },
+      { id: "c", text: "It warms the beer up" },
+      { id: "d", text: "It only matters for craft beer" },
+    ],
+    answer: "a",
+    explanation: "This wastes expensive product, hits the venue's GP, and leaves a sticky glass for the guest to hold.",
+    reviewed: false,
+  },
+];

@@ -6,13 +6,18 @@ import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { getCookieValue } from "@/lib/training-attempt";
 import { readJsonBody } from "@/lib/ai-guard";
 import { moduleIdToString } from "@/lib/mastery";
+import { findQuestion, liveQuestions } from "@/lib/question-bank";
 import {
-  VERIFY_STREAK_REQUIRED,
+  advanceRun,
   afterModuleMastered,
+  answerFits,
   gradeAnswer,
   logVerifyRejection,
-  type VerifyAnswer,
+  progressOf,
+  questionView,
+  type RunState,
 } from "@/lib/verify-quiz";
+import type { QuizAnswer } from "@/lib/verify-quiz-client";
 
 const MAX_BODY_BYTES = 1024;
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -20,19 +25,29 @@ const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{
 type AttemptRow = {
   user_id: string;
   module_id: number;
-  question_order: number[];
   position: number;
   streak: number;
   status: "active" | "passed" | "exhausted";
   expires_at: string;
+  /** Null for runs started by the old True/False engine. */
+  run_state: RunState | null;
 };
 
-type AdvanceResult = { streak: number; status: "active" | "passed" | "exhausted"; alreadyMastered: boolean };
+type AdvanceResult = { status: "active" | "passed" | "exhausted"; alreadyMastered: boolean };
+
+/** An option id, up to 12 step ids, or a number. The question decides which is right. */
+function isAnswerShape(value: unknown): value is QuizAnswer {
+  if (typeof value === "string") return value.length > 0 && value.length <= 32;
+  if (typeof value === "number") return Number.isFinite(value) && Math.abs(value) < 1_000_000;
+  return Array.isArray(value) && value.length > 0 && value.length <= 12
+    && value.every((id) => typeof id === "string" && id.length > 0 && id.length <= 32);
+}
 
 /**
- * Grades one verify quiz answer. The client says which run, which position
- * and which answer; which question sits at that position, whether the answer
- * is right, and the streak all come from the server. See lib/verify-quiz.ts.
+ * Grades one quiz answer and returns the next question. The client says which
+ * run, which position and which answer; which question sits at that position,
+ * whether the answer is right, and the run's progress all come from the
+ * server. See lib/verify-quiz.ts.
  */
 export async function POST(req: Request) {
   try {
@@ -45,7 +60,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized", code: "UNAUTHORIZED" }, { status: 401 });
     }
 
-    // A quick human answers one T/F question every second or two at most.
+    // A quick human answers one question every second or two at most.
     const ip = getClientIp(req);
     if (!rateLimit(`verify-answer:user:${user.id}`, 60)) {
       logVerifyRejection("verify_answer_rejected", "rate_limited", user.id, null, ip);
@@ -59,7 +74,7 @@ export async function POST(req: Request) {
     if (
       typeof attemptId !== "string" || !UUID_PATTERN.test(attemptId) ||
       typeof position !== "number" || !Number.isInteger(position) || position < 0 ||
-      (answer !== "true" && answer !== "false")
+      !isAnswerShape(answer)
     ) {
       logVerifyRejection("verify_answer_rejected", "malformed", user.id, null, ip);
       return NextResponse.json({ error: "Invalid quiz answer.", code: "INVALID_ANSWER" }, { status: 400 });
@@ -76,7 +91,7 @@ export async function POST(req: Request) {
       validateSession(admin, user.id, browserSessionId),
       admin
         .from("verify_attempts")
-        .select("user_id, module_id, question_order, position, streak, status, expires_at")
+        .select("user_id, module_id, position, streak, status, expires_at, run_state")
         .eq("id", attemptId)
         .maybeSingle(),
     ]);
@@ -86,8 +101,9 @@ export async function POST(req: Request) {
     if (error) throw error;
     const attempt = data as AttemptRow | null;
 
-    // Someone else's run looks the same as a missing one.
-    if (!attempt || attempt.user_id !== user.id) {
+    // Someone else's run looks the same as a missing one, and so does a run
+    // from the old engine (they expire within 20 minutes of the release).
+    if (!attempt || attempt.user_id !== user.id || !attempt.run_state) {
       logVerifyRejection("verify_answer_rejected", "not_found", user.id, null, ip);
       return NextResponse.json({ error: "This quiz has ended. Please start again.", code: "VERIFY_ATTEMPT_NOT_FOUND" }, { status: 404 });
     }
@@ -106,21 +122,33 @@ export async function POST(req: Request) {
       );
     }
 
-    const questionIndex = attempt.question_order[position];
-    const graded = questionIndex === undefined ? null : gradeAnswer(attempt.module_id, questionIndex, answer as VerifyAnswer);
-    if (!graded) {
+    const run = attempt.run_state;
+    const questionId = run.queue[position];
+    const question = questionId === undefined ? null : findQuestion(attempt.module_id, questionId);
+    if (!question) {
       return NextResponse.json({ error: "This quiz has ended. Please start again.", code: "VERIFY_ATTEMPT_NOT_FOUND" }, { status: 404 });
     }
+    if (!answerFits(question, answer)) {
+      logVerifyRejection("verify_answer_rejected", "wrong_shape", user.id, attempt.module_id, ip);
+      return NextResponse.json({ error: "Invalid quiz answer.", code: "INVALID_ANSWER" }, { status: 400 });
+    }
+
+    const graded = gradeAnswer(question, answer);
+    const advanced = advanceRun(run, position, question, graded.correct, liveQuestions(attempt.module_id));
+    const streak = graded.correct ? attempt.streak + 1 : 0;
 
     // Re-checks status, expiry and position under a row lock, so two
-    // concurrent answers to the same question can't both count.
-    const { data: advanced, error: advanceError } = await admin.rpc("advance_verify_attempt", {
+    // concurrent answers to the same question can't both count. Masters the
+    // module when the run passes.
+    const { data: saved, error: advanceError } = await admin.rpc("advance_quiz_run", {
       p_attempt_id: attemptId,
       p_user_id: user.id,
       p_position: position,
-      p_correct: graded.correct,
-      p_required: VERIFY_STREAK_REQUIRED,
+      p_run_state: advanced.state,
+      p_streak: streak,
+      p_status: advanced.status,
       p_module: moduleIdToString(attempt.module_id),
+      p_score: advanced.state.correct,
     });
     if (advanceError) {
       const message = advanceError.message ?? "";
@@ -132,19 +160,22 @@ export async function POST(req: Request) {
       }
       throw advanceError;
     }
-    const result = advanced as AdvanceResult;
+    const result = saved as AdvanceResult;
 
     if (result.status === "passed") {
       await afterModuleMastered(admin, user, result.alreadyMastered);
     }
 
+    const nextId = result.status === "active" ? advanced.state.queue[position + 1] : undefined;
+    const nextQuestion = nextId === undefined ? null : findQuestion(attempt.module_id, nextId);
+
     return NextResponse.json({
       correct: graded.correct,
       correctAnswer: graded.correctAnswer,
       explanation: graded.explanation,
-      streak: result.streak,
-      required: VERIFY_STREAK_REQUIRED,
       status: result.status,
+      progress: progressOf(advanced.state),
+      next: nextQuestion ? questionView(nextQuestion, position + 1) : null,
       moduleId: attempt.module_id,
     });
   } catch (error) {

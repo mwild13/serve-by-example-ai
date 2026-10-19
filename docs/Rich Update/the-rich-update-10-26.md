@@ -11,8 +11,8 @@ The staff learning upgrade, named after Richie, our first tester, who called tra
 | # | Phase | Status |
 |---|---|---|
 | 1 | Groundwork: measures and event tracking | Done 2026-10-19 |
-| 2 | Question engine | Next |
-| 3 | Writing and reviewing the questions | — |
+| 2 | Question engine | Built 2026-10-19; waiting on the migration and your review of the Beer Pouring questions |
+| 3 | Writing and reviewing the questions | Next |
 | 4 | Learn cards (text) | — |
 | 5 | Skill check and test-out | — |
 | 6 | Live Guest conversation (text) | — |
@@ -68,14 +68,55 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
 
 - Live Guest's measure is added in Phase 6, and venue content's in Phase 11, once those features write their own rows.
 
-## Next: Phase 2, the question engine
+## Phase 2: question engine
 
-From the plan (section 5):
+- **Date:** 2026-10-19
+- **Branch:** `preview/rich-update`. Not pushed yet.
+- **Migration:** `supabase/migrations/20261020_question_engine.sql` (rollback in `supabase/rollbacks/`). It only adds things, so it can run before the code goes live. **Not run on production yet.**
 
-- Six formats with a difficulty on each question, graded on the server one answer at a time. The answer key stays in server-only code (`lib/verify-questions.ts`).
-- Mastery needs correct answers in at least three formats. A question answered correctly doesn't come back in the same run; one answered wrongly comes back later in another form.
-- It starts with the existing 296 statements, so no module is ever empty during Phase 3.
-- Modules already mastered stay mastered.
-- The two picture formats are built but stay off until Phase 9.
+### What was done
 
-Read first: `docs/MASTERY_ENGINE.md` (verify quiz and `advance_verify_attempt()`), `docs/STAFF_APP.md` §4, `lib/verify-quiz.ts`, `app/api/training/verify/`, `app/dashboard/_components/ModuleVerify.tsx`, `RapidFireQuiz.tsx`, `app/mobile/_components/QuizScreen.tsx`.
+- **Six formats plus True/False:** best line, choose one, put in order, spot the mistake, a number, and which glass. Every question has a format, a difficulty and the fact it tests. They are graded on the server one answer at a time, and the answer key stays in server-only code (`lib/question-bank.ts`).
+- **The server plans each run** and sends one question at a time, not the whole list. A run asks each fact once, with easier questions first, and covers every format the module has.
+- **New mastery rule:** 6 right in at least 3 question types. A question answered right doesn't come back. A wrong one comes back 2 questions later in another form, and must be answered right before the run can pass. The 3rd miss ends the run.
+- **Every module still works:** the 320 True/False statements are the starting bank (the plan said 296, but there are 8 in each of 40 modules). A module with only True/False passes on 6 right out of 8, because it can't offer 3 types yet. Phase 3 adds the other types.
+- **Mastered modules stay mastered.** Nothing in the new engine clears a pass.
+- **The picture formats** are built and switched off until Phase 9.
+- **One quiz screen for both surfaces:**
+  - `components/quiz/QuizRun.tsx` serves desktop and mobile, with a light and a dark theme.
+  - Desktop keys: T and F, 1 to 4 for options, Enter for the next question.
+  - Steps are put in order with up and down buttons, 44px targets, not by dragging.
+  - `RapidFireQuiz.tsx` and its old styles are deleted.
+- **Beer Pouring sample questions:** 9 questions written only from the module's own statements, in `lib/questions/module-01.ts`. They are off until you approve them: see `module-01-questions.md` in this folder. They are the first real test of the formats, and a model for Phase 3.
+
+### Checked
+
+- **Tests:** 131 pass, 24 of them for the quiz. They cover:
+  - run planning and format coverage
+  - wrong answers coming back
+  - the third miss and running out of questions
+  - grading each format and refusing wrong shapes
+  - that the browser never gets an answer
+  - every real module
+- **Checks:** `tsc`, `eslint`, `knip`, the CSS checks and `next build` pass.
+- **The migration ran on production inside a transaction that was rolled back.** Inside it, a test run:
+  - accepted the first answer
+  - refused a second answer at the same position
+  - mastered the module on the passing answer
+  - counted the answers in `training_activity_daily`
+
+  Afterwards neither the column nor the function existed.
+- **Not checked yet:** the new screens in a browser (they are behind a login), and the mobile e2e screenshots, whose quiz baselines will need retaking.
+
+### Release order
+
+1. You review the Beer Pouring questions. I switch on the ones you approve.
+2. You run `20261020_question_engine.sql` on production. It only adds a column and a function, and the current live quiz ignores both.
+3. Push to `preview/rich-update`, wait for the checks, and try a quiz on the preview on desktop and on a phone.
+4. Later cleanup, once the new quiz has been live a while: drop `advance_verify_attempt()` and `verify_attempts.question_order`.
+
+**A quiz open at release time ends.** Anyone mid-quiz when the new code goes live sees "This quiz has ended. Please start again." Runs last 20 minutes at most, so this only affects a quiz open at that moment.
+
+## Next: Phase 3, writing and reviewing the questions
+
+From the plan (section 5): the AI drafts 20 to 25 questions per module from that module's statements and explanations, in the formats above, each tagged with its format, difficulty and fact. You review one category at a time, and each batch goes live once you've approved it. Questions that need a picture get a short image brief for Phase 9. `lib/questions/module-01.ts` is the pattern each module's file follows.
