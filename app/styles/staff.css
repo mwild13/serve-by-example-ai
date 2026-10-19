@@ -2171,6 +2171,119 @@ html[data-staff-high-contrast="1"] .dashboard-main {
     font-size: 1.05rem;
   }
 }
+/* ============================================================
+   LEARN CARDS (components/quiz/LearnCards.tsx)
+   Shown before a module's quiz. Sits inside .qz--light or .qz--dark,
+   so it uses the same --qz-* values as the quiz.
+   ============================================================ */
+.lc-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.lc-count {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--qz-muted);
+}
+.lc-skip {
+  padding: 6px 0;
+  border: none;
+  background: none;
+  color: var(--qz-muted);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.lc-card {
+  min-height: 260px;
+  touch-action: pan-y;
+  user-select: none;
+}
+.lc-title {
+  font-size: 1.45rem;
+}
+.lc-rule {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--qz-text);
+}
+.lc-why {
+  margin-top: auto;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--qz-surface-alt);
+}
+.lc-why-label {
+  margin: 0 0 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--qz-accent);
+}
+.lc-why-text {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--qz-text);
+}
+.lc-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 14px 0;
+}
+.lc-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--qz-line);
+}
+.lc-dot--on {
+  background: var(--qz-accent);
+}
+.lc-nav {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 10px;
+}
+.lc-back {
+  min-height: 48px;
+  padding: 12px 20px;
+  border: 1px solid var(--qz-line);
+  border-radius: 999px;
+  background: var(--qz-surface);
+  color: var(--qz-text);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.lc-back:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+@media (max-width: 720px) {
+  .lc-card {
+    min-height: 220px;
+  }
+  .lc-title {
+    font-size: 1.25rem;
+  }
+  .lc-rule {
+    font-size: 0.98rem;
+  }
+}
 /* ── Badge Page ─────────────────────────────────────────────── */
 .badge-page {
   padding: 48px 0 80px;

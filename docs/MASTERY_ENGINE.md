@@ -68,6 +68,18 @@ Rebuilt in the Rich update, Phase 2 (`docs/Rich Update/`).
 - **Old engine:** `advance_verify_attempt()` and `verify_attempts.question_order` are no longer used. They are dropped in a later cleanup migration, once the new code has been live for a while.
 - **Known limitation:** the quiz shows the correct answer after each question. That's a product choice, and it means a script can still learn the answers over a few runs, within the rate limits.
 
+## Learn cards (before the quiz)
+
+Added in the Rich update, Phase 4.
+
+- **What:** each module opens with 4 to 6 short cards: a title, one rule, and why it matters. "Skip to quiz" is always there, and "Read the cards again" is offered after a failed run.
+- **Where:** `lib/learn-cards.ts` (types and `loadLearnCards()`), with one file per module in `lib/learn-cards/module-NN.ts`. Each module's cards are a separate chunk, loaded only when the module opens. The screen is `components/quiz/LearnCards.tsx` (the `.lc` rules in `app/styles/staff.css`), used by `ModuleVerify.tsx` and the mobile `QuizScreen.tsx`.
+- **Not server-only:** cards hold no answer key, so they can ship to the browser.
+- **Each card's `concepts`** names the statements (`s0`..`s7`) it teaches. A test checks that every statement in a module is taught by at least one card, that a module has 4 to 6 cards, and that each card stays short.
+- **Only reviewed cards are shown** (`reviewed: true`). A module with no reviewed cards opens straight on its quiz. Review sheets come from the code: `npm run cards:review`.
+- **The quiz run starts after the cards,** so the 20-minute expiry doesn't run while someone reads.
+- **Pictures** come in Phase 9. Cards work without them.
+
 ## SBE Elite
 
 - **Earned with** verify quizzes passed for at least 80% of modules (`eliteThreshold()`), the same rule the badge shows in `lib/badges.ts`. Arena passes don't count.

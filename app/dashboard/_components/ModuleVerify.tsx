@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import LearnCards from "@/components/quiz/LearnCards";
 import QuizRun from "@/components/quiz/QuizRun";
+import { loadLearnCards, type LearnCard } from "@/lib/learn-cards";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import {
   startVerifyQuiz,
@@ -73,6 +75,7 @@ async function accessToken(): Promise<string> {
   return session.access_token;
 }
 
+// The module opens on its Learn cards, if it has any, then the quiz.
 // The quiz is graded on the server (lib/verify-quiz.ts): this starts a run,
 // QuizRun sends each answer, and the server records mastery itself when the
 // run passes. There is no separate "save" step.
@@ -83,8 +86,27 @@ export default function ModuleVerify({ moduleId, onArena, onComplete, nextModule
   const [quiz, setQuiz] = useState<VerifyQuizStart | null>(null);
   // Bumped by "Start again" to start a fresh run.
   const [runKey, setRunKey] = useState(0);
+  // null until loaded. A module with no cards goes straight to the quiz.
+  const [cards, setCards] = useState<LearnCard[] | null>(null);
+  const [readingCards, setReadingCards] = useState(true);
+  const showCards = cards !== null && cards.length > 0 && readingCards;
+  // The run only starts once the cards are done, so it can't expire while they're read.
+  const quizReady = cards !== null && !showCards;
 
   useEffect(() => {
+    let cancelled = false;
+    loadLearnCards(moduleId)
+      .catch(() => [])
+      .then((list) => {
+        if (!cancelled) setCards(list);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [moduleId]);
+
+  useEffect(() => {
+    if (!quizReady) return;
     let cancelled = false;
     async function begin() {
       try {
@@ -102,12 +124,18 @@ export default function ModuleVerify({ moduleId, onArena, onComplete, nextModule
     return () => {
       cancelled = true;
     };
-  }, [moduleId, runKey]);
+  }, [moduleId, runKey, quizReady]);
 
   function restart() {
     setStatus("loading");
     setError(null);
     setRunKey((k) => k + 1);
+  }
+
+  function readCardsAgain() {
+    setStatus("loading");
+    setError(null);
+    setReadingCards(true);
   }
 
   const handleAnswer = useCallback(
@@ -126,6 +154,18 @@ export default function ModuleVerify({ moduleId, onArena, onComplete, nextModule
     setError(message);
     setStatus("error");
   }, []);
+
+  if (showCards) {
+    return (
+      <div className="stage-container">
+        <div className="stage-header">
+          <h2 style={{ marginBottom: 8 }}>{moduleTitle}</h2>
+          <p className="stage-subtitle">Read these first. The quiz is on the same rules.</p>
+        </div>
+        <LearnCards cards={cards} onDone={() => setReadingCards(false)} theme="light" />
+      </div>
+    );
+  }
 
   if (status === "loading") {
     return (
@@ -203,6 +243,11 @@ export default function ModuleVerify({ moduleId, onArena, onComplete, nextModule
           <button className="btn btn-primary" onClick={restart}>
             Start a new run
           </button>
+          {cards && cards.length > 0 && (
+            <button className="btn btn-secondary" onClick={readCardsAgain} style={{ marginLeft: 8 }}>
+              Read the cards again
+            </button>
+          )}
         </div>
       </div>
     );

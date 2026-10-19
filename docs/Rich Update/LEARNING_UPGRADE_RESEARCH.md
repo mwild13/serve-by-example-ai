@@ -281,7 +281,7 @@ There are 13 phases to launch, then 3 after marketing starts. Each phase goes ou
 - One AI call per turn, within the existing daily AI limit, using the model in `CHAT_MODEL_PARAMS`.
 - Start with 6 to 8 guests and tune how they behave before writing the rest.
 - Attempts are recorded through `recordAttempt()`.
-- **Done when** Richie can play a full conversation on his phone and it feels like a real guest.
+- **Done when** you can play a full conversation on your phone and it feels like a real guest.
 
 ### Phase 7. Guest briefs, four dials and difficulty
 - Turn the 40 Scenario Training situations and the 40 Arena scenarios into guest briefs, and you check each one.
@@ -319,11 +319,11 @@ There are 13 phases to launch, then 3 after marketing starts. Each phase goes ou
 - **Done when** a casual who works Friday to Sunday can keep a streak going.
 
 ### Phase 13. Launch check
-- Richie does the modules again, and at least one other venue manager tries the whole upgrade.
+- You check the whole upgrade end to end, then run one human test with a venue manager or staff member (decided 2026-10-19).
 - Read the measures against the Phase 1 numbers.
 - Choose which guest is the taster conversation for Pro and free users. Pick the one that best shows what a venue plan adds, based on how the guests play in testing.
 - Update the privacy policy for Live Guest transcripts. Update the marketing site copy, without customer quotes or outcome figures we don't have yet.
-- **Done when** Richie no longer calls it repetitive. Then marketing spend starts.
+- **Done when** you're happy with it and the human test doesn't find it repetitive. Then marketing spend starts.
 
 ### After marketing starts
 - **Phase 14, Live Guest voice:** as in 3e, on the same plans as Live Guest, with a cap on minutes. Test it on a phone in a noisy bar first.
@@ -338,13 +338,13 @@ Recorded in `LEARNING_METRICS.md` in Phase 1:
 - Days with training per active staff member per week.
 - Share of staff still training in week 4.
 - Venue content items added per venue per month (this measures the "forgotten" problem).
-- Richie does the modules again and no longer calls them repetitive, and at least one more venue manager agrees (Phase 13).
+- The human test in Phase 13 doesn't find the training repetitive.
 
 ---
 
 ## 6. Research to do alongside the build
 
-1. **Show it to venue managers as it's built.** No mock-ups (decided 2026-10-19). Richie and 2 or 3 other managers try the real screens on the preview site as each phase ships.
+1. **Check it as it's built.** No mock-ups. You are the expert and check the real screens on the preview site as each phase ships; one human test runs at the end (decided 2026-10-19).
 2. **Price test.** Richie suggested $10 to $20 per user per month; today it's about $4 to $5. Live Guest and venue content are the features that could justify a higher price. Test on new sign-ups only, as the to-do list already says.
 3. **Voice in a real venue,** before Phase 14.
 4. **Legal and compliance check** on any claim about Food Safety Standard 3.2.2A or Respect@Work before it appears on the site.

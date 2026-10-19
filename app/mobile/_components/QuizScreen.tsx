@@ -7,7 +7,9 @@ import BottomNav from "./BottomNav";
 import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
+import LearnCards from "@/components/quiz/LearnCards";
 import QuizRun from "@/components/quiz/QuizRun";
+import { loadLearnCards, type LearnCard } from "@/lib/learn-cards";
 import {
   quizGoalText,
   startVerifyQuiz,
@@ -23,7 +25,8 @@ import {
 // Same run as desktop's ModuleVerify, through the shared QuizRun component:
 // the server sends one question at a time, grades every answer and decides
 // when the run passes (lib/verify-quiz.ts). Mastery is recorded by the answer
-// that passes the run; there's no separate save call.
+// that passes the run; there's no separate save call. The module's Learn
+// cards, if it has any, come first.
 
 type Status = "loading" | "playing" | "mastered" | "exhausted" | "error";
 
@@ -63,8 +66,29 @@ export default function QuizScreen() {
   const [error, setError] = useState<string | null>(null);
   // Bumped by "Try again" to start a fresh run.
   const [runKey, setRunKey] = useState(0);
+  // Kept with their module id: "Next Module" changes moduleId without
+  // remounting this screen, so cards for the old module must not count.
+  const [cardSet, setCardSet] = useState<{ moduleId: number; cards: LearnCard[] } | null>(null);
+  const [cardsDoneFor, setCardsDoneFor] = useState<number | null>(null);
+  const cards = cardSet?.moduleId === moduleId ? cardSet.cards : null;
+  const showCards = cards !== null && cards.length > 0 && cardsDoneFor !== moduleId;
+  // The run only starts once the cards are done, so it can't expire while they're read.
+  const quizReady = cards !== null && !showCards;
 
   useEffect(() => {
+    let cancelled = false;
+    loadLearnCards(moduleId)
+      .catch(() => [])
+      .then((list) => {
+        if (!cancelled) setCardSet({ moduleId, cards: list });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [moduleId]);
+
+  useEffect(() => {
+    if (!quizReady) return;
     let cancelled = false;
     async function begin() {
       try {
@@ -82,12 +106,17 @@ export default function QuizScreen() {
     return () => {
       cancelled = true;
     };
-  }, [session.token, moduleId, runKey]);
+  }, [session.token, moduleId, runKey, quizReady]);
 
   function restart() {
     setStatus("loading");
     setError(null);
     setRunKey((k) => k + 1);
+  }
+
+  function finishCards() {
+    setStatus("loading");
+    setCardsDoneFor(moduleId);
   }
 
   const handleAnswer = useCallback(
@@ -121,7 +150,22 @@ export default function QuizScreen() {
 
   const shellStyle: React.CSSProperties = { justifyContent: "space-between" };
 
-  if (status === "loading") {
+  if (showCards) {
+    return (
+      <MobileScreenShell style={shellStyle}>
+        <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "20px 20px 12px" }}>
+            <p style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "var(--text-mobile)" }}>{moduleTitle}</p>
+            <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>Read these first. The quiz is on the same rules.</p>
+          </div>
+          <LearnCards cards={cards} onDone={finishCards} theme="dark" />
+        </div>
+        <BottomNav active="learn" />
+      </MobileScreenShell>
+    );
+  }
+
+  if (status === "loading" || !quizReady) {
     return (
       <MobileScreenShell style={shellStyle}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60dvh" }}>
@@ -156,6 +200,24 @@ export default function QuizScreen() {
           >
             Try again
           </button>
+          {status === "exhausted" && cards && cards.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setCardsDoneFor(null)}
+              style={{
+                background: "none",
+                border: "none",
+                color: "var(--text-mobile-muted)",
+                fontFamily: "var(--font-body)",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                textDecoration: "underline",
+              }}
+            >
+              Read the cards again
+            </button>
+          )}
         </div>
         <BottomNav active="learn" />
       </MobileScreenShell>

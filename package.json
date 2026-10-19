@@ -14,7 +14,8 @@
     "typecheck": "next typegen && tsc --noEmit --incremental false",
     "knip": "npx --yes knip@6 --no-progress",
     "lint:css:unused": "node scripts/find-unused-css.mjs",
-    "questions:review": "node scripts/question-review.mjs"
+    "questions:review": "node scripts/question-review.mjs",
+    "cards:review": "node scripts/learn-card-review.mjs"
   },
   "dependencies": {
     "@fal-ai/client": "^1.10.1",
