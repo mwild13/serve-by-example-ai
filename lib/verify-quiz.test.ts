@@ -96,6 +96,13 @@ describe("the question bank", () => {
     }
   });
 
+  it("gives every module at least three question types to pass with", () => {
+    for (const moduleId of Object.keys(VERIFY_QUESTIONS).map(Number)) {
+      const formats = new Set(moduleQuestions(moduleId).map((q) => q.format));
+      expect(formats.size, `module ${moduleId}`).toBeGreaterThanOrEqual(3);
+    }
+  });
+
   it("never asks an unreviewed or picture question", () => {
     expect(isLive({ ...tf(0), reviewed: false })).toBe(false);
     expect(isLive({ ...mc("p", "s0"), format: "which_glass" })).toBe(false);

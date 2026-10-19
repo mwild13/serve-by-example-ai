@@ -28,15 +28,21 @@ import { MODULE_17_QUESTIONS } from "@/lib/questions/module-17";
 import { MODULE_18_QUESTIONS } from "@/lib/questions/module-18";
 import { MODULE_19_QUESTIONS } from "@/lib/questions/module-19";
 import { MODULE_20_QUESTIONS } from "@/lib/questions/module-20";
+import { MODULE_21_QUESTIONS } from "@/lib/questions/module-21";
+import { MODULE_22_QUESTIONS } from "@/lib/questions/module-22";
 import { MODULE_23_QUESTIONS } from "@/lib/questions/module-23";
+import { MODULE_24_QUESTIONS } from "@/lib/questions/module-24";
+import { MODULE_25_QUESTIONS } from "@/lib/questions/module-25";
 import { MODULE_26_QUESTIONS } from "@/lib/questions/module-26";
 import { MODULE_27_QUESTIONS } from "@/lib/questions/module-27";
 import { MODULE_28_QUESTIONS } from "@/lib/questions/module-28";
 import { MODULE_29_QUESTIONS } from "@/lib/questions/module-29";
 import { MODULE_30_QUESTIONS } from "@/lib/questions/module-30";
+import { MODULE_31_QUESTIONS } from "@/lib/questions/module-31";
 import { MODULE_32_QUESTIONS } from "@/lib/questions/module-32";
 import { MODULE_33_QUESTIONS } from "@/lib/questions/module-33";
 import { MODULE_34_QUESTIONS } from "@/lib/questions/module-34";
+import { MODULE_35_QUESTIONS } from "@/lib/questions/module-35";
 import { MODULE_36_QUESTIONS } from "@/lib/questions/module-36";
 import { MODULE_37_QUESTIONS } from "@/lib/questions/module-37";
 import { MODULE_38_QUESTIONS } from "@/lib/questions/module-38";
@@ -119,15 +125,21 @@ const EXTRA_QUESTIONS: Record<number, Question[]> = {
   18: MODULE_18_QUESTIONS,
   19: MODULE_19_QUESTIONS,
   20: MODULE_20_QUESTIONS,
+  21: MODULE_21_QUESTIONS,
+  22: MODULE_22_QUESTIONS,
   23: MODULE_23_QUESTIONS,
+  24: MODULE_24_QUESTIONS,
+  25: MODULE_25_QUESTIONS,
   26: MODULE_26_QUESTIONS,
   27: MODULE_27_QUESTIONS,
   28: MODULE_28_QUESTIONS,
   29: MODULE_29_QUESTIONS,
   30: MODULE_30_QUESTIONS,
+  31: MODULE_31_QUESTIONS,
   32: MODULE_32_QUESTIONS,
   33: MODULE_33_QUESTIONS,
   34: MODULE_34_QUESTIONS,
+  35: MODULE_35_QUESTIONS,
   36: MODULE_36_QUESTIONS,
   37: MODULE_37_QUESTIONS,
   38: MODULE_38_QUESTIONS,
