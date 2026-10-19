@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-3-service-a.md.
+// Approved by the owner on 2026-10-19 (batch 3). Review copy:
+// docs/Rich Update/batch-3-service-a.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_14_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "A standard greeting confirms they called the right place and immediately establishes a professional first impression.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -38,7 +38,7 @@ export const MODULE_14_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "You must remain professional. Warn them politely that you will disconnect if the language continues, then hang up.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -54,7 +54,7 @@ export const MODULE_14_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Without contact details, you cannot recall them when a table frees up, leading to empty tables and lost revenue.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -69,7 +69,7 @@ export const MODULE_14_QUESTIONS: Question[] = [
       { id: "d", text: "Thank them and end the call" },
     ],
     explanation: "A standard greeting confirms they've called the right place. Reading back the date, time and number of guests prevents double bookings.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -85,7 +85,7 @@ export const MODULE_14_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Table tetris changes constantly. Note their preference, but guarantee the booking, not the specific physical table.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -101,7 +101,7 @@ export const MODULE_14_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "If you are slammed, take their name and number and promise to call them back when the rush dies down.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -117,7 +117,7 @@ export const MODULE_14_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Confirming the date, time, and pax prevents disastrous double-bookings or guests showing up on the wrong night.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -133,6 +133,6 @@ export const MODULE_14_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "If you are slammed, take their name and number and promise to call them back when the rush dies down.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

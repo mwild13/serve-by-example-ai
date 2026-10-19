@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-3-service-a.md.
+// Approved by the owner on 2026-10-19 (batch 3). Review copy:
+// docs/Rich Update/batch-3-service-a.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_9_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Clearing half a table makes the slower eaters feel incredibly rushed and ruins the communal dining experience.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_9_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Unless requested, dropping the bill prematurely is a hostile move that tells the guest to get out.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -54,7 +54,7 @@ export const MODULE_9_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "This two-minute check catches undercooked steaks or missing sauces immediately, before the guest becomes angry.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -70,7 +70,7 @@ export const MODULE_9_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Consolidation is key. Never walk back to the kitchen or bar empty-handed; clear the dead wood.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -86,7 +86,7 @@ export const MODULE_9_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Guests notice when they are being rushed. It kills the tip and guarantees a negative Google review.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -102,7 +102,7 @@ export const MODULE_9_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Making eye contact with the whole table, not just the loudest person, makes everyone feel valued.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -118,7 +118,7 @@ export const MODULE_9_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Hungry kids make for stressed parents. Feeding children first ensures a peaceful dining experience for the whole table.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -134,7 +134,7 @@ export const MODULE_9_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Unless requested, dropping the bill early is a hostile move that tells the guest to get out, and guests notice when they're rushed.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q10",
@@ -149,6 +149,6 @@ export const MODULE_9_QUESTIONS: Question[] = [
       { id: "d", text: "Clear plates once everyone has finished" },
     ],
     explanation: "Children first keeps the table happy, a two-minute check catches problems early, and plates are cleared only once everyone is done.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

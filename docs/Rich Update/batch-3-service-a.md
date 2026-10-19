@@ -1,6 +1,8 @@
 # Batch 3: Service, part A
 
-61 questions in the new formats, all drafts. They are in the code (`lib/questions/`) but switched off until you approve them. Generated from the code by `scripts/question-review.mjs`, so this is exactly what staff will see.
+**Approved by the owner on 2026-10-19: all 61 questions, and every suggested statement fix below.**
+
+61 questions in the new formats, in `lib/questions/`. Generated from the code by `scripts/question-review.mjs`, so this is exactly what staff will see.
 
 Every question is written only from the module's existing True/False statements (shown under each one), so it adds no new facts. The places to look hardest are the wrong options and the "best line" wording, which are new.
 
@@ -780,3 +782,13 @@ Explanation: If you are slammed, take their name and number and promise to call 
 **Questions that add a step or wording:**
 - **The Greeting q10**, **Table Dynamics q10**, **Guest Complaints q9** and **Phone Etiquette q5** join several statements into one sequence. Check that the order matches how your venues train.
 - **Every "best line"** is my wording of what the statement says to do. These are the ones to read aloud and check they sound like a real Aussie venue.
+
+## Decided on review (2026-10-19)
+
+All five statement fixes were made in `lib/verify-questions.ts`:
+
+- **Table Dynamics:** now "Clearing plates from the guest's right is standard practice."
+- **Suggestive Selling:** now "Up-selling increases venue revenue when it improves the guest's experience." The tips claim is gone.
+- **VIP Management, trading hours:** the explanation now names the liquor regulator and the venue's licence, not a council fine.
+- **VIP Management, bookings:** now "Holding a reserved table for a short grace period before giving it away is standard practice." The explanation says the period is often 15 minutes and set by the venue.
+- **Phone Etiquette:** the explanation now says smiling changes the shape of your mouth, not your vocal cords.

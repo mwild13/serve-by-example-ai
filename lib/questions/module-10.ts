@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-3-service-a.md.
+// Approved by the owner on 2026-10-19 (batch 3). Review copy:
+// docs/Rich Update/batch-3-service-a.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_10_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Anticipating the need prevents a break in service and boosts beverage sales effortlessly.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_10_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "If a guest has to wave you over, you have already failed at anticipatory service.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_10_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Providing wet wipes or extra napkins with wings or ribs solves a messy problem before the guest asks.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_10_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "It means anticipating their needs (water, cutlery, clearing), not forcefully dictating their meal choices.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_10_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Saying 'The usual schooner of New, mate?' makes the guest feel like a VIP and guarantees repeat business.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_10_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Silent, constant water top-ups are the ultimate hallmark of high-end, attentive restaurant service.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_10_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "While you shouldn't hover, you must maintain visual contact to catch subtle cues that they need assistance.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -134,7 +134,7 @@ export const MODULE_10_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Striking while the iron is hot captures impulse dessert or coffee sales before they decide they are too full.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -150,6 +150,6 @@ export const MODULE_10_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "If a guest has to wave you over, you have already failed at anticipatory service.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

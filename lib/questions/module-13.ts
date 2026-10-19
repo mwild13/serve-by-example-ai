@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-3-service-a.md.
+// Approved by the owner on 2026-10-19 (batch 3). Review copy:
+// docs/Rich Update/batch-3-service-a.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_13_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Liquor licensing laws apply equally to everyone. No VIP is worth risking a fine or the venue's licence.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_13_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "A grace period, often 15 minutes, allows for traffic or parking delays before you give the table to walk-ins. Check your venue's policy.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_13_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Evicting seated guests causes a massive scene and terrible reviews. Offer the VIP a drink at the bar instead.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_13_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Personal recognition is the currency of VIP service. It makes high-spenders feel deeply valued.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_13_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Seating 20 people at once in one section destroys the kitchen docket flow and overwhelms the bartender.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_13_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Every guest must receive baseline hospitality. Ignoring standard diners builds a toxic, elitist venue reputation.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_13_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "It pacifies the guest, gives them something to do, and proves your service starts before they even sit down.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -134,6 +134,6 @@ export const MODULE_13_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Turning people away with a smile and an alternative suggestion protects the brand for their next visit.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

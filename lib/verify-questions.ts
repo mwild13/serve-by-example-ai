@@ -353,9 +353,9 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
       explanation: "Clearing half a table makes the slower eaters feel incredibly rushed and ruins the communal dining experience.",
     },
     {
-      prompt: "Approaching a table from the right side is standard practice.",
+      prompt: "Clearing plates from the guest's right is standard practice.",
       answer: "true",
-      explanation: "Traditional silver service dictates serving food from the right and clearing from the right whenever physically possible.",
+      explanation: "Clearing from the right, whenever the table allows it, keeps you out of the guest's way and is how most venues train it.",
     },
     {
       prompt: "Dropping the bill before the guests ask is excellent service.",
@@ -499,9 +499,9 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
       explanation: "Asking 'Make that a pint?' instead of assuming a schooner is the easiest revenue boost in a pub.",
     },
     {
-      prompt: "Up-selling increases both venue revenue and your potential tips.",
+      prompt: "Up-selling increases venue revenue when it improves the guest's experience.",
       answer: "true",
-      explanation: "Higher total bills naturally lead to higher percentage-based tips while keeping the venue highly profitable.",
+      explanation: "A good suggestion gives the guest something they enjoy more and lifts the bill at the same time. That's what keeps the venue profitable and the guest coming back.",
     },
     {
       prompt: "Suggesting a cocktail while they read the menu wastes time.",
@@ -518,12 +518,12 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "VIP guests can legally stay past the venue's licensed trading hours.",
       answer: "false",
-      explanation: "Liquor licensing laws apply equally to everyone. No VIP is worth risking a massive council fine.",
+      explanation: "Liquor licensing laws apply equally to everyone. No VIP is worth a fine from the liquor regulator or a risk to the venue's licence.",
     },
     {
-      prompt: "Holding a reserved table for 15 minutes is standard practice.",
+      prompt: "Holding a reserved table for a short grace period before giving it away is standard practice.",
       answer: "true",
-      explanation: "A 15-minute grace period allows for traffic or parking delays before you give the table to walk-ins.",
+      explanation: "A grace period, often 15 minutes and set by the venue, allows for traffic or parking delays before you give the table to walk-ins.",
     },
     {
       prompt: "You should kick regular diners out to seat a walk-in VIP.",
@@ -590,7 +590,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Smiling while speaking makes your tone sound much warmer.",
       answer: "true",
-      explanation: "The physical act of smiling changes the shape of your vocal cords, making you sound audibly friendlier over the phone.",
+      explanation: "Smiling changes the shape of your mouth, which makes you sound audibly warmer and friendlier over the phone.",
     },
     {
       prompt: "You should always state the venue name when answering.",

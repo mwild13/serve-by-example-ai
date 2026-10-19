@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-3-service-a.md.
+// Approved by the owner on 2026-10-19 (batch 3). Review copy:
+// docs/Rich Update/batch-3-service-a.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_12_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Moving a guest from a standard item to a higher-margin, premium product is the definition of up-selling.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_12_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Hard-selling ruins trust. Up-selling should be conversational and enhance their experience, not manipulate their wallet.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_12_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Suggesting complementary side dishes to attach to a main order is classic, effective suggestive selling.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_12_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Recommending a bold Shiraz with a ribeye elevates the meal and significantly increases the table's spend.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_12_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Asking 'Make that a pint?' instead of assuming a schooner is the easiest revenue boost in a pub.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_12_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Getting a round of pre-dinner drinks on the table fast keeps them happy and boosts the final bill.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_12_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "You can't up-sell a craft beer if you don't know what it tastes like. Product knowledge is power.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -134,7 +134,7 @@ export const MODULE_12_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Hard-selling ruins trust. Up-selling should be conversational and enhance their experience, not manipulate their wallet.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -150,6 +150,6 @@ export const MODULE_12_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "You can't up-sell a craft beer if you don't know what it tastes like. Product knowledge is power, so be honest and find out.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-3-service-a.md.
+// Approved by the owner on 2026-10-19 (batch 3). Review copy:
+// docs/Rich Update/batch-3-service-a.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_8_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "A rapid greeting, even non-verbal, tells the guest they are seen and drastically reduces their perceived wait time.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -38,7 +38,7 @@ export const MODULE_8_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "You can easily maintain a pour while lifting your eyes to establish contact and control the bar space.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -54,7 +54,7 @@ export const MODULE_8_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "When three-deep, a nod and a smile acknowledge the guest's presence until you are free to speak.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -70,7 +70,7 @@ export const MODULE_8_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Shouting disrupts other guests' dining experience. Move closer or use polite, visible body language.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -86,7 +86,7 @@ export const MODULE_8_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "A smile disarms frustrated guests and establishes immediate hospitality, setting the stage for a great tip.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -102,7 +102,7 @@ export const MODULE_8_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Ignoring guests makes them feel invisible and angry, turning a minor wait into a formal complaint.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -118,7 +118,7 @@ export const MODULE_8_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "This phrase manages expectations and reassures the guest that they are next in the queue.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -134,7 +134,7 @@ export const MODULE_8_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Aussie pub culture is built on familiarity. A warm greeting is the first step in building a local client base.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q10",
@@ -148,6 +148,6 @@ export const MODULE_8_QUESTIONS: Question[] = [
       { id: "c", text: "Say \"Thanks for waiting, what can I get you?\"" },
     ],
     explanation: "A rapid greeting, even non-verbal, tells the guest they are seen. Finish the drink in hand, then thank them for waiting.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

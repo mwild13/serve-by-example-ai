@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-3-service-a.md.
+// Approved by the owner on 2026-10-19 (batch 3). Review copy:
+// docs/Rich Update/batch-3-service-a.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_11_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "An immediate, empathetic apology diffuses anger. They need to know you are on their side to fix the problem.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_11_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Throwing chefs under the bus makes the venue look disorganised and unprofessional. Take ownership as a team.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_11_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "A complimentary beer or soft drink gives them something to do while waiting for a remade meal.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_11_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Even if you win the argument, you lose the customer. It escalates the situation into a public scene.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_11_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Checking in on a remade steak proves that you genuinely care about their experience, closing the recovery loop.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_11_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Microwaving ruins the food quality. A cold main meal must be completely refired by the kitchen.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_11_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Often, guests just want to be heard. Let them finish venting before you offer a concrete solution.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -134,7 +134,7 @@ export const MODULE_11_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Managers must be aware of food quality trends so they can address systemic issues with the Head Chef.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -150,6 +150,6 @@ export const MODULE_11_QUESTIONS: Question[] = [
       { id: "e", text: "Tell the manager" },
     ],
     explanation: "Listen first, apologise, fix it properly with a refire, check back to close the loop, and make sure the manager knows about serious food complaints.",
-    reviewed: false,
+    reviewed: true,
   },
 ];
