@@ -329,3 +329,8 @@ From: "Bar back and bartender communication should only happen during quiet mome
 - **Soda Gun Speed c2:** "clean the nozzle by hand every day" comes from the statement. If your venues soak the nozzles on a different schedule, I'll change it to "on your venue's cleaning schedule".
 - **Wine Opener Mastery c1:** "below the second lip" is the approved statement's wording. Many trainers just say "below the lip". Either way the card matches the questions.
 - **Cellar & Kegs c1:** "or tell your manager" is added for a tap that keeps fobbing.
+
+## Decided on review (2026-10-19)
+
+- All 36 cards approved. Switched on.
+- **Soda Gun Speed c2:** now "clean the nozzle by hand on your venue's cleaning schedule", under the venue rule.

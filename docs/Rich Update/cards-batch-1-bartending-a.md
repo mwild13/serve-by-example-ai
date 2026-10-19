@@ -362,3 +362,7 @@ From: "Constant communication with the bartender prevents service delays." (true
 - **Cocktail Fundamentals c1:** 30ml is "most venues", in line with the Jigger Precision fix in batch 6.
 
 **Kept as already approved:** Tray Carrying c3 uses the fingertips statement you kept in batch 1. Bar-Back Efficiency c3 uses the corrected keg coupler wording.
+
+## Decided on review (2026-10-19)
+
+- All 40 cards approved as written, including the points above. Switched on.

@@ -152,8 +152,8 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
 - **Built:** each module opens on 4 to 6 Learn cards, then the quiz, on desktop and mobile. One card at a time: a title, one rule and why it matters. Swipe on a phone, arrow keys or buttons on desktop, and "Skip to quiz" at any point. After a failed run, "Read the cards again" sits next to "Start a new run". The quiz run only starts once the cards are done, so the 20-minute limit doesn't run while someone reads.
 - **Rule for the cards:** written only from the module's approved statements, and the venue rule applies: anything that varies between venues is taught as a principle, never as one number. A test checks that every statement is taught by a card.
 - **Batches:** one or two at a time, in the same groups as Phase 3. Cards stay hidden until approved.
-  - Cards batch 1, Bartending A (modules 1 to 7): 40 cards, `cards-batch-1-bartending-a.md`. Waiting for review.
-  - Cards batch 2, Bartending B (26, 27, 28, 32, 33, 34, 39): 36 cards, `cards-batch-2-bartending-b.md`. Waiting for review.
+  - Cards batch 1, Bartending A (modules 1 to 7): 40 cards, `cards-batch-1-bartending-a.md`. Approved and live.
+  - Cards batch 2, Bartending B (26, 27, 28, 32, 33, 34, 39): 36 cards, `cards-batch-2-bartending-b.md`. Approved and live.
   - Batches 3 to 6 (Service and Compliance) follow once these are approved.
 - **Pictures:** none yet. Each card can take one in Phase 9.
 - **Done when** every module opens with its cards on desktop and mobile.

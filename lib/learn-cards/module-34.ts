@@ -2,7 +2,7 @@
 // written from the module's True/False statements (lib/verify-questions.ts).
 // `concepts` names the statements each card teaches.
 //
-// Draft for the owner's review (cards batch 2). Review copy:
+// Approved by the owner on 2026-10-19 (cards batch 2). Review copy:
 // docs/Rich Update/cards-batch-2-bartending-b.md.
 import type { LearnCard } from "@/lib/learn-cards";
 
@@ -13,7 +13,7 @@ export const MODULE_34_CARDS: LearnCard[] = [
     title: "Hands off the rim",
     rule: "Never touch the rim or the inside of a glass.",
     why: "That's where the guest drinks from. Fingers there spread bacteria, and guests notice.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c2",
@@ -21,7 +21,7 @@ export const MODULE_34_CARDS: LearnCard[] = [
     title: "Don't stack glasses",
     rule: "Never carry glasses stacked inside each other.",
     why: "They lock together, and pulling them apart snaps the rims.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c3",
@@ -29,7 +29,7 @@ export const MODULE_34_CARDS: LearnCard[] = [
     title: "Use the pinch",
     rule: "Carry several glasses at once with the pinch: each held by the base between two fingers and a thumb.",
     why: "It's steady, keeps your fingers off the rims and saves trips. One glass at a time is too slow on the floor.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c4",
@@ -37,7 +37,7 @@ export const MODULE_34_CARDS: LearnCard[] = [
     title: "Stems for wine",
     rule: "Carry wine glasses by the stem.",
     why: "A hand on the bowl warms chilled wine and leaves smudges the guest can see.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c5",
@@ -45,7 +45,7 @@ export const MODULE_34_CARDS: LearnCard[] = [
     title: "Heavy in the middle, dry before carrying",
     rule: "Put heavy glasses in the centre of a tray, and let washed glasses drain before you carry them.",
     why: "Weight in the centre keeps the tray steady. Wet glass slips out of your grip.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c6",
@@ -53,6 +53,6 @@ export const MODULE_34_CARDS: LearnCard[] = [
     title: "Plates and glasses apart",
     rule: "Never carry plates and glasses in the same hand.",
     why: "Food gets onto the glasses, and the two loads pull against each other.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

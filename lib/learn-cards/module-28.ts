@@ -2,7 +2,7 @@
 // written from the module's True/False statements (lib/verify-questions.ts).
 // `concepts` names the statements each card teaches.
 //
-// Draft for the owner's review (cards batch 2). Review copy:
+// Approved by the owner on 2026-10-19 (cards batch 2). Review copy:
 // docs/Rich Update/cards-batch-2-bartending-b.md.
 import type { LearnCard } from "@/lib/learn-cards";
 
@@ -13,7 +13,7 @@ export const MODULE_28_CARDS: LearnCard[] = [
     title: "Everything in its place",
     rule: "Have everything set up where it belongs before service starts, and keep it that way.",
     why: "Your setup decides how service goes. A tidy, stocked station shows your team you're in control.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c2",
@@ -21,7 +21,7 @@ export const MODULE_28_CARDS: LearnCard[] = [
     title: "Restock in the lulls",
     rule: "Restock in the short quiet gaps between waves, not just once at the start of the shift.",
     why: "Stations run down fast. The quiet after a wave is your chance to be ready before the next one arrives.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c3",
@@ -29,7 +29,7 @@ export const MODULE_28_CARDS: LearnCard[] = [
     title: "Never run out of garnish",
     rule: "Keep garnishes topped up so you never have to search for a lime mid-order.",
     why: "A bartender hunting for garnish in a rush shows the whole room the station wasn't ready.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c4",
@@ -37,7 +37,7 @@ export const MODULE_28_CARDS: LearnCard[] = [
     title: "Ask for cover",
     rule: "If you need to restock, ask a teammate to cover you for a moment.",
     why: "Quick cover is good teamwork. Struggling on silently until you run out is what breaks service.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "c5",
@@ -45,6 +45,6 @@ export const MODULE_28_CARDS: LearnCard[] = [
     title: "Top up the ice",
     rule: "Check and top up the ice in every quiet moment.",
     why: "Running low on ice mid-rush is one of the most common problems behind a bar, and one of the easiest to avoid.",
-    reviewed: false,
+    reviewed: true,
   },
 ];
