@@ -12,6 +12,7 @@ The staff training platform has a **3-stage mastery path** plus AI-powered extra
 | `module` | Modules | `DynamicModuleNav.tsx` + `ModuleVerify.tsx` | 40 modules across Bartending, Sales, Management |
 | `rapid-fire` | — | `RapidFirePage.tsx` | Internal sub-nav from Modules; lists modules and opens the same quiz (`ModuleVerify.tsx`) |
 | `stage4` | Scenario Training | `DashboardTrainer.tsx` | Written scenario practice (routed in `DashboardShell.tsx:816-821`; `DiagnosticFlow.tsx` is only the first-login onboarding modal, not this nav destination) |
+| `live-guest` | Live Guest | `LiveGuestPage.tsx` → `components/live-guest/LiveGuest.tsx` | A typed conversation with a guest who talks back (Rich update, Phase 6). Mobile: `/mobile/live-guest`, linked from the Learn hub. See below |
 | `scenarios` | AI Arena | `ArenaPage.tsx` | GPT-4o-mini scored roleplay writing exercise — see §3, it is **not** a live chat |
 | `challenges` | Challenges | `ChallengesPage.tsx` | 5 tap-based interactive mini-games — see `CHALLENGES.md` for full detail across all surfaces |
 | `cocktails` | Cocktail Library | `CocktailLibrary.tsx` | 38-cocktail reference (lazy-loaded) |
@@ -100,3 +101,13 @@ Two opt-in emails, both off until the person turns them on in Settings > Notific
 - `CHALLENGES.md` — one-stop reference for the "Challenges" mini-game feature across both surfaces (desktop and the mobile build), including a checklist for adding new challenge types
 - `docs/MASTERY_ENGINE.md` — mastery scoring source of truth; this doc only describes how Arena and the quiz call into it, not the formula itself
 - `docs/staff-dashboard-a11y-audit.md`, `docs/archive/STAFF_DASHBOARD_AUDIT_REPORT.md` — historical UI/accessibility audits
+
+## Live Guest (Rich update, Phase 6)
+
+- **What:** pick a guest, talk to them over 3 to 6 typed replies, then see what they were thinking at each turn, how their mood moved, a score and a short debrief, and what they wanted. Desktop nav item `live-guest` and mobile `/mobile/live-guest` both render `components/live-guest/LiveGuest.tsx` (`.lg` rules in `app/styles/staff.css`).
+- **Routes:** `GET /api/live-guest/guests` (the picker, without the hidden parts of each brief), `POST /api/live-guest/start` (opens a conversation, no AI call), `POST /api/live-guest/turn` (one staff reply, one AI call with `CHAT_MODEL_PARAMS`, counted against the daily AI allowance).
+- **The server keeps the transcript** in `live_guest_sessions`. The browser sends only its next reply and how many replies it has sent, so it can't rewrite the guest or skip a turn, and a resent reply is answered from what's stored.
+- **Rules the server enforces** (`parseGuestTurn()` in `lib/live-guest/engine.ts`), whatever the model returns: mood moves up one step per reply at most and down two; no ending before the 3rd reply; always an ending on the 6th; breaking the brief's must-do ends it as a breach, scored 40 at most and never a pass.
+- **Access:** for now the same as the guest's module (`resolveAccess().allowedModules`). Plan gating (venue plans only) comes in Phase 8.
+- **Recorded** through `recordAttempt()` on the module's roleplay row, like the Arena, so it counts in the service score and the daily training card. See `docs/MASTERY_ENGINE.md`.
+

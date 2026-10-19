@@ -95,6 +95,47 @@ group by 1
 order by 1 desc;
 
 
--- Still to add, in the phase that builds each feature:
---   5. Venue trials where someone tried Live Guest in the first session (Phase 6).
---   6. Venue content items added per venue per month (Phase 11).
+-- 5. Venue trials where someone tried Live Guest in the first session, by
+--    the week the trial started. "First session" is the trial's first 24
+--    hours, and "someone" is anyone whose profile belongs to the venue
+--    (owner or staff). Live Guest started in Phase 6 (live_guest_sessions).
+select
+  date_trunc('week', o.trial_started_at at time zone 'Australia/Sydney')::date as week_starting,
+  count(*) as trials_started,
+  count(*) filter (where exists (
+    select 1
+    from public.live_guest_sessions s
+    join public.profiles p on p.id = s.user_id
+    where p.org_id = o.id
+      and s.created_at < o.trial_started_at + interval '24 hours'
+  )) as tried_live_guest,
+  round(100.0 * count(*) filter (where exists (
+    select 1
+    from public.live_guest_sessions s
+    join public.profiles p on p.id = s.user_id
+    where p.org_id = o.id
+      and s.created_at < o.trial_started_at + interval '24 hours'
+  )) / count(*), 1) as percent
+from public.organizations o
+where o.trial_started_at is not null
+  and o.trial_started_at >= date '2026-10-19'
+group by 1
+order by 1 desc;
+
+
+-- 6. Live Guest conversations per week: how they ended, and passes.
+select
+  date_trunc('week', s.created_at at time zone 'Australia/Sydney')::date as week_starting,
+  count(*) as started,
+  count(*) filter (where s.status <> 'active') as finished,
+  count(*) filter (where s.status = 'resolved') as resolved,
+  count(*) filter (where s.status = 'walked_out') as walked_out,
+  count(*) filter (where s.status = 'breach') as breach,
+  count(*) filter (where (s.result ->> 'passed')::boolean) as passed
+from public.live_guest_sessions s
+group by 1
+order by 1 desc;
+
+
+-- Still to add, in the phase that builds it:
+--   7. Venue content items added per venue per month (Phase 11).

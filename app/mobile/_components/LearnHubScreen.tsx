@@ -266,6 +266,7 @@ export default function LearnHubScreen() {
         </div>
 
         <div ref={practiceRef}>
+          <LiveGuestCard />
           <PracticeScenariosSection data={data} />
         </div>
 
@@ -325,6 +326,36 @@ function SkillCheckPrompt() {
           Start the skill check
         </Link>
       </div>
+    </div>
+  );
+}
+
+// Rich update, Phase 6: the way into Live Guest, a conversation with a guest
+// who talks back (components/live-guest/LiveGuest.tsx).
+function LiveGuestCard() {
+  return (
+    <div style={{ padding: "0 20px 20px" }}>
+      <Link
+        href="/mobile/live-guest"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 6,
+          padding: 16,
+          borderRadius: "var(--radius-lg)",
+          background: "var(--surface-mobile)",
+          border: "1px solid var(--gold-mobile)",
+          textDecoration: "none",
+        }}
+      >
+        <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--gold-mobile)" }}>
+          New: Live Guest
+        </span>
+        <span style={{ fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>Talk to a guest who talks back</span>
+        <span style={{ fontSize: 13, lineHeight: 1.5, color: "var(--text-mobile-muted)" }}>
+          A flat beer, a cold parmy, a guest who&apos;s had too many. Reply the way you would on shift, then see what they were thinking.
+        </span>
+      </Link>
     </div>
   );
 }

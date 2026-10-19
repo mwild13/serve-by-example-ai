@@ -170,3 +170,17 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
 - **Left for later:** managers seeing each new hire's skill check score (To_do_list.md), and the check's own six questions, which still live in the `diagnostic_questions` table rather than the reviewed question bank.
 - **Done when** an experienced bartender can clear the basics in one evening: the 14 Bartending test-outs take about 2 to 3 minutes each. For the owner to check.
 
+## Phase 6: Live Guest conversation, text (built 2026-10-19)
+
+- **What it is:** pick a guest, then talk to them over 3 to 6 typed replies. The guest answers in character and their mood (fuming, annoyed, neutral, happy, delighted) moves with what you say, but stays hidden until the end. Then the reveal: what the guest was thinking at each turn and how their mood moved, a score with what went well and what to try next, and what the guest wanted and what would have helped. Desktop: a new "Live Guest" menu item. Mobile: `/mobile/live-guest`, from a card in the Learn hub.
+- **Eight guests to start**, as planned (6 to 8): the flat schooner, one more round (RSA), the cold parmy, the nut allergy, no booking on a Friday, the Shiraz is gone, a phone booking, and someone pushed in. Briefs: `live-guest-briefs.md`, built from the code with `npm run guests:review`.
+- **One AI call per reply**, with the model in `CHAT_MODEL_PARAMS`, counted against the daily AI allowance (300 a day on paid plans, so about 50 conversations). Opening a conversation costs nothing.
+- **The server enforces the rules**, whatever the model returns: mood moves one step up per reply at most (two down); no ending before the 3rd reply; always an ending on the 6th; breaking the guest's must-do (serving an intoxicated guest, calling a dish allergy-safe without checking, ignoring a threat) ends it as a breach, which never passes. Tests cover each rule.
+- **Safe against tampering:** the transcript is kept on the server (`live_guest_sessions`), so the browser can't rewrite what the guest said or skip ahead, and a reply sent twice is answered once. Staff text is fenced as untrusted, the same as the Arena, and can't pose as the guest brief.
+- **Recorded** through `recordAttempt()` on the module's roleplay row, like the Arena. A pass already counts in the manager's service score where an Arena pass does, so Phase 8 has less to do.
+- **Measures:** queries 5 (venue trials that try Live Guest in the first 24 hours) and 6 (conversations per week and how they end) in `supabase/queries/learning.sql`.
+- **Access for now:** anyone whose plan includes the guest's module. Venue-plans-only gating comes in Phase 8.
+- **Migration to run:** `supabase/migrations/20261021_live_guest.sql` (additive; rollback in `supabase/rollbacks/`).
+- **Not yet:** the four dials and the guest getting harder as you improve (Phase 7); the privacy policy line for transcripts (Phase 13).
+- **Done when** you can play a full conversation on your phone and it feels like a real guest. The prompt couldn't be tried before the preview, because there's no OpenAI key outside Cloudflare, so the first real conversations are where it gets tuned.
+

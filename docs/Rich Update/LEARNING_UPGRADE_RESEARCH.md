@@ -276,7 +276,7 @@ There are 13 phases to launch, then 3 after marketing starts. Each phase goes ou
 - A short, hard test-out quiz for every module.
 - **Done when** an experienced bartender can clear the basics in one evening.
 
-### Phase 6. Live Guest conversation (text)
+### Phase 6. Live Guest conversation (text) (built 2026-10-19; record in `the-rich-update-10-26.md`)
 - 3 to 6 turns, the guest's hidden mood, and the reveal of what the guest was thinking at each turn.
 - One AI call per turn, within the existing daily AI limit, using the model in `CHAT_MODEL_PARAMS`.
 - Start with 6 to 8 guests and tune how they behave before writing the rest.

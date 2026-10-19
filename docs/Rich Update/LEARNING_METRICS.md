@@ -8,10 +8,11 @@ The numbers for the staff learning upgrade (the Rich update: plan in `LEARNING_U
 | Days trained per active person | Average days with any training, among people who trained at least once that week | 2 |
 | Still training in week 4 | People who trained on days 22 to 28 after their first day of training, as a share of everyone who started that week | 3 |
 | Training mix | Quiz answers, quizzes passed, Scenario Training and AI Arena attempts per week | 4 |
-| Live Guest in the first session | Venue trials where someone tried Live Guest in the first session | Added in Phase 6 |
-| Venue content items | Items added per venue per month | Added in Phase 11 |
+| Live Guest in the first session | Venue trials (started from 19 October) where the owner or a staff member started a Live Guest conversation in the trial's first 24 hours | 5 |
+| Live Guest conversations | Started, finished, how they ended (sorted, walked out, breach) and passes, per week | 6 |
+| Venue content items | Items added per venue per month | Added in Phase 11 (7) |
 
-A day counts as trained when `training_activity_daily` has a row for it, which happens on any quiz answer, Scenario Training or Arena attempt. Challenges don't count.
+A day counts as trained when `training_activity_daily` has a row for it, which happens on any quiz answer, Scenario Training or Arena attempt, or a finished Live Guest conversation (recorded as a roleplay attempt, like the Arena). Challenges don't count.
 
 ## Baseline (2026-10-19, before any change)
 

@@ -31,6 +31,7 @@ Nothing else writes `scenario_mastery`. Clients can't write it at all (Phase 2 R
 - **Bridge hint:** `isBridge` is true after 2 fails in a row. Desktop Scenario Training shows a fixed hint; difficulty doesn't change.
 - **Confidence:** `high_confidence_incorrect` and `low_confidence_correct` counters feed the manager "confidence mismatch" signal.
 - **Arena (`roleplay`, `scenario_index` 40):** a pass sets `is_mastered`. A later fail never clears it.
+- **Live Guest** (Rich update, Phase 6) records a finished conversation on the same `roleplay` / 40 row of the guest's module, with the conversation id as the attempt id and `evaluation.kind = "live_guest"`. It grades 0 to 100, passes at 75 unless the guest brief's must-do was broken (a breach), and sends `score / 4`. So a Live Guest pass counts in the service score exactly as an Arena pass does. Engine: `lib/live-guest/engine.ts`; briefs: `lib/live-guest/guests.ts` (server-only).
 - **Pro badge streak:** `profiles.current_correct_streak` and `best_correct_streak` are updated in the same transaction, for Scenario Training only and not when spam-guarded.
 - **Archived rows** (soft-deleted by "reset progress") are treated as fresh and reactivated.
 

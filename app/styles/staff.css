@@ -2300,6 +2300,318 @@ html[data-staff-high-contrast="1"] .dashboard-main {
     font-size: 0.98rem;
   }
 }
+/* ============================================================
+   LIVE GUEST (components/live-guest/LiveGuest.tsx)
+   Inside .qz--light or .qz--dark, so it uses the --qz-* values.
+   ============================================================ */
+.lg-intro {
+  margin: 0 0 16px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--qz-text);
+}
+.lg-muted {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--qz-muted);
+}
+.lg-error {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--qz-wrong);
+  background: var(--qz-surface-alt);
+  font-size: 0.88rem;
+  color: var(--qz-text);
+}
+.lg-guests {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.lg-guest {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--qz-line);
+  background: var(--qz-surface);
+  color: var(--qz-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.lg-guest:hover:not(:disabled) {
+  border-color: var(--qz-accent);
+}
+.lg-guest:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.lg-guest-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.lg-guest-title {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.lg-level {
+  flex: none;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--qz-line);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--qz-muted);
+}
+.lg-level--3 {
+  border-color: var(--qz-wrong);
+  color: var(--qz-wrong);
+}
+.lg-guest-setting {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--qz-muted);
+}
+.lg-guest-cta {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--qz-accent);
+}
+.lg-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.lg-scene {
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--qz-surface-alt);
+  margin-bottom: 14px;
+}
+.lg-scene-label {
+  margin: 0 0 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--qz-accent);
+}
+.lg-scene-text {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--qz-text);
+}
+.lg-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.lg-line {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 85%;
+}
+.lg-line--guest {
+  align-self: flex-start;
+}
+.lg-line--staff {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+.lg-line-who {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--qz-muted);
+}
+.lg-bubble {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.lg-line--guest .lg-bubble {
+  border: 1px solid var(--qz-line);
+  background: var(--qz-surface);
+  color: var(--qz-text);
+}
+.lg-line--staff .lg-bubble {
+  background: var(--qz-accent);
+  color: var(--qz-accent-text);
+}
+.lg-typing {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  min-height: 20px;
+}
+.lg-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--qz-muted);
+  animation: lg-blink 1.2s infinite ease-in-out;
+}
+.lg-dot:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.lg-dot:nth-child(4) {
+  animation-delay: 0.4s;
+}
+@keyframes lg-blink {
+  0%, 80%, 100% { opacity: 0.25; }
+  40% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lg-dot {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+.lg-compose {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.lg-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--qz-line);
+  background: var(--qz-surface);
+  color: var(--qz-text);
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.45;
+  resize: vertical;
+}
+.lg-input:focus {
+  outline: none;
+  border-color: var(--qz-accent);
+}
+.lg-compose-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.lg-reveal {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.lg-verdict {
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--qz-line);
+  background: var(--qz-surface);
+}
+.lg-verdict--pass {
+  border-color: var(--qz-right);
+}
+.lg-verdict--fail {
+  border-color: var(--qz-wrong);
+}
+.lg-verdict-title {
+  margin: 0 0 4px;
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.lg-verdict-score {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--qz-muted);
+}
+.lg-debrief {
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--qz-surface-alt);
+}
+.lg-reveal-title {
+  margin: 4px 0 0;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--qz-text);
+}
+.lg-thoughts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lg-thought {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--qz-line);
+  background: var(--qz-surface);
+}
+.lg-thought-you {
+  font-size: 0.85rem;
+  color: var(--qz-muted);
+  overflow-wrap: anywhere;
+}
+.lg-thought-shift {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--qz-muted);
+}
+.lg-thought-text {
+  margin: 0;
+  font-size: 0.95rem;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--qz-text);
+}
+.lg-mood {
+  width: fit-content;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid var(--qz-line);
+  color: var(--qz-muted);
+}
+.lg-mood--1,
+.lg-mood--2 {
+  border-color: var(--qz-wrong);
+  color: var(--qz-wrong);
+}
+.lg-mood--4,
+.lg-mood--5 {
+  border-color: var(--qz-right);
+  color: var(--qz-right);
+}
+.lg-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--qz-text);
+}
 /* ── Badge Page ─────────────────────────────────────────────── */
 .badge-page {
   padding: 48px 0 80px;

@@ -8,6 +8,7 @@ import { isB2BTier } from "@/lib/session";
 import SignOutButton from "@/components/ui/SignOutButton";
 import DashboardTrainer from "@/app/dashboard/_components/DashboardTrainer";
 import ModuleVerify from "@/app/dashboard/_components/ModuleVerify";
+import LiveGuestPage from "@/app/dashboard/_components/LiveGuestPage";
 import ArenaPage from "@/app/dashboard/_components/ArenaPage";
 import DiagnosticFlow from "@/app/dashboard/_components/DiagnosticFlow";
 import DynamicModuleNav from "@/app/dashboard/_components/DynamicModuleNav";
@@ -25,11 +26,12 @@ import { openBillingPortal } from "@/lib/billing-portal";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { normalizeVenueCode } from "@/lib/venue-code";
 
-type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "challenges" | "cocktails" | "knowledge" | "progress" | "badges" | "settings";
+type NavItem = "home" | "module" | "rapid-fire" | "live-guest" | "stage4" | "scenarios" | "challenges" | "cocktails" | "knowledge" | "progress" | "badges" | "settings";
 
 const NAV_ITEMS: { id: NavItem; label: string }[] = [
   { id: "home", label: "Home" },
   { id: "module", label: "Modules" },
+  { id: "live-guest", label: "Live Guest" },
   { id: "stage4", label: "Scenarios" },
   { id: "scenarios", label: "Live Scenarios" },
   { id: "challenges", label: "Challenges" },
@@ -576,7 +578,7 @@ export default function DashboardShell({
   const [authErrorMessage, setAuthErrorMessage] = useState("");
   const authGuard = useAuthSessionGuard((msg) => setAuthErrorMessage(msg));
 
-  const NAV_IDS = new Set<NavItem>(["home","module","rapid-fire","stage4","scenarios","challenges","cocktails","knowledge","progress","badges","settings"]);
+  const NAV_IDS = new Set<NavItem>(["home","module","rapid-fire","live-guest","stage4","scenarios","challenges","cocktails","knowledge","progress","badges","settings"]);
   const [activeNav, setActiveNav] = useState<NavItem>(
     NAV_IDS.has(initialNav as NavItem) ? (initialNav as NavItem) : "home"
   );
@@ -683,7 +685,7 @@ export default function DashboardShell({
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { void fetchProgress(); }, [fetchProgress]);
 
-  const PREMIUM_NAV_ITEMS: NavItem[] = ["module", "stage4", "scenarios", "cocktails", "knowledge"];
+  const PREMIUM_NAV_ITEMS: NavItem[] = ["module", "live-guest", "stage4", "scenarios", "cocktails", "knowledge"];
   const envAdminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
   const ADMIN_EMAILS = envAdminEmails;
   const isAdmin = ADMIN_EMAILS.length > 0 && ADMIN_EMAILS.includes(userEmail.toLowerCase());
@@ -909,6 +911,8 @@ export default function DashboardShell({
             progressData={progressData}
             onSyncProgress={fetchProgress}
           />
+        ) : activeNav === "live-guest" ? (
+          <LiveGuestPage />
         ) : activeNav === "scenarios" ? (
           <ArenaPage userId={userId} />
         ) : activeNav === "challenges" ? (
