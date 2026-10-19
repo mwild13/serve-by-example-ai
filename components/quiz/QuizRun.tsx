@@ -13,7 +13,7 @@ import type {
 } from "@/lib/verify-quiz-client";
 
 // One module quiz run, shared by desktop ModuleVerify (light) and mobile
-// QuizScreen (dark). The server sends one question at a time and grades every
+// QuizScreen (dark), and one mixed drill (MixedDrill, both themes). The server sends one question at a time and grades every
 // answer (lib/verify-quiz.ts); this component only shows what it says.
 // Styles: the .qz rules in app/styles/staff.css.
 
@@ -21,8 +21,8 @@ type Props = {
   start: VerifyQuizStart;
   /** Grades one answer on the server. Rejects on a network or server error. */
   submit: (position: number, answer: QuizAnswer) => Promise<VerifyAnswerResult>;
-  /** Called when the person moves on from the final answer. */
-  onFinish: (passed: boolean) => void;
+  /** Called when the person moves on from the final answer, with that answer's result. */
+  onFinish: (passed: boolean, last: VerifyAnswerResult) => void;
   onError: (message: string) => void;
   theme: "light" | "dark";
 };
@@ -78,7 +78,7 @@ export default function QuizRun({ start, submit, onFinish, onError, theme }: Pro
   const next = useCallback(() => {
     if (!graded) return;
     if (graded.status !== "active" || !graded.next) {
-      onFinish(graded.status === "passed");
+      onFinish(graded.status === "passed", graded);
       return;
     }
     setQuestion(graded.next);
@@ -137,7 +137,9 @@ export default function QuizRun({ start, submit, onFinish, onError, theme }: Pro
       <QuizProgressBar goal={goal} progress={progress} />
 
       <div key={question.position} className="qz-card">
-        <p className="qz-format">{FORMAT_LABEL[question.format]}</p>
+        <p className="qz-format">
+          {question.moduleTitle ? `${question.moduleTitle} · ${FORMAT_LABEL[question.format]}` : FORMAT_LABEL[question.format]}
+        </p>
         <h2 className="qz-prompt">{question.prompt}</h2>
 
         {isChoice(question.format) && question.options && (
@@ -221,6 +223,20 @@ export default function QuizRun({ start, submit, onFinish, onError, theme }: Pro
 }
 
 function QuizProgressBar({ goal, progress }: { goal: QuizGoal; progress: QuizProgress }) {
+  if (goal.drill) {
+    const answered = progress.correct + progress.misses;
+    return (
+      <div className="qz-progress">
+        <div className="qz-progress-track" aria-hidden="true">
+          <div className="qz-progress-fill" style={{ width: `${(answered / Math.max(goal.correct, 1)) * 100}%` }} />
+        </div>
+        <p className="qz-progress-text">
+          <span>{answered} of {goal.correct} answered</span>
+          <span>{progress.correct} right</span>
+        </p>
+      </div>
+    );
+  }
   const share = Math.min(progress.correct / Math.max(goal.correct, 1), 1);
   const missesLeft = Math.max(goal.maxMisses - progress.misses, 0);
   return (

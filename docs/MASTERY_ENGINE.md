@@ -70,6 +70,10 @@ Rebuilt in the Rich update, Phase 2 (`docs/Rich Update/`).
 - **Old engine:** `advance_verify_attempt()` and `verify_attempts.question_order` are no longer used. They are dropped in a later cleanup migration, once the new code has been live for a while.
 - **Known limitation:** the quiz shows the correct answer after each question. That's a product choice, and it means a script can still learn the answers over a few runs, within the rate limits.
 
+## Mixed drills (practice, no mastery)
+
+Rich update, Phase 10. A drill (`lib/drill.ts`) asks 10 questions from the same bank, mixed across 3 to 5 of the modules a person has started or mastered (`quiz_modules_started`). It's graded with the quiz's `answerFits()` and `gradeAnswer()`, but it **never masters a module, records an attempt or changes a review date**: it's stored in `drill_runs` and only counts towards `training_activity_daily.quiz_answers`. Rules are in `docs/STAFF_APP.md` (Mixed drill).
+
 ## Learn cards (before the quiz)
 
 Added in the Rich update, Phase 4.

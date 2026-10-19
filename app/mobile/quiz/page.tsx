@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Quiz | Serve By Example",
-  description: "Rapid-fire true/false training quiz.",
+  description: "A module quiz.",
   robots: { index: false, follow: false },
 };
 

@@ -10,7 +10,7 @@ import ModuleVerify from "@/app/dashboard/_components/ModuleVerify";
 import LiveGuestPage from "@/app/dashboard/_components/LiveGuestPage";
 import DiagnosticFlow from "@/app/dashboard/_components/DiagnosticFlow";
 import DynamicModuleNav from "@/app/dashboard/_components/DynamicModuleNav";
-import RapidFirePage from "@/app/dashboard/_components/RapidFirePage";
+import DrillPage from "@/app/dashboard/_components/DrillPage";
 import ChallengesPage from "@/app/dashboard/_components/ChallengesPage";
 import { CocktailGridSkeleton } from "@/components/ui/Skeletons";
 const CocktailLibrary = lazy(() => import("@/app/dashboard/_components/knowledge-base/CocktailLibrary"));
@@ -24,11 +24,12 @@ import { openBillingPortal } from "@/lib/billing-portal";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { normalizeVenueCode } from "@/lib/venue-code";
 
-type NavItem = "home" | "module" | "rapid-fire" | "live-guest" | "challenges" | "cocktails" | "knowledge" | "progress" | "badges" | "settings";
+type NavItem = "home" | "module" | "drill" | "live-guest" | "challenges" | "cocktails" | "knowledge" | "progress" | "badges" | "settings";
 
 const NAV_ITEMS: { id: NavItem; label: string }[] = [
   { id: "home", label: "Home" },
   { id: "module", label: "Modules" },
+  { id: "drill", label: "Mixed Drill" },
   { id: "live-guest", label: "Live Guest" },
   { id: "challenges", label: "Challenges" },
   { id: "cocktails", label: "Cocktail Library" },
@@ -574,10 +575,11 @@ export default function DashboardShell({
   const [authErrorMessage, setAuthErrorMessage] = useState("");
   const authGuard = useAuthSessionGuard((msg) => setAuthErrorMessage(msg));
 
-  const NAV_IDS = new Set<NavItem>(["home","module","rapid-fire","live-guest","challenges","cocktails","knowledge","progress","badges","settings"]);
+  const NAV_IDS = new Set<NavItem>(["home","module","drill","live-guest","challenges","cocktails","knowledge","progress","badges","settings"]);
   // Scenario Training ("stage4") and the AI Arena ("scenarios") were retired
-  // in the Rich update, Phase 8: old links open Live Guest instead.
-  const RETIRED_NAV: Record<string, NavItem> = { stage4: "live-guest", scenarios: "live-guest" };
+  // in the Rich update, Phase 8: old links open Live Guest instead. Rapid
+  // Fire's module picker became the mixed drill in Phase 10.
+  const RETIRED_NAV: Record<string, NavItem> = { stage4: "live-guest", scenarios: "live-guest", "rapid-fire": "drill" };
   const [activeNav, setActiveNav] = useState<NavItem>(
     NAV_IDS.has(initialNav as NavItem) ? (initialNav as NavItem) : RETIRED_NAV[initialNav ?? ""] ?? "home"
   );
@@ -685,7 +687,7 @@ export default function DashboardShell({
   useEffect(() => { void fetchProgress(); }, [fetchProgress]);
 
   // Live Guest isn't here: Pro and free open it and see its upgrade prompt.
-  const PREMIUM_NAV_ITEMS: NavItem[] = ["module", "cocktails", "knowledge"];
+  const PREMIUM_NAV_ITEMS: NavItem[] = ["module", "drill", "cocktails", "knowledge"];
   const envAdminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
   const ADMIN_EMAILS = envAdminEmails;
   const isAdmin = ADMIN_EMAILS.length > 0 && ADMIN_EMAILS.includes(userEmail.toLowerCase());
@@ -890,10 +892,18 @@ export default function DashboardShell({
               />
             )}
           </div>
-        ) : activeNav === "rapid-fire" ? (
-          <div key="rapid-fire">
-            <RapidFirePage />
-          </div>
+        ) : activeNav === "drill" ? (
+          <DrillPage
+            key="drill"
+            onOpenModule={(moduleId) => {
+              setSelectedModuleId(moduleId);
+              handleNavClick("module");
+            }}
+            onBrowseModules={() => {
+              setSelectedModuleId(null);
+              handleNavClick("module");
+            }}
+          />
         ) : activeNav === "home" ? (
           <PreShiftHome
             key="home"

@@ -296,13 +296,13 @@ There are 13 phases to launch, then 3 after marketing starts. Each phase goes ou
 - The pricing page and plan cards show Live Guest on the plans that have it.
 - **Done when** nobody can reach the old screens and the manager's numbers still add up.
 
-### Phase 9. Image style and library
+### Phase 9. Image style and library (parked 2026-10-20; the owner draws the parts in Claude Design, brief in `image-style-sheet.md`)
 - The style sheet and the base set of 60 to 80 parts, then the code that combines them. See "Images" in section 4.
 - Pictures are added to Learn cards and to every question with an image brief. You check them for accuracy.
 - The two picture formats are switched on.
 - **Done when** every image brief from Phase 3 has its picture.
 
-### Phase 10. Mixed drills
+### Phase 10. Mixed drills (built 2026-10-20; record in `the-rich-update-10-26.md`)
 - Short quizzes that mix questions from every module the person has started or mastered, at full difficulty.
 - They replace Rapid Fire.
 - **Done when** a drill mixes at least three modules and doesn't repeat questions from the previous drill.

@@ -262,6 +262,7 @@ export default function LearnHubScreen() {
         </div>
 
         <div ref={practiceRef}>
+          <DrillCard />
           <LiveGuestCard />
         </div>
 
@@ -319,6 +320,36 @@ function SkillCheckPrompt() {
           Start the skill check
         </Link>
       </div>
+    </div>
+  );
+}
+
+// Rich update, Phase 10: the way into the mixed drill, ten questions across
+// the modules the person has started (components/quiz/MixedDrill.tsx).
+function DrillCard() {
+  return (
+    <div style={{ padding: "0 20px 12px" }}>
+      <Link
+        href="/mobile/drill"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 6,
+          padding: 16,
+          borderRadius: "var(--radius-lg)",
+          background: "var(--surface-mobile)",
+          border: "1px solid var(--border-mobile)",
+          textDecoration: "none",
+        }}
+      >
+        <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--gold-mobile)" }}>
+          Mixed drill
+        </span>
+        <span style={{ fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>Ten questions, every module you&apos;ve started</span>
+        <span style={{ fontSize: 13, lineHeight: 1.5, color: "var(--text-mobile-muted)" }}>
+          A quick round at full difficulty, with the topics mixed. Practice only: it never changes your mastery.
+        </span>
+      </Link>
     </div>
   );
 }

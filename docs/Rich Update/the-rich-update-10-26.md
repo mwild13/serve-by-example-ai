@@ -19,8 +19,8 @@ The staff learning upgrade, named after Richie, our first tester, who called tra
 | 7 | Guest briefs, four dials and difficulty | Done 2026-10-20 |
 | 8 | Plans, manager score and retiring the old screens | Done 2026-10-20 |
 | 9 | Image style and library | Parked 2026-10-20: the owner draws the parts in Claude Design later |
-| 10 | Mixed drills | Next |
-| 11 | Venue content | — |
+| 10 | Mixed drills | Built 2026-10-20, for the owner to check |
+| 11 | Venue content | Next |
 | 12 | Pre-shift drill and shift streak | — |
 | 13 | Launch check, then marketing spend starts | — |
 | 14 | Live Guest voice | After marketing starts |
@@ -223,4 +223,20 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
 - **The first part, drafted:** the schooner, in three states (poured right with a 1.2 cm head, a short pour, empty). Standalone copies with real colours, to upload to Claude Design as the style to match: `pictures/schooner-*.svg`.
 - **Code, ready for the parts:** `components/pictures/Picture.tsx` draws a picture from a short spec (glass, drink, fill, head) and writes its alt text; `lib/pictures/glasses.ts` holds the glass parts (the schooner only so far). The `--pic-*` colours are in `app/globals.css`, with dark mode in `.qz--dark` in `app/styles/staff.css`. `scripts/picture-review.mjs` builds the review page from the code. Nothing in the app uses them yet, so `knip.json` ignores the two folders until they're wired in.
 - **When the parts come back:** save them in `docs/Rich Update/pictures/`, then Claude Code turns them into parts, builds the review page, adds pictures to the Learn cards and questions, and switches the picture questions on.
+
+## Phase 10: mixed drills (built 2026-10-20)
+
+- **What it is:** ten questions mixed from every module the person has started or mastered, at full difficulty, then a score by module and a link to go over the module missed most. Practice only: a drill never masters a module or changes mastery, so a bad drill costs nothing.
+- **Where:** desktop menu item "Mixed Drill", under Modules (a premium item, like Modules), and a "Mixed drill" card at the top of the Practice section of the mobile Learn hub (`/mobile/drill`). One component for both, `components/quiz/MixedDrill.tsx`, running the questions through the same `QuizRun` as the module quiz, so all six formats work.
+- **Rapid Fire is gone.** It was already out of both menus; all that was left was a desktop module picker that opened the normal module quiz. It's deleted, and old `?nav=rapid-fire` links open the drill.
+- **The rules** (`lib/drill.ts`, 14 tests in `lib/drill.test.ts`):
+  - At least 3 modules with questions, at most 5 in one drill, so each module gets two or more questions.
+  - Questions are dealt in turns across the modules, never two in a row from the same one.
+  - Full difficulty: no True/False where a module has other questions, and the hardest variant of each fact.
+  - One question per fact, and none from the person's previous drill while there are others to ask.
+- **Each question shows its module** above the format ("Beer Pouring · Choose one"), so staff know which topic they're in.
+- **"Started" needed recording.** Nothing kept which modules someone had started (quiz runs are deleted after a day), so the new `quiz_modules_started` table records the first answer in each module, by a database trigger. It's backfilled from the runs still kept and from every mastered module.
+- **Counts as training:** drill answers count towards the Manager Console's daily training numbers, the same as quiz answers.
+- **Migration:** `supabase/migrations/20261023_mixed_drills.sql` (two new tables and two triggers; additive; rollback in `supabase/rollbacks/`). The drill won't start on the preview until it's run.
+- **Done when** a drill mixes at least three modules and doesn't repeat questions from the previous drill. Both are checked by the tests. For the owner to check on the preview.
 

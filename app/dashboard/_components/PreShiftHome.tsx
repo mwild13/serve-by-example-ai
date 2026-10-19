@@ -8,7 +8,7 @@ import Image from "next/image";
 import { COCKTAILS, COCKTAIL_IMAGES, type Cocktail } from "@/lib/cocktails";
 import { computeStreak } from "@/lib/streak";
 
-type NavItem = "home" | "module" | "rapid-fire" | "live-guest" | "challenges" | "cocktails" | "knowledge" | "progress" | "settings";
+type NavItem = "home" | "module" | "drill" | "live-guest" | "challenges" | "cocktails" | "knowledge" | "progress" | "settings";
 type ModuleKey = "bartending" | "sales" | "management";
 
 type DbModule = {

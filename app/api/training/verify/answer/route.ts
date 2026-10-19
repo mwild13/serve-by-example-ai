@@ -12,12 +12,12 @@ import {
   afterModuleMastered,
   answerFits,
   gradeAnswer,
+  isAnswerShape,
   logVerifyRejection,
   progressOf,
   questionView,
   type RunState,
 } from "@/lib/verify-quiz";
-import type { QuizAnswer } from "@/lib/verify-quiz-client";
 
 const MAX_BODY_BYTES = 1024;
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -34,14 +34,6 @@ type AttemptRow = {
 };
 
 type AdvanceResult = { status: "active" | "passed" | "exhausted"; alreadyMastered: boolean };
-
-/** An option id, up to 12 step ids, or a number. The question decides which is right. */
-function isAnswerShape(value: unknown): value is QuizAnswer {
-  if (typeof value === "string") return value.length > 0 && value.length <= 32;
-  if (typeof value === "number") return Number.isFinite(value) && Math.abs(value) < 1_000_000;
-  return Array.isArray(value) && value.length > 0 && value.length <= 12
-    && value.every((id) => typeof id === "string" && id.length > 0 && id.length <= 32);
-}
 
 /**
  * Grades one quiz answer and returns the next question. The client says which

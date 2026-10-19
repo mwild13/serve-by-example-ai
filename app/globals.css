@@ -1358,13 +1358,6 @@ html[data-staff-high-contrast="1"] .dash-card {
     font-weight: 700;
     line-height: 1.2;
   }
-.sbe-command-btn {
-    white-space: nowrap;
-    flex-shrink: 0;
-    background: rgba(255,255,255,0.18) !important;
-    border: 1.5px solid rgba(255,255,255,0.4) !important;
-    color: white !important;
-  }
 /* ── Intent Pills ────────────────────────────────── */
 .sbe-intent-pills {
     flex-direction: column;

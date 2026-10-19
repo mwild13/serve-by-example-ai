@@ -10,7 +10,7 @@ The staff training platform has a **3-stage mastery path** plus AI-powered extra
 |--------|-------|-----------|-------------|
 | `home` | Home | `PreShiftHome.tsx` | Daily dashboard with recommendations |
 | `module` | Modules | `DynamicModuleNav.tsx` + `ModuleVerify.tsx` | 40 modules across Bartending, Sales, Management |
-| `rapid-fire` | — | `RapidFirePage.tsx` | Internal sub-nav from Modules; lists modules and opens the same quiz (`ModuleVerify.tsx`) |
+| `drill` | Mixed Drill | `DrillPage.tsx` → `components/quiz/MixedDrill.tsx` | Ten questions mixed from every module the person has started (Rich update, Phase 10). Replaced Rapid Fire's module picker; old `?nav=rapid-fire` links open it. Mobile: `/mobile/drill`, linked from the Learn hub. See below |
 | `live-guest` | Live Guest | `LiveGuestPage.tsx` → `components/live-guest/LiveGuest.tsx` | A typed conversation with a guest who talks back (Rich update, Phase 6). Mobile: `/mobile/live-guest`, linked from the Learn hub. See below |
 | `challenges` | Challenges | `ChallengesPage.tsx` | 5 tap-based interactive mini-games — see `CHALLENGES.md` for full detail across all surfaces |
 | `cocktails` | Cocktail Library | `CocktailLibrary.tsx` | 38-cocktail reference (lazy-loaded) |
@@ -20,7 +20,7 @@ The staff training platform has a **3-stage mastery path** plus AI-powered extra
 
 **Retired (Rich update, Phase 8):** Scenario Training (`stage4`) and the AI Arena (`scenarios`). Their screens and code are gone; old `?nav=stage4` / `?nav=scenarios` links open Live Guest (`RETIRED_NAV` in `DashboardShell.tsx`), as do mobile `/mobile/arena`, `/mobile/scenario-practice` and `/mobile/scenarios`. `/api/evaluate` and `/api/arena/evaluate` return 410 without an AI call. Their results stay in `training_attempts` and `scenario_mastery`.
 
-**Premium gating** — `PREMIUM_NAV_ITEMS = ["module", "cocktails", "knowledge"]`. Free users see these as locked. `challenges`, `home`, `progress`, and `settings` are always available. Live Guest is open to everyone in the menu and shows its own upgrade prompt off venue plans (`hasLiveGuest()` in `lib/session.ts`).
+**Premium gating** — `PREMIUM_NAV_ITEMS = ["module", "drill", "cocktails", "knowledge"]`. Free users see these as locked. `challenges`, `home`, `progress`, and `settings` are always available. Live Guest is open to everyone in the menu and shows its own upgrade prompt off venue plans (`hasLiveGuest()` in `lib/session.ts`).
 
 **Tier access (`lib/session.ts`, `TIER_MODULES` / `TIER_SEATS`)**:
 - `free` — no module access
@@ -93,6 +93,13 @@ Two opt-in emails, both off until the person turns them on in Settings > Notific
 - `CHALLENGES.md` — one-stop reference for the "Challenges" mini-game feature across both surfaces (desktop and the mobile build), including a checklist for adding new challenge types
 - `docs/MASTERY_ENGINE.md` — mastery scoring source of truth; this doc only describes how Arena and the quiz call into it, not the formula itself
 - `docs/staff-dashboard-a11y-audit.md`, `docs/archive/STAFF_DASHBOARD_AUDIT_REPORT.md` — historical UI/accessibility audits
+
+## Mixed drill (Rich update, Phase 10)
+
+- **What:** ten questions mixed from every module the person has started or mastered, at full difficulty, then a score by module and a link to the one missed most. Practice only: a drill never masters a module or changes mastery. Desktop nav item `drill` and mobile `/mobile/drill` both render `components/quiz/MixedDrill.tsx`, which runs the questions through the module quiz's `QuizRun` (`.dr` rules in `app/styles/staff.css`).
+- **Routes:** `POST /api/training/drill/start` (plans the drill, returns the first question), `POST /api/training/drill/answer` (grades one answer with the module quiz's grader, returns the next question or the summary). No AI calls.
+- **Rules** (`lib/drill.ts`, tests in `lib/drill.test.ts`): at least 3 modules with questions, at most 5 per drill; questions dealt in turns, never two in a row from one module; no True/False where a module has other questions; one question per fact, hardest variant first; none from the person's previous drill while there are others to ask.
+- **Started modules** come from `quiz_modules_started`, written by a trigger on the first answer in a module quiz, and only modules on the person's plan count. Until 3 are started, the drill says how many are left.
 
 ## Live Guest (Rich update, Phases 6 and 7)
 

@@ -73,13 +73,13 @@ export type RunState = {
 
 export type RunStatus = "active" | "passed" | "exhausted";
 
-type Random = () => number;
+export type Random = () => number;
 
-function secureRandom(): number {
+export function secureRandom(): number {
   return crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32;
 }
 
-function shuffle<T>(items: T[], random: Random): T[] {
+export function shuffle<T>(items: T[], random: Random): T[] {
   const out = [...items];
   for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(random() * (i + 1));
@@ -255,6 +255,14 @@ function shuffleNotSolved(steps: ChoiceOption[], random: Random): ChoiceOption[]
   for (let tries = 0; tries < 5 && out.every((s, i) => s.id === steps[i].id); tries++) out = shuffle(steps, random);
   if (out.every((s, i) => s.id === steps[i].id)) out = [...steps.slice(1), steps[0]];
   return out;
+}
+
+/** An option id, up to 12 step ids, or a number. The question decides which is right. */
+export function isAnswerShape(value: unknown): value is QuizAnswer {
+  if (typeof value === "string") return value.length > 0 && value.length <= 32;
+  if (typeof value === "number") return Number.isFinite(value) && Math.abs(value) < 1_000_000;
+  return Array.isArray(value) && value.length > 0 && value.length <= 12
+    && value.every((id) => typeof id === "string" && id.length > 0 && id.length <= 32);
 }
 
 /** True when the answer has the right shape for the question's format. */

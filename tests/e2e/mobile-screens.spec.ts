@@ -29,7 +29,7 @@ const SCREENS: Array<{ name: string; path: string }> = [
 // Every /mobile route except onboarding (the QA account has finished it, so
 // it redirects) and ai-photo (asks for the camera).
 const ALL_ROUTES = [
-  "arena", "badges", "challenges", "cocktails", "contact", "help", "home",
+  "arena", "badges", "challenges", "cocktails", "contact", "drill", "help", "home",
   "knowledge", "learn", "live-guest", "match-pairs", "memory-test", "menu-audit", "privacy",
   "progress", "quiz", "recipe-order", "report-bug", "scenario-practice",
   "scenarios", "settings", "speed-round", "terms",

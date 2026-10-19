@@ -1,8 +1,9 @@
 /**
  * Browser calls for the server-graded module quiz (desktop ModuleVerify and
- * mobile QuizScreen). The browser gets one question at a time and never the
- * answer key; every answer is graded by /api/training/verify/answer. See
- * lib/verify-quiz.ts.
+ * mobile QuizScreen) and the mixed drill (components/quiz/MixedDrill). The
+ * browser gets one question at a time and never the answer key; every answer
+ * is graded by /api/training/verify/answer or /api/training/drill/answer. See
+ * lib/verify-quiz.ts and lib/drill.ts.
  */
 
 export type QuizFormat =
@@ -27,6 +28,8 @@ export type QuizQuestionView = {
   steps?: QuizOption[];
   /** number. */
   unit?: string;
+  /** Mixed drills: the module the question comes from. */
+  moduleTitle?: string;
 };
 
 /** An option id, step ids in order, or a number, depending on the format. */
@@ -40,6 +43,8 @@ export type QuizGoal = {
   maxMisses: number;
   /** A short, hard run that masters the module straight away. */
   testOut?: boolean;
+  /** A mixed drill: every question is asked, and nothing is mastered. `correct` is the number of questions. */
+  drill?: boolean;
 };
 
 export type QuizProgress = {
@@ -58,15 +63,27 @@ export type VerifyQuizStart = {
   question: QuizQuestionView;
 };
 
+/** How a finished mixed drill went, module by module, in the order they came up. */
+export type DrillSummary = {
+  correct: number;
+  total: number;
+  modules: { moduleId: number; title: string; correct: number; total: number }[];
+};
+
 export type VerifyAnswerResult = {
   correct: boolean;
   correctAnswer: QuizCorrectAnswer;
   explanation: string;
-  /** "passed": the module is now mastered. "exhausted": the run is over, start again. */
-  status: "active" | "passed" | "exhausted";
+  /**
+   * "passed": the module is now mastered. "exhausted": the run is over, start
+   * again. "finished": a mixed drill has asked every question.
+   */
+  status: "active" | "passed" | "exhausted" | "finished";
   progress: QuizProgress;
   /** The next question while the run is active. */
   next: QuizQuestionView | null;
+  /** A finished mixed drill. */
+  summary?: DrillSummary;
 };
 
 /** "Get 6 right across 3 question types to master this module." */
@@ -80,7 +97,7 @@ export function quizGoalText(goal: QuizGoal): string {
     : `Get ${goal.correct} right to master this module.`;
 }
 
-class VerifyQuizError extends Error {
+export class VerifyQuizError extends Error {
   constructor(message: string, readonly code: string | null, readonly status: number) {
     super(message);
     this.name = "VerifyQuizError";
@@ -111,4 +128,18 @@ export function submitVerifyAnswer(
   answer: QuizAnswer,
 ): Promise<VerifyAnswerResult> {
   return post<VerifyAnswerResult>("/api/training/verify/answer", token, { attemptId, position, answer });
+}
+
+/** Starts a mixed drill. Fails with code DRILL_NEEDS_MODULES until enough modules are started. */
+export function startDrill(token: string): Promise<VerifyQuizStart> {
+  return post<VerifyQuizStart>("/api/training/drill/start", token, {});
+}
+
+export function submitDrillAnswer(
+  token: string,
+  drillId: string,
+  position: number,
+  answer: QuizAnswer,
+): Promise<VerifyAnswerResult> {
+  return post<VerifyAnswerResult>("/api/training/drill/answer", token, { drillId, position, answer });
 }
