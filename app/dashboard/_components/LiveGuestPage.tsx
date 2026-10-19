@@ -18,9 +18,12 @@ export default function LiveGuestPage() {
     <div className="stage-container">
       <div className="stage-header">
         <h2 style={{ marginBottom: 8 }}>Live Guest</h2>
-        <p className="stage-subtitle">A guest who talks back. Three to six replies, then see what they were thinking.</p>
+        <p className="stage-subtitle">
+          Talk to a guest who talks back, over three to six replies. Reply the way you would on shift, then see what they were
+          thinking at each turn.
+        </p>
       </div>
-      <LiveGuest getToken={getToken} theme="light" />
+      <LiveGuest getToken={getToken} theme="light" intro={false} />
     </div>
   );
 }

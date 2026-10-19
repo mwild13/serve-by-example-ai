@@ -32,6 +32,8 @@ import {
 type Props = {
   getToken: () => Promise<string>;
   theme: "light" | "dark";
+  /** The one-line intro above the picker. Desktop says it in the page header instead. */
+  intro?: boolean;
 };
 
 type Line = { from: "guest" | "staff"; text: string };
@@ -48,9 +50,9 @@ type Chat = {
 const LEVEL_LABEL: Record<PublicGuest["level"], string> = { 1: "Gentle", 2: "Tricky", 3: "Hard" };
 
 const DIFFICULTY_TEXT: Record<GuestDifficulty, string> = {
-  1: "Patient with you while you're learning. Guests get tougher as you master modules and pass conversations.",
-  2: "An everyday guest, played as written.",
-  3: "Tough: you know this area well now, so expect less patience.",
+  1: "Going easy on you while you're learning. Guests get tougher as you master modules and pass conversations.",
+  2: "Played as written.",
+  3: "You know this area well now, so expect less patience.",
 };
 
 function GuestCard({ guest, starting, onStart }: { guest: PublicGuest; starting: string | null; onStart: (id: string) => void }) {
@@ -78,7 +80,7 @@ function GuestCard({ guest, starting, onStart }: { guest: PublicGuest; starting:
   );
 }
 
-export default function LiveGuest({ getToken, theme }: Props) {
+export default function LiveGuest({ getToken, theme, intro = true }: Props) {
   const [guests, setGuests] = useState<PublicGuest[] | null>(null);
   const [listError, setListError] = useState<string | null>(null);
   const [chat, setChat] = useState<Chat | null>(null);
@@ -174,9 +176,11 @@ export default function LiveGuest({ getToken, theme }: Props) {
   if (!chat) {
     return (
       <div className={`qz qz--${theme} lg`}>
-        <p className="lg-intro">
-          Talk to a guest who talks back. Reply the way you would on shift. Afterwards you&apos;ll see what they were thinking at each turn.
-        </p>
+        {intro && (
+          <p className="lg-intro">
+            Talk to a guest who talks back. Reply the way you would on shift. Afterwards you&apos;ll see what they were thinking at each turn.
+          </p>
+        )}
         {error && <p className="lg-error" role="alert">{error.message}</p>}
         {listError && <p className="lg-error" role="alert">{listError}</p>}
         {!guests && !listError && <p className="lg-muted">Loading guests…</p>}
@@ -229,85 +233,92 @@ export default function LiveGuest({ getToken, theme }: Props) {
         <p className="lc-count">{result ? "Finished" : `Reply ${replyNumber} of up to ${chat.maxReplies}`}</p>
       </div>
 
-      <div className="lg-scene">
-        <p className="lg-scene-label">{guest.title}</p>
-        <p className="lg-scene-text">{guest.setting}</p>
-        <p className="lg-scene-patience">
-          <span className={`lg-patience lg-patience--${guest.difficulty}`}>{DIFFICULTY_LABEL[guest.difficulty]}</span>
-          {DIFFICULTY_TEXT[guest.difficulty]}
-        </p>
-      </div>
-
-      <div className="lg-lines" aria-live="polite">
-        {chat.lines.map((line, i) => (
-          <div key={i} className={line.from === "guest" ? "lg-line lg-line--guest" : "lg-line lg-line--staff"}>
-            <span className="lg-line-who">{line.from === "guest" ? guest.name : "You"}</span>
-            <p className="lg-bubble">{line.text}</p>
-          </div>
-        ))}
-        {sending && (
-          <div className="lg-line lg-line--guest">
-            <span className="lg-line-who">{guest.name}</span>
-            <p className="lg-bubble lg-typing">
-              <span className="qz-visually-hidden">{guest.name} is typing</span>
-              <span aria-hidden="true" className="lg-dot" />
-              <span aria-hidden="true" className="lg-dot" />
-              <span aria-hidden="true" className="lg-dot" />
+      {/* Desktop: the scene sits in a sticky side column. Mobile: above the conversation. */}
+      <div className="lg-play">
+        <aside className="lg-side">
+          <div className="lg-scene">
+            <p className="lg-scene-label">{guest.title}</p>
+            <p className="lg-scene-text">{guest.setting}</p>
+            <p className="lg-scene-patience">
+              <span className={`lg-patience lg-patience--${guest.difficulty}`}>{DIFFICULTY_LABEL[guest.difficulty]}</span>
+              {DIFFICULTY_TEXT[guest.difficulty]}
             </p>
           </div>
-        )}
-        <div ref={endRef} />
-      </div>
+        </aside>
 
-      {error && (
-        <div className="lg-error" role="alert">
-          <p style={{ margin: 0 }}>{error.message}</p>
-          {error.restart && (
-            <button type="button" className="lc-testout-link" onClick={() => void begin(guest.id)}>
-              Start again with {guest.name}
-            </button>
+        <div className="lg-main">
+          <div className="lg-lines" aria-live="polite">
+            {chat.lines.map((line, i) => (
+              <div key={i} className={line.from === "guest" ? "lg-line lg-line--guest" : "lg-line lg-line--staff"}>
+                <span className="lg-line-who">{line.from === "guest" ? guest.name : "You"}</span>
+                <p className="lg-bubble">{line.text}</p>
+              </div>
+            ))}
+            {sending && (
+              <div className="lg-line lg-line--guest">
+                <span className="lg-line-who">{guest.name}</span>
+                <p className="lg-bubble lg-typing">
+                  <span className="qz-visually-hidden">{guest.name} is typing</span>
+                  <span aria-hidden="true" className="lg-dot" />
+                  <span aria-hidden="true" className="lg-dot" />
+                  <span aria-hidden="true" className="lg-dot" />
+                </p>
+              </div>
+            )}
+            <div ref={endRef} />
+          </div>
+
+          {error && (
+            <div className="lg-error" role="alert">
+              <p style={{ margin: 0 }}>{error.message}</p>
+              {error.restart && (
+                <button type="button" className="lc-testout-link" onClick={() => void begin(guest.id)}>
+                  Start again with {guest.name}
+                </button>
+              )}
+            </div>
           )}
-        </div>
-      )}
 
-      {!result && (
-        <form
-          className="lg-compose"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void send();
-          }}
-        >
-          <label className="qz-visually-hidden" htmlFor="lg-reply">Your reply to {guest.name}</label>
-          <textarea
-            id="lg-reply"
-            className="lg-input"
-            rows={3}
-            value={draft}
-            maxLength={LIVE_GUEST_MAX_REPLY_CHARS}
-            placeholder={`What do you say to ${guest.name}?`}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => {
-              // Desktop: Enter sends, Shift+Enter is a new line.
-              if (theme === "light" && e.key === "Enter" && !e.shiftKey) {
+          {!result && (
+            <form
+              className="lg-compose"
+              onSubmit={(e) => {
                 e.preventDefault();
                 void send();
-              }
-            }}
-            disabled={sending}
-          />
-          <div className="lg-compose-row">
-            <span className="lg-muted">
-              {draft.length > LIVE_GUEST_MAX_REPLY_CHARS - 100 ? `${LIVE_GUEST_MAX_REPLY_CHARS - draft.length} characters left` : ""}
-            </span>
-            <button type="submit" className="qz-next" disabled={sending || !draft.trim()}>
-              Send
-            </button>
-          </div>
-        </form>
-      )}
+              }}
+            >
+              <label className="qz-visually-hidden" htmlFor="lg-reply">Your reply to {guest.name}</label>
+              <textarea
+                id="lg-reply"
+                className="lg-input"
+                rows={3}
+                value={draft}
+                maxLength={LIVE_GUEST_MAX_REPLY_CHARS}
+                placeholder={`What do you say to ${guest.name}?`}
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  // Desktop: Enter sends, Shift+Enter is a new line.
+                  if (theme === "light" && e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    void send();
+                  }
+                }}
+                disabled={sending}
+              />
+              <div className="lg-compose-row">
+                <span className="lg-muted">
+                  {draft.length > LIVE_GUEST_MAX_REPLY_CHARS - 100 ? `${LIVE_GUEST_MAX_REPLY_CHARS - draft.length} characters left` : ""}
+                </span>
+                <button type="submit" className="qz-next" disabled={sending || !draft.trim()}>
+                  Send
+                </button>
+              </div>
+            </form>
+          )}
 
-      {result && <Reveal guest={guest} result={result} onAgain={() => void begin(guest.id)} onOthers={() => setChat(null)} />}
+          {result && <Reveal guest={guest} result={result} onAgain={() => void begin(guest.id)} onOthers={() => setChat(null)} />}
+        </div>
+      </div>
     </div>
   );
 }

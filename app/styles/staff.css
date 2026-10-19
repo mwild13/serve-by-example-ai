@@ -2749,6 +2749,57 @@ html[data-staff-high-contrast="1"] .dashboard-main {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+.lg-play {
+  display: flex;
+  flex-direction: column;
+}
+.lg-guest-cta {
+  margin-top: auto;
+}
+/* Desktop (.qz--light): the full width of the page, lined up with the page
+   header, not the quiz's centred 640px column. */
+.qz--light.lg {
+  max-width: 1180px;
+  margin: 0;
+  padding: 0;
+}
+.qz--light .lg-guests {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+.qz--light .lg-group-title {
+  margin-top: 28px;
+}
+.qz--light .lg-group-title:first-of-type {
+  margin-top: 4px;
+}
+@media (min-width: 1025px) {
+  .qz--light .lg-play {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 28px;
+    align-items: start;
+  }
+  .qz--light .lg-main {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+  }
+  .qz--light .lg-side {
+    grid-column: 2;
+    grid-row: 1;
+    position: sticky;
+    top: 24px;
+  }
+  .qz--light .lg-side .lg-scene {
+    margin-bottom: 0;
+    padding: 18px 20px;
+  }
+  .qz--light .lg-lines {
+    min-height: 240px;
+  }
+}
 /* ── Badge Page ─────────────────────────────────────────────── */
 .badge-page {
   padding: 48px 0 80px;
