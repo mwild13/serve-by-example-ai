@@ -38,3 +38,11 @@ describe("learn cards", () => {
     }
   });
 });
+
+describe("learn card coverage", () => {
+  it("has cards for every module", () => {
+    for (const moduleId of Object.keys(VERIFY_QUESTIONS).map(Number)) {
+      expect(LEARN_CARD_LOADERS[moduleId], `module ${moduleId}`).toBeDefined();
+    }
+  });
+});

@@ -154,6 +154,9 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
 - **Batches:** one or two at a time, in the same groups as Phase 3. Cards stay hidden until approved.
   - Cards batch 1, Bartending A (modules 1 to 7): 40 cards, `cards-batch-1-bartending-a.md`. Approved and live.
   - Cards batch 2, Bartending B (26, 27, 28, 32, 33, 34, 39): 36 cards, `cards-batch-2-bartending-b.md`. Approved and live.
-  - Batches 3 to 6 (Service and Compliance) follow once these are approved.
+  - Cards batch 3, Service A (8 to 14): 40 cards, `cards-batch-3-service-a.md`. Waiting for review.
+  - Cards batch 4, Service B (23, 29, 30, 36, 37, 38, 40): 34 cards, `cards-batch-4-service-b.md`. Waiting for review.
+  - Cards batch 5, Compliance A (15 to 20): 32 cards, `cards-batch-5-compliance-a.md`. Waiting for review.
+  - Cards batch 6, Compliance B (21, 22, 24, 25, 31, 35): 30 cards, `cards-batch-6-compliance-b.md`. Waiting for review.
 - **Pictures:** none yet. Each card can take one in Phase 9.
 - **Done when** every module opens with its cards on desktop and mobile.
