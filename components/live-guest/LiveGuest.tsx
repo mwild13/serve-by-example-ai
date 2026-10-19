@@ -2,19 +2,27 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  DIFFICULTY_LABEL,
   LIVE_GUEST_MAX_REPLY_CHARS,
   LiveGuestError,
   MOOD_LABEL,
+  SAFETY_LABEL,
+  SPEED_LABEL,
+  formatDollars,
   listLiveGuests,
   sendLiveGuestReply,
   startLiveGuest,
+  type DialLevel,
+  type GuestDifficulty,
   type GuestMood,
   type LiveGuestResult,
   type PublicGuest,
+  type RevealTurn,
 } from "@/lib/live-guest-client";
 
-// Live Guest (Rich update, Phase 6): pick a guest, talk to them over 3 to 6
-// replies, then see what they were thinking at each turn. Shared by desktop
+// Live Guest (Rich update, Phases 6 and 7): pick a guest, talk to them over
+// 3 to 6 replies, then see what they were thinking at each turn and how the
+// four dials (guest, speed, money, safety) moved. Shared by desktop
 // (light) and mobile (dark), like QuizRun. The server plays the guest and
 // keeps the transcript (app/api/live-guest/). Styles: .lg rules in
 // app/styles/staff.css, inside .qz--light / .qz--dark for the colours.
@@ -36,6 +44,37 @@ type Chat = {
 };
 
 const LEVEL_LABEL: Record<PublicGuest["level"], string> = { 1: "Gentle", 2: "Tricky", 3: "Hard" };
+
+const DIFFICULTY_TEXT: Record<GuestDifficulty, string> = {
+  1: "Patient with you while you're learning. Guests get tougher as you master modules and pass conversations.",
+  2: "An everyday guest, played as written.",
+  3: "Tough: you know this area well now, so expect less patience.",
+};
+
+function GuestCard({ guest, starting, onStart }: { guest: PublicGuest; starting: string | null; onStart: (id: string) => void }) {
+  return (
+    <button
+      type="button"
+      className="lg-guest"
+      onClick={() => onStart(guest.id)}
+      disabled={!guest.available || starting !== null}
+    >
+      <span className="lg-guest-top">
+        <span className="lg-guest-title">{guest.title}</span>
+        <span className={`lg-level lg-level--${guest.level}`}>{LEVEL_LABEL[guest.level]}</span>
+      </span>
+      <span className="lg-guest-setting">{guest.setting}</span>
+      {guest.available && (
+        <span className="lg-guest-meta">
+          {DIFFICULTY_LABEL[guest.difficulty]} with you{guest.passed ? " · Passed" : ""}
+        </span>
+      )}
+      <span className="lg-guest-cta">
+        {!guest.available ? "Not on your plan" : starting === guest.id ? "Starting…" : `Talk to ${guest.name}`}
+      </span>
+    </button>
+  );
+}
 
 export default function LiveGuest({ getToken, theme }: Props) {
   const [guests, setGuests] = useState<PublicGuest[] | null>(null);
@@ -122,6 +161,9 @@ export default function LiveGuest({ getToken, theme }: Props) {
     }
   }, [chat, draft, getToken, sending]);
 
+  const suggested = guests?.filter((g) => g.suggested) ?? [];
+  const others = guests?.filter((g) => !g.suggested) ?? [];
+
   if (!chat) {
     return (
       <div className={`qz qz--${theme} lg`}>
@@ -131,26 +173,26 @@ export default function LiveGuest({ getToken, theme }: Props) {
         {error && <p className="lg-error" role="alert">{error.message}</p>}
         {listError && <p className="lg-error" role="alert">{listError}</p>}
         {!guests && !listError && <p className="lg-muted">Loading guests…</p>}
-        <div className="lg-guests">
-          {guests?.map((g) => (
-            <button
-              key={g.id}
-              type="button"
-              className="lg-guest"
-              onClick={() => void begin(g.id)}
-              disabled={!g.available || starting !== null}
-            >
-              <span className="lg-guest-top">
-                <span className="lg-guest-title">{g.title}</span>
-                <span className={`lg-level lg-level--${g.level}`}>{LEVEL_LABEL[g.level]}</span>
-              </span>
-              <span className="lg-guest-setting">{g.setting}</span>
-              <span className="lg-guest-cta">
-                {!g.available ? "Not on your plan" : starting === g.id ? "Starting…" : `Talk to ${g.name}`}
-              </span>
-            </button>
-          ))}
-        </div>
+        {suggested.length > 0 && (
+          <>
+            <h3 className="lg-group-title">Suggested for you</h3>
+            <div className="lg-guests">
+              {suggested.map((g) => (
+                <GuestCard key={g.id} guest={g} starting={starting} onStart={(id) => void begin(id)} />
+              ))}
+            </div>
+          </>
+        )}
+        {others.length > 0 && (
+          <>
+            {suggested.length > 0 && <h3 className="lg-group-title">All guests</h3>}
+            <div className="lg-guests">
+              {others.map((g) => (
+                <GuestCard key={g.id} guest={g} starting={starting} onStart={(id) => void begin(id)} />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     );
   }
@@ -170,6 +212,10 @@ export default function LiveGuest({ getToken, theme }: Props) {
       <div className="lg-scene">
         <p className="lg-scene-label">{guest.title}</p>
         <p className="lg-scene-text">{guest.setting}</p>
+        <p className="lg-scene-patience">
+          <span className={`lg-patience lg-patience--${guest.difficulty}`}>{DIFFICULTY_LABEL[guest.difficulty]}</span>
+          {DIFFICULTY_TEXT[guest.difficulty]}
+        </p>
       </div>
 
       <div className="lg-lines" aria-live="polite">
@@ -263,6 +309,67 @@ function MoodChip({ mood }: { mood: GuestMood }) {
   return <span className={`lg-mood lg-mood--${mood}`}>{MOOD_LABEL[mood]}</span>;
 }
 
+function Dial({ name, from, to, notInPlay }: { name: string; from?: string; to?: string; notInPlay?: boolean }) {
+  return (
+    <div className={notInPlay ? "lg-dial lg-dial--off" : "lg-dial"}>
+      <span className="lg-dial-name">{name}</span>
+      {notInPlay ? (
+        <span className="lg-dial-value">Not in play here</span>
+      ) : (
+        <span className="lg-dial-value">
+          {from && from !== to ? (
+            <>
+              {from} <span aria-hidden="true">→</span>
+              <span className="qz-visually-hidden">became</span> {to}
+            </>
+          ) : (
+            to
+          )}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function DialPanel({ result }: { result: LiveGuestResult }) {
+  const { speed, safety, money } = result.dials;
+  const endMood = result.turns.length > 0 ? result.turns[result.turns.length - 1].mood : result.startMood;
+  return (
+    <div className="lg-dials-wrap">
+      <h3 className="lg-reveal-title">The four dials</h3>
+      <div className="lg-dials">
+        <Dial name="Guest" from={MOOD_LABEL[result.startMood]} to={MOOD_LABEL[endMood]} />
+        {speed ? <Dial name="Speed" from={SPEED_LABEL[speed.start]} to={SPEED_LABEL[speed.end]} /> : <Dial name="Speed" notInPlay />}
+        {money ? (
+          <Dial name="Money" to={`About ${formatDollars(money.total)}${money.per ? ` ${money.per}` : ""}`} />
+        ) : (
+          <Dial name="Money" notInPlay />
+        )}
+        {safety ? <Dial name="Safety" from={SAFETY_LABEL[safety.start]} to={SAFETY_LABEL[safety.end]} /> : <Dial name="Safety" notInPlay />}
+      </div>
+      {money?.note && <p className="lg-dial-note">{money.note}</p>}
+      {money && (
+        <p className="lg-muted lg-dial-help">
+          Anything given away or made again counts at cost, and an extra sale at menu price. The figures are rough.
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** What a reply did to the speed, safety and money dials. Empty when nothing moved. */
+function dialMoves(turn: RevealTurn, before: { speed: DialLevel | null; safety: DialLevel | null }, per: string | null): string[] {
+  const moves: string[] = [];
+  if (turn.speed !== null && before.speed !== null && turn.speed !== before.speed) {
+    moves.push(`Speed: ${SPEED_LABEL[before.speed]} to ${SPEED_LABEL[turn.speed]}`);
+  }
+  if (turn.safety !== null && before.safety !== null && turn.safety !== before.safety) {
+    moves.push(`Safety: ${SAFETY_LABEL[before.safety]} to ${SAFETY_LABEL[turn.safety]}`);
+  }
+  for (const m of turn.money) moves.push(`Money: about ${formatDollars(m.dollars)}${per ? ` ${per}` : ""}, ${m.label.charAt(0).toLowerCase()}${m.label.slice(1)}`);
+  return moves;
+}
+
 function Reveal({
   guest,
   result,
@@ -290,6 +397,8 @@ function Reveal({
         <p className="lc-why-text">{result.tryNext}</p>
       </div>
 
+      <DialPanel result={result} />
+
       <h3 className="lg-reveal-title">What {guest.name} was thinking</h3>
       <ol className="lg-thoughts">
         <li className="lg-thought">
@@ -298,6 +407,11 @@ function Reveal({
         </li>
         {result.turns.map((t, i) => {
           const before = i === 0 ? result.startMood : result.turns[i - 1].mood;
+          const dialsBefore =
+            i === 0
+              ? { speed: result.dials.speed?.start ?? null, safety: result.dials.safety?.start ?? null }
+              : { speed: result.turns[i - 1].speed, safety: result.turns[i - 1].safety };
+          const moves = dialMoves(t, dialsBefore, result.dials.money?.per ?? null);
           return (
             <li key={i} className="lg-thought">
               <span className="lg-thought-you">You: &ldquo;{t.staff}&rdquo;</span>
@@ -308,6 +422,13 @@ function Reveal({
                 <MoodChip mood={t.mood} />
               </span>
               {t.thought && <p className="lg-thought-text">{t.thought}</p>}
+              {moves.length > 0 && (
+                <ul className="lg-thought-dials">
+                  {moves.map((m) => (
+                    <li key={m}>{m}</li>
+                  ))}
+                </ul>
+              )}
             </li>
           );
         })}

@@ -7,6 +7,7 @@ import { getCookieValue } from "@/lib/training-attempt";
 import { readJsonBody } from "@/lib/ai-guard";
 import { findGuest } from "@/lib/live-guest/guests";
 import { MAX_REPLIES, SESSION_TTL_MINUTES, publicGuest } from "@/lib/live-guest/engine";
+import { guestDifficulty, loadGuestProgress } from "@/lib/live-guest/difficulty";
 
 export const dynamic = "force-dynamic";
 
@@ -63,15 +64,28 @@ export async function POST(req: Request) {
       );
     }
 
+    // Fixed for the whole conversation.
+    const progress = await loadGuestProgress(admin, user.id);
+    const difficulty = guestDifficulty(guest, progress);
+
     const expiresAt = new Date(Date.now() + SESSION_TTL_MINUTES * 60_000).toISOString();
     const { data: session, error: insertError } = await admin
       .from("live_guest_sessions")
-      .insert({ user_id: user.id, guest_id: guest.id, module_id: guest.moduleId, expires_at: expiresAt })
+      .insert({ user_id: user.id, guest_id: guest.id, module_id: guest.moduleId, difficulty, expires_at: expiresAt })
       .select("id")
       .single();
     if (insertError || !session) throw insertError ?? new Error("live_guest_sessions insert returned no row");
 
-    return NextResponse.json({ sessionId: session.id, guest: publicGuest(guest, true), maxReplies: MAX_REPLIES });
+    return NextResponse.json({
+      sessionId: session.id,
+      guest: publicGuest(guest, {
+        available: true,
+        difficulty,
+        passed: progress.passedGuests.has(guest.id),
+        suggested: false,
+      }),
+      maxReplies: MAX_REPLIES,
+    });
   } catch (error) {
     console.error("live-guest/start error:", error);
     return NextResponse.json({ error: "Could not start the conversation. Please try again.", code: "START_FAILED" }, { status: 500 });

@@ -184,3 +184,13 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
 - **Not yet:** the four dials and the guest getting harder as you improve (Phase 7); the privacy policy line for transcripts (Phase 13).
 - **Done when** you can play a full conversation on your phone and it feels like a real guest. The prompt couldn't be tried before the preview, because there's no OpenAI key outside Cloudflare, so the first real conversations are where it gets tuned.
 
+## Phase 7: guest briefs, four dials and difficulty (in progress, 2026-10-19)
+
+- **The four dials:** the reveal now shows four dials: the guest's mood, speed, safety and money. Each brief says which are in play: a nut allergy puts safety at stake but not money; a flat schooner puts speed and money at stake but not safety. Each reply moves speed and safety one step at most. Money counts anything given away or made again at cost, and an extra sale at menu price, in dollars from the brief, never from the AI. Each item counts once. Some briefs add the bigger number, for example "12ml over on 200 drinks a night is about $500 a week". Each turn in the reveal shows what that reply moved.
+- **The guest gets harder as you improve:** patient for a beginner (starts one mood better, forgives a slip), as written once the module is mastered, and tough once the module is mastered and the guest passed before, or 10 modules are mastered (starts one mood worse, pushes back once, brings the twist in early). The picker suggests up to 3 guests at the person's level: gentle ones for a beginner, harder ones later. Every guest stays open. The chat shows how patient the guest is and why.
+- **The person can be a colleague:** when a scenario is about the team, you talk to the head chef, another bartender or a new casual instead of a guest.
+- **The 8 live guests** now have dial settings, for your review in `live-guest-briefs.md`.
+- **Batch 1 is ready for review:** 10 briefs on safety, compliance and money, in `guest-briefs-batch-1.md`. They're in the code but not offered until you approve them.
+- **Where all 80 go:** `guest-briefs-plan.md`. 8 live, 10 in batch 1, 41 in batches 2 to 5, and 1 merged (the vodka upgrade into the bourbon upgrade). The 20 management scenarios are waiting on your decision: you play the manager talking to staff or the owner, and they don't fit any of the 40 modules.
+- **Migration to run before testing:** `supabase/migrations/20261022_live_guest_difficulty.sql` (adds `difficulty`; additive; rollback in `supabase/rollbacks/`). The new code needs it, so Live Guest won't start on the preview until it's run.
+- **Done when** every guest brief is live and the dials move in a way you agree with.

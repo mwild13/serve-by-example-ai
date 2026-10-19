@@ -2,6 +2,10 @@
 // and the grading stay on the server (lib/live-guest/).
 
 export type GuestMood = 1 | 2 | 3 | 4 | 5;
+/** Speed: 1 stalled to 5 flying. Safety: 1 unsafe to 5 safe. */
+export type DialLevel = 1 | 2 | 3 | 4 | 5;
+/** How the guest plays: 1 patient, 2 as written, 3 tough. Follows the person's progress. */
+export type GuestDifficulty = 1 | 2 | 3;
 
 /** What the browser sees of a guest before the conversation. */
 export type PublicGuest = {
@@ -14,15 +18,35 @@ export type PublicGuest = {
   level: 1 | 2 | 3;
   /** False when the person's plan doesn't include the guest's module. */
   available: boolean;
+  /** How this guest would play for this person today. */
+  difficulty: GuestDifficulty;
+  /** This person has passed a conversation with this guest. */
+  passed: boolean;
+  /** One of the few guests picked for this person's level. */
+  suggested: boolean;
 };
 
 export type LiveGuestOutcome = "resolved" | "walked_out" | "unresolved" | "breach";
+
+type MoneyMove = { label: string; dollars: number };
 
 export type RevealTurn = {
   staff: string;
   guest: string;
   mood: GuestMood;
   thought: string;
+  /** Null when the dial isn't in play for this guest. */
+  speed: DialLevel | null;
+  safety: DialLevel | null;
+  /** What this reply made happen to the venue's money. */
+  money: MoneyMove[];
+};
+
+/** Where the dials started and ended. Null when a dial isn't in play. */
+export type DialSummary = {
+  speed: { start: DialLevel; end: DialLevel } | null;
+  safety: { start: DialLevel; end: DialLevel } | null;
+  money: { total: number; per: string | null; note: string | null } | null;
 };
 
 export type LiveGuestResult = {
@@ -32,6 +56,8 @@ export type LiveGuestResult = {
   wentWell: string;
   tryNext: string;
   startMood: GuestMood;
+  difficulty: GuestDifficulty;
+  dials: DialSummary;
   turns: RevealTurn[];
   /** Shown after the conversation: what the guest wanted and what the staff member couldn't see. */
   brief: { wants: string; calms: string[]; setsOff: string[]; mustDo: string | null };
@@ -61,6 +87,34 @@ export const MOOD_LABEL: Record<GuestMood, string> = {
   4: "Happy",
   5: "Delighted",
 };
+
+export const SPEED_LABEL: Record<DialLevel, string> = {
+  1: "Stalled",
+  2: "Slow",
+  3: "Steady",
+  4: "Quick",
+  5: "Flying",
+};
+
+export const SAFETY_LABEL: Record<DialLevel, string> = {
+  1: "Unsafe",
+  2: "At risk",
+  3: "Watch it",
+  4: "Mostly safe",
+  5: "Safe",
+};
+
+export const DIFFICULTY_LABEL: Record<GuestDifficulty, string> = {
+  1: "Patient",
+  2: "Everyday",
+  3: "Tough",
+};
+
+/** "+$20", "-$3", "$0". A plain hyphen, never a dash. */
+export function formatDollars(dollars: number): string {
+  const amount = `$${Math.abs(Math.round(dollars)).toLocaleString("en-AU")}`;
+  return dollars > 0 ? `+${amount}` : dollars < 0 ? `-${amount}` : amount;
+}
 
 export const LIVE_GUEST_MAX_REPLY_CHARS = 500;
 

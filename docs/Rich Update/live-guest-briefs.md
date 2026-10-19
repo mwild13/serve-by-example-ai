@@ -1,12 +1,16 @@
-# Live Guest: the first eight guests
+# Live Guest: the guests that are live
 
 8 guests. Each one is a short typed conversation of 3 to 6 replies. The staff member sees the scene and the guest's first line. The AI plays the guest from the rest of the brief, which the staff member only sees in the reveal afterwards, along with what the guest was thinking at each turn.
 
 A conversation passes at 75 out of 100. Breaking the rule that can't be broken ends it straight away and is never a pass.
 
+**The four dials** show in the reveal: the guest's mood, and speed, safety and money when the situation puts them at stake. Money counts anything given away or made again at cost, and an extra sale at menu price. The figures are rough, and each thing counts once.
+
+**How patient the guest is** follows the person's progress. A beginner gets a patient guest (starts one mood better, forgives a slip). Once the module is mastered the guest plays as written. Once the module is mastered and the guest passed before, or 10 modules are mastered, the guest is tough (starts one mood worse, pushes back once, brings the twist in early).
+
 ## The flat schooner (Dave, module 1)
 
-*gentle, starts annoyed. Id: `flat-schooner`.*
+*gentle, starts annoyed. From: AI Arena, module 1. Id: `flat-schooner`.*
 
 **Staff see before they start:**
 
@@ -31,9 +35,18 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 - **Rule that can't be broken:** none
 - **A good ending:** Dave has a good fresh schooner, his mate's beer is sorted too, and he knows someone will check that tap or tell the manager.
 
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: in play, starts at "Steady".
+- Safety: not in play.
+- Money: in play. What can happen:
+  - A fresh schooner, on the house: about -$3
+  - His mate's beer replaced too: about -$3
+
 ## One more round (Jess, module 15)
 
-*hard, starts happy. Id: `birthday-shots`.*
+*hard, starts happy. From: Scenario Training, bartending 9. Id: `birthday-shots`.*
 
 **Staff see before they start:**
 
@@ -59,9 +72,18 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 - **Rule that can't be broken:** Jess is unduly intoxicated. No alcohol can be served to her, and staff can't agree to her friend buying a drink for her. Water, food and soft drinks are fine.
 - **A good ending:** Jess accepts water or a soft drink, feels respected, and nobody serves her more alcohol.
 
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: in play, starts at "At risk".
+- Money: in play. What can happen:
+  - Soft drinks or mocktails for the group instead: about +$30
+- Money note shown in the reveal: Serving an intoxicated guest can bring fines in the thousands of dollars, for the staff member and the venue, and puts the venue's licence at risk.
+
 ## The cold parmy (Sharon, module 11)
 
-*tricky, starts annoyed. Id: `cold-parmy`.*
+*tricky, starts annoyed. From: AI Arena, module 11. Id: `cold-parmy`.*
 
 **Staff see before they start:**
 
@@ -88,9 +110,18 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 - **Rule that can't be broken:** none
 - **A good ending:** A fresh parmy is on its way with a time given, her husband's meal is handled thoughtfully, and she feels taken seriously.
 
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: in play, starts at "Steady".
+- Safety: in play, starts at "Mostly safe".
+- Money: in play. What can happen:
+  - A fresh parmy cooked: about -$7
+  - A drink or dessert on the house, approved by a manager: about -$4
+
 ## Is the pesto safe? (Tom, module 25)
 
-*hard, starts neutral. Id: `nut-allergy`.*
+*hard, starts neutral. From: AI Arena, module 25. Id: `nut-allergy`.*
 
 **Staff see before they start:**
 
@@ -117,9 +148,16 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 - **Rule that can't be broken:** Never tell Tom a dish is safe without checking with the chef. His allergy has to go to the kitchen. If the staff member says they've checked with the chef, accept what they report, as long as it's a clear answer.
 - **A good ending:** Tom knows his allergy is on the docket and the chef has been told, and he orders a dish the chef has confirmed is safe.
 
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: in play, starts at "At risk".
+- Money: not in play.
+
 ## No booking, Friday night (Mark, module 13)
 
-*tricky, starts neutral. Id: `no-booking`.*
+*tricky, starts neutral. From: AI Arena, module 13. Id: `no-booking`.*
 
 **Staff see before they start:**
 
@@ -144,9 +182,18 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 - **Rule that can't be broken:** none
 - **A good ending:** They take a real option (the bar, the waitlist or a later booking) and feel welcome, and no booked guest is bumped.
 
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: in play. What can happen:
+  - Dinner for two at the bar tonight: about +$120
+  - Drinks at the bar while they wait: about +$25
+
 ## The Shiraz is gone (Priya, module 37)
 
-*gentle, starts neutral. Id: `out-of-shiraz`.*
+*gentle, starts neutral. From: AI Arena, module 37. Id: `out-of-shiraz`.*
 
 **Staff see before they start:**
 
@@ -171,9 +218,18 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 - **Rule that can't be broken:** none
 - **A good ending:** They happily choose a recommended alternative and feel looked after on their anniversary.
 
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: in play, starts at "Steady".
+- Safety: not in play.
+- Money: in play. What can happen:
+  - Another bottle at a similar price: about +$75
+  - The house red instead: about +$40
+
 ## A booking for tonight (Claire, module 14)
 
-*gentle, starts neutral. Id: `phone-booking`.*
+*gentle, starts neutral. From: AI Arena, module 14. Id: `phone-booking`.*
 
 **Staff see before they start:**
 
@@ -200,9 +256,17 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 - **Rule that can't be broken:** none
 - **A good ending:** The booking is confirmed at a time that fits ten, the details are read back, the coeliac guest is noted for the kitchen, and the booth request is handled honestly.
 
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: in play, starts at "Steady".
+- Safety: not in play.
+- Money: in play. What can happen:
+  - The booking confirmed for tonight, about $60 a head: about +$600
+
 ## Someone pushed in (Kyle, module 17)
 
-*hard, starts annoyed. Id: `pushed-in`.*
+*hard, starts annoyed. From: AI Arena, module 17. Id: `pushed-in`.*
 
 **Staff see before they start:**
 
@@ -228,11 +292,10 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 - **Twist (2nd or 3rd reply):** On his 2nd or 3rd reply he says he'll sort the bloke out himself if nothing happens.
 - **Rule that can't be broken:** A threat to hurt someone must be taken seriously: the staff member calmly says they'll get security or a manager involved. Ignoring the threat, or encouraging it, is a breach.
 - **A good ending:** Kyle is served or knows he's next, the threat is handed to security or a manager calmly, and he settles down.
-## Points to check
 
-- **Why these eight:** two each from the moments that go wrong most on a real shift: a complaint (flat schooner, cold parmy), a refusal (birthday shots, the pushy walk-in), safety (nut allergy, someone squaring up) and a sale to save (the Shiraz, the phone booking). Three are Compliance, three Service and two Bartending.
-- **Venue policy:** where a guest might be offered something free (Sharon's parmy), the brief rewards checking with a manager, and promising something the venue may not allow sets her off. That follows the venue rule from Phase 3.
-- **Birthday shots:** the rule also covers her friend buying for her. Supplying an intoxicated person through a friend is against RSA in every state.
-- **Nut allergy:** the guest accepts what staff say the chef told them, as long as it's clear. The test is that they check, not what the chef says.
-- **Someone squaring up:** the breach is ignoring or encouraging a threat. Staff aren't expected to physically step in.
-- **Facts in the scenes** ("40 minutes", "ten minutes", the wine list, tonight's bookings) are part of each story, not venue standards.
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: in play, starts at "Steady".
+- Safety: in play, starts at "Watch it".
+- Money: not in play.

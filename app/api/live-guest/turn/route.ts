@@ -14,11 +14,20 @@ import {
   GUEST_SYSTEM_PROMPT,
   briefBlock,
   conversationBlock,
+  dialSummary,
   isPass,
   parseGuestTurn,
+  revealTurns,
+  stateAfter,
   type StoredTurn,
 } from "@/lib/live-guest/engine";
-import { LIVE_GUEST_MAX_REPLY_CHARS, type LiveGuestOutcome, type LiveGuestResult } from "@/lib/live-guest-client";
+import { startMoodFor } from "@/lib/live-guest/difficulty";
+import {
+  LIVE_GUEST_MAX_REPLY_CHARS,
+  type GuestDifficulty,
+  type LiveGuestOutcome,
+  type LiveGuestResult,
+} from "@/lib/live-guest-client";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +43,7 @@ type SessionRow = {
   user_id: string;
   guest_id: string;
   module_id: number;
+  difficulty: GuestDifficulty;
   turns: StoredTurn[];
   turn_count: number;
   status: string;
@@ -43,6 +53,8 @@ type SessionRow = {
 
 function resultOf(
   brief: GuestBrief,
+  difficulty: GuestDifficulty,
+  startMood: Mood,
   turns: StoredTurn[],
   outcome: LiveGuestOutcome,
   debrief: { score: number; wentWell: string; tryNext: string },
@@ -53,8 +65,10 @@ function resultOf(
     passed: isPass(outcome, debrief.score),
     wentWell: debrief.wentWell,
     tryNext: debrief.tryNext,
-    startMood: brief.startMood,
-    turns,
+    startMood,
+    difficulty,
+    dials: dialSummary(brief, startMood, turns),
+    turns: revealTurns(brief, turns),
     brief: { wants: brief.wants, calms: brief.calms, setsOff: brief.setsOff, mustDo: brief.mustDo ?? null },
     saved: false,
   };
@@ -96,7 +110,7 @@ export async function POST(req: Request) {
     const admin = createSupabaseAdminClient();
     const { data, error: readError } = await admin
       .from("live_guest_sessions")
-      .select("id, user_id, guest_id, module_id, turns, turn_count, status, result, expires_at")
+      .select("id, user_id, guest_id, module_id, difficulty, turns, turn_count, status, result, expires_at")
       .eq("id", sessionId)
       .maybeSingle();
     if (readError) throw readError;
@@ -143,8 +157,10 @@ export async function POST(req: Request) {
     }
 
     const replyNumber = position + 1;
+    const difficulty = session.difficulty;
+    const startMood = startMoodFor(brief, difficulty);
     const moods = session.turns.map((t) => t.mood);
-    const previousMood: Mood = moods.length > 0 ? moods[moods.length - 1] : brief.startMood;
+    const previous = stateAfter(brief, startMood, session.turns);
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 25000);
@@ -158,7 +174,7 @@ export async function POST(req: Request) {
           response_format: { type: "json_object" },
           messages: [
             { role: "system", content: GUEST_SYSTEM_PROMPT },
-            { role: "system", content: briefBlock(brief, replyNumber, moods) },
+            { role: "system", content: briefBlock(brief, replyNumber, difficulty, previous, moods) },
             { role: "user", content: conversationBlock(brief, session.turns, staff) },
           ],
         },
@@ -169,14 +185,28 @@ export async function POST(req: Request) {
     }
 
     const parsed = parseModelJson(completion.choices[0]?.message?.content, "live-guest/turn");
-    const guestTurn = parsed ? parseGuestTurn(parsed, replyNumber, previousMood) : null;
+    const guestTurn = parsed ? parseGuestTurn(parsed, brief, replyNumber, previous) : null;
     if (!guestTurn) {
       return NextResponse.json({ error: `${brief.name} didn't answer. Send your reply again.`, code: "NO_REPLY" }, { status: 502 });
     }
 
-    const turns: StoredTurn[] = [...session.turns, { staff, guest: guestTurn.reply, mood: guestTurn.mood, thought: guestTurn.thought }];
+    const turns: StoredTurn[] = [
+      ...session.turns,
+      {
+        staff,
+        guest: guestTurn.reply,
+        mood: guestTurn.mood,
+        thought: guestTurn.thought,
+        speed: guestTurn.speed,
+        safety: guestTurn.safety,
+        money: guestTurn.money,
+      },
+    ];
     const ended = guestTurn.outcome !== "continue";
-    let result = ended && guestTurn.debrief ? resultOf(brief, turns, guestTurn.outcome as LiveGuestOutcome, guestTurn.debrief) : null;
+    let result =
+      ended && guestTurn.debrief
+        ? resultOf(brief, difficulty, startMood, turns, guestTurn.outcome as LiveGuestOutcome, guestTurn.debrief)
+        : null;
 
     // Saved only if no other reply landed first.
     const { data: claimed, error: updateError } = await admin
@@ -214,6 +244,7 @@ export async function POST(req: Request) {
           evaluation: {
             kind: "live_guest",
             guest_id: brief.id,
+            difficulty: result.difficulty,
             outcome: result.outcome,
             score: result.score,
             passed: result.passed,
