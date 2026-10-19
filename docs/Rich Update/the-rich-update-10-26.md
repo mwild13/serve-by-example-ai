@@ -129,9 +129,9 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
 | Batch | Modules | Questions | Status |
 |---|---|---|---|
 | Beer Pouring sample | 1 | 9 | Approved and live 2026-10-19 |
-| 1. Bartending, part A | 1 (3 more), 2, 3, 4, 5, 6, 7 | 72 | Approved 2026-10-19, all as written: `batch-1-bartending-a.md` |
-| 2. Bartending, part B | 26, 27, 28, 32, 33, 34, 39 | — | Drafting |
-| 3. Service | 8 to 14, 23, 29, 30, 36, 37, 38, 40 | — | — |
+| 1. Bartending, part A | 1 (3 more), 2, 3, 4, 5, 6, 7 | 72 | Approved 2026-10-19, all as written; live on `main` (`c2ad2cd`): `batch-1-bartending-a.md` |
+| 2. Bartending, part B | 26, 27, 28, 32, 33, 34, 39 | 70 | Drafted 2026-10-19, waiting on review: `batch-2-bartending-b.md` |
+| 3. Service | 8 to 14, 23, 29, 30, 36, 37, 38, 40 | — | Next |
 | 4. Compliance | 15 to 22, 24, 25, 31, 35 | — | — |
 
 Batch 1 brings each module to 19 or 20 questions: its 8 statements plus 11 or 12 new ones. The plan's target is 20 to 25, so the first seven modules sit at the bottom of that range. More can be added later from venue feedback.
