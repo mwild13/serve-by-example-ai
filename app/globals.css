@@ -299,6 +299,16 @@
   --color-warm-stone:     #b5b0a8;  /* Warm medium-gray for chart axis ticks */
   --bg-green-pale:        #e6f4ee;  /* Very light green badge background */
   --border-parchment:     #ede7d2;  /* Warm parchment SVG grid lines */
+
+  /* Pictures (Rich update, Phase 9): components/pictures/Picture.tsx.
+     See docs/Rich Update/image-style-sheet.md. Dark overrides: .qz--dark
+     in app/styles/staff.css. Drinks keep their real colours. */
+  --pic-line:  #1f4e37;
+  --pic-glass: rgba(31, 78, 55, 0.07);
+  --pic-shine: rgba(255, 255, 255, 0.9);
+  --pic-lager: #e3a92f;
+  --pic-foam:  #f8edcf;
+  --pic-bubble: rgba(255, 255, 255, 0.7);
 }
 /* ── Reset ─────────────────────────────────────── */
 *,

@@ -1455,6 +1455,9 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   --qz-wrong-bg: var(--status-critical-bg);
 }
 .qz--dark {
+  --pic-line: var(--text-mobile);
+  --pic-glass: rgba(255, 255, 255, 0.1);
+  --pic-shine: rgba(255, 255, 255, 0.55);
   --qz-surface: var(--surface-mobile);
   --qz-surface-alt: var(--surface-mobile-alt);
   --qz-line: var(--border-mobile);

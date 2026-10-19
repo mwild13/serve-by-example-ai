@@ -12,7 +12,9 @@ Small changes, in the order they will be done. Each goes to a preview branch fir
 
 ## 2. Marketing copy
 
-Nothing open. Closed by the owner on 2026-10-12. There is still no customer data, so no outcome figures or customer proof go on a marketing page.
+- [ ] **Update the marketing pages once the Rich update is finished** (owner, 2026-10-20). Scenario Training and the AI Arena were retired in Phase 8 and Live Guest replaced them, but the home page, platform page, vs-generic-lms page, security page and the complaint demo still describe "scenario roleplay", "AI Scenario Simulators" and "Live Scenarios". The pricing page and plan cards are already done. Planned for Phase 13 of `docs/Rich Update/LEARNING_UPGRADE_RESEARCH.md`.
+
+There is still no customer data, so no outcome figures or customer proof go on a marketing page.
 
 ## 3. Owner: dashboards
 

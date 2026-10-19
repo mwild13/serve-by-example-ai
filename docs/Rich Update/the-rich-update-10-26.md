@@ -13,13 +13,13 @@ The staff learning upgrade, named after Richie, our first tester, who called tra
 | 1 | Groundwork: measures and event tracking | Done 2026-10-19 |
 | 2 | Question engine | Done 2026-10-19, on `main` (`a095129`) |
 | 3 | Writing and reviewing the questions | Done 2026-10-19 |
-| 4 | Learn cards (text) | Next |
-| 5 | Skill check and test-out | — |
-| 6 | Live Guest conversation (text) | — |
-| 7 | Guest briefs, four dials and difficulty | — |
-| 8 | Plans, manager score and retiring the old screens | — |
-| 9 | Image style and library | — |
-| 10 | Mixed drills | — |
+| 4 | Learn cards (text) | Done 2026-10-19 |
+| 5 | Skill check and test-out | Done 2026-10-19 |
+| 6 | Live Guest conversation (text) | Done 2026-10-19 |
+| 7 | Guest briefs, four dials and difficulty | Done 2026-10-20 |
+| 8 | Plans, manager score and retiring the old screens | Done 2026-10-20 |
+| 9 | Image style and library | Parked 2026-10-20: the owner draws the parts in Claude Design later |
+| 10 | Mixed drills | Next |
 | 11 | Venue content | — |
 | 12 | Pre-shift drill and shift streak | — |
 | 13 | Launch check, then marketing spend starts | — |
@@ -199,7 +199,7 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
 - **Suggestions now put the hardest guest within reach first**, then modules the person has mastered. With more guests live, the old order filled every slot with easy guests from mastered modules.
 - **Where all 80 go:** `guest-briefs-plan.md`. 60 live, and 1 merged (the vodka upgrade into the bourbon upgrade). Management (decided): number 17 joins the guests; the gaming room one is held until there's a gaming module; the other 18 wait for a later manager phase.
 - **Migration:** `supabase/migrations/20261022_live_guest_difficulty.sql`, run on production (confirmed 2026-10-20) (adds `difficulty`; additive; rollback in `supabase/rollbacks/`). The new code needs it, so Live Guest won't start on the preview until it's run.
-- **Done when** every guest brief is live and the dials move in a way you agree with.
+- **Done when** every guest brief is live and the dials move in a way you agree with. **Passed by the owner on 2026-10-20.**
 - **Desktop layout (2026-10-20):** the guest list fills the page in a grid lined up with the page header, instead of a narrow centred column, and during a conversation the scene sits in a side column that stays in view.
 
 ## Phase 8: plans, manager score and retiring the old screens (built 2026-10-20)
@@ -212,6 +212,15 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
   - Each category ring on the mobile Me page averaged three bars, one of them the retired Scenario Practice, so nobody could get past about 66%. It's now the average of Modules and Live Guest.
 - **Removed with the old screens:** the two "Scenario score" charts on desktop progress (they only plotted Scenario Training scores), and the chart library behind them.
 - **Pricing and plan cards:** the Venue card lists Live Guest; the comparison table has a Live Guest row (Staff: no; Venue, Group, Franchise: yes). The Staff (Pro) card no longer mentions the AI Arena. The trial and trial-expired screens in the Manager Console list Live Guest.
-- **Pro users lose AI practice:** Pro had the AI Arena and doesn't get Live Guest, as decided. Today that's 2 accounts on Pro, 1 with an active paid subscription.
-- **Left for Phase 13:** marketing pages outside pricing still describe "scenario roleplay" and "Live Scenarios" (home page, platform page, vs-generic-lms, security page and the complaint demo).
-- **Done when** nobody can reach the old screens and the manager's numbers still add up. For the owner to check on the preview.
+- **Pro users lose AI practice:** Pro had the AI Arena and doesn't get Live Guest, as decided. The 2 Pro accounts are the owner's own testing: there are no paying customers yet (2026-10-20).
+- **Left for Phase 13:** marketing pages outside pricing still describe "scenario roleplay" and "Live Scenarios" (home page, platform page, vs-generic-lms, security page and the complaint demo). On the to-do list.
+- **Done when** nobody can reach the old screens and the manager's numbers still add up. **Passed by the owner on 2026-10-20.**
+
+## Phase 9: image style and library (parked 2026-10-20)
+
+- **Parked by the owner on 2026-10-20**, to be drawn later in Claude Design in the owner's own time, so the heavy drawing work doesn't run here. Phase 10 goes ahead without it; the picture questions stay switched off (`PICTURE_QUESTIONS_ENABLED` in `lib/question-bank.ts`) and the Learn cards work without pictures, as before.
+- **The style sheet:** `image-style-sheet.md`. It holds the rules, a brief to paste into Claude Design, how to work so it doesn't burn credits, and the full list: the parts (A), one picture per Learn card (B), and the question pictures (C).
+- **The first part, drafted:** the schooner, in three states (poured right with a 1.2 cm head, a short pour, empty). Standalone copies with real colours, to upload to Claude Design as the style to match: `pictures/schooner-*.svg`.
+- **Code, ready for the parts:** `components/pictures/Picture.tsx` draws a picture from a short spec (glass, drink, fill, head) and writes its alt text; `lib/pictures/glasses.ts` holds the glass parts (the schooner only so far). The `--pic-*` colours are in `app/globals.css`, with dark mode in `.qz--dark` in `app/styles/staff.css`. `scripts/picture-review.mjs` builds the review page from the code. Nothing in the app uses them yet, so `knip.json` ignores the two folders until they're wired in.
+- **When the parts come back:** save them in `docs/Rich Update/pictures/`, then Claude Code turns them into parts, builds the review page, adds pictures to the Learn cards and questions, and switches the picture questions on.
+

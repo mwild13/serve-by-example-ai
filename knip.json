@@ -1,5 +1,17 @@
 {
-  "entry": ["scripts/**/*.mjs", "playwright.marketing.config.ts", "tests/e2e-marketing/**/*.ts"],
-  "ignore": [".agents/**", "open-next.config.ts"],
-  "ignoreDependencies": ["postcss", "sharp"]
+  "entry": [
+    "scripts/**/*.mjs",
+    "playwright.marketing.config.ts",
+    "tests/e2e-marketing/**/*.ts"
+  ],
+  "ignore": [
+    ".agents/**",
+    "open-next.config.ts",
+    "components/pictures/**",
+    "lib/pictures/**"
+  ],
+  "ignoreDependencies": [
+    "postcss",
+    "sharp"
+  ]
 }
