@@ -96,9 +96,9 @@ describe("the question bank", () => {
     }
   });
 
-  it("gives every module at least three question types to pass with", () => {
+  it("gives every module at least three live question types to pass with", () => {
     for (const moduleId of Object.keys(VERIFY_QUESTIONS).map(Number)) {
-      const formats = new Set(moduleQuestions(moduleId).map((q) => q.format));
+      const formats = new Set(liveQuestions(moduleId).map((q) => q.format));
       expect(formats.size, `module ${moduleId}`).toBeGreaterThanOrEqual(3);
     }
   });

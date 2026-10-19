@@ -47,7 +47,7 @@ Rebuilt in the Rich update, Phase 2 (`docs/Rich Update/`).
 
 - **Question bank** (`lib/question-bank.ts`, `server-only`):
   - Every module starts with its True/False statements from `lib/verify-questions.ts` (8 per module, 320 in all), with ids `s0`, `s1`...
-  - Questions in the other formats live in `lib/questions/module-NN.ts`: best line, multiple choice, put in order, spot the mistake, a number, and which glass.
+  - Questions in the other formats live in `lib/questions/module-NN.ts`, one file per module, for all 40 modules: best line, multiple choice, put in order, spot the mistake, a number, and which glass. Review sheets come from the code: `npm run questions:review`.
   - Each question has a `concept` (the statement it tests), a `difficulty` (1 to 3) and a `reviewed` flag.
   - Only reviewed questions are asked. Picture questions (`which_glass`, or any question with an `image` brief) stay off until `PICTURE_QUESTIONS_ENABLED` is switched on in Phase 9.
   - Question ids are stored in live runs. Never reuse an id for a different question.
@@ -59,7 +59,7 @@ Rebuilt in the Rich update, Phase 2 (`docs/Rich Update/`).
   - 6 right answers (`PASS_CORRECT`), in at least 3 formats (`PASS_FORMATS`), or in as many as the module has.
   - A question answered right never comes back. A wrong one brings back an unasked variant of the same fact 2 questions later, in another format when there is one. That fact must then be answered right before the run can pass.
   - The 3rd wrong answer ends the run (`MAX_MISSES`), and so does running out of questions. Both end as `exhausted`.
-  - A module with True/False only passes on 6 right out of 8.
+  - Every module has at least three live question types (checked by a test), so the full rule applies everywhere.
 - **Mastered stays mastered.** The engine only ever sets mastery. Nothing in it clears a module someone has already passed.
 - **Runs expire after 20 minutes** (server clock). Each answer is accepted once, at the position the server expects.
 - **Rate limits:** 5 starts per module per 15 minutes, held in the database, plus per-isolate limits.

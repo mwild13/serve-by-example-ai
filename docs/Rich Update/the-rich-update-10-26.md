@@ -12,8 +12,8 @@ The staff learning upgrade, named after Richie, our first tester, who called tra
 |---|---|---|
 | 1 | Groundwork: measures and event tracking | Done 2026-10-19 |
 | 2 | Question engine | Done 2026-10-19, on `main` (`a095129`) |
-| 3 | Writing and reviewing the questions | Started 2026-10-19 |
-| 4 | Learn cards (text) | — |
+| 3 | Writing and reviewing the questions | Done 2026-10-19 |
+| 4 | Learn cards (text) | Next |
 | 5 | Skill check and test-out | — |
 | 6 | Live Guest conversation (text) | — |
 | 7 | Guest briefs, four dials and difficulty | — |
@@ -134,8 +134,19 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
 | 3. Service, part A | 8 to 14 | 61 | Approved 2026-10-19; five statements corrected; live on `main` (`83029f8`): `batch-3-service-a.md` |
 | 4. Service, part B | 23, 29, 30, 36, 37, 38, 40 | 58 | Approved 2026-10-19; four statements corrected; live on `main` (`dc2fd41`): `batch-4-service-b.md` |
 | 5. Compliance, part A | 15 to 20 | 48 | Approved 2026-10-19; eleven statements corrected; live on `main` (`22839fc`): `batch-5-compliance-a.md` |
-| 6. Compliance, part B | 21, 22, 24, 25, 31, 35 | 47 | Drafted 2026-10-19, waiting on review: `batch-6-compliance-b.md` |
+| 6. Compliance, part B | 21, 22, 24, 25, 31, 35 | 47 | Approved 2026-10-19; five statements corrected: `batch-6-compliance-b.md` |
 
 **Venue practice rule (owner, 2026-10-19):** anything that varies between venues, such as cleaning schedules, gun layouts or house specs, is tested as a principle, never as one number or frequency.
 
-Batch 1 brings each module to 19 or 20 questions: its 8 statements plus 11 or 12 new ones. The plan's target is 20 to 25, so the first seven modules sit at the bottom of that range. More can be added later from venue feedback.
+### Phase 3 result (2026-10-19)
+
+- **Every module is on the new engine.** All six batches were approved by the owner and are switched on. Every module has at least three live question types, so the full mastery rule (6 right across 3 types) now applies everywhere. A test checks this.
+- **The bank:** 684 live questions: the 320 True/False statements plus 364 new ones. By type: 230 choose one, 50 spot the mistake, 45 best line, 25 put in order, 14 numbers.
+- **15 to 20 questions per module.** That's below the plan's target of 20 to 25. Rather than pad modules, the decision was to write only questions with one clear right answer, and to leave out anything that varies by venue. More can come from venue feedback and from venue content (Phase 11).
+- **27 existing statements were corrected along the way:** 2 in Bartending, 9 in Service and 16 in Compliance. Most depended on one state's rules or on venue policy. Each fix is recorded under "Decided on review" in its batch file.
+- **The locked `scenarios` table** still holds the old wording of those statements. Nothing reads it, so it was left alone. It goes with the cleanup migration after Phase 8.
+- **Picture questions:** none were written yet. Image briefs come with the image library in Phase 9, when the picture types are switched on.
+
+## Next: Phase 4, Learn cards
+
+From the plan (section 5): 4 to 6 cards per module, written from the same statements and explanations as the questions and checked by the owner in batches, the same way as Phase 3. Each card has one rule and why it matters, and leaves room for a picture, which comes in Phase 9. Done when every module opens with its cards on desktop and mobile.

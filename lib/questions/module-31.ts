@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-6-compliance-b.md.
+// Approved by the owner on 2026-10-19 (batch 6). Review copy:
+// docs/Rich Update/batch-6-compliance-b.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -18,7 +18,7 @@ export const MODULE_31_QUESTIONS: Question[] = [
     answer: 30,
     tolerance: 0,
     explanation: "30ml is the standard single spirit measure in most Australian venues. Use your venue's jigger for every pour.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -34,7 +34,7 @@ export const MODULE_31_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Reading the meniscus at eye level, not from above, ensures the pour is exactly 30ml and not a milliliter over.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -50,7 +50,7 @@ export const MODULE_31_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Reading the meniscus at eye level, not from above, ensures the pour is exactly 30ml and not a milliliter over.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -62,7 +62,7 @@ export const MODULE_31_QUESTIONS: Question[] = [
     answer: 1,
     tolerance: 0,
     explanation: "At 200 drinks per night, 5ml over means 1 full litre of spirits given away for free, a devastating impact on gross profit.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -78,7 +78,7 @@ export const MODULE_31_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Every single spirit pour, regardless of the drink's complexity, must be measured to maintain compliance and GP consistency.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -94,7 +94,7 @@ export const MODULE_31_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "If stocktake shows more spirits used than POS sales account for, over-pouring or theft is the culprit.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -110,6 +110,6 @@ export const MODULE_31_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Unauthorised over-pours are both a compliance and a theft issue. Offer a double, charged as a double. Only a manager can approve anything free.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

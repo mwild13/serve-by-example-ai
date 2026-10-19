@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-6-compliance-b.md.
+// Approved by the owner on 2026-10-19 (batch 6). Review copy:
+// docs/Rich Update/batch-6-compliance-b.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_35_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "A clean, fully-stocked venue at close means the opening crew can begin service immediately without cleaning up the previous night first.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_35_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Sticky spirits on the speed rail breed bacteria overnight and attract fruit flies by morning — both a hygiene and pest issue.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_35_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "The closing shift is responsible for leaving the dry store in correct order. The morning team should only need to start, not clean up.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_35_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Spotted or dirty glasses sitting in a service rack for the next day is a mark of a poor close that embarrasses the venue.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_35_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Dirty water left overnight grows dangerous bacteria levels and produces a foul smell that permeates the venue by morning.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_35_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "The checklist is both the legal record and the operational standard for every close. No checklist means no accountability.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_35_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Floor hygiene standards are constant regardless of covers. Quiet nights are in fact the easiest time to do a thorough mop.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -134,6 +134,6 @@ export const MODULE_35_QUESTIONS: Question[] = [
       { id: "e", text: "Sign off the close checklist" },
     ],
     explanation: "Clean and restock first, finish with the floor so it isn't walked on, and sign the checklist last as the record that the venue was left safe.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

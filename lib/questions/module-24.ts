@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-6-compliance-b.md.
+// Approved by the owner on 2026-10-19 (batch 6). Review copy:
+// docs/Rich Update/batch-6-compliance-b.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_24_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Because ice enters food and drinks directly, contaminating it carries the same legal and health consequences as contaminating food.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_24_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Even gloved hands introduce warmth that melts ice and bacteria that can persist on glove surfaces. The scoop is non-negotiable.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_24_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "A handle buried in ice forces the staff member to grab the scoop above the bowl, meaning their hand is directly over the ice.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_24_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "An open lid allows airborne contaminants, insects, and moisture to enter the machine and contaminate every batch of ice produced.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_24_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "A broken scoop can shed plastic fragments into the ice well, which then enters guest drinks invisibly.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_24_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Glass on ice causes chips and is one of the most dangerous acts behind a bar. Find the scoop or ask a colleague for one.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_24_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Bio-film builds up inside machines and can contaminate every batch of ice produced if the machine is not sanitized regularly.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -134,6 +134,6 @@ export const MODULE_24_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Cross-well transfers must follow the same scoop-only hygiene protocol. The container must be the designated clean ice bucket.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

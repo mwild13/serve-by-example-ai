@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-6-compliance-b.md.
+// Approved by the owner on 2026-10-19 (batch 6). Review copy:
+// docs/Rich Update/batch-6-compliance-b.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_22_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Glass shards in ice are invisible to the eye. The only safe WHS protocol is pouring hot water to melt every last cube.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_22_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Invisible micro-shards remain embedded in the ice. Partial clearing is not safe — the entire well must be burned.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_22_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Hot water is the fastest and most thorough method to melt all ice and flush potential shards down the drain safely.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_22_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "This is exactly why the scoop rule exists. Glass on glass creates chips that vanish into the ice instantly.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_22_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Melting a full ice well, draining it and confirming it's clear is a genuine service shutdown. It takes far longer than two minutes.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_22_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Leaving the scoop in the ice or on the bar top risks contaminating it with bacteria or foreign objects between uses.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_22_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Contaminated ice must never serve another customer. Burning the well is immediate regardless of how busy the bar is.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -133,6 +133,6 @@ export const MODULE_22_QUESTIONS: Question[] = [
       { id: "d", text: "Refill with fresh ice" },
     ],
     explanation: "Glass shards in ice are invisible. Stop using the well at once, melt every cube with hot water, check it's clear, and only then refill it.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

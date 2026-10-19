@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-6-compliance-b.md.
+// Approved by the owner on 2026-10-19 (batch 6). Review copy:
+// docs/Rich Update/batch-6-compliance-b.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_25_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Written tickets can be missed in a rush. A direct verbal call to the chef closes the gap and creates a verbal confirmation loop.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_25_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Menu warnings are the starting point, not the endpoint. Staff must proactively confirm the allergy and alert the kitchen before placing the order.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_25_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Cross-contamination on a shared cutting board or pan is enough to cause a life-threatening reaction in a sensitised guest.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_25_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "The serving staff are the communication bridge between guest and kitchen. This responsibility cannot be delegated to the guest.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_25_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "The ticket is the kitchen's primary instruction document. Allergy data missing from the docket is allergy data at risk.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_25_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Every single order taken must prompt an allergy check from the server, regardless of group size.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_25_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "The level of sensitivity varies enormously between guests. Any declared intolerance must be treated with full allergy protocol.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -133,6 +133,6 @@ export const MODULE_25_QUESTIONS: Question[] = [
       { id: "d", text: "Serve the dish and confirm it's the allergy-safe one" },
     ],
     explanation: "Confirm the allergy, tell the chef and mark the docket, then double-check with the kitchen before the plate touches the table.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

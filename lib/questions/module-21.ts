@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-6-compliance-b.md.
+// Approved by the owner on 2026-10-19 (batch 6). Review copy:
+// docs/Rich Update/batch-6-compliance-b.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_21_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "This is the most important vocal command in the industry. A single unannounced pass can cause a tray drop or serious burn injury.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_21_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "The call is required any time you move through an occupied space — even empty-handed. Collisions can happen without a tray.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_21_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Blind corners are collision black spots in busy venues. \"Corner!\" gives oncoming traffic a split second to stop.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_21_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Turning sideways and tucking elbows in — the \"compressed walk\" — minimises your physical footprint in a packed venue.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_21_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Running causes collisions and spills. Walk fast with purpose and call ahead — \"Coming through!\" — to clear your path.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_21_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "This verbal signal tells both guests and staff to clear a path and is standard professional floor navigation.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_21_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Every seasoned professional uses these calls because collisions do not discriminate by experience. The habit is what keeps everyone safe.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -134,6 +134,6 @@ export const MODULE_21_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Physical contact without warning during a rush causes tray drops, spills, and injuries. The busier the venue, the more critical the call.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

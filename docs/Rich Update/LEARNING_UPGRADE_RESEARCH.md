@@ -259,7 +259,7 @@ There are 13 phases to launch, then 3 after marketing starts. Each phase goes ou
 - The two picture formats (which glass or garnish; spot the mistake in a photo) are built but stay switched off until Phase 9.
 - **Done when** a module can be mastered under the new rule on both desktop and mobile.
 
-### Phase 3. Writing and reviewing the questions
+### Phase 3. Writing and reviewing the questions (done 2026-10-19; record in `the-rich-update-10-26.md`)
 - The AI drafts 20 to 25 questions per module from that module's existing statements and explanations.
 - You review one category at a time (Bartending, Sales, Management), and each batch goes live once you've approved it.
 - Every question is tagged with its format and difficulty. Any question that needs a picture gets a short image brief, ready for Phase 9.

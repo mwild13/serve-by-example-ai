@@ -1,6 +1,8 @@
 # Batch 6: Compliance, part B
 
-47 questions in the new formats, all drafts. They are in the code (`lib/questions/`) but switched off until you approve them. Generated from the code by `scripts/question-review.mjs`, so this is exactly what staff will see.
+**Approved by the owner on 2026-10-19: all 47 questions, and every statement fix below.**
+
+47 questions in the new formats, in `lib/questions/`. Generated from the code by `scripts/question-review.mjs`, so this is exactly what staff will see.
 
 Every question is written only from the module's existing True/False statements (shown under each one), so it adds no new facts. The places to look hardest are the wrong options and the "best line" wording, which are new.
 
@@ -603,3 +605,7 @@ Explanation: Clean and restock first, finish with the floor so it isn't walked o
 - **Jigger Precision q7:** the best line offers to make it a double, charged as a double. That offer isn't in the statement, but most venues would want it.
 - **Jigger Precision q4** is a sum from the statement: 5 ml over on 200 drinks is 1 litre.
 - **The three put-in-order questions** (Ice Well Burn q8, Allergy Shield q8, The Clean Close q8) put the module's points into one sequence.
+
+## Decided on review (2026-10-19)
+
+All five fixes were made in `lib/verify-questions.ts`, as suggested above. The coffee machine statement is now about backflushing the group heads at close.

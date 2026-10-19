@@ -923,7 +923,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "A proper Burn Protocol can be completed in under two minutes.",
       answer: "false",
-      explanation: "Melting a full ice well, draining it, and confirming it is clear takes 15–20 minutes. It is a genuine service shutdown.",
+      explanation: "Melting a full ice well, draining it, and confirming it is clear takes a while, depending on the size of the well. Plan for a genuine service shutdown.",
     },
     {
       prompt: "The ice scoop must be returned to a clean holder after every single use.",
@@ -1285,12 +1285,12 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "The standard single spirit measure in an Australian venue is 30ml.",
       answer: "true",
-      explanation: "This is the legal standard. Venues that use a different measure must clearly display that fact to guests.",
+      explanation: "30ml is the standard measure in most Australian venues. Use your venue's jigger for every pour.",
     },
     {
       prompt: "Free-pouring spirits is just as accurate as using a jigger if you have experience.",
       answer: "false",
-      explanation: "Studies consistently show that even experienced free-pourers over-deliver by 5–10ml per drink, destroying the bar's gross profit margin.",
+      explanation: "Even experienced free-pourers drift over the measure, and a few millilitres a drink adds up fast, destroying the bar's gross profit margin.",
     },
     {
       prompt: "The meniscus is the slight curve of liquid at the top of a full jigger.",
@@ -1305,7 +1305,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Using a jigger protects the bartender from accusations of short-changing a guest.",
       answer: "true",
-      explanation: "A jigger is both a profit tool and a legal defence. If a guest claims they were under-poured, the jigger is the proof.",
+      explanation: "A jigger protects the venue's profit and protects you. If a guest says they were short-poured, a measured pour backs you up.",
     },
     {
       prompt: "The jigger is only required for cocktails, not for spirit-and-mixer drinks.",
@@ -1460,9 +1460,9 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
       explanation: "A clean, fully-stocked venue at close means the opening crew can begin service immediately without cleaning up the previous night first.",
     },
     {
-      prompt: "Draining the coffee machine completely overnight is unnecessary if it is used again the next morning.",
+      prompt: "Backflushing the group heads at close is unnecessary if the machine is used again the next morning.",
       answer: "false",
-      explanation: "Stale water left in the boiler overnight ruins the flavour of the first coffees and causes scale buildup in the heating element.",
+      explanation: "Coffee oils left in the group heads overnight turn rancid and make the first coffees of the morning bitter. Backflush and clean them at every close.",
     },
     {
       prompt: "The speed rail must be sanitized and wiped completely dry every single night.",
