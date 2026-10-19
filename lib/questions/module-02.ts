@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-1-bartending-a.md.
+// Approved by the owner on 2026-10-19 (batch 1). Review copy:
+// docs/Rich Update/batch-1-bartending-a.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_2_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Full-bodied reds like Shiraz should be served at room temperature, ideally between 16°C and 18°C.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -34,7 +34,7 @@ export const MODULE_2_QUESTIONS: Question[] = [
     answer: 18,
     tolerance: 0,
     explanation: "Full-bodied reds like Shiraz should be served at room temperature, ideally between 16°C and 18°C.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -50,7 +50,7 @@ export const MODULE_2_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "A standard venue pour is 150ml, which equates to roughly 1.4 to 1.6 standard drinks.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -66,7 +66,7 @@ export const MODULE_2_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Presenting the label allows the guest to confirm they are receiving the correct vintage and varietal they ordered.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -82,7 +82,7 @@ export const MODULE_2_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "A corked wine suffers from TCA taint, smelling like damp cardboard or a wet dog. It has nothing to do with pieces of cork.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -98,7 +98,7 @@ export const MODULE_2_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "A damp cardboard or wet dog smell is TCA taint: the wine is corked. Thank the guest and replace the bottle.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -114,7 +114,7 @@ export const MODULE_2_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Marlborough Sauvignon Blanc is a staple in Aussie venues, known for its high acidity and dry, passionfruit-forward profile.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -130,7 +130,7 @@ export const MODULE_2_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "A proper sparkling opening should be a silent 'hiss' to maintain carbonation and professionalism in the dining room.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -142,7 +142,7 @@ export const MODULE_2_QUESTIONS: Question[] = [
     answer: 5,
     tolerance: 0,
     explanation: "The global standard for a wine bottle is 750ml, yielding exactly five 150ml glasses.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q10",
@@ -158,7 +158,7 @@ export const MODULE_2_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "The global standard for a wine bottle is 750ml, yielding exactly five 150ml glasses.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q11",
@@ -170,7 +170,7 @@ export const MODULE_2_QUESTIONS: Question[] = [
     answer: 750,
     tolerance: 0,
     explanation: "The global standard for a wine bottle is 750ml, yielding exactly five 150ml glasses.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q12",
@@ -186,6 +186,6 @@ export const MODULE_2_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "The larger bowl exposes more surface area to oxygen, helping bold red wines open up and release aromatics.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

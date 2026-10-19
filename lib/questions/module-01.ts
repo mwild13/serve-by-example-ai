@@ -3,9 +3,8 @@
 // names the statement it comes from, so a wrong answer can come back as
 // another form of the same fact.
 //
-// q1 to q9 approved by the owner on 2026-10-19 (docs/Rich Update/
-// module-01-questions.md). q10 to q12 are drafts in batch 1
-// (docs/Rich Update/batch-1-bartending-a.md) until approved.
+// Approved by the owner on 2026-10-19: q1 to q9 in docs/Rich Update/
+// module-01-questions.md, q10 to q12 in batch-1-bartending-a.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -160,7 +159,7 @@ export const MODULE_1_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Dipping the nozzle spreads bacteria and violates health codes. The tap must never touch the glass or the beer.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q11",
@@ -176,7 +175,7 @@ export const MODULE_1_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Diacetyl buildup in uncleaned draught lines creates a distinct, unpleasant buttery flavour in the beer.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q12",
@@ -188,6 +187,6 @@ export const MODULE_1_QUESTIONS: Question[] = [
     answer: 45,
     tolerance: 0,
     explanation: "Starting the pour at a 45-degree angle allows the beer to flow down the side, controlling the head.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

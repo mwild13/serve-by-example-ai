@@ -2,8 +2,8 @@
 // the module's True/False statements (lib/verify-questions.ts). Each
 // `concept` names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-1-bartending-a.md.
+// Approved by the owner on 2026-10-19 (batch 1). Review copy:
+// docs/Rich Update/batch-1-bartending-a.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_7_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Hot glasses from the washer cause beer to instantly foam, ruining the pour and destroying the venue's keg yield.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_7_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "If a bartender has no base spirits, the entire bar grinds to a halt. The speed rail must remain stocked.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_7_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Full ice wells maintain thermal mass, keeping the ice colder for longer and preventing watery cocktails.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_7_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Full ice wells maintain thermal mass, keeping the ice colder for longer and preventing watery cocktails.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_7_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Removing a coupler under pressure can cause dangerous gas blowback or beer spray. Most Australian cellars run several kegs off one regulator, so lift the coupler handle to disengage it before you twist it off.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -101,7 +101,7 @@ export const MODULE_7_QUESTIONS: Question[] = [
       { id: "d", text: "Push the handle down to engage it" },
     ],
     explanation: "Disengage the coupler before you twist it off, or the pressure can cause gas blowback or beer spray. Engage it again only once it's on the full keg.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -117,7 +117,7 @@ export const MODULE_7_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "A bar back's job is to maintain the battlefield. Clearing dead glassware keeps the bar turning over fast.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -133,7 +133,7 @@ export const MODULE_7_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "This is First-In, First-Out (FIFO) stock rotation. It prevents fresh juice from spoiling and reduces venue wastage.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -149,7 +149,7 @@ export const MODULE_7_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Stacking wet glasses creates a vacuum seal, breaking the glass and trapping dirty moisture inside.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q10",
@@ -165,7 +165,7 @@ export const MODULE_7_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Stacking wet glasses creates a vacuum seal, breaking the glass and trapping dirty moisture inside.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q11",
@@ -181,6 +181,6 @@ export const MODULE_7_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "A quick 'behind you' or 'more ice coming' ensures the bartender doesn't step backwards into you during a rush.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

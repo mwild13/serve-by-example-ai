@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-1-bartending-a.md.
+// Approved by the owner on 2026-10-19 (batch 1). Review copy:
+// docs/Rich Update/batch-1-bartending-a.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_5_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Looking at the drinks throws off your balance. Keep your eyes up to navigate through patrons safely.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_5_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Keeping the heaviest items in the centre lowers the centre of gravity, making the tray much more stable.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -53,7 +53,7 @@ export const MODULE_5_QUESTIONS: Question[] = [
       { id: "d", text: "Unload evenly from the outside edges" },
     ],
     explanation: "Heavy glasses in the centre keep the tray stable, fingertips let you balance it, eyes up keeps you safe, and unloading evenly from the edges stops it tipping.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -69,7 +69,7 @@ export const MODULE_5_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Fingertips provide micro-adjustments for balance; carrying it flat on the palm makes it rigid and prone to tipping.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -85,7 +85,7 @@ export const MODULE_5_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Carrying by the rim is unhygienic and leaves fingerprints. Always carry stemmed glassware by the stem or base.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -101,7 +101,7 @@ export const MODULE_5_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Carrying by the rim is unhygienic and leaves fingerprints. Always carry stemmed glassware by the stem or base.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -117,7 +117,7 @@ export const MODULE_5_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Using two hands locks your upper body. Use your non-dominant hand to carry, leaving the other free to navigate doors.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -133,7 +133,7 @@ export const MODULE_5_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Using two hands locks your upper body. Use your non-dominant hand to carry, leaving the other free to navigate doors.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -149,7 +149,7 @@ export const MODULE_5_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Drinks trays are for beverages only. Mixing food scraps and glassware creates instability and hygiene cross-contamination.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q10",
@@ -165,7 +165,7 @@ export const MODULE_5_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "A free dominant hand protects the tray from sudden bumps and allows you to move chairs in the dining room.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q11",
@@ -181,6 +181,6 @@ export const MODULE_5_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "You must unload from the outside edges evenly to maintain the weight distribution and prevent the tray from catapulting.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-1-bartending-a.md.
+// Approved by the owner on 2026-10-19 (batch 1). Review copy:
+// docs/Rich Update/batch-1-bartending-a.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -18,7 +18,7 @@ export const MODULE_4_QUESTIONS: Question[] = [
     answer: 65,
     tolerance: 0,
     explanation: "Milk burns and loses its natural sweetness above 65°C. Boiling it ruins the coffee entirely.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -34,7 +34,7 @@ export const MODULE_4_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "This extraction window ensures the coffee oils are balanced, preventing the shot from becoming sour or bitter.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -46,7 +46,7 @@ export const MODULE_4_QUESTIONS: Question[] = [
     answer: 30,
     tolerance: 0,
     explanation: "A single shot takes about 25 to 30 seconds. This window keeps the coffee oils balanced, so the shot isn't sour or bitter.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -62,7 +62,7 @@ export const MODULE_4_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "A traditional Aussie macchiato is a single or double shot simply 'stained' with a dash of textured milk.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -76,7 +76,7 @@ export const MODULE_4_QUESTIONS: Question[] = [
       { id: "c", text: "Purge the wand again to blow out the milk left inside" },
     ],
     explanation: "Purging clears condensation before steaming and blows out trapped milk residue afterward for hygiene.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -92,7 +92,7 @@ export const MODULE_4_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Purging clears condensation before steaming and blows out trapped milk residue afterward for hygiene.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -108,7 +108,7 @@ export const MODULE_4_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Darker roasts tend to be more bitter and robust; lighter roasts generally retain more natural sweetness and acidity.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -124,7 +124,7 @@ export const MODULE_4_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "A cappuccino is defined by its thick, dense layer of foam and chocolate dusting, unlike the micro-foam of a flat white.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -140,7 +140,7 @@ export const MODULE_4_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "A cappuccino is defined by its thick, dense layer of foam and chocolate dusting, unlike the micro-foam of a flat white.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q10",
@@ -156,7 +156,7 @@ export const MODULE_4_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Alternative milks have lower fat and protein contents, requiring gentler aeration and lower temperatures to prevent splitting.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q11",
@@ -172,7 +172,7 @@ export const MODULE_4_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Milk burns and loses its natural sweetness above 65°C. Boiling it ruins the coffee entirely.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q12",
@@ -188,6 +188,6 @@ export const MODULE_4_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Flushing cleans old grounds and oils from the shower screen, preventing a burnt taste in the next coffee.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

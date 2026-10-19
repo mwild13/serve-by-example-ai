@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-1-bartending-a.md.
+// Approved by the owner on 2026-10-19 (batch 1). Review copy:
+// docs/Rich Update/batch-1-bartending-a.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_6_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Money is incredibly dirty. Handwashing prevents cross-contamination before you handle garnishes or fresh glassware.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_6_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Chemical spray drifts instantly. This poisons the ice and forces a mandatory melting and cleaning of the entire well.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_6_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Chemical spray drifts instantly. This poisons the ice and forces a mandatory melting and cleaning of the entire well.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_6_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Glass in ice is invisible. The only safe WHS protocol is pouring hot water to melt the entire batch.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -85,7 +85,7 @@ export const MODULE_6_QUESTIONS: Question[] = [
       { id: "d", text: "Refill it with fresh ice" },
     ],
     explanation: "Glass in ice is invisible. The only safe WHS protocol is pouring hot water to melt the entire batch, then cleaning the well before it's refilled.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -101,7 +101,7 @@ export const MODULE_6_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "This is a massive health code violation. Bathroom equipment must be colour-coded and strictly separated from food/beverage areas.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -117,7 +117,7 @@ export const MODULE_6_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Slips are the number one venue injury. The hazard must be visibly marked the second it occurs.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -133,7 +133,7 @@ export const MODULE_6_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Warm water removes visible dirt, but food-grade chemical sanitizer is legally required to kill bacteria.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -149,7 +149,7 @@ export const MODULE_6_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Warm water removes visible dirt, but food-grade chemical sanitizer is legally required to kill bacteria.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q10",
@@ -165,7 +165,7 @@ export const MODULE_6_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Old beer turns into thick sludge that blocks drains and attracts fruit flies. Hot water dissolves the buildup.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q11",
@@ -181,6 +181,6 @@ export const MODULE_6_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Damp, warm cloths are perfect breeding grounds for bacteria. Towels must be rotated to the laundry frequently.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

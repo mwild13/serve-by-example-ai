@@ -2,8 +2,8 @@
 // the module's True/False statements (lib/verify-questions.ts). Each
 // `concept` names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-1-bartending-a.md.
+// Approved by the owner on 2026-10-19 (batch 1). Review copy:
+// docs/Rich Update/batch-1-bartending-a.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -18,7 +18,7 @@ export const MODULE_3_QUESTIONS: Question[] = [
     answer: 30,
     tolerance: 0,
     explanation: "The standard measured jigger pour across Australian bars is 30ml for a base spirit.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -34,7 +34,7 @@ export const MODULE_3_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Stirring a Martini ensures it remains crystal clear and prevents harsh ice dilution and air bubbles.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -50,7 +50,7 @@ export const MODULE_3_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "This 1:1 ratio is the fundamental sweetener used to balance acidity in almost all classic cocktails.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -62,7 +62,7 @@ export const MODULE_3_QUESTIONS: Question[] = [
     answer: 1,
     tolerance: 0,
     explanation: "This 1:1 ratio is the fundamental sweetener used to balance acidity in almost all classic cocktails.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -78,7 +78,7 @@ export const MODULE_3_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Crushing the mint stems releases chlorophyll, which introduces a harsh, bitter flavour to the drink.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -94,7 +94,7 @@ export const MODULE_3_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "The oils from hot espresso interact with the shaking process to create the cocktail's signature thick crema.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -110,7 +110,7 @@ export const MODULE_3_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "The oils from hot espresso interact with the shaking process to create the cocktail's signature thick crema.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -126,7 +126,7 @@ export const MODULE_3_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Scooping with glassware is a massive WHS risk; a chip will result in burning the entire ice well.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -142,7 +142,7 @@ export const MODULE_3_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Scooping with glassware is a massive WHS risk; a chip will result in burning the entire ice well.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q10",
@@ -158,7 +158,7 @@ export const MODULE_3_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "This classic Italian aperitif is built using equal parts of these three specific ingredients.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q11",
@@ -173,7 +173,7 @@ export const MODULE_3_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "A Negroni is equal parts gin, Campari and sweet vermouth, so all three are the same measure.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q12",
@@ -189,6 +189,6 @@ export const MODULE_3_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Glassware dictates the drink's profile; coupes, rocks, and highballs all serve entirely different functional purposes.",
-    reviewed: false,
+    reviewed: true,
   },
 ];
