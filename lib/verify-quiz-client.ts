@@ -34,7 +34,13 @@ export type QuizAnswer = string | string[] | number;
 export type QuizCorrectAnswer = string | string[] | number;
 
 /** What it takes to master the module in this run. */
-export type QuizGoal = { correct: number; formats: number; maxMisses: number };
+export type QuizGoal = {
+  correct: number;
+  formats: number;
+  maxMisses: number;
+  /** A short, hard run that masters the module straight away. */
+  testOut?: boolean;
+};
 
 export type QuizProgress = {
   correct: number;
@@ -65,6 +71,10 @@ export type VerifyAnswerResult = {
 
 /** "Get 6 right across 3 question types to master this module." */
 export function quizGoalText(goal: QuizGoal): string {
+  if (goal.testOut) {
+    const misses = goal.maxMisses - 1;
+    return `Test out: get ${goal.correct} right${goal.formats > 1 ? ` across ${goal.formats} question types` : ""}, with ${misses === 1 ? "1 miss" : `${misses} misses`} allowed.`;
+  }
   return goal.formats > 1
     ? `Get ${goal.correct} right across ${goal.formats} question types to master this module.`
     : `Get ${goal.correct} right to master this module.`;
@@ -90,8 +100,8 @@ async function post<T>(url: string, token: string, body: unknown): Promise<T> {
   return data;
 }
 
-export function startVerifyQuiz(token: string, moduleId: number): Promise<VerifyQuizStart> {
-  return post<VerifyQuizStart>("/api/training/verify/start", token, { moduleId });
+export function startVerifyQuiz(token: string, moduleId: number, testOut = false): Promise<VerifyQuizStart> {
+  return post<VerifyQuizStart>("/api/training/verify/start", token, testOut ? { moduleId, mode: "test_out" } : { moduleId });
 }
 
 export function submitVerifyAnswer(

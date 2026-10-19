@@ -7,12 +7,15 @@ import {
   eliteThreshold,
   goalFor,
   gradeAnswer,
+  TEST_OUT_CORRECT,
   planRun,
+  planTestOut,
   questionView,
   type RunState,
 } from "./verify-quiz";
 import { isLive, liveQuestions, moduleQuestions, type ChoiceQuestion, type NumberQuestion, type Question } from "./question-bank";
 import { VERIFY_QUESTIONS } from "./verify-questions";
+import { knowsArea } from "./diagnostic-engine";
 
 /** Repeatable "random" numbers for tests. */
 function seeded(seed: number): () => number {
@@ -271,5 +274,71 @@ describe("eliteThreshold", () => {
 
   it("never drops below one module", () => {
     expect(eliteThreshold(0)).toBe(1);
+  });
+});
+
+describe("test-out", () => {
+  /** Eight statements plus ten harder questions on different facts. */
+  const testOutBank: Question[] = [
+    ...Array.from({ length: 8 }, (_, i) => tf(i)),
+    mc("q1", "s0", 3), mc("q2", "s1", 1), num("q3", "s2"), order("q4", "s3"), mc("q5", "s4", 2),
+    mc("q6", "s5", 2), mc("q7", "s6", 1), mc("q8", "s7", 2), num("q9", "s0"), order("q10", "s1"),
+  ];
+
+  it("plans a test-out for every module, with no True/False", () => {
+    for (const moduleId of Object.keys(VERIFY_QUESTIONS).map(Number)) {
+      const bank = liveQuestions(moduleId);
+      const run = planTestOut(bank, seeded(moduleId));
+      expect(run, `module ${moduleId}`).not.toBeNull();
+      const asked = run!.queue.map((id) => byId(bank, id));
+      expect(asked.some((q) => q.format === "true_false"), `module ${moduleId}`).toBe(false);
+      expect(asked.length, `module ${moduleId}`).toBeGreaterThan(TEST_OUT_CORRECT);
+      expect(asked.length, `module ${moduleId}`).toBeLessThanOrEqual(8);
+      expect(new Set(asked.map((q) => q.format)).size, `module ${moduleId}`).toBeGreaterThanOrEqual(run!.goal.formats);
+      expect(run!.goal.testOut).toBe(true);
+    }
+  });
+
+  it("asks the hardest questions first", () => {
+    const run = planTestOut(testOutBank, seeded(3))!;
+    const levels = run.queue.map((id) => byId(testOutBank, id).difficulty);
+    expect([...levels].sort((a, b) => b - a)).toEqual(levels);
+  });
+
+  it("passes on six right with one miss, and brings nothing back", () => {
+    const start = planTestOut(testOutBank, seeded(5))!;
+    const result = play(testOutBank, start, (position) => position !== 0);
+    expect(result.status).toBe("passed");
+    expect(result.asked).toBe(7);
+    expect(result.state.owed).toEqual([]);
+    expect(result.state.queue).toEqual(start.queue);
+  });
+
+  it("ends on the second miss", () => {
+    const start = planTestOut(testOutBank, seeded(7))!;
+    const result = play(testOutBank, start, (position) => position > 1);
+    expect(result.status).toBe("exhausted");
+    expect(result.asked).toBe(2);
+  });
+
+  it("refuses a module without enough harder questions", () => {
+    const thin = [...Array.from({ length: 8 }, (_, i) => tf(i)), mc("q1", "s0"), mc("q2", "s1")];
+    expect(planTestOut(thin)).toBeNull();
+  });
+});
+
+describe("starting difficulty from the skill check", () => {
+  it("puts harder questions first when the person knows the area", () => {
+    const run = planRun(mixedBank, seeded(11), { hardFirst: true })!;
+    const levels = run.queue.map((id) => byId(mixedBank, id).difficulty);
+    expect([...levels].sort((a, b) => b - a)).toEqual(levels);
+  });
+
+  it("counts only full marks in the module's own category", () => {
+    expect(knowsArea({ technical: 100, service: 50 }, 1)).toBe(true);
+    expect(knowsArea({ technical: 100, service: 50 }, 8)).toBe(false);
+    expect(knowsArea({ compliance: 100 }, 35)).toBe(true);
+    expect(knowsArea({ technical: 1500 }, 1)).toBe(false);
+    expect(knowsArea(null, 1)).toBe(false);
   });
 });

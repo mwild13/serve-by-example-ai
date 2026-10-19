@@ -6,12 +6,14 @@ import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { getCookieValue } from "@/lib/training-attempt";
 import { readJsonBody } from "@/lib/ai-guard";
 import { findQuestion, liveQuestions } from "@/lib/question-bank";
+import { knowsArea } from "@/lib/diagnostic-engine";
 import {
   MAX_STARTS_PER_WINDOW,
   START_WINDOW_MINUTES,
   VERIFY_ATTEMPT_TTL_MINUTES,
   logVerifyRejection,
   planRun,
+  planTestOut,
   progressOf,
   questionView,
 } from "@/lib/verify-quiz";
@@ -20,7 +22,7 @@ const MAX_BODY_BYTES = 1024;
 
 /**
  * Starts a quiz run for one module and returns its first question, without
- * the answer. Each answer is graded by /api/training/verify/answer, which
+ * the answer. `mode: "test_out"` starts a test-out instead of a normal run. Each answer is graded by /api/training/verify/answer, which
  * sends the next question. See lib/verify-quiz.ts.
  */
 export async function POST(req: Request) {
@@ -43,7 +45,26 @@ export async function POST(req: Request) {
     if (!Number.isInteger(moduleId) || moduleId < 1 || moduleId > 100) {
       return NextResponse.json({ error: "Invalid module.", code: "INVALID_MODULE" }, { status: 400 });
     }
-    const run = planRun(liveQuestions(moduleId));
+    const mode = read.body.mode;
+    if (mode !== undefined && mode !== "test_out") {
+      return NextResponse.json({ error: "Invalid mode.", code: "INVALID_MODE" }, { status: 400 });
+    }
+    const testOut = mode === "test_out";
+
+    const admin = createSupabaseAdminClient();
+    let hardFirst = false;
+    if (!testOut) {
+      // The placement check: full marks in this module's area starts the run on harder questions.
+      const { data: baseline } = await admin
+        .from("module_elo_baseline")
+        .select("category_scores")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      hardFirst = knowsArea(baseline?.category_scores as Record<string, number> | null, moduleId);
+    }
+
+    const questions = liveQuestions(moduleId);
+    const run = testOut ? planTestOut(questions) : planRun(questions, undefined, { hardFirst });
     const first = run ? findQuestion(moduleId, run.queue[0]) : null;
     if (!run || !first) {
       return NextResponse.json(
@@ -51,8 +72,6 @@ export async function POST(req: Request) {
         { status: 404 },
       );
     }
-
-    const admin = createSupabaseAdminClient();
     const browserSessionId = getCookieValue(req, "sbe_session_id");
     if (!browserSessionId) {
       return NextResponse.json({ error: "Missing active session. Please sign in again.", code: "SESSION_REQUIRED" }, { status: 401 });

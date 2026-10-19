@@ -160,3 +160,13 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
   - Cards batch 6, Compliance B (21, 22, 24, 25, 31, 35): 30 cards, `cards-batch-6-compliance-b.md`. Approved and live.
 - **Pictures:** none yet. Each card can take one in Phase 9.
 - **Result:** 212 cards across all 40 modules (4 to 6 each), all approved by the owner and live. A test checks every module keeps at least 4 approved cards.
+
+## Phase 5: Skill check and test-out (built 2026-10-19)
+
+- **Test-out for every module.** "Know this already? Test out" sits under the Learn cards on desktop and mobile. It's up to 8 questions, no True/False, hardest first, across at least 3 question types where the module has them. 6 right passes and masters the module; the 2nd miss ends it, with "Take the full quiz" to carry on. A test checks every module can run one.
+- **The skill check now sets the starting difficulty.** It's the existing 6-question check (2 per area). Full marks in an area (Bartending, Service or Compliance) starts that area's quizzes on the harder questions. The pass rule is unchanged. Before this, the score only reordered recommendations.
+- **More people can reach it.** Only 6 of 87 accounts had ever taken it: it showed only as a required pop-up on desktop for venue plans, and mobile had no way in. The mobile Learn hub now shows "Skip what you already know" until it's done. The desktop pop-up is unchanged.
+- **Category map:** the check used to know categories for modules 1 to 20 only. All 40 now match the `modules` table.
+- **Left for later:** managers seeing each new hire's skill check score (To_do_list.md), and the check's own six questions, which still live in the `diagnostic_questions` table rather than the reviewed question bank.
+- **Done when** an experienced bartender can clear the basics in one evening: the 14 Bartending test-outs take about 2 to 3 minutes each. For the owner to check.
+

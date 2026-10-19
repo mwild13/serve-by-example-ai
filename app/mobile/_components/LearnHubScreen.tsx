@@ -7,6 +7,7 @@ import { Search } from "lucide-react";
 import BottomNav from "./BottomNav";
 import MobileScreenShell from "./MobileScreenShell";
 import { useTrainingProgress } from "../_lib/use-training-progress";
+import { useMobileSession } from "../_lib/mobile-session-context";
 import CoreKnowledgeSection from "./learn/CoreKnowledgeSection";
 import PracticeScenariosSection from "./learn/PracticeScenariosSection";
 import CategorySimulationsSection from "./learn/CategorySimulationsSection";
@@ -71,6 +72,7 @@ function StatusMessage({ children }: { children: React.ReactNode }) {
 
 export default function LearnHubScreen() {
   const { status, data, error, refetch } = useTrainingProgress();
+  const { skillCheckDone } = useMobileSession();
 
   // Phase 1d fix (mobile bug-fix plan): the search bar used to be a
   // decorative `readOnly` input wired to nothing. It now filters the module
@@ -257,6 +259,8 @@ export default function LearnHubScreen() {
           ))}
         </div>
 
+        {!skillCheckDone && <SkillCheckPrompt />}
+
         <div ref={modulesRef}>
           <CoreKnowledgeSection data={data} search={debouncedSearch} />
         </div>
@@ -278,5 +282,49 @@ export default function LearnHubScreen() {
 
       <BottomNav active="learn" fixed />
     </MobileScreenShell>
+  );
+}
+
+// Rich update, Phase 5: until the skill check is done, offer it above the
+// modules. Full marks in an area starts that area's quizzes on harder
+// questions (lib/diagnostic-engine.ts knowsArea).
+function SkillCheckPrompt() {
+  return (
+    <div style={{ padding: "0 20px 16px" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 8,
+          padding: 16,
+          borderRadius: "var(--radius-lg)",
+          background: "var(--surface-mobile)",
+          border: "1px solid var(--border-mobile)",
+        }}
+      >
+        <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--text-mobile)" }}>Skip what you already know</p>
+        <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5, color: "var(--text-mobile-muted)" }}>
+          Take the 2-minute skill check. Areas you know start on harder questions, and any module can be mastered
+          straight away with its test-out.
+        </p>
+        <Link
+          href="/mobile/onboarding"
+          style={{
+            alignSelf: "flex-start",
+            marginTop: 4,
+            padding: "10px 18px",
+            borderRadius: "var(--radius-pill)",
+            background: "var(--gold-mobile)",
+            color: "var(--bg-mobile-dark)",
+            fontFamily: "var(--font-body)",
+            fontSize: 14,
+            fontWeight: 700,
+            textDecoration: "none",
+          }}
+        >
+          Start the skill check
+        </Link>
+      </div>
+    </div>
   );
 }

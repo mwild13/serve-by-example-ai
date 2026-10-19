@@ -271,7 +271,7 @@ There are 13 phases to launch, then 3 after marketing starts. Each phase goes ou
 - Each card leaves space for an image, and works without one until Phase 9.
 - **Done when** every module opens with its cards on desktop and mobile.
 
-### Phase 5. Skill check and test-out
+### Phase 5. Skill check and test-out (built 2026-10-19; record in `the-rich-update-10-26.md`)
 - A placement check of 5 to 8 questions sets each person's starting difficulty.
 - A short, hard test-out quiz for every module.
 - **Done when** an experienced bartender can clear the basics in one evening.

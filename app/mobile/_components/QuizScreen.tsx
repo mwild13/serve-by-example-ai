@@ -70,6 +70,8 @@ export default function QuizScreen() {
   // remounting this screen, so cards for the old module must not count.
   const [cardSet, setCardSet] = useState<{ moduleId: number; cards: LearnCard[] } | null>(null);
   const [cardsDoneFor, setCardsDoneFor] = useState<number | null>(null);
+  // A test-out: a short, hard run that masters the module straight away.
+  const [testOut, setTestOut] = useState(false);
   const cards = cardSet?.moduleId === moduleId ? cardSet.cards : null;
   const showCards = cards !== null && cards.length > 0 && cardsDoneFor !== moduleId;
   // The run only starts once the cards are done, so it can't expire while they're read.
@@ -92,7 +94,7 @@ export default function QuizScreen() {
     let cancelled = false;
     async function begin() {
       try {
-        const started = await startVerifyQuiz(session.token, moduleId);
+        const started = await startVerifyQuiz(session.token, moduleId, testOut);
         if (cancelled) return;
         setQuiz(started);
         setStatus("playing");
@@ -106,16 +108,24 @@ export default function QuizScreen() {
     return () => {
       cancelled = true;
     };
-  }, [session.token, moduleId, runKey, quizReady]);
+  }, [session.token, moduleId, runKey, quizReady, testOut]);
 
   function restart() {
     setStatus("loading");
     setError(null);
+    setTestOut(false);
     setRunKey((k) => k + 1);
   }
 
   function finishCards() {
     setStatus("loading");
+    setTestOut(false);
+    setCardsDoneFor(moduleId);
+  }
+
+  function startTestOut() {
+    setStatus("loading");
+    setTestOut(true);
     setCardsDoneFor(moduleId);
   }
 
@@ -158,7 +168,7 @@ export default function QuizScreen() {
             <p style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "var(--text-mobile)" }}>{moduleTitle}</p>
             <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>Read these first. The quiz is on the same rules.</p>
           </div>
-          <LearnCards cards={cards} onDone={finishCards} theme="dark" />
+          <LearnCards cards={cards} onDone={finishCards} onTestOut={startTestOut} theme="dark" />
         </div>
         <BottomNav active="learn" />
       </MobileScreenShell>
@@ -181,7 +191,9 @@ export default function QuizScreen() {
       <MobileScreenShell style={shellStyle}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center", justifyContent: "center", minHeight: "60dvh", padding: 20, textAlign: "center" }}>
           <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>{status === "exhausted"
-              ? "Not this time. Each run asks different questions, so have another go."
+              ? testOut
+                ? "Not this time. Take the full quiz instead: it's a little longer and gives you more room."
+                : "Not this time. Each run asks different questions, so have another go."
               : (error ?? "Something went wrong.")}
           </p>
           <button
@@ -198,12 +210,15 @@ export default function QuizScreen() {
               cursor: "pointer",
             }}
           >
-            Try again
+            {status === "exhausted" && testOut ? "Take the full quiz" : "Try again"}
           </button>
           {status === "exhausted" && cards && cards.length > 0 && (
             <button
               type="button"
-              onClick={() => setCardsDoneFor(null)}
+              onClick={() => {
+                setTestOut(false);
+                setCardsDoneFor(null);
+              }}
               style={{
                 background: "none",
                 border: "none",

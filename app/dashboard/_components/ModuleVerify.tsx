@@ -89,6 +89,8 @@ export default function ModuleVerify({ moduleId, onArena, onComplete, nextModule
   // null until loaded. A module with no cards goes straight to the quiz.
   const [cards, setCards] = useState<LearnCard[] | null>(null);
   const [readingCards, setReadingCards] = useState(true);
+  // A test-out: a short, hard run that masters the module straight away.
+  const [testOut, setTestOut] = useState(false);
   const showCards = cards !== null && cards.length > 0 && readingCards;
   // The run only starts once the cards are done, so it can't expire while they're read.
   const quizReady = cards !== null && !showCards;
@@ -110,7 +112,7 @@ export default function ModuleVerify({ moduleId, onArena, onComplete, nextModule
     let cancelled = false;
     async function begin() {
       try {
-        const started = await startVerifyQuiz(await accessToken(), moduleId);
+        const started = await startVerifyQuiz(await accessToken(), moduleId, testOut);
         if (cancelled) return;
         setQuiz(started);
         setStatus("ready");
@@ -124,18 +126,26 @@ export default function ModuleVerify({ moduleId, onArena, onComplete, nextModule
     return () => {
       cancelled = true;
     };
-  }, [moduleId, runKey, quizReady]);
+  }, [moduleId, runKey, quizReady, testOut]);
 
   function restart() {
     setStatus("loading");
     setError(null);
+    setTestOut(false);
     setRunKey((k) => k + 1);
   }
 
   function readCardsAgain() {
     setStatus("loading");
     setError(null);
+    setTestOut(false);
     setReadingCards(true);
+  }
+
+  function startTestOut() {
+    setStatus("loading");
+    setTestOut(true);
+    setReadingCards(false);
   }
 
   const handleAnswer = useCallback(
@@ -162,7 +172,7 @@ export default function ModuleVerify({ moduleId, onArena, onComplete, nextModule
           <h2 style={{ marginBottom: 8 }}>{moduleTitle}</h2>
           <p className="stage-subtitle">Read these first. The quiz is on the same rules.</p>
         </div>
-        <LearnCards cards={cards} onDone={() => setReadingCards(false)} theme="light" />
+        <LearnCards cards={cards} onDone={() => setReadingCards(false)} onTestOut={startTestOut} theme="light" />
       </div>
     );
   }
@@ -238,10 +248,12 @@ export default function ModuleVerify({ moduleId, onArena, onComplete, nextModule
         <div style={{ padding: "48px 24px", textAlign: "center" }}>
           <h2 style={{ marginBottom: 8 }}>{moduleTitle}</h2>
           <p style={{ marginBottom: 16 }}>
-            Not this time. Each run asks different questions, so have another go.
+            {testOut
+              ? "Not this time. Take the full quiz instead: it's a little longer and gives you more room."
+              : "Not this time. Each run asks different questions, so have another go."}
           </p>
           <button className="btn btn-primary" onClick={restart}>
-            Start a new run
+            {testOut ? "Take the full quiz" : "Start a new run"}
           </button>
           {cards && cards.length > 0 && (
             <button className="btn btn-secondary" onClick={readCardsAgain} style={{ marginLeft: 8 }}>

@@ -12,13 +12,15 @@ type Props = {
   cards: LearnCard[];
   /** Called from the last card, or from "Skip to quiz". */
   onDone: () => void;
+  /** Starts a test-out instead. Offered on every card when set. */
+  onTestOut?: () => void;
   theme: "light" | "dark";
 };
 
 /** How far a finger has to travel sideways to count as a swipe. */
 const SWIPE_PX = 50;
 
-export default function LearnCards({ cards, onDone, theme }: Props) {
+export default function LearnCards({ cards, onDone, onTestOut, theme }: Props) {
   const [index, setIndex] = useState(0);
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
   const card = cards[index];
@@ -107,6 +109,15 @@ export default function LearnCards({ cards, onDone, theme }: Props) {
           {last ? "Start the quiz" : "Next"}
         </button>
       </div>
+
+      {onTestOut && (
+        <p className="lc-testout">
+          Know this already?{" "}
+          <button type="button" className="lc-testout-link" onClick={onTestOut}>
+            Test out
+          </button>
+        </p>
+      )}
     </div>
   );
 }

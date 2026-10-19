@@ -14,6 +14,12 @@
  * wrong one comes back REQUEUE_GAP questions later as a variant of the same
  * fact, when the bank has one. MAX_MISSES wrong answers end the run.
  *
+ * A test-out (Rich update, Phase 5) is a short, hard run for people who
+ * already know a module: no True/False, harder questions first, and
+ * TEST_OUT_CORRECT right with fewer than TEST_OUT_MAX_MISSES wrong. A miss
+ * brings nothing back; the run just has less room. Passing masters the
+ * module, exactly like a normal run.
+ *
  * Runs expire after VERIFY_ATTEMPT_TTL_MINUTES (server clock only), and each
  * answer is accepted once, at the position the server expects.
  */
@@ -45,6 +51,12 @@ const RUN_LENGTH = 12;
 const MIN_CONCEPTS = 5;
 /** Questions between a wrong answer and its variant coming back. */
 const REQUEUE_GAP = 2;
+/** A test-out asks this many questions at most. */
+const TEST_OUT_LENGTH = 8;
+/** Right answers a test-out needs. */
+export const TEST_OUT_CORRECT = 6;
+/** A test-out ends on this many wrong answers, so it allows one. */
+const TEST_OUT_MAX_MISSES = 2;
 
 /** Stored in verify_attempts.run_state. */
 export type RunState = {
@@ -89,14 +101,10 @@ export function goalFor(questions: Question[]): QuizGoal | null {
 }
 
 /**
- * Plans one run: one question per fact, so a fact is asked once unless it's
- * missed. The first picks cover as many formats as the goal needs; the rest
- * are random. Easier questions come first, shuffled within each difficulty.
+ * Picks up to `length` questions: one in each format first, then one per
+ * fact. With `fill`, unused variants top the run up once every fact is in.
  */
-export function planRun(questions: Question[], random: Random = secureRandom): RunState | null {
-  const goal = goalFor(questions);
-  if (!goal) return null;
-
+function pickSpread(questions: Question[], length: number, fill: boolean, random: Random): Question[] {
   const byConcept = new Map<string, Question[]>();
   for (const q of shuffle(questions, random)) {
     byConcept.set(q.concept, [...(byConcept.get(q.concept) ?? []), q]);
@@ -116,17 +124,63 @@ export function planRun(questions: Question[], random: Random = secureRandom): R
     if (q) pick(q);
   }
   for (const [concept, variants] of byConcept) {
-    if (picked.length >= RUN_LENGTH) break;
+    if (picked.length >= length) break;
     if (!usedConcepts.has(concept)) pick(variants[0]);
   }
+  if (fill) {
+    const taken = new Set(picked.map((q) => q.id));
+    for (const q of [...byConcept.values()].flat()) {
+      if (picked.length >= length) break;
+      if (!taken.has(q.id)) pick(q);
+    }
+  }
+  return picked.slice(0, length);
+}
 
-  const ordered = picked
-    .slice(0, RUN_LENGTH)
+/** Question ids by difficulty, shuffled within each level. */
+function byDifficulty(picked: Question[], hardFirst: boolean, random: Random): string[] {
+  const sign = hardFirst ? -1 : 1;
+  return picked
     .map((q) => ({ q, tiebreak: random() }))
-    .sort((a, b) => a.q.difficulty - b.q.difficulty || a.tiebreak - b.tiebreak)
+    .sort((a, b) => sign * (a.q.difficulty - b.q.difficulty) || a.tiebreak - b.tiebreak)
     .map(({ q }) => q.id);
+}
 
-  return { queue: ordered, correct: 0, misses: 0, formats: [], owed: [], goal };
+/**
+ * Plans one run: one question per fact, so a fact is asked once unless it's
+ * missed. The first picks cover as many formats as the goal needs; the rest
+ * are random. Easier questions come first, shuffled within each difficulty,
+ * unless the skill check showed the person knows this area (`hardFirst`).
+ */
+export function planRun(
+  questions: Question[],
+  random: Random = secureRandom,
+  options: { hardFirst?: boolean } = {},
+): RunState | null {
+  const goal = goalFor(questions);
+  if (!goal) return null;
+  const queue = byDifficulty(pickSpread(questions, RUN_LENGTH, false, random), options.hardFirst === true, random);
+  return { queue, correct: 0, misses: 0, formats: [], owed: [], goal };
+}
+
+/**
+ * Plans a test-out: no True/False, as many different facts and formats as
+ * TEST_OUT_LENGTH allows, hardest first. Null when the module doesn't have
+ * enough other questions.
+ */
+export function planTestOut(questions: Question[], random: Random = secureRandom): RunState | null {
+  if (!goalFor(questions)) return null;
+  const pool = questions.filter((q) => q.format !== "true_false");
+  const picked = pickSpread(pool, TEST_OUT_LENGTH, true, random);
+  // Room for the one allowed miss.
+  if (picked.length < TEST_OUT_CORRECT + 1) return null;
+  const goal: QuizGoal = {
+    correct: TEST_OUT_CORRECT,
+    formats: Math.min(PASS_FORMATS, new Set(picked.map((q) => q.format)).size),
+    maxMisses: TEST_OUT_MAX_MISSES,
+    testOut: true,
+  };
+  return { queue: byDifficulty(picked, true, random), correct: 0, misses: 0, formats: [], owed: [], goal };
 }
 
 function isPassed(state: RunState): boolean {
@@ -151,6 +205,8 @@ export function advanceRun(
     next.correct += 1;
     if (!next.formats.includes(question.format)) next.formats.push(question.format);
     next.owed = next.owed.filter((c) => c !== question.concept);
+  } else if (state.goal.testOut) {
+    next.misses += 1;
   } else {
     next.misses += 1;
     const queued = new Set(next.queue);

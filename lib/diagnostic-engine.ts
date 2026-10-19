@@ -58,7 +58,44 @@ const MODULE_CATEGORY_MAP: Record<number, string> = {
   18: "compliance", // Evacuation
   19: "compliance", // Opening/Closing
   20: "compliance", // Inventory & Waste
+
+  // Modules 21-40, matching the modules table's category column
+  21: "compliance",
+  22: "compliance",
+  23: "service",
+  24: "compliance",
+  25: "compliance",
+  26: "technical",
+  27: "technical",
+  28: "technical",
+  29: "service",
+  30: "service",
+  31: "compliance",
+  32: "technical",
+  33: "technical",
+  34: "technical",
+  35: "compliance",
+  36: "service",
+  37: "service",
+  38: "service",
+  39: "technical",
+  40: "service",
 };
+
+/** A module's placement category: "technical", "service" or "compliance". */
+function moduleCategory(moduleId: number): string | undefined {
+  return MODULE_CATEGORY_MAP[moduleId];
+}
+
+/**
+ * True when the placement check showed the person knows this module's area
+ * (full marks in its category), so their runs start on the harder questions.
+ * Only scores on the 0-100 scale count; old Elo-scale rows never match.
+ */
+export function knowsArea(categoryScores: Record<string, number> | null | undefined, moduleId: number): boolean {
+  const category = moduleCategory(moduleId);
+  return category !== undefined && categoryScores?.[category] === 100;
+}
 
 /**
  * Diagnostic Question Answers (hardcoded for mapping)

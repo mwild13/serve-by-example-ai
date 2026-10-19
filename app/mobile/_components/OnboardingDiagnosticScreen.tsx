@@ -122,7 +122,7 @@ export default function OnboardingDiagnosticScreen() {
         <StatusMessage>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
             <Loader2 size={24} className="mobile-spin" color="var(--gold-mobile)" aria-hidden="true" />
-            <span>Loading your placement check…</span>
+            <span>Loading your skill check…</span>
           </div>
         </StatusMessage>
       </MobileScreenShell>
@@ -169,7 +169,8 @@ export default function OnboardingDiagnosticScreen() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || "Failed to submit diagnostic assessment");
-      router.push("/mobile/home");
+      session.markSkillCheckDone();
+      router.push("/mobile/learn");
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "Submission failed. Please try again.");
       setSubmitting(false);
@@ -185,7 +186,7 @@ export default function OnboardingDiagnosticScreen() {
             <div style={{ width: `${progressPct}%`, height: "100%", background: "var(--gold-mobile)", transition: "width 0.2s ease" }} />
           </div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>Placement check</p>
+            <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>Skill check</p>
             <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--gold-mobile)" }}>
               Question {currentIndex + 1} of {questions.length}
             </p>

@@ -39,6 +39,10 @@ export type MobileSession = {
    *  generate response after that, since a fresh generation can change it
    *  without a full page navigation. */
   profilePhotoGenerationsRemaining: number;
+  /** The skill check (placement check) is done (profiles.diagnostic_completed). */
+  skillCheckDone: boolean;
+  /** Hides the skill check prompt straight away once it's submitted, before the layout re-renders. */
+  markSkillCheckDone: () => void;
   /**
    * Client-only daily-login streak (see lib/streak.ts) — null until the
    * mount effect below resolves, same SSR-safe placeholder pattern every
@@ -67,7 +71,7 @@ export type MobileSession = {
  * the client-computed fields this provider fills in itself. */
 type MobileSessionSeed = Omit<
   MobileSession,
-  "streakCount" | "isOnline" | "pendingSyncCount" | "setProfilePhotoUrl"
+  "streakCount" | "isOnline" | "pendingSyncCount" | "setProfilePhotoUrl" | "markSkillCheckDone"
 >;
 
 const MobileSessionContext = createContext<MobileSession | null>(null);
@@ -85,6 +89,7 @@ export function MobileSessionProvider({
   // A photo saved in this visit. It wins over the seeded value, which is
   // older until the server layout re-renders and then the same.
   const [savedPhotoUrl, setSavedPhotoUrl] = useState<string | null>(null);
+  const [skillCheckJustDone, setSkillCheckJustDone] = useState(false);
   // The access token the server stamped into the page expires after an hour,
   // and every API call made with it was first rejected by Supabase Auth, then
   // retried with the cookie: an extra round trip on every quiz answer
@@ -161,11 +166,13 @@ export function MobileSessionProvider({
       token: liveToken,
       profilePhotoUrl: savedPhotoUrl ?? value.profilePhotoUrl,
       setProfilePhotoUrl: setSavedPhotoUrl,
+      skillCheckDone: value.skillCheckDone || skillCheckJustDone,
+      markSkillCheckDone: () => setSkillCheckJustDone(true),
       streakCount,
       isOnline,
       pendingSyncCount,
     }),
-    [value, liveToken, savedPhotoUrl, streakCount, isOnline, pendingSyncCount],
+    [value, liveToken, savedPhotoUrl, skillCheckJustDone, streakCount, isOnline, pendingSyncCount],
   );
 
   return (

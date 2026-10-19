@@ -60,6 +60,8 @@ Rebuilt in the Rich update, Phase 2 (`docs/Rich Update/`).
   - A question answered right never comes back. A wrong one brings back an unasked variant of the same fact 2 questions later, in another format when there is one. That fact must then be answered right before the run can pass.
   - The 3rd wrong answer ends the run (`MAX_MISSES`), and so does running out of questions. Both end as `exhausted`.
   - Every module has at least three live question types (checked by a test), so the full rule applies everywhere.
+- **Test-out** (Rich update, Phase 5): `POST /api/training/verify/start` with `mode: "test_out"` plans a test-out (`planTestOut()`): up to 8 questions, no True/False, as many facts and formats as fit, hardest first. It passes on 6 right (`TEST_OUT_CORRECT`) and ends on the 2nd miss (`TEST_OUT_MAX_MISSES`). A miss brings no variant back. The goal carries `testOut: true`, and passing masters the module through the same `advance_quiz_run()` call. A test checks every module can run one. Offered from the Learn cards ("Know this already? Test out").
+- **Starting difficulty from the skill check:** the placement check (`module_elo_baseline.category_scores`, 0 to 100 per category) is read when a normal run starts. Full marks in the module's category (`knowsArea()` in `lib/diagnostic-engine.ts`) orders that run hardest first. The pass rule doesn't change.
 - **Mastered stays mastered.** The engine only ever sets mastery. Nothing in it clears a module someone has already passed.
 - **Runs expire after 20 minutes** (server clock). Each answer is accepted once, at the position the server expects.
 - **Rate limits:** 5 starts per module per 15 minutes, held in the database, plus per-isolate limits.
