@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-4-service-b.md.
+// Approved by the owner on 2026-10-19 (batch 4). Review copy:
+// docs/Rich Update/batch-4-service-b.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_38_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Pre-bussing — removing finished glasses and side plates as they are done — is standard professional table management.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_38_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Every trip to the back should clear dead soldiers; every trip to the floor should carry something fresh. No empty hands.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_38_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Clearing finished glasses is part of the standard service contract. It does not require the guest's permission.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_38_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Accumulated empty glasses and debris subconsciously signals neglect. A clean table makes guests feel valued and comfortable.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_38_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Pre-bussing improves comfort and cleanliness. Only dropping the bill unsolicited or hovering pressures a guest to leave.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_38_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Minimising trips by loading up on cleared items in one pass is exactly what efficient, professional pre-bussing looks like.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_38_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Each individual dead soldier should be removed as soon as it is available to keep the table clean throughout the experience.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -132,6 +132,6 @@ export const MODULE_38_QUESTIONS: Question[] = [
       { id: "c", text: "Drop them at the glass wash in one trip" },
     ],
     explanation: "Every trip to the floor carries something fresh, and every trip back clears dead soldiers. No empty hands.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

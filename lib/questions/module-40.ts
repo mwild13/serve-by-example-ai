@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-4-service-b.md.
+// Approved by the owner on 2026-10-19 (batch 4). Review copy:
+// docs/Rich Update/batch-4-service-b.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_40_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "\"Would you like that with Hendrick's?\" is more effective than \"Do you want premium?\" because it paints a specific, inviting picture.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_40_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Natural upselling enhances the guest's experience. The moment it feels pushy, it destroys trust, tips, and any chance of return visits.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_40_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "\"The sweet potato fries are amazing with the chicken\" removes decision fatigue and paints a picture. \"Any sides?\" invites a flat no.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_40_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "\"A large\" is generic and transactional. \"Would you like a pint of that?\" names the product and sounds like a genuine suggestion.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_40_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Product knowledge is the foundation. A confident pairing suggestion makes the guest feel cared for rather than sold to.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_40_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Offering the dessert menu as plates are cleared captures the impulse decision before the guest mentally checks out and says they are too full.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_40_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Tone and intent determine whether a suggestion feels like care or a sales grab. Real enthusiasm is the difference.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -134,6 +134,6 @@ export const MODULE_40_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Casual pub guests are often the most receptive to a simple, confident suggestion from a staff member they trust. Every cover is an opportunity.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

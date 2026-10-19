@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-4-service-b.md.
+// Approved by the owner on 2026-10-19 (batch 4). Review copy:
+// docs/Rich Update/batch-4-service-b.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_23_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "This is the standard hospitality term for any finished vessel. Spotting dead soldiers from across the room is a core skill.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_23_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "The \"swivel head\" technique means constantly scanning the room while performing other tasks. Tunnel vision is a floor failure.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_23_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "The \"lost look\" — open menu, scanning eyes — is one of the clearest visual cues that the guest needs assistance.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_23_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "A raised hand means the guest has already lost patience. Drop your current task or acknowledge immediately with a nod.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_23_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Regular visual sweeps allow you to identify needs before they become frustrations, keeping the whole room in control.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_23_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Tunnel vision is the hallmark of an overwhelmed or inexperienced worker. Expert servers are always reading the whole room.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_23_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "A visible acknowledgment resets the guest's patience clock even from 10 metres away, buying you critical time.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -134,7 +134,7 @@ export const MODULE_23_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Every single person on the floor shares responsibility for reading the room. Managers cannot be everywhere at once.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -148,6 +148,6 @@ export const MODULE_23_QUESTIONS: Question[] = [
       { id: "c", text: "Go to the guest" },
     ],
     explanation: "A raised hand means the guest has lost patience, so acknowledge them at once. Then finish what's already in your hands and get to them.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

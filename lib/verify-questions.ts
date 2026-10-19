@@ -959,7 +959,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
       explanation: "A raised hand means the guest has already lost patience. Drop your current task or acknowledge immediately with a nod.",
     },
     {
-      prompt: "Scanning the room every 60 seconds helps prevent guests from feeling ignored.",
+      prompt: "Scanning the room regularly helps prevent guests from feeling ignored.",
       answer: "true",
       explanation: "Regular visual sweeps allow you to identify needs before they become frustrations, keeping the whole room in control.",
     },
@@ -1199,7 +1199,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: '"M/R" on a POS docket means the steak must be cooked to Medium Rare.',
       answer: "true",
-      explanation: "This is a universal POS abbreviation used in venues across Australia. Misreading it means an incorrect steak and an angry table.",
+      explanation: "This is a common POS abbreviation in Australian venues, though systems differ. Misreading it means an incorrect steak and an angry table.",
     },
     {
       prompt: "A docket with no special instructions confirms the table has no allergies.",
@@ -1214,7 +1214,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: '"G/F" on a docket means the dish is served with a gravy-free sauce.',
       answer: "false",
-      explanation: '"G/F" universally stands for Gluten Free and must trigger the kitchen\'s full allergen protocol immediately.',
+      explanation: '"G/F" commonly stands for Gluten Free and must trigger the kitchen\'s full allergen protocol immediately.',
     },
     {
       prompt: '"86" or "OFF" on a kitchen note means that menu item is no longer available.',
@@ -1670,14 +1670,14 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
 
   40: [
     {
-      prompt: 'The "Power of Three" means suggesting a specific premium brand rather than asking a generic question.',
+      prompt: 'Naming the product means suggesting a specific premium brand rather than asking a generic question.',
       answer: "true",
       explanation: '"Would you like that with Hendrick\'s?" is more effective than "Do you want premium?" because it paints a specific, inviting picture.',
     },
     {
       prompt: "Natural upselling is about extracting maximum spend from every guest regardless of their experience.",
       answer: "false",
-      explanation: "Natural upselling enhances the guest's experience. The moment it feels pushy, it destroys trust, tips, and any chance of return visits.",
+      explanation: "Natural upselling enhances the guest's experience. The moment it feels pushy, it destroys trust and any chance of return visits.",
     },
     {
       prompt: 'Recommending a specific complementary side dish is more effective than asking "Do you want any sides?"',

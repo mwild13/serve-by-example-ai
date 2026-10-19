@@ -1,6 +1,8 @@
 # Batch 4: Service, part B
 
-58 questions in the new formats, all drafts. They are in the code (`lib/questions/`) but switched off until you approve them. Generated from the code by `scripts/question-review.mjs`, so this is exactly what staff will see.
+**Approved by the owner on 2026-10-19: all 58 questions, and the suggested statement fixes below.**
+
+58 questions in the new formats, in `lib/questions/`. Generated from the code by `scripts/question-review.mjs`, so this is exactly what staff will see.
 
 Every question is written only from the module's existing True/False statements (shown under each one), so it adds no new facts. The places to look hardest are the wrong options and the "best line" wording, which are new.
 
@@ -741,3 +743,10 @@ Explanation: Casual pub guests are often the most receptive to a simple, confide
 - **The four put-in-order questions** (Swivel Head q9, Beating the Weed q7, Two-Minute Check q8, Clearing Dead Soldiers q8) put the module's points into one sequence.
 - **Docket Reading q5** is a sample docket I wrote, with T12 and a G/F burger.
 - **Out-of-Stock Pivot q2** and **q7** use Pinot Noir and Grenache as example wines.
+
+## Decided on review (2026-10-19)
+
+- **Docket Reading:** M/R and G/F are now "common" abbreviations, not "universal".
+- **The Swivel Head:** now "Scanning the room regularly helps prevent guests from feeling ignored."
+- **Natural Upselling:** the "Power of Three" is now "Naming the product", and "tips" is gone from statement 2's explanation.
+- **Clearing Dead Soldiers:** kept as written. Clearing a finished glass doesn't need the guest's permission. A venue that asks first can add that through venue content in Phase 11.

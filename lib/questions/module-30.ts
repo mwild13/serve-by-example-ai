@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-4-service-b.md.
+// Approved by the owner on 2026-10-19 (batch 4). Review copy:
+// docs/Rich Update/batch-4-service-b.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_30_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Every hospitality worker will experience being in the weed. Knowing how to escape it methodically is the defining skill.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_30_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Speeding up causes errors and silence makes guests angrier. Acknowledge everyone, breathe, and work the tickets in order.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_30_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Being seen and verbally acknowledged resets a guest's patience, buying you critical time to work through the backlog.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_30_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Overloading your section causes all your tables to suffer. Knowing your capacity limit and calling for help is the smarter move.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_30_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "\"Slow is smooth, smooth is fast.\" Orderly first-in-first-out service consistently produces better outcomes than reactive scrambling.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_30_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "A conscious pause to identify the two or three most critical tasks is far more productive than 30 seconds of reactive panic.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -117,7 +117,7 @@ export const MODULE_30_QUESTIONS: Question[] = [
       { id: "d", text: "Work the tickets in the order they came in" },
     ],
     explanation: "Acknowledging guests buys time, a short pause sets your priorities, calling for help early protects the team, and working in order beats reactive scrambling.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -133,6 +133,6 @@ export const MODULE_30_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Guests are paying for a service experience. Visible distress from staff makes them uncomfortable and less likely to return or tip.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

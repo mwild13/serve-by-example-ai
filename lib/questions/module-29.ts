@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-4-service-b.md.
+// Approved by the owner on 2026-10-19 (batch 4). Review copy:
+// docs/Rich Update/batch-4-service-b.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_29_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "M/R is the usual POS abbreviation for medium rare. Misreading it means an incorrect steak and an angry table.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_29_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Guests sometimes forget to mention allergies at order time. Always confirm verbally with the server if you are unsure.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_29_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "The printer queue represents order of entry. Skipping ahead by table number disrupts the entire kitchen's flow and makes some tables wait unfairly.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_29_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "\"G/F\" universally stands for Gluten Free and must trigger the kitchen's full allergen protocol immediately.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_29_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "\"G/F\" stands for Gluten Free and must trigger the kitchen's full allergen protocol immediately.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_29_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "\"86'd\" is the universal hospitality term for an item that has run out. All floor staff must be briefed on 86 items immediately.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_29_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Dockets control the order of service. Reorganising them without manager direction causes incorrect dishes to reach the wrong tables.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -134,7 +134,7 @@ export const MODULE_29_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "A clear \"Table 7 away!\" signals the runner to collect immediately, keeping food at serving temperature for the guest.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -150,6 +150,6 @@ export const MODULE_29_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Any handwritten addition must be clarified with the server immediately. It almost always contains allergy or modification information.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

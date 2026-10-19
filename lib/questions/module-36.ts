@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-4-service-b.md.
+// Approved by the owner on 2026-10-19 (batch 4). Review copy:
+// docs/Rich Update/batch-4-service-b.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_36_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Two minutes is enough time for the guest to take a first bite and discover any issue, but early enough for the kitchen to fix it.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_36_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Every single table requires a two-minute check, regardless of how simple the order was. Any dish can have a problem.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_36_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Checking before they have eaten means they cannot yet report a problem. Timing the check to the first bite is everything.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_36_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "\"Okay\" invites a one-word dismissal. Better: \"How is the steak cooked for you?\" — a specific question gets a specific, useful answer.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_36_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "A cold steak caught at two minutes can be corrected before the guest becomes visibly frustrated or loses their appetite.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_36_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "A brief, professional check enhances the experience by showing attentiveness. It is neglect, not attention, that ruins a meal.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_36_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "A guest who has eaten half a cold meal before complaining cannot have their experience fully recovered. The window is everything.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -133,6 +133,6 @@ export const MODULE_36_QUESTIONS: Question[] = [
       { id: "d", text: "Fix any problem straight away" },
     ],
     explanation: "The check works only after the first bite, and a specific question gets a specific, useful answer while there's still time to fix it.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

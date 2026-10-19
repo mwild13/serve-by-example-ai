@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-4-service-b.md.
+// Approved by the owner on 2026-10-19 (batch 4). Review copy:
+// docs/Rich Update/batch-4-service-b.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_37_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "A direct suggestion prevents the guest from feeling stranded without a path forward.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_37_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Ending the conversation at \"we're out\" is a dead-end. The pivot — the alternative suggestion — is the part that saves the sale.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -52,7 +52,7 @@ export const MODULE_37_QUESTIONS: Question[] = [
       { id: "c", text: "Present it as a genuine recommendation" },
     ],
     explanation: "Acknowledge, redirect, and present the alternative as a genuine recommendation. This three-step pivot saves almost every stock-out situation.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -68,7 +68,7 @@ export const MODULE_37_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Guests want the best equivalent experience, not the cheapest consolation. Offer the most genuinely similar product.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -84,7 +84,7 @@ export const MODULE_37_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "You cannot pivot to an alternative if you do not know what is comparable on the menu. Product knowledge is the foundation.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -100,7 +100,7 @@ export const MODULE_37_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "A single brief apology is professional. Over-apologising draws more attention to the failure and makes guests feel worse, not better.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -116,7 +116,7 @@ export const MODULE_37_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "This reframes the alternative as a positive recommendation rather than a consolation prize, keeping the guest's enthusiasm high.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -132,6 +132,6 @@ export const MODULE_37_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "All floor staff must be briefed on 86 items at the start of every service to avoid promising unavailable items at the table.",
-    reviewed: false,
+    reviewed: true,
   },
 ];
