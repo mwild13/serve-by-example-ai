@@ -632,5 +632,5 @@ This batch has more points than the others, because RSA and food safety rules di
 - **"Unauthorised comps are legally considered theft" (statement 2):** strong, but fair. Giving away stock without approval is theft from the employer. No change.
 
 **Questions that add a step or wording:**
-- **The five put-in-order questions** (RSA q8, Conflict q9, Evacuation q8, Opening & Closing q7, plus their wording) join several statements into one sequence. Check that the order matches how your venues train.
+- **The four put-in-order questions** (RSA q8, Conflict q9, Evacuation q8, Opening & Closing q7) join several statements into one sequence. Check that the order matches how your venues train.
 - **Every "best line"**, especially the RSA refusals (q5, q6). Read them aloud.
