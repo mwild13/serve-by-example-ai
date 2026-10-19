@@ -75,6 +75,10 @@ describe("guest briefs", () => {
     }
   });
 
+  it("all belong to a module area, for the picker", () => {
+    for (const g of GUEST_BRIEFS) expect(["technical", "service", "compliance"], g.id).toContain(publicGuest(g, view).area);
+  });
+
   it("never sends the hidden parts of a brief to the browser", () => {
     const shown = JSON.stringify(publicGuest(dave, view));
     for (const hidden of [dave.wants, dave.twist, dave.goodEnding, ...dave.calms, ...dave.setsOff, ...dave.stakes.money.map((m) => m.label)]) {
@@ -186,6 +190,15 @@ describe("the dials", () => {
     const again = parseGuestTurn(turn({ money: ["fresh-schooner", "mates-schooner"] }), dave, 2, at(3, { money: ["fresh-schooner"] }))!;
     expect(again.money).toEqual(["mates-schooner"]);
     expect(parseGuestTurn(turn({ money: "fresh-schooner" }), dave, 1, at(2))!.money).toEqual([]);
+  });
+
+  it("count only one of a set of alternatives", () => {
+    const priya = findGuest("out-of-shiraz")!;
+    const both = parseGuestTurn(turn({ money: ["similar-bottle", "house-red"] }), priya, 1, openingState(priya, 3))!;
+    expect(both.money).toEqual(["similar-bottle"]);
+    const later = parseGuestTurn(turn({ money: ["house-red"] }), priya, 2, { ...openingState(priya, 3), money: ["similar-bottle"] })!;
+    expect(later.money).toEqual([]);
+    expect(briefBlock(priya, 1, 2, openingState(priya, 3), [])).toContain("[alternatives: wine]");
   });
 
   it("add up from the stored turns, in dollars from the brief", () => {

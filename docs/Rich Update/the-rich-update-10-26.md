@@ -192,8 +192,11 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
 - **The 8 live guests** now have dial settings, for your review in `live-guest-briefs.md`.
 - **Batch 1 approved and live (2026-10-19):** 10 briefs on safety, compliance and money, in `guest-briefs-batch-1.md`, along with the dial settings for the first 8. 18 guests are live.
 - **Batch 2 approved and live (2026-10-19):** 11 briefs on the floor, in `guest-briefs-batch-2.md`, including "Backing the junior" from the management scenarios. 29 guests are live.
-- **Batch 3 is ready for review:** 11 briefs behind the bar, in `guest-briefs-batch-3.md`.
+- **Batch 3 approved and live (2026-10-19):** 11 briefs behind the bar, in `guest-briefs-batch-3.md`.
+- **Batches 4 and 5 written and live on the preview (2026-10-19):** 9 cocktail guests and 11 selling guests, in `guest-briefs-batch-4.md` and `guest-briefs-batch-5.md`. You asked for both at once and trusted them without a review round; the sheets are there if you want to read them. **All 60 guest briefs are live: every Arena scenario and every guest-facing Scenario Training situation.**
+- **Either-or money items:** where a guest can choose one thing or another (a glass each, or a bottle), the items share a group and only the first one counts, so the dollars can't double up.
+- **The picker is grouped by area:** suggested guests first, then the rest by Behind the bar (23), Service and sales (23) and Safety and compliance (14), one area at a time, so 60 guests aren't one long scroll.
 - **Suggestions now put the hardest guest within reach first**, then modules the person has mastered. With more guests live, the old order filled every slot with easy guests from mastered modules.
-- **Where all 80 go:** `guest-briefs-plan.md`. 29 live, 11 in batch 3, 20 in batches 4 and 5, and 1 merged (the vodka upgrade into the bourbon upgrade). Management (decided): number 17 joins the guests; the gaming room one is held until there's a gaming module; the other 18 wait for a later manager phase.
+- **Where all 80 go:** `guest-briefs-plan.md`. 60 live, and 1 merged (the vodka upgrade into the bourbon upgrade). Management (decided): number 17 joins the guests; the gaming room one is held until there's a gaming module; the other 18 wait for a later manager phase.
 - **Migration to run before testing:** `supabase/migrations/20261022_live_guest_difficulty.sql` (adds `difficulty`; additive; rollback in `supabase/rollbacks/`). The new code needs it, so Live Guest won't start on the preview until it's run.
 - **Done when** every guest brief is live and the dials move in a way you agree with.

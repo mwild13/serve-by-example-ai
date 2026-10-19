@@ -65,7 +65,7 @@ function dials(g) {
     `- Safety: ${s.safety === null ? "not in play" : `in play, starts at "${SAFETY[s.safety]}"`}.`,
     s.money.length === 0
       ? "- Money: not in play."
-      : ["- Money: in play. What can happen:", ...s.money.map((m) => `  - ${m.label}: about ${dollars(m.dollars)}${per}`)].join("\n"),
+      : ["- Money: in play. What can happen:", ...s.money.map((m) => `  - ${m.label}: about ${dollars(m.dollars)}${per}${m.group ? " (one of the alternatives; only one counts)" : ""}`)].join("\n"),
     ...(s.moneyNote ? [`- Money note shown in the reveal: ${s.moneyNote}`] : []),
   ];
 }

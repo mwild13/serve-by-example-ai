@@ -6,6 +6,8 @@ export type GuestMood = 1 | 2 | 3 | 4 | 5;
 export type DialLevel = 1 | 2 | 3 | 4 | 5;
 /** How the guest plays: 1 patient, 2 as written, 3 tough. Follows the person's progress. */
 export type GuestDifficulty = 1 | 2 | 3;
+/** The guest's module area, for grouping the picker. */
+export type GuestArea = "technical" | "service" | "compliance";
 
 /** What the browser sees of a guest before the conversation. */
 export type PublicGuest = {
@@ -16,6 +18,7 @@ export type PublicGuest = {
   setting: string;
   opening: string;
   level: 1 | 2 | 3;
+  area: GuestArea;
   /** False when the person's plan doesn't include the guest's module. */
   available: boolean;
   /** How this guest would play for this person today. */
@@ -102,6 +105,12 @@ export const SAFETY_LABEL: Record<DialLevel, string> = {
   3: "Watch it",
   4: "Mostly safe",
   5: "Safe",
+};
+
+export const AREA_LABEL: Record<GuestArea, string> = {
+  technical: "Behind the bar",
+  service: "Service and sales",
+  compliance: "Safety and compliance",
 };
 
 export const DIFFICULTY_LABEL: Record<GuestDifficulty, string> = {

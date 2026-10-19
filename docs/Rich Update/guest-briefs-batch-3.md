@@ -1,4 +1,4 @@
-# Live Guest briefs, batch 3: behind the bar
+# Live Guest briefs, batch 3: behind the bar (approved 2026-10-19)
 
 11 guests. Each one is a short typed conversation of 3 to 6 replies. The staff member sees the scene and the guest's first line. The AI plays the guest from the rest of the brief, which the staff member only sees in the reveal afterwards, along with what the guest was thinking at each turn.
 
@@ -10,7 +10,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## Shiraz or Cabernet? (Michael, module 2)
 
-*tricky, starts neutral. From: AI Arena, module 2. Id: `shiraz-or-cabernet`. Not live yet.*
+*tricky, starts neutral. From: AI Arena, module 2. Id: `shiraz-or-cabernet`.*
 
 **Staff see before they start:**
 
@@ -42,12 +42,12 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 - Speed: not in play.
 - Safety: not in play.
 - Money: in play. What can happen:
-  - A bottle of red for the table: about +$70
-  - A glass each instead: about +$30
+  - A bottle of red for the table: about +$70 (one of the alternatives; only one counts)
+  - A glass each instead: about +$30 (one of the alternatives; only one counts)
 
 ## Sweet but strong (Kayla, module 3)
 
-*tricky, starts happy. From: AI Arena, module 3. Id: `sweet-but-strong`. Not live yet.*
+*tricky, starts happy. From: AI Arena, module 3. Id: `sweet-but-strong`.*
 
 **Staff see before they start:**
 
@@ -83,7 +83,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## The shouted coffee order (Linh, module 4)
 
-*gentle, starts neutral. From: AI Arena, module 4. Id: `shouted-coffee`. Not live yet.*
+*gentle, starts neutral. From: AI Arena, module 4. Id: `shouted-coffee`.*
 
 **Staff see before they start:**
 
@@ -118,7 +118,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## The flat squash (Oscar, module 26)
 
-*tricky, starts neutral. From: AI Arena, module 26. Id: `flat-squash`. Not live yet.*
+*tricky, starts neutral. From: AI Arena, module 26. Id: `flat-squash`.*
 
 **Staff see before they start:**
 
@@ -153,7 +153,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## All speed, no economy (Vince, module 27)
 
-*gentle, starts neutral. From: AI Arena, module 27. Id: `all-speed-no-economy`. Not live yet.*
+*gentle, starts neutral. From: AI Arena, module 27. Id: `all-speed-no-economy`.*
 
 **Staff see before they start:**
 
@@ -188,7 +188,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## Ten quiet minutes (Carmen, module 28)
 
-*gentle, starts neutral. From: AI Arena, module 28. Id: `ten-quiet-minutes`. Not live yet.*
+*gentle, starts neutral. From: AI Arena, module 28. Id: `ten-quiet-minutes`.*
 
 **Staff see before they start:**
 
@@ -223,7 +223,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## The $180 bottle (Richard, module 32)
 
-*hard, starts neutral. From: AI Arena, module 32. Id: `the-180-bottle`. Not live yet.*
+*hard, starts neutral. From: AI Arena, module 32. Id: `the-180-bottle`.*
 
 **Staff see before they start:**
 
@@ -258,7 +258,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## The foaming lager tap (Tony, module 33)
 
-*tricky, starts annoyed. From: AI Arena, module 33. Id: `foaming-tap`. Not live yet.*
+*tricky, starts annoyed. From: AI Arena, module 33. Id: `foaming-tap`.*
 
 **Staff see before they start:**
 
@@ -294,7 +294,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## Stacked to help (Dan, module 34)
 
-*gentle, starts happy. From: AI Arena, module 34. Id: `stacked-glasses`. Not live yet.*
+*gentle, starts happy. From: AI Arena, module 34. Id: `stacked-glasses`.*
 
 **Staff see before they start:**
 
@@ -329,7 +329,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## Leave it for the morning (Zoe, module 35)
 
-*tricky, starts neutral. From: AI Arena, module 35. Id: `clean-close`. Not live yet.*
+*tricky, starts neutral. From: AI Arena, module 35. Id: `clean-close`.*
 
 **Staff see before they start:**
 
@@ -364,7 +364,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## The ice is running low (Hamish, module 39)
 
-*gentle, starts annoyed. From: AI Arena, module 39. Id: `ice-running-low`. Not live yet.*
+*gentle, starts annoyed. From: AI Arena, module 39. Id: `ice-running-low`.*
 
 **Staff see before they start:**
 

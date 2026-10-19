@@ -83,7 +83,7 @@ const MODULE_CATEGORY_MAP: Record<number, string> = {
 };
 
 /** A module's placement category: "technical", "service" or "compliance". */
-function moduleCategory(moduleId: number): string | undefined {
+export function moduleCategory(moduleId: number): string | undefined {
   return MODULE_CATEGORY_MAP[moduleId];
 }
 

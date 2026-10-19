@@ -11,8 +11,8 @@ Where a scenario is about the team rather than a guest, the person you talk to i
 | Live (Phase 6) | 8 | 8 |
 | Batch 1, approved and live | 10 | 10 |
 | Batch 2, approved and live | 11 | 11 |
-| Batch 3, ready for review | 11 | 11 |
-| Batches 4 and 5, still to write | 20 | 20 |
+| Batch 3, approved and live | 11 | 11 |
+| Batches 4 and 5, written and live on the preview | 20 | 20 |
 | Merged into another guest | 1 | 0 |
 | Management, held for a later manager phase | 19 | 0 |
 | **Total** | **80** | |
@@ -61,7 +61,7 @@ Where a scenario is about the team rather than a guest, the person you talk to i
 | Clearing mid-conversation (Sienna, a guest) | 38 | Arena 38 |
 | Backing the junior (Jamie, a junior bartender) | 15 | Scenario Training, management 17 |
 
-## Batch 3: behind the bar (ready for review)
+## Batch 3: behind the bar (approved 2026-10-19, live)
 
 | Guest | Module | From |
 |---|---|---|
@@ -77,17 +77,39 @@ Where a scenario is about the team rather than a guest, the person you talk to i
 | Leave it for the morning (Zoe, a bartender closing with you) | 35 | Arena 35 |
 | The ice is running low (Hamish, the bartender) | 39 | Arena 39 |
 
-## Batch 4: cocktail guests (to write)
+## Batch 4: cocktail guests (live on the preview; you trusted these without a review round)
 
-Scenario Training, bartending 1 (tired of a G&T), 2 (three orders at once), 3 (the Brandy Frappé), 4 (a Margarita with Scotch), 5 (six cocktails at closing), 6 (bourbon or rye flight), 7 (strong but smooth), 8 (why the Martini tastes better), 10 (the Sazerac).
+| Guest | Module | From |
+|---|---|---|
+| Not another G&T (Ellie) | 3 | Scenario Training, bartending 1 |
+| A Mojito, a Guinness and a Chardonnay (Raj) | 27 | Scenario Training, bartending 2 |
+| A Brandy Frappé, please (Margaret) | 3 | Scenario Training, bartending 3 |
+| A Margarita with Scotch (Callum) | 3 | Scenario Training, bartending 4 |
+| Six cocktails at closing (Brooke) | 30 | Scenario Training, bartending 5 |
+| Bourbon or rye? (Hugo) | 3 | Scenario Training, bartending 6 |
+| Strong but smooth (Leah) | 3 | Scenario Training, bartending 7 |
+| Why is this Martini better? (Simon) | 3 | Scenario Training, bartending 8 |
+| The Sazerac (Yasmin, a bartender on her night off) | 3 | Scenario Training, bartending 10 |
 
-## Batch 5: selling (to write)
+## Batch 5: selling (live on the preview; you trusted these without a review round)
 
-Arena 12 (the premium craft lager) and 40 (the bourbon upgrade). Scenario Training, sales 1 (a snack with the cocktails), 2 (starters for a table of eight), 3 (sirloin or ribeye), 4 (what's good tonight), 5 (the birthday table too full for dessert), 6 (espresso and dessert), 7 (house wine, then a taste of the next one), 9 (four glasses or a bottle), 10 (the anniversary).
+| Guest | Module | From |
+|---|---|---|
+| What lagers have you got? (Steve) | 12 | Arena 12 |
+| A bourbon and cola (Emma) | 40 | Arena 40, with Scenario Training sales 8 merged in |
+| Two cocktails, no food (Nick) | 12 | Scenario Training, sales 1 |
+| Starters for eight (Ravi) | 40 | Scenario Training, sales 2 |
+| Sirloin or ribeye? (Alice) | 40 | Scenario Training, sales 3 |
+| What's good tonight? (Ben) | 12 | Scenario Training, sales 4 |
+| Too full for dessert (Fiona) | 12 | Scenario Training, sales 5 |
+| Just an espresso (Marcus) | 40 | Scenario Training, sales 6 |
+| The house white (Grace) | 12 | Scenario Training, sales 7 |
+| Four glasses or a bottle? (Lucy) | 2 | Scenario Training, sales 9 |
+| Their anniversary (Will) | 40 | Scenario Training, sales 10 |
 
 ## Merged
 
-- **Scenario Training, sales 8** (a well vodka soda, upgraded to a premium vodka) goes into **Arena 40** (a bourbon and cola, upgraded to a premium bourbon). They test the same thing. The guest can order either.
+- **Scenario Training, sales 8** (a well vodka soda, upgraded to a premium vodka) goes into **Arena 40** (a bourbon and cola, upgraded to a premium bourbon). They test the same thing, so Emma's twist asks about a better vodka for her friends' vodka sodas.
 
 ## Management (decided 2026-10-19)
 

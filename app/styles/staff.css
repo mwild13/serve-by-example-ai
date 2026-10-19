@@ -2624,6 +2624,31 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 .lg-group-title:first-of-type {
   margin-top: 0;
 }
+.lg-areas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.lg-area {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--qz-line);
+  background: var(--qz-surface);
+  color: var(--qz-text);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.lg-area--on {
+  border-color: var(--qz-accent);
+  color: var(--qz-accent);
+}
+.lg-area-count {
+  font-weight: 500;
+  color: var(--qz-muted);
+}
 .lg-guest-meta {
   font-size: 0.78rem;
   font-weight: 600;

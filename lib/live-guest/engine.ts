@@ -20,9 +20,11 @@
 
 import "server-only";
 import { AU_WRITING_RULES, capText, fenceUntrusted } from "@/lib/ai-guard";
+import { moduleCategory } from "@/lib/diagnostic-engine";
 import type { DialLevel, GuestBrief, Mood } from "@/lib/live-guest/guests";
 import type {
   DialSummary,
+  GuestArea,
   GuestDifficulty,
   LiveGuestOutcome,
   PublicGuest,
@@ -78,6 +80,7 @@ export function publicGuest(brief: GuestBrief, view: PlayerView): PublicGuest {
     setting: brief.setting,
     opening: brief.opening,
     level: brief.level,
+    area: (moduleCategory(brief.moduleId) ?? "service") as GuestArea,
     ...view,
   };
 }
@@ -107,7 +110,7 @@ THE DIALS
 Besides the guest's mood, up to three dials can be at stake. <guest_brief> says which are in play. For a dial that isn't in play, return 0 (or [] for money).
 - speed: -1, 0 or 1. How this reply affected the pace of service: 1 when it acts at once or keeps things moving (a fix now, a clear time, a sensible hand-off); -1 when it holds things up (a long explanation in a rush, going to check with no plan, going round in circles); otherwise 0.
 - safety: -1, 0 or 1. Safety and compliance: 1 when the reply reduces a real risk to someone's health or safety, or meets a legal duty (makes a hazard safe, refuses an intoxicated guest, gets an allergy to the kitchen); -1 when it adds risk, or leaves a risk alone that it should have dealt with; otherwise 0.
-- money: the ids from money_items that this reply made happen: done, or offered and accepted. An offer the guest hasn't accepted doesn't count yet. Never invent an id. [] when none.
+- money: the ids from money_items that this reply made happen: done, or offered and accepted. An offer the guest hasn't accepted doesn't count yet. Items marked with the same [alternatives] group are either-or: give only the one the guest chose. Never invent an id. [] when none.
 There's rarely one right answer: giving something away can win the guest and cost money. Score the whole picture: the guest, the dials in play and the rule that can't be broken.
 
 ENDING
@@ -154,7 +157,12 @@ function dialsInPlay(brief: GuestBrief): string {
 function moneyItems(brief: GuestBrief): string {
   if (brief.stakes.money.length === 0) return "none";
   const per = brief.stakes.moneyPer ? ` ${brief.stakes.moneyPer}` : "";
-  return "\n" + brief.stakes.money.map((m) => `- ${m.id}: ${m.label} (${m.dollars > 0 ? "+" : ""}${m.dollars} dollars${per})`).join("\n");
+  return (
+    "\n" +
+    brief.stakes.money
+      .map((m) => `- ${m.id}: ${m.label} (${m.dollars > 0 ? "+" : ""}${m.dollars} dollars${per})${m.group ? ` [alternatives: ${m.group}]` : ""}`)
+      .join("\n")
+  );
 }
 
 /** The trusted setup for one reply: the brief, and where the conversation is up to. */
@@ -275,10 +283,19 @@ export function parseGuestTurn(raw: Record<string, unknown>, brief: GuestBrief, 
   const speed = previous.speed === null ? null : clampLevel(previous.speed + step(raw.speed));
   let safety = previous.safety === null ? null : clampLevel(previous.safety + step(raw.safety));
   if (breach && safety !== null) safety = 1;
-  const known = new Set(brief.stakes.money.map((m) => m.id));
-  const money = Array.isArray(raw.money)
-    ? [...new Set(raw.money.filter((id): id is string => typeof id === "string" && known.has(id) && !previous.money.includes(id)))]
-    : [];
+  const items = new Map(brief.stakes.money.map((m) => [m.id, m]));
+  const groups = new Set(previous.money.map((id) => items.get(id)?.group).filter(Boolean));
+  const money: string[] = [];
+  for (const id of Array.isArray(raw.money) ? raw.money : []) {
+    const item = typeof id === "string" ? items.get(id) : undefined;
+    if (!item || previous.money.includes(item.id) || money.includes(item.id)) continue;
+    // Alternatives (a glass each, or a bottle): the first one counts.
+    if (item.group) {
+      if (groups.has(item.group)) continue;
+      groups.add(item.group);
+    }
+    money.push(item.id);
+  }
 
   const thought = capText(raw.thought, MAX_THOUGHT_CHARS);
   const debrief = outcome === "continue" ? null : parseDebrief(raw.debrief, mood, outcome);

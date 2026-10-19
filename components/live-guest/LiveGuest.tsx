@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  AREA_LABEL,
   DIFFICULTY_LABEL,
   LIVE_GUEST_MAX_REPLY_CHARS,
   LiveGuestError,
@@ -13,6 +14,7 @@ import {
   sendLiveGuestReply,
   startLiveGuest,
   type DialLevel,
+  type GuestArea,
   type GuestDifficulty,
   type GuestMood,
   type LiveGuestResult,
@@ -84,6 +86,7 @@ export default function LiveGuest({ getToken, theme }: Props) {
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<{ message: string; restart: boolean } | null>(null);
+  const [area, setArea] = useState<GuestArea | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -163,6 +166,10 @@ export default function LiveGuest({ getToken, theme }: Props) {
 
   const suggested = guests?.filter((g) => g.suggested) ?? [];
   const others = guests?.filter((g) => !g.suggested) ?? [];
+  // Sixty guests is a long scroll, so the rest are shown one area at a time.
+  const areas = (Object.keys(AREA_LABEL) as GuestArea[]).filter((a) => others.some((g) => g.area === a));
+  const shownArea = area && areas.includes(area) ? area : areas[0];
+  const shown = others.filter((g) => g.area === shownArea);
 
   if (!chat) {
     return (
@@ -185,9 +192,22 @@ export default function LiveGuest({ getToken, theme }: Props) {
         )}
         {others.length > 0 && (
           <>
-            {suggested.length > 0 && <h3 className="lg-group-title">All guests</h3>}
+            <h3 className="lg-group-title">{suggested.length > 0 ? "All guests" : "Guests"}</h3>
+            <div className="lg-areas" role="group" aria-label="Guests by area">
+              {areas.map((a) => (
+                <button
+                  key={a}
+                  type="button"
+                  className={a === shownArea ? "lg-area lg-area--on" : "lg-area"}
+                  aria-pressed={a === shownArea}
+                  onClick={() => setArea(a)}
+                >
+                  {AREA_LABEL[a]} <span className="lg-area-count">{others.filter((g) => g.area === a).length}</span>
+                </button>
+              ))}
+            </div>
             <div className="lg-guests">
-              {others.map((g) => (
+              {shown.map((g) => (
                 <GuestCard key={g.id} guest={g} starting={starting} onStart={(id) => void begin(id)} />
               ))}
             </div>

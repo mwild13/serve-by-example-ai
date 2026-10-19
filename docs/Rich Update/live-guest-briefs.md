@@ -1,6 +1,6 @@
 # Live Guest: the guests that are live
 
-29 guests. Each one is a short typed conversation of 3 to 6 replies. The staff member sees the scene and the guest's first line. The AI plays the guest from the rest of the brief, which the staff member only sees in the reveal afterwards, along with what the guest was thinking at each turn.
+60 guests. Each one is a short typed conversation of 3 to 6 replies. The staff member sees the scene and the guest's first line. The AI plays the guest from the rest of the brief, which the staff member only sees in the reveal afterwards, along with what the guest was thinking at each turn.
 
 A conversation passes at 75 out of 100. Breaking the rule that can't be broken ends it straight away and is never a pass.
 
@@ -224,8 +224,8 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 - Speed: in play, starts at "Steady".
 - Safety: not in play.
 - Money: in play. What can happen:
-  - Another bottle at a similar price: about +$75
-  - The house red instead: about +$40
+  - Another bottle at a similar price: about +$75 (one of the alternatives; only one counts)
+  - The house red instead: about +$40 (one of the alternatives; only one counts)
 
 ## A booking for tonight (Claire, module 14)
 
@@ -1046,3 +1046,1103 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 - Speed: not in play.
 - Safety: in play, starts at "At risk".
 - Money: not in play.
+
+## Shiraz or Cabernet? (Michael, module 2)
+
+*tricky, starts neutral. From: AI Arena, module 2. Id: `shiraz-or-cabernet`.*
+
+**Staff see before they start:**
+
+- The scene: Saturday, 7pm, a restaurant. Michael and his partner are looking at the wine list. The reds: a Barossa Shiraz, a Coonawarra Cabernet Sauvignon, a McLaren Vale Grenache and a Yarra Valley Pinot Noir.
+- Michael opens with: "I usually drink Cabernet, but I want to try an Aussie Shiraz. Is the Barossa one very different?"
+
+**Hidden until the reveal:**
+
+- **Who:** Michael, in his 40s, confident with heavy reds and curious about local wine. Friendly, and likes a recommendation from someone who sounds sure.
+- **Wants:** To understand the difference and pick a red he'll enjoy.
+- **Calms them:**
+  - A simple, accurate difference: Barossa Shiraz is riper and fuller, with dark fruit, spice and softer tannins; Cabernet is firmer, with blackcurrant and more grip
+  - A confident recommendation
+  - Asking what he likes about Cabernet
+  - Offering a taste
+  - Serving it at the right temperature, not fridge-cold
+- **Sets them off:**
+  - Vague answers like "they're both nice"
+  - Making up tasting notes
+  - Talking down to him
+  - Pushing the most expensive bottle
+- **Twist (2nd or 3rd reply):** His partner says she finds Shiraz too heavy and asks if there's something lighter they could share.
+- **Rule that can't be broken:** none
+- **A good ending:** Michael understands the difference, and they choose a bottle or glasses that suit them both.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: in play. What can happen:
+  - A bottle of red for the table: about +$70 (one of the alternatives; only one counts)
+  - A glass each instead: about +$30 (one of the alternatives; only one counts)
+
+## Sweet but strong (Kayla, module 3)
+
+*tricky, starts happy. From: AI Arena, module 3. Id: `sweet-but-strong`.*
+
+**Staff see before they start:**
+
+- The scene: Saturday, 9pm. The bar is three deep and a hens party has just arrived. Kayla, one of the group, leans over the bar and shouts over the music.
+- Kayla opens with: "I want something sweet but strong, not too fruity, maybe with gin? But I hate tonic. Just make me something good!"
+
+**Hidden until the reveal:**
+
+- **Who:** Kayla, in her 20s, on a hens night. Bubbly, loud and decisive once she likes the sound of something. Hates being asked lots of questions in a noisy bar.
+- **Wants:** A drink she'll love, quickly.
+- **Calms them:**
+  - One quick question at most, then a confident pick
+  - Describing the drink in a few words
+  - A gin drink that fits: sweet, no tonic, not too fruity
+  - Measuring the spirit properly
+  - Making the group's order easy, such as offering the same drink for everyone
+- **Sets them off:**
+  - A string of questions
+  - "We just do G&Ts"
+  - A slow, fussy build while the queue waits
+  - Free-pouring to make it stronger
+- **Twist (2nd or 3rd reply):** She asks you to put extra gin in to make it properly strong, and says five of her friends want the same.
+- **Rule that can't be broken:** none
+- **A good ending:** Kayla and her friends have a drink they like, made to spec with measured pours (a double charged as a double if she wants it stronger), without holding up the bar.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: in play, starts at "Steady".
+- Safety: not in play.
+- Money: in play. What can happen:
+  - Six of the same cocktail for the group: about +$120
+
+## The shouted coffee order (Linh, module 4)
+
+*gentle, starts neutral. From: AI Arena, module 4. Id: `shouted-coffee`.*
+
+**Staff see before they start:**
+
+- The scene: Tuesday, 8am, a busy cafe. You already have five dockets on the machine. Linh calls out her order over the grinder.
+- Linh opens with: "Can I get a large skinny cap, extra hot, and a flat white on soy?"
+
+**Hidden until the reveal:**
+
+- **Who:** Linh, in her 30s, getting coffees for herself and a workmate on the way to the office. Polite, in a hurry, and particular about her coffee.
+- **Wants:** The right two coffees, as soon as possible.
+- **Calms them:**
+  - Reading the order back clearly
+  - Taking a name for the order
+  - An honest wait time
+  - Knowing soy is textured more gently and not as hot
+  - Staying friendly in the rush
+- **Sets them off:**
+  - Getting the order wrong
+  - No idea how long it will be
+  - Being short with her
+  - Pretending extra hot milk isn't a thing
+- **Twist (2nd or 3rd reply):** She asks for the soy flat white extra hot too.
+- **Rule that can't be broken:** none
+- **A good ending:** Both coffees are right, Linh knows how long they'll be, and she understands why the soy is hot but not too hot.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: in play, starts at "Steady".
+- Safety: not in play.
+- Money: not in play.
+
+## The flat squash (Oscar, module 26)
+
+*tricky, starts neutral. From: AI Arena, module 26. Id: `flat-squash`.*
+
+**Staff see before they start:**
+
+- The scene: Friday, 6:30pm. There's a queue three deep at the bar. You go to pour a lemon squash for Oscar and the soda gun sputters out warm, flat liquid.
+- Oscar opens with: "Is that my squash? It looks a bit flat."
+
+**Hidden until the reveal:**
+
+- **Who:** Oscar, in his 40s, getting a round for his family. Patient at first, but he's got kids waiting at the table.
+- **Wants:** His drinks, cold and fizzy, without a long wait.
+- **Calms them:**
+  - Not serving the flat drink
+  - A quick apology and a clear plan
+  - Running the line through to waste, or checking the gas or the syrup
+  - Getting help, such as the bar-back changing the syrup or checking the gas
+  - Offering something else while it's fixed, such as a bottle or can
+- **Sets them off:**
+  - Serving it anyway
+  - Making him wait with no idea why
+  - Fiddling with the gun while the queue grows
+  - Blaming the equipment and doing nothing
+- **Twist (2nd or 3rd reply):** He asks if the rest of his round, two vodka sodas, will be flat too.
+- **Rule that can't be broken:** none
+- **A good ending:** Oscar's whole round is cold and fizzy, or he's happy with a bottled alternative, and the gun is being fixed without holding up the queue.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: in play, starts at "Steady".
+- Safety: not in play.
+- Money: not in play.
+
+## All speed, no economy (Vince, module 27)
+
+*gentle, starts neutral. From: AI Arena, module 27. Id: `all-speed-no-economy`.*
+
+**Staff see before they start:**
+
+- The scene: Saturday, after the rush. During service you built three cocktails at once and kept walking back to the fridge for garnishes one at a time. Vince, the senior bartender, pulls you aside.
+- Vince opens with: "Got a sec? You were flat out tonight, but you walked to that fridge about twenty times. All speed, no economy."
+
+**Hidden until the reveal:**
+
+- **Who:** Vince, in his 40s, a senior bartender who likes teaching. Direct but kind. He respects people who take feedback well and think it through.
+- **Wants:** For you to understand economy of motion and fix it.
+- **Calms them:**
+  - Taking the feedback well
+  - Explaining it back: move less, not faster
+  - Prepping garnishes before service
+  - Grabbing every garnish for all three drinks in one trip, and keeping both hands working
+  - Never walking anywhere empty-handed
+- **Sets them off:**
+  - Getting defensive or making excuses
+  - "I was going fast though"
+  - A vague "I'll try harder"
+  - Brushing it off
+- **Twist (2nd or 3rd reply):** He asks what you'd do differently on the next three-cocktail order, step by step.
+- **Rule that can't be broken:** none
+- **A good ending:** Vince hears a clear, step-by-step plan that cuts the trips, and he's happy you took it on board.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: not in play.
+
+## Ten quiet minutes (Carmen, module 28)
+
+*gentle, starts neutral. From: AI Arena, module 28. Id: `ten-quiet-minutes`.*
+
+**Staff see before they start:**
+
+- The scene: Thursday, 5:20pm, the lull between lunch and dinner. The citrus is running low, the ice well is half empty and glasses are scattered across the bar. Carmen, the duty manager, stops by.
+- Carmen opens with: "Bit of a breather. Dinner hits in ten. What's your plan for the bar?"
+
+**Hidden until the reveal:**
+
+- **Who:** Carmen, in her 30s, the duty manager. Organised and calm. She likes a clear plan and trusts staff who have one.
+- **Wants:** The bar fully reset before the dinner rush.
+- **Calms them:**
+  - A clear order of jobs, with the ice topped up first
+  - Garnishes cut and topped up
+  - Glasses cleared, washed and racked
+  - Restocking the speed rail
+  - Asking for cover if a job takes you off the bar
+- **Sets them off:**
+  - "I'll just see how it goes"
+  - Starting with a job that can wait
+  - Leaving the ice until last
+  - Taking a break and leaving it for the rush
+- **Twist (2nd or 3rd reply):** She asks if you can also help fold napkins for the floor.
+- **Rule that can't be broken:** none
+- **A good ending:** The bar is reset before dinner, ice first, and Carmen's napkins are sorted in a way that doesn't leave the bar short.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: in play, starts at "Steady".
+- Safety: not in play.
+- Money: not in play.
+
+## The $180 bottle (Richard, module 32)
+
+*hard, starts neutral. From: AI Arena, module 32. Id: `the-180-bottle`.*
+
+**Staff see before they start:**
+
+- The scene: Friday, 8pm, a fine-dining restaurant. Richard has ordered a $180 bottle of red for his table of four and is watching closely as you bring it out. You've only practised the two-step lever a handful of times.
+- Richard opens with: "Go on then, let's see you open it. This one's special."
+
+**Hidden until the reveal:**
+
+- **Who:** Richard, in his 50s, a wine lover celebrating with friends. Particular and a little theatrical. He warms to calm confidence and notices every step.
+- **Wants:** His bottle presented and opened properly, with no drama.
+- **Calms them:**
+  - Presenting the label first
+  - Cutting the foil below the second lip
+  - The two-step lever, with the bottle held still
+  - Easing the cork out quietly, then presenting it
+  - Offering him the first taste
+- **Sets them off:**
+  - Skipping the label
+  - Yanking the cork in one pull, or a loud pop
+  - Waving the bottle around
+  - Nervous chatter instead of the steps
+- **Twist (2nd or 3rd reply):** He mentions the last place he went broke the cork in half, and asks if you're nervous.
+- **Rule that can't be broken:** none
+- **A good ending:** The bottle is presented and opened cleanly and quietly, Richard has tasted it, and he's impressed.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: not in play.
+
+## The foaming lager tap (Tony, module 33)
+
+*tricky, starts annoyed. From: AI Arena, module 33. Id: `foaming-tap`.*
+
+**Staff see before they start:**
+
+- The scene: Saturday, 8pm. Mid-service, the lager tap starts gurgling and spitting foam. You're the only one with cellar access right now, and the queue is building. Tony is waiting on four schooners of lager.
+- Tony opens with: "That one's all foam, mate. Are my four schooners coming or what?"
+
+**Hidden until the reveal:**
+
+- **Who:** Tony, in his 30s, getting a round for his mates watching the footy. Impatient, but easy to win over with honesty and a quick fix.
+- **Wants:** Four good schooners, fast.
+- **Calms them:**
+  - An honest, quick explanation: the keg's likely empty or the line needs clearing
+  - A time, such as a couple of minutes
+  - Offering a similar beer on another tap in the meantime
+  - Getting cover for the bar while you change the keg
+  - Not serving the foamy ones
+- **Sets them off:**
+  - Pouring the foam anyway
+  - Disappearing with no word
+  - Blaming the brewery
+  - A long technical lecture
+- **Twist (2nd or 3rd reply):** He asks if there's another beer that's similar while he waits.
+- **Rule that can't be broken:** none
+- **A good ending:** Tony has four good beers, either from the fixed tap or a similar one, and the keg is changed safely with the coupler disengaged first and the air poured off.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: in play, starts at "Steady".
+- Safety: not in play.
+- Money: in play. What can happen:
+  - Foamy beer poured away while the line is cleared: about -$4
+
+## Stacked to help (Dan, module 34)
+
+*gentle, starts happy. From: AI Arena, module 34. Id: `stacked-glasses`.*
+
+**Staff see before they start:**
+
+- The scene: Friday, 10pm, a packed pub. You're clearing a table of twelve empty glasses in one trip. Dan, at the table, has stacked several schooner glasses inside each other to help.
+- Dan opens with: "Here, I've stacked them for you. Makes it easier, yeah?"
+
+**Hidden until the reveal:**
+
+- **Who:** Dan, in his 20s, out with his footy team. Friendly and keen to help, a bit tipsy but not intoxicated. He laughs things off.
+- **Wants:** To be helpful.
+- **Calms them:**
+  - A friendly thank you
+  - Unstacking the glasses carefully
+  - Explaining in a few words that stacked glasses jam or break
+  - Using a tray, or the pinch, with no hands on the rims
+  - Keeping it light
+- **Sets them off:**
+  - Taking the stack as it is
+  - Telling him off
+  - Grabbing glasses by the rims
+  - Ignoring him
+- **Twist (2nd or 3rd reply):** He grabs two more glasses by the rims to hand to you.
+- **Rule that can't be broken:** none
+- **A good ending:** All twelve glasses go back safely in one trip, unstacked and without touching the rims, and Dan is still in a good mood.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: in play, starts at "Steady".
+- Safety: in play, starts at "Watch it".
+- Money: not in play.
+
+## Leave it for the morning (Zoe, module 35)
+
+*tricky, starts neutral. From: AI Arena, module 35. Id: `clean-close`.*
+
+**Staff see before they start:**
+
+- The scene: Sunday, 11:30pm, closing time. You're the closing shift lead. The coffee machine still needs backflushing, the speed rail needs sanitising and the dry store is a mess from the rush. Zoe, who's closing with you, has her jacket on.
+- Zoe opens with: "Let's just leave the coffee machine and the dry store. The morning crew can do it."
+
+**Hidden until the reveal:**
+
+- **Who:** Zoe, in her 20s, a reliable bartender who's tired after a double shift. Not lazy, just exhausted. She'll stay if it's fair and quick.
+- **Wants:** To go home.
+- **Calms them:**
+  - Being fair: splitting the jobs between you
+  - A realistic time, such as twenty minutes
+  - Why it matters: the morning crew starts behind otherwise
+  - Thanking her for the double shift
+  - Signing the checklist only once it's done
+- **Sets them off:**
+  - Lecturing her
+  - Doing it all yourself in a huff
+  - Agreeing to leave it
+  - Pulling rank
+- **Twist (2nd or 3rd reply):** She says she's already ticked the closing checklist as done.
+- **Rule that can't be broken:** none
+- **A good ending:** The coffee machine is backflushed, the speed rail sanitised and the dry store tidied, the checklist is true when it's signed, and Zoe leaves on good terms.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: in play, starts at "Mostly safe".
+- Money: not in play.
+
+## The ice is running low (Hamish, module 39)
+
+*gentle, starts annoyed. From: AI Arena, module 39. Id: `ice-running-low`.*
+
+**Staff see before they start:**
+
+- The scene: Friday, 9:30pm. You're the bar-back. Hamish, the bartender, is slammed, and from where you're standing you can see his ice well is nearly empty. He hasn't asked for a restock.
+- Hamish opens with: "Not now, mate, I've got a queue. What is it?"
+
+**Hidden until the reveal:**
+
+- **Who:** Hamish, in his 30s, a fast bartender in the middle of a rush. Short and focused. He loves a bar-back who just gets it done without asking.
+- **Wants:** To keep pouring without interruptions.
+- **Calms them:**
+  - Not asking him questions, just doing it
+  - One-word calls: "Ice behind!"
+  - Filling the ice from the back of the bar
+  - Filling any empty slots on the speed rail too
+  - A nod or a tap instead of a chat
+- **Sets them off:**
+  - Asking permission or a long question
+  - Getting in front of him at the well
+  - Waiting until it's empty
+  - Chatting in the middle of the rush
+- **Twist (2nd or 3rd reply):** He snaps that you're in his way at the well.
+- **Rule that can't be broken:** none
+- **A good ending:** The ice well is full before it runs out, Hamish barely had to stop, and he knows you've got his back.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: in play, starts at "Steady".
+- Safety: not in play.
+- Money: not in play.
+
+## Not another G&T (Ellie, module 3)
+
+*gentle, starts happy. From: Scenario Training, bartending 1. Id: `not-another-gnt`.*
+
+**Staff see before they start:**
+
+- The scene: Thursday, 7pm, a cocktail bar, steady but not slammed. Ellie sits at the bar and pushes the menu aside.
+- Ellie opens with: "I love gin, but I'm so over G&Ts. Surprise me?"
+
+**Hidden until the reveal:**
+
+- **Who:** Ellie, in her 30s, likes trying new things and enjoys chatting with bartenders. Easy to please if she feels the drink was made for her.
+- **Wants:** A gin drink that isn't a G&T and suits her taste.
+- **Calms them:**
+  - A couple of quick questions about taste: citrus, herbal, bitter or sweet
+  - One confident recommendation, with a reason it suits her
+  - Building it with care and measured pours
+  - Telling her a little about the drink as you make it
+- **Sets them off:**
+  - Making any gin drink without asking
+  - A long list of options to choose from
+  - Twenty questions
+  - Not knowing what's in the drink
+- **Twist (2nd or 3rd reply):** She says she likes bitter flavours but not anything too sweet.
+- **Rule that can't be broken:** none
+- **A good ending:** Ellie has a gin drink that suits her, such as a Negroni or a dry, citrusy sour, and knows why you picked it.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: in play. What can happen:
+  - A cocktail instead of a G&T: about +$8
+
+## A Mojito, a Guinness and a Chardonnay (Raj, module 27)
+
+*tricky, starts neutral. From: Scenario Training, bartending 2. Id: `three-at-once`.*
+
+**Staff see before they start:**
+
+- The scene: Friday, 6:30pm, a busy bar. Raj orders for his group: a Mojito, a Guinness and a glass of the house Chardonnay. There's a queue behind him.
+- Raj opens with: "Can I get a Mojito, a Guinness and a house Chardy, thanks? We're in a bit of a rush."
+
+**Hidden until the reveal:**
+
+- **Who:** Raj, in his 30s, grabbing drinks for friends before a gig. Friendly but watching the time.
+- **Wants:** All three drinks, made well, quickly.
+- **Calms them:**
+  - Starting the Guinness first, because it needs time to settle
+  - Building the Mojito while it settles, then pouring the wine
+  - Glass and garnish set up before you start
+  - A rough time
+  - Pressing the mint gently, not grinding it
+- **Sets them off:**
+  - Bouncing between drinks with no plan
+  - Rushing the Guinness
+  - A long wait with no word
+  - Getting an order wrong
+- **Twist (2nd or 3rd reply):** He asks if he can add a second Mojito.
+- **Rule that can't be broken:** none
+- **A good ending:** All four drinks arrive quickly and properly made, Guinness settled and topped, and Raj makes his gig.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: in play, starts at "Steady".
+- Safety: not in play.
+- Money: in play. What can happen:
+  - A second Mojito: about +$20
+
+## A Brandy Frappé, please (Margaret, module 3)
+
+*tricky, starts happy. From: Scenario Training, bartending 3. Id: `brandy-frappe`.*
+
+**Staff see before they start:**
+
+- The scene: Sunday, 4pm, the lounge of an old pub. Margaret asks for a Brandy Frappé. It isn't on the cocktail list.
+- Margaret opens with: "Could I have a Brandy Frappé, love? My husband always ordered them here."
+
+**Hidden until the reveal:**
+
+- **Who:** Margaret, in her 70s, a long-time local. Gentle and chatty. She can tell straight away if someone is bluffing, and doesn't mind waiting if they're honest.
+- **Wants:** A proper Brandy Frappé, like the ones she remembers.
+- **Calms them:**
+  - Honesty if you're not sure of the spec, and checking it with a colleague or the venue's recipe
+  - Knowing a frappé is served over finely crushed ice
+  - Confirming how she likes it
+  - Measured pours
+  - Warmth about the memory
+- **Sets them off:**
+  - Making a random brandy drink and calling it a Frappé
+  - Telling her it doesn't exist
+  - Rushing her
+  - Brushing off the memory
+- **Twist (2nd or 3rd reply):** She mentions her husband used to have his with a dash of liqueur on top, but she can't remember which.
+- **Rule that can't be broken:** none
+- **A good ending:** Margaret has a Brandy Frappé made honestly to a checked spec, over crushed ice, and feels her memory was respected.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: not in play.
+
+## A Margarita with Scotch (Callum, module 3)
+
+*tricky, starts neutral. From: Scenario Training, bartending 4. Id: `scotch-margarita`.*
+
+**Staff see before they start:**
+
+- The scene: Friday, 8pm, a cocktail bar. Callum, a confident whisky drinker, orders a Margarita, but made with Scotch instead of tequila.
+- Callum opens with: "I'll have a Margarita, but swap the tequila for Scotch. I don't like tequila."
+
+**Hidden until the reveal:**
+
+- **Who:** Callum, in his 40s, knows what he likes and doesn't like being told he's wrong. Open to a suggestion if it respects his taste.
+- **Wants:** A citrusy cocktail with whisky.
+- **Calms them:**
+  - Taking his taste seriously
+  - Explaining briefly how Scotch changes the drink
+  - Suggesting a better fit, such as a Whisky Sour or a Penicillin
+  - Offering to make his version if he still wants it
+  - Confidence, without talking down to him
+- **Sets them off:**
+  - Telling him the request is wrong
+  - Refusing abruptly
+  - Making it without a word, then it tastes off
+  - Lecturing him about cocktail history
+- **Twist (2nd or 3rd reply):** He says he likes smoky whisky.
+- **Rule that can't be broken:** none
+- **A good ending:** Callum tries a whisky sour-style drink that suits him, such as a Penicillin with a smoky float, and feels listened to.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: not in play.
+
+## Six cocktails at closing (Brooke, module 30)
+
+*tricky, starts happy. From: Scenario Training, bartending 5. Id: `six-at-closing`.*
+
+**Staff see before they start:**
+
+- The scene: Saturday, 11:50pm. The bar closes at midnight and you're starting to pack down with one other bartender. Brooke's group of six arrives at the bar.
+- Brooke opens with: "Quick, before you close! Can we get six cocktails? Two Espresso Martinis, a Mojito, a Margarita and two Old Fashioneds."
+
+**Hidden until the reveal:**
+
+- **Who:** Brooke, in her 20s, at the end of a big night out with friends. Cheerful and persuasive, not intoxicated. Reasonable if she's treated warmly.
+- **Wants:** A last round for the group.
+- **Calms them:**
+  - A warm welcome, not a groan
+  - Being honest about the time
+  - A streamlined offer, such as two kinds of cocktail you can batch quickly
+  - Splitting the work with your teammate
+  - A fresh shot of espresso for the Espresso Martinis
+- **Sets them off:**
+  - Saying yes to everything, then service collapses
+  - A flat "we're closed" when you're still open
+  - Rushing the drinks badly
+  - Rolling your eyes
+- **Twist (2nd or 3rd reply):** She asks if they can stay and drink them after midnight.
+- **Rule that can't be broken:** none
+- **A good ending:** The group gets a last round that could be made well in the time, everyone knows when the bar closes, and Brooke leaves happy.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: in play, starts at "Steady".
+- Safety: not in play.
+- Money: in play. What can happen:
+  - A last round of six cocktails: about +$120
+
+## Bourbon or rye? (Hugo, module 3)
+
+*hard, starts neutral. From: Scenario Training, bartending 6. Id: `bourbon-or-rye`.*
+
+**Staff see before they start:**
+
+- The scene: Wednesday, 8pm, a quiet whisky bar. Hugo wants to taste the difference between bourbon and rye and asks you to put together a flight of three.
+- Hugo opens with: "I never know the difference between bourbon and rye. Can you do me a flight of three to show me?"
+
+**Hidden until the reveal:**
+
+- **Who:** Hugo, in his 30s, curious and keen to learn. Asks good questions and can tell a real answer from a vague one.
+- **Wants:** To understand the difference by tasting it.
+- **Calms them:**
+  - A clear plan: an approachable bourbon, a high-rye bourbon, then a rye
+  - Simple language: bourbon is mostly corn and tastes sweeter; rye is spicier and drier
+  - Talking through each pour as you serve it
+  - Suggesting water on the side
+  - Honesty about what you don't know
+- **Sets them off:**
+  - Pouring any three and leaving him to it
+  - Made-up facts
+  - Jargon with no explanation
+  - Rushing him
+- **Twist (2nd or 3rd reply):** He asks what "high-rye" means, and why the third one is spicier.
+- **Rule that can't be broken:** none
+- **A good ending:** Hugo tastes the difference and can explain it back, and he knows which style he prefers.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: in play. What can happen:
+  - A three-whiskey flight: about +$35
+
+## Strong but smooth (Leah, module 3)
+
+*tricky, starts neutral. From: Scenario Training, bartending 7. Id: `strong-but-smooth`.*
+
+**Staff see before they start:**
+
+- The scene: Saturday, 8:30pm, a cocktail bar. Leah is out for a friend's birthday and isn't sure what to order.
+- Leah opens with: "I want something strong but smooth. Not something that burns. What would you do?"
+
+**Hidden until the reveal:**
+
+- **Who:** Leah, in her 20s, doesn't drink cocktails often and is a bit nervous about ordering wrong. Grateful for a clear, friendly suggestion.
+- **Wants:** A drink that tastes strong but is easy to drink.
+- **Calms them:**
+  - A spirit-forward drink with a softer texture, such as an Old Fashioned style
+  - Explaining that smooth comes from balance and dilution, not less alcohol
+  - A quick question about what spirits she likes
+  - Measured pours
+  - Making her feel it was a good choice
+- **Sets them off:**
+  - Serving the highest-alcohol drink on the list
+  - Making fun of "strong but smooth"
+  - Extra spirit to make it strong
+  - A list of ten options
+- **Twist (2nd or 3rd reply):** She says she normally drinks vodka and doesn't like whisky.
+- **Rule that can't be broken:** none
+- **A good ending:** Leah has a measured, balanced drink with her preferred spirit that feels strong but smooth, and she enjoys it.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: not in play.
+
+## Why is this Martini better? (Simon, module 3)
+
+*tricky, starts happy. From: Scenario Training, bartending 8. Id: `better-martini`.*
+
+**Staff see before they start:**
+
+- The scene: Friday, 9pm, a hotel bar. You've just made Simon a gin Martini. He takes a sip and looks impressed.
+- Simon opens with: "That's the best Martini I've had in ages. What do you do differently?"
+
+**Hidden until the reveal:**
+
+- **Who:** Simon, in his 50s, a regular Martini drinker who travels a lot for work. Friendly and genuinely curious. He comes back to bars he trusts.
+- **Wants:** To understand why it's better, and to know he can get it here again.
+- **Calms them:**
+  - Stirred, not shaken
+  - Fresh vermouth, kept in the fridge once opened
+  - A chilled glass and the right dilution
+  - Measured pours
+  - Explaining it simply, without showing off
+- **Sets them off:**
+  - "It's just the house style"
+  - Made-up techniques
+  - A long lecture
+  - Brushing off the question
+- **Twist (2nd or 3rd reply):** He asks why the Martini at his hotel tasted flat and sour.
+- **Rule that can't be broken:** none
+- **A good ending:** Simon understands what makes the Martini work, including why old vermouth tastes flat and sour, and he plans to come back.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: in play. What can happen:
+  - A second Martini: about +$22
+
+## The Sazerac (Yasmin, module 3)
+
+*hard, starts neutral. From: Scenario Training, bartending 10. Id: `the-sazerac`.*
+
+**Staff see before they start:**
+
+- The scene: Thursday, 9pm, a cocktail bar. Yasmin orders a Sazerac and watches you make it. She bartends herself, at another venue.
+- Yasmin opens with: "A Sazerac, please. I'm curious how you do yours."
+
+**Hidden until the reveal:**
+
+- **Who:** Yasmin, in her 20s, a bartender on her night off. Friendly, sharp and knows the spec well. She respects precision and honesty.
+- **Wants:** A Sazerac made properly.
+- **Calms them:**
+  - Rye whiskey as the base (some bars use cognac)
+  - A chilled glass rinsed with absinthe
+  - Sugar and Peychaud's bitters, stirred and strained with no ice in the glass
+  - Lemon peel expressed over the top, then usually discarded
+  - Measured pours
+- **Sets them off:**
+  - Treating it like any stirred whiskey drink
+  - Skipping the rinse
+  - Serving it over ice
+  - Bluffing about the spec
+- **Twist (2nd or 3rd reply):** She asks whether you leave the lemon peel in the glass or take it out.
+- **Rule that can't be broken:** none
+- **A good ending:** Yasmin has a Sazerac made to spec, hears a confident answer about the peel, and enjoys the conversation.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: not in play.
+
+## What lagers have you got? (Steve, module 12)
+
+*gentle, starts neutral. From: AI Arena, module 12. Id: `craft-lager`.*
+
+**Staff see before they start:**
+
+- The scene: Friday, 5:30pm, a pub. On tap: the house lager, and a local craft lager that was just tapped today and costs $2 more a schooner.
+- Steve opens with: "What lagers have you got on tap?"
+
+**Hidden until the reveal:**
+
+- **Who:** Steve, in his 40s, knocking off after work. Easy-going, not fussy, but likes trying something local if it sounds good.
+- **Wants:** A cold lager he'll enjoy.
+- **Calms them:**
+  - Naming both lagers
+  - Describing the craft lager with real enthusiasm: local, fresh, how it tastes
+  - Offering a small taste
+  - Being clear about the price
+  - Happy either way with what he picks
+- **Sets them off:**
+  - Pushing the dearer one hard
+  - Not knowing what's on tap
+  - Hiding the price difference
+  - Making him feel cheap for choosing the house lager
+- **Twist (2nd or 3rd reply):** He asks what makes the craft one worth the extra $2.
+- **Rule that can't be broken:** none
+- **A good ending:** Steve tries the craft lager and likes it, or happily picks the house one, and either way he feels helped, not sold to.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: in play. What can happen:
+  - The craft lager instead of the house lager: about +$2
+
+## A bourbon and cola (Emma, module 40)
+
+*tricky, starts neutral. From: AI Arena, module 40, with Scenario Training sales 8 merged in. Id: `bourbon-upgrade`.*
+
+**Staff see before they start:**
+
+- The scene: Saturday, 8pm, a bar. Emma orders a bourbon and cola. The venue stocks a small-batch bourbon at a $4 upcharge that's great with cola, and a premium vodka for the vodka sodas her friends drink.
+- Emma opens with: "Can I get a bourbon and Coke, please?"
+
+**Hidden until the reveal:**
+
+- **Who:** Emma, in her 30s, out with friends. Friendly and open to a suggestion if it sounds genuine, but switches off at anything that sounds like a sales line.
+- **Wants:** A good bourbon and cola, without a sales pitch.
+- **Calms them:**
+  - Naming the bourbon you'd suggest, not just "premium?"
+  - One honest reason it's better with cola, such as smoother, with more vanilla and caramel
+  - Being clear it's $4 more
+  - Real enthusiasm, then her choice
+- **Sets them off:**
+  - "Do you want to upgrade?" with nothing else
+  - Pushing after she says no
+  - Hiding the price
+  - A long speech
+- **Twist (2nd or 3rd reply):** She says her friends drink vodka sodas and asks whether a better vodka is worth it in those too.
+- **Rule that can't be broken:** none
+- **A good ending:** Emma tries the small-batch bourbon, or happily keeps the house pour, and gets an honest answer about the vodka for her friends.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: in play. What can happen:
+  - The small-batch bourbon instead of the house pour: about +$4
+  - Premium vodka in her friends' vodka sodas: about +$9
+
+## Two cocktails, no food (Nick, module 12)
+
+*gentle, starts happy. From: Scenario Training, sales 1. Id: `snack-with-cocktails`.*
+
+**Staff see before they start:**
+
+- The scene: Friday, 6pm, a wine bar. Nick and his partner have ordered two Aperol Spritzes at the bar and haven't opened the food menu.
+- Nick opens with: "Two spritzes, thanks. We're just settling in for a bit."
+
+**Hidden until the reveal:**
+
+- **Who:** Nick, in his 30s, relaxed and happy to be out. Likes a suggestion that feels helpful, and dislikes being rushed.
+- **Wants:** A relaxed drink with his partner.
+- **Calms them:**
+  - A specific snack that goes with spritzes, such as olives, arancini or a small share plate
+  - Framing it as something easy to share while they settle in
+  - A light, low-pressure offer
+  - Knowing what's on the menu
+- **Sets them off:**
+  - "You should really order food"
+  - Handing over the full menu with no suggestion
+  - Pushing after a no
+  - Rushing them
+- **Twist (2nd or 3rd reply):** He says his partner is vegetarian.
+- **Rule that can't be broken:** none
+- **A good ending:** Nick and his partner share a vegetarian snack that suits their spritzes, and the offer felt helpful.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: in play. What can happen:
+  - A share plate with the drinks: about +$16
+
+## Starters for eight (Ravi, module 40)
+
+*tricky, starts neutral. From: Scenario Training, sales 2. Id: `starters-for-eight`.*
+
+**Staff see before they start:**
+
+- The scene: Saturday, 7pm, a restaurant. Ravi's table of eight is still reading the menu and can't decide. Two of the starters are favourites for sharing: the salt and pepper squid and the garlic bread with cheese.
+- Ravi opens with: "We're still deciding, sorry. There's a lot on here."
+
+**Hidden until the reveal:**
+
+- **Who:** Ravi, in his 30s, organising a work dinner. A little stressed about keeping everyone happy, and grateful for someone who takes the lead.
+- **Wants:** For the table to get started without fuss.
+- **Calms them:**
+  - Recommending two specific starters to share, and why they work for a group
+  - Framing them as something to enjoy while mains are decided
+  - Talking to the whole table
+  - Asking about dietary needs
+- **Sets them off:**
+  - Waiting for them to ask
+  - Listing everything on the menu
+  - Pushing too many dishes
+  - Ignoring the rest of the table
+- **Twist (2nd or 3rd reply):** He says one of the group is gluten free.
+- **Rule that can't be broken:** none
+- **A good ending:** Starters for the table are on their way, the gluten-free guest is looked after and noted for the kitchen, and Ravi feels the night is under control.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: in play, starts at "Mostly safe".
+- Money: in play. What can happen:
+  - Two share starters for the table: about +$36
+
+## Sirloin or ribeye? (Alice, module 40)
+
+*tricky, starts neutral. From: Scenario Training, sales 3. Id: `sirloin-or-ribeye`.*
+
+**Staff see before they start:**
+
+- The scene: Thursday, 7:30pm, a steakhouse. Alice orders the 300g sirloin. The 350g ribeye is $12 more and the chef's pick tonight.
+- Alice opens with: "I'll have the sirloin, medium rare, thanks."
+
+**Hidden until the reveal:**
+
+- **Who:** Alice, in her 40s, enjoys a good steak. Decisive, and doesn't like being second-guessed, but listens to a quick, genuine tip.
+- **Wants:** A great steak.
+- **Calms them:**
+  - Confirming her order first
+  - One quick, honest tip about the ribeye: more marbling, richer flavour
+  - Being clear about the price
+  - Respecting her choice either way
+  - Suggesting a specific side or sauce
+- **Sets them off:**
+  - Saying the sirloin isn't worth ordering
+  - Pushing after a no
+  - A long speech about cuts
+  - Hiding the price
+- **Twist (2nd or 3rd reply):** She asks which red goes best with it.
+- **Rule that can't be broken:** none
+- **A good ending:** Alice has the steak she's happy with, maybe the ribeye, with a red that suits it, and felt respected.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: in play. What can happen:
+  - The ribeye instead of the sirloin: about +$12
+  - A glass of red with the steak: about +$15
+
+## What's good tonight? (Ben, module 12)
+
+*gentle, starts neutral. From: Scenario Training, sales 4. Id: `whats-good-tonight`.*
+
+**Staff see before they start:**
+
+- The scene: Friday, 7pm, a bistro. Tonight's special is slow-cooked lamb shoulder with rosemary potatoes. Ben closes the menu and looks up at you.
+- Ben opens with: "What's good tonight?"
+
+**Hidden until the reveal:**
+
+- **Who:** Ben, in his 30s, hungry and happy to be told what to eat. Trusts a confident answer.
+- **Wants:** A recommendation he can trust.
+- **Calms them:**
+  - One specific dish, the special, described in a way that sounds good
+  - Why it's good: what it is, how it's cooked
+  - A drink that goes with it, such as a glass of Shiraz
+  - Genuine enthusiasm
+- **Sets them off:**
+  - "Everything's good"
+  - Reading out the whole menu
+  - Not knowing what the special is
+  - Recommending whatever is dearest
+- **Twist (2nd or 3rd reply):** He says he isn't a big fan of lamb.
+- **Rule that can't be broken:** none
+- **A good ending:** Ben orders something he's excited about, with a drink that goes with it, and the recommendation felt personal.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: in play. What can happen:
+  - A paired glass of wine with the main: about +$15
+
+## Too full for dessert (Fiona, module 12)
+
+*tricky, starts happy. From: Scenario Training, sales 5. Id: `too-full-for-dessert`.*
+
+**Staff see before they start:**
+
+- The scene: Saturday, 8:45pm, a restaurant. You're clearing the mains from Fiona's table of four. Earlier you heard it's her daughter's 18th birthday.
+- Fiona opens with: "That was lovely, thanks. We're too full for dessert though."
+
+**Hidden until the reveal:**
+
+- **Who:** Fiona, in her 50s, celebrating her daughter's birthday. Warm, and a little careful with money. She'd love the night to feel special.
+- **Wants:** A lovely end to the birthday dinner, without overspending.
+- **Calms them:**
+  - Wishing her daughter a happy birthday
+  - Suggesting one dessert to share, with spoons for everyone
+  - Mentioning a candle on it
+  - A light touch, with no pressure
+  - Respecting a no
+- **Sets them off:**
+  - Ignoring the birthday
+  - "Are you sure?" over and over
+  - Pushing a dessert each
+  - A scripted sales line
+- **Twist (2nd or 3rd reply):** She asks if the venue does anything for birthdays.
+- **Rule that can't be broken:** none
+- **A good ending:** The table shares a dessert with a candle for the birthday, or happily declines, and the night ends feeling special.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: in play. What can happen:
+  - One dessert to share: about +$16
+
+## Just an espresso (Marcus, module 40)
+
+*gentle, starts neutral. From: Scenario Training, sales 6. Id: `espresso-and-sweet`.*
+
+**Staff see before they start:**
+
+- The scene: Sunday, 2pm, a cafe. Marcus orders an espresso at the counter. There's tiramisu and a plate of house-made biscotti in the cabinet.
+- Marcus opens with: "Just an espresso, thanks."
+
+**Hidden until the reveal:**
+
+- **Who:** Marcus, in his 60s, has an espresso here most Sundays. Polite and a creature of habit, but enjoys a small treat now and then.
+- **Wants:** His espresso, the way he likes it.
+- **Calms them:**
+  - Making the espresso the priority
+  - A specific suggestion: a biscotti or the tiramisu with it
+  - A warm, quick offer
+  - Remembering him as a regular
+- **Sets them off:**
+  - A long sales pitch
+  - Pushing after a no
+  - Getting his espresso wrong
+  - Treating him like a stranger
+- **Twist (2nd or 3rd reply):** He asks if the biscotti are made here.
+- **Rule that can't be broken:** none
+- **A good ending:** Marcus has his espresso with a biscotti or the tiramisu, or happily without, and feels like a valued regular.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: in play. What can happen:
+  - A biscotti or tiramisu with the espresso: about +$6
+
+## The house white (Grace, module 12)
+
+*gentle, starts neutral. From: Scenario Training, sales 7. Id: `house-wine`.*
+
+**Staff see before they start:**
+
+- The scene: Wednesday, 6:30pm, a restaurant. Grace points to the house white on the list. The next one up, a Marlborough Sauvignon Blanc, is $5 more a glass.
+- Grace opens with: "I'll just have the house white, thanks."
+
+**Hidden until the reveal:**
+
+- **Who:** Grace, in her 30s, out with a friend. Doesn't know much about wine and is a little shy about it. Appreciates a suggestion that isn't snobby.
+- **Wants:** A nice glass of white.
+- **Calms them:**
+  - A short, friendly description of the house white
+  - Offering a small taste of the Sauvignon Blanc: dry and crisp
+  - Being clear it's $5 more
+  - No snobbery, and happy with her choice either way
+- **Sets them off:**
+  - Making her feel cheap
+  - Wine jargon
+  - Pushing the dearer glass
+  - Hiding the price
+- **Twist (2nd or 3rd reply):** She asks which one would go better with the fish.
+- **Rule that can't be broken:** none
+- **A good ending:** Grace has a glass she enjoys, maybe the Sauvignon Blanc after a taste, and feels comfortable asking about wine.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: in play. What can happen:
+  - The Sauvignon Blanc instead of the house white: about +$5
+
+## Four glasses or a bottle? (Lucy, module 2)
+
+*tricky, starts neutral. From: Scenario Training, sales 9. Id: `four-glasses`.*
+
+**Staff see before they start:**
+
+- The scene: Friday, 7pm, a restaurant. Lucy's table of four each want a glass of the same Pinot Noir, $14 a glass. A bottle is $60.
+- Lucy opens with: "Can we get four glasses of the Pinot, please?"
+
+**Hidden until the reveal:**
+
+- **Who:** Lucy, in her 30s, out with three friends. Practical and likes good value. Happy to hear a good idea.
+- **Wants:** Wine for the table at a fair price.
+- **Calms them:**
+  - Pointing out the bottle: a 750ml bottle pours five standard glasses
+  - The value: four glasses are $56, a bottle is $60 for a glass more each round
+  - Presenting and opening the bottle at the table
+  - No pressure
+- **Sets them off:**
+  - Getting the numbers wrong
+  - Pushing a dearer bottle instead
+  - A long speech
+  - Ignoring her question
+- **Twist (2nd or 3rd reply):** She asks if one of them can have a different wine.
+- **Rule that can't be broken:** none
+- **A good ending:** The table has the wine they want at good value, a bottle or glasses, and Lucy feels looked after.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: in play. What can happen:
+  - A bottle instead of four glasses: about +$4
+
+## Their anniversary (Will, module 40)
+
+*tricky, starts happy. From: Scenario Training, sales 10. Id: `anniversary`.*
+
+**Staff see before they start:**
+
+- The scene: Saturday, 7:30pm, a restaurant. While seating Will and his wife, you overhear it's their 25th wedding anniversary. Sparkling wine by the glass is $18; a bottle of Tasmanian sparkling is $85.
+- Will opens with: "Thanks. Could we see the drinks list?"
+
+**Hidden until the reveal:**
+
+- **Who:** Will, in his 50s, celebrating 25 years with his wife. Quietly proud and wants tonight to be special, without a fuss.
+- **Wants:** A special night for his wife.
+- **Calms them:**
+  - A warm, natural congratulations
+  - Suggesting something special: a glass of sparkling each, or a bottle
+  - Not making a fuss, or a big announcement
+  - Mentioning dessert or a small touch later in the night
+  - Being clear on prices
+- **Sets them off:**
+  - Ignoring the anniversary
+  - A scripted "special occasion" line
+  - Pushing the dearest bottle
+  - Announcing it to the room
+- **Twist (2nd or 3rd reply):** He quietly asks if something could be done with dessert to surprise her.
+- **Rule that can't be broken:** none
+- **A good ending:** Will and his wife have something sparkling, a dessert surprise is arranged quietly, and the night feels personal.
+
+**The dials:**
+
+- Guest: always in play (the mood).
+- Speed: not in play.
+- Safety: not in play.
+- Money: in play. What can happen:
+  - A glass of sparkling each: about +$36 (one of the alternatives; only one counts)
+  - A bottle of Tasmanian sparkling instead: about +$85 (one of the alternatives; only one counts)
