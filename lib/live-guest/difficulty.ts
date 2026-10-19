@@ -45,8 +45,8 @@ export function startMoodFor(brief: GuestBrief, difficulty: GuestDifficulty): Mo
 
 /**
  * The few guests to offer first: not yet passed, within the person's level
- * (gentle guests for a beginner), modules they've mastered first, then the
- * hardest they're ready for.
+ * (gentle guests for a beginner), the hardest they're ready for first, and
+ * within that, modules they've mastered.
  */
 export function suggestedGuestIds(briefs: GuestBrief[], progress: GuestProgress, available: (b: GuestBrief) => boolean): Set<string> {
   const mastered = progress.masteredModules.size;
@@ -54,8 +54,8 @@ export function suggestedGuestIds(briefs: GuestBrief[], progress: GuestProgress,
   const picks = briefs
     .filter((b) => available(b) && !progress.passedGuests.has(b.id) && b.level <= reach)
     .sort((a, b) => {
-      const known = Number(progress.masteredModules.has(b.moduleId)) - Number(progress.masteredModules.has(a.moduleId));
-      return known !== 0 ? known : b.level - a.level;
+      if (a.level !== b.level) return b.level - a.level;
+      return Number(progress.masteredModules.has(b.moduleId)) - Number(progress.masteredModules.has(a.moduleId));
     })
     .slice(0, MAX_SUGGESTED);
   return new Set(picks.map((b) => b.id));

@@ -1,4 +1,4 @@
-# Live Guest briefs, batch 2: on the floor
+# Live Guest briefs, batch 2: on the floor (approved 2026-10-19)
 
 11 guests. Each one is a short typed conversation of 3 to 6 replies. The staff member sees the scene and the guest's first line. The AI plays the guest from the rest of the brief, which the staff member only sees in the reveal afterwards, along with what the guest was thinking at each turn.
 
@@ -10,7 +10,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## Let me help you, love (Helen, module 5)
 
-*gentle, starts happy. From: AI Arena, module 5. Id: `helpful-plates`. Not live yet.*
+*gentle, starts happy. From: AI Arena, module 5. Id: `helpful-plates`.*
 
 **Staff see before they start:**
 
@@ -45,7 +45,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## No glasses, no ice (Nat, module 7)
 
-*tricky, starts annoyed. From: AI Arena, module 7. Id: `no-glasses-no-ice`. Not live yet.*
+*tricky, starts annoyed. From: AI Arena, module 7. Id: `no-glasses-no-ice`.*
 
 **Staff see before they start:**
 
@@ -80,7 +80,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## Two arrivals at once (Sophie, module 8)
 
-*gentle, starts neutral. From: AI Arena, module 8. Id: `two-arrivals`. Not live yet.*
+*gentle, starts neutral. From: AI Arena, module 8. Id: `two-arrivals`.*
 
 **Staff see before they start:**
 
@@ -116,7 +116,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## Eight at the table, two ready (Rob, module 9)
 
-*tricky, starts neutral. From: AI Arena, module 9. Id: `table-of-eight`. Not live yet.*
+*tricky, starts neutral. From: AI Arena, module 9. Id: `table-of-eight`.*
 
 **Staff see before they start:**
 
@@ -152,7 +152,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## An empty glass in the lounge (Graham, module 10)
 
-*gentle, starts neutral. From: AI Arena, module 10. Id: `empty-shiraz`. Not live yet.*
+*gentle, starts neutral. From: AI Arena, module 10. Id: `empty-shiraz`.*
 
 **Staff see before they start:**
 
@@ -189,7 +189,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## Three things at once (Anika, module 23)
 
-*tricky, starts neutral. From: AI Arena, module 23. Id: `the-bill-please`. Not live yet.*
+*tricky, starts neutral. From: AI Arena, module 23. Id: `the-bill-please`.*
 
 **Staff see before they start:**
 
@@ -224,7 +224,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## Who's got twelve? (Bianca, module 29)
 
-*tricky, starts annoyed. From: AI Arena, module 29. Id: `read-it-back`. Not live yet.*
+*tricky, starts annoyed. From: AI Arena, module 29. Id: `read-it-back`.*
 
 **Staff see before they start:**
 
@@ -259,7 +259,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## In the weeds (Paul, module 30)
 
-*tricky, starts annoyed. From: AI Arena, module 30. Id: `in-the-weeds`. Not live yet.*
+*tricky, starts annoyed. From: AI Arena, module 30. Id: `in-the-weeds`.*
 
 **Staff see before they start:**
 
@@ -294,7 +294,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## The untouched steak (Ken, module 36)
 
-*tricky, starts annoyed. From: AI Arena, module 36. Id: `untouched-steak`. Not live yet.*
+*tricky, starts annoyed. From: AI Arena, module 36. Id: `untouched-steak`.*
 
 **Staff see before they start:**
 
@@ -330,7 +330,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## Clearing mid-conversation (Sienna, module 38)
 
-*gentle, starts happy. From: AI Arena, module 38. Id: `clearing-entrees`. Not live yet.*
+*gentle, starts happy. From: AI Arena, module 38. Id: `clearing-entrees`.*
 
 **Staff see before they start:**
 
@@ -366,7 +366,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## Backing the junior (Jamie, module 15)
 
-*tricky, starts neutral. From: Scenario Training, management 17. Id: `backing-the-junior`. Not live yet.*
+*tricky, starts neutral. From: Scenario Training, management 17. Id: `backing-the-junior`.*
 
 **Staff see before they start:**
 

@@ -53,9 +53,14 @@ describe("suggested guests", () => {
   });
 
   it("puts modules the person has mastered first, and skips guests already passed", () => {
-    const ids = suggestedGuestIds(live, progress([1, 37, 14], ["out-of-shiraz"]), everyone);
+    const ids = suggestedGuestIds(live, progress([1, 37], ["out-of-shiraz"]), everyone);
     expect(ids.has("flat-schooner")).toBe(true);
     expect(ids.has("out-of-shiraz")).toBe(false);
+  });
+
+  it("offers the hardest guests within reach first", () => {
+    const ids = suggestedGuestIds(live, progress([1, 2, 3, 4, 5]), everyone);
+    for (const id of ids) expect(findGuest(id)!.level).toBe(2);
   });
 
   it("reaches the hard guests for someone experienced", () => {

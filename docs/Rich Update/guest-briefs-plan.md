@@ -10,8 +10,9 @@ Where a scenario is about the team rather than a guest, the person you talk to i
 |---|---|---|
 | Live (Phase 6) | 8 | 8 |
 | Batch 1, approved and live | 10 | 10 |
-| Batch 2, ready for review | 11 | 11 |
-| Batches 3 to 5, still to write | 31 | 31 |
+| Batch 2, approved and live | 11 | 11 |
+| Batch 3, ready for review | 11 | 11 |
+| Batches 4 and 5, still to write | 20 | 20 |
 | Merged into another guest | 1 | 0 |
 | Management, held for a later manager phase | 19 | 0 |
 | **Total** | **80** | |
@@ -44,7 +45,7 @@ Where a scenario is about the team rather than a guest, the person you talk to i
 | A glass for a scoop (Mia, a new casual) | 24 | Arena 24 |
 | A heavy hand (Lachie, a bartender) | 31 | Arena 31 |
 
-## Batch 2: on the floor (ready for review)
+## Batch 2: on the floor (approved 2026-10-19, live)
 
 | Guest | Module | From |
 |---|---|---|
@@ -60,9 +61,21 @@ Where a scenario is about the team rather than a guest, the person you talk to i
 | Clearing mid-conversation (Sienna, a guest) | 38 | Arena 38 |
 | Backing the junior (Jamie, a junior bartender) | 15 | Scenario Training, management 17 |
 
-## Batch 3: behind the bar (to write)
+## Batch 3: behind the bar (ready for review)
 
-Arena 2 (Barossa Shiraz or Cabernet), 3 (sweet, strong, no tonic), 4 (the shouted coffee order), 26 (the soda gun runs warm), 27 (economy of motion), 28 (the mid-shift reset), 32 (opening a $180 bottle), 33 (the gurgling lager tap), 34 (twelve glasses in one trip), 35 (the clean close), 39 (the ice is running low).
+| Guest | Module | From |
+|---|---|---|
+| Shiraz or Cabernet? (Michael, a guest) | 2 | Arena 2 |
+| Sweet but strong (Kayla, on a hens night) | 3 | Arena 3 |
+| The shouted coffee order (Linh, a customer) | 4 | Arena 4 |
+| The flat squash (Oscar, a guest) | 26 | Arena 26 |
+| All speed, no economy (Vince, the senior bartender) | 27 | Arena 27 |
+| Ten quiet minutes (Carmen, the duty manager) | 28 | Arena 28 |
+| The $180 bottle (Richard, a guest) | 32 | Arena 32 |
+| The foaming lager tap (Tony, a guest) | 33 | Arena 33 |
+| Stacked to help (Dan, a guest) | 34 | Arena 34 |
+| Leave it for the morning (Zoe, a bartender closing with you) | 35 | Arena 35 |
+| The ice is running low (Hamish, the bartender) | 39 | Arena 39 |
 
 ## Batch 4: cocktail guests (to write)
 
