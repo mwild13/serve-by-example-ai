@@ -8,7 +8,7 @@ Regrouped on 2026-10-12 by who does the work and where. Background for the launc
 
 Small changes, in the order they will be done. Each goes to a preview branch first.
 
-Nothing open. The quiz speed fix, the trial-ended modal and the Add drawers were done on 2026-10-17; their checks are in section 4.
+- [ ] **Over-limit banner after a downgrade.** A venue that switches from Commercial to Boutique in Stripe keeps all its staff, but new joins are refused ("Seat limit reached") and it drops from several venues to one, with no word to the manager. Show a banner across the Manager Console while the venue is over its plan: "Your Boutique plan includes 15 staff. You have 22. Remove 7 or move back to Commercial.", with Manage staff and Change plan buttons. Do not block sign-in or force deletions. Cover the venue count as well as seats. Stripe's portal is set to apply downgrades at the end of the billing period.
 
 ## 2. Marketing copy
 
@@ -18,13 +18,11 @@ Nothing open. Closed by the owner on 2026-10-12. There is still no customer data
 
 Grouped by where you sign in. None of these can be done from the code.
 
-### Stripe
-
-- [ ] **Switch on plan switching, in test mode first.** Settings, Billing, Customer portal, "Customers can switch plans". Add the Boutique and Commercial prices, monthly and yearly, and nothing else (not Pro, not Enterprise). Set proration to "Prorate and invoice immediately", not "on next invoice". Until this is done, a Pro member who presses a venue plan sees Stripe's refusal instead of the upgrade page.
+Nothing open. Plan switching was set up in Stripe's customer portal on 2026-10-19: Boutique and Commercial, monthly and yearly; prorations invoiced at once; downgrades at the end of the billing period.
 
 ## 4. Owner: testing
 
-Each needs something first: a real payment, an expired trial, or the Stripe setting in section 3.
+Each needs something first: a real payment, an expired trial, or a Pro account in test mode.
 
 ### On an iPhone, signed in
 
@@ -33,7 +31,7 @@ Each needs something first: a real payment, an expired trial, or the Stripe sett
 ### On a computer, as staff
 
 - [ ] **Trial-ended modal.** Branch `preview/oct-w4-console-restyle`. As a manager whose trial has ended: the modal uses the console dialog style, Escape or "Not now" closes it and it does not come back after a reload, and "Add billing details" opens the billing tab.
-- [ ] **Upgrade from Pro to a venue plan.** Needs the Stripe setting in section 3. In test mode, as a Pro account, press a Boutique button on `/membership`: Stripe's page should show the prorated charge. Pay, and confirm you land on the Manager Console billing tab on Boutique with 15 seats and an organisation created.
+- [ ] **Upgrade from Pro to a venue plan.** In test mode, as a Pro account, press a Boutique button on `/membership`: Stripe's page should show the prorated charge. Pay, and confirm you land on the Manager Console billing tab on Boutique with 15 seats and an organisation created.
 
 ## 5. Owner: decisions
 
@@ -41,7 +39,6 @@ Nothing open. The five that were here were decided on 2026-10-12 (Part 13 of the
 
 ## 6. Tests
 
-- [ ] **Run the mobile e2e suite and re-capture every baseline.** `tests/e2e/global-setup.ts` no longer uses the login form and has never been run. The mobile frame now uses the full phone width, so every screenshot will differ: run once with `--update-snapshots=all`, and check the no-horizontal-scroll test passes on all 22 `/mobile` routes. Needs `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` and `E2E_TEST_EMAIL`.
 - [ ] **An e2e test from sign-up through checkout.** Nothing tests the payment path.
 
 ## 7. Larger builds
