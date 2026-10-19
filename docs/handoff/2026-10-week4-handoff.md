@@ -85,3 +85,39 @@ Moved to `To_do_list.md` (Parked: notification email capacity and time zones).
 - 115 tests, `tsc`, `eslint`, `knip` and the CSS checks pass; CI passed on `e7a53d7`.
 - The preview build of `e7a53d7` served `/`, `/login`, `/membership` and `/notifications/unsubscribe`, refused `/api/cron/notifications` without the secret (401), and sent a signed-out `/dashboard` to `/login`.
 - Not seen in a browser: the staff profile drawer, the open cocktail and the desktop Settings refresh, all behind a login. They are in the to-do list under "On a computer, as staff".
+
+## Part 4: quiz speed, console restyle, owner checks and dashboards
+
+- **Dates:** 2026-10-17 to 2026-10-19
+- **Branches:** `preview/oct-w4-quiz-speed` and `preview/oct-w4-console-restyle`, on `main` since 2026-10-19 (`3730899`). `preview/oct-w4-e2e-baselines` (new baselines and to-do edits) is pushed but not yet on `main`.
+
+### Code
+
+- **Quiz answers are faster.** `/api/training/verify/answer` now checks the sign-in token's signature inside the worker (`getVerifiedUserFromRequest()` in `lib/supabase-server.ts`, using Supabase `getClaims`) instead of asking Supabase on every answer, and runs the session check and the attempt read together. Three round trips per answer became two. Trade-off, noted in the route: a signed-out token still works until it expires (an hour at most), and only with that device's session cookie.
+- **Trial-ended modal** (`TrialExpiredModal.tsx`) moved onto the console dialog style: focus starts on "Add billing details", Escape and "Not now" close it, and either button records that it was shown.
+- **Add staff, Add inventory and Add program drawers** (`ActionDrawer.tsx`, forms in `ManagerControlCenter.tsx`) moved onto the console standard (`mc-drawer*`, `mc-field`, `mc-input`). The invite link panel says to share the link yourself when the email failed. The old ops drawer and form rules were removed from `management.css`.
+- **Branded auth email templates** (`supabase/templates/confirm-signup.html`, `change-email.html`) are now in git. Supabase does not read them from the repo; the live copies are the ones pasted into the dashboard.
+- `.playwright-mcp/` (screenshots and logs from Playwright MCP sessions) is deleted and ignored.
+
+### Release method
+
+No pull request. Fast-forward or cherry-pick onto local `main`, push the same commit to a `preview/...` branch so the required `checks` job runs on it, then push `main`. A direct push before the check passes is refused by branch protection.
+
+### Owner checks passed
+
+- Quiz speed (desktop and phone), the Add drawers, the staff profile drawer, the open cocktail on desktop and the join link on a computer.
+- On a phone: the notifications card on Home, AI photo, `/mobile` at full width, text fields, the join link, the Learn and Me tab bars, the Me header and AI Coach on Me. Android was checked on a second phone.
+- **Account deletion releases the roster.** Deleting info@ (a venue-linked staff account) from desktop Settings signed it out at once. Its `venue_staff` row was kept with `staff_user_id` null and status `inactive`; its `organization_members` row was kept as `removed`.
+- **Marketing e2e suite against production:** 73 passed, 1 skipped.
+- **Mobile e2e suite against production, first run of the new sign-in setup:** every baseline retaken at all 7 sizes, and all 22 `/mobile` routes passed the horizontal-scroll check. Help timed out on two sizes until Cloudflare's Email Address Obfuscation was turned off: it injects a script the site's CSP blocks, and the blocked request kept the page from going idle.
+
+### Dashboards
+
+- **Stripe customer portal:** plan switching on for Boutique and Commercial, monthly and yearly, nothing else; prorations invoiced at once; downgrades at the end of the billing period.
+- **Cloudflare:** Email Address Obfuscation off for servebyexample.co.
+- **Google Ads:** account created and linked to Analytics, then parked until there is an ad budget. Steps left are in the to-do list.
+- **Sentry:** browser errors, the alert email and IP stripping confirmed. No server error has arrived yet, so server reporting is unconfirmed (in the to-do list under Important).
+
+### Left open
+
+In `To_do_list.md`: the over-limit banner after a downgrade (section 1), the two payment tests and the trial-ended modal test (section 4), and an e2e test from sign-up through checkout (section 6).
