@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-5-compliance-a.md.
+// Approved by the owner on 2026-10-19 (batch 5). Review copy:
+// docs/Rich Update/batch-5-compliance-a.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_17_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Crossed arms scream defensive aggression. Keep open, relaxed body language to avoid escalating the conflict physically.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_17_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "People naturally mirror tone. If you stay calm and speak quietly, an aggressive guest will often subconsciously lower their volume.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_17_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Invading personal space triggers the fight-or-flight response. Keep a safe distance.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_17_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Removing the 'audience' stops the patron from feeling the need to show off and keeps the dining room peaceful.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_17_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Targeting the action, not the ego, de-personalises the conflict and reduces the patron's need to fight back.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_17_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Verbal threats are a strict red line. Staff safety is paramount; radio management or security immediately to intervene.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_17_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Saying 'I am so sorry that happened' validates their feelings and takes the wind entirely out of their aggressive sails.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -134,7 +134,7 @@ export const MODULE_17_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Getting into a shouting match compromises your professionalism and can quickly trigger a physical altercation.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -149,6 +149,6 @@ export const MODULE_17_QUESTIONS: Question[] = [
       { id: "d", text: "Bring in a manager or security if there are threats" },
     ],
     explanation: "Calm body language and space stop things escalating, an apology takes the heat out, removing the audience helps, and threats always go to a manager or security.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

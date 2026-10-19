@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-5-compliance-a.md.
+// Approved by the owner on 2026-10-19 (batch 5). Review copy:
+// docs/Rich Update/batch-5-compliance-a.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_15_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "By law, food does not override intoxication. An unduly intoxicated patron must be refused service and removed.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_15_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Slurring words and loss of coordination are classic physical signs that a patron has consumed too much alcohol and must be cut off. Asking for water isn't one of them.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_15_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "All licensed Australian venues must provide free, accessible drinking water to patrons at all times.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_15_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Failing to refuse service risks massive fines, loss of your personal RSA certificate, and venue closure.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_15_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "There is no 'one more.' The moment a patron shows clear signs of undue intoxication, alcohol service stops. Offering water keeps it friendly.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_15_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Saying 'I could lose my job and face a massive fine' shifts the blame from you to the government.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_15_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Only government-issued ID (Driver's Licence, Passport, Keypass) is legally acceptable for age verification in Australia.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -133,6 +133,6 @@ export const MODULE_15_QUESTIONS: Question[] = [
       { id: "d", text: "Tell the manager" },
     ],
     explanation: "An unduly intoxicated patron must be refused service. Blaming the law takes the heat out of it, water keeps it friendly, and the manager needs to know.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

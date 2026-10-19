@@ -610,9 +610,9 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
       explanation: "These are classic physical signs that a patron has consumed too much alcohol and must be cut off.",
     },
     {
-      prompt: "A minor can legally drink alcohol if their parent buys it.",
+      prompt: "Staff can serve a minor alcohol on licensed premises if a parent orders it for them.",
       answer: "false",
-      explanation: "Secondary supply to a minor on licensed premises carries massive legal fines for the venue and the bartender.",
+      explanation: "In most states this is an offence that carries heavy fines for the venue and the bartender, and venue policy is to refuse. Check your state's rules.",
     },
     {
       prompt: "Offering free water is a mandatory RSA requirement in Australia.",
@@ -637,7 +637,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "You can accept a university ID card as proof of age.",
       answer: "false",
-      explanation: "Only government-issued ID (Driver's Licence, Passport, Keypass) is legally acceptable for age verification in Australia.",
+      explanation: "Only government-issued photo ID with a date of birth, such as a driver's licence, passport or your state's proof-of-age card, is acceptable for age verification.",
     },
   ],
   16: [
@@ -669,7 +669,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "It is safe to defrost raw prawns on the bench overnight.",
       answer: "false",
-      explanation: "Bench defrosting leaves the outside of the seafood in the temperature danger zone for hours. Thaw under running cold water.",
+      explanation: "Bench defrosting leaves the outside of the seafood in the temperature danger zone for hours. Thaw in the fridge, or under cold running water if you need it sooner.",
     },
     {
       prompt: "Date labels ensure a strict first-in, first-out stock rotation.",
@@ -677,9 +677,9 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
       explanation: "Labeling prepped food ensures older ingredients are used first, reducing venue waste and preventing food poisoning.",
     },
     {
-      prompt: "Blue band-aids must be worn over cuts in the kitchen.",
+      prompt: "Blue band-aids should be worn over cuts in the kitchen.",
       answer: "true",
-      explanation: "Blue is the only colour that does not naturally occur in food, making the band-aid instantly visible if it falls off.",
+      explanation: "Cuts must be covered. Blue is the industry standard because it doesn't occur naturally in food, so the band-aid is instantly visible if it falls off.",
     },
   ],
   17: [
@@ -696,7 +696,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "You should stand aggressively close to an intoxicated angry patron.",
       answer: "false",
-      explanation: "Invading personal space triggers the fight-or-flight response. Keep a safe, two-arm-length distance.",
+      explanation: "Invading personal space triggers the fight-or-flight response. Keep a safe distance.",
     },
     {
       prompt: "Moving a dispute away from the main crowd is good practice.",
@@ -743,12 +743,12 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "The fire warden holds total authority during an emergency evacuation.",
       answer: "true",
-      explanation: "The designated fire warden outranks the general manager during an emergency. All staff must follow their sweeping commands.",
+      explanation: "The designated fire warden outranks the general manager during an emergency, until the fire brigade arrives and takes over. All staff must follow their commands.",
     },
     {
       prompt: "You should check the bathrooms quickly to ensure no one remains.",
       answer: "true",
-      explanation: "Bathrooms are loud and closed off; intoxicated patrons often miss alarms. Staff must clear these areas on the way out.",
+      explanation: "Bathrooms are loud and closed off; intoxicated patrons often miss alarms. Clear them on the way out, but only if it is safe and the fire warden directs it.",
     },
     {
       prompt: "Gathering your personal belongings is the top priority during a fire.",
@@ -768,14 +768,14 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
   ],
   19: [
     {
-      prompt: "Counting the till float exactly is the first opening duty.",
+      prompt: "The till float must be counted and checked at opening.",
       answer: "true",
       explanation: "If you don't verify the float in the morning, you will be blamed for any cash discrepancies from the night shift.",
     },
     {
-      prompt: "You can leave the coffee machine on overnight to save time.",
+      prompt: "Whether the coffee machine stays on overnight is up to each staff member.",
       answer: "false",
-      explanation: "Boilers left running overnight pose a fire risk and massively burn out the internal heating elements over time.",
+      explanation: "Some machines are built to stay on and some venues switch them off. Follow your venue's rule for its machine, every night.",
     },
     {
       prompt: "Wiping down beer taps prevents fruit flies from breeding overnight.",
@@ -800,7 +800,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Emptying the glass bins at 2 AM is quiet and respectful.",
       answer: "false",
-      explanation: "Smashing glass bins at 2 AM violates residential noise ordinances. They must be emptied in the morning.",
+      explanation: "Most venues' licence conditions or council rules limit emptying bottle bins late at night, because of the noise. Check your venue's rules and empty them in the allowed hours.",
     },
     {
       prompt: "Setting the security alarm is the final step of closing.",
@@ -842,7 +842,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Using a jigger ensures exact measurements and perfect stock control.",
       answer: "true",
-      explanation: "Free-pouring is inaccurate and often illegal depending on the venue policy. Jiggers guarantee a 30ml pour every time.",
+      explanation: "Free-pouring is inaccurate and against most venues' policy. Jiggers guarantee a 30ml pour every time.",
     },
     {
       prompt: "Throwing away half-full kegs is a standard weekly procedure.",

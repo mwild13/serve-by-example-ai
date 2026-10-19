@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-5-compliance-a.md.
+// Approved by the owner on 2026-10-19 (batch 5). Review copy:
+// docs/Rich Update/batch-5-compliance-a.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_18_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Assembly points must be a safe distance away from the building structure, usually in a carpark or adjacent street.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_18_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Drinks spill, causing slip hazards in stairwells, and holding glasses prevents people from using handrails safely.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_18_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Elevators can lose power or open directly onto a fire floor. Always use the emergency fire stairs.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_18_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "The designated fire warden outranks the general manager during an emergency. All staff must follow their sweeping commands.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_18_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Bags and jackets are replaceable; human life is not. Evacuate the second the primary alarm sounds.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_18_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "A blocked fire exit is a severe WHS violation and can cause a lethal crush situation in a panicked evacuation.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_18_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Staff must project calm authority. Walk swiftly and purposefully, and loudly instruct guests to do the same.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -133,6 +133,6 @@ export const MODULE_18_QUESTIONS: Question[] = [
       { id: "d", text: "Gather at the assembly point" },
     ],
     explanation: "The fire warden is in charge. Guests leave drinks and bags behind, everyone walks out by the stairs, and you gather at the assembly point away from the building.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

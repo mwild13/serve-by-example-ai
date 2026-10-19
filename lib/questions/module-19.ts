@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-5-compliance-a.md.
+// Approved by the owner on 2026-10-19 (batch 5). Review copy:
+// docs/Rich Update/batch-5-compliance-a.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_19_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Sugary beer residue is a magnet for bar flies. Taps must be wiped and plugged every single night.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_19_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Wet floors as guests walk in is a massive slip hazard. Mopping must be done at closing or early morning so it dries.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_19_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Stagnant water sitting overnight breeds bacteria. Dry wells ensure a sanitary start for the morning crew.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_19_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "This is a fireable offence. The safe must be locked, spun, and secured every single night without exception.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_19_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Once the till is secured and the doors are locked, setting the alarm secures the building for the night.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_19_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "This is a fireable offence. The safe must be locked, spun, and secured every single night without exception.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,6 +118,6 @@ export const MODULE_19_QUESTIONS: Question[] = [
       { id: "e", text: "Set the security alarm" },
     ],
     explanation: "Clean down first, then secure the cash. Once the till is secured and the doors are locked, setting the alarm secures the building for the night.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-5-compliance-a.md.
+// Approved by the owner on 2026-10-19 (batch 5). Review copy:
+// docs/Rich Update/batch-5-compliance-a.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_20_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "A heavy hand ruins the 30ml yield. Over-pouring just 5ml every drink destroys the bar's gross profit margin.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_20_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Unauthorized comps are legally considered theft. All free drinks must be approved and logged in the POS by a manager.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_20_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Logging waste ensures the stocktake balances at the end of the month, explaining exactly where the lost inventory went.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_20_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "This FIFO principle ensures perishables like milk, juice, and kegs are used before they expire and become waste.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_20_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "This is a severe health violation. Once a liquid has touched a guest's glass, it must be poured down the drain.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_20_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "From the coolroom kegs to the half-empty bottles on the speed rail, every drop must be accounted for monthly.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,6 +118,6 @@ export const MODULE_20_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Kegs have a long shelf life. Throwing away a half keg is a massive financial loss and indicates terrible stock management.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

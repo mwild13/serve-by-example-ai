@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-5-compliance-a.md.
+// Approved by the owner on 2026-10-19 (batch 5). Review copy:
+// docs/Rich Update/batch-5-compliance-a.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_16_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Even a microscopic crumb of gluten on a shared cutting board can hospitalise a guest with true coeliac disease.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_16_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Raw poultry must always be stored on the bottom shelf to prevent deadly salmonella juices from dripping onto cooked food.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -50,7 +50,7 @@ export const MODULE_16_QUESTIONS: Question[] = [
     answer: 5,
     tolerance: 0,
     explanation: "The danger zone (5°C to 60°C) is where bacteria multiply rapidly. Hot food must stay hot, and cold food cold.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -62,7 +62,7 @@ export const MODULE_16_QUESTIONS: Question[] = [
     answer: 60,
     tolerance: 0,
     explanation: "The danger zone (5°C to 60°C) is where bacteria multiply rapidly. Hot food must stay hot, and cold food cold.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -78,7 +78,7 @@ export const MODULE_16_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "This is severe cross-contamination. Raw meat tongs must never touch a steak that is ready to be plated.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -94,7 +94,7 @@ export const MODULE_16_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "A rapid rinse does nothing. Hot water, soap, and 20 seconds of friction are required to kill pathogens.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -110,7 +110,7 @@ export const MODULE_16_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Labeling prepped food ensures older ingredients are used first, reducing venue waste and preventing food poisoning.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -126,7 +126,7 @@ export const MODULE_16_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Blue is the only colour that does not naturally occur in food, making the band-aid instantly visible if it falls off.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -142,6 +142,6 @@ export const MODULE_16_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "This is severe cross-contamination. Raw meat tongs must never touch a steak that is ready to be plated.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

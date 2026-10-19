@@ -1,6 +1,8 @@
 # Batch 5: Compliance, part A
 
-48 questions in the new formats, all drafts. They are in the code (`lib/questions/`) but switched off until you approve them. Generated from the code by `scripts/question-review.mjs`, so this is exactly what staff will see.
+**Approved by the owner on 2026-10-19: all 48 questions, and every statement fix below.**
+
+48 questions in the new formats, in `lib/questions/`. Generated from the code by `scripts/question-review.mjs`, so this is exactly what staff will see.
 
 Every question is written only from the module's existing True/False statements (shown under each one), so it adds no new facts. The places to look hardest are the wrong options and the "best line" wording, which are new.
 
@@ -634,3 +636,7 @@ This batch has more points than the others, because RSA and food safety rules di
 **Questions that add a step or wording:**
 - **The four put-in-order questions** (RSA q8, Conflict q9, Evacuation q8, Opening & Closing q7) join several statements into one sequence. Check that the order matches how your venues train.
 - **Every "best line"**, especially the RSA refusals (q5, q6). Read them aloud.
+
+## Decided on review (2026-10-19)
+
+All the fixes above were made in `lib/verify-questions.ts`. For the coffee machine, the statement was reworded rather than dropped: "Whether the coffee machine stays on overnight is up to each staff member" (false). Its explanation is to follow the venue's rule for its own machine.
