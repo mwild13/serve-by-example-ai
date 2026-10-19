@@ -8,7 +8,9 @@
  *   node scripts/live-guest-review.mjs <out.md> "<title>" [guestId...]
  *   node scripts/live-guest-review.mjs "docs/Rich Update/live-guest-briefs.md" "Live Guest: the first eight guests"
  *   node scripts/live-guest-review.mjs --unreviewed "docs/Rich Update/guest-briefs-batch-1.md" "Live Guest briefs, batch 1"
- * With no ids, every guest is listed; --unreviewed lists only guests not yet approved.
+ *   node scripts/live-guest-review.mjs --reviewed "docs/Rich Update/live-guest-briefs.md" "Live Guest: the guests that are live"
+ * With no ids, every guest is listed; --unreviewed lists only guests not yet
+ * approved, and --reviewed only the live ones.
  */
 import { build } from "esbuild";
 import { writeFileSync, mkdtempSync, rmSync } from "node:fs";
@@ -17,8 +19,8 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const args = process.argv.slice(2);
-const unreviewedOnly = args[0] === "--unreviewed";
-const [out, title, ...ids] = unreviewedOnly ? args.slice(1) : args;
+const filter = args[0] === "--unreviewed" || args[0] === "--reviewed" ? args[0] : null;
+const [out, title, ...ids] = filter ? args.slice(1) : args;
 if (!out || !title) {
   console.error('Usage: node scripts/live-guest-review.mjs <out.md> "<title>" [guestId...]');
   process.exit(1);
@@ -48,7 +50,7 @@ rmSync(dir, { recursive: true, force: true });
 const MOOD = { 1: "fuming", 2: "annoyed", 3: "neutral", 4: "happy", 5: "delighted" };
 const LEVEL = { 1: "gentle", 2: "tricky", 3: "hard" };
 const picked = ids.length ? GUEST_BRIEFS.filter((g) => ids.includes(g.id)) : GUEST_BRIEFS;
-const guests = unreviewedOnly ? picked.filter((g) => !g.reviewed) : picked;
+const guests = filter ? picked.filter((g) => g.reviewed === (filter === "--reviewed")) : picked;
 const SAFETY = { 1: "Unsafe", 2: "At risk", 3: "Watch it", 4: "Mostly safe", 5: "Safe" };
 const dollars = (n) => (n > 0 ? `+$${n}` : n < 0 ? `-$${-n}` : "$0");
 

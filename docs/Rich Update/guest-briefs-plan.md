@@ -9,10 +9,11 @@ Where a scenario is about the team rather than a guest, the person you talk to i
 | | Scenarios | Guests |
 |---|---|---|
 | Live (Phase 6) | 8 | 8 |
-| Batch 1, ready for review | 10 | 10 |
-| Batches 2 to 5, still to write | 41 | 41 |
+| Batch 1, approved and live | 10 | 10 |
+| Batch 2, ready for review | 11 | 11 |
+| Batches 3 to 5, still to write | 31 | 31 |
 | Merged into another guest | 1 | 0 |
-| Management, waiting on a decision | 20 | to decide |
+| Management, held for a later manager phase | 19 | 0 |
 | **Total** | **80** | |
 
 ## Live (Phase 6)
@@ -28,7 +29,7 @@ Where a scenario is about the team rather than a guest, the person you talk to i
 | A booking for tonight (Claire) | 14 | Arena 14 |
 | Someone pushed in (Kyle) | 17 | Arena 17 |
 
-## Batch 1: safety, compliance and money (ready for review)
+## Batch 1: safety, compliance and money (approved 2026-10-19, live)
 
 | Guest | Module | From |
 |---|---|---|
@@ -43,9 +44,21 @@ Where a scenario is about the team rather than a guest, the person you talk to i
 | A glass for a scoop (Mia, a new casual) | 24 | Arena 24 |
 | A heavy hand (Lachie, a bartender) | 31 | Arena 31 |
 
-## Batch 2: on the floor (to write)
+## Batch 2: on the floor (ready for review)
 
-Arena 5 (tray carrying), 7 (out of glasses and ice), 8 (two arrivals at once), 9 (table of eight before the kitchen closes), 10 (lounge check-in), 23 (three needs at once), 29 (reading a docket), 30 (in the weeds), 36 (the untouched steak), 38 (clearing a table mid-conversation).
+| Guest | Module | From |
+|---|---|---|
+| Let me help you, love (Helen, a guest) | 5 | Arena 5 |
+| No glasses, no ice (Nat, the bartender) | 7 | Arena 7 |
+| Two arrivals at once (Sophie, a tourist) | 8 | Arena 8 |
+| Eight at the table, two ready (Rob, a guest) | 9 | Arena 9 |
+| An empty glass in the lounge (Graham, a regular) | 10 | Arena 10 |
+| Three things at once (Anika, a guest) | 23 | Arena 23 |
+| Who's got twelve? (Bianca, the sous chef) | 29 | Arena 29 |
+| In the weeds (Paul, a guest) | 30 | Arena 30 |
+| The untouched steak (Ken, a guest) | 36 | Arena 36 |
+| Clearing mid-conversation (Sienna, a guest) | 38 | Arena 38 |
+| Backing the junior (Jamie, a junior bartender) | 15 | Scenario Training, management 17 |
 
 ## Batch 3: behind the bar (to write)
 
@@ -63,8 +76,10 @@ Arena 12 (the premium craft lager) and 40 (the bourbon upgrade). Scenario Traini
 
 - **Scenario Training, sales 8** (a well vodka soda, upgraded to a premium vodka) goes into **Arena 40** (a bourbon and cola, upgraded to a premium bourbon). They test the same thing. The guest can order either.
 
-## Management: waiting on your decision
+## Management (decided 2026-10-19)
 
-These 20 aren't conversations with a guest. In each one you're the manager, talking to a staff member or the owner, and none of them fits one of the 40 modules. Examples: a junior staff member stuck running food, a talented staff member whose visa runs out in 8 months, owners who see team building as a cost, and tension between the floor and the kitchen.
+In these 20 you're the manager, talking to a staff member or the owner, and most don't fit one of the 40 modules. Examples: a junior staff member stuck running food, a talented staff member whose visa runs out in 8 months, owners who see team building as a cost, and tension between the floor and the kitchen.
 
-Two of them are about guests and could join the guest set now: number 16 (a gaming room patron showing early signs of distress) and number 17 (helping a junior cut off a regular the team likes, module 15).
+- **Number 17** (helping a junior cut off a regular the team likes) joins the guests now, in batch 2, under module 15.
+- **Number 16** (a gaming room patron showing early signs of distress) is held. No module teaches responsible gambling, and the rules vary by state, so a guest would test something the app never teaches. It can come back with a gaming module.
+- **The other 18** wait for a later manager-focused phase. Their content stays in `trainer-data.ts` when the Scenario Training screen is hidden in Phase 8.

@@ -1,4 +1,4 @@
-# Live Guest briefs, batch 1: safety, compliance and money
+# Live Guest briefs, batch 1: safety, compliance and money (approved 2026-10-19)
 
 10 guests. Each one is a short typed conversation of 3 to 6 replies. The staff member sees the scene and the guest's first line. The AI plays the guest from the rest of the brief, which the staff member only sees in the reveal afterwards, along with what the guest was thinking at each turn.
 
@@ -10,7 +10,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## Glass by the toilets (Lou, module 6)
 
-*gentle, starts neutral. From: AI Arena, module 6. Id: `glass-by-the-toilets`. Not live yet.*
+*gentle, starts neutral. From: AI Arena, module 6. Id: `glass-by-the-toilets`.*
 
 **Staff see before they start:**
 
@@ -45,7 +45,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## Just one more, mate (Gaz, module 15)
 
-*hard, starts neutral. From: AI Arena, module 15. Id: `last-schooner`. Not live yet.*
+*hard, starts neutral. From: AI Arena, module 15. Id: `last-schooner`.*
 
 **Staff see before they start:**
 
@@ -82,7 +82,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## The gluten-free burger (Marco, module 16)
 
-*tricky, starts annoyed. From: AI Arena, module 16. Id: `gf-burger`. Not live yet.*
+*tricky, starts annoyed. From: AI Arena, module 16. Id: `gf-burger`.*
 
 **Staff see before they start:**
 
@@ -118,7 +118,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## Just grabbing my bag (Bec, module 18)
 
-*tricky, starts neutral. From: AI Arena, module 18. Id: `fire-alarm-bag`. Not live yet.*
+*tricky, starts neutral. From: AI Arena, module 18. Id: `fire-alarm-bag`.*
 
 **Staff see before they start:**
 
@@ -152,7 +152,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## A hundred short (Sam, module 19)
 
-*tricky, starts neutral. From: AI Arena, module 19. Id: `till-short`. Not live yet.*
+*tricky, starts neutral. From: AI Arena, module 19. Id: `till-short`.*
 
 **Staff see before they start:**
 
@@ -186,7 +186,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## Drinks for his mates (Jordo, module 20)
 
-*hard, starts neutral. From: AI Arena, module 20. Id: `mates-rates`. Not live yet.*
+*hard, starts neutral. From: AI Arena, module 20. Id: `mates-rates`.*
 
 **Staff see before they start:**
 
@@ -223,7 +223,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## Round the corner (Ash, module 21)
 
-*gentle, starts neutral. From: AI Arena, module 21. Id: `blind-corridor`. Not live yet.*
+*gentle, starts neutral. From: AI Arena, module 21. Id: `blind-corridor`.*
 
 **Staff see before they start:**
 
@@ -258,7 +258,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## Glass in the ice well (Tash, module 22)
 
-*tricky, starts annoyed. From: AI Arena, module 22. Id: `glass-in-the-ice`. Not live yet.*
+*tricky, starts annoyed. From: AI Arena, module 22. Id: `glass-in-the-ice`.*
 
 **Staff see before they start:**
 
@@ -294,7 +294,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## A glass for a scoop (Mia, module 24)
 
-*gentle, starts neutral. From: AI Arena, module 24. Id: `glass-for-a-scoop`. Not live yet.*
+*gentle, starts neutral. From: AI Arena, module 24. Id: `glass-for-a-scoop`.*
 
 **Staff see before they start:**
 
@@ -329,7 +329,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 ## A heavy hand (Lachie, module 31)
 
-*tricky, starts neutral. From: AI Arena, module 31. Id: `heavy-hand`. Not live yet.*
+*tricky, starts neutral. From: AI Arena, module 31. Id: `heavy-hand`.*
 
 **Staff see before they start:**
 
