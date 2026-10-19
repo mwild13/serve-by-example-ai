@@ -156,6 +156,16 @@ export function isMultiVenueTier(raw: string | null | undefined): boolean {
   return MULTI_VENUE_TIERS.includes(normalizeTier(raw));
 }
 
+/**
+ * Live Guest is on venue plans only: Boutique, Commercial and Enterprise
+ * (legacy venue_single / venue_multi included), venue trials (resolveAccess
+ * reports the trial's tier) and staff sponsored by a venue (reported as
+ * venue_single). Not Pro or free (Rich update, Phase 8).
+ */
+export function hasLiveGuest(access: Pick<AccessInfo, "tier">): boolean {
+  return isB2BTier(access.tier);
+}
+
 export function tierDisplayName(raw: string | null | undefined): string {
   return TIER_DISPLAY_NAMES[normalizeTier(raw)];
 }

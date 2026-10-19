@@ -9,8 +9,6 @@ import MobileScreenShell from "./MobileScreenShell";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import CoreKnowledgeSection from "./learn/CoreKnowledgeSection";
-import PracticeScenariosSection from "./learn/PracticeScenariosSection";
-import CategorySimulationsSection from "./learn/CategorySimulationsSection";
 import MiniGamesSection from "./learn/MiniGamesSection";
 import ReferenceLibrarySection from "./learn/ReferenceLibrarySection";
 
@@ -23,10 +21,9 @@ import ReferenceLibrarySection from "./learn/ReferenceLibrarySection";
 //
 // 3-tab consolidation (2026-08-21): this screen is now the orchestrator for
 // several sections instead of a single module grid. "Scenarios" was removed
-// as a bottom-nav tab — it was a training *method* (roleplay/descriptor/
-// quiz), not a distinct destination from "Learn" — so ScenarioTrainingScreen
-// .tsx's content (now PracticeScenariosSection + CategorySimulationsSection)
-// lives here, and /mobile/scenarios redirects here. useTrainingProgress()
+// as a bottom-nav tab, and /mobile/scenarios now redirects to Live Guest.
+// Scenario Practice and the Live Arena were retired in the Rich update,
+// Phase 8: the Practice section is Live Guest. useTrainingProgress()
 // used to have no caching/dedup (every call fired its own fetch); it's now
 // backed by a shared TrainingProgressProvider (Phase 1a), but this screen
 // still calls the hook exactly once and prop-drills into the sections that
@@ -34,9 +31,8 @@ import ReferenceLibrarySection from "./learn/ReferenceLibrarySection";
 //
 // Phase 2 (mobile bug-fix plan, 2026-08-24): sections reordered into an
 // easy -> medium -> hard progression per explicit user instruction — Modules
-// (quiz gate) first, then Practice & Scenarios (Live Arena), then Category
-// Simulations (a full category scenario run, the deepest practice mode),
-// then Interactive Mini-Games, then Reference Library. Knowledge Base also
+// (quiz gate) first, then Practice (Live Guest), then Interactive
+// Mini-Games, then Reference Library. Knowledge Base also
 // moved out of the Modules section into Reference Library (above Cocktail
 // Library) — see ReferenceLibrarySection.tsx's header comment; this
 // reverses the "do not merge" split that used to be documented here.
@@ -267,10 +263,7 @@ export default function LearnHubScreen() {
 
         <div ref={practiceRef}>
           <LiveGuestCard />
-          <PracticeScenariosSection data={data} />
         </div>
-
-        <CategorySimulationsSection data={data} />
 
         <div ref={gamesRef}>
           <MiniGamesSection />

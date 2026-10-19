@@ -1141,10 +1141,6 @@ html[data-staff-high-contrast="1"] .dash-card {
   background: var(--green-light);
   border-color: var(--green);
 }
-.progress-accordion-stat-row strong {
-  color: var(--text);
-  font-weight: 700;
-}
 /* ── Shared Training Card ─────────────────────────────────────────────────────
    New unified card shell (app/dashboard/_components/common/SharedTrainingCard.tsx)
    for Modules / Scenarios / Live Scenarios. Standardized on --radius-lg + --shadow-sm
@@ -1359,19 +1355,6 @@ html[data-staff-high-contrast="1"] .dash-card {
     border: 1.5px solid rgba(255,255,255,0.4) !important;
     color: white !important;
   }
-/* ── Help / Keyboard Shortcut Modal ──────────────── */
-.sbe-help-modal h3 {
-    margin: 0 0 20px;
-    font-size: 1.15rem;
-    color: var(--text);
-  }
-.sbe-shortcut-list li {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: .95rem;
-    color: var(--text);
-  }
 /* ── Intent Pills ────────────────────────────────── */
 .sbe-intent-pills {
     flex-direction: column;
@@ -1507,21 +1490,6 @@ html[data-staff-high-contrast="1"] .dash-card {
     font-size: .95rem;
     color: var(--text);
     line-height: 1.6;
-    font-weight: 500;
-  }
-.sbe-scenario-insight strong {
-    display: block;
-    font-size: .78rem;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    color: var(--status-amber-text);
-    margin-bottom: 8px;
-  }
-.sbe-scenario-insight p {
-    margin: 0;
-    font-size: .95rem;
-    color: var(--status-amber-text);
-    line-height: 1.7;
     font-weight: 500;
   }
 /* ── Menu engineering tools ─────────────────────── */
@@ -1795,22 +1763,6 @@ body {
   font-size: 0.88rem;
   color: var(--text);
   line-height: 1.5;
-}
-/* ══════════════════════════════════════════════════════
-   STAGE 4 — Speech Bubbles & Knowledge Tip
-   ══════════════════════════════════════════════════════ */
-.s4-knowledge-tip strong {
-  display: block;
-  margin-bottom: 0.35rem;
-  color: var(--green-deep);
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-.s4-knowledge-tip li {
-  padding: 2px 0;
-  color: var(--text-soft);
-  line-height: 1.4;
 }
 /* ══════════════════════════════════════════════════════
    DARK MODE — .sbe-dark on <html>

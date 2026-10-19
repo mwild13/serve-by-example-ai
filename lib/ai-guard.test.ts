@@ -39,7 +39,6 @@ describe("writing rules", () => {
   it("is in every prompt that writes a reply people read", () => {
     expect(GUEST_SYSTEM_PROMPT).toContain(AU_WRITING_RULES);
     for (const file of [
-      "app/api/arena/evaluate/route.ts",
       "app/api/coach/route.ts",
       "app/api/management/coach/route.ts",
       "lib/scenario-evaluator.ts",

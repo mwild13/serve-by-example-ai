@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   AREA_LABEL,
@@ -55,7 +56,17 @@ const DIFFICULTY_TEXT: Record<GuestDifficulty, string> = {
   3: "You know this area well now, so expect less patience.",
 };
 
-function GuestCard({ guest, starting, onStart }: { guest: PublicGuest; starting: string | null; onStart: (id: string) => void }) {
+function GuestCard({
+  guest,
+  starting,
+  onPlan,
+  onStart,
+}: {
+  guest: PublicGuest;
+  starting: string | null;
+  onPlan: boolean;
+  onStart: (id: string) => void;
+}) {
   return (
     <button
       type="button"
@@ -74,7 +85,7 @@ function GuestCard({ guest, starting, onStart }: { guest: PublicGuest; starting:
         </span>
       )}
       <span className="lg-guest-cta">
-        {!guest.available ? "Not on your plan" : starting === guest.id ? "Starting…" : `Talk to ${guest.name}`}
+        {!guest.available ? (onPlan ? "Not on your plan" : "On venue plans") : starting === guest.id ? "Starting…" : `Talk to ${guest.name}`}
       </span>
     </button>
   );
@@ -82,6 +93,7 @@ function GuestCard({ guest, starting, onStart }: { guest: PublicGuest; starting:
 
 export default function LiveGuest({ getToken, theme, intro = true }: Props) {
   const [guests, setGuests] = useState<PublicGuest[] | null>(null);
+  const [onPlan, setOnPlan] = useState(true);
   const [listError, setListError] = useState<string | null>(null);
   const [chat, setChat] = useState<Chat | null>(null);
   const [starting, setStarting] = useState<string | null>(null);
@@ -96,7 +108,9 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
     getToken()
       .then(listLiveGuests)
       .then((list) => {
-        if (!cancelled) setGuests(list);
+        if (cancelled) return;
+        setGuests(list.guests);
+        setOnPlan(list.onPlan);
       })
       .catch((err: unknown) => {
         if (!cancelled) setListError(err instanceof Error ? err.message : "Could not load the guests.");
@@ -184,12 +198,25 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
         {error && <p className="lg-error" role="alert">{error.message}</p>}
         {listError && <p className="lg-error" role="alert">{listError}</p>}
         {!guests && !listError && <p className="lg-muted">Loading guests…</p>}
+        {guests && !onPlan && (
+          <div className="lg-upgrade">
+            <p className="lg-upgrade-title">Live Guest is on venue plans</p>
+            <p className="lg-upgrade-text">
+              Practise real conversations with {guests.length} guests, from a flat schooner to a regular who&apos;s had too many, and
+              see what they were thinking at each turn. It comes with Boutique, Commercial and Enterprise, and with every venue
+              trial. If you work at a venue, ask your manager to add you.
+            </p>
+            <Link className="qz-next lg-upgrade-cta" href="/pricing">
+              See the plans
+            </Link>
+          </div>
+        )}
         {suggested.length > 0 && (
           <>
             <h3 className="lg-group-title">Suggested for you</h3>
             <div className="lg-guests">
               {suggested.map((g) => (
-                <GuestCard key={g.id} guest={g} starting={starting} onStart={(id) => void begin(id)} />
+                <GuestCard key={g.id} guest={g} starting={starting} onPlan={onPlan} onStart={(id) => void begin(id)} />
               ))}
             </div>
           </>
@@ -212,7 +239,7 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
             </div>
             <div className="lg-guests">
               {shown.map((g) => (
-                <GuestCard key={g.id} guest={g} starting={starting} onStart={(id) => void begin(id)} />
+                <GuestCard key={g.id} guest={g} starting={starting} onPlan={onPlan} onStart={(id) => void begin(id)} />
               ))}
             </div>
           </>

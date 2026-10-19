@@ -65,7 +65,7 @@ export default function HelpScreen() {
         <ol style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 6 }}>
           <li>Open <strong>Home</strong> each shift for your daily warm-up quiz and today&apos;s featured cocktails.</li>
           <li>Head to <strong>Learn</strong> to work through your 40 training modules in order. Each one ends in a short quiz.</li>
-          <li>Once you&apos;ve mastered a few modules, try <strong>Scenario Practice</strong> and <strong>Live Arena</strong> to go deeper than the quiz alone.</li>
+          <li>Try <strong>Live Guest</strong> from Learn: a conversation with a guest who talks back, to go deeper than the quiz alone.</li>
           <li>Check <strong>Me</strong> any time to see your mastery breakdown, streaks, and badges.</li>
         </ol>
       </Section>
@@ -91,15 +91,11 @@ export default function HelpScreen() {
         badges are never lost.
       </Section>
 
-      <Section title="Scenario Practice">
-        Written, AI-graded responses to real service situations tied to each module, a deeper check of judgment than
-        the quiz alone. This is the &quot;Scenarios&quot; sub-metric you see under each category on the Me page.
-      </Section>
-
-      <Section title="Live Arena">
-        Roleplay conversations evaluated live by the AI Coach, the closest thing to practicing on the floor. This is
-        the &quot;AI Scenarios&quot; sub-metric on the Me page. Arena opens straight from a module you&apos;ve just
-        mastered, or any time from the Learn Hub.
+      <Section title="Live Guest">
+        A typed conversation with a guest, or sometimes a colleague, who talks back: three to six replies, the way you
+        would on shift. Afterwards you see what they were thinking at each turn and how the four dials moved: the
+        guest, speed, money and safety. Guests get tougher as you master modules. A pass counts toward the
+        &quot;Live Guest&quot; bar on the Me page. Live Guest is on venue plans.
       </Section>
 
       <Section title="Challenges">
@@ -113,10 +109,9 @@ export default function HelpScreen() {
       </Section>
 
       <Section title="Me / Progress">
-        Your mastery breakdown by category (Modules, Scenarios, AI Scenarios), best streak, skill level, and badges all
-        live here. The ring percentage for each category is the average of all three sub-metrics underneath it, so if
-        you&apos;ve only ever done the quizzes and never touched Scenario Practice or Live Arena, the ring reflects that
-        honestly rather than showing 100% early.
+        Your mastery breakdown by category (Modules and Live Guest), best streak, skill level, and badges all live
+        here. The ring percentage for each category is the average of the two bars underneath it, so if you&apos;ve
+        only ever done the quizzes, the ring reflects that honestly rather than showing 100% early.
       </Section>
 
       <Section title="Notifications">
@@ -150,10 +145,9 @@ export default function HelpScreen() {
           No. A wrong answer just resets your streak toward the 5-in-a-row requirement, it doesn&apos;t fail the whole
           quiz or cost you anything. Take your time.
         </FaqItem>
-        <FaqItem q="What's the difference between Scenarios and AI Scenarios?">
-          Scenarios (Scenario Practice) are written responses graded by AI after the fact. AI Scenarios (Live Arena) are
-          live back-and-forth roleplay conversations evaluated as you go. Both count separately toward your mastery
-          breakdown on the Me page.
+        <FaqItem q="Where did Scenario Practice and Live Arena go?">
+          They became Live Guest: the same situations, now as a real back-and-forth conversation with a guest. Your
+          earlier results are kept.
         </FaqItem>
         <FaqItem q="Can I turn notifications off after enabling them?">
           Yes, any time: Settings &gt; Notifications, same toggle you used to turn it on. No email is sent when you

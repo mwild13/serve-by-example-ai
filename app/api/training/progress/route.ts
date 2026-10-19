@@ -67,8 +67,9 @@ export async function GET(req: Request) {
         .not("module_id", "is", null),
       admin
         .from("scenario_mastery")
-        .select("module_id, best_score, total_attempts, mastery_level")
+        .select("module_id, best_score, total_attempts, mastery_level, is_mastered")
         .eq("user_id", user.id)
+        .eq("scenario_type", "roleplay")
         .eq("scenario_index", 40)
         .is("archived_at", null)
         .not("module_id", "is", null),
@@ -197,10 +198,15 @@ export async function GET(req: Request) {
     // sense." The ring is now the average of the same 3 sub-metrics the
     // breakdown row shows, so the headline number and the bars underneath
     // it always tell the same story.
+    //
+    // Rich update, Phase 8: Category Simulations (the "scenarios" sub-metric)
+    // were retired with Scenario Training, so the ring is now the average of
+    // the two that can still grow: Modules and Live Guest (aiScenarios, the
+    // roleplay row). "scenarios" stays in the payload for older clients.
     const categoryMastery = {
-      bartending: Math.round((categoryBreakdown.bartending.modules + categoryBreakdown.bartending.scenarios + categoryBreakdown.bartending.aiScenarios) / 3),
-      sales: Math.round((categoryBreakdown.sales.modules + categoryBreakdown.sales.scenarios + categoryBreakdown.sales.aiScenarios) / 3),
-      management: Math.round((categoryBreakdown.management.modules + categoryBreakdown.management.scenarios + categoryBreakdown.management.aiScenarios) / 3),
+      bartending: Math.round((categoryBreakdown.bartending.modules + categoryBreakdown.bartending.aiScenarios) / 2),
+      sales: Math.round((categoryBreakdown.sales.modules + categoryBreakdown.sales.aiScenarios) / 2),
+      management: Math.round((categoryBreakdown.management.modules + categoryBreakdown.management.aiScenarios) / 2),
     };
 
     // ── Canonical skill level (mastered modules / total × 10) ──
@@ -216,15 +222,18 @@ export async function GET(req: Request) {
       Math.max(1, Math.round((masteredModuleCount / Math.max(totalModuleCount, 1)) * 10)),
     );
 
-    // ── Arena progress (derived from parallel arenaRows fetch) ──
+    // ── Live Guest progress (the roleplay row, shared with the retired AI
+    // Arena). best_score is on record_attempt's 0-25 scale, shown out of 100.
+    // A pass sets is_mastered (record_attempt), the same flag the manager's
+    // service score counts; mastery_level needs repeat passes, so it isn't used.
     const arenaProgress: Record<number, { attempts: number; bestScore: number; passed: boolean }> = {};
     if (arenaRows) {
       for (const row of arenaRows) {
         if (row.module_id == null) continue;
         arenaProgress[row.module_id] = {
           attempts: (row.total_attempts as number) ?? 0,
-          bestScore: (row.best_score as number) ?? 0,
-          passed: ((row.mastery_level as number) ?? 0) >= 3,
+          bestScore: Math.round(((row.best_score as number) ?? 0) * 4),
+          passed: row.is_mastered === true,
         };
       }
     }
@@ -302,7 +311,8 @@ export async function GET(req: Request) {
       masteredModuleCount,
       totalModuleCount,
       scenariosStartedCount,
-      arenaModuleCount: Object.keys(arenaProgress).length,
+      // Modules with a Live Guest (or old Arena) pass.
+      arenaModuleCount: Object.values(arenaProgress).filter((p) => p.passed).length,
       // New: per-module progress for all 20 modules
       moduleProgress,
       allModules: allModules ?? [],

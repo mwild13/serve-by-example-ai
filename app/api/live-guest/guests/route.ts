@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
-import { resolveAccess } from "@/lib/session";
+import { hasLiveGuest, resolveAccess } from "@/lib/session";
 import { rateLimit } from "@/lib/rate-limit";
 import { GUEST_BRIEFS } from "@/lib/live-guest/guests";
 import { publicGuest } from "@/lib/live-guest/engine";
@@ -26,7 +26,9 @@ export async function GET(req: Request) {
       loadGuestProgress(admin, user.id),
     ]);
     const live = GUEST_BRIEFS.filter((g) => g.reviewed);
-    const available = (g: (typeof live)[number]) => access.allowedModules.includes(g.moduleId);
+    // Venue plans only. Everyone else sees the guests with an upgrade prompt.
+    const onPlan = hasLiveGuest(access);
+    const available = (g: (typeof live)[number]) => onPlan && access.allowedModules.includes(g.moduleId);
     const suggested = suggestedGuestIds(live, progress, available);
     const guests = live.map((g) =>
       publicGuest(g, {
@@ -36,7 +38,7 @@ export async function GET(req: Request) {
         suggested: suggested.has(g.id),
       }),
     );
-    return NextResponse.json({ guests }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ guests, onPlan }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("live-guest/guests error:", error);
     return NextResponse.json({ error: "Could not load the guests." }, { status: 500 });

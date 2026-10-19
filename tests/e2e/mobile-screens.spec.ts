@@ -30,7 +30,7 @@ const SCREENS: Array<{ name: string; path: string }> = [
 // it redirects) and ai-photo (asks for the camera).
 const ALL_ROUTES = [
   "arena", "badges", "challenges", "cocktails", "contact", "help", "home",
-  "knowledge", "learn", "match-pairs", "memory-test", "menu-audit", "privacy",
+  "knowledge", "learn", "live-guest", "match-pairs", "memory-test", "menu-audit", "privacy",
   "progress", "quiz", "recipe-order", "report-bug", "scenario-practice",
   "scenarios", "settings", "speed-round", "terms",
 ];

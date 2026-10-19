@@ -1,20 +1,8 @@
-import { Suspense } from "react";
-import ArenaScreen from "../_components/ArenaScreen";
+import { redirect } from "next/navigation";
 
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "AI Arena | Serve By Example",
-  description: "Live AI-scored roleplay evaluation for hospitality service scenarios.",
-  robots: { index: false, follow: false },
-};
-
-// Phase C file 04 — ArenaScreen reads scenario payload via useSearchParams(),
-// which Next.js requires to be wrapped in Suspense.
-export default function MobileArenaPage() {
-  return (
-    <Suspense fallback={null}>
-      <ArenaScreen />
-    </Suspense>
-  );
+// Retired in the Rich update, Phase 8: the Live Arena became Live
+// Guest. Kept as a redirect so old links and bookmarks still land somewhere
+// useful.
+export default function MobileArenaRedirectPage() {
+  redirect("/mobile/live-guest");
 }

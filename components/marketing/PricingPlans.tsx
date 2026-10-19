@@ -46,7 +46,7 @@ const TIERS: Tier[] = [
     trial: false,
     features: [
       "40 modules across Bartending, Sales and Management",
-      "AI Arena: live scenarios with written feedback",
+      "Quizzes in six formats, with test-outs for what you already know",
       "Mastery levels, spaced repetition, badges and streaks",
       "Rapid-fire drills and interactive challenges",
     ],
@@ -63,6 +63,7 @@ const TIERS: Tier[] = [
     featured: true,
     features: [
       "Everything in Staff",
+      "Live Guest: 60 guests who talk back, then show what they were thinking",
       "Manager Console with live team progress",
       "Team performance leaderboard",
       "Guided venue setup call",

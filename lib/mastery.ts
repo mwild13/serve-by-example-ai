@@ -47,7 +47,7 @@ const V3_MODULE_CATEGORIES: Record<number, "technical" | "service" | "compliance
 // Pass mark (15/25), mastery streak (3) and spam guard (60 min) live in
 // the record_attempt() Postgres function — see recordAttempt() below.
 
-export type ConfidenceLevel = "low" | "medium" | "high";
+type ConfidenceLevel = "low" | "medium" | "high";
 
 /**
  * scenario_mastery's real key is (user_id, module, scenario_type, scenario_index) —
@@ -202,40 +202,6 @@ export class AttemptIdConflictError extends Error {
     super("Attempt id already used for a different attempt.");
     this.name = "AttemptIdConflictError";
   }
-}
-
-/**
- * A previously recorded attempt with this id, for answering a retried
- * request without grading it again. Null when the id is new, or belongs to
- * another user.
- */
-export async function findRecordedAttempt(
-  admin: SupabaseClient,
-  userId: string,
-  attemptId: string,
-): Promise<{ result: RecordAttemptResult; evaluation: unknown } | null> {
-  const { data, error } = await admin
-    .from("training_attempts")
-    .select("user_id, result, evaluation")
-    .eq("id", attemptId)
-    .maybeSingle();
-  if (error || !data || data.user_id !== userId) return null;
-  // result is filled in by the same transaction that inserts the row, so an
-  // empty object can't be seen; guard anyway.
-  if (!data.result || typeof data.result !== "object" || !("masteryLevel" in data.result)) return null;
-  return { result: { ...(data.result as RecordAttemptResult), replayed: true }, evaluation: data.evaluation };
-}
-
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-/**
- * The client's attempt id when it sent a valid one, else a fresh id (older
- * cached clients don't send one; their attempts still record, just without
- * retry protection).
- */
-export function resolveAttemptId(raw: unknown): { id: string; fromClient: boolean } {
-  if (typeof raw === "string" && UUID_PATTERN.test(raw)) return { id: raw.toLowerCase(), fromClient: true };
-  return { id: crypto.randomUUID(), fromClient: false };
 }
 
 // ── V3: Binary mastery write ─────────────────────────────────
@@ -460,7 +426,7 @@ export async function syncMasteryToVenueStaff(
 
   const attemptedIds = new Set<number>();
   const masteredIds = new Set<number>();         // verify quiz passed
-  const roleplayMasteredIds = new Set<number>(); // Arena passed
+  const roleplayMasteredIds = new Set<number>(); // Live Guest (or old Arena) passed
   let totalHighConfidenceIncorrect = 0;
   let totalLowConfidenceCorrect = 0;
   for (const r of rows) {
@@ -499,7 +465,8 @@ export async function syncMasteryToVenueStaff(
 
   const overallProgress = Math.round((totalMastered / totalModules) * 100);
   const roleplayProgress = Math.round((roleplayMasteredIds.size / totalModules) * 100);
-  // Weighted service score: 80% from quiz mastery, 20% from Arena roleplay completion
+  // Weighted service score: 80% from quiz mastery, 20% from Live Guest passes
+  // (the roleplay row, which the retired AI Arena also wrote).
   const computedServiceScore = Math.round(overallProgress * 0.8 + roleplayProgress * 0.2);
 
   let masteryStatus = "not-started";

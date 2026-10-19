@@ -147,8 +147,14 @@ async function call<T>(url: string, token: string, body?: unknown): Promise<T> {
   return data;
 }
 
-export async function listLiveGuests(token: string): Promise<PublicGuest[]> {
-  return (await call<{ guests: PublicGuest[] }>("/api/live-guest/guests", token)).guests;
+export type LiveGuestList = {
+  guests: PublicGuest[];
+  /** False on Pro and free: the guests show with an upgrade prompt. */
+  onPlan: boolean;
+};
+
+export function listLiveGuests(token: string): Promise<LiveGuestList> {
+  return call<LiveGuestList>("/api/live-guest/guests", token);
 }
 
 export function startLiveGuest(token: string, guestId: string): Promise<LiveGuestStart> {

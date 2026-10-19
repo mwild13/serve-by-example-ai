@@ -31,7 +31,7 @@ This file is global rules only. Domain-specific architecture, component maps, an
 
 - Marketing site (public routes, geo-blocking, brand voice, component usage): `docs/MARKETING_SITE.md`
 - Manager Console (data fetching, RBAC, state management): `docs/MANAGER_CONSOLE.md`
-- Staff App — web & mobile training loop, AI Arena, PWA: `docs/STAFF_APP.md`
+- Staff App — web & mobile training loop, Live Guest, PWA: `docs/STAFF_APP.md`
 - Database schema, table map, RLS rules: `docs/DATABASE_SCHEMA.md`
 - Mastery/ELO scoring engine: `docs/MASTERY_ENGINE.md`
 - Funnel numbers and the saved SQL behind them: `docs/FUNNEL_METRICS.md`

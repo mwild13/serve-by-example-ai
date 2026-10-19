@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { GlassWater, TrendingUp, Users, Flame, Trophy, BookOpen, Share2, Target, Check } from "lucide-react";
+import { GlassWater, TrendingUp, Users, Flame, Trophy, BookOpen, Target, Check } from "lucide-react";
 import { computeBadges, countEarned, recentEarned, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
 import { KB_ENTRIES, KB_CATEGORIES } from "@/lib/knowledge-base";
 import Image from "next/image";
 import { COCKTAILS, COCKTAIL_IMAGES, type Cocktail } from "@/lib/cocktails";
 import { computeStreak } from "@/lib/streak";
 
-type NavItem = "home" | "module" | "rapid-fire" | "stage4" | "scenarios" | "challenges" | "cocktails" | "knowledge" | "progress" | "settings";
+type NavItem = "home" | "module" | "rapid-fire" | "live-guest" | "challenges" | "cocktails" | "knowledge" | "progress" | "settings";
 type ModuleKey = "bartending" | "sales" | "management";
 
 type DbModule = {
@@ -118,21 +118,19 @@ const AWARD_ICON = (
 
 function HorizontalProgressionTrack({
   completedModules,
-  completedScenarios,
   totalModules,
   completedLive,
   completedChallenges,
   totalChallenges,
 }: {
   completedModules: number;
-  completedScenarios: number;
   totalModules: number;
   completedLive: number;
   completedChallenges: number;
   totalChallenges: number;
 }) {
-  const totalScenarios = totalModules;
-  const totalLive = 20;
+  // Live Guest passes, one per module (every module has a guest).
+  const totalLive = totalModules;
 
   type TrackStatus = "completed" | "active" | "upcoming";
   function getStatus(done: number, total: number): TrackStatus {
@@ -157,15 +155,8 @@ function HorizontalProgressionTrack({
       status: getStatus(completedModules, totalModules),
     },
     {
-      id: "scenarios",
-      label: "Scenarios",
-      subtext: `${completedScenarios} of ${totalScenarios}`,
-      Icon: Share2,
-      status: getStatus(completedScenarios, totalScenarios),
-    },
-    {
-      id: "live-scenarios",
-      label: "Live Scenarios",
+      id: "live-guest",
+      label: "Live Guest",
       subtext: `${completedLive} of ${totalLive}`,
       Icon: Target,
       status: getStatus(completedLive, totalLive),
@@ -547,10 +538,8 @@ export default function PreShiftHome({
   // Read tracker counts directly from progressData prop – bypasses state race between Effect A and Effect B
   const _m = progressData?.masteredModuleCount;
   const _t = progressData?.totalModuleCount;
-  const _s = progressData?.scenariosStartedCount;
   const _a = progressData?.arenaModuleCount;
   const modulesComplete = typeof _m === "number" ? _m : data.masteredModuleCount;
-  const trackerScenarios = typeof _s === "number" ? _s : data.scenariosStartedCount;
   const trackerLive = typeof _a === "number" ? _a : data.arenaModuleCount;
   const trackerTotal = (typeof _t === "number" ? _t : data.totalModuleCount) || 40;
   const totalModules = data.allModules.length || 1;
@@ -722,7 +711,6 @@ export default function PreShiftHome({
         {loaded ? (
           <HorizontalProgressionTrack
             completedModules={modulesComplete}
-            completedScenarios={trackerScenarios}
             totalModules={trackerTotal}
             completedLive={trackerLive}
             completedChallenges={data.challengesCompleted}

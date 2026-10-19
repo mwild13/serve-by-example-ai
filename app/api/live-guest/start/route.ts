@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
-import { resolveAccess, validateSession } from "@/lib/session";
+import { hasLiveGuest, resolveAccess, validateSession } from "@/lib/session";
 import { rateLimit } from "@/lib/rate-limit";
 import { getCookieValue } from "@/lib/training-attempt";
 import { readJsonBody } from "@/lib/ai-guard";
@@ -43,6 +43,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Session conflict detected. Please resume this device.", code: "SESSION_CONFLICT" }, { status: 409 });
     }
     const access = await resolveAccess(admin, user.id, user.email ?? "");
+    if (!hasLiveGuest(access)) {
+      return NextResponse.json(
+        { error: "Live Guest is on venue plans. Ask your venue about Serve By Example, or see the plans.", code: "PLAN_REQUIRED" },
+        { status: 403 },
+      );
+    }
     if (!access.allowedModules.includes(guest.moduleId)) {
       return NextResponse.json(
         { error: "Your current plan does not include this guest. Please upgrade.", code: "MODULE_ACCESS_DENIED" },

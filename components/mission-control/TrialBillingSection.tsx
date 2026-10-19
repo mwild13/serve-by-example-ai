@@ -94,7 +94,7 @@ export function TrialBillingSection({
     `Up to ${config.seats} staff seats`,
     config.venues,
     "Full 40-module training library",
-    "AI Arena and scenario training",
+    "Live Guest conversations",
     "Manager Console",
     "Cancel any time",
   ];

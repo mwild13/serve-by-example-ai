@@ -8,7 +8,7 @@ The rules run **in Postgres**, inside `SECURITY DEFINER` functions that only the
 
 | Piece | Where | What it does |
 |---|---|---|
-| `record_attempt()` | `supabase/migrations/20261003b_retire_elo_and_elite_numbers.sql` (first version in `20261002_…`) | Records one Scenario Training (`descriptor`) or Arena (`roleplay`) attempt in a single transaction, with the mastery row locked |
+| `record_attempt()` | `supabase/migrations/20261003b_retire_elo_and_elite_numbers.sql` (first version in `20261002_…`) | Records one graded attempt in a single transaction, with the mastery row locked. Today that's a Live Guest conversation (`roleplay`); Scenario Training (`descriptor`) and the Arena also wrote here until they were retired in the Rich update, Phase 8 |
 | `recordAttempt()` | `lib/mastery.ts` | Calls `record_attempt()`; throws `AttemptIdConflictError` when an attempt id is reused for a different scenario |
 | `mark_module_mastered()` | `20261002_…` | Quiz mastery write; called only by the quiz run functions |
 | `advance_quiz_run()` | `20261020_question_engine.sql` | Saves one graded quiz answer and the run's new state, and masters the module when the run passes. Replaces `advance_verify_attempt()` from `20261002_…` |
@@ -19,8 +19,8 @@ Nothing else writes `scenario_mastery`. Clients can't write it at all (Phase 2 R
 
 ## Attempt rules (`record_attempt`)
 
-- **Score scale:** 0–25, clamped and rounded. Arena grades 0–100 and passes `score / 4`, plus its own `passed` flag.
-- **Pass:** a score of 15 or more, unless the caller passes `passed`. Arena passes only at 75/100 or above.
+- **Score scale:** 0–25, clamped and rounded. Live Guest (like the Arena before it) grades 0–100 and passes `score / 4`, plus its own `passed` flag. `GET /api/training/progress` shows `best_score × 4` as a score out of 100.
+- **Pass:** a score of 15 or more, unless the caller passes `passed`. Live Guest passes only at 75/100 or above, and never on a breach.
 - **Mastery level** (0–3) on each scenario row:
   - A pass adds to `consecutive_correct`. The first pass gives level ≥1, two in a row give ≥2, three in a row give level 3 (mastered).
   - A fail resets `consecutive_correct`, adds to `consecutive_fails`, and drops the level by one (never below 0).
@@ -28,19 +28,18 @@ Nothing else writes `scenario_mastery`. Clients can't write it at all (Phase 2 R
 - **Spaced repetition:**
   - After a pass, `next_review_at` = now + level² days (1, 4, then 9 days).
   - After a fail, the scenario is due for review straight away.
-- **Bridge hint:** `isBridge` is true after 2 fails in a row. Desktop Scenario Training shows a fixed hint; difficulty doesn't change.
+- **Bridge hint:** `isBridge` is true after 2 fails in a row. Nothing shows it since Scenario Training was retired.
 - **Confidence:** `high_confidence_incorrect` and `low_confidence_correct` counters feed the manager "confidence mismatch" signal.
-- **Arena (`roleplay`, `scenario_index` 40):** a pass sets `is_mastered`. A later fail never clears it.
-- **Live Guest** (Rich update, Phase 6) records a finished conversation on the same `roleplay` / 40 row of the guest's module, with the conversation id as the attempt id and `evaluation.kind = "live_guest"`. It grades 0 to 100, passes at 75 unless the guest brief's must-do was broken (a breach), and sends `score / 4`. So a Live Guest pass counts in the service score exactly as an Arena pass does. Engine: `lib/live-guest/engine.ts`; briefs: `lib/live-guest/guests.ts` (server-only). From Phase 7, `evaluation.difficulty` records how patient the guest was (1 to 3). Difficulty reads mastery (verified quiz rows) but never writes it: `lib/live-guest/difficulty.ts`.
-- **Pro badge streak:** `profiles.current_correct_streak` and `best_correct_streak` are updated in the same transaction, for Scenario Training only and not when spam-guarded.
+- **Roleplay (`roleplay`, `scenario_index` 40):** a pass sets `is_mastered`. A later fail never clears it. "Passed" on the progress screens means `is_mastered`, not `mastery_level`, which needs repeat passes.
+- **Live Guest** (Rich update, Phase 6) records a finished conversation on the same `roleplay` / 40 row of the guest's module, with the conversation id as the attempt id and `evaluation.kind = "live_guest"`. It grades 0 to 100, passes at 75 unless the guest brief's must-do was broken (a breach), and sends `score / 4`. So a Live Guest pass counts in the service score exactly as an Arena pass did, and earlier Arena passes still count. A finished conversation also stamps a venue trial as activated (`maybeMarkTrialActivated()`). Engine: `lib/live-guest/engine.ts`; briefs: `lib/live-guest/guests.ts` (server-only). From Phase 7, `evaluation.difficulty` records how patient the guest was (1 to 3). Difficulty reads mastery (verified quiz rows) but never writes it: `lib/live-guest/difficulty.ts`.
+- **Pro badge streak:** `profiles.current_correct_streak` and `best_correct_streak` are updated in the same transaction, for `descriptor` attempts only (Scenario Training, now retired) and not when spam-guarded.
 - **Archived rows** (soft-deleted by "reset progress") are treated as fresh and reactivated.
 
 ### Idempotency
 
-- Every graded submission carries an `attemptId`, a UUID generated by the client. `lib/attempt-id.ts` reuses it on retry and renews it after a success.
+- Live Guest records each conversation under its own id (the `live_guest_sessions` row), so a retried final reply can't record twice.
 - `record_attempt()` claims the id in `training_attempts` first. A repeated id returns the stored result with `replayed: true` and changes nothing.
-- The routes (`/api/evaluate`, `/api/arena/evaluate`) check `findRecordedAttempt()` before grading. A retry gets back the stored feedback without a second OpenAI call.
-- Old clients without an id still work; they just get no retry protection.
+- The retired `/api/evaluate` and `/api/arena/evaluate` routes used client attempt ids; both now return 410.
 
 ## Verify quiz (module mastery): the question engine
 
@@ -96,7 +95,7 @@ Added in the Rich update, Phase 4.
 | `venue_staff` field | Meaning |
 |---|---|
 | `progress`, `module_mastery_pct` | Verify quizzes passed ÷ total modules |
-| `service_score` | 80% quiz mastery + 20% Arena passes, each as a share of all modules |
+| `service_score` | 80% quiz mastery + 20% Live Guest passes (the roleplay row, Arena passes included), each as a share of all modules |
 | `product_score` | Share of technical-category modules mastered |
 | `module_completion_pct` | Modules started at all ÷ total modules (fixed in Phase 5: it used to be capped at 10%) |
 | `mastery_status` | `not-started` / `in-progress` / `mastered` |
@@ -133,10 +132,9 @@ The `modules` table (40 rows), read through `lib/module-navigator.ts` or `/api/t
   - `lib/module-navigator.ts`'s fallback block
   - `lib/diagnostic-engine.ts`
   - `ModuleVerify.tsx`'s `MODULE_TITLES`
-  - the `MODULE_META` constants in `ArenaPage.tsx`, `PreShiftHome.tsx` and `trainer/trainer-data.ts`
+  - the `MODULE_META` constant in `PreShiftHome.tsx`
 
   Each has a different shape, so they can't be collapsed mechanically.
 - **Scenario content:**
   - Verify quiz questions: `lib/verify-questions.ts` and `lib/questions/` (server-only, combined in `lib/question-bank.ts`), with a copy of the True/False statements in the locked `scenarios` table.
-  - Scenario Training: `trainer/trainer-data.ts` `SCENARIOS`.
-  - Arena: `lib/arena-scenarios.ts` `ARENA_SEED_SCENARIOS`.
+  - Live Guest: `lib/live-guest/guests.ts`, which replaced Scenario Training's `trainer-data.ts` and the Arena's `lib/arena-scenarios.ts` (both removed in Phase 8; the held management scenarios are copied in `docs/Rich Update/guest-briefs-plan.md`).

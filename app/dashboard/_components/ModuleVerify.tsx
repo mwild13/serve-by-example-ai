@@ -63,7 +63,7 @@ type Status = "loading" | "ready" | "error" | "mastered" | "retry";
 
 type Props = {
   moduleId: number;
-  onArena?: () => void;
+  onLiveGuest?: () => void;
   onComplete?: () => void;
   nextModuleId?: number;
 };
@@ -79,7 +79,7 @@ async function accessToken(): Promise<string> {
 // The quiz is graded on the server (lib/verify-quiz.ts): this starts a run,
 // QuizRun sends each answer, and the server records mastery itself when the
 // run passes. There is no separate "save" step.
-export default function ModuleVerify({ moduleId, onArena, onComplete, nextModuleId }: Props) {
+export default function ModuleVerify({ moduleId, onLiveGuest, onComplete, nextModuleId }: Props) {
   const moduleTitle = MODULE_TITLES[moduleId] ?? `Module ${moduleId}`;
   const [status, setStatus] = useState<Status>("loading");
   const [error, setError] = useState<string | null>(null);
@@ -233,8 +233,8 @@ export default function ModuleVerify({ moduleId, onArena, onComplete, nextModule
           )}
 
           <div className="module-mastered-links">
-            {onArena && (
-              <button onClick={onArena}>Enter AI Scenarios</button>
+            {onLiveGuest && (
+              <button onClick={onLiveGuest}>Talk to a Live Guest</button>
             )}
           </div>
         </div>

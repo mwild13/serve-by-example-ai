@@ -113,7 +113,7 @@ export default function ReportBugScreen() {
           <input
             value={screen}
             onChange={(e) => setScreen(e.target.value)}
-            placeholder="e.g. Modules, Live Arena, Me page"
+            placeholder="e.g. Modules, Live Guest, Me page"
             style={{
               padding: "10px 12px",
               borderRadius: "var(--radius-sm)",

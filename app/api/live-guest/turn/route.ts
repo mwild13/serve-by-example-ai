@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
-import { resolveAccess, validateSession } from "@/lib/session";
+import { hasLiveGuest, resolveAccess, validateSession } from "@/lib/session";
 import { rateLimit } from "@/lib/rate-limit";
-import { getCookieValue } from "@/lib/training-attempt";
+import { getCookieValue, maybeMarkTrialActivated } from "@/lib/training-attempt";
 import { cleanUserText, parseModelJson, readJsonBody } from "@/lib/ai-guard";
 import { CHAT_MODEL_PARAMS, getOpenAIClient } from "@/lib/openai";
 import { aiDailyLimitForTier, aiDailyLimitResponse, consumeAiAllowance } from "@/lib/ai-usage";
@@ -152,6 +152,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Session conflict detected. Please resume this device.", code: "SESSION_CONFLICT" }, { status: 409 });
     }
     const access = await resolveAccess(admin, user.id, user.email ?? "");
+    // A plan can lapse mid-conversation; no AI call without it.
+    if (!hasLiveGuest(access)) {
+      return NextResponse.json(
+        { error: "Live Guest is on venue plans. Ask your venue about Serve By Example, or see the plans.", code: "PLAN_REQUIRED" },
+        { status: 403 },
+      );
+    }
     if (!(await consumeAiAllowance(admin, user.id, aiDailyLimitForTier(access.tier)))) {
       return aiDailyLimitResponse(access.tier);
     }
@@ -252,7 +259,11 @@ export async function POST(req: Request) {
             try_next: result.tryNext,
           },
         });
-        if (!attempt.replayed) await syncMasteryToVenueStaff(admin, user.id);
+        if (!attempt.replayed) {
+          await syncMasteryToVenueStaff(admin, user.id);
+          // A venue trial's staff talking to a guest is the activation we want.
+          if (user.email) await maybeMarkTrialActivated(admin, user.email);
+        }
         result = { ...result, saved: true };
         await admin.from("live_guest_sessions").update({ result }).eq("id", session.id);
       } catch (saveError) {

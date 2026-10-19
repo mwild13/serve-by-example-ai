@@ -46,8 +46,8 @@ export default function MasteryGrid({
                   <div className="progress-cert-weakness">
                     <span className="progress-cert-done-text">Certified – all modules mastered.</span>
                     {onNavigate && (
-                      <button className="progress-cert-btn" onClick={() => onNavigate("scenarios")}>
-                        Practice in AI Scenarios &rarr;
+                      <button className="progress-cert-btn" onClick={() => onNavigate("live-guest")}>
+                        Practise with a Live Guest &rarr;
                       </button>
                     )}
                   </div>
@@ -84,7 +84,7 @@ export default function MasteryGrid({
       <div className="progress-mastery-list-v2">
         <h2 className="progress-mastery-list-v2-title">Full Module Mastery List</h2>
         <p className="progress-mastery-list-v2-sub">
-          Pass each module verify to mark as mastered. Every module links directly to training or AI Scenarios.
+          Pass each module verify to mark as mastered. Every module links directly to training or Live Guest.
         </p>
 
         {modulesLength === 0 ? (
@@ -140,8 +140,8 @@ export default function MasteryGrid({
                           {module.mastered ? "Mastered" : module.attempted ? "In progress" : "Not started"}
                         </span>
                         {module.mastered ? (
-                          <button className="progress-mastery-action" onClick={() => onNavigate?.("scenarios")}>
-                            Practice in AI Scenarios
+                          <button className="progress-mastery-action" onClick={() => onNavigate?.("live-guest")}>
+                            Practise with a Live Guest
                           </button>
                         ) : module.attempted ? (
                           <button className="progress-mastery-action progress-mastery-action--primary" onClick={() => onSelectModule?.(module.id)}>

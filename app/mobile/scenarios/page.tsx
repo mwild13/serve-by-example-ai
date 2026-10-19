@@ -6,7 +6,8 @@ import { redirect } from "next/navigation";
 // stays as a redirect so old links/bookmarks to /mobile/scenarios don't
 // break — redirect() here (Server Component, not a Server Action) issues a
 // 307 Temporary Redirect by default, matching app/dashboard/badges/page.tsx's
-// existing redirect-stub precedent.
+// existing redirect-stub precedent. Since the Rich update, Phase 8, it goes
+// to Live Guest, which replaced the scenario screens.
 export default function MobileScenariosRedirectPage() {
-  redirect("/mobile/learn");
+  redirect("/mobile/live-guest");
 }

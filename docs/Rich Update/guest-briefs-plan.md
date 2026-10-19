@@ -117,4 +117,29 @@ In these 20 you're the manager, talking to a staff member or the owner, and most
 
 - **Number 17** (helping a junior cut off a regular the team likes) joins the guests now, in batch 2, under module 15.
 - **Number 16** (a gaming room patron showing early signs of distress) is held. No module teaches responsible gambling, and the rules vary by state, so a guest would test something the app never teaches. It can come back with a gaming module.
-- **The other 18** wait for a later manager-focused phase. Their content stays in `trainer-data.ts` when the Scenario Training screen is hidden in Phase 8.
+- **The other 18** wait for a later manager-focused phase. Their text is copied at the end of this file, since `trainer-data.ts` was removed with Scenario Training in Phase 8.
+
+## The management scenarios, kept for a later manager phase
+
+Copied from `trainer-data.ts` when Scenario Training was retired (Phase 8). Number 16 is held until there is a gaming module, and number 17 is now the guest "Backing the junior".
+
+1. A junior staff member shows great attitude but limited experience and has been stuck running food for months. How do you create a stepped progression plan that keeps them engaged and gives them a path forward?
+2. You have an experienced senior team member who is technically brilliant but hesitant to step into leadership. How do you back them and build their confidence?
+3. Your company wants to implement structured progression plans like a formal development program. How do you introduce it to the team and get buy-in from sceptical staff?
+4. A talented overseas staff member is invaluable, but their visa expires in 8 months. How do you start early conversations about sponsorship and a realistic pathway?
+5. You want to build a culture of reflection and continuous improvement. How do you implement a simple weekly 'I learned' practice without making it feel like homework?
+6. A strong staff member resigns for only slightly more pay, saying they did not feel valued or see growth opportunities. How do you use that feedback before others follow?
+7. You want to improve morale and alignment with 5-minute pre-shift check-ins. How do you make these huddles useful rather than another empty meeting?
+8. Your team has been working excessive hours during a busy period. How do you restructure rosters to protect work-life balance without losing service standards?
+9. You want a simple, cost-free peer recognition system. How do you set it up so it feels authentic and builds appreciation rather than awkwardness?
+10. Owners see team building as an expense rather than an investment. How do you make the case for allocating budget to retention-focused culture activities?
+11. A junior staff member apologises to a customer for a senior colleague's difficult manner during training. How do you coach both staff members to present a united front?
+12. Tension is building between front-of-house and kitchen, with blame-shifting during busy services. How do you improve communication before it becomes toxic?
+13. A sudden crisis happens while you are off-site. How do you identify and empower the right interim leader from the floor?
+14. You have recently been promoted and keep micromanaging former peers. How do you learn to delegate properly without losing standards?
+15. During a busy crisis, one staff member froze or abandoned their post. After service, how do you distinguish between someone who tried but failed and someone who gave up?
+16. A new staff member is unsure about gaming room responsible service requirements and a patron is showing early distress. How do you turn this into a teaching moment while staying compliant? *(held)*
+17. A regular guest is becoming intoxicated, but the team likes them and a junior staff member is unsure how to cut them off. How do you support the staff member and handle the guest? *(now a guest)*
+18. You are onboarding new staff and want to start with the venue's 'why' instead of only task lists. How do you do that in a practical, meaningful way?
+19. You want to give your management team more visibility over business finances and decisions. How do you introduce financial literacy without overwhelming them?
+20. You want junior staff to build better relationships with regulars. How do you introduce a simple 'regulars file' system without making it creepy or overly formal?

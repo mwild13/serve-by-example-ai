@@ -11,16 +11,16 @@ The staff training platform has a **3-stage mastery path** plus AI-powered extra
 | `home` | Home | `PreShiftHome.tsx` | Daily dashboard with recommendations |
 | `module` | Modules | `DynamicModuleNav.tsx` + `ModuleVerify.tsx` | 40 modules across Bartending, Sales, Management |
 | `rapid-fire` | — | `RapidFirePage.tsx` | Internal sub-nav from Modules; lists modules and opens the same quiz (`ModuleVerify.tsx`) |
-| `stage4` | Scenario Training | `DashboardTrainer.tsx` | Written scenario practice (routed in `DashboardShell.tsx:816-821`; `DiagnosticFlow.tsx` is only the first-login onboarding modal, not this nav destination) |
 | `live-guest` | Live Guest | `LiveGuestPage.tsx` → `components/live-guest/LiveGuest.tsx` | A typed conversation with a guest who talks back (Rich update, Phase 6). Mobile: `/mobile/live-guest`, linked from the Learn hub. See below |
-| `scenarios` | AI Arena | `ArenaPage.tsx` | GPT-4o-mini scored roleplay writing exercise — see §3, it is **not** a live chat |
 | `challenges` | Challenges | `ChallengesPage.tsx` | 5 tap-based interactive mini-games — see `CHALLENGES.md` for full detail across all surfaces |
 | `cocktails` | Cocktail Library | `CocktailLibrary.tsx` | 38-cocktail reference (lazy-loaded) |
 | `knowledge` | 101 Knowledge Base | `KnowledgeBase.tsx` | Quick-reference knowledge base (lazy-loaded) |
 | `progress` | Me / How I'm improving | `ProgressOverview.tsx` | Personal stats and mastery overview |
 | `settings` | Settings | `StaffSettingsPanel` | Profile, security, venue join |
 
-**Premium gating** — `PREMIUM_NAV_ITEMS = ["module", "stage4", "scenarios", "cocktails", "knowledge"]`. Free users see these as locked. `challenges`, `home`, `progress`, and `settings` are always available.
+**Retired (Rich update, Phase 8):** Scenario Training (`stage4`) and the AI Arena (`scenarios`). Their screens and code are gone; old `?nav=stage4` / `?nav=scenarios` links open Live Guest (`RETIRED_NAV` in `DashboardShell.tsx`), as do mobile `/mobile/arena`, `/mobile/scenario-practice` and `/mobile/scenarios`. `/api/evaluate` and `/api/arena/evaluate` return 410 without an AI call. Their results stay in `training_attempts` and `scenario_mastery`.
+
+**Premium gating** — `PREMIUM_NAV_ITEMS = ["module", "cocktails", "knowledge"]`. Free users see these as locked. `challenges`, `home`, `progress`, and `settings` are always available. Live Guest is open to everyone in the menu and shows its own upgrade prompt off venue plans (`hasLiveGuest()` in `lib/session.ts`).
 
 **Tier access (`lib/session.ts`, `TIER_MODULES` / `TIER_SEATS`)**:
 - `free` — no module access
@@ -46,16 +46,9 @@ The legacy mobile view that used to be embedded in `/dashboard` (`MobileDashboar
 
 **Safe-area handling**: real and widespread. `env(safe-area-inset-bottom, 0px)` appears throughout `app/globals.css`, in `CocktailLibrary.tsx`, and in nearly every file under `app/mobile/_components/`. `app/mobile/layout.tsx` sets `viewportFit: "cover"` for the `/mobile` tree; no `viewport-fit=cover` was confirmed in `app/layout.tsx`, so check there before relying on safe-area insets outside `/mobile`.
 
-## 3. AI Simulator (Arena) State
+## 3. AI Simulator (Arena): retired
 
-**Not streaming, not multi-turn — a common wrong assumption to guard against.**
-
-- `app/api/arena/evaluate/route.ts` calls `openai.chat.completions.create()` with **no `stream: true`**. It awaits the full completion, parses `completion.choices[0].message.content` as one JSON blob, and returns a single `Response.json({ assessment: {...} })`.
-- 25-second `AbortController` timeout, unrelated to streaming.
-- System prompt instructs the model to return `{score, what_you_did_well, room_for_improvement, passed}`. `PASS_THRESHOLD = 75` (0–100 scale).
-- After scoring, writes through the canonical path: `recordAttempt()` (normalizing the 0–100 score to the mastery engine's 0–25 scale, with Arena's own `passed` flag) then `syncMasteryToVenueStaff()` — both from `lib/mastery.ts`. Each submission carries an `attemptId` (`lib/attempt-id.ts`), so a retry returns the stored assessment instead of grading and recording twice. The route checks the one-device session and the user's plan before calling OpenAI. See `docs/MASTERY_ENGINE.md`, don't re-derive the mastery formula here.
-- **No chat history or message array exists anywhere in this flow.** `ArenaPage.tsx` state is just `phase`, `selectedId`, `response` (the textarea text), `result`, `error`, `arenaProgress` — there is no transcript. Each scenario attempt is one isolated, one-shot, scored write-up submitted via a single `fetch("/api/arena/evaluate", {...})` — it is not a multi-turn roleplay conversation, and there is no conversational context carried between attempts.
-- `arenaProgress` (attempts/bestScore/passed per module) loads once from `/api/training/progress` on mount and is updated in local memory after each submit — persistence itself happens server-side via `recordAttempt()`, not by re-fetching.
+The AI Arena was a one-shot scored write-up, never a conversation. It was retired in the Rich update, Phase 8, and Live Guest (§ Live Guest below) took its place on the same `roleplay` / 40 mastery row, so earlier passes still count. `/api/arena/evaluate` returns 410.
 
 ## 4. Verify Quiz (module mastery)
 
@@ -67,7 +60,7 @@ Desktop (`ModuleVerify.tsx`) and mobile (`app/mobile/_components/QuizScreen.tsx`
 
 ## 6. Daily AI Limit
 
-One allowance per account per day, shared by scenario grading, Arena and the AI Coach: 30 requests on the free tier, 300 on a paid one (`lib/ai-usage.ts`). The day turns over at midnight, Sydney time. Kept at these numbers on 2026-10-12 because there was no usage to tune against; `supabase/queries/ai-usage.sql` is the check.
+One allowance per account per day, shared by Live Guest and the AI Coach: 30 requests on the free tier, 300 on a paid one (`lib/ai-usage.ts`). The day turns over at midnight, Sydney time. Kept at these numbers on 2026-10-12 because there was no usage to tune against; `supabase/queries/ai-usage.sql` is the check.
 
 - At the limit a route answers 429 with `code: "AI_DAILY_LIMIT"`, a message that says how long until the reset, `resetsAt` and `upgrade` (true for a free account).
 - A screen that calls an AI route reads that body with `readAiDailyLimit()` and holds it with `useAiDailyLimit()` (`lib/use-ai-daily-limit.ts`). While a limit is held it shows `components/AiLimitNotice.tsx` in place of its error line and keeps its submit button disabled, so nobody retries a request that cannot succeed. Any other 429 is the short burst limit and keeps the "try again in a minute" message.
@@ -92,7 +85,6 @@ Two opt-in emails, both off until the person turns them on in Settings > Notific
 
 ## Known Gaps / Drift
 
-- **AI Arena has no chat history** (§3) — guard against assuming streaming or multi-turn conversation when extending it.
 - **PWA is greenfield** (§5).
 
 ## Related Docs
@@ -108,7 +100,7 @@ Two opt-in emails, both off until the person turns them on in Settings > Notific
 - **Routes:** `GET /api/live-guest/guests` (the picker, without the hidden parts of each brief), `POST /api/live-guest/start` (opens a conversation, no AI call), `POST /api/live-guest/turn` (one staff reply, one AI call with `CHAT_MODEL_PARAMS`, counted against the daily AI allowance).
 - **The server keeps the transcript** in `live_guest_sessions`. The browser sends only its next reply and how many replies it has sent, so it can't rewrite the guest or skip a turn, and a resent reply is answered from what's stored.
 - **Rules the server enforces** (`parseGuestTurn()` in `lib/live-guest/engine.ts`), whatever the model returns: mood moves up one step per reply at most and down two; no ending before the 3rd reply; always an ending on the 6th; breaking the brief's must-do ends it as a breach, scored 40 at most and never a pass.
-- **Access:** for now the same as the guest's module (`resolveAccess().allowedModules`). Plan gating (venue plans only) comes in Phase 8.
+- **Access (Phase 8):** venue plans only: Boutique, Commercial, Enterprise, venue trials and sponsored staff (`hasLiveGuest()` in `lib/session.ts`), checked by `/start` and `/turn`. `GET /guests` returns `onPlan`; off a venue plan the picker shows the guests with an upgrade prompt, and the menu item stays open. Within a plan, the guest's module must be in `allowedModules`.
 - **Recorded** through `recordAttempt()` on the module's roleplay row, like the Arena, so it counts in the service score and the daily training card. See `docs/MASTERY_ENGINE.md`.
 - **The four dials (Phase 7):** the guest's mood, plus speed, safety and money when the brief's `stakes` put them in play. Each reply, the model says which way speed and safety moved (one step at most) and which of the brief's money items happened. The dollar figures come only from the brief, each item counts once, and a breach drops safety to the bottom. Shown in the reveal, with what each reply moved. Rules and tests: `lib/live-guest/engine.ts`.
 - **Difficulty (Phase 7):** `lib/live-guest/difficulty.ts`. A guest plays patient (1), as written (2) or tough (3), one step up for each of: the module mastered, this guest passed before, 10 or more modules mastered. It's fixed when the conversation starts and stored in `live_guest_sessions.difficulty`. Patient starts one mood better; tough starts one mood worse (never fuming) and the prompt tells the guest to push back once. The picker suggests up to 3 guests within the person's reach (gentle guests for a beginner, the hardest within reach first). The rest show one area at a time (`PublicGuest.area`, from `moduleCategory()`). Every guest stays open.

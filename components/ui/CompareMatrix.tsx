@@ -83,11 +83,11 @@ const sections: MatrixSection[] = [
         franchise: "All tracks + custom",
       },
       {
-        label: "AI Arena (live scenarios + written feedback)",
-        staff: "Unlimited",
-        venue: "Unlimited",
-        group: "Unlimited",
-        franchise: "Unlimited",
+        label: "Live Guest (60 guests who talk back, scored on guest, speed, money and safety)",
+        staff: "no",
+        venue: "yes",
+        group: "yes",
+        franchise: "yes",
       },
       {
         label: "Mastery engine (mastery levels, spaced repetition, badges, streaks)",
@@ -217,7 +217,6 @@ const includedGroups: IncludedGroup[] = [
     heading: "On every plan",
     items: [
       { label: "40 modules across Bartending, Sales and Management" },
-      { label: "AI Arena: unlimited live scenarios with written feedback" },
       { label: "Mastery levels, spaced repetition, badges and streaks" },
       { label: "Rapid-fire knowledge drills" },
       { label: "Interactive challenges" },
@@ -226,6 +225,12 @@ const includedGroups: IncludedGroup[] = [
       { label: "19-language staff support" },
       { label: "Training diagnostic" },
       { label: "Founding member rate lock" },
+    ],
+  },
+  {
+    heading: "Venue plans",
+    items: [
+      { label: "Live Guest: 60 guests who talk back, then show what they were thinking", tier: "Venue and up, and venue trials" },
     ],
   },
   {

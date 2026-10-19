@@ -81,20 +81,6 @@ body.mobile-dark-shell select {
   align-items: center;
   gap: 10px;
 }
-/* ── Card grids ────────────────────────────────── */
-.card-grid {
-  display: grid;
-  gap: 20px;
-}
-.card-grid-2 {
-  grid-template-columns: repeat(2, 1fr);
-}
-.card-grid-3 {
-  grid-template-columns: repeat(3, 1fr);
-}
-.card-grid-5 {
-  grid-template-columns: repeat(5, 1fr);
-}
 /* ── Legal pages ───────────────────────────────── */
 .dashboard-shell {
   display: grid;
@@ -136,12 +122,6 @@ body.mobile-dark-shell select {
   overflow-x: hidden;
   min-width: 0;
   width: 100%;
-}
-.dash-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-bottom: 28px;
 }
 .dash-card:hover {
   box-shadow: var(--shadow-md);
@@ -362,10 +342,6 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 
   .dashboard-main {
     padding: 24px 16px;
-  }
-
-  .dash-cards {
-    grid-template-columns: 1fr;
   }
 
   .grid-2 {
@@ -731,18 +707,6 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 .progress-accordion-body {
   padding: 8px 4px 4px;
 }
-.progress-accordion-stat-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 14px;
-  background: var(--surface);
-  border: 1.5px solid var(--line-light);
-  border-radius: 8px;
-  margin-bottom: 6px;
-  font-size: 0.83rem;
-  color: var(--text-soft);
-}
 /* ── Arena Cards ──────────────────────────────────────────────────────────── */
 .arena-card {
   background: var(--surface-raised);
@@ -760,57 +724,6 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
   border-color: var(--green-mid);
-}
-.arena-card--passed {
-  border-color: var(--green-mid);
-  background: var(--bg-green-faint);
-}
-.arena-card--attempted {
-  border-color: var(--gold);
-  background: var(--bg-parchment);
-}
-.arena-card-category {
-  font-size: 0.62rem;
-  font-weight: 800;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-}
-.arena-card-badge {
-  font-size: 0.6rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  border-radius: 999px;
-  padding: 2px 9px;
-  flex-shrink: 0;
-}
-.arena-card-badge--passed {
-  background: var(--green-light);
-  color: var(--green-deep);
-}
-.arena-card-badge--attempted {
-  background: var(--gold-light);
-  color: var(--gold);
-}
-.arena-card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 4px;
-  gap: 8px;
-}
-.arena-card-status {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-.arena-card-cta {
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: var(--green-mid);
-  white-space: nowrap;
-}
-.arena-card-cta--muted {
-  color: var(--text-muted);
 }
 /* ── Shared Training Card ─────────────────────────────────────────────────────
    New unified card shell (app/dashboard/_components/common/SharedTrainingCard.tsx)
@@ -861,14 +774,6 @@ html[data-staff-high-contrast="1"] .dashboard-main {
    of source order. Found during the ArenaPage.tsx migration — fixed here rather
    than by reordering the file, since reordering is one CSS edit away from
    breaking again the next time something gets inserted between them. */
-.shared-training-card.arena-card--passed {
-  background: var(--bg-green-faint);
-  border-color: var(--green-mid);
-}
-.shared-training-card.arena-card--attempted {
-  background: var(--bg-parchment);
-  border-color: var(--gold);
-}
 .stc-header {
   display: flex;
   align-items: center;
@@ -928,48 +833,6 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 }
 .stc-footer {
   margin-top: 4px;
-}
-/* Band 4: Performance Analytics */
-.progress-analytics {
-  margin-bottom: 40px;
-}
-.progress-analytics-title {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--text);
-  margin: 0 0 6px;
-}
-.progress-analytics-sub {
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  margin: 0 0 18px;
-}
-.progress-analytics-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-}
-@media (min-width: 700px) {
-  .progress-analytics-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-.progress-chart-card {
-  background: var(--bg-warm);
-  border: 1.5px solid var(--line-light);
-  border-radius: 14px;
-  padding: 22px 20px;
-}
-.progress-chart-title {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: var(--text);
-  margin: 0 0 4px;
-}
-.progress-chart-sub {
-  font-size: 0.74rem;
-  color: var(--text-muted);
-  margin: 0 0 16px;
 }
 /* ── Dashboard trainer ─────────────────────────── */
 .chat-pill-active {
@@ -1040,98 +903,6 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 .sbe-command-btn:hover {
     background: rgba(255,255,255,0.28) !important;
   }
-.sbe-back-btn {
-    background: rgba(255, 255, 255, 0.96);
-    border-color: rgba(255, 255, 255, 0.98);
-    color: var(--green-deep);
-    box-shadow: 0 8px 20px rgba(7, 25, 17, 0.16);
-  }
-.sbe-back-btn:hover {
-    background: var(--surface-raised);
-    border-color: var(--surface-raised);
-    color: var(--green-deep);
-    box-shadow: 0 10px 24px rgba(7, 25, 17, 0.2);
-  }
-/* ── Help / Keyboard Shortcut Modal ──────────────── */
-.sbe-help-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(2px);
-  }
-.sbe-help-modal {
-    background: white;
-    border-radius: 20px;
-    padding: 32px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-    width: min(420px, 90vw);
-  }
-.sbe-shortcut-list {
-    list-style: none;
-    margin: 0 0 24px;
-    padding: 0;
-    display: grid;
-    gap: 12px;
-  }
-.sbe-shortcut-list kbd {
-    display: inline-block;
-    background: var(--bg-warm-surface);
-    border: 1px solid var(--border-warm);
-    border-radius: 5px;
-    padding: 2px 8px;
-    font-size: .82rem;
-    font-family: var(--font-mono);
-    color: var(--text);
-  }
-.sbe-shortcut-list span {
-    color: var(--text-soft);
-  }
-/* ── Intent Pills ────────────────────────────────── */
-.sbe-intent-icon {
-    font-size: .85em;
-    flex-shrink: 0;
-  }
-/* ── Score Hero ──────────────────────────────────── */
-.sbe-delta-up {
-    background: var(--bg-green-subtle);
-    color: var(--status-success-strong);
-  }
-.sbe-delta-down {
-    background: var(--color-rose-bg);
-    color: var(--status-critical-dark);
-  }
-/* ── Coach Tip ───────────────────────────────────── */
-.sbe-scenario-insight {
-    background: linear-gradient(180deg, var(--bg-parchment) 0%, var(--gold-light) 100%);
-    border: 1.5px solid var(--gold-light);
-    border-radius: 14px;
-    padding: 16px 18px;
-    margin-bottom: 20px;
-    box-shadow: 0 10px 24px rgba(120, 90, 16, 0.08);
-  }
-/* ── Full Feedback (collapsible) ─────────────────── */
-.sbe-full-feedback {
-    margin-bottom: 20px;
-  }
-.sbe-full-feedback summary {
-    font-size: .88rem;
-    color: var(--text-soft);
-    cursor: pointer;
-    padding: 6px 0;
-    list-style: none;
-    user-select: none;
-  }
-.sbe-full-feedback summary::before {
-    content: "▸ ";
-    font-size: .8em;
-  }
-.sbe-full-feedback[open] summary::before {
-    content: "▾ ";
-  }
 /* ── Cocktail detail CTA row ─────────────────────── */
 .cocktail-card {
   background: white;
@@ -1199,71 +970,9 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   color: var(--text-soft);
 }
 /* ─── Mastery Engine UI ──────────────────────────────────── */
-.sbe-mastery-badge {
-  display: inline-block;
-  margin-left: 10px;
-  padding: 2px 10px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-.sbe-mastery-badge[data-level="1"] {
-  background: var(--color-blue-light);
-  color: var(--status-info-text);
-}
-.sbe-mastery-badge[data-level="2"] {
-  background: var(--status-amber-bg);
-  color: var(--status-amber-text);
-}
-.sbe-mastery-badge[data-level="3"] {
-  background: var(--divider-light);
-  color: var(--status-forest-text);
-}
-.sbe-bridge-hint {
-  margin-top: 12px;
-  padding: 12px 16px;
-  background: var(--status-info-bg);
-  border: 1px solid var(--status-info-border);
-  border-radius: var(--radius-md);
-  font-size: 0.9rem;
-  color: var(--status-info-text);
-  line-height: 1.5;
-}
-.sbe-mastery-feedback {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.sbe-mastery-feedback-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  font-size: 0.9rem;
-}
-.sbe-level-up {
-  font-weight: 700;
-  color: var(--green);
-  animation: sbe-pulse 0.6s ease-in-out;
-}
 @keyframes sbe-pulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.15); }
-}
-.sbe-spam-notice {
-  font-size: 0.82rem;
-  color: var(--text-soft);
-  margin: 4px 0 0;
-  padding: 8px 12px;
-  background: var(--status-amber-bg);
-  border: 1px solid var(--color-amber-badge);
-  border-radius: 8px;
 }
 /* ── Early access section ─────────────────────── */
 @media (max-width: 980px) {
@@ -1272,15 +981,6 @@ html[data-staff-high-contrast="1"] .dashboard-main {
     padding: 7px 10px;
     white-space: nowrap;
     font-size: 0.78rem;
-  }
-
-  .card-grid-2,
-  .card-grid-3,
-  .card-grid-5 {
-    grid-template-columns: 1fr;
-    max-width: 400px;
-    margin-left: auto;
-    margin-right: auto;
   }
 
   .progress-overview {
@@ -1321,13 +1021,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 /* Browser Mockup */
 @keyframes anim-fadein { to { opacity: 1; } }
 /* ── 6. Neutral Approach Chips ─────────────────────── */
-.sbe-intent-pill .sbe-intent-icon {
-  display: none; /* hide icons by default */
-}
 .sbe-intent-pill-submitted.sbe-intent-pill-active:not(.sbe-intent-pill-negative) .sbe-intent-icon {
-  display: inline;
-}
-.sbe-intent-pill-submitted.sbe-intent-pill-negative.sbe-intent-pill-active .sbe-intent-icon {
   display: inline;
 }
 /* ── 101 Knowledge Base ───────────────────────── */
@@ -1603,59 +1297,6 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   color: var(--text-muted);
   font-size: 0.95rem;
 }
-/* ── RecommenderCard ──────────────────────────── */
-.rec-card {
-  background: linear-gradient(135deg, var(--gold-light), var(--surface));
-  border: 1.5px solid var(--gold);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  margin-top: 1rem;
-}
-.rec-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-.rec-header h4 {
-  font-family: var(--font-heading);
-  font-size: 1rem;
-  color: var(--green-deep);
-}
-.rec-suggestions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-.rec-suggestion {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  background: var(--surface);
-  border: 1px solid var(--line-light);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all 0.15s var(--ease-out);
-}
-.rec-suggestion:hover {
-  border-color: var(--green-mid);
-  background: var(--green-light);
-}
-.rec-suggestion-title {
-  font-weight: 700;
-  font-size: 0.88rem;
-  color: var(--green-deep);
-  margin-bottom: 2px;
-}
-.rec-suggestion-preview {
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
 /* ── Responsive adjustments for scaffolded learning ── */
 @media (max-width: 600px) {
   .kb-slide-panel {
@@ -1738,66 +1379,6 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   color: var(--text-body, #2d2b27);
 }
 /* ══════════════════════════════════════════════════════
-   STAGE 4 — Speech Bubbles & Knowledge Tip
-   ══════════════════════════════════════════════════════ */
-.s4-bubble {
-  position: relative;
-  background: var(--surface);
-  border: 1.5px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: 1rem 1rem 0.5rem;
-  transition: border-color 0.2s;
-}
-.s4-bubble:focus-within {
-  border-color: var(--green-mid);
-  box-shadow: 0 0 0 3px rgba(42, 104, 72, 0.08);
-}
-.s4-bubble-input {
-  width: 100%;
-  border: none;
-  background: transparent;
-  font-family: var(--font-body);
-  font-size: 0.92rem;
-  color: var(--text);
-  resize: vertical;
-  line-height: 1.5;
-  padding: 0;
-}
-.s4-bubble-input:focus {
-  outline: none;
-  border-color: var(--green);
-  box-shadow: 0 0 0 3px rgba(31, 78, 55, 0.15);
-}
-.s4-bubble-input::placeholder {
-  color: var(--text-muted);
-  font-style: italic;
-}
-.s4-word-count {
-  display: block;
-  text-align: right;
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  margin-top: 0.25rem;
-}
-.s4-word-count-met {
-  color: var(--green-mid);
-  font-weight: 600;
-}
-.s4-knowledge-tip {
-  background: var(--gold-light);
-  border: 1px solid var(--gold);
-  border-radius: var(--radius-md);
-  padding: 0.75rem 1rem;
-  margin-top: 0.5rem;
-  font-size: 0.85rem;
-  color: var(--gold);
-}
-.s4-knowledge-tip ul {
-  list-style: disc;
-  padding-left: 1.25rem;
-  margin: 0;
-}
-/* ══════════════════════════════════════════════════════
    DARK MODE — .sbe-dark on <html>
    ══════════════════════════════════════════════════════ */
 .sbe-dark {
@@ -1841,10 +1422,6 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 }
 .sbe-dark .kb-slide-panel {
   background: var(--surface);
-}
-.sbe-dark .s4-bubble {
-  background: var(--bg-alt);
-  border-color: var(--line);
 }
 .sbe-dark kbd {
   background: var(--surface);
@@ -2623,6 +2200,37 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 }
 .lg-group-title:first-of-type {
   margin-top: 0;
+}
+.lg-upgrade {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 18px 20px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--qz-accent);
+  background: var(--qz-surface);
+}
+.lg-upgrade-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--qz-text);
+}
+.lg-upgrade-text {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--qz-muted);
+}
+.lg-upgrade-cta {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 4px;
+  text-decoration: none;
 }
 .lg-areas {
   display: flex;

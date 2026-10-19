@@ -208,10 +208,10 @@ export default function ProgressSummary({
             </>
           ) : (
             <>
-              <span className="progress-hub-rec-title">All modules complete. Run AI Scenario sessions to stay sharp.</span>
+              <span className="progress-hub-rec-title">All modules complete. Talk to a Live Guest to stay sharp.</span>
               {onNavigate && (
-                <button className="progress-hub-rec-btn" onClick={() => onNavigate("scenarios")}>
-                  Enter AI Scenarios &rarr;
+                <button className="progress-hub-rec-btn" onClick={() => onNavigate("live-guest")}>
+                  Talk to a Live Guest &rarr;
                 </button>
               )}
             </>

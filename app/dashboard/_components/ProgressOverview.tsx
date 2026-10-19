@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { computeBadges, countEarned, type ModuleSummaryForBadges, type CategoryScores } from "@/lib/badges";
 import ProgressSummary from "./progress/ProgressSummary";
-import ProgressChart from "./progress/ProgressChart";
 import MasteryGrid from "./progress/MasteryGrid";
 import ActivityLog from "./progress/ActivityLog";
 import { EMPTY, CATEGORY_CERT_LABELS, type ModuleSummary, type TrainingData, type CategoryCert } from "./progress/progress-types";
@@ -79,7 +78,6 @@ export default function ProgressOverview({
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [expandedArenaCats, setExpandedArenaCats] = useState<Set<string>>(new Set());
-  const [expandedScenarioAreas, setExpandedScenarioAreas] = useState<Set<string>>(new Set());
 
   function toggleCategory(key: string) {
     setExpandedCategories((prev) => {
@@ -91,14 +89,6 @@ export default function ProgressOverview({
 
   function toggleArenaCategory(key: string) {
     setExpandedArenaCats((prev) => {
-      const next = new Set(prev);
-      next.has(key) ? next.delete(key) : next.add(key);
-      return next;
-    });
-  }
-
-  function toggleScenarioArea(key: string) {
-    setExpandedScenarioAreas((prev) => {
       const next = new Set(prev);
       next.has(key) ? next.delete(key) : next.add(key);
       return next;
@@ -272,32 +262,6 @@ export default function ProgressOverview({
 
   const firstUnmastered = data.modules.find((m) => !m.mastered) ?? null;
 
-  const hasChartData = data.totalSessions > 0;
-
-  const barChartData = [
-    { name: "Bartending", score: Math.round(data.scores.bartending) },
-    { name: "Sales", score: Math.round(data.scores.sales) },
-    { name: "Management", score: Math.round(data.scores.management) },
-  ];
-
-  const technicalMastery = categoryGroups.technical.length > 0
-    ? Math.round((categoryGroups.technical.filter((m) => m.mastered).length / categoryGroups.technical.length) * 100)
-    : 0;
-  const serviceMastery = categoryGroups.service.length > 0
-    ? Math.round((categoryGroups.service.filter((m) => m.mastered).length / categoryGroups.service.length) * 100)
-    : 0;
-  const complianceMastery = categoryGroups.compliance.length > 0
-    ? Math.round((categoryGroups.compliance.filter((m) => m.mastered).length / categoryGroups.compliance.length) * 100)
-    : 0;
-
-  const radarData = [
-    { subject: "Technical", score: technicalMastery },
-    { subject: "Service", score: serviceMastery },
-    { subject: "Compliance", score: complianceMastery },
-    { subject: "Bartending", score: Math.round(data.scores.bartending) },
-    { subject: "Sales", score: Math.round(data.scores.sales) },
-  ];
-
   // ── Loading skeleton ──────────────────────────────────────────────────────
 
   if (loading) {
@@ -402,12 +366,6 @@ export default function ProgressOverview({
             onSelectModule={onSelectModule}
             onNavigate={onNavigate}
           />
-          <ProgressChart
-            hasChartData={hasChartData}
-            barChartData={barChartData}
-            radarData={radarData}
-            onNavigate={onNavigate}
-          />
         </div>
       )}
       {activeTab === "modules" && (
@@ -423,11 +381,8 @@ export default function ProgressOverview({
       )}
       {activeTab === "activity" && (
         <ActivityLog
-          scenarioStats={data.scenarioStats}
           arenaProgress={data.arenaProgress}
           modules={data.modules}
-          expandedScenarioAreas={expandedScenarioAreas}
-          onToggleScenarioArea={toggleScenarioArea}
           expandedArenaCats={expandedArenaCats}
           onToggleArenaCategory={toggleArenaCategory}
           onNavigate={onNavigate}

@@ -6,10 +6,8 @@ import Image from "next/image";
 import { useAuthSessionGuard } from "@/lib/use-auth-session-guard";
 import { isB2BTier } from "@/lib/session";
 import SignOutButton from "@/components/ui/SignOutButton";
-import DashboardTrainer from "@/app/dashboard/_components/DashboardTrainer";
 import ModuleVerify from "@/app/dashboard/_components/ModuleVerify";
 import LiveGuestPage from "@/app/dashboard/_components/LiveGuestPage";
-import ArenaPage from "@/app/dashboard/_components/ArenaPage";
 import DiagnosticFlow from "@/app/dashboard/_components/DiagnosticFlow";
 import DynamicModuleNav from "@/app/dashboard/_components/DynamicModuleNav";
 import RapidFirePage from "@/app/dashboard/_components/RapidFirePage";
@@ -26,14 +24,12 @@ import { openBillingPortal } from "@/lib/billing-portal";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { normalizeVenueCode } from "@/lib/venue-code";
 
-type NavItem = "home" | "module" | "rapid-fire" | "live-guest" | "stage4" | "scenarios" | "challenges" | "cocktails" | "knowledge" | "progress" | "badges" | "settings";
+type NavItem = "home" | "module" | "rapid-fire" | "live-guest" | "challenges" | "cocktails" | "knowledge" | "progress" | "badges" | "settings";
 
 const NAV_ITEMS: { id: NavItem; label: string }[] = [
   { id: "home", label: "Home" },
   { id: "module", label: "Modules" },
   { id: "live-guest", label: "Live Guest" },
-  { id: "stage4", label: "Scenarios" },
-  { id: "scenarios", label: "Live Scenarios" },
   { id: "challenges", label: "Challenges" },
   { id: "cocktails", label: "Cocktail Library" },
   { id: "knowledge", label: "Knowledge Base" },
@@ -578,9 +574,12 @@ export default function DashboardShell({
   const [authErrorMessage, setAuthErrorMessage] = useState("");
   const authGuard = useAuthSessionGuard((msg) => setAuthErrorMessage(msg));
 
-  const NAV_IDS = new Set<NavItem>(["home","module","rapid-fire","live-guest","stage4","scenarios","challenges","cocktails","knowledge","progress","badges","settings"]);
+  const NAV_IDS = new Set<NavItem>(["home","module","rapid-fire","live-guest","challenges","cocktails","knowledge","progress","badges","settings"]);
+  // Scenario Training ("stage4") and the AI Arena ("scenarios") were retired
+  // in the Rich update, Phase 8: old links open Live Guest instead.
+  const RETIRED_NAV: Record<string, NavItem> = { stage4: "live-guest", scenarios: "live-guest" };
   const [activeNav, setActiveNav] = useState<NavItem>(
-    NAV_IDS.has(initialNav as NavItem) ? (initialNav as NavItem) : "home"
+    NAV_IDS.has(initialNav as NavItem) ? (initialNav as NavItem) : RETIRED_NAV[initialNav ?? ""] ?? "home"
   );
   const [joinCodeFromUrl, setJoinCodeFromUrl] = useState<string | undefined>(undefined);
   const [managementUnlocked] = useState(managementUnlockedInitial);
@@ -685,7 +684,8 @@ export default function DashboardShell({
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { void fetchProgress(); }, [fetchProgress]);
 
-  const PREMIUM_NAV_ITEMS: NavItem[] = ["module", "live-guest", "stage4", "scenarios", "cocktails", "knowledge"];
+  // Live Guest isn't here: Pro and free open it and see its upgrade prompt.
+  const PREMIUM_NAV_ITEMS: NavItem[] = ["module", "cocktails", "knowledge"];
   const envAdminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
   const ADMIN_EMAILS = envAdminEmails;
   const isAdmin = ADMIN_EMAILS.length > 0 && ADMIN_EMAILS.includes(userEmail.toLowerCase());
@@ -873,7 +873,7 @@ export default function DashboardShell({
                 <ModuleVerify
                   key={`module-${selectedModuleId}`}
                   moduleId={selectedModuleId}
-                  onArena={() => handleNavClick("scenarios")}
+                  onLiveGuest={() => handleNavClick("live-guest")}
                   nextModuleId={selectedModuleId < 40 ? selectedModuleId + 1 : undefined}
                   onComplete={() => setSelectedModuleId(selectedModuleId < 40 ? selectedModuleId + 1 : null)}
                 />
@@ -894,11 +894,6 @@ export default function DashboardShell({
           <div key="rapid-fire">
             <RapidFirePage />
           </div>
-        ) : activeNav === "stage4" ? (
-          <DashboardTrainer
-            key="stage4"
-            managementUnlocked={managementUnlocked}
-          />
         ) : activeNav === "home" ? (
           <PreShiftHome
             key="home"
@@ -913,8 +908,6 @@ export default function DashboardShell({
           />
         ) : activeNav === "live-guest" ? (
           <LiveGuestPage />
-        ) : activeNav === "scenarios" ? (
-          <ArenaPage userId={userId} />
         ) : activeNav === "challenges" ? (
           <ChallengesPage />
         ) : activeNav === "cocktails" ? (
@@ -933,7 +926,7 @@ export default function DashboardShell({
               setSelectedModuleId(moduleId);
               handleNavClick("module");
             }}
-            onNavigate={(nav) => handleNavClick(nav as NavItem)}
+            onNavigate={(nav) => handleNavClick(RETIRED_NAV[nav] ?? (nav as NavItem))}
             initialProgressData={progressData}
           />
         ) : activeNav === "badges" ? (

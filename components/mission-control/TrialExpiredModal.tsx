@@ -15,7 +15,7 @@ const TIER_LABEL: Record<string, string> = {
 
 const PAUSED = [
   "Staff training across all 40 modules",
-  "AI Arena scenario coaching",
+  "Live Guest conversations",
   "Real-time team performance analytics",
   "Manager coaching and compliance tracking",
 ];

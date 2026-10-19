@@ -4,8 +4,9 @@ import { getUserFromRequest } from "@/lib/supabase-server";
 /**
  * Retired. Both things this route recorded now happen where the grading does:
  *
- *   - Scenario Training scores: /api/evaluate records the score it produced
- *     (2026-09-26 — this route used to take overallScore from the browser).
+ *   - Scenario Training scores: /api/evaluate recorded the score it produced
+ *     (2026-09-26; this route used to take overallScore from the browser).
+ *     Scenario Training itself was retired in the Rich update, Phase 8.
  *   - Verify quiz mastery: /api/training/verify/start + /answer grade each
  *     answer server-side (audit 2026-09-30, C4 — this route used to accept
  *     the client's list of "correct" answers, checked against a key that
