@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-2-bartending-b.md.
+// Approved by the owner on 2026-10-19 (batch 2). Review copy:
+// docs/Rich Update/batch-2-bartending-b.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_28_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "This French culinary principle applies equally to the bar, floor, and kitchen. Setup determines the quality of the service.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_28_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Stations deplete fast under pressure. Continuous reloading in the micro-gaps between service waves is essential to maintain flow.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_28_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "A bartender visibly searching for a lime wedge mid-order telegraphs poor preparation to the entire room.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -68,7 +68,7 @@ export const MODULE_28_QUESTIONS: Question[] = [
       { id: "c", text: "Be set up before the next wave arrives" },
     ],
     explanation: "Expert staff identify the brief lulls between waves and use them to refill citrus, ice, and glassware before the next rush arrives.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -84,7 +84,7 @@ export const MODULE_28_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "How your station looks mid-service communicates your standards. A stocked, organised station says you are in control.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -100,7 +100,7 @@ export const MODULE_28_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "A quick cover request is exactly how a coordinated team operates. Silent suffering until you run out is what breaks service.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -116,7 +116,7 @@ export const MODULE_28_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Running low on ice mid-rush is one of the most common avoidable disasters behind a bar. Top up constantly.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -132,7 +132,7 @@ export const MODULE_28_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "The brief quiet after a wave is the perfect window. You must be ready before the next wave arrives, not scrambling during it.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q10",
@@ -148,6 +148,6 @@ export const MODULE_28_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Stations deplete fast under pressure. Continuous reloading in the micro-gaps between service waves is essential to maintain flow.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

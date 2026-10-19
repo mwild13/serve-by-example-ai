@@ -2,8 +2,8 @@
 // the module's True/False statements (lib/verify-questions.ts). Each
 // `concept` names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-2-bartending-b.md.
+// Approved by the owner on 2026-10-19 (batch 2). Review copy:
+// docs/Rich Update/batch-2-bartending-b.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_32_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Cutting below the second lip hides the cut edge when pouring, keeping the presentation clean and professional.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_32_QUESTIONS: Question[] = [
       { id: "e", text: "Present the cork to the guest" },
     ],
     explanation: "The waiter's friend uses a two-step lever for a controlled extraction. A clean foil cut comes first, a silent extraction after, and the cork is presented so the guest can check it.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_32_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "The waiter's friend uses a two-step lever system: seat the lever halfway up the bottle lip, lift, then fully up, for a controlled extraction.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_32_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "A silent extraction maintains professionalism in the dining room and prevents carbonation loss in sparkling wines.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_32_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "The integrated foil cutter produces a clean, even incision without tearing the foil or leaving a jagged edge.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_32_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "A broken cork is caused by misaligning the lever or rushing the extraction. The two-step provides mechanical control.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_32_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "The bottle must be held perfectly steady. Only the corkscrew and lever mechanism should move during a clean extraction.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -134,7 +134,7 @@ export const MODULE_32_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "A moist, fragrant cork is a good sign. A dry, crumbly cork suggests the wine was stored upright and may be compromised.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -150,7 +150,7 @@ export const MODULE_32_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Presenting the extracted cork to the guest allows them to check for signs of a fault. A moist, fragrant cork is a good sign.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q10",
@@ -166,6 +166,6 @@ export const MODULE_32_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Every corked bottle served at a table requires a professional tableside opening, regardless of its price point.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

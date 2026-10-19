@@ -1,6 +1,8 @@
 # Batch 2: Bartending, part B
 
-70 questions in the new formats, all drafts. They are in the code (`lib/questions/`) but switched off until you approve them. Generated from the code by `scripts/question-review.mjs`, so this is exactly what staff will see.
+**Approved by the owner on 2026-10-19, with the points to check as written. The two statements were changed as decided below, so Cellar & Kegs ends at 10 new questions, not 11.**
+
+70 questions in the new formats as drafted, in `lib/questions/`. Generated from the code by `scripts/question-review.mjs`, so this is exactly what staff will see.
 
 Every question is written only from the module's existing True/False statements (shown under each one), so it adds no new facts. The places to look hardest are the wrong options and the "best line" wording, which are new.
 
@@ -885,3 +887,9 @@ Explanation: Taking orders is the bartender's role. The bar back handles supply 
 - **Soda Gun Speed:** the button order (Cola, Diet, Lemon, Soda, Tonic) is only an example in the explanation. No question asks for it, because every bar differs.
 
 **Dropped while writing:** a "how many minutes is a reload window" question (Mid-Shift Reset) and a "put the bar back's jobs in order" question (Bar-Back Synergy). Neither had one right answer.
+
+## Decided on review (2026-10-19)
+
+- **Keg weight:** the statement now reads "A full 50-litre keg weighs more than 50kg and must be handled with correct manual lifting technique." Q7, which asked for an exact weight, is dropped. Keg sizes vary, so a single number isn't safe to test.
+- **Line cleaning:** most venues clean every fortnight or month, not weekly. The statement is now "Beer lines only need cleaning once the beer starts to taste off" (false): lines are cleaned on a regular schedule set by the venue and its brewer. Q10 is replaced by q12, "When do beer lines get cleaned?", with that schedule as the answer.
+- **The rule from now on:** anything that varies between venues (schedules, layouts, house specs) is tested as a principle, never as a single number or frequency.

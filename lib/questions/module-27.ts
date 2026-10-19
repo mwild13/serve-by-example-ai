@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-2-bartending-b.md.
+// Approved by the owner on 2026-10-19 (batch 2). Review copy:
+// docs/Rich Update/batch-2-bartending-b.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_27_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "The core principle of two-handed service is never letting one hand sit idle while the other is working.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_27_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Expert bartenders move less, not faster. They eliminate unnecessary steps through planning, not by rushing.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_27_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "This simultaneous action is the textbook example of economy of motion — both hands working toward a single drink.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_27_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Pre-building garnishes is classic mise en place. It eliminates the deadly fumble with a knife during a live rush.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_27_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "\"Two birds, one stone\" thinking is core to economy of motion: never make a trip without carrying something in both directions.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_27_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Stacking too many tasks causes errors. Economy of motion is about deliberate double-actions, not chaotic multitasking.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_27_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Queuing the next glass in advance cuts the dead movement of reaching for it from scratch, compounding over hundreds of drinks a night.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -134,7 +134,7 @@ export const MODULE_27_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Efficient movement must be practiced constantly in quiet periods so that it becomes fully automatic when pressure hits.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -149,7 +149,7 @@ export const MODULE_27_QUESTIONS: Question[] = [
       { id: "d", text: "Line up the next glass while you garnish this one" },
     ],
     explanation: "Garnishes are pre-built before service, both hands work together on each drink, and the next glass is queued before the first is finished.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q10",
@@ -165,6 +165,6 @@ export const MODULE_27_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Efficient movement must be practiced constantly in quiet periods so that it becomes fully automatic when pressure hits.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

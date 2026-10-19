@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-2-bartending-b.md.
+// Approved by the owner on 2026-10-19 (batch 2). Review copy:
+// docs/Rich Update/batch-2-bartending-b.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_33_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Fobbing stops the bar from pouring and signals a problem: typically an empty keg, a gas issue, or a warm line.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_33_QUESTIONS: Question[] = [
     ],
     answer: "d",
     explanation: "Fobbing stops the bar from pouring and signals a problem: typically an empty keg, a gas issue, or a warm line.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_33_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Releasing a coupler under full gas pressure causes a dangerous blowout of gas and beer. In most Australian cellars, lift the coupler handle to disengage it first.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_33_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "After any keg change, air must be purged from the line with a few wasted pours before clean service resumes.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -85,7 +85,7 @@ export const MODULE_33_QUESTIONS: Question[] = [
       { id: "d", text: "Serve once the beer pours clean" },
     ],
     explanation: "Disengage the coupler before it comes off, then after the change purge the air from the line with a few wasted pours before clean service resumes.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -101,19 +101,7 @@ export const MODULE_33_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Without CO2 or mixed gas pressure, the keg cannot push beer through the line at all. An empty gas bottle kills the bar.",
-    reviewed: false,
-  },
-  {
-    id: "q7",
-    concept: "s4",
-    difficulty: 2,
-    format: "number",
-    prompt: "Roughly how many kilograms does a full keg weigh?",
-    unit: "kg",
-    answer: 50,
-    tolerance: 0,
-    explanation: "A full keg weighs approximately 50kg. Lifting it incorrectly causes serious back and shoulder injuries, so slide it rather than lift it wherever possible.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -128,8 +116,8 @@ export const MODULE_33_QUESTIONS: Question[] = [
       { id: "d", text: "Lift it fast to get it over with" },
     ],
     answer: "a",
-    explanation: "Lifting a full keg incorrectly causes serious back and shoulder injuries. Slide it rather than lift it wherever possible.",
-    reviewed: false,
+    explanation: "A full 50-litre keg weighs more than 50kg. Lifting it incorrectly causes serious back and shoulder injuries, so slide it rather than lift it wherever possible.",
+    reviewed: true,
   },
   {
     id: "q9",
@@ -145,23 +133,23 @@ export const MODULE_33_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Different brands use different coupler types (e.g., S-type, A-type, G-type). Using the wrong coupler will damage the keg valve.",
-    reviewed: false,
+    reviewed: true,
   },
   {
-    id: "q10",
+    id: "q12",
     concept: "s6",
     difficulty: 1,
     format: "multiple_choice",
-    prompt: "How often should beer lines be professionally cleaned, at least?",
+    prompt: "When do beer lines get cleaned?",
     options: [
-      { id: "a", text: "Once a week" },
-      { id: "b", text: "Once a month" },
-      { id: "c", text: "Every three months" },
-      { id: "d", text: "Only when the beer tastes off" },
+      { id: "a", text: "On a regular schedule set by the venue and its brewer" },
+      { id: "b", text: "Only once the beer starts to taste off" },
+      { id: "c", text: "Once a year" },
+      { id: "d", text: "Never: the beer keeps them clean" },
     ],
     answer: "a",
-    explanation: "Weekly line cleans remove yeast and bacteria buildup that creates off-flavours in the beer and can impact guest health.",
-    reviewed: false,
+    explanation: "Lines are cleaned on a regular schedule set by the venue and its brewer, often every two to four weeks. Cleaning removes yeast and bacteria buildup before it creates off-flavours and affects guest health.",
+    reviewed: true,
   },
   {
     id: "q11",
@@ -177,6 +165,6 @@ export const MODULE_33_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Persistent fobbing indicates an ongoing gas or temperature problem that requires immediate diagnosis to restore service.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

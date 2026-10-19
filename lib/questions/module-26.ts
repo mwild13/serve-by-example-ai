@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-2-bartending-b.md.
+// Approved by the owner on 2026-10-19 (batch 2). Review copy:
+// docs/Rich Update/batch-2-bartending-b.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_26_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "During a rush, your eyes must be on the guest and the glass. Muscle memory on the gun eliminates the dead second of looking down.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_26_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "The gun should be rinsed with clean water, not soda. Soda leaves sugar residue behind, feeding bacteria and clogging the nozzle.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_26_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Lines warm up between uses. The first few ounces should always be dispensed to waste before serving a guest.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_26_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Syrup sitting in an unrefrigerated line warms up between uses. Pour the first few ounces to waste before serving a guest.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_26_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Replacing a bag-in-box takes under two minutes. Knowing where the spare boxes are stored prevents any significant downtime.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_26_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Accidental tonic instead of soda in a cocktail fundamentally changes the drink. It must be discarded and remade.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_26_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "The nozzle must be manually cleaned daily to prevent syrup buildup that creates bacterial growth and flavour contamination.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -134,7 +134,7 @@ export const MODULE_26_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "The nozzle must be manually cleaned daily to prevent syrup buildup that creates bacterial growth and flavour contamination.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -150,7 +150,7 @@ export const MODULE_26_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "The order is often Cola, Diet, Lemon, Soda, Tonic, but every bar differs. Knowing your specific gun cold is non-negotiable.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q10",
@@ -166,7 +166,7 @@ export const MODULE_26_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Topping up uninvited can change the drink's taste profile or water down a cocktail the guest is intentionally sipping slowly.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q11",
@@ -182,6 +182,6 @@ export const MODULE_26_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Replacing a bag-in-box takes under two minutes. Knowing where the spare boxes are stored prevents any significant downtime.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

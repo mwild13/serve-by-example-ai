@@ -2,8 +2,8 @@
 // the module's True/False statements (lib/verify-questions.ts). Each
 // `concept` names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-2-bartending-b.md.
+// Approved by the owner on 2026-10-19 (batch 2). Review copy:
+// docs/Rich Update/batch-2-bartending-b.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_34_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "The rim is where the guest's mouth goes. Touching it transfers bacteria and is immediately visible as unhygienic.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_34_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Stacking creates a vacuum seal that locks glasses together. Pulling them apart snaps the rims and causes breakage.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_34_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "This stable, rim-free grip allows for carrying multiple glasses safely in one hand without touching any contact surface.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_34_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Efficient floor service requires carrying multiple glasses by hand. The pinch and stack techniques allow safe multi-glass carrying.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_34_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Body heat from holding the bowl warms chilled white wine and leaves greasy smudges that are visible to the guest.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_34_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Heavy items belong in the centre of the tray. This lowers the centre of gravity and dramatically improves stability.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -118,7 +118,7 @@ export const MODULE_34_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "The film of water on a clean glass dramatically reduces grip friction. Allow glasses to drain or pat dry before carrying.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -134,7 +134,7 @@ export const MODULE_34_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Food residue from plates transfers onto glassware and creates dangerous weight imbalance between two entirely different carrying techniques.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -150,7 +150,7 @@ export const MODULE_34_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "The rim is where the guest's mouth goes. Touching it transfers bacteria and is immediately visible as unhygienic.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q10",
@@ -166,6 +166,6 @@ export const MODULE_34_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "This stable, rim-free grip allows for carrying multiple glasses safely in one hand without touching any contact surface.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

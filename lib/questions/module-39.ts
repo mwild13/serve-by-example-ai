@@ -2,8 +2,8 @@
 // module's True/False statements (lib/verify-questions.ts). Each `concept`
 // names the statement it comes from.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/batch-2-bartending-b.md.
+// Approved by the owner on 2026-10-19 (batch 2). Review copy:
+// docs/Rich Update/batch-2-bartending-b.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -22,7 +22,7 @@ export const MODULE_39_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "The bar back is the invisible engine of the bar. The bartender's entire ability to serve depends on the bar back's support.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -38,7 +38,7 @@ export const MODULE_39_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Delivering ice, collecting dead soldiers, and restocking adjacent areas often requires moving across the floor during service.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -54,7 +54,7 @@ export const MODULE_39_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Moving silently behind a working bartender during a rush risks a serious collision with hot or heavy equipment.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -70,7 +70,7 @@ export const MODULE_39_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Taking orders is the bartender's role. The bar back handles supply and support to free the bartender to focus entirely on guests.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -86,7 +86,7 @@ export const MODULE_39_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Moving ice from the back rather than reaching over the bartender mid-service is a fundamental skill of bar-back invisibility.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -102,7 +102,7 @@ export const MODULE_39_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "A proactive bar back anticipates the next need: checking ice levels, replacing glassware, pre-staging bottles, without being asked.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -118,7 +118,7 @@ export const MODULE_39_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "An empty speed rail slot forces the bartender to pause service to locate a spirit. The bar back's job is to prevent that moment.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -134,7 +134,7 @@ export const MODULE_39_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Constant brief communication throughout the rush, a nod, a tap, a one-word call, is what keeps service flowing without interruption.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q10",
@@ -150,6 +150,6 @@ export const MODULE_39_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Taking orders is the bartender's role. The bar back handles supply and support to free the bartender to focus entirely on guests.",
-    reviewed: false,
+    reviewed: true,
   },
 ];

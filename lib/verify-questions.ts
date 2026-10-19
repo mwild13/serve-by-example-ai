@@ -1389,9 +1389,9 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
       explanation: "Without CO2 or mixed gas pressure, the keg cannot push beer through the line at all. An empty gas bottle kills the bar.",
     },
     {
-      prompt: "A full keg weighs approximately 50kg and must be handled with correct manual lifting technique.",
+      prompt: "A full 50-litre keg weighs more than 50kg and must be handled with correct manual lifting technique.",
       answer: "true",
-      explanation: "Lifting a full keg incorrectly causes serious back and shoulder injuries. Slide it rather than lift it wherever possible.",
+      explanation: "The beer alone weighs about 50kg, and the steel keg adds more. Lifting it incorrectly causes serious back and shoulder injuries. Slide it rather than lift it wherever possible.",
     },
     {
       prompt: "Kegs from different beer brands can always share the same coupler type.",
@@ -1399,9 +1399,9 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
       explanation: "Different brands use different coupler types (e.g., S-type, A-type, G-type). Using the wrong coupler will damage the keg valve.",
     },
     {
-      prompt: "Beer lines should be professionally cleaned at least once per week.",
-      answer: "true",
-      explanation: "Weekly line cleans remove yeast and bacteria buildup that creates off-flavours in the beer and can impact guest health.",
+      prompt: "Beer lines only need cleaning once the beer starts to taste off.",
+      answer: "false",
+      explanation: "Lines are cleaned on a regular schedule set by the venue and its brewer, often every two to four weeks. Cleaning removes yeast and bacteria buildup before it creates off-flavours and affects guest health.",
     },
     {
       prompt: "A tap that is still fobbing after 5 minutes will clear itself without investigation.",
