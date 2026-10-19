@@ -11,8 +11,8 @@ The staff learning upgrade, named after Richie, our first tester, who called tra
 | # | Phase | Status |
 |---|---|---|
 | 1 | Groundwork: measures and event tracking | Done 2026-10-19 |
-| 2 | Question engine | On preview 2026-10-19; the owner tries it on desktop and phone |
-| 3 | Writing and reviewing the questions | Next |
+| 2 | Question engine | Done 2026-10-19, on `main` (`a095129`) |
+| 3 | Writing and reviewing the questions | Started 2026-10-19 |
 | 4 | Learn cards (text) | — |
 | 5 | Skill check and test-out | — |
 | 6 | Live Guest conversation (text) | — |
@@ -106,18 +106,32 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
   - counted the answers in `training_activity_daily`
 
   Afterwards neither the column nor the function existed.
-- **Not checked yet:** the new screens in a browser (they are behind a login), and the mobile e2e screenshots, whose quiz baselines will need retaking.
+- **Owner test on the preview, 2026-10-19:** desktop and phone, every question type, wrong answers coming back, passing and the third miss. Nothing to change.
+- **Not checked yet:** the mobile e2e screenshots, whose quiz baselines will need retaking.
 
 ### Release order
 
 1. Done 2026-10-19: the owner approved all nine Beer Pouring questions as written.
 2. Done 2026-10-19: `20261020_question_engine.sql` run on production.
-3. Done 2026-10-19: pushed to `preview/rich-update`. Next, the owner tries a quiz on the preview on desktop and on a phone.
-4. Release to `main` once the preview test passes, as each phase does. Until then, live staff keep the old quiz.
+3. Done 2026-10-19: pushed to `preview/rich-update`. The owner tested every question type on desktop and phone, and nothing needed changing.
+4. Done 2026-10-19: released to `main` (`a095129`), after CI passed on the same commit.
 5. Later cleanup, once the new quiz has been live a while: drop `advance_verify_attempt()` and `verify_attempts.question_order`.
 
 **A quiz open at release time ends.** Anyone mid-quiz when the new code goes live sees "This quiz has ended. Please start again." Runs last 20 minutes at most, so this only affects a quiz open at that moment.
 
-## Next: Phase 3, writing and reviewing the questions
+## Phase 3: writing and reviewing the questions
 
-From the plan (section 5): the AI drafts 20 to 25 questions per module from that module's statements and explanations, in the formats above, each tagged with its format, difficulty and fact. You review one category at a time, and each batch goes live once you've approved it. Questions that need a picture get a short image brief for Phase 9. `lib/questions/module-01.ts` is the pattern each module's file follows.
+- **Started:** 2026-10-19. Bartending first, as recommended. The owner said to go ahead with it.
+- **Batches:** Bartending is split into two batches of 7 modules, so each review is about 70 questions. Then Service (14 modules), then Compliance (12). Compliance comes last, because RSA and Food Safety need the closest check.
+- **How a module file works:** each module has `lib/questions/module-NN.ts`. Every question names the True/False statement it comes from (`concept`) and adds no new facts. Drafts have `reviewed: false` and are never asked.
+- **Review sheets** are made from the code with `npm run questions:review -- "<file>" "<title>" <module ids>`, so the sheet always matches what goes live. When a batch is approved, its questions are switched to `reviewed: true` and released.
+
+| Batch | Modules | Questions | Status |
+|---|---|---|---|
+| Beer Pouring sample | 1 | 9 | Approved and live 2026-10-19 |
+| 1. Bartending, part A | 1 (3 more), 2, 3, 4, 5, 6, 7 | 72 | Drafted 2026-10-19, waiting on review: `batch-1-bartending-a.md` |
+| 2. Bartending, part B | 26, 27, 28, 32, 33, 34, 39 | — | Next |
+| 3. Service | 8 to 14, 23, 29, 30, 36, 37, 38, 40 | — | — |
+| 4. Compliance | 15 to 22, 24, 25, 31, 35 | — | — |
+
+Batch 1 brings each module to 19 or 20 questions: its 8 statements plus 11 or 12 new ones. The plan's target is 20 to 25, so the first seven modules sit at the bottom of that range. More can be added later from venue feedback.

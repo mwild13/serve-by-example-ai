@@ -9,6 +9,12 @@
 import "server-only";
 import { VERIFY_QUESTIONS } from "@/lib/verify-questions";
 import { MODULE_1_QUESTIONS } from "@/lib/questions/module-01";
+import { MODULE_2_QUESTIONS } from "@/lib/questions/module-02";
+import { MODULE_3_QUESTIONS } from "@/lib/questions/module-03";
+import { MODULE_4_QUESTIONS } from "@/lib/questions/module-04";
+import { MODULE_5_QUESTIONS } from "@/lib/questions/module-05";
+import { MODULE_6_QUESTIONS } from "@/lib/questions/module-06";
+import { MODULE_7_QUESTIONS } from "@/lib/questions/module-07";
 import type { QuizFormat, QuizOption } from "@/lib/verify-quiz-client";
 
 export type QuestionFormat = QuizFormat;
@@ -67,6 +73,12 @@ export type Question = TrueFalseQuestion | ChoiceQuestion | OrderQuestion | Numb
 /** Questions in a format other than True/False, by module. */
 const EXTRA_QUESTIONS: Record<number, Question[]> = {
   1: MODULE_1_QUESTIONS,
+  2: MODULE_2_QUESTIONS,
+  3: MODULE_3_QUESTIONS,
+  4: MODULE_4_QUESTIONS,
+  5: MODULE_5_QUESTIONS,
+  6: MODULE_6_QUESTIONS,
+  7: MODULE_7_QUESTIONS,
 };
 
 function statementsFor(moduleId: number): TrueFalseQuestion[] {

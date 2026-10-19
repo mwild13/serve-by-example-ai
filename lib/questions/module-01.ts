@@ -3,8 +3,9 @@
 // names the statement it comes from, so a wrong answer can come back as
 // another form of the same fact.
 //
-// Approved by the owner on 2026-10-19. Review copy:
-// docs/Rich Update/module-01-questions.md.
+// q1 to q9 approved by the owner on 2026-10-19 (docs/Rich Update/
+// module-01-questions.md). q10 to q12 are drafts in batch 1
+// (docs/Rich Update/batch-1-bartending-a.md) until approved.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -144,5 +145,49 @@ export const MODULE_1_QUESTIONS: Question[] = [
     answer: "a",
     explanation: "This wastes expensive product, hits the venue's GP, and leaves a sticky glass for the guest to hold.",
     reviewed: true,
+  },
+  {
+    id: "q10",
+    concept: "s1",
+    difficulty: 1,
+    format: "multiple_choice",
+    prompt: "Why must the tap nozzle never touch the glass or the beer?",
+    options: [
+      { id: "a", text: "It changes the flavour" },
+      { id: "b", text: "It spreads bacteria and breaks the health code" },
+      { id: "c", text: "It slows the pour down" },
+      { id: "d", text: "It scratches the glass" },
+    ],
+    answer: "b",
+    explanation: "Dipping the nozzle spreads bacteria and violates health codes. The tap must never touch the glass or the beer.",
+    reviewed: false,
+  },
+  {
+    id: "q11",
+    concept: "s5",
+    difficulty: 2,
+    format: "multiple_choice",
+    prompt: "What gives draught beer a buttery taste?",
+    options: [
+      { id: "a", text: "A warm glass" },
+      { id: "b", text: "Pouring too slowly" },
+      { id: "c", text: "Diacetyl building up in a dirty beer line" },
+      { id: "d", text: "A keg that's nearly empty" },
+    ],
+    answer: "c",
+    explanation: "Diacetyl buildup in uncleaned draught lines creates a distinct, unpleasant buttery flavour in the beer.",
+    reviewed: false,
+  },
+  {
+    id: "q12",
+    concept: "s6",
+    difficulty: 2,
+    format: "number",
+    prompt: "At what angle should you hold the glass when you start pouring a beer?",
+    unit: "degrees",
+    answer: 45,
+    tolerance: 0,
+    explanation: "Starting the pour at a 45-degree angle allows the beer to flow down the side, controlling the head.",
+    reviewed: false,
   },
 ];
