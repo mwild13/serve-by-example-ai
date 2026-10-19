@@ -11,7 +11,7 @@ The staff learning upgrade, named after Richie, our first tester, who called tra
 | # | Phase | Status |
 |---|---|---|
 | 1 | Groundwork: measures and event tracking | Done 2026-10-19 |
-| 2 | Question engine | Built 2026-10-19; waiting on the migration and your review of the Beer Pouring questions |
+| 2 | Question engine | On preview 2026-10-19; the owner tries it on desktop and phone |
 | 3 | Writing and reviewing the questions | Next |
 | 4 | Learn cards (text) | — |
 | 5 | Skill check and test-out | — |
@@ -72,7 +72,7 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
 
 - **Date:** 2026-10-19
 - **Branch:** `preview/rich-update`. Not pushed yet.
-- **Migration:** `supabase/migrations/20261020_question_engine.sql` (rollback in `supabase/rollbacks/`). It only adds things, so it can run before the code goes live. **Not run on production yet.**
+- **Migration:** `supabase/migrations/20261020_question_engine.sql` (rollback in `supabase/rollbacks/`). It only adds things, so it can run before the code goes live. **Run on production 2026-10-19.**
 
 ### What was done
 
@@ -87,7 +87,7 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
   - Desktop keys: T and F, 1 to 4 for options, Enter for the next question.
   - Steps are put in order with up and down buttons, 44px targets, not by dragging.
   - `RapidFireQuiz.tsx` and its old styles are deleted.
-- **Beer Pouring sample questions:** 9 questions written only from the module's own statements, in `lib/questions/module-01.ts`. They are off until you approve them: see `module-01-questions.md` in this folder. They are the first real test of the formats, and a model for Phase 3.
+- **Beer Pouring sample questions:** 9 questions written only from the module's own statements, in `lib/questions/module-01.ts`. Approved by the owner on 2026-10-19 and switched on: see `module-01-questions.md` in this folder. They are the first real test of the formats, and a model for Phase 3.
 
 ### Checked
 
@@ -110,10 +110,11 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
 
 ### Release order
 
-1. You review the Beer Pouring questions. I switch on the ones you approve.
-2. You run `20261020_question_engine.sql` on production. It only adds a column and a function, and the current live quiz ignores both.
-3. Push to `preview/rich-update`, wait for the checks, and try a quiz on the preview on desktop and on a phone.
-4. Later cleanup, once the new quiz has been live a while: drop `advance_verify_attempt()` and `verify_attempts.question_order`.
+1. Done 2026-10-19: the owner approved all nine Beer Pouring questions as written.
+2. Done 2026-10-19: `20261020_question_engine.sql` run on production.
+3. Done 2026-10-19: pushed to `preview/rich-update`. Next, the owner tries a quiz on the preview on desktop and on a phone.
+4. Still to do, on `main` together with the later phases. Live staff keep the old quiz until then.
+5. Later cleanup, once the new quiz has been live a while: drop `advance_verify_attempt()` and `verify_attempts.question_order`.
 
 **A quiz open at release time ends.** Anyone mid-quiz when the new code goes live sees "This quiz has ended. Please start again." Runs last 20 minutes at most, so this only affects a quiz open at that moment.
 

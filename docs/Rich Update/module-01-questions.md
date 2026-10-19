@@ -1,8 +1,8 @@
 # Module 1, Beer Pouring: new questions for review
 
-Nine questions in the new formats, written only from the module's existing eight True/False statements, so no new facts are added. They are in the code (`lib/questions/module-01.ts`) but switched off (`reviewed: false`) until you approve them. Once approved, a Beer Pouring run mixes them with the True/False statements.
+Nine questions in the new formats, written only from the module's existing eight True/False statements, so no new facts are added. They are in `lib/questions/module-01.ts`.
 
-For each one: approve, change the wording, or drop it. The correct answer is marked **(right)**.
+**Approved by the owner on 2026-10-19, all nine as written.** A Beer Pouring run now mixes them with the True/False statements. The correct answer is marked **(right)**.
 
 ## 1. Choose one (warm glass)
 Why does a warm glass straight from the glasswasher ruin a beer?
@@ -59,8 +59,8 @@ Why shouldn't beer run down the outside of the glass?
 - It warms the beer up
 - It only matters for craft beer
 
-## Points to check
+## Decided on review
 
-- **Number 4:** says "Sydney" so the answer is clear. South Australia's schooner is a different size.
-- **Number 6:** only an answer of exactly 1.5 counts. Should 1 also count? The statement says 1 to 1.5 cm.
-- **Number 8:** this is the pour order I took from the statements. Change it if your venues teach it differently.
+- **Number 4:** "Sydney" stays, so the answer is clear. South Australia's schooner is a different size.
+- **Number 6:** only exactly 1.5 counts.
+- **Number 8:** the pour order is correct as written.

@@ -3,8 +3,8 @@
 // names the statement it comes from, so a wrong answer can come back as
 // another form of the same fact.
 //
-// Drafts until the owner approves them: `reviewed: false` keeps them out of
-// every run. Review copy: docs/Rich Update/module-01-questions.md.
+// Approved by the owner on 2026-10-19. Review copy:
+// docs/Rich Update/module-01-questions.md.
 import "server-only";
 import type { Question } from "@/lib/question-bank";
 
@@ -23,7 +23,7 @@ export const MODULE_1_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "Heat kills the CO2 in draught beer, resulting in a flat pour with excessive, unmanageable foam.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q2",
@@ -39,7 +39,7 @@ export const MODULE_1_QUESTIONS: Question[] = [
     ],
     answer: "c",
     explanation: "Dipping the nozzle spreads bacteria and violates health codes. The tap must never touch the glass or the beer.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q3",
@@ -55,7 +55,7 @@ export const MODULE_1_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "In most Australian states (excluding SA), a schooner is the standard 425ml draught pour.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q4",
@@ -67,7 +67,7 @@ export const MODULE_1_QUESTIONS: Question[] = [
     answer: 425,
     tolerance: 0,
     explanation: "In most Australian states (excluding SA), a schooner is the standard 425ml draught pour.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q5",
@@ -83,7 +83,7 @@ export const MODULE_1_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Taps are designed for flow dynamics; you must open the tap fully and sharply to prevent foaming.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q6",
@@ -95,7 +95,7 @@ export const MODULE_1_QUESTIONS: Question[] = [
     answer: 1.5,
     tolerance: 0,
     explanation: "A 1–1.5 cm head preserves the beer's carbonation and aroma without short-changing the guest on liquid.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q7",
@@ -111,7 +111,7 @@ export const MODULE_1_QUESTIONS: Question[] = [
     ],
     answer: "b",
     explanation: "Diacetyl buildup in uncleaned draught lines creates a distinct, unpleasant buttery flavour in the beer. Replace the drink and report the line.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q8",
@@ -127,7 +127,7 @@ export const MODULE_1_QUESTIONS: Question[] = [
       { id: "e", text: "Close the tap with a 1 to 1.5 cm head" },
     ],
     explanation: "A cold glass, a 45-degree start and a fully open tap control the head. Straighten as it fills and stop at 1 to 1.5 cm.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "q9",
@@ -143,6 +143,6 @@ export const MODULE_1_QUESTIONS: Question[] = [
     ],
     answer: "a",
     explanation: "This wastes expensive product, hits the venue's GP, and leaves a sticky glass for the guest to hold.",
-    reviewed: false,
+    reviewed: true,
   },
 ];
