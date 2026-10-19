@@ -113,7 +113,7 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
 1. Done 2026-10-19: the owner approved all nine Beer Pouring questions as written.
 2. Done 2026-10-19: `20261020_question_engine.sql` run on production.
 3. Done 2026-10-19: pushed to `preview/rich-update`. Next, the owner tries a quiz on the preview on desktop and on a phone.
-4. Still to do, on `main` together with the later phases. Live staff keep the old quiz until then.
+4. Release to `main` once the preview test passes, as each phase does. Until then, live staff keep the old quiz.
 5. Later cleanup, once the new quiz has been live a while: drop `advance_verify_attempt()` and `verify_attempts.question_order`.
 
 **A quiz open at release time ends.** Anyone mid-quiz when the new code goes live sees "This quiz has ended. Please start again." Runs last 20 minutes at most, so this only affects a quiz open at that moment.
