@@ -132,9 +132,9 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
 | 1. Bartending, part A | 1 (3 more), 2, 3, 4, 5, 6, 7 | 72 | Approved 2026-10-19, all as written; live on `main` (`c2ad2cd`): `batch-1-bartending-a.md` |
 | 2. Bartending, part B | 26, 27, 28, 32, 33, 34, 39 | 69 | Approved 2026-10-19; two statements corrected; live on `main` (`609d8d2`): `batch-2-bartending-b.md` |
 | 3. Service, part A | 8 to 14 | 61 | Approved 2026-10-19; five statements corrected; live on `main` (`83029f8`): `batch-3-service-a.md` |
-| 4. Service, part B | 23, 29, 30, 36, 37, 38, 40 | 58 | Approved 2026-10-19; four statements corrected: `batch-4-service-b.md` |
-| 5. Compliance, part A | 15 to 20 | — | Drafting |
-| 6. Compliance, part B | 21, 22, 24, 25, 31, 35 | — | — |
+| 4. Service, part B | 23, 29, 30, 36, 37, 38, 40 | 58 | Approved 2026-10-19; four statements corrected; live on `main` (`dc2fd41`): `batch-4-service-b.md` |
+| 5. Compliance, part A | 15 to 20 | 48 | Drafted 2026-10-19, waiting on review: `batch-5-compliance-a.md` |
+| 6. Compliance, part B | 21, 22, 24, 25, 31, 35 | — | Next |
 
 **Venue practice rule (owner, 2026-10-19):** anything that varies between venues, such as cleaning schedules, gun layouts or house specs, is tested as a principle, never as one number or frequency.
 

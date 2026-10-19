@@ -22,6 +22,12 @@ import { MODULE_11_QUESTIONS } from "@/lib/questions/module-11";
 import { MODULE_12_QUESTIONS } from "@/lib/questions/module-12";
 import { MODULE_13_QUESTIONS } from "@/lib/questions/module-13";
 import { MODULE_14_QUESTIONS } from "@/lib/questions/module-14";
+import { MODULE_15_QUESTIONS } from "@/lib/questions/module-15";
+import { MODULE_16_QUESTIONS } from "@/lib/questions/module-16";
+import { MODULE_17_QUESTIONS } from "@/lib/questions/module-17";
+import { MODULE_18_QUESTIONS } from "@/lib/questions/module-18";
+import { MODULE_19_QUESTIONS } from "@/lib/questions/module-19";
+import { MODULE_20_QUESTIONS } from "@/lib/questions/module-20";
 import { MODULE_23_QUESTIONS } from "@/lib/questions/module-23";
 import { MODULE_26_QUESTIONS } from "@/lib/questions/module-26";
 import { MODULE_27_QUESTIONS } from "@/lib/questions/module-27";
@@ -107,6 +113,12 @@ const EXTRA_QUESTIONS: Record<number, Question[]> = {
   12: MODULE_12_QUESTIONS,
   13: MODULE_13_QUESTIONS,
   14: MODULE_14_QUESTIONS,
+  15: MODULE_15_QUESTIONS,
+  16: MODULE_16_QUESTIONS,
+  17: MODULE_17_QUESTIONS,
+  18: MODULE_18_QUESTIONS,
+  19: MODULE_19_QUESTIONS,
+  20: MODULE_20_QUESTIONS,
   23: MODULE_23_QUESTIONS,
   26: MODULE_26_QUESTIONS,
   27: MODULE_27_QUESTIONS,
