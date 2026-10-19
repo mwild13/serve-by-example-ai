@@ -1,6 +1,6 @@
 # Handoff: The Rich Update (October 2026)
 
-The staff learning upgrade, named after Richie, our first tester, who called training repetitive. The plan, the research and every decision are in `docs/LEARNING_UPGRADE_RESEARCH.md`. This file records what has been done, phase by phase. Other open items are in `To_do_list.md`.
+The staff learning upgrade, named after Richie, our first tester, who called training repetitive. The plan, the research and every decision are in `LEARNING_UPGRADE_RESEARCH.md`, and the measures in `LEARNING_METRICS.md`. All three files live in `docs/Rich Update/`; every new document for this update goes there too. This file records what has been done, phase by phase. Other open items are in `To_do_list.md`.
 
 - **Branch:** `preview/rich-update`, created from `main` at `069b535`.
 - **Save point before any change:** the tag `pre-learning-upgrade` (`069b535`). `git checkout pre-learning-upgrade` shows the code as it was.
@@ -10,7 +10,7 @@ The staff learning upgrade, named after Richie, our first tester, who called tra
 
 | # | Phase | Status |
 |---|---|---|
-| 1 | Groundwork: measures and event tracking | Done 2026-10-19 (Richie mock-ups still to do) |
+| 1 | Groundwork: measures and event tracking | Done 2026-10-19 |
 | 2 | Question engine | Next |
 | 3 | Writing and reviewing the questions | — |
 | 4 | Learn cards (text) | — |
@@ -35,6 +35,7 @@ The staff learning upgrade, named after Richie, our first tester, who called tra
 - Live Guest is text first; voice comes after marketing starts.
 - Live Guest is on Boutique, Commercial and Enterprise, venue trials and sponsored staff. Not on Pro. Pro and free users get one taster conversation, which is chosen in Phase 13.
 - The question review is its own phase, done by the owner.
+- No mock-ups for Richie. He and other managers try the real screens as each phase ships.
 - Images are their own phase, after the questions: one illustration style built from parts, AI-drafted, corrected as SVG and checked by the owner. No illustrator.
 - The venue manager approves every AI-drafted venue question before staff see it.
 
@@ -48,8 +49,9 @@ The staff learning upgrade, named after Richie, our first tester, who called tra
 
 - **No new tracking code.** The plan said "add events", but the database already records what the measures need: `verify_attempts` has every quiz run with its status, and `training_activity_daily` has one row per person per day trained (filled by triggers). A separate events table would have duplicated them.
 - **`supabase/queries/learning.sql`:** four read-only queries in the same style as `funnel.sql`. Quiz runs finished, days trained per active person, still training in week 4, and the training mix.
-- **`docs/FUNNEL_METRICS.md`, "Learning":** what each number means, and the baseline taken on 2026-10-19 from production.
+- **`LEARNING_METRICS.md`:** what each number means, and the baseline taken on 2026-10-19 from production. `docs/FUNNEL_METRICS.md` points to it.
 - **Plan updated** with the last two decisions and how Phase 1 went.
+- **All the update's documents moved to `docs/Rich Update/`**, so they're easy to find.
 
 ### The baseline (2026-10-19)
 
@@ -64,7 +66,6 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
 
 ### Still to do from Phase 1
 
-- Mock-ups of the new quiz and of Live Guest, to show Richie. This doesn't hold up Phase 2.
 - Live Guest's measure is added in Phase 6, and venue content's in Phase 11, once those features write their own rows.
 
 ## Next: Phase 2, the question engine

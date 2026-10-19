@@ -1,5 +1,5 @@
 -- The learning numbers for the Rich update. Definitions and how to read them:
--- docs/FUNNEL_METRICS.md, "Learning".
+-- docs/Rich Update/LEARNING_METRICS.md.
 --
 -- Read-only. Run one query at a time in the Supabase SQL editor.
 --

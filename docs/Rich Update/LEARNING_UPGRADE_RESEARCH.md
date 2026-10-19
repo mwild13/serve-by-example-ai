@@ -1,6 +1,6 @@
 # Staff Learning Upgrade: Research and Proposal
 
-Written 2026-10-19 and revised twice the same day after review. Every decision is now made, and section 5 breaks the work into phases. No code has changed yet. It covers the staff app on mobile and desktop, and is meant to be the last product update before paid marketing starts.
+Written 2026-10-19 and revised twice the same day after review. Everything for this update lives in `docs/Rich Update/`: this plan, the progress file `the-rich-update-10-26.md` and `LEARNING_METRICS.md`. Every decision is now made, and section 5 breaks the work into phases. No code has changed yet. It covers the staff app on mobile and desktop, and is meant to be the last product update before paid marketing starts.
 
 The question: our first paid tester, Richie, has managed venues for 20 years. He called training repetitive and said staff forget the app once they finish it. How do we make training worth paying for every month, in a way no other hospitality training platform in Australia offers?
 
@@ -247,9 +247,8 @@ There are 13 phases to launch, then 3 after marketing starts. Each phase goes ou
 
 ### Phase 1. Groundwork (done 2026-10-19)
 - No new tracking code was needed. `verify_attempts` already records every quiz run, and `training_activity_daily` records one row per person per day trained. The queries are in `supabase/queries/learning.sql`.
-- The measures and today's numbers are in `docs/FUNNEL_METRICS.md`, under "Learning".
+- The measures and today's numbers are in `LEARNING_METRICS.md`, in this folder.
 - Live Guest and venue content get their measures in the phases that build them (6 and 11), from the rows those features write.
-- Still to do, without holding up Phase 2: show Richie a mock-up of the new quiz and of Live Guest.
 - **Done when** today's numbers are written down, so we can tell later whether the upgrade worked.
 
 ### Phase 2. Question engine
@@ -333,7 +332,7 @@ There are 13 phases to launch, then 3 after marketing starts. Each phase goes ou
 
 ### How we'll know it worked
 
-Record these in `docs/FUNNEL_METRICS.md` in Phase 1:
+Recorded in `LEARNING_METRICS.md` in Phase 1:
 - Share of quiz runs finished, starting from today's baseline of 11 of 22.
 - Share of new venue trials where someone tries Live Guest in the first session.
 - Days with training per active staff member per week.
@@ -345,7 +344,7 @@ Record these in `docs/FUNNEL_METRICS.md` in Phase 1:
 
 ## 6. Research to do alongside the build
 
-1. **Show it to venue managers early.** Mock-ups of the new quiz and Live Guest go to Richie in Phase 1. Show the dials, the pre-shift drill and the venue content approval screen to 2 or 3 more managers as each one is built.
+1. **Show it to venue managers as it's built.** No mock-ups (decided 2026-10-19). Richie and 2 or 3 other managers try the real screens on the preview site as each phase ships.
 2. **Price test.** Richie suggested $10 to $20 per user per month; today it's about $4 to $5. Live Guest and venue content are the features that could justify a higher price. Test on new sign-ups only, as the to-do list already says.
 3. **Voice in a real venue,** before Phase 14.
 4. **Legal and compliance check** on any claim about Food Safety Standard 3.2.2A or Respect@Work before it appears on the site.
@@ -370,8 +369,9 @@ Record these in `docs/FUNNEL_METRICS.md` in Phase 1:
 
 - **Pro and free users get one Live Guest taster conversation.** Which guest is chosen in Phase 13, once every guest has been tested.
 - **Image parts are AI-drafted**, then corrected as SVG and checked by you. No illustrator.
+- **No mock-ups for Richie.** He and other managers try the real screens as each phase ships.
 
-Nothing is open. Progress is tracked in `docs/handoff/the-rich-update-10-26.md`.
+Nothing is open. Progress is tracked in `the-rich-update-10-26.md`, in this folder.
 
 ---
 
