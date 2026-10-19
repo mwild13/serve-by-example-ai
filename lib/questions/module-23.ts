@@ -1,0 +1,153 @@
+// Module 23, The Swivel Head: questions in the new formats, written from the
+// module's True/False statements (lib/verify-questions.ts). Each `concept`
+// names the statement it comes from.
+//
+// Drafts until the owner approves them: `reviewed: false` keeps them out of
+// every run. Review copy: docs/Rich Update/batch-4-service-b.md.
+import "server-only";
+import type { Question } from "@/lib/question-bank";
+
+export const MODULE_23_QUESTIONS: Question[] = [
+  {
+    id: "q1",
+    concept: "s0",
+    difficulty: 1,
+    format: "multiple_choice",
+    prompt: "What is a \"dead soldier\"?",
+    options: [
+      { id: "a", text: "An empty glass or bottle left on a table" },
+      { id: "b", text: "A staff member on a break" },
+      { id: "c", text: "A keg that's run out" },
+      { id: "d", text: "A table that hasn't ordered" },
+    ],
+    answer: "a",
+    explanation: "This is the standard hospitality term for any finished vessel. Spotting dead soldiers from across the room is a core skill.",
+    reviewed: false,
+  },
+  {
+    id: "q2",
+    concept: "s1",
+    difficulty: 1,
+    format: "multiple_choice",
+    prompt: "What does the \"swivel head\" technique mean?",
+    options: [
+      { id: "a", text: "Scanning the room while you work on other tasks" },
+      { id: "b", text: "Turning to face each guest as they talk" },
+      { id: "c", text: "Watching only your own section" },
+      { id: "d", text: "Looking at the door for new arrivals" },
+    ],
+    answer: "a",
+    explanation: "The \"swivel head\" technique means constantly scanning the room while performing other tasks. Tunnel vision is a floor failure.",
+    reviewed: false,
+  },
+  {
+    id: "q3",
+    concept: "s2",
+    difficulty: 1,
+    format: "multiple_choice",
+    prompt: "A guest has an open menu and is looking around the room. What does that tell you?",
+    options: [
+      { id: "a", text: "They're still deciding, so leave them" },
+      { id: "b", text: "They need a server" },
+      { id: "c", text: "They're looking for a friend" },
+      { id: "d", text: "They're about to leave" },
+    ],
+    answer: "b",
+    explanation: "The \"lost look\" — open menu, scanning eyes — is one of the clearest visual cues that the guest needs assistance.",
+    reviewed: false,
+  },
+  {
+    id: "q4",
+    concept: "s3",
+    difficulty: 1,
+    format: "multiple_choice",
+    prompt: "A guest raises their hand while you're clearing another table. What do you do?",
+    options: [
+      { id: "a", text: "Finish clearing first" },
+      { id: "b", text: "Acknowledge them straight away, even with just a nod" },
+      { id: "c", text: "Pretend you didn't see" },
+      { id: "d", text: "Send a colleague later" },
+    ],
+    answer: "b",
+    explanation: "A raised hand means the guest has already lost patience. Drop your current task or acknowledge immediately with a nod.",
+    reviewed: false,
+  },
+  {
+    id: "q5",
+    concept: "s4",
+    difficulty: 2,
+    format: "multiple_choice",
+    prompt: "Why sweep your eyes across the room regularly?",
+    options: [
+      { id: "a", text: "To spot needs before they turn into frustration" },
+      { id: "b", text: "To look busy" },
+      { id: "c", text: "To check on other staff" },
+      { id: "d", text: "To count the guests" },
+    ],
+    answer: "a",
+    explanation: "Regular visual sweeps allow you to identify needs before they become frustrations, keeping the whole room in control.",
+    reviewed: false,
+  },
+  {
+    id: "q6",
+    concept: "s5",
+    difficulty: 2,
+    format: "spot_mistake",
+    prompt: "Which of these is a sign of an inexperienced server?",
+    options: [
+      { id: "a", text: "Scanning the room while working" },
+      { id: "b", text: "Tunnel vision on the task in front of them" },
+      { id: "c", text: "Nodding to a waiting guest from across the room" },
+      { id: "d", text: "Clearing dead soldiers on the way past" },
+    ],
+    answer: "b",
+    explanation: "Tunnel vision is the hallmark of an overwhelmed or inexperienced worker. Expert servers are always reading the whole room.",
+    reviewed: false,
+  },
+  {
+    id: "q7",
+    concept: "s6",
+    difficulty: 1,
+    format: "multiple_choice",
+    prompt: "A guest is waiting 10 metres away and you can't get there yet. What helps?",
+    options: [
+      { id: "a", text: "Eye contact and a nod" },
+      { id: "b", text: "Nothing until you can get there" },
+      { id: "c", text: "Calling out across the room" },
+      { id: "d", text: "Waving them over" },
+    ],
+    answer: "a",
+    explanation: "A visible acknowledgment resets the guest's patience clock even from 10 metres away, buying you critical time.",
+    reviewed: false,
+  },
+  {
+    id: "q8",
+    concept: "s7",
+    difficulty: 1,
+    format: "multiple_choice",
+    prompt: "Whose job is it to notice empty glasses and guests who need something?",
+    options: [
+      { id: "a", text: "Only the floor manager's" },
+      { id: "b", text: "Everyone on the floor" },
+      { id: "c", text: "Only the bar back's" },
+      { id: "d", text: "Only the server in that section" },
+    ],
+    answer: "b",
+    explanation: "Every single person on the floor shares responsibility for reading the room. Managers cannot be everywhere at once.",
+    reviewed: false,
+  },
+  {
+    id: "q9",
+    concept: "s3",
+    difficulty: 3,
+    format: "order_steps",
+    prompt: "You're clearing a table when a guest across the room raises their hand. Put these in order.",
+    steps: [
+      { id: "a", text: "Catch their eye and nod" },
+      { id: "b", text: "Finish clearing what's already in your hands" },
+      { id: "c", text: "Go to the guest" },
+    ],
+    explanation: "A raised hand means the guest has lost patience, so acknowledge them at once. Then finish what's already in your hands and get to them.",
+    reviewed: false,
+  },
+];

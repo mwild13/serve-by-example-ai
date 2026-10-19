@@ -22,13 +22,20 @@ import { MODULE_11_QUESTIONS } from "@/lib/questions/module-11";
 import { MODULE_12_QUESTIONS } from "@/lib/questions/module-12";
 import { MODULE_13_QUESTIONS } from "@/lib/questions/module-13";
 import { MODULE_14_QUESTIONS } from "@/lib/questions/module-14";
+import { MODULE_23_QUESTIONS } from "@/lib/questions/module-23";
 import { MODULE_26_QUESTIONS } from "@/lib/questions/module-26";
 import { MODULE_27_QUESTIONS } from "@/lib/questions/module-27";
 import { MODULE_28_QUESTIONS } from "@/lib/questions/module-28";
+import { MODULE_29_QUESTIONS } from "@/lib/questions/module-29";
+import { MODULE_30_QUESTIONS } from "@/lib/questions/module-30";
 import { MODULE_32_QUESTIONS } from "@/lib/questions/module-32";
 import { MODULE_33_QUESTIONS } from "@/lib/questions/module-33";
 import { MODULE_34_QUESTIONS } from "@/lib/questions/module-34";
+import { MODULE_36_QUESTIONS } from "@/lib/questions/module-36";
+import { MODULE_37_QUESTIONS } from "@/lib/questions/module-37";
+import { MODULE_38_QUESTIONS } from "@/lib/questions/module-38";
 import { MODULE_39_QUESTIONS } from "@/lib/questions/module-39";
+import { MODULE_40_QUESTIONS } from "@/lib/questions/module-40";
 import type { QuizFormat, QuizOption } from "@/lib/verify-quiz-client";
 
 export type QuestionFormat = QuizFormat;
@@ -100,13 +107,20 @@ const EXTRA_QUESTIONS: Record<number, Question[]> = {
   12: MODULE_12_QUESTIONS,
   13: MODULE_13_QUESTIONS,
   14: MODULE_14_QUESTIONS,
+  23: MODULE_23_QUESTIONS,
   26: MODULE_26_QUESTIONS,
   27: MODULE_27_QUESTIONS,
   28: MODULE_28_QUESTIONS,
+  29: MODULE_29_QUESTIONS,
+  30: MODULE_30_QUESTIONS,
   32: MODULE_32_QUESTIONS,
   33: MODULE_33_QUESTIONS,
   34: MODULE_34_QUESTIONS,
+  36: MODULE_36_QUESTIONS,
+  37: MODULE_37_QUESTIONS,
+  38: MODULE_38_QUESTIONS,
   39: MODULE_39_QUESTIONS,
+  40: MODULE_40_QUESTIONS,
 };
 
 function statementsFor(moduleId: number): TrueFalseQuestion[] {
