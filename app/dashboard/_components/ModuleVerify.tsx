@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { Check } from "lucide-react";
 import LearnCards from "@/components/quiz/LearnCards";
 import QuizRun from "@/components/quiz/QuizRun";
 import { loadLearnCards, type LearnCard } from "@/lib/learn-cards";
@@ -212,7 +213,7 @@ export default function ModuleVerify({ moduleId, onLiveGuest, onComplete, nextMo
     return (
       <div className="stage-container">
         <div style={{ padding: "40px 24px", textAlign: "center" }}>
-          <span className="module-mastered-check">✓</span>
+          <span className="module-mastered-check" aria-hidden="true"><Check size={30} strokeWidth={2.5} /></span>
           <h2 style={{ marginBottom: 4 }}>
             {nextTitle ? "Module Mastered" : "All Modules Complete!"}
           </h2>

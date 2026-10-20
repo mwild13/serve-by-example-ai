@@ -8,7 +8,7 @@ import { isB2BTier } from "@/lib/session";
 import ModuleVerify from "@/app/dashboard/_components/ModuleVerify";
 import LiveGuestPage from "@/app/dashboard/_components/LiveGuestPage";
 import DiagnosticFlow from "@/app/dashboard/_components/DiagnosticFlow";
-import DynamicModuleNav from "@/app/dashboard/_components/DynamicModuleNav";
+import ModulesPage from "@/app/dashboard/_components/modules/ModulesPage";
 import DrillPage from "@/app/dashboard/_components/DrillPage";
 import RushPage from "@/app/dashboard/_components/RushPage";
 import ChallengesPage from "@/app/dashboard/_components/ChallengesPage";
@@ -739,32 +739,23 @@ export default function DashboardShell({
             }}
           />
         ) : activeNav === "module" ? (
-          sheet(
-            <div key="module">
-              {selectedModuleId ? (
-                <div>
-                  <button type="button" className="sd-back" onClick={() => setSelectedModuleId(null)}>
-                    <ArrowLeft size={16} strokeWidth={2} aria-hidden />
-                    All modules
-                  </button>
-                  <ModuleVerify
-                    key={`module-${selectedModuleId}`}
-                    moduleId={selectedModuleId}
-                    onLiveGuest={() => handleNavClick("live-guest")}
-                    nextModuleId={selectedModuleId < 40 ? selectedModuleId + 1 : undefined}
-                    onComplete={() => setSelectedModuleId(selectedModuleId < 40 ? selectedModuleId + 1 : null)}
-                  />
-                </div>
-              ) : (
-                <DynamicModuleNav
-                  userId={userId}
-                  userEmail={userEmail}
-                  userToken={userToken}
-                  onModuleSelect={(moduleId) => setSelectedModuleId(moduleId)}
-                  selectedModuleId={selectedModuleId || undefined}
+          selectedModuleId ? (
+            <div key={`module-${selectedModuleId}`} className="sd-reading">
+              <button type="button" className="sd-back sd-back-room" onClick={() => setSelectedModuleId(null)}>
+                <ArrowLeft size={16} strokeWidth={2} aria-hidden />
+                All modules
+              </button>
+              <div className="sd-docket">
+                <ModuleVerify
+                  moduleId={selectedModuleId}
+                  onLiveGuest={() => handleNavClick("live-guest")}
+                  nextModuleId={selectedModuleId < 40 ? selectedModuleId + 1 : undefined}
+                  onComplete={() => setSelectedModuleId(selectedModuleId < 40 ? selectedModuleId + 1 : null)}
                 />
-              )}
+              </div>
             </div>
+          ) : (
+            <ModulesPage key="module" getToken={getToken} onOpenModule={(moduleId) => setSelectedModuleId(moduleId)} />
           )
         ) : activeNav === "drill" ? (
           sheet(

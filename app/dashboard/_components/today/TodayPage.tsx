@@ -269,10 +269,14 @@ export default function TodayPage({
         {streak && hasModuleAccess && (
           <aside className="sd-streak" aria-label="Shift streak">
             <p className="sd-kicker">Shift streak</p>
-            <p className="sd-streak-figure">
-              {streak.count}
-              <span className="sd-streak-unit">{streak.count === 1 ? "shift" : "shifts"} in a row</span>
-            </p>
+            {streak.count > 0 ? (
+              <p className="sd-streak-figure">
+                {streak.count}
+                <span className="sd-streak-unit">{streak.count === 1 ? "shift" : "shifts"} in a row</span>
+              </p>
+            ) : (
+              <p className="sd-streak-start">Do the pre-shift drill before a shift and your streak starts.</p>
+            )}
             <ol className="sd-week" aria-label="Your week">
               {WEEK.map((d) => {
                 const on = isShiftDay(streak.shiftDays, d);
