@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Bell, Flame, Swords, BrainCircuit, Martini, Award } from "lucide-react";
@@ -10,6 +10,9 @@ import NotificationOptInCard from "./NotificationOptInCard";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 import { COCKTAILS, COCKTAIL_IMAGES } from "@/lib/cocktails";
+import { getShiftStreak } from "@/lib/verify-quiz-client";
+import type { ShiftStreak } from "@/lib/shift-streak";
+import { streakLine } from "@/components/quiz/ShiftDays";
 
 // Phase B.5 — dumb UI plus real navigation. Matches the Figma "home" frame
 // 1:1 visually.
@@ -83,12 +86,24 @@ export default function HomeScreen() {
     [dayIdx],
   );
 
-  const warmupModule = useMemo(() => {
-    if (!data) return null;
-    const accessible = data.allModules.filter((mod) => data.access.allowedModules.includes(mod.id));
-    if (accessible.length === 0) return null;
-    return accessible[dayIdx % accessible.length];
-  }, [data, dayIdx]);
+  // Rich update, Phase 12: the warm-up is now the pre-shift drill
+  // (/mobile/drill?mode=preshift), and the badge shows the shift streak.
+  const hasModules = (data?.access.allowedModules.length ?? 0) > 0;
+  const [shiftStreak, setShiftStreak] = useState<ShiftStreak | null>(null);
+  useEffect(() => {
+    if (!session.token) return;
+    let cancelled = false;
+    getShiftStreak(session.token)
+      .then((streak) => {
+        if (!cancelled) setShiftStreak(streak);
+      })
+      .catch(() => {
+        // Non-critical: the card shows without the streak line.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [session.token]);
 
   return (
     <MobileScreenShell>
@@ -155,7 +170,7 @@ export default function HomeScreen() {
                   streak (lib/streak.ts), incremented once per mobile session
                   by MobileSessionProvider — same value BadgesGalleryScreen
                   shows as "Active Streak: N Days". */}
-              {session.streakCount !== null ? `${session.streakCount} Streak` : "-"}
+              {shiftStreak ? `${shiftStreak.count} shift${shiftStreak.count === 1 ? "" : "s"}` : "-"}
             </span>
           </div>
         </div>
@@ -163,9 +178,9 @@ export default function HomeScreen() {
         {/* pre-shift-brief — bottom padding + card padding trimmed
             (2026-08-25 iPhone-13-fit pass) */}
         <div style={{ padding: "0 20px 16px" }}>
-          {warmupModule ? (
+          {hasModules ? (
             <Link
-              href={`/mobile/quiz?moduleId=${warmupModule.id}&moduleTitle=${encodeURIComponent(warmupModule.title)}`}
+              href="/mobile/drill?mode=preshift"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -193,9 +208,13 @@ export default function HomeScreen() {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 <p style={{ margin: 0, fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--gold-mobile)" }}>
-                  Pre-Shift Warmup
+                  {shiftStreak?.doneToday ? "Ready for tonight" : "Ready for your shift?"}
                 </p>
-                <p data-e2e-mask style={{ margin: 0, fontSize: 13, color: "var(--text-mobile)" }}>{warmupModule.title}: Warm-up quiz ready.</p>
+                <p data-e2e-mask style={{ margin: 0, fontSize: 13, color: "var(--text-mobile)" }}>
+                  {shiftStreak?.doneToday
+                    ? `Done for today. ${streakLine(shiftStreak)}.`
+                    : `A 3-minute drill before you start.${shiftStreak && shiftStreak.count > 0 ? ` ${streakLine(shiftStreak)}.` : ""}`}
+                </p>
               </div>
             </Link>
           ) : (

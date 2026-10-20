@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   DRILL_LENGTH,
+  PRESHIFT_DRILL,
   VENUE_MODULE_ID,
   advanceDrill,
   drillGoal,
@@ -156,6 +157,22 @@ describe("venue content in drills", () => {
   it("counts as one source towards the three a drill needs", () => {
     expect(planDrill([...real(1), venue(2)])).toBeNull();
     expect(planDrill([...real(1, 2), venue(2)])).not.toBeNull();
+  });
+});
+
+describe("the pre-shift drill", () => {
+  it("is six questions and works from one module", () => {
+    const queue = planDrill(real(1), new Set(), seeded(3), PRESHIFT_DRILL)!;
+    expect(queue).toHaveLength(6);
+    expect(new Set(queue.map(moduleOf))).toEqual(new Set([1]));
+  });
+
+  it("always takes modules due for review", () => {
+    for (let seed = 1; seed <= 15; seed++) {
+      const modules = [...real(1, 2, 3, 4, 5, 6), { moduleId: 31, questions: liveQuestions(31), always: true }];
+      const queue = planDrill(modules, new Set(), seeded(seed), PRESHIFT_DRILL)!;
+      expect(queue.map(moduleOf)).toContain(31);
+    }
   });
 });
 

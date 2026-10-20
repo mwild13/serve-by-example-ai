@@ -43,9 +43,26 @@ export const VENUE_MODULE_ID = 0;
 
 /**
  * One source's live questions. `priority` puts it in every drill and keeps
- * its questions in the order given (venue content, newest first).
+ * its questions in the order given (venue content, newest first). `always`
+ * puts it in every drill but plans it like any module (reviews that are due,
+ * in the pre-shift drill).
  */
-export type DrillModule = { moduleId: number; questions: Question[]; priority?: boolean };
+export type DrillModule = { moduleId: number; questions: Question[]; priority?: boolean; always?: boolean };
+
+/** How long a drill is and how many sources it mixes. */
+export type DrillShape = { length: number; minModules: number; maxModules: number };
+
+export const MIXED_DRILL: DrillShape = { length: DRILL_LENGTH, minModules: MIN_DRILL_MODULES, maxModules: MAX_DRILL_MODULES };
+
+/**
+ * The pre-shift drill (Rich update, Phase 12): about three minutes, so six
+ * questions, from as few as one source: the venue's new items first, then
+ * reviews that are due, then other started modules.
+ */
+export const PRESHIFT_DRILL: DrillShape = { length: 6, minModules: 1, maxModules: 4 };
+
+/** drill_runs.kind. */
+export type DrillKind = "mixed" | "preshift";
 
 /** Stored in drill_runs.run_state. */
 export type DrillState = {
@@ -100,25 +117,29 @@ export function planDrill(
   modules: DrillModule[],
   exclude: ReadonlySet<string> = new Set(),
   random: Random = secureRandom,
+  shape: DrillShape = MIXED_DRILL,
 ): string[] | null {
   const pools = modules
     .map((m) => ({ moduleId: m.moduleId, pool: drillPool(m, exclude, random) }))
     .filter((p) => p.pool.length > 0);
-  if (pools.length < MIN_DRILL_MODULES) return null;
+  if (pools.length < shape.minModules) return null;
 
-  const priority = pools.filter((p) => modules.find((m) => m.moduleId === p.moduleId)?.priority);
-  const others = shuffle(pools.filter((p) => !priority.includes(p)), random);
-  const chosen = [...priority, ...others].slice(0, MAX_DRILL_MODULES);
+  const flags = (p: { moduleId: number }) => modules.find((m) => m.moduleId === p.moduleId);
+  const priority = pools.filter((p) => flags(p)?.priority);
+  const always = pools.filter((p) => !flags(p)?.priority && flags(p)?.always);
+  const others = shuffle(pools.filter((p) => !priority.includes(p) && !always.includes(p)), random);
+  const chosen = [...priority, ...always, ...others].slice(0, shape.maxModules);
   const queue: string[] = [];
   let last: number | null = null;
-  for (let round = 0; queue.length < DRILL_LENGTH; round++) {
+  for (let round = 0; queue.length < shape.length; round++) {
     const order = shuffle(chosen.filter((p) => p.pool.length > round), random);
     if (order.length === 0) break;
     // The new round mustn't start with the module that ended the last one.
     if (order.length > 1 && order[0].moduleId === last) [order[0], order[1]] = [order[1], order[0]];
     for (const p of order) {
-      if (queue.length >= DRILL_LENGTH) break;
-      if (p.moduleId === last) continue;
+      if (queue.length >= shape.length) break;
+      // Back to back only when one module is all that's left.
+      if (p.moduleId === last && order.length > 1) continue;
       queue.push(drillQuestionId(p.moduleId, p.pool[round].id));
       last = p.moduleId;
     }

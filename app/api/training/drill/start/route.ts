@@ -12,11 +12,14 @@ import {
   DRILL_TTL_MINUTES,
   MAX_DRILL_STARTS_PER_WINDOW,
   MIN_DRILL_MODULES,
+  MIXED_DRILL,
+  PRESHIFT_DRILL,
   VENUE_MODULE_ID,
   drillGoal,
   drillProgress,
   parseDrillQuestionId,
   planDrill,
+  type DrillKind,
   type DrillModule,
   type DrillState,
 } from "@/lib/drill";
@@ -28,6 +31,10 @@ const MAX_BODY_BYTES = 256;
 const KEEP_DAYS = 7;
 /** Newest approved venue questions a drill can draw on. */
 const VENUE_QUESTION_LIMIT = 40;
+/** Modules due for review the pre-shift drill always takes, oldest first. */
+const PRESHIFT_DUE_MODULES = 2;
+/** With nothing started yet, the pre-shift drill uses the first few modules on the plan. */
+const PRESHIFT_STARTER_MODULES = 3;
 
 type VenueQuestionRow = {
   id: string;
@@ -72,6 +79,10 @@ async function venueSource(admin: ReturnType<typeof createSupabaseAdminClient>, 
  * and returns its first question, without the answer. Each answer is graded
  * by /api/training/drill/answer, which sends the next question. See
  * lib/drill.ts.
+ *
+ * `mode: "preshift"` starts the shorter pre-shift drill (Rich update,
+ * Phase 12): the venue's new items, then modules due for review, then other
+ * started modules. Finishing one counts towards the shift streak.
  */
 export async function POST(req: Request) {
   try {
@@ -88,6 +99,12 @@ export async function POST(req: Request) {
 
     const read = await readJsonBody(req, MAX_BODY_BYTES);
     if (!read.ok) return read.response;
+    const mode = read.body.mode;
+    if (mode !== undefined && mode !== "preshift") {
+      return NextResponse.json({ error: "Invalid mode.", code: "INVALID_MODE" }, { status: 400 });
+    }
+    const kind: DrillKind = mode === "preshift" ? "preshift" : "mixed";
+    const shape = kind === "preshift" ? PRESHIFT_DRILL : MIXED_DRILL;
 
     const browserSessionId = getCookieValue(req, "sbe_session_id");
     if (!browserSessionId) {
@@ -100,7 +117,7 @@ export async function POST(req: Request) {
     }
 
     const windowStart = new Date(Date.now() - DRILL_START_WINDOW_MINUTES * 60_000).toISOString();
-    const [access, startedRes, recentRes, latestRes, venue] = await Promise.all([
+    const [access, startedRes, recentRes, latestRes, venue, dueRes] = await Promise.all([
       resolveAccess(admin, user.id, user.email ?? ""),
       admin.from("quiz_modules_started").select("module_id").eq("user_id", user.id),
       admin
@@ -116,8 +133,21 @@ export async function POST(req: Request) {
         .limit(1)
         .maybeSingle(),
       venueSource(admin, user.id),
+      kind === "preshift"
+        ? admin
+            .from("scenario_mastery")
+            .select("module_id")
+            .eq("user_id", user.id)
+            .eq("scenario_type", "quiz")
+            .eq("is_mastered", true)
+            .is("archived_at", null)
+            .lte("next_review_at", new Date().toISOString())
+            .order("next_review_at", { ascending: true })
+            .limit(PRESHIFT_DUE_MODULES)
+        : Promise.resolve({ data: [] as { module_id: number | null }[], error: null }),
     ]);
     if (startedRes.error) throw startedRes.error;
+    if (dueRes.error) throw dueRes.error;
     if (recentRes.error) throw recentRes.error;
     if (latestRes.error) throw latestRes.error;
 
@@ -130,15 +160,25 @@ export async function POST(req: Request) {
     }
 
     const allowed = new Set(access.allowedModules);
-    const started = [...new Set((startedRes.data ?? []).map((r) => r.module_id as number))].filter((id) => allowed.has(id));
-    const modules: DrillModule[] = started.map((moduleId) => ({ moduleId, questions: liveQuestions(moduleId) }));
+    const due = new Set((dueRes.data ?? []).map((r) => r.module_id).filter((id): id is number => typeof id === "number" && allowed.has(id)));
+    let started = [...new Set([...(startedRes.data ?? []).map((r) => r.module_id as number), ...due])].filter((id) => allowed.has(id));
+    if (kind === "preshift" && started.length === 0) {
+      started = [...access.allowedModules].sort((a, b) => a - b).slice(0, PRESHIFT_STARTER_MODULES);
+    }
+    const modules: DrillModule[] = started.map((moduleId) => ({ moduleId, questions: liveQuestions(moduleId), always: due.has(moduleId) }));
     if (venue) modules.unshift(venue.module);
 
     const latest = latestRes.data as { id: string; run_state: DrillState | null } | null;
     const previous = new Set(latest?.run_state?.queue ?? []);
     // Avoid the last drill's questions; if that leaves too few, allow them.
-    const queue = planDrill(modules, previous) ?? planDrill(modules);
+    const queue = planDrill(modules, previous, undefined, shape) ?? planDrill(modules, new Set(), undefined, shape);
     if (!queue || queue.length === 0) {
+      if (kind === "preshift") {
+        return NextResponse.json(
+          { error: "The pre-shift drill opens once your plan includes modules.", code: "DRILL_NEEDS_MODULES", started: 0, needed: 1 },
+          { status: 409 },
+        );
+      }
       const count = started.length;
       // Venue questions count as one source.
       const needed = MIN_DRILL_MODULES - (venue ? 1 : 0);
@@ -176,7 +216,7 @@ export async function POST(req: Request) {
     const expiresAt = new Date(Date.now() + DRILL_TTL_MINUTES * 60_000).toISOString();
     const { data: drill, error: insertError } = await admin
       .from("drill_runs")
-      .insert({ user_id: user.id, run_state: state, expires_at: expiresAt })
+      .insert({ user_id: user.id, kind, run_state: state, expires_at: expiresAt })
       .select("id")
       .single();
     if (insertError || !drill) throw insertError ?? new Error("drill_runs insert returned no row");

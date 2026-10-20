@@ -313,7 +313,7 @@ There are 13 phases to launch, then 3 after marketing starts. Each phase goes ou
 - Venue plans only, since it needs a venue.
 - **Done when** a manager can add an item in the evening and staff get it in their next drill.
 
-### Phase 12. Pre-shift drill and shift streak
+### Phase 12. Pre-shift drill and shift streak (part 1 built 2026-10-20; reminders and push to follow; record in `the-rich-update-10-26.md`)
 - One button on mobile Home: a 3-minute drill built from reviews that are due, the venue's new items and one short Live Guest moment. It ends with "You're ready for tonight".
 - A shift streak with two freezes, the "When should we remind you?" step, and web push notifications on the installed app.
 - **Done when** a casual who works Friday to Sunday can keep a streak going.

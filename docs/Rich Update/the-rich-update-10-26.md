@@ -21,7 +21,7 @@ The staff learning upgrade, named after Richie, our first tester, who called tra
 | 9 | Image style and library | Parked 2026-10-20: the owner draws the parts in Claude Design later |
 | 10 | Mixed drills | Done 2026-10-20 |
 | 11 | Venue content | Text built 2026-10-20, for the owner to check; menu photos next |
-| 12 | Pre-shift drill and shift streak | — |
+| 12 | Pre-shift drill and shift streak | Part 1 built 2026-10-20, for the owner to check; reminders and push need VAPID keys |
 | 13 | Launch check, then marketing spend starts | — |
 | 14 | Live Guest voice | After marketing starts |
 | 15 | Saturday Rush | After marketing starts |
@@ -264,4 +264,16 @@ Asked by the owner: roughly what does one 15-person venue cost us if each person
 - **Migration:** `supabase/migrations/20261024_venue_content.sql` (two new tables; additive; rollback in `supabase/rollbacks/`). The tab won't load on the preview until it's run.
 - **Tests:** 11 in `lib/venue-content.test.ts` (the checks on drafted questions, the round trip through the database and the quiz grader, ended items, the fenced prompt, the Sydney date) and 4 more in `lib/drill.test.ts` (venue content is always in the drill, newest first, and counts as one source).
 - **Done when** a manager can add an item in the evening and staff get it in their next drill. For the owner to check on the preview.
+
+## Phase 12: pre-shift drill and shift streak (part 1 built 2026-10-20)
+
+- **"Ready for your shift?"** replaces the Pre-Shift Warmup card on mobile Home (which only opened one module's quiz). It starts a 6-question drill, about three minutes: the venue's new approved items first, then up to two mastered modules that are due for review, then other started modules. Someone with nothing started gets the first three modules on their plan.
+- **It ends with "You're ready for tonight"**, the shift streak, the days they work, and a link to warm up with one Live Guest. The plan said "one short Live Guest moment" inside the drill; for now it's that link, which keeps the drill free of AI cost. Worth deciding in Phase 13 whether a one-reply guest belongs inside the drill.
+- **The shift streak counts shifts, not days.** Staff pick the days they usually work (Monday first, as a roster reads). Days off never break it. A drill on an extra shift still counts.
+- **Freezes:** two. One freeze covers every shift missed in the seven days from the first miss, so a missed week costs one freeze, not one per shift; a second missed week uses the second. Five shifts kept in a row earn one back. The day itself never counts as missed, because the shift may not have started yet.
+- **The Home badge** now shows the shift streak. The old daily-visit streak (kept only in the browser) still shows on the Badges screen.
+- **Migration:** `supabase/migrations/20261025_preshift_streak.sql` (a `kind` column on `drill_runs` and two new tables; additive; rollback in `supabase/rollbacks/`). The pre-shift drill and the Home card's streak won't work on the preview until it's run.
+- **Tests:** 11 in `lib/shift-streak.test.ts` (including the Friday to Sunday casual, a missed week, a second missed week, a third ending it, extra shifts, earning a freeze back) and 2 more in `lib/drill.test.ts`.
+- **Part 2, not built:** the "When should we remind you?" step and web push on the installed app. Push needs a VAPID key pair, kept as a secret in Cloudflare, which the owner creates and adds; it also needs the cron job to run daily rather than Sunday and Monday only.
+- **Done when** a casual who works Friday to Sunday can keep a streak going. The rules pass the tests for that case. For the owner to check on the preview.
 

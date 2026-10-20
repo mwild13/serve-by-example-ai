@@ -2,6 +2,8 @@
 
 import { useCallback, useState } from "react";
 import QuizRun from "@/components/quiz/QuizRun";
+import ShiftDays, { streakLine } from "@/components/quiz/ShiftDays";
+import type { ShiftStreak } from "@/lib/shift-streak";
 import {
   VerifyQuizError,
   startDrill,
@@ -15,6 +17,9 @@ import {
 // and mobile DrillScreen (dark): the intro, the run through QuizRun, and the
 // summary. The server plans and grades it (lib/drill.ts). Styles: the .dr
 // rules in app/styles/staff.css, on the .qz theme colours.
+//
+// `mode="preshift"` is the shorter "Ready for your shift" drill (Phase 12),
+// which ends with the shift streak and a way into Live Guest.
 
 type Props = {
   theme: "light" | "dark";
@@ -24,6 +29,9 @@ type Props = {
   onOpenModule: (moduleId: number, title: string) => void;
   /** Goes to the module list. */
   onBrowseModules: () => void;
+  mode?: "mixed" | "preshift";
+  /** Pre-shift only: opens Live Guest for one warm-up conversation. */
+  onLiveGuest?: () => void;
 };
 
 type Status =
@@ -34,14 +42,14 @@ type Status =
   | { kind: "locked"; message: string }
   | { kind: "error"; message: string };
 
-export default function MixedDrill({ theme, getToken, onOpenModule, onBrowseModules }: Props) {
+export default function MixedDrill({ theme, getToken, onOpenModule, onBrowseModules, mode = "mixed", onLiveGuest }: Props) {
   const [status, setStatus] = useState<Status>({ kind: "intro" });
   const drill = status.kind === "playing" ? status.drill : null;
 
   async function begin() {
     setStatus({ kind: "loading" });
     try {
-      setStatus({ kind: "playing", drill: await startDrill(await getToken()) });
+      setStatus({ kind: "playing", drill: await startDrill(await getToken(), mode) });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Could not start the drill.";
       setStatus(err instanceof VerifyQuizError && err.code === "DRILL_NEEDS_MODULES" ? { kind: "locked", message } : { kind: "error", message });
@@ -68,7 +76,21 @@ export default function MixedDrill({ theme, getToken, onOpenModule, onBrowseModu
 
   return (
     <div className={`qz qz--${theme} dr`}>
-      {status.kind === "intro" && (
+      {status.kind === "intro" && mode === "preshift" && (
+        <div className="dr-card">
+          <h2 className="dr-title">Ready for your shift</h2>
+          <p className="dr-text">
+            Six quick questions, about three minutes: what&apos;s new at your venue first, then what&apos;s due for a refresh, then
+            the rest of your modules.
+          </p>
+          <p className="dr-text dr-text--muted">Finish it before each shift to build your shift streak.</p>
+          <button type="button" className="qz-next" onClick={() => void begin()}>
+            Start
+          </button>
+        </div>
+      )}
+
+      {status.kind === "intro" && mode === "mixed" && (
         <div className="dr-card">
           <h2 className="dr-title">Ten questions, mixed</h2>
           <p className="dr-text">
@@ -103,7 +125,12 @@ export default function MixedDrill({ theme, getToken, onOpenModule, onBrowseModu
         </div>
       )}
 
-      {status.kind === "done" && <DrillResult summary={status.summary} onAgain={() => void begin()} onOpenModule={onOpenModule} />}
+      {status.kind === "done" && mode === "preshift" && (
+        <PreshiftResult summary={status.summary} getToken={getToken} onLiveGuest={onLiveGuest} />
+      )}
+      {status.kind === "done" && mode === "mixed" && (
+        <DrillResult summary={status.summary} onAgain={() => void begin()} onOpenModule={onOpenModule} />
+      )}
     </div>
   );
 }
@@ -157,6 +184,36 @@ function DrillResult({
           </button>
         )}
       </div>
+    </div>
+  );
+}
+
+function PreshiftResult({
+  summary,
+  getToken,
+  onLiveGuest,
+}: {
+  summary: DrillSummary;
+  getToken: () => Promise<string>;
+  onLiveGuest?: () => void;
+}) {
+  const [streak, setStreak] = useState<ShiftStreak | undefined>(summary.streak);
+  return (
+    <div className="dr-card">
+      <h2 className="dr-title">You&apos;re ready for tonight</h2>
+      <p className="dr-text">
+        {summary.correct} of {summary.total} right.{" "}
+        {summary.correct === summary.total ? "Sharp." : "The explanations you just read are the ones to keep in mind tonight."}
+      </p>
+      {streak && <p className="dr-streak">{streakLine(streak)}</p>}
+      {streak && <ShiftDays streak={streak} getToken={getToken} onSaved={setStreak} />}
+      {onLiveGuest && (
+        <div className="dr-actions">
+          <button type="button" className="dr-link" onClick={onLiveGuest}>
+            Warm up with one Live Guest
+          </button>
+        </div>
+      )}
     </div>
   );
 }

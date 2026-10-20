@@ -10,6 +10,7 @@ import { answerFits, gradeAnswer, isAnswerShape, logVerifyRejection, questionVie
 import { VENUE_MODULE_ID, advanceDrill, drillProgress, drillSummary, parseDrillQuestionId, type DrillState } from "@/lib/drill";
 import type { Question } from "@/lib/question-bank";
 import { asBankQuestion, readStoredQuestion, venueIdsForStaff } from "@/lib/venue-content";
+import { loadShiftStreak, recordPreshiftDay } from "@/lib/shift-streak-store";
 
 const MAX_BODY_BYTES = 1024;
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -39,6 +40,7 @@ type DrillRow = {
   position: number;
   correct: number;
   status: "active" | "finished";
+  kind: "mixed" | "preshift";
   expires_at: string;
   run_state: DrillState;
 };
@@ -86,7 +88,7 @@ export async function POST(req: Request) {
       validateSession(admin, user.id, browserSessionId),
       admin
         .from("drill_runs")
-        .select("user_id, position, correct, status, expires_at, run_state")
+        .select("user_id, position, correct, status, kind, expires_at, run_state")
         .eq("id", drillId)
         .maybeSingle(),
     ]);
@@ -157,6 +159,13 @@ export async function POST(req: Request) {
       }
     }
 
+    // A finished pre-shift drill counts today towards the shift streak.
+    let streak;
+    if (advanced.status === "finished" && drill.kind === "preshift") {
+      await recordPreshiftDay(admin, user.id);
+      streak = await loadShiftStreak(admin, user.id);
+    }
+
     return NextResponse.json({
       correct: graded.correct,
       correctAnswer: graded.correctAnswer,
@@ -164,7 +173,7 @@ export async function POST(req: Request) {
       status: advanced.status,
       progress: drillProgress(advanced.state),
       next,
-      summary: advanced.status === "finished" ? drillSummary(advanced.state) : undefined,
+      summary: advanced.status === "finished" ? { ...drillSummary(advanced.state), ...(streak ? { streak } : {}) } : undefined,
     });
   } catch (error) {
     console.error("drill/answer error:", error);

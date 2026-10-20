@@ -6,6 +6,8 @@
  * lib/verify-quiz.ts and lib/drill.ts.
  */
 
+import type { ShiftStreak } from "@/lib/shift-streak";
+
 export type QuizFormat =
   | "true_false"
   | "best_line"
@@ -68,6 +70,8 @@ export type DrillSummary = {
   correct: number;
   total: number;
   modules: { moduleId: number; title: string; correct: number; total: number }[];
+  /** A finished pre-shift drill: the shift streak, now counting today. */
+  streak?: ShiftStreak;
 };
 
 export type VerifyAnswerResult = {
@@ -130,9 +134,34 @@ export function submitVerifyAnswer(
   return post<VerifyAnswerResult>("/api/training/verify/answer", token, { attemptId, position, answer });
 }
 
-/** Starts a mixed drill. Fails with code DRILL_NEEDS_MODULES until enough modules are started. */
-export function startDrill(token: string): Promise<VerifyQuizStart> {
-  return post<VerifyQuizStart>("/api/training/drill/start", token, {});
+/**
+ * Starts a mixed drill, or the shorter pre-shift drill. Fails with code
+ * DRILL_NEEDS_MODULES until enough modules are started.
+ */
+export function startDrill(token: string, mode: "mixed" | "preshift" = "mixed"): Promise<VerifyQuizStart> {
+  return post<VerifyQuizStart>("/api/training/drill/start", token, mode === "preshift" ? { mode } : {});
+}
+
+/** The person's shift streak and shift days. */
+export function getShiftStreak(token: string): Promise<ShiftStreak> {
+  return fetch("/api/training/shift-streak", { headers: { Authorization: `Bearer ${token}` } }).then(async (res) => {
+    const data = (await res.json().catch(() => null)) as (ShiftStreak & { error?: string }) | null;
+    if (!res.ok || !data) throw new VerifyQuizError(data?.error ?? `Request failed (${res.status}).`, null, res.status);
+    return data;
+  });
+}
+
+/** Saves the weekdays they usually work (0 Sunday to 6 Saturday). */
+export function saveShiftDays(token: string, shiftDays: number[]): Promise<ShiftStreak> {
+  return fetch("/api/training/shift-streak", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ shiftDays }),
+  }).then(async (res) => {
+    const data = (await res.json().catch(() => null)) as (ShiftStreak & { error?: string }) | null;
+    if (!res.ok || !data) throw new VerifyQuizError(data?.error ?? `Request failed (${res.status}).`, null, res.status);
+    return data;
+  });
 }
 
 export function submitDrillAnswer(

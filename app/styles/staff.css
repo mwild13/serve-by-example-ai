@@ -1812,6 +1812,48 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   align-items: center;
   gap: 8px 16px;
 }
+.dr-streak {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--qz-accent);
+}
+.dr-days {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+.dr-days-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.dr-day {
+  min-width: 48px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--qz-line);
+  border-radius: 999px;
+  background: var(--qz-surface-alt);
+  color: var(--qz-text);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.dr-day--on {
+  border-color: var(--qz-accent);
+  background: var(--qz-accent);
+  color: var(--qz-accent-text);
+}
+.dr-link--inline {
+  padding: 0;
+  font-size: inherit;
+}
 .dr-link {
   padding: 8px 0;
   border: none;
