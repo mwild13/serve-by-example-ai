@@ -42,6 +42,7 @@ describe("writing rules", () => {
       "app/api/coach/route.ts",
       "app/api/management/coach/route.ts",
       "lib/scenario-evaluator.ts",
+      "lib/venue-content.ts",
     ]) {
       expect(readFileSync(file, "utf8"), file).toContain("${AU_WRITING_RULES}");
     }

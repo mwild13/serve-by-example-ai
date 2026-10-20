@@ -117,9 +117,10 @@ function DrillResult({
   onAgain: () => void;
   onOpenModule: (moduleId: number, title: string) => void;
 }) {
-  // The module with the most misses, if any were missed.
+  // The module with the most misses, if any were missed. Venue content
+  // (module id 0) has no module to open.
   const weakest = summary.modules
-    .filter((m) => m.correct < m.total)
+    .filter((m) => m.moduleId > 0 && m.correct < m.total)
     .sort((a, b) => (b.total - b.correct) - (a.total - a.correct) || a.correct / a.total - b.correct / b.total)[0];
 
   return (

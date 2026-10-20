@@ -7,10 +7,32 @@ import { getCookieValue } from "@/lib/training-attempt";
 import { readJsonBody } from "@/lib/ai-guard";
 import { findQuestion } from "@/lib/question-bank";
 import { answerFits, gradeAnswer, isAnswerShape, logVerifyRejection, questionView } from "@/lib/verify-quiz";
-import { advanceDrill, drillProgress, drillSummary, parseDrillQuestionId, type DrillState } from "@/lib/drill";
+import { VENUE_MODULE_ID, advanceDrill, drillProgress, drillSummary, parseDrillQuestionId, type DrillState } from "@/lib/drill";
+import type { Question } from "@/lib/question-bank";
+import { asBankQuestion, readStoredQuestion, venueIdsForStaff } from "@/lib/venue-content";
 
 const MAX_BODY_BYTES = 1024;
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * A venue question, while it's still approved and the person is still on
+ * that venue's staff (or owns it). An item taken down mid-drill still grades.
+ */
+async function findVenueQuestion(admin: ReturnType<typeof createSupabaseAdminClient>, userId: string, questionId: string): Promise<Question | null> {
+  if (!UUID_PATTERN.test(questionId)) return null;
+  const { data, error } = await admin
+    .from("venue_content_questions")
+    .select("item_id, venue_id, question")
+    .eq("id", questionId)
+    .eq("status", "approved")
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  const venues = await venueIdsForStaff(admin, userId);
+  if (!venues.includes(data.venue_id as string)) return null;
+  const stored = readStoredQuestion(data.question);
+  return stored ? asBankQuestion(questionId, data.item_id as string, stored) : null;
+}
 
 type DrillRow = {
   user_id: string;
@@ -92,7 +114,9 @@ export async function POST(req: Request) {
 
     const state = drill.run_state;
     const ref = state.queue[position] === undefined ? null : parseDrillQuestionId(state.queue[position]);
-    const question = ref ? findQuestion(ref.moduleId, ref.questionId) : null;
+    const lookup = (moduleId: number, questionId: string) =>
+      moduleId === VENUE_MODULE_ID ? findVenueQuestion(admin, user.id, questionId) : Promise.resolve(findQuestion(moduleId, questionId));
+    const question = ref ? await lookup(ref.moduleId, ref.questionId) : null;
     if (!ref || !question) {
       return NextResponse.json({ error: "This drill has ended. Please start again.", code: "DRILL_NOT_FOUND" }, { status: 404 });
     }
@@ -127,7 +151,7 @@ export async function POST(req: Request) {
     let next = null;
     if (advanced.status === "active") {
       const nextRef = parseDrillQuestionId(advanced.state.queue[position + 1] ?? "");
-      const nextQuestion = nextRef ? findQuestion(nextRef.moduleId, nextRef.questionId) : null;
+      const nextQuestion = nextRef ? await lookup(nextRef.moduleId, nextRef.questionId) : null;
       if (nextRef && nextQuestion) {
         next = { ...questionView(nextQuestion, position + 1), moduleTitle: advanced.state.titles[String(nextRef.moduleId)] };
       }

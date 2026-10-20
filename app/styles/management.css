@@ -2102,6 +2102,54 @@ textarea.mc-input { padding: 12px 14px; line-height: 1.5; resize: none; }
   color: var(--status-error-text);
 }
 
+/* Venue Content tab (VenueContentPanel.tsx): the add form, then one panel
+   per item with its drafted questions, hairline-ruled. */
+
+.mc-vc-form { display: flex; flex-direction: column; gap: 16px; }
+
+.mc-vc-form-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr); gap: 12px; }
+
+@media (max-width: 900px) {
+  .mc-vc-form-row { grid-template-columns: minmax(0, 1fr); }
+}
+
+.mc-vc-hint { font-size: 0.875rem; font-weight: 400; color: var(--mc-text-soft); }
+
+.mc-vc-item-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.mc-vc-details { margin: 0 0 12px; font-size: 0.9375rem; line-height: 1.55; color: var(--mc-text-soft); white-space: pre-line; }
+
+.mc-vc-questions { list-style: none; margin: 0; padding: 0; }
+
+.mc-vc-question {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-top: 1px solid var(--mc-line-soft);
+}
+
+.mc-vc-question-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+
+.mc-vc-format { margin: 0; font-size: var(--mc-label-size); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mc-text-muted); }
+
+.mc-vc-prompt { margin: 0; font-size: 1rem; font-weight: 500; line-height: 1.45; color: var(--mc-text); }
+
+.mc-vc-choices { margin: 0; padding-left: 18px; font-size: 0.9375rem; line-height: 1.5; color: var(--mc-text-soft); }
+
+.mc-vc-choices .is-answer { font-weight: 600; color: var(--mc-text); }
+
+.mc-vc-answer-tag { font-weight: 500; color: var(--green); }
+
+.mc-vc-explain { margin: 0; font-size: 0.875rem; line-height: 1.5; color: var(--mc-text-soft); }
+
+.mc-vc-decide { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+
+@media (max-width: 700px) {
+  .mc-vc-question { flex-direction: column; gap: 10px; }
+  .mc-vc-decide { flex-direction: row; align-items: center; }
+}
+
 /* Settings: heading and note on the left, controls on the right. */
 
 .mc-setting {

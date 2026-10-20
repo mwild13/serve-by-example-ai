@@ -13,6 +13,7 @@ import type {
   StaffRole,
 } from "@/lib/management/types";
 import { ComplianceHub } from "./compliance/ComplianceHub";
+import { VenueContentPanel } from "./VenueContentPanel";
 import { rsaStatus } from "./compliance/helpers";
 import type { QuickActionId, SearchResult } from "./manager-types";
 import { EmptyState, MissionControlSkeleton } from "./manager-ui";
@@ -54,6 +55,7 @@ const SECTION_META: Record<ManagerSection, { cluster: string; label: string }> =
   inventory: { cluster: "Operations", label: "Inventory" },
   menu: { cluster: "Operations", label: "Menu Items" },
   compliance: { cluster: "Operations", label: "Compliance" },
+  content: { cluster: "People", label: "Venue Content" },
   analytics: { cluster: "Performance", label: "Analytics" },
   "group-analytics": { cluster: "Performance", label: "Group Analytics" },
   reports: { cluster: "Performance", label: "Reports" },
@@ -1494,6 +1496,10 @@ export default function ManagerControlCenter({
             sessionToken={sessionToken}
             onSnapshotUpdate={(updated) => setSnapshot(updated)}
           />
+        )}
+
+        {activeSection === "content" && (
+          <VenueContentPanel key={selectedVenue?.id ?? "none"} venueId={selectedVenue?.id ?? ""} venueName={selectedVenue?.name} sessionToken={sessionToken} />
         )}
 
         {activeSection === "analytics" && (

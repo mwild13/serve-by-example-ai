@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   DRILL_LENGTH,
+  VENUE_MODULE_ID,
   advanceDrill,
   drillGoal,
   drillProgress,
@@ -44,6 +45,10 @@ function moduleOf(id: string): number {
 describe("drill question ids", () => {
   it("round-trips a module and question id", () => {
     expect(parseDrillQuestionId(drillQuestionId(12, "q3"))).toEqual({ moduleId: 12, questionId: "q3" });
+  });
+
+  it("accepts venue content ids, filed under module 0", () => {
+    expect(parseDrillQuestionId(drillQuestionId(VENUE_MODULE_ID, "3f1c"))).toEqual({ moduleId: 0, questionId: "3f1c" });
   });
 
   it("rejects ids without a module", () => {
@@ -124,6 +129,33 @@ describe("planDrill", () => {
     const previous = new Set(modules.map((m) => drillQuestionId(m.moduleId, "only")));
     expect(planDrill(modules, previous)).toBeNull();
     expect(planDrill(modules)).toHaveLength(3);
+  });
+});
+
+describe("venue content in drills", () => {
+  const venue = (n: number): DrillModule => ({
+    moduleId: VENUE_MODULE_ID,
+    priority: true,
+    questions: Array.from({ length: n }, (_, i) => mc(`v${i}`, `item${i}`, 1)),
+  });
+
+  it("is always in the drill, even among many modules", () => {
+    for (let seed = 1; seed <= 20; seed++) {
+      const queue = planDrill([...real(1, 2, 3, 4, 5, 6, 7, 8), venue(3)], new Set(), seeded(seed))!;
+      expect(queue.some((id) => moduleOf(id) === VENUE_MODULE_ID)).toBe(true);
+    }
+  });
+
+  it("asks the newest items first, one question per item", () => {
+    const queue = planDrill([...real(1, 2), venue(4)], new Set(), seeded(5))!;
+    const venueIds = queue.filter((id) => moduleOf(id) === VENUE_MODULE_ID).map((id) => parseDrillQuestionId(id)!.questionId);
+    expect(venueIds.length).toBeGreaterThan(0);
+    expect(venueIds).toEqual(["v0", "v1", "v2", "v3"].slice(0, venueIds.length));
+  });
+
+  it("counts as one source towards the three a drill needs", () => {
+    expect(planDrill([...real(1), venue(2)])).toBeNull();
+    expect(planDrill([...real(1, 2), venue(2)])).not.toBeNull();
   });
 });
 

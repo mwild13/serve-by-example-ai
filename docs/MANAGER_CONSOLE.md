@@ -96,6 +96,11 @@ The whole console was rebuilt to the `docs/Pages-Redesign.md` principles. Styles
 - **Dialogs:** `.mc-dialog-backdrop` and `.mc-dialog`.
 - **Older markup:** the Staff tab's tables and the profile drawer still use some `ops-*` classes. Rules scoped to `.mc-shell` at the end of the PAGES block restyle them; new work should use the `.mc-*` parts.
 
+**Venue Content** (Rich update, Phase 11)
+- **What:** section id `content`, in the People group (`VenueContentPanel.tsx`). The manager adds a spec, a special, a new product or tap, an 86'd item or a note, with an optional last day. The AI drafts 3 to 5 questions (`lib/venue-content.ts`); the manager approves, rejects or removes each one, drafts again, or takes the item down. Approved questions go into the venue's staff's next mixed drill.
+- **Data:** the panel fetches `/api/management/venue-content` itself (GET list, POST add, PATCH `approve`/`reject`/`redraft`/`archive`), like the Compliance tab. Not in the snapshot. Each add or redraft is one AI call, counted against the manager's daily AI allowance.
+- **Duty managers** can add and approve content, since they run the shifts.
+
 **Ask AI Coach**
 - **Layout:** the page is exactly as tall as the window, so the question box is always in view. Conversation on the left, starting points on the right.
 - **Each question stands alone.** `/api/management/coach` is not sent earlier messages. Saved history is for reading back only.

@@ -12,16 +12,60 @@ import {
   DRILL_TTL_MINUTES,
   MAX_DRILL_STARTS_PER_WINDOW,
   MIN_DRILL_MODULES,
+  VENUE_MODULE_ID,
   drillGoal,
   drillProgress,
   parseDrillQuestionId,
   planDrill,
+  type DrillModule,
   type DrillState,
 } from "@/lib/drill";
+import type { Question } from "@/lib/question-bank";
+import { asBankQuestion, readStoredQuestion, sydneyToday, venueIdsForStaff } from "@/lib/venue-content";
 
 const MAX_BODY_BYTES = 256;
 /** Drills older than this are deleted, except the latest. */
 const KEEP_DAYS = 7;
+/** Newest approved venue questions a drill can draw on. */
+const VENUE_QUESTION_LIMIT = 40;
+
+type VenueQuestionRow = {
+  id: string;
+  item_id: string;
+  question: unknown;
+  venue_content_items: { archived_at: string | null; ends_on: string | null } | null;
+};
+
+/**
+ * Approved questions from the person's venues, newest first, leaving out
+ * items taken down or past their end date. One title covers them all.
+ */
+async function venueSource(admin: ReturnType<typeof createSupabaseAdminClient>, userId: string): Promise<{ module: DrillModule; title: string } | null> {
+  const venueIds = await venueIdsForStaff(admin, userId);
+  if (venueIds.length === 0) return null;
+  const [{ data, error }, { data: venues }] = await Promise.all([
+    admin
+      .from("venue_content_questions")
+      .select("id, item_id, question, venue_content_items!inner(archived_at, ends_on)")
+      .in("venue_id", venueIds)
+      .eq("status", "approved")
+      .order("reviewed_at", { ascending: false })
+      .limit(VENUE_QUESTION_LIMIT),
+    admin.from("venues").select("name").in("id", venueIds),
+  ]);
+  if (error) throw error;
+  const today = sydneyToday();
+  const questions: Question[] = [];
+  for (const row of (data ?? []) as unknown as VenueQuestionRow[]) {
+    const item = row.venue_content_items;
+    if (!item || item.archived_at !== null || (item.ends_on !== null && item.ends_on < today)) continue;
+    const stored = readStoredQuestion(row.question);
+    if (stored) questions.push(asBankQuestion(row.id, row.item_id, stored));
+  }
+  if (questions.length === 0) return null;
+  const names = (venues ?? []).map((v) => v.name as string).filter(Boolean);
+  return { module: { moduleId: VENUE_MODULE_ID, questions, priority: true }, title: names.length === 1 ? names[0] : "Your venue" };
+}
 
 /**
  * Starts a mixed drill from the modules the person has started or mastered
@@ -56,7 +100,7 @@ export async function POST(req: Request) {
     }
 
     const windowStart = new Date(Date.now() - DRILL_START_WINDOW_MINUTES * 60_000).toISOString();
-    const [access, startedRes, recentRes, latestRes] = await Promise.all([
+    const [access, startedRes, recentRes, latestRes, venue] = await Promise.all([
       resolveAccess(admin, user.id, user.email ?? ""),
       admin.from("quiz_modules_started").select("module_id").eq("user_id", user.id),
       admin
@@ -71,6 +115,7 @@ export async function POST(req: Request) {
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle(),
+      venueSource(admin, user.id),
     ]);
     if (startedRes.error) throw startedRes.error;
     if (recentRes.error) throw recentRes.error;
@@ -86,7 +131,8 @@ export async function POST(req: Request) {
 
     const allowed = new Set(access.allowedModules);
     const started = [...new Set((startedRes.data ?? []).map((r) => r.module_id as number))].filter((id) => allowed.has(id));
-    const modules = started.map((moduleId) => ({ moduleId, questions: liveQuestions(moduleId) }));
+    const modules: DrillModule[] = started.map((moduleId) => ({ moduleId, questions: liveQuestions(moduleId) }));
+    if (venue) modules.unshift(venue.module);
 
     const latest = latestRes.data as { id: string; run_state: DrillState | null } | null;
     const previous = new Set(latest?.run_state?.queue ?? []);
@@ -94,26 +140,31 @@ export async function POST(req: Request) {
     const queue = planDrill(modules, previous) ?? planDrill(modules);
     if (!queue || queue.length === 0) {
       const count = started.length;
+      // Venue questions count as one source.
+      const needed = MIN_DRILL_MODULES - (venue ? 1 : 0);
       return NextResponse.json(
         {
-          error: `Mixed drills open once you've started ${MIN_DRILL_MODULES} modules. You've started ${count === 1 ? "1 module" : `${count} modules`} so far.`,
+          error: `Mixed drills open once you've started ${needed} modules. You've started ${count === 1 ? "1 module" : `${count} modules`} so far.`,
           code: "DRILL_NEEDS_MODULES",
           started: count,
-          needed: MIN_DRILL_MODULES,
+          needed,
         },
         { status: 409 },
       );
     }
 
+    const find = (moduleId: number, questionId: string) =>
+      moduleId === VENUE_MODULE_ID ? (venue?.module.questions.find((q) => q.id === questionId) ?? null) : findQuestion(moduleId, questionId);
     const first = parseDrillQuestionId(queue[0]);
-    const firstQuestion = first ? findQuestion(first.moduleId, first.questionId) : null;
+    const firstQuestion = first ? find(first.moduleId, first.questionId) : null;
     if (!first || !firstQuestion) throw new Error("planned drill has no first question");
 
-    const moduleIds = [...new Set(queue.map((id) => parseDrillQuestionId(id)?.moduleId).filter((id): id is number => id !== undefined))];
+    const moduleIds = [...new Set(queue.map((id) => parseDrillQuestionId(id)?.moduleId).filter((id): id is number => id !== undefined && id !== VENUE_MODULE_ID))];
     const { data: titleRows, error: titleError } = await admin.from("modules").select("id, title").in("id", moduleIds);
     if (titleError) throw titleError;
     const titles: Record<string, string> = {};
     for (const row of titleRows ?? []) titles[String(row.id)] = row.title as string;
+    if (venue) titles[String(VENUE_MODULE_ID)] = venue.title;
 
     // Old drills go, but the latest stays so the next drill can avoid it.
     const cutoff = new Date(Date.now() - KEEP_DAYS * 24 * 60 * 60_000).toISOString();

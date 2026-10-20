@@ -10,6 +10,11 @@
  *
  * A drill asks every question and never masters a module: it's practice.
  *
+ * Venue content (Rich update, Phase 11): questions a venue's manager has
+ * approved come in as one more source, VENUE_MODULE_ID, newest first. It is
+ * always in the drill when it has questions, so an item added in the evening
+ * reaches staff in their next drill.
+ *
  *   POST /api/training/drill/start  → plans a drill (planDrill) and stores it
  *     on a drill_runs row; the client gets the first question only.
  *   POST /api/training/drill/answer → grades one answer with the module quiz's
@@ -33,8 +38,14 @@ export const DRILL_TTL_MINUTES = 20;
 export const MAX_DRILL_STARTS_PER_WINDOW = 5;
 export const DRILL_START_WINDOW_MINUTES = 15;
 
-/** One module's live questions. */
-export type DrillModule = { moduleId: number; questions: Question[] };
+/** The "module" id venue content questions are filed under in a drill. */
+export const VENUE_MODULE_ID = 0;
+
+/**
+ * One source's live questions. `priority` puts it in every drill and keeps
+ * its questions in the order given (venue content, newest first).
+ */
+export type DrillModule = { moduleId: number; questions: Question[]; priority?: boolean };
 
 /** Stored in drill_runs.run_state. */
 export type DrillState = {
@@ -57,21 +68,22 @@ export function parseDrillQuestionId(id: string): { moduleId: number; questionId
   if (at < 1) return null;
   const moduleId = Number(id.slice(0, at));
   const questionId = id.slice(at + 1);
-  if (!Number.isInteger(moduleId) || moduleId < 1 || questionId === "") return null;
+  if (!Number.isInteger(moduleId) || moduleId < VENUE_MODULE_ID || questionId === "") return null;
   return { moduleId, questionId };
 }
 
 /**
  * What one module can give a drill: one question per fact, none from
- * `exclude`, the hardest first. True/False only when nothing else is left.
+ * `exclude`, the hardest first (or in the given order, for a priority
+ * source). True/False only when nothing else is left.
  */
 function drillPool(module: DrillModule, exclude: ReadonlySet<string>, random: Random): Question[] {
   const fresh = module.questions.filter((q) => !exclude.has(drillQuestionId(module.moduleId, q.id)));
   const harder = fresh.filter((q) => q.format !== "true_false");
   const source = harder.length > 0 ? harder : fresh;
+  const ordered = module.priority ? source : shuffle(source, random).sort((a, b) => b.difficulty - a.difficulty);
   const seen = new Set<string>();
-  return shuffle(source, random)
-    .sort((a, b) => b.difficulty - a.difficulty)
+  return ordered
     .filter((q) => {
       if (seen.has(q.concept)) return false;
       seen.add(q.concept);
@@ -94,7 +106,9 @@ export function planDrill(
     .filter((p) => p.pool.length > 0);
   if (pools.length < MIN_DRILL_MODULES) return null;
 
-  const chosen = shuffle(pools, random).slice(0, MAX_DRILL_MODULES);
+  const priority = pools.filter((p) => modules.find((m) => m.moduleId === p.moduleId)?.priority);
+  const others = shuffle(pools.filter((p) => !priority.includes(p)), random);
+  const chosen = [...priority, ...others].slice(0, MAX_DRILL_MODULES);
   const queue: string[] = [];
   let last: number | null = null;
   for (let round = 0; queue.length < DRILL_LENGTH; round++) {

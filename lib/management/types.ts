@@ -7,6 +7,7 @@ export type ManagerSection =
   | "menu"
   | "inventory"
   | "compliance"
+  | "content"
   | "analytics"
   | "group-analytics"
   | "reports"

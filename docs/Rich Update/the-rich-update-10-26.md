@@ -19,8 +19,8 @@ The staff learning upgrade, named after Richie, our first tester, who called tra
 | 7 | Guest briefs, four dials and difficulty | Done 2026-10-20 |
 | 8 | Plans, manager score and retiring the old screens | Done 2026-10-20 |
 | 9 | Image style and library | Parked 2026-10-20: the owner draws the parts in Claude Design later |
-| 10 | Mixed drills | Built 2026-10-20, for the owner to check |
-| 11 | Venue content | Next |
+| 10 | Mixed drills | Done 2026-10-20 |
+| 11 | Venue content | Text built 2026-10-20, for the owner to check; menu photos next |
 | 12 | Pre-shift drill and shift streak | — |
 | 13 | Launch check, then marketing spend starts | — |
 | 14 | Live Guest voice | After marketing starts |
@@ -238,5 +238,30 @@ The sample is tiny and includes our own test accounts. It's a starting point to 
 - **"Started" needed recording.** Nothing kept which modules someone had started (quiz runs are deleted after a day), so the new `quiz_modules_started` table records the first answer in each module, by a database trigger. It's backfilled from the runs still kept and from every mastered module.
 - **Counts as training:** drill answers count towards the Manager Console's daily training numbers, the same as quiz answers.
 - **Migration:** `supabase/migrations/20261023_mixed_drills.sql` (two new tables and two triggers; additive; rollback in `supabase/rollbacks/`). The drill won't start on the preview until it's run.
-- **Done when** a drill mixes at least three modules and doesn't repeat questions from the previous drill. Both are checked by the tests. For the owner to check on the preview.
+- **Done when** a drill mixes at least three modules and doesn't repeat questions from the previous drill. Both are checked by the tests. **Passed by the owner on 2026-10-20**, and the migration is run.
+
+## Costing (2026-10-20)
+
+Asked by the owner: roughly what does one 15-person venue cost us if each person uses the site for an hour a day, five days a week?
+
+- **Only Live Guest, the AI Coach and venue content drafting use AI.** Drills, quizzes and Learn cards are database work, with no per-use cost to speak of.
+- **One Live Guest conversation** (about 4 replies) sends about 9,100 tokens to the model (measured from the real prompts: the rules block is about 1,800 tokens and goes with every reply) and gets about 1,000 back. On `gpt-6-luna` at US$0.10 per million in and US$0.50 out (third-party price lists, October 2026; check OpenAI's page), that's about US$0.0014, or a seventh of a cent. With OpenAI's automatic caching of the repeated rules block it's nearer US$0.0008.
+- **Worst case, the whole hour on Live Guest:** about 15 conversations an hour, so US$0.02 a person a day, US$0.32 for the venue a day, about US$1.60 a week and US$7 a month (about A$10). The plan is A$79 a month for 15 staff.
+- **Realistic case:** an hour a day mostly in modules and drills, with a few Live Guest conversations: well under A$2 a month for the venue.
+- **The ceiling:** the daily allowance of 300 AI requests per paid person caps one person at roughly US$0.10 a day whatever they do.
+- **Fixed costs** (Cloudflare, Supabase, Sentry) don't grow with one venue's use.
+- **Where it changes:** voice (Phase 14). At roughly US$0.02 to US$0.05 a minute, an hour a day of voice would be US$90 to US$225 a week for the venue, so voice needs its own cap on minutes.
+- **Follow-ups on the to-do list:** record the token counts from every AI call, so the cost per venue is measured rather than estimated; set a monthly spending limit on the OpenAI project.
+
+## Phase 11: venue content (text built 2026-10-20)
+
+- **What it is:** a new Venue Content tab in the Manager Console, in the People group. The manager adds a cocktail or drink spec, a special, a new product or tap, an 86'd item or a venue note, with an optional last day. The AI drafts 3 to 5 questions from it in the quiz's formats (choose one, best line, true or false, put in order, a number), and the manager approves or rejects each one. **Nothing reaches staff until it's approved** (decided 2026-10-19).
+- **Staff get it in their next drill.** Approved questions are in every mixed drill while there are any, newest first, one per item, under the venue's name. So an item added and approved in the evening is in staff's next drill. An item past its last day, or taken down, leaves drills.
+- **The AI only uses what the manager wrote.** The prompt says never to add ingredients, measures, prices or days that aren't in the details, and to write fewer questions when the details are thin. Every question the model returns is checked (right shape, 3 or 4 distinct options, a real answer, an explanation) and dropped if it fails; the check runs again whenever a stored question is read. The manager's text is fenced off in the prompt as data, not instructions. Australian English and no dashes, like every other prompt.
+- **The manager can:** approve, reject, remove an approved question, draft again (replaces the drafts not yet approved) and take an item down. Each add or redraft is one AI call against the manager's daily allowance.
+- **Who gets it:** staff at the venue (`venue_staff`), and the venue's owner, so you see your own content when you test. Venue plans only, because the console is.
+- **Not yet:** photographing the menu. That needs an image upload and a vision call, so it comes as the second part of this phase once the text version is approved.
+- **Migration:** `supabase/migrations/20261024_venue_content.sql` (two new tables; additive; rollback in `supabase/rollbacks/`). The tab won't load on the preview until it's run.
+- **Tests:** 11 in `lib/venue-content.test.ts` (the checks on drafted questions, the round trip through the database and the quiz grader, ended items, the fenced prompt, the Sydney date) and 4 more in `lib/drill.test.ts` (venue content is always in the drill, newest first, and counts as one source).
+- **Done when** a manager can add an item in the evening and staff get it in their next drill. For the owner to check on the preview.
 

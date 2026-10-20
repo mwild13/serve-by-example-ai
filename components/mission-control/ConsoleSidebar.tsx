@@ -8,6 +8,7 @@ import {
   Users,
   Target,
   FileText,
+  ClipboardList,
   BarChart3,
   FileLineChart,
   Trophy,
@@ -49,6 +50,7 @@ const NAV_GROUPS: NavGroup[] = [
       { id: "teams", label: "Teams", icon: Users },
       { id: "predictive", label: "Training Gaps", icon: Target },
       { id: "compliance", label: "Compliance", icon: FileText },
+      { id: "content", label: "Venue Content", icon: ClipboardList },
     ],
   },
   {

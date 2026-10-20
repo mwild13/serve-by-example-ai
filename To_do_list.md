@@ -10,6 +10,9 @@ Small changes, in the order they will be done. Each goes to a preview branch fir
 
 - [ ] **Over-limit banner after a downgrade.** A venue that switches from Commercial to Boutique in Stripe keeps all its staff, but new joins are refused ("Seat limit reached") and it drops from several venues to one, with no word to the manager. Show a banner across the Manager Console while the venue is over its plan: "Your Boutique plan includes 15 staff. You have 22. Remove 7 or move back to Commercial.", with Manage staff and Change plan buttons. Do not block sign-in or force deletions. Cover the venue count as well as seats. Stripe's portal is set to apply downgrades at the end of the billing period.
 
+- [ ] **Record what each AI call costs** (2026-10-20). No route keeps the token counts OpenAI returns, so the cost estimate is worked out from prompt sizes, not measured. Log `usage.prompt_tokens`, `usage.prompt_tokens_details.cached_tokens` and `usage.completion_tokens` from every call (Live Guest, AI Coach, manager coach, translate) as one structured line, or into `ai_usage`, so a monthly cost per venue can be read off. Also confirms the Live Guest rules block is being cached.
+- [ ] **Set a monthly spending limit on the OpenAI project** (owner, 2026-10-20). Platform settings, Limits. Estimated worst case today is about US$7 a month for a 15-person venue using Live Guest an hour a day each, so a limit of US$50 to start gives plenty of room and stops a runaway.
+
 ## 2. Marketing copy
 
 - [ ] **Update the marketing pages once the Rich update is finished** (owner, 2026-10-20). Scenario Training and the AI Arena were retired in Phase 8 and Live Guest replaced them, but the home page, platform page, vs-generic-lms page, security page and the complaint demo still describe "scenario roleplay", "AI Scenario Simulators" and "Live Scenarios". The pricing page and plan cards are already done. Planned for Phase 13 of `docs/Rich Update/LEARNING_UPGRADE_RESEARCH.md`.
@@ -45,6 +48,8 @@ Nothing open. The five that were here were decided on 2026-10-12 (Part 13 of the
 
 ## 7. Larger builds
 
+- [ ] **Redesign the desktop staff dashboard** (owner, 2026-10-20), once the Rich update is finished. It looks flat next to the marketing site. `docs/Pages-Redesign.md` covers the marketing site only and puts `/dashboard` out of scope, so the first step is a short standard for the staff product (same principles, its own density rules, Fraunces and Manrope), like the Manager Console's in `docs/MANAGER_CONSOLE.md` section 6. Then the pages: Home, Modules, Mixed Drill, Live Guest, progress.
+
 ## Parked
 
 Not needed before launch. Pick up when there is a reason to.
@@ -79,7 +84,7 @@ None is switched on by the code; each is bought in its own dashboard. Prices are
 
 From Richie, a venue manager with 20 years in busy venues and the first paid tester (October 2026). One person's view, so each needs a second venue to agree before a big build.
 
-- [ ] **Venue content: the manager adds this season's drinks.** His main point: once staff finish training the app is forgotten, so it needs regular updates to justify a monthly fee. Let a manager add their own cocktail specs, new products and menu changes in the console; the app turns each into a short quiz and sends it to their staff. Builds on venue inventory linking. This keeps training fresh without us writing new content every month. Decide first: does the AI write the quiz from the spec, and does the manager approve it before staff see it?
+- [ ] **Venue content from a photo of the menu.** Rich update, Phase 11, part two: the manager photographs the cocktail menu and the AI drafts the items from it. The typed version is built (Manager Console, Venue Content tab, 2026-10-20).
 - [ ] **Pricing.** He suggested $10 to $20 per user per month. Today Boutique is $79 for 15 seats (about $5.27 each) and Commercial $149 for 35 (about $4.26). Typsy lists about US$12.50 per member. Do not raise prices on one opinion; once there are more trials, test a higher price on new sign-ups only.
 - [ ] **Videos in the cocktail library.** He asked for photos (done) or videos. Filming and hosting 38 drinks is a content project; leave it until a venue asks again.
 

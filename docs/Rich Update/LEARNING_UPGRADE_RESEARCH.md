@@ -307,7 +307,7 @@ There are 13 phases to launch, then 3 after marketing starts. Each phase goes ou
 - They replace Rapid Fire.
 - **Done when** a drill mixes at least three modules and doesn't repeat questions from the previous drill.
 
-### Phase 11. Venue content
+### Phase 11. Venue content (text built 2026-10-20; menu photos to follow; record in `the-rich-update-10-26.md`)
 - The manager adds a spec, a special, a new tap or an 86'd item, or photographs the menu. The AI drafts 3 to 5 questions about it.
 - **The manager approves every question before staff see it** (decided). Approval happens in the Manager Console.
 - Venue plans only, since it needs a venue.
