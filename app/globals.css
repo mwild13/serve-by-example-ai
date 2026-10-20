@@ -158,17 +158,14 @@
   --sd-brass-line:  var(--gold-line-on-dark);
   --sd-sheet:       var(--surface);
   --sd-sheet-ink:   var(--text);
-  --sd-sheet-soft:  var(--text-soft);
   --sd-sheet-line:  var(--line-light);
   --sd-alarm:       var(--status-error);              /* a safety breach, nothing else */
   --sd-sidebar-w:   248px;
   --sd-content-max: 1120px;
-  --sd-read-max:    68ch;
   --sd-gap-section: clamp(40px, 5vw, 64px);
   --sd-fs-display:  clamp(2rem, 2.6vw, 2.75rem);
   --sd-fs-title:    clamp(1.6rem, 2vw, 2rem);
   --sd-fs-h3:       1.2rem;
-  --sd-fs-body:     1rem;
   --sd-fs-small:    0.875rem;
   --sd-fs-label:    0.75rem;
 

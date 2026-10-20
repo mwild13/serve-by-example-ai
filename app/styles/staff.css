@@ -3045,41 +3045,11 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   line-height: 1.65;
   letter-spacing: normal;
 }
-/* ── KB Redesign — Header band, search icon, card items ──────────────── */
-.kb-header {
-  background: linear-gradient(135deg, var(--green) 0%, var(--green-gradient-mid) 100%);
-  border-radius: var(--radius-lg);
-  padding: 20px 24px;
-  margin-bottom: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  box-shadow: 0 4px 20px rgba(31, 78, 55, 0.2);
-}
-.kb-header-text {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-.kb-header-eyebrow {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.6);
-}
-.kb-header-title {
-  font-family: var(--font-heading);
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--surface-raised);
-  line-height: 1.2;
-}
-.kb-header-sub {
-  font-size: 0.83rem;
-  color: rgba(255, 255, 255, 0.72);
-  margin-top: 2px;
+/* ── KB: intro line, search icon, card items ──────────────── */
+.kb-lede {
+  margin: 0 0 18px;
+  font-size: 0.95rem;
+  color: var(--text-soft);
 }
 /* Search icon wrapper */
 .kb-search-wrap {
@@ -3480,7 +3450,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
    STAFF DESKTOP, "THE BACK BAR" (docs/STAFF_DESKTOP_REDESIGN_PLAN.md)
    The /dashboard shell and the screens rebuilt on it. Bottle green room,
    brass for progress only, cream sheets for reading. Tokens are the --sd-*
-   aliases in app/globals.css. Screens not yet rebuilt sit in .sd-sheet.
+   aliases in app/globals.css.
    ============================================================ */
 
 /* Shell */
@@ -3924,21 +3894,26 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   color: var(--sd-ink-soft);
 }
 
-/* The sheet: a cream page on the green room for screens not yet rebuilt. */
-.sd-sheet {
-  max-width: var(--sd-content-max);
-  margin: 0 auto;
-  padding: clamp(24px, 3vw, 40px);
-  border-radius: var(--radius-lg);
-  background: var(--bg);
-  color: var(--text);
-  box-shadow: var(--shadow-xl);
+/* Light-surface helpers used on dockets */
+/* Knowledge Base on the docket: hairline rows, not cards. */
+.sd-docket .kb-list {
+  gap: 0;
+  border-top: 1px solid var(--line-light);
 }
-.sd-sheet :focus-visible {
-  outline-color: var(--green);
+.sd-docket .kb-list-item {
+  padding-left: 0;
+  border: 0;
+  border-bottom: 1px solid var(--line-light);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
 }
-.sd-sheet .sd-kicker {
-  color: var(--text-soft);
+.sd-docket .kb-list-item:hover {
+  background: var(--bg-warm);
+  transform: none;
+}
+.sd-docket .kb-list-item-accent {
+  display: none;
 }
 .sd-back {
   display: inline-flex;
@@ -4955,6 +4930,50 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   color: var(--sd-ink-muted);
 }
 
+/* Settings: rows on a docket, heading and note left, controls right */
+.sd-settings > .card,
+.sd-settings > .grid-2 > .card {
+  display: grid;
+  grid-template-columns: minmax(200px, 280px) minmax(0, 1fr);
+  grid-auto-flow: dense;
+  align-items: start;
+  gap: 8px 40px;
+  margin: 0;
+  padding: 24px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line-light);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+.sd-settings > .grid-2 {
+  display: block;
+}
+.sd-settings .card > * {
+  grid-column: 2;
+}
+.sd-settings .card > h3 {
+  grid-row: 1;
+  grid-column: 1;
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+}
+.sd-settings .card > h3 + p {
+  grid-row: 2;
+  grid-column: 1;
+  margin: 0;
+  font-size: var(--sd-fs-small);
+  line-height: 1.5;
+  color: var(--text-soft);
+}
+.sd-settings > .card:first-child {
+  padding-top: 0;
+}
+.sd-settings > .card:last-child {
+  border-bottom: 0;
+}
+
 @media (max-width: 1100px) {
   .sd-tonight {
     grid-template-columns: minmax(0, 1fr);
@@ -4977,6 +4996,16 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   }
 }
 @media (max-width: 900px) {
+  .sd-settings > .card,
+  .sd-settings > .grid-2 > .card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sd-settings .card > *,
+  .sd-settings .card > h3,
+  .sd-settings .card > h3 + p {
+    grid-row: auto;
+    grid-column: 1;
+  }
   .sd-ledgers,
   .sd-areas-grid,
   .sd-badge-list {
@@ -5118,7 +5147,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   .sd-main {
     padding: 24px 16px 48px;
   }
-  .sd-sheet {
+  .sd-docket {
     padding: 16px;
   }
 }

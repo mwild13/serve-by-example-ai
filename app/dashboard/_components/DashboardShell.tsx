@@ -296,12 +296,12 @@ function StaffSettingsPanel({
   }, [initialJoinCode]);
 
   return (
-    <>
+    <div className="sd-page">
       <header className="sd-head">
         <p className="sd-kicker">Account</p>
         <h1 className="sd-title">Settings</h1>
       </header>
-      <div className="staff-settings-wrap">
+      <div className="sd-docket sd-settings">
       <div className="card">
         <h3>Display name</h3>
         <p>Update the name shown across your training dashboard.</p>
@@ -488,7 +488,7 @@ function StaffSettingsPanel({
         )}
       </div>
     </div>
-    </>
+    </div>
   );
 }
 
@@ -669,10 +669,6 @@ export default function DashboardShell({
     );
   }
 
-  // Screens not yet on the staff desktop standard sit on a cream sheet
-  // (docs/STAFF_DESKTOP_REDESIGN_PLAN.md, section 8), so they read as they did.
-  const sheet = (node: React.ReactNode) => <div className="sd-sheet">{node}</div>;
-
   return (
     <main className="sd-shell">
       <SessionRefresher />
@@ -775,17 +771,30 @@ export default function DashboardShell({
         ) : activeNav === "challenges" ? (
           <ChallengesPage />
         ) : activeNav === "cocktails" ? (
-          sheet(
-            <Suspense fallback={<CocktailGridSkeleton count={12} />}>
-              <CocktailLibrary />
-            </Suspense>
-          )
+          <div className="sd-page">
+            <header className="sd-head">
+              <p className="sd-kicker">Look it up</p>
+              <h1 className="sd-title">Cocktails</h1>
+              <p className="sd-lede">38 classic cocktails across 10 styles, with the spec, the glass and the garnish.</p>
+            </header>
+            <div className="sd-docket">
+              <Suspense fallback={<CocktailGridSkeleton count={12} />}>
+                <CocktailLibrary />
+              </Suspense>
+            </div>
+          </div>
         ) : activeNav === "knowledge" ? (
-          sheet(
-            <Suspense fallback={<CocktailGridSkeleton count={12} />}>
-              <KnowledgeBase />
-            </Suspense>
-          )
+          <div className="sd-page">
+            <header className="sd-head">
+              <p className="sd-kicker">Look it up</p>
+              <h1 className="sd-title">Knowledge Base</h1>
+            </header>
+            <div className="sd-docket">
+              <Suspense fallback={<CocktailGridSkeleton count={12} />}>
+                <KnowledgeBase />
+              </Suspense>
+            </div>
+          </div>
         ) : activeNav === "progress" || activeNav === "badges" ? (
           <MyProgressPage
             key="progress"
@@ -796,16 +805,14 @@ export default function DashboardShell({
             onNavigate={handleNavClick}
           />
         ) : (
-          sheet(
-            <StaffSettingsPanel
-              displayName={displayName}
-              userEmail={userEmail}
-              notifReminders={notifReminders}
-              notifWeeklyDigest={notifWeeklyDigest}
-              initialJoinCode={joinCodeFromUrl}
-              hasBillingAccount={hasBillingAccount}
-            />
-          )
+          <StaffSettingsPanel
+            displayName={displayName}
+            userEmail={userEmail}
+            notifReminders={notifReminders}
+            notifWeeklyDigest={notifWeeklyDigest}
+            initialJoinCode={joinCodeFromUrl}
+            hasBillingAccount={hasBillingAccount}
+          />
         )}
       </section>
     </main>

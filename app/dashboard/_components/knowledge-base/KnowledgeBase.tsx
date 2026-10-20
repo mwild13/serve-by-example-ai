@@ -49,18 +49,11 @@ export default function KnowledgeBase() {
 
   return (
     <div className="kb-container">
-      {/* Header band */}
-      <div className="kb-header">
-        <div className="kb-header-text">
-          <span className="kb-header-eyebrow">Knowledge Base</span>
-          <strong className="kb-header-title">Knowledge Base</strong>
-          <span className="kb-header-sub">
-            {activeCategory === "all"
-              ? `${KB_ENTRIES.length} quick-reference cards across ${CATEGORY_KEYS.length} categories.`
-              : KB_CATEGORIES[activeCategory].description}
-          </span>
-        </div>
-      </div>
+      <p className="kb-lede">
+        {activeCategory === "all"
+          ? `${KB_ENTRIES.length} quick-reference cards across ${CATEGORY_KEYS.length} categories.`
+          : KB_CATEGORIES[activeCategory].description}
+      </p>
 
       {/* Search */}
       <div className="kb-search-row">
