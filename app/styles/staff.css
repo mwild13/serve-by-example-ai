@@ -3405,3 +3405,67 @@ html[data-staff-high-contrast="1"] .dashboard-main {
     grid-column: 1 / -1;
   }
 }
+
+/* This week at the venue (components/team/TeamWeekCard.tsx, Rich update
+   Phase 16) on staff Home, on the .qz theme colours. */
+.tw {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--qz-line);
+  background: var(--qz-surface);
+  color: var(--qz-text);
+}
+.tw-label {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--qz-accent);
+}
+.tw-goal {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tw-goal-text,
+.tw-guest-text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--qz-text);
+}
+.tw-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--qz-surface-alt);
+  overflow: hidden;
+}
+.tw-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--qz-accent);
+}
+.tw-guest {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.tw-link {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--qz-accent);
+  background: none;
+  color: var(--qz-text);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}

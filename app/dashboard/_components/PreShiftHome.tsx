@@ -7,6 +7,15 @@ import { KB_ENTRIES, KB_CATEGORIES } from "@/lib/knowledge-base";
 import Image from "next/image";
 import { COCKTAILS, COCKTAIL_IMAGES, type Cocktail } from "@/lib/cocktails";
 import { computeStreak } from "@/lib/streak";
+import TeamWeekCard from "@/components/team/TeamWeekCard";
+import { createSupabaseBrowserClient } from "@/lib/supabase";
+
+/** For the team week card (Phase 16). */
+async function getAccessToken(): Promise<string> {
+  const { data: { session } } = await createSupabaseBrowserClient().auth.getSession();
+  if (!session?.access_token) throw new Error("Session expired. Please sign in again.");
+  return session.access_token;
+}
 
 type NavItem = "home" | "module" | "drill" | "live-guest" | "challenges" | "cocktails" | "knowledge" | "progress" | "settings";
 type ModuleKey = "bartending" | "sales" | "management";
@@ -600,6 +609,9 @@ export default function PreShiftHome({
           </button>
         )}
       </div>
+
+      {/* This week at the venue: the team goal and guest of the week (Phase 16). Nothing until the manager sets one. */}
+      <TeamWeekCard theme="light" getToken={getAccessToken} onLiveGuest={() => setActiveNav("live-guest")} outer={{ marginBottom: "1rem" }} />
 
       {/* ── A2: Hero Grid: Pre-Shift Brief (left) + Daily Challenge (right) ── */}
       <div

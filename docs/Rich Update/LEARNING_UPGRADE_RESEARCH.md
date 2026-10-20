@@ -328,7 +328,7 @@ There are 13 phases to launch, then 3 after marketing starts. Each phase goes ou
 ### After marketing starts
 - **Phase 14, Live Guest voice (built 2026-10-20):** as in 3e, on the same plans as Live Guest, with a cap on minutes. Built as push to talk rather than a live call, so the text engine, the helps and the scoring stay the same. Test it on a phone in a noisy bar.
 - **Phase 15, Saturday Rush (built 2026-10-20):** see 2d. Twelve timed moments, a bar-back to call, scored on the four dials and replayed on the server from a seed.
-- **Phase 16, team features:** see "After launch" in section 4.
+- **Phase 16, team features (built 2026-10-20):** see "After launch" in section 4. The venue goal, the guest of the week and the briefing card, team totals only.
 
 ### How we'll know it worked
 

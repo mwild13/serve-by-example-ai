@@ -7,8 +7,23 @@ import { GUEST_BRIEFS } from "@/lib/live-guest/guests";
 import { publicGuest } from "@/lib/live-guest/engine";
 import { guestDifficulty, loadGuestProgress, suggestedGuestIds } from "@/lib/live-guest/difficulty";
 import { TASTER_GUEST_ID, tasterUsed } from "@/lib/live-guest/taster";
+import { sydneyToday, venueIdsForStaff } from "@/lib/venue-content";
+import { loadWeekRow, weekStartOf } from "@/lib/team-week";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
+
+/** The guest the person's manager picked for the team this week (Phase 16), or null. */
+async function weekGuestId(admin: SupabaseClient, userId: string): Promise<string | null> {
+  try {
+    const [venueId] = await venueIdsForStaff(admin, userId);
+    if (!venueId) return null;
+    return (await loadWeekRow(admin, venueId, weekStartOf(sydneyToday())))?.guest_id ?? null;
+  } catch (error) {
+    console.error("live-guest/guests: guest of the week failed:", error);
+    return null;
+  }
+}
 
 /**
  * The Live Guest picker: every reviewed guest, without the hidden parts of
@@ -43,7 +58,9 @@ export async function GET(req: Request) {
       }),
     );
     const taster = onPlan ? undefined : { guestId: TASTER_GUEST_ID, used };
-    return NextResponse.json({ guests, onPlan, ...(taster ? { taster } : {}) }, { headers: { "Cache-Control": "no-store" } });
+    const weekGuest = onPlan ? await weekGuestId(admin, user.id) : null;
+    const week = weekGuest && guests.some((g) => g.id === weekGuest && g.available) ? { weekGuestId: weekGuest } : {};
+    return NextResponse.json({ guests, onPlan, ...(taster ? { taster } : {}), ...week }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("live-guest/guests error:", error);
     return NextResponse.json({ error: "Could not load the guests." }, { status: 500 });

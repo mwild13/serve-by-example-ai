@@ -101,6 +101,12 @@ The whole console was rebuilt to the `docs/Pages-Redesign.md` principles. Styles
 - **Data:** the panel fetches `/api/management/venue-content` itself (GET list, POST add, PATCH `approve`/`reject`/`redraft`/`archive`), like the Compliance tab. Not in the snapshot. Each add or redraft is one AI call, counted against the manager's daily AI allowance.
 - **Duty managers** can add and approve content, since they run the shifts.
 
+**This Week** (Rich update, Phase 16)
+- **What:** section id `team-week`, in the People group (`TeamWeekPanel.tsx`). For the week, Monday to Sunday Sydney time: a **team goal** (correct answers, days trained, Live Guest passes or Saturday Rush shifts, with a target suggested from the team's size), a **guest of the week** (one Live Guest guest, first in every staff member's Live Guest list), and a printable **briefing card** for the pre-shift meeting ("Print the briefing card" prints only the card).
+- **The briefing card:** the last seven days in team totals (days trained, answers right, Live Guest conversations and passes, Rush shifts), the goal and the guest of the week, and up to three questions the team missed most, each with the right answer and one line to say (the first sentence of the approved explanation). A question only shows once two or more different people have missed it, and no names appear anywhere, so no one is singled out.
+- **Data:** the panel fetches `/api/management/team-week` itself (GET `?venueId=`, PUT `{ venueId, goal?, guestId? }`). Not in the snapshot. No AI. Logic in `lib/team-week.ts`; tables `venue_weeks` and `quiz_answer_log`. The team is the venue's `venue_staff` with an account, not marked inactive.
+- **Staff see** the goal's progress and the guest of the week on Home (`components/team/TeamWeekCard.tsx`, desktop and mobile), from `/api/training/team-week`, only once the manager has set something.
+
 **Ask AI Coach**
 - **Layout:** the page is exactly as tall as the window, so the question box is always in view. Conversation on the left, starting points on the right.
 - **Each question stands alone.** `/api/management/coach` is not sent earlier messages. Saved history is for reading back only.

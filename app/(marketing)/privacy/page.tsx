@@ -36,7 +36,7 @@ export default function PrivacyPage() {
                   <strong>Profile Data</strong>: Plan type, display name, and preferences.
                 </li>
                 <li>
-                  <strong>Training Data</strong>: Quiz and drill answers, scores, and your replies in Live Guest conversations (typed, or spoken and written out as text), with what the practice guest said back. Your shift days, if you set them.
+                  <strong>Training Data</strong>: Quiz and drill answers (which questions you got right or wrong, kept for 180 days), scores, and your replies in Live Guest conversations (typed, or spoken and written out as text), with what the practice guest said back. Your shift days, if you set them.
                 </li>
                 <li>
                   <strong>Communication Data</strong>: Messages sent to us via email or forms.
@@ -130,8 +130,7 @@ export default function PrivacyPage() {
                 </li>
                 <li>
                   <strong>Live Guest Conversations</strong>: What you typed or said (as text, never as a recording) and what the practice guest said, kept with
-                  your result; deleted with your account. Managers see the
-                  score and result, not what you typed.
+                  your result; deleted with your account. Managers see the score and result, not what you typed. They also see team totals for the week and the questions the team missed most, never who answered what: a question only shows once two or more people have missed it.
                 </li>
                 <li>
                   <strong>Billing Records & Stripe Webhook Events</strong>: Retained for 7 years to

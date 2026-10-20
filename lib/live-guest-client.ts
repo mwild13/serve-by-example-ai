@@ -169,6 +169,8 @@ export type LiveGuestList = {
   onPlan: boolean;
   /** Off a venue plan: the one free conversation, and whether it's been had. */
   taster?: { guestId: string; used: boolean };
+  /** The guest the manager picked for the whole team this week (Phase 16). */
+  weekGuestId?: string;
 };
 
 export function listLiveGuests(token: string): Promise<LiveGuestList> {

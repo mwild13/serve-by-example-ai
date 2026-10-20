@@ -344,3 +344,14 @@ The owner's conversation with Linh (the shouted coffee order, tough) showed five
 - **Where:** desktop menu "Saturday Rush" (after Mixed Drill, a paid feature like it), mobile Learn hub card, `/mobile/rush`.
 - **Owner:** run `supabase/migrations/20261028_saturday_rush.sql`. Review the moments in `docs/Rich Update/saturday-rush-moments.md`.
 - **Tests:** 9 in `lib/rush/engine.test.ts`.
+
+## Phase 16: team features (built 2026-10-20)
+
+- **This Week**, a new Manager Console section (People group), for the week Monday to Sunday:
+  - **A team goal:** count correct answers, days trained, Live Guest passes or Saturday Rush shifts, with a target suggested from the team's size (about 20 correct answers or 3 days trained a person). Staff see the team's total on Home: "214 of 300 correct answers between us", with a bar. No names, no ranking.
+  - **A guest of the week:** one Live Guest guest for the whole team. It's first in everyone's Live Guest list, and Home says how many of the team have sorted it.
+  - **The briefing card**, printable, for the pre-shift meeting: the last seven days in team totals, the goal, the guest, and up to three questions the team missed most, each with the right answer and one line to say (the first sentence of the approved explanation, so no AI and no new wording to check).
+- **Without shaming anyone:** managers never see who answered what. A question only shows on the card once two or more different people have missed it.
+- **New data:** `quiz_answer_log`, one row per quiz and drill answer, kept 180 days (it didn't exist before: runs only kept totals). The privacy policy says so.
+- **Owner:** run `supabase/migrations/20261029_team_week.sql`. Until then, nothing is logged and the team screens stay hidden.
+- **Tests:** 6 in `lib/team-week.test.ts` (weeks and Sydney midnight in summer and winter, suggested targets, the two-people rule, answers in words, one line).

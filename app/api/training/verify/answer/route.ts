@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logAnswer } from "@/lib/team-week";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getVerifiedUserFromRequest } from "@/lib/supabase-server";
 import { validateSession } from "@/lib/session";
@@ -153,6 +154,8 @@ export async function POST(req: Request) {
       throw advanceError;
     }
     const result = saved as AdvanceResult;
+    // For the venue goal and the manager's briefing card (lib/team-week.ts).
+    await logAnswer(admin, { userId: user.id, moduleId: attempt.module_id, questionId: question.id, correct: graded.correct, source: "quiz" });
 
     if (result.status === "passed") {
       await afterModuleMastered(admin, user, result.alreadyMastered);

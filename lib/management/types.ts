@@ -8,6 +8,7 @@ export type ManagerSection =
   | "inventory"
   | "compliance"
   | "content"
+  | "team-week"
   | "analytics"
   | "group-analytics"
   | "reports"

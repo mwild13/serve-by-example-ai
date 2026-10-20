@@ -18,7 +18,8 @@ What's left before the Rich update goes to `main` and marketing spend starts. Bu
 | `20261024_venue_content.sql` | Run (the tables are there) |
 | `20261025_preshift_streak.sql` and `20261026_push_reminders.sql` | Run (confirmed 2026-10-20) |
 | `20261027_live_guest_voice.sql` | Run (confirmed 2026-10-20) |
-| `20261028_saturday_rush.sql` | **To run** (saving shifts and the best score; the game plays before it) |
+| `20261028_saturday_rush.sql` | Run (confirmed 2026-10-20) |
+| `20261029_team_week.sql` | **To run** (the answer log, goals and guest of the week) |
 
 ## Decisions (made by Claude Code at the owner's request, 2026-10-20)
 
@@ -51,6 +52,10 @@ On the preview, on your phone and on desktop. Tick as you go.
 **As a Pro or free user**
 - [ ] Live Guest shows the venue plan prompt and Dan as the one free conversation. After it, he's closed too.
 - [ ] Mixed Drill and modules work as before.
+
+**This Week (as a manager, then as staff)**
+- [ ] Manager Console, People, This Week: set a goal and a guest of the week. On staff Home (desktop and mobile), the card shows both; in Live Guest, the guest is first.
+- [ ] Do a quiz as two different staff accounts and get the same question wrong in each. Back in This Week, the briefing card shows it, with the right answer and a line to say. Print the card.
 
 **Public pages**
 - [ ] Home, platform, pricing, privacy and security read right.

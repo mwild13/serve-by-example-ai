@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Bell, Flame, Swords, BrainCircuit, Martini, Award } from "lucide-react";
 import BottomNav from "./BottomNav";
 import MobileScreenShell from "./MobileScreenShell";
 import NotificationOptInCard from "./NotificationOptInCard";
+import TeamWeekCard from "@/components/team/TeamWeekCard";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 import { COCKTAILS, COCKTAIL_IMAGES } from "@/lib/cocktails";
@@ -53,6 +54,8 @@ const QUICK_ACCESS = [
 
 export default function HomeScreen() {
   const session = useMobileSession();
+  const sessionToken = session.token;
+  const getToken = useCallback(async () => sessionToken, [sessionToken]);
   const { status, data } = useTrainingProgress();
 
   const continueModule = useMemo(() => {
@@ -252,6 +255,8 @@ export default function HomeScreen() {
             </div>
           )}
         </div>
+
+        <TeamWeekCard theme="dark" getToken={getToken} liveGuestHref="/mobile/live-guest" outer={{ padding: "0 20px 16px" }} />
 
         <NotificationOptInCard token={session.token} />
 

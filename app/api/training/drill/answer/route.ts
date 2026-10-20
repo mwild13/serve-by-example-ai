@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logAnswer } from "@/lib/team-week";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getVerifiedUserFromRequest } from "@/lib/supabase-server";
 import { validateSession } from "@/lib/session";
@@ -149,6 +150,8 @@ export async function POST(req: Request) {
     if (!saved || saved.length === 0) {
       return NextResponse.json({ error: "That question was already answered.", code: "DRILL_POSITION_MISMATCH" }, { status: 409 });
     }
+    // For the venue goal and the manager's briefing card (lib/team-week.ts).
+    await logAnswer(admin, { userId: user.id, moduleId: ref.moduleId, questionId: ref.questionId, correct: graded.correct, source: "drill" });
 
     let next = null;
     if (advanced.status === "active") {

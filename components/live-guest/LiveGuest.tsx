@@ -101,6 +101,7 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
   const [guests, setGuests] = useState<PublicGuest[] | null>(null);
   const [onPlan, setOnPlan] = useState(true);
   const [taster, setTaster] = useState<LiveGuestList["taster"]>(undefined);
+  const [weekGuestId, setWeekGuestId] = useState<string | null>(null);
   const [listError, setListError] = useState<string | null>(null);
   const [chat, setChat] = useState<Chat | null>(null);
   const [starting, setStarting] = useState<string | null>(null);
@@ -123,6 +124,7 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
         setGuests(list.guests);
         setOnPlan(list.onPlan);
         setTaster(list.taster);
+        setWeekGuestId(list.weekGuestId ?? null);
       })
       .catch((err: unknown) => {
         if (!cancelled) setListError(err instanceof Error ? err.message : "Could not load the guests.");
@@ -218,8 +220,9 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
     voice.setAutoStop(() => void talk());
   }, [talk, voice]);
 
-  const suggested = guests?.filter((g) => g.suggested) ?? [];
-  const others = guests?.filter((g) => !g.suggested) ?? [];
+  const weekGuest = guests?.find((g) => g.id === weekGuestId) ?? null;
+  const suggested = guests?.filter((g) => g.suggested && g.id !== weekGuestId) ?? [];
+  const others = guests?.filter((g) => !g.suggested && g.id !== weekGuestId) ?? [];
   // Sixty guests is a long scroll, so the rest are shown one area at a time.
   const areas = (Object.keys(AREA_LABEL) as GuestArea[]).filter((a) => others.some((g) => g.area === a));
   const shownArea = area && areas.includes(area) ? area : areas[0];
@@ -255,6 +258,14 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
               See the plans
             </Link>
           </div>
+        )}
+        {weekGuest && (
+          <>
+            <h3 className="lg-group-title">Guest of the week, for the whole team</h3>
+            <div className="lg-guests">
+              <GuestCard guest={weekGuest} starting={starting} onPlan={onPlan} onStart={(id) => void begin(id)} />
+            </div>
+          </>
         )}
         {suggested.length > 0 && (
           <>
