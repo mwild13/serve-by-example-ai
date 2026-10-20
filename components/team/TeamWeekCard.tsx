@@ -11,7 +11,8 @@ import { GOAL_LABEL, type TeamWeek } from "@/lib/team-week-shared";
 
 type Props = {
   getToken: () => Promise<string>;
-  theme: "light" | "dark";
+  /** "room" is the staff desktop's green (docs/STAFF_DESKTOP_REDESIGN_PLAN.md). */
+  theme: "light" | "dark" | "room";
   /** Mobile links to the Live Guest page; desktop switches tab. */
   liveGuestHref?: string;
   onLiveGuest?: () => void;

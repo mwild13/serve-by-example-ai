@@ -155,7 +155,3 @@ export function computeBadges(
 export function countEarned(badges: Badge[]): number {
   return badges.filter((b) => b.earned).length;
 }
-
-export function recentEarned(badges: Badge[], limit = 3): Badge[] {
-  return badges.filter((b) => b.earned).slice(0, limit);
-}

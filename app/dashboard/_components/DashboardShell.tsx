@@ -1,11 +1,10 @@
 "use client";
 
 import { FormEvent, useState, useEffect, useCallback, useRef, Suspense, lazy } from "react";
+import { ArrowLeft, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { useAuthSessionGuard } from "@/lib/use-auth-session-guard";
 import { isB2BTier } from "@/lib/session";
-import SignOutButton from "@/components/ui/SignOutButton";
 import ModuleVerify from "@/app/dashboard/_components/ModuleVerify";
 import LiveGuestPage from "@/app/dashboard/_components/LiveGuestPage";
 import DiagnosticFlow from "@/app/dashboard/_components/DiagnosticFlow";
@@ -18,28 +17,15 @@ const CocktailLibrary = lazy(() => import("@/app/dashboard/_components/knowledge
 const KnowledgeBase = lazy(() => import("@/app/dashboard/_components/knowledge-base/KnowledgeBase"));
 const BadgesView = lazy(() => import("@/app/dashboard/_components/BadgesView"));
 import ProgressOverview from "@/app/dashboard/_components/ProgressOverview";
-import PreShiftHome from "@/app/dashboard/_components/PreShiftHome";
+import TodayPage from "@/app/dashboard/_components/today/TodayPage";
+import StaffSidebar, { type StaffNavId } from "@/app/dashboard/_components/shell/StaffSidebar";
 import SessionRefresher from "@/components/ui/SessionRefresher";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { openBillingPortal } from "@/lib/billing-portal";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { normalizeVenueCode } from "@/lib/venue-code";
 
-type NavItem = "home" | "module" | "drill" | "rush" | "live-guest" | "challenges" | "cocktails" | "knowledge" | "progress" | "badges" | "settings";
-
-const NAV_ITEMS: { id: NavItem; label: string }[] = [
-  { id: "home", label: "Home" },
-  { id: "module", label: "Modules" },
-  { id: "drill", label: "Mixed Drill" },
-  { id: "rush", label: "Saturday Rush" },
-  { id: "live-guest", label: "Live Guest" },
-  { id: "challenges", label: "Challenges" },
-  { id: "cocktails", label: "Cocktail Library" },
-  { id: "knowledge", label: "Knowledge Base" },
-  { id: "progress", label: "How I'm improving" },
-  { id: "badges", label: "Badges" },
-  { id: "settings", label: "Settings" },
-];
+type NavItem = StaffNavId;
 
 function StaffSettingsPanel({
   displayName,
@@ -312,12 +298,10 @@ function StaffSettingsPanel({
 
   return (
     <>
-      <div className="sbe-command-bar sbe-command-bar-active" style={{ color: "white", marginBottom: "1.75rem" }}>
-        <div className="sbe-command-text">
-          <span className="sbe-command-eyebrow">Account</span>
-          <strong>Settings</strong>
-        </div>
-      </div>
+      <header className="sd-head">
+        <p className="sd-kicker">Account</p>
+        <h1 className="sd-title">Settings</h1>
+      </header>
       <div className="staff-settings-wrap">
       <div className="card">
         <h3>Display name</h3>
@@ -407,29 +391,6 @@ function StaffSettingsPanel({
               {isSavingNotifications ? "Saving..." : "Save preferences"}
             </button>
           </form>
-        </div>
-      </div>
-
-      <div className="card">
-        <h3>Display theme</h3>
-        <p>Switch to an industrial dark theme for the learning console, easier on the eyes in dimly lit bars.</p>
-        <div className="staff-toggle-list">
-          <label>
-            <input
-              type="checkbox"
-              checked={typeof window !== "undefined" && document.documentElement.classList.contains("sbe-dark")}
-              onChange={(event) => {
-                if (event.target.checked) {
-                  document.documentElement.classList.add("sbe-dark");
-                  try { localStorage.setItem("sbe-dark-mode", "1"); } catch {}
-                } else {
-                  document.documentElement.classList.remove("sbe-dark");
-                  try { localStorage.setItem("sbe-dark-mode", "0"); } catch {}
-                }
-              }}
-            />
-            <span>Dark mode (industrial theme)</span>
-          </label>
         </div>
       </div>
 
@@ -532,23 +493,11 @@ function StaffSettingsPanel({
   );
 }
 
-function ComingSoon({ label }: { label: string }) {
-  return (
-    <div style={{ padding: "48px 24px", textAlign: "center" }}>
-      <div style={{ fontSize: "1rem", marginBottom: 16, color: "var(--text-soft)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Coming soon</div>
-      <h2 style={{ marginBottom: 8 }}>{label}</h2>
-      <p style={{ color: "var(--text-soft)" }}>
-        This module is coming soon. Keep training with the modules available now!
-      </p>
-    </div>
-  );
-}
-
 export default function DashboardShell({
   displayName,
   plan,
   userEmail,
-  managementUnlockedInitial,
+  managementUnlockedInitial: _managementUnlockedInitial,
   notifReminders,
   notifWeeklyDigest,
   hasVenueMembership = false,
@@ -586,26 +535,13 @@ export default function DashboardShell({
     NAV_IDS.has(initialNav as NavItem) ? (initialNav as NavItem) : RETIRED_NAV[initialNav ?? ""] ?? "home"
   );
   const [joinCodeFromUrl, setJoinCodeFromUrl] = useState<string | undefined>(undefined);
-  const [managementUnlocked] = useState(managementUnlockedInitial);
   const [showPaymentBanner, setShowPaymentBanner] = useState(checkoutSuccess);
   // Phase 4: Dynamic module system
   const [userId, setUserId] = useState<string>("");
   const [selectedModuleId, setSelectedModuleId] = useState<number | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [drillMode, setDrillMode] = useState<"mixed" | "preshift">("mixed");
   const [showDiagnostic, setShowDiagnostic] = useState(false);
   const [userToken, setUserToken] = useState<string>(initialToken);
-
-  // Initialize dark mode from localStorage
-  useEffect(() => {
-    try {
-      if (localStorage.getItem("sbe-dark-mode") === "1") {
-        document.documentElement.classList.add("sbe-dark");
-      }
-    } catch {}
-    // The class lives on <html>; drop it on unmount so client-side navigation
-    // from the dashboard to marketing pages does not carry the app dark theme over.
-    return () => document.documentElement.classList.remove("sbe-dark");
-  }, []);
 
   // Auto-navigate to settings and pre-fill venue code if ?join= is in URL
   useEffect(() => {
@@ -696,7 +632,7 @@ export default function DashboardShell({
   const isPremium = isAdmin || plan !== "free" || hasVenueMembership;
 
   function handleNavClick(id: NavItem) {
-    if (id !== "module") setSelectedCategory(null);
+    if (id === "drill") setDrillMode("mixed");
     if (!isPremium && PREMIUM_NAV_ITEMS.includes(id)) {
       router.push("/pricing");
       return;
@@ -704,137 +640,74 @@ export default function DashboardShell({
     setActiveNav(id);
   }
 
-  const handleNavigateToCategory = (category: string) => {
-    setSelectedCategory(category);
-    setActiveNav("module");
-  };
+  const getToken = useCallback(async () => {
+    const supabase = createSupabaseBrowserClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) throw new Error("Session expired. Please sign in again.");
+    return session.access_token;
+  }, []);
+
+  function openModule(moduleId: number) {
+    setSelectedModuleId(moduleId);
+    handleNavClick("module");
+  }
+
+  const lockedIds = isPremium ? [] : PREMIUM_NAV_ITEMS;
+  const liveGuestOpen = isAdmin || isB2BTier(plan) || hasVenueMembership;
 
   // If auth guard detected an error or is still initializing, show defensive UI
   if (authGuard.hasError) {
     return (
-      <main className="dashboard-shell" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", backgroundColor: "var(--bg)" }}>
-        <div style={{ textAlign: "center", padding: "40px", maxWidth: "400px" }}>
-          <h2 style={{ color: "var(--text)", marginBottom: "12px", fontSize: "18px", fontWeight: 600 }}>Session Recovery</h2>
-          <p style={{ color: "var(--text-soft)", marginBottom: "24px", fontSize: "14px", lineHeight: "1.6" }}>{authGuard.errorMessage || "Your session is being restored. Please wait..."}</p>
-          <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
-            <button
-              onClick={() => router.push("/login")}
-              style={{
-                padding: "10px 20px",
-                backgroundColor: "var(--green)",
-                color: "white",
-                border: "none",
-                borderRadius: "var(--radius-sm)",
-                cursor: "pointer",
-                fontSize: "14px",
-                fontWeight: 600,
-              }}
-            >
-              Back to Login
-            </button>
-          </div>
+      <main className="sd-shell sd-shell-alone">
+        <div className="sd-recover">
+          <h1 className="sd-title">Signing you back in</h1>
+          <p>{authGuard.errorMessage || "Your session is being restored. One moment."}</p>
+          <button type="button" className="sd-btn sd-btn-brass" onClick={() => router.push("/login")}>
+            Back to sign in
+          </button>
         </div>
       </main>
     );
   }
 
+  // Screens not yet on the staff desktop standard sit on a cream sheet
+  // (docs/STAFF_DESKTOP_REDESIGN_PLAN.md, section 8), so they read as they did.
+  const sheet = (node: React.ReactNode) => <div className="sd-sheet">{node}</div>;
+
   return (
-    <main className="dashboard-shell">
+    <main className="sd-shell">
       <SessionRefresher />
 
       {authErrorMessage && (
-        <div style={{
-          position: "fixed",
-          top: "12px",
-          right: "12px",
-          zIndex: 9999,
-          background: "rgb(200, 60, 60)",
-          color: "white",
-          padding: "12px 16px",
-          borderRadius: "var(--radius-sm)",
-          fontSize: "14px",
-          maxWidth: "400px",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-        }}>
+        <div className="sd-toast" role="alert">
           {authErrorMessage}
         </div>
       )}
 
-      <aside className="dashboard-sidebar">
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: 16 }}>
-          <Image src="/logo.webp" alt="SBE" width={38} height={38} style={{ borderRadius: 10, display: "block", flexShrink: 0 }} />
-          <span style={{ fontSize: "18px", fontWeight: 700, color: "var(--surface-raised)", whiteSpace: "nowrap" }}>Serve By Example</span>
-        </div>
+      <StaffSidebar
+        active={activeNav}
+        onNavigate={handleNavClick}
+        lockedIds={lockedIds}
+        displayName={displayName}
+        plan={plan}
+        sponsored={hasVenueMembership}
+      />
 
-        <div className="mockup-nav">
-          {NAV_ITEMS.map((item) => (
-            <div
-              key={item.id}
-              role="button"
-              tabIndex={0}
-              className={`mockup-nav-item${activeNav === item.id ? " active" : ""}${
-                !isPremium && PREMIUM_NAV_ITEMS.includes(item.id) ? " mockup-nav-item-locked" : ""
-              }`}
-              onClick={() => handleNavClick(item.id)}
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleNavClick(item.id); } }}
-              aria-current={activeNav === item.id ? "page" : undefined}
-              aria-label={!isPremium && PREMIUM_NAV_ITEMS.includes(item.id) ? `${item.label} (locked)` : item.label}
-            >
-              {!isPremium && PREMIUM_NAV_ITEMS.includes(item.id) ? `${item.label} (locked)` : item.label}
-            </div>
-          ))}
-        </div>
-
-        <div className="dashboard-sidebar-signout">
-          <SignOutButton />
-        </div>
-      </aside>
-
-      <section className="dashboard-main">
+      <section className="sd-main">
         {showPaymentBanner && (
-          <div style={{
-            background: "var(--green-light)",
-            border: "1px solid var(--green)",
-            color: "var(--text)",
-            padding: "12px 20px",
-            borderRadius: "var(--radius-sm)",
-            marginBottom: 16,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            fontFamily: "var(--font-manrope)",
-            fontSize: 14,
-            fontWeight: 500,
-          }}>
+          <div className="sd-notice" role="status">
             <span>Payment successful. Your Pro plan is now active.</span>
-            <button
-              onClick={() => setShowPaymentBanner(false)}
-              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text)", fontSize: 20, lineHeight: 1, padding: "0 0 0 12px" }}
-              aria-label="Dismiss"
-            >×</button>
+            <button type="button" className="sd-icon-btn" onClick={() => setShowPaymentBanner(false)} aria-label="Dismiss">
+              <X size={18} strokeWidth={2} aria-hidden />
+            </button>
           </div>
         )}
 
         {venueMembershipPaused && (
-          <div style={{
-            background: "var(--gold-light)",
-            border: "1.5px solid var(--gold)",
-            borderRadius: "var(--radius-md)",
-            padding: "14px 20px",
-            marginBottom: 16,
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-          }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold-warm)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-            <div>
-              <span style={{ fontWeight: 700, color: "var(--text)", fontSize: "0.9rem" }}>Training is paused. </span>
-              <span style={{ color: "var(--text-soft)", fontSize: "0.9rem" }}>Your venue&apos;s trial has ended. Contact your manager to restore access.</span>
-            </div>
+          <div className="sd-notice sd-notice-warn" role="status">
+            <span>
+              <strong>Training is paused.</strong> Your venue&apos;s trial has ended. Ask your manager to restore access.
+            </span>
           </div>
         )}
 
@@ -850,116 +723,108 @@ export default function DashboardShell({
           />
         )}
 
-        {activeNav === "module" ? (
-          <div key="module">
-            {selectedModuleId ? (
-              /* Training view – replaces module grid */
-              <div>
-                <button
-                  onClick={() => setSelectedModuleId(null)}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    marginBottom: "10px",
-                    padding: "8px 16px",
-                    background: "transparent",
-                    border: "2px solid var(--viz-neutral-light)",
-                    borderRadius: "8px",
-                    fontSize: "0.875rem",
-                    fontWeight: 600,
-                    color: "var(--text-secondary)",
-                    cursor: "pointer",
-                  }}
-                >
-                  ← All Modules
-                </button>
-                <ModuleVerify
-                  key={`module-${selectedModuleId}`}
-                  moduleId={selectedModuleId}
-                  onLiveGuest={() => handleNavClick("live-guest")}
-                  nextModuleId={selectedModuleId < 40 ? selectedModuleId + 1 : undefined}
-                  onComplete={() => setSelectedModuleId(selectedModuleId < 40 ? selectedModuleId + 1 : null)}
-                />
-              </div>
-            ) : (
-              /* Module grid */
-              <DynamicModuleNav
-                userId={userId}
-                userEmail={userEmail}
-                userToken={userToken}
-                onModuleSelect={(moduleId) => setSelectedModuleId(moduleId)}
-                selectedModuleId={selectedModuleId || undefined}
-                initialCategory={selectedCategory as "technical" | "service" | "compliance" | undefined || undefined}
-              />
-            )}
-          </div>
-        ) : activeNav === "drill" ? (
-          <DrillPage
-            key="drill"
-            onOpenModule={(moduleId) => {
-              setSelectedModuleId(moduleId);
-              handleNavClick("module");
-            }}
-            onBrowseModules={() => {
-              setSelectedModuleId(null);
-              handleNavClick("module");
-            }}
-          />
-        ) : activeNav === "home" ? (
-          <PreShiftHome
+        {activeNav === "home" ? (
+          <TodayPage
             key="home"
             displayName={displayName}
-            setActiveNav={handleNavClick}
-            managementUnlocked={managementUnlocked}
-            onNavigateToCategory={handleNavigateToCategory}
-            isPremium={isPremium}
-            onBadgesNav={() => handleNavClick("badges")}
             progressData={progressData}
-            onSyncProgress={fetchProgress}
-          />
-        ) : activeNav === "rush" ? (
-          <RushPage />
-        ) : activeNav === "live-guest" ? (
-          <LiveGuestPage />
-        ) : activeNav === "challenges" ? (
-          <ChallengesPage />
-        ) : activeNav === "cocktails" ? (
-          <Suspense fallback={<CocktailGridSkeleton count={12} />}>
-            <CocktailLibrary />
-          </Suspense>
-        ) : activeNav === "knowledge" ? (
-          <Suspense fallback={<CocktailGridSkeleton count={12} />}>
-            <KnowledgeBase />
-          </Suspense>
-        ) : activeNav === "progress" ? (
-          <ProgressOverview
-            displayName={displayName}
-            plan={plan}
-            onSelectModule={(moduleId) => {
-              setSelectedModuleId(moduleId);
-              handleNavClick("module");
+            hasModuleAccess={isPremium}
+            liveGuestOpen={liveGuestOpen}
+            getToken={getToken}
+            onNavigate={handleNavClick}
+            onOpenModule={openModule}
+            onStartPreshift={() => {
+              setDrillMode("preshift");
+              setActiveNav("drill");
             }}
-            onNavigate={(nav) => handleNavClick(RETIRED_NAV[nav] ?? (nav as NavItem))}
-            initialProgressData={progressData}
           />
+        ) : activeNav === "module" ? (
+          sheet(
+            <div key="module">
+              {selectedModuleId ? (
+                <div>
+                  <button type="button" className="sd-back" onClick={() => setSelectedModuleId(null)}>
+                    <ArrowLeft size={16} strokeWidth={2} aria-hidden />
+                    All modules
+                  </button>
+                  <ModuleVerify
+                    key={`module-${selectedModuleId}`}
+                    moduleId={selectedModuleId}
+                    onLiveGuest={() => handleNavClick("live-guest")}
+                    nextModuleId={selectedModuleId < 40 ? selectedModuleId + 1 : undefined}
+                    onComplete={() => setSelectedModuleId(selectedModuleId < 40 ? selectedModuleId + 1 : null)}
+                  />
+                </div>
+              ) : (
+                <DynamicModuleNav
+                  userId={userId}
+                  userEmail={userEmail}
+                  userToken={userToken}
+                  onModuleSelect={(moduleId) => setSelectedModuleId(moduleId)}
+                  selectedModuleId={selectedModuleId || undefined}
+                />
+              )}
+            </div>
+          )
+        ) : activeNav === "drill" ? (
+          sheet(
+            <DrillPage
+              key={`drill-${drillMode}`}
+              mode={drillMode}
+              onOpenModule={openModule}
+              onLiveGuest={() => handleNavClick("live-guest")}
+              onBrowseModules={() => {
+                setSelectedModuleId(null);
+                handleNavClick("module");
+              }}
+            />
+          )
+        ) : activeNav === "rush" ? (
+          sheet(<RushPage />)
+        ) : activeNav === "live-guest" ? (
+          sheet(<LiveGuestPage />)
+        ) : activeNav === "challenges" ? (
+          sheet(<ChallengesPage />)
+        ) : activeNav === "cocktails" ? (
+          sheet(
+            <Suspense fallback={<CocktailGridSkeleton count={12} />}>
+              <CocktailLibrary />
+            </Suspense>
+          )
+        ) : activeNav === "knowledge" ? (
+          sheet(
+            <Suspense fallback={<CocktailGridSkeleton count={12} />}>
+              <KnowledgeBase />
+            </Suspense>
+          )
+        ) : activeNav === "progress" ? (
+          sheet(
+            <ProgressOverview
+              displayName={displayName}
+              plan={plan}
+              onSelectModule={openModule}
+              onNavigate={(nav) => handleNavClick(RETIRED_NAV[nav] ?? (nav as NavItem))}
+              initialProgressData={progressData}
+            />
+          )
         ) : activeNav === "badges" ? (
-          <Suspense fallback={<div style={{ padding: "2rem", textAlign: "center", color: "var(--text-muted)" }}>Loading…</div>}>
-            <BadgesView onBack={() => handleNavClick("home")} />
-          </Suspense>
-        ) : activeNav === "settings" ? (
-          <StaffSettingsPanel
-            displayName={displayName}
-            userEmail={userEmail}
-            notifReminders={notifReminders}
-            notifWeeklyDigest={notifWeeklyDigest}
-            initialJoinCode={joinCodeFromUrl}
-            hasBillingAccount={hasBillingAccount}
-          />
+          sheet(
+            <Suspense fallback={<p className="sd-loading">Loading</p>}>
+              <BadgesView onBack={() => handleNavClick("progress")} />
+            </Suspense>
+          )
         ) : (
-          <ComingSoon label={NAV_ITEMS.find((n) => n.id === activeNav)?.label ?? activeNav} />
+          sheet(
+            <StaffSettingsPanel
+              displayName={displayName}
+              userEmail={userEmail}
+              notifReminders={notifReminders}
+              notifWeeklyDigest={notifWeeklyDigest}
+              initialJoinCode={joinCodeFromUrl}
+              hasBillingAccount={hasBillingAccount}
+            />
+          )
         )}
-
       </section>
     </main>
   );

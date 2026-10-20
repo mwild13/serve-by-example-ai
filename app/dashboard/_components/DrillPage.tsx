@@ -4,10 +4,21 @@ import { useCallback } from "react";
 import MixedDrill from "@/components/quiz/MixedDrill";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
-// Desktop host for the mixed drill (Rich update, Phase 10). The drill itself
-// is components/quiz/MixedDrill.tsx, shared with mobile. It replaced Rapid
+// Desktop host for the mixed drill (Rich update, Phase 10) and the pre-shift
+// drill Today opens (Phase 12). The drill itself is
+// components/quiz/MixedDrill.tsx, shared with mobile. It replaced Rapid
 // Fire's module picker.
-export default function DrillPage({ onOpenModule, onBrowseModules }: { onOpenModule: (moduleId: number) => void; onBrowseModules: () => void }) {
+export default function DrillPage({
+  mode = "mixed",
+  onOpenModule,
+  onBrowseModules,
+  onLiveGuest,
+}: {
+  mode?: "mixed" | "preshift";
+  onOpenModule: (moduleId: number) => void;
+  onBrowseModules: () => void;
+  onLiveGuest: () => void;
+}) {
   const getToken = useCallback(async () => {
     const supabase = createSupabaseBrowserClient();
     const { data: { session } } = await supabase.auth.getSession();
@@ -18,12 +29,21 @@ export default function DrillPage({ onOpenModule, onBrowseModules }: { onOpenMod
   return (
     <div className="stage-container">
       <div className="stage-header">
-        <h2 style={{ marginBottom: 8 }}>Mixed Drill</h2>
+        <h2 style={{ marginBottom: 8 }}>{mode === "preshift" ? "Ready for your shift" : "Mixed Drill"}</h2>
         <p className="stage-subtitle">
-          A quick round across the modules you&apos;ve started. Mixing topics is how what you learn sticks for the shift.
+          {mode === "preshift"
+            ? "Three minutes before you start: six questions from what you've learnt."
+            : "A quick round across the modules you've started. Mixing topics is how what you learn sticks for the shift."}
         </p>
       </div>
-      <MixedDrill theme="light" getToken={getToken} onOpenModule={(moduleId) => onOpenModule(moduleId)} onBrowseModules={onBrowseModules} />
+      <MixedDrill
+        theme="light"
+        mode={mode}
+        getToken={getToken}
+        onOpenModule={(moduleId) => onOpenModule(moduleId)}
+        onBrowseModules={onBrowseModules}
+        onLiveGuest={onLiveGuest}
+      />
     </div>
   );
 }

@@ -47,7 +47,7 @@ Nothing open. The five that were here were decided on 2026-10-12 (Part 13 of the
 
 ## 7. Larger builds
 
-- [ ] **Redesign the desktop staff dashboard** (owner, 2026-10-20), once the Rich update is finished. It looks flat next to the marketing site. `docs/Pages-Redesign.md` covers the marketing site only and puts `/dashboard` out of scope, so the first step is a short standard for the staff product (same principles, its own density rules, Fraunces and Manrope), like the Manager Console's in `docs/MANAGER_CONSOLE.md` section 6. Then the pages: Home, Modules, Mixed Drill, Live Guest, progress.
+- [ ] **Redesign the desktop staff dashboard** (owner, 2026-10-20), once the Rich update is finished. It looks flat next to the marketing site. `docs/Pages-Redesign.md` covers the marketing site only and puts `/dashboard` out of scope, so the first step is a short standard for the staff product (same principles, its own density rules, Fraunces and Manrope), like the Manager Console's in `docs/MANAGER_CONSOLE.md` section 6. Then the pages: Home, Modules, Mixed Drill, Live Guest, progress. Research and plan: `docs/STAFF_DESKTOP_REDESIGN_PLAN.md` (four decisions for the owner in section 9).
 
 ## Parked
 
