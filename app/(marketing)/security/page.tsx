@@ -29,12 +29,16 @@ const WE_NEVER_STORE = [
 
 // This page names the AI provider on purpose: it is a data-handling disclosure,
 // not marketing copy. It names the provider, never the model. Keep these items
-// in step with what the routes send: lib/scenario-evaluator.ts and
-// app/api/management/coach/route.ts.
+// in step with what the routes send: app/api/live-guest/turn/route.ts,
+// lib/venue-content.ts and app/api/management/coach/route.ts.
 const AI_PRINCIPLES: RuledItem[] = [
   {
-    title: "Scenario evaluation sends the answer, not the person",
-    body: "When staff practise a roleplay, only the scenario prompt and their response text are sent to OpenAI for evaluation. No venue names or staff names are included.",
+    title: "Live Guest sends the conversation, not the person",
+    body: "When staff talk to a Live Guest, the practice guest's brief and the replies they type are sent to OpenAI so the guest can answer. No venue names or staff names are included.",
+  },
+  {
+    title: "Venue content sends what the manager wrote",
+    body: "When a manager adds a spec, a special or an 86'd item, its name and details are sent to OpenAI to draft quiz questions. Nothing else about the venue or its staff is sent, and no question reaches staff until a manager approves it.",
   },
   {
     title: "The Manager AI Coach sends your venue's data",

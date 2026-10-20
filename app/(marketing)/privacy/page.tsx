@@ -16,7 +16,7 @@ export default function PrivacyPage() {
       <Navbar />
 
       <main>
-        <PageHero compact variant="light" eyebrow="Legal" title="Privacy Policy" subtitle="Last updated: 12 October 2026" />
+        <PageHero compact variant="light" eyebrow="Legal" title="Privacy Policy" subtitle="Last updated: 20 October 2026" />
 
         <section className="section">
           <div className="container">
@@ -36,8 +36,7 @@ export default function PrivacyPage() {
                   <strong>Profile Data</strong>: Plan type, display name, and preferences.
                 </li>
                 <li>
-                  <strong>Training Data</strong>: Responses entered during AI scenario evaluations
-                  and performance metrics.
+                  <strong>Training Data</strong>: Quiz and drill answers, scores, and the replies you type in Live Guest conversations, with what the practice guest said back. Your shift days, if you set them.
                 </li>
                 <li>
                   <strong>Communication Data</strong>: Messages sent to us via email or forms.
@@ -84,10 +83,7 @@ export default function PrivacyPage() {
                   fix it. No cookie is set, and no name, email or IP address is attached.
                 </li>
                 <li>
-                  <strong>OpenAI</strong>: Used for AI scenario evaluation, AI coaching and translation.
-                  A manager&apos;s AI Coach question is sent with that venue&apos;s staff names,
-                  roles and training scores (OpenAI does not use
-                  data submitted via the API to train their foundational models).
+                  <strong>OpenAI</strong>: Used for Live Guest conversations, AI coaching, drafting venue quiz questions and translation. Each Live Guest reply you type is sent so the practice guest can answer. A manager&apos;s AI Coach question is sent with that venue&apos;s staff names, roles and training scores, and the venue items a manager adds are sent to draft questions about them (OpenAI does not use data submitted via the API to train their foundational models).
                 </li>
                 <li>
                   <strong>Google Analytics</strong>: We use Google Analytics (ID: G-EF9YRFXKBG) to
@@ -131,6 +127,11 @@ export default function PrivacyPage() {
                 <li>
                   <strong>Training Progress & Quiz Responses</strong>: Retained for the duration of
                   active subscription; deleted within 30 days upon account deletion.
+                </li>
+                <li>
+                  <strong>Live Guest Conversations</strong>: What you typed and what the practice guest said, kept with
+                  your result; deleted with your account. Managers see the
+                  score and result, not what you typed.
                 </li>
                 <li>
                   <strong>Billing Records & Stripe Webhook Events</strong>: Retained for 7 years to

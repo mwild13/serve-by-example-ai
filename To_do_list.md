@@ -15,7 +15,7 @@ Small changes, in the order they will be done. Each goes to a preview branch fir
 
 ## 2. Marketing copy
 
-- [ ] **Update the marketing pages once the Rich update is finished** (owner, 2026-10-20). Scenario Training and the AI Arena were retired in Phase 8 and Live Guest replaced them, but the home page, platform page, vs-generic-lms page, security page and the complaint demo still describe "scenario roleplay", "AI Scenario Simulators" and "Live Scenarios". The pricing page and plan cards are already done. Planned for Phase 13 of `docs/Rich Update/LEARNING_UPGRADE_RESEARCH.md`.
+- [ ] **Two marketing claims for the owner to reword** (2026-10-20). The rest of the Rich update copy is done. (1) "Five service dimensions" on the home page and the vs-generic-lms page described the retired Scenario Training; Live Guest shows the guest's mood and the speed, safety and money dials. It's a locked claim, so it needs the owner's wording. (2) "Role-Based Learning Paths" on the platform page isn't built. Details and a suggested wording in `docs/Rich Update/launch-check.md`.
 
 There is still no customer data, so no outcome figures or customer proof go on a marketing page.
 

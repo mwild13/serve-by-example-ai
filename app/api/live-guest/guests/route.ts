@@ -6,6 +6,7 @@ import { rateLimit } from "@/lib/rate-limit";
 import { GUEST_BRIEFS } from "@/lib/live-guest/guests";
 import { publicGuest } from "@/lib/live-guest/engine";
 import { guestDifficulty, loadGuestProgress, suggestedGuestIds } from "@/lib/live-guest/difficulty";
+import { TASTER_GUEST_ID, tasterUsed } from "@/lib/live-guest/taster";
 
 export const dynamic = "force-dynamic";
 
@@ -28,8 +29,11 @@ export async function GET(req: Request) {
     const live = GUEST_BRIEFS.filter((g) => g.reviewed);
     // Venue plans only. Everyone else sees the guests with an upgrade prompt.
     const onPlan = hasLiveGuest(access);
-    const available = (g: (typeof live)[number]) => onPlan && access.allowedModules.includes(g.moduleId);
-    const suggested = suggestedGuestIds(live, progress, available);
+    // Off a venue plan, the taster guest is open once (lib/live-guest/taster.ts).
+    const used = onPlan ? false : await tasterUsed(admin, user.id);
+    const available = (g: (typeof live)[number]) =>
+      onPlan ? access.allowedModules.includes(g.moduleId) : g.id === TASTER_GUEST_ID && !used;
+    const suggested = onPlan ? suggestedGuestIds(live, progress, available) : new Set(live.filter(available).map((g) => g.id));
     const guests = live.map((g) =>
       publicGuest(g, {
         available: available(g),
@@ -38,7 +42,8 @@ export async function GET(req: Request) {
         suggested: suggested.has(g.id),
       }),
     );
-    return NextResponse.json({ guests, onPlan }, { headers: { "Cache-Control": "no-store" } });
+    const taster = onPlan ? undefined : { guestId: TASTER_GUEST_ID, used };
+    return NextResponse.json({ guests, onPlan, ...(taster ? { taster } : {}) }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("live-guest/guests error:", error);
     return NextResponse.json({ error: "Could not load the guests." }, { status: 500 });

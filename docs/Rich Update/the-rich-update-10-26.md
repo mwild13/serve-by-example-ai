@@ -22,7 +22,7 @@ The staff learning upgrade, named after Richie, our first tester, who called tra
 | 10 | Mixed drills | Done 2026-10-20 |
 | 11 | Venue content | Text built 2026-10-20, for the owner to check; menu photos next |
 | 12 | Pre-shift drill and shift streak | Part 1 built 2026-10-20, for the owner to check; reminders and push need VAPID keys |
-| 13 | Launch check, then marketing spend starts | — |
+| 13 | Launch check, then marketing spend starts | Claude Code's part done 2026-10-20; the owner's check and the human test are next (`launch-check.md`) |
 | 14 | Live Guest voice | After marketing starts |
 | 15 | Saturday Rush | After marketing starts |
 | 16 | Team features | After marketing starts |
@@ -276,4 +276,13 @@ Asked by the owner: roughly what does one 15-person venue cost us if each person
 - **Tests:** 11 in `lib/shift-streak.test.ts` (including the Friday to Sunday casual, a missed week, a second missed week, a third ending it, extra shifts, earning a freeze back) and 2 more in `lib/drill.test.ts`.
 - **Part 2, not built:** the "When should we remind you?" step and web push on the installed app. Push needs a VAPID key pair, kept as a secret in Cloudflare, which the owner creates and adds; it also needs the cron job to run daily rather than Sunday and Monday only.
 - **Done when** a casual who works Friday to Sunday can keep a streak going. The rules pass the tests for that case. For the owner to check on the preview.
+
+## Phase 13: launch check (Claude Code's part done 2026-10-20)
+
+- **The checklist for the owner:** `launch-check.md`, in this folder: the one migration still to run, six decisions, the end-to-end check by role, and the human test with its four questions.
+- **Privacy policy:** web and mobile updated for Live Guest transcripts (kept with the result, deleted with the account, not shown to managers), venue content drafting and shift days. The mobile copy had fallen behind the web one; both now match on AI.
+- **Security page:** describes what Live Guest and venue content send to OpenAI. The venue's name was taken out of the venue content prompt so the page can say only the manager's text is sent.
+- **Taster conversation:** one free Live Guest conversation for anyone off a venue plan, with Sharon (`cold-parmy`), checked on the server (`lib/live-guest/taster.ts`, with a test).
+- **Marketing copy:** the wrong mentions of the retired features are fixed (Pro's card, the home page's "AI Scenario Simulators", the platform page, "rapid-fire" in three places, the complaint demo's leaderboard). Two claims wait for the owner: "five service dimensions" (a locked claim that described Scenario Training) and "Role-Based Learning Paths" on the platform page (not built).
+- **Measures:** queries 7 to 9 in `supabase/queries/learning.sql` (venue content, drills by kind, pre-shift drills).
 

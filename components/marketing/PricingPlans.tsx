@@ -48,7 +48,7 @@ const TIERS: Tier[] = [
       "40 modules across Bartending, Sales and Management",
       "Quizzes in six formats, with test-outs for what you already know",
       "Mastery levels, spaced repetition, badges and streaks",
-      "Rapid-fire drills and interactive challenges",
+      "Mixed drills and interactive challenges",
     ],
   },
   {

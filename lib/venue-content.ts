@@ -157,9 +157,9 @@ export function storedQuestionsFrom(parsed: Record<string, unknown> | null): Sto
   return out;
 }
 
-export function draftUserMessage(item: VenueItemInput, venueName: string): string {
+/** What the model is sent: the item only, never the venue's name or its staff. */
+export function draftUserMessage(item: VenueItemInput): string {
   return [
-    `Venue: ${venueName}`,
     `Kind: ${VENUE_CONTENT_KIND_LABEL[item.kind]}`,
     item.endsOn ? `Runs until: ${item.endsOn}` : "",
     `What to test: ${KIND_GUIDANCE[item.kind]}`,
@@ -170,7 +170,7 @@ export function draftUserMessage(item: VenueItemInput, venueName: string): strin
 }
 
 /** Asks the model for questions about one item. Throws on a failed call; returns [] when nothing usable came back. */
-export async function draftVenueQuestions(item: VenueItemInput, venueName: string, signal?: AbortSignal): Promise<StoredVenueQuestion[]> {
+export async function draftVenueQuestions(item: VenueItemInput, signal?: AbortSignal): Promise<StoredVenueQuestion[]> {
   const completion = await getOpenAIClient().chat.completions.create(
     {
       ...CHAT_MODEL_PARAMS,
@@ -179,7 +179,7 @@ export async function draftVenueQuestions(item: VenueItemInput, venueName: strin
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: VENUE_DRAFT_SYSTEM_PROMPT },
-        { role: "user", content: draftUserMessage(item, venueName) },
+        { role: "user", content: draftUserMessage(item) },
       ],
     },
     { signal },

@@ -55,13 +55,12 @@ async function loadItem(ctx: Gate, itemId: string): Promise<(ItemRow & { venue_i
 
 /** Drafts questions for an item and saves them as drafts. False when the AI call failed. */
 async function draftAndSave(ctx: Gate, req: Request, item: VenueItemInput & { id: string; venueId: string }): Promise<boolean> {
-  const { data: venue } = await ctx.admin.from("venues").select("name").eq("id", item.venueId).maybeSingle();
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), DRAFT_TIMEOUT_MS);
   const unlink = linkAbortSignal(controller, req.signal);
   let drafted: StoredVenueQuestion[];
   try {
-    drafted = await draftVenueQuestions(item, (venue?.name as string | undefined) ?? "the venue", controller.signal);
+    drafted = await draftVenueQuestions(item, controller.signal);
   } catch (error) {
     console.error(`[${ROUTE}] draft failed:`, error);
     await reportError(error, { route: ROUTE, url: req.url });

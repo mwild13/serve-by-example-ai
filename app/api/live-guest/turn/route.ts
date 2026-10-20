@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { hasLiveGuest, resolveAccess, validateSession } from "@/lib/session";
+import { TASTER_GUEST_ID } from "@/lib/live-guest/taster";
 import { rateLimit } from "@/lib/rate-limit";
 import { getCookieValue, maybeMarkTrialActivated } from "@/lib/training-attempt";
 import { cleanUserText, parseModelJson, readJsonBody } from "@/lib/ai-guard";
@@ -152,8 +153,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Session conflict detected. Please resume this device.", code: "SESSION_CONFLICT" }, { status: 409 });
     }
     const access = await resolveAccess(admin, user.id, user.email ?? "");
-    // A plan can lapse mid-conversation; no AI call without it.
-    if (!hasLiveGuest(access)) {
+    // A plan can lapse mid-conversation; no AI call without it. A taster
+    // conversation could only have been started once (see the start route).
+    if (!hasLiveGuest(access) && session.guest_id !== TASTER_GUEST_ID) {
       return NextResponse.json(
         { error: "Live Guest is on venue plans. Ask your venue about Serve By Example, or see the plans.", code: "PLAN_REQUIRED" },
         { status: 403 },

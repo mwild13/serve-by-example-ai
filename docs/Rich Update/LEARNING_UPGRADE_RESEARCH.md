@@ -318,7 +318,7 @@ There are 13 phases to launch, then 3 after marketing starts. Each phase goes ou
 - A shift streak with two freezes, the "When should we remind you?" step, and web push notifications on the installed app.
 - **Done when** a casual who works Friday to Sunday can keep a streak going.
 
-### Phase 13. Launch check
+### Phase 13. Launch check (Claude Code's part done 2026-10-20; the owner's checklist is `launch-check.md`)
 - You check the whole upgrade end to end, then run one human test with a venue manager or staff member (decided 2026-10-19).
 - Read the measures against the Phase 1 numbers.
 - Choose which guest is the taster conversation for Pro and free users. Pick the one that best shows what a venue plan adds, based on how the guests play in testing.

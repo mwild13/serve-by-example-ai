@@ -137,5 +137,43 @@ group by 1
 order by 1 desc;
 
 
--- Still to add, in the phase that builds it:
---   7. Venue content items added per venue per month (Phase 11).
+-- 7. Venue content per venue per month (Phase 11): items added and
+--    questions approved or rejected. What managers did; drill answers aren't
+--    stored per question.
+select
+  date_trunc('month', i.created_at at time zone 'Australia/Sydney')::date as month,
+  v.name as venue,
+  count(distinct i.id) as items_added,
+  count(q.id) filter (where q.status = 'approved') as questions_approved,
+  count(q.id) filter (where q.status = 'rejected') as questions_rejected
+from public.venue_content_items i
+join public.venues v on v.id = i.venue_id
+left join public.venue_content_questions q on q.item_id = i.id
+group by 1, 2
+order by 1 desc, 3 desc;
+
+
+-- 8. Drills per week (Phases 10 and 12): mixed and pre-shift, started and
+--    finished, and the share of answers right. drill_runs keeps about a week,
+--    so read this weekly.
+select
+  date_trunc('week', d.created_at at time zone 'Australia/Sydney')::date as week_starting,
+  d.kind,
+  count(*) as started,
+  count(*) filter (where d.status = 'finished') as finished,
+  count(distinct d.user_id) as people,
+  round(100.0 * sum(d.correct) / nullif(sum(d.position), 0), 1) as percent_right
+from public.drill_runs d
+group by 1, 2
+order by 1 desc, 2;
+
+
+-- 9. Shift streaks (Phase 12): people who did a pre-shift drill each week.
+--    preshift_days is kept, so this goes back to the start.
+select
+  date_trunc('week', p.day)::date as week_starting,
+  count(distinct p.user_id) as people,
+  count(*) as preshift_drills
+from public.preshift_days p
+group by 1
+order by 1 desc;

@@ -27,7 +27,7 @@ export default function PrivacyScreen() {
           <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-mobile-muted)", textTransform: "uppercase" }}>Settings</span>
         </button>
         <p style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "var(--text-mobile)" }}>Privacy Policy</p>
-        <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>Last updated: 25 September 2026</p>
+        <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>Last updated: 20 October 2026</p>
       </div>
 
       <div style={{ padding: "0 20px 20px" }}>
@@ -48,8 +48,7 @@ export default function PrivacyScreen() {
               <strong>Profile Data</strong>: Plan type, display name, and preferences.
             </>,
             <>
-              <strong>Training Data</strong>: Responses entered during AI scenario evaluations and performance
-              metrics.
+              <strong>Training Data</strong>: Quiz and drill answers, scores, and the replies you type in Live Guest conversations, with what the practice guest said back. Your shift days, if you set them.
             </>,
             <>
               <strong>Communication Data</strong>: Messages sent to us via email or forms.
@@ -97,10 +96,7 @@ export default function PrivacyScreen() {
               Analytics).
             </>,
             <>
-              <strong>OpenAI</strong>: Used for AI scenario evaluation, AI coaching and translation. A
-              manager&apos;s AI Coach question is sent with that venue&apos;s staff names, roles and training
-              scores (OpenAI does not use data submitted via
-              the API to train their foundational models).
+              <strong>OpenAI</strong>: Used for Live Guest conversations, AI coaching, drafting venue quiz questions and translation. Each Live Guest reply you type is sent so the practice guest can answer. A manager&apos;s AI Coach question is sent with that venue&apos;s staff names, roles and training scores, and the venue items a manager adds are sent to draft questions about them (OpenAI does not use data submitted via the API to train their foundational models).
             </>,
             <>
               <strong>Google Analytics</strong>: We use Google Analytics (ID: G-EF9YRFXKBG) to understand
@@ -135,6 +131,9 @@ export default function PrivacyScreen() {
             <>
               <strong>Training Progress &amp; Quiz Responses</strong>: Retained for the duration of active
               subscription; deleted within 30 days upon account deletion.
+            </>,
+            <>
+              <strong>Live Guest Conversations</strong>: What you typed and what the practice guest said, kept with your result; deleted with your account. Managers see the score and result, not what you typed.
             </>,
             <>
               <strong>Billing Records &amp; Stripe Webhook Events</strong>: Retained for 7 years to comply with

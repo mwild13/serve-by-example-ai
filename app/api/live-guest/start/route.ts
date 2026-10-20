@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { hasLiveGuest, resolveAccess, validateSession } from "@/lib/session";
+import { TASTER_GUEST_ID, tasterUsed } from "@/lib/live-guest/taster";
 import { rateLimit } from "@/lib/rate-limit";
 import { getCookieValue } from "@/lib/training-attempt";
 import { readJsonBody } from "@/lib/ai-guard";
@@ -43,13 +44,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Session conflict detected. Please resume this device.", code: "SESSION_CONFLICT" }, { status: 409 });
     }
     const access = await resolveAccess(admin, user.id, user.email ?? "");
-    if (!hasLiveGuest(access)) {
+    // Off a venue plan, only the one taster conversation (lib/live-guest/taster.ts).
+    const onPlan = hasLiveGuest(access);
+    if (!onPlan && (guest.id !== TASTER_GUEST_ID || (await tasterUsed(admin, user.id)))) {
       return NextResponse.json(
         { error: "Live Guest is on venue plans. Ask your venue about Serve By Example, or see the plans.", code: "PLAN_REQUIRED" },
         { status: 403 },
       );
     }
-    if (!access.allowedModules.includes(guest.moduleId)) {
+    if (onPlan && !access.allowedModules.includes(guest.moduleId)) {
       return NextResponse.json(
         { error: "Your current plan does not include this guest. Please upgrade.", code: "MODULE_ACCESS_DENIED" },
         { status: 403 },

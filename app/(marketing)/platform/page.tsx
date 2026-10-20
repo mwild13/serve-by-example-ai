@@ -58,8 +58,8 @@ const CONSOLE_ROWS: MediaRow[] = [
 
 const FEATURES: RuledItem[] = [
   {
-    title: "Scenario Training",
-    body: "Staff practice real hospitality situations through guided scenario roleplay: upselling, de-escalation, cocktail knowledge, service recovery.",
+    title: "Live Guest",
+    body: "Staff talk to a practice guest who talks back: a flat schooner, a cold parmy, a guest who's had too many. Afterwards they see what the guest was thinking at each turn.",
   },
   {
     title: "Role-Based Learning Paths",
@@ -154,7 +154,7 @@ export default function PlatformPage() {
         <SectionSubNav items={[
           { id: "overview", label: "Overview" },
           { id: "insights", label: "Analytics" },
-          { id: "arena", label: "Live Scenarios" },
+          { id: "arena", label: "What's inside" },
           { id: "mobile", label: "Mobile" },
         ]} />
 
@@ -184,7 +184,7 @@ export default function PlatformPage() {
           kicker="What’s inside"
           title="Everything your team needs to perform at their best."
           items={FEATURES}
-          primary={{ label: "Try a live scenario", href: "/demo" }}
+          primary={{ label: "Try the demo", href: "/demo" }}
         />
 
         <SplitPanel

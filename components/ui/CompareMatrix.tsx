@@ -218,7 +218,7 @@ const includedGroups: IncludedGroup[] = [
     items: [
       { label: "40 modules across Bartending, Sales and Management" },
       { label: "Mastery levels, spaced repetition, badges and streaks" },
-      { label: "Rapid-fire knowledge drills" },
+      { label: "Mixed knowledge drills" },
       { label: "Interactive challenges" },
       { label: "Cocktail library (38 recipes)" },
       { label: "Knowledge base" },

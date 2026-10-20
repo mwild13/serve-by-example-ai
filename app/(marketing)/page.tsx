@@ -52,7 +52,7 @@ const FAQS = [
 const SYSTEMS = [
   {
     audience: "For frontline staff",
-    title: "AI Scenario Simulators",
+    title: "Live Guest",
     body: "Staff talk their way through a difficult guest, a slow upsell or a complaint. Every answer is scored on five service dimensions before their next shift starts.",
   },
   {
@@ -68,7 +68,7 @@ const STEPS: { num: string; title: string; body: ReactNode }[] = [
     title: "Know Your Product Cold.",
     body: (
       <>
-        Structured modules, tap-based mini-games, and rapid-fire quizzes. Staff build real knowledge through active recall, not passive reading. Short enough to complete before a shift, structured enough to build <em className="step-highlight">real capability</em> over weeks.
+        Structured modules, tap-based mini-games, and mixed drills across everything they&apos;ve learnt. Staff build real knowledge through active recall, not passive reading. Short enough to complete before a shift, structured enough to build <em className="step-highlight">real capability</em> over weeks.
       </>
     ),
   },
@@ -114,7 +114,7 @@ const MEASURES = [
 ];
 
 const PLANS = [
-  { tier: "Starter", name: "Pro", desc: "Full access to all 40 modules, scenario training, and progress analytics. For staff investing in their craft." },
+  { tier: "Starter", name: "Pro", desc: "Full access to all 40 modules, mixed drills and progress analytics. For staff investing in their craft." },
   { tier: "Venue Pro", name: "Boutique", desc: "Full manager console, team analytics, compliance tracking, and up to 15 staff seats for one venue." },
   { tier: "Group", name: "Commercial", desc: "Up to 35 staff across your team, multi-venue health scores, and group-wide performance analytics." },
   { tier: "Enterprise", name: "Enterprise", desc: "Unlimited seats, dedicated account management, custom modules, and white-label options for venue groups." },

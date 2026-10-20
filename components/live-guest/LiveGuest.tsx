@@ -18,6 +18,7 @@ import {
   type GuestArea,
   type GuestDifficulty,
   type GuestMood,
+  type LiveGuestList,
   type LiveGuestResult,
   type PublicGuest,
   type RevealTurn,
@@ -94,6 +95,7 @@ function GuestCard({
 export default function LiveGuest({ getToken, theme, intro = true }: Props) {
   const [guests, setGuests] = useState<PublicGuest[] | null>(null);
   const [onPlan, setOnPlan] = useState(true);
+  const [taster, setTaster] = useState<LiveGuestList["taster"]>(undefined);
   const [listError, setListError] = useState<string | null>(null);
   const [chat, setChat] = useState<Chat | null>(null);
   const [starting, setStarting] = useState<string | null>(null);
@@ -111,6 +113,7 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
         if (cancelled) return;
         setGuests(list.guests);
         setOnPlan(list.onPlan);
+        setTaster(list.taster);
       })
       .catch((err: unknown) => {
         if (!cancelled) setListError(err instanceof Error ? err.message : "Could not load the guests.");
@@ -206,6 +209,13 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
               see what they were thinking at each turn. It comes with Boutique, Commercial and Enterprise, and with every venue
               trial. If you work at a venue, ask your manager to add you.
             </p>
+            {taster && (
+              <p className="lg-upgrade-text">
+                {taster.used
+                  ? "You've had your free conversation. The rest of the guests come with a venue plan."
+                  : `Try one conversation free: ${guests.find((g) => g.id === taster.guestId)?.name ?? "the guest"} is waiting below.`}
+              </p>
+            )}
             <Link className="qz-next lg-upgrade-cta" href="/pricing">
               See the plans
             </Link>

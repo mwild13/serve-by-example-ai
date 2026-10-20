@@ -151,6 +151,8 @@ export type LiveGuestList = {
   guests: PublicGuest[];
   /** False on Pro and free: the guests show with an upgrade prompt. */
   onPlan: boolean;
+  /** Off a venue plan: the one free conversation, and whether it's been had. */
+  taster?: { guestId: string; used: boolean };
 };
 
 export function listLiveGuests(token: string): Promise<LiveGuestList> {
