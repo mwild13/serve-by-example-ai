@@ -183,3 +183,34 @@ export function startLiveGuest(token: string, guestId: string): Promise<LiveGues
 export function sendLiveGuestReply(token: string, sessionId: string, turn: number, reply: string): Promise<LiveGuestTurnResult> {
   return call<LiveGuestTurnResult>("/api/live-guest/turn", token, { sessionId, turn, reply });
 }
+
+/** A recording stops here (lib/live-guest/voice.ts says the same). */
+export const LIVE_GUEST_MAX_RECORDING_SECONDS = 30;
+
+/** Writes out a spoken reply. The text goes in the reply box; send it with sendLiveGuestReply. */
+export async function transcribeLiveGuestReply(token: string, sessionId: string, turn: number, audio: Blob): Promise<string> {
+  const form = new FormData();
+  form.append("sessionId", sessionId);
+  form.append("turn", String(turn));
+  form.append("audio", audio, "reply");
+  const res = await fetch("/api/live-guest/listen", { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: form });
+  const data = (await res.json().catch(() => null)) as { text?: string; error?: string; code?: string } | null;
+  if (!res.ok || !data?.text) {
+    throw new LiveGuestError(data?.error ?? `Request failed (${res.status}).`, data?.code ?? null, res.status);
+  }
+  return data.text;
+}
+
+/** The guest's line read aloud, as MP3: 0 is the opening line, n the answer to reply n. */
+export async function speakLiveGuestLine(token: string, sessionId: string, line: number): Promise<Blob> {
+  const res = await fetch("/api/live-guest/speak", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ sessionId, line }),
+  });
+  if (!res.ok) {
+    const data = (await res.json().catch(() => null)) as { error?: string; code?: string } | null;
+    throw new LiveGuestError(data?.error ?? `Request failed (${res.status}).`, data?.code ?? null, res.status);
+  }
+  return res.blob();
+}

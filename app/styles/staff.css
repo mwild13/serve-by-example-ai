@@ -2230,6 +2230,79 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   justify-content: space-between;
   gap: 12px;
 }
+/* Phase 14: voice. The toggle, the play button on each guest line, and Speak. */
+.lg-head-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.lg-voice-toggle,
+.lg-mic {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--qz-line);
+  background: var(--qz-surface);
+  color: var(--qz-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.lg-voice-toggle--on {
+  border-color: var(--qz-accent);
+  color: var(--qz-text);
+}
+.lg-mic {
+  min-height: 44px;
+  padding: 8px 16px;
+  color: var(--qz-text);
+}
+.lg-mic--on {
+  border-color: var(--qz-wrong);
+  color: var(--qz-wrong);
+}
+.lg-mic:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.lg-compose-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.lg-replay {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  padding: 2px 4px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--qz-muted);
+  vertical-align: middle;
+  cursor: pointer;
+}
+.lg-replay:hover {
+  color: var(--qz-text);
+}
+.lg-voice-error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--qz-wrong);
+}
+@media (max-width: 480px) {
+  .lg-compose-row {
+    flex-wrap: wrap;
+  }
+  .lg-compose-actions {
+    margin-left: auto;
+  }
+}
 .lg-reveal {
   display: flex;
   flex-direction: column;

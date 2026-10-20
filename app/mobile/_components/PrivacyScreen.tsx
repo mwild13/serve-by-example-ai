@@ -48,7 +48,7 @@ export default function PrivacyScreen() {
               <strong>Profile Data</strong>: Plan type, display name, and preferences.
             </>,
             <>
-              <strong>Training Data</strong>: Quiz and drill answers, scores, and the replies you type in Live Guest conversations, with what the practice guest said back. Your shift days, if you set them.
+              <strong>Training Data</strong>: Quiz and drill answers, scores, and your replies in Live Guest conversations (typed, or spoken and written out as text), with what the practice guest said back. Your shift days, if you set them.
             </>,
             <>
               <strong>Communication Data</strong>: Messages sent to us via email or forms.
@@ -96,7 +96,7 @@ export default function PrivacyScreen() {
               Analytics).
             </>,
             <>
-              <strong>OpenAI</strong>: Used for Live Guest conversations, AI coaching, drafting venue quiz questions and translation. Each Live Guest reply you type is sent so the practice guest can answer. A manager&apos;s AI Coach question is sent with that venue&apos;s staff names, roles and training scores, and the venue items a manager adds, typed or as a photo of the menu, are sent to draft questions about them (the photo is not kept) (OpenAI does not use data submitted via the API to train their foundational models).
+              <strong>OpenAI</strong>: Used for Live Guest conversations, AI coaching, drafting venue quiz questions and translation. Each Live Guest reply is sent so the practice guest can answer. If you use voice, your recording is sent to be written out as text and the guest&apos;s lines are sent to be read aloud; Serve By Example never stores the recording or the audio, only the text. A manager&apos;s AI Coach question is sent with that venue&apos;s staff names, roles and training scores, and the venue items a manager adds, typed or as a photo of the menu, are sent to draft questions about them (the photo is not kept) (OpenAI does not use data submitted via the API to train their foundational models).
             </>,
             <>
               <strong>Google Analytics</strong>: We use Google Analytics (ID: G-EF9YRFXKBG) to understand
@@ -133,7 +133,7 @@ export default function PrivacyScreen() {
               subscription; deleted within 30 days upon account deletion.
             </>,
             <>
-              <strong>Live Guest Conversations</strong>: What you typed and what the practice guest said, kept with your result; deleted with your account. Managers see the score and result, not what you typed.
+              <strong>Live Guest Conversations</strong>: What you typed or said (as text, never as a recording) and what the practice guest said, kept with your result; deleted with your account. Managers see the score and result, not what you typed.
             </>,
             <>
               <strong>Billing Records &amp; Stripe Webhook Events</strong>: Retained for 7 years to comply with

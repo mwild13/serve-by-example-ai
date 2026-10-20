@@ -84,6 +84,9 @@ function buildCSP(nonce: string): string {
     "base-uri 'self'",
     // Prevent form submissions to external URLs
     "form-action 'self'",
+    // Audio: Live Guest voice plays the guest's lines from blob: URLs
+    // (components/live-guest/useGuestVoice.ts)
+    "media-src 'self' blob:",
     // Web app manifest
     "manifest-src 'self'",
     // The service worker for shift reminders (public/sw.js). Named here

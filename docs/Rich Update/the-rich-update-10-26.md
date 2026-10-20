@@ -319,3 +319,15 @@ The owner's conversation with Linh (the shouted coffee order, tough) showed five
 - **The reveal** ticks off What helps ("You found 3 of 5") and, under each reply, what it helped and what made it worse.
 - **Cost:** shorter conversations, so about a third fewer AI calls per conversation.
 - **Tests:** 7 new in `lib/live-guest/engine.test.ts` (names kept out of every stranger's scene, calms counted once, the mood rules, the name only when the model and the line agree).
+
+## Phase 14: Live Guest voice (built 2026-10-20)
+
+- **Push to talk, not a live call.** Turn on "Voice" in a conversation: each guest line is read aloud, and a Speak button records your reply (up to 30 seconds). It's written out into the reply box, you check it, and Send. A noisy bar can mishear you, so you always see the words before they count, and you can type instead at any point.
+- **Why not OpenAI's live voice:** it would bypass the turn engine (the helps, the mood rules, the dials, the safety rule and the scoring), cost about US$0.05 a minute against about US$0.02 here, and give no chance to fix a misheard word.
+- **The guest's voice:** one of OpenAI's voices per guest, picked from the brief (he, she or they) and always the same for that guest, told to use a natural Australian accent and the guest's mood at that line. Lines are always read from the stored conversation, so the route can't be used to read out anything else.
+- **English practice:** the conversation stays in English even when the rest of the page is translated into the person's language, so the debrief and the guest's thoughts come in their own language (the plan's 3e).
+- **Cap:** 80 clips a day per person (each recording, and each line read aloud), about ten voice conversations. Worst case about US$0.30 a person a day; a typical voice conversation costs about 1.5 US cents.
+- **Privacy:** recordings go to OpenAI to be written out and are never stored; only the text is kept, as with typing. The privacy policy (web and mobile) and the security page say so.
+- **Owner:** run `supabase/migrations/20261027_live_guest_voice.sql` (the cap). Voice works before it is run, without the cap.
+- **Not tested here:** the live speech models (they need the OpenAI key), and recording on a real iPhone and Android phone. That's the noisy bar test on the checklist.
+- **Tests:** 6 in `lib/live-guest/voice.test.ts` (recording types, a voice for every guest, pronouns, the accent and mood instructions, the transcription hint).

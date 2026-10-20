@@ -96,7 +96,8 @@ export default function HelpScreen() {
         would on shift. Afterwards you see what they were thinking at each turn, which of the things that help you
         found, and how the four dials moved: the
         guest, speed, money and safety. Guests get tougher as you master modules. A pass counts toward the
-        &quot;Live Guest&quot; bar on the Me page. Live Guest is on venue plans.
+        &quot;Live Guest&quot; bar on the Me page. Turn on Voice to hear the guest and speak your replies; what you
+        said is written out for you to check before you send it. Live Guest is on venue plans.
       </Section>
 
       <Section title="Challenges">

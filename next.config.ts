@@ -21,10 +21,11 @@ const securityHeaders = [
     key: "Referrer-Policy",
     value: "strict-origin-when-cross-origin",
   },
-  // Disable unused browser features
+  // Disable unused browser features. The microphone is this site only, for
+  // Live Guest voice (push to talk, components/live-guest/useGuestVoice.ts).
   {
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=()",
+    value: "camera=(), microphone=(self), geolocation=()",
   },
 ];
 

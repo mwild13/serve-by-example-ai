@@ -82,3 +82,18 @@ export function aiDailyLimitResponse(tier?: string): Response {
     { status: 429 },
   );
 }
+
+/**
+ * Counts one Live Guest voice clip (a recording written out, or a line read
+ * aloud) against today's voice allowance (bump_voice_usage(),
+ * 20261027_live_guest_voice.sql). False when over. Fails open, like
+ * consumeAiAllowance().
+ */
+export async function consumeVoiceAllowance(admin: SupabaseClient, userId: string, limit: number): Promise<boolean> {
+  const { data, error } = await admin.rpc("bump_voice_usage", { p_user_id: userId, p_limit: limit });
+  if (error) {
+    console.error("Voice daily cap: bump_voice_usage failed, allowing the request:", error.message);
+    return true;
+  }
+  return data !== false;
+}

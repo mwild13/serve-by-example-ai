@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   AREA_LABEL,
   DIFFICULTY_LABEL,
+  LIVE_GUEST_MAX_RECORDING_SECONDS,
   LIVE_GUEST_MAX_REPLY_CHARS,
   LiveGuestError,
   MOOD_LABEL,
@@ -23,6 +24,7 @@ import {
   type PublicGuest,
   type RevealTurn,
 } from "@/lib/live-guest-client";
+import { useGuestVoice } from "@/components/live-guest/useGuestVoice";
 
 // Live Guest (Rich update, Phases 6 and 7): pick a guest, talk to them over
 // 3 or 4 replies, then see what they were thinking at each turn, which of the
@@ -107,6 +109,10 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
   const [error, setError] = useState<{ message: string; restart: boolean } | null>(null);
   const [area, setArea] = useState<GuestArea | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const voice = useGuestVoice(getToken);
+  const { play: playLine, reset: resetVoice, unlock: unlockVoice } = voice;
+  const voiceOn = voice.supported && voice.on;
 
   useEffect(() => {
     let cancelled = false;
@@ -134,6 +140,8 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
     async (guestId: string) => {
       setStarting(guestId);
       setError(null);
+      resetVoice();
+      if (voiceOn) unlockVoice();
       try {
         const started = await startLiveGuest(await getToken(), guestId);
         setChat({
@@ -146,19 +154,21 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
           name: started.guest.name,
         });
         setDraft("");
+        if (voiceOn) void playLine(started.sessionId, 0);
       } catch (err) {
         setError({ message: err instanceof Error ? err.message : "Could not start the conversation.", restart: false });
       } finally {
         setStarting(null);
       }
     },
-    [getToken],
+    [getToken, playLine, resetVoice, unlockVoice, voiceOn],
   );
 
   const send = useCallback(async () => {
     if (!chat || chat.result || sending) return;
     const text = draft.trim();
     if (!text) return;
+    if (voiceOn) unlockVoice();
     setSending(true);
     setError(null);
     // Shown straight away; taken back out if the guest can't answer.
@@ -175,6 +185,7 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
           name: answer.guestName ?? c.name,
         },
       );
+      if (voiceOn) void playLine(chat.sessionId, answer.replies);
     } catch (err) {
       setChat((c) => c && { ...c, lines: c.lines.slice(0, -1) });
       setDraft(text);
@@ -186,7 +197,26 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
     } finally {
       setSending(false);
     }
-  }, [chat, draft, getToken, sending]);
+  }, [chat, draft, getToken, playLine, sending, unlockVoice, voiceOn]);
+
+  /** Speak, then the words land in the reply box to check and send. */
+  const talk = useCallback(async () => {
+    if (!chat || chat.result || sending || voice.transcribing) return;
+    if (!voice.recording) {
+      await voice.startTalking();
+      return;
+    }
+    const text = await voice.stopTalking(chat.sessionId, chat.replies);
+    if (text) {
+      setDraft((d) => (d.trim() ? `${d.trim()} ${text}` : text).slice(0, LIVE_GUEST_MAX_REPLY_CHARS));
+      inputRef.current?.focus();
+    }
+  }, [chat, sending, voice]);
+
+  // A recording that reaches 30 seconds is written out as if they'd tapped stop.
+  useEffect(() => {
+    voice.setAutoStop(() => void talk());
+  }, [talk, voice]);
 
   const suggested = guests?.filter((g) => g.suggested) ?? [];
   const others = guests?.filter((g) => !g.suggested) ?? [];
@@ -270,10 +300,31 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
   return (
     <div className={`qz qz--${theme} lg`}>
       <div className="lg-head">
-        <button type="button" className="lc-skip" onClick={() => setChat(null)} disabled={sending}>
+        <button
+          type="button"
+          className="lc-skip"
+          onClick={() => {
+            resetVoice();
+            setChat(null);
+          }}
+          disabled={sending}
+        >
           All guests
         </button>
-        <p className="lc-count">{result ? "Finished" : `Reply ${replyNumber} of up to ${chat.maxReplies}`}</p>
+        <div className="lg-head-right">
+          {voice.supported && (
+            <button
+              type="button"
+              className={voiceOn ? "lg-voice-toggle lg-voice-toggle--on" : "lg-voice-toggle"}
+              aria-pressed={voiceOn}
+              onClick={voice.toggle}
+            >
+              <SpeakerIcon off={!voiceOn} />
+              {voiceOn ? "Voice on" : "Voice off"}
+            </button>
+          )}
+          <p className="lc-count">{result ? "Finished" : `Reply ${replyNumber} of up to ${chat.maxReplies}`}</p>
+        </div>
       </div>
 
       {/* Desktop: the scene sits in a sticky side column. Mobile: above the conversation. */}
@@ -290,13 +341,30 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
         </aside>
 
         <div className="lg-main">
-          <div className="lg-lines" aria-live="polite">
-            {chat.lines.map((line, i) => (
-              <div key={i} className={line.from === "guest" ? "lg-line lg-line--guest" : "lg-line lg-line--staff"}>
-                <span className="lg-line-who">{line.from === "guest" ? label : "You"}</span>
-                <p className="lg-bubble">{line.text}</p>
-              </div>
-            ))}
+          {/* The conversation stays in English: it's English practice. The rest of the page can be translated. */}
+          <div className="lg-lines" aria-live="polite" data-no-translate="true">
+            {chat.lines.map((line, i) => {
+              // Guest lines alternate with staff ones: line 0 is the opening, then one per reply.
+              const guestLine = Math.floor(i / 2);
+              return (
+                <div key={i} className={line.from === "guest" ? "lg-line lg-line--guest" : "lg-line lg-line--staff"}>
+                  <span className="lg-line-who">
+                    {line.from === "guest" ? label : "You"}
+                    {line.from === "guest" && voiceOn && (
+                      <button
+                        type="button"
+                        className="lg-replay"
+                        onClick={() => (voice.playing === guestLine ? voice.stopPlaying() : void voice.play(chat.sessionId, guestLine))}
+                        aria-label={voice.playing === guestLine ? "Stop" : "Play this line"}
+                      >
+                        <SpeakerIcon playing={voice.playing === guestLine} />
+                      </button>
+                    )}
+                  </span>
+                  <p className="lg-bubble">{line.text}</p>
+                </div>
+              );
+            })}
             {sending && (
               <div className="lg-line lg-line--guest">
                 <span className="lg-line-who">{label}</span>
@@ -332,6 +400,7 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
             >
               <label className="qz-visually-hidden" htmlFor="lg-reply">Your reply to {chat.name ?? "the guest"}</label>
               <textarea
+                ref={inputRef}
                 id="lg-reply"
                 className="lg-input"
                 rows={3}
@@ -346,23 +415,81 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
                     void send();
                   }
                 }}
-                disabled={sending}
+                disabled={sending || voice.recording || voice.transcribing}
               />
+              {voice.error && (
+                <p className="lg-voice-error" role="alert">
+                  {voice.error}
+                </p>
+              )}
               <div className="lg-compose-row">
                 <span className="lg-muted">
-                  {draft.length > LIVE_GUEST_MAX_REPLY_CHARS - 100 ? `${LIVE_GUEST_MAX_REPLY_CHARS - draft.length} characters left` : ""}
+                  {voice.recording
+                    ? `Listening… ${voice.seconds}s of ${LIVE_GUEST_MAX_RECORDING_SECONDS}. Tap stop when you're done.`
+                    : voice.transcribing
+                      ? "Writing it out…"
+                      : draft.length > LIVE_GUEST_MAX_REPLY_CHARS - 100
+                        ? `${LIVE_GUEST_MAX_REPLY_CHARS - draft.length} characters left`
+                        : voiceOn && !draft
+                          ? "Speak or type. Check what's written before you send."
+                          : ""}
                 </span>
-                <button type="submit" className="qz-next" disabled={sending || !draft.trim()}>
-                  Send
-                </button>
+                <span className="lg-compose-actions">
+                  {voiceOn && (
+                    <button
+                      type="button"
+                      className={voice.recording ? "lg-mic lg-mic--on" : "lg-mic"}
+                      onClick={() => void talk()}
+                      disabled={sending || voice.transcribing}
+                      aria-pressed={voice.recording}
+                    >
+                      <MicIcon />
+                      {voice.recording ? "Stop" : "Speak"}
+                    </button>
+                  )}
+                  <button type="submit" className="qz-next" disabled={sending || voice.recording || voice.transcribing || !draft.trim()}>
+                    Send
+                  </button>
+                </span>
               </div>
             </form>
           )}
 
-          {result && <Reveal name={result.name ?? guest.name ?? "The guest"} result={result} onAgain={() => void begin(guest.id)} onOthers={() => setChat(null)} />}
+          {result && <Reveal name={result.name ?? guest.name ?? "The guest"} result={result} onAgain={() => void begin(guest.id)} onOthers={() => {
+            resetVoice();
+            setChat(null);
+          }} />}
         </div>
       </div>
     </div>
+  );
+}
+
+function SpeakerIcon({ off = false, playing = false }: { off?: boolean; playing?: boolean }) {
+  return (
+    <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false">
+      <path d="M3 8h3l4-3.5v11L6 12H3z" fill="currentColor" />
+      {off ? (
+        <path d="M13 8l4 4M17 8l-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      ) : (
+        <path
+          d={playing ? "M13 7.5a3.5 3.5 0 010 5M15.2 5.5a6.5 6.5 0 010 9" : "M13 7.5a3.5 3.5 0 010 5"}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+      )}
+    </svg>
+  );
+}
+
+function MicIcon() {
+  return (
+    <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false">
+      <rect x="7" y="2.5" width="6" height="10" rx="3" fill="currentColor" />
+      <path d="M4.5 9.5a5.5 5.5 0 0011 0M10 15v2.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
   );
 }
 
@@ -527,7 +654,7 @@ function Reveal({
           const moves = dialMoves(t, dialsBefore, result.dials.money?.per ?? null);
           return (
             <li key={i} className="lg-thought">
-              <span className="lg-thought-you">You: &ldquo;{t.staff}&rdquo;</span>
+              <span className="lg-thought-you" data-no-translate="true">You: &ldquo;{t.staff}&rdquo;</span>
               <span className="lg-thought-shift">
                 <MoodChip mood={before} />
                 <span aria-hidden="true">→</span>

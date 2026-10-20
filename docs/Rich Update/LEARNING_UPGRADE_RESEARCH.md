@@ -326,7 +326,7 @@ There are 13 phases to launch, then 3 after marketing starts. Each phase goes ou
 - **Done when** you're happy with it and the human test doesn't find it repetitive. Then marketing spend starts.
 
 ### After marketing starts
-- **Phase 14, Live Guest voice:** as in 3e, on the same plans as Live Guest, with a cap on minutes. Test it on a phone in a noisy bar first.
+- **Phase 14, Live Guest voice (built 2026-10-20):** as in 3e, on the same plans as Live Guest, with a cap on minutes. Built as push to talk rather than a live call, so the text engine, the helps and the scoring stay the same. Test it on a phone in a noisy bar.
 - **Phase 15, Saturday Rush:** see 2d.
 - **Phase 16, team features:** see "After launch" in section 4.
 

@@ -34,7 +34,7 @@ const WE_NEVER_STORE = [
 const AI_PRINCIPLES: RuledItem[] = [
   {
     title: "Live Guest sends the conversation, not the person",
-    body: "When staff talk to a Live Guest, the practice guest's brief and the replies they type are sent to OpenAI so the guest can answer. No venue names or staff names are included.",
+    body: "When staff talk to a Live Guest, the practice guest's brief and their replies are sent to OpenAI so the guest can answer. With voice on, a spoken reply is sent to be written out as text and the guest's line to be read aloud; we never store recordings, only the text. No venue names or staff names are included.",
   },
   {
     title: "Venue content sends what the manager wrote",

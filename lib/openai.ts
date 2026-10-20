@@ -30,3 +30,15 @@ export const CHAT_MODEL_PARAMS = {
   model: "gpt-6-luna",
   reasoning_effort: "none",
 } as const;
+
+/**
+ * Live Guest voice (Rich update, Phase 14). Push to talk: the staff member's
+ * recording is written out by `transcribe`, goes through the same text turn
+ * as a typed reply, and the guest's line is read aloud by `speech`. Set here
+ * once, like CHAT_MODEL_PARAMS. About US$0.003 a minute to transcribe and
+ * US$0.015 a minute of speech (checked October 2026).
+ */
+export const VOICE_MODELS = {
+  transcribe: "gpt-4o-mini-transcribe",
+  speech: "gpt-4o-mini-tts",
+} as const;

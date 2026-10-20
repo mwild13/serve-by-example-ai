@@ -16,8 +16,8 @@ What's left before the Rich update goes to `main` and marketing spend starts. Bu
 |---|---|
 | `20261023_mixed_drills.sql` | Run (confirmed 2026-10-20) |
 | `20261024_venue_content.sql` | Run (the tables are there) |
-| `20261025_preshift_streak.sql` | **To run** |
-| `20261026_push_reminders.sql` | **To run**, after the one above |
+| `20261025_preshift_streak.sql` and `20261026_push_reminders.sql` | Run (confirmed 2026-10-20) |
+| `20261027_live_guest_voice.sql` | **To run** (the voice cap; voice works before it, uncapped) |
 
 ## Decisions (made by Claude Code at the owner's request, 2026-10-20)
 
@@ -39,6 +39,7 @@ On the preview, on your phone and on desktop. Tick as you go.
 - [ ] Mobile Home: "Ready for your shift?" Finish it; set your shift days; see the streak on Home.
 - [ ] On the installed app, pick a reminder time a little ahead and check the notification arrives and opens the drill.
 - [ ] Live Guest: three guests from different areas, one of them suggested. Read the reveal and the dials.
+- [ ] Live Guest voice, on your phone in a noisy bar: turn Voice on, hear the guest, tap Speak, check what's written, send. Try it with the music up.
 - [ ] A question from venue content in a drill (after the manager steps below).
 
 **As a manager**
