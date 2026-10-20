@@ -32,6 +32,8 @@ export type ShiftStreak = {
   doneToday: boolean;
   /** The weekdays they work, 0 Sunday to 6 Saturday. Empty: every day. */
   shiftDays: number[];
+  /** "HH:MM", Sydney time, on shift days; null when reminders are off. Set by the server. */
+  reminderTime?: string | null;
 };
 
 function weekdayOf(date: string): number {
@@ -90,6 +92,21 @@ export function computeShiftStreak(shiftDays: number[], drilledDays: string[], t
     }
   }
   return { ...result, count, freezesLeft: freezes };
+}
+
+/** "16:30", or null to turn reminders off. Undefined when the value is neither. */
+export function cleanReminderTime(value: unknown): string | null | undefined {
+  if (value === null) return null;
+  if (typeof value !== "string") return undefined;
+  const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(value);
+  return match ? value : undefined;
+}
+
+/** "4:30pm". */
+export function reminderTimeText(time: string): string {
+  const [h, m] = time.split(":").map(Number);
+  const hour = h % 12 === 0 ? 12 : h % 12;
+  return `${hour}${m ? `:${String(m).padStart(2, "0")}` : ""}${h < 12 ? "am" : "pm"}`;
 }
 
 /** "Fri, Sat and Sun", or "every day". */

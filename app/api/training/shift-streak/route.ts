@@ -3,7 +3,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { rateLimit } from "@/lib/rate-limit";
 import { readJsonBody } from "@/lib/ai-guard";
-import { cleanShiftDays } from "@/lib/shift-streak";
+import { cleanReminderTime, cleanShiftDays } from "@/lib/shift-streak";
 import { loadShiftStreak } from "@/lib/shift-streak-store";
 
 const MAX_BODY_BYTES = 256;
@@ -23,7 +23,11 @@ export async function GET(req: Request) {
   }
 }
 
-/** Saves the weekdays the person usually works: { shiftDays: [0..6] }. Empty means every day. */
+/**
+ * Saves the weekdays the person usually works and their reminder time:
+ * { shiftDays?: [0..6], reminderTime?: "16:30" | null }. Either can be left
+ * out to keep it. Empty days means every day; a null time turns reminders off.
+ */
 export async function PUT(req: Request) {
   try {
     const { user } = await getUserFromRequest(req);
@@ -33,13 +37,23 @@ export async function PUT(req: Request) {
     }
     const read = await readJsonBody(req, MAX_BODY_BYTES);
     if (!read.ok) return read.response;
-    const shiftDays = cleanShiftDays(read.body.shiftDays);
-    if (!shiftDays) return NextResponse.json({ error: "Choose the days you work.", code: "INVALID_INPUT" }, { status: 400 });
+    const row: Record<string, unknown> = { user_id: user.id, updated_at: new Date().toISOString() };
+    if (read.body.shiftDays !== undefined) {
+      const shiftDays = cleanShiftDays(read.body.shiftDays);
+      if (!shiftDays) return NextResponse.json({ error: "Choose the days you work.", code: "INVALID_INPUT" }, { status: 400 });
+      row.shift_days = shiftDays;
+    }
+    if (read.body.reminderTime !== undefined) {
+      const reminderTime = cleanReminderTime(read.body.reminderTime);
+      if (reminderTime === undefined) return NextResponse.json({ error: "Choose a reminder time.", code: "INVALID_INPUT" }, { status: 400 });
+      row.reminder_time = reminderTime;
+    }
+    if (row.shift_days === undefined && row.reminder_time === undefined) {
+      return NextResponse.json({ error: "Nothing to save.", code: "INVALID_INPUT" }, { status: 400 });
+    }
 
     const admin = createSupabaseAdminClient();
-    const { error } = await admin
-      .from("shift_schedules")
-      .upsert({ user_id: user.id, shift_days: shiftDays, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+    const { error } = await admin.from("shift_schedules").upsert(row, { onConflict: "user_id" });
     if (error) throw error;
     return NextResponse.json(await loadShiftStreak(admin, user.id));
   } catch (error) {

@@ -151,12 +151,12 @@ export function getShiftStreak(token: string): Promise<ShiftStreak> {
   });
 }
 
-/** Saves the weekdays they usually work (0 Sunday to 6 Saturday). */
-export function saveShiftDays(token: string, shiftDays: number[]): Promise<ShiftStreak> {
+/** Saves the weekdays they usually work (0 Sunday to 6 Saturday) and/or their reminder time ("16:30", or null for off). */
+export function saveShiftDays(token: string, shiftDays: number[] | undefined, reminderTime?: string | null): Promise<ShiftStreak> {
   return fetch("/api/training/shift-streak", {
     method: "PUT",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ shiftDays }),
+    body: JSON.stringify({ ...(shiftDays !== undefined ? { shiftDays } : {}), ...(reminderTime !== undefined ? { reminderTime } : {}) }),
   }).then(async (res) => {
     const data = (await res.json().catch(() => null)) as (ShiftStreak & { error?: string }) | null;
     if (!res.ok || !data) throw new VerifyQuizError(data?.error ?? `Request failed (${res.status}).`, null, res.status);

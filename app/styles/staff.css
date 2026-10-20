@@ -1850,6 +1850,21 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   background: var(--qz-accent);
   color: var(--qz-accent-text);
 }
+.dr-remind {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dr-select {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--qz-line);
+  border-radius: var(--radius-sm);
+  background: var(--qz-surface-alt);
+  color: var(--qz-text);
+  font: inherit;
+  font-size: 0.95rem;
+}
 .dr-link--inline {
   padding: 0;
   font-size: inherit;

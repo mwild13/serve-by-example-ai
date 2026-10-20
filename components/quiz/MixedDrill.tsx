@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import QuizRun from "@/components/quiz/QuizRun";
-import ShiftDays, { streakLine } from "@/components/quiz/ShiftDays";
+import ShiftDays, { ShiftReminder, streakLine } from "@/components/quiz/ShiftDays";
 import type { ShiftStreak } from "@/lib/shift-streak";
 import {
   VerifyQuizError,
@@ -207,6 +207,7 @@ function PreshiftResult({
       </p>
       {streak && <p className="dr-streak">{streakLine(streak)}</p>}
       {streak && <ShiftDays streak={streak} getToken={getToken} onSaved={setStreak} />}
+      {streak && <ShiftReminder streak={streak} getToken={getToken} onSaved={setStreak} />}
       {onLiveGuest && (
         <div className="dr-actions">
           <button type="button" className="dr-link" onClick={onLiveGuest}>

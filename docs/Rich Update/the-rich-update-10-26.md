@@ -21,7 +21,7 @@ The staff learning upgrade, named after Richie, our first tester, who called tra
 | 9 | Image style and library | Parked 2026-10-20: the owner draws the parts in Claude Design later |
 | 10 | Mixed drills | Done 2026-10-20 |
 | 11 | Venue content | Built 2026-10-20, menu photos included, for the owner to check |
-| 12 | Pre-shift drill and shift streak | Part 1 built 2026-10-20, for the owner to check; reminders and push need VAPID keys |
+| 12 | Pre-shift drill and shift streak | Built 2026-10-20, reminders included, for the owner to check; reminders send once the VAPID keys are in Cloudflare |
 | 13 | Launch check, then marketing spend starts | Claude Code's part done 2026-10-20; the owner's check and the human test are next (`launch-check.md`) |
 | 14 | Live Guest voice | After marketing starts |
 | 15 | Saturday Rush | After marketing starts |
@@ -294,4 +294,15 @@ Asked by the owner: roughly what does one 15-person venue cost us if each person
 - **Privacy and security pages** say the photo is sent to read it and not kept.
 - **Not tested against the live model here:** the photo reading needs the model to accept images. If the first try fails on the preview, the error says so and nothing is lost.
 - **Tests:** 3 more in `lib/venue-content.test.ts` (the photo check, which items are kept, the prompt).
+
+## Phase 12, part two: shift reminders (built 2026-10-20)
+
+- **"When should we remind you?"** on the pre-shift finish screen: a time, every half hour from 5am to 11:30pm, on the days they work. Choosing one saves it, then asks the phone for notification permission. "No reminder" turns it off.
+- **iPhone:** Safari only allows notifications for apps added to the Home Screen, so on iPhone it explains how to add it first (Share, then Add to Home Screen).
+- **The reminder** says "Ready for your shift?" with "Six quick questions, about three minutes, and you're set for tonight." Tapping it opens the pre-shift drill. It goes out within the hour after their time, on shift days only, once a day, and not at all if they've already done that day's drill.
+- **How it's sent:** pg_cron calls `/api/cron/reminders` every 15 minutes, every day, with the same secret as the notification emails. Each person due is marked as reminded before sending, so a retry never sends twice. The push carries no message (the service worker shows the fixed text), which keeps it simple and private. Pushes only go to the real push services (Google, Mozilla, Apple, Microsoft); any other address a browser sends is refused.
+- **The service worker** (`public/sw.js`) only shows the notification and opens the drill. It caches nothing. The site's security policy now names it (`worker-src 'self'`).
+- **To switch it on (owner):** run `node scripts/vapid-keys.mjs` in the project folder, put the two values into Cloudflare as secrets `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_JWK`, and run `supabase/migrations/20261026_push_reminders.sql`. Until the keys are there, people can still pick a time; nothing is sent.
+- **Not built:** showing the manager who has reminders on (on the to-do list).
+- **Tests:** 8 in `lib/web-push.test.ts` (the push service allowlist, the signed key checked against the public key, who's due, the Sydney clock) and 2 more in `lib/shift-streak.test.ts`.
 

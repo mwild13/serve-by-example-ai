@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FREEZES, cleanShiftDays, computeShiftStreak, shiftDaysText } from "./shift-streak";
+import { FREEZES, cleanReminderTime, cleanShiftDays, computeShiftStreak, reminderTimeText, shiftDaysText } from "./shift-streak";
 
 // 2026-10-16 is a Friday.
 const FRI_SAT_SUN = [5, 6, 0];
@@ -80,3 +80,22 @@ describe("shift days", () => {
     expect(shiftDaysText([])).toBe("every day");
   });
 });
+
+describe("reminder times", () => {
+  it("accepts HH:MM or null, nothing else", () => {
+    expect(cleanReminderTime("16:30")).toBe("16:30");
+    expect(cleanReminderTime("07:00")).toBe("07:00");
+    expect(cleanReminderTime(null)).toBeNull();
+    expect(cleanReminderTime("24:00")).toBeUndefined();
+    expect(cleanReminderTime("4:30pm")).toBeUndefined();
+    expect(cleanReminderTime(1630)).toBeUndefined();
+  });
+
+  it("reads them the Australian way", () => {
+    expect(reminderTimeText("16:30")).toBe("4:30pm");
+    expect(reminderTimeText("07:00")).toBe("7am");
+    expect(reminderTimeText("12:00")).toBe("12pm");
+    expect(reminderTimeText("00:30")).toBe("12:30am");
+  });
+});
+

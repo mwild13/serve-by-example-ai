@@ -8,7 +8,8 @@
     ".agents/**",
     "open-next.config.ts",
     "components/pictures/**",
-    "lib/pictures/**"
+    "lib/pictures/**",
+    "public/sw.js"
   ],
   "ignoreDependencies": [
     "postcss",

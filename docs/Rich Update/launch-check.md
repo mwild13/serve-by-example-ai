@@ -17,6 +17,7 @@ What's left before the Rich update goes to `main` and marketing spend starts. Bu
 | `20261023_mixed_drills.sql` | Run (confirmed 2026-10-20) |
 | `20261024_venue_content.sql` | Run (the tables are there) |
 | `20261025_preshift_streak.sql` | **To run** |
+| `20261026_push_reminders.sql` | **To run**, after the one above |
 
 ## Decisions (made by Claude Code at the owner's request, 2026-10-20)
 
@@ -24,7 +25,7 @@ What's left before the Rich update goes to `main` and marketing spend starts. Bu
 2. **"Role-Based Learning Paths"** on the platform page (not built) is replaced by **"Your Menu, Your Questions"**: venue content, which is built and is what a publican will want to hear.
 3. **The taster guest** is Dan (above), the owner's suggestion.
 4. **The Live Guest moment in the pre-shift drill** stays a link at the end. Three minutes before a shift is for quick questions; a conversation takes longer and costs an AI call.
-5. **Reminders and push** are built (Phase 12, part 2); the owner adds the keys.
+5. **Reminders and push** are built (Phase 12, part 2). To switch them on: run `node scripts/vapid-keys.mjs` in the project folder, add the two values to Cloudflare as secrets (`VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_JWK`, Production and Preview), then run the push migration.
 6. **Menu photos** are built before launch (Phase 11, part 2): publicans already have a printed menu, and a photo is faster than typing every spec.
 
 ## Your end-to-end check
@@ -36,6 +37,7 @@ On the preview, on your phone and on desktop. Tick as you go.
 - [ ] Test out of a module you know.
 - [ ] Mixed Drill (desktop menu, mobile Learn hub). Start a second and check no question repeats.
 - [ ] Mobile Home: "Ready for your shift?" Finish it; set your shift days; see the streak on Home.
+- [ ] On the installed app, pick a reminder time a little ahead and check the notification arrives and opens the drill.
 - [ ] Live Guest: three guests from different areas, one of them suggested. Read the reveal and the dials.
 - [ ] A question from venue content in a drill (after the manager steps below).
 

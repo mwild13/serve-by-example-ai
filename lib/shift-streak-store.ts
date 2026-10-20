@@ -10,13 +10,17 @@ const HISTORY_LIMIT = 400;
 
 export async function loadShiftStreak(admin: SupabaseClient, userId: string): Promise<ShiftStreak> {
   const [schedule, days] = await Promise.all([
-    admin.from("shift_schedules").select("shift_days").eq("user_id", userId).maybeSingle(),
+    admin.from("shift_schedules").select("shift_days, reminder_time").eq("user_id", userId).maybeSingle(),
     admin.from("preshift_days").select("day").eq("user_id", userId).order("day", { ascending: false }).limit(HISTORY_LIMIT),
   ]);
   if (schedule.error) throw schedule.error;
   if (days.error) throw days.error;
   const shiftDays = ((schedule.data?.shift_days as number[] | null) ?? []).filter((d) => Number.isInteger(d));
-  return computeShiftStreak(shiftDays, (days.data ?? []).map((r) => r.day as string), sydneyToday());
+  const reminder = (schedule.data?.reminder_time as string | null | undefined) ?? null;
+  return {
+    ...computeShiftStreak(shiftDays, (days.data ?? []).map((r) => r.day as string), sydneyToday()),
+    reminderTime: reminder ? reminder.slice(0, 5) : null,
+  };
 }
 
 /** Records today's pre-shift drill. Once per Sydney day. */

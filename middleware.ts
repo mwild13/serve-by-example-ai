@@ -86,6 +86,9 @@ function buildCSP(nonce: string): string {
     "form-action 'self'",
     // Web app manifest
     "manifest-src 'self'",
+    // The service worker for shift reminders (public/sw.js). Named here
+    // because script-src uses 'strict-dynamic', which ignores 'self'.
+    "worker-src 'self'",
   ].join("; ");
 }
 
