@@ -10,7 +10,7 @@ export const VENUE_CONTENT_KIND_LABEL: Record<VenueContentKind, string> = {
   spec: "Cocktail or drink spec",
   special: "Special",
   product: "New product or tap",
-  eighty_six: "86'd item",
+  eighty_six: "Sold out or off",
   note: "Other venue note",
 };
 

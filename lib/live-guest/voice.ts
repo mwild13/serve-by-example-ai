@@ -89,7 +89,7 @@ export function speechInstructions(brief: GuestBrief, mood: Mood): string {
 
 /** Words the transcriber should expect, so "schooner" isn't written as "scooner". */
 const HOSPITALITY_WORDS =
-  "schooner, middy, pot, pint, jug, tinnie, stubby, spirits, RSA, Espresso Martini, Aperol Spritz, flat white, long black, skinny cap, soy, oat, keg, tap, ice well, coeliac, gluten free, allergy, EpiPen, docket, pass, 86'd, mate, no worries";
+  "schooner, middy, pot, pint, jug, tinnie, stubby, spirits, RSA, Espresso Martini, Aperol Spritz, flat white, long black, skinny cap, soy, oat, keg, tap, ice well, coeliac, gluten free, allergy, EpiPen, docket, pass, sold out, mate, no worries";
 
 /**
  * The transcription hint: Australian English, the hospitality words, and the

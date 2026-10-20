@@ -42,8 +42,8 @@ export const MODULE_37_CARDS: LearnCard[] = [
   {
     id: "c5",
     concepts: ["s7"],
-    title: "Everyone knows what's 86'd",
-    rule: "All floor staff learn what's 86'd at the start of every service.",
+    title: "Everyone knows what's sold out",
+    rule: "All floor staff learn what's sold out at the start of every service.",
     why: "It stops anyone promising a guest something the kitchen can't make.",
     reviewed: true,
   },

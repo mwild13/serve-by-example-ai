@@ -18,7 +18,7 @@ export const MODULE_11_QUESTIONS: Question[] = [
       { id: "a", text: "\"It's cooked how the chef always does it.\"" },
       { id: "b", text: "\"I'm really sorry about that. Let me get that fixed for you.\"" },
       { id: "c", text: "\"Are you sure? It looks medium to me.\"" },
-      { id: "d", text: "\"The kitchen's slammed tonight.\"" },
+      { id: "d", text: "\"The kitchen's really busy tonight.\"" },
     ],
     answer: "b",
     explanation: "An immediate, empathetic apology diffuses anger. They need to know you are on their side to fix the problem.",

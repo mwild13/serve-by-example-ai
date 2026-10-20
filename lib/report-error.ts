@@ -30,8 +30,11 @@ const MAX_FRAMES = 50;
 const MAX_EVENTS_PER_MINUTE = 20;
 const SEND_TIMEOUT_MS = 2000;
 
-// Browser noise that is not a fault in this site.
-const IGNORED_MESSAGES = [/^Script error\.?$/, /ResizeObserver loop/];
+// Browser noise that is not a fault in this site. The Supabase lock one:
+// when a sign-in check holds the auth lock over 5 seconds (slow wifi, a
+// phone pausing a tab), the next check takes it over and the first throws.
+// Supabase recovers on its own; the next call has the session.
+const IGNORED_MESSAGES = [/^Script error\.?$/, /ResizeObserver loop/, /^Lock "lock:sb-.*" was released because another request stole it$/];
 const EXTENSION_FRAME = /^(chrome|moz|safari(-web)?)-extension:/;
 
 type Dsn = { origin: string; endpoint: string };

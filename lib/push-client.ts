@@ -27,14 +27,45 @@ function keyBytes(base64url: string): Uint8Array<ArrayBuffer> {
   return bytes;
 }
 
-/** Turns on notifications for this browser. Throws with a message to show. */
+/** Whether this browser lets the site notify: "granted", "denied" or "default" (not asked yet). */
+export function notificationPermission(): NotificationPermission {
+  return typeof Notification === "undefined" ? "denied" : Notification.permission;
+}
+
+/**
+ * Asks for permission. Call it first thing in a button's click handler, with
+ * no await before it: Safari (and so every iPhone) only shows the prompt
+ * when the request comes straight from a tap, and otherwise answers
+ * "denied" without asking. A dropdown change doesn't count as a tap.
+ */
+export function askNotificationPermission(): Promise<NotificationPermission> {
+  return Notification.requestPermission();
+}
+
+/** How to unblock notifications on this device, step by step. */
+export function blockedHelp(): string {
+  const ua = navigator.userAgent;
+  if (isIos()) {
+    return "Notifications are off for Serve By Example. On your iPhone, open Settings, then Notifications, then Serve By Example, and turn on Allow Notifications. Then come back and tap Allow notifications again.";
+  }
+  if (/Android/i.test(ua)) {
+    return "Notifications are blocked for this site. In Chrome, tap the three dots, then Settings, Site settings, Notifications, and allow servebyexample.co. If you added the app to your home screen, you can also press and hold its icon, tap App info, then Notifications.";
+  }
+  if (/^((?!chrome|chromium|crios|edg|android).)*safari/i.test(ua)) {
+    return "Notifications are blocked for this site. In Safari, open Settings, then Websites, then Notifications, and set servebyexample.co to Allow. Then tap Allow notifications again.";
+  }
+  return "Notifications are blocked for this site. Click the icon just left of the web address, open Site settings, and set Notifications to Allow. Then tap Allow notifications again.";
+}
+
+/**
+ * Turns on notifications for this browser, once permission is granted (ask
+ * with askNotificationPermission first). Throws with a message to show.
+ */
 export async function turnOnPush(token: string): Promise<void> {
+  if (notificationPermission() !== "granted") throw new Error(blockedHelp());
   const res = await fetch("/api/push/subscription", { headers: { Authorization: `Bearer ${token}` } });
   const { publicKey } = (await res.json().catch(() => ({}))) as { publicKey?: string | null };
   if (!publicKey) throw new Error("Reminders aren't switched on yet. Your time is saved, and they'll start once they are.");
-
-  const permission = await Notification.requestPermission();
-  if (permission !== "granted") throw new Error("Notifications are blocked for this app. Allow them in your phone's settings, then try again.");
 
   const registration = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
   await navigator.serviceWorker.ready;

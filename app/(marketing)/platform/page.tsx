@@ -63,7 +63,7 @@ const FEATURES: RuledItem[] = [
   },
   {
     title: "Your Menu, Your Questions",
-    body: "Add this week's cocktail specs, specials and 86'd items in the Manager Console. The AI drafts the questions, you approve them, and staff get them in their next drill.",
+    body: "Add this week's cocktail specs, specials and sold-out items in the Manager Console. The AI drafts the questions, you approve them, and staff get them in their next drill.",
   },
   {
     title: "Live Performance Tracking",

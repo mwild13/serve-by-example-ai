@@ -113,9 +113,13 @@ export default function Navbar({
 
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
-    supabase.auth.getUser().then(({ data }) => {
-      setAuthEmail(data.user?.email ?? null);
-    });
+    supabase.auth
+      .getUser()
+      .then(({ data }) => setAuthEmail(data.user?.email ?? null))
+      // A sign-in check can lose Supabase's lock to another tab or call
+      // (slow wifi, a phone waking a tab). The listener below still sets
+      // the email once the session settles, so this only stays quiet.
+      .catch(() => undefined);
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setAuthEmail(session?.user?.email ?? null);
     });

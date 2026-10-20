@@ -123,7 +123,7 @@ export const MODULE_37_QUESTIONS: Question[] = [
     concept: "s7",
     difficulty: 1,
     format: "multiple_choice",
-    prompt: "Who needs to know what's 86'd at the start of service?",
+    prompt: "Who needs to know what's sold out at the start of service?",
     options: [
       { id: "a", text: "Only the bartenders" },
       { id: "b", text: "All floor staff" },
@@ -131,7 +131,7 @@ export const MODULE_37_QUESTIONS: Question[] = [
       { id: "d", text: "Only the kitchen" },
     ],
     answer: "b",
-    explanation: "All floor staff must be briefed on 86 items at the start of every service to avoid promising unavailable items at the table.",
+    explanation: "All floor staff must be told what's sold out at the start of every service, so no one promises a guest something the kitchen can't make.",
     reviewed: true,
   },
 ];

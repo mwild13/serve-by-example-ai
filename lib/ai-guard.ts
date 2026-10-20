@@ -148,6 +148,7 @@ export const AU_WRITING_RULES = `WRITING STYLE
 - Australian spelling: colour, flavour, favour, behaviour, organise, recognise, apologise, realise, prioritise, centre, metre, litre, licence (the noun), cheque, travelling, enrolment.
 - Australian words: the bill (not the check), takeaway (not to go), entree means a starter and the main is the main course, soft drink (not soda, though soda water is fine), lift (not elevator), queue (not line), mobile (not cell phone), car park (not parking lot), mum (not mom), toilets or bathroom (not restroom).
 - Dates as 19 October 2026, times as 7:30pm, money in Australian dollars.
+- Plain words a new staff member would understand. No hospitality slang or shorthand: write "sold out" or "off the menu", never "86" or "86'd"; "very busy", never "slammed" or "in the weeds".
 - Punctuation: commas, full stops, colons and brackets. Never use an em dash or an en dash, not even between numbers: write "5 to 60°C" and "Monday to Friday".`;
 
 const DASH_RANGE = /(\d)\s*[–—]\s*(\d)/g;

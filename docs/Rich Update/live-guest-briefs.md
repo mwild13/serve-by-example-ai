@@ -1,6 +1,6 @@
 # Live Guest: the guests that are live
 
-60 guests. Each one is a short typed conversation of 3 to 6 replies. The staff member sees the scene and the guest's first line. The AI plays the guest from the rest of the brief, which the staff member only sees in the reveal afterwards, along with what the guest was thinking at each turn.
+60 guests. Each one is a short typed conversation of 3 or 4 replies. The staff member sees the scene and the guest's first line. The AI plays the guest from the rest of the brief, which the staff member only sees in the reveal afterwards, along with what the guest was thinking at each turn.
 
 A conversation passes at 75 out of 100. Breaking the rule that can't be broken ends it straight away and is never a pass.
 
@@ -14,7 +14,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Friday, 6:30pm. The front bar is busy but moving. Dave, a regular, comes back to the bar holding a schooner that's mostly head.
+- The scene: Friday, 6:30pm. The front bar is busy but moving. A regular comes back to the bar holding a schooner that's mostly head.
 - Dave opens with: "Mate, this one's all froth and it tastes flat. Can you sort it out?"
 
 **Hidden until the reveal:**
@@ -50,7 +50,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Saturday, 11:40pm, a busy bar. Jess has been here with friends for hours. Her speech is slurred and she bumped a bar stool getting up. She waves you over.
+- The scene: Saturday, 11:40pm, a busy bar. A woman has been here with friends for hours. Her speech is slurred and she bumped a bar stool getting up. She waves you over.
 - Jess opens with: "Heyyy, can we get six tequilas? It's my birthday! Come on, just one more round."
 
 **Hidden until the reveal:**
@@ -87,7 +87,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Thursday dinner in the bistro, steady. Sharon has just been served a chicken parmy. She's cut into it and waves you down. Her husband is already eating his meal.
+- The scene: Thursday dinner in the bistro, steady. A guest has just been served a chicken parmy. She's cut into it and waves you down. Her husband is already eating his meal.
 - Sharon opens with: "Excuse me. This parmy's cold in the middle. I've waited 40 minutes for this."
 
 **Hidden until the reveal:**
@@ -125,7 +125,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Saturday lunch, a busy restaurant. Tom is ordering for himself. The satay chicken on the menu says "contains peanuts". The pesto pasta has no allergy note.
+- The scene: Saturday lunch, a busy restaurant. A guest is ordering for himself. The satay chicken on the menu says "contains peanuts". The pesto pasta has no allergy note.
 - Tom opens with: "I've got a severe nut allergy, like EpiPen severe. Is the pesto pasta okay for me?"
 
 **Hidden until the reveal:**
@@ -161,7 +161,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Friday, 7:30pm. The restaurant is fully booked until 9pm. Mark and his wife arrive at the host stand. There are two seats free at the bar.
+- The scene: Friday, 7:30pm. The restaurant is fully booked until 9pm. A man and his wife arrive at the host stand. There are two seats free at the bar.
 - Mark opens with: "Hi, table for two? We didn't book, but we come here all the time."
 
 **Hidden until the reveal:**
@@ -197,7 +197,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Wednesday dinner, quiet. Priya and her partner ordered a bottle of the Barossa Shiraz with their steaks. You've just found out it's sold out. Other reds on your list: a McLaren Vale Grenache, a Coonawarra Cabernet Sauvignon, a Yarra Valley Pinot Noir and the house Shiraz Cabernet.
+- The scene: Wednesday dinner, quiet. A couple ordered a bottle of the Barossa Shiraz with their steaks. You've just found out it's sold out. Other reds on your list: a McLaren Vale Grenache, a Coonawarra Cabernet Sauvignon, a Yarra Valley Pinot Noir and the house Shiraz Cabernet.
 - Priya opens with: "Hi, just checking on that bottle of Shiraz? Our steaks will be out any minute."
 
 **Hidden until the reveal:**
@@ -270,7 +270,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Saturday, 10:30pm, a packed bar. Kyle is red-faced and loud, pointing at a guest who has just been served. He doesn't seem drunk, just angry.
+- The scene: Saturday, 10:30pm, a packed bar. A young man is red-faced and loud, pointing at a guest who has just been served. He doesn't seem drunk, just angry.
 - Kyle opens with: "Oi! That bloke just pushed in. I've been waiting ten minutes. You gonna do something or what?"
 
 **Hidden until the reveal:**
@@ -306,7 +306,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Saturday, 8pm, a busy bistro. You're the only one on the floor, carrying three drinks to a table. A glass has smashed in a spilt drink by the entrance to the toilets. Lou is walking towards it with her young son.
+- The scene: Saturday, 8pm, a busy bistro. You're the only one on the floor, carrying three drinks to a table. A glass has smashed in a spilt drink by the entrance to the toilets. A mum is walking towards it with her young son.
 - Lou opens with: "Careful, there's glass all over the floor there. Can we get through? He's busting."
 
 **Hidden until the reveal:**
@@ -378,7 +378,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Sunday lunch, and the bistro is slammed. You're about to run table 12's food when you see the gluten-free burger is on the same plate as a regular bun. Table 12 told you one of them is coeliac. Marco, the head chef, is at the pass.
+- The scene: Sunday lunch, and the bistro is packed. You're about to run table 12's food when you see the gluten-free burger is on the same plate as a regular bun. Table 12 told you one of them is coeliac. Marco, the head chef, is at the pass.
 - Marco opens with: "What's the hold-up? That's twelve, it's all there. Take it, I've got six more plates going."
 
 **Hidden until the reveal:**
@@ -414,7 +414,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Friday, 9pm, a busy function room upstairs. The fire alarm has just gone off and the fire warden is directing people to the fire stairs. Bec is heading back to her table, where her bag and drink are.
+- The scene: Friday, 9pm, a busy function room upstairs. The fire alarm has just gone off and the fire warden is directing people to the fire stairs. A guest is heading back to her table, where her bag and drink are.
 - Bec opens with: "Is this a real one? I'm just grabbing my bag and finishing my wine, two secs."
 
 **Hidden until the reveal:**
@@ -662,7 +662,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Sunday lunch, a busy bistro. You're clearing a big table onto your tray: heavy schooner glasses, wine glasses and a half-full water jug. The tray is already at a safe load. Helen, one of the guests, picks up a wobbly stack of plates to hand you.
+- The scene: Sunday lunch, a busy bistro. You're clearing a big table onto your tray: heavy schooner glasses, wine glasses and a half-full water jug. The tray is already at a safe load. An older woman at the table picks up a wobbly stack of plates to hand you.
 - Helen opens with: "Here love, take these plates too, save you a trip."
 
 **Hidden until the reveal:**
@@ -697,7 +697,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Saturday, 9pm. The main bar is getting slammed. You're the bar-back, restocking the coolroom. Nat, the bartender, calls out to you.
+- The scene: Saturday, 9pm. The main bar is getting packed. You're the bar-back, restocking the coolroom. Nat, the bartender, calls out to you.
 - Nat opens with: "I've got no clean schooners and the ice is gone! I need both, now!"
 
 **Hidden until the reveal:**
@@ -732,7 +732,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Friday, 6pm, a busy pub. You're mid-pour on a Guinness and can't leave the tap. A regular walks up to the bar, and at the same moment Sophie and her partner, tourists who look a bit lost, arrive beside him.
+- The scene: Friday, 6pm, a busy pub. You're mid-pour on a Guinness and can't leave the tap. A regular walks up to the bar, and at the same moment a couple, tourists who look a bit lost, arrive beside him.
 - Sophie opens with: "Hi, sorry, is this where we order? Do we need to wait for a table?"
 
 **Hidden until the reveal:**
@@ -768,7 +768,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Thursday, 8:15pm. The kitchen closes at 8:30. Rob's table of eight sat down a while ago. Two of them are ready to order; the other six are deep in conversation with their menus closed.
+- The scene: Thursday, 8:15pm. The kitchen closes at 8:30. A table of eight sat down a while ago. Two of them are ready to order; the other six are deep in conversation with their menus closed.
 - Rob opens with: "We're ready. Well, two of us are. The others haven't even looked yet."
 
 **Hidden until the reveal:**
@@ -804,7 +804,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Saturday, 8pm, the lounge. You're carrying another table's order to the bistro. Graham has just finished his glass of Shiraz and is looking around the room for staff.
+- The scene: Saturday, 8pm, the lounge. You're carrying another table's order to the bistro. A regular has just finished his glass of Shiraz and is looking around the room for staff.
 - Graham opens with: "Sorry, could I get another one of these when you get a sec?"
 
 **Hidden until the reveal:**
@@ -841,7 +841,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Friday, 7:20pm, a busy restaurant. You're halfway through delivering a tray to a table. Across the room a guest has a hand half-raised, another table has an empty glass, and Anika is looking around for the bill.
+- The scene: Friday, 7:20pm, a busy restaurant. You're halfway through delivering a tray to a table. Across the room a guest has a hand half-raised, another table has an empty glass, and a woman at another table is looking around for the bill.
 - Anika opens with: "Hi, sorry, could we get the bill? We've got a show at eight."
 
 **Hidden until the reveal:**
@@ -876,7 +876,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Saturday, 7pm. A docket for table 12 has printed with "M/R", "G/F" and "86 chips" on it. You're new to reading kitchen shorthand. Bianca, the sous chef, calls across the pass.
+- The scene: Saturday, 7pm. A docket for table 12 has printed with "M/R", "G/F" and "CHIPS OFF" on it. You're new to reading kitchen shorthand. Bianca, the sous chef, calls across the pass.
 - Bianca opens with: "Who's got twelve? Read it back to me, I need it now."
 
 **Hidden until the reveal:**
@@ -884,7 +884,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 - **Who:** Bianca, in her 30s, the sous chef. Fast, sharp and busy. She's fine with someone new as long as they're honest about what they don't know.
 - **Wants:** The order read back accurately, now.
 - **Calms them:**
-  - Reading it back clearly: medium rare, gluten free, and the chips are 86'd (sold out)
+  - Reading it back clearly: medium rare, gluten free, and the chips are sold out
   - Being honest about anything you're not sure of
   - Saying you'll tell table 12 about the chips and offer something else
   - Checking with the table whether the G/F is coeliac, rather than guessing
@@ -892,7 +892,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 - **Sets them off:**
   - Guessing what a code means
   - Mumbling, or making her ask twice
-  - Ignoring the 86
+  - Ignoring that the chips are sold out
   - Treating the G/F as a preference without checking
 - **Twist (2nd or 3rd reply):** She asks whether the G/F is coeliac or just a preference, and what table 12 is having instead of chips.
 - **Rule that can't be broken:** The staff member can't guess about the G/F. If they don't know whether it's coeliac, they say so and check with the table before the food is made.
@@ -905,13 +905,13 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 - Safety: in play, starts at "Watch it".
 - Money: not in play.
 
-## In the weeds (Paul, module 30)
+## Too many tables at once (Paul, module 30)
 
 *tricky, starts annoyed. From: AI Arena, module 30. Id: `in-the-weeds`.*
 
 **Staff see before they start:**
 
-- The scene: Saturday, 7:30pm. You have six tickets on the pass, two tables waving for attention and the printer has just spat out two more orders. Paul, at one of the waving tables, catches you as you pass.
+- The scene: Saturday, 7:30pm. You have six tickets on the pass, two tables waving for attention and the printer has just spat out two more orders. A dad at one of the waving tables catches you as you pass.
 - Paul opens with: "Mate, we've been waiting ages to order. Is anyone coming?"
 
 **Hidden until the reveal:**
@@ -946,7 +946,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Friday, 7:45pm. A couple of minutes after you delivered their mains, you notice Ken has taken one bite of his steak and put his knife and fork down. You go back to check.
+- The scene: Friday, 7:45pm. A couple of minutes after you delivered their mains, you notice the husband at a table for two has taken one bite of his steak and put his knife and fork down. You go back to check.
 - Ken opens with: "Hmm? Oh, yeah, it's fine, thanks."
 
 **Hidden until the reveal:**
@@ -982,7 +982,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Saturday, 8pm. Sienna's table of four has finished their entrees and is waiting on mains. The table is cluttered with empty plates, used napkins and an empty wine bottle. You're walking past.
+- The scene: Saturday, 8pm. A table of four has finished their entrees and is waiting on mains. The table is cluttered with empty plates, used napkins and an empty wine bottle. You're walking past.
 - Sienna opens with: "Oh, hi! Sorry, we're just catching up."
 
 **Hidden until the reveal:**
@@ -1053,7 +1053,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Saturday, 7pm, a restaurant. Michael and his partner are looking at the wine list. The reds: a Barossa Shiraz, a Coonawarra Cabernet Sauvignon, a McLaren Vale Grenache and a Yarra Valley Pinot Noir.
+- The scene: Saturday, 7pm, a restaurant. A couple are looking at the wine list. The reds: a Barossa Shiraz, a Coonawarra Cabernet Sauvignon, a McLaren Vale Grenache and a Yarra Valley Pinot Noir.
 - Michael opens with: "I usually drink Cabernet, but I want to try an Aussie Shiraz. Is the Barossa one very different?"
 
 **Hidden until the reveal:**
@@ -1090,7 +1090,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Saturday, 9pm. The bar is three deep and a hens party has just arrived. Kayla, one of the group, leans over the bar and shouts over the music.
+- The scene: Saturday, 9pm. The bar is three deep and a hens party has just arrived. One of the group leans over the bar and shouts over the music.
 - Kayla opens with: "I want something sweet but strong, not too fruity, maybe with gin? But I hate tonic. Just make me something good!"
 
 **Hidden until the reveal:**
@@ -1126,7 +1126,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Tuesday, 8am, a busy cafe. You already have five dockets on the machine. Linh calls out her order over the grinder.
+- The scene: Tuesday, 8am, a busy cafe. You already have five dockets on the machine. A woman calls out her order over the grinder.
 - Linh opens with: "Can I get a large skinny cap, extra hot, and a flat white on soy?"
 
 **Hidden until the reveal:**
@@ -1161,7 +1161,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Friday, 6:30pm. There's a queue three deep at the bar. You go to pour a lemon squash for Oscar and the soda gun sputters out warm, flat liquid.
+- The scene: Friday, 6:30pm. There's a queue three deep at the bar. You go to pour a lemon squash for a dad getting a round and the soda gun sputters out warm, flat liquid.
 - Oscar opens with: "Is that my squash? It looks a bit flat."
 
 **Hidden until the reveal:**
@@ -1266,7 +1266,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Friday, 8pm, a fine-dining restaurant. Richard has ordered a $180 bottle of red for his table of four and is watching closely as you bring it out. You've only practised the two-step lever a handful of times.
+- The scene: Friday, 8pm, a fine-dining restaurant. A guest has ordered a $180 bottle of red for his table of four and is watching closely as you bring it out. You've only practised the two-step lever a handful of times.
 - Richard opens with: "Go on then, let's see you open it. This one's special."
 
 **Hidden until the reveal:**
@@ -1301,7 +1301,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Saturday, 8pm. Mid-service, the lager tap starts gurgling and spitting foam. You're the only one with cellar access right now, and the queue is building. Tony is waiting on four schooners of lager.
+- The scene: Saturday, 8pm. Mid-service, the lager tap starts gurgling and spitting foam. You're the only one with cellar access right now, and the queue is building. A guest is waiting on four schooners of lager.
 - Tony opens with: "That one's all foam, mate. Are my four schooners coming or what?"
 
 **Hidden until the reveal:**
@@ -1337,7 +1337,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Friday, 10pm, a packed pub. You're clearing a table of twelve empty glasses in one trip. Dan, at the table, has stacked several schooner glasses inside each other to help.
+- The scene: Friday, 10pm, a packed pub. You're clearing a table of twelve empty glasses in one trip. One of the group has stacked several schooner glasses inside each other to help.
 - Dan opens with: "Here, I've stacked them for you. Makes it easier, yeah?"
 
 **Hidden until the reveal:**
@@ -1407,7 +1407,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Friday, 9:30pm. You're the bar-back. Hamish, the bartender, is slammed, and from where you're standing you can see his ice well is nearly empty. He hasn't asked for a restock.
+- The scene: Friday, 9:30pm. You're the bar-back. Hamish, the bartender, is very busy, and from where you're standing you can see his ice well is nearly empty. He hasn't asked for a restock.
 - Hamish opens with: "Not now, mate, I've got a queue. What is it?"
 
 **Hidden until the reveal:**
@@ -1442,7 +1442,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Thursday, 7pm, a cocktail bar, steady but not slammed. Ellie sits at the bar and pushes the menu aside.
+- The scene: Thursday, 7pm, a cocktail bar, steady but not packed. A guest sits at the bar and pushes the menu aside.
 - Ellie opens with: "I love gin, but I'm so over G&Ts. Surprise me?"
 
 **Hidden until the reveal:**
@@ -1477,7 +1477,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Friday, 6:30pm, a busy bar. Raj orders for his group: a Mojito, a Guinness and a glass of the house Chardonnay. There's a queue behind him.
+- The scene: Friday, 6:30pm, a busy bar. A guest orders for his group: a Mojito, a Guinness and a glass of the house Chardonnay. There's a queue behind him.
 - Raj opens with: "Can I get a Mojito, a Guinness and a house Chardy, thanks? We're in a bit of a rush."
 
 **Hidden until the reveal:**
@@ -1513,7 +1513,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Sunday, 4pm, the lounge of an old pub. Margaret asks for a Brandy Frappé. It isn't on the cocktail list.
+- The scene: Sunday, 4pm, the lounge of an old pub. An older local asks for a Brandy Frappé. It isn't on the cocktail list.
 - Margaret opens with: "Could I have a Brandy Frappé, love? My husband always ordered them here."
 
 **Hidden until the reveal:**
@@ -1548,7 +1548,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Friday, 8pm, a cocktail bar. Callum, a confident whisky drinker, orders a Margarita, but made with Scotch instead of tequila.
+- The scene: Friday, 8pm, a cocktail bar. A confident whisky drinker orders a Margarita, but made with Scotch instead of tequila.
 - Callum opens with: "I'll have a Margarita, but swap the tequila for Scotch. I don't like tequila."
 
 **Hidden until the reveal:**
@@ -1583,7 +1583,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Saturday, 11:50pm. The bar closes at midnight and you're starting to pack down with one other bartender. Brooke's group of six arrives at the bar.
+- The scene: Saturday, 11:50pm. The bar closes at midnight and you're starting to pack down with one other bartender. A group of six arrives at the bar.
 - Brooke opens with: "Quick, before you close! Can we get six cocktails? Two Espresso Martinis, a Mojito, a Margarita and two Old Fashioneds."
 
 **Hidden until the reveal:**
@@ -1619,7 +1619,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Wednesday, 8pm, a quiet whisky bar. Hugo wants to taste the difference between bourbon and rye and asks you to put together a flight of three.
+- The scene: Wednesday, 8pm, a quiet whisky bar. A guest wants to taste the difference between bourbon and rye and asks you to put together a flight of three.
 - Hugo opens with: "I never know the difference between bourbon and rye. Can you do me a flight of three to show me?"
 
 **Hidden until the reveal:**
@@ -1655,7 +1655,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Saturday, 8:30pm, a cocktail bar. Leah is out for a friend's birthday and isn't sure what to order.
+- The scene: Saturday, 8:30pm, a cocktail bar. A guest is out for a friend's birthday and isn't sure what to order.
 - Leah opens with: "I want something strong but smooth. Not something that burns. What would you do?"
 
 **Hidden until the reveal:**
@@ -1690,7 +1690,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Friday, 9pm, a hotel bar. You've just made Simon a gin Martini. He takes a sip and looks impressed.
+- The scene: Friday, 9pm, a hotel bar. You've just made a guest a gin Martini. He takes a sip and looks impressed.
 - Simon opens with: "That's the best Martini I've had in ages. What do you do differently?"
 
 **Hidden until the reveal:**
@@ -1726,7 +1726,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Thursday, 9pm, a cocktail bar. Yasmin orders a Sazerac and watches you make it. She bartends herself, at another venue.
+- The scene: Thursday, 9pm, a cocktail bar. A guest orders a Sazerac and watches you make it. She bartends herself, at another venue.
 - Yasmin opens with: "A Sazerac, please. I'm curious how you do yours."
 
 **Hidden until the reveal:**
@@ -1797,7 +1797,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Saturday, 8pm, a bar. Emma orders a bourbon and cola. The venue stocks a small-batch bourbon at a $4 upcharge that's great with cola, and a premium vodka for the vodka sodas her friends drink.
+- The scene: Saturday, 8pm, a bar. A guest orders a bourbon and cola. The venue stocks a small-batch bourbon at a $4 upcharge that's great with cola, and a premium vodka for the vodka sodas her friends drink.
 - Emma opens with: "Can I get a bourbon and Coke, please?"
 
 **Hidden until the reveal:**
@@ -1833,7 +1833,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Friday, 6pm, a wine bar. Nick and his partner have ordered two Aperol Spritzes at the bar and haven't opened the food menu.
+- The scene: Friday, 6pm, a wine bar. A couple have ordered two Aperol Spritzes at the bar and haven't opened the food menu.
 - Nick opens with: "Two spritzes, thanks. We're just settling in for a bit."
 
 **Hidden until the reveal:**
@@ -1868,7 +1868,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Saturday, 7pm, a restaurant. Ravi's table of eight is still reading the menu and can't decide. Two of the starters are favourites for sharing: the salt and pepper squid and the garlic bread with cheese.
+- The scene: Saturday, 7pm, a restaurant. A table of eight is still reading the menu and can't decide. Two of the starters are favourites for sharing: the salt and pepper squid and the garlic bread with cheese.
 - Ravi opens with: "We're still deciding, sorry. There's a lot on here."
 
 **Hidden until the reveal:**
@@ -1903,7 +1903,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Thursday, 7:30pm, a steakhouse. Alice orders the 300g sirloin. The 350g ribeye is $12 more and the chef's pick tonight.
+- The scene: Thursday, 7:30pm, a steakhouse. A guest orders the 300g sirloin. The 350g ribeye is $12 more and the chef's pick tonight.
 - Alice opens with: "I'll have the sirloin, medium rare, thanks."
 
 **Hidden until the reveal:**
@@ -1940,7 +1940,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Friday, 7pm, a bistro. Tonight's special is slow-cooked lamb shoulder with rosemary potatoes. Ben closes the menu and looks up at you.
+- The scene: Friday, 7pm, a bistro. Tonight's special is slow-cooked lamb shoulder with rosemary potatoes. A guest closes the menu and looks up at you.
 - Ben opens with: "What's good tonight?"
 
 **Hidden until the reveal:**
@@ -1975,7 +1975,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Saturday, 8:45pm, a restaurant. You're clearing the mains from Fiona's table of four. Earlier you heard it's her daughter's 18th birthday.
+- The scene: Saturday, 8:45pm, a restaurant. You're clearing the mains from a table of four. Earlier you heard a mum at the table say it's her daughter's 18th birthday.
 - Fiona opens with: "That was lovely, thanks. We're too full for dessert though."
 
 **Hidden until the reveal:**
@@ -2011,7 +2011,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Sunday, 2pm, a cafe. Marcus orders an espresso at the counter. There's tiramisu and a plate of house-made biscotti in the cabinet.
+- The scene: Sunday, 2pm, a cafe. A regular orders an espresso at the counter. There's tiramisu and a plate of house-made biscotti in the cabinet.
 - Marcus opens with: "Just an espresso, thanks."
 
 **Hidden until the reveal:**
@@ -2046,7 +2046,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Wednesday, 6:30pm, a restaurant. Grace points to the house white on the list. The next one up, a Marlborough Sauvignon Blanc, is $5 more a glass.
+- The scene: Wednesday, 6:30pm, a restaurant. A guest points to the house white on the list. The next one up, a Marlborough Sauvignon Blanc, is $5 more a glass.
 - Grace opens with: "I'll just have the house white, thanks."
 
 **Hidden until the reveal:**
@@ -2081,7 +2081,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Friday, 7pm, a restaurant. Lucy's table of four each want a glass of the same Pinot Noir, $14 a glass. A bottle is $60.
+- The scene: Friday, 7pm, a restaurant. A table of four each want a glass of the same Pinot Noir, $14 a glass. A bottle is $60.
 - Lucy opens with: "Can we get four glasses of the Pinot, please?"
 
 **Hidden until the reveal:**
@@ -2116,7 +2116,7 @@ A conversation passes at 75 out of 100. Breaking the rule that can't be broken e
 
 **Staff see before they start:**
 
-- The scene: Saturday, 7:30pm, a restaurant. While seating Will and his wife, you overhear it's their 25th wedding anniversary. Sparkling wine by the glass is $18; a bottle of Tasmanian sparkling is $85.
+- The scene: Saturday, 7:30pm, a restaurant. While seating a couple, you overhear it's their 25th wedding anniversary. Sparkling wine by the glass is $18; a bottle of Tasmanian sparkling is $85.
 - Will opens with: "Thanks. Could we see the drinks list?"
 
 **Hidden until the reveal:**

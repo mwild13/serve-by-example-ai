@@ -14,7 +14,7 @@ import {
 import { PageHead, Panel, StatRow, StatusText } from "./console-ui";
 
 // The Venue Content tab (Rich update, Phase 11). The manager adds a spec, a
-// special, a new product or an 86'd item; the AI drafts 3 to 5 questions;
+// special, a new product or a sold-out item; the AI drafts 3 to 5 questions;
 // the manager approves each one, and approved questions go into staff's next
 // mixed drill. Reads and writes /api/management/venue-content itself, like
 // the Compliance tab. Server side: lib/venue-content.ts.
@@ -191,7 +191,7 @@ export function VenueContentPanel({ venueId, venueName, sessionToken }: Props) {
   if (!venueId) {
     return (
       <div className="mc-page">
-        <PageHead title="Venue Content" description="Choose a venue at the top to add its specs, specials and 86'd items." />
+        <PageHead title="Venue Content" description="Choose a venue at the top to add its specs, specials and sold-out items." />
       </div>
     );
   }
@@ -205,7 +205,7 @@ export function VenueContentPanel({ venueId, venueName, sessionToken }: Props) {
     <div className="mc-page">
       <PageHead
         title="Venue Content"
-        description={`Add this week's specs, specials and 86'd items for ${venueName ?? "your venue"}. Staff get the questions you approve in their next mixed drill.`}
+        description={`Add this week's specs, specials and sold-out items for ${venueName ?? "your venue"}. Staff get the questions you approve in their next mixed drill.`}
       />
 
       <StatRow

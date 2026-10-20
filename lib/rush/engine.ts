@@ -265,7 +265,7 @@ export function playRush(seed: number, moves: RushMove[]): RushRun {
 const RATINGS: [number, string][] = [
   [85, "You ran the bar"],
   [70, "You held it together"],
-  [50, "In the weeds, but standing"],
+  [50, "Under pressure, but standing"],
   [0, "The bar sank"],
 ];
 

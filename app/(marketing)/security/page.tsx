@@ -38,7 +38,7 @@ const AI_PRINCIPLES: RuledItem[] = [
   },
   {
     title: "Venue content sends what the manager wrote",
-    body: "When a manager adds a spec, a special or an 86'd item, its name and details are sent to OpenAI to draft quiz questions. A photo of the menu is sent to read the items off it, and is not kept. Nothing else about the venue or its staff is sent, and no question reaches staff until a manager approves it.",
+    body: "When a manager adds a spec, a special or a sold-out item, its name and details are sent to OpenAI to draft quiz questions. A photo of the menu is sent to read the items off it, and is not kept. Nothing else about the venue or its staff is sent, and no question reaches staff until a manager approves it.",
   },
   {
     title: "The Manager AI Coach sends your venue's data",

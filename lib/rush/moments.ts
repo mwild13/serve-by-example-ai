@@ -133,7 +133,7 @@ export const MOMENTS: MomentTemplate[] = [
         { text: "Pour schooners straight into the hot glasses", verdict: "poor", effect: { guest: -5, money: -2, waste: 6, serve: 2, restock: ["glasses"] } },
         { text: "Pour the schooners into pot glasses", verdict: "poor", effect: { guest: -6, money: -4, serve: 2 } },
       ],
-      why: "Restock glasses before you run out. Beer poured into a glass hot from the washer fobs and goes flat, and a schooner served in a smaller glass is short measure.",
+      why: "Restock glasses before you run out. Beer poured into a glass hot from the washer foams up and goes flat, and a schooner served in a smaller glass is short measure.",
     }),
   },
   {
@@ -249,13 +249,13 @@ export const MOMENTS: MomentTemplate[] = [
         ["the house Shiraz", "is", "it's sold out", "the Grenache, a similar style"],
       ]);
       return {
-        situation: `${item.replace(/^./, (c) => c.toUpperCase())} ${verb} 86'd tonight: ${reason}. The next guest orders two.`,
+        situation: `${item.replace(/^./, (c) => c.toUpperCase())} ${verb} off tonight: ${reason}. The next guest orders two.`,
         choices: [
           { text: `Tell them straight away it's off, and suggest ${instead}`, verdict: "best", effect: { guest: 4, money: 2, serve: 1, extra: 4 } },
           { text: "Ring it up and work it out after", verdict: "poor", effect: { guest: -6, speed: -3 } },
           { text: "Say it'll be a long wait", verdict: "poor", effect: { guest: -4, money: -3 } },
         ],
-        why: "86 means it's gone for the night. Tell the guest before they pay, with an alternative in the same style, and the sale isn't lost.",
+        why: "When something is off for the night, tell the guest before they pay, with an alternative in the same style, and the sale isn't lost.",
       };
     },
   },

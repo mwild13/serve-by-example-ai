@@ -92,7 +92,7 @@ export const MODULE_14_QUESTIONS: Question[] = [
     concept: "s5",
     difficulty: 1,
     format: "multiple_choice",
-    prompt: "You're slammed and the phone rings with a long question. What do you do?",
+    prompt: "It's very busy and the phone rings with a long question. What do you do?",
     options: [
       { id: "a", text: "Put them on hold until the rush is over" },
       { id: "b", text: "Take their name and number and promise to call back" },
@@ -100,7 +100,7 @@ export const MODULE_14_QUESTIONS: Question[] = [
       { id: "d", text: "Let it ring out" },
     ],
     answer: "b",
-    explanation: "If you are slammed, take their name and number and promise to call them back when the rush dies down.",
+    explanation: "If you're very busy, take their name and number and promise to call them back when the rush dies down.",
     reviewed: true,
   },
   {
@@ -132,7 +132,7 @@ export const MODULE_14_QUESTIONS: Question[] = [
       { id: "d", text: "Reading the booking back" },
     ],
     answer: "c",
-    explanation: "If you are slammed, take their name and number and promise to call them back when the rush dies down.",
+    explanation: "If you're very busy, take their name and number and promise to call them back when the rush dies down.",
     reviewed: true,
   },
 ];

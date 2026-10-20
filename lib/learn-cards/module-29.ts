@@ -34,8 +34,8 @@ export const MODULE_29_CARDS: LearnCard[] = [
   {
     id: "c4",
     concepts: ["s4"],
-    title: "86 means it's gone",
-    rule: "\"86\" or \"OFF\" means the item has run out. Tell the floor staff straight away.",
+    title: "Sold out means gone",
+    rule: "When the kitchen says an item is sold out (a docket or note may say OFF), tell the floor staff straight away.",
     why: "Every server needs to know before they take another order for it.",
     reviewed: true,
   },

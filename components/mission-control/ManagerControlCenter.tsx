@@ -508,7 +508,12 @@ export default function ManagerControlCenter({
     const supabase = createSupabaseBrowserClient();
     const pollId = setInterval(async () => {
       attempts++;
-      const { data: { user } } = await supabase.auth.getUser();
+      // A lost auth lock (another tab refreshing) just waits for the next poll.
+      const user = await supabase.auth.getUser().then(({ data }) => data.user, () => undefined);
+      if (user === undefined) {
+        if (attempts >= 4) { clearInterval(pollId); setSubProcessing(false); }
+        return;
+      }
       if (!user) { clearInterval(pollId); setSubProcessing(false); return; }
       const { data } = await supabase
         .from("profiles")

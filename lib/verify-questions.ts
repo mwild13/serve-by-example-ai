@@ -585,7 +585,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "You should put callers on hold for over five minutes.",
       answer: "false",
-      explanation: "If you are slammed, take their name and number and promise to call them back when the rush dies down.",
+      explanation: "If you're very busy, take their name and number and promise to call them back when the rush dies down.",
     },
     {
       prompt: "Smiling while speaking makes your tone sound much warmer.",
@@ -1217,9 +1217,9 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
       explanation: '"G/F" commonly stands for Gluten Free and must trigger the kitchen\'s full allergen protocol immediately.',
     },
     {
-      prompt: '"86" or "OFF" on a kitchen note means that menu item is no longer available.',
+      prompt: '"OFF" or "SOLD OUT" next to a menu item on a kitchen note means it is no longer available tonight.',
       answer: "true",
-      explanation: '"86\'d" is the universal hospitality term for an item that has run out. All floor staff must be briefed on 86 items immediately.',
+      explanation: "Sold out means it's gone for the service. Every floor staff member needs to know straight away, before they take another order for it.",
     },
     {
       prompt: "Runners can reorganise dockets to make carrying plates easier when food is ready.",
@@ -1578,7 +1578,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Only bartenders need to know about out-of-stock items — the floor staff can improvise.",
       answer: "false",
-      explanation: "All floor staff must be briefed on 86 items at the start of every service to avoid promising unavailable items at the table.",
+      explanation: "All floor staff must be told what's sold out at the start of every service, so no one promises a guest something the kitchen can't make.",
     },
   ],
 

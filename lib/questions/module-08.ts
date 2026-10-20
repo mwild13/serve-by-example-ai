@@ -109,7 +109,7 @@ export const MODULE_8_QUESTIONS: Question[] = [
     concept: "s6",
     difficulty: 1,
     format: "best_line",
-    prompt: "You're slammed and a guest catches your eye. What's the best thing to say?",
+    prompt: "It's very busy and a guest catches your eye. What's the best thing to say?",
     options: [
       { id: "a", text: "Nothing: keep your head down" },
       { id: "b", text: "\"I'll be right with you.\"" },

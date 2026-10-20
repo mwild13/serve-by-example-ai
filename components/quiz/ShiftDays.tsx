@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { WEEKDAY_SHORT, reminderTimeText, shiftDaysText, type ShiftStreak } from "@/lib/shift-streak";
 import { saveShiftDays } from "@/lib/verify-quiz-client";
-import { pushSupport, turnOffPush, turnOnPush } from "@/lib/push-client";
+import { askNotificationPermission, blockedHelp, notificationPermission, pushSupport, turnOffPush, turnOnPush } from "@/lib/push-client";
 
 // The shift streak line, the "which days do you work?" picker and "When
 // should we remind you?" (Rich update, Phase 12). Shown at the end of the
@@ -90,26 +90,60 @@ export function ShiftReminder({ streak, getToken, onSaved }: { streak: ShiftStre
   const [time, setTime] = useState(streak.reminderTime ?? "");
   const [saving, setSaving] = useState(false);
   const [note, setNote] = useState<string | null>(null);
+  // A time is saved, and this phone still needs to allow notifications.
+  const [needsAllow, setNeedsAllow] = useState(false);
   // Read in the browser only; the server render has no navigator.
   const [support] = useState(() => (typeof window === "undefined" ? "unsupported" : pushSupport()));
+
+  const confirmed = (at: string) => `We'll remind you at ${reminderTimeText(at)} on ${shiftDaysText(streak.shiftDays)}.`;
+
+  /** Subscribes this phone, now that it's allowed. */
+  async function subscribe(at: string) {
+    await turnOnPush(await getToken());
+    setNeedsAllow(false);
+    setNote(confirmed(at));
+  }
 
   async function choose(next: string) {
     setTime(next);
     setSaving(true);
     setNote(null);
+    setNeedsAllow(false);
     try {
       const token = await getToken();
       // Save the time first, so it's kept even if this phone can't take notifications yet.
       onSaved(await saveShiftDays(token, undefined, next || null));
-      if (next) {
-        await turnOnPush(token);
-        setNote(`We'll remind you at ${reminderTimeText(next)} on ${shiftDaysText(streak.shiftDays)}.`);
-      } else {
+      if (!next) {
         await turnOffPush(token);
         setNote("Reminders are off.");
+      } else if (notificationPermission() === "granted") {
+        await subscribe(next);
+      } else if (notificationPermission() === "denied") {
+        setNeedsAllow(true);
+        setNote(blockedHelp());
+      } else {
+        // Asking needs a real tap (see askNotificationPermission), so it's a button.
+        setNeedsAllow(true);
+        setNote("Your time is saved. Tap Allow notifications so this phone can remind you.");
       }
     } catch (err) {
       setNote(err instanceof Error ? err.message : "Could not save your reminder.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function allow() {
+    // First, before any await, so the browser shows its prompt.
+    const asking = askNotificationPermission();
+    setSaving(true);
+    try {
+      const permission = await asking;
+      if (permission === "granted") await subscribe(time);
+      else if (permission === "denied") setNote(blockedHelp());
+      else setNote("The request was closed before you chose. Tap Allow notifications to try again.");
+    } catch (err) {
+      setNote(err instanceof Error ? err.message : "Could not turn on notifications on this phone.");
     } finally {
       setSaving(false);
     }
@@ -138,6 +172,11 @@ export function ShiftReminder({ streak, getToken, onSaved }: { streak: ShiftStre
           </option>
         ))}
       </select>
+      {needsAllow && time && (
+        <button type="button" className="qz-next dr-allow" onClick={() => void allow()} disabled={saving}>
+          Allow notifications
+        </button>
+      )}
       {note && <p className="dr-text dr-text--muted" role="status">{note}</p>}
     </div>
   );

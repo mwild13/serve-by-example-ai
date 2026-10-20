@@ -1,7 +1,7 @@
 /**
  * venue-content.ts – Venue content (Rich update, Phase 11), server side.
  *
- * A manager adds an item (a spec, a special, a new product, an 86'd item or a
+ * A manager adds an item (a spec, a special, a new product, a sold-out item or a
  * note). draftVenueQuestions() asks the model for 3 to 5 questions about it,
  * and toStoredQuestion() keeps only the ones that are well formed, in the
  * module quiz's question shape. The manager approves each one in the Manager
@@ -62,7 +62,7 @@ const KIND_GUIDANCE: Record<VenueContentKind, string> = {
   note: "Test the practice the note describes, the way staff would use it on shift.",
 };
 
-export const VENUE_DRAFT_SYSTEM_PROMPT = `You write quiz questions for hospitality staff in one Australian venue, from an item their manager has added: a drink spec, a special, a new product, an item that's off (86'd) or a venue note. The manager reviews every question before staff see it.
+export const VENUE_DRAFT_SYSTEM_PROMPT = `You write quiz questions for hospitality staff in one Australian venue, from an item their manager has added: a drink spec, a special, a new product, an item that's sold out or off the menu, or a venue note. The manager reviews every question before staff see it.
 
 RULES
 - Use only facts in <item_details>. Never add ingredients, measures, prices, days, brands or claims that aren't there. If the details are thin, write fewer questions.

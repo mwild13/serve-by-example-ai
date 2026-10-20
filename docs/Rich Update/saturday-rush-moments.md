@@ -78,7 +78,7 @@ Comes up only in some states.
 - **Costly:** Pour schooners straight into the hot glasses _(guest -5, money -2, $6 wasted, serves 2, restocks glasses)_
 - **Costly:** Pour the schooners into pot glasses _(guest -6, money -4, serves 2)_
 
-**Why:** Restock glasses before you run out. Beer poured into a glass hot from the washer fobs and goes flat, and a schooner served in a smaller glass is short measure.
+**Why:** Restock glasses before you run out. Beer poured into a glass hot from the washer foams up and goes flat, and a schooner served in a smaller glass is short measure.
 
 ## out-of-glasses (stock)
 
@@ -169,13 +169,13 @@ Can come up any time.
 
 Can come up any time.
 
-**Situation:** Espresso Martinis are 86'd tonight: the coffee machine is down. The next guest orders two.
+**Situation:** Espresso Martinis are off tonight: the coffee machine is down. The next guest orders two.
 
 - **Best:** Tell them straight away it's off, and suggest a White Russian _(guest +4, money +2, serves 1, +$4 sale)_
 - **Costly:** Ring it up and work it out after _(guest -6, speed -3)_
 - **Costly:** Say it'll be a long wait _(guest -4, money -3)_
 
-**Why:** 86 means it's gone for the night. Tell the guest before they pay, with an alternative in the same style, and the sale isn't lost.
+**Why:** When something is off for the night, tell the guest before they pay, with an alternative in the same style, and the sale isn't lost.
 
 ## upsell-when-quiet (sales)
 
