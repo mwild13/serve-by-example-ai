@@ -3181,3 +3181,227 @@ html[data-staff-high-contrast="1"] .dashboard-main {
 @media (prefers-reduced-motion: reduce) {
   .sbe-coach-hint { animation: none; }
 }
+
+/* Saturday Rush (components/rush/SaturdayRush.tsx, Rich update Phase 15), on
+   the .qz theme colours. The debrief reuses the Live Guest verdict, dials
+   and thought rows. */
+.rush {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.rush-rules {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--qz-text);
+}
+.rush-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.rush-clock {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--qz-text);
+}
+.rush-count {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--qz-muted);
+}
+.rush-bar {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: center;
+  gap: 10px 14px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--qz-line);
+  background: var(--qz-surface);
+}
+.rush-queue,
+.rush-stock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.rush-stock-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--qz-muted);
+}
+.rush-stock-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--qz-surface-alt);
+  overflow: hidden;
+}
+.rush-stock-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--qz-accent);
+  transition: width 0.4s ease;
+}
+.rush-stock--low .rush-stock-fill {
+  background: var(--qz-wrong);
+}
+.rush-stock--low .rush-stock-label {
+  color: var(--qz-wrong);
+}
+.rush-queue-dots {
+  display: flex;
+  gap: 3px;
+}
+.rush-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--qz-surface-alt);
+  border: 1px solid var(--qz-line);
+}
+.rush-dot--on {
+  background: var(--qz-text);
+  border-color: var(--qz-text);
+}
+.rush-queue-n {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--qz-text);
+}
+.rush-barback {
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--qz-line);
+  background: var(--qz-surface-alt);
+  color: var(--qz-text);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.3;
+  cursor: pointer;
+}
+.rush-barback--on {
+  border-color: var(--qz-accent);
+  background: var(--qz-accent);
+  color: var(--qz-accent-text);
+}
+.rush-barback:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.rush-meters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  font-size: 0.8rem;
+}
+.rush-meter {
+  display: inline-flex;
+  gap: 6px;
+}
+.rush-meter-name {
+  color: var(--qz-muted);
+}
+.rush-meter-value {
+  font-weight: 700;
+  color: var(--qz-text);
+}
+.rush-card {
+  position: relative;
+  overflow: hidden;
+}
+.rush-timer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--qz-surface-alt);
+}
+.rush-timer-fill {
+  display: block;
+  height: 100%;
+  background: var(--qz-accent);
+  transition: width 0.1s linear;
+}
+.rush-situation {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--qz-text);
+}
+.rush-flash {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--qz-muted);
+}
+.rush-totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  font-size: 0.88rem;
+  color: var(--qz-muted);
+}
+.rush-totals strong {
+  color: var(--qz-text);
+}
+.rush-review {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.rush-review-situation,
+.rush-review-why {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--qz-text);
+}
+.rush-review-why {
+  color: var(--qz-muted);
+}
+.rush-review-pick,
+.rush-review-best {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.rush-review-pick--best,
+.rush-review-best {
+  color: var(--qz-right);
+}
+.rush-review-pick--ok {
+  color: var(--qz-text);
+}
+.rush-review-pick--poor,
+.rush-review-pick--breach,
+.rush-review-pick--froze {
+  color: var(--qz-wrong);
+}
+@media (max-width: 560px) {
+  .rush-bar {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .rush-barback {
+    grid-column: 1 / -1;
+  }
+}

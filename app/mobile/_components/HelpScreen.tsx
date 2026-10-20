@@ -100,6 +100,13 @@ export default function HelpScreen() {
         said is written out for you to check before you send it. Live Guest is on venue plans.
       </Section>
 
+      <Section title="Saturday Rush">
+        A Saturday night shift against the clock, from the Learn tab: twelve quick calls, 15 seconds each, while the
+        queue grows and the ice and glasses run down. Call the bar-back whenever you like; they&apos;re then away for a
+        while. Scored on guests, speed, money and safety, with a call-by-call debrief at the end. Every shift is
+        different, and your best score is kept.
+      </Section>
+
       <Section title="Challenges">
         Short, tap-based mini-games that reinforce specs and service skills in bursts, good for a spare minute before
         a shift. These don&apos;t count toward module mastery, they&apos;re for quick repetition.

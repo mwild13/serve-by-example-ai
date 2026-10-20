@@ -11,6 +11,7 @@ import LiveGuestPage from "@/app/dashboard/_components/LiveGuestPage";
 import DiagnosticFlow from "@/app/dashboard/_components/DiagnosticFlow";
 import DynamicModuleNav from "@/app/dashboard/_components/DynamicModuleNav";
 import DrillPage from "@/app/dashboard/_components/DrillPage";
+import RushPage from "@/app/dashboard/_components/RushPage";
 import ChallengesPage from "@/app/dashboard/_components/ChallengesPage";
 import { CocktailGridSkeleton } from "@/components/ui/Skeletons";
 const CocktailLibrary = lazy(() => import("@/app/dashboard/_components/knowledge-base/CocktailLibrary"));
@@ -24,12 +25,13 @@ import { openBillingPortal } from "@/lib/billing-portal";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { normalizeVenueCode } from "@/lib/venue-code";
 
-type NavItem = "home" | "module" | "drill" | "live-guest" | "challenges" | "cocktails" | "knowledge" | "progress" | "badges" | "settings";
+type NavItem = "home" | "module" | "drill" | "rush" | "live-guest" | "challenges" | "cocktails" | "knowledge" | "progress" | "badges" | "settings";
 
 const NAV_ITEMS: { id: NavItem; label: string }[] = [
   { id: "home", label: "Home" },
   { id: "module", label: "Modules" },
   { id: "drill", label: "Mixed Drill" },
+  { id: "rush", label: "Saturday Rush" },
   { id: "live-guest", label: "Live Guest" },
   { id: "challenges", label: "Challenges" },
   { id: "cocktails", label: "Cocktail Library" },
@@ -575,7 +577,7 @@ export default function DashboardShell({
   const [authErrorMessage, setAuthErrorMessage] = useState("");
   const authGuard = useAuthSessionGuard((msg) => setAuthErrorMessage(msg));
 
-  const NAV_IDS = new Set<NavItem>(["home","module","drill","live-guest","challenges","cocktails","knowledge","progress","badges","settings"]);
+  const NAV_IDS = new Set<NavItem>(["home","module","drill","rush","live-guest","challenges","cocktails","knowledge","progress","badges","settings"]);
   // Scenario Training ("stage4") and the AI Arena ("scenarios") were retired
   // in the Rich update, Phase 8: old links open Live Guest instead. Rapid
   // Fire's module picker became the mixed drill in Phase 10.
@@ -687,7 +689,7 @@ export default function DashboardShell({
   useEffect(() => { void fetchProgress(); }, [fetchProgress]);
 
   // Live Guest isn't here: Pro and free open it and see its upgrade prompt.
-  const PREMIUM_NAV_ITEMS: NavItem[] = ["module", "drill", "cocktails", "knowledge"];
+  const PREMIUM_NAV_ITEMS: NavItem[] = ["module", "drill", "rush", "cocktails", "knowledge"];
   const envAdminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
   const ADMIN_EMAILS = envAdminEmails;
   const isAdmin = ADMIN_EMAILS.length > 0 && ADMIN_EMAILS.includes(userEmail.toLowerCase());
@@ -916,6 +918,8 @@ export default function DashboardShell({
             progressData={progressData}
             onSyncProgress={fetchProgress}
           />
+        ) : activeNav === "rush" ? (
+          <RushPage />
         ) : activeNav === "live-guest" ? (
           <LiveGuestPage />
         ) : activeNav === "challenges" ? (

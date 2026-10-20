@@ -16,7 +16,8 @@
     "lint:css:unused": "node scripts/find-unused-css.mjs",
     "questions:review": "node scripts/question-review.mjs",
     "cards:review": "node scripts/learn-card-review.mjs",
-    "guests:review": "node scripts/live-guest-review.mjs"
+    "guests:review": "node scripts/live-guest-review.mjs",
+    "rush:review": "node scripts/rush-review.mjs"
   },
   "dependencies": {
     "@fal-ai/client": "^1.10.1",

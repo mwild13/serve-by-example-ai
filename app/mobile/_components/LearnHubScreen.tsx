@@ -263,6 +263,7 @@ export default function LearnHubScreen() {
 
         <div ref={practiceRef}>
           <DrillCard />
+          <RushCard />
           <LiveGuestCard />
         </div>
 
@@ -348,6 +349,36 @@ function DrillCard() {
         <span style={{ fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>Ten questions, every module you&apos;ve started</span>
         <span style={{ fontSize: 13, lineHeight: 1.5, color: "var(--text-mobile-muted)" }}>
           A quick round at full difficulty, with the topics mixed. Practice only: it never changes your mastery.
+        </span>
+      </Link>
+    </div>
+  );
+}
+
+// Rich update, Phase 15: the way into Saturday Rush, the timed service game
+// (components/rush/SaturdayRush.tsx).
+function RushCard() {
+  return (
+    <div style={{ padding: "0 20px 12px" }}>
+      <Link
+        href="/mobile/rush"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 6,
+          padding: 16,
+          borderRadius: "var(--radius-lg)",
+          background: "var(--surface-mobile)",
+          border: "1px solid var(--border-mobile)",
+          textDecoration: "none",
+        }}
+      >
+        <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--gold-mobile)" }}>
+          Saturday Rush
+        </span>
+        <span style={{ fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>Two hours behind a busy bar, against the clock</span>
+        <span style={{ fontSize: 13, lineHeight: 1.5, color: "var(--text-mobile-muted)" }}>
+          The queue grows and the ice runs down. Twelve quick calls, scored on guests, speed, money and safety.
         </span>
       </Link>
     </div>

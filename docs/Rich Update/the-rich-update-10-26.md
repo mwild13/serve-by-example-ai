@@ -331,3 +331,16 @@ The owner's conversation with Linh (the shouted coffee order, tough) showed five
 - **Owner:** run `supabase/migrations/20261027_live_guest_voice.sql` (the cap). Voice works before it is run, without the cap.
 - **Not tested here:** the live speech models (they need the OpenAI key), and recording on a real iPhone and Android phone. That's the noisy bar test on the checklist.
 - **Tests:** 6 in `lib/live-guest/voice.test.ts` (recording types, a voice for every guest, pronouns, the accent and mood instructions, the transcription hint).
+
+## Phase 15: Saturday Rush (built 2026-10-20)
+
+- **What it is:** a Saturday night shift from 9:30pm to 11:30pm in twelve moments, 15 seconds each. The queue grows, the ice and clean glasses run down, dockets arrive. Each moment gives three or four choices: what to make first, what to say to the person waiting, what to do about the glass in the ice well. Freeze and the queue notices.
+- **The bar-back:** a button you can press at any moment. Ice and glasses come back full, then the bar-back is away for three moments. Leave it too late and the well runs dry, which forces its own moment. That's the plan's "when to call the bar-back".
+- **Scored on the four dials** (guests, speed, money, safety) and how many of the best calls you made, out of 100, with the takings, the waste and the guests who walked out. Serving someone intoxicated, serving minors without ID, or scooping around broken glass is a rule you can't break, and caps the score at 40.
+- **The debrief:** every call, what the best call was, and why, written to principles (start the Guinness first, burn the ice well, acknowledge the queue, refuse service kindly), not one venue's way.
+- **Never the same twice:** 19 moments, 12 a shift (at least two about safety), with the drinks, numbers and order of the choices random each run.
+- **No AI, no cost, plays offline.** The finished shift is saved, and the server replays it from its seed to work out the score itself, so the browser can't send a made-up one. A shift counts as training activity for the manager. Your best score shows at the start.
+- **Balance, from 3,000 simulated shifts per style:** always the best call scores about 86 (rarely under 75), sensible but not best about 69, random choices about 33 (they hit the breaches), the worst calls about 9, and freezing all night 11 with over 20 guests walking out.
+- **Where:** desktop menu "Saturday Rush" (after Mixed Drill, a paid feature like it), mobile Learn hub card, `/mobile/rush`.
+- **Owner:** run `supabase/migrations/20261028_saturday_rush.sql`. Review the moments in `docs/Rich Update/saturday-rush-moments.md`.
+- **Tests:** 9 in `lib/rush/engine.test.ts`.
