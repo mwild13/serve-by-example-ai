@@ -758,24 +758,23 @@ export default function DashboardShell({
             <ModulesPage key="module" getToken={getToken} onOpenModule={(moduleId) => setSelectedModuleId(moduleId)} />
           )
         ) : activeNav === "drill" ? (
-          sheet(
-            <DrillPage
-              key={`drill-${drillMode}`}
-              mode={drillMode}
-              onOpenModule={openModule}
-              onLiveGuest={() => handleNavClick("live-guest")}
-              onBrowseModules={() => {
-                setSelectedModuleId(null);
-                handleNavClick("module");
-              }}
-            />
-          )
+          <DrillPage
+            key={`drill-${drillMode}`}
+            mode={drillMode}
+            getToken={getToken}
+            onOpenModule={openModule}
+            onLiveGuest={() => handleNavClick("live-guest")}
+            onBrowseModules={() => {
+              setSelectedModuleId(null);
+              handleNavClick("module");
+            }}
+          />
         ) : activeNav === "rush" ? (
-          sheet(<RushPage />)
+          <RushPage getToken={getToken} />
         ) : activeNav === "live-guest" ? (
-          sheet(<LiveGuestPage />)
+          <LiveGuestPage getToken={getToken} />
         ) : activeNav === "challenges" ? (
-          sheet(<ChallengesPage />)
+          <ChallengesPage />
         ) : activeNav === "cocktails" ? (
           sheet(
             <Suspense fallback={<CocktailGridSkeleton count={12} />}>

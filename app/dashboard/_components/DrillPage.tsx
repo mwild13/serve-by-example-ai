@@ -1,49 +1,92 @@
 "use client";
 
-import { useCallback } from "react";
+import { useEffect, useState } from "react";
 import MixedDrill from "@/components/quiz/MixedDrill";
-import { createSupabaseBrowserClient } from "@/lib/supabase";
+import { DRILL_MIN_STARTED, isMastered, isStarted, type StepModule } from "@/lib/next-step";
 
 // Desktop host for the mixed drill (Rich update, Phase 10) and the pre-shift
-// drill Today opens (Phase 12). The drill itself is
-// components/quiz/MixedDrill.tsx, shared with mobile. It replaced Rapid
-// Fire's module picker.
+// drill Today opens (Phase 12), on the green room
+// (docs/STAFF_DESKTOP_REDESIGN_PLAN.md, 7.3): the drill on a cream docket,
+// what feeds it beside it. The drill itself is components/quiz/MixedDrill.tsx,
+// shared with mobile.
 export default function DrillPage({
   mode = "mixed",
+  getToken,
   onOpenModule,
   onBrowseModules,
   onLiveGuest,
 }: {
   mode?: "mixed" | "preshift";
+  getToken: () => Promise<string>;
   onOpenModule: (moduleId: number) => void;
   onBrowseModules: () => void;
   onLiveGuest: () => void;
 }) {
-  const getToken = useCallback(async () => {
-    const supabase = createSupabaseBrowserClient();
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.access_token) throw new Error("Session expired. Please sign in again.");
-    return session.access_token;
-  }, []);
+  const [modules, setModules] = useState<StepModule[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getToken()
+      .then((token) => fetch("/api/training/modules", { headers: { Authorization: `Bearer ${token}` } }))
+      .then((r) => (r.ok ? (r.json() as Promise<{ modules: StepModule[] }>) : null))
+      .then((data) => {
+        if (!cancelled) setModules(data?.modules ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setModules([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [getToken]);
+
+  const sources = (modules ?? []).filter(isStarted);
+  const preshift = mode === "preshift";
 
   return (
-    <div className="stage-container">
-      <div className="stage-header">
-        <h2 style={{ marginBottom: 8 }}>{mode === "preshift" ? "Ready for your shift" : "Mixed Drill"}</h2>
-        <p className="stage-subtitle">
-          {mode === "preshift"
-            ? "Three minutes before you start: six questions from what you've learnt."
-            : "A quick round across the modules you've started. Mixing topics is how what you learn sticks for the shift."}
+    <div className="sd-page">
+      <header className="sd-head">
+        <p className="sd-kicker">{preshift ? "Before your shift" : "Practise"}</p>
+        <h1 className="sd-title">{preshift ? "Ready for your shift" : "Mixed Drill"}</h1>
+        <p className="sd-lede">
+          {preshift
+            ? "Six questions from what you've learnt, about three minutes. Finish it and your shift streak grows."
+            : "Ten questions from every module you've started, never two in a row from the same one. Mixing topics is how it sticks for the shift."}
         </p>
+      </header>
+      <div className="sd-split">
+        <div className="sd-docket">
+          <MixedDrill
+            theme="light"
+            mode={mode}
+            getToken={getToken}
+            onOpenModule={(moduleId) => onOpenModule(moduleId)}
+            onBrowseModules={onBrowseModules}
+            onLiveGuest={onLiveGuest}
+          />
+        </div>
+        <aside className="sd-side" aria-label="What the drill draws on">
+          <p className="sd-kicker">In your drills</p>
+          {modules === null ? null : sources.length === 0 ? (
+            <p className="sd-side-text">Nothing yet. Every module you start comes into your drills.</p>
+          ) : (
+            <ul className="sd-side-list">
+              {sources.map((m) => (
+                <li key={m.id}>
+                  <span>{m.title}</span>
+                  <span className="sd-side-meta">{isMastered(m) ? "Mastered" : "Started"}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {modules !== null && !preshift && sources.length < DRILL_MIN_STARTED && (
+            <p className="sd-side-text">
+              Start {DRILL_MIN_STARTED - sources.length} more {DRILL_MIN_STARTED - sources.length === 1 ? "module" : "modules"} and mixed drills open.
+            </p>
+          )}
+          <p className="sd-side-note">Questions from your venue&apos;s menu come in too, once your manager adds them.</p>
+        </aside>
       </div>
-      <MixedDrill
-        theme="light"
-        mode={mode}
-        getToken={getToken}
-        onOpenModule={(moduleId) => onOpenModule(moduleId)}
-        onBrowseModules={onBrowseModules}
-        onLiveGuest={onLiveGuest}
-      />
     </div>
   );
 }

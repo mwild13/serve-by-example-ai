@@ -25,6 +25,7 @@ import {
   type RevealTurn,
 } from "@/lib/live-guest-client";
 import { useGuestVoice } from "@/components/live-guest/useGuestVoice";
+import { ArrowRight, Lock } from "lucide-react";
 
 // Live Guest (Rich update, Phases 6 and 7): pick a guest, talk to them over
 // 3 or 4 replies, then see what they were thinking at each turn, which of the
@@ -39,6 +40,12 @@ type Props = {
   theme: "light" | "dark";
   /** The one-line intro above the picker. Desktop says it in the page header instead. */
   intro?: boolean;
+  /**
+   * "room": the staff desktop's green layout (docs/STAFF_DESKTOP_REDESIGN_PLAN.md,
+   * 7.4). The picker leads with one guest and lists the rest as rows; the
+   * conversation sits on a cream docket. Mobile keeps the default.
+   */
+  layout?: "default" | "room";
 };
 
 type Line = { from: "guest" | "staff"; text: string };
@@ -97,7 +104,131 @@ function GuestCard({
   );
 }
 
-export default function LiveGuest({ getToken, theme, intro = true }: Props) {
+function guestCta(guest: PublicGuest, starting: string | null): string {
+  if (starting === guest.id) return "Starting…";
+  return guest.name ? `Talk to ${guest.name}` : "Talk to this guest";
+}
+
+/** The desktop picker: one guest first, the plan note in a line, then every guest as a row. */
+function RoomPicker({
+  guests,
+  onPlan,
+  taster,
+  weekGuestId,
+  starting,
+  onStart,
+}: {
+  guests: PublicGuest[];
+  onPlan: boolean;
+  taster: LiveGuestList["taster"];
+  weekGuestId: string | null;
+  starting: string | null;
+  onStart: (id: string) => void;
+}) {
+  const [area, setArea] = useState<GuestArea | null>(null);
+  const week = guests.find((g) => g.id === weekGuestId) ?? null;
+  const tasterGuest = !onPlan && taster && !taster.used ? guests.find((g) => g.id === taster.guestId) ?? null : null;
+  const suggested = guests.filter((g) => g.suggested && g.available);
+  const lead = (week && week.available ? week : null) ?? tasterGuest ?? suggested[0] ?? guests.find((g) => g.available) ?? null;
+  const kicker = lead === week ? "Guest of the week, for the whole team" : lead === tasterGuest ? "One conversation, free" : "Suggested for you";
+  const also = suggested.filter((g) => g.id !== lead?.id).slice(0, 2);
+  const areas = (Object.keys(AREA_LABEL) as GuestArea[]).filter((a) => guests.some((g) => g.area === a));
+  const shownArea = area && areas.includes(area) ? area : areas[0];
+  const rows = guests.filter((g) => g.area === shownArea);
+
+  return (
+    <>
+      {lead && (
+        <section className="sd-feature" aria-labelledby="sd-lead-guest">
+          <div className="sd-feature-main">
+            <p className="sd-kicker sd-kicker-brass">{kicker}</p>
+            <h2 id="sd-lead-guest" className="sd-feature-title">{lead.title}</h2>
+            <p className="sd-feature-body">{lead.setting}</p>
+            <p className="sd-meta">
+              {LEVEL_LABEL[lead.level]}. {DIFFICULTY_LABEL[lead.difficulty]} with you{lead.passed ? ". You've sorted this one before" : ""}.
+            </p>
+            <button type="button" className="sd-btn sd-btn-brass" disabled={starting !== null} onClick={() => onStart(lead.id)}>
+              {guestCta(lead, starting)}
+              <ArrowRight size={18} strokeWidth={2} aria-hidden />
+            </button>
+          </div>
+          {also.length > 0 && (
+            <div className="sd-feature-also">
+              <p className="sd-kicker">Also suggested</p>
+              <ul>
+                {also.map((g) => (
+                  <li key={g.id}>
+                    <button type="button" className="sd-also" disabled={starting !== null} onClick={() => onStart(g.id)}>
+                      <span className="sd-also-title">{g.title}</span>
+                      <span className="sd-also-meta">{LEVEL_LABEL[g.level]}, {AREA_LABEL[g.area].toLowerCase()}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </section>
+      )}
+
+      {!onPlan && (
+        <p className="sd-planline">
+          {taster?.used ? "You've had your free conversation. " : ""}
+          Live Guest comes with every venue plan and venue trial, all {guests.length} guests. If you work at a venue, ask your manager to add you.{" "}
+          <Link href="/pricing" className="sd-link">See the plans</Link>
+        </p>
+      )}
+
+      <div className="sd-filter">
+        <div className="sd-tabs" role="tablist" aria-label="Guests by area">
+          {areas.map((a) => (
+            <button
+              key={a}
+              type="button"
+              role="tab"
+              aria-selected={a === shownArea}
+              className={`sd-tab${a === shownArea ? " is-active" : ""}`}
+              onClick={() => setArea(a)}
+            >
+              {AREA_LABEL[a]}
+              <span className="sd-tab-count">{guests.filter((g) => g.area === a).length}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+      <ol className="sd-rows">
+        {rows.map((g) => (
+          <li key={g.id} className="sd-row-item">
+            <button type="button" className="sd-row sd-guest-row" disabled={!g.available || starting !== null} onClick={() => onStart(g.id)}>
+              <span className="sd-row-main">
+                <span className="sd-row-title">
+                  {g.title}
+                  {g.passed && <span className="sd-here">Sorted</span>}
+                </span>
+                <span className="sd-row-desc">{g.setting}</span>
+              </span>
+              <span className="sd-row-status">{LEVEL_LABEL[g.level]}</span>
+              <span className="sd-row-action">
+                {g.available ? (
+                  <>
+                    {starting === g.id ? "Starting…" : "Talk"}
+                    <ArrowRight size={16} strokeWidth={2} aria-hidden />
+                  </>
+                ) : (
+                  <>
+                    <Lock size={14} strokeWidth={2} aria-hidden />
+                    {onPlan ? "Not on your plan" : "Venue plans"}
+                  </>
+                )}
+              </span>
+            </button>
+          </li>
+        ))}
+      </ol>
+    </>
+  );
+}
+
+export default function LiveGuest({ getToken, theme, intro = true, layout = "default" }: Props) {
   const [guests, setGuests] = useState<PublicGuest[] | null>(null);
   const [onPlan, setOnPlan] = useState(true);
   const [taster, setTaster] = useState<LiveGuestList["taster"]>(undefined);
@@ -228,6 +359,32 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
   const shownArea = area && areas.includes(area) ? area : areas[0];
   const shown = others.filter((g) => g.area === shownArea);
 
+  if (!chat && layout === "room") {
+    return (
+      <div className="sd-lg-room">
+        {error && <p className="sd-error" role="alert">{error.message}</p>}
+        {listError && <p className="sd-error" role="alert">{listError}</p>}
+        {!guests && !listError && (
+          <div className="sd-tonight-wait" aria-hidden="true">
+            <span className="sd-skel sd-skel-kicker" />
+            <span className="sd-skel sd-skel-title" />
+            <span className="sd-skel sd-skel-line" />
+          </div>
+        )}
+        {guests && (
+          <RoomPicker
+            guests={guests}
+            onPlan={onPlan}
+            taster={taster}
+            weekGuestId={weekGuestId}
+            starting={starting}
+            onStart={(id) => void begin(id)}
+          />
+        )}
+      </div>
+    );
+  }
+
   if (!chat) {
     return (
       <div className={`qz qz--${theme} lg`}>
@@ -309,7 +466,7 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
   const replyNumber = Math.min(chat.replies + 1, chat.maxReplies);
 
   return (
-    <div className={`qz qz--${theme} lg`}>
+    <div className={`qz qz--${theme} lg${layout === "room" ? " sd-docket" : ""}`}>
       <div className="lg-head">
         <button
           type="button"

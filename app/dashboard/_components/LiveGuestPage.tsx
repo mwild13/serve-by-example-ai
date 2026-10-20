@@ -1,29 +1,22 @@
 "use client";
 
-import { useCallback } from "react";
 import LiveGuest from "@/components/live-guest/LiveGuest";
-import { createSupabaseBrowserClient } from "@/lib/supabase";
 
-// Desktop host for Live Guest (Rich update, Phase 6). The conversation itself
-// is components/live-guest/LiveGuest.tsx, shared with mobile.
-export default function LiveGuestPage() {
-  const getToken = useCallback(async () => {
-    const supabase = createSupabaseBrowserClient();
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.access_token) throw new Error("Session expired. Please sign in again.");
-    return session.access_token;
-  }, []);
-
+// Desktop host for Live Guest (Rich update, Phase 6), on the staff desktop's
+// green room (docs/STAFF_DESKTOP_REDESIGN_PLAN.md, 7.4). The conversation
+// itself is components/live-guest/LiveGuest.tsx, shared with mobile.
+export default function LiveGuestPage({ getToken }: { getToken: () => Promise<string> }) {
   return (
-    <div className="stage-container">
-      <div className="stage-header">
-        <h2 style={{ marginBottom: 8 }}>Live Guest</h2>
-        <p className="stage-subtitle">
-          Talk to a guest who talks back, over three or four replies. Read them the way you would on shift, then see what they
-          were thinking at each turn and how many of the things that help you found.
+    <div className="sd-page">
+      <header className="sd-head">
+        <p className="sd-kicker">Practise</p>
+        <h1 className="sd-title">Live Guest</h1>
+        <p className="sd-lede">
+          A guest who talks back, over three or four replies. Read them the way you would on shift, then see what they were
+          thinking at each turn.
         </p>
-      </div>
-      <LiveGuest getToken={getToken} theme="light" intro={false} />
+      </header>
+      <LiveGuest getToken={getToken} theme="light" intro={false} layout="room" />
     </div>
   );
 }

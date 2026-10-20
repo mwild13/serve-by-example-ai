@@ -8,7 +8,16 @@ import FillBlankGame from "./challenges/FillBlankGame";
 import MatchPairGame from "./challenges/MatchPairGame";
 import SpotErrorGame from "./challenges/SpotErrorGame";
 import MultipleChoiceGame from "./challenges/MultipleChoiceGame";
+import { ArrowRight } from "lucide-react";
 import { TOTAL_CHALLENGES, MAX_CHALLENGE_INDEX } from "@/lib/challenges";
+
+const GAMES = [
+  { name: "Sequence Sort", desc: "Put the steps in the right order" },
+  { name: "Fill the Blank", desc: "Complete the key phrase" },
+  { name: "Match Pair", desc: "Link each term to what it means" },
+  { name: "Spot the Error", desc: "Find what went wrong" },
+  { name: "Multiple Choice", desc: "Pick the right answer" },
+];
 
 // ── Page shell / dispatcher ──────────────────────────────────────────────────
 
@@ -84,141 +93,46 @@ export default function ChallengesPage() {
   const score = TOTAL_CHALLENGES - hadError.size;
 
   return (
-    <div style={{ width: "100%", paddingBottom: "3rem" }}>
-      {/* Header */}
-      <div style={{ background: "var(--green)", padding: "20px 16px 16px", borderRadius: "0 0 var(--radius-xl) var(--radius-xl)", boxShadow: "0 4px 20px rgba(15,45,29,0.18)", margin: "0 -1rem 1.25rem" }}>
-        <span style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)", display: "block" }}>Interactive Challenges</span>
-        <h1 style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 22, fontWeight: 600, color: "var(--surface-raised)", margin: "2px 0 4px" }}>Test your knowledge</h1>
-        <span style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", fontWeight: 600 }}>5 questions · tap-based · no typing required</span>
-      </div>
+    <div className="sd-page">
+      <header className="sd-head">
+        <p className="sd-kicker">Practise</p>
+        <h1 className="sd-title">Challenges</h1>
+        <p className="sd-lede">Five quick games on the basics of the floor. Tap to answer, no typing.</p>
+      </header>
 
-      {/* Lobby landing state */}
       {phase === "lobby" && (
-        <div style={{ padding: "0.25rem 0 2rem" }}>
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "0.75rem",
-            marginBottom: "1.25rem",
-          }}>
-            {[
-              {
-                icon: (
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M8 6h8M8 10h5M8 14h8M8 18h5"/>
-                    <path d="M5 3h14a1 1 0 011 1v16a1 1 0 01-1 1H5a1 1 0 01-1-1V4a1 1 0 011-1z"/>
-                  </svg>
-                ),
-                name: "Sequence Sort",
-                desc: "Arrange steps in the right order",
-                tint: "var(--green-light)", color: "var(--green)",
-              },
-              {
-                icon: (
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                  </svg>
-                ),
-                name: "Fill the Blank",
-                desc: "Complete the key phrase",
-                tint: "var(--gold-light)", color: "var(--gold)",
-              },
-              {
-                icon: (
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="6" cy="8" r="2"/><circle cx="18" cy="8" r="2"/>
-                    <circle cx="6" cy="16" r="2"/><circle cx="18" cy="16" r="2"/>
-                    <path d="M8 8h8M8 16h8"/>
-                  </svg>
-                ),
-                name: "Match Pair",
-                desc: "Link terms to their definitions",
-                tint: "var(--green-light)", color: "var(--green)",
-              },
-              {
-                icon: (
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/>
-                    <path d="M11 8v4M11 15h.01"/>
-                  </svg>
-                ),
-                name: "Spot the Error",
-                desc: "Identify what went wrong",
-                tint: "var(--gold-light)", color: "var(--gold)",
-              },
-              {
-                icon: (
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
-                  </svg>
-                ),
-                name: "Multiple Choice",
-                desc: "Pick the correct answer",
-                tint: "var(--green-light)", color: "var(--green)",
-              },
-            ].map((game, i) => (
-              <div
-                key={i}
-                style={{
-                  background: "var(--surface)",
-                  border: "1px solid var(--line-light)",
-                  borderRadius: "var(--radius-lg)",
-                  padding: "1rem",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "0.6rem",
-                  gridColumn: i === 4 ? "1 / -1" : undefined,
-                }}
-              >
-                <div style={{
-                  width: 44, height: 44, borderRadius: "var(--radius-sm)",
-                  background: game.tint, color: game.color,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  {game.icon}
+        <>
+          <ol className="sd-rows sd-games">
+            {GAMES.map((game, i) => (
+              <li key={game.name} className="sd-row-item">
+                <div className="sd-game">
+                  <span className="sd-path-num" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="sd-row-main">
+                    <span className="sd-row-title">{game.name}</span>
+                    <span className="sd-row-desc">{game.desc}</span>
+                  </span>
                 </div>
-                <div>
-                  <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "var(--text)", marginBottom: 2 }}>{game.name}</div>
-                  <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", lineHeight: 1.4 }}>{game.desc}</div>
-                </div>
-              </div>
+              </li>
             ))}
+          </ol>
+          <div className="sd-tonight-actions sd-games-actions">
+            <button type="button" className="sd-btn sd-btn-brass" onClick={() => setPhase("quiz")}>
+              Start the five
+              <ArrowRight size={18} strokeWidth={2} aria-hidden />
+            </button>
+            {personalBest !== null && (
+              <p className="sd-meta sd-games-best">
+                Your best: <strong>{personalBest} of {TOTAL_CHALLENGES}</strong>
+              </p>
+            )}
           </div>
-
-          <button
-            onClick={() => setPhase("quiz")}
-            style={{
-              width: "100%",
-              background: "var(--green)",
-              color: "var(--surface-raised)",
-              border: "none",
-              borderRadius: "999px",
-              padding: "0.9rem 2rem",
-              fontSize: "1rem",
-              fontWeight: 700,
-              cursor: "pointer",
-              fontFamily: "var(--font-body)",
-              letterSpacing: "0.01em",
-            }}
-          >
-            Start Challenges
-          </button>
-
-          {personalBest !== null && (
-            <div style={{ marginTop: 14, textAlign: "center" }}>
-              <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 600 }}>
-                Personal best:&nbsp;
-              </span>
-              <span style={{ fontSize: 12, color: "var(--gold)", fontWeight: 800 }}>
-                {personalBest}/{TOTAL_CHALLENGES}
-              </span>
-            </div>
-          )}
-        </div>
+        </>
       )}
 
+      {phase !== "lobby" && (
+      <div className="sd-docket sd-games-docket">
       {/* 5-dot stepper */}
-      {phase !== "lobby" && <Stepper currentStep={currentStep} phase={phase} />}
+      <Stepper currentStep={currentStep} phase={phase} />
 
       {phase === "quiz" && (
         <div>
@@ -276,6 +190,8 @@ export default function ChallengesPage() {
             </div>
           )}
         </div>
+      )}
+      </div>
       )}
     </div>
   );

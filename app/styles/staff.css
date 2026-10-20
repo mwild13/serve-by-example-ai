@@ -3972,7 +3972,7 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   --qz-muted: var(--sd-ink-muted);
   --qz-accent: var(--sd-brass);
   --qz-accent-text: var(--sd-room);
-  --qz-right: var(--sd-ink);
+  --qz-right: var(--roi-green-light);
   --qz-right-bg: var(--sd-tint);
   --qz-wrong: var(--sd-alarm);
   --qz-wrong-bg: var(--sd-tint);
@@ -4644,6 +4644,125 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   outline-color: var(--green);
 }
 
+/* Practise screens */
+.sd-lede {
+  max-width: 62ch;
+  margin: 12px 0 0;
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: var(--sd-ink-soft);
+}
+.sd-btn:disabled,
+.sd-row:disabled,
+.sd-also:disabled {
+  cursor: default;
+}
+.sd-btn:disabled {
+  filter: saturate(0.6);
+  opacity: 0.7;
+}
+.sd-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  align-items: start;
+  gap: 40px;
+}
+.sd-side {
+  padding-top: 4px;
+}
+.sd-side-list {
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+.sd-side-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--sd-line);
+  font-size: 0.92rem;
+  color: var(--sd-ink);
+}
+.sd-side-meta {
+  flex-shrink: 0;
+  font-size: var(--sd-fs-small);
+  color: var(--sd-ink-muted);
+}
+.sd-side-text,
+.sd-side-note {
+  margin: 0 0 14px;
+  font-size: var(--sd-fs-small);
+  line-height: 1.55;
+  color: var(--sd-ink-soft);
+}
+.sd-side-note {
+  color: var(--sd-ink-muted);
+}
+.sd-docket .dr-card {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.sd-planline {
+  max-width: 80ch;
+  margin: -16px 0 32px;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--sd-ink-soft);
+}
+.sd-planline .sd-link {
+  font-size: inherit;
+}
+.sd-guest-row {
+  grid-template-columns: minmax(0, 1fr) 90px 150px;
+}
+.sd-guest-row:disabled .sd-row-title,
+.sd-guest-row:disabled .sd-row-action {
+  color: var(--sd-ink-soft);
+}
+.sd-guest-row:disabled:hover .sd-row-title {
+  text-decoration: none;
+}
+.sd-guest-row:disabled:hover .sd-row-action svg {
+  transform: none;
+}
+.sd-lg-room .sd-rows {
+  margin-top: 4px;
+}
+.sd-games {
+  border-top: 1px solid var(--sd-line-strong);
+}
+.sd-game {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 12px 0;
+}
+.sd-game .sd-path-num {
+  margin: 0;
+  color: var(--sd-brass);
+}
+.sd-games-actions {
+  margin-top: 28px;
+}
+.sd-games-best {
+  margin: 0;
+}
+.sd-games-best strong {
+  color: var(--sd-brass);
+}
+.sd-games-docket {
+  max-width: 880px;
+}
+.sd-rush .qz--room {
+  max-width: 760px;
+  margin: 0;
+  padding: 0;
+}
+
 @media (max-width: 1100px) {
   .sd-tonight {
     grid-template-columns: minmax(0, 1fr);
@@ -4666,6 +4785,12 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   }
 }
 @media (max-width: 900px) {
+  .sd-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sd-guest-row {
+    grid-template-columns: minmax(0, 1fr) 120px;
+  }
   .sd-feature {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -4710,18 +4835,83 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   .sd-shell:has(.sd-sidebar.is-collapsed) {
     grid-template-columns: minmax(0, 1fr);
   }
-  .sd-sidebar {
+  /* The sidebar becomes a top bar: brand and account, then one scrolling row. */
+  .sd-sidebar,
+  .sd-sidebar.is-collapsed {
     position: static;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "brand account" "nav nav";
+    gap: 8px;
     height: auto;
+    padding: 12px 16px 8px;
     border-right: 0;
     border-bottom: 1px solid var(--sd-line);
+    overflow: visible;
+  }
+  .sd-brand,
+  .sd-sidebar.is-collapsed .sd-brand {
+    grid-area: brand;
+    justify-content: flex-start;
+    padding: 0;
   }
   .sd-collapse {
     display: none;
   }
+  .sd-sidebar.is-collapsed .sd-brand-logo {
+    display: block;
+  }
+  .sd-account {
+    grid-area: account;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .sd-account-text,
+  .sd-account-chevron {
+    display: none;
+  }
+  .sd-account-menu,
+  .sd-sidebar.is-collapsed .sd-account-menu {
+    top: calc(100% + 6px);
+    right: 0;
+    bottom: auto;
+    left: auto;
+  }
   .sd-nav {
+    grid-area: nav;
     flex-direction: row;
-    flex-wrap: wrap;
+    gap: 2px;
+    overflow-x: auto;
+  }
+  .sd-nav-section,
+  .sd-nav ul {
+    display: contents;
+  }
+  .sd-nav-group {
+    display: none;
+  }
+  .sd-nav-item,
+  .sd-sidebar.is-collapsed .sd-nav-item {
+    width: auto;
+    padding: 8px 12px;
+    white-space: nowrap;
+  }
+  .sd-nav-item.is-active::before {
+    top: auto;
+    right: 12px;
+    bottom: 2px;
+    left: 12px;
+    width: auto;
+    height: 2px;
+  }
+  .sd-sidebar.is-collapsed .sd-brand-name,
+  .sd-sidebar.is-collapsed .sd-nav-label {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
   }
   .sd-main {
     padding: 24px 16px 48px;

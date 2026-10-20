@@ -24,7 +24,8 @@ import { getRushStats, newRushSeed, saveRush, type RushStats } from "@/lib/rush/
 // saved to /api/training/rush, which replays it for the score. Styles: .rush
 // rules in app/styles/staff.css, on the .qz theme colours.
 
-type Props = { getToken: () => Promise<string>; theme: "light" | "dark" };
+/** "room" is the staff desktop's green (docs/STAFF_DESKTOP_REDESIGN_PLAN.md); it keeps the desktop keys. */
+type Props = { getToken: () => Promise<string>; theme: "light" | "dark" | "room" };
 
 const KIND_LABEL: Record<MomentKind, string> = {
   queue: "The queue",
@@ -169,7 +170,7 @@ export default function SaturdayRush({ getToken, theme }: Props) {
 
   // Desktop keys: 1 to 4 to choose, B for the bar-back.
   useEffect(() => {
-    if (!moment || theme !== "light") return;
+    if (!moment || theme === "dark") return;
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLElement && ["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)) return;
       const n = Number(e.key);
@@ -309,7 +310,7 @@ function Debrief({
   saved: "saving" | "saved" | "failed" | null;
   stats: RushStats | null;
   onAgain: () => void;
-  theme: "light" | "dark";
+  theme: Props["theme"];
 }) {
   const result: RushResult = rushResult(run);
   const newBest = saved === "saved" && stats?.best === result.score && stats.shifts > 1;
