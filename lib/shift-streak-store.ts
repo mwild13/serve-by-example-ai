@@ -9,10 +9,16 @@ import { sydneyToday } from "@/lib/venue-content";
 const HISTORY_LIMIT = 400;
 
 export async function loadShiftStreak(admin: SupabaseClient, userId: string): Promise<ShiftStreak> {
-  const [schedule, days] = await Promise.all([
+  const [first, days] = await Promise.all([
     admin.from("shift_schedules").select("shift_days, reminder_time").eq("user_id", userId).maybeSingle(),
     admin.from("preshift_days").select("day").eq("user_id", userId).order("day", { ascending: false }).limit(HISTORY_LIMIT),
   ]);
+  // Before 20261026_push_reminders.sql is run there's no reminder_time
+  // column (Postgres 42703): read the shift days alone so the streak still shows.
+  let schedule: { data: { shift_days?: unknown; reminder_time?: unknown } | null; error: { code?: string } | null } = first;
+  if (first.error?.code === "42703") {
+    schedule = await admin.from("shift_schedules").select("shift_days").eq("user_id", userId).maybeSingle();
+  }
   if (schedule.error) throw schedule.error;
   if (days.error) throw days.error;
   const shiftDays = ((schedule.data?.shift_days as number[] | null) ?? []).filter((d) => Number.isInteger(d));
