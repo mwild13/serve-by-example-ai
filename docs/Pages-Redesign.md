@@ -18,7 +18,7 @@ This document replaces the August 2026 version in full. Code comments across the
 
 **Out of scope unless explicitly requested:**
 
-- `/dashboard` and `/management/dashboard`. These are logged-in product surfaces with their own density rules. Do not port marketing patterns into them. The Manager Console follows this document's principles (type, hairlines, restrained colour) on every tab through its own rules in `docs/MANAGER_CONSOLE.md` section 6, not through the `sbe-mkt-` classes. One rule differs: console figures are set in Inter, not Newsreader.
+- `/dashboard` and `/management/dashboard`. These are logged-in product surfaces with their own density rules. Do not port marketing patterns into them. The Manager Console follows this document's principles (type, hairlines, restrained colour) on every tab through its own rules in `docs/MANAGER_CONSOLE.md` section 6, not through the `sbe-mkt-` classes. One rule differs: console figures are set in Inter, not Newsreader. The desktop staff area (`/dashboard`) has its own standard in `docs/STAFF_APP.md` section 8: bottle green, brass and cream, on Fraunces and Manrope.
 - `ManagerControlCenter.tsx`. Per `CLAUDE.md` it must not grow.
 - Auth pages (`/login`, `/reset-password`, `/onboarding`).
 

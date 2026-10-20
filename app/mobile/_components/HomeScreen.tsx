@@ -39,9 +39,9 @@ import { streakLine } from "@/components/quiz/ShiftDays";
 // Mobile cleanup pass (2026-08-25): Pre-Shift Warmup was still inert (no
 // link, no detail screen) and Today's Hot Picks was frozen on the same two
 // featured cocktails every day regardless of date. Both now rotate off the
-// same day-index formula the desktop dashboard uses for "Today's Cocktail"
-// (app/dashboard/_components/PreShiftHome.tsx) — Hot Picks always matches
-// the dashboard, and Warmup always opens that day's module's quiz directly
+// same day-index formula the desktop dashboard uses for its cocktail of the
+// day (app/dashboard/_components/today/TodayPage.tsx), whose cocktail is the
+// first hot pick, and Warmup always opens that day's module's quiz directly
 // (mobile has no separate "study" step before the quiz, same route
 // CoreKnowledgeSection.tsx uses to launch a module).
 
@@ -77,8 +77,8 @@ export default function HomeScreen() {
     return untouched[0] ?? null;
   }, [data]);
 
-  // Same day-of-epoch index the desktop dashboard uses for "Today's
-  // Cocktail" (PreShiftHome.tsx) — day-level precision only, so this is an
+  // Same day-of-epoch index the desktop dashboard uses for its cocktail of
+  // the day (today/TodayPage.tsx) — day-level precision only, so this is an
   // intentional, scoped exception to react-hooks/purity (no render-pure way
   // to seed a "current time" value).
   // eslint-disable-next-line react-hooks/purity

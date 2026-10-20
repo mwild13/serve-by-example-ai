@@ -7,7 +7,8 @@
 // two. This streak lives only in localStorage, keyed by "sbe-streak-last"
 // / "sbe-streak-count", and increments at most once per calendar day.
 //
-// Previously duplicated verbatim inside PreShiftHome.tsx (desktop). Phase 6
+// Previously duplicated verbatim inside PreShiftHome.tsx (desktop; now
+// called from today/TodayPage.tsx). Phase 6
 // of the V4 migration (v4-migration-plan/00-bug-batch-plan.md, item 13)
 // needed the exact same increment-on-daily-visit logic for mobile, so this
 // moved here as the one shared implementation both surfaces import, rather

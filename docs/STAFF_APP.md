@@ -8,20 +8,20 @@ The staff training platform has a **3-stage mastery path** plus AI-powered extra
 
 | Nav ID | Label | Component | Description |
 |--------|-------|-----------|-------------|
-| `home` | Home | `PreShiftHome.tsx` | Daily dashboard with recommendations |
-| `module` | Modules | `DynamicModuleNav.tsx` + `ModuleVerify.tsx` | 40 modules across Bartending, Sales, Management |
+| `home` | Today | `today/TodayPage.tsx` | One step for tonight (`lib/next-step.ts`), the shift streak and pre-shift drill, this week at the venue, the path through Learn, Drill and Live Guest, a cocktail and a fact. See section 8 |
+| `module` | Modules | `modules/ModulesPage.tsx` + `ModuleVerify.tsx` | The 40 modules as a path: the suggested one first, then rows by level. A module opens on a cream docket |
 | `drill` | Mixed Drill | `DrillPage.tsx` → `components/quiz/MixedDrill.tsx` | Ten questions mixed from every module the person has started (Rich update, Phase 10). Replaced Rapid Fire's module picker; old `?nav=rapid-fire` links open it. Mobile: `/mobile/drill`, linked from the Learn hub. See below |
 | `rush` | Saturday Rush | `RushPage.tsx` → `components/rush/SaturdayRush.tsx` | A timed Saturday night shift in twelve calls (Rich update, Phase 15). Mobile: `/mobile/rush`, linked from the Learn hub. See below |
 | `live-guest` | Live Guest | `LiveGuestPage.tsx` → `components/live-guest/LiveGuest.tsx` | A typed conversation with a guest who talks back (Rich update, Phase 6). Mobile: `/mobile/live-guest`, linked from the Learn hub. See below |
 | `challenges` | Challenges | `ChallengesPage.tsx` | 5 tap-based interactive mini-games — see `CHALLENGES.md` for full detail across all surfaces |
-| `cocktails` | Cocktail Library | `CocktailLibrary.tsx` | 38-cocktail reference (lazy-loaded) |
-| `knowledge` | 101 Knowledge Base | `KnowledgeBase.tsx` | Quick-reference knowledge base (lazy-loaded) |
-| `progress` | Me / How I'm improving | `ProgressOverview.tsx` | Personal stats and mastery overview |
-| `settings` | Settings | `StaffSettingsPanel` | Profile, security, venue join |
+| `cocktails` | Cocktails | `CocktailLibrary.tsx` | 38-cocktail reference (lazy-loaded) |
+| `knowledge` | Knowledge Base | `KnowledgeBase.tsx` | Quick-reference knowledge base (lazy-loaded) |
+| `progress` | My progress | `progress/MyProgressPage.tsx` | Modules mastered, ledgers for Learn, Drill and Live Guest, mastery by area, badges. `?nav=badges` opens it at the badges |
+| `settings` | Settings | `StaffSettingsPanel` | Profile, security, venue join. Opened from the account menu, not the sidebar |
 
 **Retired (Rich update, Phase 8):** Scenario Training (`stage4`) and the AI Arena (`scenarios`). Their screens and code are gone; old `?nav=stage4` / `?nav=scenarios` links open Live Guest (`RETIRED_NAV` in `DashboardShell.tsx`), as do mobile `/mobile/arena`, `/mobile/scenario-practice` and `/mobile/scenarios`. `/api/evaluate` and `/api/arena/evaluate` return 410 without an AI call. Their results stay in `training_attempts` and `scenario_mastery`.
 
-**Premium gating** — `PREMIUM_NAV_ITEMS = ["module", "drill", "rush", "cocktails", "knowledge"]`. Free users see these as locked. `challenges`, `home`, `progress`, and `settings` are always available. Live Guest is open to everyone in the menu and shows its own upgrade prompt off venue plans (`hasLiveGuest()` in `lib/session.ts`).
+**Premium gating** — `PREMIUM_NAV_ITEMS = ["module", "drill", "rush", "cocktails", "knowledge"]`. Free users see these with a small lock, and a click goes to `/pricing`. `challenges`, `home`, `progress`, and `settings` are always available. Live Guest is open to everyone in the menu and shows its own upgrade prompt off venue plans (`hasLiveGuest()` in `lib/session.ts`).
 
 **Tier access (`lib/session.ts`, `TIER_MODULES` / `TIER_SEATS`)**:
 - `free` — no module access
@@ -33,7 +33,7 @@ The staff training platform has a **3-stage mastery path** plus AI-powered extra
 
 One resolver serves pages and API routes: `resolveTierAccess()`, with `resolveAccess()` delegating to it, so the lapsed-subscription downgrade and the paused-sponsor rule apply everywhere. Venue and seat caps are enforced server-side in `requireManager()` (`docs/MANAGER_CONSOLE.md` §3).
 
-**`DashboardShell.tsx`** is the main authenticated staff UI — a client component managing `NavItem` state and rendering the correct view. To add a new learning view: add a string literal to `type NavItem` → add an entry to `NAV_ITEMS` → import the component (lazy-load heavy ones with `lazy(() => import(...))`) → add a render case in the conditional chain → add to `PREMIUM_NAV_ITEMS` if it should be gated.
+**`DashboardShell.tsx`** is the main authenticated staff UI — a client component managing `NavItem` state and rendering the correct view. To add a new learning view: add an id to `StaffNavId` and an entry to `NAV_GROUPS` (both in `shell/StaffSidebar.tsx`) → import the component (lazy-load heavy ones with `lazy(() => import(...))`) → add a render case in the conditional chain → add to `PREMIUM_NAV_ITEMS` if it should be gated.
 
 ## 2. Mobile-First Rules
 
@@ -84,6 +84,31 @@ Two opt-in emails, both off until the person turns them on in Settings > Notific
 - **Capacity:** 40 per call keeps a call under the Workers Free plan's 50 outbound requests; about 700 to 800 per window. Raise `BATCH_SIZE` after buying Workers Paid.
 - **Checking a run:** `select status_code, content from net._http_response order by id desc limit 5;` within six hours (pg_net deletes older rows). Every send is kept in `notification_sends`.
 
+## 8. Desktop design (October 2026 redesign)
+
+The whole desktop staff area was rebuilt to `docs/STAFF_DESKTOP_REDESIGN_PLAN.md` ("the back bar"). Styles are in `app/styles/staff.css` under "STAFF DESKTOP, THE BACK BAR", all `.sd-*` classes; the `--sd-*` tokens are in the `:root` of `app/globals.css`, each an alias of a brand token.
+
+**Look**
+- **Colour:** the page and sidebar are bottle green (`--sd-room`, `--sd-rail`). Brass (`--sd-brass`) marks progress and nothing else: the active nav item, the streak, a mastered ring, a progress line, the one primary button. Red (`--sd-alarm`) means a safety breach. No tinted pills, chips or banners; no blue, orange or purple.
+- **The docket:** anything people read or answer (a module's cards and quiz, the drill, a Live Guest conversation, the cocktail and Knowledge Base content, Settings) sits on a cream `.sd-docket`, the one thing on the page with a radius and a shadow.
+- **Type:** Fraunces and Manrope through `--font-heading` / `--font-body` (`.sbe-app-type`). Page titles and the one hero figure on a screen are Fraunces; labels are small Manrope capitals (`.sd-kicker`); figures use tabular lining numerals.
+- **Readability floor:** body 16px, nothing below 14px except small-caps labels, controls at least 44px tall, brass focus rings on green and green ones on cream.
+
+**Shell** (`shell/StaffSidebar.tsx`)
+- **Groups:** Today, then Learn (Modules), Practise (Mixed Drill, Live Guest, Saturday Rush, Challenges), Look it up (Cocktails, Knowledge Base), Me (My progress). Nav ids are unchanged, so `?nav=` links still work, including `?nav=badges` and the `RETIRED_NAV` ones.
+- **Collapse:** a 64px icon rail, by the button or Ctrl/Cmd+B, saved in `localStorage` (`sbe-sd-sidebar-collapsed`), the default below 1100px. Labels stay in the DOM.
+- **Account menu:** the avatar at the foot opens Settings and Sign out.
+- **Narrow windows:** below 720px the sidebar becomes a top bar: brand and avatar, then one scrolling row of links.
+
+**Every screen**
+- **Structure:** `.sd-page`, one `.sd-head` (kicker, Fraunces title, one plain sentence), then content. One brass button per screen.
+- **Lists are rows:** several things of one kind are hairline rows (`.sd-rows`, `.sd-row`), with the one suggested item lifted above them (`.sd-feature`). No grids of bordered cards.
+- **First-day states:** a new account sees what's coming, never a row of zeros.
+- **Shared parts:** `parts/MasteryRing.tsx`; the quiz theme `.qz--room` for parts shared with mobile (team card, shift days, Saturday Rush).
+- **The "tonight" rule** is `pickNextSteps()` in `lib/next-step.ts`, tested in `lib/next-step.test.ts`: free plan, a challenge; no module started, the first module; then the pre-shift drill on a shift day, the module in progress, a review once three modules are started, Live Guest after five mastered on a venue plan, the next module, a mixed drill.
+
+**Retired with the redesign:** `PreShiftHome`, `DynamicModuleNav`, `SharedTrainingCard`, `ProgressOverview`, `BadgesView`, `BadgeStreakSection`, `BadgeProgressRing`, the `progress/` parts, `lib/modules.ts`, and the "industrial dark theme" setting (`.sbe-dark`). Live Guest's `layout="room"` is desktop only; mobile keeps its picker.
+
 ## Known Gaps / Drift
 
 - **PWA is greenfield** (§5).
@@ -105,7 +130,7 @@ Two opt-in emails, both off until the person turns them on in Settings > Notific
 
 ## Pre-shift drill and shift streak (Rich update, Phase 12)
 
-- **Where:** the "Ready for your shift?" card at the top of mobile Home opens `/mobile/drill?mode=preshift`. The Home badge shows the shift streak (the old client-side daily-visit streak, `lib/streak.ts`, is still shown on the Badges screen).
+- **Where:** the "Ready for your shift?" card at the top of mobile Home opens `/mobile/drill?mode=preshift`. On desktop, Today offers it as the step on a shift day and shows the streak with the shift week and the days and reminder pickers. The Home badge shows the shift streak (the old client-side daily-visit streak, `lib/streak.ts`, is still shown on the Badges screen).
 - **The drill:** `POST /api/training/drill/start` with `mode: "preshift"` (`PRESHIFT_DRILL` in `lib/drill.ts`): 6 questions, from as few as one source. The venue's approved content first, then up to 2 mastered modules due for review (`scenario_mastery.next_review_at`, oldest first), then other started modules. With nothing started, the first 3 modules on the plan. Stored as `drill_runs.kind = 'preshift'`.
 - **The finish screen:** "You're ready for tonight", the shift streak, the shift days picker, and a link to warm up with one Live Guest. The plan's "one short Live Guest moment" is that link for now, not a conversation inside the drill, so the drill stays free of AI calls.
 - **The shift streak** (`lib/shift-streak.ts`, tests in `lib/shift-streak.test.ts`): shifts in a row with a finished pre-shift drill. Staff pick the weekdays they work (`shift_schedules`; none picked means every day). Days off never count. A missed shift uses one of 2 freezes, and one freeze covers every shift missed in the 7 days from the first miss, so a missed week costs one freeze. Five shifts kept in a row earn a freeze back. Today never counts as missed. Finished drills are kept per Sydney day in `preshift_days`. `GET/PUT /api/training/shift-streak` reads the streak and saves the days.
@@ -113,7 +138,7 @@ Two opt-in emails, both off until the person turns them on in Settings > Notific
 
 ## This week at the venue (Rich update, Phase 16)
 
-- **Home card** (`components/team/TeamWeekCard.tsx`, on `PreShiftHome.tsx` and mobile `HomeScreen.tsx`): the team goal the manager set ("214 of 300 correct answers between us", with a bar) and the guest of the week, with how many of the team have sorted it and a button into Live Guest. Team totals only, no names, no ranking. Hidden until the manager sets something. From `GET /api/training/team-week` (the person's first venue, `venueIdsForStaff()`).
+- **Home card** (`components/team/TeamWeekCard.tsx`, on desktop Today, `today/TodayPage.tsx`, and mobile `HomeScreen.tsx`): the team goal the manager set ("214 of 300 correct answers between us", with a bar) and the guest of the week, with how many of the team have sorted it and a button into Live Guest. Team totals only, no names, no ranking. Hidden until the manager sets something. From `GET /api/training/team-week` (the person's first venue, `venueIdsForStaff()`).
 - **Live Guest:** the guest of the week shows first, under "Guest of the week, for the whole team" (`weekGuestId` from `/api/live-guest/guests`, venue plans only).
 - **Answer log:** every module quiz and drill answer is written to `quiz_answer_log` (`logAnswer()` in `lib/team-week.ts`, called by both answer routes after the answer is saved; a failure is logged and never stops the answer). It counts correct answers for the goal and finds the most-missed questions for the manager's briefing card. Rows go after 180 days (pg_cron `trim-quiz-answer-log`).
 

@@ -136,7 +136,6 @@ The `modules` table (40 rows), read through `lib/module-navigator.ts` or `/api/t
   - `lib/module-navigator.ts`'s fallback block
   - `lib/diagnostic-engine.ts`
   - `ModuleVerify.tsx`'s `MODULE_TITLES`
-  - the `MODULE_META` constant in `PreShiftHome.tsx`
 
   Each has a different shape, so they can't be collapsed mechanically.
 - **Scenario content:**

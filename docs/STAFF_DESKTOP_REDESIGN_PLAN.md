@@ -1,6 +1,8 @@
 # Staff Desktop Redesign: Research and Plan
 
-Written 2026-10-21. Covers the desktop staff learning area at `/dashboard`. The mobile app (`/mobile`) and the Manager Console (`/management`) are out of scope. No code has changed yet. Section 9 lists the decisions the owner needs to make before Phase 1 starts.
+Written 2026-10-21. Covers the desktop staff learning area at `/dashboard`. The mobile app (`/mobile`) and the Manager Console (`/management`) are out of scope.
+
+**Status, 2026-10-21.** The owner chose bottle green, brass and cream, Badges folded into My progress, desktop shift reminders, and one first release. Phases 1 to 7 are built on branch `preview/staff-desktop` and not yet on main. The standard now lives in `docs/STAFF_APP.md` section 8. Still owed: the owner's look on preview with a real account, the marketing screenshots in `public/shots/`, and desktop screenshot baselines in the e2e suite (section 8, Phase 7). Two things from the plan were not built: the drill's "last drill's score by module" (no API returns past drills) and the activity list by day on My progress.
 
 This is the to-do item "Redesign the desktop staff dashboard" (owner, 2026-10-20). The first step that item asks for, a short standard for the staff product, is section 5. The page plans are section 7.
 

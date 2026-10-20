@@ -766,14 +766,6 @@ ul {
   display: flex;
   flex-direction: column;
 }
-/* ── Product mockup ────────────────────────────── */
-.mockup-nav-item.active {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--surface-raised);
-  font-weight: 600;
-  border-left: 3px solid var(--gold-warm);
-  padding-left: 17px;
-}
 /* ── Steps / How it works ──────────────────────── */
 .step {
   text-align: center;
@@ -900,38 +892,6 @@ ul {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.mockup-nav-item:hover {
-  background: rgba(255,255,255,0.08);
-  color: var(--surface-raised);
-}
-.mockup-nav-item.active {
-  background: rgba(255,255,255,0.12);
-  color: var(--surface-raised);
-  font-weight: 600;
-  border-left: 3px solid var(--gold-warm);
-  padding-left: 9px;
-}
-.dash-card {
-  background: var(--surface-raised);
-  border: 1px solid var(--line-light);
-  border-radius: var(--radius-lg);
-  padding: 22px 20px;
-  cursor: pointer;
-  transition: box-shadow 0.2s var(--ease-out), transform 0.2s var(--ease-out), border-color 0.2s;
-  box-shadow: var(--shadow-sm);
-}
-.dash-card h3 {
-  font-family: var(--font-heading);
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--green-deep);
-  margin-bottom: 8px;
-}
-.dash-card p {
-  font-size: 0.88rem;
-  color: var(--text-soft);
-  line-height: 1.6;
-}
 .chat-actions {
   display: flex;
   flex-wrap: wrap;
@@ -994,57 +954,11 @@ html[data-staff-reduced-motion="1"] * {
   transition-duration: 0.01ms !important;
   scroll-behavior: auto !important;
 }
-html[data-staff-high-contrast="1"] .card,
-html[data-staff-high-contrast="1"] .dash-card {
+html[data-staff-high-contrast="1"] .card {
   border-color: var(--color-ink-mid);
   box-shadow: none;
 }
-/* ── Pre-Shift Home ─────────────────────────── */
-.psh-mastery-label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  opacity: 0.7;
-}
-.psh-segment {
-  height: 8px;
-  flex: 1;
-  border-radius: 3px;
-  background: rgba(255,255,255,0.12);
-  transition: background 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
-}
-.psh-mastery-of {
-  font-size: 0.8rem;
-  opacity: 0.6;
-}
-.psh-welcome p {
-  color: var(--text-muted);
-  line-height: 1.6;
-  font-size: 0.93rem;
-  margin: 0;
-}
-/* Full-width daily challenge hero card */
-.psh-action-card:not(.psh-action-card-hero) .psh-action-body {
-  background: none;
-  padding: 0;
-}
-.psh-coach-list li {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 0.88rem;
-  color: var(--text);
-  line-height: 1.55;
-}
 @media (max-width: 720px) {
-
-  .mockup-nav-item.active {
-    border-left: none;
-    border-bottom: 2px solid var(--gold-warm);
-    padding-left: 10px;
-  }
-
   .staff-avatar-name-form .btn {
     width: 100%;
   }
@@ -1148,35 +1062,6 @@ html[data-staff-high-contrast="1"] .dash-card {
   background: var(--green-light);
   border: 1px solid rgba(31, 78, 55, 0.14);
   color: var(--green-deep);
-}
-/* ── Progress Hub (Unified Progress Hub refactor) ─────────────── */
-.progress-hub-rec-btn:hover {
-  background: var(--green-mid);
-}
-.progress-cert-card--done .progress-cert-bar-track {
-  background: rgba(255,255,255,0.2);
-}
-.progress-cert-card--done .progress-cert-bar-fill {
-  background: var(--status-success-bright);
-}
-.progress-cert-card--done .progress-cert-weakness {
-  border-top-color: rgba(255,255,255,0.15);
-}
-.progress-cert-btn:hover {
-  background: var(--green-mid);
-}
-.progress-mastery-action:hover {
-  border-color: var(--green);
-  color: var(--green);
-}
-.progress-mastery-action--primary:hover {
-  background: var(--green-mid);
-  border-color: var(--green-mid);
-  color: var(--surface-raised);
-}
-.progress-accordion-header:hover {
-  background: var(--green-light);
-  border-color: var(--green);
 }
 /* ── Shared Training Card ─────────────────────────────────────────────────────
    New unified card shell (app/dashboard/_components/common/SharedTrainingCard.tsx)
@@ -1379,12 +1264,6 @@ html[data-staff-high-contrast="1"] .dash-card {
     grid-template-columns: 1fr;
   }
 }
-/* ── Command Bar ─────────────────────────────────── */
-.sbe-command-text strong {
-    font-size: 1.1rem;
-    font-weight: 700;
-    line-height: 1.2;
-  }
 /* ── Intent Pills ────────────────────────────────── */
 .sbe-intent-pills {
     flex-direction: column;
@@ -1616,13 +1495,6 @@ html[data-staff-high-contrast="1"] .dash-card {
     margin-top: 10px;
   }
 
-  .mockup-nav-item.active {
-    border-left: none;
-    border-bottom: 2px solid var(--gold-warm);
-    padding-left: 10px;
-    border-radius: 4px 4px 0 0;
-  }
-
   .footer-inner {
     grid-template-columns: 1fr 1fr;
     gap: 28px;
@@ -1794,18 +1666,6 @@ body {
   color: var(--text);
   line-height: 1.5;
 }
-/* ══════════════════════════════════════════════════════
-   DARK MODE — .sbe-dark on <html>
-   ══════════════════════════════════════════════════════ */
-.sbe-dark body,
-.sbe-dark .dashboard-shell {
-  background: var(--bg);
-  color: var(--text);
-}
-.sbe-dark .nav {
-  background: var(--surface);
-  border-color: var(--line);
-}
 /* ── Solution section ──────────────────────────── */
 /* Product screenshot on a light section: rounded, hairline ring + soft lift (clip-path would cut the shadow) */
 .sbe-shot {
@@ -1937,42 +1797,7 @@ body {
 .nav-drawer-sub-link:hover {
   color: var(--green);
 }
-/* ── Badge Page ─────────────────────────────────────────────── */
-.badge-section-header p {
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  margin: 0;
-}
 /* ── Dashboard home badge row ───────────────────────────────── */
-.psh-badges-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  background: var(--surface);
-  border: 1.5px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: 12px 18px;
-  margin-top: 16px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  min-height: 56px;
-}
-.psh-badge-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--gold-dim);
-  border: 1px solid var(--gold);
-  color: var(--text);
-  font-size: 0.78rem;
-  font-weight: 600;
-  border-radius: var(--radius-md);
-  padding: 6px 12px;
-  white-space: nowrap;
-  transition: box-shadow 0.15s var(--ease-out), transform 0.15s var(--ease-out);
-}
 @keyframes skeletonPulse {
   0%, 100% { opacity: 0.5; }
   50% { opacity: 1; }

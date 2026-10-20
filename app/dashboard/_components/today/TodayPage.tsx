@@ -214,9 +214,10 @@ export default function TodayPage({
   const clock = now ? sydneyNow(now) : null;
   const shiftToday = streak ? isShiftDay(streak.shiftDays, weekday) : false;
 
-  // One cocktail and one fact a day, the same for everyone.
+  // One cocktail and one fact a day, the same for everyone. The cocktail is
+  // the first of mobile Home's two hot picks (app/mobile/_components/HomeScreen.tsx).
   const dayIdx = now ? Math.floor(now.getTime() / 86_400_000) : 0;
-  const cocktail = COCKTAILS[dayIdx % COCKTAILS.length];
+  const cocktail = COCKTAILS[(dayIdx * 2) % COCKTAILS.length];
   const photo = COCKTAIL_IMAGES[cocktail.name];
   const fact = KB_ENTRIES[(dayIdx * 7) % KB_ENTRIES.length];
 
