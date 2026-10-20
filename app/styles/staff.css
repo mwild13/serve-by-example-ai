@@ -2332,6 +2332,53 @@ html[data-staff-high-contrast="1"] .dashboard-main {
   line-height: 1.5;
   color: var(--qz-text);
 }
+/* What helps, ticked off in the reveal, and what each reply helped or made worse. */
+.lg-helps-count {
+  margin: 2px 0 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--qz-text);
+}
+.lg-helps {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--qz-muted);
+}
+.lg-help {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.lg-help--done {
+  color: var(--qz-text);
+}
+.lg-help-mark {
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: var(--qz-muted);
+}
+.lg-help--done .lg-help-mark {
+  color: var(--qz-right);
+}
+.lg-thought-help,
+.lg-thought-worse {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.lg-thought-help {
+  color: var(--qz-right);
+}
+.lg-thought-worse {
+  color: var(--qz-wrong);
+}
 /* Phase 7: suggested guests, how patient the guest is, the four dials. */
 .lg-group-title {
   margin: 18px 0 10px;

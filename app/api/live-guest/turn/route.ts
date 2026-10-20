@@ -61,6 +61,7 @@ function resultOf(
   debrief: { score: number; wentWell: string; tryNext: string },
 ): LiveGuestResult {
   return {
+    name: brief.name,
     outcome,
     score: debrief.score,
     passed: isPass(outcome, debrief.score),
@@ -70,9 +71,21 @@ function resultOf(
     difficulty,
     dials: dialSummary(brief, startMood, turns),
     turns: revealTurns(brief, turns),
-    brief: { wants: brief.wants, calms: brief.calms, setsOff: brief.setsOff, mustDo: brief.mustDo ?? null },
+    brief: {
+      wants: brief.wants,
+      calms: brief.calms,
+      setsOff: brief.setsOff,
+      mustDo: brief.mustDo ?? null,
+      calmsDone: stateAfter(brief, startMood, turns).calms,
+    },
     saved: false,
   };
+}
+
+/** The guest's name if the staff member knows it by now. */
+function knownName(guestId: string, said: boolean | undefined): string | null {
+  const brief = findGuest(guestId);
+  return brief && (brief.knownByName || said) ? brief.name : null;
 }
 
 /**
@@ -128,6 +141,7 @@ export async function POST(req: Request) {
         replies: session.turn_count,
         ended: session.status !== "active",
         result: session.status !== "active" ? session.result : null,
+        guestName: knownName(session.guest_id, last.named),
       });
     }
     if (session.status !== "active") {
@@ -196,7 +210,7 @@ export async function POST(req: Request) {
     const parsed = parseModelJson(completion.choices[0]?.message?.content, "live-guest/turn");
     const guestTurn = parsed ? parseGuestTurn(parsed, brief, replyNumber, previous) : null;
     if (!guestTurn) {
-      return NextResponse.json({ error: `${brief.name} didn't answer. Send your reply again.`, code: "NO_REPLY" }, { status: 502 });
+      return NextResponse.json({ error: "The guest didn't answer. Send your reply again.", code: "NO_REPLY" }, { status: 502 });
     }
 
     const turns: StoredTurn[] = [
@@ -209,6 +223,9 @@ export async function POST(req: Request) {
         speed: guestTurn.speed,
         safety: guestTurn.safety,
         money: guestTurn.money,
+        helped: guestTurn.helped,
+        setOff: guestTurn.setOff,
+        named: guestTurn.named,
       },
     ];
     const ended = guestTurn.outcome !== "continue";
@@ -275,7 +292,13 @@ export async function POST(req: Request) {
       }
     }
 
-    return NextResponse.json({ guest: guestTurn.reply, replies: replyNumber, ended, result });
+    return NextResponse.json({
+      guest: guestTurn.reply,
+      replies: replyNumber,
+      ended,
+      result,
+      guestName: guestTurn.named ? brief.name : null,
+    });
   } catch (error) {
     console.error("live-guest/turn error:", error);
     await reportError(error, { route: "/api/live-guest/turn", url: req.url });

@@ -13,7 +13,8 @@ export type GuestArea = "technical" | "service" | "compliance";
 export type PublicGuest = {
   id: string;
   moduleId: number;
-  name: string;
+  /** Null until the staff member learns it: only colleagues and the like are known from the start. */
+  name: string | null;
   title: string;
   setting: string;
   opening: string;
@@ -43,6 +44,10 @@ export type RevealTurn = {
   safety: DialLevel | null;
   /** What this reply made happen to the venue's money. */
   money: MoneyMove[];
+  /** The brief's calms this reply did for the first time. */
+  helped: string[];
+  /** The brief's sets_off items this reply did. */
+  setOff: string[];
 };
 
 /** Where the dials started and ended. Null when a dial isn't in play. */
@@ -53,6 +58,8 @@ export type DialSummary = {
 };
 
 export type LiveGuestResult = {
+  /** The guest's name, shown in the reveal whether or not it was asked for. Missing on results saved before names were hidden. */
+  name?: string;
   outcome: LiveGuestOutcome;
   score: number;
   passed: boolean;
@@ -63,7 +70,14 @@ export type LiveGuestResult = {
   dials: DialSummary;
   turns: RevealTurn[];
   /** Shown after the conversation: what the guest wanted and what the staff member couldn't see. */
-  brief: { wants: string; calms: string[]; setsOff: string[]; mustDo: string | null };
+  brief: {
+    wants: string;
+    calms: string[];
+    setsOff: string[];
+    mustDo: string | null;
+    /** Indexes of the calms the staff member did. Missing on results saved before it existed. */
+    calmsDone?: number[];
+  };
   /** False if the result couldn't be recorded. It still shows. */
   saved: boolean;
 };
@@ -81,6 +95,8 @@ export type LiveGuestTurnResult = {
   replies: number;
   ended: boolean;
   result: LiveGuestResult | null;
+  /** The guest's name once they've said it (or known from the start), else null. */
+  guestName: string | null;
 };
 
 export const MOOD_LABEL: Record<GuestMood, string> = {

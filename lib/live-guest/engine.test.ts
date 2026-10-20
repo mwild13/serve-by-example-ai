@@ -86,6 +86,15 @@ describe("guest briefs", () => {
     }
   });
 
+  it("keep a stranger's name out of everything shown before the conversation", () => {
+    for (const g of GUEST_BRIEFS.filter((b) => !b.knownByName)) {
+      const word = new RegExp(`\\b${g.name}\\b`);
+      for (const text of [g.title, g.setting, g.opening]) expect(text, g.id).not.toMatch(word);
+      expect(publicGuest(g, view).name, g.id).toBeNull();
+    }
+    expect(publicGuest(findGuest("gf-burger")!, view).name).toBe("Marco");
+  });
+
   it("offers only reviewed guests", () => {
     expect(findGuest("flat-schooner")?.name).toBe("Dave");
     expect(findGuest("nobody")).toBeUndefined();
@@ -108,6 +117,22 @@ describe("prompt blocks", () => {
     const allergy = briefBlock(tom, 1, 1, openingState(tom, 3), []);
     expect(allergy).toContain("dials in play: guest, safety");
     expect(allergy).toContain("money_items: none");
+  });
+
+  it("numbers the calms, marks the ones done and lists what's still to find", () => {
+    const block = briefBlock(dave, 2, 2, at(3, { calms: [0, 2] }), [3]);
+    expect(block).toContain(`1. ${dave.calms[0]} (done)`);
+    expect(block).toContain(`2. ${dave.calms[1]}\n`);
+    expect(block).toContain("Calms done so far: 2 of 4. Still to find: 2, 4.");
+    expect(block).toContain("the staff member knows your name: no");
+    expect(block).toContain("Your name given yet: no.");
+    const marco = findGuest("gf-burger")!;
+    expect(briefBlock(marco, 1, 2, openingState(marco, 2), [])).toContain("the staff member knows your name: yes");
+  });
+
+  it("keeps conversations to three or four replies", () => {
+    expect(MIN_REPLIES).toBe(3);
+    expect(MAX_REPLIES).toBe(4);
   });
 
   it("fences what people said, so a reply can't close its own block", () => {
@@ -170,6 +195,47 @@ describe("one guest turn", () => {
     expect(isPass("resolved", 75)).toBe(true);
     expect(isPass("resolved", 74)).toBe(false);
     expect(isPass("walked_out", 80)).toBe(true);
+  });
+});
+
+describe("what helps", () => {
+  it("counts each calm once, from the model's numbers", () => {
+    const first = parseGuestTurn(turn({ helped: [1, 1, 3, 9, "x"] }), dave, 1, at(2))!;
+    expect(first.helped).toEqual([0, 2]);
+    const again = parseGuestTurn(turn({ helped: [1, 2] }), dave, 2, at(3, { calms: [0, 2] }))!;
+    expect(again.helped).toEqual([1]);
+  });
+
+  it("never lowers the mood on a reply that did a new calm and nothing bad", () => {
+    expect(parseGuestTurn(turn({ mood: 1, helped: [2] }), dave, 1, at(3))!.mood).toBe(3);
+    // A calm already done doesn't protect it.
+    expect(parseGuestTurn(turn({ mood: 2, helped: [2] }), dave, 2, at(3, { calms: [1] }))!.mood).toBe(2);
+    // Nor does one done alongside something that sets the guest off.
+    expect(parseGuestTurn(turn({ mood: 2, helped: [2], set_off: [1] }), dave, 1, at(3))!.mood).toBe(2);
+  });
+
+  it("never raises the mood on a reply that only set the guest off", () => {
+    expect(parseGuestTurn(turn({ mood: 4, set_off: [2] }), dave, 1, at(3))!.mood).toBe(3);
+    expect(parseGuestTurn(turn({ mood: 4, set_off: [2] }), dave, 1, at(3))!.setOff).toEqual([1]);
+  });
+
+  it("learns the name only when the model and the line agree", () => {
+    expect(parseGuestTurn(turn({ reply: "It's Dave, mate.", said_name: true }), dave, 1, at(2))!.named).toBe(true);
+    expect(parseGuestTurn(turn({ reply: "Cheers mate.", said_name: true }), dave, 1, at(2))!.named).toBe(false);
+    expect(parseGuestTurn(turn({ reply: "It's Dave, mate." }), dave, 1, at(2))!.named).toBe(false);
+    expect(parseGuestTurn(turn({ reply: "Davey's fine." , said_name: true }), dave, 1, at(2))!.named).toBe(false);
+    expect(parseGuestTurn(turn(), dave, 2, at(2, { named: true }))!.named).toBe(true);
+  });
+
+  it("adds up from the stored turns, and shows each turn's helps in words", () => {
+    const turns: StoredTurn[] = [
+      { staff: "Fresh one coming", guest: "Cheers", mood: 3, thought: "", speed: 4, safety: null, money: [], helped: [0], setOff: [] },
+      { staff: "Who's it for?", guest: "Dave", mood: 4, thought: "", speed: 4, safety: null, money: [], helped: [3], setOff: [2], named: true },
+    ];
+    expect(stateAfter(dave, 2, turns)).toMatchObject({ calms: [0, 3], named: true });
+    const shown = revealTurns(dave, turns);
+    expect(shown[0].helped).toEqual([dave.calms[0]]);
+    expect(shown[1].setOff).toEqual([dave.setsOff[2]]);
   });
 });
 

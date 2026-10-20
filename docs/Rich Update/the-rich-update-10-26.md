@@ -306,3 +306,16 @@ Asked by the owner: roughly what does one 15-person venue cost us if each person
 - **Not built:** showing the manager who has reminders on (on the to-do list).
 - **Tests:** 8 in `lib/web-push.test.ts` (the push service allowlist, the signed key checked against the public key, who's due, the Sydney clock) and 2 more in `lib/shift-streak.test.ts`.
 
+
+## Live Guest tune-up, after the owner's first test (2026-10-20)
+
+The owner's conversation with Linh (the shouted coffee order, tough) showed five gaps. What was wrong, and the fix:
+
+- **The name was given away.** The scene said "Linh calls out her order" and every bubble said Linh, so taking a name (one of her five helps) never came up. Now a stranger's name is out of the scene for all 45 guests who are strangers, and the chat says "Guest" until the guest says their name, which they only do when asked or when it fits (a name for the order). The 15 people the staff member would know (colleagues, a housemate, Gaz the regular of twenty years) are marked `knownByName` and keep their names. The reveal always names the guest.
+- **She went round in circles.** Linh asked about the wait four times. Conversations are now 3 or 4 replies (were 3 to 6), the twist comes in the 1st or 2nd reply, and the prompt bans asking for the same thing twice: once a point is answered, even roughly, the guest moves on and the mood shows whether it landed.
+- **The mood ignored what helped.** Reading the order back and giving a time left her annoyed, then fuming. The model now says which calms and sets_off each reply did, and the engine holds the line: a reply that does a new calm and nothing that sets the guest off can't lower the mood, and the reverse can't raise it. The guest's words have to match the recorded mood.
+- **The debrief contradicted the chat** ("read back both coffees" after they had). The debrief now gets how many calms were found, names calms done in What went well, and Try next time has to be a calm missed or the worst thing done, never something already done. Thoughts must agree with what helped.
+- **The guest never opened the door.** Each guest line now gives a natural opening for one calm not yet found ("Will I even hear it over the grinder?"), plainer for patient guests and subtler for tough ones, a different one each reply. The aim is the most helps found in a few replies.
+- **The reveal** ticks off What helps ("You found 3 of 5") and, under each reply, what it helped and what made it worse.
+- **Cost:** shorter conversations, so about a third fewer AI calls per conversation.
+- **Tests:** 7 new in `lib/live-guest/engine.test.ts` (names kept out of every stranger's scene, calms counted once, the mood rules, the name only when the model and the line agree).

@@ -99,7 +99,7 @@ const sections = guests.map((g) => [
 const head = [
   `# ${title}`,
   "",
-  `${guests.length} guests. Each one is a short typed conversation of 3 to 6 replies. The staff member sees the scene and the guest's first line. The AI plays the guest from the rest of the brief, which the staff member only sees in the reveal afterwards, along with what the guest was thinking at each turn.`,
+  `${guests.length} guests. Each one is a short typed conversation of 3 or 4 replies. The staff member sees the scene and the guest's first line. The AI plays the guest from the rest of the brief, which the staff member only sees in the reveal afterwards, along with what the guest was thinking at each turn.`,
   "",
   "A conversation passes at 75 out of 100. Breaking the rule that can't be broken ends it straight away and is never a pass.",
   "",

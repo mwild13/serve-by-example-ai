@@ -92,8 +92,9 @@ export default function HelpScreen() {
       </Section>
 
       <Section title="Live Guest">
-        A typed conversation with a guest, or sometimes a colleague, who talks back: three to six replies, the way you
-        would on shift. Afterwards you see what they were thinking at each turn and how the four dials moved: the
+        A typed conversation with a guest, or sometimes a colleague, who talks back: three or four replies, the way you
+        would on shift. Afterwards you see what they were thinking at each turn, which of the things that help you
+        found, and how the four dials moved: the
         guest, speed, money and safety. Guests get tougher as you master modules. A pass counts toward the
         &quot;Live Guest&quot; bar on the Me page. Live Guest is on venue plans.
       </Section>

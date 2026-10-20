@@ -25,8 +25,9 @@ import {
 } from "@/lib/live-guest-client";
 
 // Live Guest (Rich update, Phases 6 and 7): pick a guest, talk to them over
-// 3 to 6 replies, then see what they were thinking at each turn and how the
-// four dials (guest, speed, money, safety) moved. Shared by desktop
+// 3 or 4 replies, then see what they were thinking at each turn, which of the
+// things that help you found, and how the four dials (guest, speed, money,
+// safety) moved. A guest is "Guest" until they say their name. Shared by desktop
 // (light) and mobile (dark), like QuizRun. The server plays the guest and
 // keeps the transcript (app/api/live-guest/). Styles: .lg rules in
 // app/styles/staff.css, inside .qz--light / .qz--dark for the colours.
@@ -47,6 +48,8 @@ type Chat = {
   lines: Line[];
   replies: number;
   result: LiveGuestResult | null;
+  /** The guest's name once the staff member knows it. */
+  name: string | null;
 };
 
 const LEVEL_LABEL: Record<PublicGuest["level"], string> = { 1: "Gentle", 2: "Tricky", 3: "Hard" };
@@ -86,7 +89,7 @@ function GuestCard({
         </span>
       )}
       <span className="lg-guest-cta">
-        {!guest.available ? (onPlan ? "Not on your plan" : "On venue plans") : starting === guest.id ? "Starting…" : `Talk to ${guest.name}`}
+        {!guest.available ? (onPlan ? "Not on your plan" : "On venue plans") : starting === guest.id ? "Starting…" : guest.name ? `Talk to ${guest.name}` : "Talk to this guest"}
       </span>
     </button>
   );
@@ -140,6 +143,7 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
           lines: [{ from: "guest", text: started.guest.opening }],
           replies: 0,
           result: null,
+          name: started.guest.name,
         });
         setDraft("");
       } catch (err) {
@@ -168,6 +172,7 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
           lines: [...c.lines, { from: "guest", text: answer.guest }],
           replies: answer.replies,
           result: answer.result,
+          name: answer.guestName ?? c.name,
         },
       );
     } catch (err) {
@@ -213,7 +218,7 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
               <p className="lg-upgrade-text">
                 {taster.used
                   ? "You've had your free conversation. The rest of the guests come with a venue plan."
-                  : `Try one conversation free: ${guests.find((g) => g.id === taster.guestId)?.name ?? "the guest"} is waiting below.`}
+                  : `Try one conversation free: ${tasterLabel(guests.find((g) => g.id === taster.guestId))} is waiting below.`}
               </p>
             )}
             <Link className="qz-next lg-upgrade-cta" href="/pricing">
@@ -259,6 +264,7 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
   }
 
   const { guest, result } = chat;
+  const label = chat.name ?? "Guest";
   const replyNumber = Math.min(chat.replies + 1, chat.maxReplies);
 
   return (
@@ -287,15 +293,15 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
           <div className="lg-lines" aria-live="polite">
             {chat.lines.map((line, i) => (
               <div key={i} className={line.from === "guest" ? "lg-line lg-line--guest" : "lg-line lg-line--staff"}>
-                <span className="lg-line-who">{line.from === "guest" ? guest.name : "You"}</span>
+                <span className="lg-line-who">{line.from === "guest" ? label : "You"}</span>
                 <p className="lg-bubble">{line.text}</p>
               </div>
             ))}
             {sending && (
               <div className="lg-line lg-line--guest">
-                <span className="lg-line-who">{guest.name}</span>
+                <span className="lg-line-who">{label}</span>
                 <p className="lg-bubble lg-typing">
-                  <span className="qz-visually-hidden">{guest.name} is typing</span>
+                  <span className="qz-visually-hidden">{label} is typing</span>
                   <span aria-hidden="true" className="lg-dot" />
                   <span aria-hidden="true" className="lg-dot" />
                   <span aria-hidden="true" className="lg-dot" />
@@ -310,7 +316,7 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
               <p style={{ margin: 0 }}>{error.message}</p>
               {error.restart && (
                 <button type="button" className="lc-testout-link" onClick={() => void begin(guest.id)}>
-                  Start again with {guest.name}
+                  Start again
                 </button>
               )}
             </div>
@@ -324,14 +330,14 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
                 void send();
               }}
             >
-              <label className="qz-visually-hidden" htmlFor="lg-reply">Your reply to {guest.name}</label>
+              <label className="qz-visually-hidden" htmlFor="lg-reply">Your reply to {chat.name ?? "the guest"}</label>
               <textarea
                 id="lg-reply"
                 className="lg-input"
                 rows={3}
                 value={draft}
                 maxLength={LIVE_GUEST_MAX_REPLY_CHARS}
-                placeholder={`What do you say to ${guest.name}?`}
+                placeholder={`What do you say to ${chat.name ?? "the guest"}?`}
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={(e) => {
                   // Desktop: Enter sends, Shift+Enter is a new line.
@@ -353,11 +359,17 @@ export default function LiveGuest({ getToken, theme, intro = true }: Props) {
             </form>
           )}
 
-          {result && <Reveal guest={guest} result={result} onAgain={() => void begin(guest.id)} onOthers={() => setChat(null)} />}
+          {result && <Reveal name={result.name ?? guest.name ?? "The guest"} result={result} onAgain={() => void begin(guest.id)} onOthers={() => setChat(null)} />}
         </div>
       </div>
     </div>
   );
+}
+
+/** The taster guest, as the upgrade note names them. */
+function tasterLabel(guest: PublicGuest | undefined): string {
+  if (!guest) return "the guest";
+  return guest.name ?? `"${guest.title}"`;
 }
 
 function headline(name: string, result: LiveGuestResult): string {
@@ -438,13 +450,46 @@ function dialMoves(turn: RevealTurn, before: { speed: DialLevel | null; safety: 
   return moves;
 }
 
+/** What helps, ticked off when the staff member did it. */
+function HelpsList({ result }: { result: LiveGuestResult }) {
+  const done = result.brief.calmsDone;
+  if (!done) return <ul className="lg-list">{result.brief.calms.map((c) => <li key={c}>{c}</li>)}</ul>;
+  return (
+    <>
+      <p className="lg-helps-count">
+        You found {done.length} of {result.brief.calms.length}
+      </p>
+      <ul className="lg-helps">
+        {result.brief.calms.map((c, i) => {
+          const found = done.includes(i);
+          return (
+            <li key={c} className={found ? "lg-help lg-help--done" : "lg-help"}>
+              <span className="lg-help-mark" aria-hidden="true">
+                {found ? (
+                  <svg viewBox="0 0 16 16" width="14" height="14"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                ) : (
+                  <svg viewBox="0 0 16 16" width="14" height="14"><circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" strokeWidth="1.5" /></svg>
+                )}
+              </span>
+              <span>
+                {c}
+                <span className="qz-visually-hidden">{found ? ": you did this" : ": missed"}</span>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </>
+  );
+}
+
 function Reveal({
-  guest,
+  name,
   result,
   onAgain,
   onOthers,
 }: {
-  guest: PublicGuest;
+  name: string;
   result: LiveGuestResult;
   onAgain: () => void;
   onOthers: () => void;
@@ -452,7 +497,7 @@ function Reveal({
   return (
     <div className="lg-reveal">
       <div className={result.passed ? "lg-verdict lg-verdict--pass" : "lg-verdict lg-verdict--fail"}>
-        <p className="lg-verdict-title">{headline(guest.name, result)}</p>
+        <p className="lg-verdict-title">{headline(name, result)}</p>
         <p className="lg-verdict-score">
           Score {result.score} · {result.passed ? "Passed" : "Not passed: 75 to pass"}
         </p>
@@ -467,10 +512,10 @@ function Reveal({
 
       <DialPanel result={result} />
 
-      <h3 className="lg-reveal-title">What {guest.name} was thinking</h3>
+      <h3 className="lg-reveal-title">What {name} was thinking</h3>
       <ol className="lg-thoughts">
         <li className="lg-thought">
-          <span className="lg-thought-you">{guest.name} arrived</span>
+          <span className="lg-thought-you">{name} arrived</span>
           <MoodChip mood={result.startMood} />
         </li>
         {result.turns.map((t, i) => {
@@ -490,6 +535,12 @@ function Reveal({
                 <MoodChip mood={t.mood} />
               </span>
               {t.thought && <p className="lg-thought-text">{t.thought}</p>}
+              {(t.helped ?? []).map((h) => (
+                <p key={h} className="lg-thought-help">Helped: {h}</p>
+              ))}
+              {(t.setOff ?? []).map((h) => (
+                <p key={h} className="lg-thought-worse">Made it worse: {h}</p>
+              ))}
               {moves.length > 0 && (
                 <ul className="lg-thought-dials">
                   {moves.map((m) => (
@@ -503,10 +554,10 @@ function Reveal({
       </ol>
 
       <div className="lg-debrief">
-        <p className="lc-why-label">What {guest.name} wanted</p>
+        <p className="lc-why-label">What {name} wanted</p>
         <p className="lc-why-text">{result.brief.wants}</p>
         <p className="lc-why-label" style={{ marginTop: 12 }}>What helps</p>
-        <ul className="lg-list">{result.brief.calms.map((c) => <li key={c}>{c}</li>)}</ul>
+        <HelpsList result={result} />
         <p className="lc-why-label" style={{ marginTop: 12 }}>What makes it worse</p>
         <ul className="lg-list">{result.brief.setsOff.map((c) => <li key={c}>{c}</li>)}</ul>
         {result.brief.mustDo && (
@@ -524,7 +575,7 @@ function Reveal({
           All guests
         </button>
         <button type="button" className="qz-next" onClick={onAgain}>
-          Talk to {guest.name} again
+          Talk to {name} again
         </button>
       </div>
     </div>
