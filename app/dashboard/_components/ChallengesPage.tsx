@@ -84,7 +84,7 @@ export default function ChallengesPage() {
     setCurrentStep(0);
     setHadError(new Set());
     setReviewMode(false);
-    // Clear localStorage so ProgressOverview reflects the restart
+    // Clear localStorage so the restart starts the five from scratch
     try {
       localStorage.removeItem("sbe_challenges_completed");
     } catch { /* ignore */ }

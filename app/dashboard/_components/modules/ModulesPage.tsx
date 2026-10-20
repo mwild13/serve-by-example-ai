@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowDown, ArrowRight, ArrowUp, Check, Search } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUp, Search } from "lucide-react";
+import MasteryRing from "@/app/dashboard/_components/parts/MasteryRing";
 import { isMastered, isStarted, type StepModule } from "@/lib/next-step";
 
 // Modules as a path, not a grid (docs/STAFF_DESKTOP_REDESIGN_PLAN.md, 7.2):
@@ -31,32 +32,6 @@ const LEVELS = [
   { id: "intermediate", label: "Intermediate", test: (d: number) => d === 3 },
   { id: "advanced", label: "Advanced", test: (d: number) => d >= 4 },
 ];
-
-/** A mastery ring: empty, a brass arc as mastery grows, a full ring with a tick once mastered. */
-function Ring({ module }: { module: Module }) {
-  const r = 11;
-  const c = 2 * Math.PI * r;
-  const done = isMastered(module);
-  const pct = done ? 100 : module.mastery_pct;
-  return (
-    <span className={`sd-ring${done ? " is-done" : ""}${isStarted(module) ? " is-started" : ""}`} aria-hidden="true">
-      <svg width="28" height="28" viewBox="0 0 28 28">
-        <circle className="sd-ring-track" cx="14" cy="14" r={r} />
-        {pct > 0 && (
-          <circle
-            className="sd-ring-arc"
-            cx="14"
-            cy="14"
-            r={r}
-            strokeDasharray={`${(pct / 100) * c} ${c}`}
-            transform="rotate(-90 14 14)"
-          />
-        )}
-      </svg>
-      {done ? <Check size={13} strokeWidth={2.5} /> : isStarted(module) && pct === 0 ? <span className="sd-ring-dot" /> : null}
-    </span>
-  );
-}
 
 function statusText(m: Module): string {
   if (isMastered(m)) return "Mastered";
@@ -233,7 +208,7 @@ export default function ModulesPage({
                     return (
                       <li key={m.id} ref={here ? hereRef : undefined} className={`sd-row-item${here ? " is-here" : ""}`}>
                         <button type="button" className="sd-row" onClick={() => onOpenModule(m.id)}>
-                          <Ring module={m} />
+                          <MasteryRing module={m} />
                           <span className="sd-row-main">
                             <span className="sd-row-title">
                               {m.title}

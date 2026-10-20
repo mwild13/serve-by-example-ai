@@ -15,8 +15,7 @@ import ChallengesPage from "@/app/dashboard/_components/ChallengesPage";
 import { CocktailGridSkeleton } from "@/components/ui/Skeletons";
 const CocktailLibrary = lazy(() => import("@/app/dashboard/_components/knowledge-base/CocktailLibrary"));
 const KnowledgeBase = lazy(() => import("@/app/dashboard/_components/knowledge-base/KnowledgeBase"));
-const BadgesView = lazy(() => import("@/app/dashboard/_components/BadgesView"));
-import ProgressOverview from "@/app/dashboard/_components/ProgressOverview";
+import MyProgressPage from "@/app/dashboard/_components/progress/MyProgressPage";
 import TodayPage from "@/app/dashboard/_components/today/TodayPage";
 import StaffSidebar, { type StaffNavId } from "@/app/dashboard/_components/shell/StaffSidebar";
 import SessionRefresher from "@/components/ui/SessionRefresher";
@@ -787,22 +786,15 @@ export default function DashboardShell({
               <KnowledgeBase />
             </Suspense>
           )
-        ) : activeNav === "progress" ? (
-          sheet(
-            <ProgressOverview
-              displayName={displayName}
-              plan={plan}
-              onSelectModule={openModule}
-              onNavigate={(nav) => handleNavClick(RETIRED_NAV[nav] ?? (nav as NavItem))}
-              initialProgressData={progressData}
-            />
-          )
-        ) : activeNav === "badges" ? (
-          sheet(
-            <Suspense fallback={<p className="sd-loading">Loading</p>}>
-              <BadgesView onBack={() => handleNavClick("progress")} />
-            </Suspense>
-          )
+        ) : activeNav === "progress" || activeNav === "badges" ? (
+          <MyProgressPage
+            key="progress"
+            progressData={progressData}
+            getToken={getToken}
+            openAtBadges={activeNav === "badges"}
+            onOpenModule={openModule}
+            onNavigate={handleNavClick}
+          />
         ) : (
           sheet(
             <StaffSettingsPanel
