@@ -83,7 +83,7 @@ export default function PrivacyPage() {
                   fix it. No cookie is set, and no name, email or IP address is attached.
                 </li>
                 <li>
-                  <strong>OpenAI</strong>: Used for Live Guest conversations, AI coaching, drafting venue quiz questions and translation. Each Live Guest reply you type is sent so the practice guest can answer. A manager&apos;s AI Coach question is sent with that venue&apos;s staff names, roles and training scores, and the venue items a manager adds are sent to draft questions about them (OpenAI does not use data submitted via the API to train their foundational models).
+                  <strong>OpenAI</strong>: Used for Live Guest conversations, AI coaching, drafting venue quiz questions and translation. Each Live Guest reply you type is sent so the practice guest can answer. A manager&apos;s AI Coach question is sent with that venue&apos;s staff names, roles and training scores, and the venue items a manager adds, typed or as a photo of the menu, are sent to draft questions about them (the photo is not kept) (OpenAI does not use data submitted via the API to train their foundational models).
                 </li>
                 <li>
                   <strong>Google Analytics</strong>: We use Google Analytics (ID: G-EF9YRFXKBG) to

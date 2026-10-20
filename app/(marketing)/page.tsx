@@ -53,7 +53,7 @@ const SYSTEMS = [
   {
     audience: "For frontline staff",
     title: "Live Guest",
-    body: "Staff talk their way through a difficult guest, a slow upsell or a complaint. Every answer is scored on five service dimensions before their next shift starts.",
+    body: "Staff talk their way through a difficult guest, a slow upsell or a complaint, and the guest talks back. Afterwards they see how the guest felt at each turn, and what every reply did to speed, safety and money.",
   },
   {
     audience: "For general managers",
@@ -77,7 +77,7 @@ const STEPS: { num: string; title: string; body: ReactNode }[] = [
     title: "Apply It Under Real Pressure.",
     body: (
       <>
-        Scenario roleplay puts staff in live service situations: awkward guests, difficult upsells, and service recovery moments. Every session scored across <em className="step-highlight">5 service dimensions</em>. Instant feedback. No manager required.
+        Live Guest puts staff in real service moments: awkward guests, difficult upsells, and service recovery. Every conversation shows the guest&apos;s mood at each turn and its effect on <em className="step-highlight">speed, safety and money</em>. Instant feedback. No manager required.
       </>
     ),
   },

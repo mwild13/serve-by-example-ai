@@ -111,7 +111,7 @@ const EXAMPLE: StripItem[] = [
   },
   {
     label: "Scored feedback",
-    title: "Score: 22/25",
+    title: "Score: 86/100",
     body: "Clear acknowledgement, friendly tone and good guest awareness. A strong service response.",
   },
 ];
@@ -119,8 +119,8 @@ const EXAMPLE: StripItem[] = [
 const SCORING: Step[] = [
   {
     num: "01",
-    title: "Score every response",
-    body: "Rated across 5 dimensions: communication, hospitality, problem-solving, professionalism and guest experience.",
+    title: "Score every conversation",
+    body: "The guest's mood at each turn, and what each reply did to speed, safety and money, with a score out of 100 and a short debrief.",
   },
   {
     num: "02",

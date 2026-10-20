@@ -62,8 +62,8 @@ const FEATURES: RuledItem[] = [
     body: "Staff talk to a practice guest who talks back: a flat schooner, a cold parmy, a guest who's had too many. Afterwards they see what the guest was thinking at each turn.",
   },
   {
-    title: "Role-Based Learning Paths",
-    body: "Tailor training to bartenders, floor staff, sales-focused team members and managers. Each role gets a targeted pathway.",
+    title: "Your Menu, Your Questions",
+    body: "Add this week's cocktail specs, specials and 86'd items in the Manager Console. The AI drafts the questions, you approve them, and staff get them in their next drill.",
   },
   {
     title: "Live Performance Tracking",

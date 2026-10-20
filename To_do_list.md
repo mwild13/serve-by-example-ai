@@ -15,7 +15,6 @@ Small changes, in the order they will be done. Each goes to a preview branch fir
 
 ## 2. Marketing copy
 
-- [ ] **Two marketing claims for the owner to reword** (2026-10-20). The rest of the Rich update copy is done. (1) "Five service dimensions" on the home page and the vs-generic-lms page described the retired Scenario Training; Live Guest shows the guest's mood and the speed, safety and money dials. It's a locked claim, so it needs the owner's wording. (2) "Role-Based Learning Paths" on the platform page isn't built. Details and a suggested wording in `docs/Rich Update/launch-check.md`.
 
 There is still no customer data, so no outcome figures or customer proof go on a marketing page.
 
@@ -84,7 +83,6 @@ None is switched on by the code; each is bought in its own dashboard. Prices are
 
 From Richie, a venue manager with 20 years in busy venues and the first paid tester (October 2026). One person's view, so each needs a second venue to agree before a big build.
 
-- [ ] **Venue content from a photo of the menu.** Rich update, Phase 11, part two: the manager photographs the cocktail menu and the AI drafts the items from it. The typed version is built (Manager Console, Venue Content tab, 2026-10-20).
 - [ ] **Pricing.** He suggested $10 to $20 per user per month. Today Boutique is $79 for 15 seats (about $5.27 each) and Commercial $149 for 35 (about $4.26). Typsy lists about US$12.50 per member. Do not raise prices on one opinion; once there are more trials, test a higher price on new sign-ups only.
 - [ ] **Videos in the cocktail library.** He asked for photos (done) or videos. Filming and hosting 38 drinks is a content project; leave it until a venue asks again.
 

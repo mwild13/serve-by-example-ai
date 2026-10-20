@@ -4,13 +4,14 @@
 // abandoned taster still counts. Checked on the server by the start and
 // turn routes; the picker shows it as the one available guest.
 //
-// Chosen 2026-10-20 as the guest with all four dials in play (mood, speed,
-// safety and money) in the most familiar pub complaint. The owner can change
-// it here; the guest must be `reviewed: true` in guests.ts.
+// Chosen 2026-10-20: Dan, Friday 10pm in a packed pub, stacking schooners to
+// help. Every publican knows him, he's friendly (level 1), so a first try can
+// go well, and the speed and safety dials both move. Change it here; the
+// guest must be `reviewed: true` in guests.ts (a test checks).
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export const TASTER_GUEST_ID = "cold-parmy";
+export const TASTER_GUEST_ID = "stacked-glasses";
 
 /** True once this person has started a taster conversation. */
 export async function tasterUsed(admin: SupabaseClient, userId: string): Promise<boolean> {

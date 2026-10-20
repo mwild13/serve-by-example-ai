@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import {
   VENUE_CONTENT_DETAILS_MAX,
   VENUE_CONTENT_KINDS,
@@ -27,6 +27,26 @@ type Props = {
 
 type Form = { kind: VenueContentKind; title: string; details: string; endsOn: string };
 
+/** An item read off a menu photo, ticked to add. */
+type PhotoItem = { kind: VenueContentKind; title: string; details: string; picked: boolean };
+
+/** The longest side of a menu photo, after shrinking in the browser. */
+const PHOTO_MAX_SIDE = 1600;
+
+/** Shrinks a photo to a JPEG data URL, so it uploads fast on venue wifi. */
+async function shrinkPhoto(file: File): Promise<string> {
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, PHOTO_MAX_SIDE / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("This browser can't prepare the photo.");
+  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  return canvas.toDataURL("image/jpeg", 0.82);
+}
+
 const EMPTY_FORM: Form = { kind: "spec", title: "", details: "", endsOn: "" };
 
 export function VenueContentPanel({ venueId, venueName, sessionToken }: Props) {
@@ -39,10 +59,15 @@ export function VenueContentPanel({ venueId, venueName, sessionToken }: Props) {
   const [busy, setBusy] = useState<string | null>(null);
   // Per item: the AI couldn't draft questions, or a change failed.
   const [itemNotes, setItemNotes] = useState<Record<string, string>>({});
+  // A menu photo: reading it, what was read, and adding the ticked items.
+  const photoInput = useRef<HTMLInputElement>(null);
+  const [photoState, setPhotoState] = useState<"idle" | "reading" | "adding">("idle");
+  const [photoItems, setPhotoItems] = useState<PhotoItem[] | null>(null);
+  const [photoNote, setPhotoNote] = useState<string | null>(null);
 
   const call = useCallback(
-    async (method: "GET" | "POST" | "PATCH", body?: unknown) => {
-      const url = method === "GET" ? `/api/management/venue-content?venueId=${encodeURIComponent(venueId)}` : "/api/management/venue-content";
+    async (method: "GET" | "POST" | "PATCH", body?: unknown, path = "/api/management/venue-content") => {
+      const url = method === "GET" ? `${path}?venueId=${encodeURIComponent(venueId)}` : path;
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json", ...(sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {}) },
@@ -97,6 +122,56 @@ export function VenueContentPanel({ venueId, venueName, sessionToken }: Props) {
     }
   }
 
+  async function readPhoto(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setPhotoState("reading");
+    setPhotoNote(null);
+    setPhotoItems(null);
+    try {
+      const image = await shrinkPhoto(file);
+      const data = await call("POST", { venueId, image }, "/api/management/venue-content/photo");
+      const read = (data.items as Omit<PhotoItem, "picked">[]).map((item) => ({ ...item, picked: true }));
+      setPhotoItems(read);
+      if (read.length === 0) setPhotoNote("Nothing on that photo could be read as a menu item. Try a closer, straighter photo.");
+    } catch (err) {
+      setPhotoNote(err instanceof Error ? err.message : "Could not read that photo.");
+    } finally {
+      setPhotoState("idle");
+    }
+  }
+
+  // Adds each ticked item through the normal route, one at a time, so each
+  // gets its own drafted questions.
+  async function addPicked() {
+    const picked = (photoItems ?? []).filter((item) => item.picked);
+    if (picked.length === 0) return;
+    setPhotoState("adding");
+    setPhotoNote(null);
+    let added = 0;
+    const left: PhotoItem[] = [];
+    for (const item of picked) {
+      try {
+        setPhotoNote(`Drafting questions for ${item.title} (${added + 1} of ${picked.length})…`);
+        const data = await call("POST", { venueId, kind: item.kind, title: item.title, details: item.details, endsOn: null });
+        const view = data.item as VenueItemView;
+        setItems((list) => [view, ...(list ?? [])]);
+        if (data.draftFailed) setItemNotes((notes) => ({ ...notes, [view.id]: DRAFT_FAILED }));
+        added += 1;
+      } catch {
+        left.push(item);
+      }
+    }
+    setPhotoItems(left.length > 0 ? left : null);
+    setPhotoNote(
+      left.length > 0
+        ? `Added ${added}. ${left.length === 1 ? "One couldn't be added" : `${left.length} couldn't be added`}; try again in a minute.`
+        : `Added ${added}. Approve their questions below.`,
+    );
+    setPhotoState("idle");
+  }
+
   async function change(key: string, itemId: string, body: Record<string, string>) {
     setBusy(key);
     try {
@@ -140,6 +215,52 @@ export function VenueContentPanel({ venueId, venueName, sessionToken }: Props) {
           { label: "Waiting for you", value: items ? String(waiting) : null, sub: waiting > 0 ? "Approve or reject below" : undefined },
         ]}
       />
+
+      <Panel
+        title="From a photo of the menu"
+        description="Take a photo of your cocktail list, drinks menu or specials board. The AI reads the items off it; tick the ones to add. The photo isn't kept."
+        aside={
+          <>
+            <input ref={photoInput} type="file" accept="image/*" capture="environment" hidden onChange={(e) => void readPhoto(e)} />
+            <button type="button" className="mc-btn" disabled={photoState !== "idle"} onClick={() => photoInput.current?.click()}>
+              {photoState === "reading" ? "Reading the menu…" : "Choose a photo"}
+            </button>
+          </>
+        }
+      >
+        {photoNote && <p className="mc-vc-hint" role="status">{photoNote}</p>}
+        {photoItems && photoItems.length > 0 && (
+          <div className="mc-vc-form">
+            <ul className="mc-vc-picks">
+              {photoItems.map((item, index) => (
+                <li key={`${item.title}-${index}`}>
+                  <label className="mc-vc-pick">
+                    <input
+                      type="checkbox"
+                      checked={item.picked}
+                      onChange={() => setPhotoItems((list) => (list ?? []).map((p, i) => (i === index ? { ...p, picked: !p.picked } : p)))}
+                    />
+                    <span>
+                      <strong>{item.title}</strong> <span className="mc-vc-hint">{VENUE_CONTENT_KIND_LABEL[item.kind]}</span>
+                      <span className="mc-vc-pick-details">{item.details}</span>
+                    </span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+            <div>
+              <button
+                type="button"
+                className="mc-btn"
+                disabled={photoState !== "idle" || !photoItems.some((p) => p.picked)}
+                onClick={() => void addPicked()}
+              >
+                {photoState === "adding" ? "Adding…" : `Draft questions for ${photoItems.filter((p) => p.picked).length} ticked`}
+              </button>
+            </div>
+          </div>
+        )}
+      </Panel>
 
       <Panel title="Add an item" description="The AI drafts 3 to 5 questions from what you write. Nothing reaches staff until you approve it.">
         <form className="mc-vc-form" onSubmit={add}>

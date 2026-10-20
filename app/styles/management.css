@@ -2143,6 +2143,14 @@ textarea.mc-input { padding: 12px 14px; line-height: 1.5; resize: none; }
 
 .mc-vc-explain { margin: 0; font-size: 0.875rem; line-height: 1.5; color: var(--mc-text-soft); }
 
+.mc-vc-picks { list-style: none; margin: 0; padding: 0; }
+
+.mc-vc-pick { display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-top: 1px solid var(--mc-line-soft); font-size: 0.9375rem; color: var(--mc-text); cursor: pointer; }
+
+.mc-vc-pick input { width: 18px; height: 18px; margin-top: 3px; flex-shrink: 0; accent-color: var(--green); }
+
+.mc-vc-pick-details { display: block; margin-top: 2px; font-size: 0.875rem; line-height: 1.5; color: var(--mc-text-soft); }
+
 .mc-vc-decide { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 
 @media (max-width: 700px) {

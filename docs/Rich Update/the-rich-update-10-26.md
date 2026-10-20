@@ -20,7 +20,7 @@ The staff learning upgrade, named after Richie, our first tester, who called tra
 | 8 | Plans, manager score and retiring the old screens | Done 2026-10-20 |
 | 9 | Image style and library | Parked 2026-10-20: the owner draws the parts in Claude Design later |
 | 10 | Mixed drills | Done 2026-10-20 |
-| 11 | Venue content | Text built 2026-10-20, for the owner to check; menu photos next |
+| 11 | Venue content | Built 2026-10-20, menu photos included, for the owner to check |
 | 12 | Pre-shift drill and shift streak | Part 1 built 2026-10-20, for the owner to check; reminders and push need VAPID keys |
 | 13 | Launch check, then marketing spend starts | Claude Code's part done 2026-10-20; the owner's check and the human test are next (`launch-check.md`) |
 | 14 | Live Guest voice | After marketing starts |
@@ -282,7 +282,16 @@ Asked by the owner: roughly what does one 15-person venue cost us if each person
 - **The checklist for the owner:** `launch-check.md`, in this folder: the one migration still to run, six decisions, the end-to-end check by role, and the human test with its four questions.
 - **Privacy policy:** web and mobile updated for Live Guest transcripts (kept with the result, deleted with the account, not shown to managers), venue content drafting and shift days. The mobile copy had fallen behind the web one; both now match on AI.
 - **Security page:** describes what Live Guest and venue content send to OpenAI. The venue's name was taken out of the venue content prompt so the page can say only the manager's text is sent.
-- **Taster conversation:** one free Live Guest conversation for anyone off a venue plan, with Sharon (`cold-parmy`), checked on the server (`lib/live-guest/taster.ts`, with a test).
-- **Marketing copy:** the wrong mentions of the retired features are fixed (Pro's card, the home page's "AI Scenario Simulators", the platform page, "rapid-fire" in three places, the complaint demo's leaderboard). Two claims wait for the owner: "five service dimensions" (a locked claim that described Scenario Training) and "Role-Based Learning Paths" on the platform page (not built).
+- **Taster conversation:** one free Live Guest conversation for anyone off a venue plan, with Dan (`stacked-glasses`, Friday 10pm in a packed pub), chosen with the owner, checked on the server (`lib/live-guest/taster.ts`, with a test).
+- **Marketing copy:** the wrong mentions of the retired features are fixed (Pro's card, the home page's "AI Scenario Simulators", the platform page, "rapid-fire" in three places, the complaint demo's leaderboard). "Five service dimensions" (which described Scenario Training) is reworded to what Live Guest shows, and "Role-Based Learning Paths" (not built) is replaced by venue content. Decided with the owner's go-ahead on 2026-10-20; the six decisions are in `launch-check.md`.
 - **Measures:** queries 7 to 9 in `supabase/queries/learning.sql` (venue content, drills by kind, pre-shift drills).
+
+## Phase 11, part two: menu photos (built 2026-10-20)
+
+- **"From a photo of the menu"** at the top of the Venue Content tab. The manager takes or chooses a photo of the cocktail list, drinks menu or specials board. The browser shrinks it (longest side 1,600 pixels) before it uploads.
+- **The AI reads the items off it** (`readMenuPhoto()` in `lib/venue-content.ts`, `POST /api/management/venue-content/photo`): up to 12, each with a kind, a name and what the menu says about it. Only what can be read; nothing guessed. Nothing is saved at this step, and the photo is never stored.
+- **The manager ticks the items to add.** Each one then goes through the normal add, so it gets its own drafted questions to approve. One AI call to read the photo, then one per item.
+- **Privacy and security pages** say the photo is sent to read it and not kept.
+- **Not tested against the live model here:** the photo reading needs the model to accept images. If the first try fails on the preview, the error says so and nothing is lost.
+- **Tests:** 3 more in `lib/venue-content.test.ts` (the photo check, which items are kept, the prompt).
 

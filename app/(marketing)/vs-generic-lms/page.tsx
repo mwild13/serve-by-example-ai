@@ -16,7 +16,7 @@ const COMPARISON = [
   {
     topic: "Training format",
     generic: "Long videos and passive click-through modules. Staff watch, answer a quiz, move on. No pressure, no real skill measurement.",
-    sbe: "Scenario roleplay evaluated across 5 service dimensions in real time. Rapid-fire quizzes, tap-based challenges, and spaced repetition. Active recall, not passive consumption.",
+    sbe: "Live Guest conversations with a guest who talks back, quizzes in six formats, mixed drills, tap-based challenges and spaced repetition. Active recall, not passive consumption.",
   },
   {
     topic: "Industry focus",
@@ -26,7 +26,7 @@ const COMPARISON = [
   {
     topic: "Skill measurement",
     generic: "Pass/fail quizzes with a percentage score. No dimensional scoring, no feedback on why an answer was wrong.",
-    sbe: "Every scenario response scored across 5 dimensions: communication, hospitality, problem-solving, professionalism, and guest experience. Written AI feedback on every answer.",
+    sbe: "Every Live Guest conversation shows how the guest felt at each turn and what each reply did to speed, safety and money, with a score and a short debrief. Every quiz answer comes with the reason it's right.",
   },
   {
     topic: "Manager visibility",
