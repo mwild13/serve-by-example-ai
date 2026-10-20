@@ -1,6 +1,6 @@
 # Handoff: October 2026, Week 4
 
-Work from 2026-10-17 onward is recorded here. Earlier work is in `docs/handoff/2026-10-week3-handoff.md`. Open items are in `To_do_list.md`. Everything below is on `main` as of `e7a53d7`, released 2026-10-17.
+Work from 2026-10-17 to 2026-10-18 is recorded here; the Rich update (2026-10-19 onward) is in `docs/handoff/2026-10-rich-update-handoff.md`. Earlier work is in `docs/handoff/2026-10-week3-handoff.md`. Open items are in `To_do_list.md`. Everything below is on `main` as of `e7a53d7`, released 2026-10-17.
 
 ## Part 1: fixes from the owner's laptop testing
 

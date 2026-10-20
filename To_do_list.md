@@ -1,6 +1,6 @@
 # To Do
 
-Open items only. Finished work is recorded in `docs/handoff/2026-10-week4-handoff.md` (this week), the earlier handoffs in `docs/handoff/`, and git history.
+Open items only. Finished work is recorded in `docs/handoff/2026-10-rich-update-handoff.md` (the Rich update, 2026-10-19 to 20), the earlier handoffs in `docs/handoff/`, and git history.
 
 Regrouped on 2026-10-12 by who does the work and where. Background for the launch items is in `docs/handoff/2026-10-pre-launch-handoff.md`.
 
@@ -92,7 +92,7 @@ Onboarding was cut to the venue code alone on 2026-10-17: the venue type and exp
 
 - [ ] **Show the manager who has shift reminders on.** The reminders are built (Rich update, Phase 12, 2026-10-20: `shift_schedules.reminder_time` and `push_subscriptions`). A column or a line on the Staff tab would do.
 - [ ] **"What should we call you?" as the first onboarding question.** Many accounts have no name, so the app and emails fall back to the email address (info@ reads "Info"). Ask for a first name at sign-up or as onboarding step one, prefilled from the email, and save it with `/api/profile/update-name`. The manager's roster shows the same name.
-- [ ] **Skill check of 5 to 8 questions in place of "How much experience?".** About two minutes, drawn from the start of each module. The score sets each module's starting mastery level, so an experienced bartender skips the basics and a beginner starts at the start, which works on the repetition the tester reported. The manager sees each new hire's starting score per module on day one. Ends onboarding with the person already training. Needs a way to write a starting level into the mastery engine (`docs/MASTERY_ENGINE.md`) without counting it as practice.
+- [ ] **Offer the skill check at the end of onboarding.** The skill check itself was built in the Rich update (Phase 5, `/mobile/onboarding`); today it's a prompt on the mobile Learn hub. Ending onboarding on it would have a new hire training straight away, and the manager would see their starting point on day one.
 
 ## Important
 
@@ -109,16 +109,9 @@ Separate paths for **Bartender**, **Kitchen** and **Gaming Attendant**, so staff
 
 **Why it is on the list.** Richie (first paid tester, October 2026) wants one place for all onboarding (food, gaming and WHS as well as the bar), as the platform he used at JDA Hotels had. He also found our modules, scenarios and live scenarios repetitive. If one path feels repetitive, three will too, and they cost three times as much to write.
 
-### Stage 1. Make the Bartending path less repetitive
+### Stages 1 and 2: done by the Rich update
 
-- Find where the repetition is: which questions and scenarios a learner sees more than once, from the attempt data.
-- Add question types beyond True/False: choose the right spec, put the steps in order, spot the mistake in a pour or a greeting.
-- Scenarios that change with the answer, instead of the same scenario with only the names swapped.
-- **Check before Stage 2:** Richie goes back through the same modules and no longer calls them repetitive.
-
-### Stage 2. Venue content
-
-The "Venue content" item under Upgrades. It answers his "keep it fresh" point without new paths, and the same tool later lets a venue add its own food or gaming notes.
+Less repetition (the question engine, mixed drills, Live Guest) and venue content were built in the Rich update, on `main` from 2026-10-20 (`docs/handoff/2026-10-rich-update-handoff.md`). The check before Stage 3 is the human test in `docs/Rich Update/launch-check.md`: someone who hasn't seen it no longer finds it repetitive.
 
 ### Stage 3. Test demand with two modules, not two paths
 
