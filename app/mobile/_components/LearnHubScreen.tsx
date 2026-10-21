@@ -16,7 +16,7 @@ import ReferenceLibrarySection from "./learn/ReferenceLibrarySection";
 // 40-module catalog + moduleProgress map returned by GET /api/training/progress,
 // via useTrainingProgress(). Category pills map to the real `modules.category`
 // values (technical/service/compliance) — not the arbitrary Phase B placeholder
-// categories. Module locking stays cosmetic-only per v4-migration-plan/00
+// categories. Module locking stays cosmetic-only per docs/zHistorical/v4-migration-plan/00
 // Locked Decision #3: V3 has a single global free/paid gate, no per-module rules.
 //
 // 3-tab consolidation (2026-08-21): this screen is now the orchestrator for

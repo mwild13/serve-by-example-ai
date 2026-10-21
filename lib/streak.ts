@@ -9,7 +9,7 @@
 //
 // Previously duplicated verbatim inside PreShiftHome.tsx (desktop; now
 // called from today/TodayPage.tsx). Phase 6
-// of the V4 migration (v4-migration-plan/00-bug-batch-plan.md, item 13)
+// of the V4 migration (docs/zHistorical/v4-migration-plan/00-bug-batch-plan.md, item 13)
 // needed the exact same increment-on-daily-visit logic for mobile, so this
 // moved here as the one shared implementation both surfaces import, rather
 // than letting mobile grow a second copy. Desktop and mobile share a

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 // Phase C file 08 Half A — real placement-check diagnostic via
 // app/api/training/diagnostic/start + .../submit. Retake-only entry point,
 // reachable from ProgressScreen's "Retake placement assessment" link (see
-// v4-migration-plan/08's Implementation Notes for why first-time onboarding
+// docs/zHistorical/v4-migration-plan/08's Implementation Notes for why first-time onboarding
 // still redirects to desktop's /onboarding instead of here).
 export default function MobileOnboardingPage() {
   return <OnboardingDiagnosticScreen />;

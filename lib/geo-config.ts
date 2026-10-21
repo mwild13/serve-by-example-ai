@@ -54,7 +54,6 @@ const GEO_CONFIG = {
     '/mobile',
     '/management',
     '/reset-password',
-    '/payment-success',
     '/session-conflict',
   ],
 };

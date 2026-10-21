@@ -8,7 +8,7 @@ import type { ScenarioType } from "@/lib/mastery";
 // in lib/mastery.ts. ProgressScreen, LearnHubScreen, HomeScreen,
 // ChallengesScreen, and BadgesGalleryScreen all read through this hook
 // instead of each independently re-deriving mastery state from raw attempt
-// rows. See v4-migration-plan/02-mastery-engine-harvest.md.
+// rows. See docs/MASTERY_ENGINE.md.
 //
 // Perf fix (Phase 1a, mobile bug-fix plan, 2026-08-24): this hook used to own
 // its own fetch effect, independently re-run on every mount of every
@@ -79,7 +79,7 @@ export type TrainingProgress = {
    * True when this user's own staff role (Manager/Supervisor at a linked
    * venue) auto-unlocked the Management category — distinct from paying
    * for it directly. API already computes and returns this (server-side
-   * write happens in the same request); Phase 3 (v4-migration-plan/00,
+   * write happens in the same request); Phase 3 (docs/zHistorical/v4-migration-plan/00,
    * item 9) is the first mobile consumer, used to tell "management is
    * paywalled" apart from "management needs a Manager/Supervisor role" on
    * ScenarioTrainingScreen's category cards.

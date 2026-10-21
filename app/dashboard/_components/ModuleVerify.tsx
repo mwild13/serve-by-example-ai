@@ -14,7 +14,7 @@ import {
   type VerifyQuizStart,
 } from "@/lib/verify-quiz-client";
 
-// Shortened 2026-08-24 (docs/Module-Title-Renames-Proposal.md) — 2-3 word
+// Shortened 2026-08-24 (supabase/migrations/20260824b_shorten_module_titles.sql) — 2-3 word
 // titles so the Learn Hub's 2-column module grid and the Practice &
 // Scenarios single-line tiles both fit without truncation.
 const MODULE_TITLES: Record<number, string> = {

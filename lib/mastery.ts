@@ -309,7 +309,7 @@ export async function getScenarioMasteryDetails(
 
 // ── Category-average mastery rollup ──────────────────────────
 //
-// Phase 4 (v4-migration-plan/00-bug-batch-plan.md, item 10). Averages
+// Phase 4 (docs/zHistorical/v4-migration-plan/00-bug-batch-plan.md, item 10). Averages
 // moduleProgress[m.id].mastery across every module in `allModules` matching
 // `category`, defaulting to 0 when the category has no modules. This was
 // hand-duplicated 3x on desktop (ProgressOverview.tsx::catAvg(),

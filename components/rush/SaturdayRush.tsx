@@ -26,7 +26,7 @@ import { STAFF_KEYS, loadRushStats } from "@/lib/staff-data";
 // saved to /api/training/rush, which replays it for the score. Styles: .rush
 // rules in app/styles/staff.css, on the .qz theme colours.
 
-/** "room" is the staff desktop's green (docs/STAFF_DESKTOP_REDESIGN_PLAN.md); it keeps the desktop keys. */
+/** "room" is the staff desktop's green (docs/STAFF_APP.md section 8); it keeps the desktop keys. */
 type Props = {
   getToken: () => Promise<string>;
   theme: "light" | "dark" | "room";

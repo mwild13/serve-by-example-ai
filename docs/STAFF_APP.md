@@ -86,7 +86,7 @@ Two opt-in emails, both off until the person turns them on in Settings > Notific
 
 ## 8. Desktop design (October 2026 redesign)
 
-The desktop staff area was rebuilt twice in October 2026. The first pass (`docs/STAFF_DESKTOP_REDESIGN_PLAN.md`, all dark green with brass) was reviewed by the owner on 2026-10-21 and replaced the same day: it read as AI-made, the serif headings didn't suit the product, and the eye had nowhere to land. This section is the standard that replaced it. Styles are in `app/styles/staff.css` under "STAFF DESKTOP (/dashboard)", all `.sd-*` classes; the `--sd-*` tokens are in `app/globals.css`, each an alias of a brand token.
+The desktop staff area was rebuilt twice in October 2026. The first pass (`docs/zHistorical/STAFF_DESKTOP_REDESIGN_PLAN.md`, all dark green with brass) was reviewed by the owner on 2026-10-21 and replaced the same day: it read as AI-made, the serif headings didn't suit the product, and the eye had nowhere to land. This section is the standard that replaced it. Styles are in `app/styles/staff.css` under "STAFF DESKTOP (/dashboard)", all `.sd-*` classes; the `--sd-*` tokens are in `app/globals.css`, each an alias of a brand token.
 
 **Look**
 - **Light by default:** a cream page (`--sd-bg`) with near-white panels and a bottle green sidebar. Green (`--sd-accent`) is the only accent: buttons, links, progress bars, the active tab. No gold, no brass, no gradients.
@@ -136,7 +136,7 @@ The desktop staff area was rebuilt twice in October 2026. The first pass (`docs/
 - `MOBILE_BUILD.md`: full architecture reference for the standalone `app/mobile/` build (V4): route map, auth/session/progress data layer, offline retry queue, dark-theme design tokens
 - `CHALLENGES.md`: one-stop reference for the "Challenges" mini-game feature across both surfaces (desktop and the mobile build), including a checklist for adding new challenge types
 - `docs/MASTERY_ENGINE.md`: mastery scoring source of truth; this doc only describes how the quiz and Live Guest call into it, not the formula itself
-- `docs/staff-dashboard-a11y-audit.md`, `docs/archive/STAFF_DASHBOARD_AUDIT_REPORT.md`: historical UI/accessibility audits
+- `docs/zHistorical/staff-dashboard-a11y-audit.md`, `docs/zHistorical/STAFF_DASHBOARD_AUDIT_REPORT.md`: historical UI/accessibility audits
 
 ## Mixed drill (Rich update, Phase 10)
 

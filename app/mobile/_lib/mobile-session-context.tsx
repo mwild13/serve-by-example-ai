@@ -11,7 +11,7 @@ import { flushRetryQueue, getPendingCount } from "./retry-queue";
 // independent routes rather than one shell component (like DashboardShell),
 // so a context is the natural equivalent of DashboardShell's initialToken
 // prop — it avoids threading the same handful of values through every leaf
-// page.tsx. See v4-migration-plan/01-supabase-client-and-auth.md.
+// page.tsx. See docs/MOBILE_BUILD.md, section 4.
 
 export type MobileSession = {
   /** Supabase access token — attach as `Authorization: Bearer <token>` on API calls. */
@@ -49,7 +49,7 @@ export type MobileSession = {
    * other localStorage read uses in this migration (e.g.
    * BadgesGalleryScreen.tsx's `streak` state). Computed and incremented
    * once here, at the provider that wraps the whole /mobile tree, rather
-   * than per-screen (Phase 6, v4-migration-plan/00-bug-batch-plan.md item
+   * than per-screen (Phase 6, docs/zHistorical/v4-migration-plan/00-bug-batch-plan.md item
    * 13) — that's what makes it "run once per mobile session" regardless of
    * which screen the user lands on first, and it means every consumer
    * (HomeScreen today) reads the already-incremented value instead of

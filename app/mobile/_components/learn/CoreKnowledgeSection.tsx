@@ -12,7 +12,7 @@ import type { TrainingProgress } from "../../_lib/use-training-progress";
 // (technical/service/compliance) — a completely separate taxonomy from
 // PracticeScenariosSection's legacy bartending/sales/management split, not
 // interchangeable with it. Module locking stays cosmetic-only per
-// v4-migration-plan/00 Locked Decision #3: V3 has a single global free/paid
+// docs/zHistorical/v4-migration-plan/00 Locked Decision #3: V3 has a single global free/paid
 // gate, no per-module rules.
 //
 // A module card is a Quiz gate (→ /mobile/quiz), not an Arena entry point —

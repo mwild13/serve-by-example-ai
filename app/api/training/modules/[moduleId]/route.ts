@@ -45,7 +45,7 @@ export async function GET(
 
     if (error || !module) {
       // Return fallback module info if DB lookup fails
-      // Shortened 2026-08-24 (docs/Module-Title-Renames-Proposal.md) — 2-3
+      // Shortened 2026-08-24 (supabase/migrations/20260824b_shorten_module_titles.sql) — 2-3
       // word titles, matching the modules table.
       const fallbackTitles: Record<number, { title: string; category: string }> = {
         1: { title: "Beer Pouring", category: "technical" },

@@ -95,7 +95,7 @@ function buildCSP(nonce: string): string {
   ].join("; ");
 }
 
-const SIGNED_IN_PREFIXES = ["/dashboard", "/mobile", "/management", "/onboarding", "/session-conflict", "/payment-success"];
+const SIGNED_IN_PREFIXES = ["/dashboard", "/mobile", "/management", "/onboarding", "/session-conflict"];
 
 export async function middleware(request: NextRequest) {
   // One address for the site. www.servebyexample.co answered as well, and

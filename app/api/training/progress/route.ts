@@ -187,7 +187,7 @@ export async function GET(req: Request) {
       },
     };
 
-    // ── Category-average mastery rollup (Phase 4 fix, v4-migration-plan/00
+    // ── Category-average mastery rollup (Phase 4 fix, docs/zHistorical/v4-migration-plan/00
     // item 10; re-fixed 2026-08-24) ── This used to be
     // categoryMasteryAverage(moduleProgress) — i.e. the quiz-gate mastery
     // only, completely ignoring Category Simulations and Arena. That made

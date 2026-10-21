@@ -138,4 +138,4 @@ Errors go to Sentry through `lib/report-error.ts`, which posts to Sentry's envel
 
 - `docs/Pages-Redesign.md` — full visual/structural marketing redesign spec (default left-aligned headers, no generic gradients, vary feature-list presentation, scope-limited to marketing pages) — this doc does not duplicate it
 - `docs/SBE-Marketing-Audit-July2026.md` — historical point-in-time audit
-- `docs/archive/pricing-membership-overhaul.md` — historical background on the `/pricing` vs `/membership` split
+- `docs/zHistorical/pricing-membership-overhaul.md` — historical background on the `/pricing` vs `/membership` split

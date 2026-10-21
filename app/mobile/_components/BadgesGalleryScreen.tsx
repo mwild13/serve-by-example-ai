@@ -16,7 +16,7 @@ import {
 // Phase C file 07 — Badges & Achievements. Badges are computed client-side
 // via lib/badges.ts::computeBadges(), the same pure function V3 desktop uses
 // (BadgesView.tsx) — never persisted as "unlocked" rows in the DB. See
-// v4-migration-plan/07-badges-and-achievements.md.
+// docs/zHistorical/v4-migration-plan/07-badges-and-achievements.md.
 //
 // Two distinct "streak" inputs, per the plan's own warning — do not conflate:
 //   - `streak` (arg #3): client-only daily-login streak, localStorage["sbe-streak-count"].

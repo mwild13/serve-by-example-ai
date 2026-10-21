@@ -9,7 +9,7 @@ import { useMobileSession } from "../_lib/mobile-session-context";
 import { enqueueRetry } from "../_lib/retry-queue";
 
 // Phase C file 05 — real tap/match game logic (net-new mobile frontend; V3 has
-// no server-side game-state API to extract, per v4-migration-plan/05). This is
+// no server-side game-state API to extract, per docs/CHALLENGES.md). This is
 // the mobile equivalent of MatchPairGame.tsx (V3's "Match Pair" challenge,
 // challengeIndex 2 in the 5-challenge ordering — confirmed against
 // ChallengesPage.tsx's markComplete() call sites). On full match:

@@ -11,8 +11,7 @@ import { useTrainingProgress } from "../_lib/use-training-progress";
 
 // Phase C file 02 — Mastery Engine Harvest. Real data via useTrainingProgress()
 // (GET /api/training/progress). No XP field and no 9-category skill taxonomy
-// exist in V3 (see v4-migration-plan/02-mastery-engine-harvest.md, Locked
-// Decision #4 in file 00) — this screen shows the real 3-category breakdown
+// exist in V3 (see docs/MASTERY_ENGINE.md) — this screen shows the real 3-category breakdown
 // (bartending/sales/management) and skillLevel instead of inventing either.
 //
 // Phase 3b (mobile bug-fix plan, 2026-08-24): "Up Next For Review" removed

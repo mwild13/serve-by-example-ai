@@ -46,12 +46,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# scratch files
-DEPLOYMENT_TASK_STATUS.md
-Please
-
-# Claude Code internal state
+# Claude Code internal state and personal permissions
 .claude/worktrees/
+.claude/settings.local.json
 
 # Generated outputs
 graphify-out/

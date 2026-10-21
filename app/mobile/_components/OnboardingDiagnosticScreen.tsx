@@ -8,7 +8,7 @@ import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
 
 // Phase C file 08, Half A — the real placement-check diagnostic, replacing the
-// self-report 3-level picker. Confirmed (v4-migration-plan/08, step 1)
+// self-report 3-level picker. Confirmed (docs/zHistorical/v4-migration-plan/08, step 1)
 // app/api/training/diagnostic/start + .../submit already implement
 // lib/diagnostic-engine.ts's real scoring logic end to end —
 // this screen is a straight port of DiagnosticFlow.tsx's (desktop) fetch/

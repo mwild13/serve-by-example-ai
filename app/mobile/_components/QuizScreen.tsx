@@ -18,7 +18,7 @@ import {
   type VerifyQuizStart,
 } from "@/lib/verify-quiz-client";
 
-// Phase 3 (v4-migration-plan/00-bug-batch-plan.md, item 6) — Quiz screen.
+// Phase 3 (docs/zHistorical/v4-migration-plan/00-bug-batch-plan.md, item 6) — Quiz screen.
 // LearnHubScreen's module cards land here first, matching desktop's order
 // (Quiz gates a module, Arena is a separate later system).
 //

@@ -3,7 +3,7 @@
 import LiveGuest from "@/components/live-guest/LiveGuest";
 
 // Desktop host for Live Guest (Rich update, Phase 6), on the staff desktop's
-// green room (docs/STAFF_DESKTOP_REDESIGN_PLAN.md, 7.4). The conversation
+// green room (docs/STAFF_APP.md section 8). The conversation
 // itself is components/live-guest/LiveGuest.tsx, shared with mobile.
 export default function LiveGuestPage({ getToken }: { getToken: () => Promise<string> }) {
   return (

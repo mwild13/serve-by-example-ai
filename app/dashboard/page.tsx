@@ -111,7 +111,7 @@ export default async function DashboardPage({
   // Tier resolution (own tier → lapsed-subscription downgrade → org trial
   // sync → sponsored venue-membership fallback) lives in resolveTierAccess()
   // so this chain can't drift from the one app/mobile/layout.tsx runs — see
-  // v4-migration-plan/01-supabase-client-and-auth.md.
+  // docs/MOBILE_BUILD.md, section 4.
   const admin = createSupabaseAdminClient();
   const { plan, hasVenueMembership, venueMembershipPaused, managementUnlocked } =
     await resolveTierAccess(admin, user.email ?? undefined, {

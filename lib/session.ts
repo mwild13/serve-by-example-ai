@@ -290,7 +290,7 @@ const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active", "trialing", "past_due"])
  * if the sponsor's own org trial has expired). Extracted from
  * app/dashboard/page.tsx so /dashboard and /mobile (app/mobile/layout.tsx)
  * share one implementation instead of two hand-copied chains drifting apart
- * — see v4-migration-plan/01-supabase-client-and-auth.md. resolveAccess()
+ * — see docs/MOBILE_BUILD.md, section 4. resolveAccess()
  * (API routes) is built on this too.
  */
 export async function resolveTierAccess(

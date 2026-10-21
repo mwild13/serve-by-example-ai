@@ -11,7 +11,7 @@ import { COCKTAILS, CATEGORIES, COCKTAIL_IMAGES, type Category, type Cocktail } 
 // Phase C file 06 — real data + search/filter, ported from the desktop
 // CocktailLibrary.tsx `useMemo` pattern (app/dashboard/_components/
 // knowledge-base/CocktailLibrary.tsx). No backend/DB involved — lib/cocktails.ts
-// is pure static data, per v4-migration-plan/06.
+// is pure static data, per docs/zHistorical/v4-migration-plan/06.
 //
 // The Phase B mock's per-card "base"/"difficulty"/"locked" fields don't exist
 // on the real `Cocktail` type and are dropped rather than faked. All 38

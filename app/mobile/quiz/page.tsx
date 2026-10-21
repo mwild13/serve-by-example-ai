@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// Phase 3 (v4-migration-plan/00, item 6) — QuizScreen reads its scenario
+// Phase 3 (docs/zHistorical/v4-migration-plan/00, item 6) — QuizScreen reads its scenario
 // payload via useSearchParams(), which Next.js requires to be wrapped in
 // Suspense (same pattern as app/mobile/arena/page.tsx).
 export default function MobileQuizPage() {

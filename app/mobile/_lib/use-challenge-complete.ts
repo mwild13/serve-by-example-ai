@@ -15,7 +15,7 @@ import { enqueueRetry } from "./retry-queue";
 //
 // On isComplete flipping true (once per mount): writes challengeIndex into
 // the same "sbe_challenges_completed" localStorage key V3 desktop uses
-// (device-level completion, not per-surface — see v4-migration-plan/05), then
+// (device-level completion, not per-surface — see docs/CHALLENGES.md), then
 // fires POST /api/training/challenges/save, exactly matching ChallengesPage.tsx's
 // own markComplete() pattern. Still fire-and-forget from the UI's perspective
 // (never blocks or reverts the local completion state — see this hook's own

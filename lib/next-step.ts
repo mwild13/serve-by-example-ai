@@ -1,5 +1,5 @@
 // The one step Today offers, and a second choice beside it
-// (docs/STAFF_DESKTOP_REDESIGN_PLAN.md, section 7.1). Pure, so the order of
+// (docs/STAFF_APP.md section 8). Pure, so the order of
 // the rules is tested in lib/next-step.test.ts.
 
 /** A module as /api/training/modules returns it (lib/module-navigator.ts). */

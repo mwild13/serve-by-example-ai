@@ -706,7 +706,7 @@
      fall through). All --mcc-* usages across globals.css and
      ManagerControlCenter.tsx have been remapped onto the canonical :root /
      --status-* tokens (e.g. --mcc-good -> --status-good, --mcc-ink-500 ->
-     --text-muted, --mcc-canvas -> --bg). See docs/ManagmentConsoleUpgradeV5.md
+     --text-muted, --mcc-canvas -> --bg). See docs/MANAGER_CONSOLE.md section 6
      and the Phase 5 execution brief for the full mapping table. */
 
   display: flex;

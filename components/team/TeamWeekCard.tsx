@@ -13,7 +13,7 @@ import { GOAL_LABEL } from "@/lib/team-week-shared";
 
 type Props = {
   getToken: () => Promise<string>;
-  /** "room" is the staff desktop's green (docs/STAFF_DESKTOP_REDESIGN_PLAN.md). */
+  /** "room" is the staff desktop's green (docs/STAFF_APP.md section 8). */
   theme: "light" | "dark" | "room";
   /** Mobile links to the Live Guest page; desktop switches tab. */
   liveGuestHref?: string;

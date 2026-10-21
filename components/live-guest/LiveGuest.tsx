@@ -42,8 +42,8 @@ type Props = {
   /** The one-line intro above the picker. Desktop says it in the page header instead. */
   intro?: boolean;
   /**
-   * "room": the staff desktop's green layout (docs/STAFF_DESKTOP_REDESIGN_PLAN.md,
-   * 7.4). The picker leads with one guest and lists the rest as rows; the
+   * "room": the staff desktop's green layout (docs/STAFF_APP.md
+   * section 8). The picker leads with one guest and lists the rest as rows; the
    * conversation sits on a cream docket. Mobile keeps the default.
    */
   layout?: "default" | "room";
