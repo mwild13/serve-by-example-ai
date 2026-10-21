@@ -1,10 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { ArrowRight, ShieldCheck } from "lucide-react";
-import TabBar from "./ui/TabBar";
-import MobileScreenShell from "./MobileScreenShell";
+import Screen from "./ui/Screen";
+import { ButtonLink } from "./ui/parts";
+import { moduleHref } from "@/lib/home-feed";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 import LearnCards from "@/components/quiz/LearnCards";
@@ -32,7 +34,6 @@ type Status = "loading" | "playing" | "mastered" | "exhausted" | "error";
 
 export default function QuizScreen() {
   const session = useMobileSession();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { data, refetch } = useTrainingProgress();
 
@@ -158,193 +159,105 @@ export default function QuizScreen() {
     setStatus("error");
   }, []);
 
-  const shellStyle: React.CSSProperties = { justifyContent: "space-between" };
+  const back = { href: "/mobile/learn", label: "Learn" };
 
   if (showCards) {
     return (
-      <MobileScreenShell style={shellStyle}>
-        <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "20px 20px 12px" }}>
-            <p style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "var(--text-mobile)" }}>{moduleTitle}</p>
-            <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>Read these first. The quiz is on the same rules.</p>
-          </div>
+      <Screen title={moduleTitle} back={back} tab="learn">
+        <div className="sm-quiz">
+          <p className="sm-quiz-sub">Read these first. The quiz is on the same rules.</p>
           <LearnCards cards={cards} onDone={finishCards} onTestOut={startTestOut} theme="dark" />
         </div>
-        <TabBar active="learn" />
-      </MobileScreenShell>
+      </Screen>
     );
   }
 
   if (status === "loading" || !quizReady) {
     return (
-      <MobileScreenShell style={shellStyle}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60dvh" }}>
-          <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>Loading quiz…</p>
+      <Screen title={moduleTitle} back={back} tab="learn">
+        <div className="sm-quiz">
+          <div className="sm-skel" style={{ height: 320, borderRadius: 22 }} aria-label="Loading the quiz" />
         </div>
-        <TabBar active="learn" />
-      </MobileScreenShell>
+      </Screen>
     );
   }
 
   if (status === "error" || status === "exhausted") {
     return (
-      <MobileScreenShell style={shellStyle}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center", justifyContent: "center", minHeight: "60dvh", padding: 20, textAlign: "center" }}>
-          <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>{status === "exhausted"
-              ? testOut
-                ? "Not this time. Take the full quiz instead: it's a little longer and gives you more room."
-                : "Not this time. Each run asks different questions, so have another go."
-              : (error ?? "Something went wrong.")}
-          </p>
-          <button
-            type="button"
-            onClick={restart}
-            style={{
-              padding: "10px 20px",
-              borderRadius: "var(--radius-pill)",
-              border: "1px solid var(--border-mobile)",
-              background: "var(--surface-mobile)",
-              color: "var(--text-mobile)",
-              fontFamily: "var(--font-body)",
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
-          >
-            {status === "exhausted" && testOut ? "Take the full quiz" : "Try again"}
-          </button>
-          {status === "exhausted" && cards && cards.length > 0 && (
-            <button
-              type="button"
-              onClick={() => {
-                setTestOut(false);
-                setCardsDoneFor(null);
-              }}
-              style={{
-                background: "none",
-                border: "none",
-                color: "var(--text-mobile-muted)",
-                fontFamily: "var(--font-body)",
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
-                textDecoration: "underline",
-              }}
-            >
-              Read the cards again
+      <Screen title={moduleTitle} back={back} tab="learn">
+        <div className="sm-quiz">
+          <div className="sm-card sm-quiz-end">
+            <h2 className="sm-quiz-end-title">{status === "exhausted" ? "Not this time" : "Something went wrong"}</h2>
+            <p className="sm-quiz-end-text">
+              {status === "exhausted"
+                ? testOut
+                  ? "Take the full quiz instead: it's a little longer and gives you more room."
+                  : "Each run asks different questions, so have another go."
+                : (error ?? "Something went wrong.")}
+            </p>
+            <button type="button" className="sm-btn sm-btn--primary sm-btn--block" onClick={restart}>
+              {status === "exhausted" && testOut ? "Take the full quiz" : "Try again"}
             </button>
-          )}
+            {status === "exhausted" && cards && cards.length > 0 && (
+              <button
+                type="button"
+                className="sm-btn sm-btn--text sm-btn--block"
+                onClick={() => {
+                  setTestOut(false);
+                  setCardsDoneFor(null);
+                }}
+              >
+                Read the cards again
+              </button>
+            )}
+          </div>
         </div>
-        <TabBar active="learn" />
-      </MobileScreenShell>
+      </Screen>
     );
   }
 
   if (status === "mastered") {
     return (
-      <MobileScreenShell style={shellStyle}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "48px 24px", textAlign: "center" }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 64,
-              height: 64,
-              borderRadius: "var(--radius-pill)",
-              background: "var(--green-mobile-bg)",
-            }}
-          >
-            <ShieldCheck size={32} strokeWidth={2} color="var(--green-mobile)" aria-hidden="true" />
+      <Screen title={moduleTitle} back={back} tab="learn">
+        <div className="sm-quiz">
+          <div className="sm-card sm-quiz-end sm-quiz-end--done">
+            <span className="sm-quiz-badge" aria-hidden="true">
+              <ShieldCheck size={30} strokeWidth={2.2} />
+            </span>
+            <p className="sm-kicker">Module mastered</p>
+            <h2 className="sm-quiz-end-title">{moduleTitle}</h2>
+            {isFinalModule ? (
+              <>
+                <p className="sm-quiz-end-text">That&apos;s every module. Start again from the first to keep it sharp.</p>
+                <ButtonLink href={moduleHref({ id: 1, title: firstModule?.title ?? "Module 1" })} variant="primary">
+                  Start again
+                  <ArrowRight size={18} strokeWidth={2.6} aria-hidden="true" />
+                </ButtonLink>
+              </>
+            ) : nextModule ? (
+              <>
+                <p className="sm-quiz-end-text">Next up: {nextModule.title}.</p>
+                <ButtonLink href={moduleHref(nextModule)} variant="primary">
+                  Next module
+                  <ArrowRight size={18} strokeWidth={2.6} aria-hidden="true" />
+                </ButtonLink>
+              </>
+            ) : (
+              <p className="sm-quiz-end-text">Nice work. Check back soon for more.</p>
+            )}
+            <Link href="/mobile/learn" className="sm-btn sm-btn--text sm-btn--block">
+              Back to Learn
+            </Link>
           </div>
-          <div>
-            <p style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "var(--text-mobile)" }}>Module Mastered</p>
-            <p style={{ margin: "4px 0 0", fontSize: 13, color: "var(--text-mobile-muted)" }}>{moduleTitle}</p>
-          </div>
-          {isFinalModule ? (
-            <>
-              <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "var(--gold-mobile)" }}>
-                All modules completed. Start again
-              </p>
-              <button
-                type="button"
-                onClick={() =>
-                  router.push(`/mobile/quiz?moduleId=1&moduleTitle=${encodeURIComponent(firstModule?.title ?? "Module 1")}`)
-                }
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  padding: "12px 24px",
-                  borderRadius: "var(--radius-pill)",
-                  border: "none",
-                  background: "var(--gold-mobile)",
-                  color: "var(--bg-mobile-dark)",
-                  fontFamily: "var(--font-body)",
-                  fontSize: 14,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
-                Start Again
-                <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
-              </button>
-            </>
-          ) : nextModule ? (
-            <button
-              type="button"
-              onClick={() => router.push(`/mobile/quiz?moduleId=${nextModule.id}&moduleTitle=${encodeURIComponent(nextModule.title)}`)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "12px 24px",
-                borderRadius: "var(--radius-pill)",
-                border: "none",
-                background: "var(--gold-mobile)",
-                color: "var(--bg-mobile-dark)",
-                fontFamily: "var(--font-body)",
-                fontSize: 14,
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
-            >
-              Next Module
-              <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
-            </button>
-          ) : (
-            <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>Nice work. Check back soon for more.</p>
-          )}
-          <button
-            type="button"
-            onClick={() => router.push("/mobile/learn")}
-            style={{
-              background: "none",
-              border: "none",
-              color: "var(--text-mobile-muted)",
-              fontFamily: "var(--font-body)",
-              fontSize: 13,
-              fontWeight: 600,
-              cursor: "pointer",
-              textDecoration: "underline",
-            }}
-          >
-            Back to Learn Hub
-          </button>
         </div>
-        <TabBar active="learn" />
-      </MobileScreenShell>
+      </Screen>
     );
   }
 
   return (
-    <MobileScreenShell style={shellStyle}>
-      <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "20px 20px 12px" }}>
-          <p style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "var(--text-mobile)" }}>{moduleTitle}</p>
-          {quiz && (
-            <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>{quizGoalText(quiz.goal)}</p>
-          )}
-        </div>
+    <Screen title={moduleTitle} back={back} tab="learn">
+      <div className="sm-quiz">
+        {quiz && <p className="sm-quiz-sub">{quizGoalText(quiz.goal)}</p>}
         {quiz && (
           <QuizRun
             key={quiz.attemptId}
@@ -356,8 +269,6 @@ export default function QuizScreen() {
           />
         )}
       </div>
-
-      <TabBar active="learn" />
-    </MobileScreenShell>
+    </Screen>
   );
 }

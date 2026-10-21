@@ -11,11 +11,23 @@ import { FlameIcon } from "./icons";
 
 type Icon = ComponentType<{ size?: number; strokeWidth?: number; "aria-hidden"?: boolean }>;
 
-export function Section({ title, link, children }: { title: string; link?: { href: string; label: string }; children: ReactNode }) {
+export function Section({
+  title,
+  link,
+  note,
+  children,
+}: {
+  title: string;
+  link?: { href: string; label: string };
+  /** Plain text on the right, such as "3 of 12 mastered". */
+  note?: string;
+  children: ReactNode;
+}) {
   return (
     <section className="sm-section">
       <div className="sm-section-head">
         <h2 className="sm-section-title">{title}</h2>
+        {note && <p className="sm-section-note">{note}</p>}
         {link && (
           <Link href={link.href} className="sm-section-link">
             {link.label}
@@ -126,17 +138,20 @@ export function ProgressRing({ value, label }: { value: number; label: string })
   return (
     <svg width="46" height="46" viewBox="0 0 46 46" role="img" aria-label={label} style={{ flexShrink: 0 }}>
       <circle className="sm-ring-track" cx="23" cy="23" r={r} fill="none" strokeWidth="5" />
-      <circle
-        className="sm-ring-fill"
-        cx="23"
-        cy="23"
-        r={r}
-        fill="none"
-        strokeWidth="5"
-        strokeLinecap="round"
-        strokeDasharray={`${filled} ${circumference}`}
-        transform="rotate(-90 23 23)"
-      />
+      {/* Nothing at 0: a round cap on a zero-length line draws a dot. */}
+      {filled > 0 && (
+        <circle
+          className="sm-ring-fill"
+          cx="23"
+          cy="23"
+          r={r}
+          fill="none"
+          strokeWidth="5"
+          strokeLinecap="round"
+          strokeDasharray={`${filled} ${circumference}`}
+          transform="rotate(-90 23 23)"
+        />
+      )}
       <text className="sm-ring-text" x="23" y="27" textAnchor="middle">
         {Math.round(value)}
       </text>

@@ -5566,3 +5566,273 @@ button.sm-row:active {
 .sd-phone-qr-dots {
   fill: var(--green-deep);
 }
+
+/* Learn tab (LearnScreen.tsx): modules as a path */
+.sm-section-note {
+  margin: 0 0 0 auto;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--sm-ink-faint);
+}
+.sm-learn {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px var(--sm-gutter) 0;
+}
+.sm-learn-feature {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 18px 18px;
+  border-radius: 22px;
+}
+.sm-learn-reason {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--sm-good);
+}
+.sm-learn-feature-title {
+  margin: 0;
+  font-size: 24px;
+  line-height: 29px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--sm-ink);
+}
+.sm-learn-feature .sm-btn {
+  margin-top: 8px;
+}
+.sm-learn-check {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sm-learn-empty {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--sm-ink-soft);
+}
+.sm-learn-empty--loose {
+  padding: 24px var(--sm-gutter) 0;
+  text-align: center;
+}
+.sm-learn-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px var(--sm-gutter) 0;
+}
+.sm-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background: var(--sm-pill);
+  color: var(--sm-ink-faint);
+}
+.sm-search input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  border: 0;
+  background: none;
+  color: var(--sm-ink);
+  font-family: var(--font-body);
+  /* 16px or more, or iPhone zooms the page when it's tapped */
+  font-size: 16px;
+  outline: none;
+}
+.sm-search:focus-within {
+  box-shadow: 0 0 0 2px var(--sm-focus);
+}
+.sm-module.is-next {
+  background: var(--sm-accent-tint);
+}
+.sm-module-mark {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 23px;
+  background: var(--sm-pill);
+  color: var(--sm-ink-faint);
+}
+.sm-module-mark--done {
+  background: var(--sm-good);
+  color: var(--sm-accent-ink);
+}
+
+/* A module's Learn cards and quiz (QuizScreen.tsx). The shared .qz pieces
+   take the mobile card look; their own padding gives way to the screen's. */
+.sm-quiz {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px var(--sm-gutter) 24px;
+}
+.sm-quiz .qz--dark {
+  padding: 0;
+}
+.sm-quiz .qz-card {
+  border-radius: 22px;
+  border-color: var(--sm-card-line);
+  box-shadow: var(--sm-shadow-card);
+}
+.sm-quiz .qz-prompt {
+  font-family: var(--font-body);
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
+.sm-quiz .qz-check,
+.sm-quiz .qz-next {
+  min-height: 52px;
+  border-radius: 15px;
+  font-size: 17px;
+  font-weight: 800;
+}
+.sm-quiz-sub {
+  margin: 0;
+  padding: 0 4px;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--sm-ink-soft);
+}
+.sm-quiz-end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 18px 14px;
+  border-radius: 22px;
+  text-align: center;
+}
+.sm-quiz-end .sm-btn--primary {
+  margin-top: 12px;
+}
+.sm-quiz-end-title {
+  margin: 0;
+  font-size: 24px;
+  line-height: 29px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--sm-ink);
+}
+.sm-quiz-end-text {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--sm-ink-soft);
+}
+.sm-quiz-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 6px;
+  border-radius: 32px;
+  background: var(--sm-accent-tint);
+  color: var(--sm-good);
+}
+.sm-module-mark--todo {
+  box-sizing: border-box;
+  border: 5px solid var(--sm-track);
+  background: none;
+}
+
+/* The skill check (OnboardingDiagnosticScreen.tsx) */
+.sm-check-head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 4px;
+}
+.sm-check-question {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sm-check-prompt {
+  margin: 8px 0 0;
+  padding: 0 4px;
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: var(--sm-ink);
+}
+.sm-check-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+.sm-check-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 56px;
+  padding: 14px 16px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--sm-card-line);
+  border-radius: 16px;
+  background: var(--sm-card);
+  box-shadow: var(--sm-shadow-card);
+  color: var(--sm-ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+}
+.sm-check-option[aria-checked="true"] {
+  border-color: var(--sm-active-line);
+  background: var(--sm-accent-tint);
+}
+.sm-check-radio {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  box-sizing: border-box;
+  border: 2px solid var(--sm-chevron);
+  border-radius: 11px;
+}
+.sm-check-option[aria-checked="true"] .sm-check-radio {
+  border-color: var(--sm-good);
+}
+.sm-check-option[aria-checked="true"] .sm-check-radio::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--sm-good);
+}
+.sm-check-error {
+  margin: 0;
+  font-size: 14px;
+  text-align: center;
+  color: var(--sm-alarm);
+}
+.sm-check-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+.sm-check-actions .sm-btn {
+  flex: 2;
+}
+.sm-check-actions .sm-btn--secondary {
+  flex: 1;
+}

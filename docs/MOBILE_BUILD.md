@@ -19,7 +19,7 @@ Every route lives under `app/mobile/<slug>/page.tsx`, and every `page.tsx` follo
 |---|---|---|
 | `/mobile/home` | `HomeScreen.tsx` | The feed: the next step on a stack card, this week at the venue (`home/VenueWeek.tsx`), keep going, tonight's cocktails, look it up, a fact. See section 3a |
 | `/mobile/practise` | `PractiseScreen.tsx` | The Practise tab: the mixed drill, Live Guest, Saturday Rush, the challenges |
-| `/mobile/learn` | `LearnHubScreen.tsx` | The Learn hub, see section 3 |
+| `/mobile/learn` | `LearnScreen.tsx` | The Learn tab: modules as a path, see section 3 |
 | `/mobile/progress` | `ProgressScreen.tsx` | "Me" tab: personal stats and mastery |
 | `/mobile/quiz` | `QuizScreen.tsx` | A module's Learn cards and verify quiz |
 | `/mobile/drill` | `DrillScreen.tsx` | Mixed drill; `?mode=preshift` is the pre-shift drill |
@@ -41,18 +41,17 @@ Every route lives under `app/mobile/<slug>/page.tsx`, and every `page.tsx` follo
 
 **Tab bar** (`ui/TabBar.tsx`): **Home** (`/mobile/home`), **Learn** (`/mobile/learn`), **Practise** (`/mobile/practise`), **Me** (`/mobile/progress`). Always fixed to the bottom, with a spacer in front of it so no screen reserves its height. The drill, Rush, Live Guest and challenge screens light up Practise; the reference screens light up Learn. Everything else is reached by drilling in from a tab.
 
-## 3. The Learn hub
+## 3. The Learn tab (redesign phase 4)
 
-"Scenarios" used to be its own bottom-nav tab; it was folded into Learn on 2026-08-21, and the AI Arena and Scenario Training were retired in the Rich update (Phase 8) in favour of Live Guest.
+Modules as a path, as on the staff desktop's Modules page (`ModulesPage.tsx`), from the same cached module list (`STAFF_KEYS.modules`). `LearnScreen.tsx` renders, top to bottom:
+1. **The suggested module** (the first `recommended` one the person can open), with the reason and a Start or Continue button.
+2. **The skill check prompt** until it's done, linking to `/mobile/onboarding`.
+3. **An area switch and a search field**, then every module as a row under its level (Foundations, Intermediate, Advanced) with "x of y mastered". The suggested module is marked "Up next". A locked module opens the plans.
+4. **Look it up:** the cocktail library and the knowledge base.
 
-`LearnHubScreen.tsx` renders, top to bottom:
-1. **The skill check prompt**, linking to `/mobile/onboarding`.
-2. **`CoreKnowledgeSection.tsx`:** the 40 modules.
-3. **Practice links:** the mixed drill, Saturday Rush and Live Guest.
-4. **`MiniGamesSection.tsx`:** a Challenges teaser, the first few rows of `CHALLENGES` from `ChallengesScreen.tsx` with a "+N more" tile.
-5. **`ReferenceLibrarySection.tsx`:** the Knowledge Base and Cocktail Library.
+The drill, Saturday Rush, Live Guest and the challenges moved to the Practise tab.
 
-`useTrainingProgress()` is called exactly once at this orchestrator level and prop-drilled into sections that need it, rather than each section independently calling the hook — a deliberate perf choice (see §4).
+**A module** (`/mobile/quiz`, `QuizScreen.tsx`) and **the skill check** (`/mobile/onboarding`) are inner screens with a back button to Learn. The shared Learn cards and quiz take the mobile card look from the `.sm-quiz` rules.
 
 ## 3a. Home (redesign phase 1)
 
