@@ -116,7 +116,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en-AU" className={`${newsreader.variable} ${inter.variable}`}>
+    // suppressHydrationWarning: the staff mobile app's theme script
+    // (lib/mobile-theme.ts) adds .sm-dark to <html> before React hydrates,
+    // so the class can differ from the server's. Covers <html>'s own
+    // attributes only, not anything inside it.
+    <html lang="en-AU" className={`${newsreader.variable} ${inter.variable}`} suppressHydrationWarning>
       <head>
         {/* Warm up the GTM connection so lazyOnload fires faster */}
         <link rel="preconnect" href="https://www.googletagmanager.com" />

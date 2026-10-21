@@ -99,8 +99,10 @@ export default async function MobileLayout({
   return (
     // Keeps /mobile on Fraunces/Manrope (see app/fonts/product-fonts.ts).
     <div className={PRODUCT_FONT_CLASS} style={{ display: "contents" }}>
-      {/* Light or dark before the first paint, so there is no flash. */}
-      <script nonce={nonce} dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      {/* Light or dark before the first paint, so there is no flash.
+          suppressHydrationWarning: browsers hide a script's nonce once it
+          has run, so React would otherwise report it as a mismatch. */}
+      <script nonce={nonce} dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} suppressHydrationWarning />
       <MobileThemeSync />
       <MobileOrientationGuard />
       <MobileSessionProvider

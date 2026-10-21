@@ -31,7 +31,6 @@ export default function MobileThemeSync() {
       window.removeEventListener(MOBILE_THEME_KEY, sync);
       window.removeEventListener("storage", onStorage);
       document.documentElement.classList.remove(MOBILE_DARK_CLASS);
-      document.documentElement.style.colorScheme = "";
     };
   }, []);
 

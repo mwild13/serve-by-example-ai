@@ -37,11 +37,9 @@ export function systemPrefersDark(): boolean {
   return typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
-/** Puts the theme on <html> and the browser's address bar. */
+/** Puts the theme on <html> (.sm-dark also sets color-scheme) and the browser's address bar. */
 export function applyMobileTheme(dark: boolean): void {
-  const root = document.documentElement;
-  root.classList.toggle(MOBILE_DARK_CLASS, dark);
-  root.style.colorScheme = dark ? "dark" : "light";
+  document.documentElement.classList.toggle(MOBILE_DARK_CLASS, dark);
   const color = dark ? MOBILE_THEME_COLOR.dark : MOBILE_THEME_COLOR.light;
   document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((meta) => {
     meta.content = color;
@@ -61,4 +59,4 @@ export function saveThemeChoice(choice: MobileThemeChoice): void {
 }
 
 /** The pre-paint script: the same rules as above, inlined and dependency free. */
-export const THEME_SCRIPT = `(function(){try{var c=null;try{c=localStorage.getItem(${JSON.stringify(MOBILE_THEME_KEY)})}catch(e){}var d=c==="dark"||(c!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches);var r=document.documentElement;r.classList.toggle(${JSON.stringify(MOBILE_DARK_CLASS)},d);r.style.colorScheme=d?"dark":"light"}catch(e){}})();`;
+export const THEME_SCRIPT = `(function(){try{var c=null;try{c=localStorage.getItem(${JSON.stringify(MOBILE_THEME_KEY)})}catch(e){}var d=c==="dark"||(c!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle(${JSON.stringify(MOBILE_DARK_CLASS)},d)}catch(e){}})();`;

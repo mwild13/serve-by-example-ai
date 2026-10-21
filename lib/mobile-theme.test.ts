@@ -31,7 +31,6 @@ function runScript(stored: string | null, systemDark: boolean, storageThrows = f
   const classes = new Set<string>();
   const root = {
     classList: { toggle: (name: string, on: boolean) => (on ? classes.add(name) : classes.delete(name)) },
-    style: { colorScheme: "" },
   };
   const localStorage = {
     getItem: () => {
@@ -41,7 +40,7 @@ function runScript(stored: string | null, systemDark: boolean, storageThrows = f
   };
   const window = { matchMedia: () => ({ matches: systemDark }) };
   new Function("document", "localStorage", "window", THEME_SCRIPT)({ documentElement: root }, localStorage, window);
-  return { dark: classes.has(MOBILE_DARK_CLASS), scheme: root.style.colorScheme };
+  return { dark: classes.has(MOBILE_DARK_CLASS) };
 }
 
 describe("THEME_SCRIPT", () => {
@@ -51,11 +50,6 @@ describe("THEME_SCRIPT", () => {
         expect(runScript(stored, systemDark).dark).toBe(resolveDark(parseThemeChoice(stored), systemDark));
       }
     }
-  });
-
-  it("sets the colour scheme for form controls and scroll bars", () => {
-    expect(runScript("dark", false).scheme).toBe("dark");
-    expect(runScript("light", true).scheme).toBe("light");
   });
 
   it("still follows the phone when storage is blocked", () => {
