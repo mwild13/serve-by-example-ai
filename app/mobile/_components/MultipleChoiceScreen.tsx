@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import TabBar from "./ui/TabBar";
-import MobileScreenShell from "./MobileScreenShell";
+import Screen from "./ui/Screen";
 import { useMarkChallengeComplete } from "../_lib/use-challenge-complete";
 import { FeedbackBanner, TryAgainButton, CompletionCard } from "./challenges/MobileChallengeChrome";
 
@@ -41,11 +40,8 @@ export default function MultipleChoiceScreen() {
   }
 
   return (
-    <MobileScreenShell style={{ justifyContent: "space-between" }}>
-      <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-        <div style={{ padding: 20 }}>
-          <p style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "var(--text-mobile)" }}>Speed Round</p>
-        </div>
+    <Screen title="Speed Round" back={{ href: "/mobile/challenges", label: "Challenges" }} tab="practise">
+      <div className="sm-game">
 
         <div style={{ padding: "0 20px 16px" }}>
           <div
@@ -121,8 +117,6 @@ export default function MultipleChoiceScreen() {
           <CompletionCard title="Correct!" subtitle="That's the professional standard response." onReplay={reset} />
         )}
       </div>
-
-      <TabBar active="practise" />
-    </MobileScreenShell>
+    </Screen>
   );
 }

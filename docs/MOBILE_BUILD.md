@@ -18,7 +18,7 @@ Every route lives under `app/mobile/<slug>/page.tsx`, and every `page.tsx` follo
 | Route | Screen component | Purpose |
 |---|---|---|
 | `/mobile/home` | `HomeScreen.tsx` | The feed: the next step on a stack card, this week at the venue (`home/VenueWeek.tsx`), keep going, tonight's cocktails, look it up, a fact. See section 3a |
-| `/mobile/practise` | `PractiseScreen.tsx` | The Practise tab: the mixed drill, Live Guest, Saturday Rush, the challenges |
+| `/mobile/practise` | `PractiseScreen.tsx` | The Practise tab: the mixed drill, today's challenge, Live Guest, Saturday Rush, the challenges |
 | `/mobile/learn` | `LearnScreen.tsx` | The Learn tab: modules as a path, see section 3 |
 | `/mobile/progress` | `ProgressScreen.tsx` | "Me" tab: personal stats and mastery |
 | `/mobile/quiz` | `QuizScreen.tsx` | A module's Learn cards and verify quiz |
@@ -52,6 +52,12 @@ Modules as a path, as on the staff desktop's Modules page (`ModulesPage.tsx`), f
 The drill, Saturday Rush, Live Guest and the challenges moved to the Practise tab.
 
 **A module** (`/mobile/quiz`, `QuizScreen.tsx`) and **the skill check** (`/mobile/onboarding`) are inner screens with a back button to Learn. The shared Learn cards and quiz take the mobile card look from the `.sm-quiz` rules.
+
+## 3d. Practise (redesign phase 5)
+
+- **The tab:** the mixed drill as the hero card, then today's challenge (the desktop's pick, `pickTodaysChallenge()`), then Live Guest and Saturday Rush, then the challenges count.
+- **Live Guest, Saturday Rush, Challenges and every challenge game** are inner screens with a back button (Practise, or Challenges for a game). The shared Rush and Live Guest components sit in `.sm-quiz`, so their cards and headings take the mobile look; mobile headings are Manrope throughout.
+- **Challenges 0 to 4** keep their own game bodies (see `docs/CHALLENGES.md`); only their frame and header changed.
 
 ## 3a. Home (redesign phase 1)
 

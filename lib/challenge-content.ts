@@ -256,3 +256,13 @@ if (CHALLENGE_LIST.length !== TOTAL_CHALLENGES) {
 export function challengeBySlug(slug: string): Challenge | undefined {
   return CHALLENGE_LIST.find((c) => c.slug === slug);
 }
+
+/** Today's challenge: the first not yet done, from a place in the list that moves each day. Shared by desktop and mobile. */
+export function pickTodaysChallenge(done: number[], now: Date): Challenge {
+  const day = Math.floor(now.getTime() / 86_400_000);
+  for (let k = 0; k < CHALLENGE_LIST.length; k++) {
+    const c = CHALLENGE_LIST[(day + k) % CHALLENGE_LIST.length];
+    if (!done.includes(c.index)) return c;
+  }
+  return CHALLENGE_LIST[day % CHALLENGE_LIST.length];
+}

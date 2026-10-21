@@ -1,17 +1,22 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { ArrowRight, MessageCircle, Timer, Gamepad2 } from "lucide-react";
 import Screen from "./ui/Screen";
 import { Avatar, ButtonLink, Pill, ProgressBar, Row, RowList, Section, StackCard } from "./ui/parts";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 import { useShiftStreak } from "../_lib/use-staff";
+import { CHALLENGE_ROWS, readDoneChallenges, type ChallengeRow } from "../_lib/challenge-rows";
 import { TOTAL_CHALLENGES } from "@/lib/challenges";
+import { pickTodaysChallenge } from "@/lib/challenge-content";
 
 // The Practise tab (docs/STAFF_MOBILE_REDESIGN_PLAN.md, phases 0 and 5):
 // everything that sharpens what's been learnt without changing mastery.
-// The mixed drill is the hero; Live Guest and Saturday Rush play a shift
-// out; the challenges show how many of the ten are done.
+// The mixed drill is the hero; today's challenge (the desktop's pick,
+// pickTodaysChallenge()) comes next; Live Guest and Saturday Rush play a
+// shift out; the challenges show how many of the ten are done.
 
 export default function PractiseScreen() {
   const session = useMobileSession();
@@ -20,6 +25,16 @@ export default function PractiseScreen() {
 
   const done = status === "ready" ? data.challengesCompleted : 0;
   const total = status === "ready" ? data.totalChallenges : TOTAL_CHALLENGES;
+
+  // Read on the client: the day and this device's done list.
+  const [today, setToday] = useState<{ row: ChallengeRow; doneBefore: boolean } | null>(null);
+  useEffect(() => {
+    const doneList = readDoneChallenges();
+    const pick = pickTodaysChallenge(doneList, new Date());
+    const row = CHALLENGE_ROWS.find((c) => c.challengeIndex === pick.index);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (row) setToday({ row, doneBefore: doneList.includes(pick.index) });
+  }, []);
 
   return (
     <Screen
@@ -41,6 +56,26 @@ export default function PractiseScreen() {
         </StackCard>
       </div>
 
+      <Section title="Today's challenge">
+        {today ? (
+          <Link href={today.row.href} className="sm-card sm-card--active sm-keep">
+            <span className="sm-icon-circle" aria-hidden="true">
+              <today.row.icon size={20} strokeWidth={2.2} />
+            </span>
+            <span className="sm-row-text">
+              <span className="sm-card-title">{today.row.title}</span>
+              <span className="sm-card-sub">
+                {today.row.description}
+                {today.doneBefore ? ". Done before" : ""}
+              </span>
+            </span>
+            <span className="sm-resume">Play</span>
+          </Link>
+        ) : (
+          <div className="sm-skel" style={{ height: 78 }} aria-hidden="true" />
+        )}
+      </Section>
+
       <Section title="Play out a shift">
         <RowList>
           <Row href="/mobile/live-guest" icon={MessageCircle} label="Live Guest" sub="Talk to a guest who talks back" />
@@ -54,7 +89,7 @@ export default function PractiseScreen() {
             href="/mobile/challenges"
             icon={Gamepad2}
             label="Ten quick games"
-            sub="Cocktails, ingredients and menus"
+            sub="Bar, service and safety"
             end={<Pill tone={done > 0 ? "gold" : undefined}>{done} of {total}</Pill>}
           />
           <div style={{ padding: "0 14px 16px" }}>

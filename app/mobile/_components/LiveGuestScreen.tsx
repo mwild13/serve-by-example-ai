@@ -1,28 +1,19 @@
 "use client";
 
-import { useCallback } from "react";
-import TabBar from "./ui/TabBar";
-import MobileScreenShell from "./MobileScreenShell";
-import { useMobileSession } from "../_lib/mobile-session-context";
+import Screen from "./ui/Screen";
+import { useGetToken } from "../_lib/use-staff";
 import LiveGuest from "@/components/live-guest/LiveGuest";
 
-// Mobile host for Live Guest (Rich update, Phase 6). The conversation itself
-// is components/live-guest/LiveGuest.tsx, shared with desktop.
+// Mobile host for Live Guest (Rich update, Phase 6), from the Practise tab.
+// The conversation itself is components/live-guest/LiveGuest.tsx, shared
+// with desktop; it takes the mobile look from the .sm-play rules.
 export default function LiveGuestScreen() {
-  const session = useMobileSession();
-  const { token } = session;
-  const getToken = useCallback(async () => token, [token]);
-
+  const getToken = useGetToken();
   return (
-    <MobileScreenShell style={{ justifyContent: "space-between" }}>
-      <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "20px 20px 12px" }}>
-          <p style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "var(--text-mobile)" }}>Live Guest</p>
-          <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>A guest who talks back</p>
-        </div>
+    <Screen title="Live Guest" back={{ href: "/mobile/practise", label: "Practise" }} tab="practise">
+      <div className="sm-quiz sm-play">
         <LiveGuest getToken={getToken} theme="dark" />
       </div>
-      <TabBar active="practise" />
-    </MobileScreenShell>
+    </Screen>
   );
 }

@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
-import TabBar from "./ui/TabBar";
-import MobileScreenShell from "./MobileScreenShell";
+import Screen from "./ui/Screen";
 import { useMarkChallengeComplete } from "../_lib/use-challenge-complete";
 import { FeedbackBanner, TryAgainButton, CompletionCard } from "./challenges/MobileChallengeChrome";
 
@@ -52,14 +51,9 @@ export default function SequenceSortScreen() {
   }
 
   return (
-    <MobileScreenShell style={{ justifyContent: "space-between" }}>
-      <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-        <div style={{ padding: 20 }}>
-          <p style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "var(--text-mobile)" }}>Recipe Order</p>
-          <p style={{ margin: "4px 0 0", fontSize: 13, color: "var(--text-mobile-muted)" }}>
-            A Guinness, a Margarita, and a Pinot Grigio arrive simultaneously. What order do you build them?
-          </p>
-        </div>
+    <Screen title="Recipe Order" back={{ href: "/mobile/challenges", label: "Challenges" }} tab="practise">
+      <div className="sm-game">
+        <p className="sm-quiz-sub">A Guinness, a Margarita, and a Pinot Grigio arrive simultaneously. What order do you build them?</p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "0 20px 20px" }}>
           {items.map((item, i) => (
@@ -147,8 +141,6 @@ export default function SequenceSortScreen() {
           <CompletionCard title="Order verified!" subtitle="Nice work. That's the right build sequence." onReplay={reset} />
         )}
       </div>
-
-      <TabBar active="practise" />
-    </MobileScreenShell>
+    </Screen>
   );
 }

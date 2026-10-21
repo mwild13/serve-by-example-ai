@@ -5836,3 +5836,87 @@ button.sm-row:active {
 .sm-check-actions .sm-btn--secondary {
   flex: 1;
 }
+
+/* Challenges (ChallengesScreen.tsx, the game screens, MobileChallengeChrome.tsx) */
+.sm-challenges-sum {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.sm-done {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 13px;
+  background: var(--sm-good);
+  color: var(--sm-accent-ink);
+}
+.sm-game {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 0 24px;
+}
+.sm-game > .sm-quiz-sub,
+.sm-game-head .sm-quiz-sub {
+  padding: 0 20px 16px;
+}
+.sm-game-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-right: 20px;
+}
+.sm-game-head .sm-pill {
+  font-variant-numeric: tabular-nums;
+}
+.sm-game-kind {
+  padding: 0 var(--sm-gutter) 12px;
+}
+.sm-game-shared {
+  padding: 0 var(--sm-gutter);
+  font-size: 15px;
+}
+.sm-game-done {
+  padding: 8px 20px 0;
+}
+.sm-feedback {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--sm-alarm);
+  background: var(--sm-alarm-tint);
+}
+.sm-feedback--right {
+  border-color: var(--sm-good);
+  background: var(--sm-accent-tint);
+}
+.sm-feedback-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--sm-alarm);
+}
+.sm-feedback--right .sm-feedback-head {
+  color: var(--sm-good);
+}
+.sm-feedback-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--sm-ink);
+}
+/* Mobile headings are Manrope throughout, in the shared games too. */
+.sm-quiz :is(h2, h3, .lg-guest-title, .lg-reveal-title, .lg-upgrade-title, .lg-verdict-title, .rush-situation, .dr-title) {
+  font-family: var(--font-body);
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}

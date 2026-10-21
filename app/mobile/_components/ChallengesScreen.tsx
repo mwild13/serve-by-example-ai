@@ -1,249 +1,73 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import {
-  Trophy,
-  Clock,
-  Lightbulb,
-  Link as LinkIcon,
-  ListOrdered,
-  ScanSearch,
-  Play,
-  Check,
-  TextCursorInput,
-  MessageCircleQuestion,
-} from "lucide-react";
-import TabBar from "./ui/TabBar";
-import MobileScreenShell from "./MobileScreenShell";
+import { Check, ChevronRight, Trophy } from "lucide-react";
+import Screen from "./ui/Screen";
+import { ProgressBar, Section } from "./ui/parts";
 import { useTrainingProgress } from "../_lib/use-training-progress";
+import { CHALLENGE_ROWS, readDoneChallenges } from "../_lib/challenge-rows";
 import { TOTAL_CHALLENGES } from "@/lib/challenges";
-import { CHALLENGE_LIST, type ChallengeKind } from "@/lib/challenge-content";
 
-// Phase C file 05: every row routes to a real game screen (10 since 2026-10-21).
-//
-// The Phase B mock's "14h 22m" countdown, "+150 XP earned today", and each
-// row's "Best: N XP" / star rating had no backing data — V3 has no XP system
-// anywhere (grep-confirmed) and no daily-reset mechanic for challenges. Rather
-// than invent numbers for them, this screen now shows the real completion
-// count from GET /api/training/progress (challengesCompleted/totalChallenges,
-// same read path ProgressOverview.tsx uses on desktop) plus a per-row
-// "Completed" state read from the same "sbe_challenges_completed" localStorage
-// key V3 writes — device-level completion tracking, matching V3's own
-// documented behavior ("Completion is tracked on this device").
-
-type ChallengeRow = {
-  title: string;
-  description: string;
-  icon: typeof Clock;
-  href?: string;
-  challengeIndex?: number;
-};
-
-const KIND_ICON: Record<ChallengeKind, typeof Clock> = {
-  sequence: ListOrdered,
-  fill: TextCursorInput,
-  match: LinkIcon,
-  spot: ScanSearch,
-  choice: MessageCircleQuestion,
-};
-
-const CHALLENGES: ChallengeRow[] = [
-  { title: "Speed Round", description: "Speed Multiple Choice Questions", icon: Clock, href: "/mobile/speed-round", challengeIndex: 4 },
-  { title: "Memory Test", description: "Fill in the blank cocktail descriptions", icon: Lightbulb, href: "/mobile/memory-test", challengeIndex: 1 },
-  { title: "Ingredient Match", description: "Pair custom ingredients with names", icon: LinkIcon, href: "/mobile/match-pairs", challengeIndex: 2 },
-  { title: "Recipe Order", description: "Sequence sorting cocktail building process", icon: ListOrdered, href: "/mobile/recipe-order", challengeIndex: 0 },
-  { title: "Menu Audit", description: "Spot the errors in seasonal menu listings", icon: ScanSearch, href: "/mobile/menu-audit", challengeIndex: 3 },
-  // Challenges 5 onwards play on the shared screen (ChallengeScreen.tsx).
-  ...CHALLENGE_LIST.filter((c) => c.index >= 5).map((c) => ({
-    title: c.title,
-    description: c.pitch,
-    icon: KIND_ICON[c.kind],
-    href: `/mobile/challenge/${c.slug}`,
-    challengeIndex: c.index,
-  })),
-];
+// The ten Challenges (docs/CHALLENGES.md), reached from the Practise tab.
+// The count is the server's (GET /api/training/progress); the tick on each
+// row is this device's ("sbe_challenges_completed"), as on desktop.
 
 export default function ChallengesScreen() {
   const { status, data } = useTrainingProgress();
-  const [completedLocal, setCompletedLocal] = useState<Set<number>>(new Set());
+  const [done, setDone] = useState<number[]>([]);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("sbe_challenges_completed");
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (stored) setCompletedLocal(new Set(JSON.parse(stored) as number[]));
-    } catch {
-      /* ignore */
-    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDone(readDoneChallenges());
   }, []);
 
-  const completedCount = status === "ready" ? data.challengesCompleted : completedLocal.size;
-  const totalCount = status === "ready" ? data.totalChallenges : TOTAL_CHALLENGES;
+  const completed = status === "ready" ? data.challengesCompleted : done.length;
+  const total = status === "ready" ? data.totalChallenges : TOTAL_CHALLENGES;
 
   return (
-    <MobileScreenShell style={{ justifyContent: "space-between" }}>
-      <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-        {/* header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 20 }}>
-          <p style={{ margin: 0, fontSize: 22, fontWeight: 700, color: "var(--text-mobile)" }}>Daily Challenges</p>
-          {/* Real brand mark — same asset/pattern as components/Navbar.tsx's
-              <Image src="/logo.webp" ... />, replacing the fake S/B/E wordmark.
-              Phase 1c fix: wrapped in a Link so the logo doubles as a home
-              button everywhere it's shown, matching Navbar.tsx's own
-              <Link href="/" ...> pattern. */}
-          <Link href="/mobile/home" style={{ flexShrink: 0, display: "flex" }} aria-label="Go to Home">
-            <Image
-              src="/logo.webp"
-              alt="Serve By Example"
-              width={32}
-              height={32}
-              quality={50}
-              style={{ flexShrink: 0, width: 32, height: 32, objectFit: "contain" }}
-            />
-          </Link>
+    <Screen title="Challenges" back={{ href: "/mobile/practise", label: "Practise" }} tab="practise">
+      <div className="sm-learn">
+        <div className="sm-card sm-card--pad sm-challenges-sum">
+          <span className="sm-icon-circle" aria-hidden="true">
+            <Trophy size={20} strokeWidth={2.2} />
+          </span>
+          <span className="sm-row-text">
+            <span className="sm-card-title">
+              {completed} of {total} done
+            </span>
+            <span className="sm-card-sub">One-minute games. Tap to play, no typing.</span>
+          </span>
         </div>
+        <ProgressBar value={completed} max={total} gold={completed >= total} label={`${completed} of ${total} challenges done`} />
+      </div>
 
-        {/* completion-summary */}
-        <div style={{ padding: "0 20px 20px" }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 16,
-              padding: 16,
-              borderRadius: "var(--radius-lg)",
-              background: "var(--surface-mobile)",
-              border: "1px solid var(--border-mobile)",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 54,
-                height: 54,
-                borderRadius: "var(--radius-pill)",
-                background: "var(--green-mobile-bg)",
-                flexShrink: 0,
-              }}
-            >
-              <Trophy size={24} strokeWidth={2} color="var(--green-mobile)" aria-hidden="true" />
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--text-mobile)" }}>
-                {completedCount} of {totalCount} completed
-              </p>
-              <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>
-                Interactive mini-games. Tap-based, no typing required
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* challenges-list */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "0 20px 20px" }}>
-          <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>Active Mini-Games</p>
-          {CHALLENGES.map((challenge) => {
-            const Icon = challenge.icon;
-            const isCompleted = challenge.challengeIndex !== undefined && completedLocal.has(challenge.challengeIndex);
+      <Section title="All ten">
+        <div className="sm-card sm-rows">
+          {CHALLENGE_ROWS.map((c) => {
+            const Icon = c.icon;
+            const isDone = done.includes(c.challengeIndex);
             return (
-              <div
-                key={challenge.title}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  padding: 14,
-                  borderRadius: "var(--radius-lg)",
-                  background: "var(--surface-mobile)",
-                  border: "1px solid var(--border-mobile)",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: 44,
-                    height: 44,
-                    borderRadius: "var(--radius-sm)",
-                    background: "var(--surface-mobile-alt)",
-                    flexShrink: 0,
-                  }}
-                >
-                  <Icon size={22} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1, minWidth: 0 }}>
-                  <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "var(--text-mobile)" }}>{challenge.title}</p>
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: 12,
-                      color: "var(--text-mobile-muted)",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {challenge.description}
-                  </p>
-                  {isCompleted && (
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "var(--green-mobile)" }}>Completed</span>
-                  )}
-                </div>
-                {challenge.href ? (
-                  <Link
-                    href={challenge.href}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: 32,
-                      height: 32,
-                      borderRadius: "var(--radius-pill)",
-                      background: isCompleted ? "var(--green-mobile)" : "var(--gold-mobile)",
-                      flexShrink: 0,
-                    }}
-                    aria-label={isCompleted ? `Replay ${challenge.title}` : `Play ${challenge.title}`}
-                  >
-                    {isCompleted ? (
-                      <Check size={14} strokeWidth={2.5} color="var(--bg-mobile-dark)" aria-hidden="true" />
-                    ) : (
-                      <Play size={12} strokeWidth={2} color="var(--bg-mobile-dark)" fill="var(--bg-mobile-dark)" aria-hidden="true" />
-                    )}
-                  </Link>
+              <Link key={c.href} href={c.href} className="sm-row">
+                <span className="sm-icon-circle" aria-hidden="true">
+                  <Icon size={20} strokeWidth={2.2} />
+                </span>
+                <span className="sm-row-text">
+                  <span className="sm-row-label">{c.title}</span>
+                  <span className="sm-row-sub">{c.description}</span>
+                </span>
+                {isDone ? (
+                  <span className="sm-done" aria-label="Done">
+                    <Check size={14} strokeWidth={3} aria-hidden="true" />
+                  </span>
                 ) : (
-                  <button
-                    type="button"
-                    disabled
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: 32,
-                      height: 32,
-                      borderRadius: "var(--radius-pill)",
-                      background: "var(--gold-mobile)",
-                      border: "none",
-                      flexShrink: 0,
-                      opacity: 0.5,
-                      cursor: "default",
-                    }}
-                    aria-label={`Play ${challenge.title} (coming soon)`}
-                  >
-                    <Play size={12} strokeWidth={2} color="var(--bg-mobile-dark)" fill="var(--bg-mobile-dark)" aria-hidden="true" />
-                  </button>
+                  <ChevronRight size={20} strokeWidth={2.2} className="sm-chevron" aria-hidden="true" />
                 )}
-              </div>
+              </Link>
             );
           })}
         </div>
-      </div>
-
-      <TabBar active="practise" />
-    </MobileScreenShell>
+      </Section>
+    </Screen>
   );
 }

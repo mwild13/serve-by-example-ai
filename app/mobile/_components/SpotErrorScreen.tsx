@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import TabBar from "./ui/TabBar";
-import MobileScreenShell from "./MobileScreenShell";
+import Screen from "./ui/Screen";
 import { useMarkChallengeComplete } from "../_lib/use-challenge-complete";
 import { FeedbackBanner, TryAgainButton, CompletionCard } from "./challenges/MobileChallengeChrome";
 
@@ -43,14 +42,9 @@ export default function SpotErrorScreen() {
   }
 
   return (
-    <MobileScreenShell style={{ justifyContent: "space-between" }}>
-      <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-        <div style={{ padding: 20 }}>
-          <p style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "var(--text-mobile)" }}>Menu Audit</p>
-          <p style={{ margin: "4px 0 0", fontSize: 13, color: "var(--text-mobile-muted)" }}>
-            One ingredient on this Classic Daiquiri recipe card is wrong. Tap it to identify the mistake.
-          </p>
-        </div>
+    <Screen title="Menu Audit" back={{ href: "/mobile/challenges", label: "Challenges" }} tab="practise">
+      <div className="sm-game">
+        <p className="sm-quiz-sub">One ingredient on this Classic Daiquiri recipe card is wrong. Tap it to identify the mistake.</p>
 
         <div style={{ padding: "0 20px 20px" }}>
           <div
@@ -120,8 +114,6 @@ export default function SpotErrorScreen() {
           <CompletionCard title="Error spotted!" subtitle="Nice eye. That recipe card is fixed." onReplay={reset} />
         )}
       </div>
-
-      <TabBar active="practise" />
-    </MobileScreenShell>
+    </Screen>
   );
 }

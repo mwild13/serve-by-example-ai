@@ -4,77 +4,32 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { Check, RotateCcw, AlertCircle } from "lucide-react";
 
-// Shared mobile-dark presentational chrome for the 4 single-question
-// Challenge games built this pass (Sequence Sort, Fill the Blank, Spot the
-// Error, Multiple Choice) — the mobile-dark equivalent of desktop's
-// ChallengeCard.tsx/FeedbackBanner/ResetButton (app/dashboard/_components/
-// challenges/ChallengeCard.tsx), restyled to --*-mobile tokens rather than
-// ported 1:1, since desktop's version is light-theme only.
+// The pieces round a mobile Challenge game: the answer feedback, Try again,
+// and the finished card. The mobile counterpart of desktop's ChallengeCard
+// pieces. Styles: the sm-game rules in app/styles/staff.css.
 
 export function FeedbackBanner({ correct, explanation }: { correct: boolean; explanation: string }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 6,
-        padding: 16,
-        borderRadius: "var(--radius-md)",
-        background: correct ? "var(--green-mobile-bg)" : "var(--gold-mobile-bg)",
-        border: `1px solid ${correct ? "var(--green-mobile)" : "var(--gold-mobile)"}`,
-      }}
-    >
-      <p
-        style={{
-          margin: 0,
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-          fontSize: 12,
-          fontWeight: 800,
-          textTransform: "uppercase",
-          letterSpacing: "0.06em",
-          color: correct ? "var(--green-mobile)" : "var(--gold-mobile)",
-        }}
-      >
-        {correct ? (
-          <Check size={14} strokeWidth={2.5} aria-hidden="true" />
-        ) : (
-          <AlertCircle size={14} strokeWidth={2.5} aria-hidden="true" />
-        )}
+    <div className={`sm-feedback${correct ? " sm-feedback--right" : ""}`} role="status">
+      <p className="sm-feedback-head">
+        {correct ? <Check size={16} strokeWidth={3} aria-hidden="true" /> : <AlertCircle size={16} strokeWidth={2.6} aria-hidden="true" />}
         {correct ? "Correct" : "Not quite, try again"}
       </p>
-      <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5, color: "var(--text-mobile)" }}>{explanation}</p>
+      <p className="sm-feedback-text">{explanation}</p>
     </div>
   );
 }
 
 export function TryAgainButton({ onReset }: { onReset: () => void }) {
   return (
-    <button
-      type="button"
-      onClick={onReset}
-      style={{
-        width: "100%",
-        padding: "12px 0",
-        borderRadius: "var(--radius-pill)",
-        background: "none",
-        border: "1px solid var(--border-mobile)",
-        color: "var(--text-mobile)",
-        fontFamily: "var(--font-body)",
-        fontSize: 14,
-        fontWeight: 700,
-        cursor: "pointer",
-      }}
-    >
-      Try Again
+    <button type="button" className="sm-btn sm-btn--secondary sm-btn--block" onClick={onReset}>
+      Try again
     </button>
   );
 }
 
-// Completion footer + auto-scroll-into-view, matching the live-QA fix
-// applied to MatchPairsScreen.tsx (the completion state rendering below the
-// fold with no scroll cue looked "stuck"/broken on real devices).
+// Scrolls itself into view: below the fold with no cue, a finished game
+// looked stuck on real phones.
 export function CompletionCard({ title, subtitle, onReplay }: { title: string; subtitle: string; onReplay: () => void }) {
   const ref = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -82,61 +37,20 @@ export function CompletionCard({ title, subtitle, onReplay }: { title: string; s
   }, []);
 
   return (
-    <div ref={ref} style={{ padding: "0 20px 20px" }}>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 12,
-          padding: 16,
-          borderRadius: "var(--radius-lg)",
-          background: "var(--surface-mobile)",
-          border: "1px solid var(--green-mobile)",
-          textAlign: "center",
-        }}
-      >
-        <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--text-mobile)" }}>{title}</p>
-        <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>{subtitle}</p>
-        <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-          <button
-            type="button"
-            onClick={onReplay}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              padding: "10px 16px",
-              borderRadius: "var(--radius-pill)",
-              background: "var(--gold-mobile-bg)",
-              border: "1px solid var(--gold-mobile)",
-              color: "var(--gold-mobile)",
-              fontFamily: "var(--font-body)",
-              fontSize: 13,
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
-          >
-            <RotateCcw size={14} strokeWidth={2} aria-hidden="true" />
-            Play Again
-          </button>
-          <Link
-            href="/mobile/challenges"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              padding: "10px 16px",
-              borderRadius: "var(--radius-pill)",
-              background: "var(--gold-mobile)",
-              color: "var(--bg-mobile-dark)",
-              fontFamily: "var(--font-body)",
-              fontSize: 13,
-              fontWeight: 700,
-              textDecoration: "none",
-            }}
-          >
-            Back to Challenges
-          </Link>
-        </div>
+    <div ref={ref} className="sm-game-done">
+      <div className="sm-card sm-quiz-end">
+        <span className="sm-quiz-badge" aria-hidden="true">
+          <Check size={30} strokeWidth={2.8} />
+        </span>
+        <h2 className="sm-quiz-end-title">{title}</h2>
+        <p className="sm-quiz-end-text">{subtitle}</p>
+        <Link href="/mobile/challenges" className="sm-btn sm-btn--primary sm-btn--block">
+          Back to Challenges
+        </Link>
+        <button type="button" className="sm-btn sm-btn--text sm-btn--block" onClick={onReplay}>
+          <RotateCcw size={16} strokeWidth={2.4} aria-hidden="true" />
+          Play again
+        </button>
       </div>
     </div>
   );

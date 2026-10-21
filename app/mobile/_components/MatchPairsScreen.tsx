@@ -3,8 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Martini, RotateCcw } from "lucide-react";
-import TabBar from "./ui/TabBar";
-import MobileScreenShell from "./MobileScreenShell";
+import Screen from "./ui/Screen";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { enqueueRetry } from "../_lib/retry-queue";
 
@@ -193,25 +192,12 @@ export default function MatchPairsScreen() {
   }, [elapsedSec]);
 
   return (
-    <MobileScreenShell style={{ justifyContent: "space-between" }}>
-      <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-        {/* game-header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 20 }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <p style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "var(--text-mobile)" }}>Ingredient Match</p>
-            <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>Classic Cocktails Mastery</p>
-          </div>
-          <div
-            style={{
-              padding: "6px 12px",
-              borderRadius: "var(--radius-md)",
-              background: "var(--gold-mobile-bg)",
-              border: "1px solid var(--gold-mobile)",
-              flexShrink: 0,
-            }}
-          >
-            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--gold-mobile)" }}>{timeLabel}</span>
-          </div>
+    <Screen title="Ingredient Match" back={{ href: "/mobile/challenges", label: "Challenges" }} tab="practise">
+      <div className="sm-game">
+        {/* game-header: the clock */}
+        <div className="sm-game-head">
+          <p className="sm-quiz-sub">Classic cocktails. Match each pair.</p>
+          <span className="sm-pill">{timeLabel}</span>
         </div>
 
         {/* game-stats */}
@@ -341,8 +327,6 @@ export default function MatchPairsScreen() {
           </div>
         )}
       </div>
-
-      <TabBar active="practise" />
-    </MobileScreenShell>
+    </Screen>
   );
 }

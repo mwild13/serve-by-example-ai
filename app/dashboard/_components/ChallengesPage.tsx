@@ -17,7 +17,7 @@ import {
   CHALLENGE_AREA_LABEL,
   CHALLENGE_KIND_LABEL,
   CHALLENGE_LIST,
-  type Challenge,
+  pickTodaysChallenge,
   type ChallengeArea,
   type ChallengeKind,
 } from "@/lib/challenge-content";
@@ -74,16 +74,6 @@ function saveDone(index: number) {
   }).catch(() => undefined);
 }
 
-/** Today's: the first not yet done, starting from a place that moves each day. */
-function pickToday(done: number[], now: Date): Challenge {
-  const day = Math.floor(now.getTime() / 86_400_000);
-  for (let k = 0; k < CHALLENGE_LIST.length; k++) {
-    const c = CHALLENGE_LIST[(day + k) % CHALLENGE_LIST.length];
-    if (!done.includes(c.index)) return c;
-  }
-  return CHALLENGE_LIST[day % CHALLENGE_LIST.length];
-}
-
 function KindTag({ kind }: { kind: ChallengeKind }) {
   const Icon = KIND_ICON[kind];
   return (
@@ -113,7 +103,7 @@ export default function ChallengesPage() {
     } catch {}
   }, []);
 
-  const today = useMemo(() => (now ? pickToday(done, now) : null), [done, now]);
+  const today = useMemo(() => (now ? pickTodaysChallenge(done, now) : null), [done, now]);
   const shown = CHALLENGE_LIST.filter((c) => area === "all" || c.area === area);
 
   const start = useCallback((order: number[], run: boolean) => {
