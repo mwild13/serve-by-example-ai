@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Martini, RotateCcw } from "lucide-react";
-import BottomNav from "./BottomNav";
+import TabBar from "./ui/TabBar";
 import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { enqueueRetry } from "../_lib/retry-queue";
@@ -342,7 +342,7 @@ export default function MatchPairsScreen() {
         )}
       </div>
 
-      <BottomNav active="home" />
+      <TabBar active="practise" />
     </MobileScreenShell>
   );
 }

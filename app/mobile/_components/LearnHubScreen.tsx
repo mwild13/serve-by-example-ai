@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Search } from "lucide-react";
-import BottomNav from "./BottomNav";
+import TabBar from "./ui/TabBar";
 import MobileScreenShell from "./MobileScreenShell";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 import { useMobileSession } from "../_lib/mobile-session-context";
@@ -115,7 +115,7 @@ export default function LearnHubScreen() {
     return (
       <MobileScreenShell style={shellStyle}>
         <StatusMessage>Loading modules…</StatusMessage>
-        <BottomNav active="learn" />
+        <TabBar active="learn" />
       </MobileScreenShell>
     );
   }
@@ -143,23 +143,18 @@ export default function LearnHubScreen() {
             </button>
           </div>
         </StatusMessage>
-        <BottomNav active="learn" />
+        <TabBar active="learn" />
       </MobileScreenShell>
     );
   }
 
   return (
     <MobileScreenShell style={shellStyle}>
-      {/* The nav is fixed, as on Home, so it is in reach without scrolling
-          to the end of the hub. The bottom padding keeps the last section
-          clear of it: 84px (64px tab row + 20px indicator strip) plus the
-          safe area. */}
       <div
         style={{
           display: "flex",
           flexDirection: "column",
           width: "100%",
-          paddingBottom: "calc(84px + env(safe-area-inset-bottom, 0px))",
         }}
       >
         {/* header-search-group */}
@@ -276,7 +271,7 @@ export default function LearnHubScreen() {
         </div>
       </div>
 
-      <BottomNav active="learn" fixed />
+      <TabBar active="learn" />
     </MobileScreenShell>
   );
 }

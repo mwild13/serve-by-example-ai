@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import BottomNav from "./BottomNav";
+import TabBar from "./ui/TabBar";
 import MobileScreenShell from "./MobileScreenShell";
 import { CompletionCard } from "./challenges/MobileChallengeChrome";
 import { useMarkChallengeComplete } from "../_lib/use-challenge-complete";
@@ -59,7 +59,7 @@ export default function ChallengeScreen({ challenge }: { challenge: Challenge })
         )}
       </div>
 
-      <BottomNav active="home" />
+      <TabBar active="practise" />
     </MobileScreenShell>
   );
 }

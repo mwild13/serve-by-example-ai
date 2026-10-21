@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Bell, Flame, Swords, BrainCircuit, Martini, Award } from "lucide-react";
-import BottomNav from "./BottomNav";
+import TabBar from "./ui/TabBar";
 import MobileScreenShell from "./MobileScreenShell";
 import NotificationOptInCard from "./NotificationOptInCard";
 import TeamWeekCard from "@/components/team/TeamWeekCard";
@@ -110,20 +110,11 @@ export default function HomeScreen() {
 
   return (
     <MobileScreenShell>
-      {/* Fix-locked bottom nav (2026-08-25): BottomNav now renders fixed
-          (see BottomNav.tsx) instead of inline at the end of this column, so
-          it's always visible instead of only appearing once scrolled to the
-          bottom. This wrapper reserves the same 84px (64px tab row + 20px
-          indicator strip — see AiCoachWidget.tsx's WIDGET_BOTTOM, the
-          existing source of that number) + safe-area space as padding so
-          the fixed nav never overlaps Quick Access Training, the last
-          section. */}
       <div
         style={{
           display: "flex",
           flexDirection: "column",
           width: "100%",
-          paddingBottom: "calc(84px + env(safe-area-inset-bottom, 0px))",
         }}
       >
         {/* hero-header — vertical padding trimmed (2026-08-25 iPhone-13-fit
@@ -427,7 +418,7 @@ export default function HomeScreen() {
         </div>
       </div>
 
-      <BottomNav active="home" fixed />
+      <TabBar active="home" />
     </MobileScreenShell>
   );
 }

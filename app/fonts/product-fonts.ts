@@ -15,9 +15,12 @@ const fraunces = localFont({
   variable: "--font-fraunces",
 });
 
+// The file has Manrope's whole weight axis. It was declared as 400 to 600
+// until the mobile redesign (October 2026), whose headings are 800; above
+// 600 the browser faked bold instead of using the real weight.
 const manrope = localFont({
   src: "./manrope-latin-variable.woff2",
-  weight: "400 600",
+  weight: "200 800",
   style: "normal",
   display: "swap",
   variable: "--font-manrope",

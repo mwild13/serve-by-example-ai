@@ -14,9 +14,11 @@ import {
   LogOut,
   ChevronRight,
   Check,
+  SunMoon,
 } from "lucide-react";
 import MobileScreenShell from "./MobileScreenShell";
 import InstallPrompt from "./InstallPrompt";
+import AppearancePicker from "./AppearancePicker";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
@@ -587,6 +589,10 @@ export default function SettingsScreen() {
           </div>
         </div>
       )}
+
+      <SectionCard title="Appearance" icon={SunMoon}>
+        <AppearancePicker />
+      </SectionCard>
 
       {/* Language */}
       <SectionCard title="Language" icon={Globe}>

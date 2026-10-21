@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import BottomNav from "./BottomNav";
+import TabBar from "./ui/TabBar";
 import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import SaturdayRush from "@/components/rush/SaturdayRush";
@@ -21,7 +21,7 @@ export default function RushScreen() {
         </div>
         <SaturdayRush theme="dark" getToken={getToken} />
       </div>
-      <BottomNav active="learn" />
+      <TabBar active="practise" />
     </MobileScreenShell>
   );
 }

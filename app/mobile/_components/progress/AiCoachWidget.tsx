@@ -7,7 +7,7 @@ import AiLimitNotice from "@/components/AiLimitNotice";
 import { useMobileSession } from "../../_lib/mobile-session-context";
 
 // Mobile bug-fix plan, Phase 3d — AI chat widget for the Me page's lower
-// third, above BottomNav. Chat mechanics (message list, loading state,
+// third, above the tab bar. Chat mechanics (message list, loading state,
 // POST /api/coach with {question, language}) are ported from the legacy
 // embedded mobile dashboard's AICoachSheet (removed 2026-10-09) — same
 // endpoint, same stateless-per-request contract (confirmed
@@ -32,7 +32,8 @@ const PRESET_QUESTIONS = [
   "How do I handle a complaint about a corked wine?",
 ];
 
-const WIDGET_BOTTOM = "calc(84px + env(safe-area-inset-bottom, 0px))"; // 84px = BottomNav's 64px tab row + 20px indicator strip
+// Just above the tab bar (ui/TabBar.tsx) and the safe area under it.
+const WIDGET_BOTTOM = "calc(var(--sm-tabbar-h) + env(safe-area-inset-bottom, 0px) + 12px)";
 
 // Starts closed (2026-10-14). On the first visit to Me after each sign-in, a
 // small "AI Coach" bubble shows beside the button for five seconds. The

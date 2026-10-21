@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, ShieldCheck } from "lucide-react";
-import BottomNav from "./BottomNav";
+import TabBar from "./ui/TabBar";
 import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
@@ -170,7 +170,7 @@ export default function QuizScreen() {
           </div>
           <LearnCards cards={cards} onDone={finishCards} onTestOut={startTestOut} theme="dark" />
         </div>
-        <BottomNav active="learn" />
+        <TabBar active="learn" />
       </MobileScreenShell>
     );
   }
@@ -181,7 +181,7 @@ export default function QuizScreen() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60dvh" }}>
           <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>Loading quiz…</p>
         </div>
-        <BottomNav active="learn" />
+        <TabBar active="learn" />
       </MobileScreenShell>
     );
   }
@@ -234,7 +234,7 @@ export default function QuizScreen() {
             </button>
           )}
         </div>
-        <BottomNav active="learn" />
+        <TabBar active="learn" />
       </MobileScreenShell>
     );
   }
@@ -331,7 +331,7 @@ export default function QuizScreen() {
             Back to Learn Hub
           </button>
         </div>
-        <BottomNav active="learn" />
+        <TabBar active="learn" />
       </MobileScreenShell>
     );
   }
@@ -357,7 +357,7 @@ export default function QuizScreen() {
         )}
       </div>
 
-      <BottomNav active="learn" />
+      <TabBar active="learn" />
     </MobileScreenShell>
   );
 }

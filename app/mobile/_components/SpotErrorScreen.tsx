@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import BottomNav from "./BottomNav";
+import TabBar from "./ui/TabBar";
 import MobileScreenShell from "./MobileScreenShell";
 import { useMarkChallengeComplete } from "../_lib/use-challenge-complete";
 import { FeedbackBanner, TryAgainButton, CompletionCard } from "./challenges/MobileChallengeChrome";
@@ -121,7 +121,7 @@ export default function SpotErrorScreen() {
         )}
       </div>
 
-      <BottomNav active="home" />
+      <TabBar active="practise" />
     </MobileScreenShell>
   );
 }

@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Search } from "lucide-react";
-import BottomNav from "./BottomNav";
+import TabBar from "./ui/TabBar";
 import MobileScreenShell from "./MobileScreenShell";
 import { KB_CATEGORIES, KB_ENTRIES, type KBCategory, type KBEntry } from "@/lib/knowledge-base";
 
@@ -305,7 +305,7 @@ export default function KnowledgeBaseScreen() {
         </div>
       </div>
 
-      <BottomNav active="learn" />
+      <TabBar active="learn" />
 
       {selected && <DetailSheet entry={selected} onClose={() => setSelected(null)} />}
     </MobileScreenShell>

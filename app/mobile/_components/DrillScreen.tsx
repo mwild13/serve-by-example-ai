@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import BottomNav from "./BottomNav";
+import TabBar from "./ui/TabBar";
 import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import MixedDrill from "@/components/quiz/MixedDrill";
@@ -35,7 +35,7 @@ export default function DrillScreen() {
           onBrowseModules={() => router.push("/mobile/learn")}
         />
       </div>
-      <BottomNav active={preshift ? "home" : "learn"} />
+      <TabBar active={preshift ? "home" : "practise"} />
     </MobileScreenShell>
   );
 }

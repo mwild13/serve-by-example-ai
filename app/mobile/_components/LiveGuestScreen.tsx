@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import BottomNav from "./BottomNav";
+import TabBar from "./ui/TabBar";
 import MobileScreenShell from "./MobileScreenShell";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import LiveGuest from "@/components/live-guest/LiveGuest";
@@ -22,7 +22,7 @@ export default function LiveGuestScreen() {
         </div>
         <LiveGuest getToken={getToken} theme="dark" />
       </div>
-      <BottomNav active="learn" />
+      <TabBar active="practise" />
     </MobileScreenShell>
   );
 }

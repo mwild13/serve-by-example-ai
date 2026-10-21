@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Search } from "lucide-react";
-import BottomNav from "./BottomNav";
+import TabBar from "./ui/TabBar";
 import MobileScreenShell from "./MobileScreenShell";
 import { COCKTAILS, CATEGORIES, COCKTAIL_IMAGES, type Category, type Cocktail } from "@/lib/cocktails";
 
@@ -380,7 +380,7 @@ export default function CocktailLibraryScreen() {
         </div>
       </div>
 
-      <BottomNav active="learn" />
+      <TabBar active="learn" />
 
       {selected && (
         <CocktailDetailSheet

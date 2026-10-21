@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { ThumbsUp, Award, CircleCheck, CircleHelp } from "lucide-react";
-import BottomNav from "./BottomNav";
+import TabBar from "./ui/TabBar";
 import MobileScreenShell from "./MobileScreenShell";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 import {
@@ -185,7 +185,7 @@ export default function BadgesGalleryScreen() {
     return (
       <MobileScreenShell style={shellStyle}>
         <StatusMessage>Loading your badges…</StatusMessage>
-        <BottomNav active="me" />
+        <TabBar active="me" />
       </MobileScreenShell>
     );
   }
@@ -215,7 +215,7 @@ export default function BadgesGalleryScreen() {
             </button>
           </div>
         </StatusMessage>
-        <BottomNav active="me" />
+        <TabBar active="me" />
       </MobileScreenShell>
     );
   }
@@ -316,7 +316,7 @@ export default function BadgesGalleryScreen() {
         </div>
       </div>
 
-      <BottomNav active="me" />
+      <TabBar active="me" />
     </MobileScreenShell>
   );
 }

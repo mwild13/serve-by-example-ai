@@ -15,7 +15,7 @@ import {
   TextCursorInput,
   MessageCircleQuestion,
 } from "lucide-react";
-import BottomNav from "./BottomNav";
+import TabBar from "./ui/TabBar";
 import MobileScreenShell from "./MobileScreenShell";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 import { TOTAL_CHALLENGES } from "@/lib/challenges";
@@ -245,7 +245,7 @@ export default function ChallengesScreen() {
         </div>
       </div>
 
-      <BottomNav active="home" />
+      <TabBar active="practise" />
     </MobileScreenShell>
   );
 }

@@ -185,24 +185,96 @@
   --sd-fs-label:    0.75rem;
   --sd-fs-figure:   1.75rem;
 
-  /* ── Mobile Staff Dashboard — Dark Mode (Figma: NEW-MOBILE-STAFF-DASHBOARD) ── */
-  /* Extracted from the "home" and "me-progress" frames. Scoped to app/mobile/_components/. --green and
-     --gold stay the canonical brand colours; these are brightened dark-bg variants tuned
-     for contrast against a near-black surface. */
-  --bg-mobile-dark:         #0B0D16;  /* page background */
-  --surface-mobile:         #171A26;  /* card / panel background */
-  --surface-mobile-alt:     #202538;  /* progress track fill-track, activity icon circle */
-  --surface-mobile-inverse: rgba(255, 255, 255, 0.9);  /* brand monogram chip background */
-  --border-mobile:          #2C3145;  /* card borders, bottom-nav divider */
-  --text-mobile:            #FFFFFF;  /* primary text on dark */
-  --text-mobile-muted:      #8A90A6;  /* secondary/meta text, inactive nav labels */
-  --text-mobile-faint:      rgba(138, 144, 166, 0.3);  /* home-indicator pill */
-  --gold-mobile:            #F2AF34;  /* bright amber accent — active nav tab, progress fill, XP values (dark-bg variant of --gold-warm) */
-  --gold-mobile-bg:         #3A280F;  /* warm icon-wrapper background (bell) */
-  --green-mobile:           #3A7A57;  /* bright green accent — streak stat, +XP values (dark-bg variant of --green-mid) */
-  --green-mobile-bg:        #1B3B28;  /* streak badge pill background */
-  --red-mobile:             #A63B3B;  /* danger/difficulty-hard accent — extracted from "ai-arena" frame */
-  --avatar-mobile-bg:       #51566B;  /* neutral avatar circle background — extracted from "ai-arena" frame */
+  /* ── Staff mobile (/mobile), docs/STAFF_MOBILE_REDESIGN_PLAN.md ──
+     Brand values added for the October 2026 mobile redesign: warm menu paper,
+     bottle green and a bright gold kept for streaks, goals and finished
+     drills. Gold is never small text on paper (2:1); it fills chips and dots
+     with bottle text on top. */
+  --paper:          #F8F6F0;
+  --paper-grain:    rgba(14, 42, 30, 0.035);
+  --bottle:         #0E2A1E;
+  --bottle-raised:  #183B2B;  /* dark mode cards */
+  --bottle-hero:    #1E4634;  /* dark mode hero card, light mode stack layer */
+  --bottle-edge:    #2B5A44;  /* dark mode stack layer, icon circles */
+  --gold-bright:    #D4AF37;
+  --gold-pale:      #E8CC6E;  /* gold text on bottle */
+  --sage:           #B9CBBE;  /* secondary text on bottle */
+  --sage-soft:      #D5E0D8;
+  --green-sage:     #8FBFA0;  /* the active card's edge on bottle */
+  --green-vivid:    #3E9A68;  /* goal bar end stop */
+  --cream-fill:     #F3EBD3;  /* progress fill on bottle */
+
+  /* The mobile theme: aliases only. .sm-dark (after .sd-dark below) swaps
+     the same names for the bottle green dark mode. */
+  --sm-bg:            var(--paper);
+  --sm-grain:         var(--paper-grain);
+  --sm-card:          var(--surface);
+  --sm-card-line:     rgba(14, 42, 30, 0.07);
+  --sm-sep:           rgba(14, 42, 30, 0.08);
+  --sm-ink:           var(--bottle);
+  --sm-ink-soft:      var(--text-soft);
+  --sm-ink-faint:     var(--color-warm-gray);
+  --sm-chevron:       var(--color-warm-mid);
+  --sm-accent:        var(--bottle);
+  --sm-accent-ink:    var(--paper);
+  --sm-accent-tint:   var(--green-light);
+  --sm-accent-tint-ink: var(--bottle-hero);
+  --sm-good:          var(--green-mid);
+  --sm-hero:          var(--bottle);
+  --sm-hero-line:     transparent;
+  --sm-hero-ink:      var(--paper);
+  --sm-hero-soft:     rgba(248, 246, 240, 0.85);
+  --sm-hero-muted:    rgba(248, 246, 240, 0.7);
+  --sm-hero-faint:    rgba(248, 246, 240, 0.12);
+  --sm-hero-btn:      var(--paper);
+  --sm-hero-btn-ink:  var(--bottle);
+  --sm-stack-1:       var(--bottle-hero);
+  --sm-stack-2:       var(--green-mid);
+  --sm-track:         var(--line-light);
+  --sm-fill:          var(--green-mid);
+  --sm-fill-end:      var(--green-vivid);
+  --sm-gold:          var(--gold-bright);
+  --sm-gold-ink:      var(--bottle);
+  --sm-gold-tint:     var(--gold-light);
+  --sm-gold-tint-ink: var(--status-warn-text);
+  --sm-gold-glow:     rgba(120, 90, 10, 0.35);
+  --sm-pill:          var(--bg-alt);
+  --sm-pill-ink:      var(--color-warm-dark);
+  --sm-active-line:   var(--green-mid);
+  --sm-alarm:         var(--status-error);
+  --sm-alarm-tint:    var(--status-error-bg);
+  --sm-focus:         var(--green-mid);
+  --sm-bar:           rgba(248, 246, 240, 0.88);
+  --sm-bar-line:      rgba(14, 42, 30, 0.1);
+  --sm-scrim:         rgba(14, 42, 30, 0.82);
+  --sm-backdrop:      rgba(14, 42, 30, 0.4);
+  --sm-shadow-card:   0 1px 2px rgba(14, 42, 30, 0.05), 0 6px 16px rgba(14, 42, 30, 0.06);
+  --sm-shadow-raised: 0 10px 24px rgba(14, 42, 30, 0.22), 0 2px 4px rgba(14, 42, 30, 0.12);
+  --sm-shadow-active: 0 8px 20px rgba(42, 104, 72, 0.16);
+  --sm-shadow-photo:  0 10px 22px rgba(14, 42, 30, 0.18), 0 2px 4px rgba(14, 42, 30, 0.1);
+  --sm-shadow-sheet:  0 -8px 30px rgba(14, 42, 30, 0.18);
+  --sm-tabbar-h:      49px;
+  --sm-navbar-h:      44px;
+  --sm-gutter:        16px;
+
+  /* ── Old mobile names, kept until phase 8 of the redesign ──
+     The navy and amber values are gone: each name now points at the mobile
+     theme above, so screens not yet rebuilt already show the new palette
+     and follow dark mode. New code uses --sm-* only. */
+  --bg-mobile-dark:         var(--sm-bg);
+  --surface-mobile:         var(--sm-card);
+  --surface-mobile-alt:     var(--sm-track);
+  --surface-mobile-inverse: var(--sm-card);
+  --border-mobile:          var(--sm-bar-line);
+  --text-mobile:            var(--sm-ink);
+  --text-mobile-muted:      var(--sm-ink-soft);
+  --text-mobile-faint:      var(--sm-ink-faint);
+  --gold-mobile:            var(--sm-accent);
+  --gold-mobile-bg:         var(--sm-accent-tint);
+  --green-mobile:           var(--sm-good);
+  --green-mobile-bg:        var(--sm-accent-tint);
+  --red-mobile:             var(--sm-alarm);
+  --avatar-mobile-bg:       var(--sm-pill);
 
   /* ── Mobile Staff Dashboard — Sizing tokens ── */
   /* Single source of truth for the app-shell "frame" width, replacing the
@@ -377,25 +449,76 @@
   --sd-hero:        var(--roi-forest);
   color-scheme: dark;
 }
-/* The same --sd-* names on the dark mobile app, for the parts the two share
-   (components/challenges/ChallengeGame.tsx). */
+/* Staff mobile dark mode: bottle green, with cards a step lighter so they
+   never sit dark on dark. Put on <html> before first paint by the theme
+   script in app/mobile/layout.tsx (lib/mobile-theme.ts): the phone's
+   setting, unless the person picked one in Settings. Aliases only. */
+.sm-dark {
+  --sm-bg:            var(--bottle);
+  --sm-grain:         transparent;
+  --sm-card:          var(--bottle-raised);
+  --sm-card-line:     rgba(248, 246, 240, 0.08);
+  --sm-sep:           rgba(248, 246, 240, 0.08);
+  --sm-ink:           var(--paper);
+  --sm-ink-soft:      var(--sage);
+  --sm-ink-faint:     rgba(248, 246, 240, 0.6);
+  --sm-chevron:       rgba(248, 246, 240, 0.5);
+  --sm-accent:        var(--paper);
+  --sm-accent-ink:    var(--bottle);
+  --sm-accent-tint:   rgba(248, 246, 240, 0.1);
+  --sm-accent-tint-ink: var(--paper);
+  --sm-good:          var(--roi-green-light);
+  --sm-hero:          var(--bottle-hero);
+  --sm-hero-line:     rgba(248, 246, 240, 0.12);
+  --sm-hero-soft:     var(--sage-soft);
+  --sm-hero-muted:    var(--sage);
+  --sm-hero-faint:    rgba(248, 246, 240, 0.16);
+  --sm-stack-1:       var(--bottle-edge);
+  --sm-stack-2:       var(--bottle-raised);
+  --sm-track:         rgba(248, 246, 240, 0.16);
+  --sm-fill:          var(--cream-fill);
+  --sm-fill-end:      var(--cream-fill);
+  --sm-gold-ink:      var(--bottle);
+  --sm-gold-tint:     rgba(212, 175, 55, 0.16);
+  --sm-gold-tint-ink: var(--gold-pale);
+  --sm-gold-glow:     rgba(212, 175, 55, 0.45);
+  --sm-pill:          rgba(248, 246, 240, 0.1);
+  --sm-pill-ink:      var(--paper);
+  --sm-active-line:   var(--green-sage);
+  --sm-alarm:         var(--status-critical-rose);
+  --sm-alarm-tint:    rgba(248, 113, 113, 0.14);
+  --sm-focus:         var(--green-sage);
+  --sm-bar:           rgba(14, 42, 30, 0.9);
+  --sm-bar-line:      rgba(248, 246, 240, 0.12);
+  --sm-scrim:         rgba(14, 42, 30, 0.85);
+  --sm-backdrop:      rgba(0, 0, 0, 0.5);
+  --sm-shadow-card:   0 6px 16px rgba(0, 0, 0, 0.22);
+  --sm-shadow-raised: 0 12px 26px rgba(0, 0, 0, 0.35);
+  --sm-shadow-active: 0 8px 20px rgba(0, 0, 0, 0.3);
+  --sm-shadow-photo:  0 10px 22px rgba(0, 0, 0, 0.35);
+  --sm-shadow-sheet:  0 -8px 30px rgba(0, 0, 0, 0.4);
+  color-scheme: dark;
+}
+/* The same --sd-* names on the mobile app, for the parts the two share
+   (components/challenges/ChallengeGame.tsx). They follow the mobile theme,
+   so both modes come for free. */
 .sd-on-mobile {
-  --sd-panel:       var(--surface-mobile);
-  --sd-panel-alt:   var(--surface-mobile-alt);
-  --sd-line:        var(--border-mobile);
-  --sd-line-strong: var(--border-mobile);
-  --sd-ink:         var(--text-mobile);
-  --sd-ink-soft:    var(--text-mobile-muted);
-  --sd-ink-muted:   var(--text-mobile-faint);
-  --sd-accent:       var(--green-mobile);
-  --sd-accent-hover: var(--green-mobile);
-  --sd-accent-ink:   var(--bg-mobile-dark);
-  --sd-accent-tint:  var(--green-mobile-bg);
-  --sd-good:        var(--green-mobile);
-  --sd-alarm:       var(--red-mobile);
-  --sd-alarm-tint:  var(--gold-mobile-bg);
-  --sd-track:       var(--border-mobile);
-  --sd-shadow:      none;
+  --sd-panel:       var(--sm-card);
+  --sd-panel-alt:   var(--sm-pill);
+  --sd-line:        var(--sm-sep);
+  --sd-line-strong: var(--sm-bar-line);
+  --sd-ink:         var(--sm-ink);
+  --sd-ink-soft:    var(--sm-ink-soft);
+  --sd-ink-muted:   var(--sm-ink-faint);
+  --sd-accent:       var(--sm-accent);
+  --sd-accent-hover: var(--sm-accent);
+  --sd-accent-ink:   var(--sm-accent-ink);
+  --sd-accent-tint:  var(--sm-accent-tint);
+  --sd-good:        var(--sm-good);
+  --sd-alarm:       var(--sm-alarm);
+  --sd-alarm-tint:  var(--sm-alarm-tint);
+  --sd-track:       var(--sm-track);
+  --sd-shadow:      var(--sm-shadow-card);
   color: var(--sd-ink);
 }
 /* ── Reset ─────────────────────────────────────── */

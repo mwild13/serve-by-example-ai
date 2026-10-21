@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import BottomNav from "./BottomNav";
+import TabBar from "./ui/TabBar";
 import MobileScreenShell from "./MobileScreenShell";
 import AiCoachWidget from "./progress/AiCoachWidget";
 import ProfileMenu from "./progress/ProfileMenu";
@@ -104,7 +104,7 @@ export default function ProgressScreen() {
     return (
       <MobileScreenShell style={shellStyle}>
         <StatusMessage>Loading your progress…</StatusMessage>
-        <BottomNav active="me" />
+        <TabBar active="me" />
       </MobileScreenShell>
     );
   }
@@ -132,7 +132,7 @@ export default function ProgressScreen() {
             </button>
           </div>
         </StatusMessage>
-        <BottomNav active="me" />
+        <TabBar active="me" />
       </MobileScreenShell>
     );
   }
@@ -151,16 +151,14 @@ export default function ProgressScreen() {
 
   return (
     <MobileScreenShell style={shellStyle}>
-      {/* The nav is fixed, as on Home and Learn, and the AI Coach button sits
-          just above it. The bottom padding keeps the last card clear of both:
-          84px (64px tab row + 20px indicator strip), 64px for the coach
-          button, plus the safe area. */}
+      {/* The tab bar brings its own spacer; this keeps the last card clear
+          of the AI Coach button that floats above it. */}
       <div
         style={{
           display: "flex",
           flexDirection: "column",
           width: "100%",
-          paddingBottom: "calc(148px + env(safe-area-inset-bottom, 0px))",
+          paddingBottom: 64,
         }}
       >
         {/* profile-header (2026-10-14): logo, then name and plan; the photo
@@ -255,12 +253,12 @@ export default function ProgressScreen() {
         </div>
       </div>
 
-      {/* Phase 3d — AI chat widget, lower third above BottomNav. Rendered
+      {/* Phase 3d: AI chat widget, lower third above the tab bar. Rendered
           only on the main content branch (not loading/error), stateless
           per request (v1 scope confirmed with user — no persisted history). */}
       <AiCoachWidget />
 
-      <BottomNav active="me" fixed />
+      <TabBar active="me" />
     </MobileScreenShell>
   );
 }

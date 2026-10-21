@@ -1,4 +1,5 @@
 import type { Viewport } from "next";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
@@ -7,6 +8,8 @@ import { remainingGenerations } from "@/lib/profile-photo-cap";
 import { MobileSessionProvider } from "./_lib/mobile-session-context";
 import { TrainingProgressProvider } from "./_lib/training-progress-context";
 import MobileOrientationGuard from "./_components/MobileOrientationGuard";
+import MobileThemeSync from "./_components/MobileThemeSync";
+import { MOBILE_THEME_COLOR, THEME_SCRIPT } from "@/lib/mobile-theme";
 import { PRODUCT_FONT_CLASS } from "@/app/fonts/product-fonts";
 import { formatPersonName, nameFromEmail } from "@/lib/person-name";
 import "../styles/staff.css";
@@ -34,14 +37,14 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  // Literal mirror of --bg-mobile-dark (app/globals.css) — see
-  // app/layout.tsx's viewport export for why this can't be a CSS var
-  // reference. Phase 6 (2026-09-21): was a mirror of --green (the
-  // marketing root layout's color), which tinted the OS-level browser
-  // chrome (Android Chrome's address bar, iOS Safari's UI) marketing green
-  // against this app's actually-dark screens. Now matches what's on screen.
-  // eslint-disable-next-line sbe-design/no-hardcoded-hex
-  themeColor: "#0B0D16",
+  // Paper or bottle green to match the screen, so Safari's and Chrome's
+  // bars never show a different colour from the app. The values live in
+  // lib/mobile-theme.ts, which also updates them when someone picks a mode
+  // in Settings that differs from the phone's.
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: MOBILE_THEME_COLOR.light },
+    { media: "(prefers-color-scheme: dark)", color: MOBILE_THEME_COLOR.dark },
+  ],
 };
 
 export default async function MobileLayout({
@@ -90,9 +93,15 @@ export default async function MobileLayout({
     "there",
   );
 
+  // The CSP allows inline scripts only with this request's nonce (middleware.ts).
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   return (
     // Keeps /mobile on Fraunces/Manrope (see app/fonts/product-fonts.ts).
     <div className={PRODUCT_FONT_CLASS} style={{ display: "contents" }}>
+      {/* Light or dark before the first paint, so there is no flash. */}
+      <script nonce={nonce} dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      <MobileThemeSync />
       <MobileOrientationGuard />
       <MobileSessionProvider
         value={{
