@@ -27,7 +27,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          # The same Node as Cloudflare Pages and local work: .nvmrc.
+          node-version-file: .nvmrc
           cache: npm
       - run: npm ci
       - run: npm run lint

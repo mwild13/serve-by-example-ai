@@ -49,6 +49,7 @@ Nothing open. The five that were here were decided on 2026-10-12 (Part 13 of the
 
 - [ ] **Read the new content** (owner, 2026-10-21): the 70 new Knowledge Base cards (end of `lib/knowledge-base.ts`) and challenges 6 to 10 (`lib/challenge-content.ts`). Written by Claude, not yet reviewed.
 - [ ] **Upgrade to Next.js 16** on its own branch, with `@opennextjs/cloudflare` bumped alongside. Clears the last npm audit finding (postcss, bundled in Next) and lets `build:cloudflare` drop `--dangerouslyUseUnsupportedNextVersion`, which is a stopgap since Next 15 passed its support date.
+- [ ] **Upgrade Vitest 3 to 5** (dev only). Clears the critical and high npm audit notices in the test tools (tinypool, vite, @vitest/mocker). Nothing in them reaches the live site. Do it after the Next.js 16 upgrade.
 - [ ] **Retake the staff screenshots** in `public/shots/`: they still show the desktop before the October 2026 redesign.
 - [ ] **Desktop baselines in the e2e suite** for Today, Modules, Challenges and My progress. Needs a fresh QA session first (`tests/e2e/.auth/state.json` is dead).
 

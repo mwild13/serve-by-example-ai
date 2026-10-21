@@ -27,6 +27,8 @@ Phones are sent to `/mobile` automatically.
 
 ## Local development
 
+Use Node 24 (pinned in `.nvmrc`; `nvm use` picks it up). CI and the Cloudflare Pages build read the same file.
+
 ```bash
 npm install
 npm run dev      # http://localhost:3000
