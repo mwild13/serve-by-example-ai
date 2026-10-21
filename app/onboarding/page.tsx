@@ -5,9 +5,22 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { normalizeVenueCode } from "@/lib/venue-code";
+import { isMobilePhoneUserAgent } from "@/lib/user-agent";
+import { detectInstallPlatform, type InstallPlatform } from "@/lib/install-platform";
+import { trackEvent } from "@/lib/consent";
 
 // One step since 2026-10-17. The venue type and experience questions that
 // followed were saved but never read by anything, so they were removed.
+// On a phone, a second, skippable step offers the Add to Home Screen guide
+// (docs/STAFF_MOBILE_REDESIGN_PLAN.md section 4.3).
+
+/** The phone's platform when it should be offered the guide, else null. */
+function installOffer(): InstallPlatform | null {
+  const ua = navigator.userAgent;
+  const standalone =
+    window.matchMedia("(display-mode: standalone)").matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
+  return isMobilePhoneUserAgent(ua) && !standalone ? detectInstallPlatform(ua, navigator.maxTouchPoints) : null;
+}
 function OnboardingPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -17,6 +30,7 @@ function OnboardingPageContent() {
   const [venueCodeMessage, setVenueCodeMessage] = useState("");
   const [finishing, setFinishing] = useState(false);
   const [error, setError] = useState("");
+  const [installStep, setInstallStep] = useState<InstallPlatform | null>(null);
 
   async function finish() {
     if (finishing) return;
@@ -36,6 +50,13 @@ function OnboardingPageContent() {
         const data = await res.json().catch(() => ({} as { error?: string }));
         setError(data.error || "Something went wrong saving your progress. Please try again.");
         setFinishing(false);
+        return;
+      }
+      // Back from Stripe, the dashboard has a payment to confirm first.
+      const offer = stripeSessionId ? null : installOffer();
+      if (offer) {
+        trackEvent("install_shown", { where: "onboarding", platform: offer });
+        setInstallStep(offer);
         return;
       }
       router.push(
@@ -94,6 +115,42 @@ function OnboardingPageContent() {
         <span className="onboarding-brand">Serve By Example</span>
       </div>
 
+      {installStep ? (
+        <div className="onboarding-card">
+          <h2 className="onboarding-heading">Put SBE on your Home Screen</h2>
+          <p className="onboarding-hint">
+            It opens in one tap, like any app on your phone, and it can remind you before your shifts. It takes three taps.
+          </p>
+          <div className="onboarding-input-group">
+            <button
+              className="btn btn-primary btn-block"
+              type="button"
+              onClick={() => {
+                trackEvent("install_tap", { where: "onboarding", platform: installStep });
+                router.push("/mobile/install?from=onboarding");
+              }}
+            >
+              Show me how
+            </button>
+            <button
+              className="btn btn-block"
+              type="button"
+              onClick={() => {
+                trackEvent("install_dismiss", { where: "onboarding", platform: installStep });
+                router.push("/dashboard");
+              }}
+              style={{
+                marginTop: 12,
+                backgroundColor: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                color: "var(--text-muted)",
+              }}
+            >
+              Skip for now
+            </button>
+          </div>
+        </div>
+      ) : (
       <div className="onboarding-card">
         <h2 className="onboarding-heading">Do you have a venue code?</h2>
         <p className="onboarding-hint">Your manager shares a venue code to link your training progress to their dashboard. You can skip this and add a code later from Settings.</p>
@@ -151,6 +208,7 @@ function OnboardingPageContent() {
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }

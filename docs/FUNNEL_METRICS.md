@@ -31,6 +31,10 @@ No benchmark exists for this product yet, so these are starting rules, to be rep
 
 `supabase/queries/ai-usage.sql` shows how close accounts get to the daily AI limit (`lib/ai-usage.ts`). Read it after the first two weeks of a real venue. If the 90th percentile sits near the limit, the limit is too low for ordinary use.
 
+## Home Screen installs
+
+`supabase/queries/installs.sql` counts staff who opened the app from their Home Screen, by week and by phone and browser, and the share of accounts that have. An install is counted on its first launch from the Home Screen, once per account (`POST /api/profile/app-installed`, into `profiles.app_installed_at`). Where people saw the prompts and what they did with them (`install_shown`, `install_tap`, `install_dismiss`, `install_done`, each with `where` and `platform`) is in Google Analytics, for visitors who allowed it.
+
 ## Learning
 
 The numbers for the staff learning upgrade are in `docs/Rich Update/LEARNING_METRICS.md`.

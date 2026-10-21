@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FREEZES, cleanReminderTime, cleanShiftDays, computeShiftStreak, reminderTimeText, shiftDaysText } from "./shift-streak";
+import { FREEZES, cleanReminderTime, cleanShiftDays, computeShiftStreak, nextShiftDay, reminderTimeText, shiftDaysText } from "./shift-streak";
 
 // 2026-10-16 is a Friday.
 const FRI_SAT_SUN = [5, 6, 0];
@@ -113,5 +113,19 @@ describe("weekDone", () => {
 
   it("is empty on a Monday before the drill", () => {
     expect(computeShiftStreak([], ["2026-10-18"], "2026-10-19").weekDone).toEqual([]);
+  });
+});
+
+describe("nextShiftDay", () => {
+  it("finds the next shift after today, wrapping into next week", () => {
+    expect(nextShiftDay([4, 5], 2)).toBe(4);
+    expect(nextShiftDay([4, 5], 4)).toBe(5);
+    expect(nextShiftDay([1], 5)).toBe(1);
+    expect(nextShiftDay([3], 3)).toBe(3);
+  });
+
+  it("has no single next day when every day is a shift", () => {
+    expect(nextShiftDay([], 2)).toBeNull();
+    expect(nextShiftDay([0, 1, 2, 3, 4, 5, 6], 2)).toBeNull();
   });
 });

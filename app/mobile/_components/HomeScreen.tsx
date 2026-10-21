@@ -19,6 +19,7 @@ import {
 } from "./ui/parts";
 import NotificationOptInCard from "./NotificationOptInCard";
 import VenueWeek from "./home/VenueWeek";
+import InstallBanner from "./home/InstallBanner";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 import { useGetToken } from "../_lib/use-staff";
@@ -98,7 +99,8 @@ export default function HomeScreen() {
       trailing={avatar(false)}
       compactTrailing={avatar(true)}
     >
-      <div style={{ padding: "20px var(--sm-gutter) 0" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 14, padding: "20px var(--sm-gutter) 0" }}>
+        <InstallBanner />
         {!ready ? (
           <div className="sm-skel" style={{ height: 238, borderRadius: 22 }} aria-label="Loading" />
         ) : hero.kind === "ready" ? (

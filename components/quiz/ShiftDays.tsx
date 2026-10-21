@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { WEEKDAY_SHORT, reminderTimeText, shiftDaysText, type ShiftStreak } from "@/lib/shift-streak";
 import { saveShiftDays } from "@/lib/verify-quiz-client";
 import { askNotificationPermission, blockedHelp, notificationPermission, pushSupport, turnOffPush, turnOnPush } from "@/lib/push-client";
@@ -153,8 +154,11 @@ export function ShiftReminder({ streak, getToken, onSaved }: { streak: ShiftStre
   if (support === "install") {
     return (
       <p className="dr-text dr-text--muted">
-        Want a reminder before each shift? On iPhone, add Serve By Example to your Home Screen first (tap Share, then Add to
-        Home Screen) and open it from there.
+        Want a reminder before each shift? On iPhone, add Serve By Example to your Home Screen first and open it from
+        there.{" "}
+        <Link href="/mobile/install?from=reminder" className="dr-link dr-link--inline">
+          Show me how
+        </Link>
       </p>
     );
   }

@@ -23,6 +23,7 @@ Every route lives under `app/mobile/<slug>/page.tsx`, and every `page.tsx` follo
 | `/mobile/progress` | `ProgressScreen.tsx` | "Me" tab: personal stats and mastery |
 | `/mobile/quiz` | `QuizScreen.tsx` | A module's Learn cards and verify quiz |
 | `/mobile/drill` | `DrillScreen.tsx` | Mixed drill; `?mode=preshift` is the pre-shift drill |
+| `/mobile/install` | `InstallScreen.tsx` | Add to Home Screen, with the steps for this phone. See section 3c |
 | `/mobile/live-guest` | `LiveGuestScreen.tsx` | Live Guest conversations (`components/live-guest/`) |
 | `/mobile/rush` | `RushScreen.tsx` | Saturday Rush (`components/rush/`) |
 | `/mobile/challenges` | `ChallengesScreen.tsx` | All ten Challenges, see `CHALLENGES.md` |
@@ -69,6 +70,14 @@ Every route lives under `app/mobile/<slug>/page.tsx`, and every `page.tsx` follo
 - **A freeze** shows plainly ("A freeze covered a missed shift"), never in gold.
 - **The reminder card** (shift days and reminder time, `components/quiz/ShiftDays.tsx`) shows until both are set, and can be closed.
 - **The streak cache:** the celebration puts the new streak in the shared staff cache, so Home turns to "Ready for tonight" without waiting for a reload.
+
+## 3c. Add to Home Screen (redesign phase 3)
+
+- **The phone:** `detectInstallPlatform()` (`lib/install-platform.ts`) reads the user agent: iPhone Safari on iOS 26 and later, earlier Safari, Chrome and other iPhone browsers, Android Chrome, Samsung Internet, and the in-app browsers (Instagram, Facebook and the like) that can't install. `INSTALL_STEPS` has each one's three steps, drawn by `install/StepPicture.tsx` in CSS.
+- **The guide** (`/mobile/install?from=`) shows the steps for the detected phone, "Different phone?" to pick another, a real Install button where Android Chrome offers one, and "Open this in Safari first" with a copy-link button inside another app. `from` sets the back button and the tracking.
+- **Where people meet it:** onboarding on a phone (a skippable second step, `app/onboarding/page.tsx`), the pre-shift drill finish on an iPhone that hasn't added it ("Get a nudge before Thursday"), the Home banner (`home/InstallBanner.tsx`: from the second visit, back once 14 days after it's closed, then never), the Settings row (`InstallRow.tsx`), the shift reminder step (`components/quiz/ShiftDays.tsx`), and "Train on your phone" with a QR code on desktop Today (`app/dashboard/_components/today/PhoneCard.tsx`). None show in the installed app.
+- **Android's prompt** (`beforeinstallprompt`) is caught by `InstallWatch.tsx` in the layout and kept for `useInstall()` (`_lib/use-install.ts`).
+- **Counting:** each prompt shown, tapped, closed or finished goes to `trackEvent` with `where` and `platform`. The first launch from the Home Screen is saved once per account (`POST /api/profile/app-installed`), which copes with the columns not existing yet. Queries: `supabase/queries/installs.sql`.
 
 ## 4. Data Layer — Auth, Session, and Progress
 

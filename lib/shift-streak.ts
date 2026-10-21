@@ -126,3 +126,13 @@ export function shiftDaysText(shiftDays: number[]): string {
   const names = shiftDays.map((d) => WEEKDAY_SHORT[d]);
   return names.length === 1 ? names[0] : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
 }
+
+/** The next weekday after `weekday` that is a shift, or null when every day is. */
+export function nextShiftDay(shiftDays: number[], weekday: number): number | null {
+  if (shiftDays.length === 0 || shiftDays.length === 7) return null;
+  for (let i = 1; i <= 7; i += 1) {
+    const day = (weekday + i) % 7;
+    if (shiftDays.includes(day)) return day;
+  }
+  return null;
+}

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ArrowRight, BookOpen, Flame, MessageCircle, Shuffle } from "lucide-react";
 import MasteryRing from "@/app/dashboard/_components/parts/MasteryRing";
 import TeamWeekCard from "@/components/team/TeamWeekCard";
+import PhoneCard from "./PhoneCard";
 import ShiftDays, { ShiftReminder } from "@/components/quiz/ShiftDays";
 import { COCKTAILS, COCKTAIL_IMAGES } from "@/lib/cocktails";
 import { KB_CATEGORIES, KB_ENTRIES } from "@/lib/knowledge-base";
@@ -367,6 +368,8 @@ export default function TodayPage({
             </button>
           </div>
         </section>
+
+        <PhoneCard />
       </div>
     </div>
   );

@@ -17,7 +17,7 @@ import {
   SunMoon,
 } from "lucide-react";
 import MobileScreenShell from "./MobileScreenShell";
-import InstallPrompt from "./InstallPrompt";
+import InstallRow from "./InstallRow";
 import AppearancePicker from "./AppearancePicker";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
@@ -621,8 +621,8 @@ export default function SettingsScreen() {
         )}
       </SectionCard>
 
-      {/* Install nudge — renders nothing if already standalone, dismissed, or not a supported platform */}
-      <InstallPrompt />
+      {/* Add to Home Screen: the guide at /mobile/install. Hidden once installed. */}
+      <InstallRow />
 
       {session.hasBillingAccount && (
         <SectionCard title="Subscription and billing" icon={CreditCard}>

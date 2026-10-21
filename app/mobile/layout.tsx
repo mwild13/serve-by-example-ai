@@ -9,6 +9,7 @@ import { MobileSessionProvider } from "./_lib/mobile-session-context";
 import { TrainingProgressProvider } from "./_lib/training-progress-context";
 import MobileOrientationGuard from "./_components/MobileOrientationGuard";
 import MobileThemeSync from "./_components/MobileThemeSync";
+import InstallWatch from "./_components/InstallWatch";
 import { MOBILE_THEME_COLOR, THEME_SCRIPT } from "@/lib/mobile-theme";
 import { PRODUCT_FONT_CLASS } from "@/app/fonts/product-fonts";
 import { formatPersonName, nameFromEmail } from "@/lib/person-name";
@@ -126,6 +127,7 @@ export default async function MobileLayout({
         {/* Perf fix (Phase 1a) — single shared fetch of /api/training/progress
             for the whole /mobile tree, instead of every screen independently
             re-fetching on its own mount. See training-progress-context.tsx. */}
+        <InstallWatch />
         <TrainingProgressProvider>
           {children}
         </TrainingProgressProvider>

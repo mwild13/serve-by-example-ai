@@ -4629,9 +4629,11 @@ button.sm-row:active {
 .sm-banner-title {
   font-size: 14px;
   font-weight: 800;
+  line-height: 1.3;
 }
 .sm-banner-sub {
   font-size: 12px;
+  line-height: 1.35;
   color: var(--sm-hero-muted);
 }
 .sm-banner .sm-btn--small {
@@ -5123,6 +5125,8 @@ button.sm-row:active {
 /* The reminder card: paper, so the mobile light tokens again. */
 .sm-celebrate-card {
   --sm-ink: var(--bottle);
+  --sm-accent: var(--bottle);
+  --sm-accent-ink: var(--paper);
   --sm-ink-soft: var(--text-soft);
   --sm-ink-faint: var(--color-warm-gray);
   --qz-surface: var(--paper);
@@ -5252,4 +5256,313 @@ button.sm-row:active {
   .sm-celebrate .sm-day--today.sm-day--done .sm-day-dot {
     animation: none;
   }
+}
+
+/* Add to Home Screen (InstallScreen.tsx, install/StepPicture.tsx) */
+.sm-install {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px var(--sm-gutter) 32px;
+}
+.sm-install-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 0 4px;
+}
+.sm-install-head .sm-pill {
+  gap: 6px;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 800;
+}
+.sm-install-title {
+  margin: 0;
+  font-size: 28px;
+  line-height: 33px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--sm-ink);
+}
+.sm-install-sub {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--sm-ink-soft);
+}
+.sm-install-switch {
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sm-good);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+.sm-install-tick {
+  color: var(--sm-good);
+}
+.sm-install-done {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 18px;
+}
+.sm-install-done .sm-install-title {
+  font-size: 22px;
+  line-height: 27px;
+}
+.sm-install-now {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sm-install-now .sm-install-sub {
+  padding: 0 4px;
+}
+.sm-install-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sm-install-step {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 18px;
+}
+.sm-install-step-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--sm-ink);
+}
+.sm-install-num {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 13px;
+  background: var(--sm-accent);
+  color: var(--sm-accent-ink);
+  font-size: 14px;
+  font-weight: 800;
+}
+.sm-install-note {
+  margin: 0;
+  padding: 0 8px;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--sm-ink-soft);
+}
+.sm-install-actions {
+  padding-top: 8px;
+}
+
+/* The step pictures: a phone's own buttons, with the one to tap lit. */
+.sm-pic {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 84px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background: var(--sm-pill);
+  color: var(--sm-ink);
+}
+.sm-pic--top {
+  align-items: flex-start;
+  padding-top: 12px;
+}
+.sm-pic--bottom {
+  align-items: flex-end;
+  padding-bottom: 12px;
+}
+.sm-pic--center {
+  justify-content: center;
+}
+.sm-pic-bar {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 6px 0 14px;
+  box-sizing: border-box;
+  border-radius: 26px;
+  background: var(--sm-card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.sm-pic-faint {
+  flex-shrink: 0;
+  color: var(--sm-ink-faint);
+}
+.sm-pic-url {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--sm-ink-soft);
+}
+.sm-pic-lit {
+  background: var(--sm-accent);
+  color: var(--sm-accent-ink);
+  box-shadow: 0 0 0 4px var(--sm-accent-tint);
+}
+.sm-pic-round {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+}
+.sm-pic-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  height: 46px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.sm-pic-chip svg {
+  flex-shrink: 0;
+}
+@media (max-width: 389px) {
+  .sm-pic--center {
+    gap: 6px;
+    padding: 0 8px;
+  }
+  .sm-pic-chip {
+    gap: 6px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+}
+.sm-pic-chip:not(.sm-pic-lit) {
+  background: var(--sm-card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.sm-pic-arrow {
+  flex-shrink: 0;
+  color: var(--sm-good);
+}
+.sm-pic-sheet {
+  flex: 1;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--sm-card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.sm-pic-sheet-head,
+.sm-pic-sheet-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 12px;
+  font-size: 12px;
+  color: var(--sm-ink-soft);
+}
+.sm-pic-sheet-head {
+  height: 34px;
+}
+.sm-pic-sheet-head strong,
+.sm-pic-sheet-row strong {
+  color: var(--sm-ink);
+  font-size: 13px;
+}
+.sm-pic-sheet-row {
+  height: 38px;
+  border-top: 1px solid var(--sm-sep);
+}
+.sm-pic-small {
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-weight: 800;
+  box-shadow: 0 0 0 3px var(--sm-accent-tint);
+}
+.sm-pic-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 42px;
+  height: 25px;
+  border-radius: 13px;
+  background: var(--green-vivid);
+}
+.sm-pic-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 21px;
+  height: 21px;
+  border-radius: 11px;
+  background: var(--surface-raised);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+.sm-celebrate-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sm-celebrate-card-actions .sm-btn--primary {
+  flex: 1;
+  min-height: 44px;
+  border-radius: 12px;
+  font-size: 15px;
+}
+.sm-celebrate-card-actions .sm-btn--text {
+  padding: 0 14px;
+  color: var(--text-soft);
+}
+
+/* Staff desktop Today: "Train on your phone" (today/PhoneCard.tsx) */
+.sd-phone {
+  flex-direction: row;
+  align-items: center;
+  gap: 24px;
+}
+.sd-phone-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 560px;
+}
+.sd-phone-qr {
+  flex-shrink: 0;
+  margin-left: auto;
+  width: 128px;
+  height: 128px;
+  border-radius: 10px;
+}
+.sd-phone-qr-bg {
+  fill: var(--surface-raised);
+}
+.sd-phone-qr-dots {
+  fill: var(--green-deep);
 }

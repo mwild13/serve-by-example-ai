@@ -8,7 +8,9 @@ import { ShiftDots } from "../ui/parts";
 import ShiftDays, { ShiftReminder } from "@/components/quiz/ShiftDays";
 import { useStaffData } from "@/lib/staff-cache";
 import { STAFF_KEYS, loadShiftStreak } from "@/lib/staff-data";
-import { FREEZES, type ShiftStreak } from "@/lib/shift-streak";
+import { FREEZES, nextShiftDay, type ShiftStreak } from "@/lib/shift-streak";
+import { pushSupport } from "@/lib/push-client";
+import { currentPlatform, trackInstall } from "../../_lib/use-install";
 import { homeClock } from "@/lib/home-feed";
 import { drillTime } from "@/lib/drill-time";
 import type { DrillSummary } from "@/lib/verify-quiz-client";
@@ -35,7 +37,11 @@ export default function DrillCelebration({
 }) {
   const [streak, setStreak] = useState<ShiftStreak | undefined>(summary.streak);
   const [weekday] = useState(() => homeClock(new Date()).weekday);
-  const [cardShown, setCardShown] = useState(() => !summary.streak || summary.streak.shiftDays.length === 0 || !summary.streak.reminderTime);
+  // On an iPhone, reminders need the app on the Home Screen: the card pitches that.
+  const [needsInstall] = useState(needsInstallNow);
+  const [cardShown, setCardShown] = useState(
+    () => needsInstallNow() || !summary.streak || summary.streak.shiftDays.length === 0 || !summary.streak.reminderTime,
+  );
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   // Home and Practise read the streak from the shared cache: give it the
@@ -50,7 +56,8 @@ export default function DrillCelebration({
     // A short buzz on Android. iPhone browsers have no vibration, so the
     // animation carries it there.
     if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) navigator.vibrate?.([14, 70, 22]);
-  }, []);
+    if (needsInstallNow() && summary.streak) trackInstall("shown", "drill-finish", currentPlatform());
+  }, [summary.streak]);
 
   const count = streak?.count ?? 0;
   const freezeUsed = !!streak && streak.freezesLeft < FREEZES;
@@ -110,7 +117,40 @@ export default function DrillCelebration({
           </div>
         )}
 
-        {streak && cardShown && (
+        {streak && cardShown && needsInstall && (
+          <div className="sm-celebrate-card sm-rise" style={{ animationDelay: "650ms" }}>
+            <div className="sm-celebrate-card-head">
+              <span className="sm-celebrate-card-icon" aria-hidden="true">
+                <Bell size={20} strokeWidth={2.2} />
+              </span>
+              <span className="sm-row-text">
+                <span className="sm-card-title">Get a nudge before {nextShiftText(streak.shiftDays, weekday)}</span>
+                <span className="sm-card-sub">Add SBE to your Home Screen and we&apos;ll remind you on shift days.</span>
+              </span>
+            </div>
+            <div className="sm-celebrate-card-actions">
+              <Link
+                href="/mobile/install?from=drill"
+                className="sm-btn sm-btn--primary"
+                onClick={() => trackInstall("tap", "drill-finish", currentPlatform())}
+              >
+                Show me how
+              </Link>
+              <button
+                type="button"
+                className="sm-btn sm-btn--text"
+                onClick={() => {
+                  setCardShown(false);
+                  trackInstall("dismiss", "drill-finish", currentPlatform());
+                }}
+              >
+                Not now
+              </button>
+            </div>
+          </div>
+        )}
+
+        {streak && cardShown && !needsInstall && (
           <div className="sm-celebrate-card sm-rise" style={{ animationDelay: "650ms" }}>
             <div className="sm-celebrate-card-head">
               <span className="sm-celebrate-card-icon" aria-hidden="true">
@@ -142,6 +182,19 @@ export default function DrillCelebration({
       </div>
     </section>
   );
+}
+
+const DAY_NAME = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+function needsInstallNow(): boolean {
+  return pushSupport() === "install";
+}
+
+/** "Thursday", "tomorrow", or "your next shift" when every day is one. */
+function nextShiftText(shiftDays: number[], weekday: number): string {
+  const next = nextShiftDay(shiftDays, weekday);
+  if (next === null) return "your next shift";
+  return next === (weekday + 1) % 7 ? "tomorrow" : DAY_NAME[next];
 }
 
 // Placed round the ring as in the Version 2 mock-up, from its centre line.
