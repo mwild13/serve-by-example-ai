@@ -16,7 +16,9 @@ import {
   type RushResult,
   type Verdict,
 } from "@/lib/rush/engine";
-import { getRushStats, newRushSeed, saveRush, type RushStats } from "@/lib/rush/client";
+import { newRushSeed, saveRush, type RushStats } from "@/lib/rush/client";
+import { useStaffData } from "@/lib/staff-cache";
+import { STAFF_KEYS, loadRushStats } from "@/lib/staff-data";
 
 // Saturday Rush (Rich update, Phase 15): a timed Saturday night shift in
 // twelve moments, shared by desktop (light) and mobile (dark) like QuizRun.
@@ -73,7 +75,8 @@ export default function SaturdayRush({ getToken, theme }: Props) {
   const [flash, setFlash] = useState<{ verdict: Verdict | null } | null>(null);
   const [deadline, setDeadline] = useState(0);
   const [left, setLeft] = useState(RUSH_SECONDS);
-  const [stats, setStats] = useState<RushStats | null>(null);
+  const { data: cachedStats, set: setStats } = useStaffData(STAFF_KEYS.rush, loadRushStats, getToken);
+  const stats = cachedStats ?? null;
   const [saved, setSaved] = useState<"saving" | "saved" | "failed" | null>(null);
   const hiddenAt = useRef<number | null>(null);
   // One call per moment, even if the clock and a tap land together.
@@ -83,16 +86,6 @@ export default function SaturdayRush({ getToken, theme }: Props) {
   const moment = phase === "playing" ? run.current : null;
   const index = moves.length;
 
-  useEffect(() => {
-    let cancelled = false;
-    getToken()
-      .then(getRushStats)
-      .then((s) => !cancelled && setStats(s))
-      .catch(() => undefined);
-    return () => {
-      cancelled = true;
-    };
-  }, [getToken]);
 
   const start = useCallback(() => {
     setSeed(newRushSeed());
@@ -166,7 +159,7 @@ export default function SaturdayRush({ getToken, theme }: Props) {
         .catch(() => setSaved("failed"));
     }, 0);
     return () => window.clearTimeout(id);
-  }, [getToken, moves, phase, run, seed]);
+  }, [getToken, moves, phase, run, seed, setStats]);
 
   // Desktop keys: 1 to 4 to choose, B for the bar-back.
   useEffect(() => {

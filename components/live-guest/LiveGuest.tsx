@@ -12,7 +12,6 @@ import {
   SAFETY_LABEL,
   SPEED_LABEL,
   formatDollars,
-  listLiveGuests,
   sendLiveGuestReply,
   startLiveGuest,
   type DialLevel,
@@ -25,6 +24,8 @@ import {
   type RevealTurn,
 } from "@/lib/live-guest-client";
 import { useGuestVoice } from "@/components/live-guest/useGuestVoice";
+import { useStaffData } from "@/lib/staff-cache";
+import { STAFF_KEYS, loadLiveGuests } from "@/lib/staff-data";
 import { ArrowRight, Lock } from "lucide-react";
 
 // Live Guest (Rich update, Phases 6 and 7): pick a guest, talk to them over
@@ -233,11 +234,12 @@ function RoomPicker({
 }
 
 export default function LiveGuest({ getToken, theme, intro = true, layout = "default" }: Props) {
-  const [guests, setGuests] = useState<PublicGuest[] | null>(null);
-  const [onPlan, setOnPlan] = useState(true);
-  const [taster, setTaster] = useState<LiveGuestList["taster"]>(undefined);
-  const [weekGuestId, setWeekGuestId] = useState<string | null>(null);
-  const [listError, setListError] = useState<string | null>(null);
+  const { data: list, failed: listFailed } = useStaffData(STAFF_KEYS.liveGuests, loadLiveGuests, getToken);
+  const guests: PublicGuest[] | null = list?.guests ?? null;
+  const onPlan = list?.onPlan ?? true;
+  const taster: LiveGuestList["taster"] = list?.taster;
+  const weekGuestId = list?.weekGuestId ?? null;
+  const listError = listFailed ? "Could not load the guests." : null;
   const [chat, setChat] = useState<Chat | null>(null);
   const [starting, setStarting] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
@@ -250,24 +252,6 @@ export default function LiveGuest({ getToken, theme, intro = true, layout = "def
   const { play: playLine, reset: resetVoice, unlock: unlockVoice } = voice;
   const voiceOn = voice.supported && voice.on;
 
-  useEffect(() => {
-    let cancelled = false;
-    getToken()
-      .then(listLiveGuests)
-      .then((list) => {
-        if (cancelled) return;
-        setGuests(list.guests);
-        setOnPlan(list.onPlan);
-        setTaster(list.taster);
-        setWeekGuestId(list.weekGuestId ?? null);
-      })
-      .catch((err: unknown) => {
-        if (!cancelled) setListError(err instanceof Error ? err.message : "Could not load the guests.");
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [getToken]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end", behavior: "smooth" });

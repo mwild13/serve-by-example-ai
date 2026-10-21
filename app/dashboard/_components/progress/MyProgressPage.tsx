@@ -4,9 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check } from "lucide-react";
 import MasteryRing from "@/app/dashboard/_components/parts/MasteryRing";
 import { computeBadges, type CategoryScores, type ModuleSummaryForBadges } from "@/lib/badges";
-import { getShiftStreak } from "@/lib/verify-quiz-client";
-import type { ShiftStreak } from "@/lib/shift-streak";
-import { isMastered, isStarted, type StepModule } from "@/lib/next-step";
+import { useStaffData } from "@/lib/staff-cache";
+import { STAFF_KEYS, loadModules, loadRushStats, loadShiftStreak, type StaffModule } from "@/lib/staff-data";
+import { isMastered, isStarted } from "@/lib/next-step";
 import type { StaffNavId } from "@/app/dashboard/_components/shell/StaffSidebar";
 
 // My progress (docs/STAFF_APP.md section 8): four figures, mastery by area,
@@ -28,6 +28,8 @@ function lastTrained(iso: unknown): string {
   if (days < 7) return `${days} days ago`;
   return new Intl.DateTimeFormat("en-AU", { day: "numeric", month: "long" }).format(new Date(iso));
 }
+
+const NO_MODULES: StaffModule[] = [];
 
 /** The daily-visit streak the streak badges count (lib/streak.ts), read only. */
 function visitStreak(): number {
@@ -51,9 +53,10 @@ export default function MyProgressPage({
   onOpenModule: (moduleId: number) => void;
   onNavigate: (id: StaffNavId) => void;
 }) {
-  const [modules, setModules] = useState<StepModule[] | null>(null);
-  const [streak, setStreak] = useState<ShiftStreak | null>(null);
-  const [rush, setRush] = useState<{ best: number | null; shifts: number } | null>(null);
+  const { data: loaded, failed } = useStaffData(STAFF_KEYS.modules, loadModules, getToken);
+  const modules = loaded ?? (failed ? NO_MODULES : null);
+  const { data: streak } = useStaffData(STAFF_KEYS.shiftStreak, loadShiftStreak, getToken);
+  const { data: rush } = useStaffData(STAFF_KEYS.rush, loadRushStats, getToken);
   const [visits, setVisits] = useState(0);
   const badgesRef = useRef<HTMLElement>(null);
 
@@ -61,32 +64,7 @@ export default function MyProgressPage({
     // Browser-only read on mount.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setVisits(visitStreak());
-    let cancelled = false;
-    getToken()
-      .then((token) =>
-        Promise.allSettled([
-          fetch("/api/training/modules", { headers: { Authorization: `Bearer ${token}` } }).then((r) =>
-            r.ok ? (r.json() as Promise<{ modules: StepModule[] }>) : Promise.reject(new Error("modules")),
-          ),
-          getShiftStreak(token),
-          fetch("/api/training/rush", { headers: { Authorization: `Bearer ${token}` } }).then((r) =>
-            r.ok ? (r.json() as Promise<{ best: number | null; shifts: number }>) : Promise.reject(new Error("rush")),
-          ),
-        ]),
-      )
-      .then(([mods, shift, rushStats]) => {
-        if (cancelled) return;
-        setModules(mods.status === "fulfilled" ? mods.value.modules : []);
-        if (shift.status === "fulfilled") setStreak(shift.value);
-        if (rushStats.status === "fulfilled") setRush(rushStats.value);
-      })
-      .catch(() => {
-        if (!cancelled) setModules([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [getToken]);
+  }, []);
 
   useEffect(() => {
     if (openAtBadges && modules) badgesRef.current?.scrollIntoView({ block: "start" });

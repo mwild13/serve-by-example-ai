@@ -377,6 +377,27 @@
   --sd-hero:        var(--roi-forest);
   color-scheme: dark;
 }
+/* The same --sd-* names on the dark mobile app, for the parts the two share
+   (components/challenges/ChallengeGame.tsx). */
+.sd-on-mobile {
+  --sd-panel:       var(--surface-mobile);
+  --sd-panel-alt:   var(--surface-mobile-alt);
+  --sd-line:        var(--border-mobile);
+  --sd-line-strong: var(--border-mobile);
+  --sd-ink:         var(--text-mobile);
+  --sd-ink-soft:    var(--text-mobile-muted);
+  --sd-ink-muted:   var(--text-mobile-faint);
+  --sd-accent:       var(--green-mobile);
+  --sd-accent-hover: var(--green-mobile);
+  --sd-accent-ink:   var(--bg-mobile-dark);
+  --sd-accent-tint:  var(--green-mobile-bg);
+  --sd-good:        var(--green-mobile);
+  --sd-alarm:       var(--red-mobile);
+  --sd-alarm-tint:  var(--gold-mobile-bg);
+  --sd-track:       var(--border-mobile);
+  --sd-shadow:      none;
+  color: var(--sd-ink);
+}
 /* ── Reset ─────────────────────────────────────── */
 *,
 *::before,
@@ -1288,22 +1309,6 @@ html[data-staff-high-contrast="1"] .card {
   gap: 10px;
   flex-wrap: wrap;
 }
-/* ── Cocktail Library ──────────────────────────── */
-.cocktail-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-}
-@media (max-width: 1200px) {
-  .cocktail-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-@media (max-width: 700px) {
-  .cocktail-grid {
-    grid-template-columns: 1fr;
-  }
-}
 /* ── Intent Pills ────────────────────────────────── */
 .sbe-intent-pills {
     flex-direction: column;
@@ -1696,7 +1701,6 @@ body {
   border-radius: var(--radius-lg, 14px);
   padding: 20px;
 }
-.cocktail-skeleton-card { min-height: 90px; }
 .skeleton-table { display: flex; flex-direction: column; gap: 6px; }
 .skeleton-table-row { display: flex; gap: 12px; padding: 8px 0; }
 /* ── Solution section ──────────────────────────── */

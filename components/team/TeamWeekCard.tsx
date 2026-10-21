@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type CSSProperties } from "react";
-import { GOAL_LABEL, type TeamWeek } from "@/lib/team-week-shared";
+import type { CSSProperties } from "react";
+import { useStaffData } from "@/lib/staff-cache";
+import { STAFF_KEYS, loadTeamWeek } from "@/lib/staff-data";
+import { GOAL_LABEL } from "@/lib/team-week-shared";
 
 // This week at the venue (Rich update, Phase 16), on staff Home: the team
 // goal the manager set and the guest of the week. Team totals only, never
@@ -27,25 +29,7 @@ export default function TeamWeekCard({
   onLiveGuest,
   outer,
 }: Props) {
-  const [week, setWeek] = useState<TeamWeek | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    getToken()
-      .then((token) =>
-        fetch("/api/training/team-week", {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-      )
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data: { week: TeamWeek | null } | null) => {
-        if (!cancelled) setWeek(data?.week ?? null);
-      })
-      .catch(() => undefined);
-    return () => {
-      cancelled = true;
-    };
-  }, [getToken]);
+  const { data: week } = useStaffData(STAFF_KEYS.teamWeek, loadTeamWeek, getToken);
 
   if (!week || (!week.goal && !week.guest)) return null;
   const { goal, guest } = week;

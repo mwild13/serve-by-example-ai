@@ -3,14 +3,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDown, ArrowRight, ArrowUp, Search } from "lucide-react";
 import MasteryRing from "@/app/dashboard/_components/parts/MasteryRing";
-import { isMastered, isStarted, type StepModule } from "@/lib/next-step";
+import { isMastered, isStarted } from "@/lib/next-step";
+import { useStaffData } from "@/lib/staff-cache";
+import { STAFF_KEYS, loadModules, type StaffModule } from "@/lib/staff-data";
 
 // Modules as a path, not a grid (docs/STAFF_APP.md section 8): one module
 // lifted above the list with the reason it's suggested, then all of them as
 // rows by level in one panel, the next one marked.
 // Replaced DynamicModuleNav. Styles: the sd-modules rules in staff.css.
 
-type Module = StepModule & { description?: string | null };
+type Module = StaffModule;
 
 type Area = "all" | "technical" | "service" | "compliance";
 
@@ -41,7 +43,7 @@ function statusText(m: Module): string {
 
 function actionText(m: Module): string {
   if (isMastered(m)) return "Go over it";
-  if (isStarted(m)) return "Carry on";
+  if (isStarted(m)) return "Continue";
   return "Start";
 }
 
@@ -52,28 +54,12 @@ export default function ModulesPage({
   getToken: () => Promise<string>;
   onOpenModule: (moduleId: number) => void;
 }) {
-  const [modules, setModules] = useState<Module[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { data: modules, failed } = useStaffData(STAFF_KEYS.modules, loadModules, getToken);
+  const error = failed ? "Could not load the modules." : null;
   const [area, setArea] = useState<Area>("all");
   const [query, setQuery] = useState("");
   const hereRef = useRef<HTMLLIElement | null>(null);
   const [herePos, setHerePos] = useState<"in" | "above" | "below">("in");
-
-  useEffect(() => {
-    let cancelled = false;
-    getToken()
-      .then((token) => fetch("/api/training/modules?sort=recommended", { headers: { Authorization: `Bearer ${token}` } }))
-      .then((r) => (r.ok ? (r.json() as Promise<{ modules: Module[] }>) : Promise.reject(new Error("Could not load the modules."))))
-      .then((data) => {
-        if (!cancelled) setModules(data.modules);
-      })
-      .catch((err: unknown) => {
-        if (!cancelled) setError(err instanceof Error ? err.message : "Could not load the modules.");
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [getToken]);
 
   const all = useMemo(() => modules ?? [], [modules]);
   const featured = all.find((m) => m.recommended) ?? null;
@@ -109,7 +95,7 @@ export default function ModulesPage({
     return () => io.disconnect();
   }, [hereId, shown]);
 
-  const featuredCta = featured ? (isStarted(featured) ? "Carry on" : "Start this module") : "";
+  const featuredCta = featured ? (isStarted(featured) ? "Continue" : "Start this module") : "";
 
   return (
     <div className="sd-page sd-modules">

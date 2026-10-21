@@ -8,9 +8,10 @@ import TeamWeekCard from "@/components/team/TeamWeekCard";
 import ShiftDays, { ShiftReminder } from "@/components/quiz/ShiftDays";
 import { COCKTAILS, COCKTAIL_IMAGES } from "@/lib/cocktails";
 import { KB_CATEGORIES, KB_ENTRIES } from "@/lib/knowledge-base";
-import { getShiftStreak } from "@/lib/verify-quiz-client";
+import { useStaffData } from "@/lib/staff-cache";
+import { STAFF_KEYS, loadModules, loadShiftStreak } from "@/lib/staff-data";
 import { computeStreak } from "@/lib/streak";
-import { shiftDaysText, type ShiftStreak } from "@/lib/shift-streak";
+import { shiftDaysText } from "@/lib/shift-streak";
 import {
   DRILL_MIN_STARTED,
   isMastered,
@@ -19,7 +20,6 @@ import {
   pickNextSteps,
   sydneyWeekday,
   type NextStep,
-  type StepModule,
 } from "@/lib/next-step";
 import type { StaffNavId } from "@/app/dashboard/_components/shell/StaffSidebar";
 
@@ -71,8 +71,8 @@ function copyFor(step: NextStep, reviewDue: number): StepCopy {
         kicker: "Pick up where you left off",
         title: step.module.title,
         body: "You've started this one. Pass its quiz and it's mastered.",
-        cta: "Carry on",
-        alt: `Or carry on with ${step.module.title}`,
+        cta: "Continue",
+        alt: `Or continue ${step.module.title}`,
       };
     case "review":
       return {
@@ -141,9 +141,8 @@ export default function TodayPage({
   onOpenModule: (moduleId: number) => void;
   onStartPreshift: () => void;
 }) {
-  const [modules, setModules] = useState<StepModule[] | null>(null);
-  const [streak, setStreak] = useState<ShiftStreak | null>(null);
-  const [streakLoaded, setStreakLoaded] = useState(false);
+  const { data: modules, failed: modulesFailed } = useStaffData(STAFF_KEYS.modules, loadModules, getToken);
+  const { data: streak, failed: streakFailed, set: setStreak } = useStaffData(STAFF_KEYS.shiftStreak, loadShiftStreak, getToken);
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
@@ -152,43 +151,19 @@ export default function TodayPage({
     setNow(new Date());
     // The daily-visit streak behind the streak badges (lib/streak.ts), as Home always counted it.
     computeStreak();
-    let cancelled = false;
-    getToken()
-      .then((token) =>
-        Promise.allSettled([
-          fetch("/api/training/modules?sort=recommended", { headers: { Authorization: `Bearer ${token}` } }).then((r) =>
-            r.ok ? (r.json() as Promise<{ modules: StepModule[] }>) : Promise.reject(new Error("modules")),
-          ),
-          getShiftStreak(token),
-        ]),
-      )
-      .then(([mods, shift]) => {
-        if (cancelled) return;
-        setModules(mods.status === "fulfilled" ? mods.value.modules : []);
-        setStreak(shift.status === "fulfilled" ? shift.value : null);
-        setStreakLoaded(true);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setModules([]);
-        setStreakLoaded(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [getToken]);
+  }, []);
 
   const reviewDue = Array.isArray(progressData?.reviewQueue) ? (progressData.reviewQueue as unknown[]).length : 0;
   const passes = typeof progressData?.arenaModuleCount === "number" ? progressData.arenaModuleCount : 0;
   const weekday = now ? sydneyWeekday(now) : 1;
-  const ready = modules !== null && streakLoaded && now !== null;
+  const ready = (modules !== undefined || modulesFailed) && (streak !== undefined || streakFailed) && now !== null;
 
   const [step, alt] = useMemo(
     () =>
       pickNextSteps({
         hasModuleAccess,
         modules: modules ?? [],
-        streak,
+        streak: streak ?? null,
         weekday,
         reviewDue,
         liveGuestOpen,
@@ -428,7 +403,7 @@ export default function TodayPage({
                         {isStarted(m) ? (m.mastery_pct > 0 ? `${m.mastery_pct}% mastered` : "Started") : AREA_LABEL[m.category] ?? "Module"}
                       </span>
                     </span>
-                    <span className="sd-list-action">{isStarted(m) ? "Carry on" : "Start"}</span>
+                    <span className="sd-list-action">{isStarted(m) ? "Continue" : "Start"}</span>
                   </button>
                 </li>
               ))}

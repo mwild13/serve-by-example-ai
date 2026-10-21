@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState, useEffect, useCallback, useRef, Suspense, lazy } from "react";
+import { FormEvent, useState, useEffect, useCallback, useRef } from "react";
 import { ArrowLeft, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuthSessionGuard } from "@/lib/use-auth-session-guard";
@@ -12,9 +12,10 @@ import ModulesPage from "@/app/dashboard/_components/modules/ModulesPage";
 import DrillPage from "@/app/dashboard/_components/DrillPage";
 import RushPage from "@/app/dashboard/_components/RushPage";
 import ChallengesPage from "@/app/dashboard/_components/ChallengesPage";
-import { CocktailGridSkeleton } from "@/components/ui/Skeletons";
-const CocktailLibrary = lazy(() => import("@/app/dashboard/_components/knowledge-base/CocktailLibrary"));
-const KnowledgeBase = lazy(() => import("@/app/dashboard/_components/knowledge-base/KnowledgeBase"));
+// Not lazy: Today already carries the cocktail and card data, so these add
+// little, and a lazy page flashes a loading state on its first open.
+import CocktailLibrary from "@/app/dashboard/_components/knowledge-base/CocktailLibrary";
+import KnowledgeBase from "@/app/dashboard/_components/knowledge-base/KnowledgeBase";
 import MyProgressPage from "@/app/dashboard/_components/progress/MyProgressPage";
 import TodayPage from "@/app/dashboard/_components/today/TodayPage";
 import StaffSidebar, { type StaffNavId } from "@/app/dashboard/_components/shell/StaffSidebar";
@@ -23,6 +24,8 @@ import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { openBillingPortal } from "@/lib/billing-portal";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { normalizeVenueCode } from "@/lib/venue-code";
+import { setStaffCacheOwner } from "@/lib/staff-cache";
+import { warmStaffCache } from "@/lib/staff-data";
 
 type NavItem = StaffNavId;
 
@@ -537,6 +540,8 @@ export default function DashboardShell({
   initialNav?: string;
 }) {
   const router = useRouter();
+  // Page data is cached per person (lib/staff-cache.ts).
+  setStaffCacheOwner(userEmail);
 
   // Auth safety guard: detect and recover from cookie/localStorage desync
   const [authErrorMessage, setAuthErrorMessage] = useState("");
@@ -550,6 +555,30 @@ export default function DashboardShell({
   const [activeNav, setActiveNav] = useState<NavItem>(
     NAV_IDS.has(initialNav as NavItem) ? (initialNav as NavItem) : RETIRED_NAV[initialNav ?? ""] ?? "home"
   );
+  // Each page goes into the browser history as ?nav=, so Back and Forward
+  // move between pages here instead of leaving the dashboard.
+  const parseNav = useCallback(
+    (value: string | null | undefined): NavItem =>
+      NAV_IDS.has(value as NavItem) ? (value as NavItem) : RETIRED_NAV[value ?? ""] ?? "home",
+    // NAV_IDS and RETIRED_NAV are constants rebuilt each render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+  const goTo = useCallback((id: NavItem) => {
+    setActiveNav(id);
+    try {
+      const url = new URL(window.location.href);
+      if ((url.searchParams.get("nav") ?? "home") === id) return;
+      if (id === "home") url.searchParams.delete("nav");
+      else url.searchParams.set("nav", id);
+      window.history.pushState(null, "", url.toString());
+    } catch {}
+  }, []);
+  useEffect(() => {
+    const onPop = () => setActiveNav(parseNav(new URLSearchParams(window.location.search).get("nav")));
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [parseNav]);
   const [joinCodeFromUrl, setJoinCodeFromUrl] = useState<string | undefined>(undefined);
   const [showPaymentBanner, setShowPaymentBanner] = useState(checkoutSuccess);
   // Phase 4: Dynamic module system
@@ -670,7 +699,7 @@ export default function DashboardShell({
       router.push("/pricing");
       return;
     }
-    setActiveNav(id);
+    goTo(id);
   }
 
   const getToken = useCallback(async () => {
@@ -687,6 +716,19 @@ export default function DashboardShell({
 
   const lockedIds = isPremium ? [] : PREMIUM_NAV_ITEMS;
   const liveGuestOpen = isAdmin || isB2BTier(plan) || hasVenueMembership;
+
+  // Load every page's data once the first screen is up, so each page opens
+  // with its data already here.
+  useEffect(() => {
+    const warm = () => warmStaffCache(getToken, { liveGuest: liveGuestOpen });
+    // Safari has no requestIdleCallback.
+    if (typeof window.requestIdleCallback === "function") {
+      const id = window.requestIdleCallback(warm, { timeout: 2000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const id = setTimeout(warm, 300);
+    return () => clearTimeout(id);
+  }, [getToken, liveGuestOpen]);
 
   // If auth guard detected an error or is still initializing, show defensive UI
   if (authGuard.hasError) {
@@ -749,7 +791,7 @@ export default function DashboardShell({
             userToken={userToken}
             onComplete={() => {
               setShowDiagnostic(false);
-              setActiveNav("module");
+              goTo("module");
             }}
           />
         )}
@@ -766,7 +808,7 @@ export default function DashboardShell({
             onOpenModule={openModule}
             onStartPreshift={() => {
               setDrillMode("preshift");
-              setActiveNav("drill");
+              goTo("drill");
             }}
           />
         ) : activeNav === "module" ? (
@@ -807,13 +849,9 @@ export default function DashboardShell({
         ) : activeNav === "challenges" ? (
           <ChallengesPage />
         ) : activeNav === "cocktails" ? (
-          <Suspense fallback={<CocktailGridSkeleton count={12} />}>
-            <CocktailLibrary />
-          </Suspense>
+          <CocktailLibrary />
         ) : activeNav === "knowledge" ? (
-          <Suspense fallback={<CocktailGridSkeleton count={12} />}>
-            <KnowledgeBase />
-          </Suspense>
+          <KnowledgeBase />
         ) : activeNav === "progress" || activeNav === "badges" ? (
           <MyProgressPage
             key="progress"
