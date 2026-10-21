@@ -43,7 +43,13 @@ Hyphens in words (`pre-shift`, `bar-back`, `30-day`) are fine.
 - Manager Console: `docs/MANAGER_CONSOLE.md` section 6.
 - Marketing site: `docs/Pages-Redesign.md`.
 
-## 4. Before you hand work back
+## 4. Secrets and live testing
+
+- **Every secret lives in Cloudflare Pages environment variables, and only there.** There is no `.env` file in this repo, on purpose.
+- **Never create, read or ask for an `.env` file**, and never ask for a key in chat. If work needs a key, the owner types it into their own terminal.
+- **To see the signed-in app** (mobile, desktop or the Manager Console), use the QA account (`mitch+qa@servebyexample.co`) and follow `docs/LIVE_APP_TESTING.md`. The owner starts the app with their keys; you load the saved QA session and take the screenshots.
+
+## 5. Before you hand work back
 
 - Run what CI runs: `npm run lint`, `npm run lint:css`, `npm run typecheck`, `npm test` and `npm run knip`.
 - If you changed how a screen or feature works, update its doc in the same commit. A doc that describes the old screen is worse than none.
