@@ -297,7 +297,7 @@ export default function ChallengesPage() {
               <p className="sd-label">Today&apos;s challenge</p>
               <h2 id="sd-cg-today" className="sd-step-title">{today.title}</h2>
               <p className="sd-step-body">{today.pitch}</p>
-              <p className="sd-cg-today-meta">
+              <p className="sd-hero-meta">
                 <KindTag kind={today.kind} />
                 <span>{CHALLENGE_AREA_LABEL[today.area]}</span>
                 {done.includes(today.index) && <span>Done before</span>}

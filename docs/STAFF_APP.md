@@ -119,7 +119,8 @@ The desktop staff area was rebuilt twice in October 2026. The first pass (`docs/
 - **Modules:** the suggested module, then every module as rows by level in one panel, with area tabs and search.
 - **Cocktails and Knowledge Base:** list on the left, the full card on the right, so nothing pops over the list. The Knowledge Base groups by subcategory once a category is picked.
 - **Challenges:** today's challenge on the green card beside your record, then all ten as tiles; play one, or all ten in a row for a score (`docs/CHALLENGES.md`).
-- **Mixed Drill, a module's cards and quiz, Live Guest's conversation:** in a `.sd-docket` panel. The quiz's `.qz--light` theme reads the `--sd-*` tokens, so it follows dark mode.
+- **Mixed Drill and Saturday Rush:** a lobby first: the drill or shift on the green card, a figure beside it (modules in your drills, shift streak or best score), then what the drill draws on or how Rush scores you. Starting plays the shared game with `autoStart`, which skips its own intro card (mobile keeps it).
+- **A drill, a module's cards and quiz, Live Guest's conversation:** in a `.sd-docket` panel. The quiz's `.qz--light` theme reads the `--sd-*` tokens, so it follows dark mode.
 - **My progress:** four figures, mastery by area, badges with the next one to earn.
 
 **Writing:** no em or en dashes anywhere (AGENTS.md, enforced by `lib/no-dashes.test.ts`).

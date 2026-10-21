@@ -27,7 +27,12 @@ import { STAFF_KEYS, loadRushStats } from "@/lib/staff-data";
 // rules in app/styles/staff.css, on the .qz theme colours.
 
 /** "room" is the staff desktop's green (docs/STAFF_DESKTOP_REDESIGN_PLAN.md); it keeps the desktop keys. */
-type Props = { getToken: () => Promise<string>; theme: "light" | "dark" | "room" };
+type Props = {
+  getToken: () => Promise<string>;
+  theme: "light" | "dark" | "room";
+  /** Skip the intro card: the page has its own (the staff desktop's RushPage). */
+  autoStart?: boolean;
+};
 
 const KIND_LABEL: Record<MomentKind, string> = {
   queue: "The queue",
@@ -67,7 +72,7 @@ function Bar({ label, value, low }: { label: string; value: number; low?: boolea
   );
 }
 
-export default function SaturdayRush({ getToken, theme }: Props) {
+export default function SaturdayRush({ getToken, theme, autoStart = false }: Props) {
   const [phase, setPhase] = useState<"intro" | "playing" | "done">("intro");
   const [seed, setSeed] = useState(0);
   const [moves, setMoves] = useState<RushMove[]>([]);
@@ -98,6 +103,12 @@ export default function SaturdayRush({ getToken, theme }: Props) {
     setDeadline(Date.now() + RUSH_SECONDS * 1000);
     setPhase("playing");
   }, []);
+
+  useEffect(() => {
+    // A one-time start when the page has already shown the intro.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (autoStart) start();
+  }, [autoStart, start]);
 
   const commit = useCallback(
     (pick: number | null) => {

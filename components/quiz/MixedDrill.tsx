@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import QuizRun from "@/components/quiz/QuizRun";
 import ShiftDays, { ShiftReminder, streakLine } from "@/components/quiz/ShiftDays";
 import type { ShiftStreak } from "@/lib/shift-streak";
@@ -32,6 +32,8 @@ type Props = {
   mode?: "mixed" | "preshift";
   /** Pre-shift only: opens Live Guest for one warm-up conversation. */
   onLiveGuest?: () => void;
+  /** Skip the intro card: the page has its own (the staff desktop's DrillPage). */
+  autoStart?: boolean;
 };
 
 type Status =
@@ -42,8 +44,8 @@ type Status =
   | { kind: "locked"; message: string }
   | { kind: "error"; message: string };
 
-export default function MixedDrill({ theme, getToken, onOpenModule, onBrowseModules, mode = "mixed", onLiveGuest }: Props) {
-  const [status, setStatus] = useState<Status>({ kind: "intro" });
+export default function MixedDrill({ theme, getToken, onOpenModule, onBrowseModules, mode = "mixed", onLiveGuest, autoStart = false }: Props) {
+  const [status, setStatus] = useState<Status>({ kind: autoStart ? "loading" : "intro" });
   const drill = status.kind === "playing" ? status.drill : null;
 
   async function begin() {
@@ -55,6 +57,14 @@ export default function MixedDrill({ theme, getToken, onOpenModule, onBrowseModu
       setStatus(err instanceof VerifyQuizError && err.code === "DRILL_NEEDS_MODULES" ? { kind: "locked", message } : { kind: "error", message });
     }
   }
+
+  useEffect(() => {
+    // A one-time start when the page has already shown the intro. begin is
+    // recreated each render; this runs once, on mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (autoStart) void begin();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const submit = useCallback(
     async (position: number, answer: QuizAnswer) => {

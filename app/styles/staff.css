@@ -2946,33 +2946,11 @@ body.mobile-dark-shell select {
   border: 0;
   background: none;
 }
-.sd-split {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
-  align-items: start;
-  gap: var(--sd-gap);
-}
-.sd-side-list {
-  margin: 0 0 12px;
-  padding: 0;
-  list-style: none;
-  font-size: var(--sd-fs-small);
-}
-.sd-side-list li {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 8px 0;
-}
-.sd-side-list li + li {
-  border-top: 1px solid var(--sd-line);
-}
-.sd-side-meta {
-  flex-shrink: 0;
-  color: var(--sd-ink-muted);
+.sd-reading.sd-rush {
+  max-width: 760px;
 }
 .sd-rush .qz--room {
-  max-width: 760px;
+  max-width: none;
   margin: 0;
   padding: 0;
 }
@@ -3259,9 +3237,60 @@ body.mobile-dark-shell select {
 .sd-page > .sd-panel + .sd-grid {
   margin-top: var(--sd-gap);
 }
-.sd-side-list {
-  max-height: 340px;
-  overflow-y: auto;
+
+/* Hero detail line, and a section under the hero (Rush, drill, Challenges) */
+.sd-hero-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--sd-hero-ink);
+}
+.sd-section {
+  margin-top: 28px;
+}
+.sd-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 24px;
+  margin-bottom: 14px;
+}
+.sd-section-head .sd-note {
+  max-width: 60ch;
+}
+
+/* Saturday Rush: the four dials */
+.sd-dials {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sd-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sd-dial {
+  gap: 6px;
+}
+.sd-dial-icon {
+  margin-bottom: 4px;
+  color: var(--sd-accent);
+}
+.sd-dial-name {
+  margin: 0;
+  font-weight: 700;
+}
+
+/* Mixed Drill: the modules it draws on */
+.sd-drill-list .sd-list-row {
+  padding: 8px 20px;
+}
+.sd-drill-list .sd-list-action {
+  color: var(--sd-ink-muted);
+}
+.sd-drill-empty {
+  padding: 20px;
 }
 
 /* Challenges: today's on the solid card, then every one as a tile */
@@ -3275,7 +3304,7 @@ body.mobile-dark-shell select {
   text-transform: uppercase;
   color: var(--sd-accent);
 }
-.sd-cg-today-meta {
+.sd-hero-meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -3713,7 +3742,8 @@ body.mobile-dark-shell select {
   .sd-col-7,
   .sd-col-5,
   .sd-col-4.sd-streak,
-  .sd-col-4.sd-cg-record {
+  .sd-col-4.sd-cg-record,
+  .sd-col-4.sd-side-figure {
     grid-column: span 12;
   }
   .sd-row {
@@ -3751,8 +3781,7 @@ body.mobile-dark-shell select {
   .sd-col-3 {
     grid-column: span 12;
   }
-  .sd-feature,
-  .sd-split {
+  .sd-feature {
     grid-template-columns: minmax(0, 1fr);
   }
   .sd-feature-also {
@@ -3773,6 +3802,10 @@ body.mobile-dark-shell select {
   .sd-cg-match {
     grid-template-columns: minmax(0, 1fr);
   }
+  .sd-dials {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .sd-settings > .card,
   .sd-settings > .grid-2 > .card {
     grid-template-columns: minmax(0, 1fr);
@@ -3884,7 +3917,8 @@ body.mobile-dark-shell select {
   .sd-step-body {
     margin-bottom: 14px;
   }
-  .sd-cg-all {
+  .sd-cg-all,
+  .sd-section {
     margin-top: 20px;
   }
   .sd-cg-tile {
