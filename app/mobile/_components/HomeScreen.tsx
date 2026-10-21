@@ -140,7 +140,7 @@ export default function HomeScreen() {
         </Section>
       )}
 
-      <Section title="For the bar tonight" link={{ href: "/mobile/cocktails", label: `All ${COCKTAILS.length}` }}>
+      <Section title="For the bar tonight" link={{ href: "/mobile/cocktails?from=home", label: `All ${COCKTAILS.length}` }}>
         {/* Only once the date is known: swapping the cocktails after the
             first paint made the snap row jump to keep its first card. */}
         <div className="sm-carousel">
@@ -148,7 +148,7 @@ export default function HomeScreen() {
           {now && cocktails.map((c, i) => (
             <PhotoCard
               key={c.name}
-              href={`/mobile/cocktails?cocktail_id=${cocktailSlug(c.name)}`}
+              href={`/mobile/cocktails?from=home&cocktail_id=${cocktailSlug(c.name)}`}
               src={COCKTAIL_IMAGES[c.name] ?? "/mobile/thumb-cocktail.webp"}
               title={c.name}
               sub={c.glass}
@@ -168,8 +168,8 @@ export default function HomeScreen() {
 
       <Section title="Look it up">
         <RowList>
-          <Row href="/mobile/cocktails" icon={Martini} label="Cocktail library" end={<Pill>{COCKTAILS.length}</Pill>} />
-          <Row href="/mobile/knowledge" icon={BookOpenText} label="Knowledge base" end={<Pill>{KB_ENTRIES.length}</Pill>} />
+          <Row href="/mobile/cocktails?from=home" icon={Martini} label="Cocktail library" end={<Pill>{COCKTAILS.length}</Pill>} />
+          <Row href="/mobile/knowledge?from=home" icon={BookOpenText} label="Knowledge base" end={<Pill>{KB_ENTRIES.length}</Pill>} />
           <Row href="/mobile/badges" icon={Award} label="Badges" />
         </RowList>
       </Section>

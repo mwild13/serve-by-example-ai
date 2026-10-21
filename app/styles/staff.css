@@ -36,7 +36,7 @@
 /* ── Skip navigation ────────────────────────── */
 /* Phase 6 mobile-responsive fix (2026-09-21) — toggled on/off document.body
    by MobileOrientationGuard.tsx for the lifetime of the /mobile route tree.
-   MobileScreenShell's own dark background only covers the normal-paint
+   The screen's own background (.sm-screen) only covers the normal-paint
    case (a div inside body); it can't cover iOS Safari's elastic overscroll
    (rubber-banding past the top/bottom reveals body's own background, not
    any div inside it) or the home-indicator safe-area strip on notched
@@ -6821,4 +6821,238 @@ button.sm-set-row:disabled {
 }
 .sm-card .sm-me-area .sm-bar {
   margin-top: 0;
+}
+
+/* ============================================================
+   STAFF MOBILE: look it up (redesign phase 7)
+   ============================================================ */
+
+/* The bottom sheet's heading and close button (ui/Sheet.tsx) */
+.sm-sheet-head {
+  align-items: flex-start;
+  margin: 4px 0 14px;
+}
+.sm-sheet-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.sm-sheet-title {
+  font-size: 24px;
+  line-height: 29px;
+  letter-spacing: -0.015em;
+}
+.sm-sheet-close {
+  width: 44px;
+  height: 44px;
+  margin: -6px -8px 0 0;
+}
+.sm-sheet-close svg {
+  box-sizing: content-box;
+  padding: 6px;
+  border-radius: 15px;
+  background: var(--sm-pill);
+  color: var(--sm-ink-soft);
+}
+
+/* Search and chips above a library */
+.sm-lib-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px var(--sm-gutter) 0;
+}
+.sm-chips {
+  display: flex;
+  gap: 8px;
+  margin: 0 calc(var(--sm-gutter) * -1);
+  padding: 2px var(--sm-gutter) 4px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.sm-chips::-webkit-scrollbar {
+  display: none;
+}
+.sm-chip {
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--sm-bar-line);
+  border-radius: 18px;
+  background: var(--sm-card);
+  color: var(--sm-ink);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 160ms var(--ease-out), color 160ms var(--ease-out);
+}
+.sm-chip[aria-checked="true"] {
+  border-color: var(--sm-accent);
+  background: var(--sm-accent);
+  color: var(--sm-accent-ink);
+}
+.sm-lib-intro {
+  margin: 0 4px;
+  font-size: 15px;
+  line-height: 21px;
+  color: var(--sm-ink-soft);
+}
+.sm-lib-empty {
+  margin: 0 4px;
+  font-size: 15px;
+  line-height: 21px;
+  color: var(--sm-ink-soft);
+}
+.sm-lib-empty--loose {
+  padding: 28px var(--sm-gutter) 0;
+  text-align: center;
+}
+
+/* Cocktails: square photos, two to a row */
+.sm-lib-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.sm-lib-tile {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-body);
+}
+.sm-lib-tile .sm-photo-caption {
+  right: 10px;
+  bottom: 10px;
+  left: 12px;
+}
+.sm-lib-tile .sm-photo-title {
+  font-size: 16px;
+  line-height: 20px;
+}
+.sm-lib-tile .sm-photo-sub {
+  font-size: 12px;
+}
+.sm-lib-hero {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  margin: 0 0 14px;
+  overflow: hidden;
+  border-radius: 18px;
+  background: var(--sm-pill);
+}
+.sm-lib-hero img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* A cocktail's spec, or a knowledge card, in its sheet */
+.sm-lib-spec {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  user-select: text;
+}
+.sm-lib-label {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sm-ink-soft);
+}
+.sm-lib-ingredients {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sm-lib-ingredients li {
+  padding: 8px 0;
+  font-size: 16px;
+  line-height: 21px;
+  font-weight: 600;
+}
+.sm-lib-ingredients li + li {
+  border-top: 1px solid var(--sm-sep);
+}
+.sm-lib-facts {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+.sm-lib-facts > div {
+  padding: 12px 16px;
+}
+.sm-lib-facts > div + div {
+  border-top: 1px solid var(--sm-sep);
+}
+.sm-lib-facts .sm-lib-label {
+  margin-bottom: 2px;
+}
+.sm-lib-facts dd {
+  margin: 0;
+  font-size: 16px;
+  line-height: 22px;
+}
+.sm-lib-tip {
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+/* Knowledge base rows and cards */
+.sm-kb-row {
+  min-height: 56px;
+}
+.sm-kb-title {
+  font-size: 16px;
+  line-height: 21px;
+  font-weight: 700;
+}
+.sm-kb-body {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+}
+.sm-kb-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sm-kb-facts li {
+  display: flex;
+  gap: 10px;
+  font-size: 15px;
+  line-height: 21px;
+}
+.sm-kb-facts svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: var(--sm-good);
+}
+.sm-kb-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sm-chip {
+    transition: none;
+  }
+}
+.sm-sheet:focus {
+  outline: none;
 }

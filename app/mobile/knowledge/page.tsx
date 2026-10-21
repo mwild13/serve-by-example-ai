@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// Phase B preview route — renders the dumb-UI skeleton so it can be viewed at
-// /mobile/knowledge. No auth/data wiring yet.
-export default function MobileKnowledgePage() {
-  return <KnowledgeBaseScreen />;
+// Opened from Learn, and from Home (?from=home), which decides the back button.
+export default async function MobileKnowledgePage({ searchParams }: { searchParams: Promise<{ from?: string }> }) {
+  const { from } = await searchParams;
+  return <KnowledgeBaseScreen fromHome={from === "home"} />;
 }

@@ -29,8 +29,8 @@ Every route lives under `app/mobile/<slug>/page.tsx`, and every `page.tsx` follo
 | `/mobile/challenges` | `ChallengesScreen.tsx` | All ten Challenges, see `CHALLENGES.md` |
 | `/mobile/recipe-order`, `/memory-test`, `/match-pairs`, `/menu-audit`, `/speed-round` | Their own screens | Challenges 1 to 5 |
 | `/mobile/challenge/<slug>` | `ChallengeScreen.tsx` | Challenges 6 onwards, on the shared game |
-| `/mobile/cocktails` | `CocktailLibraryScreen.tsx` | Cocktail library |
-| `/mobile/knowledge` | `KnowledgeBaseScreen.tsx` | Knowledge Base, 101 cards |
+| `/mobile/cocktails` | `CocktailLibraryScreen.tsx` | Cocktail library: square photos two to a row (Most common, then by style), search and style chips; a cocktail opens in a bottom sheet (`ui/Sheet.tsx`) kept in `?cocktail_id=`, so Home's cards open it and Back closes it. `?from=home` sets the back button |
+| `/mobile/knowledge` | `KnowledgeBaseScreen.tsx` | Knowledge base, 101 cards as rows by topic, with search and topic chips; a card opens in a bottom sheet. `?from=home` sets the back button |
 | `/mobile/badges` | `BadgesGalleryScreen.tsx` | Every badge, grouped by area, from Me |
 | `/mobile/onboarding` | `OnboardingDiagnosticScreen.tsx` | Skill check (placement) |
 | `/mobile/settings` | `SettingsScreen.tsx` | Grouped lists (`ui/parts.tsx` `Group`): account rows that open in place, email switches, shift days and reminder, appearance, language, Add to Home Screen, venue, billing, help, legal, reset and delete |

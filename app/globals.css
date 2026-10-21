@@ -282,9 +282,8 @@
      frame is width: 100%, so phones get the full screen width and tablets
      get a centered 520px column. It was clamp(360px, 92vw, 520px) until
      2026-10-11, which left a strip down both sides on every phone.
-     Referenced by MobileScreenShell.tsx and by BottomNav.tsx's fixed variant,
-     which centers against the viewport independently of any screen's shell
-     div. */
+     Referenced by the .sm-frame column and the fixed tab bar and nav bar,
+     which centre against the viewport independently of the screen. */
   --mobile-frame-max: 520px;
   /* Fluid type scale tuned to the phone width range (360-430px), not the
      marketing site's --fs-* tokens — those clamp against full viewport width

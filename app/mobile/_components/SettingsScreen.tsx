@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Check, ChevronRight } from "lucide-react";
 import Screen from "./ui/Screen";
+import Sheet from "./ui/Sheet";
 import { Group } from "./ui/parts";
 import InstallRow from "./InstallRow";
 import AppearancePicker from "./AppearancePicker";
@@ -116,36 +117,18 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 
 /** Asks before a notification is turned on. */
 function ConfirmSheet({ title, body, onConfirm, onClose }: { title: string; body: string; onConfirm: () => void; onClose: () => void }) {
-  const ref = useRef<HTMLDialogElement>(null);
-  const titleId = useId();
-  useEffect(() => {
-    const dialog = ref.current;
-    if (dialog && !dialog.open) dialog.showModal();
-  }, []);
   return (
-    <dialog
-      ref={ref}
-      className="sm-sheet sm-set-sheet"
-      aria-labelledby={titleId}
-      onClose={onClose}
-      onClick={(e) => {
-        if (e.target === ref.current) ref.current.close();
-      }}
-    >
-      <div className="sm-sheet-grabber" aria-hidden="true" />
-      <h2 id={titleId} className="sm-sheet-title">
-        {title}
-      </h2>
+    <Sheet title={title} onClose={onClose}>
       <p className="sm-set-sheet-body">{body}</p>
       <div className="sm-set-actions">
-        <button type="button" className="sm-btn sm-btn--secondary" onClick={() => ref.current?.close()}>
+        <button type="button" className="sm-btn sm-btn--secondary" onClick={onClose}>
           Cancel
         </button>
         <button type="button" className="sm-btn sm-btn--primary" onClick={onConfirm}>
           Yes, turn on
         </button>
       </div>
-    </dialog>
+    </Sheet>
   );
 }
 

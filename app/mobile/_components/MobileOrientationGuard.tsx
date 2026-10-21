@@ -10,7 +10,7 @@ import { RotateCcw } from "lucide-react";
 //
 // Phase 6 (2026-09-21) — this component is also the single mount point for
 // toggling `body.mobile-dark-shell` (app/globals.css) for the lifetime of
-// the /mobile route tree. MobileScreenShell's own dark background only
+// the /mobile route tree. The screen's own background (.sm-screen) only
 // covers the normal-paint case; it can't reach iOS Safari's elastic
 // overscroll (rubber-banding past the top/bottom reveals body's own
 // background, not any div inside it) or the home-indicator safe-area strip
