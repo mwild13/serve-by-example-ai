@@ -30,7 +30,7 @@ Three levels: **Learn** (modules), **Drill** (mixed practice), **Live Guest** (c
 | — | Live Guest tune-up | Strangers are "Guest" until they give a name; 3 or 4 replies; each guest line opens a door to a help not yet found; the reveal ticks off the helps | Live |
 | 14 | Live Guest voice | Push to talk: speak, check the words, send; each guest read aloud in their own Australian voice. No audio stored | Live |
 | 15 | Saturday Rush | A timed Saturday night shift in twelve calls, a bar-back to call, scored on the four dials. No AI | Live |
-| 16 | Team features | Manager Console "This Week": a team goal, a guest of the week, a printable briefing card. Team totals only | Live, migration to run |
+| 16 | Team features | Manager Console "This Week": a team goal, a guest of the week, a printable briefing card. Team totals only | Live |
 
 ## Migrations
 
@@ -39,7 +39,7 @@ All in `supabase/migrations/`, each with a rollback in `supabase/rollbacks/`. Ev
 | Migration | State |
 |---|---|
 | `20261020_question_engine.sql` to `20261028_saturday_rush.sql` | Run (the last four confirmed 2026-10-20) |
-| `20261029_team_week.sql` | **To run.** Until then, answers aren't logged for the team goal and briefing card, the Home card stays hidden, and saving a goal in This Week fails with "Could not save this week" |
+| `20261029_team_week.sql` | Run (confirmed 2026-10-21) |
 
 ## Settings and scheduled jobs
 
@@ -89,7 +89,7 @@ These need a real phone, the live OpenAI key or real team data. They are the own
 ## Open after the update
 
 - **Phase 9 pictures:** drawn by the owner in Claude Design from `docs/Rich Update/image-style-sheet.md`, then built in as SVG parts.
-- **Redesign the desktop staff dashboard** (`To_do_list.md`, Larger builds).
+- **Redesign the desktop staff dashboard:** done 2026-10-21, see `docs/handoff/2026-10-21-staff-desktop-handoff.md`.
 - **Show the manager who has shift reminders on** (`To_do_list.md`).
 - **Record what each AI call costs, and set an OpenAI spending limit** (`To_do_list.md`, Code next up).
 - **Role-based paths:** Stages 1 and 2 of that plan (less repetition, venue content) are what this update did. Stage 3 waits on the human test.

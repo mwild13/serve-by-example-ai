@@ -1,6 +1,6 @@
 # To Do
 
-Open items only. Finished work is recorded in `docs/handoff/2026-10-rich-update-handoff.md` (the Rich update, 2026-10-19 to 20), the earlier handoffs in `docs/handoff/`, and git history.
+Open items only. Finished work is recorded in `docs/handoff/2026-10-21-staff-desktop-handoff.md` (the staff desktop rebuild and docs clean-up), `docs/handoff/2026-10-rich-update-handoff.md` (the Rich update, 2026-10-19 to 20), the earlier handoffs in `docs/handoff/`, and git history.
 
 Regrouped on 2026-10-12 by who does the work and where. Background for the launch items is in `docs/handoff/2026-10-pre-launch-handoff.md`.
 
@@ -47,7 +47,8 @@ Nothing open. The five that were here were decided on 2026-10-12 (Part 13 of the
 
 ## 7. Larger builds
 
-- [ ] **Run two migrations** (owner, 2026-10-21): `supabase/migrations/20261030_module_descriptions_no_dashes.sql` and `20261031_challenges_ten.sql`. Until the second runs, challenges 6 to 10 don't save to the account.
+- [ ] **Read the new content** (owner, 2026-10-21): the 70 new Knowledge Base cards (end of `lib/knowledge-base.ts`) and challenges 6 to 10 (`lib/challenge-content.ts`). Written by Claude, not yet reviewed.
+- [ ] **Upgrade to Next.js 16** on its own branch, with `@opennextjs/cloudflare` bumped alongside. Clears the last npm audit finding (postcss, bundled in Next) and lets `build:cloudflare` drop `--dangerouslyUseUnsupportedNextVersion`, which is a stopgap since Next 15 passed its support date.
 - [ ] **Retake the staff screenshots** in `public/shots/`: they still show the desktop before the October 2026 redesign.
 - [ ] **Desktop baselines in the e2e suite** for Today, Modules, Challenges and My progress. Needs a fresh QA session first (`tests/e2e/.auth/state.json` is dead).
 
