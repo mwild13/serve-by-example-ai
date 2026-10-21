@@ -12,13 +12,16 @@ import {
   ScanSearch,
   Play,
   Check,
+  TextCursorInput,
+  MessageCircleQuestion,
 } from "lucide-react";
 import BottomNav from "./BottomNav";
 import MobileScreenShell from "./MobileScreenShell";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 import { TOTAL_CHALLENGES } from "@/lib/challenges";
+import { CHALLENGE_LIST, type ChallengeKind } from "@/lib/challenge-content";
 
-// Phase C file 05 — all 5 rows now route to a real game screen.
+// Phase C file 05: every row routes to a real game screen (10 since 2026-10-21).
 //
 // The Phase B mock's "14h 22m" countdown, "+150 XP earned today", and each
 // row's "Best: N XP" / star rating had no backing data — V3 has no XP system
@@ -38,6 +41,14 @@ export type ChallengeRow = {
   challengeIndex?: number;
 };
 
+const KIND_ICON: Record<ChallengeKind, typeof Clock> = {
+  sequence: ListOrdered,
+  fill: TextCursorInput,
+  match: LinkIcon,
+  spot: ScanSearch,
+  choice: MessageCircleQuestion,
+};
+
 // Exported so LearnHubScreen's MiniGamesSection can render a teaser slice of
 // the same 5 games without maintaining a second, divergence-prone copy.
 export const CHALLENGES: ChallengeRow[] = [
@@ -46,6 +57,14 @@ export const CHALLENGES: ChallengeRow[] = [
   { title: "Ingredient Match", description: "Pair custom ingredients with names", icon: LinkIcon, href: "/mobile/match-pairs", challengeIndex: 2 },
   { title: "Recipe Order", description: "Sequence sorting cocktail building process", icon: ListOrdered, href: "/mobile/recipe-order", challengeIndex: 0 },
   { title: "Menu Audit", description: "Spot the errors in seasonal menu listings", icon: ScanSearch, href: "/mobile/menu-audit", challengeIndex: 3 },
+  // Challenges 5 onwards play on the shared screen (ChallengeScreen.tsx).
+  ...CHALLENGE_LIST.filter((c) => c.index >= 5).map((c) => ({
+    title: c.title,
+    description: c.pitch,
+    icon: KIND_ICON[c.kind],
+    href: `/mobile/challenge/${c.slug}`,
+    challengeIndex: c.index,
+  })),
 ];
 
 export default function ChallengesScreen() {

@@ -1,125 +1,62 @@
-# Challenges — One-Stop Reference
+# Challenges: One-Stop Reference
 
-Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.md` wins. This is the single source of truth for the "Challenges" mini-game feature across **both** surfaces it exists on: the standalone Mobile build (`app/mobile/`) and the desktop staff dashboard (`app/dashboard/_components/`). Written so a future session can add new challenge types without re-deriving this from scratch.
+Companion to `CLAUDE.md`; where the two conflict, `CLAUDE.md` wins. Covers the Challenges mini-games on both surfaces: the staff desktop (`/dashboard`, nav id `challenges`) and the mobile app (`/mobile/challenges`). Rebuilt on 2026-10-21: ten challenges, kept as data.
 
-**Primary intent of this doc**: you (Mitchell) want to build additional challenges soon. Read §5 ("Adding a New Challenge") before writing any code — the app-layer count is now centralized in `lib/challenges.ts` (2026-09-11), but a hard DB constraint will still silently reject a 6th challenge unless migrated first, and the new game itself still needs building on both surfaces.
+## 1. What Challenges is
 
-## 1. What "Challenges" Is
+Ten one-minute, tap-to-answer games on bar, service and safety basics. They are separate from the module quizzes and the mastery engine (`docs/MASTERY_ENGINE.md`): no AI, no Elo. A challenge is right or wrong against its own answer key, and only completion is saved on the server.
 
-Five tap-based, no-typing interactive mini-games that quiz staff on hospitality knowledge (cocktail specs, service recovery, recipe sequencing). Distinct from **AI Arena** (GPT-scored written roleplay, see `STAFF_APP.md` §3) and the **40-module quiz/scenario system** (see `docs/MASTERY_ENGINE.md`) — Challenges do not touch OpenAI or the mastery/Elo engine at all. They are simple client-side correctness checks against a hardcoded answer key, with completion (not score) persisted server-side.
+## 2. Where the content lives
 
-There is currently **one fixed set of 5 challenges** (indices 0–4), each a different *game type*:
+All ten are in **`lib/challenge-content.ts`** (`CHALLENGE_LIST`). Each has an `index` (the number saved in `user_challenges.challenge_index`), a `slug`, an `area` (bar, service, safety) and one of five kinds:
 
-| Index | Game Type | Desktop file | Mobile file | Mobile display name / route |
-|---|---|---|---|---|
-| 0 | Sequence Sort | `challenges/SequenceSortGame.tsx` | `_components/SequenceSortScreen.tsx` | **Recipe Order** — `/mobile/recipe-order` |
-| 1 | Fill the Blank | `challenges/FillBlankGame.tsx` | `_components/FillBlankScreen.tsx` | **Memory Test** — `/mobile/memory-test` |
-| 2 | Match Pair | `challenges/MatchPairGame.tsx` | `_components/MatchPairsScreen.tsx` | **Ingredient Match** — `/mobile/match-pairs` |
-| 3 | Spot the Error | `challenges/SpotErrorGame.tsx` | `_components/SpotErrorScreen.tsx` | **Menu Audit** — `/mobile/menu-audit` |
-| 4 | Multiple Choice | `challenges/MultipleChoiceGame.tsx` | `_components/MultipleChoiceScreen.tsx` | **Speed Round** — `/mobile/speed-round` |
+| Kind | What the person does | Data |
+|---|---|---|
+| `sequence` | Taps steps into order | `steps` (right order), `shuffled` (shown order) |
+| `fill` | Taps a blank, then a word | `parts`, `answers`, `bank` |
+| `match` | Picks a left item, then its partner | `pairs`, `rightOrder` |
+| `spot` | Taps the one wrong line on a card | `lines`, one with `wrong: true` |
+| `choice` | Picks one of three options | `options`, one with `correct: true` |
 
-(Desktop paths are relative to `app/dashboard/_components/`, mobile paths relative to `app/mobile/`.)
+**An index never changes once shipped**, because completions are saved against it. Add new challenges at the end.
 
-**Important naming trap**: the game *type* name (used internally, in the DB comment, and on desktop) and the mobile *marketing* name are different strings for the same index. "Fill the Blank" (desktop label) and "Memory Test" (mobile label) are the same challenge (index 1) with the same hardcoded question. Don't assume a name match across surfaces — always cross-reference by index.
+`lib/challenge-content.test.ts` checks every challenge can be answered (one wrong line, one right option, a complete word bank and so on). `lib/no-dashes.test.ts` covers the file.
 
-## 2. Content — What Each Challenge Actually Asks
+## 3. How each surface plays them
 
-Content is **hardcoded per-component**, one single question per game type (not a question bank/pool). Mobile screens port the desktop content **verbatim** — same question text, same answer key, same explanation copy — just restyled to the dark mobile shell. This is confirmed in code comments (e.g. `SequenceSortScreen.tsx`: "real content ported verbatim from desktop's SequenceSortGame.tsx, not new domain content").
+**Shared game:** `components/challenges/ChallengeGame.tsx` renders any challenge and reports every answer through `onResult({ solved })`. A miss lets the person try again. Styles are the `sd-cg-*` rules in `app/styles/staff.css`, coloured by the `--sd-*` tokens, so the game follows the desktop's light and dark modes. On mobile it sits inside `.sd-on-mobile` (`app/globals.css`), which maps those tokens to the mobile palette.
 
-| Index | Question | Correct Answer | Explanation shown |
-|---|---|---|---|
-| 0 — Sequence Sort | "A Guinness, a Margarita, and a Pinot Grigio arrive simultaneously. What order do you build them?" | Start Guinness → build Margarita → pour wine → top Guinness | Guinness needs a two-stage pour (~90s settle) — start it first, build others while it settles, top it last. |
-| 1 — Fill the Blank | Reconstruct the Classic Daiquiri recipe (4 blanks) | `60ml` White Rum, `25ml` lime juice, `15ml` sugar syrup, served in a `chilled coupe` | Always use fresh lime — bottled juice alters acidity balance. |
-| 2 — Match Pair | Match cocktail → correct glassware | Margarita→Coupe, Old Fashioned→Rocks, Mojito→Highball | (no explanation banner; feedback is immediate per-pair) |
-| 3 — Spot the Error | Tap the wrong ingredient on a Classic Daiquiri recipe card | "25ml **Bottled** Lime Juice" is the error | Bottled juice has preservatives/citric acid that flatten flavour and alter acidity. |
-| 4 — Multiple Choice | Guest points out lipstick on their wine glass rim — what do you do? | "I'm so sorry, let me replace that immediately." | Always own the problem and replace immediately — don't deflect or wipe a soiled glass. |
+**Desktop:** `app/dashboard/_components/ChallengesPage.tsx`.
+- Today's challenge is on the green card. It's the first one not yet done, starting from a place that moves each day.
+- Your record sits beside it: how many are done, and your best run.
+- All ten appear below as tiles, filtered by area.
+- Any one can be played alone. "Play all 10 in a row" scores the run: a challenge counts only if it was right first time. The best run is saved on the device as `sbe-challenges-best-run`.
 
-Because content lives inline in each component as literal constants (`SEQUENCE_ITEMS`, `FILL_CORRECT`, `MATCH_CORRECT`, `SPOT_ITEMS`, `MC_OPTIONS`), there is **no CMS, no DB-backed question table, and no admin authoring UI** for Challenges content today. Editing a question means editing the component file directly, in both the desktop and mobile version if it should stay in sync.
+**Mobile:**
+- `app/mobile/_components/ChallengesScreen.tsx` lists all ten.
+- Challenges 0 to 4 keep their original screens: `/mobile/recipe-order`, `/memory-test`, `/match-pairs`, `/menu-audit` and `/speed-round`.
+  - Their content is a separate copy.
+  - Index 2 on mobile is a memory card game with different pairs.
+- Challenges 5 onwards open `/mobile/challenge/<slug>` (`ChallengeScreen.tsx`), which uses the shared game.
 
-## 3. Shared Chrome / Presentational Components
+## 4. Saving
 
-Each surface has its own presentational shell — they are **not shared components**, by design (desktop is light-theme, mobile is dark-theme):
+**Server write:** `POST /api/training/challenges/save` with `{ challengeIndex }`. It validates the index through `isValidChallengeIndex()` in `lib/challenges.ts` and upserts on `(user_id, challenge_index)`. Repeating it is harmless.
 
-- **Desktop**: `app/dashboard/_components/challenges/ChallengeCard.tsx` exports `ChallengeCard` (card shell with format label + title), `FeedbackBanner` (correct/incorrect banner), `ResetButton` ("Try Again").
-- **Mobile**: `app/mobile/_components/challenges/MobileChallengeChrome.tsx` exports `FeedbackBanner`, `TryAgainButton`, `CompletionCard` (with auto-scroll-into-view fix), and `mobileShellStyle` — restyled to `--*-mobile` CSS tokens, explicitly *not* a port of `ChallengeCard.tsx` (see file header comment).
-- Each game component (`onComplete?`, `onIncorrect?` props on desktop; a `useMarkChallengeComplete(index, isComplete)` hook on mobile) is otherwise self-contained — its own local `useState` for selection/checked/correct, no shared game engine or state machine.
+**Server read:** `GET /api/training/progress` returns `challengesCompleted` and `totalChallenges` (`TOTAL_CHALLENGES`, now 10).
 
-## 4. Data Flow & Persistence
+**Device copy:** both surfaces also write the index to `localStorage["sbe_challenges_completed"]`, which drives the per-challenge "Done" marks. It is per device, not per account.
 
-**Table**: `public.user_challenges` (`supabase/migrations/20260630_user_challenges.sql`, soft-delete columns added in `20260824_reset_progress_soft_delete.sql`).
+**Retries:** mobile queues a failed save and retries it (`app/mobile/_lib/retry-queue.ts`). Desktop sends it once and moves on.
 
-```sql
-CREATE TABLE public.user_challenges (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  challenge_index INTEGER NOT NULL CHECK (challenge_index >= 0 AND challenge_index <= 4),  -- ⚠️ hard 0–4 cap, see §5
-  completed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  archived_at TIMESTAMPTZ NULL,  -- added later; soft-delete marker for "reset progress"
-  UNIQUE(user_id, challenge_index)
-);
-```
+**Database:** the `user_challenges.challenge_index` CHECK allows 0 to 9 after `supabase/migrations/20261031_challenges_ten.sql`. Until that migration runs, saves for 5 to 9 fail on the server.
+- The device copy still marks them done.
+- Mobile keeps retrying the failed saves.
 
-RLS: plain own-row pattern (`auth.uid() = user_id`) — see `DATABASE_SCHEMA.md` "Pattern 1".
+## 5. Adding a challenge
 
-**Write path** — `POST /api/training/challenges/save` (`app/api/training/challenges/save/route.ts`):
-1. `getUserFromRequest(req)` → 401 if no user.
-2. Rate limited 20/min, dual user+IP (`lib/rate-limit.ts`).
-3. Validates `challengeIndex` via `isValidChallengeIndex()` (`lib/challenges.ts` — see §5, centralized 2026-09-11) — `400` if out of range. Widening the range still requires a DB migration (see §5.1), this just means the app-layer bound now lives in one file instead of being re-typed inline.
-4. Upserts on `(user_id, challenge_index)` via `createSupabaseAdminClient()` (bypasses RLS), setting `archived_at: null` — this is what *reactivates* a row a prior "reset progress" soft-deleted, rather than erroring on the unique constraint.
-5. It's a **pure completion flag**, not a score — no attempt count, no correctness-percentage, no timestamp history beyond the single `completed_at`. Replaying this endpoint for an already-completed index is a harmless no-op (this is why it's the one endpoint safe to put in the mobile retry queue — see below).
-
-**Read path** — `GET /api/training/progress` (`app/api/training/progress/route.ts`) computes:
-```ts
-challengesCompleted = challengesCompletedRows?.length ?? 0;  // count of non-archived rows
-totalChallenges = TOTAL_CHALLENGES;  // from lib/challenges.ts — see §5
-```
-This single endpoint backs the "N of 5 completed" summary on **both** the desktop `ProgressOverview.tsx` and mobile `ChallengesScreen.tsx` — same read path, one source of truth.
-
-**Desktop write flow** (`ChallengesPage.tsx`): plain cookie-session `fetch()`, no `Authorization` header — relies on the browser's Supabase session cookie, matching desktop's general auth pattern.
-
-**Mobile write flow** differs meaningfully and is worth understanding on its own — see `MOBILE_BUILD.md` §4 for the full mobile-specific data-layer writeup (session token propagation, the shared `useTrainingProgress()` cache, and the offline retry queue). In short: mobile sends `Authorization: Bearer <token>` (from `useMobileSession()`), and a failed/offline save is queued in `localStorage` (`retry-queue.ts`) and flushed automatically on reconnect — desktop has no equivalent retry mechanism.
-
-**Client-side completion cache**: both desktop and mobile *also* write the completed index into `localStorage["sbe_challenges_completed"]` (a JSON array of indices) as an instant-UI-feedback cache, independent of the server write. This is a deliberately shared, deliberately underscore-cased legacy key name — mobile's own new `retry-queue.ts` explicitly notes it kept the old naming here rather than switching to the house `sbe-` hyphenated convention, specifically so both surfaces read the same device-level completion state. Note this is **device-level, not account-level** — clearing browser storage or switching devices loses the local cache (though the server-side `user_challenges` table still has the real record, surfaced via the progress API on next fetch).
-
-## 5. Adding a New Challenge — Checklist
-
-**Update (2026-09-11): the app-layer "5" is now centralized.** `lib/challenges.ts` exports `TOTAL_CHALLENGES`, `MAX_CHALLENGE_INDEX`, and `isValidChallengeIndex()`, and every previously-independent literal now imports from it: the save-route validation, `totalChallenges` in the progress route, desktop's score/personal-best/"N of 5" display text (`ChallengesPage.tsx`, `ChallengeScoreBoard.tsx`), and mobile's fallback total (`ChallengesScreen.tsx`). `MiniGamesSection.tsx`'s "+2 more" teaser tile is also no longer a hardcoded string — it now computes `CHALLENGES.length - preview.length` and hides itself if that's ever `0`. This closes most of what used to be step-by-step manual hunting; steps 1, 4, and 5 below are still real work for a 6th challenge, but 2 and 3 are now one-line changes in `lib/challenges.ts` instead of a multi-file grep.
-
-To add a 6th challenge type (or beyond):
-
-1. **DB migration** (still separate, not centralized): `ALTER TABLE user_challenges DROP CONSTRAINT <name>, ADD CHECK (challenge_index >= 0 AND challenge_index <= N);` — the current `CHECK (challenge_index >= 0 AND challenge_index <= 4)` will reject any insert above 4 outright (Postgres constraint violation → the API's generic 500 "Failed to save challenge completion", not a helpful error). A JS-layer constant can't reach into Postgres, so this step can't be automated away.
-2. **Bump `TOTAL_CHALLENGES`** in `lib/challenges.ts` — this alone now updates the API validation range and every "N of 5" display string listed above.
-3. ~~`totalChallenges` constant~~ — covered by step 2.
-4. **Desktop wiring**: add the new game component under `app/dashboard/_components/challenges/`, following the existing pattern (`ChallengeGameProps` from `challenge-types.ts`, wrap in `ChallengeCard`, call `onComplete?.()` / `onIncorrect?.()`). Add its label to `STEP_LABELS` in `challenge-types.ts` (keep its length equal to `TOTAL_CHALLENGES`). Wire it into `ChallengesPage.tsx`'s phase/step switch (both the `quiz` render and the `reviewMode` review-all block) and the lobby's game-preview grid.
-5. **Mobile wiring**: add the new screen under `app/mobile/_components/`, using `useMarkChallengeComplete(index, isComplete)` and the shared `MobileChallengeChrome.tsx` exports for visual consistency. Add a route folder (`app/mobile/<slug>/page.tsx`) that just renders it, following the existing one-liner page pattern (see any of `recipe-order/page.tsx`, `speed-round/page.tsx`, etc.). Add an entry to the `CHALLENGES` array in `ChallengesScreen.tsx` — this single array is the shared source of truth also consumed by `MiniGamesSection.tsx`'s Learn Hub teaser (the "+N more" count is now derived automatically, per the update note above — no separate edit needed there).
-6. **Decide whether content is shared or mobile-only**. The existing 5 are content-identical across desktop/mobile by deliberate choice (ported "verbatim"). If new challenges are mobile-only (plausible, given the desktop dashboard is the older surface — see `MOBILE_BUILD.md`), that's a valid deviation from precedent, but write it down here once decided so a future session doesn't assume drift is a bug.
-
-## 6. How Each Surface Actually Renders Challenges
-
-Two surfaces exist; they are **not** the same code path. See `STAFF_APP.md` §2 and `MOBILE_BUILD.md` §1 for how the two relate.
-
-### a) Standalone Mobile build (`app/mobile/`) — primary target for future work
-- Entry: `/mobile/challenges` → `ChallengesScreen.tsx` — a lobby/hub screen listing all 5 games as rows (icon, title, marketing description, completion badge, Play/Replay button), reading completion counts from the shared `useTrainingProgress()` context.
-- Each game is its **own route** (`/mobile/recipe-order`, `/mobile/memory-test`, etc.) rendering a single screen component — not a wizard/stepper like desktop. No "start all 5 in sequence" flow exists on mobile; each is independently entered and exited (back to `/mobile/challenges` via `CompletionCard`'s "Back to Challenges" link).
-- A teaser of the first 3 games (`MiniGamesSection.tsx`) appears on the Learn Hub (`/mobile/learn`) with a "+N more" tile (count derived from `CHALLENGES.length`, not hardcoded) and "See all" link to the full hub.
-- This is the build you should extend — see `MOBILE_BUILD.md` for its full architecture.
-
-### b) Desktop dashboard (`app/dashboard/_components/`)
-- Entry: `challenges` nav item in `DashboardShell.tsx` → `ChallengesPage.tsx`.
-- Presented as a **single wizard**: lobby (preview grid of all 5 + "Start Challenges") → 5-step quiz (one `Stepper.tsx` dot per game, in fixed index order 0→4) → summary (`ChallengeScoreBoard.tsx` showing score out of 5, with a "Review all answers" mode that re-renders all 5 games read-only-ish with `onComplete={() => {}}`).
-- Tracks a client-only "personal best" score (`localStorage["sbe-challenges-best-score"]`) — **this is desktop-only**, mobile has no equivalent personal-best/score concept (mobile only tracks per-game completion, not a combined score run). Don't assume feature parity here.
-- Always available to every tier (not in `PREMIUM_NAV_ITEMS` — see `STAFF_APP.md` §1).
-
-## 7. Known Gaps / Things to Decide Before Building More
-
-- ~~Hardcoded "5" in multiple places~~ — **resolved 2026-09-11**, see §5's update note and `lib/challenges.ts`. The DB `CHECK` constraint is the one piece that still needs its own migration when the count actually changes; everything else now flows from one constant.
-- **No content authoring system** — every question is a literal in a `.tsx` file. If you're planning several new challenges, decide now whether that's still acceptable or whether it's worth moving question content to a small data file / DB table before multiplying the number of hardcoded copies.
-- **No question banks / randomization** — each challenge is exactly one fixed question. If "additional challenges" means more *variety within* a game type (e.g. 10 possible Sequence Sort scenarios, randomly picked) rather than more *game types*, that's a different, larger change (needs a content array + random/seeded selection per attempt + a decision on whether repeat completions re-roll).
-- **No retry-queue on desktop** — only the mobile build offline-queues a failed save (§4). If desktop is going to keep receiving new challenges, decide whether it also needs this resilience or whether desktop's simpler fire-and-forget is intentional going forward.
-
-## Related Docs
-
-- `MOBILE_BUILD.md` — full architecture of the new standalone Mobile build this feature primarily lives on.
-- `STAFF_APP.md` — the broader staff training platform this feature is one nav item within; §2 covers the two-mobile-systems split in general (not Challenges-specific).
-- `DATABASE_SCHEMA.md` — full table map and RLS pattern reference.
-- `docs/MASTERY_ENGINE.md` — the separate Elo/mastery scoring system Challenges deliberately does **not** write to (unlike Quiz, Scenario Training, and AI Arena).
+1. Add an entry to the end of `CHALLENGE_LIST` with the next index and a new slug.
+2. Bump `TOTAL_CHALLENGES` in `lib/challenges.ts`. The content file throws at load if the two disagree.
+3. Write a migration that widens the `challenge_index` CHECK. Hand it to the owner before releasing.
+4. Desktop and mobile pick the new challenge up automatically: the desktop page reads the list, and mobile rows for index 5 onwards are generated from it.
+5. Run `npm test`.

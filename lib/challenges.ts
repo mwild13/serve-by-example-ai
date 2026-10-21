@@ -2,14 +2,15 @@
 // their valid index range. Referenced by the save/progress API routes and
 // the desktop/mobile UIs so the count only needs to change in one place.
 //
-// This does NOT cover the DB layer — user_challenges.challenge_index has its
-// own CHECK (challenge_index >= 0 AND challenge_index <= 4) constraint
-// (supabase/migrations/20260630_user_challenges.sql) that must be widened
-// via a new migration when TOTAL_CHALLENGES changes. See docs/CHALLENGES.md
+// This does NOT cover the DB layer: user_challenges.challenge_index has its
+// own CHECK constraint, widened to 0 to 9 by
+// supabase/migrations/20261031_challenges_ten.sql, that needs a new
+// migration whenever TOTAL_CHALLENGES changes. The challenges themselves are
+// in lib/challenge-content.ts. See docs/CHALLENGES.md
 // §5 for the full "adding a new challenge" checklist — this file is step 3
 // of that checklist, not a replacement for the rest of it.
 
-export const TOTAL_CHALLENGES = 5;
+export const TOTAL_CHALLENGES = 10;
 const MIN_CHALLENGE_INDEX = 0;
 export const MAX_CHALLENGE_INDEX = TOTAL_CHALLENGES - 1;
 
