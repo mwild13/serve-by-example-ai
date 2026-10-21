@@ -57,7 +57,10 @@ All in one VS Code terminal (**Terminal**, then **New Terminal**). Paste one lin
    ```
    read -rs "SUPABASE_SERVICE_ROLE_KEY?Paste the secret key, then press Enter: " && export SUPABASE_SERVICE_ROLE_KEY && echo " Key set"
    ```
-4. Make sure the QA account is ready (only needed the first time, or if step 5 says it isn't):
+4. **Skip this step** unless step 5 says the QA account doesn't exist or hasn't finished onboarding. The account is already set up. Repairing it sets a new password for it, typed the same hidden way as the key, then runs the repair:
+   ```
+   read -rs "E2E_TEST_PASSWORD?Type a new QA password, then press Enter: " && export E2E_TEST_PASSWORD && echo " Password set"
+   ```
    ```
    node scripts/e2e/provision-qa-account.mjs
    ```
