@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, CheckCircle2 } from "lucide-react";
-import MobileScreenShell from "./MobileScreenShell";
+import { CheckCircle2 } from "lucide-react";
+import Screen from "./ui/Screen";
+import { ButtonLink } from "./ui/parts";
 import { useMobileSession } from "../_lib/mobile-session-context";
 
 // Mobile bugfix pass (2026-09-02) — Settings > Support > "Contact support"
@@ -13,35 +13,12 @@ import { useMobileSession } from "../_lib/mobile-session-context";
 // copy, posting to the same POST /api/contact route the marketing page
 // uses, same full-screen shell + success state pattern as
 // ReportBugScreen.tsx, so mobile users never leave the app.
+// Redesign phase 6: on the mobile frame, styles in the sm-form rules of
+// app/styles/staff.css.
 
 const VENUE_TYPES = ["Bar / Pub", "Restaurant", "Hotel F&B", "Events venue", "Other"];
 
-const inputStyle: React.CSSProperties = {
-  padding: "10px 12px",
-  borderRadius: "var(--radius-sm)",
-  background: "var(--surface-mobile-alt)",
-  border: "1px solid var(--border-mobile)",
-  color: "var(--text-mobile)",
-  fontFamily: "var(--font-body)",
-  fontSize: 14,
-  outline: "none",
-};
-
-function BackHeader({ onBack }: { onBack: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onBack}
-      style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", padding: 0, cursor: "pointer" }}
-    >
-      <ArrowLeft size={24} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
-      <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-mobile-muted)", textTransform: "uppercase" }}>Settings</span>
-    </button>
-  );
-}
-
 export default function ContactSupportScreen() {
-  const router = useRouter();
   const session = useMobileSession();
   const [name, setName] = useState(session.displayName ?? "");
   const [email, setEmail] = useState(session.userEmail ?? "");
@@ -72,163 +49,95 @@ export default function ContactSupportScreen() {
     }
   }
 
+  const back = { href: "/mobile/settings", label: "Settings" };
+
   if (status === "sent") {
     return (
-      <MobileScreenShell>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 20px 16px" }}>
-          <BackHeader onBack={() => router.back()} />
+      <Screen title="Contact support" back={back}>
+        <div className="sm-form">
+          <div className="sm-card sm-form-done" role="status">
+            <CheckCircle2 size={44} strokeWidth={1.8} aria-hidden="true" />
+            <h2 className="sm-card-title">Message sent</h2>
+            <p className="sm-card-sub">
+              Thanks. We&apos;ll be in touch within one business day. You can also email{" "}
+              <a href="mailto:info@servebyexample.co" className="sm-inline-link">
+                info@servebyexample.co
+              </a>
+              .
+            </p>
+            <ButtonLink href="/mobile/settings" variant="primary">
+              Back to Settings
+            </ButtonLink>
+          </div>
         </div>
-        <div style={{ display: "flex", flex: 1, flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, padding: "0 32px 80px", textAlign: "center" }}>
-          <CheckCircle2 size={48} strokeWidth={1.5} color="var(--gold-mobile)" aria-hidden="true" />
-          <p style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "var(--text-mobile)" }}>Message sent</p>
-          <p style={{ margin: 0, fontSize: 14, lineHeight: "22px", color: "var(--text-mobile-muted)" }}>
-            Thanks. We&apos;ll be in touch within one business day. You can also reach us any time at{" "}
-            <a href="mailto:info@servebyexample.co" style={{ color: "var(--gold-mobile)", fontWeight: 600 }}>
-              info@servebyexample.co
-            </a>
-            .
-          </p>
-          <button
-            type="button"
-            onClick={() => router.push("/mobile/settings")}
-            style={{
-              marginTop: 8,
-              padding: "10px 20px",
-              borderRadius: "var(--radius-pill)",
-              border: "none",
-              background: "var(--gold-mobile)",
-              color: "var(--bg-mobile-dark)",
-              fontFamily: "var(--font-body)",
-              fontSize: 13,
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
-          >
-            Back to Settings
-          </button>
-        </div>
-      </MobileScreenShell>
+      </Screen>
     );
   }
 
   return (
-    <MobileScreenShell>
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 20px 16px" }}>
-        <BackHeader onBack={() => router.back()} />
-        <p style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "var(--text-mobile)" }}>Contact support</p>
-        <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>
-          Questions, partnership enquiries, or just want to see if we&apos;re a fit, we&apos;d love to hear from
-          you.
+    <Screen title="Contact support" back={back}>
+      <form onSubmit={handleSubmit} className="sm-form">
+        <p className="sm-form-lead">
+          Questions about the app, your plan or your venue. Or email{" "}
+          <a href="mailto:info@servebyexample.co" className="sm-inline-link">
+            info@servebyexample.co
+          </a>
+          ; we reply within one business day.
         </p>
-      </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "0 20px 20px" }}>
-        <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--text-mobile)" }}>Direct email</p>
-        <a href="mailto:info@servebyexample.co" style={{ fontSize: 14, fontWeight: 600, color: "var(--gold-mobile)" }}>
-          info@servebyexample.co
-        </a>
-        <p style={{ margin: 0, fontSize: 13, lineHeight: "20px", color: "var(--text-mobile-muted)" }}>
-          We reply to all enquiries within one business day.
-        </p>
-      </div>
-
-      <div style={{ height: 1, background: "var(--border-mobile)", margin: "0 20px 20px" }} />
-
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16, padding: "0 20px 40px" }}>
-        <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--text-mobile)" }}>Send a message</p>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-mobile-muted)" }}>Your name</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Smith" required style={inputStyle} />
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-mobile-muted)" }}>Email address</label>
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-            placeholder="jane@yourvenue.com"
-            required
-            style={inputStyle}
-          />
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-mobile-muted)" }}>
-            Venue name <span style={{ fontWeight: 400, opacity: 0.7 }}>(optional)</span>
+        <div className="sm-card sm-form-card">
+          <label className="sm-field">
+            <span className="sm-field-label">Your name</span>
+            <input className="sm-input" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" required />
           </label>
-          <input value={venueName} onChange={(e) => setVenueName(e.target.value)} placeholder="The Crown Hotel" style={inputStyle} />
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-mobile-muted)" }}>
-            Venue type <span style={{ fontWeight: 400, opacity: 0.7 }}>(optional)</span>
+          <label className="sm-field">
+            <span className="sm-field-label">Email</span>
+            <input className="sm-input" value={email} onChange={(e) => setEmail(e.target.value)} type="email" autoComplete="email" inputMode="email" required />
           </label>
-          <select value={venueType} onChange={(e) => setVenueType(e.target.value)} style={inputStyle}>
-            <option value="">Select a type</option>
-            {VENUE_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
+          <label className="sm-field">
+            <span className="sm-field-label">Venue name (optional)</span>
+            <input className="sm-input" value={venueName} onChange={(e) => setVenueName(e.target.value)} />
+          </label>
+          <label className="sm-field">
+            <span className="sm-field-label">Venue type (optional)</span>
+            <select className="sm-input sm-select" value={venueType} onChange={(e) => setVenueType(e.target.value)}>
+              <option value="">Choose a type</option>
+              {VENUE_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="sm-field">
+            <span className="sm-field-label">Message</span>
+            <textarea
+              className="sm-input sm-textarea"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="How can we help?"
+              required
+              rows={5}
+            />
+          </label>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-mobile-muted)" }}>Message</label>
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Tell us about your team and what you're looking for..."
-            required
-            rows={5}
-            style={{ ...inputStyle, resize: "vertical" }}
-          />
-        </div>
-
-        {/* Honeypot — hidden from real users, bots tend to fill every field.
-            Phase 6 fix (2026-09-21): was `position: absolute; left: -9999`,
-            which genuinely widened the document past the viewport on this
-            route (iOS Safari could be dragged/panned) instead of just being
-            visually hidden. Reuse the same safe pattern app/(marketing)/contact/page.tsx
-            already uses. */}
+        {/* Honeypot: hidden from people, bots tend to fill every field.
+            sr-only-hp, not an off-screen position, which once widened the
+            page past the screen on iPhone. */}
         <div className="sr-only-hp" aria-hidden="true">
           <label htmlFor="mobile-contact-website">Website</label>
           <input id="mobile-contact-website" type="text" value={website} onChange={(e) => setWebsite(e.target.value)} tabIndex={-1} autoComplete="off" />
         </div>
 
-        {error && <p style={{ margin: 0, fontSize: 12, color: "var(--red-mobile)" }}>{error}</p>}
-
-        <button
-          type="submit"
-          disabled={status === "sending"}
-          style={{
-            padding: "12px 20px",
-            borderRadius: "var(--radius-pill)",
-            border: "none",
-            background: "var(--gold-mobile)",
-            color: "var(--bg-mobile-dark)",
-            fontFamily: "var(--font-body)",
-            fontSize: 14,
-            fontWeight: 700,
-            cursor: status === "sending" ? "default" : "pointer",
-            opacity: status === "sending" ? 0.7 : 1,
-          }}
-        >
+        {error && (
+          <p className="sm-set-error" role="alert">
+            {error}
+          </p>
+        )}
+        <button type="submit" className="sm-btn sm-btn--primary sm-btn--block" disabled={status === "sending"}>
           {status === "sending" ? "Sending…" : "Send message"}
         </button>
       </form>
-
-      <div style={{ height: 1, background: "var(--border-mobile)", margin: "0 20px 20px" }} />
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "0 20px 40px" }}>
-        <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--text-mobile)" }}>For venues &amp; groups</p>
-        <p style={{ margin: 0, fontSize: 13, lineHeight: "20px", color: "var(--text-mobile-muted)" }}>
-          Looking to onboard your whole team? Visit our For Venues page to explore multi-staff plans and venue
-          rollout options.
-        </p>
-      </div>
-    </MobileScreenShell>
+    </Screen>
   );
 }

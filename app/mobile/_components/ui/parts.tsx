@@ -58,6 +58,36 @@ export function StackCard({ label, labelEnd, title, body, children }: { label: s
   );
 }
 
+/**
+ * A grouped list, as in iPhone Settings: a small-capitals title above the
+ * card, rows inside it, and an optional line under it.
+ */
+export function Group({
+  id,
+  title,
+  foot,
+  footTone,
+  children,
+}: {
+  id?: string;
+  title?: string;
+  foot?: string;
+  footTone?: "good" | "alarm";
+  children: ReactNode;
+}) {
+  return (
+    <section id={id} className="sm-group" aria-label={title}>
+      {title && <h2 className="sm-group-title">{title}</h2>}
+      <div className="sm-card sm-rows">{children}</div>
+      {foot && (
+        <p className={`sm-group-foot${footTone ? ` sm-group-foot--${footTone}` : ""}`} role={footTone === "alarm" ? "alert" : undefined}>
+          {foot}
+        </p>
+      )}
+    </section>
+  );
+}
+
 export function RowList({ children }: { children: ReactNode }) {
   return <div className="sm-card sm-rows">{children}</div>;
 }
@@ -107,15 +137,21 @@ function initials(name: string): string {
   return ((parts[0]?.[0] ?? "") + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase() || "?";
 }
 
+/** The photo, or initials when there's none, in its gold ring. Size it with a class. */
+export function AvatarFace({ name, photoUrl, size, className }: { name: string; photoUrl: string | null; size: number; className?: string }) {
+  return (
+    <span className={`sm-avatar-face${className ? ` ${className}` : ""}`}>
+      {photoUrl ? <Image src={photoUrl} alt="" width={size} height={size} unoptimized /> : initials(name)}
+    </span>
+  );
+}
+
 /** The person's photo or initials in a gold ring, with the shift streak on it. */
 export function Avatar({ name, photoUrl, streak, small }: { name: string; photoUrl: string | null; streak?: number | null; small?: boolean }) {
-  const size = small ? 32 : 46;
   const label = streak != null ? `Your profile. Shift streak: ${streak}` : "Your profile";
   return (
     <Link href="/mobile/progress" className={`sm-avatar${small ? " sm-avatar--small" : ""}`} aria-label={label}>
-      <span className="sm-avatar-face">
-        {photoUrl ? <Image src={photoUrl} alt="" width={size} height={size} unoptimized /> : initials(name)}
-      </span>
+      <AvatarFace name={name} photoUrl={photoUrl} size={small ? 32 : 46} />
       {streak != null && (
         <span className="sm-streak">
           {!small && <FlameIcon />}

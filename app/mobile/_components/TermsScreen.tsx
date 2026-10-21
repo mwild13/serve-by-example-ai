@@ -1,8 +1,4 @@
-"use client";
-
-import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
-import MobileScreenShell from "./MobileScreenShell";
+import Screen from "./ui/Screen";
 import { LegalSection, LegalParagraph, LegalList, LegalDivider, LegalEmailLink } from "./LegalProse";
 
 // Mobile bugfix pass (2026-09-02) — Settings > Support > "Terms of Service"
@@ -13,24 +9,11 @@ import { LegalSection, LegalParagraph, LegalList, LegalDivider, LegalEmailLink }
 // both in sync if the terms are ever updated.
 
 export default function TermsScreen() {
-  const router = useRouter();
-
   return (
-    <MobileScreenShell>
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 20px 16px" }}>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", padding: 0, cursor: "pointer" }}
-        >
-          <ArrowLeft size={24} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
-          <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-mobile-muted)", textTransform: "uppercase" }}>Settings</span>
-        </button>
-        <p style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "var(--text-mobile)" }}>Terms of Service</p>
-        <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>Last updated: 26 April 2026</p>
-      </div>
+    <Screen title="Terms of Service" back={{ href: "/mobile/settings", label: "Settings" }}>
+      <p className="sm-legal-date">Last updated: 26 April 2026</p>
 
-      <div style={{ padding: "0 20px 20px" }}>
+      <div className="sm-legal-intro">
         <LegalParagraph>
           Please read these Terms of Service (&ldquo;Terms&rdquo;) carefully before using the Serve By Example
           platform (&ldquo;Service&rdquo;). By accessing or using the Service, you confirm your acceptance of
@@ -203,6 +186,6 @@ export default function TermsScreen() {
           Email: <LegalEmailLink />
         </LegalParagraph>
       </LegalSection>
-    </MobileScreenShell>
+    </Screen>
   );
 }

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, CheckCircle2 } from "lucide-react";
-import MobileScreenShell from "./MobileScreenShell";
+import { CheckCircle2 } from "lucide-react";
+import Screen from "./ui/Screen";
+import { ButtonLink } from "./ui/parts";
 import { useMobileSession } from "../_lib/mobile-session-context";
 
 // Mobile notifications + bug-report pass (2026-08-25) — Settings > Support >
@@ -11,9 +11,10 @@ import { useMobileSession } from "../_lib/mobile-session-context";
 // full-screen dark shell as HelpScreen.tsx / SettingsScreen.tsx. Posts to
 // POST /api/report-bug, which emails info@servebyexample.co — see that
 // route for the send-only (no DB row) pattern, matching app/api/contact.
+// Redesign phase 6: on the mobile frame, styles in the sm-form rules of
+// app/styles/staff.css.
 
 export default function ReportBugScreen() {
-  const router = useRouter();
   const session = useMobileSession();
   const [screen, setScreen] = useState("");
   const [description, setDescription] = useState("");
@@ -43,132 +44,60 @@ export default function ReportBugScreen() {
     }
   }
 
+  const back = { href: "/mobile/settings", label: "Settings" };
+
   if (status === "sent") {
     return (
-      <MobileScreenShell>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 20px 16px" }}>
-          <button
-            type="button"
-            onClick={() => router.back()}
-            style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", padding: 0, cursor: "pointer" }}
-          >
-            <ArrowLeft size={24} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-mobile-muted)", textTransform: "uppercase" }}>Settings</span>
-          </button>
+      <Screen title="Report a bug" back={back}>
+        <div className="sm-form">
+          <div className="sm-card sm-form-done" role="status">
+            <CheckCircle2 size={44} strokeWidth={1.8} aria-hidden="true" />
+            <h2 className="sm-card-title">Thanks for letting us know</h2>
+            <p className="sm-card-sub">
+              We&apos;ll look at it within 24 to 48 hours. Need help sooner? Email{" "}
+              <a href="mailto:info@servebyexample.co" className="sm-inline-link">
+                info@servebyexample.co
+              </a>
+              .
+            </p>
+            <ButtonLink href="/mobile/settings" variant="primary">
+              Back to Settings
+            </ButtonLink>
+          </div>
         </div>
-        <div style={{ display: "flex", flex: 1, flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, padding: "0 32px 80px", textAlign: "center" }}>
-          <CheckCircle2 size={48} strokeWidth={1.5} color="var(--gold-mobile)" aria-hidden="true" />
-          <p style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "var(--text-mobile)" }}>Thanks for letting us know</p>
-          <p style={{ margin: 0, fontSize: 14, lineHeight: "22px", color: "var(--text-mobile-muted)" }}>
-            Our team will get this fixed within 24 to 48 hours. If you need help sooner or have any further questions, reach us
-            any time at{" "}
-            <a href="mailto:info@servebyexample.co" style={{ color: "var(--gold-mobile)", fontWeight: 600 }}>
-              info@servebyexample.co
-            </a>
-            .
-          </p>
-          <button
-            type="button"
-            onClick={() => router.push("/mobile/settings")}
-            style={{
-              marginTop: 8,
-              padding: "10px 20px",
-              borderRadius: "var(--radius-pill)",
-              border: "none",
-              background: "var(--gold-mobile)",
-              color: "var(--bg-mobile-dark)",
-              fontFamily: "var(--font-body)",
-              fontSize: 13,
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
-          >
-            Back to Settings
-          </button>
-        </div>
-      </MobileScreenShell>
+      </Screen>
     );
   }
 
   return (
-    <MobileScreenShell>
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 20px 16px" }}>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", padding: 0, cursor: "pointer" }}
-        >
-          <ArrowLeft size={24} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
-          <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-mobile-muted)", textTransform: "uppercase" }}>Settings</span>
-        </button>
-        <p style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "var(--text-mobile)" }}>Report a Bug</p>
-        <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>
-          Found something broken or confusing? Tell us what happened and our team will take a look.
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16, padding: "0 20px 40px" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-mobile-muted)" }}>Which screen? (optional)</label>
-          <input
-            value={screen}
-            onChange={(e) => setScreen(e.target.value)}
-            placeholder="e.g. Modules, Live Guest, Me page"
-            style={{
-              padding: "10px 12px",
-              borderRadius: "var(--radius-sm)",
-              background: "var(--surface-mobile-alt)",
-              border: "1px solid var(--border-mobile)",
-              color: "var(--text-mobile)",
-              fontFamily: "var(--font-body)",
-              fontSize: 14,
-              outline: "none",
-            }}
-          />
+    <Screen title="Report a bug" back={back}>
+      <form onSubmit={handleSubmit} className="sm-form">
+        <p className="sm-form-lead">Something broken or confusing? Tell us what happened and we&apos;ll take a look.</p>
+        <div className="sm-card sm-form-card">
+          <label className="sm-field">
+            <span className="sm-field-label">Which screen? (optional)</span>
+            <input className="sm-input" value={screen} onChange={(e) => setScreen(e.target.value)} placeholder="Learn, Live Guest, Me" />
+          </label>
+          <label className="sm-field">
+            <span className="sm-field-label">What went wrong?</span>
+            <textarea
+              className="sm-input sm-textarea"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="What happened, what you expected, and the steps to make it happen again."
+              rows={7}
+            />
+          </label>
         </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-mobile-muted)" }}>What&apos;s wrong?</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Tell us what happened, what you expected instead, and any steps to reproduce it."
-            rows={7}
-            style={{
-              padding: "10px 12px",
-              borderRadius: "var(--radius-sm)",
-              background: "var(--surface-mobile-alt)",
-              border: "1px solid var(--border-mobile)",
-              color: "var(--text-mobile)",
-              fontFamily: "var(--font-body)",
-              fontSize: 14,
-              outline: "none",
-              resize: "vertical",
-            }}
-          />
-        </div>
-
-        {error && <p style={{ margin: 0, fontSize: 12, color: "var(--red-mobile)" }}>{error}</p>}
-
-        <button
-          type="submit"
-          disabled={status === "sending"}
-          style={{
-            padding: "12px 20px",
-            borderRadius: "var(--radius-pill)",
-            border: "none",
-            background: "var(--gold-mobile)",
-            color: "var(--bg-mobile-dark)",
-            fontFamily: "var(--font-body)",
-            fontSize: 14,
-            fontWeight: 700,
-            cursor: status === "sending" ? "default" : "pointer",
-            opacity: status === "sending" ? 0.7 : 1,
-          }}
-        >
-          {status === "sending" ? "Sending…" : "Submit Report"}
+        {error && (
+          <p className="sm-set-error" role="alert">
+            {error}
+          </p>
+        )}
+        <button type="submit" className="sm-btn sm-btn--primary sm-btn--block" disabled={status === "sending"}>
+          {status === "sending" ? "Sending…" : "Send report"}
         </button>
       </form>
-    </MobileScreenShell>
+    </Screen>
   );
 }

@@ -2,10 +2,9 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Camera, Image as GalleryIcon, Loader2, Minus, Plus, RotateCcw } from "lucide-react";
-import MobileScreenShell from "./MobileScreenShell";
+import { Camera, Image as GalleryIcon, Loader2, Minus, Plus, RotateCcw } from "lucide-react";
+import Screen from "./ui/Screen";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import {
   BACKGROUND_STYLES,
@@ -30,6 +29,10 @@ import {
 // No localStorage draft cache (unlike the old screen) — background removal
 // is ~1s, so losing an unsaved preview to back-navigation and re-running it
 // is an acceptable, cheap cost, not a wasted expensive generation.
+//
+// Redesign phase 6: on the mobile frame (ui/Screen), opened from Me and
+// Settings. Back steps back through the stages before leaving; saving goes
+// to Me. Styles: the sm-photoedit rules in app/styles/staff.css.
 
 type Stage = "idle" | "cropping" | "capturing" | "removingBackground" | "previewingComposite" | "saving";
 
@@ -449,7 +452,7 @@ export default function PhotoUploadScreen() {
       // server layout in the background.
       if (typeof data.url === "string") session.setProfilePhotoUrl(data.url);
       router.refresh();
-      router.push("/mobile/home");
+      router.push("/mobile/progress");
     } catch (err) {
       setStage("previewingComposite");
       setErrorMsg(err instanceof Error ? err.message : "Couldn't save your photo. Please try again.");
@@ -471,427 +474,144 @@ export default function PhotoUploadScreen() {
 
   const isBusy = stage === "removingBackground" || stage === "saving";
 
-  return (
-    <MobileScreenShell style={{ justifyContent: "space-between" }}>
-      <div style={{ display: "flex", flexDirection: "column", gap: 14, width: "100%" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px 0" }}>
-          <button
-            type="button"
-            aria-label="Back"
-            onClick={handleBack}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: 10,
-              borderRadius: "var(--radius-pill)",
-              background: "var(--surface-mobile)",
-              border: "1px solid var(--border-mobile)",
-              cursor: "pointer",
-            }}
-          >
-            <ArrowLeft size={16} strokeWidth={2} color="var(--text-mobile)" aria-hidden="true" />
-          </button>
-        </div>
+  const hint =
+    stage === "previewingComposite" || stage === "saving"
+      ? "Pick a background. You can switch any time before saving."
+      : stage === "cropping"
+        ? "Crop to head and shoulders, with your face in the middle."
+        : stage === "capturing"
+          ? "Fit your face inside the oval."
+          : "Take a photo or choose one from your photos.";
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "4px 24px 0" }}>
-          <p style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "var(--text-mobile)" }}>Your Profile Photo</p>
-          <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>
-            {stage === "previewingComposite" || stage === "saving"
-              ? "Pick a background. You can switch anytime before saving"
-              : stage === "cropping"
-                ? "Crop to head and shoulders, with your face centered"
-                : "Take a photo or choose one from your gallery"}
-          </p>
-        </div>
+  return (
+    <Screen title="Profile photo" back={{ href: "/mobile/progress", label: "Back", onClick: handleBack }}>
+      <div className="sm-photoedit">
+        <p className="sm-photoedit-hint">{hint}</p>
 
         {errorMsg && (
-          <p style={{ margin: "0 24px", fontSize: 12, color: "var(--red-mobile)", textAlign: "center" }}>
+          <p className="sm-photoedit-error" role="alert">
             {errorMsg}
           </p>
         )}
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleGallerySelect}
-          style={{ display: "none" }}
-        />
+        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleGallerySelect} hidden />
 
         {stage === "idle" && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20, padding: "8px 24px" }}>
-            <div
-              style={{
-                width: 176,
-                height: 176,
-                borderRadius: "var(--radius-pill)",
-                border: "2px solid var(--gold-mobile)",
-                boxShadow: "0px 8px 24px 0px rgba(242, 175, 52, 0.2)",
-                overflow: "hidden",
-                position: "relative",
-                background: "var(--surface-mobile)",
-              }}
-            >
-              {session.profilePhotoUrl && (
-                <Image src={session.profilePhotoUrl} alt="Current profile photo" fill style={{ objectFit: "cover" }} unoptimized />
+          <>
+            <div className="sm-photoedit-current">
+              {session.profilePhotoUrl ? (
+                <Image src={session.profilePhotoUrl} alt="Your profile photo now" fill style={{ objectFit: "cover" }} unoptimized />
+              ) : (
+                <Camera size={40} strokeWidth={1.8} aria-hidden="true" />
               )}
             </div>
-
-            <div style={{ display: "flex", gap: 12, width: "100%" }}>
-              <button
-                type="button"
-                onClick={startCamera}
-                disabled={remaining <= 0}
-                style={{
-                  flex: 1,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  padding: "14px 0",
-                  borderRadius: "var(--radius-pill)",
-                  background: "var(--gold-mobile)",
-                  border: "none",
-                  cursor: remaining <= 0 ? "not-allowed" : "pointer",
-                  opacity: remaining <= 0 ? 0.6 : 1,
-                }}
-              >
-                <Camera size={16} strokeWidth={2} color="var(--bg-mobile-dark)" aria-hidden="true" />
-                <span style={{ fontSize: 14, fontWeight: 700, color: "var(--bg-mobile-dark)" }}>Take Photo</span>
+            <div className="sm-photoedit-actions">
+              <button type="button" className="sm-btn sm-btn--primary" onClick={startCamera} disabled={remaining <= 0}>
+                <Camera size={18} strokeWidth={2.4} aria-hidden="true" />
+                Take photo
               </button>
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={remaining <= 0}
-                style={{
-                  flex: 1,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  padding: "14px 0",
-                  borderRadius: "var(--radius-pill)",
-                  background: "none",
-                  border: "1px solid var(--border-mobile)",
-                  cursor: remaining <= 0 ? "not-allowed" : "pointer",
-                  opacity: remaining <= 0 ? 0.6 : 1,
-                }}
-              >
-                <GalleryIcon size={16} strokeWidth={2} color="var(--text-mobile)" aria-hidden="true" />
-                <span style={{ fontSize: 14, fontWeight: 600, color: "var(--text-mobile)" }}>Gallery</span>
+              <button type="button" className="sm-btn sm-btn--secondary" onClick={() => fileInputRef.current?.click()} disabled={remaining <= 0}>
+                <GalleryIcon size={18} strokeWidth={2.4} aria-hidden="true" />
+                Library
               </button>
             </div>
-
-            <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>
+            <p className="sm-photoedit-note">
               {remaining <= 0 ? "No photo edits left today" : `${remaining} photo edit${remaining === 1 ? "" : "s"} left today`}
             </p>
-          </div>
+          </>
         )}
 
         {stage === "cropping" && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "0 24px" }}>
+          <>
             <div
               ref={cropContainerRef}
+              className="sm-photoedit-frame sm-photoedit-crop"
               onPointerDown={handleCropPointerDown}
               onPointerMove={handleCropPointerMove}
               onPointerUp={handleCropPointerUp}
               onPointerCancel={handleCropPointerUp}
-              style={{
-                position: "relative",
-                width: "100%",
-                maxWidth: 280,
-                aspectRatio: "1 / 1",
-                borderRadius: "var(--radius-lg)",
-                overflow: "hidden",
-                border: "2px solid var(--gold-mobile)",
-                background: "var(--bg-mobile-dark)",
-                touchAction: "none",
-                cursor: "grab",
-              }}
             >
-              <canvas ref={cropCanvasRef} style={{ width: "100%", height: "100%", display: "block" }} />
-              <div style={{ position: "absolute", bottom: 10, right: 10, display: "flex", flexDirection: "column", gap: 6 }}>
-                <button
-                  type="button"
-                  aria-label="Zoom in"
-                  onClick={() => handleCropZoomBy(0.25)}
-                  style={{
-                    width: 30,
-                    height: 30,
-                    borderRadius: "var(--radius-pill)",
-                    background: "rgba(11, 13, 22, 0.75)",
-                    border: "1px solid var(--border-mobile)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                  }}
-                >
-                  <Plus size={14} strokeWidth={2} color="var(--text-mobile)" aria-hidden="true" />
+              <canvas ref={cropCanvasRef} />
+              <div className="sm-photoedit-zoom">
+                <button type="button" aria-label="Zoom in" onClick={() => handleCropZoomBy(0.25)}>
+                  <Plus size={18} strokeWidth={2.4} aria-hidden="true" />
                 </button>
-                <button
-                  type="button"
-                  aria-label="Zoom out"
-                  onClick={() => handleCropZoomBy(-0.25)}
-                  style={{
-                    width: 30,
-                    height: 30,
-                    borderRadius: "var(--radius-pill)",
-                    background: "rgba(11, 13, 22, 0.75)",
-                    border: "1px solid var(--border-mobile)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                  }}
-                >
-                  <Minus size={14} strokeWidth={2} color="var(--text-mobile)" aria-hidden="true" />
+                <button type="button" aria-label="Zoom out" onClick={() => handleCropZoomBy(-0.25)}>
+                  <Minus size={18} strokeWidth={2.4} aria-hidden="true" />
                 </button>
               </div>
             </div>
-            <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)", textAlign: "center" }}>
-              Pinch to zoom, drag to reposition.
-            </p>
-          </div>
+            <p className="sm-photoedit-note">Pinch to zoom, drag to move it.</p>
+            <div className="sm-photoedit-actions">
+              <button type="button" className="sm-btn sm-btn--secondary" onClick={handleChooseDifferentPhoto}>
+                Choose another
+              </button>
+              <button type="button" className="sm-btn sm-btn--primary" onClick={handleConfirmCrop}>
+                Looks good
+              </button>
+            </div>
+          </>
         )}
 
         {stage === "capturing" && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "0 24px", gap: 16 }}>
-            <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", borderRadius: "var(--radius-lg)", overflow: "hidden", background: "var(--bg-mobile-dark)" }}>
+          <>
+            <div className="sm-photoedit-frame sm-photoedit-camera">
               {/* Mirrored like a phone's own selfie camera: moving left
-                  moves the picture left. Unmirrored, the front camera
-                  feels reversed. handleShutter mirrors the capture to
-                  match. */}
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                style={{ width: "100%", height: "100%", objectFit: "cover", transform: "scaleX(-1)" }}
-              />
-              {/* Face framing guide: an oval about 1 : 1.3. The box-shadow
-                  dims everything outside it. */}
-              <div
-                aria-hidden="true"
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  margin: "auto",
-                  width: "56%",
-                  height: "74%",
-                  borderRadius: "50%",
-                  boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.6)",
-                  border: "2px solid rgba(255, 255, 255, 0.85)",
-                  pointerEvents: "none",
-                }}
-              />
+                  moves the picture left. handleShutter mirrors the capture
+                  to match. */}
+              <video ref={videoRef} autoPlay playsInline muted />
+              {/* Face guide: an oval about 1 : 1.3, everything outside it dimmed. */}
+              <div className="sm-photoedit-oval" aria-hidden="true" />
             </div>
-            <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)", textAlign: "center" }}>
-              Fit your face inside the oval
-            </p>
-            <button
-              type="button"
-              aria-label="Take photo"
-              onClick={handleShutter}
-              style={{
-                width: 64,
-                height: 64,
-                borderRadius: "var(--radius-pill)",
-                background: "var(--gold-mobile)",
-                border: "4px solid var(--bg-mobile-dark)",
-                boxShadow: "0 0 0 2px var(--gold-mobile)",
-                cursor: "pointer",
-              }}
-            />
-          </div>
+            <button type="button" aria-label="Take photo" className="sm-photoedit-shutter" onClick={handleShutter} />
+          </>
         )}
 
         {stage === "removingBackground" && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 24px", gap: 12 }}>
-            <Loader2 size={28} className="mobile-spin" color="var(--gold-mobile)" aria-hidden="true" />
-            <span style={{ fontSize: 13, color: "var(--text-mobile-muted)" }}>Removing background...</span>
+          <div className="sm-photoedit-wait" role="status">
+            <Loader2 size={28} className="mobile-spin" aria-hidden="true" />
+            Removing the background
           </div>
         )}
 
         {(stage === "previewingComposite" || stage === "saving") && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "0 24px" }}>
-            <div style={{ width: "100%", maxWidth: 280, aspectRatio: "1 / 1", borderRadius: "var(--radius-lg)", overflow: "hidden", border: "2px solid var(--gold-mobile)" }}>
-              <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block" }} />
+          <>
+            <div className="sm-photoedit-frame">
+              <canvas ref={canvasRef} />
             </div>
-
-            <div style={{ display: "flex", gap: 10, overflowX: "auto", width: "100%", padding: "2px 0" }}>
+            <div className="sm-photoedit-styles" role="radiogroup" aria-label="Background">
               {BACKGROUND_STYLES.map((style) => {
                 const isSelected = style.id === selectedStyle;
                 return (
                   <button
                     key={style.id}
                     type="button"
-                    aria-pressed={isSelected}
+                    role="radio"
+                    aria-checked={isSelected}
                     disabled={isBusy}
+                    className="sm-photoedit-style"
                     onClick={() => handleSelectStyle(style.id)}
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      gap: 6,
-                      width: 72,
-                      flexShrink: 0,
-                      background: "none",
-                      border: "none",
-                      padding: 0,
-                      cursor: isBusy ? "not-allowed" : "pointer",
-                    }}
                   >
-                    <div
-                      style={{
-                        width: 60,
-                        height: 60,
-                        borderRadius: "var(--radius-md)",
-                        border: isSelected ? "2px solid var(--gold-mobile)" : "1px solid var(--border-mobile)",
-                        overflow: "hidden",
-                        position: "relative",
-                      }}
-                    >
+                    <span className="sm-photoedit-swatch">
                       <Image src={style.src} alt="" fill style={{ objectFit: "cover" }} />
-                    </div>
-                    <p
-                      style={{
-                        margin: 0,
-                        fontSize: 10,
-                        fontWeight: isSelected ? 600 : 400,
-                        color: isSelected ? "var(--gold-mobile)" : "var(--text-mobile-muted)",
-                        textAlign: "center",
-                      }}
-                    >
-                      {style.label}
-                    </p>
+                    </span>
+                    {style.label}
                   </button>
                 );
               })}
             </div>
-          </div>
-        )}
-      </div>
-
-      {(stage === "cropping" || stage === "previewingComposite" || stage === "saving") && (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 12,
-            padding: "14px 24px",
-            background: "var(--surface-mobile)",
-            borderTop: "1px solid var(--border-mobile)",
-            borderTopLeftRadius: "var(--radius-xl)",
-            borderTopRightRadius: "var(--radius-xl)",
-          }}
-        >
-          {stage === "cropping" ? (
-            <div style={{ display: "flex", gap: 12 }}>
-              <button
-                type="button"
-                onClick={handleChooseDifferentPhoto}
-                style={{
-                  flex: 1,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: "14px 0",
-                  borderRadius: "var(--radius-pill)",
-                  background: "none",
-                  border: "1px solid var(--border-mobile)",
-                  cursor: "pointer",
-                }}
-              >
-                <span style={{ fontSize: 15, fontWeight: 600, color: "var(--text-mobile)" }}>Choose Different Photo</span>
+            <div className="sm-photoedit-actions">
+              <button type="button" className="sm-btn sm-btn--secondary" onClick={handleRetake} disabled={stage === "saving"}>
+                <RotateCcw size={18} strokeWidth={2.4} aria-hidden="true" />
+                Retake
               </button>
-              <button
-                type="button"
-                onClick={handleConfirmCrop}
-                style={{
-                  flex: 1,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: "14px 0",
-                  borderRadius: "var(--radius-pill)",
-                  background: "var(--gold-mobile)",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                <span style={{ fontSize: 15, fontWeight: 700, color: "var(--bg-mobile-dark)" }}>Looks Good</span>
+              <button type="button" className="sm-btn sm-btn--primary" onClick={handleSave} disabled={stage === "saving"}>
+                {stage === "saving" ? "Saving…" : "Save photo"}
               </button>
             </div>
-          ) : (
-          <div style={{ display: "flex", gap: 12 }}>
-            <button
-              type="button"
-              onClick={handleRetake}
-              disabled={stage === "saving"}
-              style={{
-                flex: 1,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-                padding: "14px 0",
-                borderRadius: "var(--radius-pill)",
-                background: "none",
-                border: "1px solid var(--border-mobile)",
-                cursor: stage === "saving" ? "not-allowed" : "pointer",
-                opacity: stage === "saving" ? 0.6 : 1,
-              }}
-            >
-              <RotateCcw size={16} strokeWidth={2} color="var(--text-mobile)" aria-hidden="true" />
-              <span style={{ fontSize: 15, fontWeight: 600, color: "var(--text-mobile)" }}>Retake</span>
-            </button>
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={stage === "saving"}
-              style={{
-                flex: 1,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "14px 0",
-                borderRadius: "var(--radius-pill)",
-                background: "var(--gold-mobile)",
-                border: "none",
-                cursor: stage === "saving" ? "not-allowed" : "pointer",
-                opacity: stage === "saving" ? 0.6 : 1,
-              }}
-            >
-              <span style={{ fontSize: 15, fontWeight: 700, color: "var(--bg-mobile-dark)" }}>
-                {stage === "saving" ? "Saving..." : "Save Photo"}
-              </span>
-            </button>
-          </div>
-          )}
-        </div>
-      )}
-
-      {stage === "idle" && (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "14px 24px" }}>
-          <Link
-            href="/mobile/home"
-            style={{
-              background: "none",
-              border: "none",
-              padding: 0,
-              fontFamily: "var(--font-body)",
-              fontSize: 13,
-              fontWeight: 600,
-              color: "var(--text-mobile-muted)",
-              textDecoration: "underline",
-            }}
-          >
-            Skip for now
-          </Link>
-        </div>
-      )}
-    </MobileScreenShell>
+          </>
+        )}
+      </div>
+    </Screen>
   );
 }

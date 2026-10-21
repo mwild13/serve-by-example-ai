@@ -1,171 +1,151 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  User,
-  Bell,
-  Globe,
-  Building2,
-  AlertTriangle,
-  CreditCard,
-  LogOut,
-  ChevronRight,
-  Check,
-  SunMoon,
-} from "lucide-react";
-import MobileScreenShell from "./MobileScreenShell";
+import { useRouter } from "next/navigation";
+import { Check, ChevronRight } from "lucide-react";
+import Screen from "./ui/Screen";
+import { Group } from "./ui/parts";
 import InstallRow from "./InstallRow";
 import AppearancePicker from "./AppearancePicker";
+import ShiftDays, { ShiftReminder } from "@/components/quiz/ShiftDays";
 import { useMobileSession } from "../_lib/mobile-session-context";
+import { useGetToken } from "../_lib/use-staff";
+import { useStaffData } from "@/lib/staff-cache";
+import { STAFF_KEYS, loadShiftStreak } from "@/lib/staff-data";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { normalizeVenueCode } from "@/lib/venue-code";
 import { openBillingPortal } from "@/lib/billing-portal";
 
-// Mobile bug-fix plan, Phase 3a — the Me page's settings icon used to be a
-// dead button with no route. This is that route's real content.
+// Settings, from Me. Redesign phase 6 (docs/STAFF_MOBILE_REDESIGN_PLAN.md):
+// grouped lists as in iPhone Settings. A row that edits something opens in
+// place, one at a time; switches turn notifications on and off. Styles: the
+// sm-group and sm-set rules in app/styles/staff.css.
 //
-// Reused patterns rather than reinvented:
-// - Sign out: same supabase.auth.signOut() -> redirect flow as
-//   components/ui/SignOutButton.tsx.
-// - Display name: same POST /api/profile/update-name as the legacy
-//   StaffSettingsPanel (app/dashboard/_components/DashboardShell.tsx).
-// - Email/password: same supabase.auth.updateUser() calls as that panel —
-//   Auth API calls, not raw table writes, so calling them client-side is
-//   fine per CLAUDE.md's API-route rule (that rule is about DB table
-//   reads/writes, not Supabase Auth itself).
-// - Notifications: unlike the legacy panel (which wrote profiles directly
-//   from the client), this goes through a new PATCH /api/profile/
-//   notifications route — the legacy direct-write pattern predates this
-//   app tree's stricter "always go through an API route" convention and
-//   isn't repeated here.
-// - Language: reuses the existing LanguageSwitcher component as-is
-//   (variant="drawer") rather than duplicating its 19-language list.
-// - Join venue: same POST /api/management/join-venue body shape the
-//   existing route already expects.
-// - Reset progress: new — see app/api/profile/reset-progress/route.ts and
-//   20260824_reset_progress_soft_delete.sql for why this is a soft-delete,
-//   not a hard one. Requires typing RESET before the button enables, since
-//   this is genuinely irreversible from the user's side.
-//
-// Deliberately NOT included: a dark-mode toggle. The entire /mobile app
-// already renders unconditionally on --bg-mobile-dark with no light theme
-// implemented anywhere in this tree — a toggle here would have nothing to
-// switch to.
-// - Delete account (to-do 2026-10-02, Phase 1): same type-to-confirm shape
-//   as Reset progress, with the phrase also checked server-side. See
-//   app/api/profile/delete/route.ts for what is deleted vs kept and why
-//   subscribers and venue owners get a 409 message instead.
+// Where each thing is saved:
+// - Display name: POST /api/profile/update-name, as on desktop.
+// - Email and password: supabase.auth.updateUser(). Auth API calls, not
+//   table writes, so they are fine from the client (CLAUDE.md's API-route
+//   rule is about table reads and writes).
+// - Notifications: GET and PATCH /api/profile/notifications. Both start off;
+//   turning one on asks first, because each sends real email, and the route
+//   adds the address to the Brevo list and sends a confirmation.
+// - Language: the shared LanguageSwitcher (variant="drawer").
+// - Join venue: POST /api/management/join-venue. The manager's sign-up link
+//   (/dashboard?join=CODE) is forwarded here on a phone by middleware.ts and
+//   joined on arrival.
+// - Reset progress: POST /api/profile/reset-progress, a soft delete (see
+//   20260824_reset_progress_soft_delete.sql). Typing RESET enables it.
+// - Delete account: POST /api/profile/delete, typing DELETE, checked on the
+//   server too. Subscribers and venue owners get a 409 with the reason.
+// - Appearance: this device only (AppearancePicker, lib/mobile-theme.ts).
+// - Shift days and the reminder time: the shared pickers from the drill's
+//   finish (components/quiz/ShiftDays.tsx), PUT /api/training/shift-streak.
 
-function SectionCard({ id, title, icon: Icon, children }: { id?: string; title: string; icon: React.ElementType; children: React.ReactNode }) {
+type Editing = "name" | "email" | "password" | "venue" | "reset" | "delete" | null;
+
+/** A row that opens a small form under itself. */
+function EditRow({
+  label,
+  value,
+  open,
+  onToggle,
+  danger,
+  children,
+}: {
+  label: string;
+  value?: string;
+  open: boolean;
+  onToggle: () => void;
+  danger?: boolean;
+  children: ReactNode;
+}) {
+  const id = useId();
   return (
-    <div id={id} style={{ display: "flex", flexDirection: "column", gap: 12, padding: "0 20px 20px", scrollMarginTop: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Icon size={16} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
-        <p style={{ margin: 0, fontSize: 13, fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--text-mobile-muted)" }}>
-          {title}
-        </p>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 14,
-          padding: 16,
-          borderRadius: "var(--radius-lg)",
-          background: "var(--surface-mobile)",
-          border: "1px solid var(--border-mobile)",
-        }}
+    <>
+      <button
+        type="button"
+        className={`sm-row sm-set-row${danger ? " sm-set-row--danger" : ""}`}
+        aria-expanded={open}
+        aria-controls={id}
+        onClick={onToggle}
       >
-        {children}
-      </div>
-    </div>
+        <span className="sm-set-label">{label}</span>
+        {value && <span className="sm-set-value">{value}</span>}
+        <ChevronRight className={`sm-chevron sm-set-chevron${open ? " is-open" : ""}`} size={20} strokeWidth={2.6} aria-hidden="true" />
+      </button>
+      {open && (
+        <div id={id} className="sm-set-edit">
+          {children}
+        </div>
+      )}
+    </>
   );
 }
 
-const inputStyle: React.CSSProperties = {
-  padding: "10px 12px",
-  borderRadius: "var(--radius-sm)",
-  background: "var(--surface-mobile-alt)",
-  border: "1px solid var(--border-mobile)",
-  color: "var(--text-mobile)",
-  fontFamily: "var(--font-body)",
-  fontSize: 14,
-  outline: "none",
-};
-
-const primaryButtonStyle: React.CSSProperties = {
-  padding: "10px 16px",
-  borderRadius: "var(--radius-pill)",
-  border: "none",
-  background: "var(--gold-mobile)",
-  color: "var(--bg-mobile-dark)",
-  fontFamily: "var(--font-body)",
-  fontSize: 13,
-  fontWeight: 700,
-  cursor: "pointer",
-  alignSelf: "flex-start",
-};
-
-function ToggleRow({
-  label,
-  checked,
-  onChange,
-  disabled,
-}: {
-  label: string;
-  checked: boolean;
-  onChange: (next: boolean) => void;
-  disabled?: boolean;
-}) {
+/** An iPhone-style switch with its label. */
+function SwitchRow({ label, sub, checked, onChange, disabled }: { label: string; sub: string; checked: boolean; onChange: (next: boolean) => void; disabled?: boolean }) {
   return (
     <button
       type="button"
-      onClick={() => !disabled && onChange(!checked)}
+      role="switch"
+      aria-checked={checked}
+      className="sm-row sm-set-row"
       disabled={disabled}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        background: "none",
-        border: "none",
-        padding: 0,
-        cursor: disabled ? "default" : "pointer",
-        font: "inherit",
-        textAlign: "left",
-        opacity: disabled ? 0.6 : 1,
+      onClick={() => onChange(!checked)}
+    >
+      <span className="sm-row-text">
+        <span className="sm-set-label">{label}</span>
+        <span className="sm-row-sub">{sub}</span>
+      </span>
+      <span className="sm-switch" aria-hidden="true" />
+    </button>
+  );
+}
+
+/** A labelled text box. */
+function Field({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <label className="sm-field">
+      <span className="sm-field-label">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+/** Asks before a notification is turned on. */
+function ConfirmSheet({ title, body, onConfirm, onClose }: { title: string; body: string; onConfirm: () => void; onClose: () => void }) {
+  const ref = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
+  useEffect(() => {
+    const dialog = ref.current;
+    if (dialog && !dialog.open) dialog.showModal();
+  }, []);
+  return (
+    <dialog
+      ref={ref}
+      className="sm-sheet sm-set-sheet"
+      aria-labelledby={titleId}
+      onClose={onClose}
+      onClick={(e) => {
+        if (e.target === ref.current) ref.current.close();
       }}
     >
-      <span style={{ fontSize: 14, color: "var(--text-mobile)" }}>{label}</span>
-      <span
-        style={{
-          position: "relative",
-          width: 40,
-          height: 22,
-          borderRadius: "var(--radius-pill)",
-          background: checked ? "var(--gold-mobile)" : "var(--surface-mobile-alt)",
-          border: "1px solid var(--border-mobile)",
-          flexShrink: 0,
-          transition: "background 150ms ease",
-        }}
-      >
-        <span
-          style={{
-            position: "absolute",
-            top: 2,
-            left: checked ? 20 : 2,
-            width: 16,
-            height: 16,
-            borderRadius: "var(--radius-pill)",
-            background: checked ? "var(--bg-mobile-dark)" : "var(--text-mobile-muted)",
-            transition: "left 150ms ease",
-          }}
-        />
-      </span>
-    </button>
+      <div className="sm-sheet-grabber" aria-hidden="true" />
+      <h2 id={titleId} className="sm-sheet-title">
+        {title}
+      </h2>
+      <p className="sm-set-sheet-body">{body}</p>
+      <div className="sm-set-actions">
+        <button type="button" className="sm-btn sm-btn--secondary" onClick={() => ref.current?.close()}>
+          Cancel
+        </button>
+        <button type="button" className="sm-btn sm-btn--primary" onClick={onConfirm}>
+          Yes, turn on
+        </button>
+      </div>
+    </dialog>
   );
 }
 
@@ -173,6 +153,10 @@ export default function SettingsScreen() {
   const session = useMobileSession();
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
+  const getToken = useGetToken();
+  const { data: streak, set: setStreak } = useStaffData(STAFF_KEYS.shiftStreak, loadShiftStreak, getToken);
+  const [editing, setEditing] = useState<Editing>(null);
+  const toggle = (which: Exclude<Editing, null>) => setEditing((current) => (current === which ? null : which));
 
   // ── Display name ──
   const [displayName, setDisplayName] = useState(session.displayName);
@@ -290,7 +274,6 @@ export default function SettingsScreen() {
   const [venueMessage, setVenueMessage] = useState<string | null>(null);
 
   // ── Reset progress ──
-  const [resetOpen, setResetOpen] = useState(false);
   const [resetConfirmText, setResetConfirmText] = useState("");
   const [resetStatus, setResetStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
 
@@ -309,7 +292,6 @@ export default function SettingsScreen() {
   }
 
   // ── Delete account ──
-  const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deleteStatus, setDeleteStatus] = useState<"idle" | "saving" | "error">("idle");
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -459,375 +441,201 @@ export default function SettingsScreen() {
     router.refresh();
   }
 
+  const nameLabel = nameStatus === "saving" ? "Saving…" : nameStatus === "saved" ? "Saved" : "Save name";
+  const emailLabel = emailStatus === "saving" ? "Saving…" : emailStatus === "saved" ? "Check your inbox to confirm" : "Update email";
+  const passwordLabel = passwordStatus === "saving" ? "Saving…" : passwordStatus === "saved" ? "Password updated" : "Update password";
+
   return (
-    <MobileScreenShell>
-      {/* header */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 20px 16px" }}>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", padding: 0, cursor: "pointer" }}
-        >
-          <ArrowLeft size={24} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
-          <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-mobile-muted)", textTransform: "uppercase" }}>Me</span>
-        </button>
-        <p style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "var(--text-mobile)" }}>Settings</p>
-      </div>
+    <Screen title="Settings" back={{ href: "/mobile/progress", label: "Me" }}>
+      <div className="sm-set">
+        <Group title="Account">
+          <EditRow label="Name" value={displayName} open={editing === "name"} onToggle={() => toggle("name")}>
+            <Field label="Display name">
+              <input className="sm-input" value={displayName} onChange={(e) => setDisplayName(e.target.value)} autoComplete="name" />
+            </Field>
+            <button type="button" className="sm-btn sm-btn--primary" onClick={handleSaveName} disabled={nameStatus === "saving"}>
+              {nameLabel}
+            </button>
+            {nameStatus === "error" && <p className="sm-set-error">Couldn&apos;t save your name. Try again.</p>}
+          </EditRow>
+          <EditRow label="Email" value={session.userEmail} open={editing === "email"} onToggle={() => toggle("email")}>
+            <Field label="Email">
+              <input className="sm-input" value={email} onChange={(e) => setEmail(e.target.value)} type="email" autoComplete="email" inputMode="email" />
+            </Field>
+            <button type="button" className="sm-btn sm-btn--primary" onClick={handleSaveEmail} disabled={emailStatus === "saving"}>
+              {emailLabel}
+            </button>
+            {emailStatus === "error" && <p className="sm-set-error">Couldn&apos;t update your email.</p>}
+          </EditRow>
+          <EditRow label="Password" value="Change" open={editing === "password"} onToggle={() => toggle("password")}>
+            <Field label="New password">
+              <input className="sm-input" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} type="password" autoComplete="new-password" />
+            </Field>
+            <Field label="Confirm password">
+              <input className="sm-input" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} type="password" autoComplete="new-password" />
+            </Field>
+            {passwordError && <p className="sm-set-error">{passwordError}</p>}
+            {passwordStatus === "error" && <p className="sm-set-error">Couldn&apos;t update your password.</p>}
+            <button type="button" className="sm-btn sm-btn--primary" onClick={handleSavePassword} disabled={passwordStatus === "saving"}>
+              {passwordLabel}
+            </button>
+          </EditRow>
+          <SetLink href="/mobile/ai-photo" label="Profile photo" value={session.profilePhotoUrl ? "Change" : "Add"} />
+        </Group>
 
-      {/* Account */}
-      <SectionCard title="Account" icon={User}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-mobile-muted)" }}>Display name</label>
-          <div style={{ display: "flex", gap: 8 }}>
-            <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} style={{ ...inputStyle, flex: 1 }} />
-          </div>
-          <button type="button" onClick={handleSaveName} disabled={nameStatus === "saving"} style={primaryButtonStyle}>
-            {nameStatus === "saving" ? "Saving…" : nameStatus === "saved" ? "Saved" : "Save name"}
-          </button>
-        </div>
+        <Group id="notifications" title="Email" foot="Off until you turn them on. Turn them off again any time.">
+          <SwitchRow
+            label="Training reminders"
+            sub="Sunday night, ready for the week"
+            checked={notifReminders}
+            disabled={!notifLoaded}
+            onChange={(next) => handleNotifToggle("reminders", next)}
+          />
+          <SwitchRow
+            label="Weekly progress digest"
+            sub="Monday morning"
+            checked={notifWeeklyDigest}
+            disabled={!notifLoaded}
+            onChange={(next) => handleNotifToggle("digest", next)}
+          />
+        </Group>
 
-        <div style={{ height: 1, background: "var(--border-mobile)" }} />
+        {confirmingNotif && (
+          <ConfirmSheet
+            title={confirmingNotif === "digest" ? "Turn on the weekly digest?" : "Turn on training reminders?"}
+            body={`${
+              confirmingNotif === "digest"
+                ? `A short email on your progress every Monday morning, sent to ${session.userEmail}.`
+                : `A reminder email every Sunday night to get ready for the week ahead, sent to ${session.userEmail}.`
+            } You can turn it off again any time.`}
+            onConfirm={confirmNotifOptIn}
+            onClose={() => setConfirmingNotif(null)}
+          />
+        )}
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-mobile-muted)" }}>Email</label>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" style={inputStyle} />
-          <button type="button" onClick={handleSaveEmail} disabled={emailStatus === "saving"} style={primaryButtonStyle}>
-            {emailStatus === "saving" ? "Saving…" : emailStatus === "saved" ? "Check your inbox to confirm" : "Update email"}
-          </button>
-          {emailStatus === "error" && <p style={{ margin: 0, fontSize: 12, color: "var(--red-mobile)" }}>Couldn&apos;t update email.</p>}
-        </div>
-
-        <div style={{ height: 1, background: "var(--border-mobile)" }} />
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-mobile-muted)" }}>Change password</label>
-          <input value={newPassword} onChange={(e) => setNewPassword(e.target.value)} type="password" placeholder="New password" style={inputStyle} />
-          <input value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} type="password" placeholder="Confirm password" style={inputStyle} />
-          {passwordError && <p style={{ margin: 0, fontSize: 12, color: "var(--red-mobile)" }}>{passwordError}</p>}
-          <button type="button" onClick={handleSavePassword} disabled={passwordStatus === "saving"} style={primaryButtonStyle}>
-            {passwordStatus === "saving" ? "Saving…" : passwordStatus === "saved" ? "Password updated" : "Update password"}
-          </button>
-        </div>
-
-        <div style={{ height: 1, background: "var(--border-mobile)" }} />
-
-        <Link href="/mobile/ai-photo" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", textDecoration: "none" }}>
-          <span style={{ fontSize: 14, color: "var(--text-mobile)" }}>Profile photo</span>
-          <ChevronRight size={16} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
-        </Link>
-      </SectionCard>
-
-      {/* Notifications */}
-      <SectionCard id="notifications" title="Notifications" icon={Bell}>
-        <ToggleRow label="Training reminders" checked={notifReminders} disabled={!notifLoaded} onChange={(next) => handleNotifToggle("reminders", next)} />
-        <ToggleRow label="Weekly progress digest" checked={notifWeeklyDigest} disabled={!notifLoaded} onChange={(next) => handleNotifToggle("digest", next)} />
-      </SectionCard>
-
-      {confirmingNotif && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 60,
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "center",
-            background: "rgba(0,0,0,0.55)",
-          }}
-          onClick={() => setConfirmingNotif(null)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              width: "100%",
-              maxWidth: "var(--mobile-frame-max)",
-              display: "flex",
-              flexDirection: "column",
-              gap: 14,
-              padding: "24px 20px calc(24px + env(safe-area-inset-bottom, 0px))",
-              borderTopLeftRadius: "var(--radius-lg)",
-              borderTopRightRadius: "var(--radius-lg)",
-              background: "var(--surface-mobile)",
-              border: "1px solid var(--border-mobile)",
-              borderBottom: "none",
-            }}
-          >
-            <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--text-mobile)" }}>
-              {confirmingNotif === "digest" ? "Turn on weekly progress digest?" : "Turn on training reminders?"}
-            </p>
-            <p style={{ margin: 0, fontSize: 13, lineHeight: "20px", color: "var(--text-mobile-muted)" }}>
-              {confirmingNotif === "digest"
-                ? `You'll get a short email summary of your progress every Monday morning, sent to ${session.userEmail}.`
-                : `You'll get a training reminder email every Sunday night to help you get ready for the week ahead, sent to ${session.userEmail}.`}
-              {" "}You can turn this off again any time.
-            </p>
-            <div style={{ display: "flex", gap: 10 }}>
-              <button
-                type="button"
-                onClick={() => setConfirmingNotif(null)}
-                style={{
-                  flex: 1,
-                  padding: "11px 16px",
-                  borderRadius: "var(--radius-pill)",
-                  border: "1px solid var(--border-mobile)",
-                  background: "none",
-                  color: "var(--text-mobile)",
-                  fontFamily: "var(--font-body)",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
-                Cancel
-              </button>
-              <button type="button" onClick={confirmNotifOptIn} style={{ ...primaryButtonStyle, flex: 1, alignSelf: "auto", textAlign: "center" }}>
-                Yes, turn on
-              </button>
+        {streak && (
+          <Group title="Shifts">
+            <div className="sm-row sm-set-row sm-set-stack sm-set-shifts">
+              <ShiftDays streak={streak} getToken={getToken} onSaved={setStreak} />
             </div>
+            <div className="sm-row sm-set-row sm-set-stack sm-set-shifts">
+              <ShiftReminder streak={streak} getToken={getToken} onSaved={setStreak} />
+            </div>
+          </Group>
+        )}
+
+        <Group title="This phone" foot="Appearance is saved on this phone only.">
+          <div className="sm-row sm-set-row sm-set-stack">
+            <span className="sm-set-label">Appearance</span>
+            <AppearancePicker />
           </div>
-        </div>
-      )}
+          <div className="sm-row sm-set-row sm-set-lang">
+            <span className="sm-set-label">Language</span>
+            <LanguageSwitcher variant="drawer" />
+          </div>
+          <InstallRow />
+        </Group>
 
-      <SectionCard title="Appearance" icon={SunMoon}>
-        <AppearancePicker />
-      </SectionCard>
-
-      {/* Language */}
-      <SectionCard title="Language" icon={Globe}>
-        <LanguageSwitcher variant="drawer" />
-      </SectionCard>
-
-      {/* Venue */}
-      <SectionCard title="Venue" icon={Building2}>
-        {session.hasVenueMembership ? (
-          <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile)" }}>
-            {session.venueMembershipPaused ? "Your venue access is currently paused." : "You're linked to a venue team."}
-          </p>
-        ) : (
-          <>
-            <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-mobile-muted)" }}>Join a venue by code</label>
-            <div style={{ display: "flex", gap: 8 }}>
-              <input value={venueCode} onChange={(e) => setVenueCode(e.target.value.toUpperCase())} autoCapitalize="characters" autoComplete="off" spellCheck={false} maxLength={8} placeholder="e.g. K7P3QX" style={{ ...inputStyle, flex: 1 }} />
-              <button type="button" onClick={() => handleJoinVenue()} disabled={venueStatus === "saving"} style={primaryButtonStyle}>
+        <Group title="Venue" foot={venueMessage ?? undefined} footTone={venueStatus === "error" ? "alarm" : venueStatus === "saved" ? "good" : undefined}>
+          {session.hasVenueMembership ? (
+            <div className="sm-row sm-set-row">
+              <span className="sm-set-label">Venue team</span>
+              <span className="sm-set-value">{session.venueMembershipPaused ? "Paused" : "Linked"}</span>
+            </div>
+          ) : (
+            <EditRow label="Join your venue" value="Enter code" open={editing === "venue"} onToggle={() => toggle("venue")}>
+              <Field label="Your manager's venue code">
+                <input
+                  className="sm-input sm-input--code"
+                  value={venueCode}
+                  onChange={(e) => setVenueCode(e.target.value.toUpperCase())}
+                  autoCapitalize="characters"
+                  autoComplete="off"
+                  spellCheck={false}
+                  maxLength={8}
+                  placeholder="K7P3QX"
+                />
+              </Field>
+              <button type="button" className="sm-btn sm-btn--primary" onClick={() => handleJoinVenue()} disabled={venueStatus === "saving"}>
                 {venueStatus === "saving" ? "Joining…" : "Join"}
               </button>
-            </div>
-          </>
-        )}
-        {venueMessage && (
-          <p style={{ margin: 0, fontSize: 12, color: venueStatus === "error" ? "var(--red-mobile)" : "var(--green-mobile)" }}>{venueMessage}</p>
-        )}
-      </SectionCard>
-
-      {/* Add to Home Screen: the guide at /mobile/install. Hidden once installed. */}
-      <InstallRow />
-
-      {session.hasBillingAccount && (
-        <SectionCard title="Subscription and billing" icon={CreditCard}>
-          <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>
-            Update your card, download invoices, or cancel your plan. This opens our secure billing page, run by Stripe.
-          </p>
-          <button
-            type="button"
-            onClick={handleManageBilling}
-            disabled={billingLoading}
-            style={{ alignSelf: "flex-start", padding: "10px 16px", borderRadius: "var(--radius-pill)", border: "1px solid var(--border-mobile)", background: "none", color: "var(--text-mobile)", fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 700, cursor: billingLoading ? "default" : "pointer" }}
-          >
-            {billingLoading ? "Opening..." : "Manage billing"}
-          </button>
-          {billingError && (
-            <p role="alert" style={{ margin: 0, fontSize: 12, color: "var(--red-mobile)" }}>{billingError}</p>
+            </EditRow>
           )}
-        </SectionCard>
-      )}
+        </Group>
 
-      {/* Support */}
-      <SectionCard title="Support" icon={AlertTriangle}>
-        {[
-          { label: "Report a Bug", href: "/mobile/report-bug" },
-          { label: "Help & FAQ", href: "/mobile/help" },
-          { label: "Contact support", href: "/mobile/contact" },
-          { label: "Terms of Service", href: "/mobile/terms" },
-          { label: "Privacy Policy", href: "/mobile/privacy" },
-        ].map((link) => (
-          <Link key={link.href} href={link.href} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", textDecoration: "none" }}>
-            <span style={{ fontSize: 14, color: "var(--text-mobile)" }}>{link.label}</span>
-            <ChevronRight size={16} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
-          </Link>
-        ))}
-      </SectionCard>
+        {session.hasBillingAccount && (
+          <Group title="Plan" foot={billingError ?? "Update your card, download invoices or cancel. Opens our secure billing page, run by Stripe."} footTone={billingError ? "alarm" : undefined}>
+            <button type="button" className="sm-row sm-set-row" onClick={handleManageBilling} disabled={billingLoading}>
+              <span className="sm-set-label">Manage billing</span>
+              <span className="sm-set-value">{billingLoading ? "Opening…" : ""}</span>
+              <ChevronRight className="sm-chevron" size={20} strokeWidth={2.6} aria-hidden="true" />
+            </button>
+          </Group>
+        )}
 
-      {/* Learning data — destructive */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "0 20px 20px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <AlertTriangle size={16} strokeWidth={2} color="var(--red-mobile)" aria-hidden="true" />
-          <p style={{ margin: 0, fontSize: 13, fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--red-mobile)" }}>
-            Learning Data
-          </p>
-        </div>
-        <div style={{ padding: 16, borderRadius: "var(--radius-lg)", background: "var(--surface-mobile)", border: "1px solid var(--red-mobile)" }}>
+        <Group title="Help">
+          <SetLink href="/mobile/help" label="Help and FAQ" />
+          <SetLink href="/mobile/contact" label="Contact support" />
+          <SetLink href="/mobile/report-bug" label="Report a bug" />
+        </Group>
+
+        <Group title="Legal">
+          <SetLink href="/mobile/terms" label="Terms of Service" />
+          <SetLink href="/mobile/privacy" label="Privacy Policy" />
+        </Group>
+
+        <Group title="Your data">
           {resetStatus === "done" ? (
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Check size={16} strokeWidth={2} color="var(--green-mobile)" aria-hidden="true" />
-              <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile)" }}>Progress reset. Your account and venue access are untouched.</p>
+            <div className="sm-row sm-set-row">
+              <Check className="sm-set-done" size={20} strokeWidth={2.6} aria-hidden="true" />
+              <span className="sm-set-label">Progress reset. Your account and venue are untouched.</span>
             </div>
-          ) : !resetOpen ? (
-            <>
-              <p style={{ margin: "0 0 12px", fontSize: 13, color: "var(--text-mobile-muted)" }}>
-                Clear all module, scenario, and challenge progress to start training again from zero. Your account, sign-in, and venue membership are kept.
-              </p>
-              <button
-                type="button"
-                onClick={() => setResetOpen(true)}
-                style={{ padding: "10px 16px", borderRadius: "var(--radius-pill)", border: "1px solid var(--red-mobile)", background: "none", color: "var(--red-mobile)", fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
-              >
-                Reset progress
-              </button>
-            </>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--red-mobile)" }}>This can&apos;t be undone.</p>
-              <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>
-                Type RESET to confirm you want to permanently clear your training progress.
+            <EditRow label="Reset progress" open={editing === "reset"} onToggle={() => toggle("reset")} danger>
+              <p className="sm-set-note">
+                Clears all module, scenario and challenge progress so you start again from zero. Your account, sign-in and
+                venue are kept. This can&apos;t be undone.
               </p>
-              <input
-                value={resetConfirmText}
-                onChange={(e) => setResetConfirmText(e.target.value)}
-                placeholder="RESET"
-                style={inputStyle}
-              />
-              {resetStatus === "error" && <p style={{ margin: 0, fontSize: 12, color: "var(--red-mobile)" }}>Something went wrong. Try again.</p>}
-              <div style={{ display: "flex", gap: 8 }}>
-                <button
-                  type="button"
-                  onClick={handleResetProgress}
-                  disabled={resetConfirmText !== "RESET" || resetStatus === "saving"}
-                  style={{
-                    flex: 1,
-                    padding: "10px 16px",
-                    borderRadius: "var(--radius-pill)",
-                    border: "none",
-                    background: "var(--red-mobile)",
-                    color: "var(--bg-mobile-dark)",
-                    fontFamily: "var(--font-body)",
-                    fontSize: 13,
-                    fontWeight: 700,
-                    cursor: resetConfirmText !== "RESET" ? "default" : "pointer",
-                    opacity: resetConfirmText !== "RESET" ? 0.5 : 1,
-                  }}
-                >
-                  {resetStatus === "saving" ? "Resetting…" : "Permanently reset"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setResetOpen(false); setResetConfirmText(""); }}
-                  style={{ padding: "10px 16px", borderRadius: "var(--radius-pill)", border: "1px solid var(--border-mobile)", background: "none", color: "var(--text-mobile)", fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Delete account — destructive */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "0 20px 20px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <AlertTriangle size={16} strokeWidth={2} color="var(--red-mobile)" aria-hidden="true" />
-          <p style={{ margin: 0, fontSize: 13, fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--red-mobile)" }}>
-            Delete Account
-          </p>
-        </div>
-        <div style={{ padding: 16, borderRadius: "var(--radius-lg)", background: "var(--surface-mobile)", border: "1px solid var(--red-mobile)" }}>
-          {!deleteOpen ? (
-            <>
-              <p style={{ margin: "0 0 12px", fontSize: 13, color: "var(--text-mobile-muted)" }}>
-                Permanently delete your account, sign-in and training history. Your venue keeps its roster record of you, without your progress.
-              </p>
-              <button
-                type="button"
-                onClick={() => setDeleteOpen(true)}
-                style={{ padding: "10px 16px", borderRadius: "var(--radius-pill)", border: "1px solid var(--red-mobile)", background: "none", color: "var(--red-mobile)", fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
-              >
-                Delete account
+              <Field label="Type RESET to confirm">
+                <input className="sm-input" value={resetConfirmText} onChange={(e) => setResetConfirmText(e.target.value)} placeholder="RESET" autoCapitalize="characters" autoComplete="off" />
+              </Field>
+              {resetStatus === "error" && <p className="sm-set-error">Something went wrong. Try again.</p>}
+              <button type="button" className="sm-btn sm-btn--danger" onClick={handleResetProgress} disabled={resetConfirmText !== "RESET" || resetStatus === "saving"}>
+                {resetStatus === "saving" ? "Resetting…" : "Permanently reset"}
               </button>
-            </>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--red-mobile)" }}>This can&apos;t be undone.</p>
-              <p style={{ margin: 0, fontSize: 12, color: "var(--text-mobile-muted)" }}>
-                Type DELETE to confirm you want to permanently delete your account.
-              </p>
-              <input
-                value={deleteConfirmText}
-                onChange={(e) => setDeleteConfirmText(e.target.value)}
-                placeholder="DELETE"
-                style={inputStyle}
-              />
-              {deleteStatus === "error" && deleteError && <p style={{ margin: 0, fontSize: 12, color: "var(--red-mobile)" }}>{deleteError}</p>}
-              <div style={{ display: "flex", gap: 8 }}>
-                <button
-                  type="button"
-                  onClick={handleDeleteAccount}
-                  disabled={deleteConfirmText !== "DELETE" || deleteStatus === "saving"}
-                  style={{
-                    flex: 1,
-                    padding: "10px 16px",
-                    borderRadius: "var(--radius-pill)",
-                    border: "none",
-                    background: "var(--red-mobile)",
-                    color: "var(--bg-mobile-dark)",
-                    fontFamily: "var(--font-body)",
-                    fontSize: 13,
-                    fontWeight: 700,
-                    cursor: deleteConfirmText !== "DELETE" ? "default" : "pointer",
-                    opacity: deleteConfirmText !== "DELETE" ? 0.5 : 1,
-                  }}
-                >
-                  {deleteStatus === "saving" ? "Deleting…" : "Permanently delete"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setDeleteOpen(false); setDeleteConfirmText(""); setDeleteStatus("idle"); setDeleteError(null); }}
-                  style={{ padding: "10px 16px", borderRadius: "var(--radius-pill)", border: "1px solid var(--border-mobile)", background: "none", color: "var(--text-mobile)", fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
+            </EditRow>
           )}
-        </div>
-      </div>
+          <EditRow label="Delete account" open={editing === "delete"} onToggle={() => toggle("delete")} danger>
+            <p className="sm-set-note">
+              Permanently deletes your account, sign-in and training history. Your venue keeps its roster record of you,
+              without your progress. This can&apos;t be undone.
+            </p>
+            <Field label="Type DELETE to confirm">
+              <input className="sm-input" value={deleteConfirmText} onChange={(e) => setDeleteConfirmText(e.target.value)} placeholder="DELETE" autoCapitalize="characters" autoComplete="off" />
+            </Field>
+            {deleteStatus === "error" && deleteError && <p className="sm-set-error">{deleteError}</p>}
+            <button type="button" className="sm-btn sm-btn--danger" onClick={handleDeleteAccount} disabled={deleteConfirmText !== "DELETE" || deleteStatus === "saving"}>
+              {deleteStatus === "saving" ? "Deleting…" : "Permanently delete"}
+            </button>
+          </EditRow>
+        </Group>
 
-      {/* Sign out */}
-      <div style={{ padding: "0 20px 32px" }}>
-        <button
-          type="button"
-          onClick={handleSignOut}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
-            width: "100%",
-            padding: "12px 0",
-            borderRadius: "var(--radius-pill)",
-            border: "1px solid var(--border-mobile)",
-            background: "var(--surface-mobile)",
-            color: "var(--text-mobile)",
-            fontFamily: "var(--font-body)",
-            fontSize: 14,
-            fontWeight: 700,
-            cursor: "pointer",
-          }}
-        >
-          <LogOut size={16} strokeWidth={2} aria-hidden="true" />
-          Sign out
-        </button>
+        <Group>
+          <button type="button" className="sm-row sm-set-row sm-set-signout" onClick={handleSignOut}>
+            Sign out
+          </button>
+        </Group>
       </div>
-    </MobileScreenShell>
+    </Screen>
+  );
+}
+
+function SetLink({ href, label, value }: { href: string; label: string; value?: string }) {
+  return (
+    <Link href={href} className="sm-row sm-set-row">
+      <span className="sm-set-label">{label}</span>
+      {value && <span className="sm-set-value">{value}</span>}
+      <ChevronRight className="sm-chevron" size={20} strokeWidth={2.6} aria-hidden="true" />
+    </Link>
   );
 }

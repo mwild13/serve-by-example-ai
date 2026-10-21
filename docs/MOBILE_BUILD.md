@@ -20,7 +20,7 @@ Every route lives under `app/mobile/<slug>/page.tsx`, and every `page.tsx` follo
 | `/mobile/home` | `HomeScreen.tsx` | The feed: the next step on a stack card, this week at the venue (`home/VenueWeek.tsx`), keep going, tonight's cocktails, look it up, a fact. See section 3a |
 | `/mobile/practise` | `PractiseScreen.tsx` | The Practise tab: the mixed drill, today's challenge, Live Guest, Saturday Rush, the challenges |
 | `/mobile/learn` | `LearnScreen.tsx` | The Learn tab: modules as a path, see section 3 |
-| `/mobile/progress` | `ProgressScreen.tsx` | "Me" tab: personal stats and mastery |
+| `/mobile/progress` | `ProgressScreen.tsx` | "Me" tab: profile card (opens the photo), four figures, mastery by area, the next badge, Settings and Help rows, and the AI Coach (`progress/AiCoachWidget.tsx`). Badges come from `badgesFromProgress()` in `lib/badges.ts`, shared with desktop |
 | `/mobile/quiz` | `QuizScreen.tsx` | A module's Learn cards and verify quiz |
 | `/mobile/drill` | `DrillScreen.tsx` | Mixed drill; `?mode=preshift` is the pre-shift drill |
 | `/mobile/install` | `InstallScreen.tsx` | Add to Home Screen, with the steps for this phone. See section 3c |
@@ -31,9 +31,9 @@ Every route lives under `app/mobile/<slug>/page.tsx`, and every `page.tsx` follo
 | `/mobile/challenge/<slug>` | `ChallengeScreen.tsx` | Challenges 6 onwards, on the shared game |
 | `/mobile/cocktails` | `CocktailLibraryScreen.tsx` | Cocktail library |
 | `/mobile/knowledge` | `KnowledgeBaseScreen.tsx` | Knowledge Base, 101 cards |
-| `/mobile/badges` | `BadgesGalleryScreen.tsx` | Badges |
+| `/mobile/badges` | `BadgesGalleryScreen.tsx` | Every badge, grouped by area, from Me |
 | `/mobile/onboarding` | `OnboardingDiagnosticScreen.tsx` | Skill check (placement) |
-| `/mobile/settings` | `SettingsScreen.tsx` | Profile, security, venue, shift reminders |
+| `/mobile/settings` | `SettingsScreen.tsx` | Grouped lists (`ui/parts.tsx` `Group`): account rows that open in place, email switches, shift days and reminder, appearance, language, Add to Home Screen, venue, billing, help, legal, reset and delete |
 | `/mobile/ai-photo` | `PhotoUploadScreen.tsx` | Profile photo with background removal |
 | `/mobile/help`, `/contact`, `/report-bug` | `HelpScreen.tsx`, `ContactSupportScreen.tsx`, `ReportBugScreen.tsx` | Help and support |
 | `/mobile/privacy`, `/mobile/terms` | `PrivacyScreen.tsx`, `TermsScreen.tsx` (share `LegalProse.tsx`) | Legal pages |

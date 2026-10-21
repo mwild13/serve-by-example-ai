@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// Mobile cleanup pass (2026-08-25) — real in-app destination for Settings'
-// "Help & FAQ" link, replacing the old redirect out to /resources.
-export default function MobileHelpPage() {
-  return <HelpScreen />;
+// Opened from Settings and from Me (?from=me), which decides the back button.
+export default async function MobileHelpPage({ searchParams }: { searchParams: Promise<{ from?: string }> }) {
+  const { from } = await searchParams;
+  return <HelpScreen fromMe={from === "me"} />;
 }

@@ -1,8 +1,4 @@
-"use client";
-
-import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
-import MobileScreenShell from "./MobileScreenShell";
+import Screen from "./ui/Screen";
 import { LegalSection, LegalSubheading, LegalParagraph, LegalList, LegalDivider, LegalLink, LegalEmailLink } from "./LegalProse";
 
 // Mobile bugfix pass (2026-09-02) — Settings > Support > "Privacy Policy"
@@ -13,24 +9,11 @@ import { LegalSection, LegalSubheading, LegalParagraph, LegalList, LegalDivider,
 // both in sync if the policy is ever updated.
 
 export default function PrivacyScreen() {
-  const router = useRouter();
-
   return (
-    <MobileScreenShell>
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 20px 16px" }}>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", padding: 0, cursor: "pointer" }}
-        >
-          <ArrowLeft size={24} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
-          <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-mobile-muted)", textTransform: "uppercase" }}>Settings</span>
-        </button>
-        <p style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "var(--text-mobile)" }}>Privacy Policy</p>
-        <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>Last updated: 20 October 2026</p>
-      </div>
+    <Screen title="Privacy Policy" back={{ href: "/mobile/settings", label: "Settings" }}>
+      <p className="sm-legal-date">Last updated: 20 October 2026</p>
 
-      <div style={{ padding: "0 20px 20px" }}>
+      <div className="sm-legal-intro">
         <LegalParagraph>
           Serve By Example is committed to protecting your privacy in accordance with the Privacy Act 1988
           (Cth) and the Australian Privacy Principles (APPs). This Privacy Policy explains how we collect, use,
@@ -217,6 +200,6 @@ export default function PrivacyScreen() {
           Email: <LegalEmailLink />
         </LegalParagraph>
       </LegalSection>
-    </MobileScreenShell>
+    </Screen>
   );
 }

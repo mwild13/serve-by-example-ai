@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check } from "lucide-react";
 import MasteryRing from "@/app/dashboard/_components/parts/MasteryRing";
-import { computeBadges, type CategoryScores, type ModuleSummaryForBadges } from "@/lib/badges";
+import { badgeProgressText, badgesFromProgress, nextBadge as pickNextBadge, readVisitStreak } from "@/lib/badges";
 import { useStaffData } from "@/lib/staff-cache";
 import { STAFF_KEYS, loadModules, loadRushStats, loadShiftStreak, type StaffModule } from "@/lib/staff-data";
 import { isMastered, isStarted } from "@/lib/next-step";
@@ -31,15 +31,6 @@ function lastTrained(iso: unknown): string {
 
 const NO_MODULES: StaffModule[] = [];
 
-/** The daily-visit streak the streak badges count (lib/streak.ts), read only. */
-function visitStreak(): number {
-  try {
-    return parseInt(localStorage.getItem("sbe-streak-count") ?? "0", 10) || 0;
-  } catch {
-    return 0;
-  }
-}
-
 export default function MyProgressPage({
   progressData,
   getToken,
@@ -63,7 +54,7 @@ export default function MyProgressPage({
   useEffect(() => {
     // Browser-only read on mount.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setVisits(visitStreak());
+    setVisits(readVisitStreak());
   }, []);
 
   useEffect(() => {
@@ -83,27 +74,9 @@ export default function MyProgressPage({
   const totalChallenges = typeof progressData?.totalChallenges === "number" ? progressData.totalChallenges : 5;
 
   // Badges, worked out as they always were: from /api/training/progress.
-  const badges = useMemo(() => {
-    const allModules = Array.isArray(progressData?.allModules) ? (progressData.allModules as { id: number; category: string }[]) : [];
-    const mp = (progressData?.moduleProgress as Record<number, { mastery?: number; scenariosAttempted?: number }>) ?? {};
-    const summaries: ModuleSummaryForBadges[] = allModules.map((m) => ({
-      category: m.category as ModuleSummaryForBadges["category"],
-      mastered: (mp[m.id]?.mastery ?? 0) >= 80,
-      attempted: (mp[m.id]?.scenariosAttempted ?? 0) > 0,
-    }));
-    const mastery = (progressData?.mastery as Partial<CategoryScores> | undefined) ?? {};
-    const scores: CategoryScores = { bartending: mastery.bartending ?? 0, sales: mastery.sales ?? 0, management: mastery.management ?? 0 };
-    const list = computeBadges(
-      summaries,
-      scores,
-      visits,
-      typeof progressData?.bestCorrectStreak === "number" ? progressData.bestCorrectStreak : 0,
-      typeof progressData?.sbeEliteNumber === "number" ? progressData.sbeEliteNumber : 0,
-    );
-    return [...list.filter((b) => b.earned), ...list.filter((b) => !b.earned)];
-  }, [progressData, visits]);
+  const badges = useMemo(() => badgesFromProgress(progressData, visits), [progressData, visits]);
   const earned = badges.filter((b) => b.earned).length;
-  const nextBadge = badges.find((b) => !b.earned && b.progress && b.progress.current > 0) ?? badges.find((b) => !b.earned);
+  const nextBadge = pickNextBadge(badges);
 
   const kpis = [
     {
@@ -241,9 +214,7 @@ export default function MyProgressPage({
                   <span style={{ width: `${Math.min(100, (nextBadge.progress.current / nextBadge.progress.required) * 100)}%` }} />
                 </span>
                 <p className="sd-note">
-                  {nextBadge.progress.unit.startsWith("%")
-                    ? `${nextBadge.progress.current}% of ${nextBadge.progress.required}%${nextBadge.progress.unit.slice(1)}`
-                    : `${nextBadge.progress.current} of ${nextBadge.progress.required} ${nextBadge.progress.unit}`}
+                  {badgeProgressText(nextBadge.progress)}
                 </p>
               </div>
             )}

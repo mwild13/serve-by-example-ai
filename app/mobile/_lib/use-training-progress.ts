@@ -73,6 +73,8 @@ export type TrainingProgress = {
   bestCorrectStreak: number;
   sbeEliteNumber: number;
   bestArenaScore: number;
+  /** Modules with a Live Guest pass: "Guests sorted" on Me. */
+  arenaModuleCount: number;
   challengesCompleted: number;
   totalChallenges: number;
   /**

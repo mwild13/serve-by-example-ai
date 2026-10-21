@@ -1,47 +1,41 @@
-"use client";
-
-// Shared presentational primitives for the in-app Terms of Service and
-// Privacy Policy screens (TermsScreen.tsx, PrivacyScreen.tsx). Mirrors the
-// local Section/Divider pattern HelpScreen.tsx already established for
-// Settings > Support screens, split out here only because two screens need
-// the same numbered-heading + paragraph + list shape.
+// The pieces of the in-app Terms of Service and Privacy Policy screens
+// (TermsScreen.tsx, PrivacyScreen.tsx). Styles: the sm-legal rules in
+// app/styles/staff.css.
 
 export function LegalSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", padding: "0 20px 20px" }}>
-      <p style={{ margin: "0 0 8px", fontSize: 15, fontWeight: 700, color: "var(--text-mobile)" }}>{title}</p>
+    <section className="sm-legal">
+      <h2 className="sm-legal-title">{title}</h2>
       {children}
-    </div>
+    </section>
   );
 }
 
 export function LegalSubheading({ children }: { children: React.ReactNode }) {
-  return <p style={{ margin: "0 0 6px", fontSize: 13, fontWeight: 700, color: "var(--text-mobile)" }}>{children}</p>;
+  return <h3 className="sm-legal-sub">{children}</h3>;
 }
 
 export function LegalParagraph({ children }: { children: React.ReactNode }) {
-  return <p style={{ margin: "0 0 12px", fontSize: 13, lineHeight: "20px", color: "var(--text-mobile-muted)" }}>{children}</p>;
+  return <p className="sm-legal-p">{children}</p>;
 }
 
 export function LegalList({ items }: { items: React.ReactNode[] }) {
   return (
-    <ul style={{ margin: "0 0 12px", paddingLeft: 18, display: "flex", flexDirection: "column", gap: 6 }}>
+    <ul className="sm-legal-list">
       {items.map((item, i) => (
-        <li key={i} style={{ fontSize: 13, lineHeight: "20px", color: "var(--text-mobile-muted)" }}>
-          {item}
-        </li>
+        <li key={i}>{item}</li>
       ))}
     </ul>
   );
 }
 
 export function LegalDivider() {
-  return <div style={{ height: 1, background: "var(--border-mobile)", margin: "0 20px 20px" }} />;
+  return <hr className="sm-legal-rule" />;
 }
 
 export function LegalLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "var(--gold-mobile)", fontWeight: 600 }}>
+    <a href={href} target="_blank" rel="noopener noreferrer" className="sm-inline-link">
       {children}
     </a>
   );
@@ -49,7 +43,7 @@ export function LegalLink({ href, children }: { href: string; children: React.Re
 
 export function LegalEmailLink() {
   return (
-    <a href="mailto:info@servebyexample.co" style={{ color: "var(--gold-mobile)", fontWeight: 600 }}>
+    <a href="mailto:info@servebyexample.co" className="sm-inline-link">
       info@servebyexample.co
     </a>
   );

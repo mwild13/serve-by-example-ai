@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// Phase C file 07 — real badge data via computeBadges(). Reachable from
-// HomeScreen's Quick Access row ("Achievements" tile) as well as directly
+// Real badge data via badgesFromProgress() (lib/badges.ts). Reachable from
+// Me and Home (the Badges row), as well as directly
 // at /mobile/badges.
 export default function MobileBadgesPage() {
   return <BadgesGalleryScreen />;

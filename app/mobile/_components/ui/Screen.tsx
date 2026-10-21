@@ -35,8 +35,8 @@ export default function Screen({
   compactTrailing?: ReactNode;
   /** Shows the tab bar with this tab selected. */
   tab?: MobileNavTab;
-  /** An inner screen: compact bar only, with a back button. */
-  back?: { href: string; label: string };
+  /** An inner screen: compact bar only, with a back button. `onClick` replaces the link, for a screen with steps of its own. */
+  back?: { href: string; label: string; onClick?: () => void };
   children: ReactNode;
 }) {
   const markerRef = useRef<HTMLDivElement>(null);
@@ -64,11 +64,18 @@ export default function Screen({
         >
           <div className="sm-navbar-row">
             <div className="sm-navbar-lead">
-              {back && (
-                <Link href={back.href} className="sm-navbar-back">
+              {back?.onClick ? (
+                <button type="button" className="sm-navbar-back" onClick={back.onClick}>
                   <ChevronLeft size={26} strokeWidth={2.4} aria-hidden="true" />
                   {back.label}
-                </Link>
+                </button>
+              ) : (
+                back && (
+                  <Link href={back.href} className="sm-navbar-back">
+                    <ChevronLeft size={26} strokeWidth={2.4} aria-hidden="true" />
+                    {back.label}
+                  </Link>
+                )
               )}
             </div>
             {large ? (

@@ -9,13 +9,13 @@ export type Badge = {
   progress?: { current: number; required: number; unit: string };
 };
 
-export type ModuleSummaryForBadges = {
+type ModuleSummaryForBadges = {
   category: "technical" | "service" | "compliance";
   mastered: boolean;
   attempted: boolean;
 };
 
-export type CategoryScores = {
+type CategoryScores = {
   bartending: number; // 0-100 avg mastery %
   sales: number;
   management: number;
@@ -63,7 +63,7 @@ const STREAK_DEFS = [
   { id: "streak-30", label: "On Fire",    description: "Trained 30 days in a row.", required: 30 },
 ];
 
-export function computeBadges(
+function computeBadges(
   modules: ModuleSummaryForBadges[],
   scores: CategoryScores,
   streak: number,
@@ -152,6 +152,49 @@ export function computeBadges(
   return badges;
 }
 
-export function countEarned(badges: Badge[]): number {
-  return badges.filter((b) => b.earned).length;
+/**
+ * Every badge from GET /api/training/progress's response, earned ones first.
+ * The staff desktop (MyProgressPage.tsx) and mobile (Me and Badges) both
+ * read it this way. `visitStreak` is the daily-visit count the streak badges
+ * use (readVisitStreak below).
+ */
+export function badgesFromProgress(progress: Record<string, unknown> | null, visitStreak: number): Badge[] {
+  const allModules = Array.isArray(progress?.allModules) ? (progress.allModules as { id: number; category: string }[]) : [];
+  const mp = (progress?.moduleProgress as Record<number, { mastery?: number; scenariosAttempted?: number }> | undefined) ?? {};
+  const summaries: ModuleSummaryForBadges[] = allModules.map((m) => ({
+    category: m.category as ModuleSummaryForBadges["category"],
+    mastered: (mp[m.id]?.mastery ?? 0) >= 80,
+    attempted: (mp[m.id]?.scenariosAttempted ?? 0) > 0,
+  }));
+  const mastery = (progress?.mastery as Partial<CategoryScores> | undefined) ?? {};
+  const scores: CategoryScores = { bartending: mastery.bartending ?? 0, sales: mastery.sales ?? 0, management: mastery.management ?? 0 };
+  const list = computeBadges(
+    summaries,
+    scores,
+    visitStreak,
+    typeof progress?.bestCorrectStreak === "number" ? progress.bestCorrectStreak : 0,
+    typeof progress?.sbeEliteNumber === "number" ? progress.sbeEliteNumber : 0,
+  );
+  return [...list.filter((b) => b.earned), ...list.filter((b) => !b.earned)];
+}
+
+/** The badge to show as "Next to earn": the first one under way, else the first not earned. */
+export function nextBadge(badges: Badge[]): Badge | null {
+  return badges.find((b) => !b.earned && b.progress && b.progress.current > 0) ?? badges.find((b) => !b.earned) ?? null;
+}
+
+/** "42% of 50% avg mastery", "2 of 7 day streak". */
+export function badgeProgressText(progress: NonNullable<Badge["progress"]>): string {
+  return progress.unit.startsWith("%")
+    ? `${progress.current}% of ${progress.required}%${progress.unit.slice(1)}`
+    : `${progress.current} of ${progress.required} ${progress.unit}`;
+}
+
+/** The daily-visit streak (lib/streak.ts keeps it on this device), read only. */
+export function readVisitStreak(): number {
+  try {
+    return parseInt(localStorage.getItem("sbe-streak-count") ?? "0", 10) || 0;
+  } catch {
+    return 0;
+  }
 }

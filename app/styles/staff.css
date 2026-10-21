@@ -1521,21 +1521,6 @@ body.mobile-dark-shell select {
   animation: mobile-spin 0.8s linear infinite;
 }
 
-/* ── Mobile Me: "AI Coach" hint bubble beside the closed coach button ── */
-.sbe-coach-hint {
-  transform-origin: right center;
-  animation: sbe-coach-hint-in 220ms cubic-bezier(0.23, 1, 0.32, 1) both;
-}
-
-@keyframes sbe-coach-hint-in {
-  from { opacity: 0; transform: translateX(6px) scale(0.92); }
-  to { opacity: 1; transform: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sbe-coach-hint { animation: none; }
-}
-
 /* Saturday Rush (components/rush/SaturdayRush.tsx, Rich update Phase 15), on
    the .qz theme colours. The debrief reuses the Live Guest verdict, dials
    and thought rows. */
@@ -5919,4 +5904,921 @@ button.sm-row:active {
   font-family: var(--font-body);
   font-weight: 800;
   letter-spacing: -0.015em;
+}
+
+/* ============================================================
+   STAFF MOBILE: Me, Settings and their screens (redesign phase 6)
+   ============================================================ */
+
+/* Grouped lists, as in iPhone Settings (ui/parts.tsx Group) */
+.sm-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 22px var(--sm-gutter) 0;
+  scroll-margin-top: calc(env(safe-area-inset-top, 0px) + var(--sm-navbar-h) + 8px);
+}
+.sm-group-title {
+  margin: 0;
+  padding: 0 16px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sm-ink-soft);
+}
+.sm-group-foot {
+  margin: 0;
+  padding: 0 16px;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--sm-ink-soft);
+}
+.sm-group-foot--good {
+  color: var(--sm-good);
+  font-weight: 700;
+}
+.sm-group-foot--alarm {
+  color: var(--sm-alarm);
+  font-weight: 700;
+}
+
+/* Me (ProgressScreen.tsx) */
+.sm-me {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px var(--sm-gutter) 0;
+}
+.sm-me-profile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 14px 14px 16px;
+  transition: transform 120ms var(--ease-out);
+}
+.sm-me-profile:active {
+  transform: scale(0.98);
+}
+.sm-avatar-face.sm-me-face {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 32px;
+  font-size: 22px;
+  box-shadow: 0 0 0 2px var(--sm-card), 0 0 0 4px var(--sm-gold);
+}
+.sm-me-name {
+  overflow: hidden;
+  font-size: 20px;
+  line-height: 25px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sm-me-photo {
+  margin-top: 2px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--sm-good);
+}
+.sm-me-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.sm-me-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px 14px 14px;
+}
+.sm-me-stat .sm-kicker {
+  font-size: 11px;
+}
+.sm-me-stat-figure {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  margin: 0;
+  font-size: 30px;
+  line-height: 36px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.sm-me-stat-figure svg {
+  align-self: center;
+  margin-right: 4px;
+  color: var(--sm-gold);
+}
+.sm-me-stat-figure .sm-figure-of {
+  font-size: 14px;
+  letter-spacing: 0;
+}
+.sm-me-stat .sm-bar {
+  margin: 4px 0 2px;
+}
+.sm-me-stat-note {
+  margin: 0;
+  font-size: 13px;
+  line-height: 17px;
+  color: var(--sm-ink-soft);
+}
+.sm-me-area {
+  min-height: 64px;
+}
+.sm-me-area-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.sm-me-area .sm-row-label {
+  font-size: 16px;
+}
+.sm-me-badge-title {
+  margin-top: 4px;
+}
+.sm-card--pad > .sm-card-sub + .sm-bar {
+  margin-top: 12px;
+}
+.sm-me-badge-progress {
+  margin: 6px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--sm-ink-soft);
+}
+.sm-me-foot {
+  height: 72px;
+}
+.sm-me-retry {
+  margin-top: 12px;
+}
+
+/* Badges (BadgesGalleryScreen.tsx) */
+.sm-badge {
+  align-items: flex-start;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+.sm-badge-mark {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 23px;
+  background: var(--sm-gold);
+  color: var(--sm-gold-ink);
+}
+.sm-badge:not(.is-earned) .sm-row-label {
+  color: var(--sm-ink-soft);
+}
+.sm-badge-progress {
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--sm-ink);
+}
+
+/* The AI Coach (progress/AiCoachWidget.tsx), above the tab bar */
+.sm-coach {
+  position: fixed;
+  bottom: calc(var(--sm-tabbar-h) + env(safe-area-inset-bottom, 0px) + 12px);
+  left: 50%;
+  z-index: 45;
+  width: 100%;
+  max-width: var(--mobile-frame-max);
+  padding: 0 var(--sm-gutter);
+  box-sizing: border-box;
+  transform: translateX(-50%);
+}
+.sm-coach--closed {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  pointer-events: none;
+}
+.sm-coach--closed > * {
+  pointer-events: auto;
+}
+.sm-coach-fab {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border: 0;
+  border-radius: 28px;
+  background: var(--sm-accent);
+  color: var(--sm-accent-ink);
+  box-shadow: var(--sm-shadow-raised);
+  cursor: pointer;
+  transition: transform 160ms var(--ease-spring-soft);
+}
+.sm-coach-fab:active {
+  transform: scale(0.92);
+}
+.sm-coach-hint {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--sm-card-line);
+  border-radius: 14px;
+  background: var(--sm-card);
+  color: var(--sm-ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 800;
+  box-shadow: var(--sm-shadow-card);
+  cursor: pointer;
+  transform-origin: right center;
+  animation: sm-coach-hint-in 220ms var(--ease-out) both;
+}
+@keyframes sm-coach-hint-in {
+  from {
+    opacity: 0;
+    transform: translateX(6px) scale(0.92);
+  }
+}
+.sm-coach-panel {
+  display: flex;
+  flex-direction: column;
+  max-height: min(60dvh, 480px);
+  overflow: hidden;
+  box-shadow: var(--sm-shadow-raised);
+  animation: sm-sheet-in 220ms var(--ease-out);
+}
+.sm-coach-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 4px 6px 12px;
+  border-bottom: 1px solid var(--sm-sep);
+}
+.sm-coach-head .sm-card-title {
+  flex: 1;
+}
+.sm-coach-icon {
+  width: 32px;
+  height: 32px;
+}
+.sm-coach-close {
+  color: var(--sm-ink-soft);
+}
+.sm-coach-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  padding: 12px 14px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.sm-coach-msg {
+  align-self: flex-start;
+  max-width: 85%;
+  margin: 0;
+  padding: 9px 12px;
+  border-radius: 16px 16px 16px 4px;
+  background: var(--sm-pill);
+  color: var(--sm-ink);
+  font-size: 15px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  user-select: text;
+}
+.sm-coach-msg--me {
+  align-self: flex-end;
+  border-radius: 16px 16px 4px 16px;
+  background: var(--sm-accent);
+  color: var(--sm-accent-ink);
+}
+.sm-coach-msg--wait {
+  color: var(--sm-ink-soft);
+}
+.sm-coach-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px 4px;
+}
+.sm-coach-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sm-coach-chip {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 18px;
+  background: var(--sm-accent-tint);
+  color: var(--sm-accent-tint-ink);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+.sm-coach-error {
+  margin: 0 16px 8px;
+  font-size: 13px;
+  color: var(--sm-alarm);
+}
+.sm-coach-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border-top: 1px solid var(--sm-sep);
+}
+.sm-input.sm-coach-input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  border-radius: 22px;
+}
+.sm-coach-send {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 22px;
+  background: var(--sm-accent);
+  color: var(--sm-accent-ink);
+  cursor: pointer;
+}
+.sm-coach-send:disabled {
+  background: var(--sm-pill);
+  color: var(--sm-ink-faint);
+  cursor: default;
+}
+
+/* Text boxes. 16px, or iPhone zooms the page in when one is tapped. */
+.sm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sm-field-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--sm-ink-soft);
+}
+.sm-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  box-sizing: border-box;
+  border: 1px solid var(--sm-bar-line);
+  border-radius: 12px;
+  background: var(--sm-bg);
+  color: var(--sm-ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  user-select: text;
+}
+.sm-input::placeholder {
+  color: var(--sm-ink-faint);
+}
+.sm-input:focus {
+  outline: none;
+  border-color: var(--sm-focus);
+  box-shadow: 0 0 0 3px var(--sm-accent-tint);
+}
+.sm-textarea {
+  min-height: 140px;
+  padding: 12px 14px;
+  line-height: 1.45;
+  resize: vertical;
+}
+.sm-select {
+  appearance: none;
+}
+.sm-input--code {
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Settings (SettingsScreen.tsx) */
+.sm-set {
+  padding-bottom: 8px;
+}
+.sm-set-row {
+  min-height: 50px;
+  gap: 12px;
+}
+.sm-set-label {
+  flex: 1;
+  min-width: 0;
+  font-size: 17px;
+  line-height: 22px;
+  font-weight: 600;
+}
+.sm-row-text .sm-set-label {
+  flex: none;
+}
+.sm-set-value {
+  overflow: hidden;
+  max-width: 55%;
+  font-size: 16px;
+  color: var(--sm-ink-soft);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sm-set-chevron {
+  transition: transform 180ms var(--ease-out);
+}
+.sm-set-chevron.is-open {
+  transform: rotate(90deg);
+}
+.sm-set-row--danger .sm-set-label {
+  color: var(--sm-alarm);
+}
+.sm-set-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 14px 16px;
+}
+.sm-set-edit .sm-btn {
+  min-height: 46px;
+}
+.sm-set-note {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--sm-ink-soft);
+}
+.sm-set-error {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--sm-alarm);
+}
+.sm-set-done {
+  flex-shrink: 0;
+  color: var(--sm-good);
+}
+.sm-set-stack {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  padding-top: 12px;
+  padding-bottom: 14px;
+}
+.sm-set-shifts:empty {
+  display: none;
+}
+.sm-set-signout {
+  justify-content: center;
+  color: var(--sm-alarm);
+  font-size: 17px;
+  font-weight: 700;
+}
+.sm-btn--danger {
+  background: var(--sm-alarm);
+  color: var(--sm-accent-ink);
+}
+/* The switch (an iPhone toggle), drawn on the row's aria-checked */
+.sm-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 51px;
+  height: 31px;
+  border-radius: 16px;
+  background: var(--sm-track);
+  transition: background-color 200ms var(--ease-out);
+}
+.sm-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 14px;
+  background: var(--paper);
+  box-shadow: 0 2px 4px rgba(14, 42, 30, 0.25);
+  transition: transform 200ms var(--ease-out);
+}
+[aria-checked="true"] > .sm-switch {
+  background: var(--sm-good);
+}
+[aria-checked="true"] > .sm-switch::after {
+  transform: translateX(20px);
+}
+button.sm-set-row:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+/* Language: the shared picker, as a plain value on the right */
+.sm-set-lang .language-switcher {
+  flex: 1;
+  justify-content: flex-end;
+  width: auto;
+  margin: 0;
+}
+.sm-set-lang .language-switcher .language-switcher-control {
+  width: 100%;
+  justify-content: flex-end;
+}
+.sm-set-lang .language-switcher .language-switcher-control::after {
+  content: none;
+}
+.sm-set-lang .language-switcher .language-select {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding: 12px 0;
+  border: 0;
+  background: none;
+  color: var(--sm-ink-soft);
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 500;
+  text-align: right;
+  text-align-last: right;
+}
+/* Shift days and the reminder (components/quiz/ShiftDays.tsx) on the mobile tokens */
+.sm-set-shifts {
+  --qz-surface: var(--sm-card);
+  --qz-surface-alt: var(--sm-pill);
+  --qz-line: var(--sm-sep);
+  --qz-text: var(--sm-ink);
+  --qz-muted: var(--sm-ink-soft);
+  --qz-accent: var(--sm-accent);
+  --qz-accent-text: var(--sm-accent-ink);
+}
+.sm-set-shifts .dr-text {
+  font-size: 15px;
+}
+.sm-set-shifts .dr-days-row {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+.sm-set-shifts .dr-day {
+  min-width: 0;
+  padding: 0;
+  font-size: 13px;
+}
+.sm-set-shifts .dr-select {
+  min-height: 48px;
+  font-size: 16px;
+}
+.sm-set-shifts .dr-link {
+  color: var(--sm-good);
+  font-weight: 800;
+  text-decoration: none;
+}
+.sm-set-shifts .qz-check,
+.sm-set-shifts .qz-next {
+  border-radius: 12px;
+  font-weight: 800;
+}
+/* Asking before an email is turned on */
+.sm-set-sheet-body {
+  margin: 0 0 18px;
+  font-size: 16px;
+  line-height: 22px;
+  color: var(--sm-ink-soft);
+}
+.sm-set-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* Profile photo (PhotoUploadScreen.tsx) */
+.sm-photoedit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 14px var(--sm-gutter) 32px;
+}
+.sm-photoedit-hint {
+  margin: 0;
+  font-size: 16px;
+  line-height: 22px;
+  color: var(--sm-ink-soft);
+  text-align: center;
+}
+.sm-photoedit-error {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--sm-alarm);
+  text-align: center;
+}
+.sm-photoedit-current {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 176px;
+  height: 176px;
+  margin: 8px 0;
+  overflow: hidden;
+  border-radius: 88px;
+  background: var(--sm-card);
+  color: var(--sm-ink-faint);
+  box-shadow: 0 0 0 3px var(--sm-bg), 0 0 0 5px var(--sm-gold), var(--sm-shadow-raised);
+}
+.sm-photoedit-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+.sm-photoedit-note {
+  margin: 0;
+  font-size: 14px;
+  color: var(--sm-ink-soft);
+  text-align: center;
+}
+.sm-photoedit-frame {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--sm-hero);
+  box-shadow: var(--sm-shadow-raised);
+}
+.sm-photoedit-frame canvas,
+.sm-photoedit-frame video {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.sm-photoedit-crop {
+  touch-action: none;
+  cursor: grab;
+}
+.sm-photoedit-zoom {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sm-photoedit-zoom button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 22px;
+  background: var(--sm-scrim);
+  color: var(--paper);
+  cursor: pointer;
+}
+.sm-photoedit-camera {
+  max-width: none;
+}
+.sm-photoedit-camera video {
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+.sm-photoedit-oval {
+  position: absolute;
+  inset: 0;
+  width: 56%;
+  height: 74%;
+  margin: auto;
+  border: 2px solid rgba(248, 246, 240, 0.85);
+  border-radius: 50%;
+  box-shadow: 0 0 0 9999px rgba(14, 42, 30, 0.6);
+  pointer-events: none;
+}
+.sm-photoedit-shutter {
+  width: 72px;
+  height: 72px;
+  padding: 0;
+  border: 4px solid var(--sm-bg);
+  border-radius: 36px;
+  background: var(--sm-accent);
+  box-shadow: 0 0 0 3px var(--sm-accent);
+  cursor: pointer;
+  transition: transform 120ms var(--ease-out);
+}
+.sm-photoedit-shutter:active {
+  transform: scale(0.92);
+}
+.sm-photoedit-wait {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 0;
+  font-size: 15px;
+  color: var(--sm-ink-soft);
+}
+.sm-photoedit-styles {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.sm-photoedit-style {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  width: 72px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sm-ink-soft);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.sm-photoedit-swatch {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  overflow: hidden;
+  border-radius: 14px;
+  box-shadow: 0 0 0 1px var(--sm-card-line);
+}
+.sm-photoedit-style[aria-checked="true"] {
+  color: var(--sm-ink);
+}
+.sm-photoedit-style[aria-checked="true"] .sm-photoedit-swatch {
+  box-shadow: 0 0 0 2px var(--sm-bg), 0 0 0 4px var(--sm-accent);
+}
+
+/* Forms: Report a bug and Contact support */
+.sm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px var(--sm-gutter) 32px;
+}
+.sm-form-lead {
+  margin: 0;
+  padding: 0 4px;
+  font-size: 16px;
+  line-height: 22px;
+  color: var(--sm-ink-soft);
+}
+.sm-form-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+}
+.sm-form-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 20px 20px;
+  text-align: center;
+}
+.sm-form-done > svg {
+  color: var(--sm-good);
+}
+.sm-form-done .sm-btn {
+  margin-top: 8px;
+}
+.sm-inline-link {
+  color: var(--sm-good);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Help (HelpScreen.tsx): reading text */
+.sm-prose {
+  padding: 14px calc(var(--sm-gutter) + 4px) 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--sm-ink-soft);
+  user-select: text;
+}
+.sm-prose h2 {
+  margin: 26px 0 6px;
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 800;
+  color: var(--sm-ink);
+}
+.sm-prose p,
+.sm-prose ol {
+  margin: 0 0 10px;
+}
+.sm-prose ol {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 22px;
+}
+.sm-prose strong {
+  color: var(--sm-ink);
+}
+.sm-prose-lead {
+  font-size: 17px;
+  color: var(--sm-ink);
+}
+.sm-prose-faq {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 8px 0 0;
+}
+.sm-prose-faq dt {
+  font-weight: 800;
+  color: var(--sm-ink);
+}
+.sm-prose-faq dd {
+  margin: 2px 0 0;
+}
+
+/* Terms and Privacy (LegalProse.tsx) */
+.sm-legal-date {
+  margin: 14px calc(var(--sm-gutter) + 4px) 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--sm-ink-soft);
+}
+.sm-legal-intro,
+.sm-legal {
+  padding: 14px calc(var(--sm-gutter) + 4px) 0;
+  user-select: text;
+}
+.sm-legal-title {
+  margin: 10px 0 8px;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 800;
+}
+.sm-legal-sub {
+  margin: 12px 0 6px;
+  font-size: 16px;
+  font-weight: 800;
+}
+.sm-legal-p,
+.sm-legal-list li {
+  font-size: 15px;
+  line-height: 23px;
+  color: var(--sm-ink-soft);
+}
+.sm-legal-p {
+  margin: 0 0 12px;
+}
+.sm-legal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 0 12px;
+  padding-left: 20px;
+}
+.sm-legal-rule {
+  margin: 14px var(--sm-gutter) 0;
+  border: 0;
+  border-top: 1px solid var(--sm-sep);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sm-coach-hint,
+  .sm-coach-panel {
+    animation: none;
+  }
+  .sm-switch,
+  .sm-switch::after,
+  .sm-set-chevron,
+  .sm-me-profile,
+  .sm-coach-fab {
+    transition: none;
+  }
+}
+.sm-set-edit + .sm-row {
+  border-top: 1px solid var(--sm-sep);
+}
+.sm-card .sm-me-area .sm-bar {
+  margin-top: 0;
 }
