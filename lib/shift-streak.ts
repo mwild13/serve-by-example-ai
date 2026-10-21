@@ -34,6 +34,8 @@ export type ShiftStreak = {
   shiftDays: number[];
   /** "HH:MM", Sydney time, on shift days; null when reminders are off. Set by the server. */
   reminderTime?: string | null;
+  /** Weekdays (0 Sunday to 6 Saturday) of this Monday-to-Sunday week with a finished drill, for the week's dots on mobile Home. */
+  weekDone?: number[];
 };
 
 function weekdayOf(date: string): number {
@@ -42,6 +44,13 @@ function weekdayOf(date: string): number {
 
 function daysBetween(from: string, to: string): number {
   return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000);
+}
+
+/** The Monday of the week a date is in. */
+function mondayOf(date: string): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - ((weekdayOf(date) + 6) % 7));
+  return d.toISOString().slice(0, 10);
 }
 
 function nextDay(date: string): string {
@@ -59,7 +68,9 @@ export function cleanShiftDays(value: unknown): number[] | null {
 
 export function computeShiftStreak(shiftDays: number[], drilledDays: string[], today: string): ShiftStreak {
   const drilled = new Set(drilledDays.filter((d) => d <= today));
-  const result = { count: 0, freezesLeft: FREEZES, doneToday: drilled.has(today), shiftDays };
+  const monday = mondayOf(today);
+  const weekDone = [...drilled].filter((d) => d >= monday).map(weekdayOf).sort((a, b) => a - b);
+  const result = { count: 0, freezesLeft: FREEZES, doneToday: drilled.has(today), shiftDays, weekDone };
   if (drilled.size === 0) return result;
 
   const isShift = (date: string) => shiftDays.length === 0 || shiftDays.includes(weekdayOf(date));

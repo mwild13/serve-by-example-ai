@@ -6,7 +6,7 @@ const FRI_SAT_SUN = [5, 6, 0];
 
 describe("computeShiftStreak", () => {
   it("is 0 with nothing done", () => {
-    expect(computeShiftStreak(FRI_SAT_SUN, [], "2026-10-20")).toEqual({ count: 0, freezesLeft: FREEZES, doneToday: false, shiftDays: FRI_SAT_SUN });
+    expect(computeShiftStreak(FRI_SAT_SUN, [], "2026-10-20")).toEqual({ count: 0, freezesLeft: FREEZES, doneToday: false, shiftDays: FRI_SAT_SUN, weekDone: [] });
   });
 
   it("lets a Friday to Sunday casual keep a streak across the week", () => {
@@ -99,3 +99,19 @@ describe("reminder times", () => {
   });
 });
 
+describe("weekDone", () => {
+  // 2026-10-21 is a Wednesday; its week runs Monday 19 to Sunday 25.
+  it("lists this week's drilled weekdays, Monday on", () => {
+    const streak = computeShiftStreak([], ["2026-10-17", "2026-10-19", "2026-10-21"], "2026-10-21");
+    expect(streak.weekDone).toEqual([1, 3]);
+  });
+
+  it("counts Sunday as the end of the week, not the start", () => {
+    const streak = computeShiftStreak([], ["2026-10-19", "2026-10-25"], "2026-10-25");
+    expect(streak.weekDone).toEqual([0, 1]);
+  });
+
+  it("is empty on a Monday before the drill", () => {
+    expect(computeShiftStreak([], ["2026-10-18"], "2026-10-19").weekDone).toEqual([]);
+  });
+});

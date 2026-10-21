@@ -1,7 +1,7 @@
 import type { ComponentType, ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { Check, ChevronRight } from "lucide-react";
 import { FlameIcon } from "./icons";
 
 // The small parts every /mobile screen is built from
@@ -51,12 +51,12 @@ export function RowList({ children }: { children: ReactNode }) {
 }
 
 /** A tappable row: icon, bold label, an optional line under it, a count, a chevron. */
-export function Row({ href, icon: RowIcon, label, sub, end }: { href: string; icon?: Icon; label: string; sub?: string; end?: ReactNode }) {
+export function Row({ href, icon: RowIcon, iconCircle, label, sub, end }: { href: string; icon?: Icon; iconCircle?: boolean; label: string; sub?: string; end?: ReactNode }) {
   return (
     <Link href={href} className="sm-row">
       {RowIcon && (
-        <span className="sm-row-icon">
-          <RowIcon size={22} strokeWidth={2.2} aria-hidden />
+        <span className={iconCircle ? "sm-icon-circle" : "sm-row-icon"}>
+          <RowIcon size={iconCircle ? 20 : 22} strokeWidth={2.2} aria-hidden />
         </span>
       )}
       <span className="sm-row-text">
@@ -73,10 +73,10 @@ export function Pill({ tone, children }: { tone?: "gold" | "accent"; children: R
   return <span className={`sm-pill${tone ? ` sm-pill--${tone}` : ""}`}>{children}</span>;
 }
 
-export function ProgressBar({ value, max, label }: { value: number; max: number; label: string }) {
+export function ProgressBar({ value, max, label, gold }: { value: number; max: number; label: string; gold?: boolean }) {
   const pct = max > 0 ? Math.min(100, Math.round((value / max) * 100)) : 0;
   return (
-    <div className="sm-bar" role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={max} aria-valuenow={value}>
+    <div className={`sm-bar${gold ? " sm-bar--gold" : ""}`} role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={max} aria-valuenow={value}>
       <span style={{ width: `${pct}%` }} />
     </div>
   );
@@ -110,6 +110,84 @@ export function Avatar({ name, photoUrl, streak, small }: { name: string; photoU
           {streak}
         </span>
       )}
+    </Link>
+  );
+}
+
+export function Card({ active, children }: { active?: boolean; children: ReactNode }) {
+  return <div className={`sm-card sm-card--pad${active ? " sm-card--active" : ""}`}>{children}</div>;
+}
+
+/** A ring with the figure in the middle, as on the "Keep going" card. */
+export function ProgressRing({ value, label }: { value: number; label: string }) {
+  const r = 19;
+  const circumference = 2 * Math.PI * r;
+  const filled = (Math.max(0, Math.min(100, value)) / 100) * circumference;
+  return (
+    <svg width="46" height="46" viewBox="0 0 46 46" role="img" aria-label={label} style={{ flexShrink: 0 }}>
+      <circle className="sm-ring-track" cx="23" cy="23" r={r} fill="none" strokeWidth="5" />
+      <circle
+        className="sm-ring-fill"
+        cx="23"
+        cy="23"
+        r={r}
+        fill="none"
+        strokeWidth="5"
+        strokeLinecap="round"
+        strokeDasharray={`${filled} ${circumference}`}
+        transform="rotate(-90 23 23)"
+      />
+      <text className="sm-ring-text" x="23" y="27" textAnchor="middle">
+        {Math.round(value)}
+      </text>
+    </svg>
+  );
+}
+
+const WEEK = [1, 2, 3, 4, 5, 6, 0];
+const LETTER = ["S", "M", "T", "W", "T", "F", "S"];
+const DAY_NAME = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+/**
+ * Monday to Sunday: gold where a pre-shift drill was finished, a ring on
+ * today, a filled dot on the other shift days, a small dot on days off.
+ */
+export function ShiftDots({ shiftDays, weekDone, weekday }: { shiftDays: number[]; weekDone: number[]; weekday: number }) {
+  return (
+    <ul className="sm-days" aria-label="Your shifts this week">
+      {WEEK.map((day) => {
+        const done = weekDone.includes(day);
+        const shift = shiftDays.length === 0 || shiftDays.includes(day);
+        const today = day === weekday;
+        const state = done ? "done" : today ? "today" : shift ? "a shift day" : "a day off";
+        const classes = ["sm-day", done && "sm-day--done", today && "sm-day--today", !done && (shift ? "sm-day--shift" : "sm-day--off")];
+        return (
+          <li key={day} className={classes.filter(Boolean).join(" ")}>
+            <span aria-hidden="true">{LETTER[day]}</span>
+            <span className="sm-day-dot" aria-hidden="true">
+              {done && <Check size={13} strokeWidth={3.2} />}
+            </span>
+            <span className="sr-only">
+              {DAY_NAME[day]}: {state}
+              {today && done ? ", today" : ""}
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+/** A square photo with the title on a fade at the bottom. */
+export function PhotoCard({ href, src, title, sub, tag }: { href: string; src: string; title: string; sub?: string; tag?: string }) {
+  return (
+    <Link href={href} className="sm-photo">
+      <Image src={src} alt="" width={204} height={204} sizes="204px" />
+      {tag && <span className="sm-photo-tag">{tag}</span>}
+      <span className="sm-photo-caption">
+        <span className="sm-photo-title">{title}</span>
+        {sub && <span className="sm-photo-sub">{sub}</span>}
+      </span>
     </Link>
   );
 }

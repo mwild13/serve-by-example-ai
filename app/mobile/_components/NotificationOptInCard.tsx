@@ -55,67 +55,22 @@ export default function NotificationOptInCard({ token }: { token: string }) {
   }
 
   return (
-    <div style={{ padding: "0 20px 16px" }}>
-      <div
-        style={{
-          position: "relative",
-          display: "flex",
-          alignItems: "flex-start",
-          gap: 12,
-          padding: 14,
-          paddingRight: 40,
-          borderRadius: "var(--radius-lg)",
-          background: "var(--surface-mobile)",
-          border: "1px solid var(--border-mobile)",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 40,
-            height: 40,
-            borderRadius: "var(--radius-pill)",
-            background: "var(--green-mobile-bg)",
-            flexShrink: 0,
-          }}
-        >
-          <Mail size={20} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "var(--text-mobile)" }}>Want a weekly nudge?</p>
-          <p style={{ margin: 0, fontSize: 13, lineHeight: 1.45, color: "var(--text-mobile-muted)" }}>
+    <div className="sm-section">
+      <div className="sm-card sm-notice">
+        <span className="sm-icon-circle">
+          <Mail size={20} strokeWidth={2.2} aria-hidden="true" />
+        </span>
+        <div className="sm-notice-text">
+          <p className="sm-card-title">Want a weekly nudge?</p>
+          <p className="sm-card-sub">
             A Monday progress summary and a Sunday reminder by email. Both are off until you turn them on.
           </p>
-          <Link
-            href="/mobile/settings#notifications"
-            onClick={markDismissed}
-            style={{ marginTop: 4, fontSize: 13, fontWeight: 700, color: "var(--gold-mobile)", textDecoration: "none" }}
-          >
+          <Link href="/mobile/settings#notifications" onClick={markDismissed} className="sm-textlink">
             Choose in Settings
           </Link>
         </div>
-        <button
-          type="button"
-          onClick={dismiss}
-          aria-label="Dismiss"
-          style={{
-            position: "absolute",
-            top: 8,
-            right: 8,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 32,
-            height: 32,
-            border: "none",
-            borderRadius: "var(--radius-pill)",
-            background: "transparent",
-            cursor: "pointer",
-          }}
-        >
-          <X size={16} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
+        <button type="button" onClick={dismiss} aria-label="Dismiss" className="sm-icon-btn sm-notice-close">
+          <X size={18} strokeWidth={2.4} aria-hidden="true" />
         </button>
       </div>
     </div>

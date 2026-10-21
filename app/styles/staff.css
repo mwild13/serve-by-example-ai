@@ -4789,6 +4789,92 @@ button.sm-row:active {
   opacity: 0.85;
 }
 
+/* Card insides: a title with a figure on the right, a notice with a close button */
+.sm-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.sm-figure {
+  font-size: 15px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.sm-figure-of {
+  font-weight: 600;
+  color: var(--sm-ink-soft);
+}
+.sm-card .sm-bar {
+  margin-top: 10px;
+}
+.sm-bar--gold > span {
+  background: var(--sm-gold);
+}
+.sm-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 4px 6px 14px;
+}
+.sm-notice-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.sm-notice-close {
+  margin-top: -10px;
+  color: var(--sm-ink-faint);
+}
+.sm-textlink {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  min-height: 44px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--sm-good);
+}
+
+/* Home: the module to keep going with */
+.sm-keep {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px 12px 12px;
+  transition: transform 120ms var(--ease-out);
+}
+.sm-keep:active {
+  transform: scale(0.98);
+}
+.sm-resume {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 16px;
+  background: var(--sm-accent);
+  color: var(--sm-accent-ink);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* Home: a fact for the bar */
+.sm-fact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sm-fact-body {
+  margin: 0;
+  font-size: 15px;
+  line-height: 21px;
+}
+
 /* Segmented control: Settings > Appearance */
 .sm-segment {
   display: grid;
@@ -4841,7 +4927,8 @@ button.sm-row:active {
   .sm-ring-fill,
   .sm-btn,
   .sm-photo,
-  .sm-segment-option {
+  .sm-segment-option,
+  .sm-keep {
     transition: none;
   }
   .sm-sheet[open],
@@ -4850,6 +4937,7 @@ button.sm-row:active {
   }
   .sm-btn:active,
   .sm-photo:active,
+  .sm-keep:active,
   .sm-tab:active svg {
     transform: none;
   }

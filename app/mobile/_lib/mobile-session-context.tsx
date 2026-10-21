@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, type R
 import { AlertTriangle, WifiOff } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { computeStreak } from "@/lib/streak";
+import { setStaffCacheOwner } from "@/lib/staff-cache";
 import { flushRetryQueue, getPendingCount } from "./retry-queue";
 
 // Phase C file 01 — seeded once by app/mobile/layout.tsx (server) and read
@@ -83,6 +84,10 @@ export function MobileSessionProvider({
   value: MobileSessionSeed;
   children: ReactNode;
 }) {
+  // The staff data cache (lib/staff-cache.ts) belongs to this person, as on
+  // the desktop shell: a different account empties it. Set during render so
+  // the first screen's useStaffData() call can already use it.
+  setStaffCacheOwner(value.userEmail);
   const [streakCount, setStreakCount] = useState<number | null>(null);
   const [isOnline, setIsOnline] = useState(true);
   const [pendingSyncCount, setPendingSyncCount] = useState(0);

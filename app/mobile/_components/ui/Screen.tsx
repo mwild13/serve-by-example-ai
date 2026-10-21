@@ -16,6 +16,7 @@ import TabBar, { type MobileNavTab } from "./TabBar";
 
 export default function Screen({
   title,
+  compactTitle,
   kicker,
   trailing,
   compactTrailing,
@@ -24,6 +25,8 @@ export default function Screen({
   children,
 }: {
   title: string;
+  /** The compact bar's title, when it differs from the large one ("Home" under "Evening, Sam"). */
+  compactTitle?: string;
   /** Small capitals above a large title, such as the date. */
   kicker?: ReactNode;
   /** Beside the large title. */
@@ -69,7 +72,7 @@ export default function Screen({
               )}
             </div>
             {large ? (
-              <span className="sm-navbar-title">{title}</span>
+              <span className="sm-navbar-title">{compactTitle ?? title}</span>
             ) : (
               <h1 className="sm-navbar-title">{title}</h1>
             )}

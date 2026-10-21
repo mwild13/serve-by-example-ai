@@ -1,12 +1,12 @@
 # Mobile Build (V4) — `app/mobile/`
 
-Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.md` wins. This is the architecture reference for the **standalone Mobile build** — internally referred to in code comments as "V4" — a separate route tree at `app/mobile/`. It is the only mobile staff experience: the legacy view embedded in `/dashboard` was removed on 2026-10-09 (see `STAFF_APP.md` section 2). Last brought up to date 2026-10-21.
+Companion to `CLAUDE.md`, not a replacement: where the two conflict, `CLAUDE.md` wins. This is the architecture reference for the **standalone Mobile build** (called "V4" in code comments), a separate route tree at `app/mobile/`. It is the only mobile staff experience: the legacy view embedded in `/dashboard` was removed on 2026-10-09 (see `STAFF_APP.md` section 2). Last brought up to date 2026-10-22, during the October 2026 redesign (`docs/STAFF_MOBILE_REDESIGN_PLAN.md`; phases 0 and 1 are in).
 
 ## 1. What This Is, and What It Isn't
 
 `app/mobile/` is a purpose-built, app-shell-style mobile web experience (native-tab-app feel, not a responsive shrink of the desktop dashboard) — 12+ independent routes under a shared layout, rather than one client-side shell component (`DashboardShell.tsx`) swapping views via state, which is how the desktop dashboard works.
 
-- **This build** (`app/mobile/`): 3 bottom-nav tabs (Home, Learn, Me — "Scenarios" was deliberately folded into "Learn", see §3). This is the build referenced when the user says "the Mobile build" or "V4."
+- **This build** (`app/mobile/`): 4 tabs (Home, Learn, Practise, Me). This is the build referenced when the user says "the Mobile build" or "V4."
 - **Desktop dashboard** (`app/dashboard/`): the other staff surface, a separate route tree. It has no mobile UI of its own; below 720px it only reflows.
 
 **Routing into this build**: `middleware.ts` auto-redirects phone user agents hitting `/dashboard` to `/mobile/home` (`isMobilePhoneUserAgent()` — narrow match: iPhone/iPod, or Android + "Mobile" token; a tablet-class Android UA falls through to desktop deliberately). A `/dashboard?join=CODE` staff sign-up link is sent to `/mobile/settings` instead, which joins the venue on arrival. A desktop browser can still visit `/mobile/*` directly and isn't blocked.
@@ -17,7 +17,8 @@ Every route lives under `app/mobile/<slug>/page.tsx`, and every `page.tsx` follo
 
 | Route | Screen component | Purpose |
 |---|---|---|
-| `/mobile/home` | `HomeScreen.tsx` | Daily dashboard: the pre-shift drill and shift streak, this week at the venue, the next step |
+| `/mobile/home` | `HomeScreen.tsx` | The feed: the next step on a stack card, this week at the venue (`home/VenueWeek.tsx`), keep going, tonight's cocktails, look it up, a fact. See section 3a |
+| `/mobile/practise` | `PractiseScreen.tsx` | The Practise tab: the mixed drill, Live Guest, Saturday Rush, the challenges |
 | `/mobile/learn` | `LearnHubScreen.tsx` | The Learn hub, see section 3 |
 | `/mobile/progress` | `ProgressScreen.tsx` | "Me" tab: personal stats and mastery |
 | `/mobile/quiz` | `QuizScreen.tsx` | A module's Learn cards and verify quiz |
@@ -37,7 +38,7 @@ Every route lives under `app/mobile/<slug>/page.tsx`, and every `page.tsx` follo
 | `/mobile/privacy`, `/mobile/terms` | `PrivacyScreen.tsx`, `TermsScreen.tsx` (share `LegalProse.tsx`) | Legal pages |
 | `/mobile/arena`, `/scenario-practice`, `/scenarios` | None | Redirects only (old links): the first two to Live Guest, the last to Learn |
 
-**Bottom nav** (`BottomNav.tsx`) exposes only 3 of these as persistent tabs: **Home** (`/mobile/home`), **Learn** (`/mobile/learn`), **Me** (`/mobile/progress`) — everything else is reached by drilling in from one of those three. `fixed` positioning is opt-in per screen (currently only `HomeScreen` uses it) rather than global, because some screens run taller than the viewport and an always-inline nav would sit below the fold.
+**Tab bar** (`ui/TabBar.tsx`): **Home** (`/mobile/home`), **Learn** (`/mobile/learn`), **Practise** (`/mobile/practise`), **Me** (`/mobile/progress`). Always fixed to the bottom, with a spacer in front of it so no screen reserves its height. The drill, Rush, Live Guest and challenge screens light up Practise; the reference screens light up Learn. Everything else is reached by drilling in from a tab.
 
 ## 3. The Learn hub
 
@@ -52,6 +53,15 @@ Every route lives under `app/mobile/<slug>/page.tsx`, and every `page.tsx` follo
 
 `useTrainingProgress()` is called exactly once at this orchestrator level and prop-drilled into sections that need it, rather than each section independently calling the hook — a deliberate perf choice (see §4).
 
+## 3a. Home (redesign phase 1)
+
+- **The stack card** is the staff desktop's next step: `pickNextSteps()` (`lib/next-step.ts`), in the same words (`copyFor()`, `lib/next-step-copy.ts`), opening the mobile screen from `stepHref()` (`lib/home-feed.ts`). On a shift day with the pre-shift drill done it becomes "Ready for tonight" with the next step as its button (`homeHero()`).
+- **The week's dots** (`ShiftDots`) are gold on days with a finished pre-shift drill (`weekDone` from `GET /api/training/shift-streak`), a ring on today, filled on shift days, small on days off.
+- **Keep going** is a module part way through that isn't already on the card (`keepGoingModule()`); its ring is the module's mastery from `useTrainingProgress()`.
+- **Tonight's cocktails and fact** are the desktop's (`dayIdx`), drawn only once the date is known, so the snap row never jumps.
+- **The gold streak chip** on the avatar shows only when the shift streak is above 0.
+- **Join your venue** shows for an account with no modules and no venue.
+
 ## 4. Data Layer — Auth, Session, and Progress
 
 This is the area where mobile diverges most from desktop, and where a new screen is most likely to get something subtly wrong by copying desktop patterns.
@@ -65,6 +75,9 @@ Server component wrapping the whole tree. Mirrors `app/dashboard/page.tsx`'s gat
 5. Sets a locked viewport (`maximumScale: 1, userScalable: false, viewportFit: "cover"`) scoped to this route segment only — deliberately not applied site-wide, since marketing pages need pinch-zoom for WCAG 1.4.4 and this app-shell tree doesn't.
 
 One-device session displacement is enforced in `middleware.ts`, not in this layout — `/mobile` is explicitly included in that gate's path check (`isMobile = path.startsWith("/mobile")`) alongside `/dashboard`, so a displaced session can't browse mobile screens unchecked.
+
+### The staff data cache (`lib/staff-cache.ts`, `_lib/use-staff.ts`)
+`MobileSessionProvider` makes the signed-in person the owner of the staff desktop's cache, so mobile screens use the same `useStaffData()` loaders (`lib/staff-data.ts`): the module list, shift streak and team week load once and a return visit paints at once. `useGetToken()` gives the loaders a stable token getter; `useShiftStreak()` feeds the gold chip on every screen's avatar.
 
 ### `useMobileSession()` (`_lib/mobile-session-context.tsx`)
 The mobile equivalent of `DashboardShell.tsx`'s `initialToken` prop-threading, as a context instead (necessary because mobile is 12+ independent routes, not one shell component). Exposes:
@@ -85,30 +98,17 @@ Flow: a failed/offline challenge save → `enqueueRetry()`. `MobileSessionProvid
 
 Naming note if you extend this: the queue key uses the house `sbe-` hyphenated convention; the underscore-cased `"sbe_challenges_completed"` localStorage key is a deliberate, documented exception kept for desktop/mobile parity (see `CHALLENGES.md` §4) — don't treat one as a typo of the other or "fix" it to match.
 
-## 5. Design Tokens — Mobile Dark Theme
+## 5. Design: tokens, light and dark, the parts
 
-Mobile uses its own CSS-variable set, defined in `app/globals.css` under "Mobile Staff Dashboard — Dark Mode" (sourced from Figma frames `NEW-MOBILE-STAFF-DASHBOARD`), scoped conceptually to `app/mobile/_components/` — it does **not** replace the site-wide `--green`/`--gold` brand tokens from `CLAUDE.md`, it's a brightened dark-bg variant tuned for contrast against a near-black surface:
+The October 2026 redesign (`docs/STAFF_MOBILE_REDESIGN_PLAN.md`) replaced the navy and amber dark theme.
 
-```css
---bg-mobile-dark:         #0B0D16;  /* page background */
---surface-mobile:         #171A26;  /* card / panel background */
---surface-mobile-alt:     #202538;  /* progress track, icon-circle fill */
---surface-mobile-inverse: rgba(255,255,255,0.9);
---border-mobile:          #2C3145;
---text-mobile:            #FFFFFF;
---text-mobile-muted:      #8A90A6;
---text-mobile-faint:      rgba(138,144,166,0.3);
---gold-mobile:            #F2AF34;  /* active tab, progress fill, XP-style accents */
---gold-mobile-bg:         #3A280F;
---green-mobile:           #3A7A57;  /* streak stat, positive accents */
---green-mobile-bg:        #1B3B28;
---red-mobile:             #A63B3B;  /* danger/hard-difficulty accent */
---avatar-mobile-bg:       #51566B;
-```
-
-**Rule**: when styling anything under `app/mobile/`, use these `--*-mobile` tokens, not the light-theme `--surface`/`--text`/`--line` tokens from the base design system — mixing them produces low-contrast or invisible elements against the dark shell. Shared components take a `theme` prop (`"dark"` on mobile) or sit inside `.sd-on-mobile`, which maps the desktop's `--sd-*` tokens to these (see `CHALLENGES.md` section 3).
-
-Standard container shape used throughout: `maxWidth: 390, margin: "0 auto", minHeight: "100dvh"` (exported as `mobileShellStyle` in `MobileChallengeChrome.tsx` for the challenge screens, replicated inline elsewhere) — this fixed-width-frame approach is what the locked viewport (§4) is protecting.
+- **Tokens:** `--sm-*` in `app/globals.css`, aliases of the brand tokens plus three added for this app: `--paper` (`#F8F6F0`), `--bottle` (`#0E2A1E`) and `--gold-bright` (`#D4AF37`). Gold is only for streaks, goals and finished drills, and never small gold text on paper.
+- **Dark mode:** `.sm-dark` on `<html>` swaps the same names for bottle green, with cards a step lighter. It follows the phone unless Settings > Appearance picks one (`lib/mobile-theme.ts`, saved per device as `sbe-sm-theme`). The layout's nonce'd inline script sets it before the first paint; `MobileThemeSync.tsx` keeps it right after. Browser bar colours follow (`viewport.themeColor`).
+- **Old names:** the `--*-mobile` tokens now point at `--sm-*`, so screens not yet rebuilt show the new palette in both modes. They go in phase 8. New code uses `--sm-*` only.
+- **Shared components** (quiz, drills, Live Guest, Rush, team week, challenges) keep `theme="dark"`, which is now "the mobile theme": `.qz--dark` and `.sd-on-mobile` read `--sm-*`.
+- **Type:** Manrope throughout, 200 to 800 (`app/fonts/product-fonts.ts`). 34px large titles, 20px section heads, 16 to 17px rows, 12px small capitals.
+- **Parts** (`app/mobile/_components/ui/`, styles in the "STAFF MOBILE" block of `app/styles/staff.css`, all `.sm-*`): `Screen` (large title that collapses into a compact bar, tab bar, safe areas), `TabBar`, and in `parts.tsx`: `Section`, `Card`, `StackCard`, `RowList`, `Row`, `Pill`, `ProgressBar`, `ProgressRing`, `ButtonLink`, `Avatar` (with the gold streak), `ShiftDots`, `PhotoCard` (square, with the fade).
+- **Rebuilt screens use classes, not inline styles.** Inline styles stay only for values worked out at run time, such as a progress width.
 
 ## 6. Cross-Cutting Notes Carried Over from `STAFF_APP.md`
 

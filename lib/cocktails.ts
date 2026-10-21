@@ -76,11 +76,16 @@ export const CATEGORIES: Record<Category, { label: string; description: string; 
   },
 };
 
+/** A cocktail's id in links, "espresso-martini" (the library's ?cocktail_id=). */
+export function cocktailSlug(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
 // Real photography for all 38 cocktails, added 2026-08-24 (mobile bug-fix
 // follow-up). Source photos optimized via sharp — 640x640 cover crop,
 // mozjpeg q78 — into public/cocktails/<slug>.jpg. Keys are `name` (COCKTAILS
 // has no id field, `name` is the unique key everywhere else too — see
-// CocktailLibraryScreen.tsx's slugify()). Single source of truth: both
+// cocktailSlug() above). Single source of truth: both
 // CocktailLibraryScreen.tsx and HomeScreen.tsx import this instead of each
 // keeping their own partial copy.
 export const COCKTAIL_IMAGES: Record<string, string> = {

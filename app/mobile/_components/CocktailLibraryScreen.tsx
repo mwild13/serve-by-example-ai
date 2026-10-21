@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Search } from "lucide-react";
 import TabBar from "./ui/TabBar";
 import MobileScreenShell from "./MobileScreenShell";
-import { COCKTAILS, CATEGORIES, COCKTAIL_IMAGES, type Category, type Cocktail } from "@/lib/cocktails";
+import { COCKTAILS, CATEGORIES, COCKTAIL_IMAGES, cocktailSlug, type Category, type Cocktail } from "@/lib/cocktails";
 
 // Phase C file 06 — real data + search/filter, ported from the desktop
 // CocktailLibrary.tsx `useMemo` pattern (app/dashboard/_components/
@@ -43,10 +43,6 @@ const FALLBACK_IMAGE = "/mobile/thumb-cocktail.webp";
 /** Stable, URL-safe identifier for a cocktail — lib/cocktails.ts has no id
  * field, `name` is the unique key (same assumption CocktailLibraryScreen
  * already made via `key={cocktail.name}` and COCKTAIL_IMAGES above). */
-function slugify(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-}
-
 function CocktailDetailSheet({
   cocktail,
   imageSrc,
@@ -213,12 +209,12 @@ export default function CocktailLibraryScreen() {
 
   const selectedSlug = searchParams.get("cocktail_id");
   const selected = useMemo(
-    () => (selectedSlug ? COCKTAILS.find((c) => slugify(c.name) === selectedSlug) ?? null : null),
+    () => (selectedSlug ? COCKTAILS.find((c) => cocktailSlug(c.name) === selectedSlug) ?? null : null),
     [selectedSlug],
   );
 
   function openCocktail(cocktail: Cocktail) {
-    router.push(`${pathname}?cocktail_id=${slugify(cocktail.name)}`, { scroll: false });
+    router.push(`${pathname}?cocktail_id=${cocktailSlug(cocktail.name)}`, { scroll: false });
   }
 
   function closeCocktail() {

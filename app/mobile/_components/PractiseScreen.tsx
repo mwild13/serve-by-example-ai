@@ -5,7 +5,7 @@ import Screen from "./ui/Screen";
 import { Avatar, ButtonLink, Pill, ProgressBar, Row, RowList, Section, StackCard } from "./ui/parts";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
-import { useShiftStreak } from "../_lib/use-shift-streak";
+import { useShiftStreak } from "../_lib/use-staff";
 import { TOTAL_CHALLENGES } from "@/lib/challenges";
 
 // The Practise tab (docs/STAFF_MOBILE_REDESIGN_PLAN.md, phases 0 and 5):
@@ -25,8 +25,8 @@ export default function PractiseScreen() {
     <Screen
       title="Practise"
       tab="practise"
-      trailing={<Avatar name={session.displayName} photoUrl={session.profilePhotoUrl} streak={streak?.count} />}
-      compactTrailing={<Avatar name={session.displayName} photoUrl={session.profilePhotoUrl} streak={streak?.count} small />}
+      trailing={<Avatar name={session.displayName} photoUrl={session.profilePhotoUrl} streak={streak && streak.count > 0 ? streak.count : null} />}
+      compactTrailing={<Avatar name={session.displayName} photoUrl={session.profilePhotoUrl} streak={streak && streak.count > 0 ? streak.count : null} small />}
     >
       <div style={{ padding: "20px var(--sm-gutter) 0" }}>
         <StackCard
