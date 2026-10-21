@@ -175,4 +175,27 @@ Moved from `docs/` during the pre-launch cleanup (`docs/handoff/2026-10-pre-laun
 - `design-plugin-customization-report.md` (August)
 - `pricing-membership-overhaul.md` (July)
 
-Left in `docs/` on purpose: `v4-migration-plan/` at the repo root and `docs/Pages-Redesign.md`, `docs/Module-Title-Renames-Proposal.md` and `docs/v3-architecture.md`, because code comments point at them.
+On 2026-10-21 these, `v4-migration-plan/`, `docs/Updates/` and the other finished plans and audits were moved to `docs/zHistorical/` instead of being deleted. Code comments now point at the current docs.
+
+---
+
+## Design skills for AI agents (deleted 21 October 2026)
+
+**Why:** some of these pushed agents toward a showy, "AI-made" look that clashes with the house style (`AGENTS.md`, `docs/STAFF_APP.md` section 8), and the rest were for platforms or libraries this project doesn't use. All were third-party skills installed into `.agents/skills/`, linked from `.claude/skills/` and listed in `skills-lock.json`; all three were updated.
+
+| Skill | Source | Reason |
+|---|---|---|
+| `impeccable` | pbakaus/impeccable | Switched on for almost any interface work and told agents to "go all out" and be "bold", with "bolder", "colorize", "delight" and "overdrive" modes and its own font list. The likeliest source of the AI look. |
+| `apple-design` | emilkowalski/skill | Frosted glass, translucent panels and springy motion: wrong for a hospitality training tool. |
+| `pick-ui-library` | emilkowalski/skill | Nudged agents to add libraries; the stack is kept small on purpose. |
+| `ask-sonner` | emilkowalski/skill | Guide to the Sonner toast library, which isn't used. |
+| `write-swift` | emilkowalski/skill | Native iOS (Swift). This is a web app. |
+| `animate-expo` | emilkowalski/skill | React Native and Expo. This is a web app. |
+| `prototype` | emilkowalski/skill | Built several versions behind a picker; never used. |
+| `find-animation-opportunities` | emilkowalski/skill | Went looking for things to animate, which drifts toward too much motion. `review-animations` covers review. |
+| `improve-animations` | emilkowalski/skill | Overlapped with `review-animations`. |
+
+**Kept:** `conversion-ui` (our own), `mobile-native`, `emil-design-eng`, `review-animations`, `animate`, `animation-vocabulary`.
+
+**To restore one:** reinstall it from its source (the GitHub repo in the Source column), or check it out from the git commit before this deletion.
+

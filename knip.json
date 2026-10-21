@@ -5,7 +5,6 @@
     "tests/e2e-marketing/**/*.ts"
   ],
   "ignore": [
-    ".agents/**",
     "open-next.config.ts",
     "components/pictures/**",
     "lib/pictures/**",
