@@ -62,6 +62,14 @@ Every route lives under `app/mobile/<slug>/page.tsx`, and every `page.tsx` follo
 - **The gold streak chip** on the avatar shows only when the shift streak is above 0.
 - **Join your venue** shows for an account with no modules and no venue.
 
+## 3b. Drills (redesign phase 2)
+
+- **`/mobile/drill`** is an inner screen (`ui/Screen` with a back button: Home for `?mode=preshift`, Practise for the mixed drill). The shared drill's cards and buttons take the mobile look from the `.sm-drill` rules; the run itself is still `QuizRun`.
+- **The finished pre-shift drill** is `drill/DrillCelebration.tsx`, passed to `MixedDrill` as `renderPreshiftDone`, so desktop keeps `PreshiftResult`. Always bottle green, in light mode too: the gold ring draws round, the streak pops up, today's dot turns gold, then the score and time (`drillTime()`, `lib/drill-time.ts`). A short vibration on Android; none on iPhone, which has no vibration in the browser. Reduced motion turns the animation off.
+- **A freeze** shows plainly ("A freeze covered a missed shift"), never in gold.
+- **The reminder card** (shift days and reminder time, `components/quiz/ShiftDays.tsx`) shows until both are set, and can be closed.
+- **The streak cache:** the celebration puts the new streak in the shared staff cache, so Home turns to "Ready for tonight" without waiting for a reload.
+
 ## 4. Data Layer — Auth, Session, and Progress
 
 This is the area where mobile diverges most from desktop, and where a new screen is most likely to get something subtly wrong by copying desktop patterns.

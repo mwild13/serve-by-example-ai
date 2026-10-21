@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import QuizRun from "@/components/quiz/QuizRun";
 import ShiftDays, { ShiftReminder, streakLine } from "@/components/quiz/ShiftDays";
 import type { ShiftStreak } from "@/lib/shift-streak";
@@ -19,7 +19,9 @@ import {
 // rules in app/styles/staff.css, on the .qz theme colours.
 //
 // `mode="preshift"` is the shorter "Ready for your shift" drill (Phase 12),
-// which ends with the shift streak and a way into Live Guest.
+// which ends with the shift streak and a way into Live Guest. Mobile swaps
+// that ending for its own celebration (`renderPreshiftDone`), so desktop
+// keeps PreshiftResult below.
 
 type Props = {
   theme: "light" | "dark";
@@ -34,24 +36,39 @@ type Props = {
   onLiveGuest?: () => void;
   /** Skip the intro card: the page has its own (the staff desktop's DrillPage). */
   autoStart?: boolean;
+  /** Pre-shift only: the finish screen in place of PreshiftResult, given the summary and how long the run took. */
+  renderPreshiftDone?: (done: { summary: DrillSummary; seconds: number }) => ReactNode;
 };
 
 type Status =
   | { kind: "intro" }
   | { kind: "loading" }
   | { kind: "playing"; drill: VerifyQuizStart }
-  | { kind: "done"; summary: DrillSummary }
+  | { kind: "done"; summary: DrillSummary; seconds: number }
   | { kind: "locked"; message: string }
   | { kind: "error"; message: string };
 
-export default function MixedDrill({ theme, getToken, onOpenModule, onBrowseModules, mode = "mixed", onLiveGuest, autoStart = false }: Props) {
+export default function MixedDrill({
+  theme,
+  getToken,
+  onOpenModule,
+  onBrowseModules,
+  mode = "mixed",
+  onLiveGuest,
+  autoStart = false,
+  renderPreshiftDone,
+}: Props) {
   const [status, setStatus] = useState<Status>({ kind: autoStart ? "loading" : "intro" });
   const drill = status.kind === "playing" ? status.drill : null;
+  // When the first question showed, for "6 of 6 right in 2 minutes 41".
+  const startedAt = useRef(0);
 
   async function begin() {
     setStatus({ kind: "loading" });
     try {
-      setStatus({ kind: "playing", drill: await startDrill(await getToken(), mode) });
+      const started = await startDrill(await getToken(), mode);
+      startedAt.current = Date.now();
+      setStatus({ kind: "playing", drill: started });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Could not start the drill.";
       setStatus(err instanceof VerifyQuizError && err.code === "DRILL_NEEDS_MODULES" ? { kind: "locked", message } : { kind: "error", message });
@@ -75,10 +92,15 @@ export default function MixedDrill({ theme, getToken, onOpenModule, onBrowseModu
   );
 
   const finish = useCallback((_passed: boolean, last: { summary?: DrillSummary }) => {
-    setStatus(last.summary ? { kind: "done", summary: last.summary } : { kind: "error", message: "The drill ended early. Start another one." });
+    const seconds = (Date.now() - startedAt.current) / 1000;
+    setStatus(last.summary ? { kind: "done", summary: last.summary, seconds } : { kind: "error", message: "The drill ended early. Start another one." });
   }, []);
 
   const fail = useCallback((message: string) => setStatus({ kind: "error", message }), []);
+
+  if (status.kind === "done" && mode === "preshift" && renderPreshiftDone) {
+    return <>{renderPreshiftDone({ summary: status.summary, seconds: status.seconds })}</>;
+  }
 
   if (status.kind === "playing") {
     return <QuizRun key={status.drill.attemptId} start={status.drill} submit={submit} onFinish={finish} onError={fail} theme={theme} />;

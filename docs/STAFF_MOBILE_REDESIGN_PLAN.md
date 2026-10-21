@@ -142,7 +142,7 @@ The old `InstallPrompt.tsx` in Settings is retired.
   - Then "You're ready for tonight", the score and time, the install or reminder card, "Back to Home" and "Warm up with a Live Guest".
 - **Android vibration:** a short vibrate (`navigator.vibrate`) where the phone supports it. iPhone browsers don't support vibration, so the animation carries it there.
 - **No celebration on a missed day:** a freeze used shows the freeze plainly, not gold.
-- **Where it's built:** the finish screen is `PreshiftResult` in `components/quiz/MixedDrill.tsx`, shared with desktop. Mobile gets a `variant="celebrate"` so desktop keeps its current finish.
+- **Where it's built:** the finish screen is `PreshiftResult` in `components/quiz/MixedDrill.tsx`, shared with desktop. Mobile passes its own finish (`renderPreshiftDone`, `app/mobile/_components/drill/DrillCelebration.tsx`) so desktop keeps its current one.
 
 ---
 

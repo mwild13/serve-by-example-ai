@@ -4942,3 +4942,314 @@ button.sm-row:active {
     transform: none;
   }
 }
+
+/* Drill screens (DrillScreen.tsx): the shared drill's cards and buttons in
+   the mobile look. The run itself (QuizRun) keeps its .qz rules. */
+.sm-drill {
+  padding-top: 16px;
+}
+.sm-drill .qz--dark {
+  padding: 0 var(--sm-gutter) 24px;
+}
+.sm-drill .dr-card {
+  gap: 10px;
+  padding: 20px 18px;
+  border-radius: 22px;
+  border: 1px solid var(--sm-card-line);
+  background: var(--sm-card);
+  box-shadow: var(--sm-shadow-card);
+}
+.sm-drill .dr-title {
+  font-family: var(--font-body);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--sm-ink);
+}
+.sm-drill .dr-text {
+  font-size: 16px;
+  line-height: 1.45;
+}
+.sm-drill .dr-text--muted {
+  font-size: 15px;
+}
+.sm-drill .dr-score {
+  font-family: var(--font-body);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.sm-drill .dr-module {
+  border-radius: 12px;
+  border-color: var(--sm-card-line);
+  background: var(--sm-pill);
+}
+.sm-drill .dr-module--weak {
+  border-color: var(--sm-alarm);
+}
+.sm-drill .dr-card .qz-next {
+  min-height: 52px;
+  margin-top: 6px;
+  border-radius: 15px;
+  font-size: 17px;
+  font-weight: 800;
+  box-shadow: var(--sm-shadow-card);
+}
+.sm-drill .dr-link {
+  min-height: 44px;
+  color: var(--sm-good);
+  font-size: 15px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+/* The pre-shift drill finished (drill/DrillCelebration.tsx). Always bottle
+   green: the section carries .sm-dark. */
+.sm-celebrate {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: radial-gradient(120% 60% at 50% 22%, var(--bottle-hero) 0%, var(--bottle) 60%);
+  color: var(--sm-ink);
+  font-family: var(--font-body);
+}
+.sm-celebrate-inner {
+  display: flex;
+  flex-direction: column;
+  max-width: var(--mobile-frame-max);
+  min-height: 100%;
+  margin: 0 auto;
+  padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px);
+  box-sizing: border-box;
+}
+.sm-celebrate-top {
+  display: flex;
+  justify-content: flex-end;
+  padding: 6px 8px 0;
+  color: var(--sm-ink-soft);
+}
+.sm-celebrate-ring {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 196px;
+}
+.sm-spark {
+  position: absolute;
+  fill: var(--gold-bright);
+  animation: sm-spark 1800ms ease-in-out infinite both;
+}
+.sm-spark:nth-child(even) {
+  fill: var(--gold-pale);
+}
+.sm-celebrate-dial {
+  position: relative;
+  width: 168px;
+  height: 168px;
+}
+.sm-celebrate-dial > svg {
+  position: absolute;
+  inset: 0;
+}
+.sm-celebrate-track {
+  fill: rgba(212, 175, 55, 0.08);
+  stroke: var(--sm-track);
+  stroke-width: 8;
+}
+.sm-celebrate-fill {
+  fill: none;
+  stroke: var(--gold-bright);
+  stroke-width: 8;
+  stroke-linecap: round;
+  animation: sm-ring-draw 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.sm-celebrate-count {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold-bright);
+  animation: sm-pop 520ms cubic-bezier(0.3, 1.4, 0.5, 1) 700ms both;
+}
+.sm-celebrate-number {
+  font-size: 54px;
+  line-height: 58px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--sm-ink);
+}
+.sm-celebrate-unit {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold-pale);
+}
+.sm-celebrate-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 24px 0;
+  text-align: center;
+}
+.sm-celebrate-text h1 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 35px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  outline: none;
+}
+.sm-celebrate-text p {
+  margin: 0;
+  font-size: 16px;
+  color: var(--sm-hero-soft);
+}
+.sm-celebrate-text .sm-celebrate-freeze {
+  font-size: 14px;
+  color: var(--sm-ink-soft);
+}
+.sm-celebrate-week {
+  margin: 18px 40px 0;
+}
+.sm-celebrate .sm-day--today.sm-day--done .sm-day-dot {
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3), 0 0 16px rgba(212, 175, 55, 0.6);
+  animation: sm-pop 520ms cubic-bezier(0.3, 1.4, 0.5, 1) 1000ms both;
+}
+
+/* The reminder card: paper, so the mobile light tokens again. */
+.sm-celebrate-card {
+  --sm-ink: var(--bottle);
+  --sm-ink-soft: var(--text-soft);
+  --sm-ink-faint: var(--color-warm-gray);
+  --qz-surface: var(--paper);
+  --qz-surface-alt: var(--cream-fill);
+  --qz-line: rgba(14, 42, 30, 0.14);
+  --qz-text: var(--bottle);
+  --qz-muted: var(--text-soft);
+  --qz-accent: var(--bottle);
+  --qz-accent-text: var(--paper);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 24px var(--sm-gutter) 0;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--paper);
+  color: var(--bottle);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+  color-scheme: light;
+}
+.sm-celebrate-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.sm-celebrate-card-icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: var(--bottle);
+  color: var(--paper);
+}
+.sm-celebrate-card .sm-icon-btn {
+  margin: -10px -10px 0 0;
+  color: var(--sm-ink-faint);
+}
+.sm-celebrate-card .dr-days-row {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+.sm-celebrate-card .dr-day {
+  min-width: 0;
+  padding: 0;
+  font-size: 13px;
+}
+.sm-celebrate-card .dr-text {
+  font-size: 15px;
+}
+.sm-celebrate-card .dr-link {
+  color: var(--green-mid);
+  text-decoration: none;
+  font-weight: 800;
+}
+.sm-celebrate-card .qz-check,
+.sm-celebrate-card .qz-next {
+  border-radius: 12px;
+  font-weight: 800;
+}
+.sm-celebrate-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: auto;
+  padding: 28px var(--sm-gutter) 32px;
+}
+.sm-celebrate-actions .sm-btn--gold {
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+}
+.sm-celebrate-actions .sm-btn--text {
+  color: var(--sm-hero-soft);
+}
+.sm-rise {
+  animation: sm-rise 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes sm-ring-draw {
+  from {
+    stroke-dashoffset: 452.4;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes sm-pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes sm-spark {
+  0%,
+  100% {
+    transform: scale(0.4);
+    opacity: 0.2;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes sm-rise {
+  from {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sm-celebrate-fill,
+  .sm-celebrate-count,
+  .sm-spark,
+  .sm-rise,
+  .sm-celebrate .sm-day--today.sm-day--done .sm-day-dot {
+    animation: none;
+  }
+}
