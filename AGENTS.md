@@ -47,6 +47,7 @@ Hyphens in words (`pre-shift`, `bar-back`, `30-day`) are fine.
 
 - **Every secret lives in Cloudflare Pages environment variables, and only there.** There is no `.env` file in this repo, on purpose.
 - **Never create, read or ask for an `.env` file**, and never ask for a key in chat. If work needs a key, the owner types it into their own terminal.
+- **Supabase's legacy keys are off.** Only `sb_publishable_...` and `sb_secret_...` keys work. The variables keep their old names (`NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) but hold the new keys.
 - **To see the signed-in app** (mobile, desktop or the Manager Console), use the QA account (`mitch+qa@servebyexample.co`) and follow `docs/LIVE_APP_TESTING.md`. The owner starts the app with their keys; you load the saved QA session and take the screenshots.
 
 ## 5. Before you hand work back

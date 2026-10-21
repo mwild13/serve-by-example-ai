@@ -3,6 +3,7 @@
 ## Security — Read These First
 
 - **There is no `.env` file in this repo, on purpose. NEVER create, read or ask for one**, and never ask for a key in chat. Secrets (OpenAI API key, Supabase secret key, Stripe secret key) live only in Cloudflare. To test the signed-in app, follow `docs/LIVE_APP_TESTING.md` (QA account, keys typed into the owner's own terminal).
+- **Supabase's legacy JWT keys (`anon`, `service_role`) are turned off.** Only the new keys work: `sb_publishable_...` in `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `sb_secret_...` in `SUPABASE_SERVICE_ROLE_KEY` (old variable names, new values). Never suggest or ask for a legacy key.
 - **NEVER print, log, or suggest hardcoding** any API key, secret, or credential.
 - All secrets are managed in Cloudflare Pages environment variables. Reference variable names only (e.g. `process.env.OPENAI_API_KEY`).
 - If a config change requires a secret value, ask the user to provide it directly — do not read it from any file.
