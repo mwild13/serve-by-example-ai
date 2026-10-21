@@ -26,6 +26,8 @@ import { normalizeVenueCode } from "@/lib/venue-code";
 
 type NavItem = StaffNavId;
 
+const THEME_KEY = "sbe-sd-theme";
+
 function StaffSettingsPanel({
   displayName,
   userEmail,
@@ -33,7 +35,11 @@ function StaffSettingsPanel({
   notifWeeklyDigest,
   initialJoinCode,
   hasBillingAccount,
+  dark,
+  onToggleDark,
 }: {
+  dark: boolean;
+  onToggleDark: () => void;
   displayName: string;
   userEmail: string;
   notifReminders: boolean;
@@ -297,11 +303,13 @@ function StaffSettingsPanel({
 
   return (
     <div className="sd-page">
-      <header className="sd-head">
-        <p className="sd-kicker">Account</p>
-        <h1 className="sd-title">Settings</h1>
+      <header className="sd-pagehead">
+        <div>
+          <h1 className="sd-title">Settings</h1>
+          <p className="sd-subtitle">Your name, sign-in, notifications and how the app looks.</p>
+        </div>
       </header>
-      <div className="sd-docket sd-settings">
+      <div className="sd-panel sd-settings">
       <div className="card">
         <h3>Display name</h3>
         <p>Update the name shown across your training dashboard.</p>
@@ -390,6 +398,15 @@ function StaffSettingsPanel({
               {isSavingNotifications ? "Saving..." : "Save preferences"}
             </button>
           </form>
+        </div>
+      </div>
+
+      <div className="card">
+        <h3>Appearance</h3>
+        <p>Light is cream. Dark is bottle green, easier on the eyes in a dim bar. Saved on this device.</p>
+        <div className="sd-tabs" role="radiogroup" aria-label="Appearance">
+          <button type="button" role="radio" aria-checked={!dark} className={`sd-tab${dark ? "" : " is-active"}`} onClick={() => dark && onToggleDark()}>Light</button>
+          <button type="button" role="radio" aria-checked={dark} className={`sd-tab${dark ? " is-active" : ""}`} onClick={() => !dark && onToggleDark()}>Dark</button>
         </div>
       </div>
 
@@ -539,6 +556,23 @@ export default function DashboardShell({
   const [userId, setUserId] = useState<string>("");
   const [selectedModuleId, setSelectedModuleId] = useState<number | null>(null);
   const [drillMode, setDrillMode] = useState<"mixed" | "preshift">("mixed");
+
+  // Light (cream) by default; dark is the bottle green "back bar". Saved per
+  // device, like the sidebar's collapsed state.
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    try {
+      // One-time read of a browser-only preference on mount.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDark(localStorage.getItem(THEME_KEY) === "dark");
+    } catch {}
+  }, []);
+  const toggleDark = useCallback(() => {
+    setDark((was) => {
+      try { localStorage.setItem(THEME_KEY, was ? "light" : "dark"); } catch {}
+      return !was;
+    });
+  }, []);
   const [showDiagnostic, setShowDiagnostic] = useState(false);
   const [userToken, setUserToken] = useState<string>(initialToken);
 
@@ -670,7 +704,7 @@ export default function DashboardShell({
   }
 
   return (
-    <main className="sd-shell">
+    <main className={`sd-shell${dark ? " sd-dark" : ""}`}>
       <SessionRefresher />
 
       {authErrorMessage && (
@@ -686,6 +720,8 @@ export default function DashboardShell({
         displayName={displayName}
         plan={plan}
         sponsored={hasVenueMembership}
+        dark={dark}
+        onToggleDark={toggleDark}
       />
 
       <section className="sd-main">
@@ -736,7 +772,7 @@ export default function DashboardShell({
         ) : activeNav === "module" ? (
           selectedModuleId ? (
             <div key={`module-${selectedModuleId}`} className="sd-reading">
-              <button type="button" className="sd-back sd-back-room" onClick={() => setSelectedModuleId(null)}>
+              <button type="button" className="sd-back" onClick={() => setSelectedModuleId(null)}>
                 <ArrowLeft size={16} strokeWidth={2} aria-hidden />
                 All modules
               </button>
@@ -771,30 +807,13 @@ export default function DashboardShell({
         ) : activeNav === "challenges" ? (
           <ChallengesPage />
         ) : activeNav === "cocktails" ? (
-          <div className="sd-page">
-            <header className="sd-head">
-              <p className="sd-kicker">Look it up</p>
-              <h1 className="sd-title">Cocktails</h1>
-              <p className="sd-lede">38 classic cocktails across 10 styles, with the spec, the glass and the garnish.</p>
-            </header>
-            <div className="sd-docket">
-              <Suspense fallback={<CocktailGridSkeleton count={12} />}>
-                <CocktailLibrary />
-              </Suspense>
-            </div>
-          </div>
+          <Suspense fallback={<CocktailGridSkeleton count={12} />}>
+            <CocktailLibrary />
+          </Suspense>
         ) : activeNav === "knowledge" ? (
-          <div className="sd-page">
-            <header className="sd-head">
-              <p className="sd-kicker">Look it up</p>
-              <h1 className="sd-title">Knowledge Base</h1>
-            </header>
-            <div className="sd-docket">
-              <Suspense fallback={<CocktailGridSkeleton count={12} />}>
-                <KnowledgeBase />
-              </Suspense>
-            </div>
-          </div>
+          <Suspense fallback={<CocktailGridSkeleton count={12} />}>
+            <KnowledgeBase />
+          </Suspense>
         ) : activeNav === "progress" || activeNav === "badges" ? (
           <MyProgressPage
             key="progress"
@@ -812,6 +831,8 @@ export default function DashboardShell({
             notifWeeklyDigest={notifWeeklyDigest}
             initialJoinCode={joinCodeFromUrl}
             hasBillingAccount={hasBillingAccount}
+            dark={dark}
+            onToggleDark={toggleDark}
           />
         )}
       </section>

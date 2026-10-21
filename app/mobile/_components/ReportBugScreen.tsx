@@ -60,7 +60,7 @@ export default function ReportBugScreen() {
           <CheckCircle2 size={48} strokeWidth={1.5} color="var(--gold-mobile)" aria-hidden="true" />
           <p style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "var(--text-mobile)" }}>Thanks for letting us know</p>
           <p style={{ margin: 0, fontSize: 14, lineHeight: "22px", color: "var(--text-mobile-muted)" }}>
-            Our team will get this fixed within 24–48 hours. If you need help sooner or have any further questions, reach us
+            Our team will get this fixed within 24 to 48 hours. If you need help sooner or have any further questions, reach us
             any time at{" "}
             <a href="mailto:info@servebyexample.co" style={{ color: "var(--gold-mobile)", fontWeight: 600 }}>
               info@servebyexample.co

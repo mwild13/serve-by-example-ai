@@ -8,13 +8,11 @@ import LiveGuest from "@/components/live-guest/LiveGuest";
 export default function LiveGuestPage({ getToken }: { getToken: () => Promise<string> }) {
   return (
     <div className="sd-page">
-      <header className="sd-head">
-        <p className="sd-kicker">Practise</p>
-        <h1 className="sd-title">Live Guest</h1>
-        <p className="sd-lede">
-          A guest who talks back, over three or four replies. Read them the way you would on shift, then see what they were
-          thinking at each turn.
-        </p>
+      <header className="sd-pagehead">
+        <div>
+          <h1 className="sd-title">Live Guest</h1>
+          <p className="sd-subtitle">A guest who talks back, over three or four replies. Read them the way you would on shift, then see what they were thinking at each turn.</p>
+        </div>
       </header>
       <LiveGuest getToken={getToken} theme="light" intro={false} layout="room" />
     </div>

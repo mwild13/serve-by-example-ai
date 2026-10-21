@@ -37,7 +37,7 @@ export const MODULE_21_QUESTIONS: Question[] = [
       { id: "d", text: "Only in a rush" },
     ],
     answer: "b",
-    explanation: "The call is required any time you move through an occupied space — even empty-handed. Collisions can happen without a tray.",
+    explanation: "The call is required any time you move through an occupied space, even empty-handed. Collisions can happen without a tray.",
     reviewed: true,
   },
   {
@@ -69,7 +69,7 @@ export const MODULE_21_QUESTIONS: Question[] = [
       { id: "d", text: "Behind a colleague" },
     ],
     answer: "a",
-    explanation: "Turning sideways and tucking elbows in — the \"compressed walk\" — minimises your physical footprint in a packed venue.",
+    explanation: "Turning sideways and tucking elbows in (the \"compressed walk\") minimises your physical footprint in a packed venue.",
     reviewed: true,
   },
   {
@@ -85,7 +85,7 @@ export const MODULE_21_QUESTIONS: Question[] = [
       { id: "d", text: "Calling \"Coming through!\" in the dining room" },
     ],
     answer: "b",
-    explanation: "Running causes collisions and spills. Walk fast with purpose and call ahead — \"Coming through!\" — to clear your path.",
+    explanation: "Running causes collisions and spills. Walk fast with purpose and call ahead (\"Coming through!\") to clear your path.",
     reviewed: true,
   },
   {

@@ -139,28 +139,30 @@ function RoomPicker({
   return (
     <>
       {lead && (
-        <section className="sd-feature" aria-labelledby="sd-lead-guest">
+        <section className="sd-panel sd-feature" aria-labelledby="sd-lead-guest">
           <div className="sd-feature-main">
-            <p className="sd-kicker sd-kicker-brass">{kicker}</p>
+            <p className="sd-label sd-label-accent">{kicker}</p>
             <h2 id="sd-lead-guest" className="sd-feature-title">{lead.title}</h2>
             <p className="sd-feature-body">{lead.setting}</p>
-            <p className="sd-meta">
+            <p className="sd-feature-meta">
               {LEVEL_LABEL[lead.level]}. {DIFFICULTY_LABEL[lead.difficulty]} with you{lead.passed ? ". You've sorted this one before" : ""}.
             </p>
-            <button type="button" className="sd-btn sd-btn-brass" disabled={starting !== null} onClick={() => onStart(lead.id)}>
+            <button type="button" className="sd-btn sd-btn-primary" disabled={starting !== null} onClick={() => onStart(lead.id)}>
               {guestCta(lead, starting)}
-              <ArrowRight size={18} strokeWidth={2} aria-hidden />
+              <ArrowRight size={16} strokeWidth={2.25} aria-hidden />
             </button>
           </div>
           {also.length > 0 && (
             <div className="sd-feature-also">
-              <p className="sd-kicker">Also suggested</p>
-              <ul>
+              <p className="sd-label">Also suggested</p>
+              <ul className="sd-list">
                 {also.map((g) => (
                   <li key={g.id}>
-                    <button type="button" className="sd-also" disabled={starting !== null} onClick={() => onStart(g.id)}>
-                      <span className="sd-also-title">{g.title}</span>
-                      <span className="sd-also-meta">{LEVEL_LABEL[g.level]}, {AREA_LABEL[g.area].toLowerCase()}</span>
+                    <button type="button" className="sd-list-row" disabled={starting !== null} onClick={() => onStart(g.id)}>
+                      <span className="sd-list-main">
+                        <span className="sd-list-title">{g.title}</span>
+                        <span className="sd-list-meta">{LEVEL_LABEL[g.level]}, {AREA_LABEL[g.area].toLowerCase()}</span>
+                      </span>
                     </button>
                   </li>
                 ))}
@@ -174,11 +176,11 @@ function RoomPicker({
         <p className="sd-planline">
           {taster?.used ? "You've had your free conversation. " : ""}
           Live Guest comes with every venue plan and venue trial, all {guests.length} guests. If you work at a venue, ask your manager to add you.{" "}
-          <Link href="/pricing" className="sd-link">See the plans</Link>
+          <Link href="/pricing" className="sd-textlink">See the plans</Link>
         </p>
       )}
 
-      <div className="sd-filter">
+      <div className="sd-toolbar">
         <div className="sd-tabs" role="tablist" aria-label="Guests by area">
           {areas.map((a) => (
             <button
@@ -195,6 +197,7 @@ function RoomPicker({
           ))}
         </div>
       </div>
+      <div className="sd-panel sd-panel-flush">
       <ol className="sd-rows">
         {rows.map((g) => (
           <li key={g.id} className="sd-row-item">
@@ -202,7 +205,7 @@ function RoomPicker({
               <span className="sd-row-main">
                 <span className="sd-row-title">
                   {g.title}
-                  {g.passed && <span className="sd-here">Sorted</span>}
+                  {g.passed && <span className="sd-tag">Sorted</span>}
                 </span>
                 <span className="sd-row-desc">{g.setting}</span>
               </span>
@@ -211,7 +214,7 @@ function RoomPicker({
                 {g.available ? (
                   <>
                     {starting === g.id ? "Starting…" : "Talk"}
-                    <ArrowRight size={16} strokeWidth={2} aria-hidden />
+                    <ArrowRight size={14} strokeWidth={2.25} aria-hidden />
                   </>
                 ) : (
                   <>
@@ -224,6 +227,7 @@ function RoomPicker({
           </li>
         ))}
       </ol>
+      </div>
     </>
   );
 }
@@ -365,8 +369,8 @@ export default function LiveGuest({ getToken, theme, intro = true, layout = "def
         {error && <p className="sd-error" role="alert">{error.message}</p>}
         {listError && <p className="sd-error" role="alert">{listError}</p>}
         {!guests && !listError && (
-          <div className="sd-tonight-wait" aria-hidden="true">
-            <span className="sd-skel sd-skel-kicker" />
+          <div className="sd-wait" aria-hidden="true">
+            <span className="sd-skel sd-skel-label" />
             <span className="sd-skel sd-skel-title" />
             <span className="sd-skel sd-skel-line" />
           </div>

@@ -69,7 +69,7 @@ export const MODULE_36_QUESTIONS: Question[] = [
       { id: "d", text: "\"Can I take anything?\"" },
     ],
     answer: "b",
-    explanation: "\"Okay\" invites a one-word dismissal. Better: \"How is the steak cooked for you?\" — a specific question gets a specific, useful answer.",
+    explanation: "\"Okay\" invites a one-word dismissal. Better: \"How is the steak cooked for you?\" A specific question gets a specific, useful answer.",
     reviewed: true,
   },
   {

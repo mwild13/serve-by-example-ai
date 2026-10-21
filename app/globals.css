@@ -142,32 +142,48 @@
   --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  /* ── Staff desktop, "the back bar" (docs/STAFF_DESKTOP_REDESIGN_PLAN.md) ──
-     Aliases only: bottle green room, brass for progress, cream sheets for
-     reading. Used by the sd- rules in app/styles/staff.css. */
-  --sd-room:        var(--green-deep);
-  --sd-rail:        var(--ip-green);
-  --sd-ink:         var(--nav-cream);                 /* 13.6:1 on the room */
-  --sd-ink-soft:    var(--text-light-on-dark);
-  --sd-ink-muted:   var(--text-light-muted-on-dark);
-  --sd-line:        var(--border-light-faint-on-dark);
-  --sd-line-strong: var(--border-light-on-dark);
-  --sd-tint:        var(--surface-tint-on-dark);
-  --sd-brass:       var(--gold-warm);                 /* 5.7:1 on the room: progress only */
-  --sd-brass-tint:  var(--gold-tint-on-dark);
-  --sd-brass-line:  var(--gold-line-on-dark);
-  --sd-sheet:       var(--surface);
-  --sd-sheet-ink:   var(--text);
-  --sd-sheet-line:  var(--line-light);
-  --sd-alarm:       var(--status-error);              /* a safety breach, nothing else */
-  --sd-sidebar-w:   248px;
-  --sd-content-max: 1120px;
-  --sd-gap-section: clamp(40px, 5vw, 64px);
-  --sd-fs-display:  clamp(2rem, 2.6vw, 2.75rem);
-  --sd-fs-title:    clamp(1.6rem, 2vw, 2rem);
-  --sd-fs-h3:       1.2rem;
-  --sd-fs-small:    0.875rem;
+  /* ── Staff desktop (/dashboard), docs/STAFF_APP.md section 8 ──
+     Cream by default with a bottle green sidebar; .sd-dark (below the :root
+     block) swaps in the green "back bar" values. Aliases only. */
+  --sd-bg:          var(--bg);
+  --sd-panel:       var(--surface);
+  --sd-panel-alt:   var(--bg-warm);
+  --sd-line:        var(--line-light);
+  --sd-line-strong: var(--line);
+  --sd-ink:         var(--text);
+  --sd-ink-soft:    var(--text-soft);
+  --sd-ink-muted:   var(--text-muted);
+  --sd-accent:       var(--green);
+  --sd-accent-hover: var(--green-deep);
+  --sd-accent-ink:   var(--surface-raised);
+  --sd-accent-tint:  var(--green-light);
+  --sd-good:        var(--green-mid);
+  --sd-track:       var(--line-light);
+  --sd-alarm:       var(--status-error);
+  --sd-alarm-tint:  var(--status-error-bg);
+  --sd-side:        var(--green-deep);
+  --sd-side-ink:    var(--nav-cream);
+  --sd-side-soft:   var(--text-light-on-dark);
+  --sd-side-muted:  var(--text-light-muted-on-dark);
+  --sd-side-hover:  var(--surface-tint-on-dark);
+  --sd-side-active: var(--border-light-faint-on-dark);
+  --sd-side-line:   var(--border-light-faint-on-dark);
+  --sd-shadow:      var(--shadow-xs);
+  --sd-hero:        var(--green);
+  --sd-hero-ink:    var(--nav-cream);
+  --sd-hero-muted:  var(--text-light-muted-on-dark);
+  --sd-hero-line:   var(--border-light-on-dark);
+  --sd-hero-btn:    var(--nav-cream);
+  --sd-hero-btn-ink: var(--green-deep);
+  --sd-sidebar-w:   240px;
+  --sd-content-max: 1200px;
+  --sd-gap:         16px;
+  --sd-fs-title:    1.5rem;
+  --sd-fs-h2:       1.0625rem;
+  --sd-fs-body:     0.9375rem;
+  --sd-fs-small:    0.8125rem;
   --sd-fs-label:    0.75rem;
+  --sd-fs-figure:   1.75rem;
 
   /* ── Mobile Staff Dashboard — Dark Mode (Figma: NEW-MOBILE-STAFF-DASHBOARD) ── */
   /* Extracted from the "home" and "me-progress" frames. Scoped to app/mobile/_components/. --green and
@@ -336,6 +352,30 @@
   --pic-lager: #e3a92f;
   --pic-foam:  #f8edcf;
   --pic-bubble: rgba(255, 255, 255, 0.7);
+}
+
+/* Staff desktop dark mode: the bottle green "back bar". Set by the theme
+   switch in the staff account menu (shell/StaffSidebar.tsx). Aliases only. */
+.sd-dark {
+  --sd-bg:          var(--green-deep);
+  --sd-panel:       var(--roi-forest-deep);
+  --sd-panel-alt:   var(--roi-forest);
+  --sd-line:        var(--border-light-faint-on-dark);
+  --sd-line-strong: var(--border-light-on-dark);
+  --sd-ink:         var(--nav-cream);
+  --sd-ink-soft:    var(--text-light-on-dark);
+  --sd-ink-muted:   var(--text-light-muted-on-dark);
+  --sd-accent:       var(--nav-cream);
+  --sd-accent-hover: var(--surface-raised);
+  --sd-accent-ink:   var(--green-deep);
+  --sd-accent-tint:  var(--surface-tint-on-dark);
+  --sd-good:        var(--roi-green-light);
+  --sd-track:       var(--border-light-faint-on-dark);
+  --sd-alarm-tint:  var(--surface-tint-on-dark);
+  --sd-side:        var(--ip-green);
+  --sd-shadow:      none;
+  --sd-hero:        var(--roi-forest);
+  color-scheme: dark;
 }
 /* ── Reset ─────────────────────────────────────── */
 *,
@@ -1659,13 +1699,6 @@ body {
 .cocktail-skeleton-card { min-height: 90px; }
 .skeleton-table { display: flex; flex-direction: column; gap: 6px; }
 .skeleton-table-row { display: flex; gap: 12px; padding: 8px 0; }
-/* ── 101 Knowledge Base ───────────────────────── */
-.kb-slide-facts li {
-  padding: 4px 0;
-  font-size: 0.88rem;
-  color: var(--text);
-  line-height: 1.5;
-}
 /* ── Solution section ──────────────────────────── */
 /* Product screenshot on a light section: rounded, hairline ring + soft lift (clip-path would cut the shadow) */
 .sbe-shot {

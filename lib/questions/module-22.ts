@@ -37,7 +37,7 @@ export const MODULE_22_QUESTIONS: Question[] = [
       { id: "d", text: "Yes, for soft drinks only" },
     ],
     answer: "b",
-    explanation: "Invisible micro-shards remain embedded in the ice. Partial clearing is not safe — the entire well must be burned.",
+    explanation: "Invisible micro-shards remain embedded in the ice. Partial clearing is not safe. The entire well must be burned.",
     reviewed: true,
   },
   {

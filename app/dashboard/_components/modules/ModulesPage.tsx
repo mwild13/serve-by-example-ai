@@ -5,9 +5,9 @@ import { ArrowDown, ArrowRight, ArrowUp, Search } from "lucide-react";
 import MasteryRing from "@/app/dashboard/_components/parts/MasteryRing";
 import { isMastered, isStarted, type StepModule } from "@/lib/next-step";
 
-// Modules as a path, not a grid (docs/STAFF_DESKTOP_REDESIGN_PLAN.md, 7.2):
-// one module lifted above the list with the reason it's suggested, then all
-// of them as ruled rows by level, the person's place marked in brass.
+// Modules as a path, not a grid (docs/STAFF_APP.md section 8): one module
+// lifted above the list with the reason it's suggested, then all of them as
+// rows by level in one panel, the next one marked.
 // Replaced DynamicModuleNav. Styles: the sd-modules rules in staff.css.
 
 type Module = StepModule & { description?: string | null };
@@ -113,15 +113,14 @@ export default function ModulesPage({
 
   return (
     <div className="sd-page sd-modules">
-      <header className="sd-head sd-head-split">
+      <header className="sd-pagehead">
         <div>
-          <p className="sd-kicker">Learn</p>
           <h1 className="sd-title">Modules</h1>
+          <p className="sd-subtitle">Short cards, then a quiz. Pass the quiz and the module is mastered.</p>
         </div>
         {modules && (
-          <p className="sd-head-figure">
-            <strong>{mastered}</strong> of {all.length} mastered
-            {started > 0 ? <span>, {started} on the go</span> : null}
+          <p className="sd-pagehead-aside">
+            <strong>{mastered}</strong> of {all.length} mastered{started > 0 ? `, ${started} on the go` : ""}
           </p>
         )}
       </header>
@@ -129,33 +128,38 @@ export default function ModulesPage({
       {error && <p className="sd-error" role="alert">{error}</p>}
 
       {!modules && !error && (
-        <div className="sd-tonight-wait" aria-hidden="true">
-          <span className="sd-skel sd-skel-kicker" />
-          <span className="sd-skel sd-skel-title" />
-          <span className="sd-skel sd-skel-line" />
+        <div className="sd-panel">
+          <div className="sd-wait" aria-hidden="true">
+            <span className="sd-skel sd-skel-label" />
+            <span className="sd-skel sd-skel-title" />
+            <span className="sd-skel sd-skel-line" />
+          </div>
         </div>
       )}
 
       {featured && (
-        <section className="sd-feature" aria-labelledby="sd-feature-title">
+        <section className="sd-panel sd-feature" aria-labelledby="sd-feature-title">
           <div className="sd-feature-main">
-            <p className="sd-kicker sd-kicker-brass">{featured.recommendation_reason ?? "Suggested next"}</p>
+            <p className="sd-label sd-label-accent">{featured.recommendation_reason ?? "Suggested next"}</p>
             <h2 id="sd-feature-title" className="sd-feature-title">{featured.title}</h2>
             {featured.description && <p className="sd-feature-body">{featured.description}</p>}
-            <button type="button" className="sd-btn sd-btn-brass" onClick={() => onOpenModule(featured.id)}>
+            <button type="button" className="sd-btn sd-btn-primary" onClick={() => onOpenModule(featured.id)}>
               {featuredCta}
-              <ArrowRight size={18} strokeWidth={2} aria-hidden />
+              <ArrowRight size={16} strokeWidth={2.25} aria-hidden />
             </button>
           </div>
           {alsoSuggested.length > 0 && (
             <div className="sd-feature-also">
-              <p className="sd-kicker">Also suggested</p>
-              <ul>
+              <p className="sd-label">Also suggested</p>
+              <ul className="sd-list">
                 {alsoSuggested.map((m) => (
                   <li key={m.id}>
-                    <button type="button" className="sd-also" onClick={() => onOpenModule(m.id)}>
-                      <span className="sd-also-title">{m.title}</span>
-                      <span className="sd-also-meta">{AREA_LABEL[m.category] ?? m.category}</span>
+                    <button type="button" className="sd-list-row" onClick={() => onOpenModule(m.id)}>
+                      <MasteryRing module={m} />
+                      <span className="sd-list-main">
+                        <span className="sd-list-title">{m.title}</span>
+                        <span className="sd-list-meta">{AREA_LABEL[m.category] ?? m.category}</span>
+                      </span>
                     </button>
                   </li>
                 ))}
@@ -167,7 +171,7 @@ export default function ModulesPage({
 
       {modules && (
         <>
-          <div className="sd-filter">
+          <div className="sd-toolbar">
             <div className="sd-tabs" role="tablist" aria-label="Area">
               {AREAS.map((a) => (
                 <button
@@ -190,46 +194,50 @@ export default function ModulesPage({
             </label>
           </div>
 
-          {shown.length === 0 && <p className="sd-empty">No module matches &ldquo;{query}&rdquo;.</p>}
-
-          {LEVELS.map((level) => {
-            const rows = shown.filter((m) => level.test(m.difficulty_level));
-            if (rows.length === 0) return null;
-            const done = rows.filter(isMastered).length;
-            return (
-              <section key={level.id} className="sd-level" aria-labelledby={`sd-level-${level.id}`}>
-                <div className="sd-level-head">
-                  <h2 id={`sd-level-${level.id}`} className="sd-level-title">{level.label}</h2>
-                  <p className="sd-level-count">{done} of {rows.length} mastered</p>
-                </div>
-                <ol className="sd-rows">
-                  {rows.map((m) => {
-                    const here = m.id === hereId;
-                    return (
-                      <li key={m.id} ref={here ? hereRef : undefined} className={`sd-row-item${here ? " is-here" : ""}`}>
-                        <button type="button" className="sd-row" onClick={() => onOpenModule(m.id)}>
-                          <MasteryRing module={m} />
-                          <span className="sd-row-main">
-                            <span className="sd-row-title">
-                              {m.title}
-                              {here && <span className="sd-here">You&apos;re here</span>}
-                            </span>
-                            {m.description && <span className="sd-row-desc">{m.description}</span>}
-                          </span>
-                          <span className="sd-row-area">{AREA_LABEL[m.category] ?? m.category}</span>
-                          <span className="sd-row-status">{statusText(m)}</span>
-                          <span className="sd-row-action">
-                            {actionText(m)}
-                            <ArrowRight size={16} strokeWidth={2} aria-hidden />
-                          </span>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ol>
-              </section>
-            );
-          })}
+          {shown.length === 0 ? (
+            <p className="sd-empty">No module matches &ldquo;{query}&rdquo;.</p>
+          ) : (
+            <div className="sd-panel sd-panel-flush">
+              {LEVELS.map((level) => {
+                const rows = shown.filter((m) => level.test(m.difficulty_level));
+                if (rows.length === 0) return null;
+                const done = rows.filter(isMastered).length;
+                return (
+                  <section key={level.id} aria-labelledby={`sd-level-${level.id}`}>
+                    <div className="sd-rows-head">
+                      <h2 id={`sd-level-${level.id}`} className="sd-label">{level.label}</h2>
+                      <p className="sd-note">{done} of {rows.length} mastered</p>
+                    </div>
+                    <ol className="sd-rows">
+                      {rows.map((m) => {
+                        const here = m.id === hereId;
+                        return (
+                          <li key={m.id} ref={here ? hereRef : undefined} className={`sd-row-item${here ? " is-here" : ""}`}>
+                            <button type="button" className="sd-row" onClick={() => onOpenModule(m.id)}>
+                              <MasteryRing module={m} />
+                              <span className="sd-row-main">
+                                <span className="sd-row-title">
+                                  {m.title}
+                                  {here && <span className="sd-tag">Up next</span>}
+                                </span>
+                                {m.description && <span className="sd-row-desc">{m.description}</span>}
+                              </span>
+                              <span className="sd-row-area">{AREA_LABEL[m.category] ?? m.category}</span>
+                              <span className="sd-row-status">{statusText(m)}</span>
+                              <span className="sd-row-action">
+                                {actionText(m)}
+                                <ArrowRight size={14} strokeWidth={2.25} aria-hidden />
+                              </span>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  </section>
+                );
+              })}
+            </div>
+          )}
         </>
       )}
 

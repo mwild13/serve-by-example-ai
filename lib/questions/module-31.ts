@@ -61,7 +61,7 @@ export const MODULE_31_QUESTIONS: Question[] = [
     unit: "litres",
     answer: 1,
     tolerance: 0,
-    explanation: "At 200 drinks per night, 5ml over means 1 full litre of spirits given away for free, a devastating impact on gross profit.",
+    explanation: "At 200 drinks per night, 5ml over means 1 full litre of spirits given away for free, .",
     reviewed: true,
   },
   {

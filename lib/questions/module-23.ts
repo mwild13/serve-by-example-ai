@@ -53,7 +53,7 @@ export const MODULE_23_QUESTIONS: Question[] = [
       { id: "d", text: "They're about to leave" },
     ],
     answer: "b",
-    explanation: "The \"lost look\" — open menu, scanning eyes — is one of the clearest visual cues that the guest needs assistance.",
+    explanation: "The \"lost look\" (open menu, scanning eyes) is one of the clearest visual cues that the guest needs assistance.",
     reviewed: true,
   },
   {

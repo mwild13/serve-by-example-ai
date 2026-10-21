@@ -94,7 +94,7 @@ export const MODULE_1_QUESTIONS: Question[] = [
     unit: "cm",
     answer: 1.5,
     tolerance: 0,
-    explanation: "A 1–1.5 cm head preserves the beer's carbonation and aroma without short-changing the guest on liquid.",
+    explanation: "A 1 to 1.5 cm head preserves the beer's carbonation and aroma without short-changing the guest on liquid.",
     reviewed: true,
   },
   {

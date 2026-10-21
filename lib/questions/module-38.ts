@@ -21,7 +21,7 @@ export const MODULE_38_QUESTIONS: Question[] = [
       { id: "d", text: "At the end of the night" },
     ],
     answer: "a",
-    explanation: "Pre-bussing — removing finished glasses and side plates as they are done — is standard professional table management.",
+    explanation: "Pre-bussing, removing finished glasses and side plates as they are done, is standard professional table management.",
     reviewed: true,
   },
   {

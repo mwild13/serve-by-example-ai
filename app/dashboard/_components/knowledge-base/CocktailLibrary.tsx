@@ -1,12 +1,17 @@
 "use client";
 
-import { useState, useMemo, useSyncExternalStore } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
+import { Bookmark, BookmarkCheck, Search } from "lucide-react";
 import { COCKTAILS, CATEGORIES, COCKTAIL_IMAGES, type Category } from "@/lib/cocktails";
 
-const CATEGORY_KEYS = Object.keys(CATEGORIES) as Category[];
+// The cocktail library on the staff desktop (docs/STAFF_APP.md section 8):
+// the list on the left, the whole spec on the right, so a recipe is one click
+// and nothing covers the list. Mobile has its own screen
+// (app/mobile/_components/CocktailLibraryScreen.tsx). Styles: the sd-ref
+// rules in app/styles/staff.css.
 
-type Cocktail = (typeof COCKTAILS)[number];
+const CATEGORY_KEYS = Object.keys(CATEGORIES) as Category[];
 
 // Bookmarks are kept in this browser only. They used to live in component
 // state and vanished on the next page, so a bookmark seemed to go nowhere.
@@ -52,222 +57,32 @@ function saveBookmarks(names: Set<string>) {
   bookmarkListeners.forEach((notify) => notify());
 }
 
-function DetailSheet({
-  cocktail,
-  bookmarked,
-  onClose,
-  onToggleBookmark,
-}: {
-  cocktail: Cocktail;
-  bookmarked: boolean;
-  onClose: () => void;
-  onToggleBookmark: () => void;
-}) {
-  const catMeta = CATEGORIES[cocktail.category];
-  const photo = COCKTAIL_IMAGES[cocktail.name];
-  return (
-    <div
-      style={{
-        position: "fixed", inset: 0, zIndex: 200,
-        display: "flex", flexDirection: "column", justifyContent: "flex-end",
-      }}
-      onClick={onClose}
-    >
-      {/* backdrop */}
-      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)" }} />
-
-      {/* sheet */}
-      <div
-        style={{
-          position: "relative",
-          // Full width on a phone; on a desktop a centred card, so the
-          // square photos are not cropped to a strip across the screen.
-          width: "100%",
-          maxWidth: 720,
-          alignSelf: "center",
-          background: "var(--bg-cream-warm)",
-          borderRadius: "14px 14px 0 0",
-          maxHeight: "82vh",
-          display: "flex", flexDirection: "column",
-          boxShadow: "0 -4px 32px rgba(0,0,0,0.18)",
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* drag handle */}
-        <div style={{ padding: "12px 0 0", display: "flex", justifyContent: "center" }}>
-          <div style={{ width: 38, height: 4, background: "var(--border-cocktail)", borderRadius: 2 }} />
-        </div>
-
-        {/* header */}
-        <div style={{ padding: "14px 20px 12px", borderBottom: "1px solid var(--border-warm-soft)" }}>
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-            <div>
-              <div style={{ fontSize: 19, fontWeight: 700, color: "var(--color-ink-warm)", letterSpacing: "-0.01em", marginBottom: 4 }}>
-                {cocktail.name}
-              </div>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-                <span
-                  style={{
-                    display: "inline-block",
-                    fontSize: 11, fontWeight: 600,
-                    background: catMeta.color + "22",
-                    color: catMeta.color,
-                    border: `1px solid ${catMeta.color}44`,
-                    padding: "2px 8px", borderRadius: 4,
-                    letterSpacing: "0.03em",
-                  }}
-                >
-                  {catMeta.label}
-                </span>
-                {cocktail.featured && (
-                  <span style={{ fontSize: 10, fontWeight: 700, color: "var(--color-amber-gold)", background: "var(--status-amber-bg)", border: "1px solid var(--gold-light)", padding: "2px 7px", borderRadius: 4, letterSpacing: "0.04em", textTransform: "uppercase" as const }}>
-                    Most Common
-                  </span>
-                )}
-                {cocktail.origin && (
-                  <span style={{ fontSize: 10, color: "var(--color-warm-gray)" }}>{cocktail.origin}</span>
-                )}
-              </div>
-            </div>
-            <button
-              onClick={onClose}
-              style={{
-                background: "var(--bg-cocktail-card)", border: "none", borderRadius: 20,
-                width: 30, height: 30, cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 18, color: "var(--color-warm-gray)", flexShrink: 0,
-              }}
-              aria-label="Close"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-
-        {/* scrollable body */}
-        <div style={{ overflowY: "auto", WebkitOverflowScrolling: "touch" as const, flex: 1, padding: "16px 20px" }}>
-
-          {/* Photo beside the recipe from 640px up, so the whole card fits a
-              laptop screen; stacked above it on a phone (staff.css). */}
-          <div className={photo ? "cocktail-sheet-main" : undefined}>
-            {photo && (
-              <div className="cocktail-sheet-photo">
-                <Image src={photo} alt={cocktail.name} fill sizes="(max-width: 639px) 240px, 220px" style={{ objectFit: "cover" }} />
-              </div>
-            )}
-
-            {/* Ingredients + Method side by side */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
-              <div>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "var(--color-warm-tan)", textTransform: "uppercase", marginBottom: 7 }}>
-                  Ingredients
-                </div>
-                <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 5 }}>
-                  {cocktail.ingredients.map((ing) => (
-                    <li key={ing} style={{ fontSize: 13, color: "var(--color-warm-dark)", lineHeight: 1.35, display: "flex", alignItems: "flex-start", gap: 6 }}>
-                      <span style={{ color: "var(--color-warm-tan)", flexShrink: 0, marginTop: 1 }}>·</span>
-                      {ing}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {[
-                  { label: "Method",  value: cocktail.method  },
-                  { label: "Glass",   value: cocktail.glass   },
-                  { label: "Garnish", value: cocktail.garnish },
-                ].map(({ label, value }) => (
-                  <div key={label}>
-                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "var(--color-warm-mid)", textTransform: "uppercase", marginBottom: 3 }}>
-                      {label}
-                    </div>
-                    <div style={{ fontSize: 13, color: "var(--color-warm-dark)", lineHeight: 1.4 }}>{value}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Training tip */}
-          <div style={{
-            background: "var(--bg-green-subtle)",
-            border: "1px solid var(--border-green-light)",
-            borderRadius: 8,
-            padding: "12px 14px",
-          }}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "var(--green-gradient-mid)", textTransform: "uppercase", marginBottom: 5 }}>
-              Training Tip
-            </div>
-            <p style={{ margin: 0, fontSize: 13, color: "var(--roi-forest)", lineHeight: 1.5 }}>{cocktail.tip}</p>
-          </div>
-        </div>
-
-        {/* Actions sit outside the scrolling body, so they are always on
-            screen however long the recipe is. */}
-        <div
-          style={{
-            display: "flex", gap: 10, flexShrink: 0,
-            padding: "12px 20px calc(12px + env(safe-area-inset-bottom, 0px))",
-            borderTop: "1px solid var(--border-warm-soft)",
-          }}
-        >
-          <button
-            style={{
-              flex: 1, padding: "12px 0",
-              background: bookmarked ? "transparent" : "var(--ip-green)",
-              color: bookmarked ? "var(--ip-green)" : "var(--surface-raised)",
-              border: bookmarked ? "1.5px solid var(--ip-green)" : "none",
-              borderRadius: 6,
-              fontSize: 14, fontWeight: 600, cursor: "pointer",
-            }}
-            onClick={onToggleBookmark}
-            aria-pressed={bookmarked}
-          >
-            {bookmarked ? "Remove bookmark" : "Bookmark"}
-          </button>
-          <button
-            style={{
-              flex: 1, padding: "12px 0",
-              background: "transparent",
-              color: "var(--color-warm-dark)",
-              border: "1.5px solid var(--border-cocktail)",
-              borderRadius: 6,
-              fontSize: 14, fontWeight: 600, cursor: "pointer",
-            }}
-            onClick={onClose}
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
+type Filter = Category | "all" | "bookmarked";
 
 export default function CocktailLibrary() {
-  const [activeCategory, setActiveCategory] = useState<Category | "all">("all");
-  const [showBookmarked, setShowBookmarked] = useState(false);
+  const [filter, setFilter] = useState<Filter>("all");
   const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState<Cocktail | null>(null);
+  const [selectedName, setSelectedName] = useState<string | null>(null);
   // The server render has no localStorage, so it starts with no bookmarks.
   const bookmarksRaw = useSyncExternalStore(subscribeBookmarks, bookmarksSnapshot, () => "[]");
   const bookmarks = useMemo(() => parseBookmarks(bookmarksRaw), [bookmarksRaw]);
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase();
+    const q = search.trim().toLowerCase();
     const results = COCKTAILS.filter((c) => {
-      const matchesCat = showBookmarked ? bookmarks.has(c.name) : activeCategory === "all" || c.category === activeCategory;
-      const matchesSearch = c.name.toLowerCase().includes(q);
-      return matchesCat && matchesSearch;
+      const inFilter = filter === "all" ? true : filter === "bookmarked" ? bookmarks.has(c.name) : c.category === filter;
+      const inSearch = !q || c.name.toLowerCase().includes(q) || c.ingredients.some((i) => i.toLowerCase().includes(q));
+      return inFilter && inSearch;
     });
-
     return [...results].sort((a, b) => {
       if (a.featured && b.featured) return a.featuredOrder - b.featuredOrder;
       if (a.featured) return -1;
       if (b.featured) return 1;
       return a.name.localeCompare(b.name);
     });
-  }, [activeCategory, search, showBookmarked, bookmarks]);
+  }, [filter, search, bookmarks]);
+
+  const selected = filtered.find((c) => c.name === selectedName) ?? filtered[0] ?? null;
 
   function toggleBookmark(name: string) {
     const next = new Set(bookmarks);
@@ -276,116 +91,141 @@ export default function CocktailLibrary() {
     saveBookmarks(next);
   }
 
+  const filters: { id: Filter; label: string; count: number }[] = [
+    { id: "all", label: "All", count: COCKTAILS.length },
+    { id: "bookmarked", label: "Bookmarked", count: bookmarks.size },
+    ...CATEGORY_KEYS.map((k) => ({ id: k as Filter, label: CATEGORIES[k].label, count: COCKTAILS.filter((c) => c.category === k).length })).filter(
+      (f) => f.count > 0,
+    ),
+  ];
+
+  const photo = selected ? COCKTAIL_IMAGES[selected.name] : undefined;
+  const marked = selected ? bookmarks.has(selected.name) : false;
+
   return (
-    <div>
-      <div className="cocktail-search-row">
-        <input
-          className="cocktail-search"
-          type="text"
-          placeholder="Search cocktails…"
-          value={search}
-          onChange={(e) => { setSearch(e.target.value); setSelected(null); }}
-        />
-        {search && (
+    <div className="sd-page sd-ref">
+      <header className="sd-pagehead">
+        <div>
+          <h1 className="sd-title">Cocktails</h1>
+          <p className="sd-subtitle">{COCKTAILS.length} classics with the spec, the method, the glass and the garnish.</p>
+        </div>
+        <label className="sd-search">
+          <Search size={16} strokeWidth={2} aria-hidden />
+          <span className="sd-visually-hidden">Find a cocktail or ingredient</span>
+          <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cocktail or ingredient" />
+        </label>
+      </header>
+
+      <div className="sd-tabs sd-ref-filters" role="tablist" aria-label="Style">
+        {filters.map((f) => (
           <button
-            className="btn btn-secondary"
-            style={{ marginLeft: 8, padding: "8px 14px", fontSize: ".9rem" }}
-            onClick={() => { setSearch(""); setSelected(null); }}
+            key={f.id}
+            type="button"
+            role="tab"
+            aria-selected={filter === f.id}
+            className={`sd-tab${filter === f.id ? " is-active" : ""}`}
+            onClick={() => setFilter(f.id)}
           >
-            Clear
+            {f.label}
+            <span className="sd-tab-count">{f.count}</span>
           </button>
+        ))}
+      </div>
+
+      <div className="sd-ref-split">
+        <section className="sd-panel sd-panel-flush sd-ref-list" aria-label="Cocktails">
+          {filtered.length === 0 ? (
+            <p className="sd-empty sd-ref-empty">
+              {filter === "bookmarked" && !search ? "Nothing bookmarked yet. Open a cocktail and bookmark it." : "No cocktail matches that."}
+            </p>
+          ) : (
+            <ul className="sd-list">
+              {filtered.map((c) => {
+                const thumb = COCKTAIL_IMAGES[c.name];
+                const active = selected?.name === c.name;
+                return (
+                  <li key={c.name}>
+                    <button
+                      type="button"
+                      className={`sd-list-row sd-ref-row${active ? " is-active" : ""}`}
+                      aria-current={active ? "true" : undefined}
+                      onClick={() => setSelectedName(c.name)}
+                    >
+                      <span className="sd-ref-thumb">
+                        {thumb && <Image src={thumb} alt="" fill sizes="44px" />}
+                      </span>
+                      <span className="sd-list-main">
+                        <span className="sd-list-title">{c.name}</span>
+                        <span className="sd-list-meta">{CATEGORIES[c.category].label}, {c.glass.toLowerCase()}</span>
+                      </span>
+                      {bookmarks.has(c.name) && <BookmarkCheck size={16} strokeWidth={2} className="sd-ref-mark" aria-label="Bookmarked" />}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+
+        {selected && (
+          <article className="sd-panel sd-ref-detail" aria-labelledby="sd-ref-title">
+            <div className="sd-ref-detail-top">
+              {photo && (
+                <div className="sd-ref-photo">
+                  <Image src={photo} alt={selected.name} fill sizes="(max-width: 900px) 100vw, 240px" />
+                </div>
+              )}
+              <div className="sd-ref-heading">
+                <p className="sd-label">
+                  {CATEGORIES[selected.category].label}
+                  {selected.featured ? " · Most common" : ""}
+                </p>
+                <h2 id="sd-ref-title" className="sd-ref-title">{selected.name}</h2>
+                {selected.origin && <p className="sd-note">{selected.origin}</p>}
+                <button
+                  type="button"
+                  className={`sd-btn ${marked ? "sd-btn-ghost" : "sd-btn-primary"}`}
+                  aria-pressed={marked}
+                  onClick={() => toggleBookmark(selected.name)}
+                >
+                  {marked ? <BookmarkCheck size={16} strokeWidth={2} aria-hidden /> : <Bookmark size={16} strokeWidth={2} aria-hidden />}
+                  {marked ? "Bookmarked" : "Bookmark"}
+                </button>
+              </div>
+            </div>
+
+            <div className="sd-ref-cols">
+              <section>
+                <h3 className="sd-label">Spec</h3>
+                <ul className="sd-ref-spec">
+                  {selected.ingredients.map((ing) => (
+                    <li key={ing}>{ing}</li>
+                  ))}
+                </ul>
+              </section>
+              <dl className="sd-ref-facts">
+                <div>
+                  <dt className="sd-label">Method</dt>
+                  <dd>{selected.method}</dd>
+                </div>
+                <div>
+                  <dt className="sd-label">Glass</dt>
+                  <dd>{selected.glass}</dd>
+                </div>
+                <div>
+                  <dt className="sd-label">Garnish</dt>
+                  <dd>{selected.garnish}</dd>
+                </div>
+              </dl>
+            </div>
+
+            <div className="sd-ref-tip">
+              <p className="sd-label sd-label-accent">On shift</p>
+              <p>{selected.tip}</p>
+            </div>
+          </article>
         )}
       </div>
-
-      <div className="cocktail-filter-row">
-        <div
-          className={`chat-pill${!showBookmarked && activeCategory === "all" ? " chat-pill-active" : ""}`}
-          onClick={() => { setShowBookmarked(false); setActiveCategory("all"); setSelected(null); }}
-        >
-          All ({COCKTAILS.length})
-        </div>
-        <div
-          className={`chat-pill${showBookmarked ? " chat-pill-active" : ""}`}
-          onClick={() => { setShowBookmarked(true); setSelected(null); }}
-        >
-          Bookmarked ({bookmarks.size})
-        </div>
-        {CATEGORY_KEYS.filter((key) => COCKTAILS.some((c) => c.category === key)).map((key) => {
-          const count = COCKTAILS.filter((c) => c.category === key).length;
-          return (
-            <div
-              key={key}
-              className={`chat-pill${!showBookmarked && activeCategory === key ? " chat-pill-active" : ""}`}
-              onClick={() => { setShowBookmarked(false); setActiveCategory(key); setSelected(null); }}
-            >
-              {CATEGORIES[key].label} ({count})
-            </div>
-          );
-        })}
-      </div>
-
-      {search && (
-        <p style={{ color: "var(--text-soft)", fontSize: ".9rem", margin: "8px 0 16px" }}>
-          {filtered.length} result{filtered.length !== 1 ? "s" : ""} for &ldquo;{search}&rdquo;
-        </p>
-      )}
-
-      {filtered.length > 0 ? (
-        <div className="cocktail-grid">
-          {filtered.map((cocktail) => {
-            const catMeta = CATEGORIES[cocktail.category];
-            const bookmarked = bookmarks.has(cocktail.name);
-            const photo = COCKTAIL_IMAGES[cocktail.name];
-            return (
-              <div
-                key={cocktail.name}
-                className="cocktail-card"
-                onClick={() => setSelected(cocktail)}
-                style={{ cursor: "pointer" }}
-              >
-                {photo && (
-                  <div className="cocktail-card-photo">
-                    <Image src={photo} alt="" fill sizes="(max-width: 700px) 100vw, 280px" style={{ objectFit: "cover" }} />
-                  </div>
-                )}
-                <div className="cocktail-card-header">
-                  <strong className="cocktail-name">{cocktail.name}</strong>
-                  <span
-                    className="cocktail-badge"
-                    style={{ background: catMeta.color + "22", color: catMeta.color, borderColor: catMeta.color + "44" }}
-                  >
-                    {catMeta.label}
-                  </span>
-                </div>
-                <div className="cocktail-glass-hint">{cocktail.glass}</div>
-                <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
-                  {cocktail.featured && (
-                    <div style={{ fontSize: 10, color: "var(--color-amber-gold)", fontWeight: 700, background: "var(--status-amber-bg)", border: "1px solid var(--gold-light)", display: "inline-block", padding: "2px 7px", borderRadius: 4, letterSpacing: "0.04em", textTransform: "uppercase" }}>Most Common</div>
-                  )}
-                  {bookmarked && (
-                    <div style={{ fontSize: 10, color: "var(--ip-green)", fontWeight: 700, background: "var(--bg-green-subtle)", border: "1px solid var(--border-green-light)", display: "inline-block", padding: "2px 7px", borderRadius: 4, letterSpacing: "0.04em", textTransform: "uppercase" }}>Bookmarked</div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div style={{ padding: "40px 0", textAlign: "center", color: "var(--text-soft)" }}>
-          {showBookmarked && bookmarks.size === 0
-            ? "No bookmarks yet. Open a cocktail and press Bookmark to save it here."
-            : <>No cocktails found for &ldquo;{search}&rdquo;.</>}
-        </div>
-      )}
-
-      {selected && (
-        <DetailSheet
-          cocktail={selected}
-          bookmarked={bookmarks.has(selected.name)}
-          onClose={() => setSelected(null)}
-          onToggleBookmark={() => toggleBookmark(selected.name)}
-        />
-      )}
     </div>
   );
 }

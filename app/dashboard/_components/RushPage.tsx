@@ -8,13 +8,11 @@ import SaturdayRush from "@/components/rush/SaturdayRush";
 export default function RushPage({ getToken }: { getToken: () => Promise<string> }) {
   return (
     <div className="sd-page sd-rush">
-      <header className="sd-head">
-        <p className="sd-kicker">Practise</p>
-        <h1 className="sd-title">Saturday Rush</h1>
-        <p className="sd-lede">
-          A Saturday night shift against the clock. Every call moves the guests, the speed, the money and the safety. Keys 1 to 4
-          choose, B calls the bar-back.
-        </p>
+      <header className="sd-pagehead">
+        <div>
+          <h1 className="sd-title">Saturday Rush</h1>
+          <p className="sd-subtitle">A Saturday night shift against the clock. Every call moves the guests, the speed, the money and the safety. Keys 1 to 4 choose, B calls the bar-back.</p>
+        </div>
       </header>
       <SaturdayRush theme="room" getToken={getToken} />
     </div>

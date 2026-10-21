@@ -34,7 +34,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "The ideal head on a schooner is roughly 1.5 cm.",
       answer: "true",
-      explanation: "A 1–1.5 cm head preserves the beer's carbonation and aroma without short-changing the guest on liquid.",
+      explanation: "A 1 to 1.5 cm head preserves the beer's carbonation and aroma without short-changing the guest on liquid.",
     },
     {
       prompt: "A dirty beer line makes the beer taste like butter.",
@@ -860,7 +860,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: 'You only need to call "Behind!" when carrying a full tray.',
       answer: "false",
-      explanation: "The call is required any time you move through an occupied space — even empty-handed. Collisions can happen without a tray.",
+      explanation: "The call is required any time you move through an occupied space, even empty-handed. Collisions can happen without a tray.",
     },
     {
       prompt: 'The word "Corner!" is used to warn others before stepping around a blind corner.',
@@ -875,12 +875,12 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Compressing your body sideways when moving through a crowd reduces collision risk.",
       answer: "true",
-      explanation: "Turning sideways and tucking elbows in — the \"compressed walk\" — minimises your physical footprint in a packed venue.",
+      explanation: "Turning sideways and tucking elbows in (the \"compressed walk\") minimises your physical footprint in a packed venue.",
     },
     {
       prompt: "Staff should run between the bar and kitchen during busy service.",
       answer: "false",
-      explanation: 'Running causes collisions and spills. Walk fast with purpose and call ahead — "Coming through!" — to clear your path.',
+      explanation: 'Running causes collisions and spills. Walk fast with purpose and call ahead ("Coming through!") to clear your path.',
     },
     {
       prompt: '"Coming through!" is the correct call when navigating a crowded dining room.',
@@ -903,7 +903,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "You can scoop out visible glass pieces and continue using the remaining ice.",
       answer: "false",
-      explanation: "Invisible micro-shards remain embedded in the ice. Partial clearing is not safe — the entire well must be burned.",
+      explanation: "Invisible micro-shards remain embedded in the ice. Partial clearing is not safe. The entire well must be burned.",
     },
     {
       prompt: "Hot water is poured into the well to melt all ice during a Burn Protocol.",
@@ -913,7 +913,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "A glass breaking in the ice well only needs to be reported, not cleaned immediately.",
       answer: "false",
-      explanation: "The contamination is immediate. Every drink poured from that point on is potentially dangerous — the well must be burned at once.",
+      explanation: "The contamination is immediate. Every drink poured from that point on is potentially dangerous. The well must be burned at once.",
     },
     {
       prompt: "Using a glass to scoop ice is the leading cause of ice well glass contamination.",
@@ -951,7 +951,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "A guest looking around the room while holding a menu likely needs a server.",
       answer: "true",
-      explanation: "The \"lost look\" — open menu, scanning eyes — is one of the clearest visual cues that the guest needs assistance.",
+      explanation: "The \"lost look\" (open menu, scanning eyes) is one of the clearest visual cues that the guest needs assistance.",
     },
     {
       prompt: "A raised hand from a guest can wait until you have finished your current task.",
@@ -1100,7 +1100,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Knowing which button number maps to which syrup is essential bar knowledge.",
       answer: "true",
-      explanation: "The standard order is typically Cola, Diet, Lemon, Soda, Tonic — but every bar differs. Knowing your specific gun cold is non-negotiable.",
+      explanation: "The standard order is typically Cola, Diet, Lemon, Soda, Tonic, but every bar differs. Knowing your specific gun cold is non-negotiable.",
     },
     {
       prompt: "You can top up a guest's drink with the soda gun without asking first.",
@@ -1123,7 +1123,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Grabbing a glass with one hand while hitting the soda gun with the other is two-handed service.",
       answer: "true",
-      explanation: "This simultaneous action is the textbook example of economy of motion — both hands working toward a single drink.",
+      explanation: "This simultaneous action is the textbook example of economy of motion: both hands working toward a single drink.",
     },
     {
       prompt: "Pre-building garnishes before service begins is a waste of valuable prep time.",
@@ -1133,7 +1133,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Walking to the same destination twice because you forgot something wastes critical service time.",
       answer: "true",
-      explanation: '"Two birds, one stone" thinking is core to economy of motion — never make a trip without carrying something in both directions.',
+      explanation: '"Two birds, one stone" thinking is core to economy of motion: never make a trip without carrying something in both directions.',
     },
     {
       prompt: "The most efficient bartenders are the ones who tackle the most tasks at once.",
@@ -1300,7 +1300,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Over-pouring spirits by 5ml per drink is too small an amount to affect the venue's profit.",
       answer: "false",
-      explanation: "At 200 drinks per night, 5ml over means 1 full litre of spirits given away for free daily — a devastating impact on gross profit.",
+      explanation: "At 200 drinks per night, 5ml over means 1 full litre of spirits given away for free every night, a big hit to gross profit.",
     },
     {
       prompt: "Using a jigger protects the bartender from accusations of short-changing a guest.",
@@ -1333,7 +1333,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Pulling a cork out in one fast, smooth motion is the professional technique.",
       answer: "false",
-      explanation: "The waiter's friend uses a two-step lever system — seat the lever halfway up the bottle lip, lift, then fully up — for a controlled extraction.",
+      explanation: "The waiter's friend uses a two-step lever system (seat the lever halfway up the bottle lip, lift, then fully up) for a controlled extraction.",
     },
     {
       prompt: "The cork should be extracted silently rather than with a loud dramatic pop.",
@@ -1371,7 +1371,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: 'A "fobbing" tap means the keg is producing excessive, undrinkable foam.',
       answer: "true",
-      explanation: "Fobbing stops the bar from pouring and signals a problem — typically an empty keg, a gas issue, or a warm line.",
+      explanation: "Fobbing stops the bar from pouring and signals a problem: typically an empty keg, a gas issue, or a warm line.",
     },
     {
       prompt: "You should remove a keg coupler without turning off the gas first.",
@@ -1467,7 +1467,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "The speed rail must be sanitized and wiped completely dry every single night.",
       answer: "true",
-      explanation: "Sticky spirits on the speed rail breed bacteria overnight and attract fruit flies by morning — both a hygiene and pest issue.",
+      explanation: "Sticky spirits on the speed rail breed bacteria overnight and attract fruit flies by morning: both a hygiene and pest issue.",
     },
     {
       prompt: "Restocking dry goods at close is a task that can be left for the opening shift.",
@@ -1515,7 +1515,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: 'Asking "Is everything okay?" is the gold-standard two-minute check question.',
       answer: "false",
-      explanation: '"Okay" invites a one-word dismissal. Better: "How is the steak cooked for you?" — a specific question gets a specific, useful answer.',
+      explanation: '"Okay" invites a one-word dismissal. Better: "How is the steak cooked for you?" A specific question gets a specific, useful answer.',
     },
     {
       prompt: "A cold steak discovered at the two-minute check can still be refired and saved.",
@@ -1548,12 +1548,12 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: 'Saying "Sorry, we are out of that" and moving on is professional handling of a stock-out.',
       answer: "false",
-      explanation: 'Ending the conversation at "we\'re out" is a dead-end. The pivot — the alternative suggestion — is the part that saves the sale.',
+      explanation: 'Ending the conversation at "we\'re out" is a dead-end. The pivot, the alternative suggestion, is the part that saves the sale.',
     },
     {
       prompt: "The pivot technique means acknowledging unavailability and immediately offering a comparable item.",
       answer: "true",
-      explanation: "Acknowledge, redirect, and present the alternative as a genuine recommendation — this three-step pivot saves almost every stock-out situation.",
+      explanation: "Acknowledge, redirect, and present the alternative as a genuine recommendation. This three-step pivot saves almost every stock-out situation.",
     },
     {
       prompt: "Guests always prefer the cheapest alternative when their first choice is unavailable.",
@@ -1576,7 +1576,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
       explanation: "This reframes the alternative as a positive recommendation rather than a consolation prize, keeping the guest's enthusiasm high.",
     },
     {
-      prompt: "Only bartenders need to know about out-of-stock items — the floor staff can improvise.",
+      prompt: "Only bartenders need to know about out-of-stock items. The floor staff can improvise.",
       answer: "false",
       explanation: "All floor staff must be told what's sold out at the start of every service, so no one promises a guest something the kitchen can't make.",
     },
@@ -1591,7 +1591,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "You should only clear a table once the guest has completely finished their meal.",
       answer: "false",
-      explanation: "Pre-bussing — removing finished glasses and side plates as they are done — is standard professional table management.",
+      explanation: "Pre-bussing, removing finished glasses and side plates as they are done, is standard professional table management.",
     },
     {
       prompt: "Never walking back to the kitchen empty-handed is a core floor efficiency rule.",
@@ -1654,7 +1654,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "A bar back who finishes their tasks early should stand by and wait to be asked for help.",
       answer: "false",
-      explanation: "A proactive bar back anticipates the next need — checking ice levels, replacing glassware, pre-staging bottles — without being asked.",
+      explanation: "A proactive bar back anticipates the next need (checking ice levels, replacing glassware, pre-staging bottles) without being asked.",
     },
     {
       prompt: "The speed rail must be restocked by the bar back the moment it shows any empty slots.",
@@ -1664,7 +1664,7 @@ export const VERIFY_QUESTIONS: Record<number, VerifyQuestion[]> = {
     {
       prompt: "Bar back and bartender communication should only happen during quiet moments in service.",
       answer: "false",
-      explanation: "Constant brief communication throughout the rush — a nod, a tap, a one-word call — is what keeps service flowing without interruption.",
+      explanation: "Constant brief communication throughout the rush (a nod, a tap, a one-word call) is what keeps service flowing without interruption.",
     },
   ],
 

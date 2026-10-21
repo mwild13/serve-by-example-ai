@@ -29,6 +29,8 @@ Serve By Example is an AI-powered hospitality staff training platform that repla
 
 This file is global rules only. Domain-specific architecture, component maps, and per-surface conventions live in `docs/`:
 
+- Writing rules for every agent, above all no em or en dashes anywhere a person reads (enforced by `lib/no-dashes.test.ts`): `AGENTS.md`
+
 - Marketing site (public routes, geo-blocking, brand voice, component usage): `docs/MARKETING_SITE.md`
 - Manager Console (data fetching, RBAC, state management): `docs/MANAGER_CONSOLE.md`
 - Staff App — web & mobile training loop, Live Guest, PWA: `docs/STAFF_APP.md`

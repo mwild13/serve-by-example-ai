@@ -131,7 +131,7 @@ export default function HelpScreen() {
 
       <Section title="Reporting a problem">
         Found something broken or confusing? Use <strong>Report a Bug</strong> in Settings: describe what happened and
-        it goes straight to our team by email. You&apos;ll get a note back within 24–48 hours.
+        it goes straight to our team by email. You&apos;ll get a note back within 24 to 48 hours.
       </Section>
 
       <Divider />
@@ -164,7 +164,7 @@ export default function HelpScreen() {
         </FaqItem>
         <FaqItem q="Something looks wrong or broken. What do I do?">
           Use Report a Bug in Settings (just above this page). Tell us the screen and what happened; our team replies
-          within 24–48 hours, or email us any time at{" "}
+          within 24 to 48 hours, or email us any time at{" "}
           <a href="mailto:info@servebyexample.co" style={{ color: "var(--gold-mobile)", fontWeight: 600 }}>
             info@servebyexample.co
           </a>

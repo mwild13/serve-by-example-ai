@@ -1,8 +1,8 @@
-# Staff App — Serve By Example
+# Staff App: Serve By Example
 
-Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.md` wins. Covers `app/dashboard/_components/` (the core training loop/simulator on desktop) and the standalone `app/mobile/` route tree.
+Companion to `CLAUDE.md`, not a replacement. Where the two conflict, `CLAUDE.md` wins. Covers `app/dashboard/_components/` (the core training loop/simulator on desktop) and the standalone `app/mobile/` route tree.
 
-## 1. Scope — Learning Engine Structure
+## 1. Scope: Learning Engine Structure
 
 The staff training platform has a **3-stage mastery path** plus AI-powered extras, all routed through `app/dashboard/_components/DashboardShell.tsx`:
 
@@ -13,7 +13,7 @@ The staff training platform has a **3-stage mastery path** plus AI-powered extra
 | `drill` | Mixed Drill | `DrillPage.tsx` → `components/quiz/MixedDrill.tsx` | Ten questions mixed from every module the person has started (Rich update, Phase 10). Replaced Rapid Fire's module picker; old `?nav=rapid-fire` links open it. Mobile: `/mobile/drill`, linked from the Learn hub. See below |
 | `rush` | Saturday Rush | `RushPage.tsx` → `components/rush/SaturdayRush.tsx` | A timed Saturday night shift in twelve calls (Rich update, Phase 15). Mobile: `/mobile/rush`, linked from the Learn hub. See below |
 | `live-guest` | Live Guest | `LiveGuestPage.tsx` → `components/live-guest/LiveGuest.tsx` | A typed conversation with a guest who talks back (Rich update, Phase 6). Mobile: `/mobile/live-guest`, linked from the Learn hub. See below |
-| `challenges` | Challenges | `ChallengesPage.tsx` | 5 tap-based interactive mini-games — see `CHALLENGES.md` for full detail across all surfaces |
+| `challenges` | Challenges | `ChallengesPage.tsx` | 5 tap-based interactive mini-games. See `CHALLENGES.md` for full detail across all surfaces |
 | `cocktails` | Cocktails | `CocktailLibrary.tsx` | 38-cocktail reference (lazy-loaded) |
 | `knowledge` | Knowledge Base | `KnowledgeBase.tsx` | Quick-reference knowledge base (lazy-loaded) |
 | `progress` | My progress | `progress/MyProgressPage.tsx` | Modules mastered, ledgers for Learn, Drill and Live Guest, mastery by area, badges. `?nav=badges` opens it at the badges |
@@ -21,19 +21,19 @@ The staff training platform has a **3-stage mastery path** plus AI-powered extra
 
 **Retired (Rich update, Phase 8):** Scenario Training (`stage4`) and the AI Arena (`scenarios`). Their screens and code are gone; old `?nav=stage4` / `?nav=scenarios` links open Live Guest (`RETIRED_NAV` in `DashboardShell.tsx`), as do mobile `/mobile/arena`, `/mobile/scenario-practice` and `/mobile/scenarios`. `/api/evaluate` and `/api/arena/evaluate` return 410 without an AI call. Their results stay in `training_attempts` and `scenario_mastery`.
 
-**Premium gating** — `PREMIUM_NAV_ITEMS = ["module", "drill", "rush", "cocktails", "knowledge"]`. Free users see these with a small lock, and a click goes to `/pricing`. `challenges`, `home`, `progress`, and `settings` are always available. Live Guest is open to everyone in the menu and shows its own upgrade prompt off venue plans (`hasLiveGuest()` in `lib/session.ts`).
+**Premium gating:** `PREMIUM_NAV_ITEMS = ["module", "drill", "rush", "cocktails", "knowledge"]`. Free users see these with a small lock, and a click goes to `/pricing`. `challenges`, `home`, `progress`, and `settings` are always available. Live Guest is open to everyone in the menu and shows its own upgrade prompt off venue plans (`hasLiveGuest()` in `lib/session.ts`).
 
 **Tier access (`lib/session.ts`, `TIER_MODULES` / `TIER_SEATS`)**:
-- `free` — no module access
-- `pro` — all 40 modules (individual, no staff seats)
-- `boutique` (legacy value `venue_single`) — all 40 modules, 15 staff seats, 1 venue
-- `commercial` (legacy value `venue_multi`) — all 40 modules, 35 staff seats, unlimited venues
-- `enterprise` — all 40 modules, unlimited seats (stored as 9999) and venues; sales-assisted only
+- `free`: no module access
+- `pro`: all 40 modules (individual, no staff seats)
+- `boutique` (legacy value `venue_single`): all 40 modules, 15 staff seats, 1 venue
+- `commercial` (legacy value `venue_multi`): all 40 modules, 35 staff seats, unlimited venues
+- `enterprise`: all 40 modules, unlimited seats (stored as 9999) and venues; sales-assisted only
 - **Sponsored staff**: an active `organization_members` row (via an invite or joining with a venue code) gives the staff member module access through their manager's plan. Accounts are linked to roster/membership rows only at sign-in, by exact lowercase email (`lib/staff-link.ts`), and everything afterwards follows `user_id`.
 
 One resolver serves pages and API routes: `resolveTierAccess()`, with `resolveAccess()` delegating to it, so the lapsed-subscription downgrade and the paused-sponsor rule apply everywhere. Venue and seat caps are enforced server-side in `requireManager()` (`docs/MANAGER_CONSOLE.md` §3).
 
-**`DashboardShell.tsx`** is the main authenticated staff UI — a client component managing `NavItem` state and rendering the correct view. To add a new learning view: add an id to `StaffNavId` and an entry to `NAV_GROUPS` (both in `shell/StaffSidebar.tsx`) → import the component (lazy-load heavy ones with `lazy(() => import(...))`) → add a render case in the conditional chain → add to `PREMIUM_NAV_ITEMS` if it should be gated.
+**`DashboardShell.tsx`** is the main authenticated staff UI, a client component managing `NavItem` state and rendering the correct view. To add a new learning view: add an id to `StaffNavId` and an entry to `NAV_GROUPS` (both in `shell/StaffSidebar.tsx`) → import the component (lazy-load heavy ones with `lazy(() => import(...))`) → add a render case in the conditional chain → add to `PREMIUM_NAV_ITEMS` if it should be gated.
 
 ## 2. Mobile-First Rules
 
@@ -57,7 +57,7 @@ Desktop (`ModuleVerify.tsx`) and mobile (`app/mobile/_components/QuizScreen.tsx`
 
 ## 5. PWA / Offline
 
-**Confirmed greenfield — no PWA/offline infrastructure exists today.** A full-repo search for `manifest.json`, `next-pwa`, `serviceWorker`, `workbox`, `sw.js`, and `<link rel="manifest">` in source files returns zero matches outside auto-generated Next.js/OpenNext build artifacts (`.next/`, `.open-next/`), which are not app-authored and don't count. There is no service worker registration anywhere in `app/` source. State this as a definitive current-state fact — this doc round is recording reality, not proposing to add PWA support.
+**Confirmed greenfield: no PWA/offline infrastructure exists today.** A full-repo search for `manifest.json`, `next-pwa`, `serviceWorker`, `workbox`, `sw.js`, and `<link rel="manifest">` in source files returns zero matches outside auto-generated Next.js/OpenNext build artifacts (`.next/`, `.open-next/`), which are not app-authored and don't count. There is no service worker registration anywhere in `app/` source. State this as a definitive current-state fact: this doc round is recording reality, not proposing to add PWA support.
 
 ## 6. Daily AI Limit
 
@@ -86,28 +86,38 @@ Two opt-in emails, both off until the person turns them on in Settings > Notific
 
 ## 8. Desktop design (October 2026 redesign)
 
-The whole desktop staff area was rebuilt to `docs/STAFF_DESKTOP_REDESIGN_PLAN.md` ("the back bar"). Styles are in `app/styles/staff.css` under "STAFF DESKTOP, THE BACK BAR", all `.sd-*` classes; the `--sd-*` tokens are in the `:root` of `app/globals.css`, each an alias of a brand token.
+The desktop staff area was rebuilt twice in October 2026. The first pass (`docs/STAFF_DESKTOP_REDESIGN_PLAN.md`, all dark green with brass) was reviewed by the owner on 2026-10-21 and replaced the same day: it read as AI-made, the serif headings didn't suit the product, and the eye had nowhere to land. This section is the standard that replaced it. Styles are in `app/styles/staff.css` under "STAFF DESKTOP (/dashboard)", all `.sd-*` classes; the `--sd-*` tokens are in `app/globals.css`, each an alias of a brand token.
 
 **Look**
-- **Colour:** the page and sidebar are bottle green (`--sd-room`, `--sd-rail`). Brass (`--sd-brass`) marks progress and nothing else: the active nav item, the streak, a mastered ring, a progress line, the one primary button. Red (`--sd-alarm`) means a safety breach. No tinted pills, chips or banners; no blue, orange or purple.
-- **The docket:** anything people read or answer (a module's cards and quiz, the drill, a Live Guest conversation, the cocktail and Knowledge Base content, Settings) sits on a cream `.sd-docket`, the one thing on the page with a radius and a shadow.
-- **Type:** Fraunces and Manrope through `--font-heading` / `--font-body` (`.sbe-app-type`). Page titles and the one hero figure on a screen are Fraunces; labels are small Manrope capitals (`.sd-kicker`); figures use tabular lining numerals.
-- **Readability floor:** body 16px, nothing below 14px except small-caps labels, controls at least 44px tall, brass focus rings on green and green ones on cream.
+- **Light by default:** a cream page (`--sd-bg`) with near-white panels and a bottle green sidebar. Green (`--sd-accent`) is the only accent: buttons, links, progress bars, the active tab. No gold, no brass, no gradients.
+- **Dark mode:** the bottle green "back bar". The `.sd-dark` block in `app/globals.css` swaps the same tokens, so every screen works in both without its own dark rules. The switch is in the account menu and in Settings > Appearance, saved per device (`localStorage` `sbe-sd-theme`).
+- **One solid card per page at most:** on Today, the step for tonight is a filled green card (`--sd-hero`); everything else is a plain panel. That is where the eye lands first.
+- **Type:** Manrope throughout, headings included (`.sd-shell` points `--font-heading` at the body font). Page titles 24px bold, panel titles 17px, body 15px, labels 12px small capitals. Figures are tabular.
+- **Red** (`--sd-alarm`) means an error or a safety breach, and nothing else.
+
+**Layout**
+- **Page:** `.sd-page` (max 1200px), one `.sd-pagehead` (title and one plain sentence, optional figure or search on the right), then content. No small-caps label above the title.
+- **Panels:** `.sd-panel` (1px line, 14px corners, 20px padding) on a 12-column `.sd-grid` with 16px gutters. Lists inside a panel are rows separated by hairlines (`.sd-list`, `.sd-rows`); rows are never cards inside cards.
+- **One primary button per screen** (`.sd-btn-primary`); the alternative is a `.sd-btn-ghost` or a `.sd-textlink`.
+- **Laptop height:** the first screenful is designed for 650 to 760px of page (a 13 or 14 inch laptop with the browser bar and the Mac dock showing). Below 820px of height the rhythm tightens (`@media (max-height: 820px)`). Checked at 1280x720, 1366x768, 1512x760 and 1920x1080.
+- **First-day states:** a new account sees what's coming, never a row of zeros.
 
 **Shell** (`shell/StaffSidebar.tsx`)
 - **Groups:** Today, then Learn (Modules), Practise (Mixed Drill, Live Guest, Saturday Rush, Challenges), Look it up (Cocktails, Knowledge Base), Me (My progress). Nav ids are unchanged, so `?nav=` links still work, including `?nav=badges` and the `RETIRED_NAV` ones.
-- **Collapse:** a 64px icon rail, by the button or Ctrl/Cmd+B, saved in `localStorage` (`sbe-sd-sidebar-collapsed`), the default below 1100px. Labels stay in the DOM.
-- **Account menu:** the avatar at the foot opens Settings and Sign out.
-- **Narrow windows:** below 720px the sidebar becomes a top bar: brand and avatar, then one scrolling row of links.
+- **Collapse:** a 64px icon rail, by the button or Ctrl/Cmd+B, saved in `localStorage` (`sbe-sd-sidebar-collapsed`), the default below 1100px wide.
+- **Account menu:** the avatar at the foot opens Settings, Dark mode and Sign out.
+- **Narrow windows:** below 720px the sidebar becomes a top bar with one scrolling row of links.
 
-**Every screen**
-- **Structure:** `.sd-page`, one `.sd-head` (kicker, Fraunces title, one plain sentence), then content. One brass button per screen.
-- **Lists are rows:** several things of one kind are hairline rows (`.sd-rows`, `.sd-row`), with the one suggested item lifted above them (`.sd-feature`). No grids of bordered cards.
-- **First-day states:** a new account sees what's coming, never a row of zeros.
-- **Shared parts:** `parts/MasteryRing.tsx`; the quiz theme `.qz--room` for parts shared with mobile (team card, shift days, Saturday Rush).
-- **The "tonight" rule** is `pickNextSteps()` in `lib/next-step.ts`, tested in `lib/next-step.test.ts`: free plan, a challenge; no module started, the first module; then the pre-shift drill on a shift day, the module in progress, a review once three modules are started, Live Guest after five mastered on a venue plan, the next module, a mixed drill.
+**Screens**
+- **Today:** the step for tonight (`pickNextSteps()` in `lib/next-step.ts`, tested) beside the shift streak; this week at the venue; Learn, Drill and Live Guest as three figures; up next; a cocktail and a fact for the bar.
+- **Modules:** the suggested module, then every module as rows by level in one panel, with area tabs and search.
+- **Cocktails and Knowledge Base:** list on the left, the full card on the right, so nothing pops over the list.
+- **Mixed Drill, a module's cards and quiz, Live Guest's conversation:** in a `.sd-docket` panel. The quiz's `.qz--light` theme reads the `--sd-*` tokens, so it follows dark mode.
+- **My progress:** four figures, mastery by area, badges with the next one to earn.
 
-**Retired with the redesign:** `PreShiftHome`, `DynamicModuleNav`, `SharedTrainingCard`, `ProgressOverview`, `BadgesView`, `BadgeStreakSection`, `BadgeProgressRing`, the `progress/` parts, `lib/modules.ts`, and the "industrial dark theme" setting (`.sbe-dark`). Live Guest's `layout="room"` is desktop only; mobile keeps its picker.
+**Writing:** no em or en dashes anywhere (AGENTS.md, enforced by `lib/no-dashes.test.ts`).
+
+**Retired:** `PreShiftHome`, `DynamicModuleNav`, `SharedTrainingCard`, `ProgressOverview`, `BadgesView`, `BadgeStreakSection`, `BadgeProgressRing`, the `progress/` parts, `lib/modules.ts`, the old cocktail sheet and Knowledge Base slide-over, and the "industrial dark theme" setting (`.sbe-dark`), which the new dark mode replaces.
 
 ## Known Gaps / Drift
 
@@ -115,10 +125,10 @@ The whole desktop staff area was rebuilt to `docs/STAFF_DESKTOP_REDESIGN_PLAN.md
 
 ## Related Docs
 
-- `MOBILE_BUILD.md` — full architecture reference for the standalone `app/mobile/` build (V4): route map, auth/session/progress data layer, offline retry queue, dark-theme design tokens
-- `CHALLENGES.md` — one-stop reference for the "Challenges" mini-game feature across both surfaces (desktop and the mobile build), including a checklist for adding new challenge types
-- `docs/MASTERY_ENGINE.md` — mastery scoring source of truth; this doc only describes how Arena and the quiz call into it, not the formula itself
-- `docs/staff-dashboard-a11y-audit.md`, `docs/archive/STAFF_DASHBOARD_AUDIT_REPORT.md` — historical UI/accessibility audits
+- `MOBILE_BUILD.md`: full architecture reference for the standalone `app/mobile/` build (V4): route map, auth/session/progress data layer, offline retry queue, dark-theme design tokens
+- `CHALLENGES.md`: one-stop reference for the "Challenges" mini-game feature across both surfaces (desktop and the mobile build), including a checklist for adding new challenge types
+- `docs/MASTERY_ENGINE.md`: mastery scoring source of truth; this doc only describes how Arena and the quiz call into it, not the formula itself
+- `docs/staff-dashboard-a11y-audit.md`, `docs/archive/STAFF_DASHBOARD_AUDIT_REPORT.md`: historical UI/accessibility audits
 
 ## Mixed drill (Rich update, Phase 10)
 

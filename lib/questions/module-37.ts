@@ -37,7 +37,7 @@ export const MODULE_37_QUESTIONS: Question[] = [
       { id: "d", text: "Suggesting the closest match" },
     ],
     answer: "a",
-    explanation: "Ending the conversation at \"we're out\" is a dead-end. The pivot — the alternative suggestion — is the part that saves the sale.",
+    explanation: "Ending the conversation at \"we're out\" is a dead-end. The pivot, the alternative suggestion, is the part that saves the sale.",
     reviewed: true,
   },
   {

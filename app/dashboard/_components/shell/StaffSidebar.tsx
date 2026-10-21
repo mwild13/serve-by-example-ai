@@ -11,21 +11,23 @@ import {
   LogOut,
   Martini,
   MessageCircle,
+  Moon,
   PanelLeftClose,
   PanelLeftOpen,
   Puzzle,
   Settings,
   Shuffle,
+  Sun,
   Timer,
   TrendingUp,
 } from "lucide-react";
 import SignOutButton from "@/components/ui/SignOutButton";
 import { tierDisplayName } from "@/lib/session";
 
-// The staff desktop sidebar (docs/STAFF_DESKTOP_REDESIGN_PLAN.md, 7.0):
-// grouped by the three levels, collapsible to a 64px rail, Settings and Sign
-// out in the account menu at its foot. Styles: the sd-sidebar rules in
-// app/styles/staff.css. Nav ids are DashboardShell's and don't change.
+// The staff desktop sidebar (docs/STAFF_APP.md section 8): grouped by the
+// three levels, collapsible to a 64px rail, Settings, the light and dark
+// switch and Sign out in the account menu at its foot. Styles: the
+// sd-sidebar rules in app/styles/staff.css. Nav ids are DashboardShell's.
 
 export type StaffNavId =
   | "home" | "module" | "drill" | "rush" | "live-guest" | "challenges"
@@ -69,6 +71,8 @@ export default function StaffSidebar({
   displayName,
   plan,
   sponsored,
+  dark,
+  onToggleDark,
 }: {
   active: StaffNavId;
   onNavigate: (id: StaffNavId) => void;
@@ -78,6 +82,9 @@ export default function StaffSidebar({
   plan: string;
   /** Trained through a venue's plan rather than their own. */
   sponsored: boolean;
+  /** Dark mode is on (the shell holds it, see DashboardShell). */
+  dark: boolean;
+  onToggleDark: () => void;
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -180,6 +187,15 @@ export default function StaffSidebar({
             >
               <Settings size={16} strokeWidth={1.75} aria-hidden />
               Settings
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className="sd-account-item"
+              onClick={() => { setMenuOpen(false); onToggleDark(); }}
+            >
+              {dark ? <Sun size={16} strokeWidth={1.75} aria-hidden /> : <Moon size={16} strokeWidth={1.75} aria-hidden />}
+              {dark ? "Light mode" : "Dark mode"}
             </button>
             <SignOutButton className="sd-account-item">
               <LogOut size={16} strokeWidth={1.75} aria-hidden />

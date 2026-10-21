@@ -37,7 +37,7 @@ export const MODULE_35_QUESTIONS: Question[] = [
       { id: "d", text: "Covered with a towel" },
     ],
     answer: "a",
-    explanation: "Sticky spirits on the speed rail breed bacteria overnight and attract fruit flies by morning — both a hygiene and pest issue.",
+    explanation: "Sticky spirits on the speed rail breed bacteria overnight and attract fruit flies by morning: both a hygiene and pest issue.",
     reviewed: true,
   },
   {

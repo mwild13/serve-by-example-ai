@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, BookOpen, Flame, MessageCircle, Shuffle } from "lucide-react";
+import MasteryRing from "@/app/dashboard/_components/parts/MasteryRing";
 import TeamWeekCard from "@/components/team/TeamWeekCard";
 import ShiftDays, { ShiftReminder } from "@/components/quiz/ShiftDays";
 import { COCKTAILS, COCKTAIL_IMAGES } from "@/lib/cocktails";
@@ -22,14 +23,20 @@ import {
 } from "@/lib/next-step";
 import type { StaffNavId } from "@/app/dashboard/_components/shell/StaffSidebar";
 
-// Today, the staff desktop home (docs/STAFF_DESKTOP_REDESIGN_PLAN.md, 7.1):
-// one step for tonight, the shift streak, this week at the venue, the path
-// through Learn, Drill and Live Guest, and one cocktail and one fact for the
-// bar. Replaced PreShiftHome. Styles: the sd-today rules in staff.css.
+// Today, the staff desktop home (docs/STAFF_APP.md section 8): one step for
+// tonight beside the shift streak, this week at the venue, the path through
+// Learn, Drill and Live Guest as three figures, then what's up next and a
+// cocktail and a fact for the bar. Replaced PreShiftHome. Styles: the sd-
+// rules in app/styles/staff.css.
 
 const WEEK = [1, 2, 3, 4, 5, 6, 0];
 const WEEK_LETTER = ["S", "M", "T", "W", "T", "F", "S"];
 const WEEK_NAME = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const AREA_LABEL: Record<string, string> = {
+  technical: "Behind the bar",
+  service: "Service and sales",
+  compliance: "Safety and compliance",
+};
 
 type StepCopy = { kicker: string; title: string; body: string; cta: string; alt: string };
 
@@ -214,6 +221,13 @@ export default function TodayPage({
   const clock = now ? sydneyNow(now) : null;
   const shiftToday = streak ? isShiftDay(streak.shiftDays, weekday) : false;
 
+  // Up next: modules on the go first, then the navigator's suggestions.
+  const upNext = [
+    ...all.filter((m) => isStarted(m) && !isMastered(m)),
+    ...all.filter((m) => m.recommended && !isStarted(m)),
+    ...all.filter((m) => !isStarted(m) && !m.recommended),
+  ].slice(0, 4);
+
   // One cocktail and one fact a day, the same for everyone. The cocktail is
   // the first of mobile Home's two hot picks (app/mobile/_components/HomeScreen.tsx).
   const dayIdx = now ? Math.floor(now.getTime() / 86_400_000) : 0;
@@ -223,60 +237,114 @@ export default function TodayPage({
 
   const copy = copyFor(step, reviewDue);
   const altCopy = alt ? copyFor(alt, reviewDue) : null;
+  const showStreak = !!streak && hasModuleAccess;
+
+  const path = [
+    {
+      id: "module" as const,
+      name: "Learn",
+      Icon: BookOpen,
+      figure: `${mastered}`,
+      of: `of ${total}`,
+      caption: "modules mastered",
+      empty: `${total} modules, from carrying glassware to RSA. Short cards, then a quiz.`,
+      pct: mastered / total,
+      lit: started > 0,
+      link: "Open modules",
+    },
+    {
+      id: "drill" as const,
+      name: "Drill",
+      Icon: Shuffle,
+      figure: `${started}`,
+      of: "",
+      caption: started === 1 ? "module in your drills" : "modules in your drills",
+      empty:
+        started > 0
+          ? `Start ${DRILL_MIN_STARTED - started} more ${DRILL_MIN_STARTED - started === 1 ? "module" : "modules"} to open mixed drills.`
+          : "Once three modules are started, mixed questions keep them fresh.",
+      pct: Math.min(1, started / DRILL_MIN_STARTED),
+      lit: started >= DRILL_MIN_STARTED,
+      link: "Open Mixed Drill",
+    },
+    {
+      id: "live-guest" as const,
+      name: "Live Guest",
+      Icon: MessageCircle,
+      figure: `${passes}`,
+      of: "",
+      caption: passes === 1 ? "guest sorted" : "guests sorted",
+      empty: liveGuestOpen
+        ? "Talk a real moment through with a guest who answers back."
+        : "A guest who talks back. On venue plans, with one free to try.",
+      pct: Math.min(1, passes / total),
+      lit: passes > 0,
+      link: "Open Live Guest",
+    },
+  ];
 
   return (
     <div className="sd-page sd-today">
-      <header className="sd-today-head">
-        <p className="sd-kicker">
-          {clock ? `${WEEK_NAME[weekday]} ${clock.date}` : " "}
-          {streak && hasModuleAccess && shiftToday ? <span className="sd-kicker-brass"> · Shift day</span> : null}
-        </p>
-        <h1 className="sd-display">
-          {clock ? greeting(clock.hour) : "Hello"}, {firstName}.
-        </h1>
+      <header className="sd-pagehead">
+        <div>
+          <h1 className="sd-title">
+            {clock ? greeting(clock.hour) : "Hello"}, {firstName}
+          </h1>
+          <p className="sd-subtitle">
+            {clock ? `${WEEK_NAME[weekday]} ${clock.date}` : " "}
+            {showStreak && shiftToday ? <span className="sd-subtitle-accent"> · Shift day</span> : null}
+          </p>
+        </div>
       </header>
 
-      <section className={`sd-tonight${streak && hasModuleAccess ? "" : " sd-tonight--solo"}`} aria-labelledby="sd-tonight-title" aria-busy={!ready}>
-        <div className="sd-tonight-step">
+      <div className="sd-grid">
+        <section
+          className={`sd-panel sd-step ${showStreak ? "sd-col-8" : "sd-col-12"}`}
+          aria-labelledby="sd-step-title"
+          aria-busy={!ready}
+        >
           {ready ? (
             <>
-              <p className="sd-kicker sd-kicker-brass">{copy.kicker}</p>
-              <h2 id="sd-tonight-title" className="sd-tonight-title">{copy.title}</h2>
-              <p className="sd-tonight-body">{copy.body}</p>
-              <div className="sd-tonight-actions">
-                <button type="button" className="sd-btn sd-btn-brass" onClick={() => act(step)}>
+              <p className="sd-label sd-label-accent">{copy.kicker}</p>
+              <h2 id="sd-step-title" className="sd-step-title">{copy.title}</h2>
+              <p className="sd-step-body">{copy.body}</p>
+              <div className="sd-actions">
+                <button type="button" className="sd-btn sd-btn-primary" onClick={() => act(step)}>
                   {copy.cta}
-                  <ArrowRight size={18} strokeWidth={2} aria-hidden />
+                  <ArrowRight size={16} strokeWidth={2.25} aria-hidden />
                 </button>
                 {altCopy && alt && (
-                  <button type="button" className="sd-link" onClick={() => act(alt)}>
+                  <button type="button" className="sd-btn sd-btn-ghost" onClick={() => act(alt)}>
                     {altCopy.alt}
                   </button>
                 )}
                 {step.kind === "challenge" && (
-                  <a className="sd-link" href="/pricing">See the plans</a>
+                  <a className="sd-btn sd-btn-ghost" href="/pricing">See the plans</a>
                 )}
               </div>
             </>
           ) : (
-            <div className="sd-tonight-wait" aria-hidden="true">
-              <span className="sd-skel sd-skel-kicker" />
+            <div className="sd-wait" aria-hidden="true">
+              <span className="sd-skel sd-skel-label" />
               <span className="sd-skel sd-skel-title" />
               <span className="sd-skel sd-skel-line" />
             </div>
           )}
-        </div>
+        </section>
 
-        {streak && hasModuleAccess && (
-          <aside className="sd-streak" aria-label="Shift streak">
-            <p className="sd-kicker">Shift streak</p>
+        {showStreak && streak && (
+          <section className="sd-panel sd-col-4 sd-streak" aria-label="Shift streak">
+            <div className="sd-panel-head">
+              <p className="sd-label">Shift streak</p>
+              <Flame size={16} strokeWidth={2} className="sd-panel-icon" aria-hidden />
+            </div>
             {streak.count > 0 ? (
-              <p className="sd-streak-figure">
+              <p className="sd-figure">
                 {streak.count}
-                <span className="sd-streak-unit">{streak.count === 1 ? "shift" : "shifts"} in a row</span>
+                <span className="sd-figure-unit">{streak.count === 1 ? "shift" : "shifts"} in a row</span>
               </p>
             ) : (
-              <p className="sd-streak-start">Do the pre-shift drill before a shift and your streak starts.</p>
+              <p className="sd-streak-start">Finish a pre-shift drill on a shift day to start one.</p>
             )}
             <ol className="sd-week" aria-label="Your week">
               {WEEK.map((d) => {
@@ -294,114 +362,107 @@ export default function TodayPage({
                 );
               })}
             </ol>
-            <p className="sd-streak-note">
+            <p className="sd-note">
               {streak.freezesLeft === 1 ? "1 freeze left" : `${streak.freezesLeft} freezes left`}.{" "}
-              {streak.shiftDays.length === 0 ? "Counting every day until you pick your shifts." : `Shifts: ${shiftDaysText(streak.shiftDays)}.`}
+              {streak.shiftDays.length === 0 ? "Every day counts until you pick your shifts." : `Shifts: ${shiftDaysText(streak.shiftDays)}.`}
             </p>
-            <details className="sd-streak-edit">
+            <details className="sd-disclose">
               <summary>Shift days and reminder</summary>
-              <div className="qz qz--room sd-streak-forms">
+              <div className="qz qz--room sd-disclose-body">
                 <ShiftDays streak={streak} getToken={getToken} onSaved={setStreak} />
                 <ShiftReminder streak={streak} getToken={getToken} onSaved={setStreak} />
               </div>
             </details>
-          </aside>
+          </section>
         )}
-      </section>
 
-      <TeamWeekCard getToken={getToken} theme="room" onLiveGuest={() => onNavigate("live-guest")} outer={{ marginBottom: "var(--sd-gap-section)" }} />
-
-      <section className="sd-path" aria-labelledby="sd-path-title">
-        <div className="sd-section-head">
-          <h2 id="sd-path-title" className="sd-h2">Your path</h2>
-          <p className="sd-section-lede">Learn the basics, drill them until they stick, then put them to a guest who talks back.</p>
+        <div className="sd-col-12 sd-team">
+          <TeamWeekCard getToken={getToken} theme="room" onLiveGuest={() => onNavigate("live-guest")} />
         </div>
-        <ol className="sd-path-steps">
-          <li className={`sd-path-step${started > 0 ? " is-lit" : ""}`}>
-            <p className="sd-path-num" aria-hidden="true">01</p>
-            <h3 className="sd-path-name">Learn</h3>
-            {firstDay || !ready ? (
-              <p className="sd-path-text">{total} modules, from carrying glassware to RSA. Short cards first, then a quiz.</p>
-            ) : (
-              <p className="sd-path-figure">
-                {mastered}<span> of {total} mastered</span>
-              </p>
-            )}
-            <span className="sd-meter" aria-hidden="true"><span style={{ width: `${(mastered / total) * 100}%` }} /></span>
-            <button type="button" className="sd-link" onClick={() => onNavigate("module")}>Open the modules</button>
-          </li>
-          <li className={`sd-path-step${started >= DRILL_MIN_STARTED ? " is-lit" : ""}`}>
-            <p className="sd-path-num" aria-hidden="true">02</p>
-            <h3 className="sd-path-name">Drill</h3>
-            {started >= DRILL_MIN_STARTED ? (
-              <p className="sd-path-figure">
-                {started}<span> modules in your drills</span>
-              </p>
-            ) : (
-              <p className="sd-path-text">
-                {firstDay || !ready
-                  ? "Once you've started three modules, mixed questions keep them fresh."
-                  : `Start ${DRILL_MIN_STARTED - started} more ${DRILL_MIN_STARTED - started === 1 ? "module" : "modules"} to open mixed drills.`}
-              </p>
-            )}
-            <span className="sd-meter" aria-hidden="true"><span style={{ width: `${Math.min(1, started / DRILL_MIN_STARTED) * 100}%` }} /></span>
-            <button type="button" className="sd-link" onClick={() => onNavigate("drill")}>Open Mixed Drill</button>
-          </li>
-          <li className={`sd-path-step${passes > 0 ? " is-lit" : ""}`}>
-            <p className="sd-path-num" aria-hidden="true">03</p>
-            <h3 className="sd-path-name">Live Guest</h3>
-            {passes > 0 ? (
-              <p className="sd-path-figure">
-                {passes}<span> {passes === 1 ? "guest" : "guests"} sorted</span>
-              </p>
-            ) : (
-              <p className="sd-path-text">
-                {liveGuestOpen
-                  ? "Talk a real moment through with a guest who answers back, then see what they were thinking."
-                  : "A guest who talks back. On venue plans, with one conversation free to try."}
-              </p>
-            )}
-            <span className="sd-meter" aria-hidden="true"><span style={{ width: `${Math.min(1, passes / total) * 100}%` }} /></span>
-            <button type="button" className="sd-link" onClick={() => onNavigate("live-guest")}>Open Live Guest</button>
-          </li>
-        </ol>
-      </section>
 
-      <section className="sd-forbar" aria-labelledby="sd-forbar-title">
-        <div className="sd-section-head">
-          <h2 id="sd-forbar-title" className="sd-h2">For the bar tonight</h2>
-        </div>
-        <div className="sd-forbar-grid">
-          <article className="sd-cocktail">
-            {photo && (
-              <div className="sd-cocktail-photo">
-                <Image src={photo} alt={cocktail.name} fill sizes="(max-width: 900px) 100vw, 280px" />
-              </div>
-            )}
-            <div className="sd-cocktail-text">
-              <p className="sd-kicker">Cocktail of the day</p>
-              <h3 className="sd-h3">{cocktail.name}</h3>
-              <p className="sd-meta">{cocktail.glass}, garnish {cocktail.garnish.charAt(0).toLowerCase() + cocktail.garnish.slice(1)}</p>
-              <ul className="sd-spec">
-                {cocktail.ingredients.map((ing) => (
-                  <li key={ing}>{ing}</li>
-                ))}
-              </ul>
-              <button type="button" className="sd-link" onClick={() => onNavigate("cocktails")}>The cocktail library</button>
+        {path.map((p) => (
+          <section key={p.id} className={`sd-panel sd-col-4 sd-stat${p.lit ? " is-lit" : ""}`} aria-label={p.name}>
+            <div className="sd-panel-head">
+              <p className="sd-label">{p.name}</p>
+              <p.Icon size={16} strokeWidth={2} className="sd-panel-icon" aria-hidden />
             </div>
-          </article>
-          <article className="sd-fact">
-            <p className="sd-kicker">Worth knowing · {KB_CATEGORIES[fact.category].label}</p>
-            <h3 className="sd-h3">{fact.title}</h3>
-            <ul className="sd-fact-list">
-              {fact.keyFacts.slice(0, 3).map((f) => (
-                <li key={f}>{f}</li>
+            {p.lit && !firstDay ? (
+              <p className="sd-figure">
+                {p.figure}
+                {p.of && <span className="sd-figure-of">{p.of}</span>}
+                <span className="sd-figure-unit">{p.caption}</span>
+              </p>
+            ) : (
+              <p className="sd-stat-empty">{p.empty}</p>
+            )}
+            <span className="sd-bar" aria-hidden="true"><span style={{ width: `${p.pct * 100}%` }} /></span>
+            <button type="button" className="sd-textlink" onClick={() => onNavigate(p.id)}>
+              {p.link}
+              <ArrowRight size={14} strokeWidth={2.25} aria-hidden />
+            </button>
+          </section>
+        ))}
+
+        <section className="sd-panel sd-col-7 sd-upnext" aria-labelledby="sd-upnext-title">
+          <div className="sd-panel-head">
+            <h2 id="sd-upnext-title" className="sd-h2">Up next</h2>
+            <button type="button" className="sd-textlink" onClick={() => onNavigate("module")}>
+              All modules
+              <ArrowRight size={14} strokeWidth={2.25} aria-hidden />
+            </button>
+          </div>
+          {modules === null ? (
+            <div className="sd-wait" aria-hidden="true">
+              <span className="sd-skel sd-skel-line" />
+              <span className="sd-skel sd-skel-line" />
+            </div>
+          ) : (
+            <ul className="sd-list">
+              {upNext.map((m) => (
+                <li key={m.id}>
+                  <button type="button" className="sd-list-row" onClick={() => onOpenModule(m.id)}>
+                    <MasteryRing module={m} />
+                    <span className="sd-list-main">
+                      <span className="sd-list-title">{m.title}</span>
+                      <span className="sd-list-meta">
+                        {isStarted(m) ? (m.mastery_pct > 0 ? `${m.mastery_pct}% mastered` : "Started") : AREA_LABEL[m.category] ?? "Module"}
+                      </span>
+                    </span>
+                    <span className="sd-list-action">{isStarted(m) ? "Carry on" : "Start"}</span>
+                  </button>
+                </li>
               ))}
             </ul>
-            <button type="button" className="sd-link" onClick={() => onNavigate("knowledge")}>The knowledge base</button>
-          </article>
-        </div>
-      </section>
+          )}
+        </section>
+
+        <section className="sd-panel sd-col-5 sd-bar-tonight" aria-labelledby="sd-bar-title">
+          <div className="sd-panel-head">
+            <h2 id="sd-bar-title" className="sd-h2">For the bar tonight</h2>
+          </div>
+          <button type="button" className="sd-cocktail" onClick={() => onNavigate("cocktails")}>
+            {photo && (
+              <span className="sd-cocktail-photo">
+                <Image src={photo} alt="" fill sizes="88px" />
+              </span>
+            )}
+            <span className="sd-cocktail-text">
+              <span className="sd-list-title">{cocktail.name}</span>
+              <span className="sd-list-meta">{cocktail.glass}</span>
+              <span className="sd-cocktail-spec">{cocktail.ingredients.slice(0, 3).join(", ")}{cocktail.ingredients.length > 3 ? ", and more" : ""}</span>
+            </span>
+          </button>
+          <div className="sd-fact">
+            <p className="sd-label">Worth knowing · {KB_CATEGORIES[fact.category].label}</p>
+            <p className="sd-fact-title">{fact.title}</p>
+            <p className="sd-fact-text">{fact.keyFacts[0]}</p>
+            <button type="button" className="sd-textlink" onClick={() => onNavigate("knowledge")}>
+              Knowledge Base
+              <ArrowRight size={14} strokeWidth={2.25} aria-hidden />
+            </button>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

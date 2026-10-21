@@ -123,7 +123,7 @@ export default function MatchPairGame({ onComplete, onIncorrect }: ChallengeGame
       {done ? (
         <FeedbackBanner
           correct={true}
-          explanation="Margarita – coupe (or salt-rimmed rocks). Old Fashioned – rocks glass, always. Mojito – highball, to allow the mint and ice to breathe."
+          explanation="Margarita: coupe (or salt-rimmed rocks). Old Fashioned: rocks glass, always. Mojito: highball, to allow the mint and ice to breathe."
         />
       ) : (
         <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", textAlign: "center" }}>

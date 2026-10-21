@@ -1,227 +1,136 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useMemo, useState } from "react";
+import { Search } from "lucide-react";
 import { KB_CATEGORIES, KB_ENTRIES, type KBCategory } from "@/lib/knowledge-base";
+
+// The Knowledge Base on the staff desktop (docs/STAFF_APP.md section 8): the
+// cards grouped by category on the left, the open card on the right. Mobile
+// has its own screen (app/mobile/_components/KnowledgeBaseScreen.tsx).
+// Styles: the sd-ref rules in app/styles/staff.css.
 
 const CATEGORY_KEYS = Object.keys(KB_CATEGORIES) as KBCategory[];
 
+type Entry = (typeof KB_ENTRIES)[number];
+
 export default function KnowledgeBase() {
-  const [activeCategory, setActiveCategory] = useState<KBCategory | "all">("all");
-  const [activeSubCategory, setActiveSubCategory] = useState<string | "all">("all");
+  const [category, setCategory] = useState<KBCategory | "all">("all");
   const [search, setSearch] = useState("");
-  const [slideEntry, setSlideEntry] = useState<(typeof KB_ENTRIES)[number] | null>(null);
-
-  // Close slide-over on Escape
-  useEffect(() => {
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setSlideEntry(null);
-    }
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, []);
-
-  const subCategories = useMemo(() => {
-    if (activeCategory === "all") return [];
-    return KB_CATEGORIES[activeCategory].subCategories;
-  }, [activeCategory]);
+  const [selectedTitle, setSelectedTitle] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase();
-    return KB_ENTRIES.filter((entry) => {
-      const matchesCat = activeCategory === "all" || entry.category === activeCategory;
-      const matchesSub = activeSubCategory === "all" || entry.subCategory === activeSubCategory;
-      const matchesSearch = !q || entry.title.toLowerCase().includes(q) ||
-        entry.content.toLowerCase().includes(q) ||
-        entry.tags.some((t) => t.includes(q));
-      return matchesCat && matchesSub && matchesSearch;
-    });
-  }, [activeCategory, activeSubCategory, search]);
+    const q = search.trim().toLowerCase();
+    return KB_ENTRIES.filter(
+      (e) =>
+        (category === "all" || e.category === category) &&
+        (!q || e.title.toLowerCase().includes(q) || e.content.toLowerCase().includes(q) || e.tags.some((t) => t.includes(q))),
+    );
+  }, [category, search]);
 
-  // Group by category key for sectioned list display
-  const grouped = useMemo(() => {
-    const groups: Partial<Record<KBCategory, typeof filtered>> = {};
-    for (const entry of filtered) {
-      if (!groups[entry.category]) groups[entry.category] = [];
-      groups[entry.category]!.push(entry);
-    }
-    return groups;
-  }, [filtered]);
+  const groups = useMemo(
+    () =>
+      CATEGORY_KEYS.map((key) => ({ key, entries: filtered.filter((e) => e.category === key) })).filter(
+        (g) => g.entries.length > 0,
+      ),
+    [filtered],
+  );
+
+  const selected: Entry | null = filtered.find((e) => e.title === selectedTitle) ?? filtered[0] ?? null;
 
   return (
-    <div className="kb-container">
-      <p className="kb-lede">
-        {activeCategory === "all"
-          ? `${KB_ENTRIES.length} quick-reference cards across ${CATEGORY_KEYS.length} categories.`
-          : KB_CATEGORIES[activeCategory].description}
-      </p>
-
-      {/* Search */}
-      <div className="kb-search-row">
-        <div className="kb-search-wrap">
-          <svg className="kb-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-          </svg>
-          <input
-            className="kb-search"
-            type="text"
-            placeholder="Search knowledge base..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+    <div className="sd-page sd-ref">
+      <header className="sd-pagehead">
+        <div>
+          <h1 className="sd-title">Knowledge Base</h1>
+          <p className="sd-subtitle">
+            {category === "all"
+              ? `${KB_ENTRIES.length} quick-reference cards on spirits, beer, wine, cocktails and no-alcohol drinks.`
+              : KB_CATEGORIES[category].description}
+          </p>
         </div>
-        {search && (
-          <button
-            className="btn btn-secondary kb-clear-btn"
-            onClick={() => setSearch("")}
-          >
-            Clear
-          </button>
-        )}
-      </div>
+        <label className="sd-search">
+          <Search size={16} strokeWidth={2} aria-hidden />
+          <span className="sd-visually-hidden">Search the Knowledge Base</span>
+          <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search the cards" />
+        </label>
+      </header>
 
-      {/* Category pill tabs — minimalist */}
-      <div className="kb-filters">
+      <div className="sd-tabs sd-ref-filters" role="tablist" aria-label="Category">
         <button
-          className={`kb-pill${activeCategory === "all" ? " kb-pill-active" : ""}`}
-          onClick={() => { setActiveCategory("all"); setActiveSubCategory("all"); }}
+          type="button"
+          role="tab"
+          aria-selected={category === "all"}
+          className={`sd-tab${category === "all" ? " is-active" : ""}`}
+          onClick={() => setCategory("all")}
         >
-          All ({KB_ENTRIES.length})
+          All
+          <span className="sd-tab-count">{KB_ENTRIES.length}</span>
         </button>
-        {CATEGORY_KEYS.map((key) => {
-          const cat = KB_CATEGORIES[key];
-          const count = KB_ENTRIES.filter((e) => e.category === key).length;
-          return (
-            <button
-              key={key}
-              className={`kb-pill${activeCategory === key ? " kb-pill-active" : ""}`}
-              onClick={() => { setActiveCategory(key); setActiveSubCategory("all"); }}
-            >
-              {cat.label} ({count})
-            </button>
-          );
-        })}
+        {CATEGORY_KEYS.map((key) => (
+          <button
+            key={key}
+            type="button"
+            role="tab"
+            aria-selected={category === key}
+            className={`sd-tab${category === key ? " is-active" : ""}`}
+            onClick={() => setCategory(key)}
+          >
+            {KB_CATEGORIES[key].label}
+            <span className="sd-tab-count">{KB_ENTRIES.filter((e) => e.category === key).length}</span>
+          </button>
+        ))}
       </div>
 
-      {/* Sub-category filter */}
-      {subCategories.length > 0 && (
-        <div className="kb-filters kb-filters-sub">
-          <button
-            className={`kb-pill kb-pill-sm${activeSubCategory === "all" ? " kb-pill-active" : ""}`}
-            onClick={() => setActiveSubCategory("all")}
-          >
-            All sub-topics
-          </button>
-          {subCategories.map((sub) => {
-            const count = KB_ENTRIES.filter((e) => e.category === activeCategory && e.subCategory === sub.slug).length;
-            if (count === 0) return null;
-            return (
-              <button
-                key={sub.slug}
-                className={`kb-pill kb-pill-sm${activeSubCategory === sub.slug ? " kb-pill-active" : ""}`}
-                onClick={() => setActiveSubCategory(sub.slug)}
-              >
-                {sub.label} ({count})
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Search results count */}
-      {search && (
-        <p className="kb-result-count">
-          {filtered.length} result{filtered.length !== 1 ? "s" : ""} for &ldquo;{search}&rdquo;
-        </p>
-      )}
-
-      {/* Grouped list view */}
-      {filtered.length > 0 ? (
-        <div className="kb-list-container">
-          {(Object.entries(grouped) as [KBCategory, typeof filtered][]).map(([catKey, entries]) => {
-            const catMeta = KB_CATEGORIES[catKey];
-            return (
-              <div key={catKey} className="kb-list-section">
-                <h3
-                  className="kb-list-section-title"
-                  style={{ borderLeftColor: catMeta.color }}
-                >
-                  {catMeta.label}
-                </h3>
-                <div className="kb-list">
-                  {entries.map((entry) => (
-                    <button
-                      key={`${entry.category}-${entry.subCategory}-${entry.title}`}
-                      className="kb-list-item"
-                      onClick={() => setSlideEntry(entry)}
-                    >
-                      <span
-                        className="kb-list-item-accent"
-                        style={{ background: catMeta.color }}
-                        aria-hidden="true"
-                      />
-                      <div className="kb-list-item-info">
-                        <strong className="kb-list-item-title">{entry.title}</strong>
-                        <span className="kb-list-item-tagline">
-                          {entry.content.slice(0, 80)}{entry.content.length > 80 ? "..." : ""}
-                        </span>
-                      </div>
-                      <span
-                        className="kb-list-item-tag"
-                        style={{ background: catMeta.color + "18", color: catMeta.color, borderColor: catMeta.color + "44" }}
-                      >
-                        {entry.subCategory}
-                      </span>
-                    </button>
-                  ))}
+      <div className="sd-ref-split">
+        <section className="sd-panel sd-panel-flush sd-ref-list" aria-label="Cards">
+          {groups.length === 0 ? (
+            <p className="sd-empty sd-ref-empty">No card matches that.</p>
+          ) : (
+            groups.map((g) => (
+              <div key={g.key}>
+                <div className="sd-rows-head">
+                  <p className="sd-label">{KB_CATEGORIES[g.key].label}</p>
+                  <p className="sd-note">{g.entries.length}</p>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="kb-empty">
-          <p>No matching articles found.</p>
-        </div>
-      )}
-
-      {/* Slide-over panel */}
-      {slideEntry && (
-        <>
-          <div className="kb-slide-backdrop" onClick={() => setSlideEntry(null)} />
-          <div className="kb-slide-panel">
-            <div className="kb-slide-header">
-              <div className="kb-slide-header-left">
-                <span className="kb-slide-header-eyebrow">
-                  {KB_CATEGORIES[slideEntry.category].label}
-                </span>
-                <span className="kb-slide-header-sub">{slideEntry.subCategory}</span>
-              </div>
-              <button className="kb-slide-close" onClick={() => setSlideEntry(null)} aria-label="Close article">
-                &times;
-              </button>
-            </div>
-            <div className="kb-slide-body">
-              <h2 className="kb-slide-title">{slideEntry.title}</h2>
-              <div className="kb-slide-content">
-                <p>{slideEntry.content}</p>
-              </div>
-              <div className="kb-slide-facts">
-                <h4>Key Facts</h4>
-                <ul>
-                  {slideEntry.keyFacts.map((fact, i) => (
-                    <li key={i}><span className="kb-fact-check">&#10003;</span> {fact}</li>
-                  ))}
+                <ul className="sd-list">
+                  {g.entries.map((e) => {
+                    const active = selected?.title === e.title;
+                    return (
+                      <li key={e.title}>
+                        <button
+                          type="button"
+                          className={`sd-list-row sd-ref-row${active ? " is-active" : ""}`}
+                          aria-current={active ? "true" : undefined}
+                          onClick={() => setSelectedTitle(e.title)}
+                        >
+                          <span className="sd-list-main">
+                            <span className="sd-list-title">{e.title}</span>
+                            <span className="sd-list-meta sd-ref-snippet">{e.content}</span>
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
-              <div className="kb-slide-tags">
-                {slideEntry.tags.map((tag) => (
-                  <span key={tag} className="kb-tag">{tag}</span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+            ))
+          )}
+        </section>
+
+        {selected && (
+          <article className="sd-panel sd-ref-detail" aria-labelledby="sd-kb-title">
+            <p className="sd-label">{KB_CATEGORIES[selected.category].label}</p>
+            <h2 id="sd-kb-title" className="sd-ref-title">{selected.title}</h2>
+            <p className="sd-ref-body">{selected.content}</p>
+            <h3 className="sd-label">Key facts</h3>
+            <ul className="sd-ref-spec">
+              {selected.keyFacts.map((f) => (
+                <li key={f}>{f}</li>
+              ))}
+            </ul>
+          </article>
+        )}
+      </div>
     </div>
   );
 }

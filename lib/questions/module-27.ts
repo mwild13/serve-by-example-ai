@@ -53,7 +53,7 @@ export const MODULE_27_QUESTIONS: Question[] = [
       { id: "d", text: "Taking two orders before making either" },
     ],
     answer: "a",
-    explanation: "This simultaneous action is the textbook example of economy of motion — both hands working toward a single drink.",
+    explanation: "This simultaneous action is the textbook example of economy of motion: both hands working toward a single drink.",
     reviewed: true,
   },
   {

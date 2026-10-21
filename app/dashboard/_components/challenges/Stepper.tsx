@@ -41,7 +41,7 @@ export default function Stepper({ currentStep, phase }: { currentStep: number; p
                 transform: current ? "scale(1.1)" : "scale(1)",
                 transition: "transform 150ms ease",
               }}
-              aria-label={`Step ${i + 1}: ${label}${completed ? " – complete" : current ? " – current" : ""}`}
+              aria-label={`Step ${i + 1}: ${label}${completed ? ", complete" : current ? ", current" : ""}`}
             >
               {completed ? (
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">

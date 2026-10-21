@@ -94,34 +94,37 @@ export default function ChallengesPage() {
 
   return (
     <div className="sd-page">
-      <header className="sd-head">
-        <p className="sd-kicker">Practise</p>
-        <h1 className="sd-title">Challenges</h1>
-        <p className="sd-lede">Five quick games on the basics of the floor. Tap to answer, no typing.</p>
+      <header className="sd-pagehead">
+        <div>
+          <h1 className="sd-title">Challenges</h1>
+          <p className="sd-subtitle">Five quick games on the basics of the floor. Tap to answer, no typing.</p>
+        </div>
       </header>
 
       {phase === "lobby" && (
         <>
-          <ol className="sd-rows sd-games">
-            {GAMES.map((game, i) => (
-              <li key={game.name} className="sd-row-item">
-                <div className="sd-game">
-                  <span className="sd-path-num" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
-                  <span className="sd-row-main">
-                    <span className="sd-row-title">{game.name}</span>
-                    <span className="sd-row-desc">{game.desc}</span>
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ol>
-          <div className="sd-tonight-actions sd-games-actions">
-            <button type="button" className="sd-btn sd-btn-brass" onClick={() => setPhase("quiz")}>
+          <div className="sd-panel sd-panel-flush">
+            <ol className="sd-rows">
+              {GAMES.map((game, i) => (
+                <li key={game.name} className="sd-row-item">
+                  <div className="sd-row sd-game-row">
+                    <span className="sd-step-num" aria-hidden="true">{i + 1}</span>
+                    <span className="sd-row-main">
+                      <span className="sd-row-title">{game.name}</span>
+                      <span className="sd-row-desc">{game.desc}</span>
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <div className="sd-actions sd-games-actions">
+            <button type="button" className="sd-btn sd-btn-primary" onClick={() => setPhase("quiz")}>
               Start the five
-              <ArrowRight size={18} strokeWidth={2} aria-hidden />
+              <ArrowRight size={16} strokeWidth={2.25} aria-hidden />
             </button>
             {personalBest !== null && (
-              <p className="sd-meta sd-games-best">
+              <p className="sd-note">
                 Your best: <strong>{personalBest} of {TOTAL_CHALLENGES}</strong>
               </p>
             )}
