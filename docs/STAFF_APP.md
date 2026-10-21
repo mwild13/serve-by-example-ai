@@ -13,9 +13,9 @@ The staff training platform has a **3-stage mastery path** plus AI-powered extra
 | `drill` | Mixed Drill | `DrillPage.tsx` → `components/quiz/MixedDrill.tsx` | Ten questions mixed from every module the person has started (Rich update, Phase 10). Replaced Rapid Fire's module picker; old `?nav=rapid-fire` links open it. Mobile: `/mobile/drill`, linked from the Learn hub. See below |
 | `rush` | Saturday Rush | `RushPage.tsx` → `components/rush/SaturdayRush.tsx` | A timed Saturday night shift in twelve calls (Rich update, Phase 15). Mobile: `/mobile/rush`, linked from the Learn hub. See below |
 | `live-guest` | Live Guest | `LiveGuestPage.tsx` → `components/live-guest/LiveGuest.tsx` | A typed conversation with a guest who talks back (Rich update, Phase 6). Mobile: `/mobile/live-guest`, linked from the Learn hub. See below |
-| `challenges` | Challenges | `ChallengesPage.tsx` | 5 tap-based interactive mini-games. See `CHALLENGES.md` for full detail across all surfaces |
+| `challenges` | Challenges | `ChallengesPage.tsx` | 10 tap-based mini-games from `lib/challenge-content.ts`. See `CHALLENGES.md` |
 | `cocktails` | Cocktails | `CocktailLibrary.tsx` | 38-cocktail reference (lazy-loaded) |
-| `knowledge` | Knowledge Base | `KnowledgeBase.tsx` | Quick-reference knowledge base (lazy-loaded) |
+| `knowledge` | Knowledge Base | `KnowledgeBase.tsx` | 101 quick-reference cards (`lib/knowledge-base.ts`) |
 | `progress` | My progress | `progress/MyProgressPage.tsx` | Modules mastered, ledgers for Learn, Drill and Live Guest, mastery by area, badges. `?nav=badges` opens it at the badges |
 | `settings` | Settings | `StaffSettingsPanel` | Profile, security, venue join. Opened from the account menu, not the sidebar |
 
@@ -107,11 +107,18 @@ The desktop staff area was rebuilt twice in October 2026. The first pass (`docs/
 - **Collapse:** a 64px icon rail, by the button or Ctrl/Cmd+B, saved in `localStorage` (`sbe-sd-sidebar-collapsed`), the default below 1100px wide.
 - **Account menu:** the avatar at the foot opens Settings, Dark mode and Sign out.
 - **Narrow windows:** below 720px the sidebar becomes a top bar with one scrolling row of links.
+- **History:** each page is pushed to the browser history as `?nav=`, so Back and Forward move between pages without leaving the dashboard.
+
+**Speed** (`lib/staff-cache.ts`, `lib/staff-data.ts`)
+- **Cache:** page data (the module list, shift streak, Rush stats, team week, Live Guest list) is kept in memory for the signed-in person. A return visit paints from it at once while a fresh copy loads behind it.
+- **Warm-up:** the shell loads every page's data once the first screen is idle (`warmStaffCache`), so first visits are quick too.
+- **Ownership:** the shell sets the cache owner to the account's email; a different account empties it. Use `useStaffData(key, loader, getToken)` for new page data, with the loader defined in `lib/staff-data.ts`.
 
 **Screens**
 - **Today:** the step for tonight (`pickNextSteps()` in `lib/next-step.ts`, tested) beside the shift streak; this week at the venue; Learn, Drill and Live Guest as three figures; up next; a cocktail and a fact for the bar.
 - **Modules:** the suggested module, then every module as rows by level in one panel, with area tabs and search.
-- **Cocktails and Knowledge Base:** list on the left, the full card on the right, so nothing pops over the list.
+- **Cocktails and Knowledge Base:** list on the left, the full card on the right, so nothing pops over the list. The Knowledge Base groups by subcategory once a category is picked.
+- **Challenges:** today's challenge on the green card beside your record, then all ten as tiles; play one, or all ten in a row for a score (`docs/CHALLENGES.md`).
 - **Mixed Drill, a module's cards and quiz, Live Guest's conversation:** in a `.sd-docket` panel. The quiz's `.qz--light` theme reads the `--sd-*` tokens, so it follows dark mode.
 - **My progress:** four figures, mastery by area, badges with the next one to earn.
 

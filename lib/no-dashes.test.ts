@@ -22,6 +22,8 @@ const ROOTS = [
   "lib/verify-questions.ts",
   "lib/module-navigator.ts",
   "lib/challenges.ts",
+  "lib/challenge-content.ts",
+  "components/challenges",
   "lib/badges.ts",
   "lib/next-step.ts",
 ];

@@ -27,13 +27,19 @@ export default function KnowledgeBase() {
     );
   }, [category, search]);
 
-  const groups = useMemo(
-    () =>
-      CATEGORY_KEYS.map((key) => ({ key, entries: filtered.filter((e) => e.category === key) })).filter(
-        (g) => g.entries.length > 0,
-      ),
-    [filtered],
-  );
+  // All: one group per category. One category: one group per subcategory,
+  // so 20-odd cards stay easy to scan.
+  const groups = useMemo(() => {
+    const raw =
+      category === "all"
+        ? CATEGORY_KEYS.map((key) => ({ key, label: KB_CATEGORIES[key].label, entries: filtered.filter((e) => e.category === key) }))
+        : KB_CATEGORIES[category].subCategories.map((sub) => ({
+            key: sub.slug,
+            label: sub.label,
+            entries: filtered.filter((e) => e.subCategory === sub.slug),
+          }));
+    return raw.filter((g) => g.entries.length > 0);
+  }, [category, filtered]);
 
   const selected: Entry | null = filtered.find((e) => e.title === selectedTitle) ?? filtered[0] ?? null;
 
@@ -89,7 +95,7 @@ export default function KnowledgeBase() {
             groups.map((g) => (
               <div key={g.key}>
                 <div className="sd-rows-head">
-                  <p className="sd-label">{KB_CATEGORIES[g.key].label}</p>
+                  <p className="sd-label">{g.label}</p>
                   <p className="sd-note">{g.entries.length}</p>
                 </div>
                 <ul className="sd-list">

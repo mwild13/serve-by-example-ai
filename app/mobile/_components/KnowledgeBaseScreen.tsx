@@ -11,12 +11,9 @@ import { KB_CATEGORIES, KB_ENTRIES, type KBCategory, type KBEntry } from "@/lib/
 // KnowledgeBase.tsx `useMemo` pattern (app/dashboard/_components/
 // knowledge-base/KnowledgeBase.tsx). The Phase B mock's hardcoded
 // SPIRITS_101 sample cards are gone entirely — this now reads live from
-// lib/knowledge-base.ts (31 real entries), same as desktop.
+// lib/knowledge-base.ts (101 entries since 2026-10-21), same as desktop.
 //
-// Naming resolved 2026-08-18: the "101 Knowledge Base" title (31 real
-// entries, not 101) flagged in v4-migration-plan/06 is renamed to plain
-// "Knowledge Base" here and across every dashboard reference — user's call,
-// not a mobile-only divergence.
+// Named plain "Knowledge Base" since 2026-08-18, across mobile and desktop.
 
 const CATEGORY_KEYS = Object.keys(KB_CATEGORIES) as KBCategory[];
 
@@ -291,7 +288,7 @@ export default function KnowledgeBaseScreen() {
                               textTransform: "uppercase",
                             }}
                           >
-                            {entry.subCategory}
+                            {KB_CATEGORIES[entry.category].subCategories.find((sub) => sub.slug === entry.subCategory)?.label ?? entry.subCategory}
                           </span>
                         </div>
                       </button>
