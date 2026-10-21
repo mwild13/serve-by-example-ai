@@ -162,7 +162,7 @@ All of this is in the "Homepage editorial layout" block in `app/styles/marketing
 - **Page files stay thin:** metadata, JSON-LD, content constants, then markup.
 - **Server components by default.** `'use client'` only where there is real interaction (`Navbar`, `ROICalculator`).
 - **A section used on one page stays in that page file.** When a second page needs the same structure, move it to `components/marketing/`.
-- **Icons:** `lucide-react` for interface chrome (chevrons, close buttons); `components/icons/MarketingIcons.tsx` for content icons. The homepage now uses neither in its body, and that is the preferred direction.
+- **Icons:** `lucide-react` only (`MarketingIcons.tsx` was retired, see 7.2). The homepage uses no icons in its body, and that is the preferred direction.
 - **`SectionSubNav`:** any page with more than about four sections gets one. Shorter pages do not.
 
 ---

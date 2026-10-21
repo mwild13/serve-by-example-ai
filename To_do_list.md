@@ -47,7 +47,9 @@ Nothing open. The five that were here were decided on 2026-10-12 (Part 13 of the
 
 ## 7. Larger builds
 
-- [ ] **Check and release the desktop staff redesign** (owner, 2026-10-21). Built on `preview/staff-desktop`: bottle green, brass and cream, every desktop screen (plan: `docs/STAFF_DESKTOP_REDESIGN_PLAN.md`; standard: `docs/STAFF_APP.md` section 8). Left: look through it on the preview with a real account, then release. After release, retake the staff screenshots in `public/shots/` (they still show retired screens) and add desktop baselines to the e2e suite.
+- [ ] **Run two migrations** (owner, 2026-10-21): `supabase/migrations/20261030_module_descriptions_no_dashes.sql` and `20261031_challenges_ten.sql`. Until the second runs, challenges 6 to 10 don't save to the account.
+- [ ] **Retake the staff screenshots** in `public/shots/`: they still show the desktop before the October 2026 redesign.
+- [ ] **Desktop baselines in the e2e suite** for Today, Modules, Challenges and My progress. Needs a fresh QA session first (`tests/e2e/.auth/state.json` is dead).
 
 ## Parked
 

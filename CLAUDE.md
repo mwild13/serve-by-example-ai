@@ -22,7 +22,7 @@ Serve By Example is an AI-powered hospitality staff training platform that repla
 - **Framework:** Next.js (App Router) deployed on Cloudflare Pages via OpenNext
 - **Database:** Supabase (Postgres + Row Level Security + Auth)
 - **AI:** OpenAI `gpt-6-luna` with reasoning off (scenario evaluation, manager coaching, translation). The model is set once in `CHAT_MODEL_PARAMS` in `lib/openai.ts` — never hardcode a model name in a route. Every prompt that writes text people read includes `AU_WRITING_RULES` from `lib/ai-guard.ts` (Australian English, no em or en dashes), and its output goes through `capText()` or `plainDashes()`
-- **Payments:** Stripe — 3 tiers: `free` → `pro` → `venue_single` → `venue_multi`
+- **Payments:** Stripe, four tiers: `free` → `pro` → `venue_single` (Boutique) → `venue_multi` (Commercial)
 - **Language:** TypeScript throughout — no `any` types
 
 ## Where to Find Domain-Specific Rules
@@ -31,9 +31,11 @@ This file is global rules only. Domain-specific architecture, component maps, an
 
 - Writing rules for every agent, above all no em or en dashes anywhere a person reads (enforced by `lib/no-dashes.test.ts`): `AGENTS.md`
 
-- Marketing site (public routes, geo-blocking, brand voice, component usage): `docs/MARKETING_SITE.md`
+- Marketing site (public routes, geo-blocking, brand voice, component usage): `docs/MARKETING_SITE.md`; page design standard: `docs/Pages-Redesign.md`
 - Manager Console (data fetching, RBAC, state management): `docs/MANAGER_CONSOLE.md`
-- Staff App — web & mobile training loop, Live Guest, PWA: `docs/STAFF_APP.md`
+- Staff App, web and mobile: training loop, Live Guest, the staff desktop standard (section 8): `docs/STAFF_APP.md`
+- Mobile app (`/mobile`) routes, data layer, offline queue: `docs/MOBILE_BUILD.md`
+- Challenges mini-games, both surfaces: `docs/CHALLENGES.md`
 - Database schema, table map, RLS rules: `docs/DATABASE_SCHEMA.md`
 - Mastery/ELO scoring engine: `docs/MASTERY_ENGINE.md`
 - Funnel numbers and the saved SQL behind them: `docs/FUNNEL_METRICS.md`
@@ -60,8 +62,8 @@ All styling uses CSS custom properties defined in `app/globals.css`. **Do not in
 
 /* Text */
 --text: #172f22         /* primary text */
---text-soft: #496155
---text-muted: #7a9185
+--text-soft: #525047
+--text-muted: #54544c
 
 /* Borders */
 --line: #ddd2ba
@@ -74,10 +76,12 @@ All styling uses CSS custom properties defined in `app/globals.css`. **Do not in
 --shadow-sm / --shadow-md / --shadow-lg / --shadow-xl
 ```
 
+**Staff desktop tokens:** `/dashboard` styles read `--sd-*` tokens (also in `app/globals.css`): cream by default, swapped for bottle green by `.sd-dark` (the dark mode), and mapped to the mobile palette by `.sd-on-mobile`. Use them for anything on the staff desktop. Mobile has its own `--*-mobile` tokens (`docs/MOBILE_BUILD.md` section 5).
+
 **Fonts:**
 - Always reference `var(--font-heading)` and `var(--font-body)`. Never name a font family or a `--font-<family>` variable in a rule or inline style.
 - Marketing site, auth pages and the Manager Console (`/management`): Newsreader (headings, weight 600) and Inter (body), loaded in `app/layout.tsx`.
-- Staff product (`/dashboard`, `/mobile`): Fraunces and Manrope, loaded in `app/fonts/product-fonts.ts` and applied by the `.sbe-app-type` wrapper in each of those layouts. `/management` does not use that wrapper.
+- Staff product (`/dashboard`, `/mobile`): Fraunces and Manrope, loaded in `app/fonts/product-fonts.ts` and applied by the `.sbe-app-type` wrapper in each of those layouts. `/management` does not use that wrapper. The staff desktop (`.sd-shell`) sets headings to Manrope as well, so it is Manrope throughout.
 - All font files are self-hosted in `app/fonts/` through `next/font/local`. Do not use `next/font/google`.
 
 **No emojis anywhere.** Use SVG icons or text labels instead.
@@ -139,7 +143,6 @@ Cross-cutting auth/utility routes not owned by a single domain doc:
 | `/login` | Auth login |
 | `/auth/callback` | Supabase OAuth callback |
 | `/onboarding` | New user onboarding flow |
-| `/payment-success` | Post-Stripe checkout confirmation |
 | `/session-conflict` | One-device enforcement conflict page |
 | `/reset-password` | Password reset |
 | `/geo-block` | Geo-restricted access page (see `docs/MARKETING_SITE.md` for a routing nuance — the geo-block middleware's actual redirect target is `/restricted`, not this page) |

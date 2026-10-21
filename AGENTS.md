@@ -39,5 +39,12 @@ Hyphens in words (`pre-shift`, `bar-back`, `30-day`) are fine.
 ## 3. Where the design rules live
 
 - Staff desktop (`/dashboard`): `docs/STAFF_APP.md` section 8.
+- Staff mobile app (`/mobile`): `docs/MOBILE_BUILD.md`.
 - Manager Console: `docs/MANAGER_CONSOLE.md` section 6.
 - Marketing site: `docs/Pages-Redesign.md`.
+
+## 4. Before you hand work back
+
+- Run what CI runs: `npm run lint`, `npm run lint:css`, `npm run typecheck`, `npm test` and `npm run knip`.
+- If you changed how a screen or feature works, update its doc in the same commit. A doc that describes the old screen is worse than none.
+- Delete a throwaway test page or script before committing; never leave one in `app/`.

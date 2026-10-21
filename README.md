@@ -1,69 +1,72 @@
 # Serve By Example
 
-AI-powered hospitality staff training platform — mobile-first, structured, and built for the floor.
+Hospitality staff training for Australian bars, restaurants and hotels. Staff learn on their phone or at a desk; managers see who knows what.
 
-## What It Does
+## What it does
 
-Staff work through a self-paced 3-stage mastery path (Learn → Verify → Perform) covering Bartending, Sales, and Management across 40 modules. Managers get Mission Control: real-time team analytics, compliance tracking, AI coaching, and multi-venue roster management. Everything runs on their phone.
+- **Staff** work through 40 modules across bartending, service and sales, and safety and compliance. Each module has short Learn cards, then a quiz.
+- **Practice:** mixed drills, a pre-shift drill with a shift streak, Live Guest (an AI guest you talk to), Saturday Rush (a timed shift game) and ten Challenges.
+- **Reference:** a cocktail library and a 101-card Knowledge Base.
+- **Managers** get the Manager Console: team progress, compliance, AI coaching, venue content and multi-venue rosters.
 
-## Tech Stack
+Staff use two surfaces:
+- **`/mobile`:** the phone app.
+- **`/dashboard`:** the desktop.
+
+Phones are sent to `/mobile` automatically.
+
+## Tech stack
 
 | Layer | Technology |
 |-------|-----------|
-| Framework | Next.js 15 (App Router), deployed on Cloudflare Pages via OpenNext |
-| Database | Supabase — Postgres + Row Level Security + Auth |
-| AI | OpenAI GPT-4o-mini — scenario evaluation, coaching, translation |
-| Payments | Stripe — free / pro / venue_single / venue_multi tiers |
-| Language | TypeScript throughout — no `any` types |
+| Framework | Next.js 15 (App Router) on Cloudflare Pages via OpenNext |
+| Database | Supabase: Postgres, Row Level Security, Auth |
+| AI | OpenAI, model set once in `CHAT_MODEL_PARAMS` (`lib/openai.ts`) |
+| Payments | Stripe: `free`, `pro`, `venue_single` (Boutique), `venue_multi` (Commercial) |
+| Language | TypeScript throughout |
 
-## Local Development
+## Local development
 
 ```bash
 npm install
-cp .env.example .env.local   # fill in credentials (see Cloudflare Pages env vars)
-npm run dev                  # http://localhost:3000
+npm run dev      # http://localhost:3000
 ```
 
-### Required Environment Variables
+Environment variables live in Cloudflare Pages. Ask the owner for local values; never commit them.
 
-```
-NEXT_PUBLIC_SUPABASE_URL
-NEXT_PUBLIC_SUPABASE_ANON_KEY
-SUPABASE_SERVICE_ROLE_KEY
-OPENAI_API_KEY
-STRIPE_SECRET_KEY
-STRIPE_WEBHOOK_SECRET
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+## Checks
+
+CI (`.github/workflows/ci.yml`) runs these on every push:
+
+```bash
+npm run lint && npm run lint:css && npm run typecheck && npm test && npm run knip
 ```
 
-All secrets are managed in Cloudflare Pages environment variables. Never hardcode credentials.
+## Releasing
 
-## Branch Strategy
+- **Preview:** work goes to a `preview/<name>` branch first. Cloudflare builds a preview of it and CI runs.
+- **Production:** once CI is green, the same commit is pushed to `main`, which deploys `servebyexample.co`.
+- **No pull requests.**
 
-```
-dev    →  Cloudflare Pages preview  →  https://dev.serve-by-example-ai.pages.dev
-main   →  Production                →  https://servebyexample.co
-```
+## Where things are
 
-Fast-forward merges from `dev` into `main` only. Never commit directly to `main`.
+| Path | What |
+|------|------|
+| `app/(marketing)/` | Public site (the group adds nothing to the URL) |
+| `app/dashboard/` | Staff desktop |
+| `app/mobile/` | Staff phone app |
+| `app/management/` | Manager Console page |
+| `app/api/` | API routes |
+| `components/mission-control/` | Manager Console components |
+| `components/quiz/`, `live-guest/`, `rush/`, `challenges/`, `team/` | Staff features shared by desktop and mobile |
+| `lib/` | Mastery engine, sessions and tiers, teaching content, AI helpers |
+| `app/globals.css`, `app/styles/` | Tokens and one stylesheet per surface |
+| `supabase/migrations/` | Schema migrations, in date order |
+| `docs/` | Per-area references (below) |
 
-## Key Directories
+## Read first
 
-| Directory | Purpose |
-|-----------|---------|
-| `app/` | Next.js App Router pages and API routes |
-| `components/learning-engine/` | All staff-facing training UI (40 modules, quizzes, AI Arena, Challenges) |
-| `components/mission-control/` | Manager Mission Control dashboard and extracted sub-panels |
-| `components/knowledge-base/` | Cocktail Library and 101 Knowledge Base (lazy-loaded) |
-| `components/toolkit/` | SOP generator preview and document components |
-| `components/ui/` | Shared UI primitives (skeletons, mockups, ROI calculator, session keepalive) |
-| `lib/` | Mastery engine, session logic, tier access, daily focus, AI helpers |
-| `lib/management/` | Venue and staff management service layer |
-| `supabase/migrations/` | SQL schema migration files (chronological) |
-
-## Further Reading
-
-- [CLAUDE.md](CLAUDE.md) — Full architecture, coding conventions, auth patterns, design system
-- [EXECUTIVE_SUMMARY.md](EXECUTIVE_SUMMARY.md) — Product overview for stakeholders and venue operators
-- [docs/MOBILE_BUILD.md](docs/MOBILE_BUILD.md) — Mobile staff app (`/mobile`) architecture
-- [docs/v3-architecture.md](docs/v3-architecture.md) — V3 learning pipeline architecture
+- [CLAUDE.md](CLAUDE.md): security, stack, design system, conventions.
+- [AGENTS.md](AGENTS.md): writing rules for every AI agent (no em or en dashes).
+- [docs/STAFF_APP.md](docs/STAFF_APP.md), [docs/MOBILE_BUILD.md](docs/MOBILE_BUILD.md), [docs/MANAGER_CONSOLE.md](docs/MANAGER_CONSOLE.md), [docs/MARKETING_SITE.md](docs/MARKETING_SITE.md), [docs/DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md), [docs/MASTERY_ENGINE.md](docs/MASTERY_ENGINE.md).
+- [To_do_list.md](To_do_list.md): open work.
