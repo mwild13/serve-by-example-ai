@@ -88,6 +88,8 @@ These are not interchangeable — don't use "14-day" copy from one context to ju
 
 `FeatureGrid`, `MetricsStrip`, `SectionHeading` and `components/icons/MarketingIcons.tsx` were deleted in October 2026. Do not recreate them.
 
+**`components/Navbar.tsx`** (shared, styles in `app/globals.css`): signed-out visitors see a Login button; signed-in visitors see the same button filled green (`.nav-login-btn--in`). Both go to `/login`, which sends a signed-in visitor straight on to the app (`middleware.ts`).
+
 **`components/ui/`** — for pricing-table and comparison content specifically:
 
 | Component | Purpose |

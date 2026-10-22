@@ -1,6 +1,6 @@
 # To Do
 
-Open items only. Finished work is recorded in `docs/handoff/2026-10-21-staff-desktop-handoff.md` (the staff desktop rebuild and docs clean-up), `docs/handoff/2026-10-rich-update-handoff.md` (the Rich update, 2026-10-19 to 20), the earlier handoffs in `docs/handoff/`, and git history.
+Open items only. Finished work is recorded in `docs/handoff/2026-10-22-staff-mobile-handoff.md` (the staff mobile rebuild and one-device sign-in), `docs/handoff/2026-10-21-staff-desktop-handoff.md` (the staff desktop rebuild and docs clean-up), `docs/handoff/2026-10-rich-update-handoff.md` (the Rich update, 2026-10-19 to 20), the earlier handoffs in `docs/handoff/`, and git history.
 
 Regrouped on 2026-10-12 by who does the work and where. Background for the launch items is in `docs/handoff/2026-10-pre-launch-handoff.md`.
 
@@ -30,6 +30,7 @@ Each needs something first: a real payment, an expired trial, or a Pro account i
 
 ### On an iPhone, signed in
 
+- [ ] **Newest sign-in wins** (2026-10-22). Sign in on the laptop, then on the phone, then open any page on the laptop: it should land on sign-in with one line saying why. Then sign in with Google and start a drill: it should run.
 - [ ] **Checkout return.** Buy Pro and confirm the plan shows on mobile Home at once. Needs a real payment.
 
 ### On a computer, as staff
@@ -44,6 +45,7 @@ Nothing open. The five that were here were decided on 2026-10-12 (Part 13 of the
 ## 6. Tests
 
 - [ ] **An e2e test from sign-up through checkout.** Nothing tests the payment path.
+- [ ] **Regenerate the mobile baselines for Help, Me and Settings** (2026-10-22), out of date after Sign out and the Help additions. Command in `docs/handoff/2026-10-22-staff-mobile-handoff.md`.
 
 ## 7. Larger builds
 
