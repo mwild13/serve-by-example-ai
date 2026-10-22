@@ -37,14 +37,19 @@ const SCREENS: Array<{ name: string; path: string }> = [
   { name: "terms", path: "/mobile/terms" },
 ];
 
-// Every /mobile route except onboarding (the QA account has finished it, so
-// it redirects).
+// Every /mobile screen. Not onboarding (the QA account has finished it, so
+// it redirects), nor arena, scenarios and scenario-practice, which only
+// redirect to live-guest.
 const ALL_ROUTES = [
-  "ai-photo", "arena", "badges", "challenges", "cocktails", "contact", "drill", "help", "home",
+  "ai-photo", "badges", "challenges", "cocktails", "contact", "drill", "help", "home",
   "install", "knowledge", "learn", "live-guest", "match-pairs", "memory-test", "menu-audit",
   "practise", "privacy", "progress", "quiz", "recipe-order", "report-bug", "rush",
-  "scenario-practice", "scenarios", "settings", "speed-round", "terms",
+  "settings", "speed-round", "terms",
 ];
+
+// Against `npm run dev` a page is built on its first visit, which can take
+// longer than the default 30 seconds while other tests run alongside.
+test.describe.configure({ timeout: 60_000 });
 
 // A Tuesday evening in Sydney.
 const FIXED_NOW = new Date("2026-10-20T18:30:00+11:00");
@@ -59,6 +64,16 @@ async function shoot(page: Page, screen: { name: string; path: string }, file: s
   });
   await page.goto(screen.path);
   await page.waitForLoadState("networkidle");
+  // A quiet network isn't enough on a busy run: wait until every loading
+  // shape has been replaced, and every photo on screen has loaded.
+  await expect(page.locator(".sm-skel")).toHaveCount(0, { timeout: 20_000 });
+  await page.waitForFunction(() =>
+    Array.from(document.images).every((img) => {
+      const box = img.getBoundingClientRect();
+      const onScreen = box.bottom > 0 && box.top < window.innerHeight && box.right > 0 && box.left < window.innerWidth;
+      return !onScreen || (img.complete && img.naturalWidth > 0);
+    }),
+  );
   // Elements tagged data-e2e-mask change day to day, so they're masked out
   // of the comparison, with their text swapped for a fixed placeholder so a
   // longer value can't push the layout down. The AI Coach's five-second
@@ -110,7 +125,8 @@ test("the notifications card on Home links to Settings and stays dismissed", asy
   await page.evaluate(() => window.localStorage.removeItem("sbe-notif-optin-card-dismissed"));
   await page.reload();
   const card = page.getByText("Want a weekly nudge?");
-  await expect(card).toBeVisible();
+  // The card waits for the notification settings to load from the server.
+  await expect(card).toBeVisible({ timeout: 15_000 });
   await expect(page.getByRole("link", { name: "Choose in Settings" })).toHaveAttribute("href", "/mobile/settings#notifications");
 
   await page.getByRole("button", { name: "Dismiss" }).click();

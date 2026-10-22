@@ -47,7 +47,7 @@ export default async function globalSetup(config: FullConfig) {
   const tokenHash = link?.properties?.hashed_token;
   if (linkError || !tokenHash) {
     throw new Error(
-      `Could not create a sign-in token for ${email}: ${linkError?.message ?? "no token returned"}. Type them into your terminal as docs/LIVE_APP_TESTING.md shows (never a .env file).`
+      `Could not create a sign-in token for ${email}: ${linkError?.message ?? "no token returned"}. Check the secret key was pasted whole (set it again as docs/LIVE_APP_TESTING.md shows), and that the QA account exists; create or repair it with scripts/e2e/provision-qa-account.mjs.`
     );
   }
 
