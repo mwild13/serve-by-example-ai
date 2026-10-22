@@ -1,6 +1,6 @@
 # Mobile Build (V4) — `app/mobile/`
 
-Companion to `CLAUDE.md`, not a replacement: where the two conflict, `CLAUDE.md` wins. This is the architecture reference for the **standalone Mobile build** (called "V4" in code comments), a separate route tree at `app/mobile/`. It is the only mobile staff experience: the legacy view embedded in `/dashboard` was removed on 2026-10-09 (see `STAFF_APP.md` section 2). Last brought up to date 2026-10-22, during the October 2026 redesign (`docs/STAFF_MOBILE_REDESIGN_PLAN.md`; phases 0 and 1 are in).
+Companion to `CLAUDE.md`, not a replacement: where the two conflict, `CLAUDE.md` wins. This is the architecture reference for the **standalone Mobile build** (called "V4" in code comments), a separate route tree at `app/mobile/`. It is the only mobile staff experience: the legacy view embedded in `/dashboard` was removed on 2026-10-09 (see `STAFF_APP.md` section 2). Last brought up to date 2026-10-22, during the October 2026 redesign (`docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md`; phases 0 and 1 are in).
 
 ## 1. What This Is, and What It Isn't
 
@@ -122,7 +122,7 @@ Naming note if you extend this: the queue key uses the house `sbe-` hyphenated c
 
 ## 5. Design: tokens, light and dark, the parts
 
-The October 2026 redesign (`docs/STAFF_MOBILE_REDESIGN_PLAN.md`) replaced the navy and amber dark theme.
+The October 2026 redesign (`docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md`) replaced the navy and amber dark theme.
 
 - **Tokens:** `--sm-*` in `app/globals.css`, aliases of the brand tokens plus three added for this app: `--paper` (`#F8F6F0`), `--bottle` (`#0E2A1E`) and `--gold-bright` (`#D4AF37`). Gold is only for streaks, goals and finished drills, and never small gold text on paper.
 - **Dark mode:** `.sm-dark` on `<html>` swaps the same names for bottle green, with cards a step lighter. It follows the phone unless Settings > Appearance picks one (`lib/mobile-theme.ts`, saved per device as `sbe-sm-theme`). The layout's nonce'd inline script sets it before the first paint; `MobileThemeSync.tsx` keeps it right after. Browser bar colours follow (`viewport.themeColor`).

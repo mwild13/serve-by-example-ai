@@ -12,7 +12,7 @@ import { CHALLENGE_ROWS, readDoneChallenges, type ChallengeRow } from "../_lib/c
 import { TOTAL_CHALLENGES } from "@/lib/challenges";
 import { pickTodaysChallenge } from "@/lib/challenge-content";
 
-// The Practise tab (docs/STAFF_MOBILE_REDESIGN_PLAN.md, phases 0 and 5):
+// The Practise tab (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md, phases 0 and 5):
 // everything that sharpens what's been learnt without changing mastery.
 // The mixed drill is the hero; today's challenge (the desktop's pick,
 // pickTodaysChallenge()) comes next; Live Guest and Saturday Rush play a

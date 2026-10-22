@@ -17,7 +17,7 @@ import { isMastered, isStarted } from "@/lib/next-step";
 import { badgeProgressText, badgesFromProgress, nextBadge, readVisitStreak } from "@/lib/badges";
 import { tierDisplayName } from "@/lib/session";
 
-// The Me tab (docs/STAFF_MOBILE_REDESIGN_PLAN.md, phase 6), the phone
+// The Me tab (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md, phase 6), the phone
 // version of the staff desktop's My progress (MyProgressPage.tsx): who you
 // are, four figures, mastery by area, the next badge, then Settings and
 // help. The AI Coach floats above the tab bar. Styles: the sm-me rules in

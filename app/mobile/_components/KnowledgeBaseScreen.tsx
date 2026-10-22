@@ -7,7 +7,7 @@ import Sheet from "./ui/Sheet";
 import { Pill, Section } from "./ui/parts";
 import { KB_CATEGORIES, KB_ENTRIES, type KBCategory, type KBEntry } from "@/lib/knowledge-base";
 
-// The knowledge base (docs/STAFF_MOBILE_REDESIGN_PLAN.md, phase 7): every
+// The knowledge base (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md, phase 7): every
 // card as a row under its topic, with search and topic chips. Tapping a row
 // opens the card in a bottom sheet: the explanation, key facts and tags.
 // lib/knowledge-base.ts is static data, shared with the desktop knowledge

@@ -1,5 +1,7 @@
 # Staff Mobile Redesign Plan (October 2026)
 
+> **Released to production on 2026-10-22** (main at `8139cad`). Kept for the record; the current standard is `docs/STAFF_APP.md` section 9 and the architecture is `docs/MOBILE_BUILD.md`.
+
 The plan for rebuilding `/mobile`, the staff app on phones, to the Version 2 mock-up the owner approved on 2026-10-21. About 90% of staff use this surface, so it is built for speed, a native iPhone feel and reasons to come back.
 
 - **Mock-up:** the "Version 2: warmer, tactile feed" row on the [SBE Mobile Home Proposal](https://claude.ai/artifact/Qsyafav9Pm6NDzDuqNk6vM) canvas: Home, Home scrolled, Home dark, Add to Home Screen, Pre-shift drill finished.

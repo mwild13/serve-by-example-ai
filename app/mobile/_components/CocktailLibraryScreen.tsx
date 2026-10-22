@@ -9,7 +9,7 @@ import Sheet from "./ui/Sheet";
 import { Section } from "./ui/parts";
 import { CATEGORIES, COCKTAILS, COCKTAIL_IMAGES, cocktailSlug, type Category, type Cocktail } from "@/lib/cocktails";
 
-// The cocktail library (docs/STAFF_MOBILE_REDESIGN_PLAN.md, phase 7): every
+// The cocktail library (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md, phase 7): every
 // cocktail on a square photo, two to a row. The Most common ones first, then
 // the rest by style; a search or a style chip shows one grid of results.
 // Tapping one opens its spec in a bottom sheet. lib/cocktails.ts is static

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { TabIcon, type TabIconName } from "./icons";
 
-// The four tabs (docs/STAFF_MOBILE_REDESIGN_PLAN.md section 1). Fixed to the
+// The four tabs (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md section 1). Fixed to the
 // bottom with the safe area under it, see-through with a blur, as on
 // iPhone. The spacer in front keeps the last of a screen's content clear of
 // it, so no screen has to reserve the height itself. Replaced BottomNav.tsx

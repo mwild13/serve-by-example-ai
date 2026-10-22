@@ -3940,7 +3940,7 @@ body.mobile-dark-shell select {
 }
 
 /* ============================================================
-   STAFF MOBILE (/mobile), docs/STAFF_MOBILE_REDESIGN_PLAN.md
+   STAFF MOBILE (/mobile), docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md
    Warm menu paper and bottle green, gold only for streaks, goals and
    finished drills. Every colour is an --sm-* token (app/globals.css), so
    dark mode (.sm-dark on <html>) needs no rules here. The parts are in

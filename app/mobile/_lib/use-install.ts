@@ -5,7 +5,7 @@ import { detectInstallPlatform, type InstallPlatform } from "@/lib/install-platf
 import { trackEvent } from "@/lib/consent";
 
 // Getting the app on the Home Screen, in the browser
-// (docs/STAFF_MOBILE_REDESIGN_PLAN.md section 4). Android Chrome offers its
+// (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md section 4). Android Chrome offers its
 // own install prompt once per page load (`beforeinstallprompt`); InstallWatch
 // keeps it here from the first screen, so the guide and banner can show a
 // real Install button later. iPhone has no such prompt: the guide's steps.

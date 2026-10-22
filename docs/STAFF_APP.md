@@ -133,7 +133,7 @@ The desktop staff area was rebuilt twice in October 2026. The first pass (`docs/
 
 ## 9. Mobile design (October 2026 redesign)
 
-`/mobile`, where most staff train, was rebuilt in October 2026 to the Version 2 mock-up the owner approved on 2026-10-21 (`docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md` once released). It should feel like an iPhone app, not a web page. Styles are in `app/styles/staff.css` under "STAFF MOBILE", all `.sm-*` classes; the `--sm-*` tokens are in `app/globals.css`. Architecture: `MOBILE_BUILD.md`.
+`/mobile`, where most staff train, was rebuilt in October 2026 to the Version 2 mock-up the owner approved on 2026-10-21 (`docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md`, released 2026-10-22). It should feel like an iPhone app, not a web page. Styles are in `app/styles/staff.css` under "STAFF MOBILE", all `.sm-*` classes; the `--sm-*` tokens are in `app/globals.css`. Architecture: `MOBILE_BUILD.md`.
 
 **Look**
 - **Light by default:** warm menu paper (`--paper`) with near-white cards, bottle green (`--bottle`) for text, buttons and the one hero card on Home.

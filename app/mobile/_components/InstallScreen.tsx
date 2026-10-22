@@ -10,7 +10,7 @@ import { trackInstall, useInstall } from "../_lib/use-install";
 import { INSTALL_STEPS, PICKABLE_PLATFORMS, PLATFORM_LABEL, isIosPlatform, type InstallPlatform } from "@/lib/install-platform";
 
 // /mobile/install: how to put Serve By Example on this phone's Home Screen
-// (docs/STAFF_MOBILE_REDESIGN_PLAN.md section 4.2). The phone and browser
+// (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md section 4.2). The phone and browser
 // are detected (lib/install-platform.ts), with "Different phone?" to pick
 // another. Reached from onboarding, the drill finish, the Home banner,
 // Settings and the shift reminder (`?from=` says which, for the way back

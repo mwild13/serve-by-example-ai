@@ -7,7 +7,7 @@ import { Card, ProgressBar, Section } from "./ui/parts";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 import { badgeProgressText, badgesFromProgress, readVisitStreak, type Badge } from "@/lib/badges";
 
-// Every badge, from Me (docs/STAFF_MOBILE_REDESIGN_PLAN.md, phase 6). Badges
+// Every badge, from Me (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md, phase 6). Badges
 // are worked out on the device from /api/training/progress
 // (lib/badges.ts badgesFromProgress, shared with the staff desktop), never
 // stored as unlocked rows. The streak badges count days visited in a row on

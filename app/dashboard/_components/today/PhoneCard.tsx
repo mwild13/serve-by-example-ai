@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import qrcode from "qrcode-generator";
 
 // "Train on your phone" on the staff desktop's Today
-// (docs/STAFF_MOBILE_REDESIGN_PLAN.md section 4.3): a QR code to the mobile
+// (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md section 4.3): a QR code to the mobile
 // app, where the pre-shift drill and reminders live. Hide keeps it hidden on
 // this computer. The code is always dark on white, as some phone cameras
 // can't read a light-on-dark one.

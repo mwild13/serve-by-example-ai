@@ -33,7 +33,7 @@ import { COCKTAILS, COCKTAIL_IMAGES, cocktailSlug } from "@/lib/cocktails";
 import { KB_CATEGORIES, KB_ENTRIES } from "@/lib/knowledge-base";
 import { streakLine } from "@/components/quiz/ShiftDays";
 
-// Mobile Home (docs/STAFF_MOBILE_REDESIGN_PLAN.md section 3): a feed led by
+// Mobile Home (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md section 3): a feed led by
 // one stack card. The card is the staff desktop's next step
 // (pickNextSteps(), lib/next-step.ts), so both surfaces offer the same
 // thing; once today's pre-shift drill is done it turns into "Ready for

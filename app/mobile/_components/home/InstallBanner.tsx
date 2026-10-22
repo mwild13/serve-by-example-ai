@@ -7,7 +7,7 @@ import { trackInstall, useInstall } from "../../_lib/use-install";
 import { installBannerDue, parseBannerState, type InstallBannerState } from "@/lib/install-platform";
 
 // The top of mobile Home: "Add SBE to your Home Screen" (docs/
-// STAFF_MOBILE_REDESIGN_PLAN.md section 4.3). From the second visit; closed,
+// zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md section 4.3). From the second visit; closed,
 // it comes back once after 14 days, then never (installBannerDue()). Kept on
 // this phone only. Never in the installed app or on a computer.
 

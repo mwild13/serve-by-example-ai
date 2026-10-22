@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
 
-// A bottom sheet, as in iPhone apps (docs/STAFF_MOBILE_REDESIGN_PLAN.md
+// A bottom sheet, as in iPhone apps (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md
 // section 2.3). A native <dialog> opened with showModal(), so focus stays
 // inside, Escape closes it and the page behind can't be tapped. Mount it to
 // open it; every way of closing (the button, Escape, a tap above the sheet)

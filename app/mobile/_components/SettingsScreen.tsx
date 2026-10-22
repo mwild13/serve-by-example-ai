@@ -20,7 +20,7 @@ import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { normalizeVenueCode } from "@/lib/venue-code";
 import { openBillingPortal } from "@/lib/billing-portal";
 
-// Settings, from Me. Redesign phase 6 (docs/STAFF_MOBILE_REDESIGN_PLAN.md):
+// Settings, from Me. Redesign phase 6 (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md):
 // grouped lists as in iPhone Settings. A row that edits something opens in
 // place, one at a time; switches turn notifications on and off. Styles: the
 // sm-group and sm-set rules in app/styles/staff.css.

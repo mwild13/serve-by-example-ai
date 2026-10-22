@@ -1,5 +1,5 @@
 // Which phone and browser someone is on, and how they add Serve By Example
-// to their Home Screen from there (docs/STAFF_MOBILE_REDESIGN_PLAN.md
+// to their Home Screen from there (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md
 // section 4). Pure, so it is tested against real user agent strings; the
 // install guide (/mobile/install) draws each step's picture from `pic`.
 

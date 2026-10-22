@@ -5,7 +5,7 @@ import { Check, ChevronRight } from "lucide-react";
 import { FlameIcon } from "./icons";
 
 // The small parts every /mobile screen is built from
-// (docs/STAFF_MOBILE_REDESIGN_PLAN.md section 2.3). Styles: the "STAFF
+// (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md section 2.3). Styles: the "STAFF
 // MOBILE" block in app/styles/staff.css. No state here, so a server
 // component can use them too.
 

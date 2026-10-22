@@ -12,7 +12,7 @@ import { trackEvent } from "@/lib/consent";
 // One step since 2026-10-17. The venue type and experience questions that
 // followed were saved but never read by anything, so they were removed.
 // On a phone, a second, skippable step offers the Add to Home Screen guide
-// (docs/STAFF_MOBILE_REDESIGN_PLAN.md section 4.3).
+// (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md section 4.3).
 
 /** The phone's platform when it should be offered the guide, else null. */
 function installOffer(): InstallPlatform | null {

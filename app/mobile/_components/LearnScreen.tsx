@@ -14,7 +14,7 @@ import { moduleHref } from "@/lib/home-feed";
 import { COCKTAILS } from "@/lib/cocktails";
 import { KB_ENTRIES } from "@/lib/knowledge-base";
 
-// The Learn tab (docs/STAFF_MOBILE_REDESIGN_PLAN.md, phase 4): modules as a
+// The Learn tab (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md, phase 4): modules as a
 // path, as on the staff desktop's Modules page (ModulesPage.tsx). The
 // suggested module on top with the reason, the skill check until it's done,
 // then every module as a row under its level, the suggested one marked "Up

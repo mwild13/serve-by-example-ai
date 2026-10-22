@@ -3,7 +3,7 @@ import { Group, Row } from "./ui/parts";
 
 // Help and FAQ, from Settings and Me: how the app works, read start to
 // finish, then the questions people ask. Redesign phase 6 rewrote it for the
-// four tabs (docs/STAFF_MOBILE_REDESIGN_PLAN.md); the rules it states come
+// four tabs (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md); the rules it states come
 // from docs/STAFF_APP.md and docs/MASTERY_ENGINE.md, so check there when
 // either changes. Styles: the sm-prose rules in app/styles/staff.css.
 

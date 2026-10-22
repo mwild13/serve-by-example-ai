@@ -11,7 +11,7 @@ import { test, expect, type Page } from "@playwright/test";
 // screenshot of them would fail on content, not layout. Every route
 // instead gets the no-horizontal-scroll check further down.
 //
-// Staff mobile redesign, phase 8 (docs/STAFF_MOBILE_REDESIGN_PLAN.md): the
+// Staff mobile redesign, phase 8 (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md): the
 // browser clock is fixed for the screenshots, so Home's greeting, date,
 // cocktails and fact, and today's challenge, are the same on every run.
 // The screens are taken in light on every viewport, and in dark at 390 wide.

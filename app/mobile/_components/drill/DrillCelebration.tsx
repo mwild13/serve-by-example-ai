@@ -15,7 +15,7 @@ import { homeClock } from "@/lib/home-feed";
 import { drillTime } from "@/lib/drill-time";
 import type { DrillSummary } from "@/lib/verify-quiz-client";
 
-// The end of the pre-shift drill on mobile (docs/STAFF_MOBILE_REDESIGN_PLAN.md
+// The end of the pre-shift drill on mobile (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md
 // section 5): the gold ring draws round, the streak number pops up and
 // today's dot turns gold. Always bottle green, in light mode too, as a moment
 // apart from the app. MixedDrill renders it through `renderPreshiftDone`;

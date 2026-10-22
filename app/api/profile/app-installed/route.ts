@@ -6,7 +6,7 @@ import { readJsonBody } from "@/lib/ai-guard";
 import { isInstallPlatform } from "@/lib/install-platform";
 
 // Records the first time someone opens the app from their Home Screen
-// (docs/STAFF_MOBILE_REDESIGN_PLAN.md section 4.4), for the install count in
+// (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md section 4.4), for the install count in
 // docs/FUNNEL_METRICS.md. Only the first launch is kept. Copes with the
 // columns not being there yet (supabase/migrations/20261101_app_installed_at.sql).
 export async function POST(req: Request) {

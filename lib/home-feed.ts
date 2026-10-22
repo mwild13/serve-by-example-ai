@@ -1,7 +1,7 @@
 import { isMastered, isShiftDay, isStarted, type NextStep, type StepModule } from "@/lib/next-step";
 
 // What leads mobile Home, and where each step goes
-// (docs/STAFF_MOBILE_REDESIGN_PLAN.md section 3). The step itself is the
+// (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md section 3). The step itself is the
 // staff desktop's (pickNextSteps() in lib/next-step.ts), so both surfaces
 // always offer the same next thing. Pure, so tested in lib/home-feed.test.ts.
 

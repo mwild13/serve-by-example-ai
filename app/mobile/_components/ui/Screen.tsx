@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import TabBar, { type MobileNavTab } from "./TabBar";
 
-// The frame of every /mobile screen (docs/STAFF_MOBILE_REDESIGN_PLAN.md
+// The frame of every /mobile screen (docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md
 // section 2.3).
 //
 // A tab screen opens on a large title. Once that scrolls under the top edge,

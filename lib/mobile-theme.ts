@@ -1,5 +1,5 @@
 // Light and dark mode for the staff mobile app (/mobile),
-// docs/STAFF_MOBILE_REDESIGN_PLAN.md section 2.1.
+// docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md section 2.1.
 //
 // The choice is "system" (follow the phone) unless the person picks light or
 // dark in Settings, saved per device in localStorage. Dark mode is the
