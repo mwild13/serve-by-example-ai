@@ -3,8 +3,8 @@
  *
  * Clients send a scenario id and the route looks the text up here, so an
  * anonymous caller can't submit their own "scenario" and use the demo as a
- * general-purpose model proxy. The Complaint Master and /demo pages import
- * their display text from here too, so what's shown is what's graded.
+ * general-purpose model proxy. The Complaint Master page imports its display
+ * text from here too, so what's shown is what's graded.
  *
  * See docs/handoff/security/2026-09-26-ai-token-abuse-and-request-races.md.
  */
@@ -43,22 +43,11 @@ export const COMPLAINT_SCENARIOS: readonly ComplaintScenario[] = [
   },
 ];
 
-/** /demo page prompts, keyed by its module id. */
-export const DEMO_PROMPTS = {
-  bartending:
-    "A guest approaches the bar while you are finishing another drink. How do you acknowledge them?",
-  sales:
-    "A guest asks what cocktail you would recommend with their steak. How do you respond?",
-  management:
-    "A staff member calls in sick 30 minutes before a busy Friday shift. What do you do next?",
-} as const;
-
-const GRADED_SCENARIOS = new Map<string, string>([
-  ...COMPLAINT_SCENARIOS.map(
-    (s): [string, string] => [s.id, `${s.situation}\n\nGuest says: ${s.guestLine}`],
-  ),
-  ...Object.entries(DEMO_PROMPTS),
-]);
+// The /demo page itself is a scripted Live Guest with no AI call
+// (lib/demo-guest.ts), so only Complaint Master is graded here.
+const GRADED_SCENARIOS = new Map<string, string>(
+  COMPLAINT_SCENARIOS.map((s): [string, string] => [s.id, `${s.situation}\n\nGuest says: ${s.guestLine}`]),
+);
 
 /** Returns the scenario text to grade for a demo scenario id, or undefined if unknown. */
 export function getDemoScenario(id: unknown): string | undefined {

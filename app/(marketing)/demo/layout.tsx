@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Try a Live Hospitality Scenario | Serve By Example",
+  title: "Live Guest Demo: The Cold Parmy | Serve By Example",
   description:
-    "Pick a real hospitality scenario and respond as you would on shift. Get instant AI-scored feedback on communication, sales technique, and guest experience.",
+    "A guest's chicken parmy is cold in the middle after a 40 minute wait. Pick what you'd say, then see what she was thinking and what each reply did to speed, safety and money. No sign-up.",
   alternates: { canonical: "/demo" },
 };
 

@@ -18,7 +18,7 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 | `/pricing` | Pricing (Stripe checkout) — see §2, same page component as `/membership` |
 | `/membership` | Re-exports `/pricing`'s page component with its own metadata (title "Membership Plans", "Founding Member" framing) — **missing from prior docs entirely** despite being the link target most marketing CTAs actually point to |
 | `/vs-generic-lms` | Comparison page — **also missing from prior docs entirely** |
-| `/demo` | Public AI demo |
+| `/demo` | Scripted Live Guest demo: Sharon and the cold parmy, three replies, no sign-up and no AI call (`lib/demo-guest.ts`, held to her real brief by `lib/demo-guest.test.ts`). Sends `demo_start` and `demo_complete` to Analytics |
 | `/demo/complaint-master` | Complaint handling demo |
 | `/how-it-works` | How It Works |
 | `/roi` | ROI Calculator |

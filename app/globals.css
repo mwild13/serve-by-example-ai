@@ -2105,22 +2105,7 @@ h1, h2, h3 {
   border-bottom-color: var(--border-light-on-dark) !important;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25) !important;
 }
-/* ==========================================================================
-   DEMO PAGE — DUAL-PANE SANDBOX (DESKTOP) / ULTRA-COMPACT APP VIEW (MOBILE)
-   ========================================================================== */
-:root {
-  --nav-height: 64px; /* approx rendered navbar height: 12px×2 padding + 38px logo mark + ~2px border */
-}
-.demo-right-pane .sbe-mkt-kicker { margin: 0; }
-.demo-right-pane > p { margin: 0; color: var(--text-soft); line-height: var(--lh-body); }
-.sbe-intent-pill {
-  transition: transform 160ms var(--ease-spring), border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
-}
-.sbe-intent-pill:hover { transform: translateY(-2px) scale(1.015); }
-.sbe-intent-pill:active { transform: scale(0.985); }
 .demo-minimal-footer a { color: var(--text-soft); text-decoration: underline; text-underline-offset: 3px; }
-.demo-solutions p { margin: 0 0 0.75rem; }
-.demo-solutions a { display: block; padding: 0.7rem 0; font-weight: 600; color: var(--text); text-decoration: none; }
 /* ── Floating Book-a-Call Button ──────────────────────────── */
 /* Collapse label to icon-only on small screens */
 @media (max-width: 480px) {
