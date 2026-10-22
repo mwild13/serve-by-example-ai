@@ -5,13 +5,15 @@ import HeroStickyBar from './HeroStickyBar';
 /*
  * Homepage hero — Pages-Redesign.md §6.1.
  * Server component: static markup, no client state.
- * Copy is LOCKED by SBE-Marketing-Audit-July2026.md — do not reword the
- * headline, subhead, or CTA without a new audit pass.
+ * Copy rewritten 2026-10-23 (owner approved): the buyer's moment ("Friday
+ * night") instead of outcome figures there is no customer evidence for yet
+ * (ACCC: claims need reasonable grounds when made). Every item in the trust
+ * row is a count anyone can check in the product.
  */
 
 const TRUST_ITEMS = [
-  '3× faster onboarding',
-  '100+ modules & scenarios',
+  '40 training modules',
+  '60 practice guests',
   '19 languages',
 ];
 
@@ -24,7 +26,7 @@ export default function HeroSection() {
         <div className="sbe-mkt-hero-heading">
           <p className="sbe-mkt-hero-eyebrow">Built for Australian pubs, bars &amp; venues</p>
 
-          <h1 className="sbe-mkt-hero-h1">Turn 6 Months of Onboarding Into 6 Weeks.</h1>
+          <h1 className="sbe-mkt-hero-h1">Know who&rsquo;s ready for Friday night.</h1>
         </div>
 
         {/* ── Product screenshot (mobile: after the CTAs) ── */}
@@ -43,7 +45,7 @@ export default function HeroSection() {
         {/* ── Details: subhead, CTA, trust list (mobile: copy first, trust row last) ── */}
         <div className="sbe-mkt-hero-details">
           <p className="sbe-mkt-hero-sub">
-            Deliver the exact standard your best manager enforces, without pulling them off the floor.
+            Your staff train on their phones with guests who talk back. You see who&rsquo;s ready, and whose RSA runs out next month, without pulling your best manager off the floor.
           </p>
 
           <div className="sbe-mkt-hero-actions">
@@ -52,7 +54,7 @@ export default function HeroSection() {
                 href="/login?intent=trial&tier=boutique"
                 className="sbe-mkt-hero-cta"
               >
-                Start Free Trial
+                Start my free trial
               </Link>
               <Link href="/demo" className="sbe-mkt-hero-secondary">
                 Try the 2-minute demo
@@ -72,7 +74,7 @@ export default function HeroSection() {
               </Link>
             </div>
             <p className="sbe-mkt-hero-microcopy">
-              14-day free trial. Cancel anytime. Create your account in 2 minutes, launch your venue in under 10.
+              14 days free · Cancel anytime · Set up in 10 minutes
             </p>
           </div>
 

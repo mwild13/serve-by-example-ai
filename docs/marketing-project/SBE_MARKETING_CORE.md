@@ -12,17 +12,18 @@ Where a page renders copy through a shared component (hero, feature comparison m
 # 1. HOMEPAGE (`/`)
 
 ## SEO metadata
-- **Title:** Serve By Example | Train Hospitality Staff 3x Faster
-- **Description:** Get your team shift-ready instantly with live-scored scenario roleplays and real-time skill ratings built for fast-paced hospitality.
+- **Title:** Serve By Example | Hospitality Staff Training for Australian Venues
+- **Description:** Staff train on their phones with guests who talk back. Managers see who's ready for the floor and whose RSA is due. Built for Australian pubs, bars and venues.
 
-## Hero (component: HeroSection)
+## Hero (component: HeroSection), rewritten 2026-10-23
 - **Eyebrow:** Built for Australian pubs, bars & venues
-- **Headline:** Turn 6 Months of Onboarding Into 6 Weeks.
-- **Subhead:** Deliver the exact standard your best manager enforces, without pulling them off the floor.
-- **Primary CTA:** Start Free Trial
-- **Secondary CTA:** How it works
-- **Microcopy:** 14-day free trial. No credit card required. Set up in under 10 minutes.
-- **Trust row:** 3× faster onboarding | 100+ modules & scenarios | 19 languages
+- **Headline:** Know who's ready for Friday night.
+- **Subhead:** Your staff train on their phones with guests who talk back. You see who's ready, and whose RSA runs out next month, without pulling your best manager off the floor.
+- **Primary CTA:** Start my free trial
+- **Secondary CTA:** Try the 2-minute demo (to `/demo`)
+- **Microcopy:** 14 days free · Cancel anytime · Set up in 10 minutes
+- **Trust row:** 40 training modules | 60 practice guests | 19 languages
+- **Why:** the old headline ("Turn 6 Months of Onboarding Into 6 Weeks") and "3× faster onboarding" were results claims with no customer evidence yet. Under Australian Consumer Law a claim needs reasonable grounds when it is made. Bring a results claim back only with real venue data behind it.
 
 ## Venue-type marquee (component: LogoMarquee)
 HOTELS · BARS · RESTAURANTS · PUBS · FRANCHISES

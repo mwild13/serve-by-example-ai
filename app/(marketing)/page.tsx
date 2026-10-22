@@ -11,9 +11,9 @@ import DemoTeaser from "@/components/marketing/DemoTeaser";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Serve By Example | Train Hospitality Staff 3x Faster",
+  title: "Serve By Example | Hospitality Staff Training for Australian Venues",
   description:
-    "Get your team shift-ready instantly with live-scored scenario roleplays and real-time skill ratings built for fast-paced hospitality.",
+    "Staff train on their phones with guests who talk back. Managers see who's ready for the floor and whose RSA is due. Built for Australian pubs, bars and venues.",
   alternates: { canonical: "/" },
 };
 

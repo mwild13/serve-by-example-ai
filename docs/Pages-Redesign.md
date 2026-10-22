@@ -243,7 +243,7 @@ A section the visitor operates (the calculator, a form) must fit in a 1440×900 
 
 ### 6.1 Locked
 
-- **Hero headline, subhead and CTA** in `components/HeroSection.tsx` are locked by `SBE-Marketing-Audit-July2026.md`. Do not reword them without a new audit pass. The marketing e2e suite asserts the sticky bar's "Start Free Trial" label.
+- **Hero headline, subhead and CTA** in `components/HeroSection.tsx` were rewritten on 2026-10-23 with the owner's approval ("Know who's ready for Friday night."; reasons in `docs/marketing-project/SBE_MARKETING_CORE.md`). Change them only with the owner. Every figure in the hero must be one anyone can check in the product. The marketing e2e suite asserts the sticky bar's "Start my free trial" label.
 - **Navigation labels** are shared across every page and stay plain.
 
 ### 6.2 Microcopy

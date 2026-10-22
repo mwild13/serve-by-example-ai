@@ -35,7 +35,7 @@ test("homepage sticky bar appears after the fold on phones only", async ({ page 
   if (isPhone(testInfo.project.name)) {
     await expect(bar).toBeVisible();
     await expect(bar).toContainText("14-day free trial");
-    const cta = bar.getByRole("link", { name: "Start Free Trial" });
+    const cta = bar.getByRole("link", { name: "Start my free trial" });
     await expect(cta).toHaveAttribute("href", "/login?intent=trial&tier=boutique");
   } else {
     await expect(bar).toBeHidden();

@@ -18,7 +18,7 @@ type Props = {
 
 export default function HeroStickyBar({
   label = "14-day free trial",
-  cta = "Start Free Trial",
+  cta = "Start my free trial",
   href = "/login?intent=trial&tier=boutique",
 }: Props) {
   const [visible, setVisible] = useState(false);
