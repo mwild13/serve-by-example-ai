@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 // Phase 6 mobile-responsive fix (2026-09-21) — initial visual-regression
 // coverage for app/mobile/. Runs across every viewport project in
@@ -10,11 +10,22 @@ import { test, expect } from "@playwright/test";
 // account. Games and practice screens draw random questions, so a
 // screenshot of them would fail on content, not layout. Every route
 // instead gets the no-horizontal-scroll check further down.
+//
+// Staff mobile redesign, phase 8 (docs/STAFF_MOBILE_REDESIGN_PLAN.md): the
+// browser clock is fixed for the screenshots, so Home's greeting, date,
+// cocktails and fact, and today's challenge, are the same on every run.
+// The screens are taken in light on every viewport, and in dark at 390 wide.
+// Regenerate on purpose with --update-snapshots and check them by eye.
 
 const SCREENS: Array<{ name: string; path: string }> = [
   { name: "home", path: "/mobile/home" },
   { name: "learn-hub", path: "/mobile/learn" },
+  { name: "practise", path: "/mobile/practise" },
+  { name: "me", path: "/mobile/progress" },
+  { name: "badges", path: "/mobile/badges" },
   { name: "settings", path: "/mobile/settings" },
+  { name: "cocktails", path: "/mobile/cocktails" },
+  { name: "knowledge", path: "/mobile/knowledge" },
   // Regression coverage for the Phase 6 overflow-bug fix specifically —
   // ContactSupportScreen.tsx's honeypot field used to widen the document
   // past the viewport on this route only.
@@ -27,13 +38,41 @@ const SCREENS: Array<{ name: string; path: string }> = [
 ];
 
 // Every /mobile route except onboarding (the QA account has finished it, so
-// it redirects) and ai-photo (asks for the camera).
+// it redirects).
 const ALL_ROUTES = [
-  "arena", "badges", "challenges", "cocktails", "contact", "drill", "help", "home",
-  "knowledge", "learn", "live-guest", "match-pairs", "memory-test", "menu-audit", "privacy",
-  "progress", "quiz", "recipe-order", "report-bug", "scenario-practice",
-  "scenarios", "settings", "speed-round", "terms",
+  "ai-photo", "arena", "badges", "challenges", "cocktails", "contact", "drill", "help", "home",
+  "install", "knowledge", "learn", "live-guest", "match-pairs", "memory-test", "menu-audit",
+  "practise", "privacy", "progress", "quiz", "recipe-order", "report-bug", "rush",
+  "scenario-practice", "scenarios", "settings", "speed-round", "terms",
 ];
+
+// A Tuesday evening in Sydney.
+const FIXED_NOW = new Date("2026-10-20T18:30:00+11:00");
+
+async function shoot(page: Page, screen: { name: string; path: string }, file: string) {
+  await page.clock.setFixedTime(FIXED_NOW);
+  // The one-off notifications card on Home shows while the QA account has
+  // both emails off; it has its own test below, so keep it out of the
+  // baseline.
+  await page.addInitScript(() => {
+    window.localStorage.setItem("sbe-notif-optin-card-dismissed", "1");
+  });
+  await page.goto(screen.path);
+  await page.waitForLoadState("networkidle");
+  // Elements tagged data-e2e-mask change day to day, so they're masked out
+  // of the comparison, with their text swapped for a fixed placeholder so a
+  // longer value can't push the layout down. The AI Coach's five-second
+  // "AI Coach" bubble on Me is hidden for the same reason.
+  await page.locator("p[data-e2e-mask], span[data-e2e-mask]").evaluateAll((els) => {
+    for (const el of els) el.textContent = "masked";
+  });
+  await page.addStyleTag({
+    content: "div[data-e2e-mask] p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .sm-coach-hint { display: none; }",
+  });
+  await expect(page).toHaveScreenshot(file, {
+    mask: [page.locator("[data-e2e-mask]")],
+  });
+}
 
 for (const screen of SCREENS) {
   test(`${screen.name} renders correctly`, async ({ page }, testInfo) => {
@@ -41,30 +80,13 @@ for (const screen of SCREENS) {
     // skip normal screen screenshots there so a landscape-shaped viewport
     // doesn't produce a spurious "regression" against portrait baselines.
     test.skip(testInfo.project.name.includes("landscape"), "Landscape project is for the rotate-overlay test only");
+    await shoot(page, screen, `${screen.name}.png`);
+  });
 
-    // The one-off notifications card on Home shows while the QA account has
-    // both emails off; it has its own test below, so keep it out of the
-    // baseline.
-    await page.addInitScript(() => {
-      window.localStorage.setItem("sbe-notif-optin-card-dismissed", "1");
-    });
-    await page.goto(screen.path);
-    await page.waitForLoadState("networkidle");
-    // Elements tagged data-e2e-mask change day to day (streak count, daily
-    // warm-up module, Hot Picks), so they're masked out of the comparison.
-    // The mask only paints over them, though: a longer warm-up title wraps to
-    // a second line and pushes everything below it down. So masked text is
-    // swapped for a fixed placeholder, and text inside a masked block is
-    // held to one line, before the screenshot.
-    await page.locator("p[data-e2e-mask], span[data-e2e-mask]").evaluateAll((els) => {
-      for (const el of els) el.textContent = "masked";
-    });
-    await page.addStyleTag({
-      content: "div[data-e2e-mask] p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }",
-    });
-    await expect(page).toHaveScreenshot(`${screen.name}.png`, {
-      mask: [page.locator("[data-e2e-mask]")],
-    });
+  test(`${screen.name} renders correctly in dark mode`, async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "phone-390x844", "Dark mode is checked at 390 wide only");
+    await page.emulateMedia({ colorScheme: "dark" });
+    await shoot(page, screen, `${screen.name}-dark.png`);
   });
 }
 
@@ -76,7 +98,7 @@ test("landscape shows the rotate overlay, not app content", async ({ page }, tes
 
   const overlay = page.locator(".mobile-landscape-guard");
   await expect(overlay).toBeVisible();
-  await expect(overlay).toContainText("Rotate your device to continue");
+  await expect(overlay).toContainText("Turn your phone upright");
 });
 
 // Assumes the QA account has both notification emails off, as every account

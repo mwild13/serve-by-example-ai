@@ -4158,9 +4158,6 @@ body.mobile-dark-shell select {
   font-weight: 800;
   color: var(--sm-good);
 }
-.sm-text-soft {
-  color: var(--sm-ink-soft);
-}
 
 /* Cards */
 .sm-card {
@@ -7055,4 +7052,70 @@ button.sm-set-row:disabled {
 }
 .sm-sheet:focus {
   outline: none;
+}
+
+/* ============================================================
+   STAFF MOBILE: app-wide pieces (redesign phase 8)
+   ============================================================ */
+
+/* Turn the phone upright (MobileOrientationGuard.tsx); shown by .mobile-landscape-guard above */
+.sm-guard-icon {
+  color: var(--sm-good);
+}
+.sm-guard-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+}
+.sm-guard-text {
+  margin: 0;
+  font-size: 15px;
+  color: var(--sm-ink-soft);
+}
+
+/* A screen that failed to load (app/mobile/error.tsx) */
+.sm-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 28px;
+  text-align: center;
+}
+.sm-error-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+}
+.sm-error-text {
+  margin: 0 0 10px;
+  font-size: 16px;
+  line-height: 22px;
+  color: var(--sm-ink-soft);
+}
+
+/* Offline, or changes waiting to sync (mobile-session-context.tsx), below the notch */
+.sm-syncbar {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: var(--mobile-frame-max);
+  padding: calc(env(safe-area-inset-top, 0px) + 8px) 16px 8px;
+  box-sizing: border-box;
+  transform: translateX(-50%);
+  background: var(--sm-accent);
+  color: var(--sm-accent-ink);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+}
+.sm-syncbar--offline {
+  background: var(--sm-alarm);
+  color: var(--paper);
 }

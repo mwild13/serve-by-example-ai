@@ -188,36 +188,15 @@ export function MobileSessionProvider({
   );
 }
 
-// Single insertion point for the whole /mobile tree (rendered here in the
-// provider, not per-screen) — reuses the exact visual pattern already
-// established by ScenarioPracticeScreen.tsx's save-failure banner
-// (AlertTriangle, --red-mobile, pill-radius), rather than inventing new
-// styling for offline state.
+// One banner for the whole /mobile tree, rendered here in the provider
+// rather than per screen: offline, or changes still waiting to sync. Styles:
+// .sm-syncbar in app/styles/staff.css.
 function SyncStatusBanner({ isOnline, pendingSyncCount }: { isOnline: boolean; pendingSyncCount: number }) {
   const offline = !isOnline;
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: "50%",
-        transform: "translateX(-50%)",
-        width: "100%",
-        maxWidth: "var(--mobile-frame-max)",
-        zIndex: 100,
-        display: "flex",
-        alignItems: "center",
-        gap: 8,
-        padding: "8px 16px",
-        background: offline ? "var(--red-mobile)" : "var(--gold-mobile)",
-      }}
-    >
-      {offline ? (
-        <WifiOff size={14} strokeWidth={2} color="var(--bg-mobile-dark)" aria-hidden="true" />
-      ) : (
-        <AlertTriangle size={14} strokeWidth={2} color="var(--bg-mobile-dark)" aria-hidden="true" />
-      )}
-      <span style={{ fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 700, color: "var(--bg-mobile-dark)" }}>
+    <div className={`sm-syncbar${offline ? " sm-syncbar--offline" : ""}`} role="status">
+      {offline ? <WifiOff size={16} strokeWidth={2.4} aria-hidden="true" /> : <AlertTriangle size={16} strokeWidth={2.4} aria-hidden="true" />}
+      <span>
         {offline
           ? "You're offline. Changes will sync when you reconnect."
           : `Syncing ${pendingSyncCount} pending change${pendingSyncCount === 1 ? "" : "s"}…`}

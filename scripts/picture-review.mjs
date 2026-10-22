@@ -52,7 +52,8 @@ const { draw } = await import(pathToFileURL(bundle).href);
 rmSync(dir, { recursive: true, force: true });
 
 // The --pic-* values as the app defines them: light from app/globals.css,
-// dark from the .qz--dark block in app/styles/staff.css.
+// dark from the .sm-dark .qz--dark block in app/styles/staff.css, with the
+// mobile dark ink (--paper) written out, since the review page has no tokens.
 function tokens(file, selector) {
   const css = readFileSync(file, "utf8");
   const start = css.indexOf(selector);
@@ -60,7 +61,7 @@ function tokens(file, selector) {
   return [...block.matchAll(/(--pic-[a-z-]+):\s*([^;]+);/g)].map(([, k, v]) => `${k}: ${v};`).join(" ");
 }
 const light = tokens("app/globals.css", "--pic-line");
-const dark = tokens("app/styles/staff.css", ".qz--dark {").replace(/var\(--text-mobile\)/g, "#ffffff");
+const dark = tokens("app/styles/staff.css", ".sm-dark .qz--dark {").replace(/var\(--sm-ink\)/g, "#f8f6f0");
 
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const cards = samples

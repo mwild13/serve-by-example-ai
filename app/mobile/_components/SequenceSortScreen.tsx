@@ -65,8 +65,8 @@ export default function SequenceSortScreen() {
                 gap: 12,
                 padding: 14,
                 borderRadius: "var(--radius-md)",
-                background: "var(--surface-mobile)",
-                border: "1px solid var(--border-mobile)",
+                background: "var(--sm-card)",
+                border: "1px solid var(--sm-bar-line)",
               }}
             >
               <div
@@ -74,8 +74,8 @@ export default function SequenceSortScreen() {
                   width: 24,
                   height: 24,
                   borderRadius: "var(--radius-pill)",
-                  background: "var(--green-mobile-bg)",
-                  color: "var(--green-mobile)",
+                  background: "var(--sm-accent-tint)",
+                  color: "var(--sm-good)",
                   fontSize: 12,
                   fontWeight: 800,
                   display: "flex",
@@ -86,7 +86,7 @@ export default function SequenceSortScreen() {
               >
                 {i + 1}
               </div>
-              <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: "var(--text-mobile)" }}>{item.text}</span>
+              <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: "var(--sm-ink)" }}>{item.text}</span>
               {!checked && (
                 <div style={{ display: "flex", flexDirection: "column" }}>
                   <button
@@ -96,7 +96,7 @@ export default function SequenceSortScreen() {
                     aria-label="Move up"
                     style={{ background: "none", border: "none", cursor: i === 0 ? "default" : "pointer", opacity: i === 0 ? 0.3 : 1, padding: 2 }}
                   >
-                    <ChevronUp size={16} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
+                    <ChevronUp size={16} strokeWidth={2} color="var(--sm-ink-soft)" aria-hidden="true" />
                   </button>
                   <button
                     type="button"
@@ -105,7 +105,7 @@ export default function SequenceSortScreen() {
                     aria-label="Move down"
                     style={{ background: "none", border: "none", cursor: i === items.length - 1 ? "default" : "pointer", opacity: i === items.length - 1 ? 0.3 : 1, padding: 2 }}
                   >
-                    <ChevronDown size={16} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
+                    <ChevronDown size={16} strokeWidth={2} color="var(--sm-ink-soft)" aria-hidden="true" />
                   </button>
                 </div>
               )}
@@ -127,12 +127,12 @@ export default function SequenceSortScreen() {
                 width: "100%",
                 padding: "14px 0",
                 borderRadius: "var(--radius-pill)",
-                background: "var(--gold-mobile)",
+                background: "var(--sm-accent)",
                 border: "none",
                 cursor: "pointer",
               }}
             >
-              <span style={{ fontSize: 15, fontWeight: 700, color: "var(--bg-mobile-dark)" }}>Verify Order</span>
+              <span style={{ fontSize: 15, fontWeight: 700, color: "var(--sm-bg)" }}>Verify Order</span>
             </button>
           </div>
         )}

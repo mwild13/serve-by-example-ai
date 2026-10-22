@@ -257,26 +257,7 @@
   --sm-navbar-h:      44px;
   --sm-gutter:        16px;
 
-  /* ── Old mobile names, kept until phase 8 of the redesign ──
-     The navy and amber values are gone: each name now points at the mobile
-     theme above, so screens not yet rebuilt already show the new palette
-     and follow dark mode. New code uses --sm-* only. */
-  --bg-mobile-dark:         var(--sm-bg);
-  --surface-mobile:         var(--sm-card);
-  --surface-mobile-alt:     var(--sm-track);
-  --surface-mobile-inverse: var(--sm-card);
-  --border-mobile:          var(--sm-bar-line);
-  --text-mobile:            var(--sm-ink);
-  --text-mobile-muted:      var(--sm-ink-soft);
-  --text-mobile-faint:      var(--sm-ink-faint);
-  --gold-mobile:            var(--sm-accent);
-  --gold-mobile-bg:         var(--sm-accent-tint);
-  --green-mobile:           var(--sm-good);
-  --green-mobile-bg:        var(--sm-accent-tint);
-  --red-mobile:             var(--sm-alarm);
-  --avatar-mobile-bg:       var(--sm-pill);
-
-  /* ── Mobile Staff Dashboard — Sizing tokens ── */
+  /* ── Staff mobile frame ── */
   /* Single source of truth for the app-shell "frame" width, replacing the
      390px literal duplicated across ~24 screen files. It is only a cap: the
      frame is width: 100%, so phones get the full screen width and tablets
@@ -285,21 +266,6 @@
      Referenced by the .sm-frame column and the fixed tab bar and nav bar,
      which centre against the viewport independently of the screen. */
   --mobile-frame-max: 520px;
-  /* Fluid type scale tuned to the phone width range (360-430px), not the
-     marketing site's --fs-* tokens — those clamp against full viewport width
-     via vw, but /mobile content is capped by --mobile-frame-max, so a
-     viewport-relative coefficient tuned for marketing would over/under-scale
-     once the frame stops growing 1:1 with the viewport (tablets). */
-  --fs-mobile-h1:      clamp(1.25rem, 5.5vw, 1.5rem);    /* screen titles */
-  --fs-mobile-body:    clamp(0.9rem, 3.8vw, 1rem);       /* body/label text */
-  --fs-mobile-caption: clamp(0.75rem, 3.2vw, 0.8125rem); /* meta/muted text */
-  /* Flat (non-fluid) spacing scale for padding/gap — spacing drift is less
-     visually damaging than type drift, so keep this simple unless QA on
-     360px devices finds specific cramped spots. */
-  --space-mobile-xs: 8px;
-  --space-mobile-sm: 12px;
-  --space-mobile-md: 16px;
-  --space-mobile-lg: 24px;
 
   /* ── Accessibility-compliant grey scale ── */
   /* All values meet WCAG AA 4.5:1 on white (#fff) */

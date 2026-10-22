@@ -27,11 +27,9 @@ export default function MobileOrientationGuard() {
 
   return (
     <div className="mobile-landscape-guard" role="alert" aria-live="assertive">
-      <RotateCcw size={40} strokeWidth={2} color="var(--gold-mobile)" aria-hidden="true" />
-      <p style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Rotate your device to continue</p>
-      <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>
-        This app is designed for portrait mode.
-      </p>
+      <RotateCcw size={40} strokeWidth={2} className="sm-guard-icon" aria-hidden="true" />
+      <p className="sm-guard-title">Turn your phone upright</p>
+      <p className="sm-guard-text">Serve By Example works in portrait.</p>
     </div>
   );
 }

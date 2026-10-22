@@ -63,11 +63,11 @@ export default function FillBlankScreen() {
             style={{
               padding: 16,
               borderRadius: "var(--radius-md)",
-              background: "var(--surface-mobile)",
-              border: "1px solid var(--border-mobile)",
+              background: "var(--sm-card)",
+              border: "1px solid var(--sm-bar-line)",
               fontSize: 14,
               lineHeight: 2.1,
-              color: "var(--text-mobile)",
+              color: "var(--sm-ink)",
             }}
           >
             {FILL_PARTS.map((part, i) => (
@@ -83,10 +83,10 @@ export default function FillBlankScreen() {
                       padding: "2px 10px",
                       margin: "0 2px",
                       borderRadius: "var(--radius-sm)",
-                      border: `1.5px solid ${activeSlot === i && !checked ? "var(--gold-mobile)" : "var(--border-mobile)"}`,
+                      border: `1.5px solid ${activeSlot === i && !checked ? "var(--sm-accent)" : "var(--sm-bar-line)"}`,
                       borderStyle: selected[i] ? "solid" : "dashed",
-                      background: activeSlot === i && !checked ? "var(--gold-mobile-bg)" : "var(--surface-mobile-alt)",
-                      color: selected[i] ? "var(--text-mobile)" : "var(--text-mobile-muted)",
+                      background: activeSlot === i && !checked ? "var(--sm-accent-tint)" : "var(--sm-track)",
+                      color: selected[i] ? "var(--sm-ink)" : "var(--sm-ink-soft)",
                       fontSize: 13,
                       fontWeight: 700,
                       cursor: checked ? "default" : "pointer",
@@ -105,11 +105,11 @@ export default function FillBlankScreen() {
             style={{
               padding: 14,
               borderRadius: "var(--radius-md)",
-              background: "var(--surface-mobile)",
-              border: "1px solid var(--border-mobile)",
+              background: "var(--sm-card)",
+              border: "1px solid var(--sm-bar-line)",
             }}
           >
-            <p style={{ margin: "0 0 10px", fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-mobile-muted)" }}>
+            <p style={{ margin: "0 0 10px", fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--sm-ink-soft)" }}>
               Word Bank
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -124,9 +124,9 @@ export default function FillBlankScreen() {
                     style={{
                       padding: "8px 14px",
                       borderRadius: "var(--radius-sm)",
-                      border: "1px solid var(--border-mobile)",
-                      background: used ? "var(--surface-mobile-alt)" : "var(--bg-mobile-dark)",
-                      color: used ? "var(--text-mobile-muted)" : "var(--text-mobile)",
+                      border: "1px solid var(--sm-bar-line)",
+                      background: used ? "var(--sm-track)" : "var(--sm-bg)",
+                      color: used ? "var(--sm-ink-soft)" : "var(--sm-ink)",
                       fontSize: 13,
                       fontWeight: 600,
                       cursor: used || checked ? "default" : "pointer",
@@ -157,13 +157,13 @@ export default function FillBlankScreen() {
                 width: "100%",
                 padding: "14px 0",
                 borderRadius: "var(--radius-pill)",
-                background: "var(--gold-mobile)",
+                background: "var(--sm-accent)",
                 border: "none",
                 opacity: allFilled ? 1 : 0.5,
                 cursor: allFilled ? "pointer" : "default",
               }}
             >
-              <span style={{ fontSize: 15, fontWeight: 700, color: "var(--bg-mobile-dark)" }}>Check Recipe</span>
+              <span style={{ fontSize: 15, fontWeight: 700, color: "var(--sm-bg)" }}>Check Recipe</span>
             </button>
           </div>
         )}

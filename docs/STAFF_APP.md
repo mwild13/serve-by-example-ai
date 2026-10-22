@@ -37,15 +37,15 @@ One resolver serves pages and API routes: `resolveTierAccess()`, with `resolveAc
 
 ## 2. Mobile-First Rules
 
-**There is one mobile system: the standalone route tree at `app/mobile/`** (`BottomNav.tsx`, `HomeScreen.tsx`, `SettingsScreen.tsx` and the rest, using `next/link` routing). Bottom nav has 3 tabs: **Home, Learn, Me**. Full reference: `MOBILE_BUILD.md`.
+**There is one mobile system: the standalone route tree at `app/mobile/`**, using `next/link` routing. The tab bar (`ui/TabBar.tsx`) has four tabs: **Home, Learn, Practise, Me**. Its look is in section 9; the full reference is `MOBILE_BUILD.md`.
 
 `middleware.ts` redirects phone user agents from `/dashboard` to `/mobile/home`, or to `/mobile/settings` when the URL carries a `?join=CODE` staff sign-up link, which Settings then submits once on arrival.
 
 The legacy mobile view that used to be embedded in `/dashboard` (`MobileDashboardV3.tsx`, `MobileLearnHub.tsx`, `MobileBottomNavBar`) was removed on 2026-10-09. `/dashboard` is desktop only. In a non-phone window narrower than 720px it reflows to one column with the sidebar as a wrapped nav row on top (`app/globals.css`, the `max-width: 720px` block after `.management-unlock-form`). It does not switch to a different UI.
 
-**Touch targets**: WCAG 2.5.5 (44×44px minimum) is the intended standard for staff-facing UI, but it's enforced **ad hoc via inline styles per element**. There is no shared `--touch-target` CSS variable or helper; when adding a new tappable element, add the inline minimum yourself rather than assuming a global rule catches it.
+**Touch targets**: 44 by 44px at least for staff-facing UI. On mobile the `.sm-*` parts build it in; on desktop give each new tappable element the minimum yourself.
 
-**Safe-area handling**: real and widespread. `env(safe-area-inset-bottom, 0px)` appears throughout `app/globals.css`, in `CocktailLibrary.tsx`, and in nearly every file under `app/mobile/_components/`. `app/mobile/layout.tsx` sets `viewportFit: "cover"` for the `/mobile` tree; no `viewport-fit=cover` was confirmed in `app/layout.tsx`, so check there before relying on safe-area insets outside `/mobile`.
+**Safe-area handling**: the `/mobile` frame pads by `env(safe-area-inset-top)` and `env(safe-area-inset-bottom)` (`MOBILE_BUILD.md` section 6), and `app/mobile/layout.tsx` sets `viewportFit: "cover"`. No `viewport-fit=cover` was confirmed in `app/layout.tsx`, so check there before relying on safe-area insets outside `/mobile`.
 
 ## 3. AI Simulator (Arena): retired
 
@@ -57,7 +57,11 @@ Desktop (`ModuleVerify.tsx`) and mobile (`app/mobile/_components/QuizScreen.tsx`
 
 ## 5. PWA / Offline
 
-**Confirmed greenfield: no PWA/offline infrastructure exists today.** A full-repo search for `manifest.json`, `next-pwa`, `serviceWorker`, `workbox`, `sw.js`, and `<link rel="manifest">` in source files returns zero matches outside auto-generated Next.js/OpenNext build artifacts (`.next/`, `.open-next/`), which are not app-authored and don't count. There is no service worker registration anywhere in `app/` source. State this as a definitive current-state fact: this doc round is recording reality, not proposing to add PWA support.
+The mobile app installs to the Home Screen (`public/manifest.json`). `public/sw.js` is there only for shift-reminder push notifications (`lib/push-client.ts`, `lib/web-push.ts`): it caches nothing and handles no fetches, so there is no offline mode. On iPhone, push only works from the Home Screen app.
+
+- **The install guide** is `/mobile/install`: the phone and browser are detected (`lib/install-platform.ts`) and the three steps drawn for that browser. It's offered at the end of onboarding (phones only, skippable), on the drill finish, by a Home banner from the second visit, in Settings, and by the shift reminder. Desktop Today shows a QR code to open the app on a phone. Details: `MOBILE_BUILD.md` section 3c.
+- **Counting installs:** the first open of the installed app sets `profiles.app_installed_at` and `app_install_platform` (`/api/profile/app-installed`); the `install_*` events and `supabase/queries/installs.sql` give the funnel (`docs/FUNNEL_METRICS.md`).
+- **Offline:** the retry queue (`MOBILE_BUILD.md` section 4) holds failed saves, and a banner says when the phone is offline.
 
 ## 6. Daily AI Limit
 
@@ -127,13 +131,36 @@ The desktop staff area was rebuilt twice in October 2026. The first pass (`docs/
 
 **Retired:** `PreShiftHome`, `DynamicModuleNav`, `SharedTrainingCard`, `ProgressOverview`, `BadgesView`, `BadgeStreakSection`, `BadgeProgressRing`, the `progress/` parts, `lib/modules.ts`, the old cocktail sheet and Knowledge Base slide-over, and the "industrial dark theme" setting (`.sbe-dark`), which the new dark mode replaces.
 
+## 9. Mobile design (October 2026 redesign)
+
+`/mobile`, where most staff train, was rebuilt in October 2026 to the Version 2 mock-up the owner approved on 2026-10-21 (`docs/zHistorical/STAFF_MOBILE_REDESIGN_PLAN.md` once released). It should feel like an iPhone app, not a web page. Styles are in `app/styles/staff.css` under "STAFF MOBILE", all `.sm-*` classes; the `--sm-*` tokens are in `app/globals.css`. Architecture: `MOBILE_BUILD.md`.
+
+**Look**
+- **Light by default:** warm menu paper (`--paper`) with near-white cards, bottle green (`--bottle`) for text, buttons and the one hero card on Home.
+- **Gold is a reward:** streaks, goals, badges earned and the finished drill only, and never small gold text on paper (it fails contrast). Buttons, links and the AI Coach are green.
+- **Dark mode:** bottle green, with cards a step lighter. It follows the phone unless Settings > This phone > Appearance picks one, saved per device. `.sm-dark` swaps the tokens, so no screen has its own dark rules.
+- **Depth:** soft shadows and clean borders. Two gradients only: the fade under a cocktail photo and the glow behind the finished drill.
+- **Type:** Manrope throughout. 34px large titles that collapse into a compact bar on scroll, 20px section heads, 16 to 17px rows, 15px body, 12px small capitals.
+- **No emoji.** The streak is a drawn flame.
+
+**Patterns**
+- **Four tabs** (Home, Learn, Practise, Me), each at least 44 by 49px, the active one solid.
+- **Screens you drill into** have a compact bar with a back button naming where it goes.
+- **Lists are rows in a card**, as in iPhone Settings: an icon, a bold label, a line under it, a chevron. Settings uses grouped lists with small-capitals titles.
+- **Details open in a bottom sheet** (a cocktail, a knowledge card, a confirmation), not a new page.
+- **Loading shapes** are the same size as what they stand in for, so nothing jumps.
+
+**Writing:** Australian English, no em or en dashes (AGENTS.md, enforced by `lib/no-dashes.test.ts`).
+
+**Retired:** `BottomNav.tsx`, `MobileScreenShell.tsx`, `InstallPrompt.tsx`, `LearnHubScreen.tsx` and its sections, `progress/ProfileMenu.tsx`, the navy and amber `--*-mobile` tokens, and the per-screen inline styles.
+
 ## Known Gaps / Drift
 
-- **PWA is greenfield** (§5).
+- **No offline mode** (§5): the app needs a connection to load a screen.
 
 ## Related Docs
 
-- `MOBILE_BUILD.md`: full architecture reference for the standalone `app/mobile/` build (V4): route map, auth/session/progress data layer, offline retry queue, dark-theme design tokens
+- `MOBILE_BUILD.md`: full architecture reference for the standalone `app/mobile/` build: route map, auth/session/progress data layer, offline retry queue, the `--sm-*` tokens and the `ui/` parts
 - `CHALLENGES.md`: one-stop reference for the "Challenges" mini-game feature across both surfaces (desktop and the mobile build), including a checklist for adding new challenge types
 - `docs/MASTERY_ENGINE.md`: mastery scoring source of truth; this doc only describes how the quiz and Live Guest call into it, not the formula itself
 - `docs/zHistorical/staff-dashboard-a11y-audit.md`, `docs/zHistorical/STAFF_DASHBOARD_AUDIT_REPORT.md`: historical UI/accessibility audits

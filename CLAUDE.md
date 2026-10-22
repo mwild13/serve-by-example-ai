@@ -77,7 +77,7 @@ All styling uses CSS custom properties defined in `app/globals.css`. **Do not in
 --shadow-sm / --shadow-md / --shadow-lg / --shadow-xl
 ```
 
-**Staff desktop tokens:** `/dashboard` styles read `--sd-*` tokens (also in `app/globals.css`): cream by default, swapped for bottle green by `.sd-dark` (the dark mode), and mapped to the mobile palette by `.sd-on-mobile`. Use them for anything on the staff desktop. Mobile has its own `--*-mobile` tokens (`docs/MOBILE_BUILD.md` section 5).
+**Staff desktop tokens:** `/dashboard` styles read `--sd-*` tokens (also in `app/globals.css`): cream by default, swapped for bottle green by `.sd-dark` (the dark mode), and mapped to the mobile palette by `.sd-on-mobile`. Use them for anything on the staff desktop. **Staff mobile tokens:** `/mobile` styles read `--sm-*` tokens (also in `app/globals.css`): warm paper by default, swapped for bottle green by `.sm-dark` (the dark mode, set on `<html>`). Use them for anything on mobile; the old `--*-mobile` names are gone (`docs/MOBILE_BUILD.md` section 5, `docs/STAFF_APP.md` section 9).
 
 **Fonts:**
 - Always reference `var(--font-heading)` and `var(--font-body)`. Never name a font family or a `--font-<family>` variable in a rule or inline style.

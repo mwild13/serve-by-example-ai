@@ -126,18 +126,19 @@ The October 2026 redesign (`docs/STAFF_MOBILE_REDESIGN_PLAN.md`) replaced the na
 
 - **Tokens:** `--sm-*` in `app/globals.css`, aliases of the brand tokens plus three added for this app: `--paper` (`#F8F6F0`), `--bottle` (`#0E2A1E`) and `--gold-bright` (`#D4AF37`). Gold is only for streaks, goals and finished drills, and never small gold text on paper.
 - **Dark mode:** `.sm-dark` on `<html>` swaps the same names for bottle green, with cards a step lighter. It follows the phone unless Settings > Appearance picks one (`lib/mobile-theme.ts`, saved per device as `sbe-sm-theme`). The layout's nonce'd inline script sets it before the first paint; `MobileThemeSync.tsx` keeps it right after. Browser bar colours follow (`viewport.themeColor`).
-- **Old names:** the `--*-mobile` tokens now point at `--sm-*`, so screens not yet rebuilt show the new palette in both modes. They go in phase 8. New code uses `--sm-*` only.
+- **No other mobile colour names.** The old navy and amber `--*-mobile` tokens (and the unused `--fs-mobile-*` and `--space-mobile-*` sizes) were deleted in phase 8. `--mobile-frame-max` (520px, the column cap) is the one mobile token outside `--sm-*`.
 - **Shared components** (quiz, drills, Live Guest, Rush, team week, challenges) keep `theme="dark"`, which is now "the mobile theme": `.qz--dark` and `.sd-on-mobile` read `--sm-*`.
 - **Type:** Manrope throughout, 200 to 800 (`app/fonts/product-fonts.ts`). 34px large titles, 20px section heads, 16 to 17px rows, 12px small capitals.
-- **Parts** (`app/mobile/_components/ui/`, styles in the "STAFF MOBILE" block of `app/styles/staff.css`, all `.sm-*`): `Screen` (large title that collapses into a compact bar, tab bar, safe areas), `TabBar`, and in `parts.tsx`: `Section`, `Card`, `StackCard`, `RowList`, `Row`, `Pill`, `ProgressBar`, `ProgressRing`, `ButtonLink`, `Avatar` (with the gold streak), `ShiftDots`, `PhotoCard` (square, with the fade).
+- **Parts** (`app/mobile/_components/ui/`, styles in the "STAFF MOBILE" block of `app/styles/staff.css`, all `.sm-*`): `Screen` (large title that collapses into a compact bar, tab bar, safe areas), `TabBar`, and in `parts.tsx`: `Section`, `Card`, `StackCard`, `RowList`, `Row`, `Pill`, `ProgressBar`, `ProgressRing`, `ButtonLink`, `Avatar` and `AvatarFace` (with the gold streak), `ShiftDots`, `PhotoCard` (square, with the fade), `Group` (an iPhone Settings style list with a small-capitals title and a footnote). `Sheet.tsx` is the bottom sheet, a native `<dialog>`: the cocktail and knowledge cards and Settings' confirm all use it. `Screen`'s `back` takes an `onClick` for a screen with steps of its own (the profile photo).
+- **Text boxes are 16px** (`.sm-input`, `.sm-search`), or iPhone zooms the page in when one is tapped.
 - **Rebuilt screens use classes, not inline styles.** Inline styles stay only for values worked out at run time, such as a progress width.
 
 ## 6. Cross-Cutting Notes Carried Over from `STAFF_APP.md`
 
 These apply to this build specifically and are restated here so this doc is self-contained:
 
-- **Touch targets**: WCAG 2.5.5 (44×44px) is the intended standard but enforced **ad hoc via inline styles** per element, not a shared helper/CSS variable. Add the inline minimum yourself on any new tappable element.
-- **Safe-area handling**: `env(safe-area-inset-bottom, 0px)` is used throughout this tree (fixed `BottomNav`, challenge screens). `app/mobile/layout.tsx`'s locked viewport sets `viewportFit: "cover"`, which is what makes these insets meaningful here — confirm that's still true before relying on it elsewhere.
+- **Touch targets:** 44 by 44px at least. The `.sm-*` parts build it in (rows, buttons, the back button, tabs, icon buttons); give anything new the same.
+- **Safe areas:** the compact bar, large title and sync banner pad by `env(safe-area-inset-top)`, the tab bar and the AI Coach by `env(safe-area-inset-bottom)`. `app/mobile/layout.tsx`'s viewport sets `viewportFit: "cover"`, which is what makes these insets real.
 - **PWA and offline:** `public/manifest.json` makes the app installable, and `public/sw.js` exists only for shift-reminder push notifications (`lib/push-client.ts`, `lib/web-push.ts`). It caches nothing and handles no fetches, so there is no offline mode: the retry queue in section 4 is the only offline resilience.
 
 ## Related Docs

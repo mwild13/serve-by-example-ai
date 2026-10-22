@@ -202,11 +202,11 @@ export default function MatchPairsScreen() {
 
         {/* game-stats */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px 16px" }}>
-          <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: "var(--text-mobile-muted)" }}>
-            Pairs Found: <span style={{ fontWeight: 700, color: "var(--gold-mobile)" }}>{pairsFound}/{PAIRS.length}</span>
+          <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: "var(--sm-ink-soft)" }}>
+            Pairs Found: <span style={{ fontWeight: 700, color: "var(--sm-accent)" }}>{pairsFound}/{PAIRS.length}</span>
           </p>
-          <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: "var(--text-mobile-muted)" }}>
-            Moves: <span style={{ fontWeight: 700, color: "var(--text-mobile)" }}>{moves}</span>
+          <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: "var(--sm-ink-soft)" }}>
+            Moves: <span style={{ fontWeight: 700, color: "var(--sm-ink)" }}>{moves}</span>
           </p>
         </div>
 
@@ -226,12 +226,12 @@ export default function MatchPairsScreen() {
             const revealed = isMatched || isSelected || isWrong;
 
             const style = isMatched
-              ? { background: "var(--green-mobile-bg)", border: "1px solid var(--green-mobile)", color: "var(--green-mobile)" }
+              ? { background: "var(--sm-accent-tint)", border: "1px solid var(--sm-good)", color: "var(--sm-good)" }
               : isWrong
-                ? { background: "var(--red-mobile-bg, var(--surface-mobile))", border: "2px solid var(--red-mobile)", color: "var(--red-mobile)" }
+                ? { background: "var(--sm-alarm-tint)", border: "2px solid var(--sm-alarm)", color: "var(--sm-alarm)" }
                 : isSelected
-                  ? { background: "var(--gold-mobile-bg)", border: "2px solid var(--gold-mobile)", color: "var(--gold-mobile)" }
-                  : { background: "var(--surface-mobile)", border: "1px solid var(--border-mobile)" };
+                  ? { background: "var(--sm-accent-tint)", border: "2px solid var(--sm-accent)", color: "var(--sm-accent)" }
+                  : { background: "var(--sm-card)", border: "1px solid var(--sm-bar-line)" };
 
             return (
               <button
@@ -257,7 +257,7 @@ export default function MatchPairsScreen() {
                 {revealed ? (
                   <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: style.color }}>{card.label}</p>
                 ) : (
-                  <Martini size={24} strokeWidth={2} color="var(--text-mobile-muted)" aria-hidden="true" />
+                  <Martini size={24} strokeWidth={2} color="var(--sm-ink-soft)" aria-hidden="true" />
                 )}
               </button>
             );
@@ -273,13 +273,13 @@ export default function MatchPairsScreen() {
                 gap: 12,
                 padding: 16,
                 borderRadius: "var(--radius-lg)",
-                background: "var(--surface-mobile)",
-                border: "1px solid var(--green-mobile)",
+                background: "var(--sm-card)",
+                border: "1px solid var(--sm-good)",
                 textAlign: "center",
               }}
             >
-              <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--text-mobile)" }}>All pairs matched!</p>
-              <p style={{ margin: 0, fontSize: 13, color: "var(--text-mobile-muted)" }}>
+              <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--sm-ink)" }}>All pairs matched!</p>
+              <p style={{ margin: 0, fontSize: 13, color: "var(--sm-ink-soft)" }}>
                 {moves} moves &bull; {timeLabel}
                 {bestMoves !== null && ` • Best: ${bestMoves} moves`}
               </p>
@@ -293,9 +293,9 @@ export default function MatchPairsScreen() {
                     gap: 6,
                     padding: "10px 16px",
                     borderRadius: "var(--radius-pill)",
-                    background: "var(--gold-mobile-bg)",
-                    border: "1px solid var(--gold-mobile)",
-                    color: "var(--gold-mobile)",
+                    background: "var(--sm-accent-tint)",
+                    border: "1px solid var(--sm-accent)",
+                    color: "var(--sm-accent)",
                     fontFamily: "var(--font-body)",
                     fontSize: 13,
                     fontWeight: 700,
@@ -312,8 +312,8 @@ export default function MatchPairsScreen() {
                     alignItems: "center",
                     padding: "10px 16px",
                     borderRadius: "var(--radius-pill)",
-                    background: "var(--gold-mobile)",
-                    color: "var(--bg-mobile-dark)",
+                    background: "var(--sm-accent)",
+                    color: "var(--sm-bg)",
                     fontFamily: "var(--font-body)",
                     fontSize: 13,
                     fontWeight: 700,

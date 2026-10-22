@@ -18,49 +18,10 @@ export default function MobileError({
   }, [error]);
 
   return (
-    <div
-      style={{
-        minHeight: "100dvh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 12,
-        padding: "0 28px",
-        textAlign: "center",
-        background: "var(--bg-mobile-dark)",
-      }}
-    >
-      <h1
-        style={{
-          margin: 0,
-          fontFamily: "var(--font-heading)",
-          fontSize: 22,
-          fontWeight: 700,
-          color: "var(--text-mobile)",
-        }}
-      >
-        This screen couldn&rsquo;t load
-      </h1>
-      <p style={{ margin: 0, fontSize: 14, color: "var(--text-mobile-muted)" }}>
-        Something went wrong on our side. Your progress is saved.
-      </p>
-      <button
-        type="button"
-        onClick={reset}
-        style={{
-          marginTop: 8,
-          padding: "12px 24px",
-          borderRadius: "var(--radius-pill)",
-          border: "none",
-          background: "var(--gold-mobile)",
-          color: "var(--bg-mobile-dark)",
-          fontFamily: "var(--font-body)",
-          fontSize: 15,
-          fontWeight: 700,
-          cursor: "pointer",
-        }}
-      >
+    <div className="sm-screen sm-error" role="alert">
+      <h1 className="sm-error-title">This screen couldn&rsquo;t load</h1>
+      <p className="sm-error-text">Something went wrong on our side. Your progress is saved.</p>
+      <button type="button" className="sm-btn sm-btn--primary" onClick={reset}>
         Try again
       </button>
     </div>

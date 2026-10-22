@@ -51,11 +51,11 @@ export default function SpotErrorScreen() {
             style={{
               padding: 16,
               borderRadius: "var(--radius-lg)",
-              background: "var(--surface-mobile)",
-              border: "1px solid var(--border-mobile)",
+              background: "var(--sm-card)",
+              border: "1px solid var(--sm-bar-line)",
             }}
           >
-            <p style={{ margin: "0 0 12px", fontFamily: "var(--font-heading, var(--font-body))", fontWeight: 700, fontSize: 15, color: "var(--gold-mobile)", textAlign: "center" }}>
+            <p style={{ margin: "0 0 12px", fontFamily: "var(--font-heading, var(--font-body))", fontWeight: 700, fontSize: 15, color: "var(--sm-accent)", textAlign: "center" }}>
               Classic Daiquiri
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -75,10 +75,10 @@ export default function SpotErrorScreen() {
                       padding: 12,
                       borderRadius: "var(--radius-sm)",
                       border: `1px solid ${
-                        showResult && isError ? "var(--gold-mobile)" : showResult && !isError ? "var(--red-mobile)" : "var(--border-mobile)"
+                        showResult && isError ? "var(--sm-accent)" : showResult && !isError ? "var(--sm-alarm)" : "var(--sm-bar-line)"
                       }`,
-                      background: showResult && isError ? "var(--gold-mobile-bg)" : showResult && !isError ? "var(--red-mobile-bg, var(--surface-mobile))" : "var(--surface-mobile-alt)",
-                      color: "var(--text-mobile)",
+                      background: showResult && isError ? "var(--sm-accent-tint)" : showResult && !isError ? "var(--sm-alarm-tint)" : "var(--sm-track)",
+                      color: "var(--sm-ink)",
                       fontSize: 14,
                       fontWeight: 600,
                       cursor: checked ? "default" : "pointer",
@@ -92,7 +92,7 @@ export default function SpotErrorScreen() {
                         height: 8,
                         borderRadius: "50%",
                         flexShrink: 0,
-                        background: showResult && isError ? "var(--gold-mobile)" : "var(--green-mobile)",
+                        background: showResult && isError ? "var(--sm-accent)" : "var(--sm-good)",
                       }}
                     />
                     {item.text}

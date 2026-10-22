@@ -25,7 +25,7 @@ function required(name: string): string {
   const value = process.env[name];
   if (!value) {
     throw new Error(
-      `${name} must be set before running \`npm run e2e\`. The suite needs NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY and E2E_TEST_EMAIL. Create the account with: node --env-file=.env.local scripts/e2e/provision-qa-account.mjs`
+      `${name} must be set before running \`npm run e2e\`. The suite needs NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY and E2E_TEST_EMAIL. Type them into your terminal as docs/LIVE_APP_TESTING.md shows (never a .env file).`
     );
   }
   return value;
@@ -47,7 +47,7 @@ export default async function globalSetup(config: FullConfig) {
   const tokenHash = link?.properties?.hashed_token;
   if (linkError || !tokenHash) {
     throw new Error(
-      `Could not create a sign-in token for ${email}: ${linkError?.message ?? "no token returned"}. Create the account with: node --env-file=.env.local scripts/e2e/provision-qa-account.mjs`
+      `Could not create a sign-in token for ${email}: ${linkError?.message ?? "no token returned"}. Type them into your terminal as docs/LIVE_APP_TESTING.md shows (never a .env file).`
     );
   }
 
@@ -98,7 +98,7 @@ export default async function globalSetup(config: FullConfig) {
   if (landed.startsWith("/onboarding")) {
     await browser.close();
     throw new Error(
-      "E2E_TEST_EMAIL account has not completed onboarding. Repair it with: node --env-file=.env.local scripts/e2e/provision-qa-account.mjs"
+      "E2E_TEST_EMAIL account has not completed onboarding. Repair it with scripts/e2e/provision-qa-account.mjs, as docs/LIVE_APP_TESTING.md shows."
     );
   }
   if (landed.startsWith("/login")) {

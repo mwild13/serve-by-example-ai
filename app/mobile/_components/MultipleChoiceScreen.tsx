@@ -48,14 +48,14 @@ export default function MultipleChoiceScreen() {
             style={{
               padding: "14px 16px",
               borderRadius: "var(--radius-lg)",
-              background: "var(--surface-mobile)",
-              border: "1px solid var(--border-mobile)",
+              background: "var(--sm-card)",
+              border: "1px solid var(--sm-bar-line)",
             }}
           >
-            <p style={{ margin: "0 0 6px", fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--gold-mobile)" }}>
+            <p style={{ margin: "0 0 6px", fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--sm-accent)" }}>
               Guest Interaction
             </p>
-            <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: "var(--text-mobile)", lineHeight: 1.4 }}>{MC_SCENARIO}</p>
+            <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: "var(--sm-ink)", lineHeight: 1.4 }}>{MC_SCENARIO}</p>
           </div>
         </div>
 
@@ -75,9 +75,9 @@ export default function MultipleChoiceScreen() {
                   gap: 12,
                   padding: 14,
                   borderRadius: "var(--radius-md)",
-                  border: `1.5px solid ${showCorrect ? "var(--green-mobile)" : showWrong ? "var(--gold-mobile)" : "var(--border-mobile)"}`,
-                  background: showCorrect ? "var(--green-mobile-bg)" : showWrong ? "var(--gold-mobile-bg)" : "var(--surface-mobile)",
-                  color: "var(--text-mobile)",
+                  border: `1.5px solid ${showCorrect ? "var(--sm-good)" : showWrong ? "var(--sm-accent)" : "var(--sm-bar-line)"}`,
+                  background: showCorrect ? "var(--sm-accent-tint)" : showWrong ? "var(--sm-accent-tint)" : "var(--sm-card)",
+                  color: "var(--sm-ink)",
                   fontSize: 14,
                   fontWeight: 600,
                   textAlign: "left",
@@ -90,15 +90,15 @@ export default function MultipleChoiceScreen() {
                     width: 18,
                     height: 18,
                     borderRadius: "50%",
-                    border: `2px solid ${showCorrect ? "var(--green-mobile)" : "var(--border-mobile)"}`,
-                    background: showCorrect ? "var(--green-mobile)" : "transparent",
+                    border: `2px solid ${showCorrect ? "var(--sm-good)" : "var(--sm-bar-line)"}`,
+                    background: showCorrect ? "var(--sm-good)" : "transparent",
                     flexShrink: 0,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                   }}
                 >
-                  {showCorrect && <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--bg-mobile-dark)" }} />}
+                  {showCorrect && <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--sm-bg)" }} />}
                 </span>
                 <span>{opt.text}</span>
               </button>

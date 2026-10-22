@@ -2,9 +2,8 @@
 // tests/e2e/global-setup.ts signs in as. Idempotent: safe to re-run any time
 // the account drifts (password changed, onboarding reset, tier downgraded).
 //
-//   node --env-file=.env.local scripts/e2e/provision-qa-account.mjs
-// or, with no .env.local (secrets live in Cloudflare), export the four vars
-// in your shell first and run:
+// Secrets live only in Cloudflare, never in a .env file: type the four vars
+// into your terminal as docs/LIVE_APP_TESTING.md shows, then run:
 //   node scripts/e2e/provision-qa-account.mjs
 //
 // Needs NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, E2E_TEST_EMAIL
@@ -34,7 +33,7 @@ const QA_DISPLAY_NAME = "QA Playwright";
 function required(name) {
   const value = process.env[name];
   if (!value) {
-    console.error(`Missing ${name}. Export it in your shell (or use node --env-file=<file>) and re-run scripts/e2e/provision-qa-account.mjs.`);
+    console.error(`Missing ${name}. Type it into your terminal as docs/LIVE_APP_TESTING.md shows, then re-run scripts/e2e/provision-qa-account.mjs.`);
     process.exit(1);
   }
   return value;
