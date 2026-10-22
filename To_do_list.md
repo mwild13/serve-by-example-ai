@@ -1,6 +1,6 @@
 # To Do
 
-Open items only. Finished work is recorded in `docs/handoff/2026-10-22-staff-mobile-handoff.md` (the staff mobile rebuild and one-device sign-in), `docs/handoff/2026-10-21-staff-desktop-handoff.md` (the staff desktop rebuild and docs clean-up), `docs/handoff/2026-10-rich-update-handoff.md` (the Rich update, 2026-10-19 to 20), the earlier handoffs in `docs/handoff/`, and git history.
+Open items only. Finished work is recorded in `docs/handoff/2026-10-23-marketing-handoff.md` (mockups, the `/demo` rebuild, the home hero, the roadmap, the Notion toolkit), `docs/handoff/2026-10-22-staff-mobile-handoff.md` (the staff mobile rebuild and one-device sign-in), `docs/handoff/2026-10-21-staff-desktop-handoff.md` (the staff desktop rebuild and docs clean-up), `docs/handoff/2026-10-rich-update-handoff.md` (the Rich update, 2026-10-19 to 20), the earlier handoffs in `docs/handoff/`, and git history.
 
 Regrouped on 2026-10-12 by who does the work and where. Background for the launch items is in `docs/handoff/2026-10-pre-launch-handoff.md`.
 
@@ -8,7 +8,7 @@ There is still no customer data, so no outcome figures or customer proof go on a
 
 ## 1. Needed now (owner)
 
-The site is live (2026-10-22). These three must be done before paid traffic or the first paying venue.
+The site is live (2026-10-22). The first three must be done before paid traffic or the first paying venue. The photo shoot is the last piece of the marketing site.
 
 - [ ] **Real A$1 billing test in live mode.** Covers the checkout-return and purchase-event checks that each needed a real payment.
   1. In Stripe, switch to live mode and make a temporary A$1 price (or a coupon that brings a plan to A$1).
@@ -49,6 +49,8 @@ The site is live (2026-10-22). These three must be done before paid traffic or t
      9. **Optional, if the photographer can stay into service:** a wide shot of the venue full and busy, staff moving.
   8. **Advisory portrait (you).** Real, not posed corporate. At the same venue after the venue shots: you at the bar, mid-conversation or looking at a notepad, natural light. One landscape with you in the right third and space on the left (replaces `public/images/advisory/advisory-hero.jpg`), one portrait (for `advisory-about.jpg`). Smart casual, no logos. `/advisory` stays hidden and unlinked (faceless brand), so this is ready for when it is switched back on.
 
+- [ ] **Founding member "monthly calls"** (2026-10-23). `/membership` still promises founding members "Monthly calls with our product team" (`app/(marketing)/pricing/page.tsx`, `FOUNDING`). Keep it only if you'll run the calls once venues join; otherwise soften it as on `/roadmap`.
+
 ## 2. Code, next up
 
 Small changes, in the order they will be done. Each goes to a preview branch first.
@@ -82,6 +84,7 @@ The staff mobile app was checked end to end on a Google Pixel 8 on 2026-10-22 (s
 - [ ] **Read the new content** (owner, 2026-10-21): the 70 new Knowledge Base cards (end of `lib/knowledge-base.ts`) and challenges 6 to 10 (`lib/challenge-content.ts`). Written by Claude, not yet reviewed.
 - [ ] **Upgrade to Next.js 16** on its own branch, with `@opennextjs/cloudflare` bumped alongside. Clears the last npm audit finding (postcss, bundled in Next) and lets `build:cloudflare` drop `--dangerouslyUseUnsupportedNextVersion`, which is a stopgap since Next 15 passed its support date.
 - [ ] **Upgrade Vitest 3 to 5** (dev only). Clears the critical and high npm audit notices in the test tools (tinypool, vite, @vitest/mocker). Nothing in them reaches the live site. Do it after the Next.js 16 upgrade.
+- [ ] **Retake two mockups once there is recent activity** (2026-10-23). The console Overview and the staff progress screens were left out of `public/shots/` because they showed zeros. `node scripts/device-mockups.mjs capture` then `compose` (`docs/MARKETING_IMAGERY_PLAN.md` section 4).
 - [ ] **Desktop baselines in the e2e suite** for Today, Modules, Challenges and My progress. Needs a fresh QA session first (`tests/e2e/.auth/state.json` is dead).
 
 ## Parked
