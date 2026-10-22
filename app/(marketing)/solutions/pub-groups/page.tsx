@@ -43,10 +43,10 @@ const CONTENT: SolutionContent = {
     title: "Group-wide visibility in one console",
     body: "Compare readiness scores across venues, spot skill gaps before they become service issues, and direct coaching where it matters most. Manage every venue in the group from a single dashboard.",
     image: {
-      src: "/shots/Overview Console Wide.webp",
-      alt: "Serve By Example manager console: venue overview with training completion, compliance status, and staff needing attention",
-      width: 3004,
-      height: 1654,
+      src: "/shots/console-teams.webp",
+      alt: "Serve By Example manager console: training completion and scores for each team and role",
+      width: 2000,
+      height: 1250,
     },
   },
   features: {

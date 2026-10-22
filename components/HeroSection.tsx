@@ -30,10 +30,10 @@ export default function HeroSection() {
         {/* ── Product screenshot (mobile: after the CTAs) ── */}
         <div className="sbe-mkt-hero-teaser">
           <Image
-            src="/shots/HERO SHOT1.webp"
-            alt="Serve By Example on desktop and mobile: manager console, pre-shift home screen, and cocktail drink library"
-            width={2123}
-            height={1258}
+            src="/shots/hero-devices.webp"
+            alt="Serve By Example on a laptop and two phones: the manager's staff list with readiness, a Live Guest conversation, and the staff home screen"
+            width={2400}
+            height={1477}
             priority
             sizes="(max-width: 900px) 90vw, 58vw"
             style={{ width: '100%', height: 'auto', display: 'block' }}

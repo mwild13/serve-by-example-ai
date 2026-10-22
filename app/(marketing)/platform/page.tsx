@@ -37,10 +37,10 @@ const CONSOLE_ROWS: MediaRow[] = [
     title: "Who is ready for tonight",
     body: "A live dashboard that shows staff performance, training completion, upsell trends, and venue health, all in one view.",
     image: {
-      src: "/shots/Overview Console Wide.webp",
-      alt: "Serve By Example manager console: venue overview with training completion, compliance status, and staff needing attention",
-      width: 3004,
-      height: 1654,
+      src: "/shots/console-staff.webp",
+      alt: "Serve By Example manager console: the staff list with each person's training progress and whether they are ready for the floor",
+      width: 2000,
+      height: 1250,
     },
   },
   {
@@ -48,10 +48,10 @@ const CONSOLE_ROWS: MediaRow[] = [
     title: "Ask about your team in plain language",
     body: "The AI Coach answers management questions in plain language. Ask who needs training this week and get an instant answer.",
     image: {
-      src: "/shots/AI Coach Chat.webp",
+      src: "/shots/console-coach.webp",
       alt: "Serve By Example AI Coach: answering a manager's question about staff training progress with real venue data",
-      width: 1800,
-      height: 1654,
+      width: 2000,
+      height: 1250,
     },
   },
 ];
@@ -120,16 +120,16 @@ const MOBILE_ROW: MediaRow = {
   ],
   action: { label: "View pricing", href: "/membership" },
   image: {
-    src: "/shots/Modules View.webp",
+    src: "/shots/desktop-modules.webp",
     alt: "Staff training modules view: full course library",
-    width: 1400,
-    height: 875,
+    width: 2000,
+    height: 1250,
   },
   phone: {
-    src: "/shots/Cocktail-mobile.webp",
+    src: "/shots/phone-cocktails.webp",
     alt: "Serve By Example staff training app on mobile: 38-cocktail drink library",
-    width: 912,
-    height: 1844,
+    width: 836,
+    height: 1744,
   },
 };
 

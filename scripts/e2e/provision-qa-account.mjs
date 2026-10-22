@@ -82,7 +82,6 @@ async function main() {
       tier: "pro",
       subscription_status: null,
       org_id: null,
-      manager_id: null,
       onboarding_completed: true,
       diagnostic_completed: true,
       updated_at: new Date().toISOString(),

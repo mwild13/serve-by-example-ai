@@ -32,10 +32,10 @@ export const RightPanel = () => (
     </div>
     <div className="login-visual-shot">
       <Image
-        src="/shots/Overview Console Wide.webp"
-        alt="Serve By Example management console: venue overview with training completion, compliance status, and staff needing attention"
-        width={3004}
-        height={1654}
+        src="/shots/console-staff.webp"
+        alt="Serve By Example management console: the staff list with each person's training progress and whether they are ready for the floor"
+        width={2000}
+        height={1250}
         sizes="(max-width: 900px) 0px, 900px"
         priority
         className="sbe-shot"

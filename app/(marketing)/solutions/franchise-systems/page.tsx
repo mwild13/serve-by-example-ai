@@ -45,10 +45,10 @@ const CONTENT: SolutionContent = {
     title: "Head-office visibility without micromanagement",
     body: "Franchise support managers see training completion, compliance status, and readiness scores across all locations, without visiting every site.",
     image: {
-      src: "/shots/Overview Console Wide.webp",
-      alt: "Serve By Example manager console: venue overview with training completion, compliance status, and staff needing attention",
-      width: 3004,
-      height: 1654,
+      src: "/shots/console-gaps.webp",
+      alt: "Serve By Example manager console: training gaps, showing who is cleared to work and the gaps shared across the team",
+      width: 2000,
+      height: 1250,
     },
   },
   features: {

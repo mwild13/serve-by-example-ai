@@ -197,10 +197,10 @@ export default function Home() {
               </div>
               <div className="sbe-mkt-show-media sbe-mkt-show-media-end">
                 <Image
-                  src="/shots/Overview Console Wide.webp"
-                  alt="Serve By Example management console: venue overview with training completion, compliance status, and staff needing attention"
-                  width={3004}
-                  height={1654}
+                  src="/shots/console-gaps.webp"
+                  alt="Serve By Example management console: training gaps, showing who is cleared to work and the gaps shared across the team"
+                  width={2000}
+                  height={1250}
                   sizes="(max-width: 900px) 100vw, 760px"
                   loading="lazy"
                   className="sbe-shot"
@@ -217,10 +217,10 @@ export default function Home() {
               </div>
               <div className="sbe-mkt-show-media sbe-mkt-show-media-start">
                 <Image
-                  src="/shots/Mastery Grid.webp"
-                  alt="Staff training progress view: certification hub and module mastery by category"
-                  width={3024}
-                  height={1654}
+                  src="/shots/desktop-today.webp"
+                  alt="Staff desktop Today page: the next module to start, the shift streak, and a cocktail for tonight"
+                  width={2000}
+                  height={1250}
                   sizes="(max-width: 900px) 100vw, 760px"
                   loading="lazy"
                   className="sbe-shot"
@@ -248,19 +248,19 @@ export default function Home() {
               </div>
               <div className="sbe-mkt-show-media sbe-mkt-show-media-end sbe-mkt-show-stack">
                 <Image
-                  src="/shots/Modules View.webp"
+                  src="/shots/desktop-modules.webp"
                   alt="Staff training modules view: full course library"
-                  width={1400}
-                  height={875}
+                  width={2000}
+                  height={1250}
                   sizes="(max-width: 900px) 100vw, 760px"
                   loading="lazy"
                   className="sbe-shot"
                 />
                 <Image
-                  src="/shots/Mobile-home.webp"
-                  alt="Serve By Example staff training app on mobile: home screen with streak, pre-shift brief, and quick access training"
-                  width={912}
-                  height={1844}
+                  src="/shots/phone-home.webp"
+                  alt="Serve By Example staff training app on mobile: home screen with the next module and the cocktail of the day"
+                  width={836}
+                  height={1744}
                   sizes="(max-width: 900px) 30vw, 200px"
                   loading="lazy"
                   className="sbe-mkt-show-phone"
