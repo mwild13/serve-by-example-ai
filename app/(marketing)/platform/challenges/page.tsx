@@ -121,7 +121,7 @@ export default function ChallengesMarketingPage() {
           subtitle="Interactive Challenges replaces the blank text box with five tap-based mini-game formats. Built for the 18–25 cohort who learn faster through doing than reading, designed to fit in a 45-second break between orders."
           actions={[
             { label: "Try it in the dashboard", href: "/login", variant: "primary" },
-            { label: "Book a demo", href: "/demo", variant: "secondary" },
+            { label: "Try the Live Guest demo", href: "/demo", variant: "secondary" },
           ]}
         />
 

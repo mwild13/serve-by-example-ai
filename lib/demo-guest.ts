@@ -71,7 +71,19 @@ export const DEMO_GUEST = {
 const FRESH = "Taking it straight back for a fresh one to be cooked";
 const TIME = "Giving her an honest idea of how long it will be";
 
-/** Three turns. Choices are listed best first; the page shuffles them. */
+/**
+ * The order each turn's replies are shown in (indexes into DEMO_TURNS, which
+ * lists the best first), so the right answer isn't always in the same place.
+ * The home page teaser shows turn one in this order too, and links to
+ * /demo?reply=<position>, so the demo opens on the reply that was tapped.
+ */
+export const DEMO_SHOW_ORDER = [
+  [1, 0, 2],
+  [2, 0, 1],
+  [2, 1, 0],
+];
+
+/** Three turns. Choices are listed best first; DEMO_SHOW_ORDER mixes them up. */
 export const DEMO_TURNS: DemoChoice[][] = [
   [
     {

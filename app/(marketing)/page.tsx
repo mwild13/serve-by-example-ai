@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import LogoMarquee from "@/components/marketing/LogoMarquee";
 import CTABand from "@/components/marketing/CTABand";
+import DemoTeaser from "@/components/marketing/DemoTeaser";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -292,6 +293,11 @@ export default function Home() {
             </ol>
           </div>
         </section>
+
+        {/* ── Live Guest teaser: the demo's first turn, here ── */}
+        {/* Step 02 above describes Live Guest; this lets the visitor try it.
+            Each reply opens /demo already playing from it. */}
+        <DemoTeaser />
 
         {/* ── Quantified Benefits ─────────────────────── */}
         <section className="sbe-mkt-measures">

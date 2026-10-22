@@ -60,6 +60,8 @@ const FEATURES: RuledItem[] = [
   {
     title: "Live Guest",
     body: "Staff talk to a practice guest who talks back: a flat schooner, a cold parmy, a guest who's had too many. Afterwards they see what the guest was thinking at each turn.",
+    href: "/demo",
+    linkLabel: "Try the cold parmy now, no sign-up",
   },
   {
     title: "Your Menu, Your Questions",

@@ -82,17 +82,18 @@ No animation library. Motion is limited to state changes the visitor causes: the
 
 | # | Section | Root class | Pattern |
 |---|---|---|---|
-| 1 | Hero and marquee | `.sbe-mkt-fold` | Dark 60/40 hero, one primary CTA. Unchanged in October. |
+| 1 | Hero and marquee | `.sbe-mkt-fold` | Dark 60/40 hero, one primary CTA (Start Free Trial); the secondary text link is the 2-minute demo since 2026-10-23. |
 | 2 | Two systems | `.sbe-mkt-duo` | Parchment lead on the left; dark panel bleeds right and overhangs the next section. |
 | 3 | Two views | `.sbe-mkt-showcase` | Alternating text and screenshot rows; screenshots break out of the container. |
 | 4 | Library and mobile | `.sbe-mkt-showcase-warm` | Two text blocks beside one screenshot, with the phone overlapping its corner. |
 | 5 | Mastery Path | `.sbe-mkt-path` | Dark band, split header, three staggered numbered steps. |
-| 6 | What gets measured | `.sbe-mkt-measures` | Ledger rows: numeral, label, explanation. |
-| 7 | SOP lead band | `.sbe-mkt-leadband` | Centred dark band. |
-| 8 | Plans | `.sbe-mkt-plans` | Sticky intro and CTA on the left, ruled plan list on the right, one guarantee statement. |
-| 9 | Revenue Impact Calculator | `.sbe-mkt-roi` | Full-bleed dark band; sliders and email form left, readout right. |
-| 10 | FAQ | `.sbe-mkt-faq` | Sticky heading left, hairline accordion right. |
-| 11 | Final CTA | `CTABand` | Centred dark band, one action. |
+| 6 | Live Guest teaser | `.sbe-mkt-tryit` (`DemoTeaser`) | Copy left; Sharon's opening line and the demo's three first replies right, each a link that opens `/demo?reply=<n>` already playing. Added 2026-10-23. |
+| 7 | What gets measured | `.sbe-mkt-measures` | Ledger rows: numeral, label, explanation. |
+| 8 | SOP lead band | `.sbe-mkt-leadband` | Centred dark band. |
+| 9 | Plans | `.sbe-mkt-plans` | Sticky intro and CTA on the left, ruled plan list on the right, one guarantee statement. |
+| 10 | Revenue Impact Calculator | `.sbe-mkt-roi` | Full-bleed dark band; sliders and email form left, readout right. |
+| 11 | FAQ | `.sbe-mkt-faq` | Sticky heading left, hairline accordion right. |
+| 12 | Final CTA | `CTABand` | Centred dark band, one action. |
 
 Anchors in use: `#feature-preview`, `#mastery-path`, `#roi-calculator`. Keep them when editing.
 

@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { trackEvent } from "@/lib/consent";
 import {
   DEMO_GUEST,
+  DEMO_SHOW_ORDER,
   DEMO_TURNS,
   MOOD_LABEL,
   SAFETY_LABEL,
@@ -19,14 +20,6 @@ import {
   type DemoMood,
   type DemoState,
 } from "@/lib/demo-guest";
-
-// The order each turn's replies are shown in (indexes into DEMO_TURNS, which
-// lists the best first), so the right answer isn't always in the same place.
-const SHOW_ORDER = [
-  [1, 0, 2],
-  [2, 0, 1],
-  [2, 1, 0],
-];
 
 // How long Sharon "types" before she answers. Skipped under reduced motion.
 const TYPING_MS = 900;
@@ -110,10 +103,9 @@ export default function GuestDemo() {
     trackEvent("demo_complete", { guest: DEMO_GUEST.id, score, passed: passed ? 1 : 0 });
   }, [finished, picks]);
 
-  function choose(choice: DemoChoice) {
-    if (typing || finished) return;
-    if (picks.length === 0) trackEvent("demo_start", { guest: DEMO_GUEST.id });
-    const next = [...picks, choice];
+  // Shows the replies so far, then Sharon's answer to the last one after a beat.
+  const play = useCallback((next: DemoChoice[], entry: string) => {
+    if (next.length === 1) trackEvent("demo_start", { guest: DEMO_GUEST.id, entry });
     setPicks(next);
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
@@ -125,6 +117,23 @@ export default function GuestDemo() {
       setTyping(false);
       setAnswered(next.length);
     }, TYPING_MS);
+  }, []);
+
+  // The home page teaser links to /demo?reply=<position>: open on that reply.
+  useEffect(() => {
+    const raw = new URLSearchParams(window.location.search).get("reply");
+    const position = raw === null ? -1 : Number(raw);
+    if (!Number.isInteger(position) || position < 0 || position >= DEMO_SHOW_ORDER[0].length) return;
+    const frame = requestAnimationFrame(() => {
+      window.history.replaceState(null, "", window.location.pathname);
+      play([DEMO_TURNS[0][DEMO_SHOW_ORDER[0][position]]], "home");
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [play]);
+
+  function choose(choice: DemoChoice) {
+    if (typing || finished) return;
+    play([...picks, choice], "demo");
   }
 
   function restart() {
@@ -171,7 +180,7 @@ export default function GuestDemo() {
               <p className="lgd-choices-label">
                 Reply {turn + 1} of {DEMO_TURNS.length}: what do you say?
               </p>
-              {SHOW_ORDER[turn].map((idx) => {
+              {DEMO_SHOW_ORDER[turn].map((idx) => {
                 const choice = DEMO_TURNS[turn][idx];
                 return (
                   <button key={idx} type="button" className="lgd-choice" onClick={() => choose(choice)}>

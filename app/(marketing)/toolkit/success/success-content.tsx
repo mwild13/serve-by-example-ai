@@ -46,6 +46,18 @@ export function SuccessContent() {
         </div>
       )}
 
+      <div className="sbe-mkt-confirm-hint">
+        <p className="sbe-mkt-plan-tier">While you&rsquo;re here</p>
+        <h2>See what training looks like without the clipboard</h2>
+        <p>
+          A guest&rsquo;s parmy is cold after a 40 minute wait. Pick what you&rsquo;d say, then see what she was
+          thinking. Two minutes, no sign-up.
+        </p>
+        <Link href="/demo" className="sbe-mkt-btn-text">
+          Try the Live Guest demo
+        </Link>
+      </div>
+
       <p className="sbe-mkt-footnote">
         <Link href="/">servebyexample.co</Link>
       </p>

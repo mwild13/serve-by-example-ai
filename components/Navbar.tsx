@@ -277,6 +277,7 @@ export default function Navbar({
               )}
             </div>
 
+            <Link href="/demo">Live demo</Link>
             <Link href="/membership">Pricing</Link>
           </nav>
 
@@ -393,6 +394,10 @@ export default function Navbar({
                 ))}
               </div>
             )}
+
+            <Link href="/demo" className="nav-drawer-link" onClick={close}>
+              Live demo
+            </Link>
 
             <Link href="/membership" className="nav-drawer-link" onClick={close}>
               Pricing

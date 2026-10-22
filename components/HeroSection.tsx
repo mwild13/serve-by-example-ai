@@ -54,8 +54,8 @@ export default function HeroSection() {
               >
                 Start Free Trial
               </Link>
-              <Link href="/how-it-works" className="sbe-mkt-hero-secondary">
-                How it works
+              <Link href="/demo" className="sbe-mkt-hero-secondary">
+                Try the 2-minute demo
                 <svg
                   width="16"
                   height="16"
