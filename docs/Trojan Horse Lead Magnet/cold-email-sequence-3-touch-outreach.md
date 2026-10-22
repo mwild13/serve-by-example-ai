@@ -27,9 +27,9 @@ Hi [First Name],
 - "Saw [Venue Name] come up in [Facebook group / directory / recent post]."
 - "You came up when I was looking at [State] operators running single venues."
 
-Put together a free Notion toolkit for Aus venue operators — state-by-state
-RSA incident logs, staff onboarding SOPs, and a time-cost calculator that
-shows you what manual training admin is actually costing per year.
+Put together a free Notion toolkit for Aus venue operators: a staff
+onboarding SOP with RSA and food safety sign-offs, and a time-cost
+calculator that shows what manual training admin costs you per year.
 
 servebyexample.co/toolkit?utm_source=email&utm_medium=cold&utm_campaign=outreach-jun26&utm_content=e1-oo
 
@@ -57,9 +57,9 @@ Hi [First Name],
 - "Saw you're overseeing compliance across [X] sites."
 - "Came across [Group Name] when looking at multi-venue operators in [State]."
 
-Put together a free Notion toolkit for multi-venue operators — state-by-state
-RSA incident logs with per-site audit checklists, and onboarding SOPs built
-to roll out consistently across locations.
+Put together a free Notion toolkit for multi-venue operators: an onboarding
+SOP with RSA and food safety sign-offs, built to roll out the same way at
+every site.
 
 servebyexample.co/toolkit?utm_source=email&utm_medium=cold&utm_campaign=outreach-jun26&utm_content=e1-gom
 

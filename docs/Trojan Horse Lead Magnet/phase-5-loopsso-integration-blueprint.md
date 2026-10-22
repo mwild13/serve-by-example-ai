@@ -133,11 +133,11 @@ Loops supports Liquid conditionals. Use this pattern for the role hook in each e
 
 ```
 {% if contact.role == "ops_manager" %}
-Start with the RSA Incident Log. There's a section for each state — run the compliance checklist across your sites separately. The gaps between venues is the finding.
+Start with Section 4a, RSA and responsible service. Run it at each of your sites separately. The gaps between venues are the finding.
 
 Look for the friction counter at the end of each section. Fill in your actual numbers across all sites.
 {% elsif contact.role == "owner_operator" %}
-Start with Section 7 of the onboarding SOP — the annual cost summary. Fill in the friction counters as you go through each section, then carry the totals forward. By the end, you'll have an exact number for what this process costs you per year.
+Start with Section 7, the annual cost summary. Fill in the friction counters as you go through each section, then carry the totals forward. By the end, you'll have an exact number for what this process costs you per year.
 
 The number is always larger than people expect.
 {% elsif contact.role == "venue_manager" %}

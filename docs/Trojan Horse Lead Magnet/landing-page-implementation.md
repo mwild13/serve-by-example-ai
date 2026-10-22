@@ -1,5 +1,7 @@
 # Landing page — implementation
 
+**Historical, 2026-10-23.** The plan the toolkit landing page was first built from. The live pages (`/toolkit`, `/resources/sop-toolkit`) have since been rebuilt, and the "Asset 1: RSA Incident Log & Audit Checklist" described below was never made: the toolkit is one Notion page, the onboarding SOP. Don't reuse the copy here; the current email copy is in `4-part-email-nurture-sequence-copy.md`.
+
 ## Supabase schema
 
 ```sql

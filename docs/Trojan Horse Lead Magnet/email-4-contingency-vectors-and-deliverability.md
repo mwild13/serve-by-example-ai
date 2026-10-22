@@ -49,16 +49,18 @@ The current Email 4 body does the pain-to-SBE bridge well but lands on a single 
 
 **Fix: add a low-commitment alternative CTA immediately after the pricing link.**
 
-Current closing:
+Current closing (revised 2026-10-23, `4-part-email-nurture-sequence-copy.md`), which already adds the demo as a lower-commitment step:
 ```
-Lock in your founding rate → servebyexample.co/pricing
+Start your free trial: servebyexample.co/membership
+Or try the two-minute demo first: servebyexample.co/demo
 ```
 
-Replace with:
+If clicks are still zero, add a reply option:
 ```
-Lock in your founding rate → servebyexample.co/pricing
+Start your free trial: servebyexample.co/membership
+Or try the two-minute demo first: servebyexample.co/demo
 
-Or if you'd rather see how it works before committing — reply and I'll
+Or if you'd rather see how it works for your venue, reply and we'll
 walk you through it. Takes about 10 minutes.
 ```
 
