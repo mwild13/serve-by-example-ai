@@ -22,7 +22,7 @@
 
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { chromium } from "playwright";
+import { chromium } from "@playwright/test";
 import sharp from "sharp";
 
 const ROOT = process.cwd();
