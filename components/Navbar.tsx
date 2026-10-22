@@ -4,7 +4,6 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronDown } from "lucide-react";
-import { createSupabaseBrowserClient } from "@/lib/supabase";
 
 type NavbarProps = {
   showActions?: boolean;
@@ -112,18 +111,32 @@ export default function Navbar({
   };
 
   useEffect(() => {
-    const supabase = createSupabaseBrowserClient();
-    supabase.auth
-      .getUser()
-      .then(({ data }) => setAuthEmail(data.user?.email ?? null))
-      // A sign-in check can lose Supabase's lock to another tab or call
-      // (slow wifi, a phone waking a tab). The listener below still sets
-      // the email once the session settles, so this only stays quiet.
-      .catch(() => undefined);
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setAuthEmail(session?.user?.email ?? null);
+    // Most visitors to the public site are signed out. Without a Supabase
+    // auth cookie there is nothing to check, so the Supabase client (the
+    // largest script the navbar would otherwise ship) is only downloaded
+    // for someone who has one.
+    if (!/(?:^|;\s*)sb-[^=]*-auth-token/.test(document.cookie)) return;
+    let unsubscribe: (() => void) | undefined;
+    let cancelled = false;
+    void import("@/lib/supabase").then(({ createSupabaseBrowserClient }) => {
+      if (cancelled) return;
+      const supabase = createSupabaseBrowserClient();
+      supabase.auth
+        .getUser()
+        .then(({ data }) => setAuthEmail(data.user?.email ?? null))
+        // A sign-in check can lose Supabase's lock to another tab or call
+        // (slow wifi, a phone waking a tab). The listener below still sets
+        // the email once the session settles, so this only stays quiet.
+        .catch(() => undefined);
+      const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+        setAuthEmail(session?.user?.email ?? null);
+      });
+      unsubscribe = () => listener.subscription.unsubscribe();
     });
-    return () => listener.subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, []);
 
   useEffect(() => {
@@ -151,7 +164,8 @@ export default function Navbar({
       <header className="navbar" ref={headerRef}>
         <div className="container navbar-inner">
           <Link href="/" className="brand" onClick={close}>
-            <Image src="/logo.webp" alt="Serve By Example" width={40} height={40} quality={50} className="brand-mark-img" />
+            {/* The name is written beside it, so the mark itself is decorative. */}
+            <Image src="/logo.webp" alt="" width={40} height={40} quality={50} className="brand-mark-img" />
             <div className="brand-copy">
               <span className="brand-title">Serve By Example</span>
             </div>
@@ -263,7 +277,7 @@ export default function Navbar({
               )}
             </div>
 
-            <Link href="/pricing">Pricing</Link>
+            <Link href="/membership">Pricing</Link>
           </nav>
 
           <div className="nav-right">
@@ -380,7 +394,7 @@ export default function Navbar({
               </div>
             )}
 
-            <Link href="/pricing" className="nav-drawer-link" onClick={close}>
+            <Link href="/membership" className="nav-drawer-link" onClick={close}>
               Pricing
             </Link>
 

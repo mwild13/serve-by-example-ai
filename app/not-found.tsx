@@ -6,7 +6,7 @@ export default function NotFound() {
   return (
     <div className="page-shell">
       <Navbar />
-      <main className="sbe-mkt-confirm-page">
+      <main id="main-content" className="sbe-mkt-confirm-page">
         <div className="container">
           <div className="sbe-mkt-confirm">
             <p className="sbe-mkt-kicker">Error 404</p>

@@ -7,6 +7,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { normalizeTier, resolveTierAccess } from "@/lib/session";
 import { isMobilePhoneUserAgent } from "@/lib/user-agent";
 import { formatPersonName, nameFromEmail } from "@/lib/person-name";
+import { isAdminEmail } from "@/lib/management/auth";
 import DashboardShell from "@/app/dashboard/_components/DashboardShell";
 
 // Prevent static generation – this page requires auth at runtime
@@ -127,6 +128,7 @@ export default async function DashboardPage({
       plan={plan}
       checkoutSuccess={checkoutSuccess}
       userEmail={user.email ?? ""}
+      isAdmin={isAdminEmail(user.email)}
       managementUnlockedInitial={managementUnlocked}
       // Opt-in (2026-08-25): an unset flag means off, matching
       // /api/profile/notifications. Defaulting to true here pre-ticked the

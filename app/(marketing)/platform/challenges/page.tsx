@@ -111,7 +111,7 @@ export default function ChallengesMarketingPage() {
   return (
     <div className="page-shell">
       <Navbar />
-      <main>
+      <main id="main-content">
         <PageHero
           eyebrow="Experimental Learning Engine"
           title="Training that feels like a game"

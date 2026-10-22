@@ -81,7 +81,7 @@ export default function SecurityPage() {
   return (
     <div className="page-shell">
       <Navbar />
-      <main>
+      <main id="main-content">
         <PageHero
           eyebrow="Trust & Security"
           title="Your team’s data stays yours."

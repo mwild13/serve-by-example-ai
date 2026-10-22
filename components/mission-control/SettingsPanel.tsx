@@ -358,7 +358,7 @@ export function SettingsPanel({
               {seatsNearlyFull && (
                 <p className="mc-setting-desc" style={{ color: "var(--mc-text)" }}>
                   {seatsFull ? "Every staff seat is in use." : `${seatPct}% of your staff seats are in use.`}{" "}
-                  <a href="/pricing" className="mc-link">Upgrade your plan</a> to add more.
+                  <a href="/membership" className="mc-link">Upgrade your plan</a> to add more.
                 </p>
               )}
             </div>

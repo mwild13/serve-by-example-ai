@@ -100,7 +100,8 @@
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--gold);
+  /* --gold-deep, not --gold: small text needs 4.5:1 on the light card. */
+  color: var(--gold-deep);
 }
 
 /* ── Legal pages ───────────────────────────────── */
@@ -2718,6 +2719,7 @@
   color: var(--gold-deep);
 }
 
+.sbe-mkt-show-text h2,
 .sbe-mkt-show-text h3 {
   margin: 0 0 0.85rem;
   font-family: var(--font-heading);

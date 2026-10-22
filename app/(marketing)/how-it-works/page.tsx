@@ -157,7 +157,7 @@ export default function HowItWorksPage() {
   return (
     <div className="page-shell">
       <Navbar />
-      <main>
+      <main id="main-content">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}

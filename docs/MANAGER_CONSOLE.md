@@ -49,6 +49,8 @@ Service functions still filter every update/delete by `manager_user_id`/`owner_u
 
 **Adding a route:** copy the pattern — `const gate = await requireManager(req, { rateKey, ownerOnly?, limit? }); if (!gate.ok) return gate.response;`, assert ownership of every id in the body, read the body with `readJsonBody()`, and escape anything that goes into an email with `escapeHtml()`. The one exception is `join-venue`, which staff must be able to call (documented in that file).
 
+**Idle sign-out:** `components/mission-control/IdleSignOut.tsx` signs the console out after 10 minutes with no tap, click, key or scroll, after a one-minute "Still there?" warning, and sends the manager to `/login?signedout=idle`. Activity is shared between tabs through localStorage. Every sign-out button goes through `signOutEverywhere()` (`lib/sign-out.ts`): Supabase's global sign-out, which revokes the session on the server, plus clearing the `sbe_session_id` cookie. `SessionRefresher` keeps renewing the token while the console is open, so the idle sign-out is what ends an unattended session.
+
 **Nothing in the console UI gates or enforces access.** The old Roles & Permissions tab (`RolesPermissionsMatrix.tsx`) showed a hardcoded access table that looked like an ACL and was not one; it was removed in October 2026. The "By role" table on the Teams tab lists the modules each role is expected to complete (`REQUIRED_MODULES` in `TeamsPerformancePanel.tsx`). That list is display only too.
 
 ## 4. State Management for Complex UI (Filtering, Tabs)

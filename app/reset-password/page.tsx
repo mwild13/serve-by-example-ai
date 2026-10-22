@@ -68,7 +68,7 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="login-split">
-      <div className="login-split-left">
+      <main id="main-content" className="login-split-left">
         <div className="login-card">
           <BrandMark />
           <p className="sbe-mkt-kicker">Account recovery</p>
@@ -118,7 +118,7 @@ export default function ResetPasswordPage() {
             </div>
           </form>
         </div>
-      </div>
+      </main>
       <RightPanel />
     </div>
   );

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
-import { brandedEmailHtml } from "@/lib/email-template";
+import { brandedEmailHtml, escapeHtml, formText } from "@/lib/email-template";
 import { readJsonBody } from "@/lib/ai-guard";
 
 // Mobile notifications + bug-report pass (2026-08-25) — new Settings >
@@ -27,13 +27,13 @@ export async function POST(req: Request) {
     if (!read.ok) return read.response;
     const body = read.body as { description?: unknown; screen?: unknown };
     const description = typeof body.description === "string" ? body.description.trim() : "";
-    const screen = typeof body.screen === "string" ? body.screen.trim() : "";
+    const screen = formText(body.screen, 120);
 
     if (!description || description.length < 10) {
       return NextResponse.json({ error: "Please describe what went wrong in a bit more detail." }, { status: 400 });
     }
     if (description.length > 4000) {
-      return NextResponse.json({ error: "That description is too long — please shorten it." }, { status: 400 });
+      return NextResponse.json({ error: "That description is too long. Please shorten it." }, { status: 400 });
     }
 
     const brevoApiKey = process.env.BREVO_API_KEY;
@@ -49,22 +49,27 @@ export async function POST(req: Request) {
       );
     }
 
+    // Everything the reporter sent is escaped before it goes into the email,
+    // so a report can't put links or markup in front of whoever reads it.
+    const safeEmail = escapeHtml(user.email ?? "");
+    const safeScreen = escapeHtml(screen);
+    const safeDescription = escapeHtml(description);
     const bodyHtml = `
       <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
-        <tr><td style="padding:8px 0;border-bottom:1px solid #ece5d5;font-weight:600;width:140px">Reported by</td><td style="padding:8px 0;border-bottom:1px solid #ece5d5"><a href="mailto:${user.email}">${user.email}</a></td></tr>
-        ${screen ? `<tr><td style="padding:8px 0;border-bottom:1px solid #ece5d5;font-weight:600">Screen</td><td style="padding:8px 0;border-bottom:1px solid #ece5d5">${screen}</td></tr>` : ""}
+        <tr><td style="padding:8px 0;border-bottom:1px solid #ece5d5;font-weight:600;width:140px">Reported by</td><td style="padding:8px 0;border-bottom:1px solid #ece5d5"><a href="mailto:${safeEmail}">${safeEmail}</a></td></tr>
+        ${screen ? `<tr><td style="padding:8px 0;border-bottom:1px solid #ece5d5;font-weight:600">Screen</td><td style="padding:8px 0;border-bottom:1px solid #ece5d5">${safeScreen}</td></tr>` : ""}
         <tr><td style="padding:8px 0;border-bottom:1px solid #ece5d5;font-weight:600">User ID</td><td style="padding:8px 0;border-bottom:1px solid #ece5d5;font-family:monospace;font-size:12px">${user.id}</td></tr>
         <tr><td style="padding:8px 0;font-weight:600">Reported at</td><td style="padding:8px 0">${new Date().toISOString()}</td></tr>
       </table>
       <div style="padding:16px 20px;background:#eeebe1;border-radius:10px;border-left:4px solid #1f4e37">
         <p style="margin:0 0 6px;font-weight:600;color:#172f22">What's wrong</p>
-        <p style="margin:0;line-height:1.65;white-space:pre-wrap;color:#172f22">${description}</p>
+        <p style="margin:0;line-height:1.65;white-space:pre-wrap;color:#172f22">${safeDescription}</p>
       </div>
     `;
 
     const htmlContent = brandedEmailHtml({
-      heading: "New bug report — mobile app",
-      preheader: description.slice(0, 100),
+      heading: "New bug report: mobile app",
+      preheader: escapeHtml(description.slice(0, 100)),
       bodyHtml,
     });
 
@@ -75,7 +80,7 @@ export async function POST(req: Request) {
         sender: { name: fromName, email: fromEmail },
         to: [{ email: toEmail }],
         replyTo: { email: user.email, name: user.email },
-        subject: `Bug report — ${screen || "mobile app"}`,
+        subject: `Bug report: ${screen || "mobile app"}`,
         htmlContent,
       }),
     });

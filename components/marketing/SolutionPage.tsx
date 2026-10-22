@@ -49,7 +49,7 @@ export default function SolutionPage({ content }: { content: SolutionContent }) 
   return (
     <div className="page-shell">
       <Navbar />
-      <main>
+      <main id="main-content">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
 
         <PageHero

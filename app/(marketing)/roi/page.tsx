@@ -38,7 +38,7 @@ export default function ROIPage() {
   return (
     <div className="page-shell">
       <Navbar />
-      <main>
+      <main id="main-content">
         {/* Light, compact hero so the dark calculator band starts near the fold */}
         <PageHero
           compact

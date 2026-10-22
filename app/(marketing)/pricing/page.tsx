@@ -70,7 +70,7 @@ export default function PricingPage() {
     <div className="page-shell">
       <Navbar />
 
-      <main className="sbe-mkt-pricing-page">
+      <main id="main-content" className="sbe-mkt-pricing-page">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

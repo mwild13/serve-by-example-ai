@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { supabaseFetch } from "@/lib/supabase-fetch";
 
 export function createSupabaseAdminClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -27,5 +28,6 @@ export function createSupabaseAdminClient() {
       persistSession: false,
       autoRefreshToken: false,
     },
+    global: { fetch: supabaseFetch },
   });
 }

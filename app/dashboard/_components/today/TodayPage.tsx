@@ -225,7 +225,7 @@ export default function TodayPage({
                   </button>
                 )}
                 {step.kind === "challenge" && (
-                  <a className="sd-btn sd-btn-ghost" href="/pricing">See the plans</a>
+                  <a className="sd-btn sd-btn-ghost" href="/membership">See the plans</a>
                 )}
               </div>
             </>

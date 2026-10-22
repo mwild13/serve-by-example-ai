@@ -31,14 +31,18 @@ export async function GET(request: NextRequest) {
       }
 
       const next = searchParams.get("next") ?? "/dashboard";
-      const safePath = next.startsWith("/") ? next : "/dashboard";
+      // A path on this site only: "//host" and "/\\host" are read by
+      // browsers as another site.
+      const safePath = /^\/(?![/\\])/.test(next) ? next : "/dashboard";
 
       // session_id can arrive as a top-level callback param (Google OAuth path)
       // or embedded inside the next param (email confirmation path).
       const stripeSessionId = searchParams.get("session_id");
       const nextQuery = safePath.includes("?") ? safePath.split("?")[1] : "";
       const embeddedSessionId = new URLSearchParams(nextQuery).get("session_id");
-      const finalSessionId = stripeSessionId ?? embeddedSessionId;
+      const rawSessionId = stripeSessionId ?? embeddedSessionId;
+      // A Stripe Checkout id, nothing else, goes back on the URL.
+      const finalSessionId = rawSessionId && /^cs_[A-Za-z0-9_]{1,250}$/.test(rawSessionId) ? rawSessionId : null;
 
       // Management portal redirects bypass the onboarding check — managers
       // don't go through the staff onboarding wizard.
@@ -84,7 +88,7 @@ export async function GET(request: NextRequest) {
       const sessionId = generateSessionId();
       await stampSession(createSupabaseAdminClient(), data.user.id, sessionId);
       const response = NextResponse.redirect(`${origin}${redirectTo}`);
-      response.headers.append("Set-Cookie", `sbe_session_id=${sessionId}; Path=/; Max-Age=${SESSION_COOKIE_MAX_AGE}; HttpOnly; SameSite=Lax`);
+      response.headers.append("Set-Cookie", `sbe_session_id=${sessionId}; Path=/; Max-Age=${SESSION_COOKIE_MAX_AGE}; HttpOnly; SameSite=Lax${process.env.NODE_ENV === "production" ? "; Secure" : ""}`);
       return response;
     }
   }

@@ -516,6 +516,7 @@ export default function DashboardShell({
   displayName,
   plan,
   userEmail,
+  isAdmin = false,
   managementUnlockedInitial: _managementUnlockedInitial,
   notifReminders,
   notifWeeklyDigest,
@@ -529,6 +530,8 @@ export default function DashboardShell({
   displayName: string;
   plan: string;
   userEmail: string;
+  /** Worked out on the server, so the admin list never reaches the browser. */
+  isAdmin?: boolean;
   managementUnlockedInitial: boolean;
   notifReminders: boolean;
   notifWeeklyDigest: boolean;
@@ -688,15 +691,12 @@ export default function DashboardShell({
 
   // Live Guest isn't here: Pro and free open it and see its upgrade prompt.
   const PREMIUM_NAV_ITEMS: NavItem[] = ["module", "drill", "rush", "cocktails", "knowledge"];
-  const envAdminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
-  const ADMIN_EMAILS = envAdminEmails;
-  const isAdmin = ADMIN_EMAILS.length > 0 && ADMIN_EMAILS.includes(userEmail.toLowerCase());
   const isPremium = isAdmin || plan !== "free" || hasVenueMembership;
 
   function handleNavClick(id: NavItem) {
     if (id === "drill") setDrillMode("mixed");
     if (!isPremium && PREMIUM_NAV_ITEMS.includes(id)) {
-      router.push("/pricing");
+      router.push("/membership");
       return;
     }
     goTo(id);
@@ -733,7 +733,7 @@ export default function DashboardShell({
   // If auth guard detected an error or is still initializing, show defensive UI
   if (authGuard.hasError) {
     return (
-      <main className="sd-shell sd-shell-alone">
+      <main id="main-content" className="sd-shell sd-shell-alone">
         <div className="sd-recover">
           <h1 className="sd-title">Signing you back in</h1>
           <p>{authGuard.errorMessage || "Your session is being restored. One moment."}</p>
@@ -746,7 +746,7 @@ export default function DashboardShell({
   }
 
   return (
-    <main className={`sd-shell${dark ? " sd-dark" : ""}`}>
+    <main id="main-content" className={`sd-shell${dark ? " sd-dark" : ""}`}>
       <SessionRefresher />
 
       {authErrorMessage && (

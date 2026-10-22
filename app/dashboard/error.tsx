@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { reportError } from "@/lib/report-error";
+import { useErrorRetry } from "@/lib/use-error-retry";
 
 // Route-level error boundary for /dashboard. Without it a render error falls
 // through to app/error.tsx and the staff member loses the dashboard shell.
@@ -12,6 +13,8 @@ export default function DashboardError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const { retry, retrying } = useErrorRetry(reset);
+
   useEffect(() => {
     console.error("Dashboard failed to load:", error);
     void reportError(error, { digest: error.digest });
@@ -54,8 +57,8 @@ export default function DashboardError({
           Something went wrong on our side. Your progress is saved. Try again, or contact support if it keeps
           happening.
         </p>
-        <button type="button" onClick={reset} className="btn btn-primary">
-          Try again
+        <button type="button" onClick={retry} disabled={retrying} className="btn btn-primary">
+          {retrying ? "Trying again…" : "Try again"}
         </button>
       </div>
     </div>

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { reportError } from "@/lib/report-error";
+import { useErrorRetry } from "@/lib/use-error-retry";
 
 // Route-level error boundary for /management/dashboard. Needed now that the
 // snapshot fetch starts server-side and streams in via Suspense/use()
@@ -18,6 +19,8 @@ export default function ManagementDashboardError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const { retry, retrying } = useErrorRetry(reset);
+
   useEffect(() => {
     console.error("Mission Control failed to load:", error);
     void reportError(error, { digest: error.digest });
@@ -57,11 +60,11 @@ export default function ManagementDashboardError({
           Mission Control couldn&rsquo;t load
         </h1>
         <p style={{ color: "var(--text-soft)", fontSize: "0.9rem", marginBottom: 20 }}>
-          Something went wrong fetching your venue data. This has been logged
-          &mdash; try again, or contact support if it keeps happening.
+          Something went wrong fetching your venue data. This has been logged.
+          Try again, or contact support if it keeps happening.
         </p>
-        <button type="button" onClick={reset} className="btn btn-primary">
-          Try again
+        <button type="button" onClick={retry} disabled={retrying} className="btn btn-primary">
+          {retrying ? "Trying again…" : "Try again"}
         </button>
       </div>
     </div>

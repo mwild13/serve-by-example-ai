@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { reportError } from "@/lib/report-error";
+import { useErrorRetry } from "@/lib/use-error-retry";
 
 export default function Error({
   error,
@@ -10,6 +11,8 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const { retry, retrying } = useErrorRetry(reset);
+
   useEffect(() => {
     console.error("[App Error Boundary]", {
       message: error.message,
@@ -21,7 +24,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <main className="sbe-mkt-confirm-page">
+    <main id="main-content" className="sbe-mkt-confirm-page">
       <div className="container">
         <div className="sbe-mkt-confirm">
           <p className="sbe-mkt-kicker">Something broke</p>
@@ -30,8 +33,8 @@ export default function Error({
             An unexpected error occurred. Please try again or return to the home page.
           </p>
           <div className="sbe-mkt-confirm-actions">
-            <button type="button" className="sbe-mkt-btn-primary" onClick={reset}>
-              Try again
+            <button type="button" className="sbe-mkt-btn-primary" onClick={retry} disabled={retrying}>
+              {retrying ? "Trying again…" : "Try again"}
             </button>
             {/* A plain anchor: a full page load is the safest way out of a broken tree. */}
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}

@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { cookies, headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
+import { supabaseFetch } from "@/lib/supabase-fetch";
 
 function getSupabaseEnv() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -49,6 +50,7 @@ export async function createSupabaseServerClient() {
   const cookieDomain = await getCookieDomain();
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
+    global: { fetch: supabaseFetch },
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -96,6 +98,7 @@ export async function getUserFromRequest(req: Request) {
       const cookieStore = await cookies();
       const authedClient = createServerClient(supabaseUrl, supabaseAnonKey, {
         global: {
+          fetch: supabaseFetch,
           headers: { Authorization: `Bearer ${token}` },
         },
         cookies: {
@@ -153,6 +156,7 @@ export async function getVerifiedUserFromRequest(req: Request): Promise<Verified
     const { supabaseUrl, supabaseAnonKey } = getSupabaseEnv();
     const client = createClient(supabaseUrl, supabaseAnonKey, {
       auth: { persistSession: false, autoRefreshToken: false },
+      global: { fetch: supabaseFetch },
     });
     const { data, error } = await client.auth.getClaims(token);
     const claims = data?.claims;
@@ -176,6 +180,7 @@ export function createSupabaseMiddlewareClient(
   const cookieDomain = resolveCookieDomain(request.nextUrl.hostname);
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
+    global: { fetch: supabaseFetch },
     cookies: {
       getAll() {
         return request.cookies.getAll();

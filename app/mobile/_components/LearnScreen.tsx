@@ -169,7 +169,7 @@ export default function LearnScreen() {
 function ModuleRow({ module: m, locked, upNext }: { module: StaffModule; locked: boolean; upNext: boolean }) {
   const done = isMastered(m);
   return (
-    <Link href={locked ? "/pricing" : moduleHref(m)} className={`sm-row sm-module${upNext ? " is-next" : ""}`}>
+    <Link href={locked ? "/membership" : moduleHref(m)} className={`sm-row sm-module${upNext ? " is-next" : ""}`}>
       {locked ? (
         <span className="sm-module-mark" aria-hidden="true">
           <LockKeyhole size={18} strokeWidth={2.2} />

@@ -21,7 +21,7 @@
  * }
  */
 
-import { createClient } from "@supabase/supabase-js";
+import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { rateLimit } from "@/lib/rate-limit";
@@ -32,13 +32,6 @@ import { readJsonBody } from "@/lib/ai-guard";
 const MAX_BODY_BYTES = 4 * 1024;
 
 export const dynamic = "force-dynamic";
-
-function getSupabaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-}
 
 interface SubmitRequest {
   answers: Record<string, string | boolean>;
@@ -81,7 +74,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = getSupabaseClient();
+    const supabase = createSupabaseAdminClient();
 
     // Stored in module_elo_baseline (the table name predates the Elo
     // retirement; it now holds percentages).

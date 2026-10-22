@@ -16,7 +16,7 @@
  * }
  */
 
-import { createClient } from "@supabase/supabase-js";
+import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/supabase-server";
 import { rateLimit } from "@/lib/rate-limit";
@@ -36,13 +36,6 @@ const NO_STORE_HEADERS = {
   Pragma: "no-cache",
 };
 
-function getSupabaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-}
-
 export async function POST(request: NextRequest) {
   try {
     const { user } = await getUserFromRequest(request);
@@ -56,7 +49,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: "Too many requests. Try again in a minute." }, { status: 429 });
     }
 
-    const supabase = getSupabaseClient();
+    const supabase = createSupabaseAdminClient();
 
     // Fetch the asked questions from the bank. sort_order (1-10) is what
     // lib/diagnostic-engine.ts's DIAGNOSTIC_ANSWER_KEY/QUESTION_CATEGORY_MAP

@@ -36,7 +36,9 @@ type LeadCapturePaneProps = {
 
 export default function LeadCapturePane({ pulseKey, hasResult }: LeadCapturePaneProps) {
   return (
-    <aside className="demo-right-pane">
+    // A section, not an aside: it sits inside <main>, and an aside there is a
+    // landmark nested in another.
+    <section className="demo-right-pane" aria-label="After the demo">
       <p className="sbe-mkt-kicker">After the demo</p>
       <h2>See the full platform in action</h2>
       <p>
@@ -56,6 +58,6 @@ export default function LeadCapturePane({ pulseKey, hasResult }: LeadCapturePane
           ))}
         </ul>
       </div>
-    </aside>
+    </section>
   );
 }

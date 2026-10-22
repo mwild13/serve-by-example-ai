@@ -87,11 +87,14 @@ export type RequireManagerResult =
   | { ok: true; ctx: ManagerContext }
   | { ok: false; response: Response };
 
-function adminEmails(): string[] {
+/** Whether this email is in ADMIN_EMAILS. Server only: the list never goes to the browser. */
+export function isAdminEmail(email: string | null | undefined): boolean {
+  if (!email) return false;
   return (process.env.ADMIN_EMAILS ?? "")
     .split(",")
     .map((e) => e.trim().toLowerCase())
-    .filter(Boolean);
+    .filter(Boolean)
+    .includes(email.toLowerCase());
 }
 
 function deny(status: number, code: string, error: string, log?: Record<string, unknown>): { ok: false; response: Response } {
@@ -137,7 +140,7 @@ export async function requireManager(req: Request, opts: RequireManagerOptions):
   const tier = (profileRow?.tier as string | null) ?? "free";
   const orgId = (profileRow?.org_id as string | null) ?? null;
 
-  const isAdmin = adminEmails().includes((user.email ?? "").toLowerCase());
+  const isAdmin = isAdminEmail(user.email);
   const subscriptionLapsed = LAPSED_SUBSCRIPTION_STATUSES.has((profileRow?.subscription_status as string | null) ?? "");
   const hasVenueAccess = isB2BTier(tier) && !subscriptionLapsed;
   const hasManagerRole = hasManagerConsoleAccess(platformRole);

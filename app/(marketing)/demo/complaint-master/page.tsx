@@ -143,7 +143,7 @@ export default function ComplaintMasterPage() {
   return (
     <div className="page-shell">
       <Navbar />
-      <main>
+      <main id="main-content">
         {/* ── Hero ── */}
         <PageHero
           compact

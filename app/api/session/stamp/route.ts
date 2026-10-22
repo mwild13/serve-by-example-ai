@@ -7,6 +7,8 @@ import { linkStaffAccountByEmail } from "@/lib/staff-link";
 import { attributionFromRequest } from "@/lib/attribution";
 
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year in seconds
+// HTTPS only once deployed; local dev runs on plain http://localhost.
+const SECURE = process.env.NODE_ENV === "production" ? "; Secure" : "";
 
 export async function POST(req: Request) {
   try {
@@ -84,7 +86,7 @@ export async function POST(req: Request) {
     const res = NextResponse.json({ success: true });
     res.headers.set(
       "Set-Cookie",
-      `sbe_session_id=${sessionId}; Path=/; Max-Age=${COOKIE_MAX_AGE}; HttpOnly; SameSite=Lax`
+      `sbe_session_id=${sessionId}; Path=/; Max-Age=${COOKIE_MAX_AGE}; HttpOnly; SameSite=Lax${SECURE}`
     );
     return res;
   } catch (error) {
@@ -93,12 +95,12 @@ export async function POST(req: Request) {
   }
 }
 
-// Called on sign-out to clear the HttpOnly cookie server-side
+// Called on sign-out (lib/sign-out.ts) to clear the HttpOnly cookie server-side
 export async function DELETE() {
   const res = NextResponse.json({ success: true });
   res.headers.set(
     "Set-Cookie",
-    "sbe_session_id=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax"
+    `sbe_session_id=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax${SECURE}`
   );
   return res;
 }

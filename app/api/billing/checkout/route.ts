@@ -117,7 +117,7 @@ export async function POST(req: Request) {
         metadata: subscriptionMetadata,
       },
       success_url: successUrl,
-      cancel_url: `${baseUrl}/pricing?checkout=cancel`,
+      cancel_url: `${baseUrl}/membership?checkout=cancel`,
     });
 
     return NextResponse.json({ url: session.url });

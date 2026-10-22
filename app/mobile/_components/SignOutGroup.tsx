@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Group } from "./ui/parts";
 import { useMobileSession } from "../_lib/mobile-session-context";
-import { createSupabaseBrowserClient } from "@/lib/supabase";
+import { signOutEverywhere } from "@/lib/sign-out";
 
 // Sign out, as its own red row with the account under it, as at the foot of
 // iPhone Settings. At the bottom of Me, where people look for it, and of
@@ -16,7 +16,7 @@ export default function SignOutGroup() {
 
   async function signOut() {
     setSigningOut(true);
-    await createSupabaseBrowserClient().auth.signOut();
+    await signOutEverywhere();
     router.push("/login");
     router.refresh();
   }

@@ -14,7 +14,7 @@ export default function CookiesPage() {
     <div className="page-shell">
       <Navbar />
 
-      <main>
+      <main id="main-content">
         <PageHero compact variant="light" eyebrow="Legal" title="Cookies Policy" subtitle="Last updated: 12 October 2026" />
 
         <section className="section">

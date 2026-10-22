@@ -16,7 +16,7 @@ export default function RefundsPage() {
     <div className="page-shell">
       <Navbar />
 
-      <main>
+      <main id="main-content">
         <PageHero
           compact
           variant="light"

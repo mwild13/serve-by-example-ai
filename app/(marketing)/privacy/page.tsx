@@ -15,7 +15,7 @@ export default function PrivacyPage() {
     <div className="page-shell">
       <Navbar />
 
-      <main>
+      <main id="main-content">
         <PageHero compact variant="light" eyebrow="Legal" title="Privacy Policy" subtitle="Last updated: 20 October 2026" />
 
         <section className="section">

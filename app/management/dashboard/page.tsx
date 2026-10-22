@@ -8,10 +8,11 @@ import { MissionControlSkeleton } from "@/components/mission-control/manager-ui"
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { getManagementSnapshot } from "@/lib/management/service";
+import { isAdminEmail } from "@/lib/management/auth";
 import { getTrialStatus, getDaysRemaining } from "@/lib/trial";
 import { formatPersonName, nameFromEmail } from "@/lib/person-name";
-import { priceToTierMap } from "@/lib/billing-plans";
-import { applySubscription } from "@/lib/billing-sync";
+import { B2B_TIERS, TIER_SEAT_LIMITS, priceToTierMap } from "@/lib/billing-plans";
+import { applySubscription, orgNameFromEmail, upsertOrganization } from "@/lib/billing-sync";
 import { isB2BTier, normalizeTier, hasManagerConsoleAccess, isOwnerLevelRole } from "@/lib/session";
 
 // This route is force-dynamic and reads searchParams (see below), which
@@ -54,10 +55,6 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
-  .split(",")
-  .map((e) => e.trim().toLowerCase())
-  .filter(Boolean);
 
 export default async function ManagementDashboardPage({
   searchParams,
@@ -101,6 +98,24 @@ export default async function ManagementDashboardPage({
             stripe_customer_id: stripeSession.customer as string,
             subscription_status: "active",
           }).eq("id", user.id);
+          // The organisation too, as the webhook does. Until then a trial
+          // that ran out before paying still reads as expired, and the page
+          // below would show the trial-ended lock to someone who just paid.
+          // Safe to run twice: it matches on the Stripe customer id, which
+          // is unique.
+          // The plan name as checkout wrote it, which is what the webhook passes on.
+          if (B2B_TIERS.has(tier)) {
+            const email = stripeSession.customer_details?.email ?? user.email;
+            await upsertOrganization(admin, {
+              stripeCustomerId: stripeSession.customer as string,
+              ownerUserId: user.id,
+              name: email ? orgNameFromEmail(email) : "My Organisation",
+              tier,
+              seatLimit: stripeSession.metadata?.seat_limit
+                ? parseInt(stripeSession.metadata.seat_limit, 10)
+                : (TIER_SEAT_LIMITS[tier] ?? 0),
+            });
+          }
         }
       }
     } catch {
@@ -147,7 +162,8 @@ export default async function ManagementDashboardPage({
   const tier = profile?.tier ?? "free";
   const platformRole = profile?.platform_role ?? "staff";
 
-  const isAdmin = ADMIN_EMAILS.includes(user.email ?? "");
+  // The same check as the API (lib/management/auth.ts), so the two agree.
+  const isAdmin = isAdminEmail(user.email);
   const hasVenuePlan = isB2BTier(plan);
   const hasVenueTier = isB2BTier(tier);
   const hasManagerRole = hasManagerConsoleAccess(platformRole);
@@ -196,7 +212,7 @@ export default async function ManagementDashboardPage({
   const hasTrialAccess = !!trialTier && !trialExpired;
 
   if (!isAdmin && !hasVenueAccess && !hasManagerRole && !hasTrialAccess) {
-    redirect("/pricing");
+    redirect("/membership");
   }
 
   // Intentionally NOT awaited — starts the query immediately, in parallel

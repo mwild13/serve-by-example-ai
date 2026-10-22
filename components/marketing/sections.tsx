@@ -120,6 +120,9 @@ export function MediaRows({
   rows: MediaRow[];
   startFlipped?: boolean;
 }) {
+  // Each row's title sits under the section heading when there is one, and
+  // is the section's own heading when there isn't, so levels never skip.
+  const RowHeading = head ? "h3" : "h2";
   return (
     <section id={id} className={`sbe-mkt-showcase${toneClass(tone)}`}>
       <div className="container">
@@ -130,7 +133,7 @@ export function MediaRows({
             <div key={row.title} className={`sbe-mkt-show-row${flip ? " sbe-mkt-show-row-flip" : ""}`}>
               <div className="sbe-mkt-show-text">
                 {row.tag ? <p className="sbe-mkt-show-tag">{row.tag}</p> : null}
-                <h3>{row.title}</h3>
+                <RowHeading>{row.title}</RowHeading>
                 <p>{row.body}</p>
                 {row.points ? (
                   <ul className="sbe-mkt-points">

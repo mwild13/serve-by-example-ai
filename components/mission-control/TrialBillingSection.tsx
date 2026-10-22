@@ -50,7 +50,7 @@ export function TrialBillingSection({
   // they already chose when they started the trial.
   async function handleReactivate() {
     if (!checkoutPlan) {
-      window.location.href = "/pricing";
+      window.location.href = "/membership";
       return;
     }
     setCheckoutLoading(true);

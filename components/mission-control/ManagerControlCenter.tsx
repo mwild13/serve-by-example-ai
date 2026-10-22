@@ -4,6 +4,7 @@ import React, { FormEvent, Suspense, lazy, useCallback, useEffect, useMemo, useR
 import { useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import SessionRefresher from "@/components/ui/SessionRefresher";
+import IdleSignOut from "@/components/mission-control/IdleSignOut";
 import type {
   ManagementSnapshot,
   ManagerSection,
@@ -1008,6 +1009,7 @@ export default function ManagerControlCenter({
   return (
     <div className="ops-shell mc-shell">
       <SessionRefresher />
+      <IdleSignOut />
       {showExpiredModal && trialTier && (
         <TrialExpiredModal trialTier={trialTier} />
       )}
@@ -1027,7 +1029,7 @@ export default function ManagerControlCenter({
         }
       />
 
-      <section className="ops-workspace">
+      <main id="main-content" className="ops-workspace">
         <ManagementTopbar
           breadcrumbs={breadcrumbs}
           venueName={
@@ -1620,7 +1622,7 @@ export default function ManagerControlCenter({
           />
         )}
         </div>
-      </section>
+      </main>
 
 
       {/* ── Coaching drawer ── */}

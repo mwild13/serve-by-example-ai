@@ -177,7 +177,7 @@ function RoomPicker({
         <p className="sd-planline">
           {taster?.used ? "You've had your free conversation. " : ""}
           Live Guest comes with every venue plan and venue trial, all {guests.length} guests. If you work at a venue, ask your manager to add you.{" "}
-          <Link href="/pricing" className="sd-textlink">See the plans</Link>
+          <Link href="/membership" className="sd-textlink">See the plans</Link>
         </p>
       )}
 
@@ -383,7 +383,16 @@ export default function LiveGuest({ getToken, theme, intro = true, layout = "def
         )}
         {error && <p className="lg-error" role="alert">{error.message}</p>}
         {listError && <p className="lg-error" role="alert">{listError}</p>}
-        {!guests && !listError && <p className="lg-muted">Loading guests…</p>}
+        {!guests && !listError && (
+          <div className="lg-guests" aria-busy="true" aria-label="Loading guests">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="lg-guest lg-guest--skel" aria-hidden="true">
+                <span className="lg-skel-line lg-skel-line--title" />
+                <span className="lg-skel-line" />
+              </div>
+            ))}
+          </div>
+        )}
         {guests && !onPlan && (
           <div className="lg-upgrade">
             <p className="lg-upgrade-title">Live Guest is on venue plans</p>
@@ -399,7 +408,7 @@ export default function LiveGuest({ getToken, theme, intro = true, layout = "def
                   : `Try one conversation free: ${tasterLabel(guests.find((g) => g.id === taster.guestId))} is waiting below.`}
               </p>
             )}
-            <Link className="qz-next lg-upgrade-cta" href="/pricing">
+            <Link className="qz-next lg-upgrade-cta" href="/membership">
               See the plans
             </Link>
           </div>

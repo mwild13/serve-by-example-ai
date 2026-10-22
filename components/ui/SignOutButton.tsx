@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { createSupabaseBrowserClient } from "@/lib/supabase";
+import { signOutEverywhere } from "@/lib/sign-out";
 
 export default function SignOutButton({
   redirectTo = "/login",
@@ -19,8 +19,7 @@ export default function SignOutButton({
   const router = useRouter();
 
   async function handleSignOut() {
-    const supabase = createSupabaseBrowserClient();
-    await supabase.auth.signOut();
+    await signOutEverywhere();
     router.push(redirectTo);
     router.refresh();
   }

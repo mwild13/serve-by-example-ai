@@ -49,7 +49,7 @@ export default function SolutionsPage() {
   return (
     <div className="page-shell">
       <Navbar />
-      <main>
+      <main id="main-content">
         <PageHero
           eyebrow="Solutions"
           title="Built for the way hospitality actually works."

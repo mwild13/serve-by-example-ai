@@ -25,7 +25,7 @@ export default function ResourcesPage() {
   return (
     <div className="page-shell">
       <Navbar />
-      <main>
+      <main id="main-content">
         <PageHero
           compact
           eyebrow="Free Resources"

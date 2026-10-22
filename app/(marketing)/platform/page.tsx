@@ -148,7 +148,7 @@ export default function PlatformPage() {
   return (
     <div className="page-shell">
       <Navbar />
-      <main>
+      <main id="main-content">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(platformSchema) }} />
         <div className="section-subnav-sentinel" aria-hidden="true" />
         <SectionSubNav items={[

@@ -38,7 +38,7 @@ export default function AboutPage() {
   return (
     <div className="page-shell">
       <Navbar />
-      <main>
+      <main id="main-content">
         <PageHero
           eyebrow="About us"
           title="Built by people who know hospitality"

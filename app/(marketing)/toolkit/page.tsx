@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function ToolkitPage() {
   return (
-    <main className="sbe-mkt-toolkit">
+    <main id="main-content" className="sbe-mkt-toolkit">
       {/* Deliberately chrome-less lead-magnet page — PageHero for markup
           consistency, but no Navbar/Footer/CTABand: the generator below IS
           the conversion action, and extra nav is an exit route. */}

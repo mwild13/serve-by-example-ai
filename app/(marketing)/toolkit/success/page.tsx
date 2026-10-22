@@ -13,7 +13,7 @@ export default function SuccessPage() {
   return (
     <div className="page-shell">
       <Navbar />
-      <main className="sbe-mkt-confirm-page">
+      <main id="main-content" className="sbe-mkt-confirm-page">
         <div className="container">
           <Suspense>
             <SuccessContent />

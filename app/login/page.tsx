@@ -54,6 +54,9 @@ function LoginPageContent() {
   const oauthError = searchParams.get("error") === "oauth-error";
   // middleware.ts signed this device out: the account signed in elsewhere.
   const signedOutElsewhere = searchParams.get("signedout") === "elsewhere";
+  // The Manager Console signed itself out after 10 idle minutes
+  // (components/mission-control/IdleSignOut.tsx).
+  const signedOutIdle = searchParams.get("signedout") === "idle";
   // Carried forward from "Try Free for 14 Days" CTAs (HeroSection.tsx,
   // app/(marketing)/pricing/page.tsx) for a logged-out visitor — this page previously
   // never read these, so clicking Start Trial while logged out silently
@@ -86,7 +89,11 @@ function LoginPageContent() {
     oauthError ? "Google sign-in failed. Please try again or use email below." : ""
   );
   const [success, setSuccess] = useState(
-    signedOutElsewhere ? "You were signed out here because your account was signed in on another device. Sign in to use it on this one." : ""
+    signedOutElsewhere
+      ? "You were signed out here because your account was signed in on another device. Sign in to use it on this one."
+      : signedOutIdle
+        ? "You were signed out after 10 minutes without activity, to keep your team's details safe. Sign in to carry on."
+        : ""
   );
 
   const isSignUp = mode === "sign-up";
@@ -359,7 +366,7 @@ function LoginPageContent() {
 
   return (
     <div className="login-split">
-      <div className="login-split-left">
+      <main id="main-content" className="login-split-left">
         {/*
           key forces a full remount when portal changes so React never
           reuses a stale h1/p DOM node from a previous portal's render.
@@ -554,7 +561,7 @@ function LoginPageContent() {
             </>
           )}
         </div>
-      </div>
+      </main>
       <RightPanel />
     </div>
   );

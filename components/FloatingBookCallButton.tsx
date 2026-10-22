@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import BookCallModal from '@/components/BookCallModal';
+import dynamic from 'next/dynamic';
+
+// Loaded on first open, not with every page: most visitors never open it.
+const BookCallModal = dynamic(() => import('@/components/BookCallModal'), { ssr: false });
 
 // Calendar SVG icon — no emojis per design system rules
 function CalendarIcon() {
@@ -104,7 +107,7 @@ export default function FloatingBookCallButton() {
         <span className="floating-btn-label">Book a free 15-min call</span>
       </button>
 
-      <BookCallModal open={open} onClose={closeModal} />
+      {open && <BookCallModal open onClose={closeModal} />}
     </>
   );
 }

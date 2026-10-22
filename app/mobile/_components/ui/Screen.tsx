@@ -102,7 +102,7 @@ export default function Screen({
           <div className="sm-navbar-spacer" aria-hidden="true" />
         )}
 
-        <main style={{ display: "flex", flexDirection: "column", flex: 1 }}>{children}</main>
+        <main id="main-content" style={{ display: "flex", flexDirection: "column", flex: 1 }}>{children}</main>
 
         {tab && <TabBar active={tab} />}
       </div>

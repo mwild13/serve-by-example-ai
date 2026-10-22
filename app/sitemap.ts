@@ -8,10 +8,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: "/how-it-works", priority: 0.9 },
     { url: "/platform", priority: 0.9 },
     { url: "/for-venues", priority: 0.9 },
-    { url: "/pricing", priority: 0.9 },
     { url: "/platform/challenges", priority: 0.8 },
     { url: "/solutions", priority: 0.8 },
-    { url: "/membership", priority: 0.8 },
+    { url: "/membership", priority: 0.9 },
     { url: "/demo", priority: 0.8 },
     { url: "/demo/complaint-master", priority: 0.7 },
     { url: "/solutions/fine-dining", priority: 0.7 },
@@ -32,9 +31,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: "/cookies", priority: 0.3 },
   ];
 
+  // No lastModified: stamping every page with today's date on each request
+  // tells Google nothing, and it learns to ignore the field.
+  // /pricing is left out: it redirects to /membership (next.config.ts).
   return pages.map((page) => ({
     url: `${BASE}${page.url}`,
-    lastModified: new Date(),
     changeFrequency: page.priority >= 0.8 ? "weekly" : "monthly",
     priority: page.priority,
   }));

@@ -201,7 +201,7 @@ export default function DemoPage() {
     <div className="page-shell">
       <Navbar />
 
-      <main>
+      <main id="main-content">
         <PageHero
           compact
           eyebrow="Interactive demo"

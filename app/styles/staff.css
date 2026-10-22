@@ -60,34 +60,7 @@ body.mobile-dark-shell textarea,
 body.mobile-dark-shell select {
   font-size: 16px !important;
 }
-/* ── Navbar ────────────────────────────────────── */
-.coach-float-wrap.minimized {
-  left: auto;
-  right: 14px;
-  transform: none;
-  width: auto;
-}
-.coach-float-wrap.minimized .coach-float-panel {
-  border-radius: 999px;
-  padding: 4px;
-}
 /* ── Legal pages ───────────────────────────────── */
-.chat-pill {
-  background: var(--green-light);
-  color: var(--green-deep);
-  border: 1px solid rgba(31, 78, 55, 0.14);
-  border-radius: var(--radius-pill);
-  padding: 8px 16px;
-  font-size: 0.84rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-}
-.chat-pill:hover {
-  background: var(--green);
-  color: var(--surface-raised);
-  border-color: var(--green);
-}
 .grid-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -100,46 +73,14 @@ body.mobile-dark-shell select {
     grid-template-columns: 1fr;
   }
 }
-/* ── Dashboard trainer ─────────────────────────── */
-.chat-pill-active {
-  background: var(--green) !important;
-  color: var(--surface-raised) !important;
-  border-color: var(--green) !important;
-}
 /* ─── Mastery Engine UI ──────────────────────────────────── */
-@keyframes sbe-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-}
-/* ── Early access section ─────────────────────── */
-@media (max-width: 600px) {
-
-  .coach-float-wrap {
-    width: calc(100% - 14px);
-    bottom: calc(max(8px, env(safe-area-inset-bottom)) + var(--coach-keyboard-offset, 0px));
-  }
-
-  .coach-float-wrap.minimized {
-    right: 8px;
-    bottom: max(8px, env(safe-area-inset-bottom));
-  }
-}
 /* ── 2. Hero Split-Screen ──────────────────────────── */
 /* Browser Mockup */
-@keyframes anim-fadein { to { opacity: 1; } }
 /* ── 6. Neutral Approach Chips ─────────────────────── */
 .sbe-intent-pill-submitted.sbe-intent-pill-active:not(.sbe-intent-pill-negative) .sbe-intent-icon {
   display: inline;
 }
 /* Slide-over panel */
-@keyframes kbFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes kbSlideIn {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
-}
 /* ══════════════════════════════════════════════════════
    STAGE LEARNING — Module selector per stage
    ══════════════════════════════════════════════════════ */
@@ -860,6 +801,32 @@ body.mobile-dark-shell select {
   cursor: default;
   opacity: 0.6;
 }
+/* Placeholder cards while the guest list loads, in the theme's own colours. */
+.lg-guest--skel {
+  cursor: default;
+}
+.lg-skel-line {
+  display: block;
+  height: 12px;
+  width: 70%;
+  border-radius: 6px;
+  background: var(--qz-line);
+  animation: lg-skel 1.4s ease-in-out infinite;
+}
+.lg-skel-line--title {
+  height: 16px;
+  width: 45%;
+}
+@keyframes lg-skel {
+  50% {
+    opacity: 0.45;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lg-skel-line {
+    animation: none;
+  }
+}
 .lg-guest-top {
   display: flex;
   align-items: center;
@@ -1461,27 +1428,8 @@ body.mobile-dark-shell select {
     min-height: 240px;
   }
 }
-/* ── Badge Page ─────────────────────────────────────────────── */
-.badge-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-}
 /* badge-card--earned, --locked, --progress defined in B3 section below */
-@keyframes badge-shimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
 /* ── Dashboard home badge row ───────────────────────────────── */
-@keyframes badge-chip-shimmer {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-@media (max-width: 480px) {
-  .badge-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
 /* ── Product type scope ──────────────────────────────────────────────
    /dashboard and /mobile wrap their tree in .sbe-app-type
    (app/fonts/product-fonts.ts) and stay on Fraunces/Manrope with the leading
@@ -1498,11 +1446,6 @@ body.mobile-dark-shell select {
   letter-spacing: normal;
 }
 /* ── Challenges wizard micro-interactions ──────────────── */
-@keyframes correct-pulse {
-  0%   { background: var(--surface); }
-  40%  { background: var(--green-light); }
-  100% { background: var(--surface); }
-}
 @keyframes nudge {
   0%,100% { transform: translateX(0); }
   25%      { transform: translateX(-5px); }
