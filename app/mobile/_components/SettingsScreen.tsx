@@ -8,6 +8,7 @@ import Screen from "./ui/Screen";
 import Sheet from "./ui/Sheet";
 import { Group } from "./ui/parts";
 import InstallRow from "./InstallRow";
+import SignOutGroup from "./SignOutGroup";
 import AppearancePicker from "./AppearancePicker";
 import ShiftDays, { ShiftReminder } from "@/components/quiz/ShiftDays";
 import { useMobileSession } from "../_lib/mobile-session-context";
@@ -418,12 +419,6 @@ export default function SettingsScreen() {
     }
   }
 
-  async function handleSignOut() {
-    await supabase.auth.signOut();
-    router.push("/login");
-    router.refresh();
-  }
-
   const nameLabel = nameStatus === "saving" ? "Saving…" : nameStatus === "saved" ? "Saved" : "Save name";
   const emailLabel = emailStatus === "saving" ? "Saving…" : emailStatus === "saved" ? "Check your inbox to confirm" : "Update email";
   const passwordLabel = passwordStatus === "saving" ? "Saving…" : passwordStatus === "saved" ? "Password updated" : "Update password";
@@ -603,11 +598,7 @@ export default function SettingsScreen() {
           </EditRow>
         </Group>
 
-        <Group>
-          <button type="button" className="sm-row sm-set-row sm-set-signout" onClick={handleSignOut}>
-            Sign out
-          </button>
-        </Group>
+        <SignOutGroup />
       </div>
     </Screen>
   );

@@ -62,17 +62,23 @@ export default async function MobileLayout({
     redirect("/login");
   }
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select(
-      "display_name, tier, org_id, subscription_status, stripe_customer_id, onboarding_completed, profile_photo_url, profile_photo_generations_today, profile_photo_generations_reset_at, diagnostic_completed",
-    )
-    .eq("id", user.id)
-    .single();
+  // The session (for the access token the screens send) and the profile, at
+  // the same time rather than one after the other.
+  const [
+    {
+      data: { session },
+    },
+    { data: profile },
+  ] = await Promise.all([
+    supabase.auth.getSession(),
+    supabase
+      .from("profiles")
+      .select(
+        "display_name, tier, org_id, subscription_status, stripe_customer_id, onboarding_completed, profile_photo_url, profile_photo_generations_today, profile_photo_generations_reset_at, diagnostic_completed",
+      )
+      .eq("id", user.id)
+      .single(),
+  ]);
 
   if (!profile?.onboarding_completed) {
     redirect("/onboarding");

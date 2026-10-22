@@ -20,7 +20,7 @@ Every route lives under `app/mobile/<slug>/page.tsx`, and every `page.tsx` follo
 | `/mobile/home` | `HomeScreen.tsx` | The feed: the next step on a stack card, this week at the venue (`home/VenueWeek.tsx`), keep going, tonight's cocktails, look it up, a fact. See section 3a |
 | `/mobile/practise` | `PractiseScreen.tsx` | The Practise tab: the mixed drill, today's challenge, Live Guest, Saturday Rush, the challenges |
 | `/mobile/learn` | `LearnScreen.tsx` | The Learn tab: modules as a path, see section 3 |
-| `/mobile/progress` | `ProgressScreen.tsx` | "Me" tab: profile card (opens the photo), four figures, mastery by area, the next badge, Settings and Help rows, and the AI Coach (`progress/AiCoachWidget.tsx`). Badges come from `badgesFromProgress()` in `lib/badges.ts`, shared with desktop |
+| `/mobile/progress` | `ProgressScreen.tsx` | "Me" tab: profile card (opens the photo), four figures, mastery by area, the next badge, Settings and Help rows, Sign out at the foot (`SignOutGroup.tsx`, also at the foot of Settings), and the AI Coach (`progress/AiCoachWidget.tsx`). Badges come from `badgesFromProgress()` in `lib/badges.ts`, shared with desktop |
 | `/mobile/quiz` | `QuizScreen.tsx` | A module's Learn cards and verify quiz |
 | `/mobile/drill` | `DrillScreen.tsx` | Mixed drill; `?mode=preshift` is the pre-shift drill |
 | `/mobile/install` | `InstallScreen.tsx` | Add to Home Screen, with the steps for this phone. See section 3c |

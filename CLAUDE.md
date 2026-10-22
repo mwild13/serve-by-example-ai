@@ -135,6 +135,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 
 API routes must call `getUserFromRequest(req)` from `@/lib/supabase-server` and return 401 immediately if no user.
 
+The one exception is `middleware.ts`, which runs on every page request: it uses `supabase.auth.getClaims()`, which verifies the token's signature locally against the project's ES256 keys instead of calling Supabase Auth each time. Don't copy that into server components or API routes.
+
 ## App Pages (Authenticated / Utility)
 
 Cross-cutting auth/utility routes not owned by a single domain doc:

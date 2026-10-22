@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { trackEvent } from "@/lib/consent";
 import { BrandMark, RightPanel } from "@/components/LoginSplitParts";
+import { isMobilePhoneUserAgent } from "@/lib/user-agent";
 import TurnstileWidget, { CAPTCHA_FAILED_MESSAGE, isCaptchaError, type TurnstileHandle } from "@/components/TurnstileWidget";
 
 type AuthMode = "sign-in" | "sign-up" | "forgot-password";
@@ -334,7 +335,11 @@ function LoginPageContent() {
           setLoading(false);
           return;
         }
-        router.push(trialIntent ? "/management/dashboard" : resumeCheckoutPath ?? "/dashboard");
+        // A phone goes straight to the mobile app: through /dashboard,
+        // middleware.ts would redirect it there anyway, after a second round
+        // of sign-in checks.
+        const staffHome = isMobilePhoneUserAgent(navigator.userAgent) ? "/mobile/home" : "/dashboard";
+        router.push(trialIntent ? "/management/dashboard" : resumeCheckoutPath ?? staffHome);
         router.refresh();
       }
     } catch (submitError) {

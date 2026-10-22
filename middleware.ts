@@ -208,17 +208,19 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  let user = null;
+  // Who is signed in, from the access token. getClaims() checks its
+  // signature here against the project's ES256 keys (cached), so this runs on
+  // every page and tab tap without a round trip to Supabase Auth; getUser()
+  // made one each time. An expired token is refreshed first, and the new
+  // cookies are written to the response. Server components and API routes
+  // still call getUser() (CLAUDE.md, Auth Pattern).
+  let user: { id: string } | null = null;
   let supabase: ReturnType<typeof createSupabaseMiddlewareClient> | null = null;
   try {
     supabase = createSupabaseMiddlewareClient(request, response);
-    const {
-      data: { user: authUser },
-      error,
-    } = await supabase.auth.getUser();
-
-    if (!error) {
-      user = authUser;
+    const { data, error } = await supabase.auth.getClaims();
+    if (!error && data?.claims?.sub) {
+      user = { id: data.claims.sub };
     }
   } catch {
     // Silently handle missing env vars (local dev) or refresh token errors
@@ -314,7 +316,10 @@ export async function middleware(request: NextRequest) {
   }
 
   // ── Session displacement check for protected routes ────────
-  if (user && supabase && (isDashboard || isMobile || isManagementDashboard)) {
+  // Not on Next's background prefetches (a link coming into view): the
+  // check runs when the page is actually opened.
+  const isPrefetch = request.headers.get("next-router-prefetch") === "1" || request.headers.get("purpose") === "prefetch";
+  if (user && supabase && !isPrefetch && (isDashboard || isMobile || isManagementDashboard)) {
     const browserSessionId = request.cookies.get("sbe_session_id")?.value;
 
     if (browserSessionId) {
@@ -331,7 +336,7 @@ export async function middleware(request: NextRequest) {
       // Log session conflicts for security monitoring
       if (storedSessionId && storedSessionId !== browserSessionId) {
         console.warn(
-          `Session conflict detected for user ${user?.id}. Device may be compromised.`
+          `Session conflict detected for user ${user.id}. Device may be compromised.`
         );
         const conflictUrl = request.nextUrl.clone();
         conflictUrl.pathname = "/session-conflict";

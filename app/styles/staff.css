@@ -7119,3 +7119,55 @@ button.sm-set-row:disabled {
   background: var(--sm-alarm);
   color: var(--paper);
 }
+
+/* A /mobile screen loading (app/mobile/loading.tsx) */
+.sm-loading {
+  gap: 14px;
+  padding: calc(env(safe-area-inset-top, 0px) + 18px) var(--sm-gutter) 0;
+  box-sizing: border-box;
+}
+.sm-loading-kicker {
+  width: 130px;
+  height: 14px;
+  border-radius: 7px;
+}
+.sm-loading-title {
+  width: 60%;
+  height: 36px;
+  border-radius: 12px;
+}
+.sm-loading-hero {
+  height: 220px;
+  margin-top: 8px;
+  border-radius: 22px;
+}
+.sm-loading-row {
+  height: 64px;
+}
+
+/* Help: where to find it, and what the marks mean (HelpScreen.tsx) */
+.sm-help-list {
+  margin: 4px 0 10px;
+  overflow: hidden;
+  border: 1px solid var(--sm-card-line);
+  border-radius: 16px;
+  background: var(--sm-card);
+  box-shadow: var(--sm-shadow-card);
+}
+.sm-help-list > div {
+  padding: 11px 16px;
+}
+.sm-help-list > div + div {
+  border-top: 1px solid var(--sm-sep);
+}
+.sm-help-list dt {
+  font-size: 16px;
+  line-height: 21px;
+  font-weight: 800;
+  color: var(--sm-ink);
+}
+.sm-help-list dd {
+  margin: 2px 0 0;
+  font-size: 15px;
+  line-height: 21px;
+}

@@ -7,6 +7,7 @@ import Screen from "./ui/Screen";
 import { AvatarFace, Card, ProgressBar, Row, RowList, Section } from "./ui/parts";
 import { FlameIcon } from "./ui/icons";
 import AiCoachWidget from "./progress/AiCoachWidget";
+import SignOutGroup from "./SignOutGroup";
 import { useMobileSession } from "../_lib/mobile-session-context";
 import { useTrainingProgress } from "../_lib/use-training-progress";
 import { useGetToken } from "../_lib/use-staff";
@@ -160,6 +161,8 @@ export default function ProgressScreen() {
           <Row href="/mobile/help?from=me" icon={CircleHelp} label="Help and support" sub="How the app works, report a problem" />
         </RowList>
       </Section>
+
+      <SignOutGroup />
 
       {/* Keeps the last row clear of the AI Coach button. */}
       <div className="sm-me-foot" aria-hidden="true" />
