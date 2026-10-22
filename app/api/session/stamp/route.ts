@@ -15,7 +15,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // V4 priority-1 fix (2026-08-21): only called from login/session-conflict
+    // V4 priority-1 fix (2026-08-21): only called from the login
     // pages, not polled — 10/min per user (not per IP: a team signing in on
     // venue Wi-Fi shares one address) is generous headroom for
     // legitimate retries while closing the previously-unrated gap.

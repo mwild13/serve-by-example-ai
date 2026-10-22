@@ -96,7 +96,7 @@ Server component wrapping the whole tree. Mirrors `app/dashboard/page.tsx`'s gat
 4. Seed `MobileSessionProvider` with a value object (token, tier, allowed modules, venue membership state, etc.) and wrap children in `TrainingProgressProvider`.
 5. Sets a locked viewport (`maximumScale: 1, userScalable: false, viewportFit: "cover"`) scoped to this route segment only — deliberately not applied site-wide, since marketing pages need pinch-zoom for WCAG 1.4.4 and this app-shell tree doesn't.
 
-One-device session displacement is enforced in `middleware.ts`, not in this layout — `/mobile` is explicitly included in that gate's path check (`isMobile = path.startsWith("/mobile")`) alongside `/dashboard`, so a displaced session can't browse mobile screens unchecked.
+One-device session displacement is enforced in `middleware.ts`, not in this layout — `/mobile` is explicitly included in that gate's path check (`isMobile = path.startsWith("/mobile")`) alongside `/dashboard`, so a displaced session can't browse mobile screens unchecked. The newest sign-in wins: a device whose `sbe_session_id` no longer matches is signed out and sent to `/login?signedout=elsewhere`.
 
 ### The staff data cache (`lib/staff-cache.ts`, `_lib/use-staff.ts`)
 `MobileSessionProvider` makes the signed-in person the owner of the staff desktop's cache, so mobile screens use the same `useStaffData()` loaders (`lib/staff-data.ts`): the module list, shift streak and team week load once and a return visit paints at once. `useGetToken()` gives the loaders a stable token getter; `useShiftStreak()` feeds the gold chip on every screen's avatar.

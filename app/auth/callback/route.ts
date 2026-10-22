@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
+import { generateSessionId, stampSession } from "@/lib/session";
+import { isMobilePhoneUserAgent } from "@/lib/user-agent";
+
+// The one-device session cookie, as /api/session/stamp sets it.
+const SESSION_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
@@ -52,7 +57,12 @@ export async function GET(request: NextRequest) {
           .select("onboarding_completed")
           .eq("id", data.user.id)
           .single();
-        redirectTo = profile?.onboarding_completed ? "/dashboard" : "/onboarding";
+        // A phone goes straight to the mobile app, which middleware.ts
+        // would otherwise do with one more redirect. Not back from Stripe:
+        // /dashboard confirms the payment first.
+        const phone = isMobilePhoneUserAgent(request.headers.get("user-agent") ?? "");
+        const staffHome = phone && !finalSessionId ? "/mobile/home" : "/dashboard";
+        redirectTo = profile?.onboarding_completed ? staffHome : "/onboarding";
       }
 
       if (finalSessionId) {
@@ -68,7 +78,14 @@ export async function GET(request: NextRequest) {
         redirectTo += `${redirectTo.includes("?") ? "&" : "?"}signup=google`;
       }
 
-      return NextResponse.redirect(`${origin}${redirectTo}`);
+      // Signing in makes this the account's one active device, as the
+      // password sign-in does through /api/session/stamp. Without it a Google
+      // sign-in had no session cookie, so drills and quizzes refused it.
+      const sessionId = generateSessionId();
+      await stampSession(createSupabaseAdminClient(), data.user.id, sessionId);
+      const response = NextResponse.redirect(`${origin}${redirectTo}`);
+      response.headers.append("Set-Cookie", `sbe_session_id=${sessionId}; Path=/; Max-Age=${SESSION_COOKIE_MAX_AGE}; HttpOnly; SameSite=Lax`);
+      return response;
     }
   }
 

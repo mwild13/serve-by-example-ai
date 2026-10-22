@@ -146,7 +146,7 @@ Cross-cutting auth/utility routes not owned by a single domain doc:
 | `/login` | Auth login |
 | `/auth/callback` | Supabase OAuth callback |
 | `/onboarding` | New user onboarding flow |
-| `/session-conflict` | One-device enforcement conflict page |
+| `/session-conflict` | Retired page; forwards to `/login?signedout=elsewhere`. One device at a time: the newest sign-in wins, and `middleware.ts` signs an older device out to `/login` with a line saying why |
 | `/reset-password` | Password reset |
 | `/geo-block` | Geo-restricted access page (see `docs/MARKETING_SITE.md` for a routing nuance — the geo-block middleware's actual redirect target is `/restricted`, not this page) |
 | `/restricted` | General access-denied page |

@@ -121,7 +121,7 @@ export async function requireManager(req: Request, opts: RequireManagerOptions):
   if (browserSessionId) {
     const session = await validateSession(admin, user.id, browserSessionId);
     if (!session.valid) {
-      return deny(409, "SESSION_CONFLICT", "Session conflict detected. Please resume this device.");
+      return deny(409, "SESSION_CONFLICT", "You're signed in on another device. Sign in again to use this one.");
     }
   }
 

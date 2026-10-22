@@ -52,6 +52,8 @@ function LoginPageContent() {
   const checkoutSuccess = searchParams.get("checkout") === "success";
   const stripeSessionId = searchParams.get("session_id");
   const oauthError = searchParams.get("error") === "oauth-error";
+  // middleware.ts signed this device out: the account signed in elsewhere.
+  const signedOutElsewhere = searchParams.get("signedout") === "elsewhere";
   // Carried forward from "Try Free for 14 Days" CTAs (HeroSection.tsx,
   // app/(marketing)/pricing/page.tsx) for a logged-out visitor — this page previously
   // never read these, so clicking Start Trial while logged out silently
@@ -83,7 +85,9 @@ function LoginPageContent() {
   const [error, setError] = useState(
     oauthError ? "Google sign-in failed. Please try again or use email below." : ""
   );
-  const [success, setSuccess] = useState("");
+  const [success, setSuccess] = useState(
+    signedOutElsewhere ? "You were signed out here because your account was signed in on another device. Sign in to use it on this one." : ""
+  );
 
   const isSignUp = mode === "sign-up";
   const isForgotPassword = mode === "forgot-password";

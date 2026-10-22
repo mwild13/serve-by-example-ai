@@ -113,7 +113,7 @@ export async function POST(req: Request) {
     const admin = createSupabaseAdminClient();
     const sessionValidation = await validateSession(admin, user.id, browserSessionId);
     if (!sessionValidation.valid) {
-      return NextResponse.json({ error: "Session conflict detected. Please resume this device.", code: "SESSION_CONFLICT" }, { status: 409 });
+      return NextResponse.json({ error: "You're signed in on another device. Sign in again to use this one.", code: "SESSION_CONFLICT" }, { status: 409 });
     }
 
     const windowStart = new Date(Date.now() - DRILL_START_WINDOW_MINUTES * 60_000).toISOString();

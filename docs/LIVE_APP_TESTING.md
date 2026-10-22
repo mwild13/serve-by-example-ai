@@ -81,7 +81,7 @@ When the agent is finished, stop the app with `Ctrl + C` and close the terminal.
 - **Load the saved session** (`tests/e2e/.auth/state.json`) as Playwright's `storageState`. Never print, read out or copy its contents: it is a live sign-in.
 - **Check each changed screen** at 390 by 844 (the owner's iPhone 13 Pro) and at 360 and 430 wide. Check light and dark: dark mode is the `sm-dark` class on `<html>`, or the Settings > Appearance switch.
 - **Keep screenshots in `.playwright-mcp/`**, which is gitignored.
-- **If a page sends you to `/login` or `/session-conflict`,** the session has ended. Ask the owner to run step 5 of section 6 again.
+- **If a page sends you to `/login`** (with "signed in on another device" when another sign-in replaced it), the session has ended. Ask the owner to run step 5 of section 6 again.
 
 ## 8. Against a deployed preview
 

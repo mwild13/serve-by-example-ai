@@ -69,7 +69,7 @@ export async function voiceAccess(
   const browserSessionId = getCookieValue(req, "sbe_session_id");
   if (!browserSessionId) return refuse("Missing active session. Please sign in again.", "SESSION_REQUIRED", 401);
   const sessionValidation = await validateSession(admin, user.id, browserSessionId);
-  if (!sessionValidation.valid) return refuse("Session conflict detected. Please resume this device.", "SESSION_CONFLICT", 409);
+  if (!sessionValidation.valid) return refuse("You're signed in on another device. Sign in again to use this one.", "SESSION_CONFLICT", 409);
   const access = await resolveAccess(admin, user.id, user.email ?? "");
   if (!hasLiveGuest(access) && brief.id !== TASTER_GUEST_ID) {
     return refuse("Live Guest is on venue plans. Ask your venue about Serve By Example, or see the plans.", "PLAN_REQUIRED", 403);

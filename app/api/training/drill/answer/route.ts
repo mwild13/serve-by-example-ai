@@ -94,7 +94,7 @@ export async function POST(req: Request) {
         .maybeSingle(),
     ]);
     if (!sessionValidation.valid) {
-      return NextResponse.json({ error: "Session conflict detected. Please resume this device.", code: "SESSION_CONFLICT" }, { status: 409 });
+      return NextResponse.json({ error: "You're signed in on another device. Sign in again to use this one.", code: "SESSION_CONFLICT" }, { status: 409 });
     }
     if (error) throw error;
     const drill = data as DrillRow | null;

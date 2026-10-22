@@ -308,11 +308,19 @@ export async function middleware(request: NextRequest) {
     return clearStaleAuthCookies(syncRedirect(loginUrl));
   }
 
-  // If already signed in and visiting login, send straight to dashboard.
+  // Already signed in and visiting sign-in: straight into the app, a phone
+  // straight to the mobile app.
+  // A staff join link keeps its code and goes through /dashboard, which
+  // routes it on (to mobile Settings on a phone).
   if (path === "/login" && user) {
-    const dashboardUrl = request.nextUrl.clone();
-    dashboardUrl.pathname = "/dashboard";
-    return clearStaleAuthCookies(syncRedirect(dashboardUrl));
+    const appUrl = request.nextUrl.clone();
+    if (appUrl.searchParams.has("join")) {
+      appUrl.pathname = "/dashboard";
+    } else {
+      appUrl.pathname = isPhone ? "/mobile/home" : "/dashboard";
+      appUrl.search = "";
+    }
+    return clearStaleAuthCookies(syncRedirect(appUrl));
   }
 
   // ── Session displacement check for protected routes ────────
@@ -332,16 +340,20 @@ export async function middleware(request: NextRequest) {
 
       const storedSessionId = profile?.current_session_id;
 
-      // If there's a stored session and it doesn't match, redirect to conflict page
-      // Log session conflicts for security monitoring
+      // The account has signed in on another device since: the newest
+      // sign-in wins. Sign this device out (its refresh token is revoked and
+      // the auth cookies cleared) and show the sign-in page with a line
+      // saying why. Signing in again makes this the active device.
       if (storedSessionId && storedSessionId !== browserSessionId) {
-        console.warn(
-          `Session conflict detected for user ${user.id}. Device may be compromised.`
-        );
-        const conflictUrl = request.nextUrl.clone();
-        conflictUrl.pathname = "/session-conflict";
-        conflictUrl.searchParams.set("returnTo", path);
-        return clearStaleAuthCookies(syncRedirect(conflictUrl));
+        console.warn(`Signed in elsewhere: signing out an older device for user ${user.id}.`);
+        await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
+        const loginUrl = request.nextUrl.clone();
+        loginUrl.pathname = "/login";
+        loginUrl.search = "";
+        loginUrl.searchParams.set("signedout", "elsewhere");
+        const signedOut = syncRedirect(loginUrl);
+        signedOut.cookies.delete("sbe_session_id");
+        return clearStaleAuthCookies(signedOut);
       }
     }
   }
