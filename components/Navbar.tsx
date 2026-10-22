@@ -268,8 +268,10 @@ export default function Navbar({
 
           <div className="nav-right">
             {authEmail ? (
-              <Link href="/dashboard" className="nav-logged-in" title={authEmail}>
-                Go to Dashboard →
+              // Same Login button, filled green. /login sends a signed-in
+              // visitor straight on to the app (middleware.ts).
+              <Link href="/login" className="nav-login-btn nav-login-btn--in" title={`Signed in as ${authEmail}`}>
+                Login
               </Link>
             ) : showActions ? (
               <div className="nav-actions" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
