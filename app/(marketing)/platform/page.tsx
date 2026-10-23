@@ -37,8 +37,8 @@ const CONSOLE_ROWS: MediaRow[] = [
     title: "Who is ready for tonight",
     body: "A live dashboard that shows staff performance, training completion, upsell trends, and venue health, all in one view.",
     image: {
-      src: "/shots/console-staff.webp",
-      alt: "Serve By Example manager console: the staff list with each person's training progress and whether they are ready for the floor",
+      src: "/shots/console-overview.webp",
+      alt: "Serve By Example manager console Overview: shift readiness, staff trained this week, RSA and FSS status, and daily training over the last 14 days",
       width: 2000,
       height: 1250,
     },

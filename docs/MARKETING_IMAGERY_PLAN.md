@@ -71,7 +71,7 @@ Made by `scripts/device-mockups.mjs`, no stock files.
 
 - **Frames:** phone and laptop frames are drawn in CSS by the script and rendered with a transparent background. No credit line, sharp at any size.
 - **Screens:** `node scripts/device-mockups.mjs capture` against `npm run dev`. Staff screens use the QA session (`docs/LIVE_APP_TESTING.md`). Console screens and Live Guest use a manager session saved by `node scripts/device-mockups.mjs login-manager` to `tests/e2e/.auth/manager-state.json` (gitignored), since the QA account has no console and its one free Live Guest conversation is spent. Phone at 390 x 797 at 3x (the script draws the iPhone status bar), desktop at 1440 x 900 at 2x.
-- **What is left out on purpose:** the QA account has no training history and the demo venue's training is over 30 days old, so staff progress screens and the console Overview (which show zeros) are not used. Retake those once there is recent activity.
+- **Recent activity (set 2026-10-24):** the QA account has a training history (15 of 40 modules mastered, 3 on the go, 5 Live Guest passes, 7 of 10 challenges, a 16-shift streak on Wednesday to Saturday, 3 Saturday Rush shifts), and the 75 staff of the three demo venues have last-active dates and 14 days of `training_activity_daily`. Both age: past about two weeks the Overview's "Trained this week" and Daily training card empty out again, so run the demo-venue part of `scripts/mockup-seed.sql` again before a retake.
 - **Names:** the script swaps the QA account's name for "Sam Taylor" and hides the demo staff's internal email addresses just before each capture, so no fake records go into the database and no platform numbers change.
 - **Live Guest:** the reply is typed in and not sent, so no AI call is made and a local server without an OpenAI key works.
 - **Output:** `node scripts/device-mockups.mjs compose` writes WebP files to `public/shots/`: `hero-devices`, `phone-*` (framed) and `console-*` / `desktop-*` (plain; the page's `.sbe-shot` class adds the radius and shadow).
@@ -81,7 +81,8 @@ Made by `scripts/device-mockups.mjs`, no stock files.
 | File | Used on |
 |---|---|
 | `hero-devices.webp` | Home hero: console Staff list on a laptop, Live Guest and Home on phones |
-| `console-staff.webp` | /platform (Overview row), /login |
+| `console-overview.webp` | /platform (Overview row) |
+| `console-staff.webp` | /login |
 | `console-gaps.webp` | Home (Manager view), franchise-systems |
 | `console-gaps-compact.webp` | /how-it-works |
 | `console-teams.webp` | pub-groups |
@@ -91,9 +92,11 @@ Made by `scripts/device-mockups.mjs`, no stock files.
 | `desktop-today.webp` | Home (Staff view) |
 | `desktop-modules.webp` | Home, /platform |
 | `phone-home.webp` | Home |
-| `phone-learn.webp` | /how-it-works |
+| `phone-progress.webp` | /how-it-works |
+| `phone-learn.webp` | Not placed (replaced on /how-it-works 2026-10-24) |
 | `phone-cocktails.webp` | /platform, fine-dining |
 | `phone-challenge-*.webp` (3) | /platform/challenges |
+| `desktop-progress.webp` | Not placed yet (made 2026-10-24) |
 
 When the venue photos arrive, the hero mockup goes over `home-hero.jpg` as in section 5.
 

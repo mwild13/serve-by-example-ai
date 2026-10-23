@@ -70,13 +70,14 @@ async function talkToGuest(page) {
 
 // name: [session, viewport, path, options]. Options: dark (mobile dark mode),
 // act (steps to run on the page before the capture).
-// The QA account has no training history and the demo venue's training is over
-// 30 days old, so screens that would show zeros (staff progress, console
-// overview) are left out in favour of ones with real content. Live Guest uses
-// the manager session because the QA account's one free conversation is spent.
+// The progress and Overview screens need recent training: the QA account and
+// the demo venues were given a history on 2026-10-24 (docs/MARKETING_IMAGERY_PLAN.md
+// section 4). Live Guest uses the manager session because the QA account's one
+// free conversation is spent.
 const CAPTURES = {
   "mobile-home": ["staff", PHONE, "/mobile/home", { act: dismissNudge }],
   "mobile-learn": ["staff", PHONE, "/mobile/learn"],
+  "mobile-progress": ["staff", PHONE, "/mobile/progress"],
   "mobile-live-guest": ["manager", PHONE, "/mobile/live-guest", { act: talkToGuest }],
   "mobile-cocktails": ["staff", PHONE, "/mobile/cocktails"],
   "mobile-challenge-sort": ["staff", PHONE, "/mobile/challenge/three-drink-order"],
@@ -84,7 +85,9 @@ const CAPTURES = {
   "mobile-challenge-pairs": ["staff", PHONE, "/mobile/challenge/right-glass"],
   "desktop-today": ["staff", DESKTOP, "/dashboard?nav=home"],
   "desktop-modules": ["staff", DESKTOP, "/dashboard?nav=module"],
-  "console-staff": ["manager", DESKTOP, "/management/dashboard?tab=staff"],
+  "desktop-progress": ["staff", DESKTOP, "/dashboard?nav=progress"],
+  "console-overview": ["manager", DESKTOP, "/management/dashboard?tab=overview"],
+  "console-staff":["manager", DESKTOP, "/management/dashboard?tab=staff"],
   "console-gaps": ["manager", DESKTOP, "/management/dashboard?tab=predictive"],
   "console-gaps-compact": ["manager", COMPACT, "/management/dashboard?tab=predictive"],
   "console-teams": ["manager", DESKTOP, "/management/dashboard?tab=teams"],
@@ -98,6 +101,7 @@ const CAPTURES = {
 // "hero" (laptop with two phones in front).
 const COMPOSE = {
   "hero-devices": { kind: "hero", laptop: "console-staff", phones: ["mobile-live-guest", "mobile-home"] },
+  "console-overview": { kind: "screen", src: "console-overview" },
   "console-staff": { kind: "screen", src: "console-staff" },
   "console-gaps": { kind: "screen", src: "console-gaps" },
   "console-gaps-compact": { kind: "screen", src: "console-gaps-compact" },
@@ -107,8 +111,10 @@ const COMPOSE = {
   "console-coach": { kind: "screen", src: "console-coach" },
   "desktop-today": { kind: "screen", src: "desktop-today" },
   "desktop-modules": { kind: "screen", src: "desktop-modules" },
+  "desktop-progress": { kind: "screen", src: "desktop-progress" },
   "phone-home": { kind: "phone", src: "mobile-home" },
   "phone-learn": { kind: "phone", src: "mobile-learn" },
+  "phone-progress": { kind: "phone", src: "mobile-progress" },
   "phone-cocktails": { kind: "phone", src: "mobile-cocktails" },
   "phone-challenge-sort": { kind: "phone", src: "mobile-challenge-sort" },
   "phone-challenge-choice": { kind: "phone", src: "mobile-challenge-choice" },
@@ -121,9 +127,11 @@ async function capture(baseUrl, only) {
   mkdirSync(RAW, { recursive: true });
   const browser = await chromium.launch();
   const sessions = { staff: STAFF_STATE, manager: MANAGER_STATE };
+  const signedOut = new Set();
 
   for (const [name, [session, viewport, route, opts = {}]] of Object.entries(CAPTURES)) {
     if (only.length && !only.includes(name)) continue;
+    if (signedOut.has(session)) continue;
     if (!existsSync(sessions[session])) {
       console.log(`skip ${name}: no ${session} session saved`);
       continue;
@@ -138,9 +146,11 @@ async function capture(baseUrl, only) {
     const page = await context.newPage();
     await page.goto(baseUrl + route, { waitUntil: "load" });
     if (new URL(page.url()).pathname.startsWith("/login")) {
-      console.log(`stop: ${session} session is signed out. Run step 5 of docs/LIVE_APP_TESTING.md section 6 again.`);
+      const fix = session === "staff" ? "run step 5 of docs/LIVE_APP_TESTING.md section 6 again" : "run login-manager again";
+      console.log(`skip ${session} screens: the session is signed out, ${fix}.`);
+      signedOut.add(session);
       await context.close();
-      break;
+      continue;
     }
     await page.waitForLoadState("networkidle").catch(() => {});
     await page.waitForTimeout(1200);
@@ -307,6 +317,11 @@ async function loginManager(baseUrl) {
     console.log(`The browser is on ${page.url()}, not the Manager Console. Open the console there and run this again.`);
     await browser.close();
     return;
+  }
+  // Live Guest refuses a session without the one-device cookie, which a
+  // sign-in does not always leave behind, so stamp one if it is missing.
+  if (!(await context.cookies()).some((c) => c.name === "sbe_session_id")) {
+    await page.request.post(`${baseUrl}/api/session/stamp`);
   }
   await context.storageState({ path: MANAGER_STATE });
   console.log("Manager session saved. You can close the browser.");

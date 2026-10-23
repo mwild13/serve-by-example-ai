@@ -220,8 +220,8 @@ export default function HowItWorksPage() {
                 height: 1288,
               },
               phone: {
-                src: "/shots/phone-learn.webp",
-                alt: "Serve By Example staff mobile app: the Learn screen with the next module and the module library",
+                src: "/shots/phone-progress.webp",
+                alt: "Serve By Example staff mobile app: the Me screen with modules mastered, shift streak, Live Guest conversations and mastery by area",
                 width: 836,
                 height: 1744,
               },
