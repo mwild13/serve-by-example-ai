@@ -42,7 +42,7 @@ const CONTENT: SolutionContent = {
   shot: {
     tag: "In the product",
     title: "Compliance and certification tracked",
-    body: "RSA modules, allergen awareness, and brand standards are tracked automatically. F&B managers receive alerts before any certification lapses.",
+    body: "RSA modules, allergen awareness, and brand standards are tracked automatically. F&B managers see every RSA and food safety certificate with its expiry date, so nothing lapses unnoticed.",
     image: {
       src: "/shots/console-compliance.webp",
       alt: "Serve By Example manager console: RSA and food safety certificates for every staff member, with expiry dates",

@@ -117,8 +117,8 @@ const MOBILE_ROW: MediaRow = {
   points: [
     "Scenarios fully functional on a 6-inch screen",
     "AI Coach accessible with a single tap",
-    "Progress badges shareable to LinkedIn",
-    "Managers get push alerts for team milestones",
+    "Shift reminders sent straight to their phone",
+    "Keeps saving progress through patchy Wi-Fi",
   ],
   action: { label: "View pricing", href: "/membership" },
   image: {

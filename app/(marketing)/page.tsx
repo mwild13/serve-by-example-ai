@@ -118,7 +118,7 @@ const PLANS = [
   { tier: "Starter", name: "Pro", desc: "Full access to all 40 modules, mixed drills and progress analytics. For staff investing in their craft." },
   { tier: "Venue Pro", name: "Boutique", desc: "Full manager console, team analytics, compliance tracking, and up to 15 staff seats for one venue." },
   { tier: "Group", name: "Commercial", desc: "Up to 35 staff across your team, multi-venue health scores, and group-wide performance analytics." },
-  { tier: "Enterprise", name: "Enterprise", desc: "Unlimited seats, dedicated account management, custom modules, and white-label options for venue groups." },
+  { tier: "Enterprise", name: "Enterprise", desc: "More than 35 staff or a large group? Book a call and we'll set up seats and venues to fit." },
 ];
 
 // ── Page ──────────────────────────────────────────────────────────────────────
