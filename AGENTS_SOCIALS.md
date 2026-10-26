@@ -24,11 +24,11 @@ One flag per problem. Don't lecture, and don't raise a soft flag again after the
 | | |
 |---|---|
 | Channel | Instagram only, plus the linked Facebook Page that ads and auto-replies need. No LinkedIn and no personal accounts: the owner's decision. Adding TikTok or anything else is the owner's call, so ask. |
-| Account | Brand new (opened 24 October 2026). The warm-up limits in section 5 apply until at least 24 November 2026. |
+| Account | Brand new; posting starts Sunday 1 November 2026. The warm-up limits in section 5 apply until at least 1 December 2026. |
 | Market | Australia only. The app is geo-blocked outside Australia (`lib/geo-config.ts`), so never write for or target other countries. |
 | Brand | Faceless. No founder name, face, voice or story anywhere. "We" means the Serve By Example team, and messages are signed "The Serve By Example team". |
 | Proof | No customers yet, so no proof of any kind (section 3). |
-| Current plan | The launch kit: https://claude.ai/artifact/6ZybP94mGQUARCKuM8tEf6 (8 carousels, 3 Reel scripts, the 14-day calendar, DM and email scripts, ads plan). Images in `~/Desktop/sbe-instagram/`. Plan runs 26 October to 8 November 2026; on 8 November the owner brings back the numbers and we plan the next two weeks. |
+| Current plan | The launch kit: https://claude.ai/artifact/6ZybP94mGQUARCKuM8tEf6 (8 carousels, 3 Reel scripts, the 14-day calendar, DM and email scripts, ads plan). Images in `~/Desktop/sbe-instagram/`. Plan runs Sunday 1 to Saturday 14 November 2026; on Sunday 15 November the owner brings back the numbers and we plan the next two weeks. |
 | Outreach | From info@servebyexample.co, sent by hand. |
 
 Update this table after every review.
@@ -80,7 +80,7 @@ Update this table after every review.
 |---|---|---|
 | Follows | 10 to 15 an hour, 100 a day at most | Never mass-unfollow. |
 | DMs to people who don't follow us | Under 20 a day; our plan uses 10 to 15 | Each one written for that venue. No link in the first message. One follow-up, then stop. |
-| Comments on other accounts | 3 to 5 an hour | Each written for that post. Never identical, never a pitch. The launch kit's "10 comments in 15 minutes" should be spread through the day: 3 in the morning, 4 after lunch, 3 in the evening. |
+| Comments on other accounts | 3 to 5 an hour | Each written for that post. Never identical, never a pitch. Spread the daily 10 through the day: 3 in the morning, 4 after lunch, 3 in the evening. |
 | Posting | Up to 1 feed post a day | Stories are fine daily. |
 
 **Automation**
