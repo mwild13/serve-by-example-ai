@@ -27,7 +27,7 @@ Every route lives under `app/mobile/<slug>/page.tsx`, and every `page.tsx` follo
 | `/mobile/live-guest` | `LiveGuestScreen.tsx` | Live Guest conversations (`components/live-guest/`) |
 | `/mobile/rush` | `RushScreen.tsx` | Saturday Rush (`components/rush/`) |
 | `/mobile/challenges` | `ChallengesScreen.tsx` | All ten Challenges, see `CHALLENGES.md` |
-| `/mobile/recipe-order`, `/memory-test`, `/match-pairs`, `/menu-audit`, `/speed-round` | Their own screens | Challenges 1 to 5 |
+| `/mobile/recipe-order`, `/memory-test`, `/match-pairs`, `/menu-audit`, `/speed-round` | Their own screens | Challenges 1 to 5. Recipe Order's drinks drag into order by their grip, or move with the arrows (`lib/use-drag-reorder.ts`) |
 | `/mobile/challenge/<slug>` | `ChallengeScreen.tsx` | Challenges 6 onwards, on the shared game |
 | `/mobile/cocktails` | `CocktailLibraryScreen.tsx` | Cocktail library: square photos two to a row (Most common, then by style), search and style chips; a cocktail opens in a bottom sheet (`ui/Sheet.tsx`) kept in `?cocktail_id=`, so Home's cards open it and Back closes it. `?from=home` sets the back button |
 | `/mobile/knowledge` | `KnowledgeBaseScreen.tsx` | Knowledge base, 101 cards as rows by topic, with search and topic chips; a card opens in a bottom sheet. `?from=home` sets the back button |

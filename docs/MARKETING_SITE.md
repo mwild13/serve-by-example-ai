@@ -72,6 +72,8 @@ These are not interchangeable — don't use "14-day" copy from one context to ju
 
 "Manager Console" is the correct term for **marketing copy** (this doc's scope, `app/(marketing)` routes). It does still leak as "Mission Control" in a few real user-facing strings on the authenticated product surface (`/management/dashboard`'s `<title>`, its error page, some role-picker option labels) — that's a product-surface naming drift, not a marketing-copy violation, and is documented in `docs/MANAGER_CONSOLE.md`'s Known Gaps, not here.
 
+**Applicant Testing claims** (`docs/APPLICANT_TESTING.md`). Say what it does today: a test of about 30 minutes for bar, floor, kitchen and management applicants, built from the same training staff use, with every answer in the applicant's own words, how each answer was produced, and an AI summary with interview questions. Venue plans only: 10 tests a month on Venue (Boutique), 40 on Group (Commercial). Never claim it predicts performance, reduces turnover or catches cheating, and never call the signals cheat detection: they are things to ask about. It doesn't decide who to hire; the manager does. No customer results until there are real ones.
+
 ## 4. Component Usage
 
 **`components/marketing/`** — what every marketing page is built from. `docs/Pages-Redesign.md` section 4.3 is the full reference.

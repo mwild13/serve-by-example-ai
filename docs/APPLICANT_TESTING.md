@@ -1,6 +1,6 @@
 # Applicant Testing: Serve By Example
 
-Companion to `CLAUDE.md`, not a replacement. Where the two conflict, `CLAUDE.md` wins. Status on 2026-10-26: **Phases 1 to 6 built** (migration `20261104_applicant_testing.sql`, run 2026-10-26; engine, console API, emails, the applicant's pages, AI marking and the summary). Phases 7 and 8 done too: plan cards, comparison table and roadmap list it, and the privacy policy covers applicants. Not yet: tried end to end on the preview, and the kitchen and management content. Bar and floor written scenarios approved 2026-10-26 (`docs/Applicant Testing/written-batch-1.md`), so **bar and floor tests can be sent**. No track can be sent until its content exists (§6a). This file is the spec each build phase works from. Update it as each phase lands.
+Companion to `CLAUDE.md`, not a replacement. Where the two conflict, `CLAUDE.md` wins. **Status on 2026-10-27: finished.** All four roles can be sent, both migrations are run, and the owner tested it end to end on `preview/applicant-testing` and signed it off. Release to production is the open step. What was built and decided, and why: `docs/handoff/2026-10-week4-applicant-testing-handoff.md`. Keep this file current when anything here changes.
 
 ## 1. What it is
 
@@ -152,22 +152,14 @@ Quizzes never ask True/False (a coin toss). The role quiz must mix at least 3 so
 
 **Known limit:** the browser's paste and away-from-page counts can be blocked by a determined applicant. The server's time per answer can't. That is why the report presents them as signals to ask about, never as proof.
 
-## 9. Build phases
+## 9. Changing it
 
-0. Spec (this file) and content for owner review. Spec done; content not started.
-1. Migration. Run 2026-10-26 and checked.
-2. Test engine in `lib/applicant/`, unit tested. Done.
-3. Console API and emails. Done.
-4. Applicant pages and public API. Done.
-5. AI marking of written answers and the written summary. Done. Not yet tried against the live model.
-6. Console tab. Done: the Hiring group, `ApplicantTestingPanel.tsx`.
-7. Plan allowances, pricing and features copy. Done: `PricingPlans.tsx`, `CompareMatrix.tsx`, `/roadmap`.
-8. Privacy policy, security review. Done (§8, §8a).
-9. Release.
+- **Allowances:** `lib/applicant/allowance.ts`, and the plan cards and comparison table (`components/marketing/PricingPlans.tsx`, `components/ui/CompareMatrix.tsx`) say the same numbers.
+- **Signal thresholds:** `SIGNAL_THRESHOLDS` in `lib/applicant/integrity.ts`.
+- **Section sizes and weights:** `SECTIONS` in `lib/applicant/blueprint.ts`. Weights add to 100.
+- **Content:** add or edit in `lib/applicant/questions/`, with `reviewed: false` until the owner approves; write a review sheet with `npm run applicant:review`. Never reuse an item id. `lib/applicant/content.test.ts` checks every role can still be dealt a full test.
+- **AI rules:** `lib/applicant/marking.ts` and `summary.ts`. Keep the fairness rules and never let either see the answer signals.
 
-Full plan with reuse notes: `/Users/mitchellwildman/.claude/plans/claude-someone-came-polymorphic-engelbart.md`.
+## 10. Decisions
 
-## 10. Open decisions
-
-- Monthly allowance numbers (suggested Boutique 10, Commercial 40, trial 2).
-- Final nav and page wording ("Applicant Testing" or "New Applicant Testing").
+Settled; the reasons are in the handoff. Allowances Boutique 10, Commercial 40, Enterprise 200, trial 2. The tab is "Applicant Testing" in a "Hiring" group. No Live Guest.
