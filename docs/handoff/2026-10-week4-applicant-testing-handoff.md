@@ -5,7 +5,7 @@ Work from 2026-10-26 to 2026-10-27. The earlier week 4 work (2026-10-17 to 18) i
 ## Status
 
 - **Built and finished.** All four roles (bar, floor, kitchen, management) can be sent. The owner tested every part on the preview on 2026-10-27 and signed it off.
-- **Where:** `preview/applicant-testing` (https://preview-applicant-testing.serve-by-example-ai.pages.dev), the same commits as local `main`. **Not on production yet:** release is pushing `main` to `origin/main`.
+- **Released to production on 2026-10-27** (`main` at `33e4c4a`, pushed after CI passed on `preview/applicant-testing`).
 - **Migrations, both run on production and checked:** `20261104_applicant_testing.sql` (tables, functions, the 12 month clean-up) and `20261105_applicant_marking_cron.sql` (the 5 minute marking sweep). Until release, the sweep's calls to production are a harmless 404.
 - **Checks on the last commit:** 463 unit tests, typecheck, lint (3 old warnings, none new), CSS token and unused-class checks, knip, production build, CI on the preview.
 
@@ -101,6 +101,5 @@ About 9,000 input and 1,000 output tokens a test, measured from the prompts: abo
 
 ## Open items (in `To_do_list.md`)
 
-- Release to production.
 - Marketing pages and marketing plan artifacts for Applicant Testing.
 - An end to end test of the applicant flow.

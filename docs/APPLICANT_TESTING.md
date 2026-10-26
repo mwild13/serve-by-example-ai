@@ -1,6 +1,6 @@
 # Applicant Testing: Serve By Example
 
-Companion to `CLAUDE.md`, not a replacement. Where the two conflict, `CLAUDE.md` wins. **Status on 2026-10-27: finished.** All four roles can be sent, both migrations are run, and the owner tested it end to end on `preview/applicant-testing` and signed it off. Release to production is the open step. What was built and decided, and why: `docs/handoff/2026-10-week4-applicant-testing-handoff.md`. Keep this file current when anything here changes.
+Companion to `CLAUDE.md`, not a replacement. Where the two conflict, `CLAUDE.md` wins. **Status on 2026-10-27: finished.** All four roles can be sent, both migrations are run, the owner tested it end to end on `preview/applicant-testing` and signed it off, and it was released to production on 2026-10-27. What was built and decided, and why: `docs/handoff/2026-10-week4-applicant-testing-handoff.md`. Keep this file current when anything here changes.
 
 ## 1. What it is
 
