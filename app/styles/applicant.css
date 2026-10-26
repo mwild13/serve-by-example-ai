@@ -1,0 +1,326 @@
+/* ══════════════════════════════════════════════════════════════
+   APPLICANT TEST: /apply/[token] (docs/APPLICANT_TESTING.md §2)
+   Loaded only by app/apply/layout.tsx. Phone first: one column,
+   16px gutter, 16px inputs (no zoom on iOS), 44px controls.
+   ══════════════════════════════════════════════════════════════ */
+
+.ap-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  padding: 0 16px 48px;
+}
+
+.ap-header {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 0;
+}
+
+.ap-logo {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--line-light);
+}
+
+.ap-brand {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--green-deep);
+}
+
+.ap-main {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.ap-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 28px 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 600px) {
+  .ap-card {
+    padding: 36px 40px;
+  }
+}
+
+.ap-eyebrow,
+.ap-progress {
+  margin: 0 0 12px;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.ap-heading {
+  margin: 0 0 16px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  color: var(--green-deep);
+}
+
+.ap-heading:focus {
+  outline: none;
+}
+
+.ap-heading label {
+  cursor: text;
+}
+
+.ap-subheading {
+  margin: 24px 0 8px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--text);
+}
+
+.ap-text {
+  margin: 0 0 14px;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--text);
+}
+
+.ap-small {
+  margin: 0 0 14px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-soft);
+}
+
+.ap-list {
+  margin: 0 0 8px;
+  padding-left: 20px;
+  line-height: 1.65;
+}
+
+.ap-list li + li {
+  margin-top: 6px;
+}
+
+.ap-notice {
+  margin-top: 24px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--bg-alt);
+  border: 1px solid var(--line-light);
+}
+
+.ap-notice .ap-subheading {
+  margin-top: 0;
+}
+
+.ap-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 44px;
+  padding-top: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ap-check input,
+.ap-option input {
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  flex-shrink: 0;
+  accent-color: var(--green);
+}
+
+.ap-action {
+  margin-top: 24px;
+  min-height: 48px;
+  font-size: 1rem;
+}
+
+.ap-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.ap-error {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--status-error-bg);
+  color: var(--status-error-text);
+  font-size: 0.95rem;
+}
+
+.ap-loading {
+  padding: 40px 0;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* ── Choices ─────────────────────────────── */
+.ap-fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.ap-legend {
+  padding: 0;
+  width: 100%;
+}
+
+.ap-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 44px;
+  margin-top: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.ap-option.is-picked {
+  border-color: var(--green);
+  background: var(--green-light);
+}
+
+.ap-option:focus-within {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+/* ── Ordering ────────────────────────────── */
+.ap-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ap-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 10px 10px 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+}
+
+.ap-step-number {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--green-light);
+  color: var(--green);
+  font-weight: 700;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.ap-step-text {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.45;
+}
+
+.ap-step-moves {
+  display: flex;
+  flex-shrink: 0;
+  gap: 4px;
+}
+
+.ap-move {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--green);
+  cursor: pointer;
+}
+
+.ap-move:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.ap-move:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+/* ── Typed answers ───────────────────────── */
+.ap-number {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ap-input,
+.ap-textarea {
+  width: 100%;
+  font: inherit;
+  font-size: 16px;
+  color: var(--text);
+  background: var(--surface-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+}
+
+.ap-input {
+  max-width: 180px;
+  min-height: 48px;
+}
+
+.ap-textarea {
+  min-height: 180px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.ap-input:focus,
+.ap-textarea:focus {
+  outline: 2px solid var(--green);
+  outline-offset: 1px;
+  border-color: var(--green);
+}
+
+.ap-unit {
+  color: var(--text-soft);
+}
+
+.ap-count {
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

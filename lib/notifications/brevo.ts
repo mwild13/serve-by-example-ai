@@ -121,3 +121,30 @@ export function sendScheduledEmail(
     },
   }, `scheduled_${tag}`);
 }
+
+/**
+ * Sends one transactional email: a message a person's own action caused,
+ * such as an applicant test invite. `senderName` shows in the inbox in place
+ * of "Serve By Example"; the address is always ours. `replyTo` sends replies
+ * to a real person. Returns whether Brevo accepted the message.
+ */
+export function sendTransactionalEmail(
+  apiKey: string,
+  { to, subject, html, tag, senderName, replyTo }: {
+    to: string;
+    subject: string;
+    html: string;
+    tag: string;
+    senderName?: string;
+    replyTo?: { email: string; name?: string };
+  },
+): Promise<boolean> {
+  return brevoPost("smtp/email", apiKey, {
+    sender: { name: senderName ?? fromName(), email: FROM_EMAIL },
+    to: [{ email: to }],
+    subject,
+    htmlContent: html,
+    tags: [tag],
+    ...(replyTo ? { replyTo } : {}),
+  }, `transactional_${tag}`);
+}

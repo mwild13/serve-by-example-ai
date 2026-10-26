@@ -35,7 +35,7 @@ This file is global rules only. Domain-specific architecture, component maps, an
 - Marketing site (public routes, geo-blocking, brand voice, component usage): `docs/MARKETING_SITE.md`; page design standard: `docs/Pages-Redesign.md`
 - Social media (Instagram content, slide graphics, ads, outreach, the rules to pull the owner up on): `AGENTS_SOCIALS.md`; slide template `docs/socials/slide-template.html`, rendered by `scripts/social-render.mjs`
 - Manager Console (data fetching, RBAC, state management): `docs/MANAGER_CONSOLE.md`
-- Applicant Testing (hiring tests emailed to job applicants, planned): `docs/APPLICANT_TESTING.md`
+- Applicant Testing (hiring tests emailed to job applicants, being built): `docs/APPLICANT_TESTING.md`
 - Staff App, web and mobile: training loop, Live Guest, the staff desktop standard (section 8): `docs/STAFF_APP.md`
 - Mobile app (`/mobile`) routes, data layer, offline queue: `docs/MOBILE_BUILD.md`
 - Challenges mini-games, both surfaces: `docs/CHALLENGES.md`
@@ -102,12 +102,13 @@ One shared file, then one file per surface. A page loads the shared file and its
 | `app/styles/staff.css` | `app/dashboard/layout.tsx`, `app/mobile/layout.tsx` | Staff web and mobile app |
 | `app/styles/management.css` | `app/management/layout.tsx` | Manager Console |
 | `app/styles/auth.css` | the `login`, `onboarding`, `reset-password` and `session-conflict` layouts | Sign-in and onboarding |
+| `app/styles/applicant.css` | `app/apply/layout.tsx` | The applicant test (`/apply/[token]`) |
 
 - Public pages live in the `app/(marketing)/` route group. The group adds nothing to the URL: `app/(marketing)/pricing/page.tsx` is `/pricing`.
 - A new class goes in the surface file of the one surface that uses it. If a second surface starts using it, move the rule to `app/globals.css`.
 - All tokens (`:root`) stay in `app/globals.css`.
 - The shared file always loads first. A rule in it cannot override a surface rule of the same specificity, so do not rely on source order across files.
-- `npm run lint:css` and `npm run lint:css:unused` read all five files.
+- `npm run lint:css` and `npm run lint:css:unused` read all six files.
 
 ## Coding Conventions
 
@@ -153,6 +154,7 @@ Cross-cutting auth/utility routes not owned by a single domain doc:
 | `/geo-block` | Geo-restricted access page (see `docs/MARKETING_SITE.md` for a routing nuance — the geo-block middleware's actual redirect target is `/restricted`, not this page) |
 | `/restricted` | General access-denied page |
 | `/notifications/unsubscribe` | Signed unsubscribe link from the digest and reminder emails; no sign-in, open from any country |
+| `/apply/[token]` | Applicant test from a manager's invite email; no sign-in, open from any country (`docs/APPLICANT_TESTING.md`) |
 
 Domain-specific app pages (`/dashboard`, `/management/dashboard`, etc.) are documented in `docs/STAFF_APP.md` and `docs/MANAGER_CONSOLE.md`.
 

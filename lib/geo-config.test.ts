@@ -23,6 +23,13 @@ describe("geo-block", () => {
     expect(shouldApplyGeoBlock("/membership", "US", BROWSER)).toBe(true);
   });
 
+  it("opens the applicant test link to every country, and nothing beside it", () => {
+    expect(shouldApplyGeoBlock("/apply/abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ", "GB", BROWSER)).toBe(false);
+    expect(shouldApplyGeoBlock("/apply/abc", undefined, BROWSER)).toBe(false);
+    expect(shouldApplyGeoBlock("/apply", "GB", BROWSER)).toBe(true);
+    expect(shouldApplyGeoBlock("/applyx", "GB", BROWSER)).toBe(true);
+  });
+
   it("lets crawlers read marketing pages from outside Australia", () => {
     for (const agent of [GOOGLEBOT, ADS_REVIEW, META_PREVIEW]) {
       expect(isKnownCrawler(agent)).toBe(true);

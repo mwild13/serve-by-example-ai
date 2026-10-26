@@ -68,6 +68,8 @@ type ManagerContext = {
   profile: ManagerProfile;
   isOwnerLevel: boolean;
   entitlement: ManagerEntitlement;
+  /** True when the entitlement comes from an active trial, not a paid plan. */
+  onTrial: boolean;
   /** Throws 404 unless `venueId` is a venue this caller owns. */
   assertOwnsVenue: (venueId: string) => Promise<void>;
   /** Throws 404 unless `staffId` is a venue_staff row this caller manages. */
@@ -193,6 +195,7 @@ export async function requireManager(req: Request, opts: RequireManagerOptions):
       profile: { platformRole, tier, orgId },
       isOwnerLevel,
       entitlement: resolveEntitlement(isAdmin, hasVenueAccess ? tier : trialTier),
+      onTrial: !isAdmin && !hasVenueAccess && hasTrialAccess,
       assertOwnsVenue,
       assertOwnsStaff,
     },

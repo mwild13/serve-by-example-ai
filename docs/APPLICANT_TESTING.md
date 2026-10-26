@@ -1,6 +1,6 @@
 # Applicant Testing: Serve By Example
 
-Companion to `CLAUDE.md`, not a replacement. Where the two conflict, `CLAUDE.md` wins. Status on 2026-10-26: **Phases 1 and 2 built** (migration `20261104_applicant_testing.sql`, not yet run; engine in `lib/applicant/`). No routes or screens yet. This file is the spec each build phase works from. Update it as each phase lands.
+Companion to `CLAUDE.md`, not a replacement. Where the two conflict, `CLAUDE.md` wins. Status on 2026-10-26: **Phases 1 to 4 built** (migration `20261104_applicant_testing.sql`, not yet run; engine, console API, emails and the applicant's pages). Not yet: AI marking, the Live Guest conversation, the report, the console tab. No track can be sent until its content exists (§6a). This file is the spec each build phase works from. Update it as each phase lands.
 
 ## 1. What it is
 
@@ -15,8 +15,8 @@ A tab in the Manager Console where a manager emails a job applicant a link to a 
 ## 2. The applicant's experience
 
 1. An email from "[Venue] via Serve By Example", reply-to the manager. The manager's intro, a Start button, the expiry date (14 days), and one line on what is collected and why.
-2. **Welcome screen:** venue name, intro, "This takes about 30 minutes. There is no time limit, so take the time you need to show how you think." Consent checkbox with the collection notice. Turnstile on Start.
-3. **One item per screen.** A quiet progress line ("Section 2 of 5"). No timer, no score, no going back.
+2. **Welcome screen:** venue name, intro, "This takes about 30 minutes. There is no time limit, so take the time you need to show how you think." Consent checkbox with the collection notice. No Turnstile: the link's 256-bit token is the key, and the routes are rate limited per link, per IP and overall.
+3. **One item per screen.** A quiet progress line ("Part 2 of 5: Knowledge for the role · Question 3 of 8"). No timer, no score, no going back.
 4. They can close the page and come back to the same link until they submit or it expires.
 5. **Finished screen:** "Thanks. [Venue] will be in touch." No results are shown to the applicant.
 
@@ -94,17 +94,25 @@ Quizzes never ask True/False (a coin toss). The role quiz must mix at least 3 so
 
 **Readiness today:** Bar and Floor can fill every section except the written scenarios. Kitchen and Management also need their role banks; Kitchen also needs its Live Guest brief.
 
-## 7. Routes (planned)
+## 7. Routes
 
-**Console**, each starting with `requireManager()` and `assertOwnsVenue()`:
-- `/api/management/applicants`: GET list, POST invite (checks the allowance), PATCH `resend`/`withdraw`/`extend`, DELETE (owners only).
-- `/api/management/applicants/[id]`: GET the report.
+**Console** (`app/api/management/applicants/`), each starting with `requireManager()`. Tests belong to the venue owner's account (`account_id`), and every read and write filters on it.
+- `GET ?venueId=`: the venue's tests, newest first, the month's allowance (`lib/applicant/allowance.ts`), which tracks are ready, and the default intro. `{ setupNeeded: true }` until the migration is run.
+- `POST { venueId, applicantName, applicantEmail, track, introMessage? }`: refuses a track that can't be dealt yet (`TRACK_NOT_READY`) and a second open test for the same email (`ALREADY_INVITED`), then takes one from the allowance (`ALLOWANCE_USED`), deals the test, and emails the link. Limit 10 a minute.
+- `PATCH { id, action }`: `resend` makes a new link (only the hash is kept, so the old one stops working) with 14 fresh days, keeping answers so far; `withdraw` closes the test.
+- `DELETE ?id=`: owners only. Erases the test, its answers and its conversation.
+- `GET /api/management/applicants/[id]`: the report. Scores are worked out from the answers each time (`computeReport()`), so AI scores that land later show without a second save. `reportItems()` gives each answer as text: the question, what was given, the right answer, the time and the signals.
+- Duty managers can list, invite, resend and withdraw.
 
-**Applicant**, no sign-in. Each checks the token hash, status and expiry first, and is rate limited per token and per IP:
-- Page `/apply/[token]` (own layout, `app/styles/applicant.css`, `noindex`).
-- `/api/applicant/[token]/start`, `next`, `answer`, `guest/turn`, `submit`.
-- About 9 AI calls per test at most, counted against the test, not the manager's daily AI allowance.
-- `/apply` and `/api/applicant` skip the sign-in check and are open from any country, like `/notifications/unsubscribe`.
+**Emails** (`lib/applicant/emails.ts`, sent with `sendTransactionalEmail()` in `lib/notifications/brevo.ts`): the invite, from "[Venue] via Serve By Example" with replies to the manager; and a note to the manager who sent it when the applicant finishes, linking to `/management/dashboard?tab=applicants&test=<id>` (the tab is Phase 6).
+
+**Applicant** (`app/api/applicant/[token]/`), no sign-in. Every route starts with `openApplicantTest()` (`lib/applicant/public-route.ts`): limits per IP, overall and per link, the token's shape, then the lookup by hash.
+- `start { consent: true }`: records consent and serves the first item.
+- `next`: the item on screen now, for a return visit. A POST, because serving starts the item's clock and counts a visit after a break of 15 minutes or more.
+- `answer { position, answer, signals }`: quiz and ordering items are scored here; written answers are saved with no score until the AI marker (Phase 5). The answer after the last item finishes the test and stores the report. The Live Guest item is answered through its own conversation route (Phase 5).
+- Page `/apply/[token]` (`app/apply/`, `components/applicant/ApplicantTest.tsx`, `app/styles/applicant.css`): `noindex`, `no-referrer`. Opening the link changes nothing, so a mail scanner can't start a test. Open from any country (`publicPrefixes` in `lib/geo-config.ts`).
+- Signals are measured by `useAnswerSignals()` (`lib/applicant/use-answer-signals.ts`). Pasting still works; it is only counted.
+- About 9 AI calls per test at most (Phase 5), counted against the test, not the manager's daily AI allowance.
 
 ## 8. Privacy and fairness
 
@@ -118,8 +126,8 @@ Quizzes never ask True/False (a coin toss). The role quiz must mix at least 3 so
 0. Spec (this file) and content for owner review. Spec done; content not started.
 1. Migration. Written, not yet run.
 2. Test engine in `lib/applicant/`, unit tested. Done.
-3. Console API and emails.
-4. Applicant pages and public API.
+3. Console API and emails. Done.
+4. Applicant pages and public API. Done, except the Live Guest item, which waits for Phase 5.
 5. AI scoring, Live Guest and the report.
 6. Console tab.
 7. Plan allowances, pricing and features copy.

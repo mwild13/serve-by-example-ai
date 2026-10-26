@@ -23,6 +23,11 @@ const GEO_CONFIG = {
     '/notifications/unsubscribe', // the Spam Act needs unsubscribe to work from anywhere
   ],
 
+  // Open from any country, by prefix. The applicant test link
+  // (/apply/<token>): people often apply before they move to Australia.
+  // The token is the key, so nothing else under these paths is reachable.
+  publicPrefixes: ['/apply/'],
+
   // Marketing routes visible to non-AU visitors.
   // Intentionally empty — all marketing/hero content is AU-only.
   // Previously this listed /pricing, /for-venues, /demo, /platform which created
@@ -89,6 +94,7 @@ export function shouldApplyGeoBlock(pathname: string, country?: string, userAgen
 
   // Allow public routes to pass through
   if (GEO_CONFIG.publicRoutes.includes(pathname)) return false;
+  if (GEO_CONFIG.publicPrefixes.some((prefix) => pathname.startsWith(prefix))) return false;
 
   // Allow marketing routes to pass through
   if (GEO_CONFIG.marketingRoutes.includes(pathname)) return false;

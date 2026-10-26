@@ -18,6 +18,8 @@ const ROOTS = [
   "lib/live-guest",
   "lib/rush",
   "lib/applicant",
+  "components/applicant",
+  "app/apply",
   "lib/knowledge-base.ts",
   "lib/cocktails.ts",
   "lib/verify-questions.ts",
