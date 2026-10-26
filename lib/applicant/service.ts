@@ -38,9 +38,9 @@ import type { Question } from "@/lib/question-bank";
 import { answerFits, isAnswerShape, questionView } from "@/lib/verify-quiz";
 
 /** How long an invite link works. A resend starts it again. */
-export const TEST_TTL_DAYS = 14;
+const TEST_TTL_DAYS = 14;
 /** Most AI calls one test can make: 4 marks and 1 summary, with room for retries. */
-export const AI_CALL_CAP = 10;
+const AI_CALL_CAP = 10;
 /** A return to the link after this long counts as a new visit. */
 const NEW_VISIT_AFTER_MS = 15 * 60_000;
 
@@ -82,7 +82,7 @@ export type TestRow = {
   created_at: string;
 };
 
-export const TEST_COLUMNS =
+const TEST_COLUMNS =
   "id, venue_id, account_id, created_by, applicant_name, applicant_email, track, intro_message, status, run_state, position, current_served_at, visits, consent_at, sent_at, started_at, last_seen_at, submitted_at, expires_at, report, manager_notified_at, created_at";
 
 export type AnswerRow = {
@@ -348,7 +348,7 @@ export async function recordAnswer(
 
 // ── Report ───────────────────────────────────────────────────
 
-export function signalsOf(answer: AnswerRow): AnswerSignals {
+function signalsOf(answer: AnswerRow): AnswerSignals {
   return {
     elapsedMs: Math.max(0, new Date(answer.answered_at).getTime() - new Date(answer.served_at).getTime()),
     activeMs: answer.active_ms,
@@ -382,7 +382,7 @@ export async function loadAnswers(admin: AdminClient, testId: string): Promise<A
 }
 
 /** The console link to a test's report. The tab itself is Phase 6. */
-export function reportUrl(origin: string, testId: string): string {
+function reportUrl(origin: string, testId: string): string {
   return `${origin}/management/dashboard?tab=applicants&test=${encodeURIComponent(testId)}`;
 }
 
@@ -412,7 +412,7 @@ async function claimAiCall(admin: AdminClient, testId: string): Promise<boolean>
 }
 
 /** Marks one written answer if it isn't marked yet. True when it has a score afterwards. */
-export async function markAnswer(admin: AdminClient, testId: string, position: number): Promise<boolean> {
+async function markAnswer(admin: AdminClient, testId: string, position: number): Promise<boolean> {
   const { data, error } = await admin
     .from("applicant_answers")
     .select("item_key, answer, score")

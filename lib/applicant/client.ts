@@ -12,7 +12,7 @@ export type ApplicantItemView =
   | { kind: "quiz"; question: QuizQuestionView }
   | { kind: "written"; setting: string; prompt: string };
 
-export type ApplicantProgressView = {
+type ApplicantProgressView = {
   sectionLabel: string;
   sectionNumber: number;
   sectionCount: number;

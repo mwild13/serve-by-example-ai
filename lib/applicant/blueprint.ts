@@ -75,9 +75,9 @@ export type TrackSources = {
   written: WrittenPrompt[];
 };
 
-export type TestPlan = { queue: string[] };
+type TestPlan = { queue: string[] };
 
-export type Shortfall = { section: SectionId; have: number; need: number };
+type Shortfall = { section: SectionId; have: number; need: number };
 
 export type DrawResult = { ok: true; plan: TestPlan } | { ok: false; shortfall: Shortfall[] };
 

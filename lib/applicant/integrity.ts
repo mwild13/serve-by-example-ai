@@ -14,7 +14,7 @@
  */
 
 /** Where every threshold lives. Change them here and nowhere else. */
-export const SIGNAL_THRESHOLDS = {
+const SIGNAL_THRESHOLDS = {
   /** A choice answered faster than this reads as a guess. */
   quickChoiceMs: 2_000,
   /** A written answer sent faster than this was hardly read. */
@@ -95,7 +95,7 @@ export function formatDuration(ms: number): string {
 /** Choice: quiz and ordering. Written: a typed answer. */
 export type AnswerKind = "choice" | "written";
 
-export type FlagKind = "quick" | "paste" | "away" | "typing";
+type FlagKind = "quick" | "paste" | "away" | "typing";
 
 export type SignalFlag = { kind: FlagKind; text: string };
 

@@ -69,7 +69,7 @@ export function overallScore(sections: SectionScores): number | null {
 
 export type Band = "Strong" | "Solid" | "Developing" | "Not yet";
 
-export const BAND_FLOORS: { band: Band; min: number }[] = [
+const BAND_FLOORS: { band: Band; min: number }[] = [
   { band: "Strong", min: 80 },
   { band: "Solid", min: 65 },
   { band: "Developing", min: 50 },

@@ -32,7 +32,7 @@ function paragraphs(text: string): string {
     .join("");
 }
 
-export function formatExpiry(expiresAt: Date): string {
+function formatExpiry(expiresAt: Date): string {
   return new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", weekday: "long", day: "numeric", month: "long" }).format(expiresAt);
 }
 

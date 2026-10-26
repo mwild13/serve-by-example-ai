@@ -4,7 +4,7 @@
 // The numbers are the owner's call: change them here and nowhere else.
 import { normalizeTier, type Tier } from "@/lib/session";
 
-export const APPLICANT_TESTS_PER_MONTH: Record<Tier, number> = {
+const APPLICANT_TESTS_PER_MONTH: Record<Tier, number> = {
   free: 0,
   pro: 0,
   boutique: 10,
