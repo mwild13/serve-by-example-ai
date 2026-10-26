@@ -35,6 +35,7 @@ This file is global rules only. Domain-specific architecture, component maps, an
 - Marketing site (public routes, geo-blocking, brand voice, component usage): `docs/MARKETING_SITE.md`; page design standard: `docs/Pages-Redesign.md`
 - Social media (Instagram content, slide graphics, ads, outreach, the rules to pull the owner up on): `AGENTS_SOCIALS.md`; slide template `docs/socials/slide-template.html`, rendered by `scripts/social-render.mjs`
 - Manager Console (data fetching, RBAC, state management): `docs/MANAGER_CONSOLE.md`
+- Applicant Testing (hiring tests emailed to job applicants, planned): `docs/APPLICANT_TESTING.md`
 - Staff App, web and mobile: training loop, Live Guest, the staff desktop standard (section 8): `docs/STAFF_APP.md`
 - Mobile app (`/mobile`) routes, data layer, offline queue: `docs/MOBILE_BUILD.md`
 - Challenges mini-games, both surfaces: `docs/CHALLENGES.md`
