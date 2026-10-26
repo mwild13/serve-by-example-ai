@@ -16,6 +16,7 @@ import type {
 import { ComplianceHub } from "./compliance/ComplianceHub";
 import { VenueContentPanel } from "./VenueContentPanel";
 import { TeamWeekPanel } from "./TeamWeekPanel";
+import { ApplicantTestingPanel } from "./ApplicantTestingPanel";
 import { rsaStatus } from "./compliance/helpers";
 import type { QuickActionId, SearchResult } from "./manager-types";
 import { EmptyState, MissionControlSkeleton } from "./manager-ui";
@@ -65,6 +66,7 @@ const SECTION_META: Record<ManagerSection, { cluster: string; label: string }> =
   leaderboards: { cluster: "Performance", label: "Leaderboards" },
   notifications: { cluster: "Performance", label: "Notifications" },
   aicoach: { cluster: "AI Coach", label: "Ask AI Coach" },
+  applicants: { cluster: "Hiring", label: "Applicant Testing" },
   predictive: { cluster: "People", label: "Training Gaps" },
   settings: { cluster: "Admin", label: "Settings" },
 };
@@ -1512,6 +1514,15 @@ export default function ManagerControlCenter({
         )}
         {activeSection === "content" && (
           <VenueContentPanel key={selectedVenue?.id ?? "none"} venueId={selectedVenue?.id ?? ""} venueName={selectedVenue?.name} sessionToken={sessionToken} />
+        )}
+        {activeSection === "applicants" && (
+          <ApplicantTestingPanel
+            key={selectedVenue?.id ?? "none"}
+            venueId={selectedVenue?.id ?? ""}
+            venueName={selectedVenue?.name}
+            sessionToken={sessionToken}
+            isOwnerLevel={isOwnerLevel}
+          />
         )}
 
         {activeSection === "analytics" && (

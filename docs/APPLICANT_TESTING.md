@@ -1,6 +1,6 @@
 # Applicant Testing: Serve By Example
 
-Companion to `CLAUDE.md`, not a replacement. Where the two conflict, `CLAUDE.md` wins. Status on 2026-10-26: **Phases 1 to 5 built** (migration `20261104_applicant_testing.sql`, not yet run; engine, console API, emails, the applicant's pages, AI marking and the summary). Not yet: the console tab (Phase 6). Bar and floor written scenarios approved 2026-10-26 (`docs/Applicant Testing/written-batch-1.md`), so **bar and floor tests can be sent**. No track can be sent until its content exists (§6a). This file is the spec each build phase works from. Update it as each phase lands.
+Companion to `CLAUDE.md`, not a replacement. Where the two conflict, `CLAUDE.md` wins. Status on 2026-10-26: **Phases 1 to 6 built** (migration `20261104_applicant_testing.sql`, run 2026-10-26; engine, console API, emails, the applicant's pages, AI marking and the summary). Not yet: plan and marketing copy (Phase 7), the privacy policy section and a security review (Phase 8). Bar and floor written scenarios approved 2026-10-26 (`docs/Applicant Testing/written-batch-1.md`), so **bar and floor tests can be sent**. No track can be sent until its content exists (§6a). This file is the spec each build phase works from. Update it as each phase lands.
 
 ## 1. What it is
 
@@ -132,12 +132,12 @@ Quizzes never ask True/False (a coin toss). The role quiz must mix at least 3 so
 ## 9. Build phases
 
 0. Spec (this file) and content for owner review. Spec done; content not started.
-1. Migration. Written, not yet run.
+1. Migration. Run 2026-10-26 and checked.
 2. Test engine in `lib/applicant/`, unit tested. Done.
 3. Console API and emails. Done.
 4. Applicant pages and public API. Done.
 5. AI marking of written answers and the written summary. Done. Not yet tried against the live model.
-6. Console tab.
+6. Console tab. Done: the Hiring group, `ApplicantTestingPanel.tsx`.
 7. Plan allowances, pricing and features copy.
 8. Privacy policy, security review.
 9. Release.

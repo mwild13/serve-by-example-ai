@@ -15,6 +15,7 @@ export type ManagerSection =
   | "leaderboards"
   | "notifications"
   | "aicoach"
+  | "applicants"
   | "predictive"
   | "settings";
 

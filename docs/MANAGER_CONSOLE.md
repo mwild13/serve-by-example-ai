@@ -83,7 +83,7 @@ The whole console was rebuilt to the `docs/Pages-Redesign.md` principles. Styles
 **Shell**
 - **Header alignment:** `--mc-header-h` sets the height of both `.mc-sidebar-logo` and `.mc-topbar`. Change the token, not either rule.
 - **Sidebar collapse:** a 64px icon rail. The control is an icon button to the right of the logo; in the rail it takes the logo's place. Saved in `localStorage` (`sbe-mc-sidebar-collapsed`), toggled by the button or Cmd/Ctrl+B, and used by default below 1100px. Labels stay in the DOM so buttons keep their names.
-- **Sidebar contents:** Overview (no group heading), People, Performance, then Settings alone at the foot (owners only). There is no profile row or Sign out in the sidebar.
+- **Sidebar contents:** Overview (no group heading), People, Performance, Hiring, then Settings alone at the foot (owners only). There is no profile row or Sign out in the sidebar.
 - **Account menu:** the avatar in the top header opens a menu with the manager's name, Account settings (owners only) and Sign out.
 - **Adding a nav item:** edit `NAV_GROUPS` in `ConsoleSidebar.tsx`. "Training Gaps" is section id `predictive` (`PredictivePanel.tsx`). `?tab=roles` redirects to Teams.
 - **Search:** `/` or Cmd/Ctrl+K focuses it.
@@ -108,6 +108,11 @@ The whole console was rebuilt to the `docs/Pages-Redesign.md` principles. Styles
 - **The briefing card:** the last seven days in team totals (days trained, answers right, Live Guest conversations and passes, Rush shifts), the goal and the guest of the week, and up to three questions the team missed most, each with the right answer and one line to say (the first sentence of the approved explanation). A question only shows once two or more different people have missed it, and no names appear anywhere, so no one is singled out.
 - **Data:** the panel fetches `/api/management/team-week` itself (GET `?venueId=`, PUT `{ venueId, goal?, guestId? }`). Not in the snapshot. No AI. Logic in `lib/team-week.ts`; tables `venue_weeks` and `quiz_answer_log`. The team is the venue's `venue_staff` with an account, not marked inactive.
 - **Staff see** the goal's progress and the guest of the week on Home (`components/team/TeamWeekCard.tsx`, desktop and mobile), from `/api/training/team-week`, only once the manager has set something.
+
+**Applicant Testing** (`docs/APPLICANT_TESTING.md`)
+- **What:** section id `applicants`, the only item in the Hiring group (`ApplicantTestingPanel.tsx`). The manager sends a job applicant a test for their role; the list shows each test's status and result; a report shows the scores, the AI summary, and every answer in full with its time, what it covered and how it was produced. "Print the report" prints only the report. `?tab=applicants&test=<id>` opens a report directly (the link in the "has finished" email).
+- **Data:** the panel fetches `/api/management/applicants` and `/api/management/applicants/[id]` itself. Not in the snapshot. Accounts without a venue plan see what it does and a link to the plans.
+- **Duty managers** can send, resend and withdraw tests and read reports. Only owners can delete an applicant's data.
 
 **Ask AI Coach**
 - **Layout:** the page is exactly as tall as the window, so the question box is always in view. Conversation on the left, starting points on the right.

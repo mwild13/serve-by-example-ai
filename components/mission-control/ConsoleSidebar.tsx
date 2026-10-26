@@ -14,6 +14,7 @@ import {
   FileLineChart,
   Trophy,
   Sparkles,
+  UserCheck,
   Settings,
   ChevronDown,
   PanelLeftClose,
@@ -64,6 +65,11 @@ const NAV_GROUPS: NavGroup[] = [
       { id: "leaderboards", label: "Leaderboards", icon: Trophy },
       { id: "aicoach", label: "Ask AI Coach", icon: Sparkles },
     ],
+  },
+  {
+    label: "Hiring",
+    collapsible: true,
+    items: [{ id: "applicants", label: "Applicant Testing", icon: UserCheck }],
   },
 ];
 
