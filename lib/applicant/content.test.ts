@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { drawTest, parseItemKey, TRACKS } from "./blueprint";
-import { CORE_MODULES, ROLE_MODULES, findSourceQuestion, trackSources } from "./content";
+import { CORE_MODULES, ROLE_MODULES, coreModulesFor, findSourceQuestion, trackSources } from "./content";
 import { WRITTEN_PROMPTS } from "./questions/written";
 import { liveQuestions } from "@/lib/question-bank";
 
@@ -22,17 +22,26 @@ describe("applicant content", () => {
   });
 
   it("keeps role modules out of the core quiz", () => {
-    for (const ids of Object.values(ROLE_MODULES)) {
-      expect(ids.filter((id) => CORE_MODULES.includes(id))).toEqual([]);
+    for (const { id } of TRACKS) {
+      expect(ROLE_MODULES[id].filter((m) => coreModulesFor(id).includes(m))).toEqual([]);
     }
   });
 
-  it("can fill every section but the written scenarios for bar and floor today", () => {
+  it("leaves bar work out of the kitchen's core quiz", () => {
+    for (const barOnly of [8, 15, 22, 24]) expect(coreModulesFor("kitchen")).not.toContain(barOnly);
+    expect(coreModulesFor("kitchen").every((m) => CORE_MODULES.includes(m))).toBe(true);
+  });
+
+  it("can deal a full bar and floor test today", () => {
     for (const track of ["bar", "floor"] as const) {
-      const result = drawTest(trackSources(track), seeded(1));
-      expect(result.ok).toBe(false);
-      if (!result.ok) expect(result.shortfall.map((s) => s.section)).toEqual(["written"]);
+      expect(drawTest(trackSources(track), seeded(1)).ok).toBe(true);
     }
+  });
+
+  it("can fill the kitchen's core quiz and ordering tasks", () => {
+    const result = drawTest(trackSources("kitchen"), seeded(1));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.shortfall.map((s) => s.section).sort()).toEqual(["role", "written"]);
   });
 
   it("finds the question behind every quiz and ordering key it deals", () => {

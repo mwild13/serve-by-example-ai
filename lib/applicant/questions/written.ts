@@ -31,7 +31,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Serves the round to the group knowing some of it is for him",
       "Refuses in a way that shames him in front of the group, or argues with him",
     ],
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "bar-glass-in-the-ice",
@@ -50,7 +50,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Picks out the pieces they can see and keeps serving",
       "Carries on because the bar is too busy to stop",
     ],
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "bar-alone-and-busy",
@@ -70,7 +70,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Serves friends or the loudest group first",
       "Skips measuring or cutting corners on safety to go faster",
     ],
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "bar-no-id",
@@ -90,7 +90,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Lets a friend buy him a drink",
       "Accepts a reason or a photo of ID that the venue doesn't accept",
     ],
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "bar-drink-you-dont-know",
@@ -109,7 +109,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Makes something up and serves it as the real thing",
       "Brushes the guest off or makes them feel awkward for asking",
     ],
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "bar-too-weak",
@@ -128,7 +128,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Argues that they poured it correctly",
       "Adds extra spirit for free to keep the guest happy",
     ],
-    reviewed: false,
+    reviewed: true,
   },
 
   // ── Floor and front of house ──────────────────────────────
@@ -150,7 +150,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Says it should be fine without checking",
       "Suggests picking the nuts off or swapping the sauce without telling the kitchen about the allergy",
     ],
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "floor-late-mains",
@@ -170,7 +170,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Blames the chef or the kitchen to the guests",
       "Promises a time they don't know, or gives food or drink away without the authority to",
     ],
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "floor-wrong-steak",
@@ -190,7 +190,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Blames the kitchen",
       "Asks her to keep it",
     ],
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "floor-five-tables",
@@ -210,7 +210,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Leaves food sitting at the pass while they do other jobs",
       "Ignores tables without acknowledging them",
     ],
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "floor-loud-table",
@@ -229,7 +229,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Brings the bottle because the table is spending",
       "Confronts him loudly in front of the room",
     ],
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "floor-full-tonight",
@@ -248,6 +248,6 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Just says no and ends the call",
       "Promises a table that isn't there",
     ],
-    reviewed: false,
+    reviewed: true,
   },
 ];

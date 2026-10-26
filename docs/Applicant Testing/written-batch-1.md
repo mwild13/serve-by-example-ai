@@ -10,7 +10,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 1. Bar: rsa refusal
 
-*Id: `bar-round-of-shots`. Not live yet.*
+*Id: `bar-round-of-shots`. Live.*
 
 **The applicant sees:**
 
@@ -35,7 +35,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 2. Bar: glass in ice
 
-*Id: `bar-glass-in-the-ice`. Not live yet.*
+*Id: `bar-glass-in-the-ice`. Live.*
 
 **The applicant sees:**
 
@@ -58,7 +58,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 3. Bar: pressure priorities
 
-*Id: `bar-alone-and-busy`. Not live yet.*
+*Id: `bar-alone-and-busy`. Live.*
 
 **The applicant sees:**
 
@@ -82,7 +82,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 4. Bar: proof of age
 
-*Id: `bar-no-id`. Not live yet.*
+*Id: `bar-no-id`. Live.*
 
 **The applicant sees:**
 
@@ -106,7 +106,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 5. Bar: honest knowledge
 
-*Id: `bar-drink-you-dont-know`. Not live yet.*
+*Id: `bar-drink-you-dont-know`. Live.*
 
 **The applicant sees:**
 
@@ -129,7 +129,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 6. Bar: drink complaint
 
-*Id: `bar-too-weak`. Not live yet.*
+*Id: `bar-too-weak`. Live.*
 
 **The applicant sees:**
 
@@ -152,7 +152,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 7. Floor and front of house: allergy order
 
-*Id: `floor-nut-allergy`. Not live yet.*
+*Id: `floor-nut-allergy`. Live.*
 
 **The applicant sees:**
 
@@ -176,7 +176,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 8. Floor and front of house: service delay
 
-*Id: `floor-late-mains`. Not live yet.*
+*Id: `floor-late-mains`. Live.*
 
 **The applicant sees:**
 
@@ -200,7 +200,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 9. Floor and front of house: own mistake
 
-*Id: `floor-wrong-steak`. Not live yet.*
+*Id: `floor-wrong-steak`. Live.*
 
 **The applicant sees:**
 
@@ -224,7 +224,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 10. Floor and front of house: section priorities
 
-*Id: `floor-five-tables`. Not live yet.*
+*Id: `floor-five-tables`. Live.*
 
 **The applicant sees:**
 
@@ -248,7 +248,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 11. Floor and front of house: rsa dining
 
-*Id: `floor-loud-table`. Not live yet.*
+*Id: `floor-loud-table`. Live.*
 
 **The applicant sees:**
 
@@ -271,7 +271,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 12. Floor and front of house: booking full
 
-*Id: `floor-full-tonight`. Not live yet.*
+*Id: `floor-full-tonight`. Live.*
 
 **The applicant sees:**
 

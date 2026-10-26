@@ -1,6 +1,6 @@
 # Applicant Testing: Serve By Example
 
-Companion to `CLAUDE.md`, not a replacement. Where the two conflict, `CLAUDE.md` wins. Status on 2026-10-26: **Phases 1 to 5 built** (migration `20261104_applicant_testing.sql`, not yet run; engine, console API, emails, the applicant's pages, AI marking and the summary). Not yet: the console tab (Phase 6). Bar and floor written scenarios are drafted and waiting for the owner's review (`docs/Applicant Testing/written-batch-1.md`). No track can be sent until its content exists (§6a). This file is the spec each build phase works from. Update it as each phase lands.
+Companion to `CLAUDE.md`, not a replacement. Where the two conflict, `CLAUDE.md` wins. Status on 2026-10-26: **Phases 1 to 5 built** (migration `20261104_applicant_testing.sql`, not yet run; engine, console API, emails, the applicant's pages, AI marking and the summary). Not yet: the console tab (Phase 6). Bar and floor written scenarios approved 2026-10-26 (`docs/Applicant Testing/written-batch-1.md`), so **bar and floor tests can be sent**. No track can be sent until its content exists (§6a). This file is the spec each build phase works from. Update it as each phase lands.
 
 ## 1. What it is
 
@@ -30,7 +30,7 @@ Four tracks: `bar`, `floor`, `kitchen`, `management`. Each test is drawn from a 
 
 | # | Section | Content | Scored by | About |
 |---|---|---|---|---|
-| 1 | Core hospitality | 10 multiple choice from modules 8, 11, 15, 16, 17, 18, 21, 22, 24, 25 | Answer key | 6 min |
+| 1 | Core hospitality | 10 multiple choice from modules 8, 11, 15, 16, 17, 18, 21, 22, 24, 25. Kitchen: 11, 16, 17, 18, 21, 25 (no RSA, ice well, ice scoop or greeting) | Answer key | 6 min |
 | 2 | Role knowledge | 8 multiple choice. Bar: 1, 3, 26, 31, 33. Floor: 9, 10, 23, 29, 36, 38. Kitchen: new bank. Management: new bank plus 19, 20 | Answer key | 5 min |
 | 3 | Order of operations | 2 tasks, put 5 or 6 actions in order, from the reviewed `order_steps` questions in the track's modules (role modules first) | Rule (partial credit by distance) | 3 min |
 | 4 | Written scenarios | 4 "what would you do, and why" prompts | AI against a rubric: process, guest care, safety, judgement | 12 min |
@@ -92,7 +92,7 @@ Migration `supabase/migrations/20261104_applicant_testing.sql` (rollback in `sup
 | `blueprint.ts` | Tracks, sections and weights, item keys (`core:15:mc3`, `written:<id>`), `drawTest()`, `progressAt()` |
 | `content.ts` | Which modules, banks and prompts each track draws from (`trackSources()`), and `findSourceQuestion()` for grading. Server only |
 | `questions/kitchen.ts`, `questions/management.ts` | Role banks. **Empty, not drafted yet** |
-| `questions/written.ts` | Written scenarios. Bar and floor, six each, drafted with `reviewed: false`. Review sheet: `npm run applicant:review` |
+| `questions/written.ts` | Written scenarios. Bar and floor, six each, approved. Review sheet: `npm run applicant:review` |
 | `marking.ts`, `summary.ts`, `after-response.ts` | AI marking, the summary, and running them after the response |
 | `scoring.ts` | `scoreQuizItem()` (ordering gets part marks), `sectionScores()`, `overallScore()`, `bandFor()` |
 | `integrity.ts` | `readSignals()` (trims the browser's report to the server's times), `answerFlags()`, `summaryLine()`, all thresholds in `SIGNAL_THRESHOLDS` |
@@ -100,7 +100,7 @@ Migration `supabase/migrations/20261104_applicant_testing.sql` (rollback in `sup
 
 Quizzes never ask True/False (a coin toss). The role quiz must mix at least 3 sources. `drawTest()` refuses a test with any section short, so a track can't be offered until its content exists.
 
-**Readiness today:** Bar and Floor are ready the moment their written scenarios are approved (a test checks this). Kitchen and Management need their role banks and written scenarios.
+**Readiness today:** Bar and Floor are ready (a test checks this). Kitchen and Management need their role banks and written scenarios.
 
 ## 7. Routes
 
