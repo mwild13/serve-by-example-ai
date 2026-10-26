@@ -5,8 +5,8 @@
 // Server-only, like the answer keys it reaches.
 import "server-only";
 import type { Track, TrackSources, QuizSource } from "@/lib/applicant/blueprint";
-import { KITCHEN_QUESTIONS } from "@/lib/applicant/questions/kitchen";
-import { MANAGEMENT_QUESTIONS } from "@/lib/applicant/questions/management";
+import { KITCHEN_BANK } from "@/lib/applicant/questions/kitchen";
+import { MANAGEMENT_BANK } from "@/lib/applicant/questions/management";
 import { WRITTEN_PROMPTS } from "@/lib/applicant/questions/written";
 import { isLive, liveQuestions, type Question } from "@/lib/question-bank";
 
@@ -36,9 +36,9 @@ export const ROLE_MODULES: Record<Track, number[]> = {
 };
 
 /** Question banks written for applicant tests, per track. */
-const BANKS: Partial<Record<Track, { source: string; questions: Question[] }>> = {
-  kitchen: { source: "kitchen", questions: KITCHEN_QUESTIONS },
-  management: { source: "management", questions: MANAGEMENT_QUESTIONS },
+const BANKS: Partial<Record<Track, { source: string; questions: Question[] }[]>> = {
+  kitchen: KITCHEN_BANK,
+  management: MANAGEMENT_BANK,
 };
 
 function moduleSource(moduleId: number): QuizSource {
@@ -47,15 +47,14 @@ function moduleSource(moduleId: number): QuizSource {
 
 /** The source's questions, for grading. Null for an unknown source or question. */
 export function findSourceQuestion(source: string, questionId: string): Question | null {
-  const bank = Object.values(BANKS).find((b) => b?.source === source);
+  const bank = Object.values(BANKS).flat().find((b) => b?.source === source);
   const questions = bank ? bank.questions.filter((q) => isLive(q)) : /^\d+$/.test(source) ? liveQuestions(Number(source)) : [];
   return questions.find((q) => q.id === questionId) ?? null;
 }
 
 export function trackSources(track: Track): TrackSources {
   const role = ROLE_MODULES[track].map(moduleSource);
-  const bank = BANKS[track];
-  if (bank) role.push({ source: bank.source, questions: bank.questions.filter((q) => isLive(q)) });
+  for (const topic of BANKS[track] ?? []) role.push({ source: topic.source, questions: topic.questions.filter((q) => isLive(q)) });
   const core = coreModulesFor(track).map(moduleSource);
   return {
     core,

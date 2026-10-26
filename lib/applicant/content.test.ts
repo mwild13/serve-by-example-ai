@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { drawTest, parseItemKey, TRACKS } from "./blueprint";
 import { CORE_MODULES, ROLE_MODULES, coreModulesFor, findSourceQuestion, trackSources } from "./content";
+import { KITCHEN_BANK } from "./questions/kitchen";
 import { WRITTEN_PROMPTS } from "./questions/written";
 import { liveQuestions } from "@/lib/question-bank";
 
@@ -76,6 +77,40 @@ describe("applicant content", () => {
       const approved = WRITTEN_PROMPTS.filter((p) => p.tracks.includes(track)).map((p) => ({ ...p, reviewed: true }));
       expect(new Set(approved.map((p) => p.concept)).size).toBeGreaterThanOrEqual(6);
       expect(drawTest({ ...sources, written: approved }, seeded(2)).ok).toBe(true);
+    }
+  });
+
+  it("has well formed kitchen questions, unique by id and concept", () => {
+    const ids = KITCHEN_BANK.flatMap((t) => t.questions.map((q) => q.id));
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const topic of KITCHEN_BANK) {
+      expect(topic.questions.length).toBeGreaterThanOrEqual(6);
+      const concepts = topic.questions.map((q) => q.concept);
+      expect(new Set(concepts).size).toBe(concepts.length);
+      for (const q of topic.questions) {
+        expect(q.format).not.toBe("true_false");
+        if (q.format === "order_steps") expect(q.steps.length).toBeGreaterThanOrEqual(4);
+        else if (q.format !== "number") {
+          expect(q.options.map((o) => o.id)).toContain(q.answer);
+          expect(new Set(q.options.map((o) => o.id)).size).toBe(q.options.length);
+        }
+      }
+    }
+  });
+
+  it("can deal a full kitchen test once its questions and scenarios are approved", () => {
+    const sources = trackSources("kitchen");
+    const bankSources = new Set(KITCHEN_BANK.map((t) => t.source));
+    const role = sources.role.map((s) =>
+      bankSources.has(s.source) ? { ...s, questions: KITCHEN_BANK.find((t) => t.source === s.source)?.questions.map((q) => ({ ...q, reviewed: true })) ?? [] } : s,
+    );
+    const written = WRITTEN_PROMPTS.filter((p) => p.tracks.includes("kitchen")).map((p) => ({ ...p, reviewed: true }));
+    const result = drawTest({ ...sources, role, order: [...role, ...sources.core], written }, seeded(3));
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      const roleKeys = result.plan.queue.filter((k) => k.startsWith("role:"));
+      expect(roleKeys.filter((k) => k.includes(":kitchen-")).length).toBeGreaterThanOrEqual(4);
+      expect(result.plan.queue.filter((k) => k.startsWith("order:")).every((k) => k.includes(":kitchen-") || /^order:(6|11|16|17|18|21|25|29):/.test(k))).toBe(true);
     }
   });
 });

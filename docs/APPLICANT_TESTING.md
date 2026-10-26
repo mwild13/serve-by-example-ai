@@ -91,7 +91,8 @@ Migration `supabase/migrations/20261104_applicant_testing.sql` (rollback in `sup
 |---|---|
 | `blueprint.ts` | Tracks, sections and weights, item keys (`core:15:mc3`, `written:<id>`), `drawTest()`, `progressAt()` |
 | `content.ts` | Which modules, banks and prompts each track draws from (`trackSources()`), and `findSourceQuestion()` for grading. Server only |
-| `questions/kitchen.ts`, `questions/management.ts` | Role banks. **Empty, not drafted yet** |
+| `questions/kitchen.ts` | Kitchen role bank: 34 questions in four topics (cooking and cooling, storage and deliveries, the line and the pass, safety and hygiene), each its own source so a chef's role quiz is spread across them. Drafted, `reviewed: false`. Review sheet: `npm run applicant:review -- --bank kitchen` |
+| `questions/management.ts` | Management role bank, same shape. **Not drafted yet** |
 | `questions/written.ts` | Written scenarios. Bar and floor, six each, approved. Review sheet: `npm run applicant:review` |
 | `marking.ts`, `summary.ts`, `after-response.ts` | AI marking, the summary, and running them after the response |
 | `scoring.ts` | `scoreQuizItem()` (ordering gets part marks), `sectionScores()`, `overallScore()`, `bandFor()` |
@@ -100,7 +101,7 @@ Migration `supabase/migrations/20261104_applicant_testing.sql` (rollback in `sup
 
 Quizzes never ask True/False (a coin toss). The role quiz must mix at least 3 sources. `drawTest()` refuses a test with any section short, so a track can't be offered until its content exists.
 
-**Readiness today:** Bar and Floor are ready (a test checks this). Kitchen and Management need their role banks and written scenarios.
+**Readiness today:** Bar and Floor are ready (a test checks this). Kitchen needs batch 2 (its written scenarios) and batch 3 (its question bank) approved. Management needs batch 2; its own bank is optional and not drafted yet.
 
 ## 7. Routes
 
