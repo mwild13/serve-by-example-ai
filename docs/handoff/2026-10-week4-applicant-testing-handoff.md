@@ -92,6 +92,26 @@ The quizzes and ordering tasks otherwise come from the reviewed module questions
 
 About 9,000 input and 1,000 output tokens a test, measured from the prompts: about US$0.0014 a test at the third party listed `gpt-6-luna` price, US$0.003 at the 10 call cap. It grows in a straight line and the allowance caps it: 500 Commercial venues sending every test is about US$28 a month. Marking never sits on the applicant's path; OpenAI rate limits only delay a report. Cloudflare scales out; Supabase is the part to watch.
 
+## Marketing pages (2026-10-27, after release)
+
+Applicant Testing went onto the public site the same day, following the claims rule in `docs/MARKETING_SITE.md` §3.
+
+| Where | What |
+|---|---|
+| `/applicant-testing` (new) | Landing page for searches such as "hospitality pre-employment test" and "bartender skills test": the report and phone mockup, the four parts, the four roles, the report, how it works, fairness, and an FAQ with FAQPage JSON-LD. The example situation on it was written for the page and is not in the test. In `app/sitemap.ts`, `public/llms.txt`, the footer and the marketing e2e routes |
+| Home | A third "For hiring" item in the dark panel, linking to the page, and one FAQ |
+| `/platform` | A Hiring media row (report with the ordering task on a phone), with a sub-nav entry |
+| `/how-it-works` | A Hiring ruled list before the closing band |
+| `/for-venues`, the four `/solutions` pages, `/vs-generic-lms` | One line each, and a Hiring row in the comparison |
+
+**Mockups** in `public/shots/`: `console-applicant-report`, `phone-applicant-order`, `phone-applicant-written`, and `applicant-devices` (laptop and two phones, not on a page yet, kept for socials and the sales sheet). Made from a test sent to the QA address as "Jordan Lee". `scripts/device-mockups.mjs` gained an `applicant <link>` command (the owner takes the test by hand and presses Enter to capture), a `console-applicant-report` capture, and a visible browser that uses installed Chrome without the automation flag, because Cloudflare's human check (Turnstile error 600010) failed in Playwright's Chromium.
+
+**Fixed along the way**
+- **Book-a-call button on the applicant's test.** The floating "Book a free 15-min call" button showed on `/apply/[token]` in production. It is now hidden on `/apply` and `/notifications` (`components/FloatingBookCallButton.tsx`).
+- **Sign-in loop.** A session ended on the server (its refresh token revoked) kept a valid access token for up to an hour. `middleware.ts` trusts `getClaims()`, so `/login` sent it into the app, whose pages call `getUser()`, refuse it and send it back to `/login`: the browser bounced until the token expired. `/login` now confirms with `getUser()` before forwarding a signed-in visitor and, if Auth refuses, signs the browser out locally and shows the form. One Auth call, on `/login` only.
+- **`robots.ts`** now names the AI search crawlers (OAI-SearchBot, ChatGPT-User, Claude-SearchBot, PerplexityBot) instead of GPTBot and ClaudeBot, matching Cloudflare's AI Crawl Control, which blocks the AI training crawlers on purpose (checked 2026-10-27: Googlebot 158 of 159 requests allowed).
+- **`/solutions/pub-groups`** said managers "are alerted before anything lapses". Certificate expiry emails aren't built, so it now says each certificate's expiry date sits on the Compliance tab.
+
 ## Known limits
 
 - A determined applicant can block the browser's paste and time-away counts; the server's time per answer can't be changed. That's why they're signals.
@@ -101,5 +121,5 @@ About 9,000 input and 1,000 output tokens a test, measured from the prompts: abo
 
 ## Open items (in `To_do_list.md`)
 
-- Marketing pages and marketing plan artifacts for Applicant Testing.
+- Marketing plan artifacts for Applicant Testing (the marketing pages are done).
 - An end to end test of the applicant flow.

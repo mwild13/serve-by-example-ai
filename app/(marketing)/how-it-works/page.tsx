@@ -139,6 +139,25 @@ const SCORING: Step[] = [
   },
 ];
 
+// Applicant Testing claims rule: docs/MARKETING_SITE.md §3.
+const HIRING: RuledItem[] = [
+  {
+    label: "01",
+    title: "Send a test from the console",
+    body: "Pick the role (bar, floor, kitchen or management) and enter the applicant's name and email. They get a link, with no account to make.",
+  },
+  {
+    label: "02",
+    title: "They answer on their phone",
+    body: "About 30 minutes, no timer: quiz questions, jobs to put in order, and four situations answered in their own words.",
+  },
+  {
+    label: "03",
+    title: "You read the report",
+    body: "Scores for each part, every answer in full, how each answer was produced, and questions to ask in the interview.",
+  },
+];
+
 const howToSchema = {
   "@context": "https://schema.org",
   "@type": "HowTo",
@@ -227,6 +246,15 @@ export default function HowItWorksPage() {
               },
             },
           ]}
+        />
+
+        <RuledList
+          tone="alt"
+          kicker="Before they start"
+          title="Test applicants with the same training."
+          lede="On Venue and Group plans, Applicant Testing shows you how an applicant thinks about the work before the interview. You still make the call."
+          items={HIRING}
+          primary={{ label: "How applicant tests work", href: "/applicant-testing" }}
         />
 
         <CTABand

@@ -68,6 +68,10 @@ const USE_CASES: StripItem[] = [
     title: "Leadership development",
     body: "Support managers with complaint handling, delegation and operational decision-making under pressure.",
   },
+  {
+    title: "Hiring",
+    body: "Email an applicant a 30 minute test for bar, floor, kitchen or management, and read their answers before the interview.",
+  },
 ];
 
 export default function ForVenuesPage() {

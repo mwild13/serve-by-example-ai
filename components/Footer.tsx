@@ -22,6 +22,7 @@ export default function Footer() {
             <li><Link href="/platform">Platform Tour</Link></li>
             <li><Link href="/platform#features">Features</Link></li>
             <li><Link href="/platform#insights">Manager Console</Link></li>
+            <li><Link href="/applicant-testing">Applicant Testing</Link></li>
           </ul>
         </div>
 

@@ -2,13 +2,14 @@
 
 > AI-powered hospitality staff training platform. Replaces paper manuals and inconsistent on-floor coaching with a structured, mobile-first digital learning system for bars, restaurants, and hotel groups.
 
-Serve By Example helps venue operators train bartenders, floor staff, and hospitality employees through a 3-stage mastery path covering Bartending, Sales, and Management skills. Managers get Mission Control: real-time team analytics, compliance tracking, AI coaching, and multi-venue roster management.
+Serve By Example helps venue operators train bartenders, floor staff, and hospitality employees through a 3-stage mastery path covering Bartending, Sales, and Management skills. Managers get the Manager Console: real-time team analytics, compliance tracking, AI coaching, multi-venue roster management, and Applicant Testing, a 30 minute test emailed to job applicants for bar, floor, kitchen and management roles.
 
 ## Product
 
 - [Platform Overview](https://servebyexample.co/platform)
 - [How It Works](https://servebyexample.co/how-it-works)
 - [Interactive Challenges](https://servebyexample.co/platform/challenges)
+- [Applicant Testing: hospitality pre-employment tests](https://servebyexample.co/applicant-testing)
 - [ROI Calculator](https://servebyexample.co/roi)
 
 ## Solutions
@@ -17,7 +18,6 @@ Serve By Example helps venue operators train bartenders, floor staff, and hospit
 - [Fine Dining](https://servebyexample.co/solutions/fine-dining)
 - [Franchise Systems](https://servebyexample.co/solutions/franchise-systems)
 - [Hotel Food & Beverage](https://servebyexample.co/solutions/hotel-fb)
-- [Multi-Venue Groups](https://servebyexample.co/solutions/multi-venue)
 - [Pub Groups](https://servebyexample.co/solutions/pub-groups)
 - [For Venues](https://servebyexample.co/for-venues)
 

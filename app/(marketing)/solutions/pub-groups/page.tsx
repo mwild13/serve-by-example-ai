@@ -63,7 +63,7 @@ const CONTENT: SolutionContent = {
       },
       {
         title: "Compliance tracked automatically",
-        body: "RSA, responsible service, and venue policy modules are completed and logged. Managers are alerted before anything lapses.",
+        body: "RSA, responsible service, and venue policy modules are completed and logged. Each certificate's expiry date sits on the Compliance tab.",
       },
       {
         title: "Skill gap analysis across the group",
@@ -72,6 +72,12 @@ const CONTENT: SolutionContent = {
       {
         title: "Cross-venue performance tracking",
         body: "Staff across all venues train on the same content. Group leaderboards surface your top performers and flag who needs support across the whole group.",
+      },
+      {
+        title: "Test applicants at every venue",
+        body: "Each venue manager can email an applicant a 30 minute test for the bar, the floor, the kitchen or a supervisor role, so every site hires against the same questions.",
+        href: "/applicant-testing",
+        linkLabel: "How applicant tests work",
       },
     ],
   },

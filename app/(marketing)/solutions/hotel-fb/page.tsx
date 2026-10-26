@@ -66,6 +66,12 @@ const CONTENT: SolutionContent = {
         title: "Fast onboarding for seasonal and casual staff",
         body: "Hotel F&B teams turn over fast, especially seasonally. Our structured onboarding gets casual and new starters performing to standard within weeks.",
       },
+      {
+        title: "Test applicants for every outlet",
+        body: "Before a seasonal hiring rush, email applicants a 30 minute test for bar, floor, kitchen or supervisor roles, and read how each one handles allergies, complaints and responsible service.",
+        href: "/applicant-testing",
+        linkLabel: "How applicant tests work",
+      },
     ],
   },
   cta: {

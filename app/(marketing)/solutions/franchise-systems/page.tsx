@@ -67,6 +67,12 @@ const CONTENT: SolutionContent = {
         title: "High-turnover onboarding without the overhead",
         body: "Hospitality turnover is real. Self-serve digital onboarding means new starters train themselves through structured modules without pulling management time.",
       },
+      {
+        title: "One hiring test across the network",
+        body: "Every franchisee can send applicants the same 30 minute test for their role, so a new starter at any site is weighed against the same questions.",
+        href: "/applicant-testing",
+        linkLabel: "How applicant tests work",
+      },
     ],
   },
   cta: {

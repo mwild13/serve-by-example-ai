@@ -20,10 +20,13 @@ const PRIVATE_PATHS = [
   "/toolkit/success",
 ];
 
-// AI crawlers are welcome on the public site. Each gets the same rules as
+// AI search and assistant crawlers are welcome on the public site, so the
+// site can be found and quoted in AI answers. Each gets the same rules as
 // everyone else: a crawler with its own group ignores the "*" group, so a
-// bare "Allow: /" here would let it into the app.
-const AI_CRAWLERS = ["GPTBot", "ClaudeBot", "PerplexityBot"];
+// bare "Allow: /" here would let it into the app. AI training crawlers
+// (GPTBot, ClaudeBot, CCBot and others) are blocked in Cloudflare's AI Crawl
+// Control instead, so they are not listed here.
+const AI_CRAWLERS = ["OAI-SearchBot", "ChatGPT-User", "Claude-SearchBot", "PerplexityBot"];
 
 export default function robots(): MetadataRoute.Robots {
   return {

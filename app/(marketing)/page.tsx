@@ -45,6 +45,10 @@ const FAQS = [
     a: "Yes. The free demo gives you access to the scenario engine and a sample of the training content. Venue plans include a walkthrough call before any commitment.",
   },
   {
+    q: "Can I test job applicants before I hire them?",
+    a: "Yes, on the Venue and Group plans. From the Manager Console you email an applicant a test of about 30 minutes for bar, floor, kitchen or management. You get their answers in their own words, how each answer was produced, and questions to ask in the interview. They don't need an account.",
+  },
+  {
     q: "How is this different from a generic LMS?",
     a: "Generic LMS platforms are built for corporate compliance training: long videos, passive quizzes, and no real skill measurement. Serve By Example is built for hospitality: scenario roleplay, live scoring, and skill ratings designed around shift-by-shift operations.",
   },
@@ -60,6 +64,12 @@ const SYSTEMS = [
     audience: "For general managers",
     title: "Manager Console",
     body: "Every module, quiz and scenario lands in your console as it happens. You can see who is ready for Friday night without asking anyone.",
+  },
+  {
+    audience: "For hiring",
+    title: "Applicant Testing",
+    body: "Email an applicant a 30 minute test for bar, floor, kitchen or management. Read their answers in their own words before the interview.",
+    href: "/applicant-testing",
   },
 ];
 
@@ -175,6 +185,11 @@ export default function Home() {
                 <p className="sbe-mkt-duo-for">{system.audience}</p>
                 <h3>{system.title}</h3>
                 <p>{system.body}</p>
+                {system.href ? (
+                  <Link href={system.href} className="sbe-mkt-duo-link">
+                    How applicant tests work
+                  </Link>
+                ) : null}
               </div>
             ))}
           </div>

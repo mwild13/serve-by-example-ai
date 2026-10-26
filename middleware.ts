@@ -312,7 +312,17 @@ export async function middleware(request: NextRequest) {
   // straight to the mobile app.
   // A staff join link keeps its code and goes through /dashboard, which
   // routes it on (to mobile Settings on a phone).
-  if (path === "/login" && user) {
+  if (path === "/login" && user && supabase) {
+    // getClaims() only checks the token's signature, so a session ended on
+    // the server still passes until its access token expires (up to an hour).
+    // The app's pages call getUser(), which refuses it and sends the browser
+    // back here, and the two bounced it between /login and the app. Confirm
+    // with Auth before sending anyone on; one call, and only on /login.
+    const { data: confirmed } = await supabase.auth.getUser();
+    if (!confirmed.user) {
+      await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
+      return clearStaleAuthCookies(response);
+    }
     const appUrl = request.nextUrl.clone();
     if (appUrl.searchParams.has("join")) {
       appUrl.pathname = "/dashboard";

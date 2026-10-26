@@ -2637,12 +2637,26 @@ a.lgd-choice { display: block; text-decoration: none; }
   color: var(--nav-cream);
 }
 
-.sbe-mkt-duo-item p:last-child {
+.sbe-mkt-duo-item p:last-child,
+.sbe-mkt-duo-item p:has(+ .sbe-mkt-duo-link) {
   margin: 0;
   max-width: 32rem;
   font-size: var(--fs-body);
   line-height: var(--lh-body);
   color: var(--text-light-on-dark);
+}
+
+.sbe-mkt-duo-link {
+  display: inline-block;
+  margin-top: 1rem;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--gold-warm);
+  text-underline-offset: 0.2em;
+}
+
+.sbe-mkt-duo-link:hover {
+  color: var(--nav-cream);
 }
 
 @media (min-width: 900px) {

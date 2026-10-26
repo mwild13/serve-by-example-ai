@@ -12,6 +12,7 @@ const ROUTES: Route[] = [
   { path: "/platform", band: true },
   { path: "/platform/challenges", band: true },
   { path: "/how-it-works", band: true },
+  { path: "/applicant-testing", band: true },
   { path: "/solutions", band: true },
   { path: "/solutions/fine-dining", band: true },
   { path: "/solutions/franchise-systems", band: true },

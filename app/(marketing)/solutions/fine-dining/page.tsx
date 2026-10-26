@@ -67,6 +67,12 @@ const CONTENT: SolutionContent = {
         title: "High-pressure simulation before Friday night",
         body: "Staff rehearse service timing, course pacing, and multi-table management in scenario practice, before the stakes are real.",
       },
+      {
+        title: "Test applicants before the trial shift",
+        body: "Email a floor or kitchen applicant a 30 minute test and read, in their own words, how they would handle an allergy question or a late table, before you give up a service to trial them.",
+        href: "/applicant-testing",
+        linkLabel: "How applicant tests work",
+      },
     ],
   },
   cta: {

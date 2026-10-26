@@ -10,11 +10,18 @@
  *   node scripts/device-mockups.mjs login-manager [base-url]
  *   node scripts/device-mockups.mjs capture [base-url] [name ...]   default http://localhost:3000, every screen
  *   node scripts/device-mockups.mjs compose
+ *   node scripts/device-mockups.mjs applicant <test link>
  *
  * capture needs the saved QA session (tests/e2e/.auth/state.json, made by step 5
  * of docs/LIVE_APP_TESTING.md section 6) and, for the console screens, a manager
  * session saved to tests/e2e/.auth/manager-state.json. Raw captures go to
  * .playwright-mcp/shots-raw/ (gitignored); compose reads them from there.
+ *
+ * applicant opens an applicant test link (from an invite sent to the QA
+ * address) in a phone-sized browser. The owner takes the test by hand and
+ * presses Enter in the terminal on an ordering task and again on a written
+ * situation once an answer is typed; each press saves that screen. Capture
+ * the console report afterwards with capture ... console-applicant-report.
  *
  * Names on screen are swapped for SHOW_NAMES just before each capture, so the
  * pictures show a believable venue without fake rows going into the database.
@@ -39,6 +46,7 @@ const TEXT_SWAPS = [
   ["\\bQA\\b", "Sam"],
   ["\\bQP\\b", "ST"],
   ["\\s*·\\s*[\\w.]+@demo\\.sbe-internal\\.example", ""],
+  ["mitch\\+qa@servebyexample\\.co", "jordan.lee@example.com"],
 ];
 
 // A reply typed into Live Guest ("Stacked to help") and left unsent, so the
@@ -68,6 +76,14 @@ async function talkToGuest(page) {
   await box.blur();
 }
 
+// Opens the newest finished applicant report on the Applicant Testing tab.
+async function openReport(page) {
+  // Scoped to the table: the sidebar's "Reports" tab also matches "Report".
+  await page.locator(".mc-at-actions").getByRole("button", { name: "Report", exact: true }).first().click();
+  await page.locator(".mc-at-summary").first().waitFor({ timeout: 15000 });
+  await page.waitForTimeout(600);
+}
+
 // name: [session, viewport, path, options]. Options: dark (mobile dark mode),
 // act (steps to run on the page before the capture).
 // The progress and Overview screens need recent training: the QA account and
@@ -94,6 +110,7 @@ const CAPTURES = {
   "console-compliance": ["manager", COMPACT, "/management/dashboard?tab=compliance"],
   "console-reports": ["manager", DESKTOP, "/management/dashboard?tab=reports"],
   "console-coach": ["manager", DESKTOP, "/management/dashboard?tab=aicoach"],
+  "console-applicant-report": ["manager", DESKTOP, "/management/dashboard?tab=applicants", { act: openReport }],
 };
 
 // Composed outputs. kind: "phone" (one framed phone), "screen" (a plain
@@ -119,6 +136,10 @@ const COMPOSE = {
   "phone-challenge-sort": { kind: "phone", src: "mobile-challenge-sort" },
   "phone-challenge-choice": { kind: "phone", src: "mobile-challenge-choice" },
   "phone-challenge-pairs": { kind: "phone", src: "mobile-challenge-pairs" },
+  "console-applicant-report": { kind: "screen", src: "console-applicant-report" },
+  "phone-applicant-order": { kind: "phone", src: "applicant-order" },
+  "phone-applicant-written": { kind: "phone", src: "applicant-written" },
+  "applicant-devices": { kind: "hero", laptop: "console-applicant-report", phones: ["applicant-written", "applicant-order"] },
 };
 
 // ── Capture ──────────────────────────────────────────────────────────────────
@@ -145,7 +166,10 @@ async function capture(baseUrl, only) {
     });
     const page = await context.newPage();
     await page.goto(baseUrl + route, { waitUntil: "load" });
-    if (new URL(page.url()).pathname.startsWith("/login")) {
+    // A dead session lands on /login, or (before 2026-10-27's middleware fix)
+    // bounced between /login and /dashboard, so check we stayed on the page.
+    await page.waitForTimeout(1500);
+    if (new URL(page.url()).pathname !== new URL(baseUrl + route).pathname) {
       const fix = session === "staff" ? "run step 5 of docs/LIVE_APP_TESTING.md section 6 again" : "run login-manager again";
       console.log(`skip ${session} screens: the session is signed out, ${fix}.`);
       signedOut.add(session);
@@ -171,6 +195,45 @@ async function capture(baseUrl, only) {
     console.log(`captured ${name}`);
     await context.close();
   }
+  await browser.close();
+}
+
+// ── Applicant test ───────────────────────────────────────────────────────────
+
+const waitForEnter = (message) => {
+  console.log(message);
+  return new Promise((resolve) => process.stdin.once("data", resolve));
+};
+
+async function applicant(link) {
+  if (!link || !/\/apply\/[\w-]+/.test(link)) {
+    console.error("Pass the test link from the invite email: node scripts/device-mockups.mjs applicant <link>");
+    process.exit(1);
+  }
+  mkdirSync(RAW, { recursive: true });
+  const browser = await launchVisible();
+  const { width, height, ...device } = PHONE;
+  const context = await browser.newContext({ viewport: { width, height }, ...device, reducedMotion: "reduce" });
+  const page = await context.newPage();
+  await page.goto(link);
+  for (const [name, prompt] of [
+    ["applicant-order", "Take the test in the browser window. On an ordering task, drag one step, then press Enter here."],
+    ["applicant-written", "Carry on. On a written situation, type your answer (a few sentences), then press Enter here."],
+  ]) {
+    await waitForEnter(prompt);
+    await page.evaluate(() => {
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+      // Not part of the test: the cookie banner, and the book-a-call button
+      // that showed on /apply until it was hidden there on 2026-10-27.
+      document.querySelectorAll(".cookie-banner, .floating-book-call").forEach((el) => el.remove());
+    });
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(300);
+    await page.screenshot({ path: path.join(RAW, `${name}.png`) });
+    console.log(`captured ${name}`);
+  }
+  await waitForEnter("Finish the test in the browser, then press Enter here to close it.");
+  process.stdin.pause();
   await browser.close();
 }
 
@@ -303,10 +366,27 @@ async function compose() {
   await browser.close();
 }
 
+// The visible browsers the owner uses by hand. Cloudflare's human check
+// (Turnstile, error 600010) fails in Playwright's own Chromium because it
+// announces automation, so use the installed Google Chrome without that flag,
+// falling back to Chromium if Chrome isn't installed.
+async function launchVisible() {
+  const options = {
+    headless: false,
+    ignoreDefaultArgs: ["--enable-automation"],
+    args: ["--disable-blink-features=AutomationControlled"],
+  };
+  try {
+    return await chromium.launch({ ...options, channel: "chrome" });
+  } catch {
+    return chromium.launch(options);
+  }
+}
+
 // Opens a visible browser at the sign-in page. The owner signs in as a manager
 // by hand; once the console loads, the session is saved for capture.
 async function loginManager(baseUrl) {
-  const browser = await chromium.launch({ headless: false });
+  const browser = await launchVisible();
   const context = await browser.newContext({ viewport: { width: 1280, height: 860 } });
   const page = await context.newPage();
   await page.goto(`${baseUrl}/login`);
@@ -332,6 +412,7 @@ const [command, baseUrl = "http://localhost:3000", ...only] = process.argv.slice
 if (command === "capture") await capture(baseUrl.replace(/\/$/, ""), only);
 else if (command === "login-manager") await loginManager(baseUrl.replace(/\/$/, ""));
 else if (command === "compose") await compose();
+else if (command === "applicant") await applicant(baseUrl);
 else {
   console.error("Usage: node scripts/device-mockups.mjs login-manager [base-url] | capture [base-url] | compose");
   process.exit(1);

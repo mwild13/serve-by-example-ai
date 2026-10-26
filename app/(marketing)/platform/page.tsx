@@ -81,6 +81,31 @@ const FEATURES: RuledItem[] = [
   },
 ];
 
+// Applicant Testing claims rule: docs/MARKETING_SITE.md §3.
+const HIRING_ROW: MediaRow = {
+  tag: "Hiring",
+  title: "Test applicants before you meet them.",
+  body: "Email a bartender, floor staff member, chef or manager a 30 minute test built from the same training your team uses. They need no account and see no timer. You make the call.",
+  points: [
+    "Scores for each part and every answer in full",
+    "How each answer was produced: time taken, pasted text, time away",
+    "Questions to ask in the interview",
+  ],
+  action: { label: "How applicant tests work", href: "/applicant-testing" },
+  image: {
+    src: "/shots/console-applicant-report.webp",
+    alt: "Serve By Example Manager Console: an applicant's test report with a score for each part and an AI summary with interview questions",
+    width: 2000,
+    height: 1250,
+  },
+  phone: {
+    src: "/shots/phone-applicant-order.webp",
+    alt: "The applicant test on a phone: putting the steps for pouring a schooner in order, by dragging or with arrows",
+    width: 836,
+    height: 1744,
+  },
+};
+
 const AUDIENCES: SplitPanelItem[] = [
   {
     label: "For frontline staff",
@@ -157,6 +182,7 @@ export default function PlatformPage() {
           { id: "overview", label: "Overview" },
           { id: "insights", label: "Analytics" },
           { id: "arena", label: "What's inside" },
+          { id: "hiring", label: "Hiring" },
           { id: "mobile", label: "Mobile" },
         ]} />
 
@@ -188,6 +214,8 @@ export default function PlatformPage() {
           items={FEATURES}
           primary={{ label: "Try the demo", href: "/demo" }}
         />
+
+        <MediaRows id="hiring" rows={[HIRING_ROW]} startFlipped />
 
         <SplitPanel
           id="features"

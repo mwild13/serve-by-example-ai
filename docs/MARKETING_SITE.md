@@ -9,6 +9,7 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 | `/` | Homepage |
 | `/platform` | Platform overview |
 | `/platform/challenges` | Interactive Challenges marketing page |
+| `/applicant-testing` | Applicant Testing landing page, for searches such as "hospitality pre-employment test" and "bartender skills test". FAQPage JSON-LD from its `FAQS`. The example situation on it is written for the page and is not in the test (claims rule in §3) |
 | `/solutions` | Solutions by venue type |
 | `/solutions/fine-dining` | Fine dining vertical |
 | `/solutions/franchise-systems` | Franchise systems vertical |

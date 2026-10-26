@@ -282,7 +282,7 @@ Every marketing page is on the standard.
 | Area | State |
 |---|---|
 | Homepage, `/pricing` and `/membership` | Reference implementations. |
-| `/platform`, `/platform/challenges`, `/how-it-works`, `/about`, `/for-venues`, `/roi`, `/resources`, `/resources/sop-toolkit`, `/roadmap`, `/security`, `/vs-generic-lms` | Built from `components/marketing/sections.tsx`. |
+| `/platform`, `/platform/challenges`, `/applicant-testing`, `/how-it-works`, `/about`, `/for-venues`, `/roi`, `/resources`, `/resources/sop-toolkit`, `/roadmap`, `/security`, `/vs-generic-lms` | Built from `components/marketing/sections.tsx`. |
 | `/solutions` and the four vertical pages | Hub is one ruled index. Verticals share `SolutionPage`. `/solutions/multi-venue` redirects to `/solutions/pub-groups` and has no page file. |
 | `/contact` | Server page with the `ContactForm` client island. |
 | `/advisory` | Shared headings and accordion; its own `sbe-adv-` classes for the hero, hub band and package board. |

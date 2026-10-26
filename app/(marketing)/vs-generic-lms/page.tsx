@@ -49,6 +49,11 @@ const COMPARISON = [
     sbe: "Group health scores, cross-venue skill gap analysis, and every venue managed from one console. Up to 35 staff on the Group plan, unlimited on Franchise.",
   },
   {
+    topic: "Hiring",
+    generic: "Nothing for applicants. Someone becomes a user only after they're hired, so the interview is the only test.",
+    sbe: "Applicant Testing on Venue and Group plans: email an applicant a 30 minute test for bar, floor, kitchen or management, built from the same training, and read every answer and questions for the interview.",
+  },
+  {
     topic: "Engagement",
     generic: "Staff log in when forced to. Completion deadlines and reminders via email are the engagement strategy.",
     sbe: "Badge system, streaks, leaderboards, and daily focus recommendations keep staff returning voluntarily. Built for the people who actually have to use it.",
@@ -121,7 +126,7 @@ export default function VsGenericLmsPage() {
             <SectionHead
               kicker="Head-to-head"
               title="What generic LMS platforms get wrong for hospitality."
-              lede="Eight dimensions where the platform design fundamentally differs."
+              lede="Nine areas where the platform design fundamentally differs."
             />
             <table className="sbe-mkt-versus-table">
               <thead>
