@@ -42,6 +42,7 @@ Hyphens in words (`pre-shift`, `bar-back`, `30-day`) are fine.
 - Staff mobile app (`/mobile`): `docs/MOBILE_BUILD.md`.
 - Manager Console: `docs/MANAGER_CONSOLE.md` section 6.
 - Marketing site: `docs/Pages-Redesign.md`.
+- Social media (Instagram posts, captions, Reels, ads, DMs): `AGENTS_SOCIALS.md`. It has its own visual system and the platform and legal rules to check every request against.
 
 ## 4. Secrets and live testing
 

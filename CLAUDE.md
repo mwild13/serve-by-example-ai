@@ -33,6 +33,7 @@ This file is global rules only. Domain-specific architecture, component maps, an
 - Writing rules for every agent, above all no em or en dashes anywhere a person reads (enforced by `lib/no-dashes.test.ts`): `AGENTS.md`
 
 - Marketing site (public routes, geo-blocking, brand voice, component usage): `docs/MARKETING_SITE.md`; page design standard: `docs/Pages-Redesign.md`
+- Social media (Instagram content, slide graphics, ads, outreach, the rules to pull the owner up on): `AGENTS_SOCIALS.md`; slide template `docs/socials/slide-template.html`, rendered by `scripts/social-render.mjs`
 - Manager Console (data fetching, RBAC, state management): `docs/MANAGER_CONSOLE.md`
 - Staff App, web and mobile: training loop, Live Guest, the staff desktop standard (section 8): `docs/STAFF_APP.md`
 - Mobile app (`/mobile`) routes, data layer, offline queue: `docs/MOBILE_BUILD.md`

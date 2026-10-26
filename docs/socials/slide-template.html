@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<title>Social slide template</title>
+<!-- Opened straight from docs/socials, this base finds public/ and the fonts.
+     scripts/social-render.mjs swaps it for the repo root, so a copy saved
+     anywhere still renders. Rules for every slide: AGENTS_SOCIALS.md. -->
+<base href="../../">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap">
+<style>
+/* Social tokens (AGENTS_SOCIALS.md section 6). Brand colours, social sizes. */
+:root {
+  --s-ground-dark: #0f2d1d;
+  --s-ground-light: #f5f2e9;
+  --s-card: #fffef9;
+  --s-ink-on-dark: #f5f2e9;
+  --s-soft-on-dark: #c9d6cc;
+  --s-ink-on-light: #172f22;
+  --s-soft-on-light: #525047;
+  --s-green: #1f4e37;
+  --s-green-light: #e4efea;
+  --s-gold-on-dark: #c49a2f;
+  --s-gold-on-light: #a9812a;
+  --s-line: #ddd2ba;
+  --s-wrong: #8a2f22;
+  --s-wrong-light: #f6e3df;
+  --display: "Newsreader", Georgia, serif;
+  --body: "Inter", system-ui, sans-serif;
+  --margin: 96px;
+}
+* { box-sizing: border-box; margin: 0; }
+body { background: #6b6b6b; padding: 40px; display: grid; gap: 40px; justify-content: center; font-family: var(--body); }
+
+/* One .slide is one PNG. Feed: 1080 x 1440 (3:4). */
+.slide {
+  width: 1080px; height: 1440px; position: relative; overflow: hidden;
+  display: flex; flex-direction: column; padding: var(--margin);
+  background: var(--s-ground-light); color: var(--s-ink-on-light);
+  --gold: var(--s-gold-on-light); --soft: var(--s-soft-on-light);
+}
+.slide.dark { background: var(--s-ground-dark); color: var(--s-ink-on-dark); --gold: var(--s-gold-on-dark); --soft: var(--s-soft-on-dark); }
+
+/* Stories and Reel covers: 1080 x 1920 (9:16). Keep words inside the safe
+   area: 192px clear at the top, 384px at the bottom, 120px on the right. */
+.slide.story { height: 1920px; padding: 192px 120px 384px var(--margin); }
+.guides .slide.story::after {
+  content: ""; position: absolute; inset: 192px 120px 384px 0;
+  outline: 4px dashed #e0457b; pointer-events: none;
+}
+
+.top, .bottom { display: flex; align-items: center; justify-content: space-between; font-size: 30px; }
+.bottom { margin-top: auto; color: var(--soft); }
+.brand { display: flex; align-items: center; gap: 20px; font-weight: 600; }
+.brand .tile { width: 64px; height: 64px; border-radius: 14px; background: var(--s-ground-light); display: grid; place-items: center; }
+.slide:not(.dark) .brand .tile { background: var(--s-green-light); }
+.brand .tile img { width: 44px; height: 44px; }
+.count { color: var(--soft); font-variant-numeric: tabular-nums; font-weight: 600; }
+.swipe { display: flex; align-items: center; gap: 12px; font-weight: 600; color: inherit; }
+.swipe svg { width: 32px; height: 32px; }
+
+.body { margin-block: auto; display: grid; gap: 40px; }
+.eyebrow { font-size: 30px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
+.hook { font-family: var(--display); font-weight: 600; font-size: 112px; line-height: 1.02; letter-spacing: -.015em; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 76px; line-height: 1.08; text-wrap: balance; }
+.slide:not(.dark) h2, .slide:not(.dark) .hook { color: var(--s-green); }
+.lede { font-size: 46px; line-height: 1.35; color: var(--soft); text-wrap: pretty; }
+.step { font-family: var(--display); font-size: 160px; line-height: 1; color: var(--gold); }
+
+.options { display: grid; gap: 24px; }
+.option { display: flex; gap: 28px; align-items: center; padding: 32px 36px; border-radius: 20px; background: var(--s-card); border: 2px solid var(--s-line); font-size: 42px; line-height: 1.3; }
+.option b { font-size: 44px; color: var(--s-green); min-width: 40px; }
+.option.right { background: var(--s-green-light); border-color: var(--s-green); }
+.option.wrong { background: var(--s-wrong-light); border-color: var(--s-wrong); }
+
+.cta { display: inline-flex; align-self: start; padding: 28px 48px; border-radius: 999px; background: var(--s-ground-light); color: var(--s-green); font-size: 40px; font-weight: 700; }
+.shot { width: 100%; border-radius: 28px; display: block; }
+
+/* Decoration from the launch kit: two faint rings, bottom right. */
+.rings { position: absolute; right: -260px; bottom: -380px; width: 900px; height: 900px; border-radius: 50%; border: 2px solid var(--gold); opacity: .25; pointer-events: none; }
+.rings::after { content: ""; position: absolute; inset: 80px; border-radius: 50%; border: 2px solid var(--gold); }
+</style>
+</head>
+<body>
+<!-- Add class="guides" to <body> to see the story safe area. Remove it before rendering. -->
+
+<!-- Slide 1: the hook. Dark, one line of eyebrow, one headline, one sentence. -->
+<section class="slide dark">
+  <div class="top">
+    <div class="brand"><span class="tile"><img src="public/brand/logo-mark.svg" alt=""></span>Serve By Example</div>
+    <span class="count">1 / 4</span>
+  </div>
+  <div class="body">
+    <p class="eyebrow">Save this for your next new starter</p>
+    <h1 class="hook">7 things before their first Friday.</h1>
+    <p class="lede">Cover these in their first week and Friday stops being a test.</p>
+  </div>
+  <div class="bottom">
+    <span>servebyexample.co</span>
+    <span class="swipe">Swipe <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+  </div>
+  <div class="rings"></div>
+</section>
+
+<!-- Slide 2: a content slide. It must make sense on its own, because
+     Instagram can show a carousel again starting here. -->
+<section class="slide">
+  <div class="top">
+    <div class="brand"><span class="tile"><img src="public/brand/logo-mark.svg" alt=""></span>Serve By Example</div>
+    <span class="count">2 / 4</span>
+  </div>
+  <div class="body">
+    <span class="step">1</span>
+    <h2>Walk them through the venue before service.</h2>
+    <p class="lede">Fire exits, first aid kit, the cool room, where the spare kegs live. Ten minutes, before it gets busy.</p>
+  </div>
+  <div class="bottom">
+    <span>servebyexample.co</span>
+    <span class="swipe">Swipe <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+  </div>
+</section>
+
+<!-- Slide 3: an A, B or C quiz. Mark the answer on the reveal slide with
+     .right and .wrong; leave both off on the question slide. -->
+<section class="slide">
+  <div class="top">
+    <div class="brand"><span class="tile"><img src="public/brand/logo-mark.svg" alt=""></span>Serve By Example</div>
+    <span class="count">3 / 4</span>
+  </div>
+  <div class="body">
+    <p class="eyebrow">Quick one</p>
+    <h2>A guest points at lipstick on their wine glass.</h2>
+    <div class="options">
+      <p class="option wrong"><b>A</b>I'll tell the bar team</p>
+      <p class="option right"><b>B</b>Sorry, I'll replace it now</p>
+      <p class="option wrong"><b>C</b>I'll give it a wipe</p>
+    </div>
+  </div>
+  <div class="bottom">
+    <span>servebyexample.co</span>
+    <span class="swipe">Swipe <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+  </div>
+</section>
+
+<!-- Slide 4: the call to action. One ask. No Swipe on the last slide. -->
+<section class="slide dark">
+  <div class="top">
+    <div class="brand"><span class="tile"><img src="public/brand/logo-mark.svg" alt=""></span>Serve By Example</div>
+    <span class="count">4 / 4</span>
+  </div>
+  <div class="body">
+    <h2>Want the full onboarding SOP for your venue?</h2>
+    <p class="lede">Comment SOP and we'll send you the free template.</p>
+    <span class="cta">Comment SOP</span>
+  </div>
+  <div class="bottom"><span>servebyexample.co</span></div>
+  <div class="rings"></div>
+</section>
+
+<!-- Story or Reel cover, 1080 x 1920. Instagram's grid shows the middle
+     1080 x 1440 of a Reel cover, so keep the headline near the centre. -->
+<section class="slide dark story">
+  <div class="top">
+    <div class="brand"><span class="tile"><img src="public/brand/logo-mark.svg" alt=""></span>Serve By Example</div>
+  </div>
+  <div class="body">
+    <p class="eyebrow">Two minutes, no sign-up</p>
+    <h1 class="hook">This guest is furious. Would your staff pass?</h1>
+  </div>
+  <div class="bottom"><span>Link in bio</span></div>
+  <div class="rings"></div>
+</section>
+</body>
+</html>
