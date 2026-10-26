@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { drawTest, parseItemKey, TRACKS } from "./blueprint";
 import { CORE_MODULES, ROLE_MODULES, coreModulesFor, findSourceQuestion, trackSources } from "./content";
 import { KITCHEN_BANK } from "./questions/kitchen";
+import { MANAGEMENT_BANK } from "./questions/management";
 import { WRITTEN_PROMPTS } from "./questions/written";
 import { liveQuestions } from "@/lib/question-bank";
 
@@ -33,16 +34,10 @@ describe("applicant content", () => {
     expect(coreModulesFor("kitchen").every((m) => CORE_MODULES.includes(m))).toBe(true);
   });
 
-  it("can deal a full bar and floor test today", () => {
-    for (const track of ["bar", "floor"] as const) {
+  it("can deal a full test for every role today", () => {
+    for (const { id: track } of TRACKS) {
       expect(drawTest(trackSources(track), seeded(1)).ok).toBe(true);
     }
-  });
-
-  it("can fill the kitchen's core quiz and ordering tasks", () => {
-    const result = drawTest(trackSources("kitchen"), seeded(1));
-    expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.shortfall.map((s) => s.section).sort()).toEqual(["role", "written"]);
   });
 
   it("finds the question behind every quiz and ordering key it deals", () => {
@@ -80,10 +75,11 @@ describe("applicant content", () => {
     }
   });
 
-  it("has well formed kitchen questions, unique by id and concept", () => {
-    const ids = KITCHEN_BANK.flatMap((t) => t.questions.map((q) => q.id));
+  it("has well formed bank questions, unique by id and concept", () => {
+    const banks = [...KITCHEN_BANK, ...MANAGEMENT_BANK];
+    const ids = banks.flatMap((t) => t.questions.map((q) => q.id));
     expect(new Set(ids).size).toBe(ids.length);
-    for (const topic of KITCHEN_BANK) {
+    for (const topic of banks) {
       expect(topic.questions.length).toBeGreaterThanOrEqual(6);
       const concepts = topic.questions.map((q) => q.concept);
       expect(new Set(concepts).size).toBe(concepts.length);
@@ -98,19 +94,15 @@ describe("applicant content", () => {
     }
   });
 
-  it("can deal a full kitchen test once its questions and scenarios are approved", () => {
-    const sources = trackSources("kitchen");
-    const bankSources = new Set(KITCHEN_BANK.map((t) => t.source));
-    const role = sources.role.map((s) =>
-      bankSources.has(s.source) ? { ...s, questions: KITCHEN_BANK.find((t) => t.source === s.source)?.questions.map((q) => ({ ...q, reviewed: true })) ?? [] } : s,
-    );
-    const written = WRITTEN_PROMPTS.filter((p) => p.tracks.includes("kitchen")).map((p) => ({ ...p, reviewed: true }));
-    const result = drawTest({ ...sources, role, order: [...role, ...sources.core], written }, seeded(3));
-    expect(result.ok).toBe(true);
-    if (result.ok) {
+  it("gives chefs and managers mostly their own role questions and ordering tasks", () => {
+    for (const [track, prefix, modules] of [["kitchen", "kitchen-", "6|11|16|17|18|21|25|29"], ["management", "management-", "8|11|15|16|17|18|19|20|21|22|24|25"]] as const) {
+      const result = drawTest(trackSources(track), seeded(3));
+      if (!result.ok) throw new Error(`${track} should be ready`);
       const roleKeys = result.plan.queue.filter((k) => k.startsWith("role:"));
-      expect(roleKeys.filter((k) => k.includes(":kitchen-")).length).toBeGreaterThanOrEqual(4);
-      expect(result.plan.queue.filter((k) => k.startsWith("order:")).every((k) => k.includes(":kitchen-") || /^order:(6|11|16|17|18|21|25|29):/.test(k))).toBe(true);
+      expect(roleKeys.filter((k) => k.includes(`:${prefix}`)).length).toBeGreaterThanOrEqual(4);
+      const pattern = new RegExp(`^order:(${prefix}[a-z]+|${modules}):`);
+      expect(result.plan.queue.filter((k) => k.startsWith("order:")).every((k) => pattern.test(k))).toBe(true);
     }
   });
+
 });

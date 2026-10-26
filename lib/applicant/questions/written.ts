@@ -269,7 +269,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Wipes or scrapes the dressing off and sends the same plate",
       "Carries on without telling anyone because the kitchen is too busy",
     ],
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "kitchen-warm-coolroom",
@@ -289,7 +289,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Uses the food because it still feels cold or smells fine",
       "Says nothing and carries on with prep",
     ],
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "kitchen-sent-back",
@@ -308,7 +308,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Refuses to cook it again or argues that the guest is wrong",
       "Sends the same steak back out after a moment in the pan",
     ],
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "kitchen-down-a-cook",
@@ -328,7 +328,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Cuts corners on food safety to keep up",
       "Says nothing until service falls apart",
     ],
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "kitchen-same-board",
@@ -348,7 +348,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Says nothing to the junior cook",
       "Humiliates them in front of the kitchen",
     ],
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "kitchen-burn-on-the-line",
@@ -367,7 +367,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Lets them carry on working",
       "Puts ice or butter on the burn",
     ],
-    reviewed: false,
+    reviewed: true,
   },
 
   // ── Management ─────────────────────────────────────────────
@@ -388,7 +388,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Takes it out on the staff who did turn up",
       "Decides the missing staff are in trouble before knowing why",
     ],
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "mgmt-fight-at-the-door",
@@ -408,7 +408,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Wades in alone, or sends a junior staff member in",
       "Lets those involved keep drinking, or doesn't record it",
     ],
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "mgmt-till-short",
@@ -427,7 +427,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Accuses a staff member in front of others",
       "Takes the money out of staff pay",
     ],
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "mgmt-free-pouring",
@@ -446,7 +446,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Lets it go because they're good at their job",
       "Tells them off in front of the team",
     ],
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "mgmt-bill-complaint",
@@ -466,7 +466,7 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Gives away a large amount just to stop the review",
       "Tells the server off in front of the guest",
     ],
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "mgmt-first-shift",
@@ -485,6 +485,6 @@ export const WRITTEN_PROMPTS: WrittenPrompt[] = [
       "Puts them on a full section alone with no induction",
       "Doesn't check they hold the certificates the role needs",
     ],
-    reviewed: false,
+    reviewed: true,
   },
 ];

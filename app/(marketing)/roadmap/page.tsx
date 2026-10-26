@@ -53,7 +53,7 @@ const SHIPPED: StripItem[] = [
   {
     label: "Applicant Testing",
     title: "Test applicants before you meet them",
-    body: "Email a job applicant a 30 minute test built from the same training your team uses. You get their answers in their own words, how each answer was produced, and questions to ask in the interview.",
+    body: "Email a bartender, floor staff member, chef or manager a 30 minute test built from the same training your team uses. You get their answers in their own words, how each answer was produced, and questions to ask in the interview.",
   },
   {
     label: "Staff app",
@@ -64,11 +64,6 @@ const SHIPPED: StripItem[] = [
 
 // In order. The label is the stage, not a date.
 const ROADMAP: RuledItem[] = [
-  {
-    label: "Building now",
-    title: "Applicant tests for chefs and managers",
-    body: "Applicant tests for kitchen and management roles, alongside the bar and floor tests: food safety and the pass for chefs, running a shift and handling incidents for managers.",
-  },
   {
     label: "Building now",
     title: "Certificate expiry emails",

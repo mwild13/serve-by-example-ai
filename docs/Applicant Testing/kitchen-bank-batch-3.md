@@ -10,7 +10,7 @@ For each one, say approve, change (and how), or drop. "All approved" is fine too
 
 9 questions.
 
-### k-cool-first. A number (not live yet)
+### k-cool-first. A number
 
 Cooked food has to cool from 60°C to 21°C within how many hours?
 
@@ -18,7 +18,7 @@ Cooked food has to cool from 60°C to 21°C within how many hours?
 
 Explanation: The Food Standards Code allows 2 hours to get from 60°C to 21°C, the range where bacteria grow fastest, then 4 more hours to get to 5°C.
 
-### k-cool-second. A number (not live yet)
+### k-cool-second. A number
 
 Once it reaches 21°C, cooked food has to get down to 5°C within how many more hours?
 
@@ -26,7 +26,7 @@ Once it reaches 21°C, cooked food has to get down to 5°C within how many more 
 
 Explanation: After the first 2 hours to 21°C, food has a further 4 hours to reach 5°C. Six hours in all.
 
-### k-cool-stock. Choose one (not live yet)
+### k-cool-stock. Choose one
 
 You've made 20 litres of stock at the end of the night. What's the best way to cool it?
 
@@ -37,7 +37,7 @@ You've made 20 litres of stock at the end of the night. What's the best way to c
 
 Explanation: A big pot holds its heat for hours. Shallow containers and an ice bath get it through the danger zone in time, without warming the coolroom.
 
-### k-two-four. Choose one (not live yet)
+### k-two-four. Choose one
 
 A tray of cooked chicken has been sitting out between 5°C and 60°C for about 3 hours. What should happen to it?
 
@@ -48,7 +48,7 @@ A tray of cooked chicken has been sitting out between 5°C and 60°C for about 3
 
 Explanation: The 2 hour and 4 hour rule: under 2 hours, use it or refrigerate it; 2 to 4 hours, use it straight away; over 4 hours, throw it out.
 
-### k-probe-where. Choose one (not live yet)
+### k-probe-where. Choose one
 
 Where do you put the probe to check a chicken thigh is cooked?
 
@@ -59,7 +59,7 @@ Where do you put the probe to check a chicken thigh is cooked?
 
 Explanation: The thickest part is the last to cook. Bone conducts heat and gives a reading that's too high.
 
-### k-poultry-temp. A number (not live yet)
+### k-poultry-temp. A number
 
 Chicken should reach at least what temperature at its centre?
 
@@ -67,7 +67,7 @@ Chicken should reach at least what temperature at its centre?
 
 Explanation: Poultry is cooked to at least 75°C at the centre, which kills salmonella and campylobacter.
 
-### k-probe-check. A number (not live yet)
+### k-probe-check. A number
 
 To check your probe thermometer, you put it in iced water. What should it read?
 
@@ -75,7 +75,7 @@ To check your probe thermometer, you put it in iced water. What should it read?
 
 Explanation: Iced water sits at 0°C. A probe that reads more than a degree out needs fixing or replacing.
 
-### k-thaw. Choose one (not live yet)
+### k-thaw. Choose one
 
 What's the safest way to thaw a frozen leg of lamb for tomorrow?
 
@@ -86,7 +86,7 @@ What's the safest way to thaw a frozen leg of lamb for tomorrow?
 
 Explanation: Thawing in the coolroom keeps the outside below 5°C while the middle thaws. On a tray on the bottom shelf, the juices can't drip onto other food.
 
-### k-rice. Choose one (not live yet)
+### k-rice. Choose one
 
 Why does cooked rice need cooling and refrigerating quickly?
 
@@ -101,7 +101,7 @@ Explanation: Bacillus cereus spores survive cooking. Left warm, they grow and ma
 
 8 questions.
 
-### k-fifo. Choose one (not live yet)
+### k-fifo. Choose one
 
 A new delivery of cream arrives. Where does it go?
 
@@ -112,7 +112,7 @@ A new delivery of cream arrives. Where does it go?
 
 Explanation: First in, first out. New stock goes behind old stock so nothing goes past its date at the back.
 
-### k-label. Choose one (not live yet)
+### k-label. Choose one
 
 Which label on a container of prepped sauce is complete?
 
@@ -123,7 +123,7 @@ Which label on a container of prepped sauce is complete?
 
 Explanation: Anyone on any shift has to know what it is and whether it's still safe to use, without guessing.
 
-### k-delivery-temp. Choose one (not live yet)
+### k-delivery-temp. Choose one
 
 A chilled delivery of chicken arrives and your probe reads 9°C. What do you do?
 
@@ -134,7 +134,7 @@ A chilled delivery of chicken arrives and your probe reads 9°C. What do you do?
 
 Explanation: Chilled food should arrive at 5°C or below. At 9°C you can't know how long it's been warm, so it's sent back.
 
-### k-use-by. Choose one (not live yet)
+### k-use-by. Choose one
 
 What's the difference between a use by date and a best before date?
 
@@ -145,7 +145,7 @@ What's the difference between a use by date and a best before date?
 
 Explanation: Use by is a safety date and food can't be sold or served after it. Best before is about quality.
 
-### k-coolroom-mistake. Spot the mistake (not live yet)
+### k-coolroom-mistake. Spot the mistake
 
 A new cook tells you how they put the delivery away. Which part is wrong?
 
@@ -156,7 +156,7 @@ A new cook tells you how they put the delivery away. Which part is wrong?
 
 Explanation: Food is stored off the floor, so the floor can be cleaned and pests and water can't reach it.
 
-### k-receive-order. Put in order (not live yet)
+### k-receive-order. Put in order
 
 Put these steps for taking a delivery in order.
 
@@ -168,7 +168,7 @@ Put these steps for taking a delivery in order.
 
 Explanation: Check it before you accept it, get the cold food cold quickly, rotate as you put it away, then record it.
 
-### k-pests. Choose one (not live yet)
+### k-pests. Choose one
 
 You find droppings in the dry store, near an open bag of flour. What do you do?
 
@@ -179,7 +179,7 @@ You find droppings in the dry store, near an open bag of flour. What do you do?
 
 Explanation: Pests carry disease. Contaminated food goes, the area is cleaned and the manager gets pest control in.
 
-### k-dry-store. Choose one (not live yet)
+### k-dry-store. Choose one
 
 You open a new bag of flour but only use half. What happens to the rest?
 
@@ -194,7 +194,7 @@ Explanation: A sealed, labelled container keeps out pests and moisture and tells
 
 8 questions.
 
-### k-mise. Choose one (not live yet)
+### k-mise. Choose one
 
 What does mise en place mean on the line?
 
@@ -205,7 +205,7 @@ What does mise en place mean on the line?
 
 Explanation: Prepped and set up before service means you cook during service instead of prepping in a panic.
 
-### k-heard. Pick the best line (not live yet)
+### k-heard. Pick the best line
 
 The head chef calls a new order for your section. What do you say?
 
@@ -216,7 +216,7 @@ The head chef calls a new order for your section. What do you say?
 
 Explanation: Calling it back tells the chef you heard it and lets them catch a mistake before it's cooked.
 
-### k-timing. Choose one (not live yet)
+### k-timing. Choose one
 
 A table of four orders a steak, a fish, a risotto and a burger. How do you time it?
 
@@ -227,7 +227,7 @@ A table of four orders a steak, a fish, a risotto and a burger. How do you time 
 
 Explanation: A table eats together, so the dishes are worked back from the one that takes longest.
 
-### k-pass-check. Spot the mistake (not live yet)
+### k-pass-check. Spot the mistake
 
 A cook tells you what they check before a plate leaves the pass. Which part is wrong?
 
@@ -238,7 +238,7 @@ A cook tells you what they check before a plate leaves the pass. Which part is w
 
 Explanation: An apron isn't clean. Rims are wiped with a clean cloth or paper towel kept for it.
 
-### k-running-low. Choose one (not live yet)
+### k-running-low. Choose one
 
 Halfway through service you see you've only got three portions of fish left. What do you do?
 
@@ -249,7 +249,7 @@ Halfway through service you see you've only got three portions of fish left. Wha
 
 Explanation: The earlier front of house knows, the fewer guests are told their order can't be made after they've ordered it.
 
-### k-allergy-line. Choose one (not live yet)
+### k-allergy-line. Choose one
 
 An order comes through with a dairy allergy on it. Who needs to know?
 
@@ -260,7 +260,7 @@ An order comes through with a dairy allergy on it. Who needs to know?
 
 Explanation: An allergen can get on a plate at any step. Everyone who handles it, and the runner, needs to know.
 
-### k-clean-as-you-go. Choose one (not live yet)
+### k-clean-as-you-go. Choose one
 
 Why do kitchens clean as they go during service?
 
@@ -271,7 +271,7 @@ Why do kitchens clean as they go during service?
 
 Explanation: A clean section is a safer, faster one: fewer slips, fewer mix ups and less cross contamination.
 
-### k-section-start. Put in order (not live yet)
+### k-section-start. Put in order
 
 Put these steps for setting up your section before service in order.
 
@@ -287,7 +287,7 @@ Explanation: Clean hands first, make sure what's in the fridge is safe, then wor
 
 9 questions.
 
-### k-knife-carry. Choose one (not live yet)
+### k-knife-carry. Choose one
 
 How do you carry a knife through a busy kitchen?
 
@@ -298,7 +298,7 @@ How do you carry a knife through a busy kitchen?
 
 Explanation: Point down and called out, so nobody walks into it.
 
-### k-falling-knife. Choose one (not live yet)
+### k-falling-knife. Choose one
 
 A knife slides off the bench. What do you do?
 
@@ -309,7 +309,7 @@ A knife slides off the bench. What do you do?
 
 Explanation: A falling knife is never caught. Step back, then pick it up once it's down.
 
-### k-oil-fire. Choose one (not live yet)
+### k-oil-fire. Choose one
 
 Oil in a pan catches fire. What do you do?
 
@@ -320,7 +320,7 @@ Oil in a pan catches fire. What do you do?
 
 Explanation: Water on burning oil explodes into a fireball. Take away the heat and the air.
 
-### k-clean-sanitise. Put in order (not live yet)
+### k-clean-sanitise. Put in order
 
 Put these steps for cleaning a chopping board in order.
 
@@ -332,7 +332,7 @@ Put these steps for cleaning a chopping board in order.
 
 Explanation: Sanitiser only works on a clean surface, so it comes after washing and rinsing. Air drying avoids a dirty cloth.
 
-### k-sick. Choose one (not live yet)
+### k-sick. Choose one
 
 You had vomiting and diarrhoea last night but feel better now. What should you do about your shift?
 
@@ -343,7 +343,7 @@ You had vomiting and diarrhoea last night but feel better now. What should you d
 
 Explanation: You can still spread the illness after you feel better. Food handlers stay off food until 48 hours after symptoms stop.
 
-### k-cut-finger. Choose one (not live yet)
+### k-cut-finger. Choose one
 
 You nick your finger during prep. Once the bleeding stops, what do you do before carrying on?
 
@@ -354,7 +354,7 @@ You nick your finger during prep. Once the bleeding stops, what do you do before
 
 Explanation: A brightly coloured waterproof dressing and a glove keep the wound out of the food. Food it touched goes in the bin.
 
-### k-gloves. Choose one (not live yet)
+### k-gloves. Choose one
 
 When do you change your gloves?
 
@@ -365,7 +365,7 @@ When do you change your gloves?
 
 Explanation: Gloves carry bacteria like hands do. They're changed between tasks, with hands washed in between.
 
-### k-chemicals. Spot the mistake (not live yet)
+### k-chemicals. Spot the mistake
 
 A kitchen hand tells you how they handle cleaning chemicals. Which part is wrong?
 
@@ -376,7 +376,7 @@ A kitchen hand tells you how they handle cleaning chemicals. Which part is wrong
 
 Explanation: Mixing cleaners, such as bleach and ammonia, can make toxic gas. Use one product as its label says.
 
-### k-handwash. Spot the mistake (not live yet)
+### k-handwash. Spot the mistake
 
 A new cook lists when they wash their hands. Which one is wrong?
 

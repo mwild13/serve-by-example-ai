@@ -65,7 +65,7 @@ const TIERS: Tier[] = [
       "Everything in Staff",
       "Live Guest: 60 guests who talk back, then show what they were thinking",
       "Manager Console with live team progress",
-      "Applicant tests for bar and floor roles: 10 a month",
+      "Applicant tests for bar, floor, kitchen and management roles: 10 a month",
       "Team performance leaderboard",
       "Guided venue setup call",
     ],

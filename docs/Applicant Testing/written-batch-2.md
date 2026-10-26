@@ -10,7 +10,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 1. Kitchen: allergy change
 
-*Id: `kitchen-allergy-at-the-pass`. Not live yet.*
+*Id: `kitchen-allergy-at-the-pass`. Live.*
 
 **The applicant sees:**
 
@@ -34,7 +34,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 2. Kitchen: cold chain
 
-*Id: `kitchen-warm-coolroom`. Not live yet.*
+*Id: `kitchen-warm-coolroom`. Live.*
 
 **The applicant sees:**
 
@@ -58,7 +58,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 3. Kitchen: returned dish
 
-*Id: `kitchen-sent-back`. Not live yet.*
+*Id: `kitchen-sent-back`. Live.*
 
 **The applicant sees:**
 
@@ -81,7 +81,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 4. Kitchen: short staffed
 
-*Id: `kitchen-down-a-cook`. Not live yet.*
+*Id: `kitchen-down-a-cook`. Live.*
 
 **The applicant sees:**
 
@@ -105,7 +105,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 5. Kitchen: cross contamination
 
-*Id: `kitchen-same-board`. Not live yet.*
+*Id: `kitchen-same-board`. Live.*
 
 **The applicant sees:**
 
@@ -129,7 +129,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 6. Kitchen: workplace injury
 
-*Id: `kitchen-burn-on-the-line`. Not live yet.*
+*Id: `kitchen-burn-on-the-line`. Live.*
 
 **The applicant sees:**
 
@@ -152,7 +152,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 7. Management: no shows
 
-*Id: `mgmt-two-no-shows`. Not live yet.*
+*Id: `mgmt-two-no-shows`. Live.*
 
 **The applicant sees:**
 
@@ -175,7 +175,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 8. Management: violent incident
 
-*Id: `mgmt-fight-at-the-door`. Not live yet.*
+*Id: `mgmt-fight-at-the-door`. Live.*
 
 **The applicant sees:**
 
@@ -199,7 +199,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 9. Management: cash variance
 
-*Id: `mgmt-till-short`. Not live yet.*
+*Id: `mgmt-till-short`. Live.*
 
 **The applicant sees:**
 
@@ -222,7 +222,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 10. Management: standards conflict
 
-*Id: `mgmt-free-pouring`. Not live yet.*
+*Id: `mgmt-free-pouring`. Live.*
 
 **The applicant sees:**
 
@@ -245,7 +245,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 11. Management: escalated complaint
 
-*Id: `mgmt-bill-complaint`. Not live yet.*
+*Id: `mgmt-bill-complaint`. Live.*
 
 **The applicant sees:**
 
@@ -269,7 +269,7 @@ The manager sees the answer in full, which points it covered, a line on what was
 
 ## 12. Management: new starter
 
-*Id: `mgmt-first-shift`. Not live yet.*
+*Id: `mgmt-first-shift`. Live.*
 
 **The applicant sees:**
 

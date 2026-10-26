@@ -91,9 +91,9 @@ Migration `supabase/migrations/20261104_applicant_testing.sql` (rollback in `sup
 |---|---|
 | `blueprint.ts` | Tracks, sections and weights, item keys (`core:15:mc3`, `written:<id>`), `drawTest()`, `progressAt()` |
 | `content.ts` | Which modules, banks and prompts each track draws from (`trackSources()`), and `findSourceQuestion()` for grading. Server only |
-| `questions/kitchen.ts` | Kitchen role bank: 34 questions in four topics (cooking and cooling, storage and deliveries, the line and the pass, safety and hygiene), each its own source so a chef's role quiz is spread across them. Drafted, `reviewed: false`. Review sheet: `npm run applicant:review -- --bank kitchen` |
-| `questions/management.ts` | Management role bank, same shape. **Not drafted yet** |
-| `questions/written.ts` | Written scenarios. Bar and floor, six each, approved. Review sheet: `npm run applicant:review` |
+| `questions/kitchen.ts` | Kitchen role bank: 34 questions in four topics (cooking and cooling, storage and deliveries, the line and the pass, safety and hygiene), each its own source so a chef's role quiz is spread across them. Approved 2026-10-27 (batch 3). Review sheet: `npm run applicant:review -- --bank kitchen` |
+| `questions/management.ts` | Management role bank: 31 questions in four topics (running a shift, the licence and responsible service, leading the team, stock, cost and cash). Liquor law questions test the principle every state shares. Written and approved by Claude on 2026-10-27 at the owner's direction (batch 4). Review sheet: `npm run applicant:review -- --bank management` |
+| `questions/written.ts` | Written scenarios, six per role. Bar and floor approved by the owner (batch 1); kitchen and management approved 2026-10-27 at the owner's direction (batch 2). Review sheet: `npm run applicant:review` |
 | `marking.ts`, `summary.ts`, `after-response.ts` | AI marking, the summary, and running them after the response |
 | `scoring.ts` | `scoreQuizItem()` (ordering gets part marks), `sectionScores()`, `overallScore()`, `bandFor()` |
 | `integrity.ts` | `readSignals()` (trims the browser's report to the server's times), `answerFlags()`, `summaryLine()`, all thresholds in `SIGNAL_THRESHOLDS` |
@@ -101,7 +101,7 @@ Migration `supabase/migrations/20261104_applicant_testing.sql` (rollback in `sup
 
 Quizzes never ask True/False (a coin toss). The role quiz must mix at least 3 sources. `drawTest()` refuses a test with any section short, so a track can't be offered until its content exists.
 
-**Readiness today:** Bar and Floor are ready (a test checks this). Kitchen needs batch 2 (its written scenarios) and batch 3 (its question bank) approved. Management needs batch 2; its own bank is optional and not drafted yet.
+**Readiness today:** all four roles can be sent (a test checks this). Management needs its own bank: modules 19 and 20 are only two sources, and the role quiz needs three (`MIN_ROLE_SOURCES`).
 
 ## 7. Routes
 

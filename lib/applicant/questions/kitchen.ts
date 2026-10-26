@@ -22,7 +22,7 @@ const COOKING: Question[] = [
     answer: 2,
     tolerance: 0,
     explanation: "The Food Standards Code allows 2 hours to get from 60°C to 21°C, the range where bacteria grow fastest, then 4 more hours to get to 5°C.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-cool-second",
@@ -34,7 +34,7 @@ const COOKING: Question[] = [
     answer: 4,
     tolerance: 0,
     explanation: "After the first 2 hours to 21°C, food has a further 4 hours to reach 5°C. Six hours in all.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-cool-stock",
@@ -50,7 +50,7 @@ const COOKING: Question[] = [
     ],
     answer: "a",
     explanation: "A big pot holds its heat for hours. Shallow containers and an ice bath get it through the danger zone in time, without warming the coolroom.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-two-four",
@@ -66,7 +66,7 @@ const COOKING: Question[] = [
     ],
     answer: "a",
     explanation: "The 2 hour and 4 hour rule: under 2 hours, use it or refrigerate it; 2 to 4 hours, use it straight away; over 4 hours, throw it out.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-probe-where",
@@ -82,7 +82,7 @@ const COOKING: Question[] = [
     ],
     answer: "a",
     explanation: "The thickest part is the last to cook. Bone conducts heat and gives a reading that's too high.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-poultry-temp",
@@ -94,7 +94,7 @@ const COOKING: Question[] = [
     answer: 75,
     tolerance: 0,
     explanation: "Poultry is cooked to at least 75°C at the centre, which kills salmonella and campylobacter.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-probe-check",
@@ -106,7 +106,7 @@ const COOKING: Question[] = [
     answer: 0,
     tolerance: 1,
     explanation: "Iced water sits at 0°C. A probe that reads more than a degree out needs fixing or replacing.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-thaw",
@@ -122,7 +122,7 @@ const COOKING: Question[] = [
     ],
     answer: "a",
     explanation: "Thawing in the coolroom keeps the outside below 5°C while the middle thaws. On a tray on the bottom shelf, the juices can't drip onto other food.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-rice",
@@ -138,7 +138,7 @@ const COOKING: Question[] = [
     ],
     answer: "a",
     explanation: "Bacillus cereus spores survive cooking. Left warm, they grow and make a toxin that reheating doesn't break down.",
-    reviewed: false,
+    reviewed: true,
   },
 ];
 
@@ -157,7 +157,7 @@ const STORAGE: Question[] = [
     ],
     answer: "a",
     explanation: "First in, first out. New stock goes behind old stock so nothing goes past its date at the back.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-label",
@@ -173,7 +173,7 @@ const STORAGE: Question[] = [
     ],
     answer: "a",
     explanation: "Anyone on any shift has to know what it is and whether it's still safe to use, without guessing.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-delivery-temp",
@@ -189,7 +189,7 @@ const STORAGE: Question[] = [
     ],
     answer: "a",
     explanation: "Chilled food should arrive at 5°C or below. At 9°C you can't know how long it's been warm, so it's sent back.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-use-by",
@@ -205,7 +205,7 @@ const STORAGE: Question[] = [
     ],
     answer: "a",
     explanation: "Use by is a safety date and food can't be sold or served after it. Best before is about quality.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-coolroom-mistake",
@@ -221,7 +221,7 @@ const STORAGE: Question[] = [
     ],
     answer: "a",
     explanation: "Food is stored off the floor, so the floor can be cleaned and pests and water can't reach it.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-receive-order",
@@ -237,7 +237,7 @@ const STORAGE: Question[] = [
       { id: "5", text: "Record the delivery and any problems" },
     ],
     explanation: "Check it before you accept it, get the cold food cold quickly, rotate as you put it away, then record it.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-pests",
@@ -253,7 +253,7 @@ const STORAGE: Question[] = [
     ],
     answer: "a",
     explanation: "Pests carry disease. Contaminated food goes, the area is cleaned and the manager gets pest control in.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-dry-store",
@@ -269,7 +269,7 @@ const STORAGE: Question[] = [
     ],
     answer: "a",
     explanation: "A sealed, labelled container keeps out pests and moisture and tells the next person what it is.",
-    reviewed: false,
+    reviewed: true,
   },
 ];
 
@@ -288,7 +288,7 @@ const LINE: Question[] = [
     ],
     answer: "a",
     explanation: "Prepped and set up before service means you cook during service instead of prepping in a panic.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-heard",
@@ -304,7 +304,7 @@ const LINE: Question[] = [
     ],
     answer: "a",
     explanation: "Calling it back tells the chef you heard it and lets them catch a mistake before it's cooked.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-timing",
@@ -320,7 +320,7 @@ const LINE: Question[] = [
     ],
     answer: "a",
     explanation: "A table eats together, so the dishes are worked back from the one that takes longest.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-pass-check",
@@ -336,7 +336,7 @@ const LINE: Question[] = [
     ],
     answer: "a",
     explanation: "An apron isn't clean. Rims are wiped with a clean cloth or paper towel kept for it.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-running-low",
@@ -352,7 +352,7 @@ const LINE: Question[] = [
     ],
     answer: "a",
     explanation: "The earlier front of house knows, the fewer guests are told their order can't be made after they've ordered it.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-allergy-line",
@@ -368,7 +368,7 @@ const LINE: Question[] = [
     ],
     answer: "a",
     explanation: "An allergen can get on a plate at any step. Everyone who handles it, and the runner, needs to know.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-clean-as-you-go",
@@ -384,7 +384,7 @@ const LINE: Question[] = [
     ],
     answer: "a",
     explanation: "A clean section is a safer, faster one: fewer slips, fewer mix ups and less cross contamination.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-section-start",
@@ -400,7 +400,7 @@ const LINE: Question[] = [
       { id: "5", text: "Set up your station for service" },
     ],
     explanation: "Clean hands first, make sure what's in the fridge is safe, then work out what's missing, prep it, and set up.",
-    reviewed: false,
+    reviewed: true,
   },
 ];
 
@@ -419,7 +419,7 @@ const SAFETY: Question[] = [
     ],
     answer: "a",
     explanation: "Point down and called out, so nobody walks into it.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-falling-knife",
@@ -435,7 +435,7 @@ const SAFETY: Question[] = [
     ],
     answer: "a",
     explanation: "A falling knife is never caught. Step back, then pick it up once it's down.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-oil-fire",
@@ -451,7 +451,7 @@ const SAFETY: Question[] = [
     ],
     answer: "a",
     explanation: "Water on burning oil explodes into a fireball. Take away the heat and the air.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-clean-sanitise",
@@ -467,7 +467,7 @@ const SAFETY: Question[] = [
       { id: "5", text: "Leave to air dry" },
     ],
     explanation: "Sanitiser only works on a clean surface, so it comes after washing and rinsing. Air drying avoids a dirty cloth.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-sick",
@@ -483,7 +483,7 @@ const SAFETY: Question[] = [
     ],
     answer: "a",
     explanation: "You can still spread the illness after you feel better. Food handlers stay off food until 48 hours after symptoms stop.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-cut-finger",
@@ -499,7 +499,7 @@ const SAFETY: Question[] = [
     ],
     answer: "a",
     explanation: "A brightly coloured waterproof dressing and a glove keep the wound out of the food. Food it touched goes in the bin.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-gloves",
@@ -515,7 +515,7 @@ const SAFETY: Question[] = [
     ],
     answer: "a",
     explanation: "Gloves carry bacteria like hands do. They're changed between tasks, with hands washed in between.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-chemicals",
@@ -531,7 +531,7 @@ const SAFETY: Question[] = [
     ],
     answer: "a",
     explanation: "Mixing cleaners, such as bleach and ammonia, can make toxic gas. Use one product as its label says.",
-    reviewed: false,
+    reviewed: true,
   },
   {
     id: "k-handwash",
@@ -547,7 +547,7 @@ const SAFETY: Question[] = [
     ],
     answer: "a",
     explanation: "Phones are covered in bacteria. Hands are washed after touching one, whatever they look like.",
-    reviewed: false,
+    reviewed: true,
   },
 ];
 

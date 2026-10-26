@@ -132,7 +132,7 @@ const sections: MatrixSection[] = [
         franchise: "yes",
       },
       {
-        label: "Applicant tests for job applicants (bar and floor roles now, kitchen and management coming)",
+        label: "Applicant tests for job applicants (bar, floor, kitchen and management roles)",
         staff: "no",
         venue: "10 a month",
         group: "40 a month",
