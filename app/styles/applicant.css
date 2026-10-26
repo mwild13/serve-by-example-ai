@@ -216,6 +216,9 @@
 }
 
 .ap-step {
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -224,6 +227,29 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--surface-raised);
+}
+
+.ap-step.is-dragging {
+  border-color: var(--green);
+  box-shadow: var(--shadow-md);
+  cursor: grabbing;
+  position: relative;
+  z-index: 1;
+}
+
+/* A finger drags from the grip only, so swiping the list still scrolls the page. */
+.ap-step-grip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 44px;
+  margin-left: -6px;
+  color: var(--text-muted);
+  fill: currentColor;
+  touch-action: none;
+  cursor: grab;
 }
 
 .ap-step-number {

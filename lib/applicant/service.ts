@@ -20,7 +20,7 @@
  */
 import "server-only";
 import { SECTIONS, TRACKS, parseItemKey, progressAt, type SectionId, type Track, type WrittenPrompt } from "@/lib/applicant/blueprint";
-import type { ApplicantItemView, ApplicantState } from "@/lib/applicant/client";
+import type { ApplicantItemView, ApplicantState, UpcomingItem } from "@/lib/applicant/client";
 import { WRITTEN_MAX_CHARS, WRITTEN_MIN_CHARS } from "@/lib/applicant/client";
 import { findSourceQuestion } from "@/lib/applicant/content";
 import { afterResponse } from "@/lib/applicant/after-response";
@@ -41,6 +41,8 @@ import { answerFits, isAnswerShape, questionView } from "@/lib/verify-quiz";
 const TEST_TTL_DAYS = 14;
 /** Most AI calls one test can make: 4 marks and 1 summary, with room for retries. */
 const AI_CALL_CAP = 10;
+/** How often the server notes that the applicant is still there, when nothing else changes. */
+const TOUCH_EVERY_MS = 60_000;
 /** A return to the link after this long counts as a new visit. */
 const NEW_VISIT_AFTER_MS = 15 * 60_000;
 
@@ -173,17 +175,26 @@ function answerKind(section: SectionId): AnswerKind {
 }
 
 /** The state for a started test whose item at `position` resolves. */
+function viewAt(queue: string[], position: number, item: ResolvedItem): UpcomingItem | null {
+  const progress = progressAt(queue, position);
+  if (!progress) return null;
+  const { sectionLabel, sectionNumber, sectionCount, itemNumber, itemsInSection } = progress;
+  return { position, progress: { sectionLabel, sectionNumber, sectionCount, itemNumber, itemsInSection }, item: itemView(item, position) };
+}
+
+/**
+ * The item on screen, and the one after it. The next one is sent ahead so
+ * the browser can show it the moment this one is answered, while the answer
+ * saves; its clock starts when that answer reaches the server. It is only
+ * the question: answer keys and marking guides never leave the server.
+ */
 function itemState(row: TestRow, item: ResolvedItem): ApplicantState {
   const queue = row.run_state?.queue ?? [];
-  const progress = progressAt(queue, row.position);
-  if (!progress) return { stage: "finished" };
-  const { sectionLabel, sectionNumber, sectionCount, itemNumber, itemsInSection } = progress;
-  return {
-    stage: "item",
-    position: row.position,
-    progress: { sectionLabel, sectionNumber, sectionCount, itemNumber, itemsInSection },
-    item: itemView(item, row.position),
-  };
+  const current = viewAt(queue, row.position, item);
+  if (!current) return { stage: "finished" };
+  const nextKey = queue[row.position + 1];
+  const nextItem = nextKey ? resolveItem(nextKey) : null;
+  return { stage: "item", ...current, upcoming: nextItem ? viewAt(queue, row.position + 1, nextItem) : null };
 }
 
 function closedState(status: TestStatus): ApplicantState | null {
@@ -227,11 +238,15 @@ export async function serveCurrent(admin: AdminClient, row: TestRow, origin: str
       current = await reload(admin, current.id);
       continue;
     }
-    const lastSeen = current.last_seen_at ? new Date(current.last_seen_at).getTime() : 0;
-    const update: Record<string, unknown> = { last_seen_at: nowIso, updated_at: nowIso };
-    if (!current.current_served_at) update.current_served_at = nowIso;
-    if (lastSeen && Date.now() - lastSeen > NEW_VISIT_AFTER_MS) update.visits = current.visits + 1;
-    await admin.from("applicant_tests").update(update).eq("id", current.id).eq("position", current.position);
+    // One write at most, and none when the item is already stamped and the
+    // applicant was seen in the last minute: the answer route has just done it.
+    const sinceSeen = current.last_seen_at ? Date.now() - new Date(current.last_seen_at).getTime() : Infinity;
+    if (!current.current_served_at || sinceSeen > TOUCH_EVERY_MS) {
+      const update: Record<string, unknown> = { last_seen_at: nowIso, updated_at: nowIso };
+      if (!current.current_served_at) update.current_served_at = nowIso;
+      if (current.last_seen_at && sinceSeen > NEW_VISIT_AFTER_MS) update.visits = current.visits + 1;
+      await admin.from("applicant_tests").update(update).eq("id", current.id).eq("position", current.position);
+    }
     return itemState(current, item);
   }
   return { stage: "finished" };
@@ -329,13 +344,18 @@ export async function recordAnswer(
   });
   // 23505: this position was already answered by a request that got here first.
   if (insertError && insertError.code !== "23505") throw insertError;
+  let moved: TestRow | null = null;
   if (!insertError) {
-    const { error: moveError } = await admin
+    // Moving on starts the next item's clock, and returns the row, so there's no second read.
+    const { data: movedRow, error: moveError } = await admin
       .from("applicant_tests")
       .update({ position: row.position + 1, current_served_at: now.toISOString(), last_seen_at: now.toISOString(), updated_at: now.toISOString() })
       .eq("id", row.id)
-      .eq("position", row.position);
+      .eq("position", row.position)
+      .select(TEST_COLUMNS)
+      .maybeSingle();
     if (moveError) throw moveError;
+    moved = (movedRow as TestRow | null) ?? null;
     // Mark it while they carry on. The last answer is marked with the summary instead.
     if (item.kind === "written" && row.position + 1 < queue.length) {
       const testId = row.id;
@@ -343,7 +363,7 @@ export async function recordAnswer(
       await afterResponse("mark", () => markAnswer(admin, testId, at).then(() => undefined));
     }
   }
-  return { ok: true, state: await serveCurrent(admin, await reload(admin, row.id), origin) };
+  return { ok: true, state: await serveCurrent(admin, moved ?? (await reload(admin, row.id)), origin) };
 }
 
 // ── Report ───────────────────────────────────────────────────

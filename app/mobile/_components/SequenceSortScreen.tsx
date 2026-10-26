@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronUp, ChevronDown } from "lucide-react";
+import { ChevronUp, ChevronDown, GripVertical } from "lucide-react";
+import { useDragReorder } from "@/lib/use-drag-reorder";
 import Screen from "./ui/Screen";
 import { useMarkChallengeComplete } from "../_lib/use-challenge-complete";
 import { FeedbackBanner, TryAgainButton, CompletionCard } from "./challenges/MobileChallengeChrome";
@@ -29,6 +30,7 @@ export default function SequenceSortScreen() {
   const [correct, setCorrect] = useState(false);
 
   useMarkChallengeComplete(CHALLENGE_INDEX, checked && correct);
+  const { listRef: dragListRef, dragging, onPointerDown: onDragStart } = useDragReorder({ items, onChange: setItems, disabled: checked });
 
   function move(index: number, dir: -1 | 1) {
     const next = index + dir;
@@ -55,10 +57,13 @@ export default function SequenceSortScreen() {
       <div className="sm-game">
         <p className="sm-quiz-sub">A Guinness, a Margarita, and a Pinot Grigio arrive simultaneously. What order do you build them?</p>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "0 20px 20px" }}>
+        {!checked && <p className="sm-quiz-sub">Drag the drinks into order, or use the arrows.</p>}
+        <ol ref={dragListRef} style={{ display: "flex", flexDirection: "column", gap: 10, padding: "0 20px 20px", margin: 0, listStyle: "none" }}>
           {items.map((item, i) => (
-            <div
+            <li
               key={item.id}
+              onPointerDown={onDragStart}
+              data-drag-index={i}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -66,9 +71,23 @@ export default function SequenceSortScreen() {
                 padding: 14,
                 borderRadius: "var(--radius-md)",
                 background: "var(--sm-card)",
-                border: "1px solid var(--sm-bar-line)",
+                border: dragging === i ? "1px solid var(--sm-accent)" : "1px solid var(--sm-bar-line)",
+                boxShadow: dragging === i ? "var(--shadow-md)" : undefined,
+                userSelect: "none",
+                cursor: checked ? undefined : "grab",
               }}
             >
+              {!checked && (
+                <span
+                  aria-hidden="true"
+                  onPointerDown={onDragStart}
+                  data-drag-index={i}
+                  data-drag-grip=""
+                  style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 40, margin: "-8px -6px -8px -4px", touchAction: "none", cursor: "grab" }}
+                >
+                  <GripVertical size={18} strokeWidth={2} color="var(--sm-ink-soft)" />
+                </span>
+              )}
               <div
                 style={{
                   width: 24,
@@ -109,9 +128,9 @@ export default function SequenceSortScreen() {
                   </button>
                 </div>
               )}
-            </div>
+            </li>
           ))}
-        </div>
+        </ol>
 
         {checked ? (
           <div style={{ padding: "0 20px 20px", display: "flex", flexDirection: "column", gap: 12 }}>

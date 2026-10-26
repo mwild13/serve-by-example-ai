@@ -380,6 +380,37 @@ body.mobile-dark-shell select {
   opacity: 0.35;
   cursor: default;
 }
+/* Dragging a step (lib/use-drag-reorder.ts): a mouse picks up the row, a finger the grip. */
+.qz-order-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--qz-muted);
+}
+.qz-step:not(.qz-step--right):not(.qz-step--shown) {
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.qz-step-grip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 44px;
+  margin-left: -6px;
+  color: var(--qz-muted);
+  fill: currentColor;
+  touch-action: none;
+  cursor: grab;
+}
+.qz-step--dragging {
+  border-color: var(--qz-right);
+  box-shadow: var(--shadow-md);
+  cursor: grabbing;
+  position: relative;
+  z-index: 1;
+}
 .qz-number {
   display: flex;
   flex-wrap: wrap;

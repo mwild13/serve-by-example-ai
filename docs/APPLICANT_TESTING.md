@@ -73,7 +73,7 @@ What the manager sees beside each answer, and how it's collected:
 - Thresholds live in one place (`lib/applicant/integrity.ts`). Starting points: a written answer in under 4 seconds, a paste over 80 characters, more than 60 seconds away from the page.
 - Flags are plain sentences ("Pasted 410 characters", "Away from the page for 4 minutes"), plus one overall line ("Most answers typed, 1 paste, typical pace").
 - No "cheating" verdict anywhere. The wording says these are things to ask about in the interview, not proof.
-- Answer keys and rubrics never reach the browser. The next item is sent only after the last answer is saved.
+- Answer keys and rubrics never reach the browser. Each item comes with the one after it (the question only), so the browser shows the next item the moment an answer is given while the answer saves in the background, in order, with retries. The next item's clock starts when that answer reaches the server, so time per answer stays the server's. Each answer costs three database calls: the token lookup, the insert, and the move on (which returns the row).
 
 ## 6. Data model
 
@@ -121,6 +121,12 @@ Quizzes never ask True/False (a coin toss). The role quiz must mix at least 3 so
 - Page `/apply/[token]` (`app/apply/`, `components/applicant/ApplicantTest.tsx`, `app/styles/applicant.css`): `noindex`, `no-referrer`. Opening the link changes nothing, so a mail scanner can't start a test. Open from any country (`publicPrefixes` in `lib/geo-config.ts`).
 - Signals are measured by `useAnswerSignals()` (`lib/applicant/use-answer-signals.ts`). Pasting still works; it is only counted.
 - At most 10 AI calls per test (4 marks and 1 summary normally), counted against the test, not the manager's daily AI allowance.
+
+## 7a. Scale and cost (checked 2026-10-26)
+
+- **AI:** about 9,000 input and 1,000 output tokens a test (4 marks, 1 summary), measured from the prompt sizes. At third party listed `gpt-6-luna` prices (US$0.10 and US$0.50 a million) that is about US$0.0014 a test, US$0.003 at the 10 call cap. It grows in a straight line with tests sent, and the plan allowance caps tests: 500 Commercial venues sending every test is 20,000 tests, about US$28 a month.
+- **Bursts:** marking is off the applicant's path. If OpenAI rate limits a burst, the SDK retries twice, and anything still unmarked is finished when the report is opened.
+- **Database:** three calls an answer, all on indexed keys. Cloudflare Workers scale out on their own; Supabase is the part to watch at high volume.
 
 ## 8. Privacy and fairness
 

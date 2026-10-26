@@ -8,6 +8,11 @@
  * per screen until the last, then a thank you. No timer, no score and no
  * going back. Every answer goes to /api/applicant/[token]/answer with what
  * useAnswerSignals() measured while it was on screen.
+ *
+ * The server sends the next item ahead with each one, so answering shows it
+ * straight away while the answer saves in the background. Saves go one at a
+ * time, in order, and are retried; if one can't be saved, the page goes back
+ * to where the server says the test is.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -21,8 +26,11 @@ import {
   type ApplicantAnswer,
   type ApplicantItemView,
   type ApplicantState,
+  type SignalsPayload,
 } from "@/lib/applicant/client";
 import { useAnswerSignals } from "@/lib/applicant/use-answer-signals";
+import { moveItem } from "@/lib/reorder";
+import { useDragReorder } from "@/lib/use-drag-reorder";
 import type { QuizOption, QuizQuestionView } from "@/lib/verify-quiz-client";
 
 export type ApplicantStart =
@@ -41,11 +49,66 @@ function fromState(state: ApplicantState): Screen {
   return state;
 }
 
+/** Tries a save up to three times for a dropped connection or a busy server. A refused answer isn't retried. */
+async function withRetry<T>(run: () => Promise<T>): Promise<T> {
+  const waits = [800, 2000];
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await run();
+    } catch (err) {
+      const retryable = !(err instanceof ApplicantTestError) || err.status >= 500 || err.status === 429;
+      if (!retryable || attempt >= waits.length) throw err;
+      await new Promise((resolve) => setTimeout(resolve, waits[attempt]));
+    }
+  }
+}
+
 export default function ApplicantTest({ token, start }: { token: string; start: ApplicantStart }) {
   const [screen, setScreen] = useState<Screen>(start.stage === "resume" ? { stage: "loading" } : start);
   const [error, setError] = useState<string | null>(null);
   const venueName = start.stage === "welcome" || start.stage === "resume" ? start.venueName : "the venue";
   const headingRef = useRef<HTMLHeadingElement>(null);
+  // Answers waiting to save, in order. `saving` is true while the screen waits on one.
+  const saves = useRef<Promise<void>>(Promise.resolve());
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  /** A state from the server. The item already on screen stays as it is, so its options don't reshuffle. */
+  function applyServer(state: ApplicantState) {
+    setScreen((prev) => {
+      if (state.stage !== "item") return state;
+      if (prev.stage === "item" && prev.position === state.position) return { ...prev, upcoming: state.upcoming };
+      if (prev.stage === "item" && prev.position > state.position) return prev;
+      return state;
+    });
+  }
+
+  function answer(position: number, value: ApplicantAnswer, signals: SignalsPayload) {
+    setSaveError(null);
+    const ahead = screen.stage === "item" && screen.position === position ? screen.upcoming : null;
+    if (ahead) setScreen({ stage: "item", ...ahead, upcoming: null });
+    else setSaving(true);
+
+    saves.current = saves.current.then(async () => {
+      try {
+        applyServer(await withRetry(() => submitApplicantAnswer(token, position, value, signals)));
+      } catch (err) {
+        // Couldn't save it: go back to where the server says the test is, and say so.
+        try {
+          const state = await currentApplicantItem(token);
+          setScreen(fromState(state));
+          if (state.stage === "item" && state.position <= position) {
+            setSaveError(err instanceof ApplicantTestError && err.status < 500 ? err.message : "Your last answer didn't save, so it's back on screen. Please answer it again.");
+          }
+        } catch {
+          setScreen({ stage: "loading" });
+          setError("We can't reach the test right now. Check your connection, then reload this page. Your answers so far are saved.");
+        }
+      } finally {
+        setSaving(false);
+      }
+    });
+  }
 
   // A return visit: carry on from the item on screen when they left.
   useEffect(() => {
@@ -89,7 +152,7 @@ export default function ApplicantTest({ token, start }: { token: string; start: 
   if (screen.stage === "welcome") {
     return <Welcome headingRef={headingRef} start={screen} token={token} onStarted={(state) => setScreen(fromState(state))} />;
   }
-  return <ItemScreen headingRef={headingRef} token={token} screen={screen} onNext={(state) => setScreen(fromState(state))} />;
+  return <ItemScreen key={screen.position} headingRef={headingRef} screen={screen} busy={saving} error={saveError} onAnswer={answer} />;
 }
 
 function Notice({ heading, body, headingRef }: { heading: string; body: string; headingRef: React.RefObject<HTMLHeadingElement | null> }) {
@@ -166,51 +229,30 @@ function Welcome({
 }
 
 function ItemScreen({
-  token,
   screen,
-  onNext,
+  busy,
+  error,
+  onAnswer,
   headingRef,
 }: {
-  token: string;
   screen: Extract<ApplicantState, { stage: "item" }>;
-  onNext: (state: ApplicantState) => void;
+  busy: boolean;
+  error: string | null;
+  onAnswer: (position: number, answer: ApplicantAnswer, signals: SignalsPayload) => void;
   headingRef: React.RefObject<HTMLHeadingElement | null>;
 }) {
   const { position, progress, item } = screen;
   const signals = useAnswerSignals(position);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function send(answer: ApplicantAnswer) {
-    setBusy(true);
-    setError(null);
-    try {
-      onNext(await submitApplicantAnswer(token, position, answer, signals.read()));
-    } catch (err) {
-      // Out of step (sent from another tab): reload where the test really is.
-      if (err instanceof ApplicantTestError && err.code === "OUT_OF_STEP") {
-        try {
-          onNext(await currentApplicantItem(token));
-          return;
-        } catch {
-          // Fall through to the message.
-        }
-      }
-      setError(err instanceof Error ? err.message : "Something went wrong. Try again.");
-    } finally {
-      setBusy(false);
-    }
-  }
 
   const itemWord = item.kind === "quiz" && item.question.format === "order_steps" ? "Task" : "Question";
   return (
-    <section className="ap-card" key={position}>
+    <section className="ap-card">
       <p className="ap-progress">
         Part {progress.sectionNumber} of {progress.sectionCount}: {progress.sectionLabel}
         {progress.itemsInSection > 1 && ` · ${itemWord} ${progress.itemNumber} of ${progress.itemsInSection}`}
       </p>
-      <ItemBody item={item} busy={busy} onSubmit={send} noteInput={signals.noteInput} headingRef={headingRef} />
       {error && <p className="ap-error" role="alert">{error}</p>}
+      <ItemBody item={item} busy={busy} onSubmit={(answer) => onAnswer(position, answer, signals.read())} noteInput={signals.noteInput} headingRef={headingRef} />
     </section>
   );
 }
@@ -262,12 +304,12 @@ function ChoiceItem({ question, busy, onSubmit, headingRef }: ItemProps<{ questi
 function OrderItem({ question, busy, onSubmit, headingRef }: ItemProps<{ question: QuizQuestionView }>) {
   const [steps, setSteps] = useState<QuizOption[]>(question.steps ?? []);
   const [moved, setMoved] = useState<string | null>(null);
+  const { listRef: dragListRef, dragging, onPointerDown: onDragStart } = useDragReorder({ items: steps, onChange: setSteps, disabled: busy });
 
   function move(index: number, by: -1 | 1) {
     const to = index + by;
     if (to < 0 || to >= steps.length) return;
-    const next = [...steps];
-    [next[index], next[to]] = [next[to], next[index]];
+    const next = moveItem(steps, index, to);
     setSteps(next);
     setMoved(`${next[to].text} moved to number ${to + 1}.`);
   }
@@ -275,10 +317,13 @@ function OrderItem({ question, busy, onSubmit, headingRef }: ItemProps<{ questio
   return (
     <form onSubmit={(e) => { e.preventDefault(); onSubmit(steps.map((s) => s.id)); }}>
       <h1 className="ap-heading" ref={headingRef} tabIndex={-1}>{question.prompt}</h1>
-      <p className="ap-small">Put these in the order you would do them, first at the top. Use the arrows to move a step.</p>
-      <ol className="ap-steps">
+      <p className="ap-small">Put these in the order you would do them, first at the top. Drag a step, or use the arrows.</p>
+      <ol className="ap-steps" ref={dragListRef}>
         {steps.map((step, i) => (
-          <li key={step.id} className="ap-step">
+          <li key={step.id} className={`ap-step${dragging === i ? " is-dragging" : ""}`} onPointerDown={onDragStart} data-drag-index={i}>
+            <span className="ap-step-grip" aria-hidden="true" onPointerDown={onDragStart} data-drag-index={i} data-drag-grip="">
+              <svg viewBox="0 0 16 16" width="16" height="16"><circle cx="6" cy="4" r="1.3" /><circle cx="10" cy="4" r="1.3" /><circle cx="6" cy="8" r="1.3" /><circle cx="10" cy="8" r="1.3" /><circle cx="6" cy="12" r="1.3" /><circle cx="10" cy="12" r="1.3" /></svg>
+            </span>
             <span className="ap-step-number" aria-hidden="true">{i + 1}</span>
             <span className="ap-step-text">{step.text}</span>
             <span className="ap-step-moves">

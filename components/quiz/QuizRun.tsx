@@ -11,6 +11,7 @@ import type {
   VerifyAnswerResult,
   VerifyQuizStart,
 } from "@/lib/verify-quiz-client";
+import { useDragReorder } from "@/lib/use-drag-reorder";
 
 // One module quiz run, shared by desktop ModuleVerify (light) and mobile
 // QuizScreen (dark), and one mixed drill (MixedDrill, both themes). The server sends one question at a time and grades every
@@ -167,6 +168,7 @@ export default function QuizRun({ start, submit, onFinish, onError, theme }: Pro
             locked={graded !== null || checking}
             graded={graded}
             onMove={move}
+            onReorder={setOrder}
             onCheck={() => void answer(order.map((s) => s.id))}
           />
         )}
@@ -258,19 +260,34 @@ function OrderSteps({
   locked,
   graded,
   onMove,
+  onReorder,
   onCheck,
 }: {
   steps: QuizOption[];
   locked: boolean;
   graded: VerifyAnswerResult | null;
   onMove: (index: number, delta: number) => void;
+  /** Dragging a step to a new place (mouse, or a finger on the grip). */
+  onReorder: (steps: QuizOption[]) => void;
   onCheck: () => void;
 }) {
+  const { listRef: dragListRef, dragging, onPointerDown: onDragStart } = useDragReorder({ items: steps, onChange: onReorder, disabled: locked || graded !== null });
   return (
     <div className="qz-order">
-      <ol className="qz-order-list">
+      {!graded && <p className="qz-order-hint">Drag the steps into order, or use the arrows.</p>}
+      <ol className="qz-order-list" ref={dragListRef}>
         {steps.map((step, index) => (
-          <li key={step.id} className={graded ? (graded.correct ? "qz-step qz-step--right" : "qz-step qz-step--shown") : "qz-step"}>
+          <li
+            key={step.id}
+            className={`${graded ? (graded.correct ? "qz-step qz-step--right" : "qz-step qz-step--shown") : "qz-step"}${dragging === index ? " qz-step--dragging" : ""}`}
+            onPointerDown={onDragStart}
+            data-drag-index={index}
+          >
+            {!graded && (
+              <span className="qz-step-grip" aria-hidden="true" onPointerDown={onDragStart} data-drag-index={index} data-drag-grip="">
+                <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="6" cy="4" r="1.3" /><circle cx="10" cy="4" r="1.3" /><circle cx="6" cy="8" r="1.3" /><circle cx="10" cy="8" r="1.3" /><circle cx="6" cy="12" r="1.3" /><circle cx="10" cy="12" r="1.3" /></svg>
+              </span>
+            )}
             <span className="qz-step-number" aria-hidden="true">{index + 1}</span>
             <span className="qz-step-text">{step.text}</span>
             {!graded && (

@@ -20,8 +20,11 @@ type ApplicantProgressView = {
   itemsInSection: number;
 };
 
+/** The item after the one on screen, sent ahead so it shows the moment an answer is given. */
+export type UpcomingItem = { position: number; progress: ApplicantProgressView; item: ApplicantItemView };
+
 export type ApplicantState =
-  | { stage: "item"; position: number; progress: ApplicantProgressView; item: ApplicantItemView }
+  | { stage: "item"; position: number; progress: ApplicantProgressView; item: ApplicantItemView; upcoming: UpcomingItem | null }
   | { stage: "finished" }
   | { stage: "closed"; reason: "expired" | "withdrawn" };
 
