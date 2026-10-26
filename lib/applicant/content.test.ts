@@ -90,7 +90,7 @@ describe("applicant content", () => {
       for (const q of topic.questions) {
         expect(q.format).not.toBe("true_false");
         if (q.format === "order_steps") expect(q.steps.length).toBeGreaterThanOrEqual(4);
-        else if (q.format !== "number") {
+        else if (q.format !== "number" && q.format !== "true_false") {
           expect(q.options.map((o) => o.id)).toContain(q.answer);
           expect(new Set(q.options.map((o) => o.id)).size).toBe(q.options.length);
         }
