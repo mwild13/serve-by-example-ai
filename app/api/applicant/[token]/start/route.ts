@@ -1,7 +1,7 @@
 import { readJsonBody } from "@/lib/ai-guard";
 import { applicantError, applicantServerError, applicantStateResponse, openApplicantTest } from "@/lib/applicant/public-route";
 import { startTest } from "@/lib/applicant/service";
-import { siteOrigin } from "@/lib/site-url";
+import { emailLinkOrigin } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +20,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ token: 
     if (!read.ok) return read.response;
     if (read.body.consent !== true) return applicantError(400, "CONSENT_REQUIRED", "Tick the box to say you've read how your answers are used.");
 
-    return applicantStateResponse(await startTest(opened.admin, opened.row, siteOrigin(req)));
+    return applicantStateResponse(await startTest(opened.admin, opened.row, emailLinkOrigin(req)));
   } catch (error) {
     return applicantServerError(error, "applicant start");
   }

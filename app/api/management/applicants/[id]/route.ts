@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { isTrack } from "@/lib/applicant/blueprint";
 import { completeTest, computeReport, effectiveStatus, loadAnswers, reportItems, trackLabel, type StoredReport, type TestStatus } from "@/lib/applicant/service";
-import { siteOrigin } from "@/lib/site-url";
+import { emailLinkOrigin } from "@/lib/site-url";
 import { ManagementAccessError, managementErrorResponse, requireManager } from "@/lib/management/auth";
 
 export const dynamic = "force-dynamic";
@@ -51,7 +51,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     };
 
     if (test.status === "submitted" && (!test.report?.summary || test.report.pendingScores > 0)) {
-      await completeTest(admin, test.id, siteOrigin(req), { notify: false });
+      await completeTest(admin, test.id, emailLinkOrigin(req), { notify: false });
     }
     const answers = await loadAnswers(admin, test.id);
     const { data: saved } = await admin.from("applicant_tests").select("report").eq("id", test.id).maybeSingle();

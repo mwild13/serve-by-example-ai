@@ -17,7 +17,7 @@ import { formText } from "@/lib/email-template";
 import { ManagementAccessError, managementErrorResponse, requireManager, type AdminClient } from "@/lib/management/auth";
 import { sendTransactionalEmail } from "@/lib/notifications/brevo";
 import { formatPersonName } from "@/lib/person-name";
-import { siteOrigin } from "@/lib/site-url";
+import { emailLinkOrigin } from "@/lib/site-url";
 import { secureRandom } from "@/lib/verify-quiz";
 
 export const dynamic = "force-dynamic";
@@ -95,7 +95,7 @@ async function sendInvite(
     venueName: name,
     applicantName: opts.applicantName,
     intro: opts.intro,
-    url: applicantTestUrl(siteOrigin(req), opts.token),
+    url: applicantTestUrl(emailLinkOrigin(req), opts.token),
     expiresAt: new Date(opts.expiresAt),
   });
   const sent = await sendTransactionalEmail(apiKey, {

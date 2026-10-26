@@ -17,3 +17,18 @@ export function siteOrigin(req: Request): string {
   }
   return new URL(req.url).origin;
 }
+
+// Cloudflare Pages previews of this project: https://<branch>.serve-by-example-ai.pages.dev.
+const PREVIEW_HOST = /^[a-z0-9-]+\.serve-by-example-ai\.pages\.dev$/;
+
+/**
+ * The origin for a link in an email that leads back into the app. On a
+ * Pages preview it's the preview itself, so a test email opens the code
+ * being tested rather than production; everywhere else it's siteOrigin().
+ * Only this project's own preview hosts are trusted from the request.
+ */
+export function emailLinkOrigin(req: Request): string {
+  const url = new URL(req.url);
+  if (url.protocol === "https:" && PREVIEW_HOST.test(url.hostname)) return url.origin;
+  return siteOrigin(req);
+}
