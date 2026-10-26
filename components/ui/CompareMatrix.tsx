@@ -132,6 +132,13 @@ const sections: MatrixSection[] = [
         franchise: "yes",
       },
       {
+        label: "Applicant tests for job applicants (bar and floor roles now, kitchen and management coming)",
+        staff: "no",
+        venue: "10 a month",
+        group: "40 a month",
+        franchise: "200 a month",
+      },
+      {
         label: "Team Performance Leaderboard",
         staff: "no",
         venue: "yes",

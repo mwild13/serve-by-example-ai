@@ -1,6 +1,6 @@
 # Applicant Testing: Serve By Example
 
-Companion to `CLAUDE.md`, not a replacement. Where the two conflict, `CLAUDE.md` wins. Status on 2026-10-26: **Phases 1 to 6 built** (migration `20261104_applicant_testing.sql`, run 2026-10-26; engine, console API, emails, the applicant's pages, AI marking and the summary). Not yet: plan and marketing copy (Phase 7), the privacy policy section and a security review (Phase 8). Bar and floor written scenarios approved 2026-10-26 (`docs/Applicant Testing/written-batch-1.md`), so **bar and floor tests can be sent**. No track can be sent until its content exists (§6a). This file is the spec each build phase works from. Update it as each phase lands.
+Companion to `CLAUDE.md`, not a replacement. Where the two conflict, `CLAUDE.md` wins. Status on 2026-10-26: **Phases 1 to 6 built** (migration `20261104_applicant_testing.sql`, run 2026-10-26; engine, console API, emails, the applicant's pages, AI marking and the summary). Phases 7 and 8 done too: plan cards, comparison table and roadmap list it, and the privacy policy covers applicants. Not yet: tried end to end on the preview, and the kitchen and management content. Bar and floor written scenarios approved 2026-10-26 (`docs/Applicant Testing/written-batch-1.md`), so **bar and floor tests can be sent**. No track can be sent until its content exists (§6a). This file is the spec each build phase works from. Update it as each phase lands.
 
 ## 1. What it is
 
@@ -127,7 +127,23 @@ Quizzes never ask True/False (a coin toss). The role quiz must mix at least 3 so
 - Collection notice and consent at start (Australian Privacy Principle 5): who collects it (the venue, through SBE), why, how long it's kept, how to ask for it to be deleted.
 - No questions about age, background, health, family or other personal details.
 - SBE does not use applicant answers to train AI.
-- The privacy policy gets an applicant section before release.
+- The privacy policy has an applicant section (section 12 of `/privacy`, added 2026-10-26), and the retention schedule and OpenAI lines mention applicant tests.
+
+## 8a. Security review (2026-10-26)
+
+| Risk | How it's handled |
+|---|---|
+| Guessing a link | 256-bit random token, only its SHA-256 hash stored; limits per IP, per link and overall (`public-route.ts`) |
+| Replaying or double-sending an answer | Saved only if `position` hasn't moved; (`test_id`, `position`) unique |
+| Seeing answers ahead | One item at a time; answer keys and marking guides never leave the server |
+| Prompt injection | Answers fenced as untrusted; scores computed in code (`scoreFromMarks()`); the summary never sees signals |
+| AI cost | `claim_applicant_ai_call` caps each test at 10 calls; tests are capped by the plan allowance |
+| Email abuse | Venue plans only, monthly allowance, 10 invites a minute, every typed value escaped |
+| Cross-venue reads | Every console query filters on `account_id`; delete is owners only |
+| Mail scanners | Opening the link changes nothing; starting needs the consent tick |
+| Link leaking | `no-referrer`, `noindex` |
+
+**Known limit:** the browser's paste and away-from-page counts can be blocked by a determined applicant. The server's time per answer can't. That is why the report presents them as signals to ask about, never as proof.
 
 ## 9. Build phases
 
@@ -138,8 +154,8 @@ Quizzes never ask True/False (a coin toss). The role quiz must mix at least 3 so
 4. Applicant pages and public API. Done.
 5. AI marking of written answers and the written summary. Done. Not yet tried against the live model.
 6. Console tab. Done: the Hiring group, `ApplicantTestingPanel.tsx`.
-7. Plan allowances, pricing and features copy.
-8. Privacy policy, security review.
+7. Plan allowances, pricing and features copy. Done: `PricingPlans.tsx`, `CompareMatrix.tsx`, `/roadmap`.
+8. Privacy policy, security review. Done (§8, §8a).
 9. Release.
 
 Full plan with reuse notes: `/Users/mitchellwildman/.claude/plans/claude-someone-came-polymorphic-engelbart.md`.

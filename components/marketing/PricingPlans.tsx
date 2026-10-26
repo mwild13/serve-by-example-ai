@@ -65,6 +65,7 @@ const TIERS: Tier[] = [
       "Everything in Staff",
       "Live Guest: 60 guests who talk back, then show what they were thinking",
       "Manager Console with live team progress",
+      "Applicant tests for bar and floor roles: 10 a month",
       "Team performance leaderboard",
       "Guided venue setup call",
     ],
@@ -80,6 +81,7 @@ const TIERS: Tier[] = [
     trial: true,
     features: [
       "Everything in Venue",
+      "Applicant tests: 40 a month",
       "Compliance tracking across teams",
       "Cohort analytics and trend reporting",
       "Two onboarding sessions and priority email support",

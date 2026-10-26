@@ -16,7 +16,7 @@ export default function PrivacyPage() {
       <Navbar />
 
       <main id="main-content">
-        <PageHero compact variant="light" eyebrow="Legal" title="Privacy Policy" subtitle="Last updated: 20 October 2026" />
+        <PageHero compact variant="light" eyebrow="Legal" title="Privacy Policy" subtitle="Last updated: 26 October 2026" />
 
         <section className="section">
           <div className="container">
@@ -83,7 +83,7 @@ export default function PrivacyPage() {
                   fix it. No cookie is set, and no name, email or IP address is attached.
                 </li>
                 <li>
-                  <strong>OpenAI</strong>: Used for Live Guest conversations, AI coaching, drafting venue quiz questions and translation. Each Live Guest reply is sent so the practice guest can answer. If you use voice, your recording is sent to be written out as text and the guest&apos;s lines are sent to be read aloud; Serve By Example never stores the recording or the audio, only the text. A manager&apos;s AI Coach question is sent with that venue&apos;s staff names, roles and training scores, and the venue items a manager adds, typed or as a photo of the menu, are sent to draft questions about them (the photo is not kept) (OpenAI does not use data submitted via the API to train their foundational models).
+                  <strong>OpenAI</strong>: Used for Live Guest conversations, AI coaching, drafting venue quiz questions and translation. Each Live Guest reply is sent so the practice guest can answer. If you use voice, your recording is sent to be written out as text and the guest&apos;s lines are sent to be read aloud; Serve By Example never stores the recording or the audio, only the text. A manager&apos;s AI Coach question is sent with that venue&apos;s staff names, roles and training scores, and the venue items a manager adds, typed or as a photo of the menu, are sent to draft questions about them (the photo is not kept). A job applicant&apos;s written answers are sent to be marked, and the results of their test are sent to write a short summary for the venue (see section 12) (OpenAI does not use data submitted via the API to train their foundational models).
                 </li>
                 <li>
                   <strong>Google Analytics</strong>: We use Google Analytics (ID: G-EF9YRFXKBG) to
@@ -131,6 +131,9 @@ export default function PrivacyPage() {
                 <li>
                   <strong>Live Guest Conversations</strong>: What you typed or said (as text, never as a recording) and what the practice guest said, kept with
                   your result; deleted with your account. Managers see the score and result, not what you typed. They also see team totals for the week and the questions the team missed most, never who answered what: a question only shows once two or more people have missed it.
+                </li>
+                <li>
+                  <strong>Job Applicant Tests</strong>: Kept for 12 months from the invite, then deleted automatically, or sooner if the venue deletes them (see section 12).
                 </li>
                 <li>
                   <strong>Billing Records & Stripe Webhook Events</strong>: Retained for 7 years to
@@ -240,6 +243,52 @@ export default function PrivacyPage() {
                 Our use of information received from Google APIs adheres to the Google API
                 Services User Data Policy, including the Limited Use requirements.
               </p>
+
+              <h2>12. Job Applicant Tests</h2>
+              <p>
+                A venue on a Serve By Example plan can invite a job applicant to take a test before
+                an interview. The applicant does not need an account. This section is for those
+                applicants.
+              </p>
+              <ul>
+                <li>
+                  <strong>Who collects it</strong>: The venue that invited you, using Serve By
+                  Example to run the test. The venue decides what to do with your results.
+                </li>
+                <li>
+                  <strong>What is collected</strong>: Your name and email address (entered by the
+                  venue), your answers, and how each answer was produced: how long it took, whether
+                  text was pasted in and how much, how long you were away from the page, and typing
+                  time. We also record when you agreed to the notice at the start of the test.
+                </li>
+                <li>
+                  <strong>Who sees it</strong>: The managers at the venue that invited you. They see
+                  your answers, your scores and the information above. Nobody else at Serve By
+                  Example uses it, except to keep the service running and to answer a request from
+                  you or the venue.
+                </li>
+                <li>
+                  <strong>AI marking</strong>: Your written answers are marked by AI (OpenAI), and a
+                  short summary of your results is written for the venue. The marker is told to
+                  judge what you would do, not your spelling, grammar or English. The scores and
+                  summary are there to help a person decide; they do not make the decision. The AI
+                  is never shown the timing or paste information. Your answers are not used to train
+                  AI.
+                </li>
+                <li>
+                  <strong>Email</strong>: The invite is sent from our address through our email
+                  provider, Brevo, with replies going to the venue.
+                </li>
+                <li>
+                  <strong>How long it is kept</strong>: 12 months from the invite, then deleted
+                  automatically. The venue can delete it sooner at any time.
+                </li>
+                <li>
+                  <strong>Your rights</strong>: To see, correct or delete your test, reply to the
+                  invite email to ask the venue, or contact us at{" "}
+                  <a href="mailto:info@servebyexample.co">info@servebyexample.co</a>.
+                </li>
+              </ul>
 
               <h2>Contact Us</h2>
               <p>For privacy related inquiries, please contact:</p>
