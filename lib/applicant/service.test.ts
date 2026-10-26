@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeReport, effectiveStatus, reportItems, resolveItem, type AnswerRow } from "./service";
+import { computeReport, effectiveStatus, needsCompleting, reportItems, resolveItem, type AnswerRow } from "./service";
 import { liveQuestions } from "@/lib/question-bank";
 
 const served = "2026-10-26T10:00:00.000Z";
@@ -70,5 +70,15 @@ describe("reportItems", () => {
     expect(item.given).toEqual([wrong.text]);
     expect(item.rightAnswer).toEqual([question.options.find((o) => o.id === question.answer)?.text]);
     expect(item.flags).toEqual([{ kind: "quick", text: "Answered in 1 second" }]);
+  });
+});
+
+describe("needsCompleting", () => {
+  it("is true while an answer waits for marking or the summary is missing", () => {
+    const summary = { strengths: ["a"], explore: [], questions: [] };
+    expect(needsCompleting(null)).toBe(true);
+    expect(needsCompleting({ pendingScores: 1, summary })).toBe(true);
+    expect(needsCompleting({ pendingScores: 0, summary: null })).toBe(true);
+    expect(needsCompleting({ pendingScores: 0, summary })).toBe(false);
   });
 });

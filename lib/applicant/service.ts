@@ -424,6 +424,11 @@ async function finishTest(admin: AdminClient, row: TestRow, origin: string): Pro
   await afterResponse("complete", () => completeTest(admin, row.id, origin, { notify: true }).then(() => undefined));
 }
 
+/** A finished test whose report still has answers to mark or no summary. */
+export function needsCompleting(report: Pick<StoredReport, "pendingScores" | "summary"> | null): boolean {
+  return !report || report.pendingScores > 0 || !report.summary;
+}
+
 /** Takes one AI call from the test's budget. False once it's spent. */
 async function claimAiCall(admin: AdminClient, testId: string): Promise<boolean> {
   const { data, error } = await admin.rpc("claim_applicant_ai_call", { p_test: testId, p_cap: AI_CALL_CAP });
