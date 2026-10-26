@@ -10,8 +10,7 @@ export const WRITTEN_MIN_CHARS = 10;
 
 export type ApplicantItemView =
   | { kind: "quiz"; question: QuizQuestionView }
-  | { kind: "written"; setting: string; prompt: string }
-  | { kind: "guest"; title: string; setting: string; opening: string; name: string | null };
+  | { kind: "written"; setting: string; prompt: string };
 
 export type ApplicantProgressView = {
   sectionLabel: string;

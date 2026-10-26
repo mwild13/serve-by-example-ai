@@ -50,13 +50,13 @@ describe("section and overall scores", () => {
       { section: "written", score: 70 },
       { section: "written", score: null },
     ]);
-    expect(sections).toEqual({ core: 50, role: null, order: null, written: 70, guest: null });
+    expect(sections).toEqual({ core: 50, role: null, order: null, written: 70 });
   });
 
   it("weighs sections, renormalised over the ones scored", () => {
-    // core 25 and written 30: (50 * 25 + 70 * 30) / 55
-    expect(overallScore({ core: 50, role: null, order: null, written: 70, guest: null })).toBe(61);
-    expect(overallScore({ core: null, role: null, order: null, written: null, guest: null })).toBeNull();
+    // core 25 and written 40: (50 * 25 + 70 * 40) / 65
+    expect(overallScore({ core: 50, role: null, order: null, written: 70 })).toBe(62);
+    expect(overallScore({ core: null, role: null, order: null, written: null })).toBeNull();
   });
 
   it("bands the score", () => {

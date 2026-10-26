@@ -139,7 +139,7 @@ function Welcome({
       <h2 className="ap-subheading">What to expect</h2>
       <ul className="ap-list">
         <li>About 30 minutes, with no time limit. Take the time you need to show how you think.</li>
-        <li>A short quiz, a task about what to do first, three questions to answer in your own words, and a conversation with a guest.</li>
+        <li>A short quiz, two tasks about what to do first, and four situations to answer in your own words.</li>
         <li>One question at a time. Once you answer, you move on.</li>
         <li>You can close the page and come back to the same link until you finish.</li>
       </ul>
@@ -229,15 +229,6 @@ function ItemBody({
   headingRef: React.RefObject<HTMLHeadingElement | null>;
 }) {
   if (item.kind === "written") return <WrittenItem item={item} busy={busy} onSubmit={onSubmit} noteInput={noteInput} headingRef={headingRef} />;
-  if (item.kind === "guest") {
-    return (
-      <>
-        <h1 className="ap-heading" ref={headingRef} tabIndex={-1}>{item.title}</h1>
-        <p className="ap-text">{item.setting}</p>
-        <p className="ap-text">This conversation isn&apos;t open yet. Your answers so far are saved. Come back to this link soon, or reply to the invite email.</p>
-      </>
-    );
-  }
   const q = item.question;
   if (q.format === "order_steps") return <OrderItem question={q} busy={busy} onSubmit={onSubmit} headingRef={headingRef} />;
   if (q.format === "number") return <NumberItem question={q} busy={busy} onSubmit={onSubmit} noteInput={noteInput} headingRef={headingRef} />;

@@ -16,8 +16,6 @@
 -- applicant_answers: one row per answered item, with the answer, its score
 --   and the signals from the browser (time on and away from the page,
 --   pastes, typing time), already checked against the server's own times.
--- applicant_guest_sessions: the test's one Live Guest conversation, the same
---   shape as live_guest_sessions but keyed to the test, not to a user.
 -- applicant_test_usage: tests sent per paying account per month (Sydney),
 --   for the plan allowance. Counted when an invite is sent and never given
 --   back, so deleting a test doesn't free a test.
@@ -73,7 +71,7 @@ CREATE TABLE IF NOT EXISTS public.applicant_answers (
   test_id       uuid        NOT NULL REFERENCES public.applicant_tests (id) ON DELETE CASCADE,
   position      integer     NOT NULL CHECK (position >= 0),
   item_key      text        NOT NULL CHECK (char_length(item_key) <= 120),
-  section       text        NOT NULL CHECK (section IN ('core', 'role', 'order', 'written', 'guest')),
+  section       text        NOT NULL CHECK (section IN ('core', 'role', 'order', 'written')),
   answer        jsonb       NOT NULL,
   correct       boolean,
   -- 0 to 100. Null while an AI score is still to come.
@@ -94,22 +92,6 @@ CREATE TABLE IF NOT EXISTS public.applicant_answers (
 
 ALTER TABLE public.applicant_answers ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.applicant_answers FROM anon, authenticated;
-
-CREATE TABLE IF NOT EXISTS public.applicant_guest_sessions (
-  id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
-  test_id     uuid        NOT NULL UNIQUE REFERENCES public.applicant_tests (id) ON DELETE CASCADE,
-  guest_id    text        NOT NULL CHECK (char_length(guest_id) <= 60),
-  turns       jsonb       NOT NULL DEFAULT '[]'::jsonb,
-  turn_count  integer     NOT NULL DEFAULT 0,
-  status      text        NOT NULL DEFAULT 'active'
-              CHECK (status IN ('active', 'resolved', 'walked_out', 'unresolved', 'breach')),
-  result      jsonb,
-  created_at  timestamptz NOT NULL DEFAULT now(),
-  updated_at  timestamptz NOT NULL DEFAULT now()
-);
-
-ALTER TABLE public.applicant_guest_sessions ENABLE ROW LEVEL SECURITY;
-REVOKE ALL ON public.applicant_guest_sessions FROM anon, authenticated;
 
 CREATE TABLE IF NOT EXISTS public.applicant_test_usage (
   account_id  uuid    NOT NULL REFERENCES auth.users (id) ON DELETE CASCADE,

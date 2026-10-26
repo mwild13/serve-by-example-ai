@@ -28,7 +28,7 @@ describe("resolveItem", () => {
     const question = liveQuestions(15).find((q) => q.format === "multiple_choice");
     if (!question) throw new Error("module 15 has a multiple choice question");
     expect(resolveItem(`core:15:${question.id}`)).toMatchObject({ kind: "choice", section: "core" });
-    expect(resolveItem("guest:cold-parmy")).toMatchObject({ kind: "guest" });
+    expect(resolveItem("guest:cold-parmy")).toBeNull();
     expect(resolveItem("core:15:no-such-question")).toBeNull();
     expect(resolveItem("written:no-such-prompt")).toBeNull();
     expect(resolveItem("nonsense")).toBeNull();

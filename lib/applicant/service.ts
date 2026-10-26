@@ -23,7 +23,6 @@ import { WRITTEN_PROMPTS } from "@/lib/applicant/questions/written";
 import { bandFor, overallScore, scoreQuizItem, sectionScores, type Band, type SectionScores } from "@/lib/applicant/scoring";
 import { hashApplicantToken, isApplicantTokenShape } from "@/lib/applicant/token";
 import { cleanUserText } from "@/lib/ai-guard";
-import { findGuest, type GuestBrief } from "@/lib/live-guest/guests";
 import type { AdminClient } from "@/lib/management/auth";
 import { sendTransactionalEmail } from "@/lib/notifications/brevo";
 import type { Question } from "@/lib/question-bank";
@@ -128,12 +127,11 @@ export async function findTestByToken(admin: AdminClient, token: string): Promis
 
 export type ResolvedItem =
   | { section: "core" | "role" | "order"; kind: "choice"; question: Question }
-  | { section: "written"; kind: "written"; prompt: WrittenPrompt }
-  | { section: "guest"; kind: "guest"; brief: GuestBrief };
+  | { section: "written"; kind: "written"; prompt: WrittenPrompt };
 
 /**
- * The content behind an item key. Prompts and guests are found whether or
- * not they're still offered, so a test under way keeps working; a quiz
+ * The content behind an item key. Prompts are found whether or not they're
+ * still offered, so a test under way keeps working; a quiz
  * question that has been withdrawn from the bank is null and gets skipped.
  */
 export function resolveItem(key: string): ResolvedItem | null {
@@ -142,10 +140,6 @@ export function resolveItem(key: string): ResolvedItem | null {
   if (ref.section === "written") {
     const prompt = WRITTEN_PROMPTS.find((p) => p.id === ref.promptId);
     return prompt ? { section: "written", kind: "written", prompt } : null;
-  }
-  if (ref.section === "guest") {
-    const brief = findGuest(ref.guestId);
-    return brief ? { section: "guest", kind: "guest", brief } : null;
   }
   const question = findSourceQuestion(ref.source, ref.questionId);
   return question ? { section: ref.section, kind: "choice", question } : null;
@@ -157,19 +151,11 @@ function itemView(item: ResolvedItem, position: number): ApplicantItemView {
       return { kind: "quiz", question: questionView(item.question, position) };
     case "written":
       return { kind: "written", setting: item.prompt.setting, prompt: item.prompt.prompt };
-    case "guest":
-      return {
-        kind: "guest",
-        title: item.brief.title,
-        setting: item.brief.setting,
-        opening: item.brief.opening,
-        name: item.brief.knownByName ? item.brief.name : null,
-      };
   }
 }
 
 function answerKind(section: SectionId): AnswerKind {
-  return section === "written" ? "written" : section === "guest" ? "guest" : "choice";
+  return section === "written" ? "written" : "choice";
 }
 
 /** The state for a started test whose item at `position` resolves. */
@@ -304,9 +290,6 @@ export async function recordAnswer(
       answerChars = text.length;
       break;
     }
-    case "guest":
-      // Answered through the conversation itself, not this route (Phase 5).
-      return refuse(409, "GUEST_CONVERSATION", "Reply to the guest in the conversation.");
   }
 
   const now = new Date();
@@ -473,9 +456,6 @@ export function reportItems(answers: AnswerRow[]): ReportItem[] {
     if (item?.kind === "written") {
       const text = (a.answer as { text?: unknown } | null)?.text;
       return { ...base, prompt: item.prompt.prompt, setting: item.prompt.setting, given: [typeof text === "string" ? text : ""] };
-    }
-    if (item?.kind === "guest") {
-      return { ...base, prompt: `${item.brief.title}: ${item.brief.opening}`, setting: item.brief.setting, given: [] };
     }
     return { ...base, prompt: "This question is no longer in the bank.", given: [] };
   });

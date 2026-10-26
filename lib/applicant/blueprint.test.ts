@@ -48,8 +48,7 @@ function fullSources(): TrackSources {
     core,
     role,
     order: [...role, ...core.slice(0, 2).map((s) => ({ ...s, questions: [...s.questions, order(`o${s.source}`)] }))],
-    written: [written("w1"), written("w2"), written("w3"), written("w4")],
-    guests: ["last-schooner", "heavy-hand"],
+    written: [written("w1"), written("w2"), written("w3"), written("w4"), written("w5")],
   };
 }
 
@@ -60,14 +59,13 @@ describe("item keys", () => {
       { section: "role", source: "kitchen", questionId: "k1" },
       { section: "order", source: "22", questionId: "o1" },
       { section: "written", promptId: "bar-w1" },
-      { section: "guest", guestId: "cold-parmy" },
     ] as const) {
       expect(parseItemKey(itemKey(ref))).toEqual(ref);
     }
   });
 
   it("rejects malformed keys", () => {
-    for (const key of ["", "core", "core:15", "core::x", "quiz:1:a", "written:", "guest:a:b"]) {
+    for (const key of ["", "core", "core:15", "core::x", "quiz:1:a", "written:", "written:a:b", "guest:cold-parmy"]) {
       expect(parseItemKey(key)).toBeNull();
     }
   });
@@ -121,7 +119,7 @@ describe("drawTest", () => {
   });
 
   it("never puts two written prompts on one concept in a test", () => {
-    const sources = { ...fullSources(), written: [written("a", "x"), written("b", "x"), written("c", "y"), written("d", "z")] };
+    const sources = { ...fullSources(), written: [written("a", "x"), written("b", "x"), written("c", "y"), written("d", "z"), written("e", "v")] };
     for (let seed = 1; seed <= 20; seed++) {
       const result = drawTest(sources, seeded(seed));
       if (!result.ok) throw new Error("expected a test");
@@ -131,17 +129,17 @@ describe("drawTest", () => {
   });
 
   it("skips unreviewed written prompts", () => {
-    const sources = { ...fullSources(), written: [written("w1"), written("w2"), { ...written("w3"), reviewed: false }] };
+    const sources = { ...fullSources(), written: [written("w1"), written("w2"), written("w3"), { ...written("w4"), reviewed: false }] };
     const result = drawTest(sources, seeded(6));
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.shortfall).toContainEqual({ section: "written", have: 2, need: 3 });
+    if (!result.ok) expect(result.shortfall).toContainEqual({ section: "written", have: 3, need: 4 });
   });
 
   it("says which sections are short", () => {
-    const result = drawTest({ ...fullSources(), written: [], guests: [] }, seeded(7));
+    const result = drawTest({ ...fullSources(), written: [], order: [] }, seeded(7));
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.shortfall.map((s) => s.section).sort()).toEqual(["guest", "written"]);
+      expect(result.shortfall.map((s) => s.section).sort()).toEqual(["order", "written"]);
     }
   });
 
@@ -164,9 +162,9 @@ describe("progressAt", () => {
     const result = drawTest(fullSources(), seeded(11));
     if (!result.ok) throw new Error("expected a test");
     const { queue } = result.plan;
-    expect(progressAt(queue, 0)).toMatchObject({ section: "core", sectionNumber: 1, sectionCount: 5, itemNumber: 1, itemsInSection: 10 });
+    expect(progressAt(queue, 0)).toMatchObject({ section: "core", sectionNumber: 1, sectionCount: 4, itemNumber: 1, itemsInSection: 10 });
     expect(progressAt(queue, 11)).toMatchObject({ section: "role", sectionNumber: 2, itemNumber: 2, itemsInSection: 8 });
-    expect(progressAt(queue, queue.length - 1)).toMatchObject({ section: "guest", sectionNumber: 5, itemNumber: 1 });
+    expect(progressAt(queue, queue.length - 1)).toMatchObject({ section: "written", sectionNumber: 4, itemNumber: 4, itemsInSection: 4 });
     expect(progressAt(queue, queue.length)).toBeNull();
   });
 });

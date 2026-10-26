@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { drawTest, parseItemKey, TRACKS } from "./blueprint";
-import { CORE_MODULES, ROLE_MODULES, TRACK_GUESTS, findSourceQuestion, trackSources } from "./content";
-import { GUEST_BRIEFS } from "@/lib/live-guest/guests";
+import { CORE_MODULES, ROLE_MODULES, findSourceQuestion, trackSources } from "./content";
 import { liveQuestions } from "@/lib/question-bank";
 
 const seeded = (seed: number) => {
@@ -24,12 +23,6 @@ describe("applicant content", () => {
   it("keeps role modules out of the core quiz", () => {
     for (const ids of Object.values(ROLE_MODULES)) {
       expect(ids.filter((id) => CORE_MODULES.includes(id))).toEqual([]);
-    }
-  });
-
-  it("names only reviewed Live Guest briefs", () => {
-    for (const id of Object.values(TRACK_GUESTS).flat()) {
-      expect(GUEST_BRIEFS.find((g) => g.id === id)?.reviewed).toBe(true);
     }
   });
 

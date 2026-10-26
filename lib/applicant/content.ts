@@ -1,5 +1,5 @@
 // What each applicant test track draws from (docs/APPLICANT_TESTING.md §3).
-// Lists ids only: the questions and guests themselves stay in the training
+// Lists ids only: the questions themselves stay in the training
 // bank. Only content that holds in every venue belongs here: no brands, no
 // Venue Content, nothing that depends on one venue's way of doing things.
 // Server-only, like the answer keys it reaches.
@@ -9,7 +9,6 @@ import { KITCHEN_QUESTIONS } from "@/lib/applicant/questions/kitchen";
 import { MANAGEMENT_QUESTIONS } from "@/lib/applicant/questions/management";
 import { WRITTEN_PROMPTS } from "@/lib/applicant/questions/written";
 import { isLive, liveQuestions, type Question } from "@/lib/question-bank";
-import { GUEST_BRIEFS } from "@/lib/live-guest/guests";
 
 /** Every track: greeting, complaints, RSA, food safety, conflict, emergencies, "Behind!", glass in the well, ice, allergies. */
 export const CORE_MODULES = [8, 11, 15, 16, 17, 18, 21, 22, 24, 25];
@@ -26,13 +25,6 @@ export const ROLE_MODULES: Record<Track, number[]> = {
 const BANKS: Partial<Record<Track, { source: string; questions: Question[] }>> = {
   kitchen: { source: "kitchen", questions: KITCHEN_QUESTIONS },
   management: { source: "management", questions: MANAGEMENT_QUESTIONS },
-};
-
-export const TRACK_GUESTS: Record<Track, string[]> = {
-  bar: ["last-schooner", "heavy-hand"],
-  floor: ["cold-parmy", "nut-allergy"],
-  kitchen: [],
-  management: ["backing-the-junior", "till-short"],
 };
 
 function moduleSource(moduleId: number): QuizSource {
@@ -56,6 +48,5 @@ export function trackSources(track: Track): TrackSources {
     role,
     order: [...role, ...core],
     written: WRITTEN_PROMPTS.filter((p) => p.reviewed && p.tracks.includes(track)),
-    guests: TRACK_GUESTS[track].filter((id) => GUEST_BRIEFS.some((g) => g.id === id && g.reviewed)),
   };
 }

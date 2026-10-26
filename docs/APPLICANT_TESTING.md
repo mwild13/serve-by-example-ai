@@ -1,10 +1,10 @@
 # Applicant Testing: Serve By Example
 
-Companion to `CLAUDE.md`, not a replacement. Where the two conflict, `CLAUDE.md` wins. Status on 2026-10-26: **Phases 1 to 4 built** (migration `20261104_applicant_testing.sql`, not yet run; engine, console API, emails and the applicant's pages). Not yet: AI marking, the Live Guest conversation, the report, the console tab. No track can be sent until its content exists (§6a). This file is the spec each build phase works from. Update it as each phase lands.
+Companion to `CLAUDE.md`, not a replacement. Where the two conflict, `CLAUDE.md` wins. Status on 2026-10-26: **Phases 1 to 4 built** (migration `20261104_applicant_testing.sql`, not yet run; engine, console API, emails and the applicant's pages). Not yet: AI marking of written answers, the written summary, the console tab. No track can be sent until its content exists (§6a). This file is the spec each build phase works from. Update it as each phase lands.
 
 ## 1. What it is
 
-A tab in the Manager Console where a manager emails a job applicant a link to a test of about 30 minutes. The test is built from SBE's own training engine: module quiz questions, an order-of-operations task, written scenarios scored by AI, and one Live Guest conversation. The manager gets a report with scores, the applicant's reasoning in their own words, and how each answer was produced.
+A tab in the Manager Console where a manager emails a job applicant a link to a test of about 30 minutes. The test is built from SBE's own training engine: module quiz questions, an order-of-operations task, and written scenarios scored by AI. The manager gets a report with scores, the applicant's reasoning in their own words, and how each answer was produced.
 
 - **Who it's for:** chefs, bar staff, floor staff and managers applying for a hospitality job in Australia.
 - **Where it works:** any venue type (hotel, bar, restaurant, dive bar, national group). Only content that is true in every venue is used.
@@ -33,22 +33,23 @@ Four tracks: `bar`, `floor`, `kitchen`, `management`. Each test is drawn from a 
 | 1 | Core hospitality | 10 multiple choice from modules 8, 11, 15, 16, 17, 18, 21, 22, 24, 25 | Answer key | 6 min |
 | 2 | Role knowledge | 8 multiple choice. Bar: 1, 3, 26, 31, 33. Floor: 9, 10, 23, 29, 36, 38. Kitchen: new bank. Management: new bank plus 19, 20 | Answer key | 5 min |
 | 3 | Order of operations | 2 tasks, put 5 or 6 actions in order, from the reviewed `order_steps` questions in the track's modules (role modules first) | Rule (partial credit by distance) | 3 min |
-| 4 | Written scenarios | 3 "what would you do, and why" prompts | AI against a rubric: process, guest care, safety, judgement | 9 min |
-| 5 | Live Guest | 1 conversation, 3 or 4 replies, difficulty 2, no reveal | Live Guest engine | 6 min |
+| 4 | Written scenarios | 4 "what would you do, and why" prompts | AI against a rubric: process, guest care, safety, judgement | 12 min |
 
-Live Guest briefs per track: bar `last-schooner` or `heavy-hand`; floor `cold-parmy` or `nut-allergy`; kitchen a new colleague brief (a server bringing in a late allergy change); management `backing-the-junior` or `till-short`.
+Weights: core 25, role 25, order 10, written 40.
+
+**No Live Guest** (owner decision, 2026-10-26). A guest that answers back gives each applicant a different conversation, judged by AI, which is hard to compare fairly or defend in a hiring decision. It also doesn't stop copied answers, costs the most AI per test, and is awkward on a phone for someone new to it. The written scenarios show reasoning on the same footing for everyone. It may come back later as an optional second stage for a shortlist.
 
 **Content rules**
 - Only ids listed in `lib/applicant/content.ts` (flagged generic). No brand content, no Venue Content, no single venue's practice.
 - Where practice differs between venues (schedules, pour sizes, layouts, sign-off rules), test the principle, not one number.
 - Every item has a stable id. Never reuse an id for different content.
-- New content to write: about 40 kitchen questions, 40 management questions, 24 scenario prompts (6 per track) with rubrics, and 1 kitchen colleague brief. The owner reviews them one or two batches at a time.
+- New content to write: about 40 kitchen questions, 40 management questions, and 24 scenario prompts (6 per track) with rubrics. The owner reviews them one or two batches at a time.
 
 ## 4. Scoring and the report
 
 - Section scores 0 to 100, then an overall score from section weights (kept in `lib/applicant/scoring.ts`), shown as a band: Strong, Solid, Developing, Not yet.
 - On submit, one AI call writes 3 strengths, 3 things to explore and 3 suggested interview questions, drawn only from the answers. `AU_WRITING_RULES`, `capText()`, `plainDashes()`, model from `CHAT_MODEL_PARAMS`.
-- The report shows every answer in full: quiz picks, the order given, written answers, and the Live Guest transcript.
+- The report shows every answer in full: quiz picks, the order given and the written answers.
 - The report states that it supports the manager's decision and doesn't make it. There is no automatic reject.
 
 ## 5. Answer signals
@@ -66,7 +67,7 @@ What the manager sees beside each answer, and how it's collected:
 - Thresholds live in one place (`lib/applicant/integrity.ts`). Starting points: a written answer in under 4 seconds, a paste over 80 characters, more than 60 seconds away from the page.
 - Flags are plain sentences ("Pasted 410 characters", "Away from the page for 4 minutes"), plus one overall line ("Most answers typed, 1 paste, typical pace").
 - No "cheating" verdict anywhere. The wording says these are things to ask about in the interview, not proof.
-- Answer keys, rubrics and Live Guest briefs never reach the browser. The next item is sent only after the last answer is saved.
+- Answer keys and rubrics never reach the browser. The next item is sent only after the last answer is saved.
 
 ## 6. Data model
 
@@ -74,7 +75,6 @@ Migration `supabase/migrations/20261104_applicant_testing.sql` (rollback in `sup
 
 - `applicant_tests`: one per invite. `org_id`, `venue_id` (cascade), `created_by`, `applicant_name`, `applicant_email`, `track`, `intro_message`, `token_hash` (unique), `status` (`invited`/`started`/`submitted`/`expired`/`withdrawn`), `run_state`, `position`, `consent_at`, `sent_at`, `started_at`, `submitted_at`, `expires_at`, `report`.
 - `applicant_answers`: one per item. `test_id` (cascade), `item_key`, `section`, `answer`, `correct`, `score`, `evaluation`, `served_at`, `answered_at`, `active_ms`, `away_ms`, `away_count`, `paste_count`, `pasted_chars`, `typing_ms`. Unique (`test_id`, `item_key`).
-- `applicant_guest_sessions`: same shape as `live_guest_sessions`, keyed to the test.
 - `applicant_test_usage`: tests sent per paying account (the venue's `owner_user_id`, stored as `account_id`) per Sydney month. `claim_applicant_test(account, month, limit)` takes one atomically and returns false once the allowance is used. A deleted test is never given back.
 - `applicant_tests.current_served_at` is when the current item was sent; it is copied onto the answer, so time to answer is the server's.
 - Kept 12 months from the invite, then deleted by the pg_cron job `trim-applicant-tests`. A venue deletes one applicant's data with a DELETE on `applicant_tests`, which cascades.
@@ -83,8 +83,8 @@ Migration `supabase/migrations/20261104_applicant_testing.sql` (rollback in `sup
 
 | File | Does |
 |---|---|
-| `blueprint.ts` | Tracks, sections and weights, item keys (`core:15:mc3`, `written:<id>`, `guest:<id>`), `drawTest()`, `progressAt()` |
-| `content.ts` | Which modules, banks, prompts and guests each track draws from (`trackSources()`), and `findSourceQuestion()` for grading. Server only |
+| `blueprint.ts` | Tracks, sections and weights, item keys (`core:15:mc3`, `written:<id>`), `drawTest()`, `progressAt()` |
+| `content.ts` | Which modules, banks and prompts each track draws from (`trackSources()`), and `findSourceQuestion()` for grading. Server only |
 | `questions/kitchen.ts`, `questions/management.ts`, `questions/written.ts` | The new content. **Empty until the owner reviews it** |
 | `scoring.ts` | `scoreQuizItem()` (ordering gets part marks), `sectionScores()`, `overallScore()`, `bandFor()` |
 | `integrity.ts` | `readSignals()` (trims the browser's report to the server's times), `answerFlags()`, `summaryLine()`, all thresholds in `SIGNAL_THRESHOLDS` |
@@ -92,7 +92,7 @@ Migration `supabase/migrations/20261104_applicant_testing.sql` (rollback in `sup
 
 Quizzes never ask True/False (a coin toss). The role quiz must mix at least 3 sources. `drawTest()` refuses a test with any section short, so a track can't be offered until its content exists.
 
-**Readiness today:** Bar and Floor can fill every section except the written scenarios. Kitchen and Management also need their role banks; Kitchen also needs its Live Guest brief.
+**Readiness today:** Bar and Floor can fill every section except the written scenarios. Kitchen and Management also need their role banks.
 
 ## 7. Routes
 
@@ -109,10 +109,10 @@ Quizzes never ask True/False (a coin toss). The role quiz must mix at least 3 so
 **Applicant** (`app/api/applicant/[token]/`), no sign-in. Every route starts with `openApplicantTest()` (`lib/applicant/public-route.ts`): limits per IP, overall and per link, the token's shape, then the lookup by hash.
 - `start { consent: true }`: records consent and serves the first item.
 - `next`: the item on screen now, for a return visit. A POST, because serving starts the item's clock and counts a visit after a break of 15 minutes or more.
-- `answer { position, answer, signals }`: quiz and ordering items are scored here; written answers are saved with no score until the AI marker (Phase 5). The answer after the last item finishes the test and stores the report. The Live Guest item is answered through its own conversation route (Phase 5).
+- `answer { position, answer, signals }`: quiz and ordering items are scored here; written answers are saved with no score until the AI marker (Phase 5). The answer after the last item finishes the test and stores the report.
 - Page `/apply/[token]` (`app/apply/`, `components/applicant/ApplicantTest.tsx`, `app/styles/applicant.css`): `noindex`, `no-referrer`. Opening the link changes nothing, so a mail scanner can't start a test. Open from any country (`publicPrefixes` in `lib/geo-config.ts`).
 - Signals are measured by `useAnswerSignals()` (`lib/applicant/use-answer-signals.ts`). Pasting still works; it is only counted.
-- About 9 AI calls per test at most (Phase 5), counted against the test, not the manager's daily AI allowance.
+- About 5 AI calls per test at most (Phase 5: 4 marks and 1 summary), counted against the test, not the manager's daily AI allowance.
 
 ## 8. Privacy and fairness
 
@@ -127,8 +127,8 @@ Quizzes never ask True/False (a coin toss). The role quiz must mix at least 3 so
 1. Migration. Written, not yet run.
 2. Test engine in `lib/applicant/`, unit tested. Done.
 3. Console API and emails. Done.
-4. Applicant pages and public API. Done, except the Live Guest item, which waits for Phase 5.
-5. AI scoring, Live Guest and the report.
+4. Applicant pages and public API. Done.
+5. AI marking of written answers and the written summary.
 6. Console tab.
 7. Plan allowances, pricing and features copy.
 8. Privacy policy, security review.

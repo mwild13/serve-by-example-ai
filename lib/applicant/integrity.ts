@@ -92,8 +92,8 @@ export function formatDuration(ms: number): string {
   return rest === 0 ? plural(hours, "hour") : `${plural(hours, "hour")} ${plural(rest, "minute")}`;
 }
 
-/** Choice: quiz and ordering. Written: a typed answer. Guest: one reply to the Live Guest. */
-export type AnswerKind = "choice" | "written" | "guest";
+/** Choice: quiz and ordering. Written: a typed answer. */
+export type AnswerKind = "choice" | "written";
 
 export type FlagKind = "quick" | "paste" | "away" | "typing";
 

@@ -1,15 +1,16 @@
 /**
  * blueprint.ts – what an applicant test is made of (docs/APPLICANT_TESTING.md §3).
  *
- * Five sections, in order: a core hospitality quiz every track sits, a quiz on
- * the role, two order-of-operations tasks, three written scenarios and one
- * Live Guest conversation. drawTest() deals one test from a track's sources
+ * Four sections, in order: a core hospitality quiz every track sits, a quiz on
+ * the role, two order-of-operations tasks and four written scenarios. There
+ * is no Live Guest conversation: every applicant should face the same kind of
+ * question, and a guest that answers back differs from one person to the next. drawTest() deals one test from a track's sources
  * (lib/applicant/content.ts), so no two applicants see the same set.
  *
  * Every item has a key that never changes meaning, stored in
  * applicant_tests.run_state.queue and on each applicant_answers row:
  *   core:<source>:<question id>    role:<source>:<question id>
- *   order:<source>:<question id>   written:<prompt id>   guest:<guest id>
+ *   order:<source>:<question id>   written:<prompt id>
  * A source is a module id ("15") or a bank name ("kitchen").
  *
  * Pure: no database, no AI, no randomness of its own.
@@ -31,15 +32,14 @@ export function isTrack(value: unknown): value is Track {
   return TRACKS.some((t) => t.id === value);
 }
 
-export type SectionId = "core" | "role" | "order" | "written" | "guest";
+export type SectionId = "core" | "role" | "order" | "written";
 
 /** Items per section, and each section's share of the overall score (adds to 100). */
 export const SECTIONS: { id: SectionId; label: string; count: number; weight: number }[] = [
   { id: "core", label: "Hospitality basics", count: 10, weight: 25 },
-  { id: "role", label: "Knowledge for the role", count: 8, weight: 20 },
+  { id: "role", label: "Knowledge for the role", count: 8, weight: 25 },
   { id: "order", label: "First things first", count: 2, weight: 10 },
-  { id: "written", label: "What would you do?", count: 3, weight: 30 },
-  { id: "guest", label: "Live Guest", count: 1, weight: 15 },
+  { id: "written", label: "What would you do?", count: 4, weight: 40 },
 ];
 
 /** The role quiz must mix at least this many sources, so it isn't one topic. */
@@ -73,8 +73,6 @@ export type TrackSources = {
   /** order_steps questions are taken from these. Role sources are used first. */
   order: QuizSource[];
   written: WrittenPrompt[];
-  /** Live Guest brief ids. */
-  guests: string[];
 };
 
 export type TestPlan = { queue: string[] };
@@ -85,15 +83,12 @@ export type DrawResult = { ok: true; plan: TestPlan } | { ok: false; shortfall: 
 
 export type ItemRef =
   | { section: "core" | "role" | "order"; source: string; questionId: string }
-  | { section: "written"; promptId: string }
-  | { section: "guest"; guestId: string };
+  | { section: "written"; promptId: string };
 
 export function itemKey(ref: ItemRef): string {
   switch (ref.section) {
     case "written":
       return `written:${ref.promptId}`;
-    case "guest":
-      return `guest:${ref.guestId}`;
     default:
       return `${ref.section}:${ref.source}:${ref.questionId}`;
   }
@@ -101,10 +96,10 @@ export function itemKey(ref: ItemRef): string {
 
 export function parseItemKey(key: string): ItemRef | null {
   const [section, ...rest] = key.split(":");
-  if (section === "written" || section === "guest") {
+  if (section === "written") {
     const id = rest.join(":");
     if (rest.length !== 1 || id === "") return null;
-    return section === "written" ? { section, promptId: id } : { section, guestId: id };
+    return { section, promptId: id };
   }
   if (section === "core" || section === "role" || section === "order") {
     const [source, ...idParts] = rest;
@@ -189,7 +184,6 @@ export function drawTest(sources: TrackSources, random: Random): DrawResult {
     role: dealQuiz("role", sources.role, needOf("role"), random),
     order: dealOrder(sources, needOf("order"), random),
     written: dealWritten(sources.written, needOf("written"), random),
-    guest: shuffle(sources.guests, random).slice(0, 1).map((guestId) => itemKey({ section: "guest", guestId })),
   };
 
   const shortfall: Shortfall[] = SECTIONS.filter((s) => parts[s.id].length < s.count).map((s) => ({
