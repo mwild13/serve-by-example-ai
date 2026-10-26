@@ -1,6 +1,6 @@
 # Applicant Testing: Serve By Example
 
-Companion to `CLAUDE.md`, not a replacement. Where the two conflict, `CLAUDE.md` wins. Status on 2026-10-26: **Phases 1 to 4 built** (migration `20261104_applicant_testing.sql`, not yet run; engine, console API, emails and the applicant's pages). Not yet: AI marking of written answers, the written summary, the console tab. No track can be sent until its content exists (§6a). This file is the spec each build phase works from. Update it as each phase lands.
+Companion to `CLAUDE.md`, not a replacement. Where the two conflict, `CLAUDE.md` wins. Status on 2026-10-26: **Phases 1 to 5 built** (migration `20261104_applicant_testing.sql`, not yet run; engine, console API, emails, the applicant's pages, AI marking and the summary). Not yet: the console tab (Phase 6). Bar and floor written scenarios are drafted and waiting for the owner's review (`docs/Applicant Testing/written-batch-1.md`). No track can be sent until its content exists (§6a). This file is the spec each build phase works from. Update it as each phase lands.
 
 ## 1. What it is
 
@@ -47,6 +47,12 @@ Weights: core 25, role 25, order 10, written 40.
 
 ## 4. Scoring and the report
 
+**Marking written answers** (`lib/applicant/marking.ts`). One AI call per answer. The marker gets the scenario and the prompt's marking guide (ours, in the system message) and the applicant's answer (fenced as untrusted). It marks process, guest care, safety and judgement from 1 to 5, lists which guide points the answer covered, and writes a line on what was strong, what was missing, and a question for the interview. The score is worked out in code (`scoreFromMarks()`: all 1s is 0, all 5s is 100), never taken from the model. A red flag caps safety or judgement at 2. The marker is told never to mark down spelling, grammar or English as a second language, that length earns nothing, and to credit any reasonable approach that meets the principle.
+
+**When it runs.** Each written answer is marked after the response has gone (`afterResponse()`, Cloudflare `waitUntil`), so the applicant never waits on AI. The last one is marked with the summary once the test is finished, then the manager is emailed. `completeTest()` does whatever is left and is safe to run twice; opening a report (`GET /api/management/applicants/[id]`) runs it if anything is unmarked or the summary is missing. Every AI call is taken from the test's budget first (`claim_applicant_ai_call`, `AI_CALL_CAP` = 10: 4 marks, 1 summary, room for retries). The manager email is claimed on `manager_notified_at`, so it goes once.
+
+**The summary** (`lib/applicant/summary.ts`): up to three strengths, three things to explore and three interview questions, from the section scores, the written answers with the marker's notes, and the quiz questions missed. It never sees the answer signals, and is told to write about the work, never the person, and never to say whether to hire.
+
 - Section scores 0 to 100, then an overall score from section weights (kept in `lib/applicant/scoring.ts`), shown as a band: Strong, Solid, Developing, Not yet.
 - On submit, one AI call writes 3 strengths, 3 things to explore and 3 suggested interview questions, drawn only from the answers. `AU_WRITING_RULES`, `capText()`, `plainDashes()`, model from `CHAT_MODEL_PARAMS`.
 - The report shows every answer in full: quiz picks, the order given and the written answers.
@@ -85,14 +91,16 @@ Migration `supabase/migrations/20261104_applicant_testing.sql` (rollback in `sup
 |---|---|
 | `blueprint.ts` | Tracks, sections and weights, item keys (`core:15:mc3`, `written:<id>`), `drawTest()`, `progressAt()` |
 | `content.ts` | Which modules, banks and prompts each track draws from (`trackSources()`), and `findSourceQuestion()` for grading. Server only |
-| `questions/kitchen.ts`, `questions/management.ts`, `questions/written.ts` | The new content. **Empty until the owner reviews it** |
+| `questions/kitchen.ts`, `questions/management.ts` | Role banks. **Empty, not drafted yet** |
+| `questions/written.ts` | Written scenarios. Bar and floor, six each, drafted with `reviewed: false`. Review sheet: `npm run applicant:review` |
+| `marking.ts`, `summary.ts`, `after-response.ts` | AI marking, the summary, and running them after the response |
 | `scoring.ts` | `scoreQuizItem()` (ordering gets part marks), `sectionScores()`, `overallScore()`, `bandFor()` |
 | `integrity.ts` | `readSignals()` (trims the browser's report to the server's times), `answerFlags()`, `summaryLine()`, all thresholds in `SIGNAL_THRESHOLDS` |
 | `token.ts` | Link tokens: 32 random bytes, SHA-256 hash stored |
 
 Quizzes never ask True/False (a coin toss). The role quiz must mix at least 3 sources. `drawTest()` refuses a test with any section short, so a track can't be offered until its content exists.
 
-**Readiness today:** Bar and Floor can fill every section except the written scenarios. Kitchen and Management also need their role banks.
+**Readiness today:** Bar and Floor are ready the moment their written scenarios are approved (a test checks this). Kitchen and Management need their role banks and written scenarios.
 
 ## 7. Routes
 
@@ -109,10 +117,10 @@ Quizzes never ask True/False (a coin toss). The role quiz must mix at least 3 so
 **Applicant** (`app/api/applicant/[token]/`), no sign-in. Every route starts with `openApplicantTest()` (`lib/applicant/public-route.ts`): limits per IP, overall and per link, the token's shape, then the lookup by hash.
 - `start { consent: true }`: records consent and serves the first item.
 - `next`: the item on screen now, for a return visit. A POST, because serving starts the item's clock and counts a visit after a break of 15 minutes or more.
-- `answer { position, answer, signals }`: quiz and ordering items are scored here; written answers are saved with no score until the AI marker (Phase 5). The answer after the last item finishes the test and stores the report.
+- `answer { position, answer, signals }`: quiz and ordering items are scored here; written answers are saved with no score and marked in the background. The answer after the last item finishes the test and stores the report.
 - Page `/apply/[token]` (`app/apply/`, `components/applicant/ApplicantTest.tsx`, `app/styles/applicant.css`): `noindex`, `no-referrer`. Opening the link changes nothing, so a mail scanner can't start a test. Open from any country (`publicPrefixes` in `lib/geo-config.ts`).
 - Signals are measured by `useAnswerSignals()` (`lib/applicant/use-answer-signals.ts`). Pasting still works; it is only counted.
-- About 5 AI calls per test at most (Phase 5: 4 marks and 1 summary), counted against the test, not the manager's daily AI allowance.
+- At most 10 AI calls per test (4 marks and 1 summary normally), counted against the test, not the manager's daily AI allowance.
 
 ## 8. Privacy and fairness
 
@@ -128,7 +136,7 @@ Quizzes never ask True/False (a coin toss). The role quiz must mix at least 3 so
 2. Test engine in `lib/applicant/`, unit tested. Done.
 3. Console API and emails. Done.
 4. Applicant pages and public API. Done.
-5. AI marking of written answers and the written summary.
+5. AI marking of written answers and the written summary. Done. Not yet tried against the live model.
 6. Console tab.
 7. Plan allowances, pricing and features copy.
 8. Privacy policy, security review.

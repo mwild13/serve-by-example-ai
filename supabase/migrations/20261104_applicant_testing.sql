@@ -11,8 +11,11 @@
 --   current_served_at: when the item at `position` was sent. Copied onto the
 --     answer, so the time to answer is the server's, not the browser's.
 --   visits: times the link was opened after the first, so a gap shows.
---   ai_calls: AI calls this test has made. The routes stop at a fixed cap.
+--   ai_calls: AI calls this test has made, taken one at a time by
+--     claim_applicant_ai_call(), which stops at the cap the code passes.
 --   report: scores, signals and the written summary once submitted.
+--   manager_notified_at: when the "has finished" email went to the manager.
+--     Claimed before sending, so it can only go once.
 -- applicant_answers: one row per answered item, with the answer, its score
 --   and the signals from the browser (time on and away from the page,
 --   pastes, typing time), already checked against the server's own times.
@@ -52,6 +55,7 @@ CREATE TABLE IF NOT EXISTS public.applicant_tests (
   submitted_at      timestamptz,
   expires_at        timestamptz NOT NULL,
   report            jsonb,
+  manager_notified_at timestamptz,
   created_at        timestamptz NOT NULL DEFAULT now(),
   updated_at        timestamptz NOT NULL DEFAULT now(),
   -- A test only starts once it has its items and the applicant's consent.
@@ -131,6 +135,25 @@ $$;
 REVOKE ALL ON FUNCTION public.claim_applicant_test(uuid, date, integer) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.claim_applicant_test(uuid, date, integer) TO service_role;
 
+-- Takes one AI call from the test's budget. False once the cap is reached,
+-- so a test can never cost more than the cap, whatever is retried.
+CREATE OR REPLACE FUNCTION public.claim_applicant_ai_call(p_test uuid, p_cap integer)
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $$
+  WITH claimed AS (
+    UPDATE public.applicant_tests
+       SET ai_calls = ai_calls + 1
+     WHERE id = p_test AND ai_calls < p_cap
+    RETURNING 1
+  )
+  SELECT EXISTS (SELECT 1 FROM claimed);
+$$;
+REVOKE ALL ON FUNCTION public.claim_applicant_ai_call(uuid, integer) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.claim_applicant_ai_call(uuid, integer) TO service_role;
+
 COMMIT;
 
 -- Tests go 12 months after the invite, and usage counts after 13, every night
@@ -152,7 +175,7 @@ select cron.schedule(
 --   WHERE table_name LIKE 'applicant_%' AND grantee IN ('anon', 'authenticated');
 --     -- no rows
 --   SELECT grantee FROM information_schema.routine_privileges
---   WHERE routine_name = 'claim_applicant_test';
+--   WHERE routine_name IN ('claim_applicant_test', 'claim_applicant_ai_call');
 --     -- service_role (and postgres), no anon or authenticated
 --   select jobname, schedule, active from cron.job where jobname = 'trim-applicant-tests';
 --     -- 40 16 * * *, true

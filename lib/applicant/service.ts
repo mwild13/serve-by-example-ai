@@ -11,16 +11,25 @@
  * the answer copies it, so the time an answer took is the server's. Each
  * answer is saved only if position hasn't moved, and (test, position) is
  * unique, so a retry can't be counted twice.
+ *
+ * Written answers are marked by AI after the response has gone (afterResponse),
+ * one as each is saved; the last one and the summary run once the test is
+ * finished. completeTest() does whatever is left, so if a background task
+ * fails, opening the report finishes the job. Each AI call is taken from the
+ * test's budget first (claim_applicant_ai_call, AI_CALL_CAP).
  */
 import "server-only";
 import { SECTIONS, TRACKS, parseItemKey, progressAt, type SectionId, type Track, type WrittenPrompt } from "@/lib/applicant/blueprint";
 import type { ApplicantItemView, ApplicantState } from "@/lib/applicant/client";
 import { WRITTEN_MAX_CHARS, WRITTEN_MIN_CHARS } from "@/lib/applicant/client";
 import { findSourceQuestion } from "@/lib/applicant/content";
+import { afterResponse } from "@/lib/applicant/after-response";
 import { applicantFinishedEmail } from "@/lib/applicant/emails";
 import { answerFlags, readSignals, summaryLine, type AnswerKind, type AnswerSignals, type SignalFlag, type SignalSummary } from "@/lib/applicant/integrity";
+import { markWrittenAnswer, scoreFromMarks, type WrittenMark } from "@/lib/applicant/marking";
 import { WRITTEN_PROMPTS } from "@/lib/applicant/questions/written";
 import { bandFor, overallScore, scoreQuizItem, sectionScores, type Band, type SectionScores } from "@/lib/applicant/scoring";
+import { summariseApplicant, type ApplicantSummary } from "@/lib/applicant/summary";
 import { hashApplicantToken, isApplicantTokenShape } from "@/lib/applicant/token";
 import { cleanUserText } from "@/lib/ai-guard";
 import type { AdminClient } from "@/lib/management/auth";
@@ -30,6 +39,8 @@ import { answerFits, isAnswerShape, questionView } from "@/lib/verify-quiz";
 
 /** How long an invite link works. A resend starts it again. */
 export const TEST_TTL_DAYS = 14;
+/** Most AI calls one test can make: 4 marks and 1 summary, with room for retries. */
+export const AI_CALL_CAP = 10;
 /** A return to the link after this long counts as a new visit. */
 const NEW_VISIT_AFTER_MS = 15 * 60_000;
 
@@ -40,8 +51,10 @@ export type StoredReport = {
   overall: number | null;
   band: Band | null;
   signals: SignalSummary;
-  /** Items still waiting on an AI score (written scenarios, Phase 5). */
+  /** Items still waiting on an AI score (written scenarios). */
   pendingScores: number;
+  /** The AI summary, once every written answer is marked. */
+  summary: ApplicantSummary | null;
 };
 
 export type TestRow = {
@@ -65,11 +78,12 @@ export type TestRow = {
   submitted_at: string | null;
   expires_at: string;
   report: StoredReport | null;
+  manager_notified_at: string | null;
   created_at: string;
 };
 
 export const TEST_COLUMNS =
-  "id, venue_id, account_id, created_by, applicant_name, applicant_email, track, intro_message, status, run_state, position, current_served_at, visits, consent_at, sent_at, started_at, last_seen_at, submitted_at, expires_at, report, created_at";
+  "id, venue_id, account_id, created_by, applicant_name, applicant_email, track, intro_message, status, run_state, position, current_served_at, visits, consent_at, sent_at, started_at, last_seen_at, submitted_at, expires_at, report, manager_notified_at, created_at";
 
 export type AnswerRow = {
   position: number;
@@ -322,6 +336,12 @@ export async function recordAnswer(
       .eq("id", row.id)
       .eq("position", row.position);
     if (moveError) throw moveError;
+    // Mark it while they carry on. The last answer is marked with the summary instead.
+    if (item.kind === "written" && row.position + 1 < queue.length) {
+      const testId = row.id;
+      const at = row.position;
+      await afterResponse("mark", () => markAnswer(admin, testId, at).then(() => undefined));
+    }
   }
   return { ok: true, state: await serveCurrent(admin, await reload(admin, row.id), origin) };
 }
@@ -341,8 +361,8 @@ export function signalsOf(answer: AnswerRow): AnswerSignals {
   };
 }
 
-/** Scores and the signals line, from the answers so far. Pure. */
-export function computeReport(answers: AnswerRow[]): StoredReport {
+/** Scores and the signals line, from the answers so far. Pure. The summary is added by completeTest(). */
+export function computeReport(answers: AnswerRow[], summary: ApplicantSummary | null = null): StoredReport {
   const sections = sectionScores(answers.map((a) => ({ section: a.section, score: a.score })));
   const overall = overallScore(sections);
   return {
@@ -351,6 +371,7 @@ export function computeReport(answers: AnswerRow[]): StoredReport {
     band: overall === null ? null : bandFor(overall),
     signals: summaryLine(answers.map((a) => ({ kind: answerKind(a.section), signals: signalsOf(a) }))),
     pendingScores: answers.filter((a) => a.score === null).length,
+    summary,
   };
 }
 
@@ -366,8 +387,8 @@ export function reportUrl(origin: string, testId: string): string {
 }
 
 /**
- * Marks the test finished with its report, once, and tells the manager who
- * sent it. The email is best effort: the report is in the console either way.
+ * Marks the test finished with its scores so far, once, then marks what's
+ * left, writes the summary and tells the manager, after the response.
  */
 async function finishTest(admin: AdminClient, row: TestRow, origin: string): Promise<void> {
   const report = computeReport(await loadAnswers(admin, row.id));
@@ -379,10 +400,108 @@ async function finishTest(admin: AdminClient, row: TestRow, origin: string): Pro
     .eq("status", "started")
     .select("id");
   if (error) throw error;
-  if (!finished || finished.length === 0 || !row.created_by) return;
+  if (!finished || finished.length === 0) return;
+  await afterResponse("complete", () => completeTest(admin, row.id, origin, { notify: true }).then(() => undefined));
+}
 
+/** Takes one AI call from the test's budget. False once it's spent. */
+async function claimAiCall(admin: AdminClient, testId: string): Promise<boolean> {
+  const { data, error } = await admin.rpc("claim_applicant_ai_call", { p_test: testId, p_cap: AI_CALL_CAP });
+  if (error) throw error;
+  return data === true;
+}
+
+/** Marks one written answer if it isn't marked yet. True when it has a score afterwards. */
+export async function markAnswer(admin: AdminClient, testId: string, position: number): Promise<boolean> {
+  const { data, error } = await admin
+    .from("applicant_answers")
+    .select("item_key, answer, score")
+    .eq("test_id", testId)
+    .eq("position", position)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return false;
+  if (data.score !== null) return true;
+  const item = resolveItem(data.item_key as string);
+  const text = (data.answer as { text?: unknown } | null)?.text;
+  if (item?.kind !== "written" || typeof text !== "string") return false;
+  if (!(await claimAiCall(admin, testId))) return false;
+
+  const mark = await markWrittenAnswer(item.prompt, text);
+  if (!mark) return false;
+  // Only the first mark is kept, if two runs got here together.
+  const { error: saveError } = await admin
+    .from("applicant_answers")
+    .update({ score: scoreFromMarks(mark.marks), evaluation: mark })
+    .eq("test_id", testId)
+    .eq("position", position)
+    .is("score", null);
+  if (saveError) throw saveError;
+  return true;
+}
+
+function summaryInput(row: TestRow, answers: AnswerRow[], report: StoredReport) {
+  const written = answers.flatMap((a) => {
+    const item = resolveItem(a.item_key);
+    const text = (a.answer as { text?: unknown } | null)?.text;
+    if (item?.kind !== "written" || typeof text !== "string") return [];
+    const mark = a.evaluation as Partial<WrittenMark> | null;
+    return [{ scenario: `${item.prompt.setting} ${item.prompt.prompt}`, answer: text, strengths: mark?.strengths ?? "", gaps: mark?.gaps ?? "" }];
+  });
+  const missed = answers.flatMap((a) => {
+    const item = resolveItem(a.item_key);
+    return item?.kind === "choice" && a.correct === false ? [item.question.prompt] : [];
+  });
+  return {
+    trackLabel: trackLabel(row.track),
+    sections: SECTIONS.map((s) => ({ label: s.label, score: report.sections[s.id] })),
+    written,
+    missed,
+  };
+}
+
+/**
+ * Finishes a submitted test's report: marks any written answer still
+ * unmarked, writes the summary once they all are, saves the report, and
+ * (with `notify`) emails the manager once. Safe to run more than once or at
+ * the same time: marks and the email are each claimed before they're done.
+ */
+export async function completeTest(admin: AdminClient, testId: string, origin: string, opts: { notify: boolean }): Promise<StoredReport | null> {
+  const row = await reload(admin, testId);
+  if (row.status !== "submitted") return null;
+
+  let answers = await loadAnswers(admin, testId);
+  const unmarked = answers.filter((a) => a.section === "written" && a.score === null);
+  if (unmarked.length > 0) {
+    for (const a of unmarked) await markAnswer(admin, testId, a.position);
+    answers = await loadAnswers(admin, testId);
+  }
+
+  let summary = row.report?.summary ?? null;
+  const scoresSoFar = computeReport(answers);
+  if (!summary && scoresSoFar.pendingScores === 0 && (await claimAiCall(admin, testId))) {
+    summary = await summariseApplicant(summaryInput(row, answers, scoresSoFar));
+  }
+  const report = computeReport(answers, summary);
+  const { error } = await admin.from("applicant_tests").update({ report, updated_at: new Date().toISOString() }).eq("id", testId);
+  if (error) throw error;
+
+  if (opts.notify) await notifyManager(admin, row, origin);
+  return report;
+}
+
+/** The "has finished" email, once: the send is claimed on the row first. Best effort. */
+async function notifyManager(admin: AdminClient, row: TestRow, origin: string): Promise<void> {
   const apiKey = process.env.BREVO_API_KEY;
-  if (!apiKey) return;
+  if (!apiKey || !row.created_by) return;
+  const { data: claimed, error } = await admin
+    .from("applicant_tests")
+    .update({ manager_notified_at: new Date().toISOString() })
+    .eq("id", row.id)
+    .is("manager_notified_at", null)
+    .select("id");
+  if (error) throw error;
+  if (!claimed || claimed.length === 0) return;
   try {
     const [{ data: manager }, { data: venue }] = await Promise.all([
       admin.auth.admin.getUserById(row.created_by),
@@ -417,7 +536,12 @@ export type ReportItem = {
   score: number | null;
   timeMs: number;
   flags: SignalFlag[];
-  evaluation: unknown;
+  /** Written scenarios, once marked: the marking guide with what the answer covered, and the marker's notes. */
+  guide?: { point: string; covered: boolean }[];
+  marks?: WrittenMark["marks"];
+  strengths?: string;
+  gaps?: string;
+  followUp?: string;
 };
 
 function optionText(question: Question, id: unknown): string {
@@ -447,7 +571,6 @@ export function reportItems(answers: AnswerRow[]): ReportItem[] {
       score: a.score,
       timeMs: signals.elapsedMs,
       flags: answerFlags(answerKind(a.section), signals),
-      evaluation: a.evaluation,
     };
     if (item?.kind === "choice") {
       const given = Array.isArray(a.answer) ? a.answer : [a.answer];
@@ -455,7 +578,22 @@ export function reportItems(answers: AnswerRow[]): ReportItem[] {
     }
     if (item?.kind === "written") {
       const text = (a.answer as { text?: unknown } | null)?.text;
-      return { ...base, prompt: item.prompt.prompt, setting: item.prompt.setting, given: [typeof text === "string" ? text : ""] };
+      const mark = a.score === null ? null : (a.evaluation as WrittenMark | null);
+      return {
+        ...base,
+        prompt: item.prompt.prompt,
+        setting: item.prompt.setting,
+        given: [typeof text === "string" ? text : ""],
+        ...(mark
+          ? {
+              guide: item.prompt.rubric.map((point, i) => ({ point, covered: mark.covered.includes(i) })),
+              marks: mark.marks,
+              strengths: mark.strengths,
+              gaps: mark.gaps,
+              followUp: mark.followUp,
+            }
+          : {}),
+      };
     }
     return { ...base, prompt: "This question is no longer in the bank.", given: [] };
   });

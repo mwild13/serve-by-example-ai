@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { drawTest, parseItemKey, TRACKS } from "./blueprint";
 import { CORE_MODULES, ROLE_MODULES, findSourceQuestion, trackSources } from "./content";
+import { WRITTEN_PROMPTS } from "./questions/written";
 import { liveQuestions } from "@/lib/question-bank";
 
 const seeded = (seed: number) => {
@@ -46,5 +47,26 @@ describe("applicant content", () => {
     }
     expect(findSourceQuestion("15", "no-such-question")).toBeNull();
     expect(findSourceQuestion("brand", "x")).toBeNull();
+  });
+
+  it("has written scenarios with unique ids, known tracks and a usable marking guide", () => {
+    const ids = WRITTEN_PROMPTS.map((p) => p.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const p of WRITTEN_PROMPTS) {
+      expect(p.tracks.length).toBeGreaterThan(0);
+      for (const t of p.tracks) expect(TRACKS.map((x) => x.id)).toContain(t);
+      expect(p.rubric.length).toBeGreaterThanOrEqual(3);
+      expect(p.rubric.length).toBeLessThanOrEqual(6);
+      expect(p.setting.length).toBeLessThanOrEqual(400);
+    }
+  });
+
+  it("can deal a full bar and floor test once the written scenarios are approved", () => {
+    for (const track of ["bar", "floor"] as const) {
+      const sources = trackSources(track);
+      const approved = WRITTEN_PROMPTS.filter((p) => p.tracks.includes(track)).map((p) => ({ ...p, reviewed: true }));
+      expect(new Set(approved.map((p) => p.concept)).size).toBeGreaterThanOrEqual(6);
+      expect(drawTest({ ...sources, written: approved }, seeded(2)).ok).toBe(true);
+    }
   });
 });
