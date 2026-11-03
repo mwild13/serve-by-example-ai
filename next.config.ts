@@ -56,6 +56,19 @@ module.exports = withBundleAnalyzer({
         destination: "/login",
         permanent: false,
       },
+      // Instagram bio links. Short paths so Instagram shows a clean URL; the
+      // tags land on the destination, where middleware.ts saves them as
+      // first-touch attribution. Temporary, so a new campaign tag takes
+      // effect at once instead of being cached by browsers.
+      ...[
+        { slug: "demo", destination: "/demo" },
+        { slug: "sop", destination: "/toolkit" },
+        { slug: "trial", destination: "/membership" },
+      ].map(({ slug, destination }) => ({
+        source: `/ig/${slug}`,
+        destination: `${destination}?utm_source=instagram&utm_medium=bio&utm_campaign=2026-11-launch&utm_content=${slug}`,
+        permanent: false,
+      })),
       // /solutions/multi-venue consolidated into /solutions/pub-groups (2026-07-28)
       {
         source: "/solutions/multi-venue",

@@ -213,6 +213,7 @@ App screenshots never show QA names, internal email addresses or real staff data
 ## 11. Measuring
 
 - **UTM links on everything:** `utm_source=instagram` with `utm_medium=bio`, `post`, `story`, `reel`, `dm` or `paid`, and `utm_campaign=<yyyy-mm>-<name>`. Email uses `utm_source=email&utm_medium=cold`.
+- **Bio links are short redirects:** `servebyexample.co/ig/demo`, `/ig/sop` and `/ig/trial`, set in `next.config.ts`. They add the bio tags (`utm_content` says which link was tapped). For a new campaign, change `utm_campaign` there; the Instagram links stay the same.
 - **What counts:** saves plus shares per 100 accounts reached. Ignore likes. Then link taps, demo plays (GA4), SOP sign-ups and trials. `docs/FUNNEL_METRICS.md` has the funnel queries.
 - **No Meta Pixel on the site yet.** Adding it means wiring it into the cookie banner's consent: a code job, ask the owner first.
 - **Ads:** boost only proven posts, Australia only, 18 and over, inside the owner's cap (A$100 for the launch fortnight).
