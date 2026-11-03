@@ -19,16 +19,17 @@ How to say it:
 
 One flag per problem. Don't lecture, and don't raise a soft flag again after the owner has said "make it anyway" for that piece.
 
-## 2. Where we are (as of 26 October 2026)
+## 2. Where we are (as of 3 November 2026)
 
 | | |
 |---|---|
 | Channel | Instagram only, plus the linked Facebook Page that ads and auto-replies need. No LinkedIn and no personal accounts: the owner's decision. Adding TikTok or anything else is the owner's call, so ask. |
-| Account | Brand new; posting starts Sunday 1 November 2026. The warm-up limits in section 5 apply until at least 1 December 2026. |
+| Account | Brand new; posting starts Thursday 5 November 2026. The warm-up limits in section 5 apply until at least 1 December 2026. |
 | Market | Australia only. The app is geo-blocked outside Australia (`lib/geo-config.ts`), so never write for or target other countries. |
 | Brand | Faceless. No founder name, face, voice or story anywhere. "We" means the Serve By Example team, and messages are signed "The Serve By Example team". |
 | Proof | No customers yet, so no proof of any kind (section 3). |
-| Current plan | The launch kit: https://claude.ai/artifact/6ZybP94mGQUARCKuM8tEf6 (8 carousels, 3 Reel scripts, the 14-day calendar, DM and email scripts, ads plan). Images in `~/Desktop/sbe-instagram/`. Plan runs Sunday 1 to Saturday 14 November 2026; on Sunday 15 November the owner brings back the numbers and we plan the next two weeks. |
+| Current plan | The launch kit: https://claude.ai/artifact/6ZybP94mGQUARCKuM8tEf6 (8 carousels, 3 Reel scripts, the 14-day calendar, DM and email scripts, ads plan). Images in `~/Desktop/sbe-instagram/2026-11-05/`, exported from Canva. Plan runs Thursday 5 to Wednesday 18 November 2026; on Thursday 19 November the owner brings back the numbers and we plan the next two weeks. |
+| Canva | Slides are built in the owner's Canva folder "Serve By Example - Master Files": copy the design "MASTER - 6 Slide Carousel" (approved Post 1 style, header and footer locked), one design per post named "Post N - name". Edit the copy through the Canva connector; never generate a new design. Section 8's HTML render is the fallback. |
 | Outreach | From info@servebyexample.co, sent by hand. |
 
 Update this table after every review.
@@ -85,6 +86,8 @@ Update this table after every review.
 
 **Automation**
 - ManyChat (or any tool) only through Meta's official login. Never give a tool the password.
+- ManyChat free plan: comment-keyword automations work, but only per post. Once a post or Reel is live, add a trigger in ManyChat with "a specific post or reel" (the top option), pick that post, and attach the keyword (SOP or PRICING). "Any post or reel" and "next post or reel" are paid features; don't pick them. So every post that says "Comment SOP" needs its own trigger, set up straight after it goes live.
+- The caption tells people to comment the keyword on the post itself ("Comment SOP below and we'll send you the template"). The comment fires the DM, so nobody has to open their DMs first. We say "we", never "I" (faceless brand).
 - Automated DMs can only follow up within 24 hours of the person's last message. After that, wait for them to write again.
 - A private reply to a comment must go within 7 days of the comment.
 
@@ -143,6 +146,8 @@ Update this table after every review.
 **Pictures:** real app screens from `public/shots/` (made by `scripts/device-mockups.mjs`) before any illustration. Icons are inline SVG from lucide. No emojis, no stock people.
 
 ## 8. Making the images
+
+The main route is now the Canva master (section 2). The steps below are the fallback when Canva isn't available.
 
 1. Copy `docs/socials/slide-template.html` to a new batch folder, `~/Desktop/sbe-instagram/<yyyy-mm-dd>/`, one HTML file per post (`p9.html`). Keep working files out of the repo.
 2. Write the slides. Each `<section class="slide">` becomes one image.
