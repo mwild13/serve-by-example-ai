@@ -23,7 +23,7 @@ One flag per problem. Don't lecture, and don't raise a soft flag again after the
 
 | | |
 |---|---|
-| Channel | Instagram only, plus the linked Facebook Page that ads and auto-replies need. No LinkedIn and no personal accounts: the owner's decision. Adding TikTok or anything else is the owner's call, so ask. |
+| Channel | Instagram, with every post and Reel also going to the linked Facebook Page through Meta Business Suite (owner's decision, 4 November 2026: buyers are more likely on Facebook). No LinkedIn and no personal accounts. Adding TikTok or anything else is the owner's call, so ask. |
 | Account | Brand new; posting starts Thursday 5 November 2026. The warm-up limits in section 5 apply until at least 1 December 2026. |
 | Market | Australia only. The app is geo-blocked outside Australia (`lib/geo-config.ts`), so never write for or target other countries. |
 | Brand | Faceless. No founder name, face, voice or story anywhere. "We" means the Serve By Example team, and messages are signed "The Serve By Example team". |
@@ -90,6 +90,13 @@ Update this table after every review.
 - The caption tells people to comment the keyword on the post itself ("Comment SOP below and we'll send you the template"). The comment fires the DM, so nobody has to open their DMs first. We say "we", never "I" (faceless brand).
 - Automated DMs can only follow up within 24 hours of the person's last message. After that, wait for them to write again.
 - A private reply to a comment must go within 7 days of the comment.
+
+**Facebook Page**
+- A Page can't message anyone first. Cold outreach on Facebook stays on email; Messenger replies only to people who wrote to us, freely within 24 hours of their last message.
+- Messenger is answered by Business Suite's free Instant reply and FAQs, not ManyChat. A "Comment SOP" on Facebook gets one manual private reply within 7 days.
+- Facebook captions drop the hashtags and use a real `utm_source=facebook` link instead of "link in bio" (the kit builds them).
+- Filters: profanity filter on Medium, Moderation Assist hides comments with links, visitor posts off. On Instagram, Hidden Words on. Hide spam and abuse, never honest criticism.
+- Groups: many only accept personal profiles, which breaks the faceless rule. Joining as the owner is the owner's call; otherwise use groups that accept Pages.
 
 **Account safety**
 - Login is info@servebyexample.co with two-factor on. The owner holds the password; agents never ask for it or handle it.
