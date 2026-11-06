@@ -8,6 +8,7 @@ import HeroSection from "@/components/HeroSection";
 import LogoMarquee from "@/components/marketing/LogoMarquee";
 import CTABand from "@/components/marketing/CTABand";
 import DemoTeaser from "@/components/marketing/DemoTeaser";
+import { DemoVideoLoop } from "@/components/marketing/DemoVideo";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -163,6 +164,18 @@ export default function Home() {
               pass `logos={[...]}` once named customers grant permission. */}
           <LogoMarquee />
         </div>
+
+        {/* ── Demo video (docs/DEMO_VIDEO_PLAN.md) ─── */}
+        {/* First thing after the fold: a silent loop, and the full minute with sound on click. */}
+        <section className="sbe-mkt-video-section" aria-labelledby="demo-video-title">
+          <div className="container">
+            <div className="sbe-mkt-video-head">
+              <p className="sbe-mkt-kicker">The demo</p>
+              <h2 id="demo-video-title" className="sbe-mkt-display">See it in a minute.</h2>
+            </div>
+            <DemoVideoLoop />
+          </div>
+        </section>
 
         {/* Trust Stats band removed — the hero's in-line trust row now carries
             3× / 100+ / 19 (Pages-Redesign.md §6.1); repeating them in cards

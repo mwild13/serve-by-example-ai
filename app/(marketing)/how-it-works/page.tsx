@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/marketing/PageHero";
 import CTABand from "@/components/marketing/CTABand";
+import { DemoVideoPlayer } from "@/components/marketing/DemoVideo";
 import {
   Ledger,
   MediaRows,
@@ -191,6 +192,12 @@ export default function HowItWorksPage() {
             { label: "View Pricing", href: "/membership", variant: "secondary" },
           ]}
         />
+
+        <section className="sbe-mkt-video-section sbe-mkt-video-section-tight" aria-label="Demo video">
+          <div className="container">
+            <DemoVideoPlayer which="main" where="how-it-works" />
+          </div>
+        </section>
 
         <SplitPanel
           kicker="The problem"

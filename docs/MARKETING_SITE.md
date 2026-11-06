@@ -21,7 +21,8 @@ Companion to `CLAUDE.md`, not a replacement — where the two conflict, `CLAUDE.
 | `/vs-generic-lms` | Comparison page — **also missing from prior docs entirely** |
 | `/demo` | Scripted Live Guest demo: Sharon and the cold parmy, three replies, no sign-up and no AI call (`lib/demo-guest.ts`, held to her real brief by `lib/demo-guest.test.ts`). Sends `demo_start` and `demo_complete` to Analytics |
 | `/demo/complaint-master` | Complaint handling demo |
-| `/how-it-works` | How It Works |
+| `/watch` | The 30 second demo video, where the email picture links to (`docs/DEMO_VIDEO_PLAN.md`). Links carry `utm_` tags. Sends `demo_video_play` to Analytics |
+| `/how-it-works` | How It Works. The full demo video sits under the hero (`DemoVideoPlayer`) |
 | `/roi` | ROI Calculator |
 | `/resources` | Resources hub |
 | `/resources/sop-toolkit` | Free SOP toolkit lead magnet |

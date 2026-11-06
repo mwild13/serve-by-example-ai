@@ -13,6 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: "/solutions", priority: 0.8 },
     { url: "/membership", priority: 0.9 },
     { url: "/demo", priority: 0.8 },
+    { url: "/watch", priority: 0.6 },
     { url: "/demo/complaint-master", priority: 0.7 },
     { url: "/solutions/fine-dining", priority: 0.7 },
     { url: "/solutions/franchise-systems", priority: 0.7 },
