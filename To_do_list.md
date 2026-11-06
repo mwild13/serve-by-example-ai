@@ -59,6 +59,7 @@ Small changes, in the order they will be done. Each goes to a preview branch fir
 - [ ] **Applicant Testing: end to end test.** A Playwright run of the applicant flow (send, open, answer every part, finish, report) with the AI calls stubbed, using the QA account once it's on a venue plan.
 - [ ] **Applicant Testing in the marketing plan** (released 2026-10-27). Follow `AGENTS_SOCIALS.md` (the owner is pulled up on hard stops). (1) Add it to the next two-week Instagram plan, planned on Sunday 15 November from the launch numbers: two carousels (what a manager sees in the report; "four questions that show how someone thinks on shift", from the written situations) and one Reel script (an applicant doing an ordering task by drag), made with `docs/socials/slide-template.html` and `scripts/social-render.mjs`. (2) A one-page sales sheet artifact for venue owners and group managers: what it tests per role, what the report shows, plans and allowances. (3) A short email for toolkit leads who haven't unsubscribed (`toolkit_leads.unsubscribed_at IS NULL`), with the unsubscribe link. (4) A DM and comment-reply script for "how do I test a new bartender?" questions.
 - [ ] **Over-limit banner after a downgrade.** A venue that switches from Commercial to Boutique in Stripe keeps all its staff, but new joins are refused ("Seat limit reached") and it drops from several venues to one, with no word to the manager. Show a banner across the Manager Console while the venue is over its plan: "Your Boutique plan includes 15 staff. You have 22. Remove 7 or move back to Commercial.", with Manage staff and Change plan buttons. Do not block sign-in or force deletions. Cover the venue count as well as seats. Stripe's portal is set to apply downgrades at the end of the billing period.
+- [ ] **Two "shift ready" numbers on the Overview** (seen 2026-11-06 recording the demo video). The Shift readiness card says "23 of 25 staff cleared to work" (`OverviewPanel.tsx`: RSA not expired and not inactive), while the Training gaps card on the same screen says "14 of 25 staff are shift-ready" (`countShiftReadyStaff` in `lib/management/skill-gaps.ts`: no high-risk training gap). Two different measures with nearly the same name read as a contradiction. Rename one so each says what it counts (for example "cleared to work" and "with no high-risk training gap"), or make Shift readiness use both.
 - [ ] **Record what each AI call costs** (2026-10-20). No route keeps the token counts OpenAI returns, so the cost estimate is worked out from prompt sizes, not measured. Log `usage.prompt_tokens`, `usage.prompt_tokens_details.cached_tokens` and `usage.completion_tokens` from every call (Live Guest, AI Coach, manager coach, translate, applicant marking and summary) as one structured line, or into `ai_usage`, so a monthly cost per venue can be read off. Also confirms the Live Guest rules block is being cached.
 
 - [ ] **Certificate expiry emails** (on `/roadmap` as "Building now", 2026-10-23). The Compliance tab tracks RSA and FSS expiry, but nothing reaches a manager who isn't signed in. Email the venue's managers 30 and 7 days before a certificate expires, from the existing notifications cron (`app/api/cron/notifications`, Brevo), with the usual unsubscribe link. Once it is live, `/solutions/hotel-fb` and `/vs-generic-lms` can say managers are alerted before a certificate lapses (softened to "expiry date on the Compliance tab" on 2026-10-23).
@@ -69,6 +70,8 @@ Small changes, in the order they will be done. Each goes to a preview branch fir
 
 - [ ] **Turn on leaked password protection in Supabase** (2026-10-23, from the Supabase security advisor). Authentication, Sign In / Providers, Email, "Prevent use of leaked passwords". Needs the Pro plan, which the backups item in section 1 calls for anyway.
 - [ ] **Find what caused the 503s** (2026-10-23). A crawl of the site from one address (about 150 requests in a minute) had the home page and `/roadmap` hang and return 503 for a few minutes. Not the bot settings: AI Crawl Control (checked 2026-10-27) lets Googlebot through (158 of 159 requests) and blocks only AI training crawlers, which is on purpose. A hanging page and a 503 point to the Workers Free plan's limits instead. Check Workers & Pages, Plans, and the project's Metrics for 23 October for "exceeded CPU" errors; the fix is Workers Paid (see Upgrades).
+
+- [ ] **Check `/applicant-testing` is on Google** (from 3 November 2026). Indexing was requested and the sitemap resubmitted on 2026-10-27. In Search Console, URL Inspection, paste `https://servebyexample.co/applicant-testing`: it should say "URL is on Google". If it says "Discovered" or "Crawled, currently not indexed" after two weeks, tell Claude.
 
 - [ ] **Set a monthly spending limit on the OpenAI project** (2026-10-20). Platform settings, Limits. Estimated worst case today is about US$7 a month for a 15-person venue using Live Guest an hour a day each, so a limit of US$50 to start gives plenty of room and stops a runaway.
 
@@ -136,6 +139,27 @@ Onboarding was cut to the venue code alone on 2026-10-17: the venue type and exp
 - [ ] **Show the manager who has shift reminders on.** The reminders are built (Rich update, Phase 12, 2026-10-20: `shift_schedules.reminder_time` and `push_subscriptions`). A column or a line on the Staff tab would do.
 - [ ] **"What should we call you?" as the first onboarding question.** Many accounts have no name, so the app and emails fall back to the email address (info@ reads "Info"). Ask for a first name at sign-up or as onboarding step one, prefilled from the email, and save it with `/api/profile/update-name`. The manager's roster shows the same name.
 - [ ] **Offer the skill check at the end of onboarding.** The skill check itself was built in the Rich update (Phase 5, `/mobile/onboarding`); today it's a prompt on the mobile Learn hub. Ending onboarding on it would have a new hire training straight away, and the manager would see their starting point on day one.
+
+### Interactive demo on `/demo`
+
+A click-through walkthrough of the product for `/demo`, built in Arcade (arcade.software; Storylane does the same). Today `/demo` is the scripted Live Guest with Sharon only. Kept separate from the demo video, which is a plain walkthrough with a voiceover.
+
+- **Rules (owner's research, 2026-11-05):** 12 hotspot steps, not 3 or 4 and not 20. One path from start to finish, written for the buyer (owner or manager). The aha moment first. Every hotspot is a sales line about what the buyer gets, under 15 words, never "click here". AI voiceover on each step. Cream background (`--bg`), brand green hotspots.
+- **The 12 steps.** Staff steps 1 to 7 recorded at phone width, manager steps 8 to 12 on desktop, then one CTA screen.
+  1. Live Guest, Sharon's opening line: "Your new starter, a real complaint, before they ever face one on the floor."
+  2. A reply, her mood moves: "She talks back. Say the wrong thing and she gets worse, just like a real guest."
+  3. The debrief, with the dollars at stake: "Every reply scored. What they missed, and what it would have cost you."
+  4. Mobile Today, "Ready for your shift?": "Six questions before every shift. Two minutes, on their own phone."
+  5. Pre-shift finish screen and shift streak: "They turn up ready, and the streak keeps them coming back."
+  6. Saturday Rush mid-shift: "A two-hour Saturday rush in twelve calls. Pressure, without the real cost."
+  7. Modules path: "40 modules across bar, sales and management. Nothing to write yourself."
+  8. Console Overview: "Now your side. Who's ready for tonight, at a glance."
+  9. RSA expiry notice: "RSA about to lapse? You know before the inspector does."
+  10. Venue Content, add a special, AI drafts questions: "New cocktail on the menu? Add it, and your whole team is quizzed on it tonight."
+  11. This Week briefing card: "Your pre-shift briefing, written for you from what the team got wrong."
+  12. Applicant Testing report: "Test applicants before the trial shift. See how they think, not just their CV."
+- **Before recording:** a demo venue with realistic staff, one RSA close to expiry, a briefing card with data, and one finished applicant report. No real people's names.
+- **After two weeks live:** read Arcade's drop-off by step and cut the step where people leave.
 
 ## Important
 
