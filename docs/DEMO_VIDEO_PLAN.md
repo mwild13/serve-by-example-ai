@@ -319,7 +319,7 @@ One message with all your notes is better than one note at a time. If you can't 
 
 - **The picture:** a frame from scene 1 (Sharon on the phone, on cream) with a round play button on it and "Watch the 30 second demo" underneath. People click play buttons.
 - **The GIF:** the same picture with 3 seconds of movement (Sharon's line appearing). Under 1 MB. Outlook on Windows only shows the first frame, which is why the first frame is the still picture.
-- **The link:** `servebyexample.co/watch` with campaign tags, so you can see in Analytics which emails got clicks, for example `https://servebyexample.co/watch?utm_source=email&utm_medium=email&utm_campaign=demo-video`.
+- **The link:** `servebyexample.co/watch` with campaign tags, so you can see in Analytics which emails got clicks, for example `https://servebyexample.co/watch?utm_source=email&utm_medium=cold&utm_campaign=2026-11-demo-video`.
 - **The picture files:** `https://servebyexample.co/video/sbe-demo-email.jpg` and `https://servebyexample.co/video/sbe-demo-email.gif`, for the image in an email.
 - **Alt text** (what shows if pictures are blocked): "Watch: Serve By Example in 30 seconds".
 
@@ -331,6 +331,47 @@ One message with all your notes is better than one note at a time. If you can't 
 - "Your new starter, before their first shift"
 - "30 seconds: training that happens before the rush"
 - "What if Sharon's cold parmy wasn't their first complaint?"
+
+### The outreach email (written 2026-11-07)
+
+For venues on the outreach list, sent by hand from info@servebyexample.co. The `{...}` parts are filled in per venue. Two emails at most: this one, and the follow-up about four days later in the same thread. Then stop.
+
+**Subject:** Your new starter, before their first shift
+(Others to try: "Saw {Venue} is hiring", "Training that happens before the rush")
+
+> Hi {first name},
+>
+> Saw {Venue} is hiring a {role}, so this might be good timing.
+>
+> Serve By Example is staff training built for Australian venues. New starters practise on their phone before their first shift, including talking to a guest whose parmy came out cold. You see who's ready for the floor and whose RSA is about to run out. And before you hire, you can send applicants a short test and see how they think.
+>
+> Here's 30 seconds of it:
+>
+> [the email GIF, linked to the /watch link]
+>
+> If it looks useful, you can try it free for 14 days at servebyexample.co.
+>
+> Cheers,
+> The Serve By Example team
+> servebyexample.co
+>
+> You're getting this because {Venue}'s business email is published on {where you found it}. Not for you? Reply "stop" and we won't email again.
+
+**Follow-up** (about four days later, reply in the same thread):
+
+> Hi {first name},
+>
+> Just in case this got buried: the 30 second video is here, {/watch link}. Or try the practice guest yourself, about a minute and no sign-up: {/demo link}
+>
+> Cheers,
+> The Serve By Example team
+>
+> Not for you? Reply "stop" and we won't email again.
+
+- **Links:** `https://servebyexample.co/watch?utm_source=email&utm_medium=cold&utm_campaign=2026-11-demo-video`, and the same tags on `/demo` in the follow-up.
+- **The picture in Gmail:** Insert photo, then Web address (URL), paste `https://servebyexample.co/video/sbe-demo-email.gif`, then select the picture and add the /watch link to it.
+- **Rules (Spam Act 2003, `AGENTS_SOCIALS.md`):** published business addresses only, the business is named, every "stop" honoured within 5 working days and added to the stop list.
+- **"Hiring" line:** only for venues found through a current job ad; otherwise start at "Serve By Example is...".
 
 ---
 

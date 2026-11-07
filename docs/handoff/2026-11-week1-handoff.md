@@ -1,6 +1,6 @@
 # Handoff: November 2026, Week 1
 
-Work from 2026-11-03 to 2026-11-07: the Instagram launch was pushed back, all 8 posts were rebuilt in Canva, Facebook was added to the plan, and database Disk I/O was investigated and cut (Part 5). Earlier work is in `docs/handoff/2026-10-week4-applicant-testing-handoff.md`. Open items are in `To_do_list.md`. No app code changed this week; Part 5 changed two cron jobs with a migration. The rules for all social work are in `AGENTS_SOCIALS.md`.
+Work from 2026-11-03 to 2026-11-07: the Instagram launch was pushed back, all 8 posts were rebuilt in Canva, Facebook was added to the plan, database Disk I/O was investigated and cut (Part 5), and the demo video was made and put on the site (Part 6). Earlier work is in `docs/handoff/2026-10-week4-applicant-testing-handoff.md`. Open items are in `To_do_list.md`. Part 5 changed two cron jobs with a migration; Part 6 added the demo video to the marketing site (on the `demo-nov-7` preview, not yet in production). The rules for all social work are in `AGENTS_SOCIALS.md`.
 
 ## Part 1: the launch moved to Thursday 5 November
 
@@ -124,16 +124,50 @@ from pg_stat_wal w, pg_stat_checkpointer c;
 - `cron.log_run` off. That would stop the run log, but the run history would be lost.
 - Cleaning up `cron.job_run_details`, which grows by about 385 rows a day and is never trimmed. That means deleting from a Supabase-managed table; it is a storage question, not an I/O one.
 
+## Part 6: the demo video, and where it lives on the site
+
+- **Date:** 2026-11-05 to 2026-11-07
+- **Plan and how-to:** `docs/DEMO_VIDEO_PLAN.md` (status line at the top). The video project, recording scripts and final files are outside the repo in `~/Desktop/sbe-demo-video/` (`recording/README.md` says how to remake it).
+- **Preview:** branch `demo-nov-7`, https://demo-nov-7.serve-by-example-ai.pages.dev. Not pushed to production at the time of writing.
+
+**What was made.** A product walkthrough of the real app in iPhone and MacBook frames on cream, with an ElevenLabs voice (a soft Australian man, voice ID `SoaRWikKz4NlziP1avV9`) and ElevenLabs music (option 2, the owner's pick). Recorded with Playwright, built with Remotion, all by Claude; the owner chose the script wording, voice and music and reviewed two drafts.
+
+| Version | Length | Where |
+|---|---|---|
+| Main | 59s | `/how-it-works`, and "Watch with sound" on the home page |
+| Email cut | 30s | `/watch`, where emails link to |
+| Silent loop | 13s | Home page, new section under the hero ("See it in a minute.") |
+| Vertical 9:16 | 23s | Instagram Reels and Stories; not on the site |
+| Poster, email picture, email GIF, captions (.vtt) | | `public/video/` |
+
+**Code.** `components/marketing/DemoVideo.tsx` (`DemoVideoLoop`, `DemoVideoPlayer`), `app/(marketing)/watch/page.tsx`, a section in `app/(marketing)/page.tsx` and `how-it-works/page.tsx`, styles at the end of `app/styles/marketing.css`, `/watch` in the sitemap. Analytics events: `demo_video_open` (home, with sound) and `demo_video_play` (`/watch`, `/how-it-works`). The loop only downloads near the screen, has a pause button, and shows the poster to anyone who asks for less motion.
+
+**Cloudflare catch, fixed.** The videos 404'd on the preview: `build:cloudflare` writes `_routes.json`, and only paths on its `exclude` list are served as plain files; everything else goes to the worker, which 404s files. `/video/*` is now on the list. Noted in `docs/MARKETING_SITE.md` section 2 for any future file type.
+
+**Production data changed for the recording** (the owner's own demo venue, "The Observatory Rooftop Bar" under mitch@serve-by-example.com, approved in chat):
+
+- Its 25 staff's last active times moved forward to early November; the 3 expired RSAs and 4 expired FSS dates moved to 2027 and 2028; Layla Reyes' RSA set to 10 Nov 2026 so the "expiring within 7 days" notice shows; its 134 `training_activity_daily` rows moved forward 11 days.
+- One Venue Content item, "Smoked Pineapple Margarita", drafted by the AI with 5 questions; 1 approved (in that venue's drills).
+- Undo SQL: `~/Desktop/sbe-demo-video/recording/observatory-undo-2026-11-06.sql`. These dates go stale again; refresh them before any re-recording.
+
+**Also found:** the Overview shows "23 of 25 staff cleared to work" and "14 of 25 staff are shift-ready" on one screen (two different measures). Added to `To_do_list.md`, section 2.
+
 ## Commits
 
 - `d018c71` docs: Instagram launch moved to 5 Nov, Canva master route and ManyChat free plan rules (`AGENTS_SOCIALS.md`).
 - This handoff, with `AGENTS_SOCIALS.md` updated for Facebook (section 2 channel row and a Facebook block in section 5).
 - `8f1eda9` chore: skip cron HTTP calls when there is nothing to do (the Part 5 migration, rollback, and a line each in `docs/STAFF_APP.md` and `docs/APPLICANT_TESTING.md`).
-- Not pushed at the time of writing. `To_do_list.md` had changes from another session and was left out.
+- `709ebf5` docs: demo video plan, interactive /demo and shift-ready to-do items.
+- `ffb2559` feat: demo video on the home page and How It Works, and a /watch page for emails.
+- `6c7fa75` fix: serve the demo video files on Cloudflare.
+- All of the above are on the `demo-nov-7` preview (pushed 2026-11-07), not yet in production.
 
 ## Left open
 
 - Owner jobs j1 to j15 in the kit, including the Facebook Page, filters and ManyChat check, all before Thu 5 Nov.
 - Film Reel 1 by Mon 9 Nov.
 - Offered, not done: a Facebook cover in Canva in the house style, and short `/fb/` redirect links like the existing `/ig/` ones.
+- **Demo video to production:** after the preview check, the owner says "push to production".
+- **iPhone check before emails go out:** the preview answers part-of-file (Range) requests with the whole file (200, not 206). Chrome plays it; iPhone Safari may refuse. Open `/watch` on an iPhone and press play. If it fails, host the MP4s somewhere that supports Range (Cloudflare R2 with a public domain is the likely fix) and point `components/marketing/DemoVideo.tsx` at it.
+- **Outreach email with the video:** written 2026-11-07, in `docs/DEMO_VIDEO_PLAN.md` section 10. Starts with the outreach on Mon 9 Nov, once the video is in production.
 - Disk I/O: check Reports > Database > Disk IO in the Supabase dashboard over the next week. If it spikes while the database is quiet, raise it with Supabase support.
